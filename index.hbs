@@ -1,0 +1,270 @@
+
+    <!-------------------------- PRECIOS ENVIOS -->         
+    <div id="ciudadRFirebase" style=" display: none;" ></div>
+          
+          <div id="codigoFirebase3" style=" display: none;" ></div>
+          <div id="codigoFirebase4" style=" display: none;" ></div>
+          <div id="nomRem" style=" display: none;" ></div>
+          <div id="dirRem" style=" display: none;" ></div>
+          <div id="barrioRem" style=" display: none;" ></div>
+          <div id="celRem" style=" display: none;" ></div>
+              
+    <div id="preciosEnvios-mostrar-ocultar" style="display: block;">
+     <div class="container-fluid">
+   
+       <!-- Page Heading -->
+       <h1 class="h3 mb-1 text-gray-800">Seleccionar transportadora</h1>
+       <!--
+       <p class="mb-4">Bootstrap's default utility classes can be found on the official <a href="https://getbootstrap.com/docs">Bootstrap Documentation</a> page. The custom utilities below were created to extend this theme past the default utility classes built into Bootstrap's framework.</p>
+   -->
+   </br>
+       <!-- Content Row -->
+       <div class="row">
+   
+         <!-- TCC -->
+         <div class="col-lg-6">
+   
+           <div class="card position-relative">
+             <div class="card-header py-3">
+               <h6 class="m-0 font-weight-bold text-primary">
+                 <img src="https://upload.wikimedia.org/wikipedia/commons/a/a8/Logo_TCC.svg" width="67" height="67" alt="">
+               </h6>
+               
+             </div>
+             <div class="card-body">
+               <div class="mb-3">
+                 <code>TRAYECTO: no hay cobertura</code>
+               </div>
+               <div class="small mb-1">TIEMPO DE ENTREGA: 
+
+
+
+												N.D
+
+
+
+
+											Días</div>
+               <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+                 <a class="navbar-brand" href="#">PRECIO: 0</a>
+                 <!--
+                 <ul class="navbar-nav ml-auto">
+                   <li class="nav-item dropdown">
+                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                       Dropdown
+                     </a>
+                     <div class="dropdown-menu dropdown-menu-right animated--grow-in" aria-labelledby="navbarDropdown">
+                       <a class="dropdown-item" href="#">Action</a>
+                       <a class="dropdown-item" href="#">Another action</a>
+                       <div class="dropdown-divider"></div>
+                       <a class="dropdown-item" href="#">Something else here</a>
+                     </div>
+                     
+                    
+                   </li>
+                 </ul>
+                 -->
+                 
+               </nav>
+               
+               <form action="listarGuiaTcc" method="post">
+   
+     
+   
+   
+     <input   value="CUCUTA(NORTE DE SANTANDER)" type="hidden" class="form-control" name="ciudadRLetra" required>
+   
+     <input   value="6447  " type="hidden" class="form-control" name="ciudadRNumero" required>
+     <input   value="" type="hidden" class="form-control" name="ciudadDNumero" required>
+     <input   value="
+
+
+
+												N.D
+
+
+
+
+											" type="hidden" class="form-control" name="tiempoEnvia" required>
+     <input   value="0" type="hidden" class="form-control" name="seguroEnvia" required>
+     <input   value="0" type="hidden" class="form-control" name="comisionRecaudoEnvia" required>
+     <input   value="0" type="hidden" class="form-control" name="envioEnvia" required>
+     <input   value="no hay cobertura" type="hidden" class="form-control" name="trayectoenvia" required>
+      <input   value="medel" type="hidden" class="form-control" name="ciudadDLetra" required>
+     <input   value="1" type="hidden" class="form-control" name="kilos" required>
+     <input  value="1" type="hidden" class="form-control" name="unidades" required>
+     <input value="10000" type="hidden" class="form-control" name="seguro" required>
+      <input value="90000" type="hidden" class="form-control" name="recaudo" required>
+   
+   
+     
+       
+   
+               
+               <button disabled="true" class="btn btn-danger" type="submit" id="dropdownMenuButton"  aria-haspopup="true" aria-expanded="false">
+                 CREAR GUÍA
+               </button>
+               
+               </form>
+               
+               <!--
+               <p class="mb-0 small">NOTA: This utility animates the CSS transform property, meaning it will override any existing transforms on an element being animated! In this theme, the grow in animation is only being used on dropdowns within the navbar.</p>
+                 -->
+   
+             </div>
+             
+             
+           </div>
+   
+         </div>
+   
+          <!-- ENVIA -->
+          <div class="col-lg-6">
+   
+           <div class="card position-relative">
+             <div class="card-header py-3">
+               <h6 class="m-0 font-weight-bold text-primary">
+                 <img src="img/2001.png" height="50" width="80" alt="">
+               </h6>
+             </div>
+             <div class="card-body">
+               <div class="mb-3">
+                 <code>TRAYECTO: no hay cobertura</code>
+               </div>
+               <div class="small mb-1">TIEMPO DE ENTREGA: 
+
+
+
+												.
+
+
+
+
+											Días</div>
+               <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+                 <a class="navbar-brand" href="#">PRECIO: 0</a>
+                 <!--
+                 <ul class="navbar-nav ml-auto">
+                   <li class="nav-item dropdown">
+                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                       Dropdown
+                     </a>
+                     <div class="dropdown-menu dropdown-menu-right animated--grow-in" aria-labelledby="navbarDropdown">
+                       <a class="dropdown-item" href="#">Action</a>
+                       <a class="dropdown-item" href="#">Another action</a>
+                       <div class="dropdown-divider"></div>
+                       <a class="dropdown-item" href="#">Something else here</a>
+                     </div>
+                    
+                   </li>
+                 </ul>
+                 -->
+               </nav>
+   
+               <form action="listarGuiaEnvia" method="post">
+   <div class="form-row">
+     
+   
+   
+     <input   value="CUCUTA(NORTE DE SANTANDER)" type="hidden" class="form-control" name="ciudadRLetra" required>
+   
+     <input   value="6447  " type="hidden" class="form-control" name="ciudadRNumero" required>
+     <input   value="" type="hidden" class="form-control" name="ciudadDNumero" required>
+     <input   value="
+
+
+
+												.
+
+
+
+
+											" type="hidden" class="form-control" name="tiempoEnvia" required>
+     <input   value="0" type="hidden" class="form-control" name="seguroEnvia" required>
+     <input   value="4000" type="hidden" class="form-control" name="comisionRecaudoEnvia" required>
+     <input   value="0" type="hidden" class="form-control" name="envioEnvia" required>
+     <input   value="no hay cobertura" type="hidden" class="form-control" name="trayectoenvia" required>
+     <input   value="medel" type="hidden" class="form-control" name="ciudadDLetra" required>
+     <input   value="1" type="hidden" class="form-control" name="kilos" required>
+     <input  value="1" type="hidden" class="form-control" name="unidades" required>
+     <input value="10000" type="hidden" class="form-control" name="seguro" required>
+      <input value="90000" type="hidden" class="form-control" name="recaudo" required>
+   
+      
+   
+               
+               <button disabled="true"  class="btn btn-primary" type="submit" id="dropdownMenuButton"  aria-haspopup="true" aria-expanded="false">
+                 CREAR GUÍA
+               </button>
+               
+               </form>
+               <p></p>
+               <!--
+               <p class="mb-0 small">NOTA: This utility animates the CSS transform property, meaning it will override any existing transforms on an element being animated! In this theme, the grow in animation is only being used on dropdowns within the navbar.</p>
+             -->
+   
+             </div>
+             
+             
+           </div>
+   
+         </div>
+   
+        
+   
+         <!-- Fade In Utility -->
+         <!--
+         <div class="col-lg-6">
+   
+           <div class="card position-relative">
+             <div class="card-header py-3">
+               <h6 class="m-0 font-weight-bold text-primary">Fade In Animation Utilty</h6>
+             </div>
+             <div class="card-body">
+               <div class="mb-3">
+                 <code>.animated--fade-in</code>
+               </div>
+               <div class="small mb-1">Navbar Dropdown Example:</div>
+               <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+                 <a class="navbar-brand" href="#">Navbar</a>
+                 <ul class="navbar-nav ml-auto">
+                   <li class="nav-item dropdown">
+                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                       Dropdown
+                     </a>
+                     <div class="dropdown-menu dropdown-menu-right animated--fade-in" aria-labelledby="navbarDropdown">
+                       <a class="dropdown-item" href="#">Action</a>
+                       <a class="dropdown-item" href="#">Another action</a>
+                       <div class="dropdown-divider"></div>
+                       <a class="dropdown-item" href="#">Something else here</a>
+                     </div>
+                   </li>
+                 </ul>
+               </nav>
+               <div class="small mb-1">Dropdown Button Example:</div>
+               <div class="dropdown mb-4">
+                 <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                   Dropdown
+                 </button>
+                 <div class="dropdown-menu animated--fade-in" aria-labelledby="dropdownMenuButton">
+                   <a class="dropdown-item" href="#">Action</a>
+                   <a class="dropdown-item" href="#">Another action</a>
+                   <a class="dropdown-item" href="#">Something else here</a>
+                 </div>
+               </div>
+               <p class="mb-0 small">Note: This utility animates the CSS opacity property, meaning it will override any existing opacity on an element being animated!</p>
+             </div>
+           </div>
+   
+         </div>
+       -->
+       
+       </div>
+   
+     </div>
+     <!-- /.container-fluid -->
+     </div>
+   <!--------------------------------------------------------------------------------->
+   
+    
+    

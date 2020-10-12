@@ -1,0 +1,2887 @@
+<!--
+/*
+| ----------------------------------------------------------------- |
+ILA SOLUTIONS
+Medellin - Colombia
+=====================================================================
+| ----------------------------------------------------------------- | 
+*/
+-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script language=JavaScript>
+/**
+This is a JavaScript library that will allow you to easily add some basic DHTML
+drop-down datepicker functionality to your Notes forms. This script is not as
+full-featured as others you may find on the Internet, but it's free, it's easy to
+understand, and it's easy to change.
+
+You'll also want to include a stylesheet that makes the datepicker elements
+look nice. An example one can be found in the database that this script was
+originally released with, at:
+
+http://www.nsftools.com/tips/NotesTips.htm#datepicker
+
+I've tested this lightly with Internet Explorer 6 and Mozilla Firefox. I have no idea
+how compatible it is with other browsers.
+
+version 1.5
+December 4, 2005
+Julian Robichaux -- http://www.nsftools.com
+
+HISTORY
+--  version 1.0 (Sept. 4, 2004):
+Initial release.
+
+--  version 1.1 (Sept. 5, 2004):
+Added capability to define the date format to be used, either globally (using the
+defaultDateSeparator and defaultDateFormat variables) or when the displayDatePicker
+function is called.
+
+--  version 1.2 (Sept. 7, 2004):
+Fixed problem where datepicker x-y coordinates weren't right inside of a table.
+Fixed problem where datepicker wouldn't display over selection lists on a page.
+Added a call to the datePickerClosed function (if one exists) after the datepicker
+is closed, to allow the developer to add their own custom validation after a date
+has been chosen. For this to work, you must have a function called datePickerClosed
+somewhere on the page, that accepts a field object as a parameter. See the
+example in the comments of the updateDateField function for more details.
+
+--  version 1.3 (Sept. 9, 2004)
+Fixed problem where adding the <div> and <iFrame> used for displaying the datepicker
+was causing problems on IE 6 with global variables that had handles to objects on
+the page (I fixed the problem by adding the elements using document.createElement()
+and document.body.appendChild() instead of document.body.innerHTML += ...).
+
+--  version 1.4 (Dec. 20, 2004)
+Added "targetDateField.focus();" to the updateDateField function (as suggested
+by Alan Lepofsky) to avoid a situation where the cursor focus is at the top of the
+form after a date has been picked. Added "padding: 0px;" to the dpButton CSS
+style, to keep the table from being so wide when displayed in Firefox.
+
+-- version 1.5 (Dec 4, 2005)
+Added display=none when datepicker is hidden, to fix problem where cursor is
+not visible on input fields that are beneath the date picker. Added additional null
+date handling for date errors in Safari when the date is empty. Added additional
+error handling for iFrame creation, to avoid reported errors in Opera. Added
+onMouseOver event for day cells, to allow color changes when the mouse hovers
+over a cell (to make it easier to determine what cell you're over). Added comments
+in the style sheet, to make it more clear what the different style elements are for.
+*/
+
+var datePickerDivID = "datepicker";
+var iFrameDivID = "datepickeriframe";
+
+var dayArrayShort = new Array('Do', 'Lu', 'Mar', 'Mie', 'Ju', 'Vi', 'Sa');
+var dayArrayMed = new Array('Dom', 'Lun', 'Mar', 'Mier', 'Jue', 'Vie', 'Sab');
+var dayArrayLong = new Array('Domingo', 'Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabadi');
+var monthArrayShort = new Array('Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic');
+var monthArrayMed = new Array('Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Agp', 'Sept', 'Oct', 'Nov', 'Dic');
+var monthArrayLong = new Array('Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Augosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre');
+ 
+// these variables define the date formatting we're expecting and outputting.
+// If you want to use a different format by default, change the defaultDateSeparator
+// and defaultDateFormat variables either here or on your HTML page.
+var defaultDateSeparator = "/";        // common values would be "/" or "."
+var defaultDateFormat = "ymd"    // valid values are "mdy", "dmy", and "ymd"
+var dateSeparator = defaultDateSeparator;
+var dateFormat = defaultDateFormat;
+
+/**
+This is the main function you'll call from the onClick event of a button.
+Normally, you'll have something like this on your HTML page:
+
+Start Date: <input name="StartDate">
+<input type=button value="select" onclick="displayDatePicker('StartDate');">
+
+That will cause the datepicker to be displayed beneath the StartDate field and
+any date that is chosen will update the value of that field. If you'd rather have the
+datepicker display beneath the button that was clicked, you can code the button
+like this:
+
+<input type=button value="select" onclick="displayDatePicker('StartDate', this);">
+
+So, pretty much, the first argument (dateFieldName) is a string representing the
+name of the field that will be modified if the user picks a date, and the second
+argument (displayBelowThisObject) is optional and represents an actual node
+on the HTML document that the datepicker should be displayed below.
+
+In version 1.1 of this code, the dtFormat and dtSep variables were added, allowing
+you to use a specific date format or date separator for a given call to this function.
+Normally, you'll just want to set these defaults globally with the defaultDateSeparator
+and defaultDateFormat variables, but it doesn't hurt anything to add them as optional
+parameters here. An example of use is:
+
+<input type=button value="select" onclick="displayDatePicker('StartDate', false, 'dmy', '.');">
+
+This would display the datepicker beneath the StartDate field (because the
+displayBelowThisObject parameter was false), and update the StartDate field with
+the chosen value of the datepicker using a date format of dd.mm.yyyy
+*/
+function displayDatePicker(dateFieldName, displayBelowThisObject, dtFormat, dtSep)
+{
+  var targetDateField = document.getElementsByName (dateFieldName).item(0);
+ 
+  // if we weren't told what node to display the datepicker beneath, just display it
+  // beneath the date field we're updating
+  if (!displayBelowThisObject)
+    displayBelowThisObject = targetDateField;
+ 
+  // if a date separator character was given, update the dateSeparator variable
+  if (dtSep)
+    dateSeparator = dtSep;
+  else
+    dateSeparator = defaultDateSeparator;
+ 
+  // if a date format was given, update the dateFormat variable
+  if (dtFormat)
+    dateFormat = dtFormat;
+  else
+    dateFormat = defaultDateFormat;
+ 
+  var x = displayBelowThisObject.offsetLeft;
+  var y = displayBelowThisObject.offsetTop + displayBelowThisObject.offsetHeight ;
+ 
+  // deal with elements inside tables and such
+  var parent = displayBelowThisObject;
+  while (parent.offsetParent) {
+    parent = parent.offsetParent;
+    x += parent.offsetLeft;
+    y += parent.offsetTop ;
+  }
+ 
+  drawDatePicker(targetDateField, x, y);
+}
+
+
+/**
+Draw the datepicker object (which is just a table with calendar elements) at the
+specified x and y coordinates, using the targetDateField object as the input tag
+that will ultimately be populated with a date.
+
+This function will normally be called by the displayDatePicker function.
+*/
+function drawDatePicker(targetDateField, x, y)
+{
+  var dt = getFieldDate(targetDateField.value );
+ 
+  // the datepicker table will be drawn inside of a <div> with an ID defined by the
+  // global datePickerDivID variable. If such a div doesn't yet exist on the HTML
+  // document we're working with, add one.
+  if (!document.getElementById(datePickerDivID)) {
+    // don't use innerHTML to update the body, because it can cause global variables
+    // that are currently pointing to objects on the page to have bad references
+    //document.body.innerHTML += "<div id='" + datePickerDivID + "' class='dpDiv'></div>";
+    var newNode = document.createElement("div");
+    newNode.setAttribute("id", datePickerDivID);
+    newNode.setAttribute("class", "dpDiv");
+    newNode.setAttribute("style", "visibility: hidden;");
+    document.body.appendChild(newNode);
+  }
+ 
+  // move the datepicker div to the proper x,y coordinate and toggle the visiblity
+  var pickerDiv = document.getElementById(datePickerDivID);
+  pickerDiv.style.position = "absolute";
+  pickerDiv.style.left = x + "px";
+  pickerDiv.style.top = y + "px";
+  pickerDiv.style.visibility = (pickerDiv.style.visibility == "visible" ? "hidden" : "visible");
+  pickerDiv.style.display = (pickerDiv.style.display == "block" ? "none" : "block");
+  pickerDiv.style.zIndex = 10000;
+ 
+  // draw the datepicker table
+  refreshDatePicker(targetDateField.name, dt.getFullYear(), dt.getMonth(), dt.getDate());
+}
+
+
+/**
+This is the function that actually draws the datepicker calendar.
+*/
+function refreshDatePicker(dateFieldName, year, month, day)
+{
+  // if no arguments are passed, use today's date; otherwise, month and year
+  // are required (if a day is passed, it will be highlighted later)
+  var thisDay = new Date();
+ 
+  if ((month >= 0) && (year > 0)) {
+    thisDay = new Date(year, month, 1);
+  } else {
+    day = thisDay.getDate();
+    thisDay.setDate(1);
+  }
+ 
+  // the calendar will be drawn as a table
+  // you can customize the table elements with a global CSS style sheet,
+  // or by hardcoding style and formatting elements below
+  var crlf = "\r\n";
+  var TABLE = "<table cols=7 class='dpTable'>" + crlf;
+  var xTABLE = "</table>" + crlf;
+  var TR = "<tr class='dpTR'>";
+  var TR_title = "<tr class='dpTitleTR'>";
+  var TR_days = "<tr class='dpDayTR'>";
+  var TR_todaybutton = "<tr class='dpTodayButtonTR'>";
+  var xTR = "</tr>" + crlf;
+  var TD = "<td class='dpTD' onMouseOut='this.className=\"dpTD\";' onMouseOver=' this.className=\"dpTDHover\";' ";    // leave this tag open, because we'll be adding an onClick event
+  var TD_title = "<td colspan=5 class='dpTitleTD'>";
+  var TD_buttons = "<td class='dpButtonTD'>";
+  var TD_todaybutton = "<td colspan=7 class='dpTodayButtonTD'>";
+  var TD_days = "<td class='dpDayTD'>";
+  var TD_selected = "<td class='dpDayHighlightTD' onMouseOut='this.className=\"dpDayHighlightTD\";' onMouseOver='this.className=\"dpTDHover\";' ";    // leave this tag open, because we'll be adding an onClick event
+  var xTD = "</td>" + crlf;
+  var DIV_title = "<div class='dpTitleText'>";
+  var DIV_selected = "<div class='dpDayHighlight'>";
+  var xDIV = "</div>";
+ 
+  // start generating the code for the calendar table
+  var html = TABLE;
+ 
+  // this is the title bar, which displays the month and the buttons to
+  // go back to a previous month or forward to the next month
+  html += TR_title;
+  html += TD_buttons + getButtonCode(dateFieldName, thisDay, -1, "&lt;") + xTD;
+  html += TD_title + DIV_title + monthArrayLong[ thisDay.getMonth()] + " " + thisDay.getFullYear() + xDIV + xTD;
+  html += TD_buttons + getButtonCode(dateFieldName, thisDay, 1, "&gt;") + xTD;
+  html += xTR;
+ 
+  // this is the row that indicates which day of the week we're on
+  html += TR_days;
+  for(i = 0; i < dayArrayShort.length; i++)
+    html += TD_days + dayArrayShort[i] + xTD;
+  html += xTR;
+ 
+  // now we'll start populating the table with days of the month
+  html += TR;
+ 
+  // first, the leading blanks
+  for (i = 0; i < thisDay.getDay(); i++)
+    html += TD + "&nbsp;" + xTD;
+ 
+  // now, the days of the month
+  do {
+    dayNum = thisDay.getDate();
+    TD_onclick = " onclick=\"updateDateField('" + dateFieldName + "', '" + getDateString(thisDay) + "');\">";
+    
+    if (dayNum == day)
+      html += TD_selected + TD_onclick + DIV_selected + dayNum + xDIV + xTD;
+    else
+      html += TD + TD_onclick + dayNum + xTD;
+    
+    // if this is a Saturday, start a new row
+    if (thisDay.getDay() == 6)
+      html += xTR + TR;
+    
+    // increment the day
+    thisDay.setDate(thisDay.getDate() + 1);
+  } while (thisDay.getDate() > 1)
+ 
+  // fill in any trailing blanks
+  if (thisDay.getDay() > 0) {
+    for (i = 6; i > thisDay.getDay(); i--)
+      html += TD + "&nbsp;" + xTD;
+  }
+  html += xTR;
+ 
+  // add a button to allow the user to easily return to today, or close the calendar
+  var today = new Date();
+  var todayString = "Today is " + dayArrayMed[today.getDay()] + ", " + monthArrayMed[ today.getMonth()] + " " + today.getDate();
+  html += TR_todaybutton + TD_todaybutton;
+  html += "<button class='dpTodayButton' onClick='refreshDatePicker(\"" + dateFieldName + "\");'>Este Mes</button> ";
+  html += "<button class='dpTodayButton' onClick='updateDateField(\"" + dateFieldName + "\");'>Cerrar</button>";
+  html += xTD + xTR;
+ 
+  // and finally, close the table
+  html += xTABLE;
+ 
+  document.getElementById(datePickerDivID).innerHTML = html;
+  // add an "iFrame shim" to allow the datepicker to display above selection lists
+  adjustiFrame();
+}
+
+
+/**
+Convenience function for writing the code for the buttons that bring us back or forward
+a month.
+*/
+function getButtonCode(dateFieldName, dateVal, adjust, label)
+{
+  var newMonth = (dateVal.getMonth () + adjust) % 12;
+  var newYear = dateVal.getFullYear() + parseInt((dateVal.getMonth() + adjust) / 12);
+  if (newMonth < 0) {
+    newMonth += 12;
+    newYear += -1;
+  }
+ 
+  return "<button class='dpButton' onClick='refreshDatePicker(\"" + dateFieldName + "\", " + newYear + ", " + newMonth + ");'>" + label + "</button>";
+}
+
+
+/**
+Convert a JavaScript Date object to a string, based on the dateFormat and dateSeparator
+variables at the beginning of this script library.
+*/
+function getDateString(dateVal)
+{
+  var dayString = "00" + dateVal.getDate();
+  var monthString = "00" + (dateVal.getMonth()+1);
+  dayString = dayString.substring(dayString.length - 2);
+  monthString = monthString.substring(monthString.length - 2);
+ 
+  switch (dateFormat) {
+    case "dmy" :
+      return dayString + dateSeparator + monthString + dateSeparator + dateVal.getFullYear();
+    case "ymd" :
+      return dateVal.getFullYear() + dateSeparator + monthString + dateSeparator + dayString;
+    case "mdy" :
+    default :
+      return monthString + dateSeparator + dayString + dateSeparator + dateVal.getFullYear();
+  }
+}
+
+
+/**
+Convert a string to a JavaScript Date object.
+*/
+function getFieldDate(dateString)
+{
+  var dateVal;
+  var dArray;
+  var d, m, y;
+ 
+  try {
+    dArray = splitDateString(dateString);
+    if (dArray) {
+      switch (dateFormat) {
+        case "dmy" :
+          d = parseInt(dArray[0], 10);
+          m = parseInt(dArray[1], 10) - 1;
+          y = parseInt(dArray[2], 10);
+          break;
+        case "ymd" :
+          d = parseInt(dArray[2], 10);
+          m = parseInt(dArray[1], 10) - 1;
+          y = parseInt(dArray[0], 10);
+          break;
+        case "mdy" :
+        default :
+          d = parseInt(dArray[1], 10);
+          m = parseInt(dArray[0], 10) - 1;
+          y = parseInt(dArray[2], 10);
+          break;
+      }
+      dateVal = new Date(y, m, d);
+    } else if (dateString) {
+      dateVal = new Date(dateString);
+    } else {
+      dateVal = new Date();
+    }
+  } catch(e) {
+    dateVal = new Date();
+  }
+ 
+  return dateVal;
+}
+
+
+/**
+Try to split a date string into an array of elements, using common date separators.
+If the date is split, an array is returned; otherwise, we just return false.
+*/
+function splitDateString(dateString)
+{
+  var dArray;
+  if (dateString.indexOf("/") >= 0)
+    dArray = dateString.split("/");
+  else if (dateString.indexOf(".") >= 0)
+    dArray = dateString.split(".");
+  else if (dateString.indexOf("-") >= 0)
+    dArray = dateString.split("-");
+  else if (dateString.indexOf("\\") >= 0)
+    dArray = dateString.split("\\");
+  else
+    dArray = false;
+ 
+  return dArray;
+}
+
+/**
+Update the field with the given dateFieldName with the dateString that has been passed,
+and hide the datepicker. If no dateString is passed, just close the datepicker without
+changing the field value.
+
+Also, if the page developer has defined a function called datePickerClosed anywhere on
+the page or in an imported library, we will attempt to run that function with the updated
+field as a parameter. This can be used for such things as date validation, setting default
+values for related fields, etc. For example, you might have a function like this to validate
+a start date field:
+
+function datePickerClosed(dateField)
+{
+  var dateObj = getFieldDate(dateField.value);
+  var today = new Date();
+  today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+ 
+  if (dateField.name == "StartDate") {
+    if (dateObj < today) {
+      // if the date is before today, alert the user and display the datepicker again
+      alert("Please enter a date that is today or later");
+      dateField.value = "";
+      document.getElementById(datePickerDivID).style.visibility = "visible";
+      adjustiFrame();
+    } else {
+      // if the date is okay, set the EndDate field to 7 days after the StartDate
+      dateObj.setTime(dateObj.getTime() + (7 * 24 * 60 * 60 * 1000));
+      var endDateField = document.getElementsByName ("EndDate").item(0);
+      endDateField.value = getDateString(dateObj);
+    }
+  }
+}
+
+*/
+function updateDateField(dateFieldName, dateString)
+{
+  var targetDateField = document.getElementsByName (dateFieldName).item(0);
+  if (dateString)
+    targetDateField.value = dateString;
+ 
+  var pickerDiv = document.getElementById(datePickerDivID);
+  pickerDiv.style.visibility = "hidden";
+  pickerDiv.style.display = "none";
+ 
+  adjustiFrame();
+  targetDateField.focus();
+ 
+  // after the datepicker has closed, optionally run a user-defined function called
+  // datePickerClosed, passing the field that was just updated as a parameter
+  // (note that this will only run if the user actually selected a date from the datepicker)
+  if ((dateString) && (typeof(datePickerClosed) == "function"))
+    datePickerClosed(targetDateField);
+}
+
+
+/**
+Use an "iFrame shim" to deal with problems where the datepicker shows up behind
+selection list elements, if they're below the datepicker. The problem and solution are
+described at:
+
+http://dotnetjunkies.com/WebLog/jking/archive/2003/07/21/488.aspx
+http://dotnetjunkies.com/WebLog/jking/archive/2003/10/30/2975.aspx
+*/
+function adjustiFrame(pickerDiv, iFrameDiv)
+{
+  // we know that Opera doesn't like something about this, so if we
+  // think we're using Opera, don't even try
+  var is_opera = (navigator.userAgent.toLowerCase().indexOf("opera") != -1);
+  if (is_opera)
+    return;
+  
+  // put a try/catch block around the whole thing, just in case
+  try {
+    if (!document.getElementById(iFrameDivID)) {
+      // don't use innerHTML to update the body, because it can cause global variables
+      // that are currently pointing to objects on the page to have bad references
+      //document.body.innerHTML += "<iframe id='" + iFrameDivID + "' src='javascript:false;' scrolling='no' frameborder='0'>";
+      var newNode = document.createElement("iFrame");
+      newNode.setAttribute("id", iFrameDivID);
+      newNode.setAttribute("src", "javascript:false;");
+      newNode.setAttribute("scrolling", "no");
+      newNode.setAttribute ("frameborder", "0");
+      document.body.appendChild(newNode);
+    }
+    
+    if (!pickerDiv)
+      pickerDiv = document.getElementById(datePickerDivID);
+    if (!iFrameDiv)
+      iFrameDiv = document.getElementById(iFrameDivID);
+    
+    try {
+      iFrameDiv.style.position = "absolute";
+      iFrameDiv.style.width = pickerDiv.offsetWidth;
+      iFrameDiv.style.height = pickerDiv.offsetHeight ;
+      iFrameDiv.style.top = pickerDiv.style.top;
+      iFrameDiv.style.left = pickerDiv.style.left;
+      iFrameDiv.style.zIndex = pickerDiv.style.zIndex - 1;
+      iFrameDiv.style.visibility = pickerDiv.style.visibility ;
+      iFrameDiv.style.display = pickerDiv.style.display;
+    } catch(e) {
+    }
+ 
+  } catch (ee) {
+  }
+ 
+}
+
+
+</script>
+
+<style>
+body {
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+	font-size: .8em;
+	}
+
+/* the div that holds the date picker calendar */
+.dpDiv {
+	}
+
+
+/* the table (within the div) that holds the date picker calendar */
+.dpTable {
+	font-family: Tahoma, Arial, Helvetica, sans-serif;
+	font-size: 12px;
+	text-align: center;
+	color: #505050;
+	background-color: #ece9d8;
+	border: 1px solid #AAAAAA;
+	}
+
+
+/* a table row that holds date numbers (either blank or 1-31) */
+.dpTR {
+	}
+
+
+/* the top table row that holds the month, year, and forward/backward buttons */
+.dpTitleTR {
+	}
+
+
+/* the second table row, that holds the names of days of the week (Mo, Tu, We, etc.) */
+.dpDayTR {
+	}
+
+
+/* the bottom table row, that has the "This Month" and "Close" buttons */
+.dpTodayButtonTR {
+	}
+
+
+/* a table cell that holds a date number (either blank or 1-31) */
+.dpTD {
+	border: 1px solid #ece9d8;
+	}
+
+
+/* a table cell that holds a highlighted day (usually either today's date or the current date field value) */
+.dpDayHighlightTD {
+	background-color: #CCCCCC;
+	border: 1px solid #AAAAAA;
+	}
+
+
+/* the date number table cell that the mouse pointer is currently over (you can use contrasting colors to make it apparent which cell is being hovered over) */
+.dpTDHover {
+	background-color: #aca998;
+	border: 1px solid #888888;
+	cursor: pointer;
+	color: red;
+	}
+
+
+/* the table cell that holds the name of the month and the year */
+.dpTitleTD {
+	}
+
+
+/* a table cell that holds one of the forward/backward buttons */
+.dpButtonTD {
+	}
+
+
+/* the table cell that holds the "This Month" or "Close" button at the bottom */
+.dpTodayButtonTD {
+	}
+
+
+/* a table cell that holds the names of days of the week (Mo, Tu, We, etc.) */
+.dpDayTD {
+	background-color: #CCCCCC;
+	border: 1px solid #AAAAAA;
+	color: white;
+	}
+
+
+/* additional style information for the text that indicates the month and year */
+.dpTitleText {
+	font-size: 12px;
+	color: gray;
+	font-weight: bold;
+	}
+
+
+/* additional style information for the cell that holds a highlighted day (usually either today's date or the current date field value) */ 
+.dpDayHighlight {
+	color: 4060ff;
+	font-weight: bold;
+	}
+
+
+/* the forward/backward buttons at the top */
+.dpButton {
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: gray;
+	background: #d8e8ff;
+	font-weight: bold;
+	padding: 0px;
+	}
+
+
+/* the "This Month" and "Close" buttons at the bottom */
+.dpTodayButton {
+	font-family: Verdana, Tahoma, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: gray;
+	background: #d8e8ff;
+	font-weight: bold;
+	}
+
+</style><script language="JavaScript" type="text/javascript">
+<!--
+//cargadores globales
+function ingresar(pagina)
+{
+	var ruta=pagina;
+	window.open(ruta,"",'scrollbars=yes,width=700,height=500,left=50,top=2');	
+}
+/*-----------------------------*/
+function recargar(pagina)
+{
+	var ruta=pagina;
+	window.open(ruta,"",'scrollbars=no,width=150,height=150,left=50,top=2');	
+}
+/*--------------------------------*/	
+function MM_displayStatusMsg(msgStr) { //v1.0
+  status=msgStr;
+  document.MM_returnValue = true;
+}
+/*------------------------------------*/
+function MM_swapImgRestore() { //v3.0
+  var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;
+}
+/*--------------------------*/
+function MM_preloadImages() { //v3.0
+  var d=document; if(d.images){ if(!d.MM_p) d.MM_p=new Array();
+    var i,j=d.MM_p.length,a=MM_preloadImages.arguments; for(i=0; i<a.length; i++)
+    if (a[i].indexOf("#")!=0){ d.MM_p[j]=new Image; d.MM_p[j++].src=a[i];}}
+}
+/*-------------------------------------*/
+function MM_findObj(n, d) { //v4.01
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+  if(!x && d.getElementById) x=d.getElementById(n); return x;
+}
+/*-------------------------*/
+function MM_swapImage() { //v3.0
+  var i,j=0,x,a=MM_swapImage.arguments; document.MM_sr=new Array; for(i=0;i<(a.length-2);i+=3)
+   if ((x=MM_findObj(a[i]))!=null){document.MM_sr[j++]=x; if(!x.oSrc) x.oSrc=x.src; x.src=a[i+2];}
+}
+/*---------------------------------------------*/
+function MM_jumpMenu(targ,selObj,restore){ //v3.0
+  eval(targ+".location='"+selObj.options[selObj.selectedIndex].value+"'");
+  if (restore) selObj.selectedIndex=0;
+}
+/*------------------------------------------*/
+function ActivarTodo()
+{
+	var sa=false;
+	if(document.u.AdjuntarTodo.checked)
+		sa=true;
+	for (var i=0;i<document.u.elements.length;i++)
+	{
+		var e = document.u.elements[i];
+		if(sa)
+			e.checked=true;
+		else
+			e.checked=false;
+	}
+}
+
+/*
+*/
+// funcion de mostrar, no mostrar valores de capa
+function MM_changeProp(objName,x,theProp,theValue) { //v6.0
+  var obj = MM_findObj(objName);
+  if (obj && (theProp.indexOf("style.")==-1 || obj.style)){
+    if (theValue == true || theValue == false)
+      eval("obj."+theProp+"="+theValue);
+    else eval("obj."+theProp+"='"+theValue+"'");
+  }
+}
+// estatus Global que siempre aparece
+defaultStatus = "AVE GROUP";
+// redireccionador global
+function irAPagina(){
+	var redir = document.inn.redir.value;
+	// alert(document.inn.redir.value);
+	if (redir!=""){
+		location.href=redir;
+	}
+}
+/*---------------------*/
+function irAPaginaD(ruta){
+		var redir = ruta;
+	// alert(document.inn.redir.value);
+	if (redir!=""){
+		location.href=redir;
+	}
+}
+/*------------------------*/
+// funcion de abrir ventana
+function irAPaginaDN(ruta,ancho,alto){
+	var redir=ruta;
+	if (redir!="")
+	{
+		window.open(redir,"",'scrollbars=YES,width=600,height=600,left=30,top=2,resizable=yes');	
+	}
+}
+function irAPaginaDN2(ruta,ancho,alto){
+	var redir=ruta;
+	if (redir!="")
+	{
+		window.open(redir,"",'scrollbars=YES,width='+ancho+',height='+alto+',left=30,top=2,resizable=yes');	
+	}
+}
+/*-----------------------------*/
+function irImprimir(ruta){
+	var redir=ruta;
+	if (redir!=""){
+		window.open(redir,"imprimir",'scrollbars=YES,width=800,height=600,left=30,top=2,resizable=yes');	
+	}
+}
+/*--------------------------*/
+function recuperar(ruta){
+	var redir=ruta;
+	if (redir!=""){
+		window.open(redir,"",'scrollbars=YES,width=400,height=400,left=30,top=2,resizable=yes');	
+	}
+}
+/*-----------------------------*/
+// cambia de color cuando se para por encima de la celda
+function mOvr(src,clrOver) 
+{
+	if (!src.contains(event.fromElement)) {
+		//src.style.cursor = 'default';
+		 src.bgColor = clrOver;
+	}
+ }
+/*------------------------------------*/
+function mOut(src,clrIn) 
+{
+	if (!src.contains(event.toElement)) {
+		//src.style.cursor = 'default';
+		src.bgColor = clrIn;
+	}
+ }	
+// cambiar de una pagina a otra con recarga
+function CargarPagina(newLocation)
+{
+	var ventana;
+	ventana = window.parent.opener;
+	ventana.location = newLocation;
+	window.parent.close();
+}	
+/*-------------------------*/
+function CargarPagina1(newLocation)
+{
+	var ventana;
+	ventana = window.parent.opener;
+	ventana.location = newLocation;
+}
+/*-------------------------------------*/	
+function enviarconfirm(m1,m2,tipo,redir)
+{
+	if (confirm(m1)== true ){
+		if (tipo==1){
+			document.u.submit();
+		} else{
+			location.href=redir;
+		}
+	} else {
+		alert(m2);
+		return;
+	}
+}	
+/*------------------------------------------*/
+function enviarconfirmG(m1,m2,tipo,redir,forma)
+{
+	if (forma!=""){
+		var formabase=eval("document."+forma);
+	}
+	if (confirm(m1)== true ){
+		if (forma!=""){
+			formabase.submit();
+		} else{
+			location.href=redir;
+		}
+	} else {
+		alert(m2);
+		return;
+	}
+}	
+// funcion generica de calendariuo
+function calendarioGenerico(url, strFecha,forma)
+{	
+	if (strFecha!=""){
+		var Fecha = eval("window.document."+forma+"."+strFecha);
+	}
+	intTop = Fecha.offsetTop  + Fecha.offsetHeight;
+	FechaSeleccionada = Fecha.value;
+	strParametros="dialogWidth:195px;dialogHeight:250px;status:0;scroll:0;dialogTop:"+ intTop + ";dialogLeft:500"
+	var cSearchValue=showModalDialog(url,FechaSeleccionada,strParametros);
+	if (cSearchValue == -1 || cSearchValue == null)
+	{
+	}
+	else 
+	{
+         Fecha.value=cSearchValue;
+	}
+}	  
+/*-------------------------------------*/
+function doModalgeneral(url, strFecha,forma)
+{	
+	var Fecha= eval("window.document."+forma+"."+strFecha);
+	urlbase=url+"?fecha="+Fecha.value+"&campo="+strFecha+"&forma="+forma;
+	var caracteristicas= "height=250, width=225, toolbar=0, directories=0,status=0, linemenubar=0, modal=yes, left=100, top=100, dialog=yes,resizable, scrollbars";
+	window.open(urlbase,'',caracteristicas);		
+}	  
+/*-----------------------------*/
+function ActivarTodoGeneral(forma) 
+{
+	var formabase=eval("document."+forma);
+	var sa=false;
+	if(formabase.AdjuntarTodo.checked)
+    	sa=true;
+	for (var i=0;i<formabase.elements.length;i++)
+    {
+    	var e = formabase.elements[i];
+    	if(sa)
+    		e.checked=true;
+    	else
+    	    e.checked=false;
+    }
+}
+
+function ActivarTodoGeneral1(forma) 
+{
+	var formabase=eval("document."+forma);
+	var sa=false;
+	if(formabase.AdjuntarTodo1.checked)
+    	sa=true;
+	for (var i=0;i<formabase.elements.length;i++)
+    {
+    	var e = formabase.elements[i];
+    	if(sa)
+    		e.checked=true;
+    	else
+    	    e.checked=false;
+    }
+
+
+    var inputs=document.getElementsByTagName('input');
+	for(i=0;i<inputs.length;i++){
+	    inputs[i].disabled=false;
+	}   
+
+	var inputVal1 = document.getElementById("ximprimir");
+    if (inputVal1.value != "") {
+        inputVal1.style.backgroundColor = "#aa0139";
+    }
+
+    var inputVal01 = document.getElementById("ximprimir2");
+    if (inputVal01.value != "") {
+        inputVal01.style.backgroundColor = "#aa0139";
+    }
+
+    var inputVal2 = document.getElementById("ximprimirunidas");
+    if (inputVal2.value != "") {
+        inputVal2.style.backgroundColor = "#aa0139";
+    }
+
+    var inputVal02 = document.getElementById("ximprimirunidas2");
+    if (inputVal02.value != "") {
+        inputVal02.style.backgroundColor = "#aa0139";
+    }
+
+}
+
+function ActivarTodoGeneralVector(forma) 
+{
+	var formabase=eval("document."+forma);
+	var sa=false;
+	if(formabase.AdjuntarTodo.checked)
+    	sa=true;
+	for (var i=0;i<formabase.elements['id[]'].length;i++)
+    {
+    	var e = formabase.elements['id[]'][i];
+    	if(sa)
+    		e.checked=true;
+    	else
+    	    e.checked=false;
+    }
+}
+/*------------------------------------*/
+function ActivarTodoGeneral_rangos(forma,inicial,final) 
+{
+	//alert(inicial+"--"+final);
+	var formabase=eval("document."+forma);
+	var selector=eval("document."+forma+".campo_"+inicial+"_"+final);
+  	if (selector.value==1){
+		if (inicial==0) {
+			formabase.elements["pkid[]"][0].checked=true;
+		} else { 
+			for (i=inicial;i<=final;i++) {
+				var e = formabase.elements["pkid[]"][i];
+				e.checked=true;
+			} // finfor
+	  	}
+		selector.value=2;
+  	}else if (selector.value==2){
+		if (inicial==0) {
+			formabase.elements["pkid[]"][0].checked=false;
+		} else { 
+			for (i=inicial;i<=final;i++) {
+				var e = formabase.elements["pkid[]"][i];
+				e.checked=false;
+		  } // finfor
+	}
+	selector.value=1;
+  	}
+}
+/*-------------------------*/
+function irAPaginaGeneral(ruta,ancho,alto){
+	var redir=ruta;
+	if (redir!=""){
+		window.open(redir,"",'scrollbars=YES,width='+ancho+',height='+alto+',left=2,top=2,resizable=yes');	
+	}
+}
+/*------------------------------------*/
+function cargarformulario(forma,ruta,idpedido,idcliente){
+	var formabase=eval("document."+forma);
+	formabase.action=ruta;
+	formabase.target="_self";
+	formabase.idpedido.value=idpedido;
+	formabase.idcliente.value=idcliente;
+	formabase.submit();
+}
+/*-------------------------------------*/
+function trim(s) 
+{ 
+    var l=0; var r=s.length -1; 
+    while(l < s.length && s[l] == ' ') 
+    {     l++; } 
+    while(r > l && s[r] == ' ') 
+    {     r-=1;     } 
+    return s.substring(l, r+1); 
+} 
+/*--------------------------------------*/
+function rutaExportar(ruta,forma){
+	var formabase=eval("document."+forma);
+	formabase.action=ruta;
+	formabase.submit();
+}
+
+function cargarcliente(valor,rutax){
+	var idclientex=eval("document.u."+valor+"");
+	if (idclientex.value!="") { 
+		var rutax="../proveedores/modclientes.php?rutax="+rutax+"&tabla=tblterceros&dir=&idcampo="+idclientex.value+"&name=&cargarfac=1";
+		irAPaginaDN(rutax,'800','600');
+	}
+	// if (valor=="idcliente")	document.u.idcliente.selectedIndex=0;
+}
+
+function cargardatos(param,idactivox){
+	// recargar el combo de clientes
+	rutax="../proveedores/clientes.recargar.php?idclientex="+param+"&idactivox="+idactivox;
+	conexion1=AjaxObj();
+	conexion1.open("POST",rutax,true);
+	conexion1.onreadystatechange =function() {
+	var contenedorx=document.getElementById('capaclientex');
+	 if (conexion1.readyState==4) {
+	 var _resultadox = conexion1.responseText;
+		// partir el resultado
+		//contenedor.innerHTML=_resultado;		 
+		contenedorx.innerHTML=_resultadox;									
+	 }
+	}
+	conexion1.send(null) // limpia conexion	
+	// recargar los datos de variables del nuevo cliente
+	CargarVariables();
+	// apagar las capas
+	contenedor=document.getElementById('validacion_nuevo_cliente');
+	contenedor.innerHTML="";	
+}
+
+function moverfoco(tipo,valor,pos){
+	 var key = (evt.charCode) ? evt.charCode : ((evt.which) ? evt.which : evt.keyCode)
+	if (key==13){
+		if (tipo==1){
+		var formabase=eval("document.u."+valor);
+		formabase.select();
+		return;
+		} else { 
+			var formabase=eval("document.u.elements['"+valor+"']["+pos+"]");
+			formabase.select();
+			return;
+		}
+	}
+
+}
+
+function moverfoco_1(tipo,valor,pos){
+	 var key = (evt.charCode) ? evt.charCode : ((evt.which) ? evt.which : evt.keyCode)
+	if (key==13){
+		if (tipo==1){
+		var formabase=eval("document.u."+valor);
+		formabase.focus();
+		return;
+		} else { 
+			var formabase=eval("document.u.elements['"+valor+"']["+pos+"]");
+			formabase.focus();
+			return;
+		}
+	}
+
+}
+
+
+function moverfoco_2(tipo,valor,pos){
+		 var key = (evt.charCode) ? evt.charCode : ((evt.which) ? evt.which : evt.keyCode)
+if (key==13){
+		if (tipo==1){
+		var formabase=eval("document.u."+valor);
+		formabase.select();
+		return;
+		} else { 
+			var formabase=eval("document.u.elements['"+valor+"']["+pos+"]");
+			formabase.select();
+			return;
+		}
+	}
+
+}
+
+function moverfocos(tipo,valor,pos,e){
+	var key=(e.keyCode ? e.keyCode : e.which);
+	if (key==13){
+		if (tipo==1){
+		var formabase=eval("document.u."+valor);
+		formabase.focus();
+		return;
+		} else { 
+			if(valor=="identidad[]"){
+				if(eval("document.u.elements['"+valor+"']["+pos+"].disabled")){
+					valor="horaini[]";
+				}
+			}
+			if(valor=="idestado[]"){
+				if(eval("document.u.elements['"+valor+"']["+pos+"].style.display")){
+					valor="dsnombreresp[]";
+				}
+			}
+
+			var formabase=eval("document.u.elements['"+valor+"']["+pos+"]");
+			
+			formabase.focus();
+			return;
+		}
+	}
+
+}
+
+function redondear(num)
+{ 		
+	var original=new String(num);
+	partir=original.split(".");
+//	dec=partir[1];
+
+	if (partir>=5) { 
+		result=Math.ceil(original)
+	} else { 
+		result=Math.ceil(original)	
+	}
+	
+	 //result=num.toFixed(0);
+
+	// result=num;
+
+	return result;
+}
+
+
+function notificacion(app,idusuario,wcwcourier){
+			conexion6=AjaxObj()
+		contenedor12="cargar_notificacion";
+		//alert("entra");
+		document.getElementById(contenedor12).innerHTML = "Cargando...";
+		//alert(valor);
+		conexion6.open("POST","../../modulos/utilidades/cargar_notificaciones.php?param="+app+"&idusuario="+idusuario+"&wcwcourier="+wcwcourier,true);
+		conexion6.onreadystatechange =function() {
+
+
+			//alert(conexion.readyState);
+						 if (conexion6.readyState==4) {
+						 	//	alert("entra");
+
+			 var _resultado = conexion6.responseText;
+
+			 			//alert(_resultado);
+
+					 if (_resultado !="0" && _resultado !="-1" && _resultado !="") {	
+						document.getElementById(contenedor12).innerHTML = _resultado;
+						 
+						 } else {
+						 	//alert("entra");
+
+					document.getElementById(contenedor12).innerHTML = 0;
+
+			  			}  
+
+			  		} // fin resultado
+			} // fin conexion
+	  conexion6.send(null) // limpia conexion	
+
+}
+
+function pagos(){
+	//alert("entra");
+			conexion6=AjaxObj()
+		contenedor12="cargar_pagos";
+		//alert("entra");
+		document.getElementById(contenedor12).innerHTML = "Cargando...";
+		//alert(valor);
+		conexion6.open("POST","../../modulos/utilidades/notificar_pago.php?param=",true);
+		//alert("entra");
+		conexion6.onreadystatechange =function() {
+
+
+			//alert(conexion.readyState);
+						 if (conexion6.readyState==4) {
+						 	//	alert("entra");
+
+			 var _resultado = conexion6.responseText;
+
+			 			//alert(_resultado);
+
+					 if (_resultado !="0" && _resultado !="-1" && _resultado !="") {	
+						document.getElementById(contenedor12).innerHTML = _resultado;
+						 
+						 } else {
+						 	//alert("entra");
+
+					document.getElementById(contenedor12).innerHTML = 0;
+
+			  			}  
+
+			  		} // fin resultado
+			} // fin conexion
+	  conexion6.send(null) // limpia conexion	
+
+}
+
+function valgeneral(e) {
+	tecla = (document.all) ? e.keyCode : e.which; // 2
+	//alert(tecla);
+	if (tecla==32) return true; // retorno true para poder dejar  pasar el evento del espacio en blanco con este comando puedo capturar cualquier evento y permitirlo 
+	if (tecla==8) return true; // 3	
+	//*patron = /D/; //evita numeros
+	patron =/[A-Za-z��s0-9]/; // 4 solo admite letras y �
+	te = String.fromCharCode(tecla); // 5
+	return patron.test(te); // 6
+}
+
+function cambiar_idioma(pagina){
+	var valor=document.getElementById("idiomas");
+	var valor1=document.getElementById("id");
+
+
+	if (valor) {
+		location.href="incluidos_sitio/cambio.idioma.php?idioma="+valor.value+"&paginar="+pagina+"&id="+valor1.value;
+
+	}
+
+}
+
+function cargarprovee(valor,rutax){
+	//var idclientex=eval("document.u."+valor+"");
+	//if (idclientex.value!="") { 
+		var rutax="../proveedores/innclientes.php?rutax="+rutax+"&name=&fac=1";
+		irAPaginaDN(rutax,'800','600');
+	//}
+	// if (valor=="idcliente")	document.u.idcliente.selectedIndex=0;
+}
+function cargardatosproveedor(valor,rutax){
+	//var idtip=eval("document.u."+tipo+"");
+	var idclientex=eval("document.u."+valor+"");
+	//alert(idtip.value);
+	if (idclientex.value!="" && idclientex.value!=0) { 
+		var rutax="../proveedores/modclientes.php?rutax="+rutax+"&tabla=tblclientes&dir=&idcampo="+idclientex.value+"&name=&cargarfac=1";
+		irAPaginaDN(rutax,'800','600');
+	}
+	// if (valor=="idcliente")	document.u.idcliente.selectedIndex=0;
+}
+function irAPaginaDNDX(ruta,ancho,alto){
+	var idcliente=document.u.idcliente.value;
+	//idtipo=eval(idtipo.value);
+	//alert(idtipo);
+	redir="../concepto/"+ruta;
+	//alert(idcliente);
+	if (redir!=""){
+//		window.open(redir,"",'scrollbars=YES,width=600,height=600,left=30,top=2,resizable=yes,toolbar=yes,menubar=yes');	
+	window.open(redir,"",'scrollbars=YES,width=800,height=600,left=30,top=2,resizable=yes');	
+	}
+}
+function cargar_proveedor(param){
+	// ubicar en el parent
+	//alert(param);
+		window.parent.opener.cargarproveedor(param); // recarga el combo de datos
+}
+function cargarproveedor(param){
+	// recargar el combo de clientes
+	//alert(param);
+	rutax="clientes.recargar.php?id="+param;
+	conexion1=AjaxObj();
+	conexion1.open("POST",rutax,true);
+	conexion1.onreadystatechange =function() {
+	var contenedorx=document.getElementById('capaclientex');
+	 if (conexion1.readyState==4) {
+	 var _resultadox = conexion1.responseText;
+	 	partir=_resultadox.split("|");
+		// partir el resultado
+		//contenedor.innerHTML=_resultado;		 
+		contenedorx.innerHTML=partir[0];
+		CargarVariables();								
+	 }
+	}
+	conexion1.send(null) // limpia conexion	
+	
+}
+// CALCULOS GENERALES DE VALORACION MINIMA
+function valoracionminima(pos) {
+	for (i=0;i<document.xx1.elements['dspormanejo[]'].length;i++){ 
+			if (i==pos) { 
+				var campo1=document.xx1.elements['dspormanejo[]'][i].value;
+				var campo2=document.xx1.elements['dsmanejominimo[]'][i].value;
+				var total=campo2*100/campo1;
+				document.xx1.elements['dsvaloracionminima[]'][i].value=total.toFixed(0);;
+				document.xx1.elements['dstotalenviominimo[]'][i].value=(eval(document.xx1.elements['dsmanejominimo[]'][i].value)+eval(document.xx1.elements['dsfleteminimo[]'][i].value)).toFixed(0);
+			}
+	}	
+
+}
+//-->
+</script>
+<script type="text/javascript" src="../../incluidos/sorttable.js"></script>
+
+
+
+<html>
+
+<head>
+	<title>AVE GROUP AdministraciÓn: RelaciÓn de envios</title>
+	<link rel="stylesheet" type="text/css" href="../../incluidos/estilo.css">
+	<link rel="stylesheet" type="text/css" href="../../incluidos/estilo_consola.css">
+	<SCRIPT LANGUAGE="JavaScript" TYPE="text/javascript">
+		<!--
+		//
+		-->
+	</SCRIPT>
+	<script type="text/javascript" src="../../incluidos/jquery.js"></script>
+	<script language="JavaScript" type="text/javascript">
+<!--
+//cargadores globales
+function ingresar(pagina)
+{
+	var ruta=pagina;
+	window.open(ruta,"",'scrollbars=yes,width=700,height=500,left=50,top=2');	
+}
+/*-----------------------------*/
+function recargar(pagina)
+{
+	var ruta=pagina;
+	window.open(ruta,"",'scrollbars=no,width=150,height=150,left=50,top=2');	
+}
+/*--------------------------------*/	
+function MM_displayStatusMsg(msgStr) { //v1.0
+  status=msgStr;
+  document.MM_returnValue = true;
+}
+/*------------------------------------*/
+function MM_swapImgRestore() { //v3.0
+  var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;
+}
+/*--------------------------*/
+function MM_preloadImages() { //v3.0
+  var d=document; if(d.images){ if(!d.MM_p) d.MM_p=new Array();
+    var i,j=d.MM_p.length,a=MM_preloadImages.arguments; for(i=0; i<a.length; i++)
+    if (a[i].indexOf("#")!=0){ d.MM_p[j]=new Image; d.MM_p[j++].src=a[i];}}
+}
+/*-------------------------------------*/
+function MM_findObj(n, d) { //v4.01
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+  if(!x && d.getElementById) x=d.getElementById(n); return x;
+}
+/*-------------------------*/
+function MM_swapImage() { //v3.0
+  var i,j=0,x,a=MM_swapImage.arguments; document.MM_sr=new Array; for(i=0;i<(a.length-2);i+=3)
+   if ((x=MM_findObj(a[i]))!=null){document.MM_sr[j++]=x; if(!x.oSrc) x.oSrc=x.src; x.src=a[i+2];}
+}
+/*---------------------------------------------*/
+function MM_jumpMenu(targ,selObj,restore){ //v3.0
+  eval(targ+".location='"+selObj.options[selObj.selectedIndex].value+"'");
+  if (restore) selObj.selectedIndex=0;
+}
+/*------------------------------------------*/
+function ActivarTodo()
+{
+	var sa=false;
+	if(document.u.AdjuntarTodo.checked)
+		sa=true;
+	for (var i=0;i<document.u.elements.length;i++)
+	{
+		var e = document.u.elements[i];
+		if(sa)
+			e.checked=true;
+		else
+			e.checked=false;
+	}
+}
+
+/*
+*/
+// funcion de mostrar, no mostrar valores de capa
+function MM_changeProp(objName,x,theProp,theValue) { //v6.0
+  var obj = MM_findObj(objName);
+  if (obj && (theProp.indexOf("style.")==-1 || obj.style)){
+    if (theValue == true || theValue == false)
+      eval("obj."+theProp+"="+theValue);
+    else eval("obj."+theProp+"='"+theValue+"'");
+  }
+}
+// estatus Global que siempre aparece
+defaultStatus = "AVE GROUP";
+// redireccionador global
+function irAPagina(){
+	var redir = document.inn.redir.value;
+	// alert(document.inn.redir.value);
+	if (redir!=""){
+		location.href=redir;
+	}
+}
+/*---------------------*/
+function irAPaginaD(ruta){
+		var redir = ruta;
+	// alert(document.inn.redir.value);
+	if (redir!=""){
+		location.href=redir;
+	}
+}
+/*------------------------*/
+// funcion de abrir ventana
+function irAPaginaDN(ruta,ancho,alto){
+	var redir=ruta;
+	if (redir!="")
+	{
+		window.open(redir,"",'scrollbars=YES,width=600,height=600,left=30,top=2,resizable=yes');	
+	}
+}
+function irAPaginaDN2(ruta,ancho,alto){
+	var redir=ruta;
+	if (redir!="")
+	{
+		window.open(redir,"",'scrollbars=YES,width='+ancho+',height='+alto+',left=30,top=2,resizable=yes');	
+	}
+}
+/*-----------------------------*/
+function irImprimir(ruta){
+	var redir=ruta;
+	if (redir!=""){
+		window.open(redir,"imprimir",'scrollbars=YES,width=800,height=600,left=30,top=2,resizable=yes');	
+	}
+}
+/*--------------------------*/
+function recuperar(ruta){
+	var redir=ruta;
+	if (redir!=""){
+		window.open(redir,"",'scrollbars=YES,width=400,height=400,left=30,top=2,resizable=yes');	
+	}
+}
+/*-----------------------------*/
+// cambia de color cuando se para por encima de la celda
+function mOvr(src,clrOver) 
+{
+	if (!src.contains(event.fromElement)) {
+		//src.style.cursor = 'default';
+		 src.bgColor = clrOver;
+	}
+ }
+/*------------------------------------*/
+function mOut(src,clrIn) 
+{
+	if (!src.contains(event.toElement)) {
+		//src.style.cursor = 'default';
+		src.bgColor = clrIn;
+	}
+ }	
+// cambiar de una pagina a otra con recarga
+function CargarPagina(newLocation)
+{
+	var ventana;
+	ventana = window.parent.opener;
+	ventana.location = newLocation;
+	window.parent.close();
+}	
+/*-------------------------*/
+function CargarPagina1(newLocation)
+{
+	var ventana;
+	ventana = window.parent.opener;
+	ventana.location = newLocation;
+}
+/*-------------------------------------*/	
+function enviarconfirm(m1,m2,tipo,redir)
+{
+	if (confirm(m1)== true ){
+		if (tipo==1){
+			document.u.submit();
+		} else{
+			location.href=redir;
+		}
+	} else {
+		alert(m2);
+		return;
+	}
+}	
+/*------------------------------------------*/
+function enviarconfirmG(m1,m2,tipo,redir,forma)
+{
+	if (forma!=""){
+		var formabase=eval("document."+forma);
+	}
+	if (confirm(m1)== true ){
+		if (forma!=""){
+			formabase.submit();
+		} else{
+			location.href=redir;
+		}
+	} else {
+		alert(m2);
+		return;
+	}
+}	
+// funcion generica de calendariuo
+function calendarioGenerico(url, strFecha,forma)
+{	
+	if (strFecha!=""){
+		var Fecha = eval("window.document."+forma+"."+strFecha);
+	}
+	intTop = Fecha.offsetTop  + Fecha.offsetHeight;
+	FechaSeleccionada = Fecha.value;
+	strParametros="dialogWidth:195px;dialogHeight:250px;status:0;scroll:0;dialogTop:"+ intTop + ";dialogLeft:500"
+	var cSearchValue=showModalDialog(url,FechaSeleccionada,strParametros);
+	if (cSearchValue == -1 || cSearchValue == null)
+	{
+	}
+	else 
+	{
+         Fecha.value=cSearchValue;
+	}
+}	  
+/*-------------------------------------*/
+function doModalgeneral(url, strFecha,forma)
+{	
+	var Fecha= eval("window.document."+forma+"."+strFecha);
+	urlbase=url+"?fecha="+Fecha.value+"&campo="+strFecha+"&forma="+forma;
+	var caracteristicas= "height=250, width=225, toolbar=0, directories=0,status=0, linemenubar=0, modal=yes, left=100, top=100, dialog=yes,resizable, scrollbars";
+	window.open(urlbase,'',caracteristicas);		
+}	  
+/*-----------------------------*/
+function ActivarTodoGeneral(forma) 
+{
+	var formabase=eval("document."+forma);
+	var sa=false;
+	if(formabase.AdjuntarTodo.checked)
+    	sa=true;
+	for (var i=0;i<formabase.elements.length;i++)
+    {
+    	var e = formabase.elements[i];
+    	if(sa)
+    		e.checked=true;
+    	else
+    	    e.checked=false;
+    }
+}
+
+function ActivarTodoGeneral1(forma) 
+{
+	var formabase=eval("document."+forma);
+	var sa=false;
+	if(formabase.AdjuntarTodo1.checked)
+    	sa=true;
+	for (var i=0;i<formabase.elements.length;i++)
+    {
+    	var e = formabase.elements[i];
+    	if(sa)
+    		e.checked=true;
+    	else
+    	    e.checked=false;
+    }
+
+
+    var inputs=document.getElementsByTagName('input');
+	for(i=0;i<inputs.length;i++){
+	    inputs[i].disabled=false;
+	}   
+
+	var inputVal1 = document.getElementById("ximprimir");
+    if (inputVal1.value != "") {
+        inputVal1.style.backgroundColor = "#aa0139";
+    }
+
+    var inputVal01 = document.getElementById("ximprimir2");
+    if (inputVal01.value != "") {
+        inputVal01.style.backgroundColor = "#aa0139";
+    }
+
+    var inputVal2 = document.getElementById("ximprimirunidas");
+    if (inputVal2.value != "") {
+        inputVal2.style.backgroundColor = "#aa0139";
+    }
+
+    var inputVal02 = document.getElementById("ximprimirunidas2");
+    if (inputVal02.value != "") {
+        inputVal02.style.backgroundColor = "#aa0139";
+    }
+
+}
+
+function ActivarTodoGeneralVector(forma) 
+{
+	var formabase=eval("document."+forma);
+	var sa=false;
+	if(formabase.AdjuntarTodo.checked)
+    	sa=true;
+	for (var i=0;i<formabase.elements['id[]'].length;i++)
+    {
+    	var e = formabase.elements['id[]'][i];
+    	if(sa)
+    		e.checked=true;
+    	else
+    	    e.checked=false;
+    }
+}
+/*------------------------------------*/
+function ActivarTodoGeneral_rangos(forma,inicial,final) 
+{
+	//alert(inicial+"--"+final);
+	var formabase=eval("document."+forma);
+	var selector=eval("document."+forma+".campo_"+inicial+"_"+final);
+  	if (selector.value==1){
+		if (inicial==0) {
+			formabase.elements["pkid[]"][0].checked=true;
+		} else { 
+			for (i=inicial;i<=final;i++) {
+				var e = formabase.elements["pkid[]"][i];
+				e.checked=true;
+			} // finfor
+	  	}
+		selector.value=2;
+  	}else if (selector.value==2){
+		if (inicial==0) {
+			formabase.elements["pkid[]"][0].checked=false;
+		} else { 
+			for (i=inicial;i<=final;i++) {
+				var e = formabase.elements["pkid[]"][i];
+				e.checked=false;
+		  } // finfor
+	}
+	selector.value=1;
+  	}
+}
+/*-------------------------*/
+function irAPaginaGeneral(ruta,ancho,alto){
+	var redir=ruta;
+	if (redir!=""){
+		window.open(redir,"",'scrollbars=YES,width='+ancho+',height='+alto+',left=2,top=2,resizable=yes');	
+	}
+}
+/*------------------------------------*/
+function cargarformulario(forma,ruta,idpedido,idcliente){
+	var formabase=eval("document."+forma);
+	formabase.action=ruta;
+	formabase.target="_self";
+	formabase.idpedido.value=idpedido;
+	formabase.idcliente.value=idcliente;
+	formabase.submit();
+}
+/*-------------------------------------*/
+function trim(s) 
+{ 
+    var l=0; var r=s.length -1; 
+    while(l < s.length && s[l] == ' ') 
+    {     l++; } 
+    while(r > l && s[r] == ' ') 
+    {     r-=1;     } 
+    return s.substring(l, r+1); 
+} 
+/*--------------------------------------*/
+function rutaExportar(ruta,forma){
+	var formabase=eval("document."+forma);
+	formabase.action=ruta;
+	formabase.submit();
+}
+
+function cargarcliente(valor,rutax){
+	var idclientex=eval("document.u."+valor+"");
+	if (idclientex.value!="") { 
+		var rutax="../proveedores/modclientes.php?rutax="+rutax+"&tabla=tblterceros&dir=&idcampo="+idclientex.value+"&name=&cargarfac=1";
+		irAPaginaDN(rutax,'800','600');
+	}
+	// if (valor=="idcliente")	document.u.idcliente.selectedIndex=0;
+}
+
+function cargardatos(param,idactivox){
+	// recargar el combo de clientes
+	rutax="../proveedores/clientes.recargar.php?idclientex="+param+"&idactivox="+idactivox;
+	conexion1=AjaxObj();
+	conexion1.open("POST",rutax,true);
+	conexion1.onreadystatechange =function() {
+	var contenedorx=document.getElementById('capaclientex');
+	 if (conexion1.readyState==4) {
+	 var _resultadox = conexion1.responseText;
+		// partir el resultado
+		//contenedor.innerHTML=_resultado;		 
+		contenedorx.innerHTML=_resultadox;									
+	 }
+	}
+	conexion1.send(null) // limpia conexion	
+	// recargar los datos de variables del nuevo cliente
+	CargarVariables();
+	// apagar las capas
+	contenedor=document.getElementById('validacion_nuevo_cliente');
+	contenedor.innerHTML="";	
+}
+
+function moverfoco(tipo,valor,pos){
+	 var key = (evt.charCode) ? evt.charCode : ((evt.which) ? evt.which : evt.keyCode)
+	if (key==13){
+		if (tipo==1){
+		var formabase=eval("document.u."+valor);
+		formabase.select();
+		return;
+		} else { 
+			var formabase=eval("document.u.elements['"+valor+"']["+pos+"]");
+			formabase.select();
+			return;
+		}
+	}
+
+}
+
+function moverfoco_1(tipo,valor,pos){
+	 var key = (evt.charCode) ? evt.charCode : ((evt.which) ? evt.which : evt.keyCode)
+	if (key==13){
+		if (tipo==1){
+		var formabase=eval("document.u."+valor);
+		formabase.focus();
+		return;
+		} else { 
+			var formabase=eval("document.u.elements['"+valor+"']["+pos+"]");
+			formabase.focus();
+			return;
+		}
+	}
+
+}
+
+
+function moverfoco_2(tipo,valor,pos){
+		 var key = (evt.charCode) ? evt.charCode : ((evt.which) ? evt.which : evt.keyCode)
+if (key==13){
+		if (tipo==1){
+		var formabase=eval("document.u."+valor);
+		formabase.select();
+		return;
+		} else { 
+			var formabase=eval("document.u.elements['"+valor+"']["+pos+"]");
+			formabase.select();
+			return;
+		}
+	}
+
+}
+
+function moverfocos(tipo,valor,pos,e){
+	var key=(e.keyCode ? e.keyCode : e.which);
+	if (key==13){
+		if (tipo==1){
+		var formabase=eval("document.u."+valor);
+		formabase.focus();
+		return;
+		} else { 
+			if(valor=="identidad[]"){
+				if(eval("document.u.elements['"+valor+"']["+pos+"].disabled")){
+					valor="horaini[]";
+				}
+			}
+			if(valor=="idestado[]"){
+				if(eval("document.u.elements['"+valor+"']["+pos+"].style.display")){
+					valor="dsnombreresp[]";
+				}
+			}
+
+			var formabase=eval("document.u.elements['"+valor+"']["+pos+"]");
+			
+			formabase.focus();
+			return;
+		}
+	}
+
+}
+
+function redondear(num)
+{ 		
+	var original=new String(num);
+	partir=original.split(".");
+//	dec=partir[1];
+
+	if (partir>=5) { 
+		result=Math.ceil(original)
+	} else { 
+		result=Math.ceil(original)	
+	}
+	
+	 //result=num.toFixed(0);
+
+	// result=num;
+
+	return result;
+}
+
+
+function notificacion(app,idusuario,wcwcourier){
+			conexion6=AjaxObj()
+		contenedor12="cargar_notificacion";
+		//alert("entra");
+		document.getElementById(contenedor12).innerHTML = "Cargando...";
+		//alert(valor);
+		conexion6.open("POST","../../modulos/utilidades/cargar_notificaciones.php?param="+app+"&idusuario="+idusuario+"&wcwcourier="+wcwcourier,true);
+		conexion6.onreadystatechange =function() {
+
+
+			//alert(conexion.readyState);
+						 if (conexion6.readyState==4) {
+						 	//	alert("entra");
+
+			 var _resultado = conexion6.responseText;
+
+			 			//alert(_resultado);
+
+					 if (_resultado !="0" && _resultado !="-1" && _resultado !="") {	
+						document.getElementById(contenedor12).innerHTML = _resultado;
+						 
+						 } else {
+						 	//alert("entra");
+
+					document.getElementById(contenedor12).innerHTML = 0;
+
+			  			}  
+
+			  		} // fin resultado
+			} // fin conexion
+	  conexion6.send(null) // limpia conexion	
+
+}
+
+function pagos(){
+	//alert("entra");
+			conexion6=AjaxObj()
+		contenedor12="cargar_pagos";
+		//alert("entra");
+		document.getElementById(contenedor12).innerHTML = "Cargando...";
+		//alert(valor);
+		conexion6.open("POST","../../modulos/utilidades/notificar_pago.php?param=",true);
+		//alert("entra");
+		conexion6.onreadystatechange =function() {
+
+
+			//alert(conexion.readyState);
+						 if (conexion6.readyState==4) {
+						 	//	alert("entra");
+
+			 var _resultado = conexion6.responseText;
+
+			 			//alert(_resultado);
+
+					 if (_resultado !="0" && _resultado !="-1" && _resultado !="") {	
+						document.getElementById(contenedor12).innerHTML = _resultado;
+						 
+						 } else {
+						 	//alert("entra");
+
+					document.getElementById(contenedor12).innerHTML = 0;
+
+			  			}  
+
+			  		} // fin resultado
+			} // fin conexion
+	  conexion6.send(null) // limpia conexion	
+
+}
+
+function valgeneral(e) {
+	tecla = (document.all) ? e.keyCode : e.which; // 2
+	//alert(tecla);
+	if (tecla==32) return true; // retorno true para poder dejar  pasar el evento del espacio en blanco con este comando puedo capturar cualquier evento y permitirlo 
+	if (tecla==8) return true; // 3	
+	//*patron = /D/; //evita numeros
+	patron =/[A-Za-z��s0-9]/; // 4 solo admite letras y �
+	te = String.fromCharCode(tecla); // 5
+	return patron.test(te); // 6
+}
+
+function cambiar_idioma(pagina){
+	var valor=document.getElementById("idiomas");
+	var valor1=document.getElementById("id");
+
+
+	if (valor) {
+		location.href="incluidos_sitio/cambio.idioma.php?idioma="+valor.value+"&paginar="+pagina+"&id="+valor1.value;
+
+	}
+
+}
+
+function cargarprovee(valor,rutax){
+	//var idclientex=eval("document.u."+valor+"");
+	//if (idclientex.value!="") { 
+		var rutax="../proveedores/innclientes.php?rutax="+rutax+"&name=&fac=1";
+		irAPaginaDN(rutax,'800','600');
+	//}
+	// if (valor=="idcliente")	document.u.idcliente.selectedIndex=0;
+}
+function cargardatosproveedor(valor,rutax){
+	//var idtip=eval("document.u."+tipo+"");
+	var idclientex=eval("document.u."+valor+"");
+	//alert(idtip.value);
+	if (idclientex.value!="" && idclientex.value!=0) { 
+		var rutax="../proveedores/modclientes.php?rutax="+rutax+"&tabla=tblclientes&dir=&idcampo="+idclientex.value+"&name=&cargarfac=1";
+		irAPaginaDN(rutax,'800','600');
+	}
+	// if (valor=="idcliente")	document.u.idcliente.selectedIndex=0;
+}
+function irAPaginaDNDX(ruta,ancho,alto){
+	var idcliente=document.u.idcliente.value;
+	//idtipo=eval(idtipo.value);
+	//alert(idtipo);
+	redir="../concepto/"+ruta;
+	//alert(idcliente);
+	if (redir!=""){
+//		window.open(redir,"",'scrollbars=YES,width=600,height=600,left=30,top=2,resizable=yes,toolbar=yes,menubar=yes');	
+	window.open(redir,"",'scrollbars=YES,width=800,height=600,left=30,top=2,resizable=yes');	
+	}
+}
+function cargar_proveedor(param){
+	// ubicar en el parent
+	//alert(param);
+		window.parent.opener.cargarproveedor(param); // recarga el combo de datos
+}
+function cargarproveedor(param){
+	// recargar el combo de clientes
+	//alert(param);
+	rutax="clientes.recargar.php?id="+param;
+	conexion1=AjaxObj();
+	conexion1.open("POST",rutax,true);
+	conexion1.onreadystatechange =function() {
+	var contenedorx=document.getElementById('capaclientex');
+	 if (conexion1.readyState==4) {
+	 var _resultadox = conexion1.responseText;
+	 	partir=_resultadox.split("|");
+		// partir el resultado
+		//contenedor.innerHTML=_resultado;		 
+		contenedorx.innerHTML=partir[0];
+		CargarVariables();								
+	 }
+	}
+	conexion1.send(null) // limpia conexion	
+	
+}
+// CALCULOS GENERALES DE VALORACION MINIMA
+function valoracionminima(pos) {
+	for (i=0;i<document.xx1.elements['dspormanejo[]'].length;i++){ 
+			if (i==pos) { 
+				var campo1=document.xx1.elements['dspormanejo[]'][i].value;
+				var campo2=document.xx1.elements['dsmanejominimo[]'][i].value;
+				var total=campo2*100/campo1;
+				document.xx1.elements['dsvaloracionminima[]'][i].value=total.toFixed(0);;
+				document.xx1.elements['dstotalenviominimo[]'][i].value=(eval(document.xx1.elements['dsmanejominimo[]'][i].value)+eval(document.xx1.elements['dsfleteminimo[]'][i].value)).toFixed(0);
+			}
+	}	
+
+}
+//-->
+</script>
+<script type="text/javascript" src="../../incluidos/sorttable.js"></script>
+
+
+
+</head>
+
+<body color=#ffffff topmargin=0 leftmargin=0>
+			<style type="text/css">
+			<!--
+			body {
+				margin-left: 0px;
+				margin-top: 0px;
+				margin-right: 0px;
+				margin-bottom: 0px;
+			}
+		-->
+			</style>
+
+
+<link href="../../incluidos/estilo_consola.css" rel="stylesheet" type="text/css" />
+
+
+<style type="text/css" media="screen">
+.noticia{
+		background-color: #ce153f;
+	    font-size: 17px;
+	    padding: 6px 8px 6px 12px;
+	    color: white;
+	}
+
+	.panel_central{
+		background-color: #ffffff;
+		height: 100%;
+		width: 513px;
+		padding: 12px 12px 12px 12px;
+	}
+
+	.contenido{
+		/*filter: blur(2px);*/
+	}
+
+
+	.custom-counter {
+	  margin: 0;
+	  padding: 0;
+	  list-style-type: none;
+	}
+
+	.custom-counter li {
+	  counter-increment: step-counter;
+	  margin-bottom: 10px;
+	}
+
+	.custom-counter li::before {
+	    content: counter(step-counter);
+	    margin-right: 8px;
+	    font-size: 27px;
+	    background-color: rgb(206, 22, 64);
+	    color: white;
+	    font-weight: bold;
+	    padding: 2px 9px;
+	}
+
+	.hr_panel{
+		border-style: solid;
+	    color: #ce1741;
+	    background-color: #ce1741;
+	    height: 4px;
+	    margin-top: -3px;
+	}
+
+
+	#idvalororigen,#idvalordestino{
+		background-color: white;
+	    box-shadow: 0 3px 12px 0 rgba(0, 0, 0, 0.16);
+	    /* border-color: red; */
+	    border-color: white;
+	    padding: 5px;
+	    position: absolute;
+	    /* padding: 20px; */
+	    width: 324px;
+	    height: auto;
+	    border-radius: 4px;
+	}
+
+ option
+{
+    color: #323232;
+    padding: 6px;
+}
+
+	
+</style>
+
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css">
+
+
+		<div id="menu_asesor_modulos" class="option animated pulse" style="height: 30px;width: 100%;z-index: 99999;/* position: fixed; */color: #fff;font-weight: 200;background-color: #000;text-align: center;font-family: 'Montserrat', sans-serif;font-weight: 600;">
+			<img width="20px" src="data:image/svg+xml;base64,
+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDYxMiA2MTIiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDYxMiA2MTI7IiB4bWw6c3BhY2U9InByZXNlcnZlIiBjbGFzcz0iIj48Zz48Zz4KCTxwYXRoIGQ9Ik0yNTkuMTA3LDMyMi40NTFjMCwxNi45MzMtMTMuNzI3LDMwLjY1OS0zMC42NiwzMC42NTljLTE2LjkzMywwLTMwLjY1OC0xMy43MjctMzAuNjU4LTMwLjY1OXMxMy43MjYtMzAuNjU5LDMwLjY1OC0zMC42NTkgICBDMjQ1LjM4LDI5MS43OTIsMjU5LjEwNywzMDUuNTE5LDI1OS4xMDcsMzIyLjQ1MXogTTM4My41NTQsMjkxLjc5MmMtMTYuOTMyLDAtMzAuNjYsMTMuNzI2LTMwLjY2LDMwLjY1OSAgIHMxMy43MjksMzAuNjU5LDMwLjY2LDMwLjY1OWMxNi45MzQsMCwzMC42NTgtMTMuNzI3LDMwLjY1OC0zMC42NTlTNDAwLjQ4NywyOTEuNzkyLDM4My41NTQsMjkxLjc5MnogTTUxNC41MTcsNDE2LjU5NnYtMy40OTIgICBjLTMuNTE0LDEwLjE5OC03LjczNCwxOS44ODUtMTIuMjczLDI5LjMwM2MwLjg0Miw1Ljc3MywyLjQsMTMuODMxLDUuMDIsMjMuMDQzYzEyLjYsMTkuNDg4LDQ4LjE1OCw0NC4zMTYsNzIuNTM3LDUwLjcxMiAgIGMtMTMuMTQ1LDUuNTgzLTI4Ljk3OSw3Ljg4Mi00NC4zNzksNS41MjVjMTQuMTA3LDE3Ljc1MSwzMy45ODgsMzMuODY5LDYyLjAzOSw0My40NTkgICBjLTY1LjU2OCw1OS4wOTctMTczLjYwNCw2MC40MTEtMjQ5LjExOSwxNC41MTZjLTE0LjYzNSw0LjMwNC0yOC45MzYsNi41Ni00Mi4zNDEsNi41NmMtMTMuNDA1LDAtMjcuNzA3LTIuMjU2LTQyLjM0LTYuNTYgICBjLTc1LjUxNyw0NS44OTYtMTgzLjU1MSw0NC41ODEtMjQ5LjExOS0xNC41MTZjMjguNjEzLTkuNzgxLDQ4LjY4LTI2LjM2Niw2Mi44MzUtNDQuNTM4Yy0xMi41MiwwLjQ3OS0yNC45NDQtMS44LTM1LjU4OS02LjMyMSAgIGMxNy44NjItNC42ODYsNDEuNzE2LTE5LjI4MSw1OC4xNzQtMzQuNDEzYzUuNzU5LTE1LjIyNSw4LjUzOS0yOC44MzYsOS43OTYtMzcuNDY4Yy00LjUzOS05LjQxOC04Ljc1OS0xOS4xMDQtMTIuMjcyLTI5LjMwM3YzLjQ5MyAgIEg2MC40MDdjLTI5LjI1NCwwLTUyLjk2OS0yMy43MTYtNTIuOTY5LTUyLjk2OXYtNTguMjY2YzAtMjAuMTMxLDExLjIzMS0zNy42MzcsMjcuNzY5LTQ2LjU5OSAgIGMwLjU1NS04Mi43MjQsMjQuNjY2LTE0Ny4zMzEsNzEuNzY1LTE5MS45OTdDMTUzLjY5LDIyLjQ2NSwyMjAuNjUzLDAsMzA2LDBjODUuMzQ4LDAsMTUyLjMxMSwyMi40NjUsMTk5LjAyOCw2Ni43NjcgICBjNDcuMSw0NC42NjUsNzEuMjA5LDEwOS4yNzEsNzEuNzY2LDE5MS45OTdjMTYuNTM3LDguOTYyLDI3Ljc2OCwyNi40NjcsMjcuNzY4LDQ2LjU5OHY1OC4yNjUgICBjMCwyOS4yNTQtMjMuNzE1LDUyLjk2OS01Mi45NjksNTIuOTY5SDUxNC41MTd6IE00OTIuNDU0LDMyMi42NDZjMC0xMy42My0wLjY5Ny0yNi40MzYtMS43MjktMzguODQ1ICAgYy0yMy44OTgtMjEuODYzLTY3LjYxNy0zOC4zNTMtMTIyLjc0Ni00NC4xNjhjOC43NDYsNy44NDEsMTYuMjU2LDE4LjI5NywyMC4yNzMsMzMuMjI2ICAgYy0zMi4wNTUtMjMuNDMxLTk5LjIzNi0zMC42ODctMTIxLjU1MS01NS43OTNsMC4wMjItMC4wMDJjLTM1LjUyLTIzLjUxMi00NC44NDEtNTcuMTg5LTQ1LjE0MS00My4yNSAgIGMtMS40MzgsNjYuODQ4LTQ4LjgxOCwxMTguOTYxLTEwMS40MzEsMTI2LjMxM2MtMC4zMzMsNy4zNTItMC42MDYsMTQuNzczLTAuNjA2LDIyLjUxOWMwLDI4LjI1Niw0LjYxNCw1NC4wMDYsMTIuNDU4LDc3LjIxNCAgIGMyOS41NTMsMzUuNjQ4LDc4LjM1OSw0NS43MTQsMTIxLjU1OCw0OC4zODVjOC4wMTktMTIuNzYsMjYuMDEyLTIxLjY2Niw0Ni45NjYtMjEuNjY2YzI4LjQwOSwwLDUxLjQzOCwxNi4zNDcsNTEuNDM4LDM2LjUxMyAgIGMwLDIwLjE2Ny0yMy4wMjksMzYuNTE0LTUxLjQzOCwzNi41MTRjLTIxLjg1MywwLTQwLjQ3NS05LjY4OC00Ny45MjktMjMuMzMyYy0zMC4xOTEtMS43NTUtNjMuMzgtNi45LTkyLjk2LTIwLjg2OSAgIGM0MS42MDEsNjEuMzE1LDEwNi4wODcsOTMuNzM5LDE0Ni4zNTksOTMuNzM5QzM2OS4yODQsNTQ5LjE0Myw0OTIuNDU0LDQ2OS4xOTcsNDkyLjQ1NCwzMjIuNjQ2eiBNNTI0LjUyNCwyNTIuMzk0aDIwLjM4MSAgIEM1NDEuNTM0LDEwOC4wMzksNDU5LjEzNiwzMS43ODIsMzA2LDMxLjc4MmMtMTUzLjEzNiwwLTIzNS41MzIsNzYuMjU3LTIzOC45MDMsMjIwLjYxMmgyMC4zNzkgICBjNy40NTEtNDguNjU0LDIzLjItODguNjcsNDcuMTExLTExOS40MzZDMTcyLjY5MSw4My45MzEsMjMwLjM2Myw1OS4wNywzMDYsNTkuMDdjNzUuNjM3LDAsMTMzLjMwOSwyNC44NTksMTcxLjQxNSw3My44ODcgICBDNTAxLjMyNSwxNjMuNzI0LDUxNy4wNzMsMjAzLjczOSw1MjQuNTI0LDI1Mi4zOTR6IiBkYXRhLW9yaWdpbmFsPSIjMDAwMDAwIiBjbGFzcz0iYWN0aXZlLXBhdGgiIHN0eWxlPSJmaWxsOiNGNkY2RjYiIGRhdGEtb2xkX2NvbG9yPSIjRjZGMUYxIj48L3BhdGg+CjwvZz48L2c+IDwvc3ZnPg==" /> Nombre asesor: <a href="" style="color:#89c0e4 !important">JHOANA ANDREA PINEDA</a>
+			Celular asesor: <a href="" style="color:#89c0e4 !important" style="color:#89c0e4 !important">3053198514</a>
+			
+			<img width="20px" src="data:image/svg+xml;base64,
+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDU0OC4xNzYgNTQ4LjE3NiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTQ4LjE3NiA1NDguMTc2OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgY2xhc3M9IiI+PGc+PGc+Cgk8Zz4KCQk8cGF0aCBkPSJNNTM0Ljc1NCw2OC4yMzhjLTguOTQ1LTguOTQ1LTE5LjY5OC0xMy40MTctMzIuMjU4LTEzLjQxN0g0NS42ODFjLTEyLjU2MiwwLTIzLjMxMyw0LjQ3MS0zMi4yNjQsMTMuNDE3ICAgIEM0LjQ3MSw3Ny4xODUsMCw4Ny45MzYsMCwxMDAuNDk5djM0Ny4xNzNjMCwxMi41NjYsNC40NzEsMjMuMzE4LDEzLjQxNywzMi4yNjRjOC45NTEsOC45NDYsMTkuNzAyLDEzLjQxOSwzMi4yNjQsMTMuNDE5aDQ1Ni44MTUgICAgYzEyLjU2LDAsMjMuMzEyLTQuNDczLDMyLjI1OC0xMy40MTljOC45NDUtOC45NDUsMTMuNDIyLTE5LjY5NywxMy40MjItMzIuMjY0VjEwMC40OTkgICAgQzU0OC4xNzYsODcuOTM2LDU0My42OTksNzcuMTg1LDUzNC43NTQsNjguMjM4eiBNNTExLjYyNyw0NDcuNjc5YzAsMi40NzgtMC45MDMsNC42MTMtMi43MTEsNi40MjcgICAgYy0xLjgwNywxLjgtMy45NDksMi43MDMtNi40MiwyLjcwM0g0NS42ODFjLTIuNDczLDAtNC42MTUtMC45MDMtNi40MjMtMi43MWMtMS44MDctMS44MTMtMi43MTItMy45NDktMi43MTItNi40MjdWMjc0LjA4OCAgICBoNDc1LjA4MlY0NDcuNjc5eiBNNTExLjYyNywxNjQuNDQ5SDM2LjU0NXYtNjMuOTU0YzAtMi40NzQsMC45MDItNC42MTEsMi43MTItNi40MjNjMS44MDktMS44MDMsMy45NTEtMi43MDgsNi40MjMtMi43MDhoNDU2LjgxNSAgICBjMi40NzEsMCw0LjYxMywwLjkwMSw2LjQyLDIuNzA4YzEuODA4LDEuODEyLDIuNzExLDMuOTQ5LDIuNzExLDYuNDIzVjE2NC40NDlMNTExLjYyNywxNjQuNDQ5eiIgZGF0YS1vcmlnaW5hbD0iIzAwMDAwMCIgY2xhc3M9ImFjdGl2ZS1wYXRoIiBzdHlsZT0iZmlsbDojRkNGQkZCIiBkYXRhLW9sZF9jb2xvcj0iI0YwREJEQiI+PC9wYXRoPgoJCTxyZWN0IHg9IjczLjA5MiIgeT0iMzgzLjcxOSIgd2lkdGg9IjczLjA4OSIgaGVpZ2h0PSIzNi41NDgiIGRhdGEtb3JpZ2luYWw9IiMwMDAwMDAiIGNsYXNzPSJhY3RpdmUtcGF0aCIgc3R5bGU9ImZpbGw6I0ZDRkJGQiIgZGF0YS1vbGRfY29sb3I9IiNGMERCREIiPjwvcmVjdD4KCQk8cmVjdCB4PSIxODIuNzI4IiB5PSIzODMuNzE5IiB3aWR0aD0iMTA5LjYzNCIgaGVpZ2h0PSIzNi41NDgiIGRhdGEtb3JpZ2luYWw9IiMwMDAwMDAiIGNsYXNzPSJhY3RpdmUtcGF0aCIgc3R5bGU9ImZpbGw6I0ZDRkJGQiIgZGF0YS1vbGRfY29sb3I9IiNGMERCREIiPjwvcmVjdD4KCTwvZz4KPC9nPjwvZz4gPC9zdmc+" />
+			Pagos y facturación: <a style="color:#89c0e4 !important" href="#">Andrea Ricaurte Urrea</a>
+			celular facturación: <a style="color:#89c0e4 !important" href="#">3052635494</a>
+			
+			<img width="20px" src="data:image/svg+xml;base64,
+PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDYxMiA2MTIiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDYxMiA2MTI7IiB4bWw6c3BhY2U9InByZXNlcnZlIiBjbGFzcz0iIj48Zz48Zz4KCTxwYXRoIGQ9Ik0yNTkuMTA3LDMyMi40NTFjMCwxNi45MzMtMTMuNzI3LDMwLjY1OS0zMC42NiwzMC42NTljLTE2LjkzMywwLTMwLjY1OC0xMy43MjctMzAuNjU4LTMwLjY1OXMxMy43MjYtMzAuNjU5LDMwLjY1OC0zMC42NTkgICBDMjQ1LjM4LDI5MS43OTIsMjU5LjEwNywzMDUuNTE5LDI1OS4xMDcsMzIyLjQ1MXogTTM4My41NTQsMjkxLjc5MmMtMTYuOTMyLDAtMzAuNjYsMTMuNzI2LTMwLjY2LDMwLjY1OSAgIHMxMy43MjksMzAuNjU5LDMwLjY2LDMwLjY1OWMxNi45MzQsMCwzMC42NTgtMTMuNzI3LDMwLjY1OC0zMC42NTlTNDAwLjQ4NywyOTEuNzkyLDM4My41NTQsMjkxLjc5MnogTTUxNC41MTcsNDE2LjU5NnYtMy40OTIgICBjLTMuNTE0LDEwLjE5OC03LjczNCwxOS44ODUtMTIuMjczLDI5LjMwM2MwLjg0Miw1Ljc3MywyLjQsMTMuODMxLDUuMDIsMjMuMDQzYzEyLjYsMTkuNDg4LDQ4LjE1OCw0NC4zMTYsNzIuNTM3LDUwLjcxMiAgIGMtMTMuMTQ1LDUuNTgzLTI4Ljk3OSw3Ljg4Mi00NC4zNzksNS41MjVjMTQuMTA3LDE3Ljc1MSwzMy45ODgsMzMuODY5LDYyLjAzOSw0My40NTkgICBjLTY1LjU2OCw1OS4wOTctMTczLjYwNCw2MC40MTEtMjQ5LjExOSwxNC41MTZjLTE0LjYzNSw0LjMwNC0yOC45MzYsNi41Ni00Mi4zNDEsNi41NmMtMTMuNDA1LDAtMjcuNzA3LTIuMjU2LTQyLjM0LTYuNTYgICBjLTc1LjUxNyw0NS44OTYtMTgzLjU1MSw0NC41ODEtMjQ5LjExOS0xNC41MTZjMjguNjEzLTkuNzgxLDQ4LjY4LTI2LjM2Niw2Mi44MzUtNDQuNTM4Yy0xMi41MiwwLjQ3OS0yNC45NDQtMS44LTM1LjU4OS02LjMyMSAgIGMxNy44NjItNC42ODYsNDEuNzE2LTE5LjI4MSw1OC4xNzQtMzQuNDEzYzUuNzU5LTE1LjIyNSw4LjUzOS0yOC44MzYsOS43OTYtMzcuNDY4Yy00LjUzOS05LjQxOC04Ljc1OS0xOS4xMDQtMTIuMjcyLTI5LjMwM3YzLjQ5MyAgIEg2MC40MDdjLTI5LjI1NCwwLTUyLjk2OS0yMy43MTYtNTIuOTY5LTUyLjk2OXYtNTguMjY2YzAtMjAuMTMxLDExLjIzMS0zNy42MzcsMjcuNzY5LTQ2LjU5OSAgIGMwLjU1NS04Mi43MjQsMjQuNjY2LTE0Ny4zMzEsNzEuNzY1LTE5MS45OTdDMTUzLjY5LDIyLjQ2NSwyMjAuNjUzLDAsMzA2LDBjODUuMzQ4LDAsMTUyLjMxMSwyMi40NjUsMTk5LjAyOCw2Ni43NjcgICBjNDcuMSw0NC42NjUsNzEuMjA5LDEwOS4yNzEsNzEuNzY2LDE5MS45OTdjMTYuNTM3LDguOTYyLDI3Ljc2OCwyNi40NjcsMjcuNzY4LDQ2LjU5OHY1OC4yNjUgICBjMCwyOS4yNTQtMjMuNzE1LDUyLjk2OS01Mi45NjksNTIuOTY5SDUxNC41MTd6IE00OTIuNDU0LDMyMi42NDZjMC0xMy42My0wLjY5Ny0yNi40MzYtMS43MjktMzguODQ1ICAgYy0yMy44OTgtMjEuODYzLTY3LjYxNy0zOC4zNTMtMTIyLjc0Ni00NC4xNjhjOC43NDYsNy44NDEsMTYuMjU2LDE4LjI5NywyMC4yNzMsMzMuMjI2ICAgYy0zMi4wNTUtMjMuNDMxLTk5LjIzNi0zMC42ODctMTIxLjU1MS01NS43OTNsMC4wMjItMC4wMDJjLTM1LjUyLTIzLjUxMi00NC44NDEtNTcuMTg5LTQ1LjE0MS00My4yNSAgIGMtMS40MzgsNjYuODQ4LTQ4LjgxOCwxMTguOTYxLTEwMS40MzEsMTI2LjMxM2MtMC4zMzMsNy4zNTItMC42MDYsMTQuNzczLTAuNjA2LDIyLjUxOWMwLDI4LjI1Niw0LjYxNCw1NC4wMDYsMTIuNDU4LDc3LjIxNCAgIGMyOS41NTMsMzUuNjQ4LDc4LjM1OSw0NS43MTQsMTIxLjU1OCw0OC4zODVjOC4wMTktMTIuNzYsMjYuMDEyLTIxLjY2Niw0Ni45NjYtMjEuNjY2YzI4LjQwOSwwLDUxLjQzOCwxNi4zNDcsNTEuNDM4LDM2LjUxMyAgIGMwLDIwLjE2Ny0yMy4wMjksMzYuNTE0LTUxLjQzOCwzNi41MTRjLTIxLjg1MywwLTQwLjQ3NS05LjY4OC00Ny45MjktMjMuMzMyYy0zMC4xOTEtMS43NTUtNjMuMzgtNi45LTkyLjk2LTIwLjg2OSAgIGM0MS42MDEsNjEuMzE1LDEwNi4wODcsOTMuNzM5LDE0Ni4zNTksOTMuNzM5QzM2OS4yODQsNTQ5LjE0Myw0OTIuNDU0LDQ2OS4xOTcsNDkyLjQ1NCwzMjIuNjQ2eiBNNTI0LjUyNCwyNTIuMzk0aDIwLjM4MSAgIEM1NDEuNTM0LDEwOC4wMzksNDU5LjEzNiwzMS43ODIsMzA2LDMxLjc4MmMtMTUzLjEzNiwwLTIzNS41MzIsNzYuMjU3LTIzOC45MDMsMjIwLjYxMmgyMC4zNzkgICBjNy40NTEtNDguNjU0LDIzLjItODguNjcsNDcuMTExLTExOS40MzZDMTcyLjY5MSw4My45MzEsMjMwLjM2Myw1OS4wNywzMDYsNTkuMDdjNzUuNjM3LDAsMTMzLjMwOSwyNC44NTksMTcxLjQxNSw3My44ODcgICBDNTAxLjMyNSwxNjMuNzI0LDUxNy4wNzMsMjAzLjczOSw1MjQuNTI0LDI1Mi4zOTR6IiBkYXRhLW9yaWdpbmFsPSIjMDAwMDAwIiBjbGFzcz0iYWN0aXZlLXBhdGgiIHN0eWxlPSJmaWxsOiNGNkY2RjYiIGRhdGEtb2xkX2NvbG9yPSIjRjZGMUYxIj48L3BhdGg+CjwvZz48L2c+IDwvc3ZnPg==" /> 
+			Nombre asesor comercial: <a style="color:#89c0e4 !important" href="#">ANDRES FELIPE GOMEZ</a>
+			Telèfono asesor comercial:	<a style="color:#89c0e4 !important" href="#"></a>		
+		</div>
+		
+<!-- if($_SESSION['i_idempresa']<>1546 && $_SESSION['i_idempresa']<>1540 && $_SESSION['i_idempresa']<>116){  -->
+<!-- onclick="this.style.display = 'none'" -->
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-beta/css/bootstrap-grid.css">
+<div  style="display: none;width: 100%;height: 100%;z-index: 99999;position: fixed;background-color: rgba(0, 0, 0, 0.24);" onclick="" id="div_panel" class="option animated fadeIn">
+<script>
+function toggle(source) {
+    var checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    for (var i = 0; i < checkboxes.length; i++) {
+        if (checkboxes[i] != source)
+            checkboxes[i].checked = source.checked;
+    }
+}
+
+function validate(){
+	if (document.getElementById('remember').checked){
+		 localStorage.setItem('remember', 1);
+	}else{
+		// alert("You didn't check it! Let me check it for you.")
+	}
+}
+
+if (localStorage.getItem("remember")==1) {
+	div_panel.style.display = 'none';
+}
+
+
+
+</script>
+  <div class="row justify-content-md-center" >
+    <div class="col col-lg-1">
+     
+    </div>
+    <div class="col col-lg-4 panel_central ">
+    	<div style="overflow-y: auto; height:100%; ">
+    		    		<center><img src="https://aveonline.co/beta/img/logo-4.png"  style="width: 181px;" alt=""></center>
+    		
+
+    		<h3>¡Hola! <strong>HERNANDO RAMIREZ CETINA</strong></h3>
+			<h4>Hemos mejorado la navegación de nuestro sitio web.</h4>
+			<h4>Por esta razón hemos habilitado un nuevo ingreso. A partir de ahora deberás ingresar a través de <a href="https://aveonline.co" target="_blank">https://aveonline.co</a> y seguir los siguientes pasos:</h4>
+		<ol class="custom-counter">
+		  <li>
+		  	Ingresa a <a href="https://aveonline.co" target="_blank">https://aveonline.co</a>
+		  	<br><br>
+		  	<img src="https://www.aveonline.co/app/temas/iconos/loginave3.png" style="width: 100%;" alt=""></li>
+		  <li>
+		  	Clic en Iniciar sesión
+		  	<br><br>
+		  	<img src="https://www.aveonline.co/app/temas/iconos/loginave1.png" style="width: 100%;" alt=""></li>
+		  <li>
+		  	Ingresa usuario y clave y da clic en el botón Iniciar sesión 
+		  	<br><br>
+		  	<img src="https://www.aveonline.co/app/temas/iconos/loginave2.png" style="width: 100%;" alt=""></li>
+		</ol> 
+		
+    	</div>
+    </div>
+
+        <div class="col col-lg-4 panel_central " style="overflow-y: auto; height:100%; ">
+    	<div class="noticia">
+    		<strong><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>&nbsp;INFORMACIÓN IMPORTANTE</strong>
+    		<br>
+    			Apreciado cliente, antes de continuar la navegación por favor regálanos 5 minutos para validar la siguiente información, haciendo clic en cada una de las casillas.
+				Esta validación solo deberás hacerla una vez.
+    	</div>
+    	<div>
+    <br>
+    
+    <form action="relacion_envios.php" method="post" id="form_check" name="u"> 				
+	<table style="font-size: 12px;border-spacing: 0;font-size: 12px;border-spacing: 0;border-color: #dadada;border-width: 1px;border-style: solid;" id="table1">
+		<tbody style="height: 400px;overflow-y: auto;overflow-x: hidden;display: block;">
+		   <tr>
+		   	<td>	
+			   	<input type="checkbox" name="idcheck[]" value="1" id="check1" >
+				<label for="check1">Has aceptado la oferta comercial: </label>
+				<a href="#" onclick="irAPaginaDN('../ofertadeservicio/?idcampo=11635','500','500');" target="_blank">Clic aquí</a> para ver.
+				<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+				<input type="checkbox" name="idcheck[]" value="2" id="check2" >
+				<label for="check2">Has cargado en nuestra plataforma tus documentos Legales (Rut-Cámara de Comercio-CC).</label>
+				<a href="../administrador/empresa.php?mod=1&idtipo=2&enca=1" target="_blank">Clic aquí</a> para ver.
+				<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" value="3" id="check3" >
+			<label for="check3">Has recibido la inducción y la capacitación comercial.</label>
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" value="4" id="check4" >
+			<label for="check4">Has recibido la inducción y la capacitación operativa.</label>
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" value="5" id="check5" >
+			<label for="check5">Conoces y aceptas el articulo de “Mercancía de prohíbido transporte”.
+				</label>
+				<br><a href="" onClick="irAPaginaDN('../../temas/otrosarchivos/094427-1-Mercancia%20Prohibido%20Transporte.pdf','500','500');" target="_blank">Clic aquí para ver.</a>
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		 <!-- if($_SESSION['i_idempresa']<>103 && $_SESSION['i_idempresa']<>60 && $_SESSION['i_idempresa']<>1617){ -->
+		<tr>
+		   	<td>
+			<input type="checkbox" name="idcheck[]" value="6" id="check6" >
+
+			<!--
+			KHOL COSMETIC 
+			LENOVO 
+			SUPER FUDS  -->
+			<!-- 
+			103
+			60
+			1617 -->
+			
+			<label for="check6">En caso de que el producto que comercialices este catalogado como mercancía de prohibido transporte, confirmanos que has cargado en nuestra plataforma la Carta de exoneración de responsabilidades,de lo contrario de <a href="../../temas/otrosarchivos/032056-1-020622-1-FORMATO%20CARTA%20DE%20EXONERACI%C3%93N%20MERCANC%C3%8DA%20PROH%C3%8DBIDO%20TRANSPORTE.docx" target="_blank">clic aquí</a> para descargar el formato y <a href="../administrador/empresa.php?mod=1&idtipo=2&enca=1" target="_blank">clic aquí</a> para subirlo.
+			<br>
+			</label>
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check7" value="7" >
+			<label for="check7">Has cargado en nuestra plataforma el formato que declara que el producto que comercializas no esta catalogado como mercancía de prohibido transporte.<br><a href="../../temas/otrosarchivos/032027-1-020605-1-FORMATO DECLARACIÓN MERCANCÍA TRANSPORTADA.docx" target="_blank">Clic aquí</a> para descargar el formato y <a href="../administrador/empresa.php?mod=1&idtipo=2&enca=1" target="_blank">clic aquí</a> para subirlo. </label>
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check8" value="8" >
+			<label for="check8">Conoces y aceptas que es responsabilidad del cliente programar recolecciones, generar guías e imprimir los documentos.</label>
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check9" value="9" >
+		   	<label for="check9">Conoces y aceptas que es responsabilidades del cliente entregar las unidades rotuladas correctamente y con las guías correctas.</label>
+		   	<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check10" value="10" >
+			<label for="check10">Conoces y aceptas que el estado en que se entregan las unidades depende directamente de su embalaje.</label>
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check11" value="11" >
+			<label for="check11">Conoces y aceptas que en caso de presentarse una avería, las unidades afectadas deben quedar en poder de la transportadora para proceder con el proceso de indemnización.</label>
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check12" value="12" >
+			<label for="check12">Conoces y aceptas que la transportadora dispone de 15 días hábiles para dar respuesta a las reclamaciones por averia y/o pérdida.</label>
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+			<input type="checkbox" name="idcheck[]" id="check13" value="13" >
+			<label for="check13">Conoces y aceptas que el tempo para proceder con el pago de una indemnización
+			esta entre 30 y 60 días.</label>
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+			<input type="checkbox" name="idcheck[]" id="check14" value="14" >
+			<label for="check14">Conoces y aceptas que puedes solicitar inducción y/o asesoria en cualquier momento,
+			en caso de presentarse alguna duda con el embalaje de su mercancia, o con cualquier
+			otro proceso.
+			</label>
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]"  id="check15" value="15" >
+			<label for="check15">Conoce y aceptas que los tiempos de entrega de la transportadora son estimados mas no garantizados, tanto para recolecciones como para.</label>
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+			<input type="checkbox" name="idcheck[]" id="check16" value="16" >
+ 			<label for="check16">Conoces y aceptas que no hay lugar a indemnización por parte de la transportadora por incumplimientos en horarios de entrega y/o recolecciones.</label>
+ 			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check17" value="17" >
+			<label for="check17">Conoces y aceptas que el tiempo de entrega para los trayectos reexpedidos es de 8 dias habiles.</label>
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check18" value="18" >
+	 		<label for="check18">Conoces y aceptas que la transportadora dispone de 3 días hábiles para la solución de novedades, de lo contrario se procederá con la devolvución de la unidad a origen.</label>
+	 		<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+			<input type="checkbox" name="idcheck[]" id="check19" value="19" >
+	 		<label for="check19">Conoces y aceptas que las devoluciones de unidades por falta de solución, generan un costo el cual debe ser asumido por el cliente.</label>
+	 		<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check20" value="20" >
+			<label for="check20">Conoces y aceptas que al realizar una consignación nacional, se genera un costo bancario por $ 12.100 el cual debe ser asumido por el cliente. (Que este valor sea configurado en un maestro en menu de opciones para que no debamos pedirle a desarrollo que lo cambie cada que el banco lo modifique y lo podamos hacer por consola)</label>
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check21" value="21" >
+ 			<label for="check21">Conoces y aceptas que si alguna de tus facturas presenta mas de 15 días de vencimiento, nuestro sistema procede automaticamente con la suspensión del servicio.</label>
+ 			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check22" value="22" >
+ 			<label for="check22">Conoces y aceptas que la gestion de cartera se realiza via correo electronico.</label>
+ 			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check23" value="23" >
+			<label for="check23">Conoces y aceptas que las facturas se envían vía correo electronico a excepción de las compañias que requieren radicación de facturas.</label>
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check24" value="24" >
+	 		<label for="check24">Conoces y aceptas que es responsabilidad del cliente manter los datos de contacto actualizados en la plataforma. <a href="../administrador/empresa.php?mod=1&idtipo=2&enca=1" target="_blank">Haz clic aquí</a> para actualizar información.</label>
+	 		<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+			<input type="checkbox" name="idcheck[]" id="check25" value="25" >
+ 			<label for="check25">Conoces y aceptas que se factura el peso mayor entre el peso muerto y el peso volumen.</label>
+ 			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check26" value="26" >
+ 			<label for="check26">Conoces y aceptas que en caso de reportar un peso o dimensiones equivocadas, la guía será suceptible a retrasos en la operación por auditorias.</label>
+ 			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check27" value="27" >
+ 			<label for="check27">Conoces y aceptas que si la transportadora audita el peso de la unidad, el peso reportado por la transportadora será el peso liquidado en tu factura.</label>
+ 			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check28" value="28" >
+			<label for="check28">Conoces y aceptas que el remitente debe entregar las mercancías importadas con los documentos necesarios para demostrar su legalidad ante la DIAN. ENVIA y AVE NO responden por decomisos de aduana o de cualquier otra autoridad y no se obliga gestionar el retiro de las mercancías que hayan sido retenidas por ser de contrabando o por información insuficiente en los documentos que deben acompañar las mercancías y será responsabilidad del remitente hacer tramites de liberacion frente al organismo competente.
+			</label>
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		   <tr>
+		   	<td>
+		   	<input type="checkbox" name="idcheck[]" id="check29" value="29" >
+			<label for="check29">“Acepto que conozco y acepto los términos y condiciones de AVE ONLINE.CO”. 
+
+
+			<!-- En el momento que el cliente acepte, se debe generar un correo electronico el cuál nos debe llegar a nosotros y al cliente. (Dile a Anderson que te cree una carpeta en el correo de gmail que guarde todos estos correos, esto hacen acordando con juan un asunto ejemplo: “Aceptacion terminos y condiciones prestacion de servicio AVE Group – “<strong> echo($_SESSION['i_dsnombre']); ”</strong> ”, de esta forma crean la carpeta con todos los correos que contengan ese asunto, para que de esta forma puedas tener mayor control y disponibilidad de estos correos en caso que necesites una evedencia frente a un cliente”.</label> -->
+			<hr class="hr-default">
+		   </td>
+		</tr>
+		</tbody>
+	</table>
+
+<br>
+<input type="checkbox"  id="selectall" onClick="toggle(this);">
+<label for="selectall">Seleccionar todos.</label>
+<p>
+
+	<h3>Si tienes alguna  alguna duda o sugerencia, no dudes en escribirnos en la caja de comentarios:</h3>
+	<textarea name="comentarios" style="width: 100%"></textarea>
+
+</p>
+		<input type="hidden" name="guardar_check" value="1">
+		<input type=submit name=enviar value="GUARDAR DATOS" class="btn_c_1" title="Click para actualizar la lista ">
+	
+
+</form>
+
+    	</div>
+     	
+    </div>
+        <div class="col col-lg-1">
+     
+    </div>  
+  </div>
+  </div>
+<body>
+	
+			
+				<table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: white" >
+
+					<tr>
+
+						<td background="" >
+
+
+							
+
+																	<img src="https://www.aveonline.co/principales/img/logo-4-undefined.png" style="width:100px;height=80px" alt="">
+										<strong>Hernando Ramirez Cetina</strong>
+									
+						
+					</td>
+
+					<td width="9%">&nbsp;</td>
+					<td valign="middle" nowrap align="right" id="menu_modulos"><span class="texto_consolabd" style="color:#000000;">
+
+						
+						<!-- Men&uacute; de opciones: --></span>              		 
+
+						<select name=idioma onChange="MM_jumpMenu('parent',this,0);" style="" class="text1">
+
+													<option  value="" class="textnegrotit1"><strong>Mi cuenta</strong></option>
+
+							
+										
+			<option value="../administrador/codproveedores.php">Codigo proveedores</option>
+			
+			       
+						<option  value="../administrador/configurar.php?tabla=tblpaqueteo_agentes&dir=46">Agentes</option>
+
+			<!--option  value="../administrador/auditoria.php">Auditoria</option-->
+			<option value="../administrador/empresa.facturas.php?tabla=&dir=>&idcampo1=11635&retorno=5&idtipo=&dscampo=Hernando Ramirez Cetina&lista_precios=">Estado de cuenta</option>          
+			<option value="../recaudos/default.php">Ver Recaudos</option>          
+
+
+			<option value="../administrador/empresa.php?mod=1&idtipo=2">Configuracion Empresa</option>          
+		<!--option  value="../administrador/servicios.php?tabla=tblpaqueteo_servicios&dir=50">Servicios Asociados </option>
+		<option  value="../administrador/lista_precios_clientes.php?tabla=tblpaqueteo_lista_servicios_clientes&dir=50">Listas de precios </option-->
+			<!--option  value="../administrador/precios.volumen.php">Configuracion de Precio kilos volumen</option>-->
+			<!--option  value="../administrador/precios.php?tabla=tblpaqueteo_precios&dir=52">Configuracion de Precios</option-->
+			<!--option  value="../administrador/impuestos.php">Impuestos</option-->
+			<!--option  value="../administrador/mensajes.correos.php">Mensajes_Correos</option>-->
+			<!--option value="../administrador/lista_precios.cliente.php?mod=1&idtipo=2">Lista de precios</option-->                                                                         
+		<!--option value="../administrador/configurar.php?tabla=tblpaqueteo_servicios_nacionales&dir=79">Mensajeria nacioanal</option>          
+		<option value="../administrador/paqueteria.php?tblpaqueteo_servicios_nacionales_paqueteria&dir=78">Paqueteria nacioanal</option-->           
+			<!--option value="../paqueteo/default.php?tblpaqueteo_servicios_nacionales_paqueteria&dir=77">Importar Guias</option-->          
+			<!--option  value="../administrador/motivos.php">Motivos de llamadas</option-->
+		<!--option  value="../administrador/negociacion.clientes.php">Negociaci&oacute;n con clientes</option>
+		<option  value="../administrador/transportadora.php">Negociacion Transportadora</option>
+		<option  value="../administrador/origenes.php">Origenes</option-->
+			<!--option  value="../administrador/configurar.php?tabla=tblpaqueteo_servicios&dir=50">Servicios Nacionales</option-->
+			<!--option  value="../administrador/transportador.php?tabla=tblpaqueteo_transportadores&dir=48">Transportadores</option-->
+			<!--option  value="../administrador/configurar.php?tabla=tblpaqueteo_zonas&dir=47">Zonas Agentes</option-->
+			<!--option  value="../administrador/configurar.php?tabla=tblpaqueteo_zonas_serv&dir=51">Zonas Servicios </option-->
+		<!--option  value="" class="textnegrotit1">-Opciones Del sitio Web-</option>
+		<option  value="../administrador/ayuda.linea.php?tabla=tblayuda_linea&dir=85">Ayuda en linea</option>
+	
+		<option  value="../administrador/banners.php?tabla=tblbanners&dir=87">Banners</option>
+		<option  value="../administrador/contactos.php?tabla=tblcontacto&dir=86">Contacto</option>
+		<option  value="../administrador/noticias.sitio.php?tabla=noticias_sitio&dir=91">Noticias</option>
+		<option  value="../administrador/qsomos.php?tabla=tblqsomos&dir=93">Quienes somos</option>
+	
+		<option  value="../administrador/redes.php?tabla=tblredes_sociales&dir=94">Redes</option-->
+			<!--option  value="../administrador/puntos.servicio.php?tabla=tblpunto_servicio&dir=92">Puntos de servicio </option-->
+			<!--option  value="../administrador/tipo_moneda.php?tabla=tblusuariosxclientes&dir=85">Tipo de Moneda</option-->
+			<!--option  value="../administrador/paginas.sitio.php?tabla=tblpaginas_sitio&dir=90">Paginas sitio</option-->
+			<!--option  value="../administrador/asocparam.paqueteo.php?idexp=11635">Valores de paqueteo</option-->
+			<option  value="" class="textnegrotit1">--------------------</option>
+			                                  
+									<!--option  value="../administrador/textos.parametros.php">Parametrizaci&oacute;n de Textos y Correos</option-->
+			<!-- <option  value="" class="link_numeros">--URBANOS--</option> -->
+			<!-- <option  value="../administrador/urbanos.estados_guias.php">Estados de las guias URBANOS</option>    -->
+			<!-- <option  value="../administrador/urbanos.estados_recogidas.php">Estados de las recogidas URBANOS</option> -->
+			<!-- <option  value="../mensajeros/acceso.php">Mensajeros</option> -->
+		</select>
+
+		
+		
+<a href="../administrador/default.php"  class="btn_c_1"><i class="fas fa-home"></i>&nbsp;inicio</a>
+<!-- 
+<a href="../administrador/default.php" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage('Image1','','../../img_informer/bot_c_inicio2.png',1)"><img src="../../img_informer/bot_c_inicio.png" name="Image1" width="82" height="19" border="0" id="Image1" />
+ -->
+
+</a>
+
+<a class="btn_c_1" href="../salir.php?error=3" ><i class="fas fa-sign-out-alt"></i>&nbsp;cerrar</a>&nbsp;
+
+<span class='btn_c_2'>PLAN BASICO (Mensual) </span><!-- <a href="../salir.php?error=3" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage('Image2','','../../img_informer/bot_c_cerrar1.png',1)"><img src="../../img_informer/bot_c_cerrar.png" name="Image2" width="81" height="19" border="0" id="Image2" /></a> -->
+</td>
+<td valign="middle" nowrap align="right" id="cerrar_menu_modulos" style="display:none">
+<button type=button name=enviar value="Cerrar Ventana" class="btn_c_1" onClick="window.close();" title="Click para cerrar esta ventana">Cerrar Ventana</button>
+</td>
+
+
+</tr>
+</table>
+
+</td>
+</tr>
+</table>
+
+<table width="100%" border="0" cellpadding="0" cellspacing="0" id="lista_menu_modulos">
+	<tr>
+		<td align="left" valign="middle" bgcolor="#ECEDF1">
+				<link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+
+			<table border="0" cellspacing="2" cellpadding="1" width="98%" style="height: 36px;padding-top: 6px;background-color: #f3f3f3;" class="">
+				<tr>
+					<!--  <td valign="top" align="center" bgcolor="#f3f3f3">
+						<a href="../courier/crearguia.php" title="Sistema general de elaboraci�n  de gu�as  " class="texto_consola_submenu" style="font-size:12px">Genarar guia internacional</a>
+					</td> -->
+						
+	  
+	  
+        <td bgcolor="#f3f3f3" valign="top" align="center">
+							
+			<a href='../coretransporte/default.php' title='Sistema general de elaboración  de guías  ' class='texto_consola_submenu' style='font-size:12px'>Elaboracion guias</a>  
+		</td>
+		
+		
+	  
+	  
+        <td bgcolor="#f3f3f3" valign="top" align="center">
+							
+			<a href='../paqueteo/paqueteo.estados.guias.php' title='Permite actualizar los estados de la guia' class='texto_consola_submenu' style='font-size:12px'>Estados guias</a>  
+		</td>
+		
+		
+	  
+	  
+        <td bgcolor="#f3f3f3" valign="top" align="center">
+							
+			<a href='../relacion_envios/relacion_envios.php' title='Click para el manejo de los despachos' class='texto_consola_submenu' style='font-size:12px'>Relacion de envios</a>  
+		</td>
+		
+		
+	  
+	  
+        <td bgcolor="#f3f3f3" valign="top" align="center">
+							
+			<a href='../recogidas_empresa/estados.recogidas.php' title='Modulo con los estados de las recogidas' class='texto_consola_submenu' style='font-size:12px'>Estados Recogidas</a>  
+		</td>
+		
+		
+	  
+	  
+        <td bgcolor="#f3f3f3" valign="top" align="center">
+							
+			<a href='../recogidas_empresa/toma.php' title='Elaboración de una recogida ' class='texto_consola_submenu' style='font-size:12px'>Solicitud recogidas</a>  
+		</td>
+		
+										<td>
+										<a href="../courier/default.php" title="Permite generar servicios con guias y recogidas incluidas." class="texto_consola_submenu" style="font-size:12px;background-color: #aa193b;color: #fff;">Courier<!-- <span style="
+    font-size: 13px;
+    position: absolute;
+    margin-left: -43px;
+    margin-top: 14px;
+    color: #fff;
+    padding: 5px;
+    border-radius: 3px;
+    background-color: #aa193b;
+	z-index: 999
+"> Nuevo servicio</span></a> -->
+									</td>
+																	<td bgcolor="#f3f3f3" valign="top" align="center">
+																		<a href='../recaudos/default.php' title='Informe de recaudos' class='texto_consola_submenu' style='font-size:12px'> Informe de recaudos</a>  
+										</td>											
+		
+													
+
+				</tr>
+				<tr>
+			
+											</tr>
+					</table>
+				</td>
+							</tr>
+		</table></td>
+	</tr>
+</table>
+	<script language="javascript" src="../../incluidos/ajax.js"></script>
+	<script language="JavaScript" src="../../incluidos/dhtmllib.js"></script>
+	<script language="JavaScript" src="../../incluidos/scroller.js"></script>
+	<script language="javascript">
+		var milisec=0 
+var seconds=900;  // variable control de sesson por 15 minutos para mostrar mensaje
+//document.getElementById("tiempop").innerHTML = '0';
+function display(){ 
+	if (milisec<=0){ 
+		milisec=9 
+		seconds-=1 
+	} 
+	if (seconds<=-1){ 
+		milisec=0 
+		seconds+=1 
+	} 
+	else 
+		milisec-=1 
+    //document.getElementById("tiempop").innerHTML =seconds;
+    if (seconds>0) { 
+    	setTimeout("display()",100);
+    } else { 
+    	document.all.capamensajet.style.display="";
+	 //  destruir();
+	}
+} 
+</script>
+<script>
+	function destruir(){
+		rutax="destruirsession.php";
+		conexion1=AjaxObj();
+		conexion1.open("POST",rutax,true);
+		conexion1.onreadystatechange =function(){
+			if (conexion1.readyState==4){
+				document.all.capamensajet.style.display="";
+			} 
+		}
+    conexion1.send(null) // limpia conexion             
+}
+
+</script>
+<table width=100%  cellpadding=0 cellspacing=0 align="center">
+	<tr><td>
+			</td></tr>
+</table>
+<div id="capamensajet" style="display:">
+	<table width=100% align=center  cellpadding=4 cellspacing=4 class="textnegrobl" bgcolor="#E6E6E6">
+		<tr align=center >
+			<td valign=top style="background-color: #aa0139;height: 41px;padding-top: 12px;color: white;">
+				<strong>Han pasado quince minutos de inactividad en la pagina. Le recomendamos que ejecute algun proceso para evitar la perdida de informaci&oacute;n</strong>
+			</td>
+		</tr>
+	</table>
+</div>
+
+
+<script language="javascript">
+	<!--
+	document.all.capamensajet.style.display="none";
+	display();
+-->
+</script>
+
+
+<script type="text/javascript">
+		function MM_swapImgRestore() { //v3.0
+			var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;
+		}
+		function MM_preloadImages() { //v3.0
+			var d=document; if(d.images){ if(!d.MM_p) d.MM_p=new Array();
+				var i,j=d.MM_p.length,a=MM_preloadImages.arguments; for(i=0; i<a.length; i++)
+				if (a[i].indexOf("#")!=0){ d.MM_p[j]=new Image; d.MM_p[j++].src=a[i];}}
+			}
+
+		function MM_findObj(n, d) { //v4.01
+			var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+				d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+				if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+				for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+					if(!x && d.getElementById) x=d.getElementById(n); return x;
+			}
+
+		function MM_swapImage() { //v3.0
+			var i,j=0,x,a=MM_swapImage.arguments; document.MM_sr=new Array; for(i=0;i<(a.length-2);i+=3)
+			if ((x=MM_findObj(a[i]))!=null){document.MM_sr[j++]=x; if(!x.oSrc) x.oSrc=x.src; x.src=a[i+2];}
+		}
+</script>
+
+<div class="" style="width: 100%;color: #000000;padding: 5px;background-color: #cccccc;text-align: center;font-family: 'Montserrat', sans-serif;font-weight: 900;padding-top: 6px;display: none">
+			 <p>
+			 	<h1><strong>A partir del 1 de Septiembre del 2018, las tarifas de todas las transportadoras se actualizaran a su versión 2018 - 2019 como se realiza cada año.<br> En el transcurso de las próxima semana te estaremos contando como quedó tu negociación.
+			 	</strong>
+			</h1>			 
+			</p>	
+		</div>
+		
+<script type="text/javascript">
+//
+if(window.opener || window.history.length === 1)  {
+	document.getElementById("menu_modulos").style.display='none';
+	document.getElementById("lista_menu_modulos").style.display='none';
+	document.getElementById("menu_asesor_modulos").style.display='none';
+	document.getElementById("cerrar_menu_modulos").style.display='';
+} else {
+	document.getElementById("menu_modulos").style.display='';
+	document.getElementById("lista_menu_modulos").style.display='';
+	document.getElementById("menu_asesor_modulos").style.display='';
+	document.getElementById("cerrar_menu_modulos").style.display='none';
+}
+
+</script>
+
+<!-- jQuery Library -->
+<script>
+
+const encabezado = {
+	"tipo": "obtenerContadores"
+}
+
+const obtenerOpcionesLocales = async () => {
+	const data = localStorage.getItem('estadoOpciones');
+	return await JSON.parse(data);
+}
+
+const mostrarDiv = () => {
+	var div = document.createElement("div");
+	div.style.width = "100px";
+	div.style.height = "100px";
+	div.style.background = "red";
+	div.style.color = "white";
+	div.innerHTML = "Actualizar panel de novedades.";
+
+	document.getElementById("main").appendChild(div);
+}
+
+
+const fecthObtenerOpciones = (params) => {
+
+	    fetch('https://aveonline.co/api/nal/v1.0/panelNovedades.php',{
+          method: 'POST',
+          body: JSON.stringify(encabezado)
+        }) 
+        .then(function(response){
+          console.log(response);
+          return response.json();
+        })
+        .then(function({status , result}) {
+			const { count_opc1 , count_opc2 , count_opc3, count_opc4} = params;
+          if(status == "success") {
+			var error = 0;
+            //   var count_opc1 = result.count_opc1;
+            //   var count_opc2 = result.count_opc2;
+            //   var count_opc3 = result.count_opc3;
+			//   var count_opc4 = result.count_opc4;
+			if(count_opc1 > result.count_opc1){
+				error = 1;
+			}
+			if(count_opc2 > result.count_opc2){
+				error = 2;
+			}
+			if(count_opc3 > result.count_opc3){
+				error = 3
+			}
+			if(count_opc4 > result.count_opc4){
+				error = 4
+			}
+			if(error !== 0){
+				mostrarDiv()
+				console.log(`local = ${count_opc1} servidor = ${result.count_opc1}`);
+			} 
+           
+          } else {
+            console.log(object);('Respuesta de red OK pero respuesta HTTP no OK');
+          }
+        })
+        .catch(function(error) {
+          console.log(object);('Hubo un problema con la petición Fetch:' + error.message);
+        });
+}
+
+var dispararIntervalo = null;
+
+const dispararIntervaloFunc = () => {
+	setInterval(function(){ 
+		obtenerOpcionesLocales()
+		.then(function(response){
+			console.log({ response })
+			const resultFetch = fecthObtenerOpciones(response);
+		})
+		.catch(function(error){
+			console.log(`error: ${error}`)
+			cancelarIntervalo();
+		});
+		console.log(opciones)
+	}, 10000);
+}
+
+onload = function () {
+  dispararIntervaloFunc();
+};
+</script><table  width="100%" align="center" border="0" bgcolor="#cccccc" cellpadding="4" cellspacing="1" class="text1" id="guia_asignada_1">
+  <tbody colspan="4">
+    <tr bgcolor="#aa0139" style="height: 45px;color:white; font-size: 12px">
+      <td>
+        <center><i class="fa fa-exclamation-triangle" aria-hidden="true"></i>&nbsp;<strong>CAMBIO IMPORTANTE!:</strong> <br>
+
+         <h3>Para los despachos con TCC y con ENVIA es indispensable imprimir <br>ROTULO, GUÍA (para evitar pérdidas y trocamiento) y RELACIÓN DE ENVÍO (hacerla firmar como comprobante de entrega a la transportadora).</h3></strong><br>
+
+
+        </center>
+      </td>
+    </tr>
+  </tbody>
+</table>
+	
+			<table border="0" cellpadding="0" cellspacing="1" width="100%" class="text3" bgcolor="#CCCCCC">
+			<form method="post" name="buscador" action="relacion_envios.php">
+				<tr bgcolor="#FFFFFF" class="">
+					<td valign="middle" background="../../img/titulo_fondo2.jpg" height="25px" colspan="2">Relación de envío
+											</td>
+				</tr>
+				<tr bgcolor="#FFFFFF">
+					<td valign="middle" width="50%">
+												
+							&nbsp;Buscar por Agentes:
+							<select name="idagente" class="text1" onchange="this.options[this.selectedIndex].value && (window.location ='?idagente='+this.options[this.selectedIndex].value);">
+								<option value="">----</option>
+								<option value=3161 selected>HERNANDO RAMIREZ CETINA ENVIA</option><option value=2422>HERNANDO RAMIREZ CETINA TCC</option>								<option value="9999">VER TODOS</option>
+							</select>
+
+						
+													Seleccione Transportador
+															&nbsp;
+																Entre <input type="text" name="dsfechai" class="text1" size="10" maxlength="10" value="2020/06/19">
+								<img align="absmiddle" SRC="../../temas/iconos/calendario.gif" ALT="Calendario" name="imgFecha" ID="imgFecha" STYLE="cursor:hand;position:relative" BORDER="0" onClick="displayDatePicker('dsfechai', this);" language="javaScript"> Y
+								<input type="text" name="dsfechaf" class="text1" size="10" maxlength="10" value="2021/06/19">
+								<img align="absmiddle" SRC="../../temas/iconos/calendario.gif" ALT="Calendario" name="imgFecha" ID="imgFecha" STYLE="cursor:hand;position:relative" BORDER="0" onClick="displayDatePicker('dsfechaf', this);" language="javaScript">
+								&nbsp;
+								</select>
+																			</td>
+					<td>
+						<input type="submit" name="enviarbuscar" value="Listar" class="btn_c_1">
+		
+							<input type="button" name="ver formatos" value="Ver Relacion de EnvÍos" class="btn_c_1" onClick="irAPaginaD('relacion_envio_exportar.php?enca=&aveila=&idagente=3161');">
+																					<input type="button" name="dspreguias" value="Importar Preguias" class="btn_c_1" onClick="irAPaginaD('importar_preguias.php');">
+								<input type="button" name="dspreguias" value="Ver Preguias" class="btn_c_1" onClick="irAPaginaD('ver_preguias.php');">
+													
+						<input type="hidden" name="dsfechaguiamasterx" value="">
+						<input type="hidden" name="box" value="">
+
+						<input type="hidden" name="idfechaguiamasterx" value="">
+						<input type="hidden" name="dsguiamasterx" value="">
+						<input type="hidden" name="idpaisdestinob" id="idpaisdestinob" value="">
+						<input type="hidden" name="enca" id="enca" value="">
+						<input type="hidden" name="aveila" id="aveila" value="">
+
+					</td>
+				</tr>
+			</form>
+		</table>
+		</div>
+					<br>
+	  
+      
+
+<footer style="background-color:#ffffff">
+
+  <article class="cont_centro_footer">
+    <article class="cont_contacto">
+        
+      <article id="logogroup">
+                       </article>
+      
+
+      <article class="text_cont">
+      
+     
+      </article>
+    
+    </article>
+    <article class="cont_derecho">
+         <p>
+
+                                                                           </p>
+        <hr>
+       <p>                                                             </p>
+             </article>
+  
+       
+    </article>
+ 
+</footer>
+
+
+<script language="javascript" type="text/javascript">
+if (document.getElementById('cargando')) document.all.cargando.style.display='none';
+</script>
+
+	</body>
+
+</html>
+<script language="javascript">
+	<!--
+	function avisox() {
+		mensajex = "Esta seguro de generar la Relación de envíos?.";
+				if (confirm(mensajex + 'Este proceso no se puede devolver.') == true) {
+			document.avisoforma.submit();
+		} else {
+
+		}
+	}
+
+	function exportar_relaciones() {
+		document.submit();
+	}
+	//
+	-->
+</script>

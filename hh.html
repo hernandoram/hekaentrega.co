@@ -1,0 +1,1028 @@
+<!--
+/*
+| ----------------------------------------------------------------- |
+ILA SOLUTIONS
+Medellin - Colombia
+=====================================================================
+| ----------------------------------------------------------------- | 
+*/
+-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script language="JavaScript" type="text/javascript">
+<!--
+//cargadores globales
+function ingresar(pagina)
+{
+	var ruta=pagina;
+	window.open(ruta,"",'scrollbars=yes,width=700,height=500,left=50,top=2');	
+}
+/*-----------------------------*/
+function recargar(pagina)
+{
+	var ruta=pagina;
+	window.open(ruta,"",'scrollbars=no,width=150,height=150,left=50,top=2');	
+}
+/*--------------------------------*/	
+function MM_displayStatusMsg(msgStr) { //v1.0
+  status=msgStr;
+  document.MM_returnValue = true;
+}
+/*------------------------------------*/
+function MM_swapImgRestore() { //v3.0
+  var i,x,a=document.MM_sr; for(i=0;a&&i<a.length&&(x=a[i])&&x.oSrc;i++) x.src=x.oSrc;
+}
+/*--------------------------*/
+function MM_preloadImages() { //v3.0
+  var d=document; if(d.images){ if(!d.MM_p) d.MM_p=new Array();
+    var i,j=d.MM_p.length,a=MM_preloadImages.arguments; for(i=0; i<a.length; i++)
+    if (a[i].indexOf("#")!=0){ d.MM_p[j]=new Image; d.MM_p[j++].src=a[i];}}
+}
+/*-------------------------------------*/
+function MM_findObj(n, d) { //v4.01
+  var p,i,x;  if(!d) d=document; if((p=n.indexOf("?"))>0&&parent.frames.length) {
+    d=parent.frames[n.substring(p+1)].document; n=n.substring(0,p);}
+  if(!(x=d[n])&&d.all) x=d.all[n]; for (i=0;!x&&i<d.forms.length;i++) x=d.forms[i][n];
+  for(i=0;!x&&d.layers&&i<d.layers.length;i++) x=MM_findObj(n,d.layers[i].document);
+  if(!x && d.getElementById) x=d.getElementById(n); return x;
+}
+/*-------------------------*/
+function MM_swapImage() { //v3.0
+  var i,j=0,x,a=MM_swapImage.arguments; document.MM_sr=new Array; for(i=0;i<(a.length-2);i+=3)
+   if ((x=MM_findObj(a[i]))!=null){document.MM_sr[j++]=x; if(!x.oSrc) x.oSrc=x.src; x.src=a[i+2];}
+}
+/*---------------------------------------------*/
+function MM_jumpMenu(targ,selObj,restore){ //v3.0
+  eval(targ+".location='"+selObj.options[selObj.selectedIndex].value+"'");
+  if (restore) selObj.selectedIndex=0;
+}
+/*------------------------------------------*/
+function ActivarTodo()
+{
+	var sa=false;
+	if(document.u.AdjuntarTodo.checked)
+		sa=true;
+	for (var i=0;i<document.u.elements.length;i++)
+	{
+		var e = document.u.elements[i];
+		if(sa)
+			e.checked=true;
+		else
+			e.checked=false;
+	}
+}
+
+/*
+*/
+// funcion de mostrar, no mostrar valores de capa
+function MM_changeProp(objName,x,theProp,theValue) { //v6.0
+  var obj = MM_findObj(objName);
+  if (obj && (theProp.indexOf("style.")==-1 || obj.style)){
+    if (theValue == true || theValue == false)
+      eval("obj."+theProp+"="+theValue);
+    else eval("obj."+theProp+"='"+theValue+"'");
+  }
+}
+// estatus Global que siempre aparece
+defaultStatus = "AVE GROUP";
+// redireccionador global
+function irAPagina(){
+	var redir = document.inn.redir.value;
+	// alert(document.inn.redir.value);
+	if (redir!=""){
+		location.href=redir;
+	}
+}
+/*---------------------*/
+function irAPaginaD(ruta){
+		var redir = ruta;
+	// alert(document.inn.redir.value);
+	if (redir!=""){
+		location.href=redir;
+	}
+}
+/*------------------------*/
+// funcion de abrir ventana
+function irAPaginaDN(ruta,ancho,alto){
+	var redir=ruta;
+	if (redir!="")
+	{
+		window.open(redir,"",'scrollbars=YES,width=600,height=600,left=30,top=2,resizable=yes');	
+	}
+}
+function irAPaginaDN2(ruta,ancho,alto){
+	var redir=ruta;
+	if (redir!="")
+	{
+		window.open(redir,"",'scrollbars=YES,width='+ancho+',height='+alto+',left=30,top=2,resizable=yes');	
+	}
+}
+/*-----------------------------*/
+function irImprimir(ruta){
+	var redir=ruta;
+	if (redir!=""){
+		window.open(redir,"imprimir",'scrollbars=YES,width=800,height=600,left=30,top=2,resizable=yes');	
+	}
+}
+/*--------------------------*/
+function recuperar(ruta){
+	var redir=ruta;
+	if (redir!=""){
+		window.open(redir,"",'scrollbars=YES,width=400,height=400,left=30,top=2,resizable=yes');	
+	}
+}
+/*-----------------------------*/
+// cambia de color cuando se para por encima de la celda
+function mOvr(src,clrOver) 
+{
+	if (!src.contains(event.fromElement)) {
+		//src.style.cursor = 'default';
+		 src.bgColor = clrOver;
+	}
+ }
+/*------------------------------------*/
+function mOut(src,clrIn) 
+{
+	if (!src.contains(event.toElement)) {
+		//src.style.cursor = 'default';
+		src.bgColor = clrIn;
+	}
+ }	
+// cambiar de una pagina a otra con recarga
+function CargarPagina(newLocation)
+{
+	var ventana;
+	ventana = window.parent.opener;
+	ventana.location = newLocation;
+	window.parent.close();
+}	
+/*-------------------------*/
+function CargarPagina1(newLocation)
+{
+	var ventana;
+	ventana = window.parent.opener;
+	ventana.location = newLocation;
+}
+/*-------------------------------------*/	
+function enviarconfirm(m1,m2,tipo,redir)
+{
+	if (confirm(m1)== true ){
+		if (tipo==1){
+			document.u.submit();
+		} else{
+			location.href=redir;
+		}
+	} else {
+		alert(m2);
+		return;
+	}
+}	
+/*------------------------------------------*/
+function enviarconfirmG(m1,m2,tipo,redir,forma)
+{
+	if (forma!=""){
+		var formabase=eval("document."+forma);
+	}
+	if (confirm(m1)== true ){
+		if (forma!=""){
+			formabase.submit();
+		} else{
+			location.href=redir;
+		}
+	} else {
+		alert(m2);
+		return;
+	}
+}	
+// funcion generica de calendariuo
+function calendarioGenerico(url, strFecha,forma)
+{	
+	if (strFecha!=""){
+		var Fecha = eval("window.document."+forma+"."+strFecha);
+	}
+	intTop = Fecha.offsetTop  + Fecha.offsetHeight;
+	FechaSeleccionada = Fecha.value;
+	strParametros="dialogWidth:195px;dialogHeight:250px;status:0;scroll:0;dialogTop:"+ intTop + ";dialogLeft:500"
+	var cSearchValue=showModalDialog(url,FechaSeleccionada,strParametros);
+	if (cSearchValue == -1 || cSearchValue == null)
+	{
+	}
+	else 
+	{
+         Fecha.value=cSearchValue;
+	}
+}	  
+/*-------------------------------------*/
+function doModalgeneral(url, strFecha,forma)
+{	
+	var Fecha= eval("window.document."+forma+"."+strFecha);
+	urlbase=url+"?fecha="+Fecha.value+"&campo="+strFecha+"&forma="+forma;
+	var caracteristicas= "height=250, width=225, toolbar=0, directories=0,status=0, linemenubar=0, modal=yes, left=100, top=100, dialog=yes,resizable, scrollbars";
+	window.open(urlbase,'',caracteristicas);		
+}	  
+/*-----------------------------*/
+function ActivarTodoGeneral(forma) 
+{
+	var formabase=eval("document."+forma);
+	var sa=false;
+	if(formabase.AdjuntarTodo.checked)
+    	sa=true;
+	for (var i=0;i<formabase.elements.length;i++)
+    {
+    	var e = formabase.elements[i];
+    	if(sa)
+    		e.checked=true;
+    	else
+    	    e.checked=false;
+    }
+}
+
+function ActivarTodoGeneral1(forma) 
+{
+	var formabase=eval("document."+forma);
+	var sa=false;
+	if(formabase.AdjuntarTodo1.checked)
+    	sa=true;
+	for (var i=0;i<formabase.elements.length;i++)
+    {
+    	var e = formabase.elements[i];
+    	if(sa)
+    		e.checked=true;
+    	else
+    	    e.checked=false;
+    }
+
+
+    var inputs=document.getElementsByTagName('input');
+	for(i=0;i<inputs.length;i++){
+	    inputs[i].disabled=false;
+	}   
+
+	var inputVal1 = document.getElementById("ximprimir");
+    if (inputVal1.value != "") {
+        inputVal1.style.backgroundColor = "#aa0139";
+    }
+
+    var inputVal01 = document.getElementById("ximprimir2");
+    if (inputVal01.value != "") {
+        inputVal01.style.backgroundColor = "#aa0139";
+    }
+
+    var inputVal2 = document.getElementById("ximprimirunidas");
+    if (inputVal2.value != "") {
+        inputVal2.style.backgroundColor = "#aa0139";
+    }
+
+    var inputVal02 = document.getElementById("ximprimirunidas2");
+    if (inputVal02.value != "") {
+        inputVal02.style.backgroundColor = "#aa0139";
+    }
+
+}
+
+function ActivarTodoGeneralVector(forma) 
+{
+	var formabase=eval("document."+forma);
+	var sa=false;
+	if(formabase.AdjuntarTodo.checked)
+    	sa=true;
+	for (var i=0;i<formabase.elements['id[]'].length;i++)
+    {
+    	var e = formabase.elements['id[]'][i];
+    	if(sa)
+    		e.checked=true;
+    	else
+    	    e.checked=false;
+    }
+}
+/*------------------------------------*/
+function ActivarTodoGeneral_rangos(forma,inicial,final) 
+{
+	//alert(inicial+"--"+final);
+	var formabase=eval("document."+forma);
+	var selector=eval("document."+forma+".campo_"+inicial+"_"+final);
+  	if (selector.value==1){
+		if (inicial==0) {
+			formabase.elements["pkid[]"][0].checked=true;
+		} else { 
+			for (i=inicial;i<=final;i++) {
+				var e = formabase.elements["pkid[]"][i];
+				e.checked=true;
+			} // finfor
+	  	}
+		selector.value=2;
+  	}else if (selector.value==2){
+		if (inicial==0) {
+			formabase.elements["pkid[]"][0].checked=false;
+		} else { 
+			for (i=inicial;i<=final;i++) {
+				var e = formabase.elements["pkid[]"][i];
+				e.checked=false;
+		  } // finfor
+	}
+	selector.value=1;
+  	}
+}
+/*-------------------------*/
+function irAPaginaGeneral(ruta,ancho,alto){
+	var redir=ruta;
+	if (redir!=""){
+		window.open(redir,"",'scrollbars=YES,width='+ancho+',height='+alto+',left=2,top=2,resizable=yes');	
+	}
+}
+/*------------------------------------*/
+function cargarformulario(forma,ruta,idpedido,idcliente){
+	var formabase=eval("document."+forma);
+	formabase.action=ruta;
+	formabase.target="_self";
+	formabase.idpedido.value=idpedido;
+	formabase.idcliente.value=idcliente;
+	formabase.submit();
+}
+/*-------------------------------------*/
+function trim(s) 
+{ 
+    var l=0; var r=s.length -1; 
+    while(l < s.length && s[l] == ' ') 
+    {     l++; } 
+    while(r > l && s[r] == ' ') 
+    {     r-=1;     } 
+    return s.substring(l, r+1); 
+} 
+/*--------------------------------------*/
+function rutaExportar(ruta,forma){
+	var formabase=eval("document."+forma);
+	formabase.action=ruta;
+	formabase.submit();
+}
+
+function cargarcliente(valor,rutax){
+	var idclientex=eval("document.u."+valor+"");
+	if (idclientex.value!="") { 
+		var rutax="../proveedores/modclientes.php?rutax="+rutax+"&tabla=tblterceros&dir=&idcampo="+idclientex.value+"&name=&cargarfac=1";
+		irAPaginaDN(rutax,'800','600');
+	}
+	// if (valor=="idcliente")	document.u.idcliente.selectedIndex=0;
+}
+
+function cargardatos(param,idactivox){
+	// recargar el combo de clientes
+	rutax="../proveedores/clientes.recargar.php?idclientex="+param+"&idactivox="+idactivox;
+	conexion1=AjaxObj();
+	conexion1.open("POST",rutax,true);
+	conexion1.onreadystatechange =function() {
+	var contenedorx=document.getElementById('capaclientex');
+	 if (conexion1.readyState==4) {
+	 var _resultadox = conexion1.responseText;
+		// partir el resultado
+		//contenedor.innerHTML=_resultado;		 
+		contenedorx.innerHTML=_resultadox;									
+	 }
+	}
+	conexion1.send(null) // limpia conexion	
+	// recargar los datos de variables del nuevo cliente
+	CargarVariables();
+	// apagar las capas
+	contenedor=document.getElementById('validacion_nuevo_cliente');
+	contenedor.innerHTML="";	
+}
+
+function moverfoco(tipo,valor,pos){
+	 var key = (evt.charCode) ? evt.charCode : ((evt.which) ? evt.which : evt.keyCode)
+	if (key==13){
+		if (tipo==1){
+		var formabase=eval("document.u."+valor);
+		formabase.select();
+		return;
+		} else { 
+			var formabase=eval("document.u.elements['"+valor+"']["+pos+"]");
+			formabase.select();
+			return;
+		}
+	}
+
+}
+
+function moverfoco_1(tipo,valor,pos){
+	 var key = (evt.charCode) ? evt.charCode : ((evt.which) ? evt.which : evt.keyCode)
+	if (key==13){
+		if (tipo==1){
+		var formabase=eval("document.u."+valor);
+		formabase.focus();
+		return;
+		} else { 
+			var formabase=eval("document.u.elements['"+valor+"']["+pos+"]");
+			formabase.focus();
+			return;
+		}
+	}
+
+}
+
+
+function moverfoco_2(tipo,valor,pos){
+		 var key = (evt.charCode) ? evt.charCode : ((evt.which) ? evt.which : evt.keyCode)
+if (key==13){
+		if (tipo==1){
+		var formabase=eval("document.u."+valor);
+		formabase.select();
+		return;
+		} else { 
+			var formabase=eval("document.u.elements['"+valor+"']["+pos+"]");
+			formabase.select();
+			return;
+		}
+	}
+
+}
+
+function moverfocos(tipo,valor,pos,e){
+	var key=(e.keyCode ? e.keyCode : e.which);
+	if (key==13){
+		if (tipo==1){
+		var formabase=eval("document.u."+valor);
+		formabase.focus();
+		return;
+		} else { 
+			if(valor=="identidad[]"){
+				if(eval("document.u.elements['"+valor+"']["+pos+"].disabled")){
+					valor="horaini[]";
+				}
+			}
+			if(valor=="idestado[]"){
+				if(eval("document.u.elements['"+valor+"']["+pos+"].style.display")){
+					valor="dsnombreresp[]";
+				}
+			}
+
+			var formabase=eval("document.u.elements['"+valor+"']["+pos+"]");
+			
+			formabase.focus();
+			return;
+		}
+	}
+
+}
+
+function redondear(num)
+{ 		
+	var original=new String(num);
+	partir=original.split(".");
+//	dec=partir[1];
+
+	if (partir>=5) { 
+		result=Math.ceil(original)
+	} else { 
+		result=Math.ceil(original)	
+	}
+	
+	 //result=num.toFixed(0);
+
+	// result=num;
+
+	return result;
+}
+
+
+function notificacion(app,idusuario,wcwcourier){
+			conexion6=AjaxObj()
+		contenedor12="cargar_notificacion";
+		//alert("entra");
+		document.getElementById(contenedor12).innerHTML = "Cargando...";
+		//alert(valor);
+		conexion6.open("POST","../../modulos/utilidades/cargar_notificaciones.php?param="+app+"&idusuario="+idusuario+"&wcwcourier="+wcwcourier,true);
+		conexion6.onreadystatechange =function() {
+
+
+			//alert(conexion.readyState);
+						 if (conexion6.readyState==4) {
+						 	//	alert("entra");
+
+			 var _resultado = conexion6.responseText;
+
+			 			//alert(_resultado);
+
+					 if (_resultado !="0" && _resultado !="-1" && _resultado !="") {	
+						document.getElementById(contenedor12).innerHTML = _resultado;
+						 
+						 } else {
+						 	//alert("entra");
+
+					document.getElementById(contenedor12).innerHTML = 0;
+
+			  			}  
+
+			  		} // fin resultado
+			} // fin conexion
+	  conexion6.send(null) // limpia conexion	
+
+}
+
+function pagos(){
+	//alert("entra");
+			conexion6=AjaxObj()
+		contenedor12="cargar_pagos";
+		//alert("entra");
+		document.getElementById(contenedor12).innerHTML = "Cargando...";
+		//alert(valor);
+		conexion6.open("POST","../../modulos/utilidades/notificar_pago.php?param=",true);
+		//alert("entra");
+		conexion6.onreadystatechange =function() {
+
+
+			//alert(conexion.readyState);
+						 if (conexion6.readyState==4) {
+						 	//	alert("entra");
+
+			 var _resultado = conexion6.responseText;
+
+			 			//alert(_resultado);
+
+					 if (_resultado !="0" && _resultado !="-1" && _resultado !="") {	
+						document.getElementById(contenedor12).innerHTML = _resultado;
+						 
+						 } else {
+						 	//alert("entra");
+
+					document.getElementById(contenedor12).innerHTML = 0;
+
+			  			}  
+
+			  		} // fin resultado
+			} // fin conexion
+	  conexion6.send(null) // limpia conexion	
+
+}
+
+function valgeneral(e) {
+	tecla = (document.all) ? e.keyCode : e.which; // 2
+	//alert(tecla);
+	if (tecla==32) return true; // retorno true para poder dejar  pasar el evento del espacio en blanco con este comando puedo capturar cualquier evento y permitirlo 
+	if (tecla==8) return true; // 3	
+	//*patron = /D/; //evita numeros
+	patron =/[A-Za-z��s0-9]/; // 4 solo admite letras y �
+	te = String.fromCharCode(tecla); // 5
+	return patron.test(te); // 6
+}
+
+function cambiar_idioma(pagina){
+	var valor=document.getElementById("idiomas");
+	var valor1=document.getElementById("id");
+
+
+	if (valor) {
+		location.href="incluidos_sitio/cambio.idioma.php?idioma="+valor.value+"&paginar="+pagina+"&id="+valor1.value;
+
+	}
+
+}
+
+function cargarprovee(valor,rutax){
+	//var idclientex=eval("document.u."+valor+"");
+	//if (idclientex.value!="") { 
+		var rutax="../proveedores/innclientes.php?rutax="+rutax+"&name=&fac=1";
+		irAPaginaDN(rutax,'800','600');
+	//}
+	// if (valor=="idcliente")	document.u.idcliente.selectedIndex=0;
+}
+function cargardatosproveedor(valor,rutax){
+	//var idtip=eval("document.u."+tipo+"");
+	var idclientex=eval("document.u."+valor+"");
+	//alert(idtip.value);
+	if (idclientex.value!="" && idclientex.value!=0) { 
+		var rutax="../proveedores/modclientes.php?rutax="+rutax+"&tabla=tblclientes&dir=&idcampo="+idclientex.value+"&name=&cargarfac=1";
+		irAPaginaDN(rutax,'800','600');
+	}
+	// if (valor=="idcliente")	document.u.idcliente.selectedIndex=0;
+}
+function irAPaginaDNDX(ruta,ancho,alto){
+	var idcliente=document.u.idcliente.value;
+	//idtipo=eval(idtipo.value);
+	//alert(idtipo);
+	redir="../concepto/"+ruta;
+	//alert(idcliente);
+	if (redir!=""){
+//		window.open(redir,"",'scrollbars=YES,width=600,height=600,left=30,top=2,resizable=yes,toolbar=yes,menubar=yes');	
+	window.open(redir,"",'scrollbars=YES,width=800,height=600,left=30,top=2,resizable=yes');	
+	}
+}
+function cargar_proveedor(param){
+	// ubicar en el parent
+	//alert(param);
+		window.parent.opener.cargarproveedor(param); // recarga el combo de datos
+}
+function cargarproveedor(param){
+	// recargar el combo de clientes
+	//alert(param);
+	rutax="clientes.recargar.php?id="+param;
+	conexion1=AjaxObj();
+	conexion1.open("POST",rutax,true);
+	conexion1.onreadystatechange =function() {
+	var contenedorx=document.getElementById('capaclientex');
+	 if (conexion1.readyState==4) {
+	 var _resultadox = conexion1.responseText;
+	 	partir=_resultadox.split("|");
+		// partir el resultado
+		//contenedor.innerHTML=_resultado;		 
+		contenedorx.innerHTML=partir[0];
+		CargarVariables();								
+	 }
+	}
+	conexion1.send(null) // limpia conexion	
+	
+}
+// CALCULOS GENERALES DE VALORACION MINIMA
+function valoracionminima(pos) {
+	for (i=0;i<document.xx1.elements['dspormanejo[]'].length;i++){ 
+			if (i==pos) { 
+				var campo1=document.xx1.elements['dspormanejo[]'][i].value;
+				var campo2=document.xx1.elements['dsmanejominimo[]'][i].value;
+				var total=campo2*100/campo1;
+				document.xx1.elements['dsvaloracionminima[]'][i].value=total.toFixed(0);;
+				document.xx1.elements['dstotalenviominimo[]'][i].value=(eval(document.xx1.elements['dsmanejominimo[]'][i].value)+eval(document.xx1.elements['dsfleteminimo[]'][i].value)).toFixed(0);
+			}
+	}	
+
+}
+//-->
+</script>
+<script type="text/javascript" src="../../incluidos/sorttable.js"></script>
+
+
+
+<html>
+
+<head>
+<title>AVE GROUP Impresion relacion de envio Nro. 116352920200619212657</title>
+	<link rel="stylesheet" type="text/css" href="../../incluidos/estilo.css">
+<link rel="stylesheet" type="text/css" href="../../incluidos/estilo_consola.css">
+
+</head>
+<body color=#ffffff  topmargin=0 leftmargin=0>
+<form method="post" name="modificar" id="modificar" action="imprimir.php">
+
+
+					            <table  width="100%"  border="0" class="text1">
+							          <tr>
+											<td align="center">
+													<h2>Relacion de envio numero 116352920200619212657</h2>
+										    </td>	
+									</tr>
+								     <tr id="capa_exportar">	
+											<td align=center >
+														
+<a href="exportar.relacion.php?dscodigo=116352920200619212657&idempresa=11635&id=662219&idtransportador=29" align="center" class="btn_c_1" id="btn_exportar">Exportar</a>
+
+    <input type="button" name="cimprimir" id="cimprimir" value="Imprimir Relacion de envio"  class="btn_c_1" onClick="relacion()">
+
+
+ 									    	
+									    	</td>
+								    </tr>
+						    </table>	
+	    
+
+            <table border="0" bgcolor="#000" cellpadding="5" cellspacing="2" width="100%" class="text1" style="font-size: 11px">
+						<tr bgcolor="#fff" valign="top">
+						<td rowspan="2">
+								<img src="../../temas/imagen_transpo/image002-024411-1-image002.jpg" align="absmiddle" border="0" style="width:100" >
+						</td>
+					
+							<td   class="text4">Transportador 
+							 <strong>ENVIA</strong>
+							</td>
+
+			            		<td valign="top" colspan="2" class="text4">Fecha: <strong>2020/06/19 21:26:57 pm</strong>
+				
+							</td>
+								  <td  align="left" class="text4">N&uacute;mero:  <strong>116352920200619212657</strong></td>		    	
+
+		            </tr>	
+		      
+		       	<tr bgcolor="#fff">
+					<td>
+													
+																
+							Contacto: <strong>Hernando Ramirez Cetina Envia</strong>
+						</td>
+						<td>
+						Direccion de recogida:  <strong>cra 25 #4-75 Barrio cerezos de Italia Palmira</strong>
+						</td>
+						<td colspan="2">
+							Ciudad/departamento:  <strong>PALMIRA(VALLE DEL CAUCA)</strong>	
+			
+	
+					</td>	
+				
+					
+					
+				</tr>	
+		  			    
+            </table>
+<br>
+<table border="0" cellpadding="1" cellspacing="2" width="100%" style="font-family:arial;font-size:11px"  >
+
+<tr bgcolor="" valign="top" align="center" >
+			<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4 imprimirx"><input type="checkbox" name="AdjuntarTodo1" onclick="ActivarTodoGeneral1('modificar')"> Guia Hija</td>
+	<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4 imprimirx">Guia</td>
+
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4" >Nombre o razon social remitente</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Ciudad remitente</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Nombre o razon social destinatario</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Ciudad destinatario</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Fecha</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Direccion</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Telefono</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Cajas</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Peso</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Peso Vol</td>
+
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Factura</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Valor declarado</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Valor a Recaudar</td>
+
+
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Observaciones guia</td>
+</tr>
+<tr class=text1  bgcolor="#FFFFFF" align="center" >
+	
+  <td valign="top">
+
+
+				<input type="hidden" name="pkidxselr[]" value="868781">
+			<input type="hidden" name="idremision_wcw[]" id="idremision_wcw" value="868781">
+<input type="hidden" name="idservicio[]" id="idservicio[]" value="29">
+<input type="hidden" name="idremision_tcc[]" id="idremision_tcc" value="">
+				<input type="hidden" name="pkidr[]" value="868781">
+			
+
+		<input type="hidden" name="pkid" value="868781">
+
+
+  
+
+
+</td>
+  <td valign="top">
+
+
+ 	024016082223 
+ </td>
+
+
+
+<td valign="top">AVE -Hernando Ramirez Cetina Envia</td>
+<td valign="top">PALMIRA(VALLE DEL CAUCA)</td>
+<td valign="top">a</td>
+<td valign="top">BOGOTA(CUNDINAMARCA)</td>
+<td valign="top">2020/06/19</td>
+<td valign="top">1</td>
+<td valign="top">1</td>
+<td valign="top">1</td>
+<td valign="top" align="center">1 </td>
+<td valign="top" align="center">0 </td>
+
+<td valign="top"></td>
+<td valign="top">35000</td>
+<td valign="top">131162</td>
+
+<td valign="top">chaqueta</td>
+</tr>
+
+<tr class=text1  bgcolor="#FFFFFF" align="center" >
+	
+  <td valign="top">
+
+
+				<input type="hidden" name="pkidxselr[]" value="868844">
+			<input type="hidden" name="idremision_wcw[]" id="idremision_wcw" value="868844">
+<input type="hidden" name="idservicio[]" id="idservicio[]" value="29">
+<input type="hidden" name="idremision_tcc[]" id="idremision_tcc" value="">
+				<input type="hidden" name="pkidr[]" value="868844">
+			
+
+		<input type="hidden" name="pkid" value="868844">
+
+
+  
+
+
+</td>
+  <td valign="top">
+
+
+ 	024016082224 
+ </td>
+
+
+
+<td valign="top">AVE -Hernando Ramirez Cetina Envia</td>
+<td valign="top">PALMIRA(VALLE DEL CAUCA)</td>
+<td valign="top">juan</td>
+<td valign="top">IBAGUE(TOLIMA)</td>
+<td valign="top">2020/06/19</td>
+<td valign="top">calee destino</td>
+<td valign="top">12312</td>
+<td valign="top">1</td>
+<td valign="top" align="center">1 </td>
+<td valign="top" align="center">0 </td>
+
+<td valign="top"></td>
+<td valign="top">10000</td>
+<td valign="top">129600</td>
+
+<td valign="top">calzado</td>
+</tr>
+
+<input type="hidden" name="tipoguia" value="">
+
+</table>
+<br>
+<table border="0" cellpadding="1" cellspacing="2" width="100%" style="font-family:arial;font-size:11px" id="capa_botones"  >
+
+<tr bgcolor="" valign="top" align="center" >
+<td>
+	
+
+ 	<input type="button" name="rimprimir" id="rimprimir" value="Imprimir Rotulos"  class="btn_c_1" onClick="rotulox()">
+
+ 		
+		<input type="button" name="ximprimir" id="ximprimir" value="Imprimir Guias"  class="btn_c_1" onClick="guia()">
+
+		<input type="button" name="ximprimir" id="ximprimir" value="Imprimir Guias recaudos"  class="btn_c_1" onClick="imp_recaudos()">
+
+		
+	 
+           
+           
+<input type="button" name="fimprimir" id="oimprimir" value="Imprimir Rotulos Factura"  class="btn_c_1" onClick="rotulofactura()">
+
+
+
+
+    <input type="button" name="cimprimir" id="cimprimir" value="Imprimir Relacion de envio"  class="btn_c_1" onClick="relacion()">
+
+
+<input type="button" name="fimprimir" id="oimprimir" value="Imprimir Guia Feeling"  class="btn_c_1" onClick="guiafeeling()">
+
+
+</td>
+</tr>
+</table>
+
+	</form>
+
+</body>
+</html>
+    <script type="text/javascript">
+
+
+	//window.print();
+    function rotulox(){
+      document.modificar.action="../paqueteo/impresiones.masivas.php?rotulox=1&imprimir=1";
+      document.modificar.target="_blank";
+      document.modificar.submit();
+	}
+
+	function rotulotcc(idrelacion,param){
+      document.modificar.action="../paqueteo/impresiones.masivas.tcc.php?id_relacion="+idrelacion+"&imprimir="+param;
+      document.modificar.target="_blank";
+      document.modificar.submit();
+	}
+
+
+    function guia(){
+
+               
+              
+              document.modificar.action="../paqueteo/impresiones.masivas.php?guiasx=1&imprimir=1";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+    function guiacomparendo () {	
+			document.modificar.action="../coretransporte/pdf/guias/imprimir.guia.envia.php?guiasx=2&tipopdf=0&imprimir=1";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+    function guiablu(){
+
+               
+              
+              document.modificar.action="../coretransporte/pdf/guias/imprimir.blu.php?guiasx=2&imprimir=1";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+    function rotulozebra(){
+
+               
+              
+              document.modificar.action="../paqueteo/pdf/guias/imprimir.rotulo.zebra.php";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+    function sticker10_12(){
+
+               
+              
+              document.modificar.action="../paqueteo/pdf/guias/imprimir.rotulo.envia_110_120.php";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+
+       function rotulozebraservie(){
+
+               
+              
+              document.modificar.action="../paqueteo/pdf/guias/imprimir.rotulo.servientrega.masivos.php";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+      function rotulooster(){
+              document.modificar.action="../paqueteo/pdf/guias/imprimir.rotulo.oster.php";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+      function rotulofactura(){
+              document.modificar.action="../paqueteo/pdf/guias/imprimir.guia.factura.php";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+      function rotulofacturav2(){
+              document.modificar.action="../coretransporte/pdf/guias/imprimir.guia.facturav2.php";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+    function rotulocustodia() {
+              document.modificar.action="../coretransporte/pdf/guias/imprimir.rotulo.custodiamoda.php";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+    	
+    }
+
+function guiafeeling() {
+	document.modificar.action="../paqueteo/imprimir.acta.feeling.php";
+  	document.modificar.target="_blank";
+  	document.modificar.submit();
+
+}
+
+ function relacion(){
+ 	document.getElementById('capa_exportar').style.display='none';
+ 	//document.getElementById('capa_botones').style.display='none';
+
+
+ 	window.print();
+ }
+
+    // impresion de recaudos
+    function imp_recaudos(){
+              document.modificar.action="../coretransporte/pdf/guias/imprimir.recaudos.php";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+
+
+//-->
+
+
+    </script>
