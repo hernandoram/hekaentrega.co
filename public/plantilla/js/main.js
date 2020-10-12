@@ -299,9 +299,9 @@ function crearCuenta(){
       firebase.auth().onAuthStateChanged(function(user) {
 
         if(user){
-          codigo = firebase.database().ref('codigoUsuarios').child('codigo');
- codigo.on('value', function(snapshot) {
-  var codigoUsuario=snapshot.val().codigo;
+          
+ 
+  
 
   firebase.database().ref('usuarios').child(user.uid).set({
             nombres: CPNnombres,
@@ -319,7 +319,7 @@ function crearCuenta(){
             nombre: CPNnombre_empresa,
             correo: CPNcorreo,
             con: CPNcontraseña,
-            codigo: codigoUsuario,
+            codigo: "",
 
             //////datos bancarios
             banco: "",
@@ -337,7 +337,7 @@ function crearCuenta(){
           }).catch(function(error){
             inHTML('error_crear_cuenta',`<h6 class="text-danger">${codigoUsuario}</h6>`);
           });
-        });
+        
 
 
           
