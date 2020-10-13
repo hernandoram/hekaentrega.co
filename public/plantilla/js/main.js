@@ -743,8 +743,12 @@ if(document.getElementById('tabla-novedades')){
         var data = datas.val();
         $.each(data, function (nodo, value) {
          console.log(value.fecha);
+         if(document.getElementById('fecha_inicio')){
          var fecha_inicio=document.getElementById('fecha_inicio').value;
+         }
+         if(document.getElementById('fecha_final')){
          var fecha_final=document.getElementById('fecha_final').value;
+         }
          console.log(fecha_inicio+"|"+fecha_final);
 
          var fechaf=Date.parse(value.fecha);
