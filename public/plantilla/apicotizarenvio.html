@@ -338,7 +338,7 @@
      
          <!-- Page Heading -->
          <h1 class="h3 mb-1 text-gray-800">Seleccionar transportadora</h1>
-         <h6 class="text-danger" > NOTA IMPORTANTE: En el momento las guías se generarán por medio de excel, estamos trabajando para restablecer el servicio lo más rapido posible</h6>
+         <h6 class="text-danger" > NOTA IMPORTANTE: En el momento las guías se generarán por medio de excel, estamos trabajando para restablecer el servicio lo más rapido posible.</h6>
          <!--
          <p class="mb-4">Bootstrap's default utility classes can be found on the official <a href="https://getbootstrap.com/docs">Bootstrap Documentation</a> page. The custom utilities below were created to extend this theme past the default utility classes built into Bootstrap's framework.</p>
      -->
@@ -387,9 +387,9 @@
 
                  <code>RECIBES EN TU CUENTA: 74471</code>
                  <h1> </h1>
-                 <form action="listarGuiaEnviaTcc" method="post">
+                 <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTccuno">
                  <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
-                 <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
+                 <input type="hidden" name="ciudadD" value="MEDELLIN(ANTIOQUIA)" >
                  <input type="hidden" name="kilos" value="1">
                  <input type="hidden" name="seguro" value="40000" >
                  <input type="hidden" name="recaudo" value="90000" >
@@ -401,13 +401,25 @@
    
        
          
-     
-                 
-                 <button disabled="disabled" class="btn btn-danger" type="submit" id="dropdownMenuButton"  aria-haspopup="true" aria-expanded="false">
-                   CREAR GUÍA
-                 </button>
-                 
                  </form>
+                 
+                 <a  class="btn btn-danger"  id="botonuno" href="javascript:botonuno()" aria-haspopup="true" aria-expanded="false">
+                   CREAR GUÍA
+                 </a>
+
+                 <script>
+
+      function botonuno(){
+        
+ 
+    document.getElementById('botonuno').style='display:none;';
+    document.listarGuiaEnviaTccuno.submit();
+
+  
+}
+    </script>
+                 
+                
                  
                  <!--
                  <p class="mb-0 small">NOTA: This utility animates the CSS transform property, meaning it will override any existing transforms on an element being animated! In this theme, the grow in animation is only being used on dropdowns within the navbar.</p>
@@ -460,11 +472,11 @@
                  
                  <code>RECIBES EN TU CUENTA: 74024</code>
                  <h1> </h1>
-                 <form action="listarGuiaEnviaTcc" method="post">
+                 <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc2">
      <div class="form-row">
 
      <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
-     <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
+     <input type="hidden" name="ciudadD" value="MEDELLIN(ANTIOQUIA)" >
      <input type="hidden" name="kilos" value="1">
      <input type="hidden" name="seguro" value="40000" >
      <input type="hidden" name="recaudo" value="90000" >
@@ -474,13 +486,25 @@
      
      
        
-     
+     </form>
                  
-                 <button disabled="disabled"  class="btn btn-primary" type="submit" id="dropdownMenuButton"  aria-haspopup="true" aria-expanded="false">
+                 <a  class="btn btn-primary"  id="botondos" href="javascript:botondos()" aria-haspopup="true" aria-expanded="false">
                    CREAR GUÍA
-                 </button>
+                 </a>
+
+                 <script>
+
+      function botondos(){
+        
+ 
+    document.getElementById('botondos').style='display:none;';
+    document.listarGuiaEnviaTcc2.submit();
+
+  
+}
+    </script>
                  
-                 </form>
+                 
                  <p></p>
                  <!--
                  <p class="mb-0 small">NOTA: This utility animates the CSS transform property, meaning it will override any existing transforms on an element being animated! In this theme, the grow in animation is only being used on dropdowns within the navbar.</p>
@@ -562,11 +586,11 @@
                </nav>
                <code>RECIBES EN TU CUENTA: 88200</code>
                <h1> </h1>
-               <form action="listarGuiaEnviaTcc" method="post">
+               <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcccero">
    
      
                <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
-               <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
+               <input type="hidden" name="ciudadD" value="MEDELLIN(ANTIOQUIA)" >
                <input type="hidden" name="kilos" value="1">
                <input type="hidden" name="seguro" value="40000" >
                <input type="hidden" name="recaudo" value="90000" >
@@ -577,11 +601,23 @@
        
    
                
-               <button disabled="disabled" class="btn btn-danger" type="submit" id="dropdownMenuButton"  aria-haspopup="true" aria-expanded="false">
-                 CREAR GUÍA
-               </button>
-               
                </form>
+                 
+               <a  class="btn btn-danger"  id="botoncero" href="javascript:botoncero()" aria-haspopup="true" aria-expanded="false">
+                 CREAR GUÍA
+               </a>
+
+               <script>
+
+    function botoncero(){
+      
+
+  document.getElementById('botoncero').style='display:none;';
+  document.listarGuiaEnviaTcccero.submit();
+
+
+}
+  </script>
                
                <!--
                <p class="mb-0 small">NOTA: This utility animates the CSS transform property, meaning it will override any existing transforms on an element being animated! In this theme, the grow in animation is only being used on dropdowns within the navbar.</p>

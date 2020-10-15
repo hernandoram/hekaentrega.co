@@ -351,7 +351,7 @@
 
   <!-- Page Heading -->
   <h1 class="h3 mb-4 text-gray-800">Cotizar envío PAGO CONTRAENTREGA</h1>
-  <form class="user" action="mostrarnumeros2" method="post">
+  <form class="user" action="mostrarnumeros2" method="post" name="cotizacionEnvio">
     <div class="form-group row">
       <div class="col-sm-6 mb-3 mb-sm-0">
        <h6>CIUDAD REMITENTE</h6>
@@ -18790,13 +18790,26 @@
 
       
 
-      
+    </form>
 
 
-    <button type="submit" href="login.html" class="btn btn-primary btn-user btn-block">
+    <a style="display: block;" id="boton_cotizar"  href="javascript:bloquearBoton()" class="btn btn-primary btn-user btn-block">
       Cotizar envío
-    </button>
-    <hr>
+    </a>
+
+    <script>
+
+      function bloquearBoton(){
+        
+ 
+    document.getElementById('boton_cotizar').style='display:none;';
+    document.cotizacionEnvio.submit();
+
+  
+}
+    </script>
+  
+    
     <!--
     <a href="index.html" class="btn btn-google btn-user btn-block">
       <i class="fab fa-google fa-fw"></i> Ver guías
@@ -18805,7 +18818,7 @@
       <i class="fab fa-facebook-f fa-fw"></i> Buscar por número de guía
     </a>
   -->
-  </form>
+ 
 
 </div>
         <!-- End of Main Content -->

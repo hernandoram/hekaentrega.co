@@ -941,3 +941,9 @@ function tableGuias(fecha,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomD
     ;
 }
 
+
+
+//bloquear boton
+
+
+
