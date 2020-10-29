@@ -676,6 +676,7 @@ function mostrarPrueba(){
                 
         });
         */
+       
        if(document.getElementById('login-mostrar-ocultar')){
        desactivar('login-mostrar-ocultar');
        }
