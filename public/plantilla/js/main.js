@@ -818,6 +818,88 @@ if(document.getElementById('tabla-novedades')){
 mostrarPrueba();
 
 
+//llenar tabla de relación de envío
+
+function llenarTablaRelacionEnvio(){
+
+  firebase.auth().onAuthStateChanged(function(user) {
+
+    if(user){
+
+
+      ///////// llenar tabla-novedades /////////////////////////////7777
+//if(document.getElementById('tabla-novedades')){
+if(document.getElementById('tabla-relacion')){
+  inHTML("tabla-relacion", "");
+  }
+  
+    
+    var contar=0;   
+  var reference = db.ref('RelacionEnvio').child(user.uid);
+      reference.once('value', function (datas) {
+        var data = datas.val();
+        $.each(data, function (nodo, value) {
+          if(document.getElementById('fecha_inicio')){
+            var fecha_inicio=document.getElementById('fecha_inicio').value;
+            }
+            if(document.getElementById('fecha_final')){
+            var fecha_final=document.getElementById('fecha_final').value;
+            }
+            console.log(fecha_inicio+"|"+fecha_final);
+   
+            var fechaf=Date.parse(value.fecha);
+            var fechaFire=new Date(fechaf);
+   
+            var fechaI=Date.parse(fecha_inicio); 
+            var fechaIni=new Date(fechaI);
+   
+            var fechaff=Date.parse(value.fecha);
+            var fechaFinalF=new Date(fechaff);
+   
+            var fechafff=Date.parse(fecha_final);
+            var fechaF= new Date(fechafff);
+
+            
+   
+            
+              if(fechaFire>= fechaIni&& fechaFinalF <= fechaF){
+              contar=contar+1;
+          console.log(contar);
+          var sendData2 = tableRelacion(value.codTrans,value.fecha,value.numeroRelacion,value.ruta);
+            if(document.getElementById('tabla-relacion')){
+              
+              printHTML('tabla-relacion', sendData2);
+            }
+          }
+         
+          
+        
+
+
+
+
+
+        
+          
+        });
+      });
+      
+
+      
+
+
+
+    }else{
+
+    }
+
+  });
+  
+
+}
+llenarTablaRelacionEnvio();
+
+
 
 
 function fechaActual(){
@@ -855,6 +937,13 @@ inHTML('tabla-guias','');
 }
 mostrarPrueba();
 }
+function cambiarFechaRelacion(){
+  location.href='#tabla-relacion';
+  if(document.getElementById('tabla-relacion')){
+  inHTML('tabla-relacion','');
+  }
+  llenarTablaRelacionEnvio();
+  }
 
 /////restablecer contraseña 
 function restartContrasena(){
@@ -925,6 +1014,74 @@ function tableGuias(fecha,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomD
   
   <td>${ciudadD}</td>
   <td>${trans}</td>
+ 
+  
+  
+
+   
+
+
+  
+   
+  
+    
+    
+   
+</tr>`
+    ;
+}
+
+function tableRelacion(codTrans,fecha,numeroRelacion,ruta) {
+
+  if(codTrans=="1010"){
+
+    var tipodelink=`<a class="btn btn-warning" href="http://aveonline.co/app/modulos/paqueteo/impresiones.masivas.tcc.php?id_relacion=${numeroRelacion}&imprimir=1">Guias</a>`;
+
+  }else{
+    tipodelink=`<form action="documentoGuia" method="post">
+    <input type="hidden" name="paraGuia" value="">
+    
+    <button disabled=disabled class="btn btn-warning" type="submit">Guias</button>
+  
+    
+    </form>`;
+  }
+  return `
+  
+  <tr>
+  <!--
+  <td>
+  
+  <input class="btn btn-danger" type="checkbox">
+  
+  </td>
+  -->
+  <td>
+  ${tipodelink}
+      </td>
+      <td>
+  <form action="rotuloHeka" method="post">
+      <input type="hidden" name="guia"         value="">
+      
+      
+      <button class="btn btn-danger" type="submit">Rotulos</button>
+      </form>
+      </td>
+
+      <form action="verEstado" method="post">
+    <input type="hidden" name="paraVerEstado" value="">
+    
+    <td><button class="btn btn-danger" type="submit">Relación</button></td>
+    
+    </form>
+  
+  <td>${fecha}</td>
+  
+  <td>${numeroRelacion}</td>
+  
+  
+  
+  
  
   
   

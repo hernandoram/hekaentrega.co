@@ -2035,26 +2035,86 @@ function valoracionminima(pos) {
     padding: 6px;
 }
 
-	
+
 </style>
 
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.css">
 
 
-		<div id="menu_asesor_modulos" class="option animated pulse" style="height: 30px;width: 100%;z-index: 99999;/* position: fixed; */color: #fff;font-weight: 200;background-color: #000;text-align: center;font-family: 'Montserrat', sans-serif;font-weight: 600;">
-			<img width="20px" src="data:image/svg+xml;base64,
-PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDYxMiA2MTIiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDYxMiA2MTI7IiB4bWw6c3BhY2U9InByZXNlcnZlIiBjbGFzcz0iIj48Zz48Zz4KCTxwYXRoIGQ9Ik0yNTkuMTA3LDMyMi40NTFjMCwxNi45MzMtMTMuNzI3LDMwLjY1OS0zMC42NiwzMC42NTljLTE2LjkzMywwLTMwLjY1OC0xMy43MjctMzAuNjU4LTMwLjY1OXMxMy43MjYtMzAuNjU5LDMwLjY1OC0zMC42NTkgICBDMjQ1LjM4LDI5MS43OTIsMjU5LjEwNywzMDUuNTE5LDI1OS4xMDcsMzIyLjQ1MXogTTM4My41NTQsMjkxLjc5MmMtMTYuOTMyLDAtMzAuNjYsMTMuNzI2LTMwLjY2LDMwLjY1OSAgIHMxMy43MjksMzAuNjU5LDMwLjY2LDMwLjY1OWMxNi45MzQsMCwzMC42NTgtMTMuNzI3LDMwLjY1OC0zMC42NTlTNDAwLjQ4NywyOTEuNzkyLDM4My41NTQsMjkxLjc5MnogTTUxNC41MTcsNDE2LjU5NnYtMy40OTIgICBjLTMuNTE0LDEwLjE5OC03LjczNCwxOS44ODUtMTIuMjczLDI5LjMwM2MwLjg0Miw1Ljc3MywyLjQsMTMuODMxLDUuMDIsMjMuMDQzYzEyLjYsMTkuNDg4LDQ4LjE1OCw0NC4zMTYsNzIuNTM3LDUwLjcxMiAgIGMtMTMuMTQ1LDUuNTgzLTI4Ljk3OSw3Ljg4Mi00NC4zNzksNS41MjVjMTQuMTA3LDE3Ljc1MSwzMy45ODgsMzMuODY5LDYyLjAzOSw0My40NTkgICBjLTY1LjU2OCw1OS4wOTctMTczLjYwNCw2MC40MTEtMjQ5LjExOSwxNC41MTZjLTE0LjYzNSw0LjMwNC0yOC45MzYsNi41Ni00Mi4zNDEsNi41NmMtMTMuNDA1LDAtMjcuNzA3LTIuMjU2LTQyLjM0LTYuNTYgICBjLTc1LjUxNyw0NS44OTYtMTgzLjU1MSw0NC41ODEtMjQ5LjExOS0xNC41MTZjMjguNjEzLTkuNzgxLDQ4LjY4LTI2LjM2Niw2Mi44MzUtNDQuNTM4Yy0xMi41MiwwLjQ3OS0yNC45NDQtMS44LTM1LjU4OS02LjMyMSAgIGMxNy44NjItNC42ODYsNDEuNzE2LTE5LjI4MSw1OC4xNzQtMzQuNDEzYzUuNzU5LTE1LjIyNSw4LjUzOS0yOC44MzYsOS43OTYtMzcuNDY4Yy00LjUzOS05LjQxOC04Ljc1OS0xOS4xMDQtMTIuMjcyLTI5LjMwM3YzLjQ5MyAgIEg2MC40MDdjLTI5LjI1NCwwLTUyLjk2OS0yMy43MTYtNTIuOTY5LTUyLjk2OXYtNTguMjY2YzAtMjAuMTMxLDExLjIzMS0zNy42MzcsMjcuNzY5LTQ2LjU5OSAgIGMwLjU1NS04Mi43MjQsMjQuNjY2LTE0Ny4zMzEsNzEuNzY1LTE5MS45OTdDMTUzLjY5LDIyLjQ2NSwyMjAuNjUzLDAsMzA2LDBjODUuMzQ4LDAsMTUyLjMxMSwyMi40NjUsMTk5LjAyOCw2Ni43NjcgICBjNDcuMSw0NC42NjUsNzEuMjA5LDEwOS4yNzEsNzEuNzY2LDE5MS45OTdjMTYuNTM3LDguOTYyLDI3Ljc2OCwyNi40NjcsMjcuNzY4LDQ2LjU5OHY1OC4yNjUgICBjMCwyOS4yNTQtMjMuNzE1LDUyLjk2OS01Mi45NjksNTIuOTY5SDUxNC41MTd6IE00OTIuNDU0LDMyMi42NDZjMC0xMy42My0wLjY5Ny0yNi40MzYtMS43MjktMzguODQ1ICAgYy0yMy44OTgtMjEuODYzLTY3LjYxNy0zOC4zNTMtMTIyLjc0Ni00NC4xNjhjOC43NDYsNy44NDEsMTYuMjU2LDE4LjI5NywyMC4yNzMsMzMuMjI2ICAgYy0zMi4wNTUtMjMuNDMxLTk5LjIzNi0zMC42ODctMTIxLjU1MS01NS43OTNsMC4wMjItMC4wMDJjLTM1LjUyLTIzLjUxMi00NC44NDEtNTcuMTg5LTQ1LjE0MS00My4yNSAgIGMtMS40MzgsNjYuODQ4LTQ4LjgxOCwxMTguOTYxLTEwMS40MzEsMTI2LjMxM2MtMC4zMzMsNy4zNTItMC42MDYsMTQuNzczLTAuNjA2LDIyLjUxOWMwLDI4LjI1Niw0LjYxNCw1NC4wMDYsMTIuNDU4LDc3LjIxNCAgIGMyOS41NTMsMzUuNjQ4LDc4LjM1OSw0NS43MTQsMTIxLjU1OCw0OC4zODVjOC4wMTktMTIuNzYsMjYuMDEyLTIxLjY2Niw0Ni45NjYtMjEuNjY2YzI4LjQwOSwwLDUxLjQzOCwxNi4zNDcsNTEuNDM4LDM2LjUxMyAgIGMwLDIwLjE2Ny0yMy4wMjksMzYuNTE0LTUxLjQzOCwzNi41MTRjLTIxLjg1MywwLTQwLjQ3NS05LjY4OC00Ny45MjktMjMuMzMyYy0zMC4xOTEtMS43NTUtNjMuMzgtNi45LTkyLjk2LTIwLjg2OSAgIGM0MS42MDEsNjEuMzE1LDEwNi4wODcsOTMuNzM5LDE0Ni4zNTksOTMuNzM5QzM2OS4yODQsNTQ5LjE0Myw0OTIuNDU0LDQ2OS4xOTcsNDkyLjQ1NCwzMjIuNjQ2eiBNNTI0LjUyNCwyNTIuMzk0aDIwLjM4MSAgIEM1NDEuNTM0LDEwOC4wMzksNDU5LjEzNiwzMS43ODIsMzA2LDMxLjc4MmMtMTUzLjEzNiwwLTIzNS41MzIsNzYuMjU3LTIzOC45MDMsMjIwLjYxMmgyMC4zNzkgICBjNy40NTEtNDguNjU0LDIzLjItODguNjcsNDcuMTExLTExOS40MzZDMTcyLjY5MSw4My45MzEsMjMwLjM2Myw1OS4wNywzMDYsNTkuMDdjNzUuNjM3LDAsMTMzLjMwOSwyNC44NTksMTcxLjQxNSw3My44ODcgICBDNTAxLjMyNSwxNjMuNzI0LDUxNy4wNzMsMjAzLjczOSw1MjQuNTI0LDI1Mi4zOTR6IiBkYXRhLW9yaWdpbmFsPSIjMDAwMDAwIiBjbGFzcz0iYWN0aXZlLXBhdGgiIHN0eWxlPSJmaWxsOiNGNkY2RjYiIGRhdGEtb2xkX2NvbG9yPSIjRjZGMUYxIj48L3BhdGg+CjwvZz48L2c+IDwvc3ZnPg==" /> Nombre asesor: <a href="" style="color:#89c0e4 !important">JHOANA ANDREA PINEDA</a>
-			Celular asesor: <a href="" style="color:#89c0e4 !important" style="color:#89c0e4 !important">3053198514</a>
-			
-			<img width="20px" src="data:image/svg+xml;base64,
-PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDU0OC4xNzYgNTQ4LjE3NiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTQ4LjE3NiA1NDguMTc2OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgY2xhc3M9IiI+PGc+PGc+Cgk8Zz4KCQk8cGF0aCBkPSJNNTM0Ljc1NCw2OC4yMzhjLTguOTQ1LTguOTQ1LTE5LjY5OC0xMy40MTctMzIuMjU4LTEzLjQxN0g0NS42ODFjLTEyLjU2MiwwLTIzLjMxMyw0LjQ3MS0zMi4yNjQsMTMuNDE3ICAgIEM0LjQ3MSw3Ny4xODUsMCw4Ny45MzYsMCwxMDAuNDk5djM0Ny4xNzNjMCwxMi41NjYsNC40NzEsMjMuMzE4LDEzLjQxNywzMi4yNjRjOC45NTEsOC45NDYsMTkuNzAyLDEzLjQxOSwzMi4yNjQsMTMuNDE5aDQ1Ni44MTUgICAgYzEyLjU2LDAsMjMuMzEyLTQuNDczLDMyLjI1OC0xMy40MTljOC45NDUtOC45NDUsMTMuNDIyLTE5LjY5NywxMy40MjItMzIuMjY0VjEwMC40OTkgICAgQzU0OC4xNzYsODcuOTM2LDU0My42OTksNzcuMTg1LDUzNC43NTQsNjguMjM4eiBNNTExLjYyNyw0NDcuNjc5YzAsMi40NzgtMC45MDMsNC42MTMtMi43MTEsNi40MjcgICAgYy0xLjgwNywxLjgtMy45NDksMi43MDMtNi40MiwyLjcwM0g0NS42ODFjLTIuNDczLDAtNC42MTUtMC45MDMtNi40MjMtMi43MWMtMS44MDctMS44MTMtMi43MTItMy45NDktMi43MTItNi40MjdWMjc0LjA4OCAgICBoNDc1LjA4MlY0NDcuNjc5eiBNNTExLjYyNywxNjQuNDQ5SDM2LjU0NXYtNjMuOTU0YzAtMi40NzQsMC45MDItNC42MTEsMi43MTItNi40MjNjMS44MDktMS44MDMsMy45NTEtMi43MDgsNi40MjMtMi43MDhoNDU2LjgxNSAgICBjMi40NzEsMCw0LjYxMywwLjkwMSw2LjQyLDIuNzA4YzEuODA4LDEuODEyLDIuNzExLDMuOTQ5LDIuNzExLDYuNDIzVjE2NC40NDlMNTExLjYyNywxNjQuNDQ5eiIgZGF0YS1vcmlnaW5hbD0iIzAwMDAwMCIgY2xhc3M9ImFjdGl2ZS1wYXRoIiBzdHlsZT0iZmlsbDojRkNGQkZCIiBkYXRhLW9sZF9jb2xvcj0iI0YwREJEQiI+PC9wYXRoPgoJCTxyZWN0IHg9IjczLjA5MiIgeT0iMzgzLjcxOSIgd2lkdGg9IjczLjA4OSIgaGVpZ2h0PSIzNi41NDgiIGRhdGEtb3JpZ2luYWw9IiMwMDAwMDAiIGNsYXNzPSJhY3RpdmUtcGF0aCIgc3R5bGU9ImZpbGw6I0ZDRkJGQiIgZGF0YS1vbGRfY29sb3I9IiNGMERCREIiPjwvcmVjdD4KCQk8cmVjdCB4PSIxODIuNzI4IiB5PSIzODMuNzE5IiB3aWR0aD0iMTA5LjYzNCIgaGVpZ2h0PSIzNi41NDgiIGRhdGEtb3JpZ2luYWw9IiMwMDAwMDAiIGNsYXNzPSJhY3RpdmUtcGF0aCIgc3R5bGU9ImZpbGw6I0ZDRkJGQiIgZGF0YS1vbGRfY29sb3I9IiNGMERCREIiPjwvcmVjdD4KCTwvZz4KPC9nPjwvZz4gPC9zdmc+" />
-			Pagos y facturación: <a style="color:#89c0e4 !important" href="#">Andrea Ricaurte Urrea</a>
-			celular facturación: <a style="color:#89c0e4 !important" href="#">3052635494</a>
-			
-			<img width="20px" src="data:image/svg+xml;base64,
-PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDYxMiA2MTIiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDYxMiA2MTI7IiB4bWw6c3BhY2U9InByZXNlcnZlIiBjbGFzcz0iIj48Zz48Zz4KCTxwYXRoIGQ9Ik0yNTkuMTA3LDMyMi40NTFjMCwxNi45MzMtMTMuNzI3LDMwLjY1OS0zMC42NiwzMC42NTljLTE2LjkzMywwLTMwLjY1OC0xMy43MjctMzAuNjU4LTMwLjY1OXMxMy43MjYtMzAuNjU5LDMwLjY1OC0zMC42NTkgICBDMjQ1LjM4LDI5MS43OTIsMjU5LjEwNywzMDUuNTE5LDI1OS4xMDcsMzIyLjQ1MXogTTM4My41NTQsMjkxLjc5MmMtMTYuOTMyLDAtMzAuNjYsMTMuNzI2LTMwLjY2LDMwLjY1OSAgIHMxMy43MjksMzAuNjU5LDMwLjY2LDMwLjY1OWMxNi45MzQsMCwzMC42NTgtMTMuNzI3LDMwLjY1OC0zMC42NTlTNDAwLjQ4NywyOTEuNzkyLDM4My41NTQsMjkxLjc5MnogTTUxNC41MTcsNDE2LjU5NnYtMy40OTIgICBjLTMuNTE0LDEwLjE5OC03LjczNCwxOS44ODUtMTIuMjczLDI5LjMwM2MwLjg0Miw1Ljc3MywyLjQsMTMuODMxLDUuMDIsMjMuMDQzYzEyLjYsMTkuNDg4LDQ4LjE1OCw0NC4zMTYsNzIuNTM3LDUwLjcxMiAgIGMtMTMuMTQ1LDUuNTgzLTI4Ljk3OSw3Ljg4Mi00NC4zNzksNS41MjVjMTQuMTA3LDE3Ljc1MSwzMy45ODgsMzMuODY5LDYyLjAzOSw0My40NTkgICBjLTY1LjU2OCw1OS4wOTctMTczLjYwNCw2MC40MTEtMjQ5LjExOSwxNC41MTZjLTE0LjYzNSw0LjMwNC0yOC45MzYsNi41Ni00Mi4zNDEsNi41NmMtMTMuNDA1LDAtMjcuNzA3LTIuMjU2LTQyLjM0LTYuNTYgICBjLTc1LjUxNyw0NS44OTYtMTgzLjU1MSw0NC41ODEtMjQ5LjExOS0xNC41MTZjMjguNjEzLTkuNzgxLDQ4LjY4LTI2LjM2Niw2Mi44MzUtNDQuNTM4Yy0xMi41MiwwLjQ3OS0yNC45NDQtMS44LTM1LjU4OS02LjMyMSAgIGMxNy44NjItNC42ODYsNDEuNzE2LTE5LjI4MSw1OC4xNzQtMzQuNDEzYzUuNzU5LTE1LjIyNSw4LjUzOS0yOC44MzYsOS43OTYtMzcuNDY4Yy00LjUzOS05LjQxOC04Ljc1OS0xOS4xMDQtMTIuMjcyLTI5LjMwM3YzLjQ5MyAgIEg2MC40MDdjLTI5LjI1NCwwLTUyLjk2OS0yMy43MTYtNTIuOTY5LTUyLjk2OXYtNTguMjY2YzAtMjAuMTMxLDExLjIzMS0zNy42MzcsMjcuNzY5LTQ2LjU5OSAgIGMwLjU1NS04Mi43MjQsMjQuNjY2LTE0Ny4zMzEsNzEuNzY1LTE5MS45OTdDMTUzLjY5LDIyLjQ2NSwyMjAuNjUzLDAsMzA2LDBjODUuMzQ4LDAsMTUyLjMxMSwyMi40NjUsMTk5LjAyOCw2Ni43NjcgICBjNDcuMSw0NC42NjUsNzEuMjA5LDEwOS4yNzEsNzEuNzY2LDE5MS45OTdjMTYuNTM3LDguOTYyLDI3Ljc2OCwyNi40NjcsMjcuNzY4LDQ2LjU5OHY1OC4yNjUgICBjMCwyOS4yNTQtMjMuNzE1LDUyLjk2OS01Mi45NjksNTIuOTY5SDUxNC41MTd6IE00OTIuNDU0LDMyMi42NDZjMC0xMy42My0wLjY5Ny0yNi40MzYtMS43MjktMzguODQ1ICAgYy0yMy44OTgtMjEuODYzLTY3LjYxNy0zOC4zNTMtMTIyLjc0Ni00NC4xNjhjOC43NDYsNy44NDEsMTYuMjU2LDE4LjI5NywyMC4yNzMsMzMuMjI2ICAgYy0zMi4wNTUtMjMuNDMxLTk5LjIzNi0zMC42ODctMTIxLjU1MS01NS43OTNsMC4wMjItMC4wMDJjLTM1LjUyLTIzLjUxMi00NC44NDEtNTcuMTg5LTQ1LjE0MS00My4yNSAgIGMtMS40MzgsNjYuODQ4LTQ4LjgxOCwxMTguOTYxLTEwMS40MzEsMTI2LjMxM2MtMC4zMzMsNy4zNTItMC42MDYsMTQuNzczLTAuNjA2LDIyLjUxOWMwLDI4LjI1Niw0LjYxNCw1NC4wMDYsMTIuNDU4LDc3LjIxNCAgIGMyOS41NTMsMzUuNjQ4LDc4LjM1OSw0NS43MTQsMTIxLjU1OCw0OC4zODVjOC4wMTktMTIuNzYsMjYuMDEyLTIxLjY2Niw0Ni45NjYtMjEuNjY2YzI4LjQwOSwwLDUxLjQzOCwxNi4zNDcsNTEuNDM4LDM2LjUxMyAgIGMwLDIwLjE2Ny0yMy4wMjksMzYuNTE0LTUxLjQzOCwzNi41MTRjLTIxLjg1MywwLTQwLjQ3NS05LjY4OC00Ny45MjktMjMuMzMyYy0zMC4xOTEtMS43NTUtNjMuMzgtNi45LTkyLjk2LTIwLjg2OSAgIGM0MS42MDEsNjEuMzE1LDEwNi4wODcsOTMuNzM5LDE0Ni4zNTksOTMuNzM5QzM2OS4yODQsNTQ5LjE0Myw0OTIuNDU0LDQ2OS4xOTcsNDkyLjQ1NCwzMjIuNjQ2eiBNNTI0LjUyNCwyNTIuMzk0aDIwLjM4MSAgIEM1NDEuNTM0LDEwOC4wMzksNDU5LjEzNiwzMS43ODIsMzA2LDMxLjc4MmMtMTUzLjEzNiwwLTIzNS41MzIsNzYuMjU3LTIzOC45MDMsMjIwLjYxMmgyMC4zNzkgICBjNy40NTEtNDguNjU0LDIzLjItODguNjcsNDcuMTExLTExOS40MzZDMTcyLjY5MSw4My45MzEsMjMwLjM2Myw1OS4wNywzMDYsNTkuMDdjNzUuNjM3LDAsMTMzLjMwOSwyNC44NTksMTcxLjQxNSw3My44ODcgICBDNTAxLjMyNSwxNjMuNzI0LDUxNy4wNzMsMjAzLjczOSw1MjQuNTI0LDI1Mi4zOTR6IiBkYXRhLW9yaWdpbmFsPSIjMDAwMDAwIiBjbGFzcz0iYWN0aXZlLXBhdGgiIHN0eWxlPSJmaWxsOiNGNkY2RjYiIGRhdGEtb2xkX2NvbG9yPSIjRjZGMUYxIj48L3BhdGg+CjwvZz48L2c+IDwvc3ZnPg==" /> 
-			Nombre asesor comercial: <a style="color:#89c0e4 !important" href="#">ANDRES FELIPE GOMEZ</a>
-			Telèfono asesor comercial:	<a style="color:#89c0e4 !important" href="#"></a>		
+
+		<style>
+			.alert--main {
+				height: 30px;
+				width: 100%;
+				z-index: 99999;
+				color: #fff;
+				font-weight: 200;
+				background-color: #000;
+				font-family: 'Montserrat', sans-serif;
+				font-weight: 600;
+				padding: 0.3em 5em;
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				margin-bottom: 0.3em;
+			}
+
+			.alert--main--img {
+				width: 20px;
+			}
+
+			.alert--main--title {
+				margin: 0 0.6em;
+			}
+
+			.alert--main--subtitle {
+				color:#89c0e4 !important;
+				font-size: 1em;
+			}
+
+			.alert--main--href {
+				color:#89c0e4 !important;
+				font-size: 1em;
+				text-decoration: none;
+			}
+		</style>
+
+		<div id="menu_asesor_modulos"
+				class="option animated pulse alert--main fadeIn">
+			<img class="alert--main--img" src="data:image/svg+xml;base64,
+				PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDYxMiA2MTIiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDYxMiA2MTI7IiB4bWw6c3BhY2U9InByZXNlcnZlIiBjbGFzcz0iIj48Zz48Zz4KCTxwYXRoIGQ9Ik0yNTkuMTA3LDMyMi40NTFjMCwxNi45MzMtMTMuNzI3LDMwLjY1OS0zMC42NiwzMC42NTljLTE2LjkzMywwLTMwLjY1OC0xMy43MjctMzAuNjU4LTMwLjY1OXMxMy43MjYtMzAuNjU5LDMwLjY1OC0zMC42NTkgICBDMjQ1LjM4LDI5MS43OTIsMjU5LjEwNywzMDUuNTE5LDI1OS4xMDcsMzIyLjQ1MXogTTM4My41NTQsMjkxLjc5MmMtMTYuOTMyLDAtMzAuNjYsMTMuNzI2LTMwLjY2LDMwLjY1OSAgIHMxMy43MjksMzAuNjU5LDMwLjY2LDMwLjY1OWMxNi45MzQsMCwzMC42NTgtMTMuNzI3LDMwLjY1OC0zMC42NTlTNDAwLjQ4NywyOTEuNzkyLDM4My41NTQsMjkxLjc5MnogTTUxNC41MTcsNDE2LjU5NnYtMy40OTIgICBjLTMuNTE0LDEwLjE5OC03LjczNCwxOS44ODUtMTIuMjczLDI5LjMwM2MwLjg0Miw1Ljc3MywyLjQsMTMuODMxLDUuMDIsMjMuMDQzYzEyLjYsMTkuNDg4LDQ4LjE1OCw0NC4zMTYsNzIuNTM3LDUwLjcxMiAgIGMtMTMuMTQ1LDUuNTgzLTI4Ljk3OSw3Ljg4Mi00NC4zNzksNS41MjVjMTQuMTA3LDE3Ljc1MSwzMy45ODgsMzMuODY5LDYyLjAzOSw0My40NTkgICBjLTY1LjU2OCw1OS4wOTctMTczLjYwNCw2MC40MTEtMjQ5LjExOSwxNC41MTZjLTE0LjYzNSw0LjMwNC0yOC45MzYsNi41Ni00Mi4zNDEsNi41NmMtMTMuNDA1LDAtMjcuNzA3LTIuMjU2LTQyLjM0LTYuNTYgICBjLTc1LjUxNyw0NS44OTYtMTgzLjU1MSw0NC41ODEtMjQ5LjExOS0xNC41MTZjMjguNjEzLTkuNzgxLDQ4LjY4LTI2LjM2Niw2Mi44MzUtNDQuNTM4Yy0xMi41MiwwLjQ3OS0yNC45NDQtMS44LTM1LjU4OS02LjMyMSAgIGMxNy44NjItNC42ODYsNDEuNzE2LTE5LjI4MSw1OC4xNzQtMzQuNDEzYzUuNzU5LTE1LjIyNSw4LjUzOS0yOC44MzYsOS43OTYtMzcuNDY4Yy00LjUzOS05LjQxOC04Ljc1OS0xOS4xMDQtMTIuMjcyLTI5LjMwM3YzLjQ5MyAgIEg2MC40MDdjLTI5LjI1NCwwLTUyLjk2OS0yMy43MTYtNTIuOTY5LTUyLjk2OXYtNTguMjY2YzAtMjAuMTMxLDExLjIzMS0zNy42MzcsMjcuNzY5LTQ2LjU5OSAgIGMwLjU1NS04Mi43MjQsMjQuNjY2LTE0Ny4zMzEsNzEuNzY1LTE5MS45OTdDMTUzLjY5LDIyLjQ2NSwyMjAuNjUzLDAsMzA2LDBjODUuMzQ4LDAsMTUyLjMxMSwyMi40NjUsMTk5LjAyOCw2Ni43NjcgICBjNDcuMSw0NC42NjUsNzEuMjA5LDEwOS4yNzEsNzEuNzY2LDE5MS45OTdjMTYuNTM3LDguOTYyLDI3Ljc2OCwyNi40NjcsMjcuNzY4LDQ2LjU5OHY1OC4yNjUgICBjMCwyOS4yNTQtMjMuNzE1LDUyLjk2OS01Mi45NjksNTIuOTY5SDUxNC41MTd6IE00OTIuNDU0LDMyMi42NDZjMC0xMy42My0wLjY5Ny0yNi40MzYtMS43MjktMzguODQ1ICAgYy0yMy44OTgtMjEuODYzLTY3LjYxNy0zOC4zNTMtMTIyLjc0Ni00NC4xNjhjOC43NDYsNy44NDEsMTYuMjU2LDE4LjI5NywyMC4yNzMsMzMuMjI2ICAgYy0zMi4wNTUtMjMuNDMxLTk5LjIzNi0zMC42ODctMTIxLjU1MS01NS43OTNsMC4wMjItMC4wMDJjLTM1LjUyLTIzLjUxMi00NC44NDEtNTcuMTg5LTQ1LjE0MS00My4yNSAgIGMtMS40MzgsNjYuODQ4LTQ4LjgxOCwxMTguOTYxLTEwMS40MzEsMTI2LjMxM2MtMC4zMzMsNy4zNTItMC42MDYsMTQuNzczLTAuNjA2LDIyLjUxOWMwLDI4LjI1Niw0LjYxNCw1NC4wMDYsMTIuNDU4LDc3LjIxNCAgIGMyOS41NTMsMzUuNjQ4LDc4LjM1OSw0NS43MTQsMTIxLjU1OCw0OC4zODVjOC4wMTktMTIuNzYsMjYuMDEyLTIxLjY2Niw0Ni45NjYtMjEuNjY2YzI4LjQwOSwwLDUxLjQzOCwxNi4zNDcsNTEuNDM4LDM2LjUxMyAgIGMwLDIwLjE2Ny0yMy4wMjksMzYuNTE0LTUxLjQzOCwzNi41MTRjLTIxLjg1MywwLTQwLjQ3NS05LjY4OC00Ny45MjktMjMuMzMyYy0zMC4xOTEtMS43NTUtNjMuMzgtNi45LTkyLjk2LTIwLjg2OSAgIGM0MS42MDEsNjEuMzE1LDEwNi4wODcsOTMuNzM5LDE0Ni4zNTksOTMuNzM5QzM2OS4yODQsNTQ5LjE0Myw0OTIuNDU0LDQ2OS4xOTcsNDkyLjQ1NCwzMjIuNjQ2eiBNNTI0LjUyNCwyNTIuMzk0aDIwLjM4MSAgIEM1NDEuNTM0LDEwOC4wMzksNDU5LjEzNiwzMS43ODIsMzA2LDMxLjc4MmMtMTUzLjEzNiwwLTIzNS41MzIsNzYuMjU3LTIzOC45MDMsMjIwLjYxMmgyMC4zNzkgICBjNy40NTEtNDguNjU0LDIzLjItODguNjcsNDcuMTExLTExOS40MzZDMTcyLjY5MSw4My45MzEsMjMwLjM2Myw1OS4wNywzMDYsNTkuMDdjNzUuNjM3LDAsMTMzLjMwOSwyNC44NTksMTcxLjQxNSw3My44ODcgICBDNTAxLjMyNSwxNjMuNzI0LDUxNy4wNzMsMjAzLjczOSw1MjQuNTI0LDI1Mi4zOTR6IiBkYXRhLW9yaWdpbmFsPSIjMDAwMDAwIiBjbGFzcz0iYWN0aXZlLXBhdGgiIHN0eWxlPSJmaWxsOiNGNkY2RjYiIGRhdGEtb2xkX2NvbG9yPSIjRjZGMUYxIj48L3BhdGg+CjwvZz48L2c+IDwvc3ZnPg==" />
+					<span class="alert--main--title">
+						Asesor(a) logistica: <small class="alert--main--subtitle">JHOANA ANDREA PINEDA</small>
+					</span>
+
+					<span class="alert--main--title">
+						Celular:
+						<a class="alert--main--href" target="_blank" href="https://api.whatsapp.com/send?phone=573053198514">
+						3053198514						</a>
+					</span>
+			<img class="alert--main--img" src="data:image/svg+xml;base64,
+				PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDU0OC4xNzYgNTQ4LjE3NiIgc3R5bGU9ImVuYWJsZS1iYWNrZ3JvdW5kOm5ldyAwIDAgNTQ4LjE3NiA1NDguMTc2OyIgeG1sOnNwYWNlPSJwcmVzZXJ2ZSIgY2xhc3M9IiI+PGc+PGc+Cgk8Zz4KCQk8cGF0aCBkPSJNNTM0Ljc1NCw2OC4yMzhjLTguOTQ1LTguOTQ1LTE5LjY5OC0xMy40MTctMzIuMjU4LTEzLjQxN0g0NS42ODFjLTEyLjU2MiwwLTIzLjMxMyw0LjQ3MS0zMi4yNjQsMTMuNDE3ICAgIEM0LjQ3MSw3Ny4xODUsMCw4Ny45MzYsMCwxMDAuNDk5djM0Ny4xNzNjMCwxMi41NjYsNC40NzEsMjMuMzE4LDEzLjQxNywzMi4yNjRjOC45NTEsOC45NDYsMTkuNzAyLDEzLjQxOSwzMi4yNjQsMTMuNDE5aDQ1Ni44MTUgICAgYzEyLjU2LDAsMjMuMzEyLTQuNDczLDMyLjI1OC0xMy40MTljOC45NDUtOC45NDUsMTMuNDIyLTE5LjY5NywxMy40MjItMzIuMjY0VjEwMC40OTkgICAgQzU0OC4xNzYsODcuOTM2LDU0My42OTksNzcuMTg1LDUzNC43NTQsNjguMjM4eiBNNTExLjYyNyw0NDcuNjc5YzAsMi40NzgtMC45MDMsNC42MTMtMi43MTEsNi40MjcgICAgYy0xLjgwNywxLjgtMy45NDksMi43MDMtNi40MiwyLjcwM0g0NS42ODFjLTIuNDczLDAtNC42MTUtMC45MDMtNi40MjMtMi43MWMtMS44MDctMS44MTMtMi43MTItMy45NDktMi43MTItNi40MjdWMjc0LjA4OCAgICBoNDc1LjA4MlY0NDcuNjc5eiBNNTExLjYyNywxNjQuNDQ5SDM2LjU0NXYtNjMuOTU0YzAtMi40NzQsMC45MDItNC42MTEsMi43MTItNi40MjNjMS44MDktMS44MDMsMy45NTEtMi43MDgsNi40MjMtMi43MDhoNDU2LjgxNSAgICBjMi40NzEsMCw0LjYxMywwLjkwMSw2LjQyLDIuNzA4YzEuODA4LDEuODEyLDIuNzExLDMuOTQ5LDIuNzExLDYuNDIzVjE2NC40NDlMNTExLjYyNywxNjQuNDQ5eiIgZGF0YS1vcmlnaW5hbD0iIzAwMDAwMCIgY2xhc3M9ImFjdGl2ZS1wYXRoIiBzdHlsZT0iZmlsbDojRkNGQkZCIiBkYXRhLW9sZF9jb2xvcj0iI0YwREJEQiI+PC9wYXRoPgoJCTxyZWN0IHg9IjczLjA5MiIgeT0iMzgzLjcxOSIgd2lkdGg9IjczLjA4OSIgaGVpZ2h0PSIzNi41NDgiIGRhdGEtb3JpZ2luYWw9IiMwMDAwMDAiIGNsYXNzPSJhY3RpdmUtcGF0aCIgc3R5bGU9ImZpbGw6I0ZDRkJGQiIgZGF0YS1vbGRfY29sb3I9IiNGMERCREIiPjwvcmVjdD4KCQk8cmVjdCB4PSIxODIuNzI4IiB5PSIzODMuNzE5IiB3aWR0aD0iMTA5LjYzNCIgaGVpZ2h0PSIzNi41NDgiIGRhdGEtb3JpZ2luYWw9IiMwMDAwMDAiIGNsYXNzPSJhY3RpdmUtcGF0aCIgc3R5bGU9ImZpbGw6I0ZDRkJGQiIgZGF0YS1vbGRfY29sb3I9IiNGMERCREIiPjwvcmVjdD4KCTwvZz4KPC9nPjwvZz4gPC9zdmc+" />
+				<span class="alert--main--title">
+					Pagos y facturación: <small class="alert--main--subtitle">Hector González</small>
+				</span>
+
+				<span class="alert--main--title">
+					Número <small class="alert--main--subtitle">4488799 ext 504 o 500</small>
+				</span>
+
+			<img class="alert--main--img" src="data:image/svg+xml;base64,
+				PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB2ZXJzaW9uPSIxLjEiIGlkPSJDYXBhXzEiIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDYxMiA2MTIiIHN0eWxlPSJlbmFibGUtYmFja2dyb3VuZDpuZXcgMCAwIDYxMiA2MTI7IiB4bWw6c3BhY2U9InByZXNlcnZlIiBjbGFzcz0iIj48Zz48Zz4KCTxwYXRoIGQ9Ik0yNTkuMTA3LDMyMi40NTFjMCwxNi45MzMtMTMuNzI3LDMwLjY1OS0zMC42NiwzMC42NTljLTE2LjkzMywwLTMwLjY1OC0xMy43MjctMzAuNjU4LTMwLjY1OXMxMy43MjYtMzAuNjU5LDMwLjY1OC0zMC42NTkgICBDMjQ1LjM4LDI5MS43OTIsMjU5LjEwNywzMDUuNTE5LDI1OS4xMDcsMzIyLjQ1MXogTTM4My41NTQsMjkxLjc5MmMtMTYuOTMyLDAtMzAuNjYsMTMuNzI2LTMwLjY2LDMwLjY1OSAgIHMxMy43MjksMzAuNjU5LDMwLjY2LDMwLjY1OWMxNi45MzQsMCwzMC42NTgtMTMuNzI3LDMwLjY1OC0zMC42NTlTNDAwLjQ4NywyOTEuNzkyLDM4My41NTQsMjkxLjc5MnogTTUxNC41MTcsNDE2LjU5NnYtMy40OTIgICBjLTMuNTE0LDEwLjE5OC03LjczNCwxOS44ODUtMTIuMjczLDI5LjMwM2MwLjg0Miw1Ljc3MywyLjQsMTMuODMxLDUuMDIsMjMuMDQzYzEyLjYsMTkuNDg4LDQ4LjE1OCw0NC4zMTYsNzIuNTM3LDUwLjcxMiAgIGMtMTMuMTQ1LDUuNTgzLTI4Ljk3OSw3Ljg4Mi00NC4zNzksNS41MjVjMTQuMTA3LDE3Ljc1MSwzMy45ODgsMzMuODY5LDYyLjAzOSw0My40NTkgICBjLTY1LjU2OCw1OS4wOTctMTczLjYwNCw2MC40MTEtMjQ5LjExOSwxNC41MTZjLTE0LjYzNSw0LjMwNC0yOC45MzYsNi41Ni00Mi4zNDEsNi41NmMtMTMuNDA1LDAtMjcuNzA3LTIuMjU2LTQyLjM0LTYuNTYgICBjLTc1LjUxNyw0NS44OTYtMTgzLjU1MSw0NC41ODEtMjQ5LjExOS0xNC41MTZjMjguNjEzLTkuNzgxLDQ4LjY4LTI2LjM2Niw2Mi44MzUtNDQuNTM4Yy0xMi41MiwwLjQ3OS0yNC45NDQtMS44LTM1LjU4OS02LjMyMSAgIGMxNy44NjItNC42ODYsNDEuNzE2LTE5LjI4MSw1OC4xNzQtMzQuNDEzYzUuNzU5LTE1LjIyNSw4LjUzOS0yOC44MzYsOS43OTYtMzcuNDY4Yy00LjUzOS05LjQxOC04Ljc1OS0xOS4xMDQtMTIuMjcyLTI5LjMwM3YzLjQ5MyAgIEg2MC40MDdjLTI5LjI1NCwwLTUyLjk2OS0yMy43MTYtNTIuOTY5LTUyLjk2OXYtNTguMjY2YzAtMjAuMTMxLDExLjIzMS0zNy42MzcsMjcuNzY5LTQ2LjU5OSAgIGMwLjU1NS04Mi43MjQsMjQuNjY2LTE0Ny4zMzEsNzEuNzY1LTE5MS45OTdDMTUzLjY5LDIyLjQ2NSwyMjAuNjUzLDAsMzA2LDBjODUuMzQ4LDAsMTUyLjMxMSwyMi40NjUsMTk5LjAyOCw2Ni43NjcgICBjNDcuMSw0NC42NjUsNzEuMjA5LDEwOS4yNzEsNzEuNzY2LDE5MS45OTdjMTYuNTM3LDguOTYyLDI3Ljc2OCwyNi40NjcsMjcuNzY4LDQ2LjU5OHY1OC4yNjUgICBjMCwyOS4yNTQtMjMuNzE1LDUyLjk2OS01Mi45NjksNTIuOTY5SDUxNC41MTd6IE00OTIuNDU0LDMyMi42NDZjMC0xMy42My0wLjY5Ny0yNi40MzYtMS43MjktMzguODQ1ICAgYy0yMy44OTgtMjEuODYzLTY3LjYxNy0zOC4zNTMtMTIyLjc0Ni00NC4xNjhjOC43NDYsNy44NDEsMTYuMjU2LDE4LjI5NywyMC4yNzMsMzMuMjI2ICAgYy0zMi4wNTUtMjMuNDMxLTk5LjIzNi0zMC42ODctMTIxLjU1MS01NS43OTNsMC4wMjItMC4wMDJjLTM1LjUyLTIzLjUxMi00NC44NDEtNTcuMTg5LTQ1LjE0MS00My4yNSAgIGMtMS40MzgsNjYuODQ4LTQ4LjgxOCwxMTguOTYxLTEwMS40MzEsMTI2LjMxM2MtMC4zMzMsNy4zNTItMC42MDYsMTQuNzczLTAuNjA2LDIyLjUxOWMwLDI4LjI1Niw0LjYxNCw1NC4wMDYsMTIuNDU4LDc3LjIxNCAgIGMyOS41NTMsMzUuNjQ4LDc4LjM1OSw0NS43MTQsMTIxLjU1OCw0OC4zODVjOC4wMTktMTIuNzYsMjYuMDEyLTIxLjY2Niw0Ni45NjYtMjEuNjY2YzI4LjQwOSwwLDUxLjQzOCwxNi4zNDcsNTEuNDM4LDM2LjUxMyAgIGMwLDIwLjE2Ny0yMy4wMjksMzYuNTE0LTUxLjQzOCwzNi41MTRjLTIxLjg1MywwLTQwLjQ3NS05LjY4OC00Ny45MjktMjMuMzMyYy0zMC4xOTEtMS43NTUtNjMuMzgtNi45LTkyLjk2LTIwLjg2OSAgIGM0MS42MDEsNjEuMzE1LDEwNi4wODcsOTMuNzM5LDE0Ni4zNTksOTMuNzM5QzM2OS4yODQsNTQ5LjE0Myw0OTIuNDU0LDQ2OS4xOTcsNDkyLjQ1NCwzMjIuNjQ2eiBNNTI0LjUyNCwyNTIuMzk0aDIwLjM4MSAgIEM1NDEuNTM0LDEwOC4wMzksNDU5LjEzNiwzMS43ODIsMzA2LDMxLjc4MmMtMTUzLjEzNiwwLTIzNS41MzIsNzYuMjU3LTIzOC45MDMsMjIwLjYxMmgyMC4zNzkgICBjNy40NTEtNDguNjU0LDIzLjItODguNjcsNDcuMTExLTExOS40MzZDMTcyLjY5MSw4My45MzEsMjMwLjM2Myw1OS4wNywzMDYsNTkuMDdjNzUuNjM3LDAsMTMzLjMwOSwyNC44NTksMTcxLjQxNSw3My44ODcgICBDNTAxLjMyNSwxNjMuNzI0LDUxNy4wNzMsMjAzLjczOSw1MjQuNTI0LDI1Mi4zOTR6IiBkYXRhLW9yaWdpbmFsPSIjMDAwMDAwIiBjbGFzcz0iYWN0aXZlLXBhdGgiIHN0eWxlPSJmaWxsOiNGNkY2RjYiIGRhdGEtb2xkX2NvbG9yPSIjRjZGMUYxIj48L3BhdGg+CjwvZz48L2c+IDwvc3ZnPg==" />
+				<span class="alert--main--title">
+					Asesor(a) comercial:
+					<small class="alert--main--subtitle">
+						JULIANA  VELEZ					</small>
+				</span>
+
+				<span class="alert--main--title">
+					Celular:
+					<a class="alert--main--href" target="_blank" href="https://api.whatsapp.com/send?phone=57">
+										</a>
+				</span>
 		</div>
 		
 <!-- if($_SESSION['i_idempresa']<>1546 && $_SESSION['i_idempresa']<>1540 && $_SESSION['i_idempresa']<>116){  -->
@@ -2087,12 +2147,12 @@ if (localStorage.getItem("remember")==1) {
 </script>
   <div class="row justify-content-md-center" >
     <div class="col col-lg-1">
-     
+
     </div>
     <div class="col col-lg-4 panel_central ">
     	<div style="overflow-y: auto; height:100%; ">
     		    		<center><img src="https://aveonline.co/beta/img/logo-4.png"  style="width: 181px;" alt=""></center>
-    		
+
 
     		<h3>¡Hola! <strong>HERNANDO RAMIREZ CETINA</strong></h3>
 			<h4>Hemos mejorado la navegación de nuestro sitio web.</h4>
@@ -2107,10 +2167,10 @@ if (localStorage.getItem("remember")==1) {
 		  	<br><br>
 		  	<img src="https://www.aveonline.co/app/temas/iconos/loginave1.png" style="width: 100%;" alt=""></li>
 		  <li>
-		  	Ingresa usuario y clave y da clic en el botón Iniciar sesión 
+		  	Ingresa usuario y clave y da clic en el botón Iniciar sesión
 		  	<br><br>
 		  	<img src="https://www.aveonline.co/app/temas/iconos/loginave2.png" style="width: 100%;" alt=""></li>
-		</ol> 
+		</ol>
 		
     	</div>
     </div>
@@ -2124,12 +2184,12 @@ if (localStorage.getItem("remember")==1) {
     	</div>
     	<div>
     <br>
-    
-    <form action="relacion_envios.php" method="post" id="form_check" name="u"> 				
+
+    <form action="relacion_envios.php" method="post" id="form_check" name="u">
 	<table style="font-size: 12px;border-spacing: 0;font-size: 12px;border-spacing: 0;border-color: #dadada;border-width: 1px;border-style: solid;" id="table1">
 		<tbody style="height: 400px;overflow-y: auto;overflow-x: hidden;display: block;">
 		   <tr>
-		   	<td>	
+		   	<td>
 			   	<input type="checkbox" name="idcheck[]" value="1" id="check1" >
 				<label for="check1">Has aceptado la oferta comercial: </label>
 				<a href="#" onclick="irAPaginaDN('../ofertadeservicio/?idcampo=11635','500','500');" target="_blank">Clic aquí</a> para ver.
@@ -2173,14 +2233,14 @@ if (localStorage.getItem("remember")==1) {
 			<input type="checkbox" name="idcheck[]" value="6" id="check6" >
 
 			<!--
-			KHOL COSMETIC 
-			LENOVO 
+			KHOL COSMETIC
+			LENOVO
 			SUPER FUDS  -->
-			<!-- 
+			<!--
 			103
 			60
 			1617 -->
-			
+
 			<label for="check6">En caso de que el producto que comercialices este catalogado como mercancía de prohibido transporte, confirmanos que has cargado en nuestra plataforma la Carta de exoneración de responsabilidades,de lo contrario de <a href="../../temas/otrosarchivos/032056-1-020622-1-FORMATO%20CARTA%20DE%20EXONERACI%C3%93N%20MERCANC%C3%8DA%20PROH%C3%8DBIDO%20TRANSPORTE.docx" target="_blank">clic aquí</a> para descargar el formato y <a href="../administrador/empresa.php?mod=1&idtipo=2&enca=1" target="_blank">clic aquí</a> para subirlo.
 			<br>
 			</label>
@@ -2349,7 +2409,7 @@ if (localStorage.getItem("remember")==1) {
 		   <tr>
 		   	<td>
 		   	<input type="checkbox" name="idcheck[]" id="check29" value="29" >
-			<label for="check29">“Acepto que conozco y acepto los términos y condiciones de AVE ONLINE.CO”. 
+			<label for="check29">“Acepto que conozco y acepto los términos y condiciones de AVE ONLINE.CO”.
 
 
 			<!-- En el momento que el cliente acepte, se debe generar un correo electronico el cuál nos debe llegar a nosotros y al cliente. (Dile a Anderson que te cree una carpeta en el correo de gmail que guarde todos estos correos, esto hacen acordando con juan un asunto ejemplo: “Aceptacion terminos y condiciones prestacion de servicio AVE Group – “<strong> echo($_SESSION['i_dsnombre']); ”</strong> ”, de esta forma crean la carpeta con todos los correos que contengan ese asunto, para que de esta forma puedas tener mayor control y disponibilidad de estos correos en caso que necesites una evedencia frente a un cliente”.</label> -->
@@ -2370,21 +2430,21 @@ if (localStorage.getItem("remember")==1) {
 </p>
 		<input type="hidden" name="guardar_check" value="1">
 		<input type=submit name=enviar value="GUARDAR DATOS" class="btn_c_1" title="Click para actualizar la lista ">
-	
+
 
 </form>
 
     	</div>
-     	
+
     </div>
         <div class="col col-lg-1">
-     
-    </div>  
+
+    </div>
   </div>
   </div>
 <body>
-	
-			
+
+
 				<table width="100%" border="0" cellpadding="0" cellspacing="0" style="background-color: white" >
 
 					<tr>
@@ -2397,42 +2457,40 @@ if (localStorage.getItem("remember")==1) {
 																	<img src="https://www.aveonline.co/principales/img/logo-4-undefined.png" style="width:100px;height=80px" alt="">
 										<strong>Hernando Ramirez Cetina</strong>
 									
-						
+
 					</td>
 
 					<td width="9%">&nbsp;</td>
 					<td valign="middle" nowrap align="right" id="menu_modulos"><span class="texto_consolabd" style="color:#000000;">
 
 						
-						<!-- Men&uacute; de opciones: --></span>              		 
+						<!-- Men&uacute; de opciones: --></span>
 
 						<select name=idioma onChange="MM_jumpMenu('parent',this,0);" style="" class="text1">
 
 													<option  value="" class="textnegrotit1"><strong>Mi cuenta</strong></option>
 
-							
-										
+													
 			<option value="../administrador/codproveedores.php">Codigo proveedores</option>
-			
-			       
-						<option  value="../administrador/configurar.php?tabla=tblpaqueteo_agentes&dir=46">Agentes</option>
+
+
+									<option  value="../administrador/configurar.php?tabla=tblpaqueteo_agentes&dir=46">Agentes</option>
 
 			<!--option  value="../administrador/auditoria.php">Auditoria</option-->
-			<option value="../administrador/empresa.facturas.php?tabla=&dir=>&idcampo1=11635&retorno=5&idtipo=&dscampo=Hernando Ramirez Cetina&lista_precios=">Estado de cuenta</option>          
-			<option value="../recaudos/default.php">Ver Recaudos</option>          
+			<option value="../administrador/empresa.facturas.php?tabla=&dir=>&idcampo1=11635&retorno=5&idtipo=&dscampo=Hernando Ramirez Cetina&lista_precios=">Estado de cuenta</option>
+			<option value="../recaudos/default.php">Ver Recaudos</option>
 
-
-			<option value="../administrador/empresa.php?mod=1&idtipo=2">Configuracion Empresa</option>          
+			<option value="../administrador/empresa.php?mod=1&idtipo=2">Configuracion Empresa</option>
 		<!--option  value="../administrador/servicios.php?tabla=tblpaqueteo_servicios&dir=50">Servicios Asociados </option>
 		<option  value="../administrador/lista_precios_clientes.php?tabla=tblpaqueteo_lista_servicios_clientes&dir=50">Listas de precios </option-->
 			<!--option  value="../administrador/precios.volumen.php">Configuracion de Precio kilos volumen</option>-->
 			<!--option  value="../administrador/precios.php?tabla=tblpaqueteo_precios&dir=52">Configuracion de Precios</option-->
 			<!--option  value="../administrador/impuestos.php">Impuestos</option-->
 			<!--option  value="../administrador/mensajes.correos.php">Mensajes_Correos</option>-->
-			<!--option value="../administrador/lista_precios.cliente.php?mod=1&idtipo=2">Lista de precios</option-->                                                                         
-		<!--option value="../administrador/configurar.php?tabla=tblpaqueteo_servicios_nacionales&dir=79">Mensajeria nacioanal</option>          
-		<option value="../administrador/paqueteria.php?tblpaqueteo_servicios_nacionales_paqueteria&dir=78">Paqueteria nacioanal</option-->           
-			<!--option value="../paqueteo/default.php?tblpaqueteo_servicios_nacionales_paqueteria&dir=77">Importar Guias</option-->          
+			<!--option value="../administrador/lista_precios.cliente.php?mod=1&idtipo=2">Lista de precios</option-->
+		<!--option value="../administrador/configurar.php?tabla=tblpaqueteo_servicios_nacionales&dir=79">Mensajeria nacioanal</option>
+		<option value="../administrador/paqueteria.php?tblpaqueteo_servicios_nacionales_paqueteria&dir=78">Paqueteria nacioanal</option-->
+			<!--option value="../paqueteo/default.php?tblpaqueteo_servicios_nacionales_paqueteria&dir=77">Importar Guias</option-->
 			<!--option  value="../administrador/motivos.php">Motivos de llamadas</option-->
 		<!--option  value="../administrador/negociacion.clientes.php">Negociaci&oacute;n con clientes</option>
 		<option  value="../administrador/transportadora.php">Negociacion Transportadora</option>
@@ -2443,20 +2501,19 @@ if (localStorage.getItem("remember")==1) {
 			<!--option  value="../administrador/configurar.php?tabla=tblpaqueteo_zonas_serv&dir=51">Zonas Servicios </option-->
 		<!--option  value="" class="textnegrotit1">-Opciones Del sitio Web-</option>
 		<option  value="../administrador/ayuda.linea.php?tabla=tblayuda_linea&dir=85">Ayuda en linea</option>
-	
+
 		<option  value="../administrador/banners.php?tabla=tblbanners&dir=87">Banners</option>
 		<option  value="../administrador/contactos.php?tabla=tblcontacto&dir=86">Contacto</option>
 		<option  value="../administrador/noticias.sitio.php?tabla=noticias_sitio&dir=91">Noticias</option>
 		<option  value="../administrador/qsomos.php?tabla=tblqsomos&dir=93">Quienes somos</option>
-	
+
 		<option  value="../administrador/redes.php?tabla=tblredes_sociales&dir=94">Redes</option-->
 			<!--option  value="../administrador/puntos.servicio.php?tabla=tblpunto_servicio&dir=92">Puntos de servicio </option-->
 			<!--option  value="../administrador/tipo_moneda.php?tabla=tblusuariosxclientes&dir=85">Tipo de Moneda</option-->
 			<!--option  value="../administrador/paginas.sitio.php?tabla=tblpaginas_sitio&dir=90">Paginas sitio</option-->
 			<!--option  value="../administrador/asocparam.paqueteo.php?idexp=11635">Valores de paqueteo</option-->
 			<option  value="" class="textnegrotit1">--------------------</option>
-			                                  
-									<!--option  value="../administrador/textos.parametros.php">Parametrizaci&oacute;n de Textos y Correos</option-->
+												<!--option  value="../administrador/textos.parametros.php">Parametrizaci&oacute;n de Textos y Correos</option-->
 			<!-- <option  value="" class="link_numeros">--URBANOS--</option> -->
 			<!-- <option  value="../administrador/urbanos.estados_guias.php">Estados de las guias URBANOS</option>    -->
 			<!-- <option  value="../administrador/urbanos.estados_recogidas.php">Estados de las recogidas URBANOS</option> -->
@@ -2465,14 +2522,14 @@ if (localStorage.getItem("remember")==1) {
 
 		
 		
-<a href="../administrador/default.php"  class="btn_c_1"><i class="fas fa-home"></i>&nbsp;inicio</a>
-<!-- 
+<a style="border-radius: 0.3em; text-decoration: none;" href="../administrador/default.php"  class="btn_c_1 fadeIn animated"><i class="fas fa-home"></i>&nbsp;inicio</a>
+<!--
 <a href="../administrador/default.php" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage('Image1','','../../img_informer/bot_c_inicio2.png',1)"><img src="../../img_informer/bot_c_inicio.png" name="Image1" width="82" height="19" border="0" id="Image1" />
  -->
 
 </a>
 
-<a class="btn_c_1" href="../salir.php?error=3" ><i class="fas fa-sign-out-alt"></i>&nbsp;cerrar</a>&nbsp;
+<a style="border-radius: 0.3em; text-decoration: none;" class="btn_c_1 fadeIn animated" href="../salir.php?error=3" ><i class="fas fa-sign-out-alt"></i>&nbsp;cerrar</a>&nbsp;
 
 <span class='btn_c_2'>PLAN BASICO (Mensual) </span><!-- <a href="../salir.php?error=3" onmouseout="MM_swapImgRestore()" onmouseover="MM_swapImage('Image2','','../../img_informer/bot_c_cerrar1.png',1)"><img src="../../img_informer/bot_c_cerrar.png" name="Image2" width="81" height="19" border="0" id="Image2" /></a> -->
 </td>
@@ -2493,73 +2550,86 @@ if (localStorage.getItem("remember")==1) {
 		<td align="left" valign="middle" bgcolor="#ECEDF1">
 				<link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
 
-			<table border="0" cellspacing="2" cellpadding="1" width="98%" style="height: 36px;padding-top: 6px;background-color: #f3f3f3;" class="">
+			<table border="0" cellspacing="2" cellpadding="1" width="98%" style="height: 36px;padding-top: 6px;background-color: #f3f3f3;" class="fadeIn animated">
 				<tr>
 					<!--  <td valign="top" align="center" bgcolor="#f3f3f3">
 						<a href="../courier/crearguia.php" title="Sistema general de elaboraci�n  de gu�as  " class="texto_consola_submenu" style="font-size:12px">Genarar guia internacional</a>
 					</td> -->
-						
-	  
-	  
-        <td bgcolor="#f3f3f3" valign="top" align="center">
-							
-			<a href='../coretransporte/default.php' title='Sistema general de elaboración  de guías  ' class='texto_consola_submenu' style='font-size:12px'>Elaboracion guias</a>  
-		</td>
-		
-		
-	  
-	  
-        <td bgcolor="#f3f3f3" valign="top" align="center">
-							
-			<a href='../paqueteo/paqueteo.estados.guias.php' title='Permite actualizar los estados de la guia' class='texto_consola_submenu' style='font-size:12px'>Estados guias</a>  
-		</td>
-		
-		
-	  
-	  
-        <td bgcolor="#f3f3f3" valign="top" align="center">
-							
-			<a href='../relacion_envios/relacion_envios.php' title='Click para el manejo de los despachos' class='texto_consola_submenu' style='font-size:12px'>Relacion de envios</a>  
-		</td>
-		
-		
-	  
-	  
-        <td bgcolor="#f3f3f3" valign="top" align="center">
-							
-			<a href='../recogidas_empresa/estados.recogidas.php' title='Modulo con los estados de las recogidas' class='texto_consola_submenu' style='font-size:12px'>Estados Recogidas</a>  
-		</td>
-		
-		
-	  
-	  
-        <td bgcolor="#f3f3f3" valign="top" align="center">
-							
-			<a href='../recogidas_empresa/toma.php' title='Elaboración de una recogida ' class='texto_consola_submenu' style='font-size:12px'>Solicitud recogidas</a>  
-		</td>
-		
-										<td>
-										<a href="../courier/default.php" title="Permite generar servicios con guias y recogidas incluidas." class="texto_consola_submenu" style="font-size:12px;background-color: #aa193b;color: #fff;">Courier<!-- <span style="
-    font-size: 13px;
-    position: absolute;
-    margin-left: -43px;
-    margin-top: 14px;
-    color: #fff;
-    padding: 5px;
-    border-radius: 3px;
-    background-color: #aa193b;
-	z-index: 999
-"> Nuevo servicio</span></a> -->
-									</td>
-																	<td bgcolor="#f3f3f3" valign="top" align="center">
-																		<a href='../recaudos/default.php' title='Informe de recaudos' class='texto_consola_submenu' style='font-size:12px'> Informe de recaudos</a>  
-										</td>											
-		
-													
+					
 
+        <td bgcolor="#f3f3f3" valign="top" align="center">
+			
+			<a href='../coretransporte/default.php' title='Sistema general de elaboración  de guías  ' class='texto_consola_submenu' style='font-size:12px'>Elaboracion guias</a>		</td>
+
+	
+
+        <td bgcolor="#f3f3f3" valign="top" align="center">
+			
+			<a href='../paqueteo/paqueteo.estados.guias.php' title='Permite actualizar los estados de la guia' class='texto_consola_submenu' style='font-size:12px'>Estados guias</a>		</td>
+
+	
+
+        <td bgcolor="#f3f3f3" valign="top" align="center">
+			
+			<a href='../relacion_envios/relacion_envios.php' title='Click para el manejo de los despachos' class='texto_consola_submenu' style='font-size:12px'>Relacion de envios</a>		</td>
+
+	
+
+        <td bgcolor="#f3f3f3" valign="top" align="center">
+			
+			<a href='../recogidas_empresa/estados.recogidas.php' title='Modulo con los estados de las recogidas' class='texto_consola_submenu' style='font-size:12px'>Estados Recogidas</a>		</td>
+
+	
+
+        <td bgcolor="#f3f3f3" valign="top" align="center">
+			
+			<a href='../recogidas_empresa/toma.php' title='Elaboración de una recogida ' class='texto_consola_submenu' style='font-size:12px'>Solicitud recogidas</a>		</td>
+
+										<td valign="top" align="center" bgcolor="#f3f3f3">
+										<a href="../courier/default.php" title="Permite generar servicios con guias y recogidas incluidas." class="texto_consola_submenu" style="font-size:12px;">Courier
+									</td>
+																	<td bgcolor="#f3f3f3" valign="top" align="center" id="td_nav_recaudos">
+																		<a href='../recaudos/default.php' title='Informe de recaudos' class='texto_consola_submenu' style='font-size:12px'> Informe de recaudos</a>										<input id="ver_recaudos_nav" value="" type="hidden"/>
+										</td>
+
+									
+<script>
+
+	// console.log($("#ver_recaudos_nav").val());
+
+	function validarRecaudosAgenteNav() {
+		// https://aveonline.co/api
+		let urlLocal = "https://aveonline.co/api/comunes/v1.0/agentes.php";
+		let agenteId = ""
+		// console.log(agenteId);
+
+		let body_data = {
+			tipo : "validarOpcionRecaudoAgente",
+			agenteId
+		}
+		fetch(urlLocal,{
+			method : "POST",
+			body : JSON.stringify(body_data)
+		})
+		.then(res =>res.json())
+		.then(res =>{
+			console.log(res.respuesta[0].ver_recaudos);
+
+			if(res.respuesta[0].ver_recaudos == 1){
+				document.getElementById('td_nav_recaudos').style.display = "none"
+				document.getElementById('btn_ver_reacudos_buscador').style.display = "none"
+
+			}
+		})
+		.catch((err) => console.log(err));
+	}
+
+	// Ejecucion inicial de la funcion
+	validarRecaudosAgenteNav()
+</script>
 				</tr>
 				<tr>
-			
+
 											</tr>
 					</table>
 				</td>
@@ -2571,28 +2641,28 @@ if (localStorage.getItem("remember")==1) {
 	<script language="JavaScript" src="../../incluidos/dhtmllib.js"></script>
 	<script language="JavaScript" src="../../incluidos/scroller.js"></script>
 	<script language="javascript">
-		var milisec=0 
+		var milisec=0
 var seconds=900;  // variable control de sesson por 15 minutos para mostrar mensaje
 //document.getElementById("tiempop").innerHTML = '0';
-function display(){ 
-	if (milisec<=0){ 
-		milisec=9 
-		seconds-=1 
-	} 
-	if (seconds<=-1){ 
-		milisec=0 
-		seconds+=1 
-	} 
-	else 
-		milisec-=1 
+function display(){
+	if (milisec<=0){
+		milisec=9
+		seconds-=1
+	}
+	if (seconds<=-1){
+		milisec=0
+		seconds+=1
+	}
+	else
+		milisec-=1
     //document.getElementById("tiempop").innerHTML =seconds;
-    if (seconds>0) { 
+    if (seconds>0) {
     	setTimeout("display()",100);
-    } else { 
+    } else {
     	document.all.capamensajet.style.display="";
 	 //  destruir();
 	}
-} 
+}
 </script>
 <script>
 	function destruir(){
@@ -2602,9 +2672,9 @@ function display(){
 		conexion1.onreadystatechange =function(){
 			if (conexion1.readyState==4){
 				document.all.capamensajet.style.display="";
-			} 
+			}
 		}
-    conexion1.send(null) // limpia conexion             
+    conexion1.send(null) // limpia conexion
 }
 
 </script>
@@ -2612,7 +2682,7 @@ function display(){
 	<tr><td>
 			</td></tr>
 </table>
-<div id="capamensajet" style="display:">
+<div class="fadeIn animated" id="capamensajet" style="display:">
 	<table width=100% align=center  cellpadding=4 cellspacing=4 class="textnegrobl" bgcolor="#E6E6E6">
 		<tr align=center >
 			<td valign=top style="background-color: #aa0139;height: 41px;padding-top: 12px;color: white;">
@@ -2659,10 +2729,9 @@ function display(){
 			 <p>
 			 	<h1><strong>A partir del 1 de Septiembre del 2018, las tarifas de todas las transportadoras se actualizaran a su versión 2018 - 2019 como se realiza cada año.<br> En el transcurso de las próxima semana te estaremos contando como quedó tu negociación.
 			 	</strong>
-			</h1>			 
-			</p>	
+			</h1>
+			</p>
 		</div>
-		
 <script type="text/javascript">
 //
 if(window.opener || window.history.length === 1)  {
@@ -2682,92 +2751,105 @@ if(window.opener || window.history.length === 1)  {
 <!-- jQuery Library -->
 <script>
 
-const encabezado = {
-	"tipo": "obtenerContadores"
-}
+// const encabezado = {
+// 	"tipo": "obtenerContadores"
+// }
 
-const obtenerOpcionesLocales = async () => {
-	const data = localStorage.getItem('estadoOpciones');
-	return await JSON.parse(data);
-}
+// const obtenerOpcionesLocales = async () => {
+// 	const data = localStorage.getItem('estadoOpciones');
+// 	return await JSON.parse(data);
+// }
 
-const mostrarDiv = () => {
-	var div = document.createElement("div");
-	div.style.width = "100px";
-	div.style.height = "100px";
-	div.style.background = "red";
-	div.style.color = "white";
-	div.innerHTML = "Actualizar panel de novedades.";
-
-	document.getElementById("main").appendChild(div);
-}
+// const mostrarDiv = () => {
+// 	console.log('mostrar div');
+// 	document.getElementById('info_message').style.display = "flex";
+// }
 
 
-const fecthObtenerOpciones = (params) => {
+// const fecthObtenerOpciones = (params) => {
+// 	    fetch('https://aveonline.co/api/nal/v1.0/panelNovedades.php',{
+//           method: 'POST',
+//           body: JSON.stringify(encabezado)
+//         })
+//         .then(function(response){
+//           console.log(response);
+//           return response.json();
+//         })
+//         .then(function({status , result}) {
+// 			const { count_opc1 , count_opc2 , count_opc3, count_opc4} = params;
+//           if(status == "success") {
+// 			var error = 0;
 
-	    fetch('https://aveonline.co/api/nal/v1.0/panelNovedades.php',{
-          method: 'POST',
-          body: JSON.stringify(encabezado)
-        }) 
-        .then(function(response){
-          console.log(response);
-          return response.json();
-        })
-        .then(function({status , result}) {
-			const { count_opc1 , count_opc2 , count_opc3, count_opc4} = params;
-          if(status == "success") {
-			var error = 0;
-            //   var count_opc1 = result.count_opc1;
-            //   var count_opc2 = result.count_opc2;
-            //   var count_opc3 = result.count_opc3;
-			//   var count_opc4 = result.count_opc4;
-			if(count_opc1 > result.count_opc1){
-				error = 1;
-			}
-			if(count_opc2 > result.count_opc2){
-				error = 2;
-			}
-			if(count_opc3 > result.count_opc3){
-				error = 3
-			}
-			if(count_opc4 > result.count_opc4){
-				error = 4
-			}
-			if(error !== 0){
-				mostrarDiv()
-				console.log(`local = ${count_opc1} servidor = ${result.count_opc1}`);
-			} 
-           
-          } else {
-            console.log(object);('Respuesta de red OK pero respuesta HTTP no OK');
-          }
-        })
-        .catch(function(error) {
-          console.log(object);('Hubo un problema con la petición Fetch:' + error.message);
-        });
-}
+// 			if( parseInt(result.count_opc1) > parseInt(count_opc1)){
+// 				mostrarDiv();
+// 			}
+// 			if(parseInt(result.count_opc2) > parseInt(count_opc2)){
+// 				mostrarDiv();
+// 			}
+// 			if(parseInt(result.count_opc3) > parseInt(count_opc3)){
+// 				mostrarDiv();
+// 			}
+// 			if(parseInt(result.count_opc4) > parseInt(count_opc4)){
+// 				mostrarDiv();
+// 			}
 
-var dispararIntervalo = null;
+// 			console.log(`local = ${count_opc1} servidor = ${result.count_opc1} error: ${error}`);
+// 			console.log(`local = ${count_opc2} servidor = ${result.count_opc2} error: ${error}`);
+// 			console.log(`local = ${count_opc3} servidor = ${result.count_opc3} error: ${error}`);
+// 			console.log(`local = ${count_opc4} servidor = ${result.count_opc4} error: ${error}`);
 
-const dispararIntervaloFunc = () => {
-	setInterval(function(){ 
-		obtenerOpcionesLocales()
-		.then(function(response){
-			console.log({ response })
-			const resultFetch = fecthObtenerOpciones(response);
-		})
-		.catch(function(error){
-			console.log(`error: ${error}`)
-			cancelarIntervalo();
-		});
-		console.log(opciones)
-	}, 10000);
-}
+//           } else {
+//             console.log('Respuesta de red OK pero respuesta HTTP no OK');
+//           }
+//         })
+//         .catch(function(error) {
+//           console.log(object);('Hubo un problema con la petición Fetch:' + error.message);
+//         });
+// }
 
-onload = function () {
-  dispararIntervaloFunc();
-};
-</script><table  width="100%" align="center" border="0" bgcolor="#cccccc" cellpadding="4" cellspacing="1" class="text1" id="guia_asignada_1">
+// var dispararIntervalo = null;
+
+// const dispararIntervaloFunc = () => {
+// 	setInterval(function(){
+// 		obtenerOpcionesLocales()
+// 		.then(function(response){
+// 			console.log({ response })
+// 			const resultFetch = fecthObtenerOpciones(response);
+// 		})
+// 		.catch(function(error){
+// 			console.log(`error: ${error}`)
+// 			cancelarIntervalo();
+// 		});
+// 		console.log(opciones)
+// 	}, 10000);
+// }
+
+// onload = function () {
+//   //dispararIntervaloFunc();
+// };
+</script>
+<!-- <div id="info_message" style="display: flex;
+    align-items: center;
+    justify-content: center;display: none">
+	<div style=" position: fixed;
+    background-color: #a8193a;
+    margin-top: 29px;
+    width: 36%;
+    height: 50px;
+    /* border-radius: 12px; */
+    padding: 16px;
+    display: flex;
+    text-align: center;
+    z-index: 999;
+    justify-content: flex-start;
+    font-size: 12px;
+	order-radius: 5px;
+    color: #fff;">
+		Se han encontrado nuevas novedades en el panel.
+		<a style="color: #fff;text-decoration-line: underline;" href="https://aveonline.co/app/modulos/superadmon/default.php">Ver panel</a> &nbsp;
+		<a style="color: #fff;text-decoration-line: underline;" href="#" onclick="document.getElementById('info_message').style.display = 'none';">Cerrar ventana</a>
+	</div>
+</div> --><table  width="100%" align="center" border="0" bgcolor="#cccccc" cellpadding="4" cellspacing="1" class="text1" id="guia_asignada_1">
   <tbody colspan="4">
     <tr bgcolor="#aa0139" style="height: 45px;color:white; font-size: 12px">
       <td>
@@ -2794,12 +2876,16 @@ onload = function () {
 							&nbsp;Buscar por Agentes:
 							<select name="idagente" class="text1" onchange="this.options[this.selectedIndex].value && (window.location ='?idagente='+this.options[this.selectedIndex].value);">
 								<option value="">----</option>
-								<option value=3161 selected>HERNANDO RAMIREZ CETINA ENVIA</option><option value=2422>HERNANDO RAMIREZ CETINA TCC</option>								<option value="9999">VER TODOS</option>
+								<option value=2422 selected>HEKAENTREGA CO  TCC</option><option value=3161>HEKAENTREGA CO ENVIA</option>								<option value="9999">VER TODOS</option>
 							</select>
 
 						
 													Seleccione Transportador
-															&nbsp;
+															<select name="idtransportadorx" id="idtransportadorx" class="text1">
+									<option value="0">----</option>
+																			<option value="29" >ENVIA (33)</option>
+																		<option value="1010" selected>TCC SA (43)</option>
+																&nbsp;
 																Entre <input type="text" name="dsfechai" class="text1" size="10" maxlength="10" value="2020/06/19">
 								<img align="absmiddle" SRC="../../temas/iconos/calendario.gif" ALT="Calendario" name="imgFecha" ID="imgFecha" STYLE="cursor:hand;position:relative" BORDER="0" onClick="displayDatePicker('dsfechai', this);" language="javaScript"> Y
 								<input type="text" name="dsfechaf" class="text1" size="10" maxlength="10" value="2021/06/19">
@@ -2810,7 +2896,7 @@ onload = function () {
 					<td>
 						<input type="submit" name="enviarbuscar" value="Listar" class="btn_c_1">
 		
-							<input type="button" name="ver formatos" value="Ver Relacion de EnvÍos" class="btn_c_1" onClick="irAPaginaD('relacion_envio_exportar.php?enca=&aveila=&idagente=3161');">
+							<input type="button" name="ver formatos" value="Ver Relacion de EnvÍos" class="btn_c_1" onClick="irAPaginaD('relacion_envio_exportar.php?enca=&aveila=&idagente=2422');">
 																					<input type="button" name="dspreguias" value="Importar Preguias" class="btn_c_1" onClick="irAPaginaD('importar_preguias.php');">
 								<input type="button" name="dspreguias" value="Ver Preguias" class="btn_c_1" onClick="irAPaginaD('ver_preguias.php');">
 													
@@ -2828,7 +2914,1271 @@ onload = function () {
 			</form>
 		</table>
 		</div>
+						<form method="post" action="relacion_envios.php" name="avisoforma">
 					<br>
+					<table border="0" cellpadding="1" cellspacing="2" width="100%" class="text3" bgcolor="">
+												<tr>
+							<td>
+								<table>
+									<tr>
+										<td>
+											<img src="../../temas/imagen_transpo/104926-1-tcc.jpg" align="absmiddle" border="0" style="width:150">										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+					</table>
+					<div align="center" class="text1">
+													<input type="button" name="enviar" value="GENERAR RELACIÓN DE ENVÍOS" class="btn_c_1" onClick="avisox();">
+							<input type="hidden" name="exportarx" id="exportarx" value="1">
+							<br>
+							<br>
+							<a class="text4">observaciones</a><br>
+							<textarea cols="80" rows="5" name="dsobs" id="dsobs"></textarea>
+												<input type="hidden" name="aviso" value="1">
+					</div>
+					<table border="0" cellpadding="1" cellspacing="2" width="100%" class="text3" bgcolor="">
+						<tr bgcolor="" valign="top" align="center">
+							<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4"><input type=checkbox name=AdjuntarTodo onClick="ActivarTodoGeneral('avisoforma');" title="Click y selecciona todos los datos"></td>
+														<!--td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Nit</td-->
+							<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Nombre o razon social remitente</td>
+							<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Ciudad remitente</td>
+							<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Nombre o razon social destinatario</td>
+							<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Ciudad destinatario</td>
+							<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Fecha</td>
+							<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Direccion</td>
+							<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Telefono</td>
+							<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Cajas</td>
+							<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Peso</td>
+
+							<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">								
+																Factura
+									
+							</td>
+							<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Referencia</td>
+							<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Valor declarado</td>
+
+							<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Valor a Recaudar</td>
+
+							<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Observaciones</td>
+							<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Guia</td>
+						</tr>
+													<tr class=text1 bgcolor="#FFFFFF" style="" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1224187|532607010|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">2422</td-->
+								<td valign="top">
+									AVE - HEKA - KATHERINE TORRES									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">as 0016</td>
+								<td valign="top">BOGOTA(CUNDINAMARCA)</td>
+								<td valign="top">2020/11/02</td>
+								<td valign="top">asas as</td>
+								<td valign="top">/-121</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">10000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">asd</td>
+								<td valign="top">532607010								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1218090|532606020|PALMIRA(VALLE DEL CAUCA)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">2422</td-->
+								<td valign="top">
+									AVE - HEKA - NATHALY ALVAREZ									
+								</td>
+								<td valign="top">PALMIRA(VALLE DEL CAUCA)</td>
+								<td valign="top">Genesis salas 0006</td>
+								<td valign="top">MEDELLIN(ANTIOQUIA)</td>
+								<td valign="top">2020/10/30</td>
+								<td valign="top">Carrera 16-calle 56#14b02 Caicedo villatina </td>
+								<td valign="top">/-3114777160</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">25000</td>
+								<td valign="top">134000</td>
+
+								<td valign="top">ropa infantil</td>
+								<td valign="top">532606020								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1217727|532605934|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">2422</td-->
+								<td valign="top">
+									AVE - HEKA - innovation salud									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">LUZ DAZA 0037</td>
+								<td valign="top">GARAGOA(BOYACA)</td>
+								<td valign="top">2020/10/29</td>
+								<td valign="top">CARRERA 11 # 11-34/36/38 CENTRO</td>
+								<td valign="top">/-3102836508</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">10000</td>
+								<td valign="top">180500</td>
+
+								<td valign="top">4 PANTALONES BETTERLOOK</td>
+								<td valign="top">532605934								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1216427|532605722|N/A|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">2422</td-->
+								<td valign="top">
+									AVE - HEKA - ?????????? ?????									
+								</td>
+								<td valign="top">N/A</td>
+								<td valign="top">Gloria Ines Gonzales Perez 0037</td>
+								<td valign="top">SALAMINA(CALDAS)</td>
+								<td valign="top">2020/10/29</td>
+								<td valign="top">carrera 5 #163 frente a la bomba la primavera La bomba primavera</td>
+								<td valign="top">/-3104554796</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">10000</td>
+								<td valign="top">138600</td>
+
+								<td valign="top">mercancia</td>
+								<td valign="top">532605722								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1214208|532605305|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">2422</td-->
+								<td valign="top">
+									AVE -hekaentrega co  TCC									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">PRUEBA</td>
+								<td valign="top">SAN VICENTE DE CHUCURI(SANTANDER)</td>
+								<td valign="top">2020/10/28</td>
+								<td valign="top">prueba</td>
+								<td valign="top">4235</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">10000</td>
+								<td valign="top">19100</td>
+
+								<td valign="top">PRUEBA</td>
+								<td valign="top">532605305								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1207258|532603965|PALMIRA(VALLE DEL CAUCA)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">2422</td-->
+								<td valign="top">
+									AVE - HEKA - NATHALY ALVAREZ									
+								</td>
+								<td valign="top">PALMIRA(VALLE DEL CAUCA)</td>
+								<td valign="top">luisa fernanda caicedo 0006</td>
+								<td valign="top">EL PLACER(VALLE DEL CAUCA)</td>
+								<td valign="top">2020/10/26</td>
+								<td valign="top">Cra 1Aeste # 4a-65 porvenir de comfandi </td>
+								<td valign="top">/-3158404428</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">25000</td>
+								<td valign="top">78000</td>
+
+								<td valign="top">ropa infantil</td>
+								<td valign="top">532603965								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1207192|532603954|PALMIRA(VALLE DEL CAUCA)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">2422</td-->
+								<td valign="top">
+									AVE - HEKA - NATHALY ALVAREZ									
+								</td>
+								<td valign="top">PALMIRA(VALLE DEL CAUCA)</td>
+								<td valign="top">luisa fernanda caicedo 0006</td>
+								<td valign="top">EL PLACER(VALLE DEL CAUCA)</td>
+								<td valign="top">2020/10/26</td>
+								<td valign="top">Cra 1ra A este # 4a - 65 porvenir de comfandi </td>
+								<td valign="top">/-3158404428</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">25000</td>
+								<td valign="top">78000</td>
+
+								<td valign="top">ropa infantil</td>
+								<td valign="top">532603954								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1206716|532603874|PALMIRA(VALLE DEL CAUCA)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">2422</td-->
+								<td valign="top">
+									AVE - HEKA - hekaentrega.co									
+								</td>
+								<td valign="top">PALMIRA(VALLE DEL CAUCA)</td>
+								<td valign="top">as 0034</td>
+								<td valign="top">CALI(VALLE DEL CAUCA)</td>
+								<td valign="top">2020/10/26</td>
+								<td valign="top">sa as</td>
+								<td valign="top">/-21</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">10000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">as</td>
+								<td valign="top">532603874								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1195240|532601724|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">2422</td-->
+								<td valign="top">
+									AVE - HEKA - PAPOS									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Yury Marcela Bustos Parra 0036</td>
+								<td valign="top">USAQUEN(BOGOTA)</td>
+								<td valign="top">2020/10/21</td>
+								<td valign="top">Calle 140 # 7-A28 Local 3  Centro Comercial Belmira  Cedritos</td>
+								<td valign="top">/-3229331110</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">89000</td>
+
+								<td valign="top">Zapatos</td>
+								<td valign="top">532601724								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1191405|532600973|PALMIRA(VALLE DEL CAUCA)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">2422</td-->
+								<td valign="top">
+									AVE - HEKA - NATHALY ALVAREZ									
+								</td>
+								<td valign="top">PALMIRA(VALLE DEL CAUCA)</td>
+								<td valign="top">karen dayana 0006</td>
+								<td valign="top">CALI(VALLE DEL CAUCA)</td>
+								<td valign="top">2020/10/20</td>
+								<td valign="top">cra 26f1 # 74-41 marroquin</td>
+								<td valign="top">/-3215241614</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">30000</td>
+								<td valign="top">77000</td>
+
+								<td valign="top">ropa infantil</td>
+								<td valign="top">532600973								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1188283|532600384|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">2422</td-->
+								<td valign="top">
+									AVE - HEKA - PAPOS									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">angie sulay jhhj 0036</td>
+								<td valign="top">TOCANCIPA(CUNDINAMARCA)</td>
+								<td valign="top">2020/10/19</td>
+								<td valign="top">dfhjkjf gfhg</td>
+								<td valign="top">/-256862141</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">74500</td>
+
+								<td valign="top">calzado</td>
+								<td valign="top">532600384								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1174989|532597628|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">ANDERSON AGUILERA BARRETO</td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/14</td>
+								<td valign="top">CRR 17 13 32  PINSON</td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">CALZADO</td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532597628								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1174768|532597564|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co LUMAFUCA STORE									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">ANGIE KATERINE MARTIN </td>
+								<td valign="top">SOGAMOSO(BOYACA)</td>
+								<td valign="top">2020/10/14</td>
+								<td valign="top">CARRERA 10 # 14 - 21  CENTRO</td>
+								<td valign="top">/-/-3205806381</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">45000</td>
+								<td valign="top">105000</td>
+
+								<td valign="top">CALZADO </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532597564								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1171313|532596940|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co NATALIA MENDOZA									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">CHABELY MANQUILLO - N </td>
+								<td valign="top">LA PLATA(HUILA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">CARRERA 4 S 2 A 92  VILLA DEL RIO </td>
+								<td valign="top">/-/-3232263496</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">10000</td>
+								<td valign="top">85000</td>
+
+								<td valign="top">CALZADO</td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596940								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1171300|532596936|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co NATALIA MENDOZA									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">ADRIANA LUCIA ORDO?EZ - N </td>
+								<td valign="top">LA PLATA(HUILA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">CALLE 3 # 9 68  .</td>
+								<td valign="top">/-/-3227314923</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">10000</td>
+								<td valign="top">170000</td>
+
+								<td valign="top">CALZADO</td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596936								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1171296|532596934|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co hekaentrega.co									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">qw</td>
+								<td valign="top">MEDELLIN(ANTIOQUIA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">wq qw</td>
+								<td valign="top">/-12/-121</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">w</td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596934								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1171295|532596935|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co hekaentrega.co									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">qw</td>
+								<td valign="top">MEDELLIN(ANTIOQUIA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">wq qw</td>
+								<td valign="top">/-12/-121</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">w</td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596935								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1171293|532596933|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co hekaentrega.co									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">qw</td>
+								<td valign="top">MEDELLIN(ANTIOQUIA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">wq qw</td>
+								<td valign="top">/-12/-121</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">w</td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596933								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1171292|532596932|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co hekaentrega.co									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">qw</td>
+								<td valign="top">MEDELLIN(ANTIOQUIA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">wq qw</td>
+								<td valign="top">/-12/-121</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">w</td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596932								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1171239|532596921|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co NATALIA MENDOZA									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">YASMIN TATIANA CIFUENTES - N </td>
+								<td valign="top">BOJACA(CUNDINAMARCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">CALLE 22 # 17 - 03 SENDEROS DE LA ZIPA  ..</td>
+								<td valign="top">/-/-3204173973</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">10000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">CALZADO</td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596921								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170918|532596861|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co DETALLES NICOLAS									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">ALEXANDER TAMARA</td>
+								<td valign="top">CARTAGENA DE INDIAS(BOLIVAR)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">MZ 111/16 EL POZON </td>
+								<td valign="top">/-/-3002477522</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">10000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">calzado</td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596861								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170773|532596838|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596838								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170772|532596837|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596837								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170771|532596836|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596836								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170770|532596835|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596835								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170769|532596834|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596834								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170768|532596833|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596833								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170767|532596832|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596832								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170764|532596831|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596831								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170763|532596830|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596830								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170762|532596829|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596829								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170761|532596828|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596828								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170757|532596827|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596827								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170756|532596826|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596826								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170755|532596825|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596825								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170754|532596824|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596824								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170753|532596823|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596823								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170752|532596822|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596822								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170750|532596821|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">Anderson Aguilera Barreto </td>
+								<td valign="top">SARAVENA(ARAUCA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Crra 17 13 32  Pinson frente a una escuela, casa rejas </td>
+								<td valign="top">/-/-3504462550</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596821								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170687|532596812|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co NATALIA MENDOZA									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">MARIANA OLARTE - J </td>
+								<td valign="top">YALI(ANTIOQUIA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">20 - 136  LA CITA </td>
+								<td valign="top">/-/-3218172982</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">10000</td>
+								<td valign="top">85000</td>
+
+								<td valign="top">CALZADO</td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596812								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170680|532596808|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">TATIANA SALDARRIAGA </td>
+								<td valign="top">MEDELLIN(ANTIOQUIA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Calle 57#127 c 58 San Javier la loma, barrio primavera</td>
+								<td valign="top">/-/-3006289241</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596808								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170669|532596806|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">TATIANA SALDARRIAGA </td>
+								<td valign="top">MEDELLIN(ANTIOQUIA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Calle 57#127 c 58 San Javier la loma, barrio primavera</td>
+								<td valign="top">/-/-3006289241</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596806								</td>
+							</tr>
+																				<tr class=text1 bgcolor="#FFFFFF" style="background-color:#ffe3ec !important" align="center" onMouseOut="mOut(this,'#FFFFFF');" onMouseOver="mOvr(this,'#EFEFEF');">
+								<td valign="top">
+									<input type="checkbox" name="pkid[]" value="1170666|532596805|CUCUTA(NORTE DE SANTANDER)|"  >
+									<input type="hidden" name="idexpx[]" value="11635">
+								</td>
+																<!--td valign="top">1072497419</td-->
+								<td valign="top">
+									hekaentrega.co Malexa shoes									
+								</td>
+								<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
+								<td valign="top">TATIANA SALDARRIAGA </td>
+								<td valign="top">MEDELLIN(ANTIOQUIA)</td>
+								<td valign="top">2020/10/13</td>
+								<td valign="top">Calle 57#127 c 58 San Javier la loma, barrio primavera</td>
+								<td valign="top">/-/-3006289241</td>
+								<td valign="top">1</td>
+								<td valign="top" align="center">1 </td>
+								<td valign="top"></td>
+								<td valign="top"></td>
+
+								<td valign="top">40000</td>
+								<td valign="top">90000</td>
+
+								<td valign="top">Calzado </td>
+								<td valign="top"><div style='background-color:#ffe3ec !important'>
+									Esta guía no posee rótulo descargado, por favor genera la guía nuevamente o comunicate con tu asesor logístico.
+									</div>532596805								</td>
+							</tr>
+																			<tr bgcolor="#EFEFEF" class="text1" align="center">
+														<td valign="top">&nbsp;</td>
+							<td valign="top">&nbsp;</td>
+							<td valign="top">&nbsp;</td>
+							<td valign="top">&nbsp;</td>
+							<td valign="top">&nbsp;</td>
+							<td valign="top">&nbsp;</td>
+							<td valign="top">&nbsp;</td>
+
+							<td valign="top"><strong>TOTAL</strong></td>
+							<td valign="top">43</td>
+							<td valign="top" align="center">43 </td>
+							<td valign="top">&nbsp;</td>
+							<td valign="top">&nbsp;</td>
+
+							<td valign="top"></td>
+							<td valign="top">4013700</td>
+
+							<td valign="top">&nbsp;</td>
+							<td valign="top" align="center">&nbsp;</td>
+						</tr>
+					</table>
+					<div align="center" class="text1">
+													<input type="button" name="enviar" value="GENERAR RELACIÓN DE ENVÍOS" class="btn_c_1" onClick="avisox();">
+							<input type="hidden" name="idtransportadorx" value="1010">
+							<input type="hidden" name="exportarx" id="exportarx" value="1">
+												<input type="hidden" name="aviso" value="1">
+						<input type="hidden" name="enca" id="enca" value="">
+
+						<input type="hidden" name="idempresa" value="">
+						
+					</div>
+				</form>
+						<br>
 	  
       
 
@@ -2850,9 +4200,9 @@ onload = function () {
     <article class="cont_derecho">
          <p>
 
-                                                                           </p>
+                                                                                      </p>
         <hr>
-       <p>                                                             </p>
+       <p>                                                                        </p>
              </article>
   
        
