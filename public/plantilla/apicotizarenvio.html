@@ -139,11 +139,13 @@
         </li>       
 
         <!-- Nav Item - Cotizar envio -->
+        <!--
         <li class="nav-item">
           <a class="nav-link" href="/plataforma.html" >
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Cotizar envío</span></a>
         </li>
+        -->
 
         
         
@@ -157,12 +159,63 @@
         <div class="sidebar-heading">
           Estado
         </div>
-
+<!--
         <li class="nav-item">
           <a class="nav-link" href="/novedades2">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Historial de guías</span></a>
         </li>
+        -->
+
+         
+      
+      
+      <!-- Generación de documentos ENVIA - TCC-->
+        <!--
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse3" aria-expanded="true" aria-controls="collapseTwo">
+          <i class="fas fa-fw fa-cog"></i>
+          <span>Generar documentos</span>
+        </a>
+        <div id="collapse3" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <form action="relacionEnvio" method="post" name="Generar_documentosEnvia">
+          <input type="hidden" id="codigoFirebase" name="codigoFirebase" required>
+          <input type="hidden"  name="codigoTransportadora" value="29" required>
+        </form>
+        <form action="relacionEnvio" method="post" name="Generar_documentosTcc">
+        <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
+        <input type="hidden"  name="codigoTransportadora" value="1010" required>
+      </form>
+           
+            
+            <a class="collapse-item" href="javascript:generarDocumentosEnvia()">ENVIA</a>
+            <a class="collapse-item" href="javascript:generarDocumentosTcc()">TCC</a>
+  
+            <script>
+            function generarDocumentosEnvia(){
+              document.Generar_documentosEnvia.submit();
+            }
+            function generarDocumentosTcc(){
+              document.Generar_documentosTcc.submit();
+            }
+             
+
+            </script>
+
+            
+            
+          </div>
+        </div>
+      </li>
+      -->
+
+
+
+
+
+
 
         <!-- Nav Item - Pages Collapse Menu -->
         
@@ -356,23 +409,23 @@
          <div class="row">
      
            <!-- TCC -->
-           <div style="display:block;" class="col-lg-6" undefined>
+           <div style="display:none;" class="col-lg-6" style="display:none;">
      
              <div class="card position-relative">
                <div class="card-header py-3">
                  <h6 class="m-0 font-weight-bold text-primary">
-                 <a class="navbar-brand" href="#">TCC SA - nacional</a>
+                 <a class="navbar-brand" href="#">MENSAJEROS URBANOS</a>
                  </h6>
                  
                </div>
                <div class="card-body">
                  <div class="mb-3">
                  <h6>ok|cotizaciones encontradas</h6>
-                   <code>TRAYECTO: nacional</code>
+                   <code>TRAYECTO: 000</code>
                  </div>
-                 <div class="small mb-1">TIEMPO DE ENTREGA: 2</div>
+                 <div class="small mb-1">TIEMPO DE ENTREGA: 000</div>
                  <nav class="navbar navbar-expand navbar-light bg-light mb-4">
-                   <a class="navbar-brand" href="#">COSTO DE ENVÍO: 15529</a>
+                   <a class="navbar-brand" href="#">COSTO DE ENVÍO: NaN</a>
                    
                    <!--
                    <ul class="navbar-nav ml-auto">
@@ -394,16 +447,16 @@
                    
                  </nav>
 
-                 <code>RECIBES EN TU CUENTA: 74471</code>
+                 <code>RECIBES EN TU CUENTA: NaN</code>
                  <h1> </h1>
                  <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTccuno">
                  <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
-                 <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
+                 <input type="hidden" name="ciudadD" value="EL CARMEN DE BOLIVAR(BOLIVAR)" >
                  <input type="hidden" name="kilos" value="1">
-                 <input type="hidden" name="seguro" value="40000" >
+                 <input type="hidden" name="seguro" value="35000" >
                  <input type="hidden" name="recaudo" value="90000" >
-                 <input type="hidden" name="idtrans" value="1010" >
-                 <input type="hidden" name="valorTotal" value="10129" >
+                 <input type="hidden" name="idtrans" value="999" >
+                 <input type="hidden" name="valorTotal" value="000" >
                  <input type="hidden" name="tipo_envio" value="0" >
        
      
@@ -412,7 +465,7 @@
          
                  </form>
                  
-                 <a  style="display:none;" class="btn btn-danger"  id="botonuno" href="javascript:botonuno()" aria-haspopup="true" aria-expanded="false">
+                 <a  class="btn btn-danger"  id="botonuno" href="javascript:botonuno()" aria-haspopup="true" aria-expanded="false">
                    CREAR GUÍA
                  </a>
 
@@ -448,16 +501,16 @@
              <div class="card position-relative">
                <div class="card-header py-3">
                  <h6 class="m-0 font-weight-bold text-primary">
-                 <a class="navbar-brand" href="#">ENVIA - nacional</a>
+                 <a class="navbar-brand" href="#">TCC SA - otros destinos</a>
                  </h6>
                </div>
                <div class="card-body">
                  <div class="mb-3">
-                   <code>TRAYECTO: nacional</code>
+                   <code>TRAYECTO: otros destinos</code>
                  </div>
                  <div class="small mb-1">TIEMPO DE ENTREGA: 2</div>
                  <nav class="navbar navbar-expand navbar-light bg-light mb-4">
-                   <a class="navbar-brand" href="#">COSTO DE ENVÍO: 15976</a>
+                   <a class="navbar-brand" href="#">COSTO DE ENVÍO: NaN</a>
                    </br>
                    
                    <!--
@@ -479,25 +532,25 @@
                  </nav>
                  
                  
-                 <code>RECIBES EN TU CUENTA: 74024</code>
+                 <code>RECIBES EN TU CUENTA: NaN</code>
                  <h1> </h1>
                  <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc2">
      <div class="form-row">
 
      <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
-     <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
+     <input type="hidden" name="ciudadD" value="EL CARMEN DE BOLIVAR(BOLIVAR)" >
      <input type="hidden" name="kilos" value="1">
-     <input type="hidden" name="seguro" value="40000" >
+     <input type="hidden" name="seguro" value="35000" >
      <input type="hidden" name="recaudo" value="90000" >
-     <input type="hidden" name="idtrans" value="29">
-     <input type="hidden" name="valorTotal" value="10176" >
+     <input type="hidden" name="idtrans" value="1010">
+     <input type="hidden" name="valorTotal" value="15500" >
        
      
      
        
      </form>
                  
-                 <a style="display:none;"  class="btn btn-primary"  id="botondos" href="javascript:botondos()" aria-haspopup="true" aria-expanded="false">
+                 <a   class="btn btn-primary"  id="botondos" href="javascript:botondos()" aria-haspopup="true" aria-expanded="false">
                    CREAR GUÍA
                  </a>
 
@@ -553,7 +606,7 @@
    -->
    </br>
        <!-- Content Row -->
-       <div class="row" style="display:none;">
+       <div class="row" undefined>
    
          <!-- mensajeros urbanos -->
          <div class="col-lg-6">
@@ -561,7 +614,7 @@
            <div class="card position-relative">
              <div class="card-header py-3">
                <h6 class="m-0 font-weight-bold text-primary">
-               <a class="navbar-brand" href="#">MENSAJEROS URBANOS</a>
+               <a class="navbar-brand" href="#">ENVIA</a>
                </h6>
                
              </div>
@@ -572,7 +625,7 @@
                </div>
                <div class="small mb-1">TIEMPO DE ENTREGA: 000</div>
                <nav class="navbar navbar-expand navbar-light bg-light mb-4">
-                 <a class="navbar-brand" href="#">COSTO DE ENVÍO: 1800</a>
+                 <a class="navbar-brand" href="#">COSTO DE ENVÍO: NaN</a>
    
                  <!--
                  <ul class="navbar-nav ml-auto">
@@ -593,15 +646,15 @@
                  -->
                  
                </nav>
-               <code>RECIBES EN TU CUENTA: 88200</code>
+               <code>RECIBES EN TU CUENTA: NaN</code>
                <h1> </h1>
                <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcccero">
    
      
                <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
-               <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
+               <input type="hidden" name="ciudadD" value="EL CARMEN DE BOLIVAR(BOLIVAR)" >
                <input type="hidden" name="kilos" value="1">
-               <input type="hidden" name="seguro" value="40000" >
+               <input type="hidden" name="seguro" value="35000" >
                <input type="hidden" name="recaudo" value="90000" >
                <input type="hidden" name="idtrans" value="999" >
                <input type="hidden" name="valorTotal" value="000" >
@@ -612,7 +665,7 @@
                
                </form>
                  
-               <a  style="display:none;" class="btn btn-danger"  id="botoncero" href="javascript:botoncero()" aria-haspopup="true" aria-expanded="false">
+               <a class="btn btn-danger"  id="botoncero" href="javascript:botoncero()" aria-haspopup="true" aria-expanded="false">
                  CREAR GUÍA
                </a>
 
