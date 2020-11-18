@@ -188,6 +188,7 @@
                 <input type="hidden" id="codigoFirebase" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="6" required>
               </form>
+
               <form action="estadoGuiasCreadas" method="post" name="estadoGuiasEnProcesoForm">
                 <input type="hidden" id="codigoFirebase1" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="1" required>
@@ -196,18 +197,27 @@
                 <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="2" required>
               </form>
-              <form action="novedades2" method="post" name="novedades2Form">
-                <input type="hidden"  name="codigo_novedades2" required>
-                
+
+              <form action="estadoGuiasCreadas" method="post" name="estadoGuiasPagadasForm">
+                <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
+                <input type="hidden" name="valor" value="4" required>
+              </form>
+
+              <form action="estadoGuiasCreadas" method="post" name="estadoGuiasDevolucionesForm">
+                <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
+                <input type="hidden" name="valor" value="5" required>
               </form>
               
               <a class="collapse-item" href="javascript:estadoGuiasCreadasForm()">Creadas</a>
               <a class="collapse-item" href="javascript:estadoGuiasEnProcesoForm()">En proceso de envío</a>
               
               <a class="collapse-item" href="javascript:estadoGuiasEntregadasForm()">Entregadas</a>
+              <!--
+              <a class="collapse-item" href="javascript:estadoGuiasPagadasForm()">pagadas a HEKA </a>
+              <a class="collapse-item" href="javascript:estadoGuiasDevolucionesForm()">Devoluciones</a>
               
               <a class="collapse-item" href="/novedades2">Novedades</a>
-
+              -->
               <script>
                 function estadoGuiasCreadasForm(){
                   document.estadoGuiasCreadasForm.submit();
@@ -218,11 +228,17 @@
                 function estadoGuiasEntregadasForm(){
                   document.estadoGuiasEntregadasForm.submit();
                 }
-                function novedades2Form(){
-                  document.novedadesForm.submit();
+
+                function estadoGuiasPagadasForm(){
+                  document.estadoGuiasPagadasForm.submit();
+                }
+
+                function estadoGuiasDevolucionesForm(){
+                  document.estadoGuiasDevolucionesForm.submit();
                 }
 
               </script>
+
 
               
              
