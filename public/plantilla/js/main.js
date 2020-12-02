@@ -1046,7 +1046,7 @@ function tableRelacion(codTrans,fecha,numeroRelacion,ruta) {
     
     </form>`;
   }
-  return `
+  return `|q  sa1
   
   <tr>
   <!--
