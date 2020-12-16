@@ -227,10 +227,12 @@
           <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
               <h6 class="collapse-header">Opciones:</h6>
+              
               <form action="estadoGuiasCreadas" method="post" name="estadoGuiasCreadasForm">
                 <input type="hidden" id="codigoFirebase" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="6" required>
               </form>
+
               <form action="estadoGuiasCreadas" method="post" name="estadoGuiasEnProcesoForm">
                 <input type="hidden" id="codigoFirebase1" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="1" required>
@@ -240,13 +242,27 @@
                 <input type="hidden" name="valor" value="2" required>
               </form>
               
+              <form action="estadoGuiasCreadas" method="post" name="estadoGuiasPagadasForm">
+                <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
+                <input type="hidden" name="valor" value="4" required>
+              </form>
+
+              <form action="estadoGuiasCreadas" method="post" name="estadoGuiasDevolucionesForm">
+                <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
+                <input type="hidden" name="valor" value="5" required>
+              </form>
+            
+              
               <a class="collapse-item" href="javascript:estadoGuiasCreadasForm()">Creadas</a>
               <a class="collapse-item" href="javascript:estadoGuiasEnProcesoForm()">En proceso de envío</a>
               
               <a class="collapse-item" href="javascript:estadoGuiasEntregadasForm()">Entregadas</a>
+              <!--
+              <a class="collapse-item" href="javascript:estadoGuiasPagadasForm()">pagadas a HEKA </a>
+              <a class="collapse-item" href="javascript:estadoGuiasDevolucionesForm()">Devoluciones</a>
               
               <a class="collapse-item" href="/novedades2">Novedades</a>
-
+              -->
               <script>
                 function estadoGuiasCreadasForm(){
                   document.estadoGuiasCreadasForm.submit();
@@ -256,6 +272,14 @@
                 }
                 function estadoGuiasEntregadasForm(){
                   document.estadoGuiasEntregadasForm.submit();
+                }
+
+                function estadoGuiasPagadasForm(){
+                  document.estadoGuiasPagadasForm.submit();
+                }
+
+                function estadoGuiasDevolucionesForm(){
+                  document.estadoGuiasDevolucionesForm.submit();
                 }
 
               </script>
@@ -409,23 +433,23 @@
          <div class="row">
      
            <!-- TCC -->
-           <div style="display:none;" class="col-lg-6" style="display:none;">
+           <div style="display:block;" class="col-lg-6" undefined>
      
              <div class="card position-relative">
                <div class="card-header py-3">
                  <h6 class="m-0 font-weight-bold text-primary">
-                 <a class="navbar-brand" href="#">MENSAJEROS URBANOS</a>
+                 <a class="navbar-brand" href="#">TCC SA - nacional</a>
                  </h6>
                  
                </div>
                <div class="card-body">
                  <div class="mb-3">
                  <h6>ok|cotizaciones encontradas</h6>
-                   <code>TRAYECTO: 000</code>
+                   <code>TRAYECTO: nacional</code>
                  </div>
-                 <div class="small mb-1">TIEMPO DE ENTREGA: 000</div>
+                 <div class="small mb-1">TIEMPO DE ENTREGA: 2</div>
                  <nav class="navbar navbar-expand navbar-light bg-light mb-4">
-                   <a class="navbar-brand" href="#">COSTO DE ENVÍO: NaN</a>
+                   <a class="navbar-brand" href="#">COSTO DE ENVÍO: 15489</a>
                    
                    <!--
                    <ul class="navbar-nav ml-auto">
@@ -447,16 +471,16 @@
                    
                  </nav>
 
-                 <code>RECIBES EN TU CUENTA: NaN</code>
+                 <code>RECIBES EN TU CUENTA: 74511</code>
                  <h1> </h1>
                  <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTccuno">
                  <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
-                 <input type="hidden" name="ciudadD" value="EL CARMEN DE BOLIVAR(BOLIVAR)" >
+                 <input type="hidden" name="ciudadD" value="MEDELLIN(ANTIOQUIA)" >
                  <input type="hidden" name="kilos" value="1">
                  <input type="hidden" name="seguro" value="35000" >
                  <input type="hidden" name="recaudo" value="90000" >
-                 <input type="hidden" name="idtrans" value="999" >
-                 <input type="hidden" name="valorTotal" value="000" >
+                 <input type="hidden" name="idtrans" value="1010" >
+                 <input type="hidden" name="valorTotal" value="10089" >
                  <input type="hidden" name="tipo_envio" value="0" >
        
      
@@ -501,16 +525,16 @@
              <div class="card position-relative">
                <div class="card-header py-3">
                  <h6 class="m-0 font-weight-bold text-primary">
-                 <a class="navbar-brand" href="#">TCC SA - otros destinos</a>
+                 <a class="navbar-brand" href="#">ENVIA - nacional</a>
                  </h6>
                </div>
                <div class="card-body">
                  <div class="mb-3">
-                   <code>TRAYECTO: otros destinos</code>
+                   <code>TRAYECTO: nacional</code>
                  </div>
                  <div class="small mb-1">TIEMPO DE ENTREGA: 2</div>
                  <nav class="navbar navbar-expand navbar-light bg-light mb-4">
-                   <a class="navbar-brand" href="#">COSTO DE ENVÍO: NaN</a>
+                   <a class="navbar-brand" href="#">COSTO DE ENVÍO: 15926</a>
                    </br>
                    
                    <!--
@@ -532,18 +556,18 @@
                  </nav>
                  
                  
-                 <code>RECIBES EN TU CUENTA: NaN</code>
+                 <code>RECIBES EN TU CUENTA: 74074</code>
                  <h1> </h1>
                  <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc2">
      <div class="form-row">
 
      <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
-     <input type="hidden" name="ciudadD" value="EL CARMEN DE BOLIVAR(BOLIVAR)" >
+     <input type="hidden" name="ciudadD" value="MEDELLIN(ANTIOQUIA)" >
      <input type="hidden" name="kilos" value="1">
      <input type="hidden" name="seguro" value="35000" >
      <input type="hidden" name="recaudo" value="90000" >
-     <input type="hidden" name="idtrans" value="1010">
-     <input type="hidden" name="valorTotal" value="15500" >
+     <input type="hidden" name="idtrans" value="29">
+     <input type="hidden" name="valorTotal" value="10126" >
        
      
      
@@ -606,7 +630,7 @@
    -->
    </br>
        <!-- Content Row -->
-       <div class="row" undefined>
+       <div class="row" style="display:none;">
    
          <!-- mensajeros urbanos -->
          <div class="col-lg-6">
@@ -614,7 +638,7 @@
            <div class="card position-relative">
              <div class="card-header py-3">
                <h6 class="m-0 font-weight-bold text-primary">
-               <a class="navbar-brand" href="#">ENVIA</a>
+               <a class="navbar-brand" href="#">MENSAJEROS URBANOS</a>
                </h6>
                
              </div>
@@ -625,7 +649,7 @@
                </div>
                <div class="small mb-1">TIEMPO DE ENTREGA: 000</div>
                <nav class="navbar navbar-expand navbar-light bg-light mb-4">
-                 <a class="navbar-brand" href="#">COSTO DE ENVÍO: NaN</a>
+                 <a class="navbar-brand" href="#">COSTO DE ENVÍO: 1800</a>
    
                  <!--
                  <ul class="navbar-nav ml-auto">
@@ -646,13 +670,13 @@
                  -->
                  
                </nav>
-               <code>RECIBES EN TU CUENTA: NaN</code>
+               <code>RECIBES EN TU CUENTA: 88200</code>
                <h1> </h1>
                <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcccero">
    
      
                <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
-               <input type="hidden" name="ciudadD" value="EL CARMEN DE BOLIVAR(BOLIVAR)" >
+               <input type="hidden" name="ciudadD" value="MEDELLIN(ANTIOQUIA)" >
                <input type="hidden" name="kilos" value="1">
                <input type="hidden" name="seguro" value="35000" >
                <input type="hidden" name="recaudo" value="90000" >
