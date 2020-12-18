@@ -1,0 +1,512 @@
+
+<form method="post" name="modificar" id="modificar" action="imprimir.php">
+
+
+					            <table width="100%" border="0" class="text1">
+							          <tbody><tr>
+											<td align="center">
+													<h2>Relacion de envio numero 20201217123949</h2>
+										    </td>	
+									</tr>
+								     <tr id="capa_exportar">	
+											<td align="center">
+														
+<a href="exportar.relacion.php?dscodigo=20201217123949&amp;idempresa=11635&amp;id=&amp;idtransportador=1010" align="center" class="btn_c_1" id="btn_exportar">Exportar</a>
+
+    <input type="button" name="cimprimir" id="cimprimir" value="Imprimir Relacion de envio" class="btn_c_1" onclick="relacion()">
+
+
+ 									    	
+									    	</td>
+								    </tr>
+						    </tbody></table>	
+	    
+
+            <table border="0" bgcolor="#000" cellpadding="5" cellspacing="2" width="100%" class="text1" style="font-size: 11px">
+						<tbody><tr bgcolor="#fff" valign="top">
+						<td rowspan="2">
+								<img src="../../temas/imagen_transpo/104926-1-tcc.jpg" align="absmiddle" border="0" style="width:100">
+						</td>
+					
+							<td class="text4">Transportador 
+							 <strong>TCC SA</strong>
+							</td>
+
+			            		<td valign="top" colspan="2" class="text4">Fecha: <strong>2020/12/17 12:39:28 pm</strong>
+				
+							</td>
+								  <td align="left" class="text4">N&#xFA;mero:  <strong>20201217123949</strong></td>		    	
+
+		            </tr>	
+		      
+		       	<tr bgcolor="#fff">
+					<td>
+													
+																
+							Contacto: <strong>hekaentrega co  TCC</strong>
+						</td>
+						<td>
+						Direccion de recogida:  <strong>CALLE 2 NUMERO 10 36 EL PORTAL DE LOS PATIOS</strong>
+						</td>
+						<td colspan="2">
+							Ciudad/departamento:  <strong>BOGOTA(CUNDINAMARCA)</strong>	
+			
+	
+					</td>	
+				
+					
+					
+				</tr>	
+		  		 	      <tr>
+		        					
+					<td valign="top" class="text4">Observaciones generales: <strong>RELACION DE GUIA WEBSERVICE</strong></td>
+			    </tr>
+			    
+            </tbody></table>
+<br>
+<table border="0" cellpadding="1" cellspacing="2" width="100%" style="font-family:arial;font-size:11px">
+
+<tbody><tr bgcolor valign="top" align="center">
+			<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4 imprimirx"><input type="checkbox" name="AdjuntarTodo1" onclick="ActivarTodoGeneral1(&apos;modificar&apos;)"> Guia Hija</td>
+	<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4 imprimirx">Guia</td>
+
+<style>
+.lds-ellipsis {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 80px;
+}
+.lds-ellipsis div {
+  position: absolute;
+  top: 33px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #aa0139;
+  animation-timing-function: cubic-bezier(0, 1, 1, 0);
+}
+.lds-ellipsis div:nth-child(1) {
+  left: 8px;
+  animation: lds-ellipsis1 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(2) {
+  left: 8px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(3) {
+  left: 32px;
+  animation: lds-ellipsis2 0.6s infinite;
+}
+.lds-ellipsis div:nth-child(4) {
+  left: 56px;
+  animation: lds-ellipsis3 0.6s infinite;
+}
+@keyframes lds-ellipsis1 {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes lds-ellipsis3 {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+@keyframes lds-ellipsis2 {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(24px, 0);
+  }
+}
+
+</style>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Nombre o razon social remitente</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Ciudad remitente</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Nombre o razon social destinatario</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Ciudad destinatario</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Fecha</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Direccion</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Telefono</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Cajas</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Peso</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Peso Vol</td>
+
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Factura</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Valor declarado</td>
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Valor a Recaudar</td>
+
+
+<td valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">Observaciones guia</td>
+</tr>
+<tr class="text1" bgcolor="#FFFFFF" align="center">
+	
+  <td valign="top">
+
+
+				<input type="hidden" name="pkidxselr[]" value="1372019">
+			<input type="hidden" name="idremision_wcw[]" id="idremision_wcw" value="1372019">
+<input type="hidden" name="idservicio[]" id="idservicio[]" value="1010">
+<input type="hidden" name="idremision_tcc[]" id="idremision_tcc" value>
+				<input type="hidden" name="pkidr[]" value="1372019">
+			
+
+		<input type="hidden" name="pkid" value="1372019">
+
+
+  
+
+
+</td>
+  <td valign="top">
+
+
+ 	 532658221
+ </td>
+
+
+
+<td valign="top">AVE - HEKA - KATHERINE TORRES</td>
+<td valign="top">BOGOTA(CUNDINAMARCA)</td>
+<td valign="top">asd 0016</td>
+<td valign="top">MEDELLIN(ANTIOQUIA)</td>
+<td valign="top">2020/12/17</td>
+<td valign="top">asd as</td>
+<td valign="top">/-121</td>
+<td valign="top">1</td>
+<td valign="top" align="center">1 </td>
+<td valign="top" align="center">1.00 </td>
+
+<td valign="top"></td>
+<td valign="top">10000</td>
+<td valign="top">90000</td>
+
+<td valign="top">ghj</td>
+</tr>
+
+<tr class="text1" bgcolor="#FFFFFF" align="center">
+	
+  <td valign="top">
+
+
+				<input type="hidden" name="pkidxselr[]" value="1372020">
+			<input type="hidden" name="idremision_wcw[]" id="idremision_wcw" value="1372020">
+<input type="hidden" name="idservicio[]" id="idservicio[]" value="1010">
+<input type="hidden" name="idremision_tcc[]" id="idremision_tcc" value>
+				<input type="hidden" name="pkidr[]" value="1372020">
+			
+
+		<input type="hidden" name="pkid" value="1372020">
+
+
+  
+
+
+</td>
+  <td valign="top">
+
+
+ 	 532658222
+ </td>
+
+
+
+<td valign="top">AVE - HEKA - KATHERINE TORRES</td>
+<td valign="top">BOGOTA(CUNDINAMARCA)</td>
+<td valign="top">asd 0016</td>
+<td valign="top">MEDELLIN(ANTIOQUIA)</td>
+<td valign="top">2020/12/17</td>
+<td valign="top">asd as</td>
+<td valign="top">/-121</td>
+<td valign="top">1</td>
+<td valign="top" align="center">1 </td>
+<td valign="top" align="center">1.00 </td>
+
+<td valign="top"></td>
+<td valign="top">10000</td>
+<td valign="top">90000</td>
+
+<td valign="top">ghj</td>
+</tr>
+
+<tr class="text1" bgcolor="#FFFFFF" align="center">
+	
+  <td valign="top">
+
+
+				<input type="hidden" name="pkidxselr[]" value="1372021">
+			<input type="hidden" name="idremision_wcw[]" id="idremision_wcw" value="1372021">
+<input type="hidden" name="idservicio[]" id="idservicio[]" value="1010">
+<input type="hidden" name="idremision_tcc[]" id="idremision_tcc" value>
+				<input type="hidden" name="pkidr[]" value="1372021">
+			
+
+		<input type="hidden" name="pkid" value="1372021">
+
+
+  
+
+
+</td>
+  <td valign="top">
+
+
+ 	 532658223
+ </td>
+
+
+
+<td valign="top">AVE - HEKA - KATHERINE TORRES</td>
+<td valign="top">BOGOTA(CUNDINAMARCA)</td>
+<td valign="top">asd 0016</td>
+<td valign="top">MEDELLIN(ANTIOQUIA)</td>
+<td valign="top">2020/12/17</td>
+<td valign="top">asd as</td>
+<td valign="top">/-121</td>
+<td valign="top">1</td>
+<td valign="top" align="center">1 </td>
+<td valign="top" align="center">1.00 </td>
+
+<td valign="top"></td>
+<td valign="top">10000</td>
+<td valign="top">90000</td>
+
+<td valign="top">ghj</td>
+</tr>
+
+<input type="hidden" name="tipoguia" value>
+
+</tbody></table>
+<br>
+<table border="0" cellpadding="1" cellspacing="2" width="100%" style="font-family:arial;font-size:11px">
+<thead>
+<tr>
+<th valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">UNIDADES</th>
+<th valign="top" class="text4" style="font-size:20px">3</th>
+<th valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">KILOS</th>
+<th valign="top" class="text4" style="font-size:20px">3</th>
+<th valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">KILOS VOL</th>
+<th valign="top" class="text4" style="font-size:20px">3</th>
+<th valign="top" background="../../img/titulo_fondo1.jpg" bgcolor="#DADFE4" class="text4">NUMERO DE GUIAS</th>
+<th valign="top" class="text4" style="font-size:20px">3</th>
+
+</tr>
+</thead>
+</table>
+
+<br>
+<table border="0" cellpadding="1" cellspacing="2" width="100%" style="font-family:arial;font-size:11px" id="capa_botones">
+<tbody><tr style="text-align: center;">
+	<td id="tdDescargaRotulo">
+	</td>
+</tr>
+<tr bgcolor valign="top" align="center" id="tdBotones">
+<td>
+	
+
+ 	<input type="button" name="rimprimir" id="rimprimir" value="Imprimir Rotulos" class="btn_c_1" onclick="rotulox()">
+ 	<input type="button" name="rimprimir" id="rimprimir" value="Imprimir Rotulos X 6" class="btn_c_1" onclick="imprimirRotuloMedidas(6)">
+ 	<input type="button" name="rimprimir" id="rimprimir" value="Imprimir Rotulos X 8" class="btn_c_1" onclick="imprimirRotuloMedidas(8)">
+ 	<input type="button" name="rimprimir" id="rimprimir" value="Imprimir Rotulos X 10" class="btn_c_1" onclick="imprimirRotuloMedidas(10)">
+
+ 		
+			<input type="button" class="btn_c_1" name="imprimittcc" onclick="rotulotcc(&apos;20201217123949&apos;,1)" value="Imprimir Guias TCC">
+
+		<input type="button" class="btn_c_1" name="imprimittcc" onclick="rotulotcc(&apos;20201217123949&apos;,2)" value="Imprimir Relacion de envios	TCC">
+
+	 
+           
+           
+<input type="hidden" name="fimprimir" id="oimprimir" value="Imprimir Rotulos Factura" class="btn_c_1" onclick="rotulofactura()">
+
+
+
+
+    <input type="button" name="cimprimir" id="cimprimir" value="Imprimir Relacion de envio" class="btn_c_1" onclick="relacion()">
+
+
+<input type="hidden" name="fimprimir" id="oimprimir" value="Imprimir Guia Feeling" class="btn_c_1" onclick="guiafeeling()">
+
+
+</td>
+</tr>
+
+</tbody></table>
+	</form>
+
+
+
+    <script type="text/javascript">
+
+
+	//window.print();
+    function rotulox(){
+      document.modificar.action="../paqueteo/impresiones.masivas.php?rotulox=1&imprimir=1";
+      document.modificar.target="_blank";
+      document.modificar.submit();
+	}
+
+	function imprimirRotuloMedidas(medida)
+	{
+		document.getElementById("tdDescargaRotulo").innerHTML = ""
+		document.getElementById("tdDescargaRotulo").innerHTML = `<div class="lds-ellipsis"><div></div><div></div><div></div>`
+		document.getElementById("tdBotones").style.display = "none"
+		
+		const url = "https://aveonline.co/api/nal/v1.0/crearRotuloEnvia.php";
+
+		const body_date = {
+			tipo : "imprimir",
+			medida : medida,
+			id : "20201217123949"
+		}
+
+		fetch(url, {
+			method : 'POST',
+			body : JSON.stringify(body_date)
+		})
+		.then(res => res.json())
+		.then(res => {
+			if(res.status == "ok"){
+				const ruta = `https://aveonline.co/assets/data/temporales/rotulo-${res.rutaDescarga}`
+				document.getElementById('tdDescargaRotulo').innerHTML = `<br><a href ="${ruta}" class="btn_c_1" style="font-size : 16" download="RotuloX${medida}-${res.rutaDescarga}">Descargar Rotulos X ${medida}</a><br>`
+				console.log(res.rutaDescarga);
+				setTimeout(() => {
+					document.getElementById("tdBotones").style.display = ""
+				}, 600);
+			}else{
+				document.getElementById("tdBotones").style.display = ""
+				document.getElementById('tdDescargaRotulo').innerHTML = "<span>hubo un error en la generación de los rotulos</span>"
+			}
+		})
+		.catch(console.log)
+	}
+
+	function rotulotcc(idrelacion,param){
+      document.modificar.action="../paqueteo/impresiones.masivas.tcc.php?id_relacion="+idrelacion+"&imprimir="+param;
+      document.modificar.target="_blank";
+      document.modificar.submit();
+	}
+
+
+    function guia(){
+
+               
+              
+              document.modificar.action="../paqueteo/impresiones.masivas.php?guiasx=1&imprimir=1";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+    function guiacomparendo () {	
+			document.modificar.action="../coretransporte/pdf/guias/imprimir.guia.envia.php?guiasx=2&tipopdf=0&imprimir=1";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+    function guiablu(){
+
+               
+              
+              document.modificar.action="../coretransporte/pdf/guias/imprimir.blu.php?guiasx=2&imprimir=1";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+    function rotulozebra(){
+
+               
+              
+              document.modificar.action="../paqueteo/pdf/guias/imprimir.rotulo.zebra.php";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+    function sticker10_12(){
+
+               
+              
+              document.modificar.action="../paqueteo/pdf/guias/imprimir.rotulo.envia_110_120.php";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+
+       function rotulozebraservie(){
+
+               
+              
+              document.modificar.action="../paqueteo/pdf/guias/imprimir.rotulo.servientrega.masivos.php";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+      function rotulooster(){
+              document.modificar.action="../paqueteo/pdf/guias/imprimir.rotulo.oster.php";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+      function rotulofactura(){
+              document.modificar.action="../paqueteo/pdf/guias/imprimir.guia.factura.php";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+      function rotulofacturav2(){
+              document.modificar.action="../coretransporte/pdf/guias/imprimir.guia.facturav2.php";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+    function rotulocustodia() {
+              document.modificar.action="../coretransporte/pdf/guias/imprimir.rotulo.custodiamoda.php";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+    	
+    }
+
+function guiafeeling() {
+	document.modificar.action="../paqueteo/imprimir.acta.feeling.php";
+  	document.modificar.target="_blank";
+  	document.modificar.submit();
+
+}
+
+ function relacion(){
+ 	document.getElementById('capa_exportar').style.display='none';
+ 	//document.getElementById('capa_botones').style.display='none';
+
+
+ 	window.print();
+ }
+
+    // impresion de recaudos
+    function imp_recaudos(){
+              document.modificar.action="../coretransporte/pdf/guias/imprimir.recaudos.php";
+              document.modificar.target="_blank";
+              document.modificar.submit();
+
+    }
+
+
+
+//-->
+
+
+    </script>

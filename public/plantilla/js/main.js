@@ -1046,7 +1046,7 @@ function tableRelacion(codTrans,fecha,numeroRelacion,ruta) {
     
     </form>`;
   }
-  return `|q  sa1
+  return `
   
   <tr>
   <!--
@@ -1056,6 +1056,7 @@ function tableRelacion(codTrans,fecha,numeroRelacion,ruta) {
   
   </td>
   -->
+  <!--
   <td>
   ${tipodelink}
       </td>
@@ -1067,11 +1068,13 @@ function tableRelacion(codTrans,fecha,numeroRelacion,ruta) {
       <button class="btn btn-danger" type="submit">Rotulos</button>
       </form>
       </td>
-
-      <form action="verEstado" method="post">
-    <input type="hidden" name="paraVerEstado" value="">
+      -->
+      <td>
+      <form action="descargarRelacion" method="post">
+    <input type="hidden" name="ruta" value="${ruta}">
     
-    <td><button class="btn btn-danger" type="submit">Relación</button></td>
+    <button class="btn btn-danger" type="submit">Descargar</button>
+    </form></td>
     
     </form>
   
