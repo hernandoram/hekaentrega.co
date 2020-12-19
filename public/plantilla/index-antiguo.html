@@ -187,7 +187,7 @@
                 <input type="hidden" name="fecha_inicio" value="1" required>
                 <input type="hidden" name="fecha_final" value="1"  required>
               </form>
-
+              <!--
               <form action="estadoGuiasCreadas" method="post" name="estadoGuiasPagadasForm">
                 <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="4" required>
@@ -197,6 +197,8 @@
                 <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="5" required>
               </form>
+              -->
+              
               
               <a class="collapse-item" href="javascript:estadoGuiasCreadasForm()">Creadas</a>
               <a class="collapse-item" href="javascript:estadoGuiasEnProcesoForm()">En proceso de envío</a>
@@ -239,11 +241,13 @@
         </li>
 
         <!-- Relación de envío -->
+        <!--
         <li class="nav-item">
           <a class="nav-link" href="/tablaRelacionEnvio.html">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Descargar Relación</span></a>
         </li>
+        -->
         
 
         <!-- Nav Item - buscar por número de guía -->
@@ -18779,18 +18783,18 @@
   <div class="form-group row">
       <div class="col-sm-6 mb-3 mb-sm-0">
         <h6>KILOS</h6>
-        <input type="number" class="form-control form-control-user" name="kilos" id="exampleInputPassword" min="1" max="5" placeholder="kilos" required>
+        <input type="number" class="form-control form-control-user" name="kilos" id="ex" min="1" max="5" placeholder="kilos" required>
       </div>
       <div class="col-sm-6">
         <h6>SEGURO MERCANCÍA</h6>
-        <input type="number" class="form-control form-control-user" name="seguro" id="exampleRepeatPassword" min="10000"  value="10000" placeholder="Valor mercancía" required>
+        <input type="number" class="form-control form-control-user" name="seguro" id="exampleRepeat" min="10000"  value="10000" placeholder="Valor mercancía" required>
       </div>
     </div>
 
     <div class="form-group row">
       <div class="col-sm-6 mb-3 mb-sm-0">
         <h6>VALOR A RECAUDAR</h6>
-        <input type="number" class="form-control form-control-user" name="recaudo" id="exampleInputPassword" max="1400000" placeholder="Valor recaudo" required>
+        <input type="number" class="form-control form-control-user" name="recaudo" id="exampleInputP" max="1400000" placeholder="Valor recaudo" required>
       </div>
      
     </div>
