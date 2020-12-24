@@ -210,6 +210,7 @@
         </div>
       </li>
       -->
+      
 
 
 
@@ -231,17 +232,26 @@
               <form action="estadoGuiasCreadas" method="post" name="estadoGuiasCreadasForm">
                 <input type="hidden" id="codigoFirebase" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="6" required>
+                
+                <input type="hidden" name="fecha_inicio" value="1" required>
+                <input type="hidden" name="fecha_final" value="1"  required>
+                
               </form>
 
               <form action="estadoGuiasCreadas" method="post" name="estadoGuiasEnProcesoForm">
                 <input type="hidden" id="codigoFirebase1" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="1" required>
+                <input type="hidden" name="fecha_inicio" value="1" required>
+                <input type="hidden" name="fecha_final" value="1"  required>
               </form>
+
               <form action="estadoGuiasCreadas" method="post" name="estadoGuiasEntregadasForm">
                 <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="2" required>
+                <input type="hidden" name="fecha_inicio" value="1" required>
+                <input type="hidden" name="fecha_final" value="1"  required>
               </form>
-              
+              <!--
               <form action="estadoGuiasCreadas" method="post" name="estadoGuiasPagadasForm">
                 <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="4" required>
@@ -251,7 +261,7 @@
                 <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="5" required>
               </form>
-            
+            -->
               
               <a class="collapse-item" href="javascript:estadoGuiasCreadasForm()">Creadas</a>
               <a class="collapse-item" href="javascript:estadoGuiasEnProcesoForm()">En proceso de envío</a>
@@ -282,6 +292,8 @@
                   document.estadoGuiasDevolucionesForm.submit();
                 }
 
+               
+
               </script>
 
               
@@ -289,6 +301,15 @@
             </div>
           </div>
         </li>
+
+        <!-- Relación de envío -->
+        <!--
+          <li class="nav-item">
+            <a class="nav-link" href="/tablaRelacionEnvio.html">
+              <i class="fas fa-fw fa-tachometer-alt"></i>
+              <span>Descargar Relación</span></a>
+          </li>
+          -->
         
         
 
@@ -433,7 +454,7 @@
          <div class="row">
      
            <!-- TCC -->
-           <div style="display:block;" class="col-lg-6" undefined>
+           <div  class="col-lg-6" >
      
              <div class="card position-relative">
                <div class="card-header py-3">
@@ -471,10 +492,10 @@
                    
                  </nav>
 
-                 <code>RECIBES EN TU CUENTA: 74511</code>
+                 
                  <h1> </h1>
                  <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTccuno">
-                 <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
+                 <input type="hidden" name="ciudadR" value="BOGOTA(CUNDINAMARCA)">
                  <input type="hidden" name="ciudadD" value="MEDELLIN(ANTIOQUIA)" >
                  <input type="hidden" name="kilos" value="1">
                  <input type="hidden" name="seguro" value="35000" >
@@ -520,7 +541,7 @@
            
      
             <!-- ENVIA -->
-            <div style="display:block;"class="col-lg-6" undefined>
+            <div class="col-lg-6" >
      
              <div class="card position-relative">
                <div class="card-header py-3">
@@ -532,7 +553,7 @@
                  <div class="mb-3">
                    <code>TRAYECTO: nacional</code>
                  </div>
-                 <div class="small mb-1">TIEMPO DE ENTREGA: 2</div>
+                 <div class="small mb-1">TIEMPO DE ENTREGA: 1</div>
                  <nav class="navbar navbar-expand navbar-light bg-light mb-4">
                    <a class="navbar-brand" href="#">COSTO DE ENVÍO: 15926</a>
                    </br>
@@ -556,12 +577,12 @@
                  </nav>
                  
                  
-                 <code>RECIBES EN TU CUENTA: 74074</code>
+               
                  <h1> </h1>
                  <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc2">
      <div class="form-row">
 
-     <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
+     <input type="hidden" name="ciudadR" value="BOGOTA(CUNDINAMARCA)">
      <input type="hidden" name="ciudadD" value="MEDELLIN(ANTIOQUIA)" >
      <input type="hidden" name="kilos" value="1">
      <input type="hidden" name="seguro" value="35000" >
@@ -619,7 +640,7 @@
        <!--mas transportadoras---------------------------------------------------------------------------------------------->
 
 
-       <div style="display:none;" class="container-fluid">
+       <div  class="container-fluid">
      
        <!-- Page Heading -->
        <!--
@@ -630,7 +651,7 @@
    -->
    </br>
        <!-- Content Row -->
-       <div class="row" style="display:none;">
+       <div class="row">
    
          <!-- mensajeros urbanos -->
          <div class="col-lg-6">
@@ -670,12 +691,12 @@
                  -->
                  
                </nav>
-               <code>RECIBES EN TU CUENTA: 88200</code>
+               
                <h1> </h1>
                <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcccero">
    
      
-               <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
+               <input type="hidden" name="ciudadR" value="BOGOTA(CUNDINAMARCA)">
                <input type="hidden" name="ciudadD" value="MEDELLIN(ANTIOQUIA)" >
                <input type="hidden" name="kilos" value="1">
                <input type="hidden" name="seguro" value="35000" >

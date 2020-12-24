@@ -248,13 +248,15 @@
           </div>
         </li>
       
-        
+     
           <!-- Relación de envío -->
+             <!--
           <li class="nav-item">
             <a class="nav-link" href="/tablaRelacionEnvio.html">
               <i class="fas fa-fw fa-tachometer-alt"></i>
               <span>Descargar Relación</span></a>
           </li>
+        -->
 
 
         <!-- Nav Item - buscar por número de guía -->
@@ -383,10 +385,10 @@
 <div class="container-fluid">
 
   <!-- Page Heading -->
-  <a style="display: none;" id="boton_cotizar"  href="/index-antiguo.html" class="btn btn-danger btn-user btn-block">
-    Clic aquí para realizar nueva cotización
+  <a style="display: block;" id="boton_cotizar"  href="/index-antiguo.html" class="btn btn-danger btn-user btn-block">
+    Clic aquí para realizar una cotización
   </a>
-  <div style="display: block;">
+  <div style="display: none;">
   <h1 class="h3 mb-4 text-gray-800">Cotizar envío PAGO CONTRAENTREGA</h1>
   <form class="user" action="mostrarnumeros2" method="post" name="cotizacionEnvio">
     <div class="form-group row">
@@ -18798,7 +18800,7 @@
       </div>
       <div class="col-sm-6">
         <h6>SEGURO MERCANCÍA</h6>
-        <input type="number" class="form-control form-control-user" name="seguro" id="exampleRepeatPassword" min="10000" max="1000000"   required>
+        <input type="number" class="form-control form-control-user" name="seguro" id="exampleRepeatP" min="10000" max="1000000"   required>
       </div>
     </div>
 
@@ -18832,6 +18834,10 @@
 
     <a style="display: block;" id="boton_cotizar"  href="javascript:bloquearBoton()" class="btn btn-primary btn-user btn-block">
       Cotizar envío
+    </a>
+
+    <a    href="/infinito" class="btn btn-primary btn-user btn-block">
+      probar
     </a>
 
     <script>

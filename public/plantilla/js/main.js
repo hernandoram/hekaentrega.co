@@ -213,7 +213,7 @@ function crearCuenta(){
             
             
           }).then(function(data){
-            window.location.href='/plataforma.html';
+            window.location.href='/index-antiguo.html';
           }).catch(function(error){
             inHTML('error_crear_cuenta',`<h6 class="text-danger">${codigoUsuario}</h6>`);
           });
@@ -719,15 +719,8 @@ function mostrarPrueba(){
         if(document.getElementById('celRem')){
         asignacion("celRem", snapshot.val().celular);
         }
-        if(document.getElementById('comision_heka')){
         
-        //Comision heka
-          if(snapshot.val().comisionHeka){ 
-          asignacion('comision_heka',snapshot.val().comisionHeka);
-        }else{
-          asignacion('comision_heka',"2");
-        }
-      }
+       
 
         ///////// llenar tabla-novedades /////////////////////////////7777
 //if(document.getElementById('tabla-novedades')){
