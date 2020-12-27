@@ -639,14 +639,17 @@ function pruebacheck_empresa(){
 }
 
 
-function check_sumar_envio(){
+function check_pago_contraentrega(){
   var id_tipoenvio=document.getElementById('envio_tipo');
   var check_cobr=document.getElementById('check-cobr');
+  var valor_recaudo=document.getElementById('valor-recaudo');
   
   
   if(check_cobr.checked){
     id_tipoenvio.value="1";
+    valor_recaudo.style.display="block";
   }else{
+    valor_recaudo.style.display="none";
     id_tipoenvio.value="0";
     
   }

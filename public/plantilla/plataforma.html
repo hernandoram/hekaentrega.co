@@ -401,7 +401,7 @@
     crear Guia
   </a>
   <div style="display: none;">
-  <h1 class="h3 mb-4 text-gray-800">Cotizar envío PAGO CONTRAENTREGA</h1>
+  <h1 class="h3 mb-4 text-gray-800">Cotizar envío</h1>
   <form class="user" action="mostrarnumeros2" method="post" name="cotizacionEnvio">
     <div class="form-group row">
       <div class="col-sm-6 mb-3 mb-sm-0">
@@ -18816,41 +18816,58 @@
       </div>
     </div>
 
+    <h7 class="h5 mb-2 text-gray-800">Selecciona el tipo de envío que necesitas:</h7>
+  <h1></h1>
+
+    <div class="col-sm-6" style="display: block;">
     
-    <div class="form-group row"  id="valor-recaudo">
+      <input type="checkbox"  name="" id="check-cobr" onchange="check_pago_contraentrega()"> Recaudo (Pago contra entrega)
+       
+        </div>
+      <h1></h1>
+
+    
+    <div class="form-group row"  id="valor-recaudo" style="display: none;">
       <div class="col-sm-6 mb-3 mb-sm-0">
         <h6>VALOR A COBRAR CLIENTE</h6>
         <input type="number" class="form-control form-control-user" id="valor-a-recaudar" name="recaudo" id="exampleInputPassword" max="1400000" >
-      <input type="hidden" id="comision_heka" name="comision_heka">
+       
       </div>
      
     </div>
+    <input type="hidden" id="comision_heka" name="comision_heka">
+       
+    <input type="hidden"  id="envio_tipo" name="tipo_envio" value="0">
+  <input type="hidden"  id="idasumecosto" name="idasumecosto" value="0">
     
-    <div class="col-sm-6" style="display: none;">
     
-    <input type="checkbox"  name="" id="check-cobr" onchange="check_sumar_envio()"> Sumar envío al recaudo
-      <input type="hidden"  id="envio_tipo" name="tipo_envio" value="0">
-      </div>
-    </br>
-      <!--
-      <div class="form-group">
-      <input type="checkbox"   id="check-cobrar-destino" onchange="check_valor_recaudo()"> Añadir cobro pago contraentrega
+      
+    <div class="col-sm-6" style="display: block;">
+      <input type="checkbox"   id="check-cobrar-destino" onchange="check_valor_recaudo()"> El envío será cobrado al remitente
         </div>
-      </br>
-      -->
+      <h1></h1>
+
+      <div class="col-sm-6" style="display: block;">
+        <input type="checkbox"   id="check-cobrar-des" onchange="check_valor_recaudo()"> El envío será cobrado al destinatario
+          </div>
+        <h1></h1>
+      
 
       
 
     </form>
-
+    <h1></h1>
+    <h7 class="h8 mb-10 text-gray-500">NOTA: En esta opción tu cliente pagará el valor del producto al recibir</h7>
+    <h1></h1>
 
     <a style="display: block;" id="boton_cotizar"  href="javascript:bloquearBoton()" class="btn btn-primary btn-user btn-block">
       Cotizar envío
     </a>
-
+<!--
     <a    href="/infinito" class="btn btn-primary btn-user btn-block">
       probar
     </a>
+  -->
 
     <script>
 
@@ -18867,7 +18884,7 @@
     
 </div>
 
-  -->
+  
   
     
     <!--
