@@ -640,21 +640,128 @@ function pruebacheck_empresa(){
 
 
 function check_pago_contraentrega(){
+  //tipo de envio
   var id_tipoenvio=document.getElementById('envio_tipo');
+  //conbro al cliente
+ 
+// activar o desactivar input de recaudo
+var valor_recaudo=document.getElementById('valor-recaudo');
+//Valor de recaudo
+var recaudo=document.getElementById('valor-a-recaudar');
+//Check pago contraentrega
   var check_cobr=document.getElementById('check-cobr');
-  var valor_recaudo=document.getElementById('valor-recaudo');
+  //check cobrar a remitente
+  var check_cobrar_remite=document.getElementById('check-cobrar-remite');
+  //check cobrar destino
+  var check_cobrar_destino=document.getElementById('check-cobrar-destino');
+//texto envio
+  var texto_envio=document.getElementById('texto_envio');
+ 
+  
+  
   
   
   if(check_cobr.checked){
-    id_tipoenvio.value="1";
+    id_tipoenvio.value="RECAUDO";
+    console.log(id_tipoenvio.value);
+    
+    recaudo.value="";
+    texto_envio.innerHTML=`<h7  class="h8 mb-10 text-gray-500">NOTA: En esta opción tu cliente pagará el valor del producto al recibir, de dicho valor se descontará el costo de envío y el restante será consignado a tu cuenta bancaria.</h7>`;
+    check_cobrar_remite.checked=false;
+    check_cobrar_destino.checked=false;
     valor_recaudo.style.display="block";
   }else{
     valor_recaudo.style.display="none";
-    id_tipoenvio.value="0";
+    //id_tipoenvio.value="0";
+    //idasumecosto.value="0";
+    //recaudo.value="0";
+    texto_envio.innerHTML="";
+    
     
   }
 }
 
+function check_cobrar_remite(){
+  //tipo de envio
+  var id_tipoenvio=document.getElementById('envio_tipo');
+  //conbro al cliente
+ 
+// activar o desactivar input de recaudo
+var valor_recaudo=document.getElementById('valor-recaudo');
+//Valor de recaudo
+var recaudo=document.getElementById('valor-a-recaudar');
+//Check pago contraentrega
+  var check_cobr=document.getElementById('check-cobr');
+  //check cobrar a remitente
+  var check_cobrar_remite=document.getElementById('check-cobrar-remite');
+  //check cobrar destino
+  var check_cobrar_destino=document.getElementById('check-cobrar-destino');
+//texto envio
+  var texto_envio=document.getElementById('texto_envio');
+ 
+  
+  
+  
+  
+  if(check_cobrar_remite.checked){
+    id_tipoenvio.value="COMUN";
+   
+    recaudo.value="0";
+    texto_envio.innerHTML=`<h7  class="h8 mb-10 text-gray-500">NOTA: En esta opción el remitente paga el envío</h7>`;
+    check_cobr.checked=false;
+    check_cobrar_destino.checked=false;
+    valor_recaudo.style.display="none";
+  }else{
+    //valor_recaudo.style.display="none";
+    //id_tipoenvio.value="0";
+    //idasumecosto.value="0";
+    //recaudo.value="0";
+    texto_envio.innerHTML="";
+    
+    
+  }
+}
+
+function check_cobrar_destino(){
+  //tipo de envio
+  var id_tipoenvio=document.getElementById('envio_tipo');
+  //conbro al cliente
+
+// activar o desactivar input de recaudo
+var valor_recaudo=document.getElementById('valor-recaudo');
+//Valor de recaudo
+var recaudo=document.getElementById('valor-a-recaudar');
+//Check pago contraentrega
+  var check_cobr=document.getElementById('check-cobr');
+  //check cobrar a remitente
+  var check_cobrar_remite=document.getElementById('check-cobrar-remite');
+  //check cobrar destino
+  var check_cobrar_destino=document.getElementById('check-cobrar-destino');
+//texto envio
+  var texto_envio=document.getElementById('texto_envio');
+ 
+  
+  
+  
+  
+  if(check_cobrar_destino.checked){
+    id_tipoenvio.value="CONTRAENTREGA";
+   
+    recaudo.value="";
+    texto_envio.innerHTML=`<h7  class="h8 mb-10 text-gray-500">NOTA: En esta opción el destinatario paga el envío</h7>`;
+    check_cobr.checked=false;
+    check_cobrar_remite.checked=false;
+    valor_recaudo.style.display="none";
+  }else{
+    //valor_recaudo.style.display="none";
+    //id_tipoenvio.value="0";
+    //idasumecosto.value="0";
+    //recaudo.value="0";
+    texto_envio.innerHTML="";
+    
+    
+  }
+}
 
 function cerrarSesion(){
     firebase.auth().signOut().then(function() {
@@ -733,7 +840,7 @@ if(document.getElementById('tabla-novedades')){
   if(document.getElementById('tabla-enproceso')){
     inHTML("tabla-enproceso", "");
     }    
-    
+ /*   
     var contar=0;   
   var reference = db.ref('Guias').child(user.uid);
       reference.once('value', function (datas) {
@@ -785,7 +892,7 @@ if(document.getElementById('tabla-novedades')){
         });
       });
       
-
+*/
        
 
       /////////////////////////////////////////////////////////7
@@ -829,7 +936,7 @@ if(document.getElementById('tabla-relacion')){
   inHTML("tabla-relacion", "");
   }
   
-    
+    /*
     var contar=0;   
   var reference = db.ref('RelacionEnvio').child(user.uid);
       reference.once('value', function (datas) {
@@ -879,6 +986,8 @@ if(document.getElementById('tabla-relacion')){
           
         });
       });
+
+      */
       
 
       

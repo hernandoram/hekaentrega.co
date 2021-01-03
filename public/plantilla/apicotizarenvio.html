@@ -440,11 +440,62 @@
                 
       <div id="preciosEnvios-mostrar-ocultar" style="display: block;">
        <div class="container-fluid">
+       <a  class="btn btn-success"  href="/plataforma.html">
+                REGRESAR
+              </a>
+              <h1></h1>
+              <h1></h1>
+
+              <hr class="sidebar-divider"></hr>
+
+       <h1 class="h3 mb-1 text-gray-800">Datos de envío (RECAUDO)</h1>
      
-         <!-- Page Heading -->
+         <!-- Datos cotizador -->
+
+         <div class="form-group row">
+
+         <div class="col-sm-6 mb-3 mb-sm-0">
+           <h6>Ciudad rem.</h6>
+           <input readonly="readonly" type="text" class="form-control form-control-user" value="CUCUTA(NORTE DE SANTANDER)" required>
+           
+         </div>
+   
+       
+   
+         
+   
+         <div class="col-sm-6">
+           <h6>Ciudad dest.</h6>
+           <input type="text" readonly="readonly" class="form-control form-control-user" value="BOGOTA(CUNDINAMARCA)"   required>
+         </div>
+
+       
+
+       <div class="col-sm-6">
+           <h6>Kilos</h6>
+           <input type="text" readonly="readonly" class="form-control form-control-user" value="1"   required>
+         </div>
+
+       
+
+       <div class="col-sm-6">
+           <h6>Seguro</h6>
+           <input type="text" readonly="readonly" class="form-control form-control-user" value="35000"   required>
+         </div>
+
+         <div class="col-sm-6">
+           <h6>Recaudo</h6>
+           <input type="text" readonly="readonly" class="form-control form-control-user" value="90000"   required>
+         </div>
+
+       </div>
+
+       </br>
+       <hr class="sidebar-divider"></hr>
+
          <h1 class="h3 mb-1 text-gray-800">Seleccionar transportadora</h1>
-         <h6 class="text-danger" > NOTA IMPORTANTE: En el momento las guías se realizarán por medio de excel, contacta con tu asesor para la creación de guías.</h6>
-         <br>
+         
+         
          
          <!--
          <p class="mb-4">Bootstrap's default utility classes can be found on the official <a href="https://getbootstrap.com/docs">Bootstrap Documentation</a> page. The custom utilities below were created to extend this theme past the default utility classes built into Bootstrap's framework.</p>
@@ -468,7 +519,9 @@
             </div>
             <div class="card-body">
               <div class="mb-3">
-              <h6>ok|cotizaciones encontradas</h6>
+              <!--
+              <h6>ok | cotizaciones encontradas</h6>
+              -->
                 <code>TRAYECTO: nacional</code>
               </div>
               <div class="small mb-1">TIEMPO DE ENTREGA: 2</div>
@@ -498,14 +551,15 @@
               
               <h1> </h1>
               <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc1">
-              <input type="hidden" name="ciudadR" value="BOGOTA(CUNDINAMARCA)">
-              <input type="hidden" name="ciudadD" value="CUCUTA(NORTE DE SANTANDER)" >
+              <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
+              <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
               <input type="hidden" name="kilos" value="1">
               <input type="hidden" name="seguro" value="35000" >
               <input type="hidden" name="recaudo" value="90000" >
               <input type="hidden" name="idtrans" value="1010" >
               <input type="hidden" name="valorTotal" value="10089" >
-              <input type="hidden" name="tipo_envio" value="0" >
+              <input type="hidden" name="tipo_envio" value="RECAUDO" >
+              
     
   
   
@@ -556,7 +610,9 @@
             </div>
             <div class="card-body">
               <div class="mb-3">
-              <h6>ok|cotizaciones encontradas</h6>
+              <!--
+              <h6>ok | cotizaciones encontradas</h6>
+              -->
                 <code>TRAYECTO: nacional</code>
               </div>
               <div class="small mb-1">TIEMPO DE ENTREGA: 2</div>
@@ -586,14 +642,15 @@
               
               <h1> </h1>
               <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc2">
-              <input type="hidden" name="ciudadR" value="BOGOTA(CUNDINAMARCA)">
-              <input type="hidden" name="ciudadD" value="CUCUTA(NORTE DE SANTANDER)" >
+              <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
+              <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
               <input type="hidden" name="kilos" value="1">
               <input type="hidden" name="seguro" value="35000" >
               <input type="hidden" name="recaudo" value="90000" >
               <input type="hidden" name="idtrans" value="29" >
               <input type="hidden" name="valorTotal" value="10126" >
-              <input type="hidden" name="tipo_envio" value="0" >
+              <input type="hidden" name="tipo_envio" value="RECAUDO" >
+              
     
   
   

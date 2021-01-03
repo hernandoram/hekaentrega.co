@@ -402,12 +402,13 @@
   </a>
   <div style="display: none;">
   <h1 class="h3 mb-4 text-gray-800">Cotizar envío</h1>
+  <hr class="sidebar-divider"></hr>
   <form class="user" action="mostrarnumeros2" method="post" name="cotizacionEnvio">
     <div class="form-group row">
       <div class="col-sm-6 mb-3 mb-sm-0">
        <h6>CIUDAD REMITENTE</h6>
        <h6>**Elegir del menú desplegable**</h6>
-        <input   name="ciudadR" type="text" class="form-control form-control-user" id="ciudadRFirebase"   required>
+        <input   name="ciudadR" type="text" class="form-control form-control-user" id="ciudadRFirebase"  autocomplete="off" required>
         <!---  PARA FIREBASE -->
      
         <div id="codigoFirebase3" style="display: none;"></div>
@@ -9609,7 +9610,7 @@
       <div class="col-sm-6">
         <h6>CIUDAD DESTINO</h6>
         <h6>**Elegir del menú desplegable**</h6>
-        <input type="text"  name="ciudadD" class="form-control form-control-user" id="ciudadDFirebase"  required>
+        <input type="text"  name="ciudadD" class="form-control form-control-user" id="ciudadDFirebase" autocomplete="off"  required>
         <datalist name="" id="ciudades" size="1">
             
           <option value="6202|20 DE JULIO(NARINO)">20 DE JULIO(NARINO)</option>
@@ -18809,13 +18810,21 @@
       <div class="col-sm-6 mb-3 mb-sm-0">
         <h6>KILOS</h6>
         <input type="number" class="form-control form-control-user" name="kilos" id="exampleInputPassword" min="1"  required>
+        
       </div>
+
+    
+
+      
+
       <div class="col-sm-6">
         <h6>SEGURO MERCANCÍA</h6>
         <input type="number" class="form-control form-control-user" name="seguro" id="exampleRepeatP" min="10000" max="1000000"   required>
       </div>
     </div>
 
+    
+    <hr class="sidebar-divider"></hr>
     <h7 class="h5 mb-2 text-gray-800">Selecciona el tipo de envío que necesitas:</h7>
   <h1></h1>
 
@@ -18831,33 +18840,34 @@
       <div class="col-sm-6 mb-3 mb-sm-0">
         <h6>VALOR A COBRAR CLIENTE</h6>
         <input type="number" class="form-control form-control-user" id="valor-a-recaudar" name="recaudo" id="exampleInputPassword" max="1400000" >
-       
+     
       </div>
      
     </div>
-    <input type="hidden" id="comision_heka" name="comision_heka">
-       
-    <input type="hidden"  id="envio_tipo" name="tipo_envio" value="0">
-  <input type="hidden"  id="idasumecosto" name="idasumecosto" value="0">
     
+    <input type="hidden" id="comision_heka" name="comision_heka">
+       <input type="hidden"  id="envio_tipo" name="tipo_envio">
+       
     
       
     <div class="col-sm-6" style="display: block;">
-      <input type="checkbox"   id="check-cobrar-destino" onchange="check_valor_recaudo()"> El envío será cobrado al remitente
+      <input type="checkbox"   id="check-cobrar-remite" onchange="check_cobrar_remite()"> El envío será cobrado al remitente
         </div>
       <h1></h1>
 
       <div class="col-sm-6" style="display: block;">
-        <input type="checkbox"   id="check-cobrar-des" onchange="check_valor_recaudo()"> El envío será cobrado al destinatario
+        <input type="checkbox"   id="check-cobrar-destino" onchange="check_cobrar_destino()"> El envío será cobrado al destinatario
           </div>
         <h1></h1>
+        <hr class="sidebar-divider"></hr>
       
-
+      
       
 
     </form>
     <h1></h1>
-    <h7 class="h8 mb-10 text-gray-500">NOTA: En esta opción tu cliente pagará el valor del producto al recibir</h7>
+    <div id="texto_envio"></div>
+    
     <h1></h1>
 
     <a style="display: block;" id="boton_cotizar"  href="javascript:bloquearBoton()" class="btn btn-primary btn-user btn-block">
@@ -18876,6 +18886,9 @@
  
     document.getElementById('boton_cotizar').style='display:none;';
     document.cotizacionEnvio.submit();
+    document.cotizacionEnvio.reset();
+    
+
 
   
 }
