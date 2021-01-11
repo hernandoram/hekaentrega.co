@@ -1137,6 +1137,11 @@ if(trans=="TCC SA"){
   -->
   <td>${logo}</td>
   <td>
+  <button  onclick="abrirGuias()" class="btn btn-primary btn-user btn-block">
+  Buscar
+</button>
+  
+  <td>
   <form action="documentoGuia" method="post">
       <input type="hidden" name="paraGuia" value="${linkguia}">
       
@@ -1963,6 +1968,10 @@ function historialRelacionesNoCreadas(){
 
 
 
+}
+
+function abrirGuias(){
+  window.open('/guiaHeka.html', "Descargar guia heka", "width=800, height=700");
 }
 
 
