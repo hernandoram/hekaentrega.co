@@ -125,7 +125,7 @@
           <div class="sidebar-brand-icon rotate-n-15">
             <i class="fas fa-laugh-wink"></i>
           </div>
-          <div class="sidebar-brand-text mx-3">Usuario <sup>2</sup></div>
+          <div class="sidebar-brand-text mx-3" id="idUsuario"> </div>
         </a>
 
         <!-- Divider -->
@@ -357,6 +357,7 @@
             </button>
 
             <!-- Topbar Search -->
+            <!--
             <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
               <div class="input-group">
                 <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
@@ -368,6 +369,7 @@
                 </div>
               </div>
             </form>
+            -->
 
             <!-- Topbar Navbar -->
             <ul class="navbar-nav ml-auto">
@@ -380,7 +382,7 @@
                 </a>
 
 
-
+                
 
 
 
@@ -388,12 +390,28 @@
 
                 <div class="topbar-divider d-none d-sm-block"></div>
 
+                <!-- Nav Item - datos asesora -->
+                <li class="nav-item dropdown no-arrow">
+                  <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <span class="mr-2 d-none d-lg-inline text-gray-800 small"><code>Asesora logística: +57</code> 321 3361911</span>
+                    
+                  </a>
+
+                 <!-- Nav Item - User Information -->
+              <li class="nav-item dropdown no-arrow">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false">
+                  <span class="mr-2 d-none d-lg-inline text-gray-800 small"></span><code class="text-danger">SALDO: $</code><code class="text-dark">0 Cop </code>
+                  
+                </a>
+
                 <!-- Nav Item - User Information -->
               <li class="nav-item dropdown no-arrow">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
-                  <span class="mr-2 d-none d-lg-inline text-gray-600 small">Usuario</span>
-                  <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">
+                  <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="idUsuario2"></span>
+                  <img class="img-profile rounded-circle" src="img/unnamed.png">
                 </a>
                 <!-- Dropdown - User Information -->
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
@@ -466,7 +484,7 @@
    
          <div class="col-sm-6">
            <h6>Ciudad dest.</h6>
-           <input type="text" readonly="readonly" class="form-control form-control-user" value="BOGOTA(CUNDINAMARCA)"   required>
+           <input type="text" readonly="readonly" class="form-control form-control-user" value="BARRANQUILLA(ATLANTICO)"   required>
          </div>
 
        
@@ -480,7 +498,7 @@
 
        <div class="col-sm-6">
            <h6>Seguro</h6>
-           <input type="text" readonly="readonly" class="form-control form-control-user" value="35000"   required>
+           <input type="text" readonly="readonly" class="form-control form-control-user" value="10000"   required>
          </div>
 
          <div class="col-sm-6">
@@ -513,7 +531,7 @@
           <div class="card position-relative">
             <div class="card-header py-3">
               <h6 class="m-0 font-weight-bold text-primary">
-              <a class="navbar-brand" href="#">TCC SA - nacional</a>
+              <a class="navbar-brand" href="#">ENVIA - nacional</a>
               </h6>
               
             </div>
@@ -526,7 +544,7 @@
               </div>
               <div class="small mb-1">TIEMPO DE ENTREGA: 2</div>
               <nav class="navbar navbar-expand navbar-light bg-light mb-4">
-                <a class="navbar-brand" href="#">COSTO DE ENVÍO: 15489</a>
+                <a class="navbar-brand" href="#">COSTO DE ENVÍO: 16386</a>
                 
                 <!--
                 <ul class="navbar-nav ml-auto">
@@ -552,12 +570,18 @@
               <h1> </h1>
               <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc1">
               <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
-              <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
+              <input type="hidden" name="ciudadD" value="BARRANQUILLA(ATLANTICO)" >
               <input type="hidden" name="kilos" value="1">
-              <input type="hidden" name="seguro" value="35000" >
+              <input type="hidden" name="seguro" value="10000" >
               <input type="hidden" name="recaudo" value="90000" >
-              <input type="hidden" name="idtrans" value="1010" >
-              <input type="hidden" name="valorTotal" value="10089" >
+              <input type="hidden" name="idtrans" value="29" >
+             
+
+              <input type="hidden" name="fletetotal" value="9776" >
+              <input type="hidden" name="costoManejo" value="0" >
+              <input type="hidden" name="valorOtrosRecaudos" value="4000" >
+              <input type="hidden" name="comision_heka" value="2610" >
+
               <input type="hidden" name="tipo_envio" value="RECAUDO" >
               
     
@@ -604,7 +628,7 @@
           <div class="card position-relative">
             <div class="card-header py-3">
               <h6 class="m-0 font-weight-bold text-primary">
-              <a class="navbar-brand" href="#">ENVIA - nacional</a>
+              <a class="navbar-brand" href="#">TCC SA - nacional</a>
               </h6>
               
             </div>
@@ -617,7 +641,7 @@
               </div>
               <div class="small mb-1">TIEMPO DE ENTREGA: 2</div>
               <nav class="navbar navbar-expand navbar-light bg-light mb-4">
-                <a class="navbar-brand" href="#">COSTO DE ENVÍO: 15926</a>
+                <a class="navbar-brand" href="#">COSTO DE ENVÍO: 16299</a>
                 
                 <!--
                 <ul class="navbar-nav ml-auto">
@@ -643,12 +667,18 @@
               <h1> </h1>
               <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc2">
               <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
-              <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
+              <input type="hidden" name="ciudadD" value="BARRANQUILLA(ATLANTICO)" >
               <input type="hidden" name="kilos" value="1">
-              <input type="hidden" name="seguro" value="35000" >
+              <input type="hidden" name="seguro" value="10000" >
               <input type="hidden" name="recaudo" value="90000" >
-              <input type="hidden" name="idtrans" value="29" >
-              <input type="hidden" name="valorTotal" value="10126" >
+              <input type="hidden" name="idtrans" value="1010" >
+             
+
+              <input type="hidden" name="fletetotal" value="9729" >
+              <input type="hidden" name="costoManejo" value="360" >
+              <input type="hidden" name="valorOtrosRecaudos" value="3600" >
+              <input type="hidden" name="comision_heka" value="2610" >
+
               <input type="hidden" name="tipo_envio" value="RECAUDO" >
               
     

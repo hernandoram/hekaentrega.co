@@ -43,6 +43,26 @@ function validar_email(email) {
     var regex = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
     return regex.test(email) ? true : false;
   }
+
+
+  function soloNumeros(campo){
+    var textoFinal="";
+    
+    var numeros="1234567890";
+    for(let i=0;i<campo.length;i++){
+      for(let j=0;j<numeros.length;j++){
+        if(campo[i]==numeros[j]){
+          textoFinal+=campo[i];
+        }
+
+      }
+
+    }
+    return textoFinal;
+    
+  }
+ 
+  
 //ACTIVAR MODULO
 function activar(a) {
     var x = document.getElementById(a);
@@ -747,7 +767,7 @@ var recaudo=document.getElementById('valor-a-recaudar');
   if(check_cobrar_destino.checked){
     id_tipoenvio.value="CONTRAENTREGA";
    
-    recaudo.value="";
+    recaudo.value="1";
     texto_envio.innerHTML=`<h7  class="h8 mb-10 text-gray-500">NOTA: En esta opción el destinatario paga el envío</h7>`;
     check_cobr.checked=false;
     check_cobrar_remite.checked=false;
@@ -799,6 +819,15 @@ function mostrarPrueba(){
         if(document.getElementById('uidFirebase')){
           asignacion("uidFirebase", user.uid);
           }
+          if(document.getElementById('uidParaRelacion')){
+            asignacion("uidParaRelacion", user.uid);
+            }
+            if(document.getElementById('idUsuario')){
+              inHTML("idUsuario", `Bienvenid@ ${snapshot.val().nombre} <sup></sup>`);
+              }
+              if(document.getElementById('idUsuario2')){
+                inHTML("idUsuario2", `${snapshot.val().nombre}`);
+                }
         if(document.getElementById('ciudadRFirebase')){
         asignacion("ciudadRFirebase", snapshot.val().ciudad);
         }
@@ -840,47 +869,46 @@ if(document.getElementById('tabla-novedades')){
   if(document.getElementById('tabla-enproceso')){
     inHTML("tabla-enproceso", "");
     }    
- /*   
-    var contar=0;   
-  var reference = db.ref('Guias').child(user.uid);
-      reference.once('value', function (datas) {
+   ///////////////////////Mostrar Guias/////////////////////////////////
+    
+
+      
+
+      //////////////////////Para crear relacion de envio/////////////
+      
+
+       
+
+      /////////////////////////////////////////////////////////
+
+
+      /////////////////////////////Imprimir usuarios registrados////////////////
+      var referenciaUsuarios = db.ref('usuarios');
+      referenciaUsuarios.on('value', function (datas) {
+        
         var data = datas.val();
         $.each(data, function (nodo, value) {
-         console.log(value.fecha);
-         if(document.getElementById('fecha_inicio')){
-         var fecha_inicio=document.getElementById('fecha_inicio').value;
-         }
-         if(document.getElementById('fecha_final')){
-         var fecha_final=document.getElementById('fecha_final').value;
-         }
-         console.log(fecha_inicio+"|"+fecha_final);
-
-         var fechaf=Date.parse(value.fecha);
-         var fechaFire=new Date(fechaf);
-
-         var fechaI=Date.parse(fecha_inicio); 
-         var fechaIni=new Date(fechaI);
-
-         var fechaff=Date.parse(value.fecha);
-         var fechaFinalF=new Date(fechaff);
-
-         var fechafff=Date.parse(fecha_final);
-         var fechaF= new Date(fechafff);
-
-         
-           if(fechaFire>= fechaIni&& fechaFinalF <= fechaF){
-           
-         
+   
+      var sendData = `
+    
+          <tr>
           
-          contar=contar+1;
-          console.log(contar);
-          var sendData = tableGuias(value .fecha,value.rutaguia,value.nomRem,value.dirDes,value.contenido,value.kilos,value.numguia,value.nomDes,value.ciudadD,value.transportadora);
-            if(document.getElementById('tabla-guias')){
+          <td>nombre: ${value.nombre}</td>
+          <td>nombre: ${value.correo}</td>
+          <td>nombre: ${value.celular}</td>
+          <td>codigo: ${value.codigo}</td>
+          <td>banco: ${value.banco}</td>
+          <td>banco: ${value.tipo_de_cuenta}</td>
+          <td>numero de cuenta: ${value.numero_cuenta}</td>
+          <td>documento de identidad: ${value.numero_iden_banco}</td>
+          
+          </tr>`;
+            if(document.getElementById('tabla-usuarios')){
               
-              printHTML('tabla-guias', sendData);
+              printHTML('tabla-usuarios', sendData);
             }
          
-          }
+          
         
 
 
@@ -891,14 +919,11 @@ if(document.getElementById('tabla-novedades')){
           
         });
       });
-      
-*/
-       
-
-      /////////////////////////////////////////////////////////7
+      //////////////////////////////////////////////////////////////
     });
 
        
+
 
 
     }else{
@@ -1040,8 +1065,20 @@ location.href='#tabla-guias';
 if(document.getElementById('tabla-guias')){
 inHTML('tabla-guias','');
 }
-mostrarPrueba();
+
+  if(document.getElementById('guiaRelacion')){
+    
+    document.getElementById('guiaRelacion').value="";
+    }
+    if(document.getElementById('nodoRelacion')){
+    
+      document.getElementById('nodoRelacion').value="";
+      }
+     
+  
+historialGuias();
 }
+
 function cambiarFechaRelacion(){
   location.href='#tabla-relacion';
   if(document.getElementById('tabla-relacion')){
@@ -1069,7 +1106,25 @@ inHTML('error_restart',`<h6>Hemos enviado  un correo de restablecimiento a tu co
 });
 }
 
-function tableGuias(fecha,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes,ciudadD,trans) {
+function tableGuias(fecha,nomDes,fletetotal,costoManejo,valorOtrosRecaudos,comision_heka,recaudo,tipo_envio,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes,ciudadD,trans) {
+  
+var flete=parseInt(fletetotal);
+var manejo=parseInt(costoManejo);
+var costoRecaudo=parseInt(valorOtrosRecaudos);
+var comision=parseInt(comision_heka);
+
+var costoEnvio=flete+manejo+costoRecaudo+comision;
+
+if(trans=="ENVIA"){
+var logo=`<img src="img/2001.png" alt="" height="30" width="50">`;
+}else{
+if(trans=="TCC SA"){
+  logo=`<img src="img/logo-tcc.png" alt="" height="50" width="70">`;
+}else{
+  logo="Creando....";
+}
+}
+  
   return `
   
   <tr>
@@ -1080,15 +1135,30 @@ function tableGuias(fecha,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomD
   
   </td>
   -->
+  <td>${logo}</td>
   <td>
   <form action="documentoGuia" method="post">
       <input type="hidden" name="paraGuia" value="${linkguia}">
       
       <button class="btn btn-warning" type="submit">Guia</button>
     
+      <h1></h1>
       
       </form>
+      <form action="rotuloHeka" method="post">
+      <input type="hidden" name="guia"         value="${numero_guia}">
+      <input type="hidden" name="remitente"    value="${nomRem}">
+      <input type="hidden" name="destinatario" value="${nomDes}">
+      <input type="hidden" name="direccion"    value="${dirDes}">
+      <input type="hidden" name="ciudad"       value="${ciudadD}">
+      <input type="hidden" name="contenido"    value="${contenido}">
+      <input type="hidden" name="peso"         value="${peso}">
+      <input type="hidden" name="transportadora"         value="${trans}">
+      
+      <button class="btn btn-danger" type="submit">Rotulo</button>
+      </form>
       </td>
+      <!--
       <td>
   <form action="rotuloHeka" method="post">
       <input type="hidden" name="guia"         value="${numero_guia}">
@@ -1103,7 +1173,7 @@ function tableGuias(fecha,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomD
       <button class="btn btn-danger" type="submit">Rotulo</button>
       </form>
       </td>
-
+-->
       <form action="verEstado" method="post">
     <input type="hidden" name="paraVerEstado" value="">
     <!--
@@ -1115,10 +1185,15 @@ function tableGuias(fecha,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomD
   
   <td>${fecha}</td>
   
-  <td>${nomDes}</td>
+  <td>${nomRem}</td>
   
   <td>${ciudadD}</td>
-  <td>${trans}</td>
+  <td>${nomDes}</td>
+  <td>${tipo_envio}</td>
+  <td>${recaudo}</td>
+  <td>${costoEnvio}</td>
+  
+  
  
   
   
@@ -1136,6 +1211,122 @@ function tableGuias(fecha,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomD
     ;
 }
 
+function tableRelacion(contar2,uid,nodo,fecha,nomDes,fletetotal,costoManejo,valorOtrosRecaudos,comision_heka,recaudo,tipo_envio,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes,ciudadD,trans) {
+  
+  var flete=parseInt(fletetotal);
+  var manejo=parseInt(costoManejo);
+  var costoRecaudo=parseInt(valorOtrosRecaudos);
+  var comision=parseInt(comision_heka);
+  
+  var costoEnvio=flete+manejo+costoRecaudo+comision;
+  
+  if(trans=="ENVIA"){
+  var logo=`<img src="img/2001.png" alt="" height="30" width="50">`;
+  var codigoTrans="29";
+  }else{
+  if(trans=="TCC SA"){
+    logo=`<img src="img/logo-tcc.png" alt="" height="50" width="70">`;
+    var codigoTrans="1010";
+  }else{
+    logo="Creando....";
+  }
+  }
+    
+    return `
+    
+    <tr>
+    
+    <td>
+    
+    <input class="btn btn-danger" id="check${contar2-1}" type="checkbox" onchange="sumarguia(${contar2-1});">
+    <input class="btn btn-danger" value="${contar2-1}" type="hidden">
+    <input class="btn btn-danger" id="numero_guia${contar2-1}" value="${numero_guia}" type="hidden">
+    <input class="btn btn-danger" id="nodo${contar2-1}" value="${nodo}" type="hidden">
+    <input class="btn btn-danger" id="codigoTrans" value="${codigoTrans}" type="hidden">
+
+    
+    
+    </td>
+    
+    <td>${logo}</td>
+    <!--
+    <td>
+    <form action="documentoGuia" method="post">
+        <input type="hidden" name="paraGuia" value="${linkguia}">
+        
+        <button class="btn btn-warning" type="submit">Guia</button>
+      
+        <h1></h1>
+        
+        </form>
+        <form action="rotuloHeka" method="post">
+        <input type="hidden" name="guia"         value="${numero_guia}">
+        <input type="hidden" name="remitente"    value="${nomRem}">
+        <input type="hidden" name="destinatario" value="${nomDes}">
+        <input type="hidden" name="direccion"    value="${dirDes}">
+        <input type="hidden" name="ciudad"       value="${ciudadD}">
+        <input type="hidden" name="contenido"    value="${contenido}">
+        <input type="hidden" name="peso"         value="${peso}">
+        <input type="hidden" name="transportadora"         value="${trans}">
+        
+        <button class="btn btn-danger" type="submit">Rotulo</button>
+        </form>
+        </td>
+        -->
+        <!--
+        <td>
+    <form action="rotuloHeka" method="post">
+        <input type="hidden" name="guia"         value="${numero_guia}">
+        <input type="hidden" name="remitente"    value="${nomRem}">
+        <input type="hidden" name="destinatario" value="${nomDes}">
+        <input type="hidden" name="direccion"    value="${dirDes}">
+        <input type="hidden" name="ciudad"       value="${ciudadD}">
+        <input type="hidden" name="contenido"    value="${contenido}">
+        <input type="hidden" name="peso"         value="${peso}">
+        <input type="hidden" name="transportadora"         value="${trans}">
+        
+        <button class="btn btn-danger" type="submit">Rotulo</button>
+        </form>
+        </td>
+  -->
+        <form action="verEstado" method="post">
+      <input type="hidden" name="paraVerEstado" value="">
+      <!--
+      <td><button class="btn btn-danger" type="submit">Ver estado</button></td>
+      -->
+      </form>
+    
+    <td>${numero_guia}</td>
+    
+    <td>${fecha}</td>
+    
+    <td>${nomDes}</td>
+    
+    <td>${ciudadD}</td>
+    <td>${nomDes}</td>
+    <td>${tipo_envio}</td>
+    <td>${recaudo}</td>
+    
+    
+    
+   
+    
+    
+  
+     
+  
+  
+    
+     
+    
+      
+      
+     
+  </tr>`
+      ;
+  }
+
+/*
 function tableRelacion(codTrans,fecha,numeroRelacion,ruta) {
 
   if(codTrans=="1010"){
@@ -1206,10 +1397,575 @@ function tableRelacion(codTrans,fecha,numeroRelacion,ruta) {
 </tr>`
     ;
 }
+*/
 
 
 
 //bloquear boton
+
+function sumarguia(id){
+  //check
+  var check=document.getElementById('check'+id);
+  //valor de la guia y nodo
+  var numero_guia=document.getElementById('numero_guia'+id);
+  var nodo=document.getElementById('nodo'+id);
+  //aquí se suman las guías y los codigos push
+  var guiaRelacion=document.getElementById('guiaRelacion');
+  var nodoRelacion=document.getElementById('nodoRelacion');
+  //codigo de cada guia
+  var codigoTrans=document.getElementById('codigoTrans');
+  //cambiar en el formulario el codigo 
+  var codigoTransportadora=document.getElementById('codigoTransportadora');
+  
+  if(check.checked){
+    guiaRelacion.value+=numero_guia.value+",";
+    nodoRelacion.value+=nodo.value+",";
+    codigoTransportadora.value=codigoTrans.value;
+    
+   
+  }else{
+    guiaRelacion.value=guiaRelacion.value.replace(numero_guia.value+",","");
+    nodoRelacion.value=nodoRelacion.value.replace(nodo.value+",","");
+    
+  }
+  
+  
+  
+}
+
+function crearConsolidado(){
+  ////////variables a separar por comas/////////////
+  //////nodo
+  var now;
+  let date = new Date()
+  let day = date.getDate()
+  let month = date.getMonth() + 1
+  let year = date.getFullYear()
+  if (day < 10) {
+    day = `0${day}`;
+  }
+  if (month < 10) {
+
+    now = `${year}-0${month}-${day}`;
+  } else {
+    now = `${year}-${month}-${day}`;
+  }
+  var nodoArray=[];
+  var contNodo=0;
+  var nodoTexto="";
+  /////////////////////variables////////////////
+var guiaRelacion=document.getElementById('guiaRelacion');
+var nodoRelacion=document.getElementById('nodoRelacion');
+var uidParaRelacion=document.getElementById('uidParaRelacion');
+var codigoTransportadora=document.getElementById('codigoTransportadora');
+///////////////////////recorrer arreglo y separar por coma los nodos//////////////////////////////
+
+  //////////////////guardar consolidado de envíos
+  var push=db.ref('ConsolidadosNuevos').child(uidParaRelacion.value).push().getKey();
+  
+  ////////////////// para crear consolidado
+ 
+ if(guiaRelacion.value!="" && nodoRelacion.value!=""){
+  db.ref('consolidados').child(push).set({
+    nodo: push,
+    guias: guiaRelacion.value,
+    uid: uidParaRelacion.value,
+    codigoTrans:codigoTransportadora.value,
+    fecha: now,
+    relacionenvio: "Creando....",
+      rutaimpresion: "Creando...."
+}, (error) =>{
+  if(error){
+    window.alert('Error al guardar consolidado');
+  }else{
+    db.ref('ConsolidadosNuevos').child(uidParaRelacion.value).child(push).set({
+      nodo: push,
+      guias: guiaRelacion.value,
+      uid: uidParaRelacion.value,
+      codigoTrans:codigoTransportadora.value,
+      fecha: now,
+      relacionenvio: "Creando....",
+      rutaimpresion: "Creando...."
+  }, (error) =>{
+    if(error){
+      window.alert('Error al guardar consolidado');
+    }else{
+      for(let i=0;i<nodoRelacion.value.length;i++){
+  
+        nodoTexto+=nodoRelacion.value[i];
+        if(nodoRelacion.value[i]==","){
+           nodoArray[contNodo]=nodoTexto.replace(",","");
+           //////////////relacionEnvio=1////////////
+           db.ref('GuiasNuevas').child(uidParaRelacion.value).child(nodoArray[contNodo]).update({
+             relacionEnvio:"1"
+         }, (error) =>{
+           if(error){
+             window.alert('Error al guardar consolidado');
+           }else{
+         
+           
+           }
+         });
+       
+       
+          //console.log("nodo"+contNodo+": "+nodoArray[contNodo]);
+       
+          nodoTexto="";
+          contNodo++;
+        }
+       
+       }
+
+       guiaRelacion.value="";
+       nodoRelacion.value="";
+       codigoTransportadora="";
+       window.alert('Consolidado creado con exito');
+       window.location.href='/relacionesCreadas.html';
+      
+    }
+  });
+
+  }
+});
+ }else{
+   window.alert('Para continuar selecciona las guías de las que deseas crear consolidado');
+ }
+
+
+////////////////////////
+
+}
+
+
+function cargarRelacionCreadas(){
+ 
+  firebase.auth().onAuthStateChanged(function(user) {
+
+    if(user){
+      var reference = db.ref('ConsolidadosNuevos').child(user.uid);
+      reference.on('value', function (datas) {
+        if(document.getElementById('tabla-relacion-creadas')){
+          inHTML("tabla-relacion-creadas", "");
+          }  
+        var data = datas.val();
+        var tabla=[];
+        var contar=0;
+        $.each(data, function (nodo, value) {
+         
+         if(document.getElementById('fecha_inicio')){
+         var fecha_inicio=document.getElementById('fecha_inicio').value;
+         }
+         if(document.getElementById('fecha_final')){
+         var fecha_final=document.getElementById('fecha_final').value;
+         }
+         if(document.getElementById('relacion_transportadora')){
+          var relacion_transportadora=document.getElementById('relacion_transportadora').value;
+          }
+          if(document.getElementById('relacion_tipo_envio')){
+            var relacion_tipo_envio=document.getElementById('relacion_tipo_envio').value;
+            }
+         
+
+         var fechaf=Date.parse(value.fecha);
+         var fechaFire=new Date(fechaf);
+
+         var fechaI=Date.parse(fecha_inicio); 
+         var fechaIni=new Date(fechaI);
+
+         var fechaff=Date.parse(value.fecha);
+         var fechaFinalF=new Date(fechaff);
+
+         var fechafff=Date.parse(fecha_final);
+         var fechaF= new Date(fechafff);
+
+        
+
+           
+
+
+            
+
+           if(fechaFire>= fechaIni&& fechaFinalF <= fechaF){
+             
+               
+                if(document.getElementById('tabla-guias-relacion-creadas')){
+  
+                  document.getElementById('tabla-guias-relacion-creadas').style.display='block';
+                  }
+           console.log(value.codigoTrans);
+         if(value.codigoTrans=="29"){
+          var logo=`<img src="img/2001.png" alt="" height="30" width="50">`;
+         }
+         if(value.codigoTrans=="1010"){
+          logo=`<img src="img/logo-tcc.png" alt="" height="50" width="70">`;
+        }
+
+        if(value.rutaimpresion=="Creando...."){
+          var rutaimpresion="Creando...."
+        }else{
+          var rutaimpresion=`<a href="${value.rutaimpresion}">Relacion Envío</a>`;
+        }
+
+       
+          
+         
+          
+          
+          tabla[contar] = `<tr>
+    
+          <td>${logo}</td>
+          <td>${value.fecha}</td>
+          
+          <td>${value.relacionenvio}</td>
+          
+          <td>${rutaimpresion}</td>
+          
+          </tr>`;
+          contar++;
+            
+          
+             
+        
+          }
+        
+         
+
+
+
+
+        
+          
+        });
+
+        for(let i=tabla.length-1;i>=0;i--){
+          printHTML('tabla-relacion-creadas',tabla[i]);
+        }
+      });
+
+       
+
+
+
+    }else{
+      if(document.getElementById('login-mostrar-ocultar')){      
+      activar('login-mostrar-ocultar');
+      }
+      if(document.getElementById('sesionIniciada-mostrar-ocultar')){
+            desactivar('sesionIniciada-mostrar-ocultar');
+      }  
+            if(document.getElementById("codigo-usuario")){
+            asignacion("codigo-usuario","no inicio");
+          }
+          }
+
+    
+
+    });
+}
+cargarRelacionCreadas();
+ 
+
+function cargarRelacionNoCreadas(){
+  firebase.auth().onAuthStateChanged(function(user) {
+
+    if(user){
+      
+       
+
+       
+
+
+
+    }else{
+      if(document.getElementById('login-mostrar-ocultar')){      
+      activar('login-mostrar-ocultar');
+      }
+      if(document.getElementById('sesionIniciada-mostrar-ocultar')){
+            desactivar('sesionIniciada-mostrar-ocultar');
+      }  
+            if(document.getElementById("codigo-usuario")){
+            asignacion("codigo-usuario","no inicio");
+          }
+          }
+
+    
+
+    });
+}
+
+
+function cargarGuiasCreadas(){
+  firebase.auth().onAuthStateChanged(function(user) {
+
+    if(user){
+      
+       
+
+       
+
+
+
+    }else{
+      if(document.getElementById('login-mostrar-ocultar')){      
+      activar('login-mostrar-ocultar');
+      }
+      if(document.getElementById('sesionIniciada-mostrar-ocultar')){
+            desactivar('sesionIniciada-mostrar-ocultar');
+      }  
+            if(document.getElementById("codigo-usuario")){
+            asignacion("codigo-usuario","no inicio");
+          }
+          }
+
+    
+
+    });
+}
+
+function historialGuias(){
+  firebase.auth().onAuthStateChanged(function(user) {
+
+    if(user){
+      var contar=0;   
+      
+    var reference = db.ref('GuiasNuevas').child(user.uid);
+        reference.on('value', function (datas) {
+          if(document.getElementById('tabla-guias')){
+            inHTML("tabla-guias", "");
+            }  
+          var data = datas.val();
+         var tabla=[];
+         var contarTabla=0;
+    
+          $.each(data, function (nodo, value) {
+           
+           if(document.getElementById('fecha_inicio')){
+           var fecha_inicio=document.getElementById('fecha_inicio').value;
+           }
+           if(document.getElementById('fecha_final')){
+           var fecha_final=document.getElementById('fecha_final').value;
+           }
+           
+    
+           var fechaf=Date.parse(value.fecha);
+           var fechaFire=new Date(fechaf);
+    
+           var fechaI=Date.parse(fecha_inicio); 
+           var fechaIni=new Date(fechaI);
+    
+           var fechaff=Date.parse(value.fecha);
+           var fechaFinalF=new Date(fechaff);
+    
+           var fechafff=Date.parse(fecha_final);
+           var fechaF= new Date(fechafff);
+    
+           
+             if(fechaFire>= fechaIni&& fechaFinalF <= fechaF){
+             
+           
+            
+            contar=contar+1;
+            
+            tabla[contarTabla] = tableGuias(value .fecha,value.nomDes,value.fletetotal,value.costoManejo,value.valorOtrosRecaudos,value.comision_heka,value.recaudo,value.tipo_envio,value.rutaguia,value.nomRem,value.dirDes,value.contenido,value.kilos,value.numguia,value.nomDes,value.ciudadD,value.transportadora);
+              contarTabla++;
+           
+            }
+          
+    
+    
+    
+    
+    
+          
+            
+          });
+          var contarExistencia=0;
+          for(let i=tabla.length-1;i>=0;i--){
+           
+            if(document.getElementById('tabla-guias')){
+              printHTML('tabla-guias',tabla[i]);
+            }
+            contarExistencia++;
+          }
+
+          if(contarExistencia==0){
+            if(document.getElementById('tabla-historial-guias')){
+              document.getElementById('tabla-historial-guias').style.display='none';
+            }
+            if(document.getElementById('nohaydatos')){
+              document.getElementById('nohaydatos').style.display='block';
+            }
+          }else{
+            if(document.getElementById('tabla-historial-guias')){
+              document.getElementById('tabla-historial-guias').style.display='block';
+            }
+            if(document.getElementById('nohaydatos')){
+              document.getElementById('nohaydatos').style.display='none';
+            }
+          }
+        });
+       
+
+       
+
+
+
+    }else{
+      if(document.getElementById('login-mostrar-ocultar')){      
+      activar('login-mostrar-ocultar');
+      }
+      if(document.getElementById('sesionIniciada-mostrar-ocultar')){
+            desactivar('sesionIniciada-mostrar-ocultar');
+      }  
+            if(document.getElementById("codigo-usuario")){
+            asignacion("codigo-usuario","no inicio");
+          }
+          }
+
+    
+
+    });
+
+ 
+}
+
+function historialRelacionesNoCreadas(){
+  firebase.auth().onAuthStateChanged(function(user) {
+  if(user){
+    var contar2=0;
+    var reference = db.ref('GuiasNuevas').child(user.uid);
+      reference.on('value', function (datas) {
+        if(document.getElementById('tabla-relacion')){
+          inHTML("tabla-relacion", "");
+          }  
+        var data = datas.val();
+        var tabla=[];
+        var contarTabla=0;
+        $.each(data, function (nodo, value) {
+         
+         if(document.getElementById('fecha_inicio')){
+         var fecha_inicio=document.getElementById('fecha_inicio').value;
+         }
+         if(document.getElementById('fecha_final')){
+         var fecha_final=document.getElementById('fecha_final').value;
+         }
+         if(document.getElementById('relacion_transportadora')){
+          var relacion_transportadora=document.getElementById('relacion_transportadora').value;
+          }
+          if(document.getElementById('relacion_tipo_envio')){
+            var relacion_tipo_envio=document.getElementById('relacion_tipo_envio').value;
+            }
+         
+
+         var fechaf=Date.parse(value.fecha);
+         var fechaFire=new Date(fechaf);
+
+         var fechaI=Date.parse(fecha_inicio); 
+         var fechaIni=new Date(fechaI);
+
+         var fechaff=Date.parse(value.fecha);
+         var fechaFinalF=new Date(fechaff);
+
+         var fechafff=Date.parse(fecha_final);
+         var fechaF= new Date(fechafff);
+
+        
+
+            if(value.tipo_envio=="RECAUDO" | value.tipo_envio=="CONTRAENTREGA"){
+              var tipoFirebase="RECAUDO";
+            }
+            if(value.tipo_envio=="COMUN"){
+              var tipoFirebase="COMUN";
+            }
+
+
+            
+
+           if(fechaFire>= fechaIni&& fechaFinalF <= fechaF){
+             if(relacion_transportadora==value.transportadora){
+               if(relacion_tipo_envio==tipoFirebase){
+                if(document.getElementById('tabla-guias-relacion')){
+  
+                  document.getElementById('tabla-guias-relacion').style.display='block';
+                  }
+           
+         
+          
+          contar2=contar2+1;
+          
+          if(value.relacionEnvio=="0"){
+          tabla[contarTabla] = tableRelacion(contar2,value.uid,value.nodo,value .fecha,value.nomDes,value.fletetotal,value.costoManejo,value.valorOtrosRecaudos,value.comision_heka,value.recaudo,value.tipo_envio,value.rutaguia,value.nomRem,value.dirDes,value.contenido,value.kilos,value.numguia,value.nomDes,value.ciudadD,value.transportadora);
+            contarTabla++;
+          }
+             }
+        }
+          }
+        
+         
+
+
+
+
+        
+          
+        });
+        var contarExistencia=0;
+        for(let i=tabla.length-1;i>=0;i--){
+         
+          if(document.getElementById('tabla-relacion')){
+            printHTML('tabla-relacion',tabla[i]);
+          }
+          contarExistencia++;
+        }
+
+        if(contarExistencia==0){
+          if(document.getElementById('tabla-guias-relacion')){
+            document.getElementById('tabla-guias-relacion').style.display='none';
+          }
+          if(document.getElementById('nohaydatos')){
+            document.getElementById('nohaydatos').style.display='block';
+          }
+        }else{
+          if(document.getElementById('tabla-guias-relacion')){
+            document.getElementById('tabla-guias-relacion').style.display='block';
+          }
+          if(document.getElementById('nohaydatos')){
+            document.getElementById('nohaydatos').style.display='none';
+          }
+        }
+      });
+  }else{
+    if(document.getElementById('login-mostrar-ocultar')){      
+      activar('login-mostrar-ocultar');
+      }
+      if(document.getElementById('sesionIniciada-mostrar-ocultar')){
+            desactivar('sesionIniciada-mostrar-ocultar');
+      }  
+            if(document.getElementById("codigo-usuario")){
+            asignacion("codigo-usuario","no inicio");
+          }
+  }
+    
+    
+    
+    
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
+
+
 
 
 

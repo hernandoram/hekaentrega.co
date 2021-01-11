@@ -136,7 +136,7 @@
           <div class="sidebar-brand-icon rotate-n-15">
             <i class="fas fa-laugh-wink"></i>
           </div>
-          <div class="sidebar-brand-text mx-3">Usuario <sup>2</sup></div>
+          <div class="sidebar-brand-text mx-3" id="idUsuario"> </div>
         </a>
 
         <!-- Divider -->
@@ -311,6 +311,7 @@
             </button>
 
             <!-- Topbar Search -->
+            <!--
             <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
               <div class="input-group">
                 <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
@@ -322,16 +323,38 @@
                 </div>
               </div>
             </form>
+          -->
+         <!-- Topbar Search -->
+            <!--
+                          <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+              <div class="input-group">
+               <input type="text" class="form-control bg-light border-0 small" placeholder="Asesora logística: Whatsapp +57 321 3361911"
+                  aria-label="Search" aria-describedby="basic-addon2"> 
+                <div class="input-group-append">
+                  
+                  <button class="btn btn-primary" type="button">
+                    
+                    <i class="fas fa-search fa-sm"></i>
+                    
+                  
+                  </button>
+                
+                </div>
+              </div>
+            </form>
+          -->
 
             <!-- Topbar Navbar -->
             <ul class="navbar-nav ml-auto">
 
               <!-- Nav Item - Search Dropdown (Visible Only XS) -->
               <li class="nav-item dropdown no-arrow d-sm-none">
+                
                 <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
                   <i class="fas fa-search fa-fw"></i>
                 </a>
+              
 
 
 
@@ -340,14 +363,31 @@
 
 
 
-                <div class="topbar-divider d-none d-sm-block"></div>
+                <div class="topbar-divider d-none d-sm-block">
+                  
+                </div>
+                 <!-- Nav Item - datos asesora -->
+                <li class="nav-item dropdown no-arrow">
+                  <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <span class="mr-2 d-none d-lg-inline text-gray-800 small"><code>Asesora logística: +57</code> 321 3361911</span>
+                    
+                  </a>
+
+                 <!-- Nav Item - User Information -->
+              <li class="nav-item dropdown no-arrow">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false">
+                  <span class="mr-2 d-none d-lg-inline text-gray-800 small"></span><code class="text-danger">SALDO: $</code><code class="text-dark">0</code><code class="text-dark"> Cop </code>
+                  
+                </a>
 
                 <!-- Nav Item - User Information -->
               <li class="nav-item dropdown no-arrow">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
-                  <span class="mr-2 d-none d-lg-inline text-gray-600 small">Usuario</span>
-                  <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">
+                  <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="idUsuario2"></span>
+                  <img class="img-profile rounded-circle" src="img/unnamed.png">
                 </a>
                 <!-- Dropdown - User Information -->
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
@@ -393,14 +433,12 @@
 <div class="container-fluid">
 
   <!-- Page Heading -->
-  <a style="display: block;" id="boton_cotizar"  href="/index-antiguo.html" class="btn btn-danger btn-user btn-block">
+  <a style="display: none;" id="boton_cotizar"  href="/index-antiguo.html" class="btn btn-danger btn-user btn-block">
     Clic aquí para realizar una cotización
   </a>
 
-  <a style="display: none;" id="boton_cotizar"  href="/infinito" class="btn btn-danger btn-user btn-block">
-    crear Guia
-  </a>
-  <div style="display: none;">
+ 
+  <div style="display: block;">
   <h1 class="h3 mb-4 text-gray-800">Cotizar envío</h1>
   <hr class="sidebar-divider"></hr>
   <form class="user" action="mostrarnumeros2" method="post" name="cotizacionEnvio">
@@ -408,7 +446,7 @@
       <div class="col-sm-6 mb-3 mb-sm-0">
        <h6>CIUDAD REMITENTE</h6>
        <h6>**Elegir del menú desplegable**</h6>
-        <input   name="ciudadR" type="text" class="form-control form-control-user" id="ciudadRFirebase"  autocomplete="off" required>
+        <input   name="ciudadR" type="text" class="form-control form-control-user" id="ciudadR"  autocomplete="off" required>
         <!---  PARA FIREBASE -->
      
         <div id="codigoFirebase3" style="display: none;"></div>
@@ -9610,7 +9648,7 @@
       <div class="col-sm-6">
         <h6>CIUDAD DESTINO</h6>
         <h6>**Elegir del menú desplegable**</h6>
-        <input type="text"  name="ciudadD" class="form-control form-control-user" id="ciudadDFirebase" autocomplete="off"  required>
+        <input type="text"  name="ciudadD" class="form-control form-control-user" id="ciudadD" autocomplete="off"  required>
         <datalist name="" id="ciudades" size="1">
             
           <option value="6202|20 DE JULIO(NARINO)">20 DE JULIO(NARINO)</option>
@@ -18809,7 +18847,7 @@
   <div class="form-group row">
       <div class="col-sm-6 mb-3 mb-sm-0">
         <h6>KILOS</h6>
-        <input type="number" class="form-control form-control-user" name="kilos" id="exampleInputPassword" min="1"  required>
+        <input type="number" class="form-control form-control-user" name="kilos" id="Kilos" min="1" autocomplete="off" required>
         
       </div>
 
@@ -18819,7 +18857,7 @@
 
       <div class="col-sm-6">
         <h6>SEGURO MERCANCÍA</h6>
-        <input type="number" class="form-control form-control-user" name="seguro" id="exampleRepeatP" min="10000" max="1000000"   required>
+        <input type="number" class="form-control form-control-user" name="seguro" id="Seguro" min="10000" max="1000000"  autocomplete="off" required>
       </div>
     </div>
 
@@ -18839,7 +18877,7 @@
     <div class="form-group row"  id="valor-recaudo" style="display: none;">
       <div class="col-sm-6 mb-3 mb-sm-0">
         <h6>VALOR A COBRAR CLIENTE</h6>
-        <input type="number" class="form-control form-control-user" id="valor-a-recaudar" name="recaudo" id="exampleInputPassword" max="1400000" >
+        <input type="number" class="form-control form-control-user" id="valor-a-recaudar" name="recaudo" id="exampleInputPassword" autocomplete="off" max="1400000" >
      
       </div>
      
@@ -18883,16 +18921,55 @@
 
       function bloquearBoton(){
         
- 
-    document.getElementById('boton_cotizar').style='display:none;';
+ if(document.getElementById('ciudadR').value!="" && document.getElementById('ciudadD').value!="" &&
+ document.getElementById('Kilos').value!="" && document.getElementById('Seguro').value!="" ){
+
+if(document.getElementById('check-cobr').checked | document.getElementById('check-cobrar-remite').checked | 
+document.getElementById('check-cobrar-destino').checked){
+////////////si envio comun o contraentrega esta activo
+  if(document.getElementById('check-cobrar-remite').checked | 
+document.getElementById('check-cobrar-destino').checked){
+  document.getElementById('boton_cotizar').style='display:none;';
     document.cotizacionEnvio.submit();
     document.cotizacionEnvio.reset();
-    
+  }
+
+  ///////////////si pago contra entrega esta activo
+
+  if(document.getElementById('check-cobr').checked){
+    if(document.getElementById('valor-a-recaudar').value!=""){
+      document.getElementById('boton_cotizar').style='display:none;';
+    document.cotizacionEnvio.submit();
+    document.cotizacionEnvio.reset();
+    }else{
+      window.alert('El campo "VALOR  A COBRAR AL CLIENTE" es obligatorio');
+    }
+
+  }
+  
+  
+}else{
+  window.alert('Seleccionar un método de envío');
+}
+ 
+
+ }else{
+  window.alert('Todos los campos son obligatorios');
+ }
+   /* 
+ document.getElementById('boton_cotizar').style='display:none;';
+    document.cotizacionEnvio.submit();
+    document.cotizacionEnvio.reset();
+ */   
 
 
   
 }
+    
+
     </script>
+
+    
 
     
 </div>
@@ -46714,8 +46791,8 @@ document.addEventListener("click", function (e) {
     closeAllLists(e.target);
 });
 }
-autocomplete(document.getElementById("ciudadRFirebase"), ciudades);
-autocomplete(document.getElementById("ciudadDFirebase"), ciudades);
+autocomplete(document.getElementById("ciudadR"), ciudades);
+autocomplete(document.getElementById("ciudadD"), ciudades);
 
 
     
