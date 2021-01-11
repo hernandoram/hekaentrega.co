@@ -822,6 +822,11 @@ function mostrarPrueba(){
           if(document.getElementById('uidParaRelacion')){
             asignacion("uidParaRelacion", user.uid);
             }
+            if(document.getElementById('id-abrir-guia')){
+              asignacion("id-abrir-guia", user.uid);
+              }
+
+            
             if(document.getElementById('idUsuario')){
               inHTML("idUsuario", `Bienvenid@ ${snapshot.val().nombre} <sup></sup>`);
               }
@@ -1106,7 +1111,7 @@ inHTML('error_restart',`<h6>Hemos enviado  un correo de restablecimiento a tu co
 });
 }
 
-function tableGuias(fecha,nomDes,fletetotal,costoManejo,valorOtrosRecaudos,comision_heka,recaudo,tipo_envio,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes,ciudadD,trans) {
+function tableGuias(uid,fecha,nomDes,fletetotal,costoManejo,valorOtrosRecaudos,comision_heka,recaudo,tipo_envio,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes,ciudadD,trans) {
   
 var flete=parseInt(fletetotal);
 var manejo=parseInt(costoManejo);
@@ -1137,9 +1142,11 @@ if(trans=="TCC SA"){
   -->
   <td>${logo}</td>
   <td>
-  <button  onclick="abrirGuias()" class="btn btn-primary btn-user btn-block">
+  <button  onclick="abrirGuias('${linkguia}','${uid}')" class="btn btn-primary btn-user btn-block">
   Buscar
 </button>
+
+
   
   <td>
   <form action="documentoGuia" method="post">
@@ -1643,7 +1650,9 @@ function cargarRelacionCreadas(){
         });
 
         for(let i=tabla.length-1;i>=0;i--){
+          if(document.getElementById('tabla-relacion-creadas')){
           printHTML('tabla-relacion-creadas',tabla[i]);
+          }
         }
       });
 
@@ -1771,7 +1780,7 @@ function historialGuias(){
             
             contar=contar+1;
             
-            tabla[contarTabla] = tableGuias(value .fecha,value.nomDes,value.fletetotal,value.costoManejo,value.valorOtrosRecaudos,value.comision_heka,value.recaudo,value.tipo_envio,value.rutaguia,value.nomRem,value.dirDes,value.contenido,value.kilos,value.numguia,value.nomDes,value.ciudadD,value.transportadora);
+            tabla[contarTabla] = tableGuias(value.uid,value .fecha,value.nomDes,value.fletetotal,value.costoManejo,value.valorOtrosRecaudos,value.comision_heka,value.recaudo,value.tipo_envio,value.rutaguia,value.nomRem,value.dirDes,value.contenido,value.kilos,value.numguia,value.nomDes,value.ciudadD,value.transportadora);
               contarTabla++;
            
             }
@@ -1970,9 +1979,63 @@ function historialRelacionesNoCreadas(){
 
 }
 
-function abrirGuias(){
-  window.open('/guiaHeka.html', "Descargar guia heka", "width=800, height=700");
+function abrirGuias(linkguia,uid){
+  console.log(linkguia+"|"+uid);
+ 
+  
+  db.ref('abrirGuia').child(uid).child('estado').set({
+    link: linkguia
+   
+}, (error) =>{
+  if(error){
+    window.alert('Error al abrir guía');
+  }else{
+    window.open(`/guiaHeka.html`, "Descargar guia heka", "width=800, height=700");
+  }
+});
+
+
+ // abrirGuia.innerHTML=`<embed src="${link}" type="application/pdf" width="100%" height="800px" />`;
+  /*
+  if(document.getElementById('abrirGuia')){
+    var abrirGuia = document.getElementById('abrirGuia');
+    //abrirGuia.innerHTML=`<embed src="${linkguia}" type="application/pdf" width="100%" height="800px" />`;
+  }
+  */
+ 
 }
+
+function cargarAbrirGuia(){
+  if(document.getElementById('abrirGuia')){
+  var embed=document.getElementById('abrirGuia');
+  
+  firebase.auth().onAuthStateChanged(function(user) {
+    if(user){
+      var reference = db.ref('abrirGuia').child(user.uid).child('estado');
+  
+  reference.on('value', function (datas) {
+    
+    var data = datas.val().link;
+    embed.innerHTML=`<embed src="${data}" type="application/pdf" width="100%" height="800px" />`;
+    //<embed src="https://aveonline.co/app/modulos/paqueteo/impresiones.unicas.tcc.php?dsconsec=532668794&imprimir=1" type="application/pdf" width="100%" height="800px" />
+    });
+      
+    }else{
+
+    }
+
+
+  });
+}
+
+  }
+
+cargarAbrirGuia();
+
+
+
+
+
 
 
 
