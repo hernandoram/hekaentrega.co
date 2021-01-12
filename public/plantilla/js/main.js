@@ -1122,11 +1122,73 @@ var costoEnvio=flete+manejo+costoRecaudo+comision;
 
 if(trans=="ENVIA"){
 var logo=`<img src="img/2001.png" alt="" height="30" width="50">`;
+
+if(tipo_envio=="COMUN"){
+  var abrirGuia=`<form action="descargarGuiaComun" method="POST">
+  <input type="hidden" name="ruta" value="${linkguia}">
+  <button class="btn btn-success" type="submit">Guía común</button>
+</form>
+
+<h1></h1>
+      <form action="rotuloHeka" method="post">
+      <input type="hidden" name="guia"         value="${numero_guia}">
+      <input type="hidden" name="remitente"    value="${nomRem}">
+      <input type="hidden" name="destinatario" value="${nomDes}">
+      <input type="hidden" name="direccion"    value="${dirDes}">
+      <input type="hidden" name="ciudad"       value="${ciudadD}">
+      <input type="hidden" name="contenido"    value="${contenido}">
+      <input type="hidden" name="peso"         value="${peso}">
+      <input type="hidden" name="transportadora"         value="${trans}">
+      
+      <button class="btn btn-danger" type="submit">Rotulo</button>
+      </form>
+
+`;
+}else{
+  var abrirGuia=`<button  onclick="abrirGuias('${linkguia}','${uid}')" class="btn btn-primary btn-user btn-block">
+  Guia
+</button>
+
+<h1></h1>
+      <form action="rotuloHeka" method="post">
+      <input type="hidden" name="guia"         value="${numero_guia}">
+      <input type="hidden" name="remitente"    value="${nomRem}">
+      <input type="hidden" name="destinatario" value="${nomDes}">
+      <input type="hidden" name="direccion"    value="${dirDes}">
+      <input type="hidden" name="ciudad"       value="${ciudadD}">
+      <input type="hidden" name="contenido"    value="${contenido}">
+      <input type="hidden" name="peso"         value="${peso}">
+      <input type="hidden" name="transportadora"         value="${trans}">
+      
+      <button class="btn btn-danger" type="submit">Rotulo</button>
+      </form>
+`;
+}
+
 }else{
 if(trans=="TCC SA"){
   logo=`<img src="img/logo-tcc.png" alt="" height="50" width="70">`;
+  var abrirGuia=`<button  onclick="abrirGuias('${linkguia}','${uid}')" class="btn btn-primary btn-user btn-block">
+  Guia
+</button>
+
+<h1></h1>
+      <form action="rotuloHeka" method="post">
+      <input type="hidden" name="guia"         value="${numero_guia}">
+      <input type="hidden" name="remitente"    value="${nomRem}">
+      <input type="hidden" name="destinatario" value="${nomDes}">
+      <input type="hidden" name="direccion"    value="${dirDes}">
+      <input type="hidden" name="ciudad"       value="${ciudadD}">
+      <input type="hidden" name="contenido"    value="${contenido}">
+      <input type="hidden" name="peso"         value="${peso}">
+      <input type="hidden" name="transportadora"         value="${trans}">
+      
+      <button class="btn btn-danger" type="submit">Rotulo</button>
+      </form>
+`;
 }else{
   logo="Creando....";
+  var abrirGuia=``;
 }
 }
   
@@ -1141,14 +1203,8 @@ if(trans=="TCC SA"){
   </td>
   -->
   <td>${logo}</td>
-  <td>
-  <button  onclick="abrirGuias('${linkguia}','${uid}')" class="btn btn-primary btn-user btn-block">
-  Buscar
-</button>
-
-
   
-  <td>
+  <!--
   <form action="documentoGuia" method="post">
       <input type="hidden" name="paraGuia" value="${linkguia}">
       
@@ -1157,19 +1213,13 @@ if(trans=="TCC SA"){
       <h1></h1>
       
       </form>
-      <form action="rotuloHeka" method="post">
-      <input type="hidden" name="guia"         value="${numero_guia}">
-      <input type="hidden" name="remitente"    value="${nomRem}">
-      <input type="hidden" name="destinatario" value="${nomDes}">
-      <input type="hidden" name="direccion"    value="${dirDes}">
-      <input type="hidden" name="ciudad"       value="${ciudadD}">
-      <input type="hidden" name="contenido"    value="${contenido}">
-      <input type="hidden" name="peso"         value="${peso}">
-      <input type="hidden" name="transportadora"         value="${trans}">
-      
-      <button class="btn btn-danger" type="submit">Rotulo</button>
-      </form>
+      -->
+      <td>
+      ${abrirGuia}
+
       </td>
+
+
       <!--
       <td>
   <form action="rotuloHeka" method="post">
@@ -1186,12 +1236,7 @@ if(trans=="TCC SA"){
       </form>
       </td>
 -->
-      <form action="verEstado" method="post">
-    <input type="hidden" name="paraVerEstado" value="">
-    <!--
-    <td><button class="btn btn-danger" type="submit">Ver estado</button></td>
-    -->
-    </form>
+
   
   <td>${numero_guia}</td>
   
@@ -1204,6 +1249,14 @@ if(trans=="TCC SA"){
   <td>${tipo_envio}</td>
   <td>${recaudo}</td>
   <td>${costoEnvio}</td>
+  <td>
+      <form action="estadoCompleto" method="post">
+    <input type="hidden" name="numGuia" value="${numero_guia}">
+    
+    <button class="btn btn-danger" type="submit">Ver estado</button>
+    
+    </form>
+    </td>
   
   
  
@@ -1615,7 +1668,11 @@ function cargarRelacionCreadas(){
         if(value.rutaimpresion=="Creando...."){
           var rutaimpresion="Creando...."
         }else{
-          var rutaimpresion=`<a href="${value.rutaimpresion}">Relacion Envío</a>`;
+          var rutaimpresion=`<form action="descargarRelacion" method="POST">
+          <input type="hidden" name="ruta" value="${value.rutaimpresion}">
+          <button class="btn btn-success" type="submit">Descargar relación</button>
+        </form>
+          `;
         }
 
        
