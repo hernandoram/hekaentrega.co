@@ -1124,10 +1124,11 @@ if(trans=="ENVIA"){
 var logo=`<img src="img/2001.png" alt="" height="30" width="50">`;
 
 if(tipo_envio=="COMUN"){
-  var abrirGuia=`<form action="descargarGuiaComun" method="POST">
+  var abrirGuia=`<form action="descargarGuiaComun" method="POST" name="descargarGuiaComunForm">
   <input type="hidden" name="ruta" value="${linkguia}">
-  <button class="btn btn-success" type="submit">Guía común</button>
+  
 </form>
+<a class="btn btn-success" href="javascript:descargarGuiaComunForm()">Guía común</a>
 
 <h1></h1>
       <form action="rotuloHeka" method="post">
