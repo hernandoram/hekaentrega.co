@@ -1040,6 +1040,7 @@ llenarTablaRelacionEnvio();
 function fechaActual(){
   var now;
   let date = new Date()
+  console.log(date);
   let day = date.getDate();
   let month = date.getMonth() + 1;
   let year = date.getFullYear();
@@ -1054,6 +1055,9 @@ function fechaActual(){
   }else{
     now=`${year}-${month}-${day}`;
   }
+
+
+ 
   if(document.getElementById('fecha_inicio')){
   document.getElementById('fecha_inicio').value=now;
   }
@@ -1064,6 +1068,35 @@ function fechaActual(){
 }
 fechaActual();
 
+
+function fechaActualGuia(){
+  var now;
+  let date = new Date()
+  console.log(date);
+  let day = date.getDate();
+  let month = date.getMonth() + 1;
+  let year = date.getFullYear();
+  
+  if(day<10){
+    day=`0${day}`;
+  }
+  
+  if(month < 10){
+     
+     now=`${year}-0${month}-${day}`;
+  }else{
+    now=`${year}-${month}-${day}`;
+  }
+
+
+ 
+  if(document.getElementById('fechaActualGuia')){
+  document.getElementById('fechaActualGuia').value=now;
+  }
+
+  
+}
+fechaActualGuia();
 
 function cambiarFecha(){
 location.href='#tabla-guias';
@@ -1124,11 +1157,11 @@ if(trans=="ENVIA"){
 var logo=`<img src="img/2001.png" alt="" height="30" width="50">`;
 
 if(tipo_envio=="COMUN"){
-  var abrirGuia=`<form action="descargarGuiaComun" method="POST" name="descargarGuiaComunForm">
+  var abrirGuia=`<form action="descargarGuiaComun" method="POST" >
   <input type="hidden" name="ruta" value="${linkguia}">
-  
+  <button class="btn btn-success" type="submit">Guía común</button>
 </form>
-<a class="btn btn-success" href="javascript:descargarGuiaComunForm()">Guía común</a>
+
 
 <h1></h1>
       <form action="rotuloHeka" method="post">
