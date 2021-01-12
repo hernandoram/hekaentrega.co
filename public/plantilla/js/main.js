@@ -839,6 +839,10 @@ function mostrarPrueba(){
         if(document.getElementById('codigoFirebase')){
         asignacion("codigoFirebase", snapshot.val().codigo);
         }
+        if(document.getElementById('CodigoFirebaseGuiasAntiguas')){
+          asignacion("CodigoFirebaseGuiasAntiguas", snapshot.val().codigo);
+          }
+        
         if(document.getElementById('codigoFirebase1')){
         asignacion("codigoFirebase1", snapshot.val().codigo);
         }
@@ -1067,6 +1071,37 @@ function fechaActual(){
   
 }
 fechaActual();
+
+function fechaActualGuiasAntiguas(){
+  var now;
+  let date = new Date()
+  console.log(date);
+  let day = date.getDate();
+  let month = date.getMonth() + 1;
+  let year = date.getFullYear();
+  
+  if(day<10){
+    day=`0${day}`;
+  }
+  
+  if(month < 10){
+     
+     now=`${year}-0${month}-${day}`;
+  }else{
+    now=`${year}-${month}-${day}`;
+  }
+
+
+ 
+  if(document.getElementById('fecha_inicio2')){
+  document.getElementById('fecha_inicio2').value=now;
+  }
+  if(document.getElementById('fecha_final2')){
+  document.getElementById('fecha_final2').value=now;
+  }
+  
+}
+fechaActualGuiasAntiguas();
 
 
 function fechaActualGuia(){
@@ -1739,10 +1774,28 @@ function cargarRelacionCreadas(){
         
           
         });
+        var contarExistencia=0;
 
         for(let i=tabla.length-1;i>=0;i--){
           if(document.getElementById('tabla-relacion-creadas')){
           printHTML('tabla-relacion-creadas',tabla[i]);
+          }
+          contarExistencia++;
+        }
+
+        if(contarExistencia==0){
+          if(document.getElementById('tabla-guias-relacion-creadas')){
+            document.getElementById('tabla-guias-relacion-creadas').style.display='none';
+          }
+          if(document.getElementById('nohaydatosRelacionesCreadas')){
+            document.getElementById('nohaydatosRelacionesCreadas').style.display='block';
+          }
+        }else{
+          if(document.getElementById('tabla-guias-relacion-creadas')){
+            document.getElementById('tabla-guias-relacion-creadas').style.display='block';
+          }
+          if(document.getElementById('nohaydatosRelacionesCreadas')){
+            document.getElementById('nohaydatosRelacionesCreadas').style.display='none';
           }
         }
       });
@@ -1897,15 +1950,15 @@ function historialGuias(){
             if(document.getElementById('tabla-historial-guias')){
               document.getElementById('tabla-historial-guias').style.display='none';
             }
-            if(document.getElementById('nohaydatos')){
-              document.getElementById('nohaydatos').style.display='block';
+            if(document.getElementById('nohaydatosHistorialGuias')){
+              document.getElementById('nohaydatosHistorialGuias').style.display='block';
             }
           }else{
             if(document.getElementById('tabla-historial-guias')){
               document.getElementById('tabla-historial-guias').style.display='block';
             }
-            if(document.getElementById('nohaydatos')){
-              document.getElementById('nohaydatos').style.display='none';
+            if(document.getElementById('nohaydatosHistorialGuias')){
+              document.getElementById('nohaydatosHistorialGuias').style.display='none';
             }
           }
         });
@@ -2027,18 +2080,21 @@ function historialRelacionesNoCreadas(){
           if(document.getElementById('tabla-guias-relacion')){
             document.getElementById('tabla-guias-relacion').style.display='none';
           }
-          if(document.getElementById('nohaydatos')){
-            document.getElementById('nohaydatos').style.display='block';
+          if(document.getElementById('nohaydatosRelacionesNoCreadas')){
+            document.getElementById('nohaydatosRelacionesNoCreadas').style.display='block';
           }
         }else{
           if(document.getElementById('tabla-guias-relacion')){
             document.getElementById('tabla-guias-relacion').style.display='block';
           }
-          if(document.getElementById('nohaydatos')){
-            document.getElementById('nohaydatos').style.display='none';
+          if(document.getElementById('nohaydatosRelacionesNoCreadas')){
+            document.getElementById('nohaydatosRelacionesNoCreadas').style.display='none';
           }
         }
       });
+
+
+
   }else{
     if(document.getElementById('login-mostrar-ocultar')){      
       activar('login-mostrar-ocultar');

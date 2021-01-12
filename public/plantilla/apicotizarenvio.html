@@ -133,9 +133,9 @@
 
         <!-- Nav Item - Cotizar envio -->
         <li class="nav-item">
-          <a class="nav-link" href="/index-antiguo.html">
+          <a class="nav-link" href="/plataforma.html">
             <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Cotizar envío (Antiguo)</span></a>
+            <span>Cotizar envío</span></a>
         </li>       
 
         <!-- Nav Item - Cotizar envio -->
@@ -262,7 +262,8 @@
                 <input type="hidden" name="valor" value="5" required>
               </form>
             -->
-              
+            <a class="collapse-item" href="historialGuias.html">Historial Guías</a>
+            <!--
               <a class="collapse-item" href="javascript:estadoGuiasCreadasForm()">Creadas</a>
               <a class="collapse-item" href="javascript:estadoGuiasEnProcesoForm()">En proceso de envío</a>
               
@@ -296,6 +297,31 @@
 
               </script>
 
+              
+              
+            </div>
+          </div>
+        </li>
+
+        <!-- relaciones de envío descargar nueva 2021-->
+        <li class="nav-item">
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse3" aria-expanded="true" aria-controls="collapseTwo">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Relación de envío</span>
+          </a>
+          <div id="collapse3" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <h6 class="collapse-header">Opciones:</h6>
+             
+              
+              <a class="collapse-item" href="crearRelacion.html">Crear relación</a>
+              <a class="collapse-item" href="relacionesCreadas.html">Historial relaciones creadas</a>
+
+         
+             
+
+              
+             
               
               
             </div>
@@ -345,6 +371,12 @@
       <!-- Content Wrapper -->
       <div id="content-wrapper" class="d-flex flex-column">
 
+      <div class="row">
+      <div  class="text-center bg-dark text-white col-sm">Area logística +57 <a class="text-white" href="https://wa.link/j8l2ku">321 336 1911</a></div>
+      <div  class="text-center bg-dark text-white col-sm">Gerencia +57 <a class="text-white" href="https://wa.link/jwryoa">312 463 8608</a></div>
+      <div class="text-center text-white bg-info col-sm">Saldo: <a class="text-white" id="saldo" href="https://wa.link/jwryoa"></a></div>
+    </div>
+    
         <!-- Main Content -->
         <div id="content">
 
@@ -375,11 +407,13 @@
             <ul class="navbar-nav ml-auto">
 
               <!-- Nav Item - Search Dropdown (Visible Only XS) -->
+              <!--
               <li class="nav-item dropdown no-arrow d-sm-none">
                 <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
                   <i class="fas fa-search fa-fw"></i>
                 </a>
+                -->
 
 
                 
@@ -390,39 +424,34 @@
 
                 <div class="topbar-divider d-none d-sm-block"></div>
 
-                <!-- Nav Item - datos asesora -->
+             
+
+                <!-- Nav Item - User Information -->
                 <li class="nav-item dropdown no-arrow">
                   <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="false">
-                    <span class="mr-2 d-none d-lg-inline text-gray-800 small"><code>Asesora logística: +57</code> 321 3361911</span>
+                    <span class="mr-2 d-none d-lg-inline text-gray-800 small"></span><code id="idUsuario2" class="text-dark"> </code>
                     
                   </a>
-
-                 <!-- Nav Item - User Information -->
-              <li class="nav-item dropdown no-arrow">
-                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
-                  aria-haspopup="true" aria-expanded="false">
-                  <span class="mr-2 d-none d-lg-inline text-gray-800 small"></span><code class="text-danger">SALDO: $</code><code class="text-dark">0 Cop </code>
-                  
-                </a>
 
                 <!-- Nav Item - User Information -->
               <li class="nav-item dropdown no-arrow">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
-                  <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="idUsuario2"></span>
+                  <span class="mr-2 d-none d-lg-inline text-gray-600 small"></span>
                   <img class="img-profile rounded-circle" src="img/unnamed.png">
                 </a>
                 <!-- Dropdown - User Information -->
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                  <a class="dropdown-item" href="javascript:cerrarSesion()">
-                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Salir
-                  </a>
-                  <a class="dropdown-item" href="/novedadespup">
-                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Actualizar
-                  </a>
+                <a class="dropdown-item" href="perfil.html">
+                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                Perfil de usuario
+              </a>
+             
+                <a class="dropdown-item" href="javascript:cerrarSesion()">
+                  <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                  Salir
+                </a>
                   <!--
                   <a class="dropdown-item" href="#">
                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -466,7 +495,7 @@
 
               <hr class="sidebar-divider"></hr>
 
-       <h1 class="h3 mb-1 text-gray-800">Datos de envío (RECAUDO)</h1>
+       <h1 class="h3 mb-1 text-gray-800">Datos de envío (CONTRAENTREGA)</h1>
      
          <!-- Datos cotizador -->
 
@@ -474,7 +503,7 @@
 
          <div class="col-sm-6 mb-3 mb-sm-0">
            <h6>Ciudad rem.</h6>
-           <input readonly="readonly" type="text" class="form-control form-control-user" value="CUCUTA(NORTE DE SANTANDER)" required>
+           <input readonly="readonly" type="text" class="form-control form-control-user" value="BOGOTA(CUNDINAMARCA)" required>
            
          </div>
    
@@ -484,7 +513,7 @@
    
          <div class="col-sm-6">
            <h6>Ciudad dest.</h6>
-           <input type="text" readonly="readonly" class="form-control form-control-user" value="BOGOTA(CUNDINAMARCA)"   required>
+           <input type="text" readonly="readonly" class="form-control form-control-user" value="MEDELLIN(ANTIOQUIA)"   required>
          </div>
 
        
@@ -503,7 +532,7 @@
 
          <div class="col-sm-6">
            <h6>Recaudo</h6>
-           <input type="text" readonly="readonly" class="form-control form-control-user" value="90000"   required>
+           <input type="text" readonly="readonly" class="form-control form-control-user" value="1"   required>
          </div>
 
        </div>
@@ -544,7 +573,7 @@
               </div>
               <div class="small mb-1">TIEMPO DE ENTREGA: 2</div>
               <nav class="navbar navbar-expand navbar-light bg-light mb-4">
-                <a class="navbar-brand" href="#">COSTO DE ENVÍO: 16299</a>
+                <a class="navbar-brand" href="#">COSTO DE ENVÍO: 14900</a>
                 
                 <!--
                 <ul class="navbar-nav ml-auto">
@@ -569,20 +598,20 @@
               
               <h1> </h1>
               <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc1">
-              <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
-              <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
+              <input type="hidden" name="ciudadR" value="BOGOTA(CUNDINAMARCA)">
+              <input type="hidden" name="ciudadD" value="MEDELLIN(ANTIOQUIA)" >
               <input type="hidden" name="kilos" value="1">
               <input type="hidden" name="seguro" value="35000" >
-              <input type="hidden" name="recaudo" value="90000" >
+              <input type="hidden" name="recaudo" value="1" >
               <input type="hidden" name="idtrans" value="1010" >
              
 
               <input type="hidden" name="fletetotal" value="9729" >
               <input type="hidden" name="costoManejo" value="360" >
               <input type="hidden" name="valorOtrosRecaudos" value="3600" >
-              <input type="hidden" name="comision_heka" value="2610" >
+              <input type="hidden" name="comision_heka" value="1211" >
 
-              <input type="hidden" name="tipo_envio" value="RECAUDO" >
+              <input type="hidden" name="tipo_envio" value="CONTRAENTREGA" >
               
     
   
@@ -639,9 +668,9 @@
               -->
                 <code>TRAYECTO: nacional</code>
               </div>
-              <div class="small mb-1">TIEMPO DE ENTREGA: 2</div>
+              <div class="small mb-1">TIEMPO DE ENTREGA: 1</div>
               <nav class="navbar navbar-expand navbar-light bg-light mb-4">
-                <a class="navbar-brand" href="#">COSTO DE ENVÍO: 16736</a>
+                <a class="navbar-brand" href="#">COSTO DE ENVÍO: 15341</a>
                 
                 <!--
                 <ul class="navbar-nav ml-auto">
@@ -666,20 +695,20 @@
               
               <h1> </h1>
               <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc2">
-              <input type="hidden" name="ciudadR" value="CUCUTA(NORTE DE SANTANDER)">
-              <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
+              <input type="hidden" name="ciudadR" value="BOGOTA(CUNDINAMARCA)">
+              <input type="hidden" name="ciudadD" value="MEDELLIN(ANTIOQUIA)" >
               <input type="hidden" name="kilos" value="1">
               <input type="hidden" name="seguro" value="35000" >
-              <input type="hidden" name="recaudo" value="90000" >
+              <input type="hidden" name="recaudo" value="1" >
               <input type="hidden" name="idtrans" value="29" >
              
 
               <input type="hidden" name="fletetotal" value="9776" >
               <input type="hidden" name="costoManejo" value="350" >
               <input type="hidden" name="valorOtrosRecaudos" value="4000" >
-              <input type="hidden" name="comision_heka" value="2610" >
+              <input type="hidden" name="comision_heka" value="1215" >
 
-              <input type="hidden" name="tipo_envio" value="RECAUDO" >
+              <input type="hidden" name="tipo_envio" value="CONTRAENTREGA" >
               
     
   

@@ -132,9 +132,9 @@
         <hr class="sidebar-divider my-0">
         <!-- Nav Item - Cotizar envio -->
         <li class="nav-item">
-          <a class="nav-link" href="/index-antiguo.html">
+          <a class="nav-link" href="/plataforma.html">
             <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Cotizar envío (Antiguo)</span></a>
+            <span>Cotizar envío</span></a>
         </li>
         <!-- Nav Item - Cotizar envio -->
         <!--
@@ -191,13 +191,16 @@
                 <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="2" required>
               </form>
-              
+              <a class="collapse-item" href="historialGuias.html">Historial Guías</a>
+
+              <!--
               <a class="collapse-item" href="javascript:estadoGuiasCreadasForm()">Creadas</a>
               <a class="collapse-item" href="javascript:estadoGuiasEnProcesoForm()">En proceso de envío</a>
               
               <a class="collapse-item" href="javascript:estadoGuiasEntregadasForm()">Entregadas</a>
               
               <a class="collapse-item" href="/novedades2">Novedades</a>
+            -->
 
               <script>
                 function estadoGuiasCreadasForm(){
@@ -212,6 +215,32 @@
 
               </script>
 
+              
+              
+            </div>
+          </div>
+        </li>
+
+
+         <!-- relaciones de envío descargar nueva 2021-->
+         <li class="nav-item">
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse3" aria-expanded="true" aria-controls="collapseTwo">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Relación de envío</span>
+          </a>
+          <div id="collapse3" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <h6 class="collapse-header">Opciones:</h6>
+             
+              
+              <a class="collapse-item" href="crearRelacion.html">Crear relación</a>
+              <a class="collapse-item" href="relacionesCreadas.html">Historial relaciones creadas</a>
+
+         
+             
+
+              
+             
               
               
             </div>
@@ -252,6 +281,12 @@
 
       <!-- Content Wrapper -->
       <div id="content-wrapper" class="d-flex flex-column">
+        
+        <div class="row">
+          <div  class="text-center bg-dark text-white col-sm">Area logística +57 <a class="text-white" href="https://wa.link/j8l2ku">321 336 1911</a></div>
+          <div  class="text-center bg-dark text-white col-sm">Gerencia +57 <a class="text-white" href="https://wa.link/jwryoa">312 463 8608</a></div>
+          <div class="text-center text-white bg-info col-sm">Saldo: <a class="text-white" id="saldo" href="https://wa.link/jwryoa"></a></div>
+        </div>
 
         <!-- Main Content -->
         <div id="content">
@@ -283,11 +318,13 @@
             <ul class="navbar-nav ml-auto">
 
               <!-- Nav Item - Search Dropdown (Visible Only XS) -->
+              <!--
               <li class="nav-item dropdown no-arrow d-sm-none">
                 <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
                   <i class="fas fa-search fa-fw"></i>
                 </a>
+              -->
 
 
 
@@ -298,19 +335,13 @@
 
                 <div class="topbar-divider d-none d-sm-block"></div>
 
-                 <!-- Nav Item - datos asesora -->
-                 <li class="nav-item dropdown no-arrow">
-                  <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false">
-                    <span class="mr-2 d-none d-lg-inline text-gray-800 small"><code>Asesora logística: +57</code> 321 3361911</span>
-                    
-                  </a>
+              
 
-                 <!-- Nav Item - User Information -->
+                <!-- Nav Item - User Information -->
               <li class="nav-item dropdown no-arrow">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
-                  <span class="mr-2 d-none d-lg-inline text-gray-800 small"></span><code class="text-danger">SALDO: $</code><code class="text-dark">0</code><code class="text-dark"> Cop </code>
+                  <span class="mr-2 d-none d-lg-inline text-gray-800 small"></span><code id="idUsuario2" class="text-dark"> </code>
                   
                 </a>
 
@@ -323,14 +354,15 @@
                 </a>
                 <!-- Dropdown - User Information -->
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                  <a class="dropdown-item" href="javascript:cerrarSesion()">
+                  <a class="dropdown-item" href="perfil.html">
                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Salir
+                    Perfil de usuario
                   </a>
-                  <a class="dropdown-item" href="/novedadespup">
-                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Actualizar
-                  </a>
+                 
+                    <a class="dropdown-item" href="javascript:cerrarSesion()">
+                      <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                      Salir
+                    </a>
                   <!--
                   <a class="dropdown-item" href="#">
                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -371,9 +403,107 @@
       <!-- DataTales Example -->
       <div class="card shadow mb-4">
         <div class="card-header py-3">
+          
+
+          <div class="alert alert-success" role="alert">
+            <h4 class="alert-heading">¡PARA TENER EN CUENTA!</h4>
+            <p>Desde el día 12/01/2021 la plataforma presentó una actualización, por lo tanto para usuarios que hayan
+              generado guías antes de la fecha dar clic en el siguiente enlace <a href="" data-toggle="modal" data-target="#exampleModalCenter" class="m-0 text-left font-weight-bold text-info">Clic aquí para visualizar guías antiguas</a>
+             </p>
+            <hr>
+            <p class="mb-0">Las guías generadas después de la fecha se visualizarán desde el siguiente módulo.</p>
+          </div>
+
+         
+
+          <!-- Button trigger modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Visualizar guías</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        
+        <div class="form-group row">
+          <div class="form-group row">
+            <form action="estadoGuiasCreadas" method="POST">
+            <div class="col-sm-6 mb-3 mb-sm-0">
+              <h6>Fecha inicio</h6>
+              <input type="date" class="form-control form-control-user"  id="fecha_inicio2" name="fecha_inicio"  required>
+            </div>
+            <div class="col-sm-6">
+              <h6>Fecha final</h6>
+              <input type="date" class="form-control form-control-user"  id="fecha_final2" name="fecha_final"   required>
+            </div>
+
+            <div class="col-sm-6">
+              <h6>Elegir una opción</h6>
+              <select name="valor" id="relacion_tipo_envio">
+                <option value="6">Guías generadas</option>
+                <option value="1">Guías en proceso</option>
+                <option value="2">Guías entregadas</option>
+              </select>
+            </div>
+
+            <input type="hidden" class="form-control form-control-user" name="codigoFirebase" id="CodigoFirebaseGuiasAntiguas"    required>
+         
+            
+            
+           
+          </div>
+        
+          <button  type="submit" class="btn btn-primary btn-user btn-block">
+            Buscar
+          </button>
+        </form>
+          
+        
+      </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <!--
+        <button type="button" class="btn btn-primary">Save changes</button>
+      -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         
+          <h1></h1>
+          <hr class="sidebar-divider"></hr>
+          
           <h6 class="m-0 font-weight-bold text-primary">Historial de guías</h6>
           <br>
-          
          <!--Formulario de busqueda guias-->
          
          <div class="form-group row">
@@ -402,7 +532,7 @@
         
       
         </div>
-        <div class="card-body" style="display: none;" id="nohaydatos">
+        <div class="card-body" style="display: none;" id="nohaydatosHistorialGuias">
         <h6 class="text-danger">SIN DATOS EXISTENTES PARA TU BÚSQUEDA</h6>
         </div>
         <div class="card-body" style="display: none;" id="tabla-historial-guias">

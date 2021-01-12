@@ -125,16 +125,16 @@
           <div class="sidebar-brand-icon rotate-n-15">
             <i class="fas fa-laugh-wink"></i>
           </div>
-          <div class="sidebar-brand-text mx-3">Usuario <sup>2</sup></div>
+          <div class="sidebar-brand-text mx-3" id="idUsuario"></div>
         </a>
 
         <!-- Divider -->
         <hr class="sidebar-divider my-0">
         <!-- Nav Item - Cotizar envio -->
         <li class="nav-item">
-          <a class="nav-link" href="/index-antiguo.html">
+          <a class="nav-link" href="/plataforma.html">
             <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Cotizar envío (Antiguo)</span></a>
+            <span>Cotizar envío</span></a>
         </li>
         <!-- Nav Item - Cotizar envio -->
         <!--
@@ -192,13 +192,20 @@
                 <input type="hidden" name="valor" value="2" required>
               </form>
               
-              <a class="collapse-item" href="javascript:estadoGuiasCreadasForm()">Creadas</a>
+              <a class="collapse-item" href="historialGuias.html">Historial Guías</a>
+
+              <!--
+               <a class="collapse-item" href="javascript:estadoGuiasCreadasForm()">Creadas</a>
               <a class="collapse-item" href="javascript:estadoGuiasEnProcesoForm()">En proceso de envío</a>
               
               <a class="collapse-item" href="javascript:estadoGuiasEntregadasForm()">Entregadas</a>
+            -->
+              <!--
+              <a class="collapse-item" href="javascript:estadoGuiasPagadasForm()">pagadas a HEKA </a>
+              <a class="collapse-item" href="javascript:estadoGuiasDevolucionesForm()">Devoluciones</a>
               
               <a class="collapse-item" href="/novedades2">Novedades</a>
-
+              -->
               <script>
                 function estadoGuiasCreadasForm(){
                   document.estadoGuiasCreadasForm.submit();
@@ -212,6 +219,31 @@
 
               </script>
 
+              
+              
+            </div>
+          </div>
+        </li>
+
+         <!-- relaciones de envío descargar nueva 2021-->
+         <li class="nav-item">
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse3" aria-expanded="true" aria-controls="collapseTwo">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Relación de envío</span>
+          </a>
+          <div id="collapse3" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <h6 class="collapse-header">Opciones:</h6>
+             
+              
+              <a class="collapse-item" href="crearRelacion.html">Crear relación</a>
+              <a class="collapse-item" href="relacionesCreadas.html">Historial relaciones creadas</a>
+
+         
+             
+
+              
+             
               
               
             </div>
@@ -253,6 +285,11 @@
       <!-- Content Wrapper -->
       <div id="content-wrapper" class="d-flex flex-column">
 
+        <div class="row">
+          <div  class="text-center bg-dark text-white col-sm">Area logística +57 <a class="text-white" href="https://wa.link/j8l2ku">321 336 1911</a></div>
+          <div  class="text-center bg-dark text-white col-sm">Gerencia +57 <a class="text-white" href="https://wa.link/jwryoa">312 463 8608</a></div>
+          <div class="text-center text-white bg-info col-sm">Saldo: <a class="text-white" id="saldo" href="https://wa.link/jwryoa"></a></div>
+        </div>
         <!-- Main Content -->
         <div id="content">
 
@@ -265,6 +302,7 @@
             </button>
 
             <!-- Topbar Search -->
+            <!--
             <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
               <div class="input-group">
                 <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
@@ -276,16 +314,19 @@
                 </div>
               </div>
             </form>
+          -->
 
             <!-- Topbar Navbar -->
             <ul class="navbar-nav ml-auto">
 
               <!-- Nav Item - Search Dropdown (Visible Only XS) -->
+              <!--
               <li class="nav-item dropdown no-arrow d-sm-none">
                 <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
                   <i class="fas fa-search fa-fw"></i>
                 </a>
+              -->
 
 
 
@@ -296,23 +337,32 @@
 
                 <div class="topbar-divider d-none d-sm-block"></div>
 
+                     <!-- Nav Item - User Information -->
+              <li class="nav-item dropdown no-arrow">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false">
+                  <span class="mr-2 d-none d-lg-inline text-gray-800 small"></span><code id="idUsuario2" class="text-dark"> </code>
+                  
+                </a>
+
                 <!-- Nav Item - User Information -->
               <li class="nav-item dropdown no-arrow">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
-                  <span class="mr-2 d-none d-lg-inline text-gray-600 small">Usuario</span>
-                  <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">
+                  <span class="mr-2 d-none d-lg-inline text-gray-600 small"></span>
+                  <img class="img-profile rounded-circle" src="img/unnamed.png">
                 </a>
                 <!-- Dropdown - User Information -->
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                  <a class="dropdown-item" href="javascript:cerrarSesion()">
+                  <a class="dropdown-item" href="perfil.html">
                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Salir
+                    Perfil de usuario
                   </a>
-                  <a class="dropdown-item" href="/novedadespup">
-                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Actualizar
-                  </a>
+                 
+                    <a class="dropdown-item" href="javascript:cerrarSesion()">
+                      <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                      Salir
+                    </a>
                   <!--
                   <a class="dropdown-item" href="#">
                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -357,7 +407,7 @@
           <br>
           
          <!--Formulario de busqueda guias-->
-         
+        
          <div class="form-group row">
             <div class="form-group row">
               <div class="col-sm-6 mb-3 mb-sm-0">
@@ -392,6 +442,10 @@
         
           
         </div>
+        <div class="card-body" style="display: none;" id="nohaydatosRelacionesCreadas">
+          <h6 class="text-danger">SIN DATOS EXISTENTES PARA TU BÚSQUEDA</h6>
+          </div>
+
         <div style="display: none;" id="tabla-guias-relacion-creadas" class="card-body">
          
           <div  class="table-responsive">
