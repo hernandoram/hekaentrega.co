@@ -1197,6 +1197,9 @@ if(numero_guia!="Generando...."){
   <button class="btn btn-danger" type="submit">Ver estado</button>
   
   </form>`;
+}else{
+  var botonEliminar=``;
+  var estado=``;
 }
 if(trans=="ENVIA"){
 var logo=`<img src="img/2001.png" alt="" height="30" width="50">`;
