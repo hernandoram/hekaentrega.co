@@ -1179,7 +1179,7 @@ inHTML('error_restart',`<h6>Hemos enviado  un correo de restablecimiento a tu co
 });
 }
 
-function tableGuias(uid,fecha,nomDes,fletetotal,costoManejo,valorOtrosRecaudos,comision_heka,recaudo,tipo_envio,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes,ciudadD,trans) {
+function tableGuias(uid,nodo,fecha,nomDes,fletetotal,costoManejo,valorOtrosRecaudos,comision_heka,recaudo,tipo_envio,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes,ciudadD,trans) {
   
 var flete=parseInt(fletetotal);
 var manejo=parseInt(costoManejo);
@@ -1187,14 +1187,29 @@ var costoRecaudo=parseInt(valorOtrosRecaudos);
 var comision=parseInt(comision_heka);
 
 var costoEnvio=flete+manejo+costoRecaudo+comision;
-
+if(numero_guia!="Generando...."){
+  var botonEliminar=`<button onclick="borrarGuia('${uid}','${nodo}','${fecha}','${linkguia}','${nomRem}','${numero_guia}','${trans}')" class="btn text-white btn-danger btn-circle">
+  <i class="fas fa-trash"><i<
+  </button>`;
+  var estado=`<form action="estadoCompleto" method="post">
+  <input type="hidden" name="numGuia" value="${numero_guia}">
+  
+  <button class="btn btn-danger" type="submit">Ver estado</button>
+  
+  </form>`;
+}
 if(trans=="ENVIA"){
 var logo=`<img src="img/2001.png" alt="" height="30" width="50">`;
 
 if(tipo_envio=="COMUN"){
   var abrirGuia=`<form action="descargarGuiaComun" method="POST" >
   <input type="hidden" name="ruta" value="${linkguia}">
-  <button class="btn btn-success" type="submit">Guía común</button>
+  <button  type="submit" class="btn btn-info btn-icon-split">
+  <span class="icon text-white-50">
+    <i class="fas fa-check"></i>
+  </span>
+  <span class="text">Guía común</span>
+</button>
 </form>
 
 
@@ -1209,14 +1224,26 @@ if(tipo_envio=="COMUN"){
       <input type="hidden" name="peso"         value="${peso}">
       <input type="hidden" name="transportadora"         value="${trans}">
       
-      <button class="btn btn-danger" type="submit">Rotulo</button>
+     
+      <button  type="submit" class="btn btn-danger btn-icon-split">
+      <span class="icon text-white-50">
+        <i class="fas fa-check"></i>
+      </span>
+      <span class="text">Rotulo</span>
+    </button>
       </form>
 
 `;
 }else{
-  var abrirGuia=`<button  onclick="abrirGuias('${linkguia}','${uid}')" class="btn btn-primary btn-user btn-block">
-  Guia
-</button>
+  var abrirGuia=`
+<button  onclick="abrirGuias('${linkguia}','${uid}')" class="btn btn-primary btn-icon-split">
+      <span class="icon text-white-50">
+        <i class="fas fa-check"></i>
+      </span>
+      <span class="text">Guía</span>
+    </button>
+    
+    <div class="my-2"></div>
 
 <h1></h1>
       <form action="rotuloHeka" method="post">
@@ -1229,7 +1256,13 @@ if(tipo_envio=="COMUN"){
       <input type="hidden" name="peso"         value="${peso}">
       <input type="hidden" name="transportadora"         value="${trans}">
       
-      <button class="btn btn-danger" type="submit">Rotulo</button>
+     
+      <button  type="submit" class="btn btn-danger btn-icon-split">
+      <span class="icon text-white-50">
+        <i class="fas fa-check"></i>
+      </span>
+      <span class="text">Rotulo</span>
+    </button>
       </form>
 `;
 }
@@ -1237,9 +1270,15 @@ if(tipo_envio=="COMUN"){
 }else{
 if(trans=="TCC SA"){
   logo=`<img src="img/logo-tcc.png" alt="" height="50" width="70">`;
-  var abrirGuia=`<button  onclick="abrirGuias('${linkguia}','${uid}')" class="btn btn-primary btn-user btn-block">
-  Guia
-</button>
+  var abrirGuia=`
+<button  onclick="abrirGuias('${linkguia}','${uid}')" class="btn btn-primary btn-icon-split">
+      <span class="icon text-white-50">
+        <i class="fas fa-check"></i>
+      </span>
+      <span class="text">Guía</span>
+    </button>
+    
+    <div class="my-2"></div>
 
 <h1></h1>
       <form action="rotuloHeka" method="post">
@@ -1252,7 +1291,13 @@ if(trans=="TCC SA"){
       <input type="hidden" name="peso"         value="${peso}">
       <input type="hidden" name="transportadora"         value="${trans}">
       
-      <button class="btn btn-danger" type="submit">Rotulo</button>
+     
+      <button  type="submit" class="btn btn-danger btn-icon-split">
+      <span class="icon text-white-50">
+        <i class="fas fa-check"></i>
+      </span>
+      <span class="text">Rotulo</span>
+    </button>
       </form>
 `;
 }else{
@@ -1274,6 +1319,9 @@ if(trans=="TCC SA"){
   <td>${logo}</td>
   
   <!--
+
+ 
+
   <form action="documentoGuia" method="post">
       <input type="hidden" name="paraGuia" value="${linkguia}">
       
@@ -1284,6 +1332,8 @@ if(trans=="TCC SA"){
       </form>
       -->
       <td>
+      
+      
       ${abrirGuia}
 
       </td>
@@ -1319,13 +1369,12 @@ if(trans=="TCC SA"){
   <td>${recaudo}</td>
   <td>${costoEnvio}</td>
   <td>
-      <form action="estadoCompleto" method="post">
-    <input type="hidden" name="numGuia" value="${numero_guia}">
-    
-    <button class="btn btn-danger" type="submit">Ver estado</button>
-    
-    </form>
+      ${estado}
     </td>
+
+    <td>
+   ${botonEliminar}
+  </td>
   
   
  
@@ -1924,7 +1973,7 @@ function historialGuias(){
             
             contar=contar+1;
             
-            tabla[contarTabla] = tableGuias(value.uid,value .fecha,value.nomDes,value.fletetotal,value.costoManejo,value.valorOtrosRecaudos,value.comision_heka,value.recaudo,value.tipo_envio,value.rutaguia,value.nomRem,value.dirDes,value.contenido,value.kilos,value.numguia,value.nomDes,value.ciudadD,value.transportadora);
+            tabla[contarTabla] = tableGuias(value.uid,value.nodo,value .fecha,value.nomDes,value.fletetotal,value.costoManejo,value.valorOtrosRecaudos,value.comision_heka,value.recaudo,value.tipo_envio,value.rutaguia,value.nomRem,value.dirDes,value.contenido,value.kilos,value.numguia,value.nomDes,value.ciudadD,value.transportadora);
               contarTabla++;
            
             }
@@ -2178,6 +2227,33 @@ function cargarAbrirGuia(){
   }
 
 cargarAbrirGuia();
+
+
+function borrarGuia(uid,nodo,fecha,linkguia,nomRem,numero_guia,trans){
+  var confirmar=confirm('¿Estás seguro de eliminar la guía '+numero_guia+
+  '? Recuerda que si la guía '+numero_guia+' tiene una relación de envío creada, automáticamente dicha relación será eliminada.');
+  if(confirmar){
+  db.ref('administrador').child('GuiasNuevas').child(uid).child(nodo).set({
+    uid:uid,
+  nodo:nodo,
+  fecha:fecha,
+  linkguia: linkguia,
+  nomRem: nomRem,
+  numero_guia: numero_guia,
+  trans: trans
+}, (error) =>{
+  if(error){
+    window.alert('Error al guardar consolidado');
+  }else{
+    db.ref('GuiasNuevas').child(uid).child(nodo).remove();
+
+  }
+});
+  }else{
+
+  }
+
+}
 
 
 
