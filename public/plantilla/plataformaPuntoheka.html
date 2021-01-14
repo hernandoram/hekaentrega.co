@@ -10,7 +10,7 @@
   <meta name="author" content="">
   <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
 
-  
+
   <title>hekaentrega.co</title>
 
   <!--autocompeltar-->
@@ -30,11 +30,100 @@
 </head>
 
 <body class="bg-gradient-primary">
+  <!--Verificar usuario comun-->
+  <div id="verificarUsuarioPuntoheka" ></div>
   <!-- LOGIN -->
-  
+  <div id="login-mostrar-ocultar" style="display: none;" class="container">
+
+
+
+
+    <!-- Outer Row -->
+    
+
+
+
+        <div class="card o-hidden border-0 shadow-lg my-5">
+          <div class="card-body p-0">
+            <!-- Nested Row within Card Body -->
+            
+            <div class="row">
+              <a href="/" class="btn btn-danger btn-user btn-block">
+                Regresar
+              </a>
+              <div class="col-lg-6 d-none d-lg-block"></div>
+              <div class="col-lg-6">
+                <div class="p-5">
+                  <div class="text-center">
+                    <img src="img/heka entrega.png" width="250" height="250" alt="">
+                    <h1 class="h4 text-gray-900 mb-4">Bienvenid@ a HEKA!</h1>
+                  </div>
+
+
+                  <div class="form-group">
+                    <input type="email" id="usuario" class="form-control form-control-user" id="exampleInputEmail"
+                      aria-describedby="emailHelp" placeholder="Correo eléctronico..." required>
+                  </div>
+
+                  <div class="form-group">
+                    <input type="password" id="contrasena" class="form-control form-control-user"
+                      id="exampleInputPassword" placeholder="Contraseña" required>
+                  </div>
+
+
+                  <div class="form-group">
+                    <!--
+                      <div class="custom-control custom-checkbox small">
+                        <input type="checkbox" class="custom-control-input" id="customCheck">
+                        <label class="custom-control-label" for="customCheck">Remember Me</label>
+                      </div>
+                      -->
+                  </div>
+
+                  <button onclick="iniciarSesion()" type="submit" class="btn btn-danger btn-user btn-block">
+                    Entrar
+                  </button>
+
+
+
+
+                  <!--
+                    <a href="index.html" class="btn btn-google btn-user btn-block">
+                      <i class="fab fa-google fa-fw"></i> Login with Google
+                    </a>
+                    <a href="index.html" class="btn btn-facebook btn-user btn-block">
+                      <i class="fab fa-facebook-f fa-fw"></i> Login with Facebook
+                    </a>
+                    -->
+
+                  </br>
+                  <div id="inicio2">
+                      
+                  </div>
+
+
+                  <br>
+                  <div class="text-center">
+                    <a class="small" href="olvida_contraseña.html">Olvidaste la contraseña?</a>
+                  </div>
+                  <div class="text-center">
+                    <a class="small" href="register.html">Crear cuenta HEKA!</a>
+                  </div>
+                  
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      
+
+    
+
+  </div>
   <!-- COTIZADOR -->
 
-  
+  <div id="sesionIniciada-mostrar-ocultar" style="display: block;">
 
 
 
@@ -45,11 +134,12 @@
       <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar">
 
         <!-- Sidebar - Brand -->
-        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/index_cotizar_envio.html">
+        
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/plataforma.html">
           <div class="sidebar-brand-icon rotate-n-15">
             <i class="fas fa-laugh-wink"></i>
           </div>
-          <div class="sidebar-brand-text mx-3">Usuario <sup>2</sup></div>
+          <div class="sidebar-brand-text mx-3" id="idUsuario"> </div>
         </a>
 
         <!-- Divider -->
@@ -57,13 +147,159 @@
 
         <!-- Nav Item - Cotizar envio -->
         <li class="nav-item">
-          <a class="nav-link" href="/index_cotizar_envio.html">
+          <a class="nav-link" href="/plataforma.html">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Cotizar envío</span></a>
         </li>
 
+        <!-- Nav Item - Cotizar envio -->
+        <!--
+        <li class="nav-item">
+          <a class="nav-link" href="/plataforma.html">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Cotizar envío</span></a>
+        </li>
+        -->
 
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Heading -->
+        <div class="sidebar-heading">
+          Guías
+        </div>
+        <!--
+        <li class="nav-item">
+          <a class="nav-link" href="/novedades2">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Historial de guías</span></a>
+        </li>
+        -->
+
+        <!-- Nav Item - Pages Collapse Menu -->
         
+        <li class="nav-item">
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Guías</span>
+          </a>
+          <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <h6 class="collapse-header">Opciones:</h6>
+                <!--
+              <form action="estadoGuiasCreadas" method="post" name="estadoGuiasCreadasForm">
+                <input type="hidden" id="codigoFirebase" name="codigoFirebase" required>
+                <input type="hidden" name="valor" value="6" required>
+                <input type="hidden" name="fecha_inicio" value="1" required>
+                <input type="hidden" name="fecha_final" value="1"  required>
+              </form>
+
+              <form action="estadoGuiasCreadas" method="post" name="estadoGuiasEnProcesoForm">
+                <input type="hidden" id="codigoFirebase1" name="codigoFirebase" required>
+                <input type="hidden" name="valor" value="1" required>
+                <input type="hidden" name="fecha_inicio" value="1" required>
+                <input type="hidden" name="fecha_final" value="1"  required>
+              </form>
+              <form action="estadoGuiasCreadas" method="post" name="estadoGuiasEntregadasForm">
+                <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
+                <input type="hidden" name="valor" value="2" required>
+                <input type="hidden" name="fecha_inicio" value="1" required>
+                <input type="hidden" name="fecha_final" value="1"  required>
+              </form>
+              
+              <form action="estadoGuiasCreadas" method="post" name="estadoGuiasPagadasForm">
+                <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
+                <input type="hidden" name="valor" value="4" required>
+              </form>
+
+              <form action="estadoGuiasCreadas" method="post" name="estadoGuiasDevolucionesForm">
+                <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
+                <input type="hidden" name="valor" value="5" required>
+              </form>
+              -->
+              
+              
+              <a class="collapse-item" href="historialGuias.html">Historial Guías</a>
+
+              <!--
+               <a class="collapse-item" href="javascript:estadoGuiasCreadasForm()">Creadas</a>
+              <a class="collapse-item" href="javascript:estadoGuiasEnProcesoForm()">En proceso de envío</a>
+              
+              <a class="collapse-item" href="javascript:estadoGuiasEntregadasForm()">Entregadas</a>
+            -->
+              <!--
+              <a class="collapse-item" href="javascript:estadoGuiasPagadasForm()">pagadas a HEKA </a>
+              <a class="collapse-item" href="javascript:estadoGuiasDevolucionesForm()">Devoluciones</a>
+              
+              <a class="collapse-item" href="/novedades2">Novedades</a>
+              -->
+              <script>
+                function estadoGuiasCreadasForm(){
+                  document.estadoGuiasCreadasForm.submit();
+                }
+                function estadoGuiasEnProcesoForm(){
+                  document.estadoGuiasEnProcesoForm.submit();
+                }
+                function estadoGuiasEntregadasForm(){
+                  document.estadoGuiasEntregadasForm.submit();
+                }
+
+                function estadoGuiasPagadasForm(){
+                  document.estadoGuiasPagadasForm.submit();
+                }
+
+                function estadoGuiasDevolucionesForm(){
+                  document.estadoGuiasDevolucionesForm.submit();
+                }
+
+              </script>
+</div>
+          </div>
+        </li>
+
+
+        <!-- relaciones de envío descargar nueva 2021-->
+        <li class="nav-item">
+          <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse3" aria-expanded="true" aria-controls="collapseTwo">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Relación de envío</span>
+          </a>
+          <div id="collapse3" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <h6 class="collapse-header">Opciones:</h6>
+             
+              
+              <a class="collapse-item" href="crearRelacion.html">Crear relación</a>
+              <a class="collapse-item" href="relacionesCreadas.html">Historial relaciones creadas</a>
+
+         
+             
+
+              
+             
+              
+              
+            </div>
+          </div>
+        </li>
+      
+     
+          <!-- Relación de envío -->
+             <!--
+          <li class="nav-item">
+            <a class="nav-link" href="/tablaRelacionEnvio.html">
+              <i class="fas fa-fw fa-tachometer-alt"></i>
+              <span>Descargar Relación</span></a>
+          </li>
+        -->
+
+
+        <!-- Nav Item - buscar por número de guía -->
+        <li class="nav-item">
+          <a class="nav-link" href="/buscarGuia.html">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Buscar # de guía</span></a>
+        </li>
 
 
 
@@ -88,8 +324,14 @@
       <!-- End of Sidebar -->
 
       <!-- Content Wrapper -->
+      
       <div id="content-wrapper" class="d-flex flex-column">
 
+        <div class="row">
+          <div  class="text-center bg-dark text-white col-sm">Area logística +57 <a class="text-white" href="https://wa.link/j8l2ku">321 336 1911</a></div>
+          <div  class="text-center bg-dark text-white col-sm">Gerencia +57 <a class="text-white" href="https://wa.link/jwryoa">312 463 8608</a></div>
+          <div class="text-center text-white bg-info col-sm">Saldo: <a class="text-white" id="saldo" href="https://wa.link/jwryoa"></a></div>
+        </div>
         <!-- Main Content -->
         <div id="content">
 
@@ -102,6 +344,7 @@
             </button>
 
             <!-- Topbar Search -->
+            <!--
             <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
               <div class="input-group">
                 <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
@@ -113,16 +356,42 @@
                 </div>
               </div>
             </form>
+          -->
+         <!-- Topbar Search -->
+            <!--
+                          <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
+              <div class="input-group">
+               <input type="text" class="form-control bg-light border-0 small" placeholder="Asesora logística: Whatsapp +57 321 3361911"
+                  aria-label="Search" aria-describedby="basic-addon2"> 
+                <div class="input-group-append">
+                  
+                  <button class="btn btn-primary" type="button">
+                    
+                    <i class="fas fa-search fa-sm"></i>
+                    
+                  
+                  </button>
+                
+                </div>
+              </div>
+            </form>
+          -->
 
             <!-- Topbar Navbar -->
             <ul class="navbar-nav ml-auto">
+              
 
               <!-- Nav Item - Search Dropdown (Visible Only XS) -->
+              <!--
               <li class="nav-item dropdown no-arrow d-sm-none">
+                
                 <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
                   <i class="fas fa-search fa-fw"></i>
                 </a>
+              -->
+              
+              
 
 
 
@@ -131,25 +400,38 @@
 
 
 
-                <div class="topbar-divider d-none d-sm-block"></div>
+                <div class="topbar-divider d-none d-sm-block">
+                  
+                </div>
+
+
+                 <!-- Nav Item - User Information -->
+              <li class="nav-item dropdown no-arrow">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false">
+                  <span class="mr-2 d-none d-lg-inline text-gray-800 small"></span><code id="idUsuario2" class="text-dark"> </code>
+                  
+                </a>
+                
 
                 <!-- Nav Item - User Information -->
               <li class="nav-item dropdown no-arrow">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
-                  <span class="mr-2 d-none d-lg-inline text-gray-600 small">Usuario</span>
-                  <img class="img-profile rounded-circle" src="https://source.unsplash.com/QAB-WJcbgJk/60x60">
+                  <span class="mr-2 d-none d-lg-inline text-gray-600 small" ></span>
+                  <img class="img-profile rounded-circle" src="img/unnamed.png">
                 </a>
                 <!-- Dropdown - User Information -->
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                  <a class="dropdown-item" href="javascript:cerrarSesion()">
+                  <a class="dropdown-item" href="perfil.html">
                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Salir
+                    Perfil de usuario
                   </a>
-                  <a class="dropdown-item" href="/novedadespup">
-                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Actualizar
-                  </a>
+                 
+                    <a class="dropdown-item" href="javascript:cerrarSesion()">
+                      <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                      Salir
+                    </a>
                   <!--
                   <a class="dropdown-item" href="#">
                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -179,18 +461,27 @@
     
      
     
-  
+    <div id="cotizar-mostrar-ocultar" style="display: block;">
 <!-- Begin Page Content -->
 <div class="container-fluid">
 
   <!-- Page Heading -->
-  <h1 class="h3 mb-4 text-gray-800">Cotizar envío PAGO CONTRAENTREGA</h1>
-  <form class="user" action="mostrarnumeros3" method="post">
+  <a style="display: none;" id="boton_cotizar"  href="/index-antiguo.html" class="btn btn-danger btn-user btn-block">
+    Clic aquí para realizar una cotización
+  </a>
+
+  
+  <div style="display: block;">
+   
+  
+ <h1 class="h3 mb-4 text-gray-800">Cotizar envío</h1>
+  <hr class="sidebar-divider"></hr>
+  <form class="user" action="mostrarnumeros2Puntoheka" method="post" name="cotizacionEnvio">
     <div class="form-group row">
       <div class="col-sm-6 mb-3 mb-sm-0">
        <h6>CIUDAD REMITENTE</h6>
-       <h6>**Elegir del menú desplegable**</h6>
-        <input   name="ciudadR" type="text" class="form-control form-control-user" id="ciudadRFirebas"  autocomplete="off"  required>
+       <h6>**Escribir ciudad y luego elegir del menú desplegable**</h6>
+        <input   name="ciudadR" type="text" class="form-control form-control-user" id="ciudadR"  autocomplete="off" required>
         <!---  PARA FIREBASE -->
      
         <div id="codigoFirebase3" style="display: none;"></div>
@@ -9391,8 +9682,8 @@
         </div>
       <div class="col-sm-6">
         <h6>CIUDAD DESTINO</h6>
-        <h6>**Elegir del menú desplegable**</h6>
-        <input type="text"  name="ciudadD" class="form-control form-control-user" id="ciudadDFirebase"  autocomplete="off" required>
+        <h6>**Escribir ciudad y luego elegir del menú desplegable**</h6>
+        <input type="text"  name="ciudadD" class="form-control form-control-user" id="ciudadD" autocomplete="off"  required>
         <datalist name="" id="ciudades" size="1">
             
           <option value="6202|20 DE JULIO(NARINO)">20 DE JULIO(NARINO)</option>
@@ -18591,46 +18882,140 @@
   <div class="form-group row">
       <div class="col-sm-6 mb-3 mb-sm-0">
         <h6>KILOS</h6>
-        <input type="number" class="form-control form-control-user" name="kilos" id="exampleInputPassword" min="1"  required>
+        <input type="number" class="form-control form-control-user" name="kilos" id="Kilos" min="1" autocomplete="off" required>
+        
       </div>
+
+    
+
+      
+
       <div class="col-sm-6">
         <h6>SEGURO MERCANCÍA</h6>
-        <input type="number" class="form-control form-control-user" name="seguro" id="exampleRepeatPassword" min="10000" max="1000000"   required>
+        <h8>**la transportadora responderá por este valor en caso de perdida**</h8>
+        <input type="number" class="form-control form-control-user" name="seguro" id="Seguro" min="10000" max="1000000"  autocomplete="off" required>
       </div>
     </div>
 
     
-    <div class="form-group row"  id="valor-recaudo">
+    <hr class="sidebar-divider"></hr>
+    <h7 class="h5 mb-2 text-gray-800">Selecciona el tipo de envío que necesitas:</h7>
+  <h1></h1>
+
+    <div class="col-sm-6" style="display: block;">
+    
+      <input type="checkbox"  name="" id="check-cobr" onchange="check_pago_contraentrega()"> Recaudo (Pago contra entrega)
+       
+        </div>
+      <h1></h1>
+
+    
+    <div class="form-group row"  id="valor-recaudo" style="display: none;">
       <div class="col-sm-6 mb-3 mb-sm-0">
         <h6>VALOR A COBRAR CLIENTE</h6>
-        <input type="number" class="form-control form-control-user" id="valor-a-recaudar" name="recaudo" id="exampleInputPassword" max="1400000" >
-      <input type="hidden" id="comision_heka" name="comision_heka" value="2">
+        <input type="number" class="form-control form-control-user" id="valor-a-recaudar" name="recaudo" id="exampleInputPassword" autocomplete="off" max="1400000" >
+     
       </div>
      
     </div>
     
-    <div class="col-sm-6" style="display: none;">
+    <input type="hidden" id="comision_heka" name="comision_heka">
+       <input type="hidden"  id="envio_tipo" name="tipo_envio">
+       
     
-    <input type="checkbox"  name="" id="check-cobr" onchange="check_sumar_envio()"> Sumar envío al recaudo
-      <input type="hidden"  id="envio_tipo" name="tipo_envio" value="0">
-      </div>
-    </br>
-      <!--
-      <div class="form-group">
-      <input type="checkbox"   id="check-cobrar-destino" onchange="check_valor_recaudo()"> Añadir cobro pago contraentrega
+      
+    <div class="col-sm-6" style="display: block;">
+      <input type="checkbox"   id="check-cobrar-remite" onchange="check_cobrar_remite()"> El envío será cobrado al remitente
         </div>
-      </br>
-      -->
+      <h1></h1>
 
+      <div class="col-sm-6" style="display: block;">
+        <input type="checkbox"   id="check-cobrar-destino" onchange="check_cobrar_destino()"> El envío será cobrado al destinatario
+          </div>
+        <h1></h1>
+        <hr class="sidebar-divider"></hr>
+      
+      
       
 
-      
+    </form>
+    <h1></h1>
+    <div id="texto_envio"></div>
+    
+    <h1></h1>
 
-
-    <button type="submit" href="login.html" class="btn btn-primary btn-user btn-block">
+    <a style="display: block;" id="boton_cotizar"  href="javascript:bloquearBoton()" class="btn btn-primary btn-user btn-block">
       Cotizar envío
-    </button>
-    <hr>
+    </a>
+
+   
+    
+    <!--
+    <a    href="/infinito" class="btn btn-primary btn-user btn-block">
+      probar
+    </a>
+  -->
+
+    <script>
+
+      function bloquearBoton(){
+        
+ if(document.getElementById('ciudadR').value!="" && document.getElementById('ciudadD').value!="" &&
+ document.getElementById('Kilos').value!="" && document.getElementById('Seguro').value!="" ){
+
+if(document.getElementById('check-cobr').checked | document.getElementById('check-cobrar-remite').checked | 
+document.getElementById('check-cobrar-destino').checked){
+////////////si envio comun o contraentrega esta activo
+  if(document.getElementById('check-cobrar-remite').checked | 
+document.getElementById('check-cobrar-destino').checked){
+  document.getElementById('boton_cotizar').style='display:none;';
+    document.cotizacionEnvio.submit();
+    document.cotizacionEnvio.reset();
+  }
+
+  ///////////////si pago contra entrega esta activo
+
+  if(document.getElementById('check-cobr').checked){
+    if(document.getElementById('valor-a-recaudar').value!=""){
+      document.getElementById('boton_cotizar').style='display:none;';
+    document.cotizacionEnvio.submit();
+    document.cotizacionEnvio.reset();
+    }else{
+      window.alert('El campo "VALOR  A COBRAR AL CLIENTE" es obligatorio');
+    }
+
+  }
+  
+  
+}else{
+  window.alert('Seleccionar un método de envío');
+}
+ 
+
+ }else{
+  window.alert('Todos los campos son obligatorios');
+ }
+   /* 
+ document.getElementById('boton_cotizar').style='display:none;';
+    document.cotizacionEnvio.submit();
+    document.cotizacionEnvio.reset();
+ */   
+
+
+  
+}
+    
+
+    </script>
+
+    
+
+    
+</div>
+
+  
+  
+    
     <!--
     <a href="index.html" class="btn btn-google btn-user btn-block">
       <i class="fab fa-google fa-fw"></i> Ver guías
@@ -18639,11 +19024,12 @@
       <i class="fab fa-facebook-f fa-fw"></i> Buscar por número de guía
     </a>
   -->
-  </form>
+ 
 
 </div>
+
         <!-- End of Main Content -->
- <!-- End of Main Content -->
+</div> <!-- End of Main Content -->
 
 </div>
 <!-------------------------------------------------------------------------------------------------------------------------->
@@ -18689,6 +19075,7 @@ aria-hidden="true">
 </div>
 
 </div>
+
 
 <script type="text/javascript">
   
@@ -46444,8 +46831,8 @@ document.addEventListener("click", function (e) {
     closeAllLists(e.target);
 });
 }
-autocomplete(document.getElementById("ciudadRFirebas"), ciudades);
-autocomplete(document.getElementById("ciudadDFirebase"), ciudades);
+autocomplete(document.getElementById("ciudadR"), ciudades);
+autocomplete(document.getElementById("ciudadD"), ciudades);
 
 
     
@@ -46462,6 +46849,7 @@ autocomplete(document.getElementById("ciudadDFirebase"), ciudades);
 
 <!-- main.js -->
 <script src="js/main.js"></script>
+
 <!-- index.js -->
 <!--
 <script src="../../index.js" ></script>
@@ -46477,6 +46865,8 @@ autocomplete(document.getElementById("ciudadDFirebase"), ciudades);
 <!-- Custom scripts for all pages-->
 <script src="js/sb-admin-2.min.js"></script>
 
+
 </body>
 
 </html>
+
