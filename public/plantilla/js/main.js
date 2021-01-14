@@ -786,16 +786,17 @@ var recaudo=document.getElementById('valor-a-recaudar');
 function cerrarSesion(){
     firebase.auth().signOut().then(function() {
         // Sign-out successful.
-        location.href("/index.html");
+        //location.href("/index.html");
       }).catch(function(error) {
         // An error happened.
       });
 }
 function mostrarPrueba(){
-
+  
     firebase.auth().onAuthStateChanged(function(user) {
 
     if(user){
+      
         /*
         usuario = firebase.database().ref('usuarios').child(user.uid);
         usuario.on('value', function(snapshot) {
@@ -901,7 +902,7 @@ if(document.getElementById('tabla-novedades')){
       var sendData = `
     
           <tr>
-          
+          <td>nombre: ${value}</td>
           <td>nombre: ${value.nombre}</td>
           <td>nombre: ${value.correo}</td>
           <td>nombre: ${value.celular}</td>
@@ -928,6 +929,50 @@ if(document.getElementById('tabla-novedades')){
           
         });
       });
+
+
+      /////////////////////Imprimir guias a eliminar//////////////////////////
+      
+      var referenciaEliminar = db.ref('administrador').child('GuiasNuevas');
+      referenciaEliminar.on('value', function (datas) {
+        
+        var data = datas.val();
+        $.each(data, function (nodo, value) {
+          $.each(value, function (nodo, datos) {
+         
+            if(datos.linkguia!="Eliminada"){
+         var sendData = `
+    
+          <tr>
+          
+          <td>nombre: ${datos.numero_guia}</td>
+          <td>nombre: ${datos.trans}</td>
+          <td>nombre: ${datos.fecha}</td>
+          <td>codigo: ${datos.nomRem}</td>
+          <td><button class="btn btn-danger" onclick="administradorEliminarGuia('${datos.uid}','${datos.nodo}')" >Eliminar</button></td>
+          
+          </tr>`;
+            if(document.getElementById('tabla-guias-eliminadas')){
+              
+              printHTML('tabla-guias-eliminadas', sendData);
+            }
+          }
+
+          });
+    
+
+         
+          
+        
+
+
+
+
+
+        
+          
+        });
+      });
       //////////////////////////////////////////////////////////////
     });
 
@@ -936,6 +981,7 @@ if(document.getElementById('tabla-novedades')){
 
 
     }else{
+      /*
       if(document.getElementById('login-mostrar-ocultar')){      
       activar('login-mostrar-ocultar');
       }
@@ -945,7 +991,11 @@ if(document.getElementById('tabla-novedades')){
             if(document.getElementById("codigo-usuario")){
             asignacion("codigo-usuario","no inicio");
           }
+          */
           }
+
+          
+
 
     
 
@@ -1158,7 +1208,7 @@ function cambiarFechaRelacion(){
   inHTML('tabla-relacion','');
   }
   llenarTablaRelacionEnvio();
-  }
+}
 
 /////restablecer contraseña 
 function restartContrasena(){
@@ -1510,7 +1560,7 @@ function tableRelacion(contar2,uid,nodo,fecha,nomDes,fletetotal,costoManejo,valo
      
   </tr>`
       ;
-  }
+}
 
 /*
 function tableRelacion(codTrans,fecha,numeroRelacion,ruta) {
@@ -1857,15 +1907,7 @@ function cargarRelacionCreadas(){
 
 
     }else{
-      if(document.getElementById('login-mostrar-ocultar')){      
-      activar('login-mostrar-ocultar');
-      }
-      if(document.getElementById('sesionIniciada-mostrar-ocultar')){
-            desactivar('sesionIniciada-mostrar-ocultar');
-      }  
-            if(document.getElementById("codigo-usuario")){
-            asignacion("codigo-usuario","no inicio");
-          }
+      
           }
 
     
@@ -1887,15 +1929,7 @@ function cargarRelacionNoCreadas(){
 
 
     }else{
-      if(document.getElementById('login-mostrar-ocultar')){      
-      activar('login-mostrar-ocultar');
-      }
-      if(document.getElementById('sesionIniciada-mostrar-ocultar')){
-            desactivar('sesionIniciada-mostrar-ocultar');
-      }  
-            if(document.getElementById("codigo-usuario")){
-            asignacion("codigo-usuario","no inicio");
-          }
+     
           }
 
     
@@ -1916,15 +1950,7 @@ function cargarGuiasCreadas(){
 
 
     }else{
-      if(document.getElementById('login-mostrar-ocultar')){      
-      activar('login-mostrar-ocultar');
-      }
-      if(document.getElementById('sesionIniciada-mostrar-ocultar')){
-            desactivar('sesionIniciada-mostrar-ocultar');
-      }  
-            if(document.getElementById("codigo-usuario")){
-            asignacion("codigo-usuario","no inicio");
-          }
+      
           }
 
     
@@ -2021,15 +2047,7 @@ function historialGuias(){
 
 
     }else{
-      if(document.getElementById('login-mostrar-ocultar')){      
-      activar('login-mostrar-ocultar');
-      }
-      if(document.getElementById('sesionIniciada-mostrar-ocultar')){
-            desactivar('sesionIniciada-mostrar-ocultar');
-      }  
-            if(document.getElementById("codigo-usuario")){
-            asignacion("codigo-usuario","no inicio");
-          }
+      
           }
 
     
@@ -2148,15 +2166,7 @@ function historialRelacionesNoCreadas(){
 
 
   }else{
-    if(document.getElementById('login-mostrar-ocultar')){      
-      activar('login-mostrar-ocultar');
-      }
-      if(document.getElementById('sesionIniciada-mostrar-ocultar')){
-            desactivar('sesionIniciada-mostrar-ocultar');
-      }  
-            if(document.getElementById("codigo-usuario")){
-            asignacion("codigo-usuario","no inicio");
-          }
+    
   }
     
     
@@ -2258,6 +2268,563 @@ function borrarGuia(uid,nodo,fecha,linkguia,nomRem,numero_guia,trans){
 
 }
 
+function administradorEliminarGuia(uid,nodo){
+  var confirmar=confirm('¿Estás seguro de eliminar la guía?');
+  if(confirmar){
+  db.ref('administrador').child('GuiasNuevas').child(uid).child(nodo).update({
+  
+  linkguia: "Eliminada",
+ 
+}, (error) =>{
+  if(error){
+    window.alert('Error al guardar consolidado');
+  }else{
+    location.reload();
+
+  }
+});
+
+
+
+  }else{
+
+  }
+
+}
+
+
+
+////////////////verificar usuario comun////////////7
+function verificarUsuarioComun(){
+if(document.getElementById('verificarUsuarioComun')){
+  firebase.auth().onAuthStateChanged(function(user) {
+
+    if(user){
+      
+      
+
+       
+
+
+
+    }else{
+      window.alert('La sesión ha expirado, por favor inicia sesión nuevamente');
+    window.location.href="/"; 
+    
+    }
+
+    
+
+    });
+  }
+}
+verificarUsuarioComun();
+
+function verificarUsuarioComunInicioSesion(){
+  if(document.getElementById('verificarUsuarioComunInicioSesion')){
+    firebase.auth().onAuthStateChanged(function(user) {
+  
+      if(user){
+       
+        window.location.href="plataforma.html"; 
+  
+         
+  
+  
+  
+      }else{
+        
+     
+      
+      }
+  
+      
+  
+      });
+    }
+  }
+  verificarUsuarioComunInicioSesion();
+
+  /////////////////////////cargar datos de usuario comun/////////////
+
+  function cargarDatosUsuario(){
+    firebase.auth().onAuthStateChanged(function(user) {
+
+      if(user){
+        
+        var reference = db.ref('usuarios').child(user.uid);
+  
+        reference.on('value', function (datas) {
+         
+          if(document.getElementById('CPNnombres')){
+            document.getElementById('CPNnombres').value=datas.val().nombres;
+          }
+          if(document.getElementById('CPNapellidos')){
+            document.getElementById('CPNapellidos').value=datas.val().apellidos;
+          }
+          if(document.getElementById('CPNtipo_documento')){
+            document.getElementById('CPNtipo_documento').value=datas.val().tipo_documento;
+          }
+          if(document.getElementById('CPNnumero_documento')){
+            document.getElementById('CPNnumero_documento').value=datas.val().numero_documento;
+          }
+          if(document.getElementById('CPNtelefono')){
+            document.getElementById('CPNtelefono').value=datas.val().celular;
+          }
+          if(document.getElementById('CPNcelular')){
+            document.getElementById('CPNcelular').value=datas.val().celular2;
+          }
+          if(document.getElementById('CPNciudad')){
+            document.getElementById('CPNciudad').value=datas.val().ciudad;
+          }
+          if(document.getElementById('CPNdireccion')){
+            document.getElementById('CPNdireccion').value=datas.val().direccion;
+          }
+          if(document.getElementById('CPNbarrio')){
+            document.getElementById('CPNbarrio').value=datas.val().barrio;
+          }
+          if(document.getElementById('CPNnombre_empresa')){
+            document.getElementById('CPNnombre_empresa').value=datas.val().nombre;
+          }
+          if(document.getElementById('CPNcorreo')){
+            document.getElementById('CPNcorreo').value=datas.val().correo;
+          }
+          ////datos bancarios
+          if(document.getElementById('CPNbanco') && datas.val().banco!=""){
+            document.getElementById('CPNbanco').value=datas.val().banco;
+          }
+          if(document.getElementById('CPNnombre_representante') && datas.val().nombre_banco!=""){
+            document.getElementById('CPNnombre_representante').value=datas.val().nombre_banco;
+          }
+          if(document.getElementById('CPNtipo_de_cuenta') && datas.val().tipo_de_cuenta!=""){
+            document.getElementById('CPNtipo_de_cuenta').value=datas.val().tipo_de_cuenta;
+          }
+          if(document.getElementById('CPNnumero_cuenta') && datas.val().numero_cuenta!=""){
+            document.getElementById('CPNnumero_cuenta').value=datas.val().numero_cuenta;
+          }
+          if(document.getElementById('CPNconfirmar_numero_cuenta') && datas.val().numero_cuenta!=""){
+            document.getElementById('CPNconfirmar_numero_cuenta').value=datas.val().numero_cuenta;
+          }
+          if(document.getElementById('CPNtipo_documento_banco') && datas.val().tipo_documento_banco!=""){
+            document.getElementById('CPNtipo_documento_banco').value=datas.val().tipo_documento_banco;
+          }
+          if(document.getElementById('CPNnumero_identificacion_banco') && datas.val().numero_iden_banco!=""){
+            document.getElementById('CPNnumero_identificacion_banco').value=datas.val().numero_iden_banco;
+          }
+          if(document.getElementById('CPNconfirmar_numero_identificacion_banco') && datas.val().numero_iden_banco!=""){
+            document.getElementById('CPNconfirmar_numero_identificacion_banco').value=datas.val().numero_iden_banco;
+          }
+
+          ///desactivar texto "cargando datos"
+          if(document.getElementById('texto-cargar-datos')){
+            document.getElementById('texto-cargar-datos').innerHTML=``;
+          }
+          ////activar panel de datos de usuario
+          if(document.getElementById('contenedor-datos-actualizar')){
+            document.getElementById('contenedor-datos-actualizar').style.display='block';
+          }
+          
+          
+
+          
+         
+        });
+  
+         
+  
+  
+  
+      }else{
+        //window.alert('La sesión ha expirado, por favor inicia sesión nuevamente');
+      //window.location.href="/"; 
+      
+      }
+  
+      
+  
+      });
+  }
+  cargarDatosUsuario();
+
+  function actualizarCuenta(){
+    
+    var now;
+  let date = new Date()
+  let day = date.getDate()
+  let month = date.getMonth() + 1
+  let year = date.getFullYear()
+  if (day < 10) {
+    day = `0${day}`;
+  }
+  if (month < 10) {
+
+    now = `${year}-0${month}-${day}`;
+  } else {
+    now = `${year}-${month}-${day}`;
+  }
+    //datos de registro 
+     var CPNnombres=value('CPNnombres');
+     var CPNapellidos=value('CPNapellidos');
+     var CPNtipo_documento=value('CPNtipo_documento');
+     var CPNnumero_documento=value('CPNnumero_documento');
+     var CPNtelefono=value('CPNtelefono');
+     var CPNcelular=value('CPNcelular');
+     var CPNciudad=value('CPNciudad');
+     var CPNdireccion=value('CPNdireccion');
+     var CPNbarrio=value('CPNbarrio');
+     var CPNnombre_empresa=value('CPNnombre_empresa');
+     var CPNcorreo=value('CPNcorreo');
+     //var CPNcorreo=validar_email(CPNcorreo);
+    // var CPNcontraseña=value('CPNcontraseña');
+     //var CPNrepetir_contraseña=value('CPNrepetir_contraseña');
+   
+     ///div datos bancarios
+     var mostrar_ocultar_registro_bancario= document.getElementById('mostrar-ocultar-registro-bancario').style.display;
+     //datos bancarios
+     var CPNbanco=value('CPNbanco');
+     var CPNnombre_representante=value('CPNnombre_representante');
+     var CPNtipo_de_cuenta=value('CPNtipo_de_cuenta');
+     var CPNnumero_cuenta=value('CPNnumero_cuenta');
+     var CPNconfirmar_numero_cuenta=value('CPNconfirmar_numero_cuenta');
+     var CPNtipo_documento_banco=value('CPNtipo_documento_banco');
+     var CPNnumero_identificacion_banco=value('CPNnumero_identificacion_banco');
+     var CPNconfirmar_numero_identificacion_banco=value('CPNconfirmar_numero_identificacion_banco');
+   
+     //retornar si check está activado o desactivado
+     var CPNcheck=document.getElementById('CPNdiv_terminos_condiciones').style.display;
+     
+   
+   
+   
+     
+     
+     
+     if(CPNnombres=="" | CPNapellidos==""  | CPNnumero_documento=="" | CPNtelefono=="" | CPNcelular=="" | CPNciudad=="" | CPNdireccion=="" | CPNbarrio=="" |
+     CPNnombre_empresa=="" | CPNcorreo==""){
+       //si todos los datos estan vacios 
+       inHTML('error_crear_cuenta','<h6 class="text-danger">Error: Ningún campo debe estar vacío</h6>');
+       
+       
+       
+     }else{
+       //si todos los datos estan llenados
+   
+       //si la contraseña coincide
+       
+   
+   
+       // si el check de datos bancarios esta activado
+       if(mostrar_ocultar_registro_bancario=="block"){
+         
+         //si todos los datos bancarios estan en blanco
+         if(CPNbanco=="" | CPNnombre_representante=="" | CPNtipo_de_cuenta=="" | CPNnumero_cuenta=="" | CPNconfirmar_numero_cuenta=="" |
+         CPNtipo_documento_banco=="" | CPNnumero_identificacion_banco=="" | CPNconfirmar_numero_identificacion_banco==""){
+     
+           inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Ningún dato bancario puede estar vacio</h6>`);
+         
+        //si los datos bancarios estan llenos   
+         }else{
+           //si numero de cuenta coincide
+           if(CPNnumero_cuenta==CPNconfirmar_numero_cuenta){
+             //si numero de identificacion coindice
+             if(CPNnumero_identificacion_banco==CPNconfirmar_numero_identificacion_banco){
+               
+               
+               //si check de terminos y condiciones está activo
+   
+               if(CPNcheck=="block"){
+               
+               //COMPROBACIONES CORRECTAS CON DATOS BANCARIOS
+               /*
+                 inHTML('error_crear_cuenta',`<h6 class="text-danger">${"CON DATOS BANCARIOS: "+CPNbanco+"|"+CPNnombre_representante+"|"+CPNtipo_de_cuenta+"|"+CPNnumero_cuenta+"|"+CPNconfirmar_numero_cuenta+"|"+
+           CPNtipo_documento_banco+"|"+CPNnumero_identificacion_banco+"|"+CPNconfirmar_numero_identificacion_banco}</h6>`);
+           */
+   
+                 
+     //Registrar usuario firebase con cuenta bancaria////////////////////////////////////////////////////////////////////
+    // window.alert('Datos actualizados con cuenta bancaria');
+     firebase.auth().onAuthStateChanged(function(user) {
+  
+      if(user){
+       
+        
+        firebase.database().ref('usuarios').child(user.uid).update({
+          nombres: CPNnombres,
+          apellidos: CPNapellidos,
+          tipo_documento: CPNtipo_documento,
+          numero_documento: CPNnumero_documento,
+          
+          celular: CPNtelefono,
+          
+          celular2:CPNcelular,
+          ciudad: CPNciudad,
+          direccion: CPNdireccion,
+          barrio: CPNbarrio,
+          
+          nombre: CPNnombre_empresa,
+          correo: CPNcorreo,
+          //con: CPNcontraseña,
+          estado: "modificada",
+          fechaModificacion: now,
+
+          //////datos bancarios
+          banco: CPNbanco,
+          nombre_banco: CPNnombre_representante,
+          tipo_de_cuenta: CPNtipo_de_cuenta,
+          numero_cuenta: CPNnumero_cuenta,
+          tipo_documento_banco: CPNtipo_documento_banco,
+          numero_iden_banco: CPNnumero_identificacion_banco
+
+          
+          
+          
+        }).then(function(data){
+        
+
+
+          firebase.database().ref('administrador').child('usuarios').child(user.uid).update({
+            nombres: CPNnombres,
+            apellidos: CPNapellidos,
+            tipo_documento: CPNtipo_documento,
+            numero_documento: CPNnumero_documento,
+            
+            celular: CPNtelefono,
+            
+            celular2:CPNcelular,
+            ciudad: CPNciudad,
+            direccion: CPNdireccion,
+            barrio: CPNbarrio,
+            
+            nombre: CPNnombre_empresa,
+            correo: CPNcorreo,
+            estado: "modificada",
+          fechaModificacion: now,
+            //con: CPNcontraseña,
+            
+  
+            //////datos bancarios
+            banco: CPNbanco,
+            nombre_banco: CPNnombre_representante,
+            tipo_de_cuenta: CPNtipo_de_cuenta,
+            numero_cuenta: CPNnumero_cuenta,
+            tipo_documento_banco: CPNtipo_documento_banco,
+            numero_iden_banco: CPNnumero_identificacion_banco
+  
+            
+            
+            
+          }).then(function(data){
+            inHTML('error_crear_cuenta',``);
+            window.alert('Datos actualizados correctamente');
+          }).catch(function(error){
+            window.alert('Error al actualizar los datos');
+          });
+
+
+
+
+        }).catch(function(error){
+          window.alert('Error al actualizar los datos');
+        });
+         
+  
+  
+  
+      }else{
+        
+     
+      
+      }
+  
+      
+  
+      });
+    
+       
+  
+           
+   
+   
+             
+   
+           
+         
+   
+      
+      
+     
+           
+                 //si check de terminos y condiciones está desactivado
+         }else{
+           inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Debes aceptar los términos y condiciones para seguir</h6>`);
+               }
+               
+           
+           //si numero de identificacion no coincide
+             }else{
+               inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Los números de identificación no coinciden</h6>`);
+   
+             }
+           //si numero de cuenta no coincide
+           }else{
+             inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Los números de cuenta no coinciden</h6>`);
+   
+           }
+           
+           
+     
+         }
+         
+         //si el check de datos bancarios está desactivado
+       }else{
+         
+         //si check de terminos y condiciones está activado
+         if(CPNcheck=="block"){
+   
+           //COMPROBACIONES CORRECTAS SIN DATOS BANCARIOS
+         /*
+           inHTML('error_crear_cuenta',`<h6 class="text-danger">${"SIN DATOS BANCARIOS: "+CPNnombres+"|"+CPNapellidos+"|"
+         +CPNtipo_documento+"|"+CPNnumero_documento+"|"+CPNtelefono+"|"+CPNcelular+"|"+CPNciudad+"|"+CPNdireccion+"|"+CPNbarrio+"|"
+         +CPNnombre_empresa+"|"+CPNcorreo}</h6>`);
+         */
+   
+         
+     //Registrar usuario firebase sin cuenta bancaria////////////////////////////////////////////////////////////////////
+     //window.alert('datos actualizados sin cuenta bancaria');
+     
+       
+   
+         firebase.auth().onAuthStateChanged(function(user) {
+   
+           if(user){
+             
+    
+     
+   
+     firebase.database().ref('usuarios').child(user.uid).update({
+               nombres: CPNnombres,
+               apellidos: CPNapellidos,
+               tipo_documento: CPNtipo_documento,
+               numero_documento: CPNnumero_documento,
+               
+               celular: CPNtelefono,
+               
+               celular2:CPNcelular,
+               ciudad: CPNciudad,
+               direccion: CPNdireccion,
+               barrio: CPNbarrio,
+               
+               nombre: CPNnombre_empresa,
+               correo: CPNcorreo,
+               estado: "modificada",
+          fechaModificacion: now,
+              
+               codigo: "",
+   
+               //////datos bancarios
+               //banco: "",
+               //nombre_banco: "",
+               //tipo_de_cuenta: "",
+               //numero_cuenta: "",
+               //tipo_documento_banco: "",
+               //numero_iden_banco: "",
+   
+               
+               
+               
+             }).then(function(data){
+               
+
+              firebase.database().ref('administrador').child('usuarios').child(user.uid).update({
+                nombres: CPNnombres,
+                apellidos: CPNapellidos,
+                tipo_documento: CPNtipo_documento,
+                numero_documento: CPNnumero_documento,
+                
+                celular: CPNtelefono,
+                
+                celular2:CPNcelular,
+                ciudad: CPNciudad,
+                direccion: CPNdireccion,
+                barrio: CPNbarrio,
+                
+                nombre: CPNnombre_empresa,
+                correo: CPNcorreo,
+                estado: "modificada",
+          fechaModificacion: now,
+                codigo: "",
+    
+                //////datos bancarios
+                //banco: "",
+                //nombre_banco: "",
+                //tipo_de_cuenta: "",
+                //numero_cuenta: "",
+                //tipo_documento_banco: "",
+                //numero_iden_banco: "",
+    
+                
+                
+                
+              }).then(function(data){
+                inHTML('error_crear_cuenta',``);
+                window.alert('datos actualizados correctamente');
+              }).catch(function(error){
+               window.alert('Error al actualizar los datos');
+              });
+
+
+
+             }).catch(function(error){
+              window.alert('Error al actualizar los datos');
+             });
+           
+   
+   
+             
+   
+           }else{
+   
+           }
+         })
+   
+      
+       
+       
+       
+     
+   
+   
+       //si check de terminos y condiciones NO está activado  
+       }else{
+         inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Debes aceptar los términos y condiciones para poder seguir</h6>`);
+   
+         }
+   
+   
+       }
+   //si la contraseña no coincide
+     
+       
+   
+     }
+   
+     
+     
+     
+     
+     
+     
+     
+     
+     
+   
+     
+   
+   
+   
+   
+   
+   }
 
 
 

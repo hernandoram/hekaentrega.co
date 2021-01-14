@@ -24,9 +24,6 @@
 </head>
 
 <body class="bg-gradient-primary">
-  <!--verificar usuario comun-->
-  <div id="verificarUsuarioComun"></div>
-
   <!-- LOGIN -->
   <div id="login-mostrar-ocultar" style="display: none;" class="container">
 
@@ -133,8 +130,8 @@
 
         <!-- Divider -->
         <hr class="sidebar-divider my-0">
-         <!-- Nav Item - Cotizar envio -->
-         <li class="nav-item">
+        <!-- Nav Item - Cotizar envio -->
+        <li class="nav-item">
           <a class="nav-link" href="/plataforma.html">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Cotizar envío</span></a>
@@ -194,21 +191,17 @@
                 <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="2" required>
               </form>
-              
               <a class="collapse-item" href="historialGuias.html">Historial Guías</a>
 
               <!--
-               <a class="collapse-item" href="javascript:estadoGuiasCreadasForm()">Creadas</a>
+              <a class="collapse-item" href="javascript:estadoGuiasCreadasForm()">Creadas</a>
               <a class="collapse-item" href="javascript:estadoGuiasEnProcesoForm()">En proceso de envío</a>
               
               <a class="collapse-item" href="javascript:estadoGuiasEntregadasForm()">Entregadas</a>
-            -->
-              <!--
-              <a class="collapse-item" href="javascript:estadoGuiasPagadasForm()">pagadas a HEKA </a>
-              <a class="collapse-item" href="javascript:estadoGuiasDevolucionesForm()">Devoluciones</a>
               
               <a class="collapse-item" href="/novedades2">Novedades</a>
-              -->
+            -->
+
               <script>
                 function estadoGuiasCreadasForm(){
                   document.estadoGuiasCreadasForm.submit();
@@ -227,6 +220,7 @@
             </div>
           </div>
         </li>
+
 
          <!-- relaciones de envío descargar nueva 2021-->
          <li class="nav-item">
@@ -293,6 +287,7 @@
           <div  class="text-center bg-dark text-white col-sm">Gerencia +57 <a class="text-white" href="https://wa.link/jwryoa">312 463 8608</a></div>
           <div class="text-center text-white bg-info col-sm">Saldo: <a class="text-white" id="saldo" href="https://wa.link/jwryoa"></a></div>
         </div>
+
         <!-- Main Content -->
         <div id="content">
 
@@ -323,7 +318,7 @@
             <ul class="navbar-nav ml-auto">
 
               <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-             <!--
+              <!--
               <li class="nav-item dropdown no-arrow d-sm-none">
                 <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
@@ -339,31 +334,35 @@
 
 
                 <div class="topbar-divider d-none d-sm-block"></div>
-<!-- Nav Item - User Information -->
-<li class="nav-item dropdown no-arrow">
-  <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
-    aria-haspopup="true" aria-expanded="false">
-    <span class="mr-2 d-none d-lg-inline text-gray-800 small"></span><code id="idUsuario2" class="text-dark"> </code>
-    
-  </a>
+
+              
+
                 <!-- Nav Item - User Information -->
               <li class="nav-item dropdown no-arrow">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
-                  <span class="mr-2 d-none d-lg-inline text-gray-600 small"></span>
+                  <span class="mr-2 d-none d-lg-inline text-gray-800 small"></span><code id="idUsuario2" class="text-dark"> </code>
+                  
+                </a>
+
+                <!-- Nav Item - User Information -->
+              <li class="nav-item dropdown no-arrow">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false">
+                  <span class="mr-2 d-none d-lg-inline text-gray-600 small" id="idUsuario2"></span>
                   <img class="img-profile rounded-circle" src="img/unnamed.png">
                 </a>
-               <!-- Dropdown - User Information -->
-               <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                <a class="dropdown-item" href="perfil.html">
-                  <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                  Perfil de usuario
-                </a>
-               
-                  <a class="dropdown-item" href="javascript:cerrarSesion()">
+                <!-- Dropdown - User Information -->
+                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                  <a class="dropdown-item" href="perfil.html">
                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Salir
+                    Perfil de usuario
                   </a>
+                 
+                    <a class="dropdown-item" href="javascript:cerrarSesion()">
+                      <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                      Salir
+                    </a>
                   <!--
                   <a class="dropdown-item" href="#">
                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -404,12 +403,110 @@
       <!-- DataTales Example -->
       <div class="card shadow mb-4">
         <div class="card-header py-3">
-          <h6 class="m-0 font-weight-bold text-primary">Generar consolidado de envíos</h6>
-          <br>
           
-         <!--Formulario de busqueda guias-->
+          <!--          <div class="alert alert-success" role="alert">
+            <h4 class="alert-heading">¡PARA TENER EN CUENTA!</h4>
+            <p>Desde el día 12/01/2021 la plataforma presentó una actualización, por lo tanto para usuarios que hayan
+              generado guías antes de la fecha dar clic en el siguiente enlace <a href="" data-toggle="modal" data-target="#exampleModalCenter" class="m-0 text-left font-weight-bold text-info">Clic aquí para visualizar guías antiguas</a>
+             </p>
+            <hr>
+            <p class="mb-0">Las guías generadas después de la fecha se visualizarán desde el siguiente módulo.</p>
+          </div>
+        -->
+
          
-         <div class="form-group row">
+
+          <!-- Button trigger modal -->
+
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLongTitle">Visualizar guías</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        
+        <div class="form-group row">
+          <div class="form-group row">
+            <form action="estadoGuiasCreadas" method="POST">
+            <div class="col-sm-6 mb-3 mb-sm-0">
+              <h6>Fecha inicio</h6>
+              <input type="date" class="form-control form-control-user"  id="fecha_inicio2" name="fecha_inicio"  required>
+            </div>
+            <div class="col-sm-6">
+              <h6>Fecha final</h6>
+              <input type="date" class="form-control form-control-user"  id="fecha_final2" name="fecha_final"   required>
+            </div>
+
+            <div class="col-sm-6">
+              <h6>Elegir una opción</h6>
+              <select name="valor" id="relacion_tipo_envio">
+                <option value="6">Guías generadas</option>
+                <option value="1">Guías en proceso</option>
+                <option value="2">Guías entregadas</option>
+              </select>
+            </div>
+
+            <input type="hidden" class="form-control form-control-user" name="codigoFirebase" id="CodigoFirebaseGuiasAntiguas"    required>
+         
+            
+            
+           
+          </div>
+        
+          <button  type="submit" class="btn btn-primary btn-user btn-block">
+            Buscar
+          </button>
+        </form>
+          
+        
+      </div>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <!--
+        <button type="button" class="btn btn-primary">Save changes</button>
+      -->
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+         
+          <h1></h1>
+          <hr class="sidebar-divider"></hr>
+          <!--
+          <h6 class="m-0 font-weight-bold text-primary">Historial de guías</h6>
+          <br>
+-->
+         <!--Formulario de busqueda guias-->
+         <!--         <div class="form-group row">
             <div class="form-group row">
               <div class="col-sm-6 mb-3 mb-sm-0">
                 <h6>Fecha inicio</h6>
@@ -419,68 +516,44 @@
                 <h6>Fecha final</h6>
                 <input type="date" class="form-control form-control-user"  id="fecha_final"    required>
               </div>
-              
            
               
-              </div>
+              
              
             </div>
-            <div class="form-group row">
-            <div class="form-group row">
-            <div class="col-sm-6 mb-3 mb-sm-0">
-              <h6>Transportadora</h6>
-              <select name="transportadora" id="relacion_transportadora">
-                <option value="ENVIA">ENVIA</option>
-                <option value="TCC SA">TCC</option>
-                
-              </select>
-            </div>
-
-            <div class="col-sm-6 mb-3 mb-sm-0">
-              <h6>Tipo de envío</h6>
-              <select name="tipo_envio" id="relacion_tipo_envio">
-                <option value="RECAUDO">RECAUDO/CONTRAENTREGA</option>
-                <option value="COMUN">COMÚN</option>
-              </select>
-            </div>
-         </div>
-
           
-            <button  onclick="historialRelacionesNoCreadas()" class="btn btn-primary btn-user btn-block">
+            <button  onclick="cambiarFecha()" class="btn btn-primary btn-user btn-block">
               Buscar
             </button>
-         
-        
-        </div>
-        <br>
-        <br>
-        
+            
           
         </div>
-        <div class="card-body" style="display: none;" id="nohaydatosRelacionesNoCreadas">
-          <h6 class="text-danger">SIN DATOS EXISTENTES PARA TU BÚSQUEDA</h6>
-          </div>
-        <div style="display: none;" id="tabla-guias-relacion" class="card-body">
-         
-          <div  class="table-responsive">
+      -->
+
+
+        <br>
+        
+      
+        </div>
+       
+        <div class="card-body" style="display: block;" id="tabla-historial-guias-eliminadas">
+          <div class="table-responsive">
             
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-              <form action="crearRelacionFirebase">
-                <input type="hidden" id="guiaRelacion">
-                <input type="hidden" id="nodoRelacion">
-                <input type="hidden" id="uidParaRelacion">
-                <input type="hidden" id="codigoTransportadora">
-              </form>
-              <h6>Selecciona las guías que deseas crear consolidado de envíos</h6>
-                <button class="btn btn-success" onclick="crearConsolidado()">Crear consolidado</button>
+            <table  class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
               
-              
-              <h1></h1>
-              <thead>
+          
+              <!--
+              <a class="btn btn-success" href="https://wa.link/v5ttbo">Descargar relación todos mis envíos creados</a>
+          -->
+          <!--
+          <a class="btn btn-success" href="/crearRelacion.html">Crear consolidado de envíos</a>
+        -->
+          <h1></h1>   
+          <thead>
                 <tr>
-                  <th>#</th>
-                  <th>Transp.</th>
                   
+                  <th>Transp.</th>
+                  <th>Descargar</th>
                   <!--
                   <th>Ver estado</th>
                   -->
@@ -488,24 +561,26 @@
                   
                   <th>Fecha generación</th>
                   
-                  <th>Destinatario</th>
+                  <th>Remitente</th>
 
                   
                   <th>Ciudad dest.</th>
                   <th>Nombre dest.</th>
                   <th>Tipo envío</th>
                   <th>Recaudo</th>
-                 
-                
+                  <th>Costo envío</th>
+                  <th>Estado</th>
+                  <th>Eliminar</th>
+                  
                 
                  
                 </tr>
               </thead>
               <tfoot>
                 <tr>
-                  <th>#</th>
-                  <th>Transp.</th>
                   
+                  <th>Transp.</th>
+                  <th>Descargar</th>
                   <!--
                   <th>Ver estado</th>
                   -->
@@ -513,21 +588,24 @@
                   
                   <th>Fecha generación</th>
                   
-                  <th>Destinatario</th>
+                  <th>Remitente</th>
 
                   
                   <th>Ciudad dest.</th>
                   <th>Nombre dest.</th>
                   <th>Tipo envío</th>
                   <th>Recaudo</th>
-                  
+                  <th>Costo envío</th>
+                  <th>Estado</th>
+                  <th>Eliminar</th>
                   
                 </tr>
               </tfoot>
-              <tbody id="tabla-relacion">
+              <tbody id="tabla-guias-eliminadas">
     
       
       </tbody>
+      
       </table>
     </div>
     </div>

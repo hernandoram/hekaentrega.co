@@ -30,421 +30,100 @@
 </head>
 
 <body class="bg-gradient-primary">
-  <!--verificar usuario comun-->
-  <div id="verificarUsuarioComun"></div>
-
-  <!-- BUSCAR GUIA -->
-
-
+  <!--Verificar usuario comun-->
+  <div id="verificarUsuarioComunInicioSesion" ></div>
+  <!-- LOGIN -->
+  <div id="login-mostrar" style="display: block;" class="container">
 
 
 
-    <!-- Page Wrapper -->
-    <div id="wrapper">
 
-      <!-- Sidebar -->
-      <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar">
+    <!-- Outer Row -->
+    
 
-        <!-- Sidebar - Brand -->
-        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/plataforma.html">
-          <div class="sidebar-brand-icon rotate-n-15">
-            <i class="fas fa-laugh-wink"></i>
-          </div>
-          <div class="sidebar-brand-text mx-3" id="idUsuario"></div>
-        </a>
 
-        <!-- Divider -->
-        <hr class="sidebar-divider my-0">
 
-        <!-- Nav Item - Cotizar envio -->
-        <li class="nav-item">
-          <a class="nav-link" href="/plataforma.html">
-            <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Cotizar envío</span></a>
-        </li>
-
-        <!-- Nav Item - Cotizar envio -->
-        <!--
-        <li class="nav-item">
-          <a class="nav-link" href="/plataforma.html">
-            <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Cotizar envío</span></a>
-        </li>
-        -->
-
-        <!-- Divider -->
-        <hr class="sidebar-divider">
-
-        <!-- Heading -->
-        <div class="sidebar-heading">
-          Guías
-        </div>
-        <!--
-        <li class="nav-item">
-          <a class="nav-link" href="/novedades2">
-            <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Historial de guías</span></a>
-        </li>
-        -->
-
-       <!-- Nav Item - Pages Collapse Menu -->
-        
-       <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-          <i class="fas fa-fw fa-cog"></i>
-          <span>Guías</span>
-        </a>
-        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Opciones:</h6>
-              <!--
-            <form action="estadoGuiasCreadas" method="post" name="estadoGuiasCreadasForm">
-              <input type="hidden" id="codigoFirebase" name="codigoFirebase" required>
-              <input type="hidden" name="valor" value="6" required>
-              <input type="hidden" name="fecha_inicio" value="1" required>
-              <input type="hidden" name="fecha_final" value="1"  required>
-            </form>
-
-            <form action="estadoGuiasCreadas" method="post" name="estadoGuiasEnProcesoForm">
-              <input type="hidden" id="codigoFirebase1" name="codigoFirebase" required>
-              <input type="hidden" name="valor" value="1" required>
-              <input type="hidden" name="fecha_inicio" value="1" required>
-              <input type="hidden" name="fecha_final" value="1"  required>
-            </form>
-            <form action="estadoGuiasCreadas" method="post" name="estadoGuiasEntregadasForm">
-              <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
-              <input type="hidden" name="valor" value="2" required>
-              <input type="hidden" name="fecha_inicio" value="1" required>
-              <input type="hidden" name="fecha_final" value="1"  required>
-            </form>
+        <div class="card o-hidden border-0 shadow-lg my-5">
+          <div class="card-body p-0">
+            <!-- Nested Row within Card Body -->
             
-            <form action="estadoGuiasCreadas" method="post" name="estadoGuiasPagadasForm">
-              <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
-              <input type="hidden" name="valor" value="4" required>
-            </form>
-
-            <form action="estadoGuiasCreadas" method="post" name="estadoGuiasDevolucionesForm">
-              <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
-              <input type="hidden" name="valor" value="5" required>
-            </form>
-            -->
-            
-            
-            <a class="collapse-item" href="historialGuias.html">Historial Guías</a>
-
-            <!--
-             <a class="collapse-item" href="javascript:estadoGuiasCreadasForm()">Creadas</a>
-            <a class="collapse-item" href="javascript:estadoGuiasEnProcesoForm()">En proceso de envío</a>
-            
-            <a class="collapse-item" href="javascript:estadoGuiasEntregadasForm()">Entregadas</a>
-          -->
-            <!--
-            <a class="collapse-item" href="javascript:estadoGuiasPagadasForm()">pagadas a HEKA </a>
-            <a class="collapse-item" href="javascript:estadoGuiasDevolucionesForm()">Devoluciones</a>
-            
-            <a class="collapse-item" href="/novedades2">Novedades</a>
-            -->
-            <script>
-              function estadoGuiasCreadasForm(){
-                document.estadoGuiasCreadasForm.submit();
-              }
-              function estadoGuiasEnProcesoForm(){
-                document.estadoGuiasEnProcesoForm.submit();
-              }
-              function estadoGuiasEntregadasForm(){
-                document.estadoGuiasEntregadasForm.submit();
-              }
-
-              function estadoGuiasPagadasForm(){
-                document.estadoGuiasPagadasForm.submit();
-              }
-
-              function estadoGuiasDevolucionesForm(){
-                document.estadoGuiasDevolucionesForm.submit();
-              }
-
-            </script>
-</div>
-        </div>
-      </li>
+            <div class="row">
+              <a href="/" class="btn btn-danger btn-user btn-block">
+                Regresar
+              </a>
+              <div class="col-lg-6 d-none d-lg-block"></div>
+              <div class="col-lg-6">
+                <div class="p-5">
+                  <div class="text-center">
+                    <img src="img/heka entrega.png" width="250" height="250" alt="">
+                    <h1 class="h4 text-gray-900 mb-4">Bienvenid@ a HEKA!</h1>
+                  </div>
 
 
-      <!-- relaciones de envío descargar nueva 2021-->
-      <li class="nav-item">
-        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse3" aria-expanded="true" aria-controls="collapseTwo">
-          <i class="fas fa-fw fa-cog"></i>
-          <span>Relación de envío</span>
-        </a>
-        <div id="collapse3" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
-          <div class="bg-white py-2 collapse-inner rounded">
-            <h6 class="collapse-header">Opciones:</h6>
-           
-            
-            <a class="collapse-item" href="crearRelacion.html">Crear relación</a>
-            <a class="collapse-item" href="relacionesCreadas.html">Historial relaciones creadas</a>
+                  <div class="form-group">
+                    <input type="email" id="usuario" class="form-control form-control-user" id="exampleInputEmail"
+                      aria-describedby="emailHelp" placeholder="Correo eléctronico..." required>
+                  </div>
 
-       
-           
-
-            
-           
-            
-            
-          </div>
-        </div>
-      </li>
-      
-        
-
-        <!-- Nav Item - buscar por número de guía -->
-        <li class="nav-item">
-          <a class="nav-link" href="/buscarGuia.html">
-            <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Buscar # de guía</span></a>
-        </li>
+                  <div class="form-group">
+                    <input type="password" id="contrasena" class="form-control form-control-user"
+                      id="exampleInputPassword" placeholder="Contraseña" required>
+                  </div>
 
 
+                  <div class="form-group">
+                    <!--
+                      <div class="custom-control custom-checkbox small">
+                        <input type="checkbox" class="custom-control-input" id="customCheck">
+                        <label class="custom-control-label" for="customCheck">Remember Me</label>
+                      </div>
+                      -->
+                  </div>
 
-        <!-- Divider -->
-        <hr class="sidebar-divider">
-
-
-
-
-
-
-
-
-
-
-        <!-- Sidebar Toggler (Sidebar) -->
-        <div class="text-center d-none d-md-inline">
-          <button class="rounded-circle border-0" id="sidebarToggle"></button>
-        </div>
-
-      </ul>
-      <!-- End of Sidebar -->
-
-      <!-- Content Wrapper -->
-      <div id="content-wrapper" class="d-flex flex-column">
-        
-        <div class="row">
-          <div  class="text-center bg-dark text-white col-sm">Area logística +57 <a class="text-white" href="https://wa.link/j8l2ku">321 336 1911</a></div>
-          <div  class="text-center bg-dark text-white col-sm">Gerencia +57 <a class="text-white" href="https://wa.link/jwryoa">312 463 8608</a></div>
-          <div class="text-center text-white bg-info col-sm">Saldo: <a class="text-white" id="saldo" href="https://wa.link/jwryoa"></a></div>
-        </div>
-
-        <!-- Main Content -->
-        <div id="content">
-
-          <!-- Topbar -->
-          <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-
-            <!-- Sidebar Toggle (Topbar) -->
-            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-              <i class="fa fa-bars"></i>
-            </button>
-
-            <!-- Topbar Search -->
-            <!--
-            <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-              <div class="input-group">
-                <input type="text" class="form-control bg-light border-0 small" placeholder="Search for..."
-                  aria-label="Search" aria-describedby="basic-addon2">
-                <div class="input-group-append">
-                  <button class="btn btn-primary" type="button">
-                    <i class="fas fa-search fa-sm"></i>
+                  <button onclick="iniciarSesion()" type="submit" class="btn btn-danger btn-user btn-block">
+                    Entrar
                   </button>
+
+
+
+
+                  <!--
+                    <a href="index.html" class="btn btn-google btn-user btn-block">
+                      <i class="fab fa-google fa-fw"></i> Login with Google
+                    </a>
+                    <a href="index.html" class="btn btn-facebook btn-user btn-block">
+                      <i class="fab fa-facebook-f fa-fw"></i> Login with Facebook
+                    </a>
+                    -->
+
+                  </br>
+                  <div id="inicio2">
+                      
+                  </div>
+
+
+                  <br>
+                  <div class="text-center">
+                    <a class="small" href="olvida_contraseña.html">Olvidaste la contraseña?</a>
+                  </div>
+                  <div class="text-center">
+                    <a class="small" href="register.html">Crear cuenta HEKA!</a>
+                  </div>
+                  
                 </div>
               </div>
-            </form>
-          -->
-
-            <!-- Topbar Navbar -->
-            <ul class="navbar-nav ml-auto">
-
-              <!-- Nav Item - Search Dropdown (Visible Only XS) -->
-              <!--
-              <li class="nav-item dropdown no-arrow d-sm-none">
-                <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
-                  aria-haspopup="true" aria-expanded="false">
-                  <i class="fas fa-search fa-fw"></i>
-                </a>
-              -->
-
-
-
-
-
-
-
-                <div class="topbar-divider d-none d-sm-block"></div>
-
-               
-                 <!-- Nav Item - User Information -->
-              <li class="nav-item dropdown no-arrow">
-                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
-                  aria-haspopup="true" aria-expanded="false">
-                  <span class="mr-2 d-none d-lg-inline text-gray-800 small"></span><code id="idUsuario2" class="text-dark"> </code>
-                  
-                </a>
-                
-
-                <!-- Nav Item - User Information -->
-              <li class="nav-item dropdown no-arrow">
-                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
-                  aria-haspopup="true" aria-expanded="false">
-                  <span class="mr-2 d-none d-lg-inline text-gray-600 small" ></span>
-                  <img class="img-profile rounded-circle" src="img/unnamed.png">
-                </a>
-                <!-- Dropdown - User Information -->
-                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                  <a class="dropdown-item" href="perfil.html">
-                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Perfil de usuario
-                  </a>
-                 
-                    <a class="dropdown-item" href="javascript:cerrarSesion()">
-                      <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                      Salir
-                    </a>
-                  <!--
-                  <a class="dropdown-item" href="#">
-                    <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Settings
-                  </a>
-                  <a class="dropdown-item" href="#">
-                    <i class="fas fa-list fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Activity Log
-                  </a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="index.html" data-toggle="modal" data-target="#logoutModal">
-                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Logout
-                  </a>
-                  -->
-                </div>
-              </li>
-
-            </ul>
-
-          </nav>
-          <!-- End of Topbar -->
-
-    <!-------------------------- PRECIOS ENVIOS -->         
-    
-    <!--------------------------------------------------------------------------------->
-    
-     
-    
-    <div id="cotizar-mostrar-ocultar" style="display: block;">
-<!-- Begin Page Content -->
-<div class="container-fluid">
-
-  <!-- Page Heading -->
-  
-  
-  <h1 class="h3 mb-4 text-gray-800">BUSCAR GUÍA</h1>
-  <form class="user" action="estadoCompleto" method="post" name="buscarGuia">
-    <div class="form-group row">
-      <div class="col-sm-6 mb-3 mb-sm-0">
-       <h6>Ingresar en este campo el número de guía</h6>
-       
-        <input    type="text" class="form-control form-control-user" name="numGuia" placeholder="Ingresar número de guía"   required>
-        
-       
+            </div>
+          </div>
         </div>
-    
-
-    
-    
-    
-    
-	</br>
-</div>
-      <!--
-      <div class="form-group">
-      <input type="checkbox"   id="check-cobrar-destino" onchange="check_valor_recaudo()"> Añadir cobro pago contraentrega
-        </div>
-      </br>
-      -->
 
       
 
     
 
-
-    <button style="display: block;" id="boton_cotizar" type="submit"  class="btn btn-primary btn-user btn-block">
-      Buscar guía
-    </button>
-  </form>
+  </div>
+  <!-- COTIZADOR -->
 
   
-
-    
-
-
-  
-  
-    
-    <!--
-    <a href="index.html" class="btn btn-google btn-user btn-block">
-      <i class="fab fa-google fa-fw"></i> Ver guías
-    </a>
-    <a href="index.html" class="btn btn-facebook btn-user btn-block">
-      <i class="fab fa-facebook-f fa-fw"></i> Buscar por número de guía
-    </a>
-  -->
- 
-
-</div>
-
-        <!-- End of Main Content -->
-</div> <!-- End of Main Content -->
-
-</div>
-<!-------------------------------------------------------------------------------------------------------------------------->
-<!-- Footer -->
-<footer class="sticky-footer bg-white">
-  <div class="container my-auto">
-    <div class="copyright text-center my-auto">
-      <span>Copyright &copy; HEKA ENTREGA 2020</span>
-    </div>
-  </div>
-</footer>
-<!-- End of Footer -->
-
-</div>
-<!-- End of Content Wrapper -->
-
-</div>
-<!-- End of Page Wrapper -->
-
-<!-- Scroll to Top Button-->
-<a class="scroll-to-top rounded" href="#page-top">
-<i class="fas fa-angle-up"></i>
-</a>
-
-<!-- Logout Modal-->
-<div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-aria-hidden="true">
-<div class="modal-dialog" role="document">
-<div class="modal-content">
-  <div class="modal-header">
-    <h5 class="modal-title" id="exampleModalLabel">Ready to LeHEKA?</h5>
-    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-      <span aria-hidden="true">×</span>
-    </button>
-  </div>
-  <div class="modal-body">Select "Logout" below if you are ready to end your current session.</div>
-  <div class="modal-footer">
-    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancel</button>
-    <a class="btn btn-primary" href="login.html">Logout</a>
-  </div>
-</div>
-</div>
-</div>
-
 
 
 <script type="text/javascript">
@@ -28201,8 +27880,8 @@ document.addEventListener("click", function (e) {
     closeAllLists(e.target);
 });
 }
-autocomplete(document.getElementById("ciudadRFirebase"), ciudades);
-autocomplete(document.getElementById("ciudadDFirebase"), ciudades);
+autocomplete(document.getElementById("ciudadR"), ciudades);
+autocomplete(document.getElementById("ciudadD"), ciudades);
 
 
     
@@ -28219,6 +27898,7 @@ autocomplete(document.getElementById("ciudadDFirebase"), ciudades);
 
 <!-- main.js -->
 <script src="js/main.js"></script>
+
 <!-- index.js -->
 <!--
 <script src="../../index.js" ></script>
@@ -28234,6 +27914,8 @@ autocomplete(document.getElementById("ciudadDFirebase"), ciudades);
 <!-- Custom scripts for all pages-->
 <script src="js/sb-admin-2.min.js"></script>
 
+
 </body>
 
 </html>
+
