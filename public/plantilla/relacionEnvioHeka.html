@@ -5,13 +5,13 @@
 					            <table width="100%" border="0" class="text1">
 							          <tbody><tr>
 											<td align="center">
-													<h2>Relacion de envio numero 20210113165906</h2>
+													<h2>Relacion de envio numero 20210118103308</h2>
 										    </td>	
 									</tr>
 								     <tr id="capa_exportar">	
 											<td align="center">
 														
-<a href="exportar.relacion.php?dscodigo=20210113165906&amp;idempresa=11635&amp;id=&amp;idtransportador=29" align="center" class="btn_c_1" id="btn_exportar">Exportar</a>
+<a href="exportar.relacion.php?dscodigo=20210118103308&amp;idempresa=11635&amp;id=&amp;idtransportador=1010" align="center" class="btn_c_1" id="btn_exportar">Exportar</a>
 
     <input type="button" name="cimprimir" id="cimprimir" value="Imprimir Relacion de envio" class="btn_c_1" onclick="relacion()">
 
@@ -25,17 +25,17 @@
             <table border="0" bgcolor="#000" cellpadding="5" cellspacing="2" width="100%" class="text1" style="font-size: 11px">
 						<tbody><tr bgcolor="#fff" valign="top">
 						<td rowspan="2">
-								<img src="../../temas/imagen_transpo/image002-024411-1-image002.jpg" align="absmiddle" border="0" style="width:100">
+								<img src="../../temas/imagen_transpo/104926-1-tcc.jpg" align="absmiddle" border="0" style="width:100">
 						</td>
 					
 							<td class="text4">Transportador 
-							 <strong>ENVIA</strong>
+							 <strong>TCC SA</strong>
 							</td>
 
-			            		<td valign="top" colspan="2" class="text4">Fecha: <strong>2021/01/13 16:59:01 pm</strong>
+			            		<td valign="top" colspan="2" class="text4">Fecha: <strong>2021/01/18 10:33:03 am</strong>
 				
 							</td>
-								  <td align="left" class="text4">N&#xFA;mero:  <strong>20210113165906</strong></td>		    	
+								  <td align="left" class="text4">N&#xFA;mero:  <strong>20210118103308</strong></td>		    	
 
 		            </tr>	
 		      
@@ -46,7 +46,7 @@
 							Contacto: <strong>hekaentrega co  TCC</strong>
 						</td>
 						<td>
-						Direccion de recogida:  <strong>ca 1</strong>
+						Direccion de recogida:  <strong>12</strong>
 						</td>
 						<td colspan="2">
 							Ciudad/departamento:  <strong>BOGOTA(CUNDINAMARCA)</strong>	
@@ -151,15 +151,14 @@
   <td valign="top">
 
 
-		
-<input type="hidden" name="pkidxsel[]" id="pkidxsel[]" value="1427013">
-<input type="hidden" name="idremision_wcw[]" id="idremision_wcw" value="1427013">
-<input type="hidden" name="idservicio[]" id="idservicio[]" value="29">
+				<input type="hidden" name="pkidxselr[]" value="1435893">
+			<input type="hidden" name="idremision_wcw[]" id="idremision_wcw" value="1435893">
+<input type="hidden" name="idservicio[]" id="idservicio[]" value="1010">
 <input type="hidden" name="idremision_tcc[]" id="idremision_tcc" value>
-		<input type="hidden" name="pkidx[]" value="1427013">
+				<input type="hidden" name="pkidr[]" value="1435893">
+			
 
-
-		<input type="hidden" name="pkid" value="1427013">
+		<input type="hidden" name="pkid" value="1435893">
 
 
   
@@ -169,27 +168,27 @@
   <td valign="top">
 
 
- 	014105629939 
+ 	 532673170
  </td>
 
 
 
-<td valign="top">hekaentrega.co hekaentrega.co</td>
+<td valign="top">hekaentrega.co punto heka</td>
 <td valign="top">BOGOTA(CUNDINAMARCA)</td>
 <td valign="top">asd</td>
-<td valign="top">CUCUTA(NORTE DE SANTANDER)</td>
-<td valign="top">2021/01/13</td>
-<td valign="top">asd asd</td>
-<td valign="top">/121</td>
+<td valign="top">MEDELLIN(ANTIOQUIA)</td>
+<td valign="top">2021/01/18</td>
+<td valign="top">asd asda</td>
+<td valign="top">/12</td>
 <td valign="top">1</td>
 <td valign="top" align="center">1 </td>
 <td valign="top" align="center">1.00 </td>
 
 <td valign="top"></td>
 <td valign="top">35000</td>
-<td valign="top">0</td>
+<td valign="top">14900</td>
 
-<td valign="top">asd</td>
+<td valign="top">calzado</td>
 </tr>
 
 <input type="hidden" name="tipoguia" value>
@@ -228,15 +227,13 @@
  	<input type="button" name="rimprimir" id="rimprimir" value="Imprimir Rotulos X 10" class="btn_c_1" onclick="imprimirRotuloMedidas(10)">
 
  		
-		<input type="button" name="ximprimir" id="ximprimir" value="Imprimir Guias" class="btn_c_1" onclick="guia()">
+			<input type="button" class="btn_c_1" name="imprimittcc" onclick="rotulotcc(&apos;20210118103308&apos;,1)" value="Imprimir Guias TCC">
 
-	
+		<input type="button" class="btn_c_1" name="imprimittcc" onclick="rotulotcc(&apos;20210118103308&apos;,2)" value="Imprimir Relacion de envios	TCC">
+
 	 
            
            
-    <input type="hidden" name="zimprimir" id="ximprimir" value="Imprimir Rotulo Zebra" class="btn_c_1" onclick="rotulozebra()">
-    <input type="hidden" name="zimprimir" id="zimprimir" value="Imprimir Rotulos Zebra servientrega" class="btn_c_1" onclick="rotulozebraservie()">
-	<input type="hidden" name="oimprimir" id="oimprimir" value="Imprimir Rotulos Oster" class="btn_c_1" onclick="rotulooster()">
 <input type="hidden" name="fimprimir" id="oimprimir" value="Imprimir Rotulos Factura" class="btn_c_1" onclick="rotulofactura()">
 
 
@@ -247,7 +244,6 @@
 
 <input type="hidden" name="fimprimir" id="oimprimir" value="Imprimir Guia Feeling" class="btn_c_1" onclick="guiafeeling()">
 
-<input type="button" name="fimprimir" id="oimprimir" value="Imprimir Envia Sticker 10 x 12" class="btn_c_1" onclick="sticker10_12()">
 
 </td>
 </tr>
@@ -278,7 +274,7 @@
 		const body_date = {
 			tipo : "imprimir",
 			medida : medida,
-			id : "20210113165906"
+			id : "20210118103308"
 		}
 
 		fetch(url, {

@@ -791,6 +791,14 @@ function cerrarSesion(){
         // An error happened.
       });
 }
+function cerrarSesionPuntoheka(){
+  firebase.auth().signOut().then(function() {
+      // Sign-out successful.
+      //location.href("/index.html");
+    }).catch(function(error) {
+      // An error happened.
+    });
+}
 function mostrarPrueba(){
   
     firebase.auth().onAuthStateChanged(function(user) {
@@ -1202,6 +1210,25 @@ inHTML('tabla-guias','');
 historialGuias();
 }
 
+function cambiarFechaPuntoheka(){
+  location.href='#tabla-guias';
+  if(document.getElementById('tabla-guias')){
+  inHTML('tabla-guias','');
+  }
+  
+    if(document.getElementById('guiaRelacion')){
+      
+      document.getElementById('guiaRelacion').value="";
+      }
+      if(document.getElementById('nodoRelacion')){
+      
+        document.getElementById('nodoRelacion').value="";
+        }
+       
+    
+  historialGuiasPuntoheka();
+  }
+
 function cambiarFechaRelacion(){
   location.href='#tabla-relacion';
   if(document.getElementById('tabla-relacion')){
@@ -1229,7 +1256,7 @@ inHTML('error_restart',`<h6>Hemos enviado  un correo de restablecimiento a tu co
 });
 }
 
-function tableGuias(uid,nodo,fecha,nomDes,fletetotal,costoManejo,valorOtrosRecaudos,comision_heka,recaudo,tipo_envio,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes,ciudadD,trans) {
+function tableGuiasPuntoheka(celDes,celRem,ciudadR,documentoCliente,uid,nodo,fecha,nomDes,fletetotal,costoManejo,valorOtrosRecaudos,comision_heka,recaudo,tipo_envio,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes,ciudadD,trans) {
   
 var flete=parseInt(fletetotal);
 var manejo=parseInt(costoManejo);
@@ -1237,11 +1264,37 @@ var costoRecaudo=parseInt(valorOtrosRecaudos);
 var comision=parseInt(comision_heka);
 
 var costoEnvio=flete+manejo+costoRecaudo+comision;
+if(tipo_envio=="COMUN"){
+  var texto_tipo_envio="COMÚN";
+  var destinopaga="0";
+  var remitentepaga=costoEnvio;
+
+  var comisionPunto=comision-500;
+  comisionPunto=comisionPunto/2;
+}
+if(tipo_envio=="CONTRAENTREGA"){
+  var texto_tipo_envio="CONTRAENTREGA";
+  var destinopaga=costoEnvio;
+  var remitentepaga="0";
+
+  var comisionPunto=comision-500;
+  comisionPunto=comisionPunto/2;
+}
+if(tipo_envio=="RECAUDO"){
+  var texto_tipo_envio="PAGO CONTRAENTREGA";
+  var destinopaga=recaudo;
+  var remitentepaga=costoEnvio;
+
+  var comisionPunto=comision-500;
+  comisionPunto=comisionPunto*(45/100);
+}
+
+
 if(numero_guia!="Generando...."){
   var botonEliminar=`<button onclick="borrarGuia('${uid}','${nodo}','${fecha}','${linkguia}','${nomRem}','${numero_guia}','${trans}')" class="btn text-white btn-danger btn-circle">
   <i class="fas fa-trash"><i<
   </button>`;
-  var estado=`<form action="estadoCompleto" method="post">
+  var estado=`<form action="estadoCompletoPuntoheka" method="post">
   <input type="hidden" name="numGuia" value="${numero_guia}">
   
   <button class="btn btn-danger" type="submit">Ver estado</button>
@@ -1267,9 +1320,18 @@ if(tipo_envio=="COMUN"){
 
 
 <h1></h1>
-      <form action="rotuloHeka" method="post">
+      <form action="rotuloHekaPuntoheka" method="post">
       <input type="hidden" name="guia"         value="${numero_guia}">
       <input type="hidden" name="remitente"    value="${nomRem}">
+      <input type="hidden" name="fecha"    value="${fecha}">
+      <input type="hidden" name="documentoCliente"    value="${documentoCliente}">
+      <input type="hidden" name="ciudadR"    value="${ciudadR}">
+      <input type="hidden" name="celRem"    value="${celRem}">
+      <input type="hidden" name="celDes"    value="${celDes}">
+      <input type="hidden" name="costoEnvio"    value="${costoEnvio}">
+      <input type="hidden" name="texto_tipo_envio"    value="${texto_tipo_envio}">
+      <input type="hidden" name="destinopaga"    value="${destinopaga}">
+      <input type="hidden" name="remitentepaga"    value="${remitentepaga}">
       <input type="hidden" name="destinatario" value="${nomDes}">
       <input type="hidden" name="direccion"    value="${dirDes}">
       <input type="hidden" name="ciudad"       value="${ciudadD}">
@@ -1299,16 +1361,24 @@ if(tipo_envio=="COMUN"){
     <div class="my-2"></div>
 
 <h1></h1>
-      <form action="rotuloHeka" method="post">
+      <form action="rotuloHekaPuntoheka" method="post">
       <input type="hidden" name="guia"         value="${numero_guia}">
       <input type="hidden" name="remitente"    value="${nomRem}">
+      <input type="hidden" name="fecha"    value="${fecha}">
+      <input type="hidden" name="documentoCliente"    value="${documentoCliente}">
+      <input type="hidden" name="ciudadR"    value="${ciudadR}">
+      <input type="hidden" name="celRem"    value="${celRem}">
+      <input type="hidden" name="celDes"    value="${celDes}">
+      <input type="hidden" name="costoEnvio"    value="${costoEnvio}">
+      <input type="hidden" name="texto_tipo_envio"    value="${texto_tipo_envio}">
+      <input type="hidden" name="destinopaga"    value="${destinopaga}">
+      <input type="hidden" name="remitentepaga"    value="${remitentepaga}">
       <input type="hidden" name="destinatario" value="${nomDes}">
       <input type="hidden" name="direccion"    value="${dirDes}">
       <input type="hidden" name="ciudad"       value="${ciudadD}">
       <input type="hidden" name="contenido"    value="${contenido}">
       <input type="hidden" name="peso"         value="${peso}">
       <input type="hidden" name="transportadora"         value="${trans}">
-      
      
       <button  type="submit" class="btn btn-danger btn-icon-split">
       <span class="icon text-white-50">
@@ -1334,16 +1404,24 @@ if(trans=="TCC SA"){
     <div class="my-2"></div>
 
 <h1></h1>
-      <form action="rotuloHeka" method="post">
+      <form action="rotuloHekaPuntoheka" method="post">
       <input type="hidden" name="guia"         value="${numero_guia}">
       <input type="hidden" name="remitente"    value="${nomRem}">
+      <input type="hidden" name="fecha"    value="${fecha}">
+      <input type="hidden" name="documentoCliente"    value="${documentoCliente}">
+      <input type="hidden" name="ciudadR"    value="${ciudadR}">
+      <input type="hidden" name="celRem"    value="${celRem}">
+      <input type="hidden" name="celDes"    value="${celDes}">
+      <input type="hidden" name="costoEnvio"    value="${costoEnvio}">
+      <input type="hidden" name="texto_tipo_envio"    value="${texto_tipo_envio}">
+      <input type="hidden" name="destinopaga"    value="${destinopaga}">
+      <input type="hidden" name="remitentepaga"    value="${remitentepaga}">
       <input type="hidden" name="destinatario" value="${nomDes}">
       <input type="hidden" name="direccion"    value="${dirDes}">
       <input type="hidden" name="ciudad"       value="${ciudadD}">
       <input type="hidden" name="contenido"    value="${contenido}">
       <input type="hidden" name="peso"         value="${peso}">
       <input type="hidden" name="transportadora"         value="${trans}">
-      
      
       <button  type="submit" class="btn btn-danger btn-icon-split">
       <span class="icon text-white-50">
@@ -1394,7 +1472,7 @@ if(trans=="TCC SA"){
 
       <!--
       <td>
-  <form action="rotuloHeka" method="post">
+  <form action="rotuloHekaPuntoheka" method="post">
       <input type="hidden" name="guia"         value="${numero_guia}">
       <input type="hidden" name="remitente"    value="${nomRem}">
       <input type="hidden" name="destinatario" value="${nomDes}">
@@ -1415,12 +1493,13 @@ if(trans=="TCC SA"){
   <td>${fecha}</td>
   
   <td>${nomRem}</td>
-  
+  <td>${documentoCliente}</td>
   <td>${ciudadD}</td>
   <td>${nomDes}</td>
   <td>${tipo_envio}</td>
   <td>${recaudo}</td>
   <td>${costoEnvio}</td>
+  <td>${comisionPunto}</td>
   <td>
       ${estado}
     </td>
@@ -1446,6 +1525,223 @@ if(trans=="TCC SA"){
 </tr>`
     ;
 }
+function tableGuias(uid,nodo,fecha,nomDes,fletetotal,costoManejo,valorOtrosRecaudos,comision_heka,recaudo,tipo_envio,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes,ciudadD,trans) {
+  
+  var flete=parseInt(fletetotal);
+  var manejo=parseInt(costoManejo);
+  var costoRecaudo=parseInt(valorOtrosRecaudos);
+  var comision=parseInt(comision_heka);
+  
+  var costoEnvio=flete+manejo+costoRecaudo+comision;
+  if(numero_guia!="Generando...."){
+    var botonEliminar=`<button onclick="borrarGuia('${uid}','${nodo}','${fecha}','${linkguia}','${nomRem}','${numero_guia}','${trans}')" class="btn text-white btn-danger btn-circle">
+    <i class="fas fa-trash"><i<
+    </button>`;
+    var estado=`<form action="estadoCompleto" method="post">
+    <input type="hidden" name="numGuia" value="${numero_guia}">
+    
+    <button class="btn btn-danger" type="submit">Ver estado</button>
+    
+    </form>`;
+  }else{
+    var botonEliminar=``;
+    var estado=``;
+  }
+  if(trans=="ENVIA"){
+  var logo=`<img src="img/2001.png" alt="" height="30" width="50">`;
+  
+  if(tipo_envio=="COMUN"){
+    var abrirGuia=`<form action="descargarGuiaComun" method="POST" >
+    <input type="hidden" name="ruta" value="${linkguia}">
+    <button  type="submit" class="btn btn-info btn-icon-split">
+    <span class="icon text-white-50">
+      <i class="fas fa-check"></i>
+    </span>
+    <span class="text">Guía común</span>
+  </button>
+  </form>
+  
+  
+  <h1></h1>
+        <form action="rotuloHeka" method="post">
+        <input type="hidden" name="guia"         value="${numero_guia}">
+        <input type="hidden" name="remitente"    value="${nomRem}">
+        <input type="hidden" name="destinatario" value="${nomDes}">
+        <input type="hidden" name="direccion"    value="${dirDes}">
+        <input type="hidden" name="ciudad"       value="${ciudadD}">
+        <input type="hidden" name="contenido"    value="${contenido}">
+        <input type="hidden" name="peso"         value="${peso}">
+        <input type="hidden" name="transportadora"         value="${trans}">
+        
+       
+        <button  type="submit" class="btn btn-danger btn-icon-split">
+        <span class="icon text-white-50">
+          <i class="fas fa-check"></i>
+        </span>
+        <span class="text">Rotulo</span>
+      </button>
+        </form>
+  
+  `;
+  }else{
+    var abrirGuia=`
+  <button  onclick="abrirGuias('${linkguia}','${uid}')" class="btn btn-primary btn-icon-split">
+        <span class="icon text-white-50">
+          <i class="fas fa-check"></i>
+        </span>
+        <span class="text">Guía</span>
+      </button>
+      
+      <div class="my-2"></div>
+  
+  <h1></h1>
+        <form action="rotuloHeka" method="post">
+        <input type="hidden" name="guia"         value="${numero_guia}">
+        <input type="hidden" name="remitente"    value="${nomRem}">
+        <input type="hidden" name="destinatario" value="${nomDes}">
+        <input type="hidden" name="direccion"    value="${dirDes}">
+        <input type="hidden" name="ciudad"       value="${ciudadD}">
+        <input type="hidden" name="contenido"    value="${contenido}">
+        <input type="hidden" name="peso"         value="${peso}">
+        <input type="hidden" name="transportadora"         value="${trans}">
+        
+       
+        <button  type="submit" class="btn btn-danger btn-icon-split">
+        <span class="icon text-white-50">
+          <i class="fas fa-check"></i>
+        </span>
+        <span class="text">Rotulo</span>
+      </button>
+        </form>
+  `;
+  }
+  
+  }else{
+  if(trans=="TCC SA"){
+    logo=`<img src="img/logo-tcc.png" alt="" height="50" width="70">`;
+    var abrirGuia=`
+  <button  onclick="abrirGuias('${linkguia}','${uid}')" class="btn btn-primary btn-icon-split">
+        <span class="icon text-white-50">
+          <i class="fas fa-check"></i>
+        </span>
+        <span class="text">Guía</span>
+      </button>
+      
+      <div class="my-2"></div>
+  
+  <h1></h1>
+        <form action="rotuloHeka" method="post">
+        <input type="hidden" name="guia"         value="${numero_guia}">
+        <input type="hidden" name="remitente"    value="${nomRem}">
+        <input type="hidden" name="destinatario" value="${nomDes}">
+        <input type="hidden" name="direccion"    value="${dirDes}">
+        <input type="hidden" name="ciudad"       value="${ciudadD}">
+        <input type="hidden" name="contenido"    value="${contenido}">
+        <input type="hidden" name="peso"         value="${peso}">
+        <input type="hidden" name="transportadora"         value="${trans}">
+        
+       
+        <button  type="submit" class="btn btn-danger btn-icon-split">
+        <span class="icon text-white-50">
+          <i class="fas fa-check"></i>
+        </span>
+        <span class="text">Rotulo</span>
+      </button>
+        </form>
+  `;
+  }else{
+    logo="Creando....";
+    var abrirGuia=``;
+  }
+  }
+    
+    return `
+    
+    <tr>
+    <!--
+    <td>
+    
+    <input class="btn btn-danger" type="checkbox">
+    
+    </td>
+    -->
+    <td>${logo}</td>
+    
+    <!--
+  
+   
+  
+    <form action="documentoGuia" method="post">
+        <input type="hidden" name="paraGuia" value="${linkguia}">
+        
+        <button class="btn btn-warning" type="submit">Guia</button>
+      
+        <h1></h1>
+        
+        </form>
+        -->
+        <td>
+        
+        
+        ${abrirGuia}
+  
+        </td>
+  
+  
+        <!--
+        <td>
+    <form action="rotuloHeka" method="post">
+        <input type="hidden" name="guia"         value="${numero_guia}">
+        <input type="hidden" name="remitente"    value="${nomRem}">
+        <input type="hidden" name="destinatario" value="${nomDes}">
+        <input type="hidden" name="direccion"    value="${dirDes}">
+        <input type="hidden" name="ciudad"       value="${ciudadD}">
+        <input type="hidden" name="contenido"    value="${contenido}">
+        <input type="hidden" name="peso"         value="${peso}">
+        <input type="hidden" name="transportadora"         value="${trans}">
+        
+        <button class="btn btn-danger" type="submit">Rotulo</button>
+        </form>
+        </td>
+  -->
+  
+    
+    <td>${numero_guia}</td>
+    
+    <td>${fecha}</td>
+    
+    <td>${nomRem}</td>
+    
+    <td>${ciudadD}</td>
+    <td>${nomDes}</td>
+    <td>${tipo_envio}</td>
+    <td>${recaudo}</td>
+    <td>${costoEnvio}</td>
+    <td>
+        ${estado}
+      </td>
+  
+      <td>
+     ${botonEliminar}
+    </td>
+    
+    
+   
+    
+    
+  
+     
+  
+  
+    
+     
+    
+      
+      
+     
+  </tr>`
+      ;
+  }
 
 function tableRelacion(contar2,uid,nodo,fecha,nomDes,fletetotal,costoManejo,valorOtrosRecaudos,comision_heka,recaudo,tipo_envio,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes,ciudadD,trans) {
   
@@ -1772,6 +2068,109 @@ var codigoTransportadora=document.getElementById('codigoTransportadora');
 
 }
 
+function crearConsolidadoPuntoheka(){
+  ////////variables a separar por comas/////////////
+  //////nodo
+  var now;
+  let date = new Date()
+  let day = date.getDate()
+  let month = date.getMonth() + 1
+  let year = date.getFullYear()
+  if (day < 10) {
+    day = `0${day}`;
+  }
+  if (month < 10) {
+
+    now = `${year}-0${month}-${day}`;
+  } else {
+    now = `${year}-${month}-${day}`;
+  }
+  var nodoArray=[];
+  var contNodo=0;
+  var nodoTexto="";
+  /////////////////////variables////////////////
+var guiaRelacion=document.getElementById('guiaRelacion');
+var nodoRelacion=document.getElementById('nodoRelacion');
+var uidParaRelacion=document.getElementById('uidParaRelacion');
+var codigoTransportadora=document.getElementById('codigoTransportadora');
+///////////////////////recorrer arreglo y separar por coma los nodos//////////////////////////////
+
+  //////////////////guardar consolidado de envíos
+  var push=db.ref('ConsolidadosNuevos').child(uidParaRelacion.value).push().getKey();
+  
+  ////////////////// para crear consolidado
+ 
+ if(guiaRelacion.value!="" && nodoRelacion.value!=""){
+  db.ref('consolidados').child(push).set({
+    nodo: push,
+    guias: guiaRelacion.value,
+    uid: uidParaRelacion.value,
+    codigoTrans:codigoTransportadora.value,
+    fecha: now,
+    relacionenvio: "Creando....",
+      rutaimpresion: "Creando...."
+}, (error) =>{
+  if(error){
+    window.alert('Error al guardar consolidado');
+  }else{
+    db.ref('ConsolidadosNuevos').child(uidParaRelacion.value).child(push).set({
+      nodo: push,
+      guias: guiaRelacion.value,
+      uid: uidParaRelacion.value,
+      codigoTrans:codigoTransportadora.value,
+      fecha: now,
+      relacionenvio: "Creando....",
+      rutaimpresion: "Creando...."
+  }, (error) =>{
+    if(error){
+      window.alert('Error al guardar consolidado');
+    }else{
+      for(let i=0;i<nodoRelacion.value.length;i++){
+  
+        nodoTexto+=nodoRelacion.value[i];
+        if(nodoRelacion.value[i]==","){
+           nodoArray[contNodo]=nodoTexto.replace(",","");
+           //////////////relacionEnvio=1////////////
+           db.ref('GuiasNuevas').child(uidParaRelacion.value).child(nodoArray[contNodo]).update({
+             relacionEnvio:"1"
+         }, (error) =>{
+           if(error){
+             window.alert('Error al guardar consolidado');
+           }else{
+         
+           
+           }
+         });
+       
+       
+          //console.log("nodo"+contNodo+": "+nodoArray[contNodo]);
+       
+          nodoTexto="";
+          contNodo++;
+        }
+       
+       }
+
+       guiaRelacion.value="";
+       nodoRelacion.value="";
+       codigoTransportadora="";
+       window.alert('Consolidado creado con exito');
+       window.location.href='/relacionesCreadasPuntoheka.html';
+      
+    }
+  });
+
+  }
+});
+ }else{
+   window.alert('Para continuar selecciona las guías de las que deseas crear consolidado');
+ }
+
+
+////////////////////////
+
+}
+
 
 function cargarRelacionCreadas(){
  
@@ -2003,6 +2402,106 @@ function historialGuias(){
             contar=contar+1;
             
             tabla[contarTabla] = tableGuias(value.uid,value.nodo,value .fecha,value.nomDes,value.fletetotal,value.costoManejo,value.valorOtrosRecaudos,value.comision_heka,value.recaudo,value.tipo_envio,value.rutaguia,value.nomRem,value.dirDes,value.contenido,value.kilos,value.numguia,value.nomDes,value.ciudadD,value.transportadora);
+              contarTabla++;
+           
+            }
+          
+    
+    
+    
+    
+    
+          
+            
+          });
+          var contarExistencia=0;
+          for(let i=tabla.length-1;i>=0;i--){
+           
+            if(document.getElementById('tabla-guias')){
+              printHTML('tabla-guias',tabla[i]);
+            }
+            contarExistencia++;
+          }
+
+          if(contarExistencia==0){
+            if(document.getElementById('tabla-historial-guias')){
+              document.getElementById('tabla-historial-guias').style.display='none';
+            }
+            if(document.getElementById('nohaydatosHistorialGuias')){
+              document.getElementById('nohaydatosHistorialGuias').style.display='block';
+            }
+          }else{
+            if(document.getElementById('tabla-historial-guias')){
+              document.getElementById('tabla-historial-guias').style.display='block';
+            }
+            if(document.getElementById('nohaydatosHistorialGuias')){
+              document.getElementById('nohaydatosHistorialGuias').style.display='none';
+            }
+          }
+        });
+       
+
+       
+
+
+
+    }else{
+      
+          }
+
+    
+
+    });
+
+ 
+}
+
+
+function historialGuiasPuntoheka(){
+  firebase.auth().onAuthStateChanged(function(user) {
+
+    if(user){
+      var contar=0;   
+      
+    var reference = db.ref('GuiasNuevas').child(user.uid);
+        reference.on('value', function (datas) {
+          if(document.getElementById('tabla-guias')){
+            inHTML("tabla-guias", "");
+            }  
+          var data = datas.val();
+         var tabla=[];
+         var contarTabla=0;
+    
+          $.each(data, function (nodo, value) {
+           
+           if(document.getElementById('fecha_inicio')){
+           var fecha_inicio=document.getElementById('fecha_inicio').value;
+           }
+           if(document.getElementById('fecha_final')){
+           var fecha_final=document.getElementById('fecha_final').value;
+           }
+           
+    
+           var fechaf=Date.parse(value.fecha);
+           var fechaFire=new Date(fechaf);
+    
+           var fechaI=Date.parse(fecha_inicio); 
+           var fechaIni=new Date(fechaI);
+    
+           var fechaff=Date.parse(value.fecha);
+           var fechaFinalF=new Date(fechaff);
+    
+           var fechafff=Date.parse(fecha_final);
+           var fechaF= new Date(fechafff);
+    
+           
+             if(fechaFire>= fechaIni&& fechaFinalF <= fechaF){
+             
+           
+            
+            contar=contar+1;
+            
+            tabla[contarTabla] = tableGuiasPuntoheka(value.celDes,value.celRem,value.ciudadR,value.documentoCliente,value.uid,value.nodo,value.fecha,value.nomDes,value.fletetotal,value.costoManejo,value.valorOtrosRecaudos,value.comision_heka,value.recaudo,value.tipo_envio,value.rutaguia,value.nomRem,value.dirDes,value.contenido,value.kilos,value.numguia,value.nomDes,value.ciudadD,value.transportadora);
               contarTabla++;
            
             }
@@ -2301,7 +2800,19 @@ if(document.getElementById('verificarUsuarioComun')){
 
     if(user){
       
-      
+      var reference = db.ref('usuarios').child(user.uid);
+  
+      reference.on('value', function (datas) {
+        
+        var data = datas.val().tipoDeUsuarioSistema;
+       if(data==undefined | data=="Comun"){
+         
+       }else{
+        window.alert('Tu usuario no tiene acceso a plataformas corporativas HEKA');
+        window.location.href="/"; 
+       }
+        
+      });
 
        
 
@@ -2317,6 +2828,39 @@ if(document.getElementById('verificarUsuarioComun')){
 
     });
   }
+  if(document.getElementById('verificarUsuarioPuntoheka')){
+    firebase.auth().onAuthStateChanged(function(user) {
+  
+      if(user){
+        
+        var reference = db.ref('usuarios').child(user.uid);
+    
+        reference.on('value', function (datas) {
+          
+          var data = datas.val().tipoDeUsuarioSistema;
+         if(data=="Puntoheka"){
+           
+         }else{
+          window.alert('Tu usuario no tiene acceso a plataformas Puntos HEKA');
+          window.location.href="/"; 
+         }
+          
+        });
+  
+         
+  
+  
+  
+      }else{
+        window.alert('La sesión ha expirado, por favor inicia sesión nuevamente');
+      window.location.href="/"; 
+      
+      }
+  
+      
+  
+      });
+    }
 }
 verificarUsuarioComun();
 
@@ -2326,8 +2870,20 @@ function verificarUsuarioComunInicioSesion(){
   
       if(user){
        
-        window.location.href="plataforma.html"; 
+       
+        var reference = db.ref('usuarios').child(user.uid);
   
+        reference.on('value', function (datas) {
+          
+          var data = datas.val().tipoDeUsuarioSistema;
+         if(data==undefined | data=="Comun"){
+          window.location.href="plataforma.html"; 
+         }
+         if(data=="Puntoheka"){
+          window.location.href="plataformaPuntoheka.html"; 
+         }
+          
+        });
          
   
   
@@ -2355,6 +2911,8 @@ function verificarUsuarioComunInicioSesion(){
         var reference = db.ref('usuarios').child(user.uid);
   
         reference.on('value', function (datas) {
+
+          if(document.getElementById('cargarDatosUsuarioComun2')){
          
           if(document.getElementById('CPNnombres')){
             document.getElementById('CPNnombres').value=datas.val().nombres;
@@ -2423,7 +2981,7 @@ function verificarUsuarioComunInicioSesion(){
           if(document.getElementById('contenedor-datos-actualizar')){
             document.getElementById('contenedor-datos-actualizar').style.display='block';
           }
-          
+        }
           
 
           
@@ -2825,6 +3383,308 @@ function verificarUsuarioComunInicioSesion(){
    
    
    }
+
+   function cargarListaClientes(){
+     
+
+    firebase.auth().onAuthStateChanged(function(user) {
+
+      if(user){
+        var contar=0;   
+        
+      var reference = db.ref('clientesPuntoheka');
+          reference.on('value', function (datas) {
+            if(document.getElementById('listaClientes')){
+              inHTML("listaClientes", "");
+              }  
+            var data = datas.val();
+           var tabla=[];
+           var contarTabla=0;
+      
+            $.each(data, function (nodo, value) {
+         
+             
+      
+             
+             
+             
+              
+              contar=contar+1;
+              
+              tabla[contarTabla] = `<option value="${value.CPNnumero_documento}|${value.CPNnombres} ${value.CPNapellidos}"></option>`;
+                contarTabla++;
+             
+              
+            
+      
+      
+      
+      
+      
+            
+              
+            });
+            var contarExistencia=0;
+            for(let i=tabla.length-1;i>=0;i--){
+              console.log('funcion cargar clientes ejecutada');
+             
+              if(document.getElementById('listaClientes')){
+                printHTML('listaClientes',tabla[i]);
+              }
+              contarExistencia++;
+            }
+            /*
+            if(contarExistencia==0){
+              if(document.getElementById('tabla-historial-guias')){
+                document.getElementById('tabla-historial-guias').style.display='none';
+              }
+              if(document.getElementById('nohaydatosHistorialGuias')){
+                document.getElementById('nohaydatosHistorialGuias').style.display='block';
+              }
+            }else{
+              if(document.getElementById('tabla-historial-guias')){
+                document.getElementById('tabla-historial-guias').style.display='block';
+              }
+              if(document.getElementById('nohaydatosHistorialGuias')){
+                document.getElementById('nohaydatosHistorialGuias').style.display='none';
+              }
+            }
+            */
+          });
+         
+  
+         
+  
+  
+  
+      }else{
+        
+            }
+  
+      
+  
+      });
+
+
+/*
+     if(document.getElementById('listaClientes')){
+      document.getElementById('listaClientes').innerHTML=`<option value="1072497423|Hernando Ramirez"></option>`;
+     }
+     */
+   }
+   cargarListaClientes();
+
+
+
+
+
+
+   function abrirRegistroClientesPuntoheka(){
+    window.open('registrarClientePuntoheka.html', '_blank');
+   }
+
+
+   function crearCuentaPuntoheka(){
+    //datos de usuario punto
+     var nombresPunto=value('nombresPunto');
+     var apellidosPunto=value('apellidosPunto');
+     var tipo_documentoPunto=value('tipo_documentoPunto');
+     var numero_documentoPunto=value('numero_documentoPunto');
+     var telefonoPunto=value('telefonoPunto');
+     var celularPunto=value('celularPunto');
+     var correoPunto=value('correoPunto');
+     var contraseñaPunto=value('contraseñaPunto');
+
+    //información del establecimiento
+     var nombre_establecimientoPunto=value('nombre_establecimientoPunto');
+     var tipo_documento_establecimientoPunto=value('tipo_documento_establecimientoPunto');
+     var iden_establecimientoPunto=value('iden_establecimientoPunto');
+     var ciudadPunto=value('ciudadPunto');
+     var direccionPunto=value('direccionPunto');
+     var telefonoEsPunto=value('telefonoEsPunto');
+     var celularEsPunto=value('celularEsPunto');
+   
+     //información bancaria
+     var CPNbanco=value('bancoPunto');
+     var CPNnombre_representante=value('CPNnombre_representante');
+     var CPNtipo_de_cuenta=value('CPNtipo_de_cuenta');
+     var CPNnumero_cuenta=value('CPNnumero_cuenta');
+     //var CPNconfirmar_numero_cuenta=value('CPNconfirmar_numero_cuenta');
+     var CPNtipo_documento_banco=value('CPNtipo_documento_banco');
+     var CPNnumero_identificacion_banco=value('CPNnumero_identificacion_banco');
+     //var CPNconfirmar_numero_identificacion_banco=value('CPNconfirmar_numero_identificacion_banco');
+  
+     //Registrar usuario firebase con cuenta bancaria////////////////////////////////////////////////////////////////////
+       firebase.auth().createUserWithEmailAndPassword(correoPunto,contraseñaPunto)
+       .then(function(data){
+   
+         firebase.auth().onAuthStateChanged(function(user) {
+   
+           if(user){
+            
+   
+     firebase.database().ref('usuarios').child(user.uid).set({
+      nombres: nombresPunto,
+      apellidos: apellidosPunto,
+      tipo_documento:tipo_documentoPunto,
+      numero_documento:numero_documentoPunto,
+      celular:telefonoPunto,
+      celular2:celularPunto,
+      
+      nombre:nombre_establecimientoPunto,
+      tipo_documento_establecimientoPunto:tipo_documento_establecimientoPunto,
+      iden_establecimientoPunto:iden_establecimientoPunto,
+      ciudad:ciudadPunto,
+      direccion:direccionPunto,
+      telefonoEsPunto:telefonoEsPunto,
+      celularEsPunto:celularEsPunto,
+      tipoDeUsuarioSistema:"Puntoheka",
+               //////datos bancarios
+               banco: CPNbanco,
+               nombre_banco: CPNnombre_representante,
+               tipo_de_cuenta: CPNtipo_de_cuenta,
+               numero_cuenta: CPNnumero_cuenta,
+               tipo_documento_banco: CPNtipo_documento_banco,
+               numero_iden_banco: CPNnumero_identificacion_banco
+   
+               
+               
+               
+             }).then(function(data){
+               window.alert('Usuario registrado correctamente en base de datos');
+             }).catch(function(error){
+              window.alert('error al registrar usuario en base de datos');
+             });
+           
+   
+   
+             
+   
+           }else{
+   
+           }
+         })
+   
+       })
+       
+       .catch(function (error) {
+         // Handle Errors here.
+         var errorCode = error.code;
+         var errorMessage = error.message;
+          
+         if(errorCode=="auth/invalid-email"){
+           errorCode="Correo invalido";
+         }
+         if(errorMessage=="The email address is badly formatted."){
+           errorMessage="El correo es incorrecto";
+         }
+         if(errorCode=="auth/weak-password"){
+           errorCode="Contraseña débil";
+         }
+         if(errorMessage=="Password should be at least 6 characters"){
+           errorMessage="La contraseña debe ser mínimo de 6 caracteres";
+   
+         }
+         if(errorCode=="auth/email-already-in-use"){
+           errorCode="Correo en uso";
+         }
+         if(errorMessage=="The email address is already in use by another account."){
+           errorMessage="EL correo ya está registrado";
+         }
+         window.alert(`<h6 class="text-danger">${"error: "+errorCode+" | "+errorMessage}</h6>`);
+       
+         // ...
+       });
+     
+           
+}
+
+
+function crearClientePuntoheka(){
+
+
+  var now;
+  let date = new Date()
+  let day = date.getDate()
+  let month = date.getMonth() + 1
+  let year = date.getFullYear()
+  if (day < 10) {
+    day = `0${day}`;
+  }
+  if (month < 10) {
+
+    now = `${year}-0${month}-${day}`;
+  } else {
+    now = `${year}-${month}-${day}`;
+  }
+  //datos de usuario punto
+   var CPNnombres=value('CPNnombres');
+   var CPNapellidos=value('CPNapellidos');
+   var CPNtipo_documento=value('CPNtipo_documento');
+   var CPNnumero_documento=value('CPNnumero_documento');
+   var CPNtelefono=value('CPNtelefono');
+   var CPNcelular=value('CPNcelular');
+   var CPNciudad=value('CPNciudad');
+   var CPNdireccion=value('CPNdireccion');
+   var CPNcorreo=value('CPNcorreo');
+   
+   if(CPNnombres=="" | CPNapellidos==""  | CPNnumero_documento=="" |
+   CPNtelefono=="" | CPNcelular=="" | CPNciudad=="" | CPNdireccion=="" 
+   | CPNcorreo==""){
+     
+     window.alert('Datos incompleto');
+   }else{
+     //Registrar usuario firebase con cuenta bancaria////////////////////////////////////////////////////////////////////
+   
+     firebase.auth().onAuthStateChanged(function(user) {
+ 
+      if(user){
+       
+var nodo=firebase.database().ref('clientesPuntoheka').push().getKey();
+firebase.database().ref('clientesPuntoheka').child(nodo).set({
+ 
+puntohekaRegistra: user.uid,
+fecha: now,
+
+nodo:nodo,
+
+//datos cliente
+CPNnombres:CPNnombres,
+CPNapellidos:CPNapellidos,
+CPNtipo_documento:CPNtipo_documento,
+CPNnumero_documento:CPNnumero_documento,
+CPNtelefono:CPNtelefono,
+CPNcelular:CPNcelular,
+CPNciudad:CPNciudad,
+CPNdireccion:CPNdireccion,        
+CPNcorreo:CPNcorreo          
+          
+        }).then(function(data){
+          window.alert('Usuario registrado correctamente en base de datos');
+          location.reload();
+        }).catch(function(error){
+         window.alert('error al registrar usuario en base de datos');
+        });
+      
+
+
+        
+
+      }else{
+
+      }
+    })
+    
+   }
+  
+   
+ 
+    
+     
+ 
+   
+        
+}
 
 
 

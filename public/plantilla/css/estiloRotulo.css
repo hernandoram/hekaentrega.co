@@ -1,0 +1,14 @@
+td > p > small > cite{
+    font-size: 6px;
+
+}
+.texto-small{
+    font-size: 8px;
+}
+.texto-small2{
+    font-size: 10px;
+}
+
+.borderless td, .borderless th {
+    border: none;
+}

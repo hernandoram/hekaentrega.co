@@ -32,95 +32,7 @@
 <body class="bg-gradient-primary">
   <!--Verificar usuario comun-->
   <div id="verificarUsuarioPuntoheka" ></div>
-  <!-- LOGIN -->
-  <div id="login-mostrar-ocultar" style="display: none;" class="container">
-
-
-
-
-    <!-- Outer Row -->
-    
-
-
-
-        <div class="card o-hidden border-0 shadow-lg my-5">
-          <div class="card-body p-0">
-            <!-- Nested Row within Card Body -->
-            
-            <div class="row">
-              <a href="/" class="btn btn-danger btn-user btn-block">
-                Regresar
-              </a>
-              <div class="col-lg-6 d-none d-lg-block"></div>
-              <div class="col-lg-6">
-                <div class="p-5">
-                  <div class="text-center">
-                    <img src="img/heka entrega.png" width="250" height="250" alt="">
-                    <h1 class="h4 text-gray-900 mb-4">Bienvenid@ a HEKA!</h1>
-                  </div>
-
-
-                  <div class="form-group">
-                    <input type="email" id="usuario" class="form-control form-control-user" id="exampleInputEmail"
-                      aria-describedby="emailHelp" placeholder="Correo eléctronico..." required>
-                  </div>
-
-                  <div class="form-group">
-                    <input type="password" id="contrasena" class="form-control form-control-user"
-                      id="exampleInputPassword" placeholder="Contraseña" required>
-                  </div>
-
-
-                  <div class="form-group">
-                    <!--
-                      <div class="custom-control custom-checkbox small">
-                        <input type="checkbox" class="custom-control-input" id="customCheck">
-                        <label class="custom-control-label" for="customCheck">Remember Me</label>
-                      </div>
-                      -->
-                  </div>
-
-                  <button onclick="iniciarSesion()" type="submit" class="btn btn-danger btn-user btn-block">
-                    Entrar
-                  </button>
-
-
-
-
-                  <!--
-                    <a href="index.html" class="btn btn-google btn-user btn-block">
-                      <i class="fab fa-google fa-fw"></i> Login with Google
-                    </a>
-                    <a href="index.html" class="btn btn-facebook btn-user btn-block">
-                      <i class="fab fa-facebook-f fa-fw"></i> Login with Facebook
-                    </a>
-                    -->
-
-                  </br>
-                  <div id="inicio2">
-                      
-                  </div>
-
-
-                  <br>
-                  <div class="text-center">
-                    <a class="small" href="olvida_contraseña.html">Olvidaste la contraseña?</a>
-                  </div>
-                  <div class="text-center">
-                    <a class="small" href="register.html">Crear cuenta HEKA!</a>
-                  </div>
-                  
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      
-
-    
-
-  </div>
+  
   <!-- COTIZADOR -->
 
   <div id="sesionIniciada-mostrar-ocultar" style="display: block;">
@@ -135,7 +47,7 @@
 
         <!-- Sidebar - Brand -->
         
-        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/plataforma.html">
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/plataformaPuntoheka.html">
           <div class="sidebar-brand-icon rotate-n-15">
             <i class="fas fa-laugh-wink"></i>
           </div>
@@ -147,7 +59,7 @@
 
         <!-- Nav Item - Cotizar envio -->
         <li class="nav-item">
-          <a class="nav-link" href="/plataforma.html">
+          <a class="nav-link" href="/plataformaPuntoheka.html">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Cotizar envío</span></a>
         </li>
@@ -219,7 +131,7 @@
               -->
               
               
-              <a class="collapse-item" href="historialGuias.html">Historial Guías</a>
+              <a class="collapse-item" href="historialGuiasPuntoheka.html">Historial Guías</a>
 
               <!--
                <a class="collapse-item" href="javascript:estadoGuiasCreadasForm()">Creadas</a>
@@ -269,8 +181,8 @@
               <h6 class="collapse-header">Opciones:</h6>
              
               
-              <a class="collapse-item" href="crearRelacion.html">Crear relación</a>
-              <a class="collapse-item" href="relacionesCreadas.html">Historial relaciones creadas</a>
+              <a class="collapse-item" href="crearRelacionPuntoheka.html">Crear relación</a>
+              <a class="collapse-item" href="relacionesCreadasPuntoheka.html">Historial relaciones creadas</a>
 
          
              
@@ -296,7 +208,7 @@
 
         <!-- Nav Item - buscar por número de guía -->
         <li class="nav-item">
-          <a class="nav-link" href="/buscarGuia.html">
+          <a class="nav-link" href="/buscarGuiaPuntoheka.html">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Buscar # de guía</span></a>
         </li>
@@ -423,12 +335,12 @@
                 </a>
                 <!-- Dropdown - User Information -->
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                  <a class="dropdown-item" href="perfil.html">
+                  <a class="dropdown-item" href="perfilPuntoheka.html">
                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                     Perfil de usuario
                   </a>
                  
-                    <a class="dropdown-item" href="javascript:cerrarSesion()">
+                    <a class="dropdown-item" href="javascript:cerrarSesionPuntoheka()">
                       <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                       Salir
                     </a>
