@@ -3686,6 +3686,214 @@ CPNcorreo:CPNcorreo
         
 }
 
+function PruebaCotizacion(){
+let pagina="";
+  //iniciar sesion
+  fetch('https://aveonline.co/api/comunes/v1.0/autenticarusuario.php',{
+    method: 'POST',
+    headers: {
+      'Content-Type':'application/json'
+    },
+    body: JSON.stringify(
+      {
+      "tipo":"auth",
+
+      "usuario":"hernandoram1998",
+  
+      "clave":"3456" 
+       } )
+  }).then((response)=> response.json())
+  .then((data)=>{
+
+/////////////////// cotizar envio
+
+fetch('https://aveonline.co/api/nal/v1.0/generarGuiaTransporteNacional.php',{
+    method: 'POST',
+    headers: {
+      'Content-Type':'application/json'
+    },
+    body: JSON.stringify(
+      {
+        "tipo":"cotizar",
+
+        "token": data.token,
+    
+        "idempresa": "11635",
+    
+        "origen": "BOGOTA(CUNDINAMARCA)",
+    
+        "destino":"MEDELLIN(ANTIOQUIA)",
+    
+        "unidades":"1",
+    
+        "kilos":"1",
+    
+        "valordeclarado":"35000",
+    
+        "idasumecosto":"0",
+    
+        "contraentrega":"0",
+    
+        "valorrecaudo":"100000"
+       } )
+  
+  
+  
+      }).then((response2)=> response2.json())
+  .then((json)=>{
+    inHTML('cotizaciones-encontradas','');
+    console.log(json.cotizaciones.length);
+    for (let i = 0; i < json.cotizaciones.length; i++) {
+      
+///////////////////
+
+pagina+=`
+
+<!-- TCC -->
+<div  class="col-lg-6" >
+
+  <div class="card position-relative">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">
+      <a class="navbar-brand" href="#">${json.cotizaciones[i].nombreTransportadora}</a>
+      </h6>
+      
+    </div>
+    <div class="card-body">
+      <div class="mb-3">
+      <!--
+      <h6>${json.status + " | " + json.message}</h6>
+      -->
+        <code>TRAYECTO: ${json.cotizaciones[i].trayecto}</code>
+      </div>
+      <div class="small mb-1">TIEMPO DE ENTREGA: ${json.cotizaciones[i].diasentrega}</div>
+      <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+        <a class="navbar-brand" href="#">COSTO DE ENVÍO: ${parseInt(json.cotizaciones[i].total) + parseInt(comision_heka)}</a>
+       
+        <!--
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Dropdown
+            </a>
+            <div class="dropdown-menu dropdown-menu-right animated--grow-in" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="#">Action</a>
+              <a class="dropdown-item" href="#">Another action</a>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item" href="#">Something else here</a>
+            </div>
+            
+           
+          </li>
+        </ul>
+        -->
+        
+      </nav>
+
+      <a>NOTA IMPORTANTE: El valor de recaudo debe ser mayor al costo de envío</a>
+      <a class="navbar-brand" href="/plataforma.html">Realizar nueva cotización</a>
+
+      
+      <h1> </h1>
+     
+      
+
+
+
+
+
+      </form>
+      
+      <a  class="btn btn-danger"  id="boton${i}" href="javascript:boton${i}()" aria-haspopup="true" aria-expanded="false">
+        CREAR GUÍA
+      </a>
+
+      <script>
+
+function boton${i}(){
+
+
+window.alert('El valor de recaudo debe ser superior al valor de envío');
+
+
+}
+</script>
+      
+     
+      
+      <!--
+      <p class="mb-0 small">NOTA: This utility animates the CSS transform property, meaning it will override any existing transforms on an element being animated! In this theme, the grow in animation is only being used on dropdowns within the navbar.</p>
+        -->
+
+    </div>
+    
+    
+  </div>
+  </div>
+
+
+
+ <!------------------------------------------------------------------------------------------------>
+
+
+`;
+
+
+    }
+    printHTML('cotizaciones-encontradas',pagina);
+
+
+
+
+
+
+
+
+
+  })
+
+
+
+
+
+
+
+  })
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ 
+  
+
 
 
 
