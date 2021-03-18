@@ -132,10 +132,10 @@
 				
 				<div class="contenido-textos">
 
-					<h3><span>1</span>Costo de envío</h3>
 					<div data-index="true" id="cotizar_envio">
 						<!-- Page Heading -->
 						<div style="display: block;" class="m-5" id="cotizador">
+							<h3 class="mb-4"><span>1</span>Costo de envío</h3>
 						  <h1 class="h3 mb-4 text-gray-800">Cotizar envío</h1>
 						  <hr class="sidebar-divider"></hr>
 						  <form class="user" name="cotizacionEnvio" id="cotizar-envio">
@@ -167,23 +167,23 @@
 							</div>
 			
 							<div class="form-group row align-items-end">
-							  <div class="col-sm-6 mb-3 mb-sm-0">
+							  <div class="col-lg-6 mb-3 mb-sm-4">
 								<h6>Recaudo <span>(valor a cobrar al cliente)</span></h6>
 								<input type="number" class="form-control form-control-user" id="valor-a-recaudar" step="1000" name="recaudo" autocomplete="off" min="5000" max="2000000" >
 							  </div>      
 			
-							  <div class="col-sm-6">
+							  <div class="col">
 								<h6>Dimensiones <span>(Expresadas en Centímetros)</span></h6>
 								<div class="row">
-								  <div class="col-4 d-flex align-items-center">
+								  <div class="col-sm-4 d-flex align-items-center mb-2">
 									<label for="dimension-ancho">Ancho:  </label>
 									<input type="number" class="form-control form-control-user ml-2" id="dimension-ancho" name="dimension-ancho" autocomplete="off" min="1" max="150" >
 								  </div>
-								  <div class="col-4 d-flex align-items-center">
+								  <div class="col-sm-4 d-flex align-items-center mb-2">
 									<label for="dimension-largo">Largo:  </label>
 									<input type="number" class="form-control form-control-user ml-2" id="dimension-largo" name="dimension-Largo" autocomplete="off" min="1" max="150" >
 								  </div>
-								  <div class="col-4 d-flex align-items-center">
+								  <div class="col-sm-4 d-flex align-items-center mb-2">
 									<label for="dimension-alto">Alto:  </label>
 									<input type="number" class="form-control form-control-user ml-2" id="dimension-alto" name="dimension-alto" autocomplete="off" min="1" max="150" >
 								  </div>
@@ -358,7 +358,21 @@
             direccion: "direccion",
             celular: "celular",
             correo: "correo@ejemplo.com"
-          }
+        }
+
+		precios_personalizados = {
+			costo_zonal1: 6750,
+			costo_zonal2: 10200,
+			costo_zonal3: 2700,
+			costo_nacional1: 11500,
+			costo_nacional2: 17700,
+			costo_nacional3: 3600,
+			costo_especial1: 21200,
+			costo_especial2: 32000,
+			costo_especial3: 6700,
+			comision_servi: 3.1,
+			comision_heka: 2.9
+		};
 	</script>
 
     <!-- Bootstrap core JavaScript-->

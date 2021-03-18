@@ -1,16 +1,6 @@
 let datos_de_cotizacion,
-    datos_a_enviar = new Object({
-        nombre_unidad_empaque: "heka",
-        numero_piezas: 1,
-        cantidad: 1,
-        tiempo_de_entrega: 1,
-        producto: 2,
-        forma_pago: 2,
-        medio_transporte: 2,
-        unidad_longitud: "cm",
-        unidad_peso: "kg"
-    });
-
+    datos_a_enviar = new Object({});
+    console.log(datos_usuario)
 // Esta funcion verifica que los campos en el form esten llenados correctamente
 function cotizador(){
     let ciudadR = document.getElementById("ciudadR"),
@@ -23,8 +13,8 @@ function cotizador(){
         peso: value("Kilos") < 3 ? 3 : value("Kilos"),
         seguro: value("Seguro"), 
         recaudo: value("valor-a-recaudar"), 
-        trayecto: Math.floor((Math.random() * 5) + 1), 
-        tiempo: revisarTrayecto(), 
+        trayecto: revisarTrayecto(), 
+        tiempo: "2-3", 
         precio: calcularCostoDeEnvio(), 
         ancho: value("dimension-ancho"), 
         largo: value("dimension-largo"), 
@@ -56,6 +46,11 @@ function cotizador(){
         } else {
             //Si todo esta Correcto...
             verificador()
+            if(revisarTrayecto() == "Urbano") {
+                datos_de_cotizacion.tiempo = "1-2"
+            } else if(revisarTrayecto() == "Especial"){
+                datos_de_cotizacion.tiempo = "5-8"
+            }
             let mostrador = document.getElementById("result_cotizacion");
             mostrador.style.display = "block"
             mostrador.innerHTML = response(datos_de_cotizacion);
@@ -71,8 +66,7 @@ function cotizador(){
             datos_a_enviar.peso = value("Kilos");
             datos_a_enviar.valor = value("valor-a-recaudar");
             datos_a_enviar.correoR = datos_usuario.correo || "notiene@gmail.com";
-            datos_a_enviar.celularR = datos_usuario.celular;
-            datos_a_enviar.nombreR = datos_usuario.nombre_completo
+            datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo
             console.log(datos_a_enviar)
     
             document.getElementById("boton_continuar").addEventListener("click", () =>{
@@ -81,7 +75,29 @@ function cotizador(){
                 creador.innerHTML = response(datos_de_cotizacion, true);
                 location.href = "#crear_guia";
                 scrollTo(0, 0);
+
+                let informacion = document.getElementById("informacion-personal");
+                document.getElementById("producto").addEventListener("blur", () => {
+                    let normalmente_envia = false;
+                    for(let product of datos_usuario.objetos_envio){
+                        product = product.toLowerCase();
+                        if(value("producto").toLowerCase() == product){
+                            normalmente_envia = true;
+                        }
+                    }
+                    let aviso = document.getElementById("aviso-producto");
+                    if(!normalmente_envia){
+                        aviso.innerHTML = "No se registra en lo que normalmente envías: <b>\"" + datos_usuario.objetos_envio.join(", ") + "\".</b> \r si deseas continuar de todos modos, solo ignora este mensaje";
+                        aviso.classList.remove("d-none");
+                    }else {
+                        aviso.classList.add("d-none")
+                    }
+                })
+
+                console.log(informacion)
             })
+
+            console.log(datos_de_cotizacion.tiempo)
 
             location.href = "#result_cotizacion"
         }
@@ -125,22 +141,22 @@ function response(datos, tipo) {
                     <h5>Seguro</h5>
                     <input readonly="readonly" type="text" class="form-control form-control-user" value="$${convertirMiles(datos.seguro)}" required="">  
                 </div>
-                <div class="col-sm-6 mb-3 mb-sm-0">
+                <div class="col-lg-6 mb-3 mb-sm-0">
                     <h5>Recaudo</h5>
                     <input readonly="readonly" type="text" class="form-control form-control-user" value="$${convertirMiles(datos.recaudo)}" required="">  
                 </div>
-                <div class="col-sm-6">
+                <div class="col">
                         <h5>Dimensiones <span>(Expresadas en Centímetros)</span></h5>
                         <div class="row d-flex justify-content-center">
-                        <div class="col-6 col-md-4 mt-2 d-flex align-items-center">
+                        <div class="col-sm-4 mt-2 d-flex align-items-center">
                             <h6>Ancho:  </h6>
                             <input readonly="readonly type="text" class="form-control form-control-user ml-2" value="${datos.ancho} Cm">
                         </div>
-                        <div class="col-6 col-md-4 mt-2 d-flex align-items-center">
+                        <div class="col-sm-4 mt-2 d-flex align-items-center">
                             <h6>Largo:  </h6>
                             <input readonly="readonly type="text" class="form-control form-control-user ml-2" value="${datos.largo} Cm">
                         </div>
-                        <div class="col-6 col-md-4 mt-2 d-flex align-items-center">
+                        <div class="col-sm-4 mt-2 d-flex align-items-center">
                             <h6>Alto:  </h6>
                             <input readonly="readonly type="text" class="form-control form-control-user ml-2" value="${datos.alto} Cm">
                         </div>
@@ -156,7 +172,7 @@ function response(datos, tipo) {
             <div class="card-body row">
                 <div class="col-sm-8 mb-3 mb-sm-0">
                     <h5>Tipo de Trayecto: <span>${datos.trayecto}</span></h5>
-                    <h5>tiempo de trayecto: <span>${datos.tiempo}</span></h5>
+                    <h5>Tiempo de trayecto: <span>${datos.tiempo} días</span></h5>
                     <div class="col-sm-6 mb-3 mb-sm-0">
                         <h5>Costo de envío</h5>
                         <input readonly="readonly" type="text" class="form-control form-control-user" value="$${convertirMiles(datos.precio)}" required="">  
@@ -165,22 +181,22 @@ function response(datos, tipo) {
             </div>
         </div>`),
         datos_remitente = crearNodo(`
-        <div class="card card-shadow m-6 mt-5">
+        <div class="card card-shadow m-6 mt-5" id="informacion-personal">
             <div class="card-header py-3">
                 <h4 class="m-0 font-weight-bold text-primary text-center">Datos de ${datos_usuario.nombre_completo}</h4>
             </div>
             <div class="card-body row">
                 <div class="col-sm-6 mb-3 mb-sm-0">
                     <h5>Nombre del Remitente</h5>
-                    <input readonly="readonly" type="text" class="form-control form-control-user" value="${datos_usuario.nombre_completo}" required="">  
+                    <input id="actualizar_nombreR" type="text" class="form-control form-control-user" value="${datos_usuario.nombre_completo}" required="">  
                 </div>
                 <div class="col-sm-6 mb-3 mb-sm-0">
                     <h5>Dirección del Remitente</h5>
-                    <input readonly="readonly" type="text" class="form-control form-control-user" value="${datos_usuario.direccion}" required="">  
+                    <input id="actualizar_direccionR" type="text" class="form-control form-control-user" value="${datos_usuario.direccion}" required="">  
                 </div>
                 <div class="col-sm-6 mb-3 mb-sm-0">
                     <h5>Celular del remitente</h5>
-                    <input readonly="readonly" type="text" class="form-control form-control-user" value="${datos_usuario.celular}" required="">  
+                    <input id="actualizar_celularR"  type="text" class="form-control form-control-user" value="${datos_usuario.celular}" required="">  
                 </div>
             </div>
         </div>
@@ -201,9 +217,9 @@ function response(datos, tipo) {
                         <input type="number" id="identificacionD" class="form-control form-control-user" value="" placeholder="ej. 123456789" required="">
                         <label for="tipo-doc-dest"class="col-form-label">Tipo De Documento</label>
                         <select class="custom-select" form="datos-destinatario" id="tipo-doc-dest">
-                            <option value="">Seleccione</option>
-                            <option value="NIT">NIT</option>
-                            <option value="CC">CC</option>
+                            <option value="2">Seleccione</option>
+                            <option value="1">NIT</option>
+                            <option value="2">CC</option>
                         </select>
                     </div>
                     <div class="col-sm-6 mb-3 mb-sm-0">
@@ -242,9 +258,10 @@ function response(datos, tipo) {
             class="btn btn-success mt-3" value="Continuar"/></div>`),
         boton_crear = crearNodo(`<input type="button" id="boton_final_cotizador" 
             class="btn btn-success btn-block mt-5" value="Crear Guía" onclick="crearGuiasServientrega()"/>`),
-        input_producto = crearNodo(`<div class="col-sm-6 mb-3 mb-sm-0">
+        input_producto = crearNodo(`<div class="col mb-3 mb-sm-0">
             <h6>producto <span>(Lo que se va a enviar)</span></h6>
             <input id="producto" class="form-control form-control-user" name="producto" type="text" placeholder="Introduce el contenido de tu envío">
+            <p id="aviso-producto" class="text-danger d-none m-2"></p>
         </div>`);
 
     div_principal.append(divisor, boton_regresar, info_principal, servientrega, boton_continuar)
@@ -279,7 +296,6 @@ function regresar() {
 function revisarTrayecto(){
     let c_origen = document.getElementById('ciudadR').dataset;
     let c_destino = document.getElementById('ciudadD').dataset;
-    let tipo_tray;
     if(c_destino.tipo_trayecto == "TRAYECTO ESPECIAL"){
         return "Especial"
     } else {
@@ -296,9 +312,10 @@ function calcularCostoDeEnvio(kilos, vol) {
     let kg = kilos || Math.floor(value("Kilos")), 
         volumen = vol || value("dimension-ancho") * value("dimension-alto") * value("dimension-largo"),
         factor_de_conversion = 0.022,
-        sobreflete = Math.max(value("valor-a-recaudar") * 0.031, 3000),
-        sobreflete_heka = value("valor-a-recaudar") * 0.03,
-        total  = revisadorInterno(32000, 10200, 17700);
+        sobreflete = Math.ceil(Math.max(value("valor-a-recaudar") * precios_personalizados.comision_servi / 100, 3000)),
+        sobreflete_heka = Math.ceil(value("valor-a-recaudar") * precios_personalizados.comision_heka / 100),
+        total  = revisadorInterno(precios_personalizados.costo_especial2, 
+            precios_personalizados.costo_nacional2, precios_personalizados.costo_zonal2);
 
     if(kg < 3){
         kg = 3;
@@ -310,15 +327,17 @@ function calcularCostoDeEnvio(kilos, vol) {
     kg = Math.max(peso_con_volumen, kg)
     
     if(kg >= 1 && kg < 4){
-        total = revisadorInterno(21200, 6750, 11500)
-    } else if (kg >= 4 && kg < 7) {
+        total = revisadorInterno(precios_personalizados.costo_especial1, 
+            precios_personalizados.costo_nacional1, precios_personalizados.costo_zonal1)
+    } else if (kg >= 4 && kg < 9) {
         
     } else {
-        let kg_adicional = kg - 6;
-        total += (kg_adicional * revisadorInterno(6700, 2700, 3600))
+        let kg_adicional = kg - 8;
+        total += (kg_adicional * revisadorInterno(precios_personalizados.costo_especial3, 
+            precios_personalizados.costo_nacional3, precios_personalizados.costo_zonal3))
     }
 
-    function revisadorInterno(especial, urbano, nacional){
+    function revisadorInterno(especial, nacional, urbano){
         switch(revisarTrayecto()){
             case "Especial":
                 return especial;
@@ -363,10 +382,21 @@ function crearGuiasServientrega() {
         } else if (value("telefonoD").length != 10) {
             alert("Por favor verifique que el celular esta escrito correctamente (debe contener 10 digitos)")
         } else {
-            let fecha = new Date()
+            let fecha = new Date(), mes = fecha.getMonth() + 1, dia = fecha.getDate();
+            if(dia < 10){
+                dia = "0" + dia;
+            }
+            if(mes < 10) {
+                mes = "0" + mes;
+            }
+
+            
+            datos_a_enviar.nombreR = value("actualizar_nombreR")
+            datos_a_enviar.direccionR = value("actualizar_direccionR")
+            datos_a_enviar.celularR = value("actualizar_celularR")
             datos_a_enviar.nombreD = value("nombreD");
             datos_a_enviar.identificacionD = value("identificacionD") || 123;
-            datos_a_enviar.direccion = value("direccionD") + " " + value("barrioD");
+            datos_a_enviar.direccionD = value("direccionD") + " " + value("barrioD");
             datos_a_enviar.telefonoD = value("telefonoD");
             datos_a_enviar.celularD = value("celularD") || value("telefonoD");
             datos_a_enviar.correoD = value("correoD") || "notiene@gmail.com";
@@ -374,10 +404,9 @@ function crearGuiasServientrega() {
             datos_a_enviar.dice_contener = value("producto");
             datos_a_enviar.observaciones = value("observaciones");
             datos_a_enviar.recoleccion_esporadica = recoleccion;
-            datos_a_enviar.fecha = `${fecha.getFullYear()}-0${fecha.getMonth() + 1}-0${fecha.getDate()}`
+            datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`
 
             document.getElementById("boton_final_cotizador").classList.add("disabled");
-            console.log(document.getElementById("boton_final_cotizador").classList)
 
             console.log(datos_a_enviar)
             enviar_firestore(datos_a_enviar);
@@ -453,17 +482,18 @@ function enviar_firestore(datos){
 }
 
 function convertirMiles(n){
-    let number_inv = n.toString().split("").reverse();
+    let entero = Math.floor(n);
+    let number_inv = entero.toString().split("").reverse();
     let response = []
     for(let i = 0; i < number_inv.length; i++){
       response.push(number_inv[i]);
       if((i+1) % 3 == 0){
         if(i+1 != number_inv.length){
             response.push(".")
-        }
-        
+        }   
       }
-    }
-    
+    }  
     return response.reverse().join("");
   };
+
+
