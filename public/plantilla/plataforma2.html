@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
+
+
+  <title>hekaentrega.co</title>
+
+  <!--autocompeltar-->
+  <script type="text/javascript" src="https://www.aveonline.co/app/incluidos/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="https://www.aveonline.co/app/modulos/utilidades/jquery.autocomplete.min.js"></script>
+  <!-- Custom fonts for this template-->
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link
+    href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+    rel="stylesheet">
+
+  <!-- Custom styles for this template-->
+  <link href="css/sb-admin-2.min.css" rel="stylesheet">
+
+  <!--Datatebles-->
+  <link rel="stylesheet" type="text/css" href="vendor/datatables/dataTables.bootstrap4.min.css">
+
+</head>
+
+<body class="bg-gradient-primary">
+  <!--Verificar usuario comun-->
+  <!-- <div id="verificarUsuarioComun" ></div> -->
+  <!-- COTIZADOR -->
+  <div id="sesionIniciada-mostrar-ocultar" style="display: block;">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+      <!-- Sidebar -->
+      <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar">
+        <!-- Sidebar - Brand -->
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="plataforma2.html">
+          <div class="sidebar-brand-icon rotate-n-15">
+            <i class="fas fa-laugh-wink"></i>
+          </div>
+          <!-- <div class="sidebar-brand-text mx-3" id="idUsuario"> </div> -->
+        </a>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider my-0">
+
+        <!-- Nav Item - Cotizar envio -->
+        <li class="nav-item">
+          <a class="nav-link" href="#cotizar_envio" onclick="mostrar('cotizar_envio')">
+            <i class="fas fa-fw fa-balance-scale"></i>
+            <span>Cotizar envío</span></a>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Heading -->
+        <div class="sidebar-heading">
+          Documentos
+        </div>
+
+        <!-- Nav Item - Pages Collapse Menu -->
+        <li class="nav-item">
+          <a class="nav-link" href="#historial_guias" data-toggle="collapse" onclick="mostrar('historial_guias')">
+            <i class="fas fa-fw fa-cog"></i>
+            <span>Guías</span>
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#historial_documentos" onclick="mostrar('historial_documentos')">
+            <i class="fas fa-fw fa-file-alt"></i>
+            <span>Documentos</span></a>
+        </li>
+
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Sidebar Toggler (Sidebar) -->
+        <div class="text-center d-none d-md-inline">
+          <button class="rounded-circle border-0" id="sidebarToggle"></button>
+        </div>
+
+      </ul>
+      <!-- End of Sidebar -->
+
+
+      <!-- Content Wrapper -->
+      <div id="content-wrapper" class="d-flex flex-column">
+        <div class="row">
+          <div  class="text-center bg-dark text-white col-sm">Area logística +57 <a class="text-white" href="https://wa.link/j8l2ku">321 336 1911</a></div>
+          <div  class="text-center bg-dark text-white col-sm">Gerencia +57 <a class="text-white" href="https://wa.link/jwryoa">312 463 8608</a></div>
+          <div class="text-center text-white bg-info col-sm">Saldo: <a class="text-white" id="saldo" href="https://wa.link/jwryoa"></a></div>
+        </div>
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+            <!-- Sidebar Toggle (Topbar) -->
+            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+              <i class="fa fa-bars"></i>
+            </button>
+
+            <!-- Topbar Navbar -->
+            <ul class="navbar-nav ml-auto">
+                      
+              <div class="topbar-divider d-none d-sm-block">
+                
+              </div>
+
+              <!-- Nav Item - User Information -->
+              <!-- <li class="nav-item dropdown no-arrow">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false">
+                  <span class="mr-2 d-none d-lg-inline text-gray-800 small"></span><code id="idUsuario2" class="text-dark"> </code> 
+                </a> -->
+                
+              <!-- Nav Item - User Information -->
+              <li class="nav-item dropdown no-arrow">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false">
+                  <span id="usuario" class="mr-2 d-lg-inline text-gray-600 small" ></span>
+                  <img class="img-profile rounded-circle" src="img/unnamed.png">
+                </a>
+                
+                <!-- Dropdown - User Information -->
+                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                  <a class="dropdown-item" href="#perfil" onclick="mostrar('perfil')" >
+                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                    Perfil de usuario
+                  </a>
+                 
+                  <a class="dropdown-item " href="#" data-toggle="modal" data-target="#cerrarSesionModal">
+                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                    Salir
+                  </a>
+                </div>
+              </li>
+            </ul>
+        </nav>
+        <!-- End of Topbar -->
+
+        <!-- Main Content -->
+        <div id="content">     
+          <!-- Begin Page Content -->
+          <div class="container-fluid" id="cotizar_envio">
+            <!-- Page Heading -->
+            <div style="display: block;" id="cotizador">
+              <h1 class="h3 mb-4 text-gray-800">Cotizar envío</h1>
+              <hr class="sidebar-divider"></hr>
+              <form class="user" name="cotizacionEnvio" id="cotizar-envio">
+                <div class="form-group row">
+                  <div class="col-sm-6 mb-2">
+                    <h6>CIUDAD REMITENTE</h6>
+                    <h6>**Escribir ciudad y luego elegir del menú desplegable**</h6>
+                    <input   name="ciudadR" type="text" class="form-control form-control-user" id="ciudadR"  autocomplete="off" required>
+                  </div>
+
+                  <div class="col-sm-6 mb-2">
+                    <h6>CIUDAD DESTINO</h6>
+                    <h6>**Escribir ciudad y luego elegir del menú desplegable**</h6>
+                    <input type="text"  name="ciudadD" class="form-control form-control-user" id="ciudadD" autocomplete="off"  required>
+                  </div>
+                </div>
+
+                <div class="form-group row align-items-end mb-3">
+                  <div class="col-sm-6 mb-3 mb-sm-3">
+                    <h6>KILOS</h6>
+                    <input type="number" class="form-control form-control-user" step="any" name="kilos" id="Kilos" min="3" max="25" autocomplete="off" required>  
+                  </div>      
+                  <div class="col mb-3 mb-sm-3">
+                    <h6>Recaudo <span>(valor a cobrar al cliente)</span></h6>
+                    <input type="number" class="form-control form-control-user" id="valor-a-recaudar" step="1000" name="recaudo" autocomplete="off" min="5000" max="2000000" >
+                  </div>      
+                </div>
+
+                <div class="form-group row align-items-end">
+                  <div class="col">
+                    <h6 class="mb-2 text-center">Dimensiones <span>(Expresadas en Centímetros)</span></h6>
+                    <div class="row">
+                      <div class="col-sm-4 d-flex align-items-center mb-2">
+                        <label for="dimension-ancho">Ancho:  </label>
+                        <input type="number" class="form-control form-control-user ml-2" id="dimension-ancho" name="dimension-ancho" autocomplete="off" min="1" max="150" >
+                      </div>
+                      <div class="col-sm-4 d-flex align-items-center mb-2">
+                        <label for="dimension-largo">Largo:  </label>
+                        <input type="number" class="form-control form-control-user ml-2" id="dimension-largo" name="dimension-Largo" autocomplete="off" min="1" max="150" >
+                      </div>
+                      <div class="col-sm-4 d-flex align-items-center mb-2">
+                        <label for="dimension-alto">Alto:  </label>
+                        <input type="number" class="form-control form-control-user ml-2" id="dimension-alto" name="dimension-alto" autocomplete="off" min="1" max="150" >
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <hr class="sidebar-divider"></hr>
+              </form>
+  
+              <div id="texto_envio"></div>
+              <button style="display: block;" id="boton_cotizar"  onclick="cotizador()" class="btn btn-primary btn-user">
+                Cotizar envío
+              </button>
+              <!-- End of Main Content -->
+            </div> <!-- End of Main Content -->
+            <div id="result_cotizacion" class="col-sm"></div>
+          </div>
+          <hr/>
+          
+          <div class="container-fluid p-5" id="perfil" style="display: none;">
+            <div class="card p-5"> 
+              <div class="text-center" >
+                <img style="max-width:100%;width:100px;height:100px;" src="img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg"  alt="1">
+                <h1 id="texto-cargar-datos" class="h4 text-gray-900 mb-4">Cargando datos....</h1>
+                <div class="text-center text-danger" style="display: none;">
+                  <a class="small text-secondary" >PERSONA NATURAL |</a>
+                  <a class="small text-danger" href="javascript:mostrarEmpresa()"> EMPRESA</a>
+                  <script>
+                    function mostrarEmpresa(){
+                      document.getElementById('persona-natural').style.display="none";
+                      document.getElementById('empresa').style.display="block";
+                    }
+                  </script>
+                </div>
+              </br>
+              </div>
+              <div id="contenedor-datos-actualizar" style="display: none;">
+                <h1 class="h4 text-gray-900 mb-4">Datos de usuario</h1>
+              <form  class="user">
+                <div class="form-group row">
+                  <div class="col-sm-6 mb-3 mb-sm-0">
+                    <h6>Nombres*</h6>
+                    <input type="text" class="form-control form-control-user" id="CPNnombres"  required>
+                  </div>
+                  <div class="col-sm-6">
+                    <h6>Apellidos*</h6>
+                    <input type="text" class="form-control form-control-user" id="CPNapellidos"  required>
+                  </div>
+                </div>
+                <div class="form-group row">
+                  <div class="col-sm-6 mb-3 mb-sm-0">
+                    <h6>Tipo documento*</6>
+                    <h6></h6>
+                    
+                    <select  class="form-control form-control" id="CPNtipo_documento">
+                      <option value="CC">CC</option> 
+                      <option value="PASAPORTE">PASAPORTE</option>
+                      <option value="NIT(RUT)">NIT (RUT)</option>
+                    </select>
+                  </div>
+                  <div class="col-sm-6">
+                    <h6>Número identificación*</h6>
+                    <input type="number" class="form-control form-control-user" id="CPNnumero_documento"  required>
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <div class="col-sm-6 mb-3 mb-sm-0">
+                    <h6>Celular*</h6>
+                    <input type="number" class="form-control form-control-user" id="CPNtelefono"  required>
+                  </div>
+                  <div class="col-sm-6">
+                    <h6>Celular #2</h6>
+                    <input type="number" class="form-control form-control-user" id="CPNcelular">
+                  </div>
+                  
+                </div>
+
+                <div class="form-group row">
+                  <div class="col-sm-6 mb-3 mb-sm-0">
+                    <h6>Ciudad*</h6>
+                    <h6>**Digitar ciudad y luego elegir ciudad del menú desplegable**</h6>
+                    
+                    <!--
+                    <input type="text" list="ciudades" class="form-control form-control-user" id="CPNciudad"  required>
+                    -->
+                    <input name=""  class="form-control form-control-user" id="CPNciudad" size="1" autocomplete="off"></input>
+                    
+                  </div>
+                  <div class="col-sm-6">
+                    <h6>Dirección de recogida*</h6>
+                  </br>
+                    <input type="text" class="form-control form-control-user" id="CPNdireccion"  required>
+                  </div>
+                  
+                </div>
+
+                <div class="form-group row">
+                  <div class="col-sm-6 mb-3 mb-sm-0">
+                    <h6>Barrio*</h6>
+                    <input type="text" class="form-control form-control-user" id="CPNbarrio"  required>
+                  </div>
+                  <div class="col-sm-6">
+                    <h6>Nombre de la empresa*</h6>
+                    <input readonly="readonly" type="text" class="form-control form-control-user" id="CPNnombre_empresa"  required>
+                  </div>
+                  
+                </div>
+
+                <div class="form-group row">
+                  <div class="col-md-6">
+                    <h6>Correo electrónico*</h6>
+                    <input readonly="readonly" type="email"  class="form-control form-control-user" id="CPNcorreo"
+                      aria-describedby="emailHelp"  required>
+                  </div>
+                  <div class="col">
+                    <h6>Cosas que envía</h6>
+                    <input type="text" class="form-control form-control-user" id="CPNobjetos_envio" placeholder="objeto1,objeto2,etc..."  required>
+                  </div>
+                </div>
+              
+                <div class="form-group">
+                </br> 
+                </br>
+                
+                  <input type="checkbox"  name="" id="checkbox-banco" onchange="pruebacheck()"> Mostrar Datos Bancarios
+                  </div>
+
+                <div id="mostrar-ocultar-registro-bancario" style="display: none;">
+                  <h6 class="text-danger">DATOS BANCARIOS</h6>
+                </br>
+                  <div class="form-group row">
+                    
+                    <div class="col-sm-6 mb-3 mb-sm-0">
+                      <h6>Banco*</6>
+                        <input type="text" class="form-control form-control-user" id="CPNbanco"  required>
+                    </div>
+                    <div class="col-sm-6">
+                      <h6>Nombre representante*</h6>
+                      <input type="text" class="form-control form-control-user" id="CPNnombre_representante"  required>
+                    </div>
+                  </div>
+
+                  <div class="form-group row">
+                    <div class="col-sm-6 mb-3 mb-sm-0">
+                      <h6>Tipo de cuenta*</6>
+                      <h6></h6>
+                      
+                      <select  class="form-control form-control" id="CPNtipo_de_cuenta">
+                        <option value="Ahorros">Ahorros</option> 
+                        <option value="Corriente">Corriente</option>
+                        
+                      </select>
+                    </div>
+
+
+                    <div class="col-sm-6">
+                      <h6>Número de cuenta*</h6>
+                      <input type="number" class="form-control form-control-user" id="CPNnumero_cuenta"  required>
+                    </div>
+                    
+                  </div>
+
+                  <div class="form-group row">
+                    <div class="col-sm-6">
+                      <h6>Confirmar número de cuenta*</h6>
+                      <input type="number" class="form-control form-control-user" id="CPNconfirmar_numero_cuenta"  required>
+                    </div>
+
+
+                    <div class="col-sm-6 mb-3 mb-sm-0">
+                      <h6>Tipo documento*</6>
+                      <h6></h6>
+                      
+                      <select  class="form-control form-control" id="CPNtipo_documento_banco">
+                        <option value="CC">CC</option> 
+                        <option value="NIT">NIT</option>
+                        <option value="Cédula extranjería">Cédula extranjería</option>
+                        
+                      </select>
+                    </div>
+                    
+                  </div>
+
+                  <div class="form-group row">
+                    <div class="col-sm-6">
+                      <h6>número de identificación*</h6>
+                      <input type="number" class="form-control form-control-user" id="CPNnumero_identificacion_banco"  required>
+                    </div>
+
+
+                    <div class="col-sm-6">
+                      <h6>Confirmar número de identificación*</h6>
+                      <input type="number" class="form-control form-control-user" id="CPNconfirmar_numero_identificacion_banco"  required>
+                    </div>
+                    
+                  </div>
+                  
+                </div>
+
+                <div class="form-group">
+                </br> 
+              </br>
+                
+                  <input type="checkbox" id="CPNcheck_terminos_condiciones" onchange="checkTerminosCondiciones()"> <a href="terminos.html">Acepto términos y condiciones</a>
+                  <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
+                </div>  
+              </form>
+              <!--Desactivado este boton por ahora-->
+                <!-- <button onclick="actualizarCuenta()" class="btn btn-primary btn-user btn-block">
+                  Actualizar datos
+                </button> -->
+              </div>
+              
+                <hr>
+              <div id="error_crear_cuenta"></div>
+              <hr>
+            </div>
+          </div>
+          <hr/>
+
+          <div class="container-fluid" id="historial_guias" style="display: none;">
+            <h3 class="m-0 font-weight-bold text-primary">Historial de guías</h3>
+            <br>
+            
+            <!--Formulario de busqueda guias-->
+            <div class="form-group row">
+              <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                  <h6>Fecha inicio</h6>
+                  <input type="date" class="form-control form-control-user"  id="fecha_inicio"   required>
+                </div>
+                <div class="col-sm-6">
+                  <h6>Fecha final</h6>
+                  <input type="date" class="form-control form-control-user"  id="fecha_final"    required>
+                </div>
+              </div>
+            
+              <button  onclick="cambiarFecha()" class="btn btn-primary btn-user btn-block">
+                Buscar
+              </button>  
+            </div>
+            <br/>
+            <div class="card-body" style="display: none;" id="nohaydatosHistorialGuias">
+            <h6 class="text-danger">SIN DATOS EXISTENTES PARA TU BÚSQUEDA</h6>
+            </div>
+            <div class="card-shadow mb-4" style="display: none;" id="tabla-historial-guias">
+              <div class="card-body">
+                <h6>La relación se descarga luego de crear todos los envíos a despachar</h6>
+                <button class="btn btn-success mb-3" id="enviar-documentos" onclick="crearDocumentos()">Crear Documentos</button>   
+                <div class="table-responsive">
+                  <table  class="display table table-bordered" id="dataTable" width="100%" cellspacing="0">  
+                    <thead>
+                      <tr>
+                        <th>Check</th>
+                        <th># guía Heka</th>
+                        <th>Estado</th>
+                        <th>Fecha generación</th>
+                        <th>Remitente</th>
+                        <th>Ciudad dest.</th>
+                        <th>Nombre dest.</th>
+                        <th>Recaudo</th>
+                        <th>Costo envío</th>
+                        <th>Eliminar</th> 
+                      </tr>
+                    </thead>
+                    <tbody id="tabla-guias">
+                      
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <th>Check</th>
+                        <th># guía Heka</th>
+                        <th>Estado</th>
+                        <th>Fecha generación</th>
+                        <th>Remitente</th>
+                        <th>Ciudad dest.</th>
+                        <th>Nombre dest.</th>
+                        <th>Recaudo</th>
+                        <th>Costo envío</th>
+                        <th>Eliminar</th> 
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+          
+          <div class="container-fluid" id="buscar_guia" style="display: none;">
+            <h1 class="h3 mb-4 text-gray-800">BUSCAR GUÍA</h1>
+            <form class="user" action="estadoCompleto" method="post" name="buscarGuia">
+              <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                  <h6>Ingresar en este campo el número de guía</h6>
+                  <input type="text" class="form-control form-control-user" name="numGuia" 
+                  placeholder="Ingresar número de guía" required>       
+                </div>
+                <br/>
+              </div>
+              <button style="display: block;" id="boton_cotizar" type="submit"  class="btn btn-primary btn-user btn-block">
+                Buscar guía
+              </button>
+            </form>
+          </div>
+          
+          <div class="container-fluid" id="historial_documentos" style="display: none;">
+            <h3 class="m-0 font-weight-bold text-primary">Historial de documentos</h3>
+            <br>
+            
+            <!--Formulario de busqueda de documentos-->
+            <div class="form-group row">
+              <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                  <h6>Fecha inicio</h6>
+                  <input type="date" class="form-control form-control-user"  id="fecha_inicio_doc"  required>
+                </div>
+                <div class="col-sm-6">
+                  <h6>Fecha final</h6>
+                  <input type="date" class="form-control form-control-user"  id="fecha_final_doc"  required>
+                </div>
+              </div>
+            
+              <button  onclick="actualizarHistorialDeDocumentos()" class="btn btn-primary btn-user btn-block">
+                Buscar
+              </button>  
+            </div>
+            <br/>
+            <div class="card-body" style="display: none;" id="nohaydatosHistorialDocumentos">
+            <h6 class="text-danger">SIN DATOS EXISTENTES PARA TU BÚSQUEDA</h6>
+            </div>
+            <div class="card-shadow mb-4" style="display: none;" id="tabla-historial-docs">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table  class="display table table-bordered" id="tabla_documentos" width="100%" cellspacing="0">  
+                    <thead>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Identificador de Guias</th>
+                        <th colspan="2">Descargar</th>
+                      </tr>
+                    </thead>
+                    <tbody id="body-documentos">
+                      
+                    </tbody>
+                    <tfoot>
+                      <tr>
+                        <th>Fecha</th>
+                        <th>Identificador de Guias</th>
+                        <th colspan="2">Descargar</th>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
+            
+          </div>
+
+          <div class="container-fluid" id="crear_guia" style="display: none;">
+            <!-- 404 Error Text -->
+            <div class="text-center">
+              <div class="error mx-auto" data-text="404">404</div>
+              <p class="lead text-gray-800 mb-5">Página no encontrada</p>
+              <p class="text-gray-500 mb-0">Intente realizar su consulta nuevamente</p>
+              <a href="plataforma2.html">&larr; Regresar a la plataforma</a>
+            </div>
+          </div>
+        </div>   
+        <!-- Footer -->
+        <footer class="sticky-footer bg-white">
+          <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+              <span>Copyright &copy; HEKA ENTREGA 2020</span>
+            </div>
+          </div>
+        </footer>
+        <!-- End of Footer -->
+      </div>
+      <!-- End of Content Wrapper -->
+    </div>
+    <!-- End of Page Wrapper -->
+<!-------------------------------------------------------------------------------------------------------------------------->
+
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#wrapper">
+    <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="cerrarSesionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">¿Quieres salir de tu cuenta Heka?</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+
+          <div class="modal-body">Presiona Salir, para cerrar sesión</div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+            <a class="btn btn-primary" href="index.html" onclick="cerrarSession()">Salir</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Avisos-->
+    <div class="d-none" id="aviso" style="position: fixed; top: 10px; right: 10px;">
+      <div class="card shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div id="titulo-aviso" class="text-x font-weight-bold text-uppercase mb-1"></div>
+              <div id="texto-aviso" class="h6 mb-0 font-weight-bold text-gray-800"></div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-comments fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+    <!-- FIREBASE -->
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-storage.js"></script>
+    
+    
+    <!-- index.js -->
+    <!--
+      <script src="../../index.js" ></script>
+    -->
+    
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    
+    <!-- main.js -->
+    <script src="js/main.js"></script>
+    <!-- Custom scripts for all pages-->
+    <script src="js/sb-admin-2.min.js"></script>
+
+    <!-- Page level plugins -->
+    <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+    <!-- Page level custom scripts -->
+   <!-- <script src="js/demo/datatables-demo.js"></script> -->
+
+    <!-- para controlar el acceso -->
+    <script>
+      let administracion = false;
+    </script>
+    
+    <script src="js/render.js"></script>
+    <script type="module" src="js/consultarCiudades.js"></script>
+    <script src="js/cargadorDeDatos.js"></script>
+    <script src="js/cotizador.js"></script>
+    <script src="js/manejadorGuias.js"></script>
+  </body>
+  
+</html>
+

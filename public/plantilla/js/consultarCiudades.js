@@ -1,14 +1,18 @@
 import ciudades from "./ciudades.js";
 
-//Funcion de autocompletado de las ciudades en los inputs de ciudad
+
+//Funcion de autocompletado de las ciudades en los inputs de ciudad (Solo funciona en este Script)
 function autocomplete(inp, arr) {
     var currentFocus;
     
+    //Agrega el envento escucha al elemento ingresado
     inp.addEventListener("input", function(e) {
       let ciudades1 = []
         var a, b, i, val = this.value;
         closeAllLists();
+
         if (!val) { return false;}
+
         currentFocus = -1;
         a = document.createElement("DIV");
         a.setAttribute("id", this.id + "autocomplete-list");
@@ -16,6 +20,7 @@ function autocomplete(inp, arr) {
         a.classList.add("m-2", "card", "border", "border-info")
         this.parentNode.appendChild(a);
 
+        // Recorre el arreglo introducido
         for (i = 0; i < arr.length; i++) {
           let value = arr[i].ciudad +"("+arr[i].departamento +")";
           if (value.substr(0, val.length).toUpperCase() == val.toUpperCase()) {
@@ -76,6 +81,7 @@ function autocomplete(inp, arr) {
           }
         }
     });
+
     function addActive(x) {
       if (!x) return false;
       removeActive(x);
@@ -89,6 +95,7 @@ function autocomplete(inp, arr) {
         x[i].classList.remove("autocomplete-active");
       }
     }
+
     function closeAllLists(elmnt) {
       
       var x = document.getElementsByClassName("autocomplete-items");
@@ -102,7 +109,7 @@ function autocomplete(inp, arr) {
   document.addEventListener("click", function (e) {
       closeAllLists(e.target);
   });
-  }
+}
 
 if(document.getElementById("ciudadR")) {
   autocomplete(document.getElementById("ciudadR"), ciudades);

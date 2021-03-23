@@ -24,6 +24,7 @@
 
 		<nav>
 			<a href="iniciarSesion.html">Iniciar Sesión</a>
+			<a href="iniciarsesion2.html">Acceso Corporativo</a>
 			<a href="register.html">Registrar</a>
 			<a href="#contenedor_sobre-nosotros">Servicios</a>
 			
@@ -128,13 +129,12 @@
 		<section id="contenedor-costoenvio" class="contenedor-costoenvio">
 			<h2 class="titulo">Costos de envío</h2>
 			
-			<div class="contenedor-sobre-nosotros">
 				
 				<div class="contenido-textos">
 
 					<div data-index="true" id="cotizar_envio">
 						<!-- Page Heading -->
-						<div style="display: block;" class="m-5" id="cotizador">
+						<div style="display: block;" class="p-5" id="cotizador">
 							<h3 class="mb-4"><span>1</span>Costo de envío</h3>
 						  <h1 class="h3 mb-4 text-gray-800">Cotizar envío</h1>
 						  <hr class="sidebar-divider"></hr>
@@ -153,27 +153,20 @@
 							  </div>
 							</div>
 			
-							<div class="form-group row align-items-end">
-							  <div class="col-sm-6 mb-3 mb-sm-0">
+							<div class="form-group row align-items-end mb-3">
+							  <div class="col-sm-6 mb-3 mb-sm-2">
 								<h6>KILOS</h6>
 								<input type="number" class="form-control form-control-user" step="any" name="kilos" id="Kilos" min="3" max="25" autocomplete="off" required>  
 							  </div>      
-			
-							  <div class="col-sm-6">
-								<h6>SEGURO MERCANCÍA</h6>
-								<h8>**la transportadora responderá por este valor en caso de perdida**</h8>
-								<input type="number" class="form-control form-control-user" step="1000" name="seguro" id="Seguro" min="5000" max="2000000"  autocomplete="off" required>
-							  </div>
-							</div>
-			
-							<div class="form-group row align-items-end">
-							  <div class="col-lg-6 mb-3 mb-sm-4">
+							  <div class="col mb-3 mb-sm-2">
 								<h6>Recaudo <span>(valor a cobrar al cliente)</span></h6>
 								<input type="number" class="form-control form-control-user" id="valor-a-recaudar" step="1000" name="recaudo" autocomplete="off" min="5000" max="2000000" >
 							  </div>      
+							</div>
 			
+							<div class="form-group row align-items-end">
 							  <div class="col">
-								<h6>Dimensiones <span>(Expresadas en Centímetros)</span></h6>
+								<h6 class="mb-2 text-center">Dimensiones <span>(Expresadas en Centímetros)</span></h6>
 								<div class="row">
 								  <div class="col-sm-4 d-flex align-items-center mb-2">
 									<label for="dimension-ancho">Ancho:  </label>
@@ -204,18 +197,7 @@
 					</div>
 					  <br>
 					<!-- <p>Para visualizar costos de envío dar clic en el siguiente enlace <a href="index_cotizar_envio.html">cotizador</a></p> -->
-
-					
-
-
-
-
 				</div>
-
-			</div>
-
-			
-
 		</section>
 
 	
@@ -373,6 +355,50 @@
 			comision_servi: 3.1,
 			comision_heka: 2.9
 		};
+
+		//funcion que me devuelve a los inputs que estan escritos incorrectamente o vacios Proviene de render.js
+		function verificador(arr, boolean) {
+			let inputs = document.getElementsByTagName("input");
+			let primerInput;
+			for(let i = 0; i < inputs.length; i++){
+				inputs[i].classList.remove("border-danger", "border");
+			}
+
+			if(arr){
+				if(typeof arr == "string") {
+					addId(arr)
+					primerInput = document.getElementById(arr).parentNode;
+				} else {
+					let error = [];
+					for(let id of arr){
+						addId(id)
+						if(addId(id)){
+							error.push(id);
+							primerInput = document.getElementById(error[0]).parentNode;
+						}
+					}
+				}
+				primerInput.scrollIntoView({
+					behavior: "smooth"
+				})
+				console.log(primerInput)
+			}
+			
+			function addId(id){
+				let elemento = document.getElementById(id);
+				if(elemento.value == ""){
+					elemento.classList.add("border", "border-danger");
+					return true
+				} else if(boolean) {
+					elemento.classList.add("border", "border-danger");
+					return true
+				} else {
+					elemento.classList.remove("border-danger");
+					return false
+				}
+			}
+
+		}
 	</script>
 
     <!-- Bootstrap core JavaScript-->

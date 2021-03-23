@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
+
+
+  <title>hekaentrega.co</title>
+
+  <!--autocompeltar-->
+  <script type="text/javascript" src="https://www.aveonline.co/app/incluidos/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="https://www.aveonline.co/app/modulos/utilidades/jquery.autocomplete.min.js"></script>
+  <!-- Custom fonts for this template-->
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link
+    href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+    rel="stylesheet">
+
+  <!-- Custom styles for this template-->
+  <link href="css/sb-admin-2.min.css" rel="stylesheet">
+
+  <!--Datatebles-->
+  <link rel="stylesheet" type="text/css" href="vendor/datatables/dataTables.bootstrap4.min.css">
+
+</head>
+
+<body class="bg-gradient-primary">
+  <!--Verificar usuario comun-->
+  <!-- <div id="verificarUsuarioComun" ></div> -->
+  <!-- COTIZADOR -->
+  <div id="sesionIniciada-mostrar-ocultar" style="display: block;">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+      <!-- Sidebar -->
+      <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar">
+        <!-- Sidebar - Brand -->
+        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="admin.html">
+          <div class="sidebar-brand-icon rotate-n-15">
+            <i class="fas fa-laugh-wink"></i>
+          </div>
+        </a>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider my-0">
+
+        <!-- Nav Item - Cotizar envio -->
+        <li class="nav-item">
+          <a class="nav-link" href="#registrador" onclick="mostrar('registrador')">
+            <i class="fas fa-fw fa-user-plus"></i>
+            <span>Agregar usuario</span></a>
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="#usuarios" onclick="mostrar('usuarios')">
+            <i class="fas fa-fw fa-users"></i>
+            <span>Usuarios</span></a>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Heading -->
+        <div class="sidebar-heading">
+          Documentos
+        </div>
+
+        <!-- Nav Item - Pages Collapse Menu -->
+        <li class="nav-item">
+          <a class="nav-link" href="#documentos" onclick="mostrar('documentos')">
+            <i class="fas fa-fw fa-file-alt"></i>
+            <span>Documentos</span></a>
+        </li>
+
+        <!-- Divider -->
+        <hr class="sidebar-divider">
+
+        <!-- Sidebar Toggler (Sidebar) -->
+        <div class="text-center d-none d-md-inline">
+          <button class="rounded-circle border-0" id="sidebarToggle"></button>
+        </div>
+
+      </ul>
+      <!-- End of Sidebar -->
+
+
+      <!-- Content Wrapper -->
+      <div id="content-wrapper" class="d-flex flex-column">
+        <div class="row">
+          <div  class="text-center bg-dark text-white col-sm">Area logística +57 <a class="text-white" href="https://wa.link/j8l2ku">321 336 1911</a></div>
+          <div  class="text-center bg-dark text-white col-sm">Gerencia +57 <a class="text-white" href="https://wa.link/jwryoa">312 463 8608</a></div>
+          <div class="text-center text-white bg-info col-sm">Saldo: <a class="text-white" id="saldo" href="https://wa.link/jwryoa"></a></div>
+        </div>
+        <!-- Topbar -->
+        <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+            <!-- Sidebar Toggle (Topbar) -->
+            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+              <i class="fa fa-bars"></i>
+            </button>
+
+            <!-- Topbar Navbar -->
+            <ul class="navbar-nav ml-auto">
+                      
+              <div class="topbar-divider d-none d-sm-block">
+                
+              </div>
+                
+              <!-- Nav Item - User Information -->
+              <li class="nav-item dropdown no-arrow">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                  aria-haspopup="true" aria-expanded="false">
+                  <span id="usuario" class="mr-2 d-lg-inline text-gray-600 small">Administración Heka</span>
+                  <img class="img-profile rounded-circle" src="img/unnamed.png">
+                </a>
+                
+                <!-- Dropdown - User Information -->
+                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                  <a class="dropdown-item " href="#" data-toggle="modal" data-target="#cerrarSesionModal">
+                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                    Salir
+                  </a>
+                </div>
+              </li>
+            </ul>
+        </nav>
+        <!-- End of Topbar -->
+
+        <!-- Main Content -->
+        <div id="content">     
+          <!-- Begin Page Content -->
+          <div class="container-fluid" id="registrador">
+            <div class="card o-hidden border-0 shadow-lg my-2">
+                <div class="card-body p-0">
+                  
+                  <!-- Nested Row within Card Body -->
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <div class="p-5">
+                        <div class="text-center" >
+                            <img style="max-width:100%;width:200px;height:200px;" src="img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg"  alt="1">
+                            <h1 class="h4 text-gray-900 mb-4"> Creando cuenta...</h1>
+                            </br>
+                        </div>
+                        <form class="user">
+                          <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                              <h6>Nombres*</h6>
+                              <input type="text" class="form-control form-control-user" id="CPNnombres"  required>
+                            </div>
+                            <div class="col-sm-6">
+                              <h6>Apellidos*</h6>
+                              <input type="text" class="form-control form-control-user" id="CPNapellidos"  required>
+                            </div> 
+                          </div>
+          
+                          <div class="form-group row">
+                            <div class="col-md-2 mb-3 mb-sm-0">
+                              <h6>Tipo documento*</6>
+                              <h6></h6>
+                              
+                              <select  class="form-control form-control" id="CPNtipo_documento">
+                                <option value="CC"selected>CC</option> 
+                                <option value="PASAPORTE">PASAPORTE</option>
+                                <option value="NIT(RUT)">NIT (RUT)</option>
+                              </select>
+                            </div>
+                            <div class="col-md-5">
+                              <h6>Número identificación*</h6>
+                              <input type="number" class="form-control form-control-user" id="CPNnumero_documento"  required>
+                              <p class="text-danger d-none" id="usuario-existente">¡El usuario ingresado ya existe!</p>
+                            </div>
+                            <div class="col-md mb-3 mb-sm-0">
+                              <h6>Centro de Costo*</h6>
+                              <input type="text"  class="form-control form-control-user" id="CPNcentro_costo" required>
+                              <p class="text-danger d-none" id="centro_costo-existente">¡El Centro de Costo ingresado ya existe!</p>
+                            </div>
+                            
+                          </div>
+          
+                          <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                              <h6>Celular*</h6>
+                              <input type="number" class="form-control form-control-user" id="CPNtelefono"  required>
+                            </div>
+                            <div class="col-sm-6">
+                              <h6>Celular #2</h6>
+                              <input type="number" class="form-control form-control-user" id="CPNcelular">
+                            </div>
+                          </div>
+          
+                          <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                              <h6>Ciudad*</h6>
+                              <h6>**Elegir del menú desplegable**</h6>
+                              <input name=""  class="form-control form-control-user" id="CPNciudad" size="1"></input>
+                            </div>
+                            <div class="col-sm-6">
+                              <h6>Dirección de recogida*</h6>
+                            </br>
+                              <input type="text" class="form-control form-control-user" id="CPNdireccion"  required>
+                            </div>
+                            
+                          </div>
+          
+                          <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                              <h6>Barrio*</h6>
+                              <input type="text" class="form-control form-control-user" id="CPNbarrio"  required>
+                            </div>
+                            <div class="col-sm-6">
+                              <h6>Nombre de la empresa*</h6>
+                              <input type="text" class="form-control form-control-user" id="CPNnombre_empresa"  required>
+                            </div>
+                          </div>
+          
+                          <div class="form-group row">
+                              
+                              <div class="col-sm-6">
+                                <h6>Correo electrónico*</h6>
+                                <input type="email"  class="form-control form-control-user" id="CPNcorreo"
+                                    aria-describedby="emailHelp"  required>
+                              </div>
+                              <div class="col">
+                                <h6>Cosas que envía</h6>
+                                <input type="text" class="form-control form-control-user" id="CPNobjetos_envio" placeholder="objeto1,objeto2,etc..."  required>
+                              </div>
+                          </div>
+          
+                          <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                              <h6>Contraseña*</h6>
+                              <input type="password" class="form-control form-control-user" id="CPNcontraseña"  required>
+                            </div>
+                            <div class="col-sm-6">
+                              <h6>Repetir contraseña*</h6>
+                              <input type="password" class="form-control form-control-user" id="CPNrepetir_contraseña"  required>
+                            </div>
+                          </div>
+          
+                          <div class="form-group">
+                            </br> 
+                            </br>
+                            <input type="checkbox"  name="" id="checkbox-banco" onchange="pruebacheck()"> Registrar datos bancarios para el pago de envíos con recaudo
+                          </div>
+          
+                            <div id="mostrar-ocultar-registro-bancario" style="display: none;">
+                              <h6 class="text-danger">DATOS BANCARIOS</h6>
+                                </br>
+                              <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                  <h6>Banco*</6>
+                                  <h6></h6>
+                                  <select  class="form-control form-control" id="CPNbanco">
+                                    <option value="Bancolombia(Desembolso: $0)">Bancolombia(Desembolso: $0)</option> 
+                                    <option value="Nequi(desembolso: $0)">Nequi(desembolso: $0)</option>
+                                    <option value="Banco de bogotá(Desembolso: $7.500)">Banco de bogotá(Desembolso: $7.500)</option>
+                                    <option value="Banco popular(Desembolso: $7.500)">Banco popular(Desembolso: $7.500)</option>
+                                    <option value="Itaú(Desembolso: $7.500)">Itaú(Desembolso: $7.500)</option>
+                                    <option value="Citibank(Desembolso: $7.500)">Citibank(Desembolso: $7.500)</option>
+                                    <option value="BBVA(Desembolso: $7.500)">BBVA(Desembolso: $7.500)</option>
+                                    <option value="Colpatria(Desembolso: $7.500)">Colpatria(Desembolso: $7.500)</option>
+                                    <option value="Banco de occidente(Desembolso: $7.500)">Banco de occidente(Desembolso: $7.500)</option>
+                                    <option value="Banco caja social(Desembolso: $7.500)">Banco caja social(Desembolso: $7.500)</option>
+                                    <option value="Banco Agrario(Desembolso: $7.500)">Banco Agrario(Desembolso: $7.500)</option>
+                                    <option value="Banco davivienda(Desembolso: $7.500)">Banco davivienda(Desembolso: $7.500)</option>
+                                    <option value="Banco Av Villas (Desembolso: $7.500)">Banco Av Villas (Desembolso: $7.500)</option>
+                                    <option value="Banco Pichincha(Desembolso: $7.500)">Banco Pichincha(Desembolso: $7.500)</option>
+                                    <option value="Bancoomeva(Desembolso: $7.500)">Bancoomeva(Desembolso: $7.500)</option>
+                                    <option value="Banco Falabella (Desembolso: $7.500)">Banco Falabella (Desembolso: $7.500)</option>
+                                    <option value="Daviplata (Desembolso: $7.500)">Daviplata (Desembolso: $7.500)</option>
+                                  </select>
+                                </div>
+                                <div class="col-sm-6">
+                                  <h6>Nombre representante*</h6>
+                                  <input type="text" class="form-control form-control-user" id="CPNnombre_representante"  required>
+                                </div>
+                              </div>
+          
+                              <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                  <h6>Tipo de cuenta*</6>
+                                  <h6></h6>
+                                  
+                                  <select  class="form-control form-control" id="CPNtipo_de_cuenta">
+                                    <option value="Ahorros">Ahorros</option> 
+                                    <option value="Corriente">Corriente</option>
+                                   
+                                  </select>
+                                </div>
+          
+          
+                                <div class="col-sm-6">
+                                  <h6>Número de cuenta*</h6>
+                                  <input type="number" class="form-control form-control-user" id="CPNnumero_cuenta"  required>
+                                </div>
+                                
+                              </div>
+          
+                              <div class="form-group row">
+                                <div class="col-sm-6">
+                                  <h6>Confirmar número de cuenta*</h6>
+                                  <input type="number" class="form-control form-control-user" id="CPNconfirmar_numero_cuenta"  required>
+                                </div>
+          
+          
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                  <h6>Tipo documento*</6>
+                                  <h6></h6>
+                                  
+                                  <select  class="form-control form-control" id="CPNtipo_documento_banco">
+                                    <option value="CC">CC</option> 
+                                    <option value="NIT">NIT</option>
+                                    <option value="Cédula extranjería">Cédula extranjería</option>
+                                    
+                                  </select>
+                                </div>
+                                
+                              </div>
+          
+                              <div class="form-group row">
+                                <div class="col-sm-6">
+                                  <h6>número de identificación*</h6>
+                                  <input type="number" class="form-control form-control-user" id="CPNnumero_identificacion_banco"  required>
+                                </div>
+          
+          
+                                <div class="col-sm-6">
+                                  <h6>Confirmar número de identificación*</h6>
+                                  <input type="number" class="form-control form-control-user" id="CPNconfirmar_numero_identificacion_banco"  required>
+                                </div>
+                                
+                              </div>
+                            </div>
+          
+                            <div class="form-group">
+                                </br> 
+                                </br>
+                                <input type="checkbox" id="CPNcheck_terminos_condiciones" onchange="checkTerminosCondiciones()"> <a href="/terminos.html">Acepto términos y condiciones</a>
+                                <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
+                            </div>
+                        </form>
+                          <button onclick="nuevaCuenta()" id="registrar-nueva-cuenta" class="btn btn-primary btn-user btn-block" disabled>
+                            Registrar cuenta
+                          </button>
+                        
+                          <hr>
+                        
+                        <div id="error_crear_cuenta"></div>
+                        <hr>                       
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+          <div class="container-fluid" id="usuarios">
+            <div class="row">
+              <div class="col-md-3"></div>
+              <form class="input-group mb-3 col-md-6">
+                <input type="text" class="form-control border-info" placeholder="Identificación del usuario a buscar" id="buscador-de-usuarios">
+                <div class="input-group-append">
+                  <input type="button" class="btn btn-small btn-outline-info" value="buscar" onclick="buscarUsuarios()">
+                </div>
+              </form>
+              <div class="col-md-3"></div>
+            </div>
+            <div id="mostrador-usuarios" class="row"></div>
+
+            <!--Usuario Seleccionado-->
+            <div id="usuario-seleccionado" class="card d-none">
+              <div class="card-header text-center">
+                <div class="row">
+                  <a class="btn btn-outline-primary btn-lg" href="javascript:volver()">Regresar</a>
+                  <script>
+                  function volver(){
+                      document.getElementById("mostrador-usuarios").classList.remove("d-none");
+                      document.getElementById("usuario-seleccionado").classList.add("d-none");
+                    }
+                  </script>
+                </div>
+                <h3 id="nombre-usuario">Nombre Apellido</h3>
+              </div>
+              <div class="card-body">
+
+                <!-- Informacion personal -->
+                <div class="card shadow mb-4">
+                  <!-- Card Header - Accordion -->
+                  <a href="#informacion-personal" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="informacion-personal">
+                    <h6 class="m-0 font-weight-bold text-primary">Información Personal</h6>
+                  </a>
+                  <!-- Card Content - Collapse -->
+                  <div class="collapse show" id="informacion-personal">
+                    <div class="card-body">
+                      <form class="user">
+                        <div class="form-group row">
+                          <div class="col-sm-6 mb-3 mb-sm-0">
+                            <h6>Nombres*</h6>
+                            <input type="text" class="form-control form-control-user" id="actualizar_nombres">
+                          </div>
+                          <div class="col-sm-6">
+                            <h6>Apellidos*</h6>
+                            <input type="text" class="form-control form-control-user" id="actualizar_apellidos">
+                          </div> 
+                        </div>
+        
+                        <div class="form-group row">
+                          <div class="col-sm-6 mb-3 mb-sm-0">
+                            <h6>Tipo documento*</6>
+                            <h6></h6>
+                            
+                            <select  class="form-control form-control" id="actualizar_tipo_documento" readonly>
+                              <option value="CC" selected>CC</option> 
+                              <option value="PASAPORTE">PASAPORTE</option>
+                              <option value="NIT(RUT)">NIT (RUT)</option>
+                            </select>
+                          </div>
+                          <div class="col-sm-6">
+                            <h6>Número identificación*</h6>
+                            <input type="number" class="form-control form-control-user" id="actualizar_numero_documento" readonly>
+                          </div>
+                          
+                        </div>
+        
+                        <div class="form-group row">
+                          <div class="col-sm-6 mb-3 mb-sm-0">
+                            <h6>Celular*</h6>
+                            <input type="number" class="form-control form-control-user" id="actualizar_telefono">
+                          </div>
+                          <div class="col-sm-6">
+                            <h6>Celular #2</h6>
+                            <input type="number" class="form-control form-control-user" id="actualizar_celular">
+                          </div>
+                        </div>
+        
+                        <div class="form-group row">
+                          <div class="col-sm-6 mb-3 mb-sm-0">
+                            <h6>Ciudad*</h6>
+                            <h6>**Elegir del menú desplegable**</h6>
+                            <input name=""  class="form-control form-control-user" id="actualizar_ciudad" size="1"></input>
+                          </div>
+                          <div class="col-sm-6">
+                            <h6>Dirección de recogida*</h6>
+                          </br>
+                            <input type="text" class="form-control form-control-user" id="actualizar_direccion" >
+                          </div>
+                          
+                        </div>
+        
+                        <div class="form-group row">
+                          <div class="col-sm-6 mb-3 mb-sm-0">
+                            <h6>Barrio*</h6>
+                            <input type="text" class="form-control form-control-user" id="actualizar_barrio" >
+                          </div>
+                          <div class="col-sm-6">
+                            <h6>Nombre de la empresa*</h6>
+                            <input type="text" class="form-control form-control-user" id="actualizar_nombre_empresa" >
+                          </div>
+                        </div>
+        
+                        <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                              <h6>Centro de Costo*</h6>
+                              <input type="text"  class="form-control form-control-user" id="actualizar_centro_costo" readonly>
+                            </div>
+                            <div class="col-sm-6">
+                              <h6>Correo electrónico*</h6>
+                              <input type="email"  class="form-control form-control-user" id="actualizar_correo"
+                                  aria-describedby="emailHelp" >
+                            </div>
+                        </div>
+        
+                        <div class="form-group row">
+                          <div class="col-sm-6 mb-3 mb-sm-0">
+                            <h6>Contraseña*</h6>
+                            <input type="password" class="form-control form-control-user" id="actualizar_contraseña" readonly>
+                          </div>
+                          <div class="col-sm-6">
+                            <h6>Repetir contraseña*</h6>
+                            <input type="password" class="form-control form-control-user" id="actualizar_repetir_contraseña" readonly>
+                          </div>
+                        </div>
+
+                        <div class="form-group row">
+                          <div class="col">
+                            <h6>Cosas que envía</h6>
+                            <input type="text" class="form-control form-control-user" id="actualizar_objetos_envio" placeholder="objeto1,objeto2,etc..."  required>
+                          </div>
+                        </div>
+                        <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4"
+                        onclick="actualizarInformacionPersonal()" value="Actualizar Datos Personales">
+                      </form>
+
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Informacion bancaria -->
+                <div class="card shadow mb-4">
+                  <!-- Card Header - Accordion -->
+                  <a href="#informacion-bancaria" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="informacion-bancaria">
+                    <h6 class="m-0 font-weight-bold text-primary">Información Bancaria</h6>
+                  </a>
+                  <!-- Card Content - Collapse -->
+                  <div class="collapse show" id="informacion-bancaria">
+                    <div class="card-body">
+                      <form class="user">
+                        <div class="form-group row">
+                          <div class="col-sm-6 mb-3 mb-sm-0">
+                            <h6>Banco*</6>
+                            <h6></h6>
+                            <select  class="form-control form-control" id="actualizar_banco">
+                              <option value="Bancolombia(Desembolso: $0)">Bancolombia(Desembolso: $0)</option> 
+                              <option value="Nequi(desembolso: $0)">Nequi(desembolso: $0)</option>
+                              <option value="Banco de bogotá(Desembolso: $7.500)">Banco de bogotá(Desembolso: $7.500)</option>
+                              <option value="Banco popular(Desembolso: $7.500)">Banco popular(Desembolso: $7.500)</option>
+                              <option value="Itaú(Desembolso: $7.500)">Itaú(Desembolso: $7.500)</option>
+                              <option value="Citibank(Desembolso: $7.500)">Citibank(Desembolso: $7.500)</option>
+                              <option value="BBVA(Desembolso: $7.500)">BBVA(Desembolso: $7.500)</option>
+                              <option value="Colpatria(Desembolso: $7.500)">Colpatria(Desembolso: $7.500)</option>
+                              <option value="Banco de occidente(Desembolso: $7.500)">Banco de occidente(Desembolso: $7.500)</option>
+                              <option value="Banco caja social(Desembolso: $7.500)">Banco caja social(Desembolso: $7.500)</option>
+                              <option value="Banco Agrario(Desembolso: $7.500)">Banco Agrario(Desembolso: $7.500)</option>
+                              <option value="Banco davivienda(Desembolso: $7.500)">Banco davivienda(Desembolso: $7.500)</option>
+                              <option value="Banco Av Villas (Desembolso: $7.500)">Banco Av Villas (Desembolso: $7.500)</option>
+                              <option value="Banco Pichincha(Desembolso: $7.500)">Banco Pichincha(Desembolso: $7.500)</option>
+                              <option value="Bancoomeva(Desembolso: $7.500)">Bancoomeva(Desembolso: $7.500)</option>
+                              <option value="Banco Falabella (Desembolso: $7.500)">Banco Falabella (Desembolso: $7.500)</option>
+                              <option value="Daviplata (Desembolso: $7.500)">Daviplata (Desembolso: $7.500)</option>
+                            </select>
+                          </div>
+                          <div class="col-sm-6">
+                            <h6>Nombre representante*</h6>
+                            <input type="text" class="form-control form-control-user" id="actualizar_nombre_representante"  required>
+                          </div>
+                        </div>
+    
+                        <div class="form-group row">
+                          <div class="col-sm-6 mb-3 mb-sm-0">
+                            <h6>Tipo de cuenta*</6>
+                            <h6></h6>
+                            
+                            <select  class="form-control form-control" id="actualizar_tipo_de_cuenta">
+                              <option value="Ahorros">Ahorros</option> 
+                              <option value="Corriente">Corriente</option>
+                              
+                            </select>
+                          </div>
+    
+    
+                          <div class="col-sm-6">
+                            <h6>Número de cuenta*</h6>
+                            <input type="number" class="form-control form-control-user" id="actualizar_numero_cuenta"  required>
+                          </div>
+                          
+                        </div>
+    
+                        <div class="form-group row">
+                          <div class="col-sm-6">
+                            <h6>Confirmar número de cuenta*</h6>
+                            <input type="number" class="form-control form-control-user" id="actualizar_confirmar_numero_cuenta"  required>
+                          </div>
+    
+    
+                          <div class="col-sm-6 mb-3 mb-sm-0">
+                            <h6>Tipo documento*</6>
+                            <h6></h6>
+                            
+                            <select  class="form-control form-control" id="actualizar_tipo_documento_banco">
+                              <option value="CC">CC</option> 
+                              <option value="NIT">NIT</option>
+                              <option value="Cédula extranjería">Cédula extranjería</option>
+                              
+                            </select>
+                          </div>
+                          
+                        </div>
+    
+                        <div class="form-group row">
+                          <div class="col-sm-6">
+                            <h6>número de identificación*</h6>
+                            <input type="number" class="form-control form-control-user" id="actualizar_numero_identificacion_banco"  required>
+                          </div>
+    
+    
+                          <div class="col-sm-6">
+                            <h6>Confirmar número de identificación*</h6>
+                            <input type="number" class="form-control form-control-user" id="actualizar_confirmar_numero_identificacion_banco"  required>
+                          </div>
+                        </div>
+                        <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4"
+                        onclick="actualizarInformacionBancaria()" value="Actualizar Datos Bancarios">
+                        
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Informacion Heka-->
+                <div class="card shadow mb-4">
+                  <!-- Card Header - Accordion -->
+                  <a href="#informacion-heka" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="informacion-heka">
+                    <h6 class="m-0 font-weight-bold text-primary">Información Heka</h6>
+                  </a>
+                  <!-- Card Content - Collapse -->
+                  <div class="collapse show" id="informacion-heka">
+                    <div class="card-body">
+                      <form class="user">
+                        <h4 class="text-center">Costos de envío Zonal</h4>
+                        <div class="form-group row">
+                          <div class="col-sm-4 mb-4">
+                            <h6>0-3 Kg</h6>
+                            <input type="number" class="form-control form-control-user" id="actualizar_costo_zonal1">
+                          </div>
+                          <div class="col-sm-4">
+                            <h6>3-6 Kg</h6>
+                            <input type="number" class="form-control form-control-user" id="actualizar_costo_zonal2">
+                          </div> 
+                          <div class="col-sm-4">
+                            <h6>Kg adicional</h6>
+                            <input type="number" class="form-control form-control-user" id="actualizar_costo_zonal3">
+                          </div> 
+                        </div>
+
+                        <h4 class="text-center">Costos de envío Nacional</h4>
+                        <div class="form-group row">
+                          <div class="col-sm-4 mb-4">
+                            <h6>0-3 Kg</h6>
+                            <input type="number" class="form-control form-control-user" id="actualizar_costo_nacional1">
+                          </div>
+                          <div class="col-sm-4">
+                            <h6>3-6 Kg</h6>
+                            <input type="number" class="form-control form-control-user" id="actualizar_costo_nacional2">
+                          </div> 
+                          <div class="col-sm-4">
+                            <h6>Kg adicional</h6>
+                            <input type="number" class="form-control form-control-user" id="actualizar_costo_nacional3">
+                          </div> 
+                        </div>
+
+                        <h4 class="text-center">Costos de envío Trayeto Especial</h4>
+                        <div class="form-group row">
+                          <div class="col-sm-4 mb-4">
+                            <h6>0-3 Kg</h6>
+                            <input type="number" class="form-control form-control-user" id="actualizar_costo_especial1">
+                          </div>
+                          <div class="col-sm-4">
+                            <h6>3-6 Kg</h6>
+                            <input type="number" class="form-control form-control-user" id="actualizar_costo_especial2">
+                          </div> 
+                          <div class="col-sm-4">
+                            <h6>Kg adicional</h6>
+                            <input type="number" class="form-control form-control-user" id="actualizar_costo_especial3">
+                          </div> 
+                        </div>
+                        
+                        <div class="form-group row">
+                          <div class="col-sm-6 mb-4">
+                            <h6>porcentaje de Comisión Servientrega (%)</h6>
+                            <input type="number" class="form-control form-control-user" 
+                            step="any" id="actualizar_comision_servi">
+                          </div>
+                          <div class="col-sm-6">
+                            <h6>Porcentaje de Comisión Heka (%)</h6>
+                            <input type="number" class="form-control form-control-user" 
+                            step="any" id="actualizar_comision_heka">
+                          </div>
+                        </div>
+
+                        <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4"
+                        onclick="actualizarInformacionHeka()" value="Actuaizar Costos de Envío">
+                      </form>
+
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+
+          <div class="container-fluid" id="documentos">
+            <div class="row">
+              <div class="form-group row mb-3">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                  <h6>Fecha inicio</h6>
+                  <input type="date" class="form-control form-control-user"  id="docs-fecha-inicio" required>
+                </div>
+                <div class="col-sm-6">
+                  <h6>Fecha final</h6>
+                  <input type="date" class="form-control form-control-user"  id="docs-fecha-final" required>
+                </div>
+              </div>
+              <button id="buscador-documentos" class="mb-4 btn btn-primary btn-user btn-block">
+                Buscar
+              </button>  
+            
+            </div>
+            <div class="row" id="mostrador-documentos"></div>
+          </div>
+        </div>   
+        <!-- Footer -->
+        <footer class="sticky-footer bg-white">
+          <div class="container my-auto">
+            <div class="copyright text-center my-auto">
+              <span>Copyright &copy; HEKA ENTREGA 2020</span>
+            </div>
+          </div>
+        </footer>
+        <!-- End of Footer -->
+      </div>
+      <!-- End of Content Wrapper -->
+    </div>
+    <!-- End of Page Wrapper -->
+<!-------------------------------------------------------------------------------------------------------------------------->
+
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#wrapper">
+    <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Logout Modal-->
+    <div class="modal fade" id="cerrarSesionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+    aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">¿Quieres salir de tu cuenta Heka?</h5>
+            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
+
+          <div class="modal-body">Presiona Salir, para cerrar sesión</div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+            <a class="btn btn-primary" href="index.html" onclick="cerrarSession()">Salir</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--Avisos-->
+    <div class="d-none" id="aviso" style="position: fixed; top: 10px; right: 10px; cursor: pointer">
+      <div class="card shadow h-100 py-2">
+        <div class="card-body">
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div id="titulo-aviso" class="text-x font-weight-bold text-uppercase mb-1"></div>
+              <div id="texto-aviso" class="h6 mb-0 font-weight-bold text-gray-800"></div>
+            </div>
+            <div class="col-auto">
+              <i class="fas fa-comments fa-2x text-gray-300"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+    
+    <!-- FIREBASE -->
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-storage.js"></script>
+    
+    
+    <!-- index.js -->
+    <!--
+      <script src="../../index.js" ></script>
+    -->
+    
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    
+    <!-- main.js -->
+    <script src="js/main.js"></script>
+    <!-- Custom scripts for all pages-->
+    <script src="js/sb-admin-2.min.js"></script>
+
+    <!-- Page level plugins -->
+    <script src="vendor/datatables/jquery.dataTables.min.js"></script>
+    <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script>
+
+    <!-- Page level custom scripts -->
+    <!-- <script src="js/demo/datatables-demo.js"></script> -->
+
+    <!-- para controlar el acceso -->
+    <script>
+      let administracion = true;
+    </script>
+    
+    <script src="js/render.js"></script>
+    <script src="js/cargadorDeDatos.js"></script>
+    <script src="js/consultarCiudades.js" type="module"></script>
+    <script src="js/usuarios.js"></script>
+    <script src="js/manejadorGuias.js"></script>
+
+  </body>
+  
+</html>
+

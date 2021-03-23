@@ -11,41 +11,38 @@ function cotizador(){
         ciudadR: value("ciudadR"),
         ciudadD: value("ciudadD"), 
         peso: value("Kilos") < 3 ? 3 : value("Kilos"),
-        seguro: value("Seguro"), 
+        seguro: value("valor-a-recaudar"), 
         recaudo: value("valor-a-recaudar"), 
         trayecto: revisarTrayecto(), 
         tiempo: "2-3", 
-        precio: calcularCostoDeEnvio(), 
+        precio: new CalcularCostoDeEnvio().costoEnvio,
         ancho: value("dimension-ancho"), 
         largo: value("dimension-largo"), 
         alto: value("dimension-alto")
     }
     
-    
     if(value("ciudadR") != "" && value('ciudadD') != "" &&
-    value("Kilos") != "" && document.getElementById('Seguro').value!="" && value("valor-a-recaudar") != "" 
+    value("Kilos") != "" && value("valor-a-recaudar") != "" 
     && value("dimension-ancho") != "" && value("dimension-largo") != "" && value("dimension-alto") != ""){
         //Si todos los campos no estan vacios
         if(value("Kilos") <= 0 || value("Kilos") > 25 ) {
             // Si la cantidad de kilos excede el limite permitido
             alert("Lo sentimos, la cantidad de kilos ingresada no está permitida, procure ingresar un valor mayor a 0 y menor o igual a 25")
             verificador("Kilos", true);
-        } else if(value("Seguro") < 5000 && value("Seguro") > 2000000) {
-            // Si el valor del seguro excede el limite permitido
-            alert("Ups! el valor de seguro no puede ser menor a $5.000, ni mayor a $2.000.000");
-            verificador("Seguro", true);
-        } else if(value("valor-a-recaudar") < 5000 && value("Seguro") > 2000000) {
+        } else if(value("valor-a-recaudar") < 5000 || value("valor-a-recaudar") > 2000000) {
             // Si el valor del recaudo excede el limite permitido
             alert("Ups! el valor a recaudar no puede ser menor a $5.000, ni mayor a $2.000.000")
             verificador("valor-a-recaudar", true);
-        } else if(value("dimension-ancho") < 1 && value("dimension-largo") < 1 && value("dimension-alto") < 1 &&
-        value("dimension-ancho") > 150 && value("dimension-largo") > 150 && value("dimension-alto") > 150) {
+        } else if(value("dimension-ancho") < 1 || value("dimension-largo") < 1 || value("dimension-alto") < 1 ||
+        value("dimension-ancho") > 150 || value("dimension-largo") > 150 || value("dimension-alto") > 150) {
             // Si el valor de las dimensiones exceden el limite permitido
-            alert("ALguno de los valores ingresados en la dimensiones no es válido, Por favor verifique que no sean menor a 1cm, o mayor a 150cm");
+            alert("Alguno de los valores ingresados en la dimensiones no es válido, Por favor verifique que no sean menor a 1cm, o mayor a 150cm");
             verificador(["dimension-alto", "dimension-largo", "dimension-ancho"], true)
         } else {
             //Si todo esta Correcto...
             verificador()
+
+            
             if(revisarTrayecto() == "Urbano") {
                 datos_de_cotizacion.tiempo = "1-2"
             } else if(revisarTrayecto() == "Especial"){
@@ -54,7 +51,12 @@ function cotizador(){
             let mostrador = document.getElementById("result_cotizacion");
             mostrador.style.display = "block"
             mostrador.innerHTML = response(datos_de_cotizacion);
-
+            
+            if(datos_de_cotizacion.recaudo < datos_de_cotizacion.precio) {
+                alert("El costo del envío excede el valor de recaudo, para continuar, debe incrementar el valor a recaudar");
+                document.getElementById("boton_continuar").disabled = true;
+                verificador("valor-a-recaudar", true);
+            }
             // ***** Agregando los datos que se van a enviar para crear guia ******* //
             datos_a_enviar.ciudadR = ciudadR.dataset.ciudad;
             datos_a_enviar.ciudadD = ciudadD.dataset.ciudad;
@@ -63,10 +65,25 @@ function cotizador(){
             datos_a_enviar.alto = value("dimension-alto");
             datos_a_enviar.ancho = value("dimension-ancho");
             datos_a_enviar.largo = value("dimension-largo");
-            datos_a_enviar.peso = value("Kilos");
+            datos_a_enviar.peso = datos_de_cotizacion.peso;
             datos_a_enviar.valor = value("valor-a-recaudar");
+            datos_a_enviar.costo_envio = datos_de_cotizacion.precio;
             datos_a_enviar.correoR = datos_usuario.correo || "notiene@gmail.com";
-            datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo
+            datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo;
+
+            //Detalles del consto de Envío
+            let info_precio = new CalcularCostoDeEnvio();
+            datos_a_enviar.detalles = {
+                peso_real: info_precio.kg,
+                flete: info_precio.flete,
+                comision_heka: info_precio.sobreflete_heka,
+                comision_trasportadora: info_precio.sobreflete,
+                peso_liquidar: info_precio.kgTomado,
+                peso_con_volumen: info_precio.pesoVolumen,
+                total: info_precio.costoEnvio,
+                recaudo: value("valor-a-recaudar"),
+                seguro: value("valor-a-recaudar")
+            }
             console.log(datos_a_enviar)
     
             document.getElementById("boton_continuar").addEventListener("click", () =>{
@@ -81,7 +98,7 @@ function cotizador(){
                     let normalmente_envia = false;
                     for(let product of datos_usuario.objetos_envio){
                         product = product.toLowerCase();
-                        if(value("producto").toLowerCase() == product){
+                        if(value("producto").trim().toLowerCase() == product){
                             normalmente_envia = true;
                         }
                     }
@@ -104,7 +121,7 @@ function cotizador(){
     }else{
         //si todos los campos estan vacios
         alert("Ups! ha habido un error inesperado, por favor, verifique que los campos no estén vacíos");
-        verificador(["ciudadR", "ciudadD", "Kilos", "Seguro", "valor-a-recaudar", "dimension-alto", 
+        verificador(["ciudadR", "ciudadD", "Kilos", "valor-a-recaudar", "dimension-alto", 
         "dimension-largo", "dimension-ancho"])
     }
 
@@ -125,29 +142,25 @@ function response(datos, tipo) {
                 <h4 class="m-0 font-weight-bold text-primary text-center">Datos de envío (${datos.tipo})</h4>
             </div>
             <div class="card-body row">
-                <div class="col-sm-6 mb-3 mb-sm-0">
+                <div class="col-sm-6 mb-3 mb-sm-2">
                     <h5>Ciudad de Origen</h5>
                     <input readonly="readonly" type="text" class="form-control form-control-user" value="${datos.ciudadR}" required="">  
                 </div>
-                <div class="col-sm-6 mb-3 mb-sm-0">
+                <div class="col-sm-6 mb-3 mb-sm-2">
                     <h5>Ciudad de Destino</h5>
                     <input readonly="readonly" type="text" class="form-control form-control-user" value="${datos.ciudadD}" required="">  
                 </div>
-                <div class="col-sm-6 mb-3 mb-sm-0">
+                <div class="col-sm-6 mb-3 mb-sm-2">
                     <h5>Kilos</h5>
                     <input readonly="readonly" type="text" class="form-control form-control-user" value="${datos.peso} Kg" required="">  
                 </div>
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h5>Seguro</h5>
-                    <input readonly="readonly" type="text" class="form-control form-control-user" value="$${convertirMiles(datos.seguro)}" required="">  
-                </div>
-                <div class="col-lg-6 mb-3 mb-sm-0">
+                <div class="col-sm-6 mb-3 mb-sm-2">
                     <h5>Recaudo</h5>
                     <input readonly="readonly" type="text" class="form-control form-control-user" value="$${convertirMiles(datos.recaudo)}" required="">  
                 </div>
                 <div class="col">
-                        <h5>Dimensiones <span>(Expresadas en Centímetros)</span></h5>
-                        <div class="row d-flex justify-content-center">
+                    <h5 class="mb-2 mt-3 text-center">Dimensiones <span>(Expresadas en Centímetros)</span></h5>
+                    <div class="row d-flex justify-content-center">
                         <div class="col-sm-4 mt-2 d-flex align-items-center">
                             <h6>Ancho:  </h6>
                             <input readonly="readonly type="text" class="form-control form-control-user ml-2" value="${datos.ancho} Cm">
@@ -160,8 +173,8 @@ function response(datos, tipo) {
                             <h6>Alto:  </h6>
                             <input readonly="readonly type="text" class="form-control form-control-user ml-2" value="${datos.alto} Cm">
                         </div>
-                        </div>
                     </div>
+                </div>
             </div>
         </div>
         `),
@@ -208,45 +221,52 @@ function response(datos, tipo) {
             </div>
             <form id="datos-destinatario">
                 <div class="card-body row">
-                    <div class="col-sm-6 mb-3 mb-sm-0">
+                    <div class="col-lg-6 mb-3 mb-2">
                         <h5>Nombre del Destinatario</h5>
                         <input type="text" name="nombreD" id="nombreD" class="form-control form-control-user" value="" placeholder="Nombre" required="">
                     </div>
-                    <div class="col-sm-6 mb-3 mb-sm-0">
-                        <h5>Documento de identificación</h5>
-                        <input type="number" id="identificacionD" class="form-control form-control-user" value="" placeholder="ej. 123456789" required="">
-                        <label for="tipo-doc-dest"class="col-form-label">Tipo De Documento</label>
-                        <select class="custom-select" form="datos-destinatario" id="tipo-doc-dest">
-                            <option value="2">Seleccione</option>
-                            <option value="1">NIT</option>
-                            <option value="2">CC</option>
-                        </select>
+                    <div class="col-lg-6 mb-3 mb-2">
+                        <div class="row align-items-center">
+                            <div class="col-sm-8 mb-2">
+                                <label for="identificacionD">Documento de identificación</label>
+                                <input type="number" id="identificacionD" class="form-control form-control-user" value="" placeholder="ej. 123456789" required="">
+                            </div>
+                            <div class="col mb-2">
+                                <label for="tipo-doc-dest" class="col-form-label">Tipo De Documento</label>
+                                <select class="custom-select" form="datos-destinatario" id="tipo-doc-dest">
+                                    <option value="2">Seleccione</option>
+                                    <option value="1">NIT</option>
+                                    <option value="2">CC</option>
+                                </select>
+                            </div>
+                        
+                        </div>
                     </div>
-                    <div class="col-sm-6 mb-3 mb-sm-0">
+                    <div class="col-sm-6 mb-3 mb-2">
                         <h5>Dirección del Destinatario</h5>
                         <input type="text" id="direccionD" class="form-control form-control-user" value="" placeholder="Dirección-Conjunto-Apartemento" required="">
                     </div>
-                    <div class="col-sm-6 mb-3 mb-sm-0">
+                    <div class="col-sm-6 mb-3 mb-2">
                         <h5>Barrio del Destinatario</h5>
                         <input type="text" id="barrioD" class="form-control form-control-user" value="" placeholder="Barrio" required="">
                     </div>
-                    <div class="col-sm-6 mb-3 mb-sm-0">
+                    <div class="col-sm-6 mb-3 mb-2">
                         <h5>Celular del Destinatario</h5>
                         <input type="tel" id="telefonoD" class="form-control form-control-user" value="" placeholder="Celular" required="">
                     </div>
-                    <div class="col-sm-6 mb-3 mb-sm-0">
+                    <div class="col-sm-6 mb-3 mb-2">
                         <h5>Otro celular del Destinatario</h5>
                         <input type="tel" id="celularD" class="form-control form-control-user" value="" placeholder="celular">
                     </div>
-                    <div class="col-sm-6 mb-3 mb-sm-0">
+                    <div class="col-sm-6 mb-3 mb-2">
                         <h5>Email</h5>
                         <input type="email" id="correoD" class="form-control form-control-user" value="" placeholder="nombre@ejemplo.com">
                     </div>
-                    <div class="col-sm-6 mb-3 mb-sm-0">
+                    <div class="col-sm-6 mb-3 mb-2">
                         <h5>Observaciones Adicionales</h5>
                         <input type="text" id="observaciones" class="form-control form-control-user" value="" placeholder="Observaciones Adicionales">
                     </div>
-                    <div class="col-sm-6 mb-3 mb-sm-0 form-check">
+                    <div class="col-sm-6 mb-3 mb-2 form-check">
                         <input type="checkbox" id="recoleccion" class="form-check-input">
                         <label for="recoleccion" class="form-check-label">Solicitud de Recolección</label>
                     </div>
@@ -307,7 +327,7 @@ function revisarTrayecto(){
     }
 }
 
-
+//Esta función está parcialmente eliminada, será sustituidad por la clase CalcularCostoDeEnvio
 function calcularCostoDeEnvio(kilos, vol) {
     let kg = kilos || Math.floor(value("Kilos")), 
         volumen = vol || value("dimension-ancho") * value("dimension-alto") * value("dimension-largo"),
@@ -358,6 +378,77 @@ function calcularCostoDeEnvio(kilos, vol) {
     console.log("sobreflete de heka = ", sobreflete_heka);
     console.log("total del trayecto = ", total);
     return total + sobreflete + sobreflete_heka;
+}
+
+// Realiza el calculo del envio y me devuelve sus detalles
+class CalcularCostoDeEnvio {
+    constructor(kilos, vol){
+        this.kg = kilos || Math.floor(value("Kilos"));
+        this.volumen = vol || value("dimension-ancho") * value("dimension-alto") * value("dimension-largo");
+        this.factor_de_conversion = 0.022;
+        this.sobreflete = Math.ceil(Math.max(value("valor-a-recaudar") * precios_personalizados.comision_servi / 100, 3000));
+        this.sobreflete_heka = Math.ceil(value("valor-a-recaudar") * precios_personalizados.comision_heka / 100);
+    }
+
+    get pesoVolumen(){
+        let peso_con_volumen = this.volumen * this.factor_de_conversion / 100;
+        peso_con_volumen = Math.ceil(Math.floor(peso_con_volumen * 10) / 10);
+
+        return peso_con_volumen
+    }
+    
+    get kgTomado(){
+        if(this.kg < 3){
+            this.kg = 3;
+        }
+
+        this.kg = Math.max(this.pesoVolumen, this.kg)
+
+        return this.kg;    
+    }
+
+    
+    
+    get flete(){
+        this.kgTomado;
+        let total = this.revisadorInterno(precios_personalizados.costo_especial2,
+            precios_personalizados.costo_nacional2, precios_personalizados.costo_zonal2);
+        if(this.kg >= 1 && this.kg < 4){
+            total = this.revisadorInterno(precios_personalizados.costo_especial1, 
+                precios_personalizados.costo_nacional1, precios_personalizados.costo_zonal1)
+        } else if (this.kg >= 4 && this.kg < 9) {
+
+        } else {
+            let kg_adicional = this.kg - 8;
+            total += (kg_adicional * this.revisadorInterno(precios_personalizados.costo_especial3, 
+                precios_personalizados.costo_nacional3, precios_personalizados.costo_zonal3))
+        }
+        return total;
+    }
+
+    get costoEnvio(){
+        console.log("Kg => ", this.kgTomado);
+        console.log("Volumen => ", this.volumen);
+        console.log("comision Servientrega => ", this.sobreflete);
+        console.log("Comision heka => ", this.sobreflete_heka);
+        console.log("Flete => ", this.flete);
+        let resultado = this.flete + this.sobreflete + this.sobreflete_heka;
+        return resultado;
+    }
+
+    revisadorInterno(especial, nacional, urbano){
+        switch(revisarTrayecto()){
+            case "Especial":
+                return especial;
+                break;
+            case "Urbano":
+                return urbano;
+                break;
+            default:
+                return nacional;
+                break;
+        }
+    }
 }
 
 // Para enviar la guia generada a firestore
@@ -417,49 +508,7 @@ function crearGuiasServientrega() {
     }
 }
 
-//funcion que me devuelve a los inputs que estan escritos incorrectamente o vacios
-function verificador(arr, boolean) {
-    let inputs = document.getElementsByTagName("input");
-    let primerInput;
-    for(let i = 0; i < inputs.length; i++){
-        inputs[i].classList.remove("border-danger", "border");
-    }
 
-    if(arr){
-        if(typeof arr == "string") {
-            addId(arr)
-            primerInput = document.getElementById(arr).parentNode;
-        } else {
-            let error = [];
-            for(let id of arr){
-                addId(id)
-                if(addId(id)){
-                    error.push(id);
-                    primerInput = document.getElementById(error[0]).parentNode;
-                }
-            }
-        }
-        primerInput.scrollIntoView({
-            behavior: "smooth"
-        })
-        console.log(primerInput)
-    }
-    
-    function addId(id){
-        let elemento = document.getElementById(id);
-        if(elemento.value == ""){
-            elemento.classList.add("border", "border-danger");
-            return true
-        } else if(boolean) {
-            elemento.classList.add("border", "border-danger");
-            return true
-        } else {
-            elemento.classList.remove("border-danger");
-            return false
-        }
-    }
-
-}
 
 function enviar_firestore(datos){
     let id_heka;

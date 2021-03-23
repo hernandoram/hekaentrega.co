@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+  <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
+
+
+  <title>Iniciar Sessión</title>
+
+  <!--autocompeltar-->
+  <!-- <script type="text/javascript" src="https://www.aveonline.co/app/incluidos/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="https://www.aveonline.co/app/modulos/utilidades/jquery.autocomplete.min.js"></script> -->
+  <!-- Custom fonts for this template-->
+  <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link
+    href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+    rel="stylesheet">
+
+  <!-- Custom styles for this template-->
+  <link href="css/sb-admin-2.min.css" rel="stylesheet">
+
+  
+
+</head>
+
+<body class="bg-gradient-primary">
+  <!--Verificar usuario comun-->
+  <div id="verificarUsuarioComunInicioSesion" ></div>
+  <!-- LOGIN -->
+  <div id="login-mostrar" style="display: block;" class="container">
+    <!-- Outer Row -->
+    <div class="card o-hidden border-0 shadow-lg my-5">
+      <div class="card-body p-0">
+        <!-- Nested Row within Card Body -->            
+        <div class="row">
+          <a href="/" class="btn btn-danger btn-user btn-block">
+            Regresar
+          </a>
+          <div class="col-lg-6 d-none d-lg-block"></div>
+          <div class="col-lg-6">
+            <div class="p-5">
+              <div class="text-center">
+                <img src="img/heka entrega.png" width="250" height="250" alt="">
+                <h1 class="h4 text-gray-900 mb-4">Bienvenid@ a HEKA!</h1>
+              </div>
+
+              <div class="form-group">
+                <input type="text" id="usuario" class="form-control form-control-user"
+                  aria-describedby="emailHelp" placeholder="Código de Ingreso" required>
+              </div>
+
+              <button onclick="iniciarSesion()" id="buscador" type="submit" class="btn btn-danger btn-user btn-block">
+                Entrar
+              </button>
+              </br>
+              </br>
+              <div class="text-center">
+                <a class="small" href="">
+                    <p>¿Olvidaste tu código de ingreso?</p>
+                    <p>Consulta a nuestro equipo Logístico</p>
+                </a>
+              </div>
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- FIREBASE -->
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-firestore.js"></script>
+
+<!-- main.js -->
+<!-- <script src="js/main.js"></script> -->
+<!-- index.js -->
+<!--
+    <script src="../../index.js" ></script>
+-->
+
+<!-- Bootstrap core JavaScript-->
+<script src="vendor/jquery/jquery.min.js"></script>
+<script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!-- Core plugin JavaScript-->
+<!-- <script src="vendor/jquery-easing/jquery.easing.min.js"></script> -->
+
+<!-- Custom scripts for all pages-->
+<script src="js/sb-admin-2.min.js"></script>
+
+
+<script type="text/javascript">
+    var firebaseConfig = {
+        apiKey: "AIzaSyCtzXKSoweSMLPej5-MbkTfQzFH719y-MM",
+        authDomain: "hekaapp-23c89.firebaseapp.com",
+        databaseURL: "https://hekaapp-23c89.firebaseio.com",
+        projectId: "hekaapp-23c89",
+        storageBucket: "hekaapp-23c89.appspot.com",
+        messagingSenderId: "539740310887",
+        appId: "1:539740310887:web:66f9ab535d18addeb173c2"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    var db=firebase.database();
+
+    function value(request) {
+        return document.getElementById(request).value;
+    }
+
+    function iniciarSesion() {
+        let usuario = value("usuario");
+        let buscardor = document.getElementById("buscador");
+        // let x = db.ref("usuarios");
+        // x.once("value", (snapshot) => {
+        //     snapshot.forEach((res) =>{
+        //         if(res.val().numero_documento == usuario) {
+        //             console.log(res.val());
+        //             localStorage.setItem("user_id", res.key);
+        //             localStorage.setItem("user_login", res.val().numero_documento);
+        //             location.href = "plataforma2.html"
+        //         }
+        //     });
+        // });
+        firebase.firestore().collection("usuarios").where("ingreso", "==", usuario).get()
+        .then((querySnapshot) => {
+          localStorage.setItem("user_id", "");
+          querySnapshot.forEach((doc) => {
+              localStorage.setItem("user_id", doc.id);
+              localStorage.setItem("user_login", doc.data().ingreso);
+              if(doc.data().acceso_admin){
+                localStorage.setItem("acceso_admin", doc.data().acceso_admin);
+              }
+              console.log(localStorage);
+              if(localStorage.getItem("acceso_admin")) {
+                location.href = "admin.html"
+              } else {
+                location.href = "plataforma2.html";
+              }
+          })
+        }).then((d) => {
+          if(localStorage.user_id == ""){
+            alert("Usuario no encontrado");
+          }
+        }).catch((error) => {
+          console.log("Error getting documents: ", error);
+        });
+    }
+    window.onload = () => {
+      if(localStorage.getItem("acceso_admin")){
+        location.href = "admin.html"
+      } else if(localStorage.getItem("user_id")) {
+        location.href = "plataforma2.html"
+      }
+    }
+</script>
+
+</body>
+
+</html>
+
