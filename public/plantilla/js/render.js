@@ -45,7 +45,8 @@ function tablaDeGuias(id, datos){
             </div>
         </th>
         <th>${id}</th>
-        <th>${datos.estado || "Generando"}</th>
+        <th>Generando...</th>
+        <th>Generando...</th>
         <th>${datos.fecha}</th>
         <th>${datos.nombreR}</th>
         <th>${datos.ciudadD}</th>
@@ -100,9 +101,9 @@ function avisar(title, content, type, redirigir){
             }
             aviso.classList.add("d-none");
         } 
-        aviso.addEventListener("mouseenter", () => {clearInterval(x); aviso.style.opacity = 1;});
-        aviso.addEventListener("mouseleave", () => {setTimeout(desaparecer, 1000)})
-    }, 100) 
+        aviso.addEventListener("mouseover", () => {clearInterval(x); aviso.style.opacity = 1;});
+        aviso.addEventListener("mouseleave", () => {setTimeout(desaparecer, 1000)});
+        }, 100) 
     } 
     setTimeout(desaparecer, 5000);
 
@@ -113,6 +114,9 @@ function avisar(title, content, type, redirigir){
         }
     })
 };
+
+avisar("MUESTRA", "que lo que loco, o te vaays");
+
 
 //// Esta funcion me retorna un card con informacion del usuario, sera invocada por otra funcion
 function mostrarUsuarios(data, id){

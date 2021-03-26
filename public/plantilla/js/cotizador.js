@@ -25,7 +25,10 @@ function cotizador(){
     value("Kilos") != "" && value("valor-a-recaudar") != "" 
     && value("dimension-ancho") != "" && value("dimension-largo") != "" && value("dimension-alto") != ""){
         //Si todos los campos no estan vacios
-        if(value("Kilos") <= 0 || value("Kilos") > 25 ) {
+        if(!ciudadR.dataset.ciudad || !ciudadD.dataset.ciudad) {
+            alert("Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable");
+            verificador(["ciudadR", "CiudadD"], true); 
+        } else if(value("Kilos") <= 0 || value("Kilos") > 25 ) {
             // Si la cantidad de kilos excede el limite permitido
             alert("Lo sentimos, la cantidad de kilos ingresada no está permitida, procure ingresar un valor mayor a 0 y menor o igual a 25")
             verificador("Kilos", true);
@@ -472,6 +475,8 @@ function crearGuiasServientrega() {
             alert("Lo sentimos, verifique por favor que la dirección de correo sea valida")
         } else if (value("telefonoD").length != 10) {
             alert("Por favor verifique que el celular esta escrito correctamente (debe contener 10 digitos)")
+        } else if(!datos_usuario.centro_de_costo) {
+            avisar("¡Error al generar Guía!", "Póngase en Contacto con nosotros para asignarle un centro de costo", "advertencia");
         } else {
             let fecha = new Date(), mes = fecha.getMonth() + 1, dia = fecha.getDate();
             if(dia < 10){

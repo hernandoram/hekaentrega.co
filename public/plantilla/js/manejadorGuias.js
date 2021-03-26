@@ -10,6 +10,11 @@ if(administracion){
                 cargarDocumentos();
             })
         }
+
+        document.getElementById("btn_actualizador").addEventListener("click", (e) => {
+            e.preventDefault();
+            actualizarEstado();
+        })
     } else {
         let inputs = document.querySelectorAll("input");
         let botones = document.querySelectorAll("button")
@@ -446,5 +451,63 @@ function descargarDocumentos(doc){
         window.open(url, "_blank");
     })
 }
-  
-console.log(localStorage.user_id)
+
+
+
+function actualizarEstado(){
+    let data = new FormData(document.getElementById("form-estado"));
+    console.log(data);
+    console.log(data.get("cargar_estado"));
+    fetch("/excel_to_json", {
+        method: "POST",
+        body: data
+    }).then((res) => {
+        res.json().then((datos) => {
+            let res = "";
+            if(datos.length == 0){
+                res = "vacio";
+            }
+    
+            for (let dato of datos){
+                let x = {
+                    numero_guia_servientrega: dato["Número de Guia"],
+                    fecha_envio: dato["Fecha de Envio"],
+                    producto: dato["Producto"],
+                    fecha_imp_envio: dato["Fecha Imp. Envio"],
+                    tipo_trayecto: dato["Tipo Trayecto"],
+                    valor_total_declarado: dato["Valor Total Declarado"],
+                    valor_flete: dato["Valor Flete"],
+                    valor_sobreflete: dato["Valor SobreFlete"],
+                    valor_liquidado: dato["Valor Liquidado"],
+                    id_guia: dato["IdCliente"],
+                    estado_envio: dato["Estado Envío"],
+                    mensaje_mov: dato["Mensaje Mov"],
+                    fecha_ult_mov: dato["Fecha Ult Mov"],
+                    nombre_centro_costo: dato["Nombre Centro Costo"]
+                };
+
+                console.log(x);
+                if(x.id_guia){
+                    firebase.firestore().collection("Estado de Guias").doc(x.id_guia).set(x)
+                    .then(() => {})
+                    .catch(() => {
+                        avisar("Error!", "Hubo un error inesperado");
+                    })
+                } else {
+                    res = "falta id";
+                }
+            }
+
+            return res;
+        }).then((r) => {
+            console.log(r)
+            if(r == "vacio"){
+                avisar("¡Error!", "El documento está vacío, por favor verifique que el formato ingresado es un formato actual de excel, preferiblemente .xlsx", "advertencia");
+            } else if (r == "falta id"){
+            avisar("Algo Salió mal", "hubo un error en alguno de los documentos, es posible que no todos se hayan enviado correctamente", "aviso");
+          } else {
+            avisar("Documentos Actualizados", "La actualización de guías ha sido exitosa");
+          }
+        })
+    })
+}

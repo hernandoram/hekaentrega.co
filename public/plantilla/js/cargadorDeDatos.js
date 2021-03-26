@@ -182,9 +182,10 @@ function historialGuias(){
           if(fechaFire >= fecha_inicio && fechaFire <= fecha_final){          
             tabla.push(tablaDeGuias(doc.id, doc.data()));
             //Caragador de datos en tiepo real, sera utilizado para actualizar el estado de guia
-            reference.doc(doc.id).onSnapshot((row) => {
+            firebase.firestore().collection("Estado de Guias").doc(doc.id).onSnapshot((row) => {
               if(row.exists) {
-                document.getElementById("historial-guias-row" + row.id).children[2].textContent = row.data().estado;
+                document.getElementById("historial-guias-row" + row.id).children[2].textContent = row.data().numero_guia_servientrega;
+                document.getElementById("historial-guias-row" + row.id).children[3].textContent = row.data().estado_envio;
                 activarBotonesDeEnvio(row.id, row.data().enviado);
               }
             });

@@ -133,6 +133,23 @@
         <!-- Main Content -->
         <div id="content">     
           <!-- Begin Page Content -->
+          <div class="container-fluid" id="actualizador">
+            <div class="card mt-5">
+              <div class="card-body">
+                <form enctype="multipart/form-data" id="form-estado">
+                  <div class="form-group">
+                    <div class="custom-file mt-2">
+                      <input type="file" class="custom-file-input" id="cargar_estado" accept=".xlsx" name="cargar_estado" lang="es">
+                      <label class="custom-file-label" for="cargar_estado">Seleccionar Archivo</label>
+                    </div>
+
+                    <input type="submit" id="btn_actualizador" 
+                    value="Actualizar" class="btn btn-primary mt-4 col-12">
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
           <div class="container-fluid" id="registrador">
             <div class="card o-hidden border-0 shadow-lg my-2">
                 <div class="card-body p-0">
@@ -783,6 +800,7 @@
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
     
     <!-- Core plugin JavaScript-->
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
@@ -802,6 +820,12 @@
     <!-- para controlar el acceso -->
     <script>
       let administracion = true;
+
+      //Permite el funcionamiento del complemento extra de bootstrap para inputs
+      //que se encuantra ubicado en "core bootstrap javascipt"
+      $(document).ready(function () {
+        bsCustomFileInput.init()
+      })
     </script>
     
     <script src="js/render.js"></script>
