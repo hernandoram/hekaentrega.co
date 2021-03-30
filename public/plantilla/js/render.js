@@ -1,3 +1,5 @@
+// const e = require("express");
+
 function escucha(id, e, funcion) {
     document.getElementById(id).addEventListener(e, funcion)
 }
@@ -115,7 +117,6 @@ function avisar(title, content, type, redirigir){
     })
 };
 
-avisar("MUESTRA", "que lo que loco, o te vaays");
 
 
 //// Esta funcion me retorna un card con informacion del usuario, sera invocada por otra funcion
@@ -191,7 +192,7 @@ function mostrarDocumentos(id, data, tipo_aviso) {
 }
 
 //Muestra la fecha de hoy
-function genFecha(){
+function genFecha(direccion){
     // Genera un formato de fecha AAAA-MM-DD
     let fecha = new Date(), mes = fecha.getMonth() + 1, dia = fecha.getDate();
     if(dia < 10){
@@ -200,7 +201,9 @@ function genFecha(){
     if(mes < 10) {
         mes = "0" + mes;
     }
-
+    if(direccion == "LR"){
+        return `${dia}-${mes}-${fecha.getFullYear()}` 
+    } else
     return `${fecha.getFullYear()}-${mes}-${dia}`
 }
 
@@ -295,3 +298,100 @@ function verificador(arr, boolean) {
     }
 
 }
+
+function tablaPagos(arrData, id) {
+    //tarjeta principal, head, body
+    let card = document.createElement("div"),
+        encabezado = document.createElement("a"),
+        cuerpo = document.createElement("div"),
+        table = document.createElement("table"),
+        thead = document.createElement("thead"),
+        tbody = document.createElement("tbody"),
+        usuario = document.createElement("h3"),
+        total = document.createElement("h4"),
+        btn_pagar = document.createElement("button"),
+        totalizador = 0;
+
+    card.classList.add("card", "mt-5");
+
+    encabezado.setAttribute("class","card-header d-flex justify-content-between");
+    encabezado.setAttribute("data-toggle", "collapse");
+    encabezado.setAttribute("role", "button");
+    encabezado.setAttribute("aria-expanded", "true");
+
+    cuerpo.setAttribute("class", "card-body collapse table-responsive");
+    btn_pagar.setAttribute("class", "btn btn-danger");
+    btn_pagar.setAttribute("id", "pagar"+arrData[0].REMITENTE);
+    btn_pagar.setAttribute("data-funcion", "pagar");
+    
+
+    table.classList.add("table", "table-bordered");
+    thead.classList.add("thead-light");
+    thead.innerHTML = `<tr>
+        <th>Centro de Costo</th>
+        <th>Guía</th>
+        <th>Recaudo</th>
+        <th>Envío Total</th>
+        <th>Total a Pagar</th>
+        <th data-id="${arrData[0].REMITENTE}">Fecha</th>
+    </tr>`
+    
+    encabezado.setAttribute("href", "#" + arrData[0].REMITENTE);  
+    encabezado.setAttribute("aria-controls", arrData[0].REMITENTE);
+    cuerpo.setAttribute("id", arrData[0].REMITENTE);
+    total.classList.add("text-success");
+        
+    for(let data of arrData){
+        let tr = document.createElement("tr");
+        tr.setAttribute("id", data.GUIA);
+        tr.setAttribute("data-remitente", data.REMITENTE);
+        tr.innerHTML = `
+            <td>${data.REMITENTE}</td>
+            <td>${data.GUIA}</td>
+            <td>${data.RECAUDO}</td>
+            <td>${data["ENVÍO TOTAL"]}</td>
+            <td>${data["TOTAL A PAGAR"]}</td>
+            <td data-id="${data.REMITENTE}" data-fecha="${data.FECHA}" data-funcion="cambiar_fecha">${data.FECHA}</td>
+        `;
+        if(!data.FECHA){
+            btn_pagar.setAttribute("disabled", "");
+        }
+
+        if(data.ERROR) {
+            btn_pagar.setAttribute("disabled", "");
+            tr.setAttribute("data-error", data.ERROR);
+            tr.setAttribute("class", "text-danger");
+            total.classList.add("text-danger");
+        }
+        tbody.appendChild(tr);
+        totalizador += parseInt(data["TOTAL A PAGAR"]);
+    }
+
+    table.append(thead, tbody);
+    total.textContent = "$" + convertirMiles(totalizador);
+    total.setAttribute("data-total", totalizador);
+    total.setAttribute("id", "total" + arrData[0].REMITENTE);
+    usuario.textContent = arrData[0].REMITENTE;
+    encabezado.append(usuario, total);
+    btn_pagar.textContent = "Pagar $" + convertirMiles(totalizador);
+    cuerpo.appendChild(table);
+    cuerpo.appendChild(btn_pagar);
+    card.append(encabezado, cuerpo);
+    document.getElementById(id).appendChild(card);
+
+};
+
+// tablaPagos([{
+//     REMITENTE: "SellerEj",
+//     "ENVÍO TOTAL": "1000",
+//     GUIA: "20293029",
+//     RECAUDO: "55000",
+//     FECHA: "22-02-2021"
+// },{
+//     REMITENTE: "SellerEj",
+//     "ENVÍO TOTAL": "2000",
+//     GUIA: "20393",
+//     RECAUDO: "30493",
+//     FECHA: "22-03-2021"  
+// }], "ej");
+

@@ -488,6 +488,7 @@ document.getElementById("CPNcentro_costo").addEventListener("blur", () => {
 
 //esta funcion utilizara a otra para retornarme informacion basica del usuario
 function buscarUsuarios(){
+    document.getElementById("cargador-usuarios").classList.remove("d-none");
     let busqueda = ["!=", ""];
     if(value("buscador-de-usuarios")){
         busqueda = ["==", value("buscador-de-usuarios")];
@@ -501,7 +502,6 @@ function buscarUsuarios(){
                 document.getElementById("usuario-seleccionado").setAttribute("data-id", doc.id);
                 seleccionarUsuario(doc.id);
             }
-            console.log(doc)
         })
     }).then(() => {
         if(document.getElementById("mostrador-usuarios").innerHTML == ""){
@@ -521,6 +521,8 @@ function buscarUsuarios(){
                 })
             }
         }
+        document.getElementById("cargador-usuarios").classList.add("d-none");
+
     })
 }
 
@@ -585,6 +587,8 @@ function mostrarDatosPersonales(data, info) {
         asignacion("actualizar_costo_especial3", data.costo_especial3);
         asignacion("actualizar_comision_servi", data.comision_servi);
         asignacion("actualizar_comision_heka", data.comision_heka);
+        asignacion("actualizar_saldo", data.saldo);
+        document.getElementById("activador-saldo").checked = data.activar_saldo
     }
 }
 
@@ -614,7 +618,8 @@ function actualizarInformacionPersonal() {
             contacto: datos.celular,
             direccion: datos.direccion + " " + datos.barrio + " " + datos.ciudad,
             nombres: datos.nombres,
-            objetos_envio: datos.objetos_envio
+            objetos_envio: datos.objetos_envio,
+            centro_de_costo: datos.centro_de_costo
         })
     }).then(() => {
         avisar("Actualización de Datos exitosa", 
@@ -643,7 +648,7 @@ function actualizarInformacionBancaria() {
 }
 
 function actualizarInformacionHeka() {
-    // Datos bancarios
+    // Datos contabilidad
     let datos = {
         costo_zonal1: value("actualizar_costo_zonal1"),
         costo_zonal2: value("actualizar_costo_zonal2"),
@@ -655,7 +660,10 @@ function actualizarInformacionHeka() {
         costo_especial2: value("actualizar_costo_especial2"),
         costo_especial3: value("actualizar_costo_especial3"),
         comision_servi: value("actualizar_comision_servi"),
-        comision_heka: value("actualizar_comision_heka")
+        comision_heka: value("actualizar_comision_heka"),
+        saldo: value("actualizar_saldo"),
+        activar_saldo: document.getElementById("activador-saldo").checked,
+        fecha: genFecha()
     };
   
     let id_usuario = document.getElementById("usuario-seleccionado").getAttribute("data-id");
@@ -666,3 +674,4 @@ function actualizarInformacionHeka() {
         "Se han registrado cambios en los costos de envíos para id: " + value("actualizar_numero_documento"));
     })
 }
+

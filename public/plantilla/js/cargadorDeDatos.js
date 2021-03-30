@@ -21,12 +21,15 @@ precios_personalizados = {
     costo_especial2: 32000,
     costo_especial3: 6700,
     comision_servi: 3.1,
-    comision_heka: 2.9
+    comision_heka: 2.9,
+    saldo: 0
 };
 
 //funcion principal del Script que carga todos los datos del usuario
 function cargarDatosUsuario(){
         var informacion = firebase.firestore().collection('usuarios').doc(user_id).collection("informacion");
+        
+        
         //Carga la informacion personal en un objeto
         informacion.doc("personal").get().then((doc) => {
           if(doc.exists){
@@ -35,9 +38,7 @@ function cargarDatosUsuario(){
               nombre_completo: datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0],
               direccion: datos.direccion + " " + datos.barrio,
               celular: datos.celular,
-              correo: datos.correo,
-              centro_de_costo: datos.centro_de_costo,
-              objetos_envio: datos.objetos_envio
+              correo: datos.correo
             }
 
             // A partir de aqui, verificara que los elementos existan para mostrar datos
@@ -93,6 +94,15 @@ function cargarDatosUsuario(){
             }
           }
            
+        }).then(() => {
+          //Carga Aspectos específicos de la información personal
+          firebase.firestore().collection("usuarios").doc(user_id).get()
+          .then((doc) => {
+            if(doc.exists){
+              datos_usuario.centro_de_costo = doc.data().centro_de_costo,
+              datos_usuario.objetos_envio = doc.data().objetos_envio
+            }
+          })
         });
 
         // muestra informacion bancaria
@@ -131,11 +141,21 @@ function cargarDatosUsuario(){
         informacion.doc("heka").get().then((doc) => {
           if(doc.exists){
             for(let precio in doc.data()){
-              let pryce = parseFloat(doc.data()[precio]);
-              if(pryce && typeof pryce == "number"){
-                precios_personalizados[precio] = pryce;
+              if(precio != "fecha" && precio != "activar_saldo"){
+                let pryce = parseFloat(doc.data()[precio]);
+                if(pryce && typeof pryce == "number"){
+                  precios_personalizados[precio] = pryce;
+                }
+              }else {
+                precios_personalizados[precio] = doc.data()[precio];
               }
             }
+
+            $("#saldo").html("$" + convertirMiles(precios_personalizados.saldo));
+          }
+        }).then(() => {
+          if(!precios_personalizados.activar_saldo){
+            document.getElementById("saldo").classList.add("text-secondary");
           }
         })
 }
@@ -186,6 +206,14 @@ function historialGuias(){
               if(row.exists) {
                 document.getElementById("historial-guias-row" + row.id).children[2].textContent = row.data().numero_guia_servientrega;
                 document.getElementById("historial-guias-row" + row.id).children[3].textContent = row.data().estado_envio;
+              }
+            });
+
+            //Habilita y deshabilita los checks de la tabla de guias
+            reference.doc(doc.id).onSnapshot((row) => {
+              console.log(row.data())
+              if(row.exists) {
+                console.log(row.data());
                 activarBotonesDeEnvio(row.id, row.data().enviado);
               }
             });
@@ -232,8 +260,270 @@ function historialGuias(){
   } 
 }
 
+//Habilitado por una función en Manejador guias, me envia un excel al /excel_to_json en index.js y me devuelve un Json
+function cargarPagos(){
+  document.querySelector("#cargador-pagos").classList.remove("d-none");
+  let data = new FormData(document.getElementById("form-pagos"));
+  console.log(data);
+  console.log(data.get("documento"));
+  fetch("/excel_to_json", {
+      method: "POST",
+      body: data
+  }).then((res) => {
+      res.json().then((datos) => {
+        // Me realiza un filtro desde los inputs de admin.html en la pestaña de pagos
+        let filtroInputs = datos.filter((data) => {
+          let fechaI, fechaF, guia;
+
+          if($("#filtro-pago-usuario").val()){
+            busqueda = $("#filtro-pago-usuario").val();
+            tipo = "=="
+          }
+        
+          if($("#filtro-pago-guia").val()){
+            guia = $("#filtro-pago-guia").val();
+            return data.GUIA == guia;
+          } else {
+            fechaI = new Date($("#filtro-fechaI").val()).getTime();
+            fechaF = new Date($("#filtro-fechaF").val()).getTime();
+            fechaObtenida = fechaI;
+            if(data.FECHA != undefined) {
+              fechaObtenida = new Date(data.FECHA.split("-").reverse().join("-")).getTime();
+              console.log(fechaI, fechaObtenida, fechaF)
+              console.log(data.FECHA)
+            }
+            remitente = $("#filtro-pago-usuario").val();
+            if($("#fecha-pagos").css("display") != "none" && $("#filtro-pago-usuario").val()){
+              return fechaI <= fechaObtenida && fechaF >= fechaObtenida && data.REMITENTE.indexOf(remitente) != -1;
+            } else if($("#fecha-pagos").css("display") != "none"){
+              return fechaI <= fechaObtenida && fechaF >= fechaObtenida
+            } else if ($("#filtro-pago-usuario").val()) {
+              return data.REMITENTE.indexOf(remitente) != -1;
+            } else {
+              return true;
+            }
+          }
+        })
+        // se insertan los datos filtrados
+        mostrarPagos(filtroInputs);
+      }).then(() => {
+        let fecha = document.querySelectorAll("td[data-funcion='cambiar_fecha']");
+        let todas_fechas = document.querySelectorAll("th[data-id]");
+        let botones_pago = document.querySelectorAll("button[data-funcion='pagar']");
+        let row_guias = document.querySelectorAll("tr[id]");
+        comprobarBoton(fecha);
+
+        //me habilita un evento escucha para cambiar la fecha clickeada
+          for(let f of fecha) {
+              f.addEventListener("click", (e) => {
+                alternarFecha(e.target)
+                comprobarBoton(e.target.parentNode.parentNode.querySelectorAll("td[data-funcion='cambiar_fecha']"));
+              })
+          }
+
+          //me habilita un evento para cambiar todas las fechas del seller a la actual
+          todas_fechas.forEach((conjunto) => {
+            conjunto.addEventListener("click", (e) => {
+              let idenficador = e.target.getAttribute("data-id");
+              let body = document.getElementById(idenficador);
+              let fechas = body.querySelectorAll("td[data-funcion='cambiar_fecha']");
+              fechas.forEach((fecha) => {
+                alternarFecha(fecha);
+              });
+              comprobarBoton(fechas);
+            })
+          })
+
+          //Habilita un evento excucha para cado botón de pagar, que manda toda la info a firebase.collection("pagos")
+          botones_pago.forEach((btn) => {
+            btn.addEventListener("click", e => {
+              let guia = e.target.parentNode.querySelectorAll("tr[id]");
+              guia.forEach(g => {
+                let celda = g.querySelectorAll("td");
+                let identificador = g.getAttribute("id");
+                firebase.firestore().collection("pagos").doc(identificador).set({
+                  REMITENTE: celda[0].textContent,
+                  GUIA: celda[1].textContent,
+                  RECAUDO: celda[2].textContent,
+                  "ENVÍO TOTAL": celda[3].textContent,
+                  "TOTAL A PAGAR": celda[4].textContent,
+                  FECHA: celda[5].textContent
+                }).then(() => {
+                  g.classList.add("text-success");
+                })
+              })
+            })
+          })
+
+          // me revisa todas las guías mostradas, para verificar que no están registrada en firebase
+          row_guias.forEach((guia) => {
+            let identificador = guia.getAttribute("id");
+            firebase.firestore().collection("pagos").doc(identificador.toString()).get()
+            .then((doc)=> {
+              if(doc.exists){
+                guia.setAttribute("data-ERROR", "La Guía "+identificador+" ya se encuentra registrada en la base de datos, verifique que ya ha sido pagada.")
+                guia.classList.add("text-success");
+
+                let remitente = guia.getAttribute("data-remitente");
+                let mostrador_total_local = document.getElementById("total"+remitente);
+                let btn_local = document.getElementById("pagar" + remitente);
+                let total_local = mostrador_total_local.getAttribute("data-total");
+                
+                let mostrador_total = document.getElementById("total_pagos");
+                let total = mostrador_total.getAttribute("data-total");
+                
+                total -= parseInt(guia.children[4].textContent);
+                total_local -= parseInt(guia.children[4].textContent);
+                mostrador_total_local.setAttribute("data-total", total_local);
+                mostrador_total_local.classList.add("text-success");
+                btn_local.textContent = "Por Pagar $" + convertirMiles(total_local);
+                mostrador_total_local.textContent = "$"+convertirMiles(total_local);
+                mostrador_total.setAttribute("data-total", total);
+                mostrador_total.textContent = "Total $"+convertirMiles(total);
+                comprobarBoton(fecha)
+              }
+            })
+          })
+
+          //alterna las fechas entre la actual o la del documento ingresado
+          function alternarFecha(contenido){
+            let actual = genFecha("LR");
+            if(contenido.textContent != actual){
+                contenido.textContent = actual;
+            } else {
+                contenido.textContent = contenido.getAttribute("data-fecha");
+            }
+          }
+
+          //Función importante que me habiita los pagos, dependiendo de la condicion de cada guia del usuario
+          function comprobarBoton(elementos){
+            let desactivar = false;
+            let identificador = [];
+            for(let e of elementos) {
+              identificador.push(e.getAttribute("data-id"));
+              document.getElementById(e.getAttribute("data-id")).querySelectorAll("p").forEach(e => e.remove());
+            }
+            elementos.forEach((elemento, i) => {
+              let err = elemento.parentNode.getAttribute("data-error");
+              if (err) {
+                desactivar = true;
+                let aviso = document.createElement("p");
+                aviso.textContent = err;
+                aviso.setAttribute("class", "text-danger border p-2");
+                document.getElementById(identificador[i]).insertBefore(aviso, document.getElementById("pagar" + identificador[i]));
+              } else if (elemento.textContent == "undefined" || elemento.textContent == "") {
+                desactivar = true;
+              }
+            });
+
+
+            if(!desactivar){
+              document.getElementById("pagar"+identificador[0]).removeAttribute("disabled");
+            } else {
+              document.getElementById("pagar"+identificador[0]).setAttribute("disabled", "");
+            }
+          }
+
+          document.querySelector("#cargador-pagos").classList.add("d-none");
+      })
+  })
+}
+
+//me consulta los pagos ya realizados y los filtra si es necesario
+$("#btn-revisar_pagos").click(() => {
+  document.querySelector("#cargador-pagos").classList.remove("d-none");
+  let fechaI, fechaF, buscador="REMITENTE", busqueda = "", guia, tipo = "!="
+  
+  if($("#fecha-pagos").css("display") != "none"){
+    fechaI = new Date($("#filtro-fechaI").val()).getTime();
+    fechaF = new Date($("#filtro-fechaF").val()).getTime();
+  }
+  
+  if($("#filtro-pago-usuario").val()){
+    busqueda = $("#filtro-pago-usuario").val();
+    tipo = "=="
+  }
+
+  if($("#filtro-pago-guia").val()){
+    guia = $("#filtro-pago-guia").val();
+    buscador = "GUIA"
+    busqueda = guia;
+    tipo = "=="
+  }
+
+  firebase.firestore().collection("pagos").where(buscador, tipo, busqueda).get()
+  .then((querySnapshot) => {
+    let response = []
+    querySnapshot.forEach((doc) => {
+      if(fechaI && fechaF && !guia){
+        let fechaFire = new Date(doc.data().FECHA.split("-").reverse().join("-")).getTime();
+        if(fechaI <= fechaFire && fechaFire <= fechaF){
+          response.push(doc.data());
+        }
+      } else {
+        response.push(doc.data())
+      }
+    });
+    if(!administracion){
+      response = response.filter((d) => d.REMITENTE == datos_usuario.centro_de_costo);
+    }
+    return response
+  }).then(data => {
+    mostrarPagos(data);
+    $("[data-funcion='pagar']").css("display", "none")
+    document.querySelector("#cargador-pagos").classList.add("d-none");
+  });
+
+  console.log(busqueda, tipo);
+})
+
+//Muestra la situación de los pagos a consultar, recibe un arreglo de datos y los organiza por seller automáticamente
+function mostrarPagos(datos) {
+  document.getElementById("visor_pagos").innerHTML = "";
+  let centros_costo = [];
+  datos.forEach((D, i) => {
+    if(!D.GUIA) {
+      D.ERROR = "Sin número de guía para subir: " + D.GUIA;
+    }
+    datos.forEach((d, j) => {
+      if(i != j){
+        if(D.GUIA == d.GUIA) {
+          d.ERROR = "Este Número de guía: " +D.GUIA+ " se encuentra duplicado, por favor verifique su documento y vuelvalo a subir.";
+        }
+      }
+    })
+  })
+  datos.sort((a,b) => {
+      if (a["REMITENTE"] > b["REMITENTE"]){
+          return 1
+      } else if (a["REMITENTE"] < b["REMITENTE"]){
+          return -1
+      } else {
+          return 0
+      };
+  }).reduce((a,b) => {
+      if (a["REMITENTE"] != b["REMITENTE"]){
+          centros_costo.push(b["REMITENTE"]);
+      }  
+      return b;
+  }, {REMITENTE: ""});
+
+  for(let user of centros_costo) {
+    let filtrado = datos.filter((d) => d.REMITENTE == user);
+    console.log(filtrado);
+    tablaPagos(filtrado, "visor_pagos");
+  };
+
+  
+  let total = datos.reduce(function(a,b) {
+    return a + parseInt(b["TOTAL A PAGAR"]);
+  }, 0);
+  
+  document.getElementById("visor_pagos").innerHTML += `
+    <h2 class="text-right mt-4" id="total_pagos" data-total="${total}">Total:  $${convertirMiles(total)}</h2>
+  `;
+}
 
 function cerrarSession() {
   localStorage.clear()
 }
-

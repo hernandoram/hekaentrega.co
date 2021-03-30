@@ -28,6 +28,10 @@
   <!--Datatebles-->
   <link rel="stylesheet" type="text/css" href="vendor/datatables/dataTables.bootstrap4.min.css">
 
+  <!--Cargador
+  Para llamarlo, tengo que introducir <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>-->
+  <link rel="stylesheet" href="css/loader.css">
+
 </head>
 
 <body class="bg-gradient-primary">
@@ -82,6 +86,14 @@
 
         <!-- Divider -->
         <hr class="sidebar-divider">
+        <div class="sidebar-heading">
+          Pagos
+        </div>
+        <li class="nav-item">
+          <a class="nav-link" href="#pagos" onclick="mostrar('pagos')">
+            <i class="fas fa-fw fa-dollar-sign"></i>
+            <span>Pagos</span></a>
+        </li>
 
         <!-- Sidebar Toggler (Sidebar) -->
         <div class="text-center d-none d-md-inline">
@@ -563,6 +575,64 @@
               <p class="text-gray-500 mb-0">Intente realizar su consulta nuevamente</p>
               <a href="plataforma2.html">&larr; Regresar a la plataforma</a>
             </div>
+          </div>
+
+          <div class="container-fluid" id="pagos">
+            <div class="card mt-5">
+              <div class="card-body">
+                <form enctype="multipart/form-data" id="form-pagos">
+                  <div class="form-group">
+
+                    <h2 class="text-center text-primary mb-4">Pagos Recibidos</h2>
+                    <hr>
+                    <span>Si decide Buscar por Guía, el filtro por fecha será desactivado automáticamente</span>
+                    <div class="col-md-6 mt-2">
+                      <a href="javascript:filtroFecha()" onclick="filtroFecha()"><input type="checkbox" name="activador_filtro_fecha" id="activador_filtro_fecha"></a>
+                      <label for="activador_filtro_fecha">Activar Filtrado por fecha</label>
+                    </div>
+                      
+                    <div class="row">
+                      <div id="fecha-pagos" class="col-md-8 mt-2" style="display: none;">
+                        <div class="form-group row mb-3">
+                          <div class="col-sm-6 mb-3 mb-sm-0">
+                            <h6>Fecha inicio</h6>
+                            <input id="filtro-fechaI" type="date" class="form-control form-control-user">
+                          </div>
+                          <div class="col-sm-6">
+                            <h6>Fecha final</h6>
+                            <input id="filtro-fechaF" type="date" class="form-control form-control-user">
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <script>
+                        filtroFecha();
+                        function filtroFecha() {
+                          if(document.getElementById("activador_filtro_fecha").checked){
+                            document.getElementById("fecha-pagos").style.display = "block";
+                          } else {
+                            document.getElementById("fecha-pagos").style.display = "none";
+                          }
+                        }
+                      </script>
+
+                      <div class="col-12 col-md-4 mt-2">
+                        <h6>Por Guía</h6>
+                        <input type="text" name="filtro-pago-guia" class="form-control" id="filtro-pago-guia">
+                      </div>
+                    </div>
+
+                    <input type="button" id="btn-revisar_pagos" 
+                    value="Revisar Pagos" class="btn btn-primary mt-4">
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="d-flex justify-content-center">
+              <div class="lds-ellipsis mt-4 d-none" id="cargador-pagos"><div></div>
+              <div></div><div></div><div></div></div>
+            </div>
+            <div id="visor_pagos"></div>
           </div>
         </div>   
         <!-- Footer -->

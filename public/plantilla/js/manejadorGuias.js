@@ -14,6 +14,11 @@ if(administracion){
         document.getElementById("btn_actualizador").addEventListener("click", (e) => {
             e.preventDefault();
             actualizarEstado();
+        });
+
+        document.getElementById("btn-cargar_pagos").addEventListener("click", (e) => {
+            e.preventDefault();
+            cargarPagos();
         })
     } else {
         let inputs = document.querySelectorAll("input");
@@ -455,9 +460,10 @@ function descargarDocumentos(doc){
 
 
 function actualizarEstado(){
+    document.querySelector("#cargador-actualizador").classList.remove("d-none");
     let data = new FormData(document.getElementById("form-estado"));
     console.log(data);
-    console.log(data.get("cargar_estado"));
+    console.log(data.get("documento"));
     fetch("/excel_to_json", {
         method: "POST",
         body: data
@@ -508,6 +514,10 @@ function actualizarEstado(){
           } else {
             avisar("Documentos Actualizados", "La actualización de guías ha sido exitosa");
           }
+
+          document.querySelector("#cargador-actualizador").classList.add("d-none");
         })
     })
 }
+
+
