@@ -270,164 +270,187 @@ function cargarPagos(){
       method: "POST",
       body: data
   }).then((res) => {
-      res.json().then((datos) => {
-        // Me realiza un filtro desde los inputs de admin.html en la pestaña de pagos
-        let filtroInputs = datos.filter((data) => {
-          let fechaI, fechaF, guia;
+    if(!res.ok){
+      throw Error("Lo sentimos, no pudimos cargar su documento, reviselo y vuelvalo a subir")
+    }
+    res.json().then((datos) => {
+      // Me realiza un filtro desde los inputs de admin.html en la pestaña de pagos
+      let transportadoras = [];
+      let filtro_transportadoras = document.getElementsByName("filtro-trasnportadoras");
+      for(let transp of filtro_transportadoras){
+        if(transp.checked){
+          transportadoras.push(transp.value.toLowerCase());
+        }
+      }
+      let filtroInputs = datos.filter((data) => {
+        let fechaI, fechaF, guia, permitir_transportadora;
 
-          if($("#filtro-pago-usuario").val()){
-            busqueda = $("#filtro-pago-usuario").val();
-            tipo = "=="
+          if(data.TRANSPORTADORA && transportadoras.indexOf(data.TRANSPORTADORA.toLowerCase()) != -1 && transportadoras.length != 0) {
+            permitir_transportadora = true;
+          } else if (transportadoras.length == 0){
+            permitir_transportadora = true;
           }
-        
-          if($("#filtro-pago-guia").val()){
-            guia = $("#filtro-pago-guia").val();
-            return data.GUIA == guia;
+
+        // if($("#filtro-pago-usuario").val()){
+        //   busqueda = $("#filtro-pago-usuario").val();
+        //   tipo = "=="
+        // }
+      
+        if($("#filtro-pago-guia").val()){
+          guia = $("#filtro-pago-guia").val();
+          return permitir_transportadora && data.GUIA == guia && permitir_transportadora;
+        } else {
+          fechaI = new Date($("#filtro-fechaI").val()).getTime();
+          fechaF = new Date($("#filtro-fechaF").val()).getTime();
+          fechaObtenida = fechaI;
+          if(data.FECHA != undefined) {
+            fechaObtenida = new Date(data.FECHA.split("-").reverse().join("-")).getTime();
+            console.log(fechaI, fechaObtenida, fechaF)
+            console.log(data.FECHA)
+          }
+          remitente = $("#filtro-pago-usuario").val();
+          if($("#fecha-pagos").css("display") != "none" && $("#filtro-pago-usuario").val()){
+            return permitir_transportadora && fechaI <= fechaObtenida && fechaF >= fechaObtenida && data.REMITENTE.indexOf(remitente) != -1;
+          } else if($("#fecha-pagos").css("display") != "none"){
+            return permitir_transportadora && fechaI <= fechaObtenida && fechaF >= fechaObtenida
+          } else if ($("#filtro-pago-usuario").val()) {
+            return permitir_transportadora && data.REMITENTE.indexOf(remitente) != -1;
           } else {
-            fechaI = new Date($("#filtro-fechaI").val()).getTime();
-            fechaF = new Date($("#filtro-fechaF").val()).getTime();
-            fechaObtenida = fechaI;
-            if(data.FECHA != undefined) {
-              fechaObtenida = new Date(data.FECHA.split("-").reverse().join("-")).getTime();
-              console.log(fechaI, fechaObtenida, fechaF)
-              console.log(data.FECHA)
-            }
-            remitente = $("#filtro-pago-usuario").val();
-            if($("#fecha-pagos").css("display") != "none" && $("#filtro-pago-usuario").val()){
-              return fechaI <= fechaObtenida && fechaF >= fechaObtenida && data.REMITENTE.indexOf(remitente) != -1;
-            } else if($("#fecha-pagos").css("display") != "none"){
-              return fechaI <= fechaObtenida && fechaF >= fechaObtenida
-            } else if ($("#filtro-pago-usuario").val()) {
-              return data.REMITENTE.indexOf(remitente) != -1;
-            } else {
-              return true;
-            }
+            return permitir_transportadora;
           }
-        })
-        // se insertan los datos filtrados
-        mostrarPagos(filtroInputs);
-      }).then(() => {
-        let fecha = document.querySelectorAll("td[data-funcion='cambiar_fecha']");
-        let todas_fechas = document.querySelectorAll("th[data-id]");
-        let botones_pago = document.querySelectorAll("button[data-funcion='pagar']");
-        let row_guias = document.querySelectorAll("tr[id]");
-        comprobarBoton(fecha);
+        }
+      })
+      // se insertan los datos filtrados
+      mostrarPagos(filtroInputs);
+    }).then(() => {
+      let fecha = document.querySelectorAll("td[data-funcion='cambiar_fecha']");
+      let todas_fechas = document.querySelectorAll("th[data-id]");
+      let botones_pago = document.querySelectorAll("button[data-funcion='pagar']");
+      let row_guias = document.querySelectorAll("tr[id]");
+      comprobarBoton(fecha);
 
-        //me habilita un evento escucha para cambiar la fecha clickeada
-          for(let f of fecha) {
-              f.addEventListener("click", (e) => {
-                alternarFecha(e.target)
-                comprobarBoton(e.target.parentNode.parentNode.querySelectorAll("td[data-funcion='cambiar_fecha']"));
-              })
-          }
-
-          //me habilita un evento para cambiar todas las fechas del seller a la actual
-          todas_fechas.forEach((conjunto) => {
-            conjunto.addEventListener("click", (e) => {
-              let idenficador = e.target.getAttribute("data-id");
-              let body = document.getElementById(idenficador);
-              let fechas = body.querySelectorAll("td[data-funcion='cambiar_fecha']");
-              fechas.forEach((fecha) => {
-                alternarFecha(fecha);
-              });
-              comprobarBoton(fechas);
+      //me habilita un evento escucha para cambiar la fecha clickeada
+        for(let f of fecha) {
+            f.addEventListener("click", (e) => {
+              alternarFecha(e.target)
+              comprobarBoton(e.target.parentNode.parentNode.querySelectorAll("td[data-funcion='cambiar_fecha']"));
             })
-          })
+        }
 
-          //Habilita un evento excucha para cado botón de pagar, que manda toda la info a firebase.collection("pagos")
-          botones_pago.forEach((btn) => {
-            btn.addEventListener("click", e => {
-              let guia = e.target.parentNode.querySelectorAll("tr[id]");
-              guia.forEach(g => {
-                let celda = g.querySelectorAll("td");
-                let identificador = g.getAttribute("id");
-                firebase.firestore().collection("pagos").doc(identificador).set({
-                  REMITENTE: celda[0].textContent,
-                  GUIA: celda[1].textContent,
-                  RECAUDO: celda[2].textContent,
-                  "ENVÍO TOTAL": celda[3].textContent,
-                  "TOTAL A PAGAR": celda[4].textContent,
-                  FECHA: celda[5].textContent
-                }).then(() => {
-                  g.classList.add("text-success");
-                })
-              })
-            })
-          })
-
-          // me revisa todas las guías mostradas, para verificar que no están registrada en firebase
-          row_guias.forEach((guia) => {
-            let identificador = guia.getAttribute("id");
-            firebase.firestore().collection("pagos").doc(identificador.toString()).get()
-            .then((doc)=> {
-              if(doc.exists){
-                guia.setAttribute("data-ERROR", "La Guía "+identificador+" ya se encuentra registrada en la base de datos, verifique que ya ha sido pagada.")
-                guia.classList.add("text-success");
-
-                let remitente = guia.getAttribute("data-remitente");
-                let mostrador_total_local = document.getElementById("total"+remitente);
-                let btn_local = document.getElementById("pagar" + remitente);
-                let total_local = mostrador_total_local.getAttribute("data-total");
-                
-                let mostrador_total = document.getElementById("total_pagos");
-                let total = mostrador_total.getAttribute("data-total");
-                
-                total -= parseInt(guia.children[4].textContent);
-                total_local -= parseInt(guia.children[4].textContent);
-                mostrador_total_local.setAttribute("data-total", total_local);
-                mostrador_total_local.classList.add("text-success");
-                btn_local.textContent = "Por Pagar $" + convertirMiles(total_local);
-                mostrador_total_local.textContent = "$"+convertirMiles(total_local);
-                mostrador_total.setAttribute("data-total", total);
-                mostrador_total.textContent = "Total $"+convertirMiles(total);
-                comprobarBoton(fecha)
-              }
-            })
-          })
-
-          //alterna las fechas entre la actual o la del documento ingresado
-          function alternarFecha(contenido){
-            let actual = genFecha("LR");
-            if(contenido.textContent != actual){
-                contenido.textContent = actual;
-            } else {
-                contenido.textContent = contenido.getAttribute("data-fecha");
-            }
-          }
-
-          //Función importante que me habiita los pagos, dependiendo de la condicion de cada guia del usuario
-          function comprobarBoton(elementos){
-            let desactivar = false;
-            let identificador = [];
-            for(let e of elementos) {
-              identificador.push(e.getAttribute("data-id"));
-              document.getElementById(e.getAttribute("data-id")).querySelectorAll("p").forEach(e => e.remove());
-            }
-            elementos.forEach((elemento, i) => {
-              let err = elemento.parentNode.getAttribute("data-error");
-              if (err) {
-                desactivar = true;
-                let aviso = document.createElement("p");
-                aviso.textContent = err;
-                aviso.setAttribute("class", "text-danger border p-2");
-                document.getElementById(identificador[i]).insertBefore(aviso, document.getElementById("pagar" + identificador[i]));
-              } else if (elemento.textContent == "undefined" || elemento.textContent == "") {
-                desactivar = true;
-              }
+        //me habilita un evento para cambiar todas las fechas del seller a la actual
+        todas_fechas.forEach((conjunto) => {
+          conjunto.addEventListener("click", (e) => {
+            let idenficador = e.target.getAttribute("data-id");
+            let body = document.getElementById(idenficador);
+            let fechas = body.querySelectorAll("td[data-funcion='cambiar_fecha']");
+            fechas.forEach((fecha) => {
+              alternarFecha(fecha);
             });
+            comprobarBoton(fechas);
+          })
+        })
 
+        //Habilita un evento excucha para cado botón de pagar, que manda toda la info a firebase.collection("pagos")
+        botones_pago.forEach((btn) => {
+          btn.addEventListener("click", e => {
+            let guia = e.target.parentNode.querySelectorAll("tr[id]");
+            guia.forEach(g => {
+              let celda = g.querySelectorAll("td");
+              let identificador = g.getAttribute("id");
+              firebase.firestore().collection("pagos").doc(celda[1].textContent.toLowerCase()).collection("pagos").doc(identificador).set({
+                REMITENTE: celda[0].textContent,
+                TRANSPORTADORA: celda[1].textContent,
+                GUIA: celda[1].textContent,
+                GUIA: celda[2].textContent,
+                RECAUDO: celda[3].textContent,
+                "ENVÍO TOTAL": celda[4].textContent,
+                "TOTAL A PAGAR": celda[5].textContent,
+                FECHA: celda[6].textContent
+              }).then(() => {
+                g.classList.add("text-success");
+              })
+            })
+          })
+        })
+
+        // me revisa todas las guías mostradas, para verificar que no están registrada en firebase
+        row_guias.forEach((guia) => {
+          let identificador = guia.getAttribute("id");
+          let transportadora = guia.querySelectorAll("td")[1].textContent;
+          firebase.firestore().collection("pagos").doc(transportadora.toLocaleLowerCase()).collection("pagos").doc(identificador.toString()).get()
+          .then((doc)=> {
+            if(doc.exists){
+              guia.setAttribute("data-ERROR", "La Guía "+identificador+" ya se encuentra registrada en la base de datos, verifique que ya ha sido pagada.")
+              guia.classList.add("text-success");
+
+              let remitente = guia.getAttribute("data-remitente");
+              let mostrador_total_local = document.getElementById("total"+remitente);
+              let btn_local = document.getElementById("pagar" + remitente);
+              let total_local = mostrador_total_local.getAttribute("data-total");
+              
+              let mostrador_total = document.getElementById("total_pagos");
+              let total = mostrador_total.getAttribute("data-total");
+              
+              total -= parseInt(guia.children[5].textContent);
+              total_local -= parseInt(guia.children[5].textContent);
+              mostrador_total_local.setAttribute("data-total", total_local);
+              mostrador_total_local.classList.add("text-success");
+              btn_local.textContent = "Por Pagar $" + convertirMiles(total_local);
+              mostrador_total_local.textContent = "$"+convertirMiles(total_local);
+              mostrador_total.setAttribute("data-total", total);
+              mostrador_total.textContent = "Total $"+convertirMiles(total);
+              comprobarBoton(fecha)
+            }
+          })
+        })
+
+        //alterna las fechas entre la actual o la del documento ingresado
+        function alternarFecha(contenido){
+          let actual = genFecha("LR");
+          if(contenido.textContent != actual){
+              contenido.textContent = actual;
+          } else {
+              contenido.textContent = contenido.getAttribute("data-fecha");
+          }
+        }
+
+        //Función importante que me habiita los pagos, dependiendo de la condicion de cada guia del usuario
+        function comprobarBoton(elementos){
+          let desactivar = false;
+          let identificador = [];
+          for(let e of elementos) {
+            identificador.push(e.getAttribute("data-id"));
+            document.getElementById(e.getAttribute("data-id")).querySelectorAll("p").forEach(e => e.remove());
+          }
+          elementos.forEach((elemento, i) => {
+            let err = elemento.parentNode.getAttribute("data-error");
+            if (err) {
+              desactivar = true;
+              let aviso = document.createElement("p");
+              aviso.innerHTML = err;
+              aviso.setAttribute("class", "text-danger border p-2");
+              document.getElementById(identificador[i]).insertBefore(aviso, document.getElementById("pagar" + identificador[i]));
+            } else if (elemento.textContent == "undefined" || elemento.textContent == "") {
+              desactivar = true;
+            }
 
             if(!desactivar){
               document.getElementById("pagar"+identificador[0]).removeAttribute("disabled");
             } else {
               document.getElementById("pagar"+identificador[0]).setAttribute("disabled", "");
             }
-          }
+          });
+        }
 
-          document.querySelector("#cargador-pagos").classList.add("d-none");
-      })
+        document.querySelector("#cargador-pagos").classList.add("d-none");
+    })
+  }).catch((err) => {
+    avisar("Algo salió mal", err, "advertencia")
+    document.querySelector("#cargador-pagos").classList.add("d-none");
   })
 }
+
+
 
 //me consulta los pagos ya realizados y los filtra si es necesario
 $("#btn-revisar_pagos").click(() => {
@@ -451,30 +474,45 @@ $("#btn-revisar_pagos").click(() => {
     tipo = "=="
   }
 
-  firebase.firestore().collection("pagos").where(buscador, tipo, busqueda).get()
-  .then((querySnapshot) => {
-    let response = []
-    querySnapshot.forEach((doc) => {
-      if(fechaI && fechaF && !guia){
-        let fechaFire = new Date(doc.data().FECHA.split("-").reverse().join("-")).getTime();
-        if(fechaI <= fechaFire && fechaFire <= fechaF){
-          response.push(doc.data());
-        }
-      } else {
-        response.push(doc.data())
-      }
-    });
-    if(!administracion){
-      response = response.filter((d) => d.REMITENTE == datos_usuario.centro_de_costo);
+  let transportadoras = [];
+  let filtro_transportadoras = document.getElementsByName("filtro-trasnportadoras");
+  for(let transp of filtro_transportadoras){
+    if(transp.checked){
+      transportadoras.push(transp.value.toLowerCase());
     }
-    return response
-  }).then(data => {
-    mostrarPagos(data);
-    $("[data-funcion='pagar']").css("display", "none")
-    document.querySelector("#cargador-pagos").classList.add("d-none");
-  });
+  }
 
-  console.log(busqueda, tipo);
+  if (transportadoras.length == 0){
+    transportadoras = ["servientrega", "envía", "tcc"]; 
+  }
+
+  let response = []
+  for(let busqueda_trans of transportadoras) {
+    firebase.firestore().collection("pagos").doc(busqueda_trans).collection("pagos").where(buscador, tipo, busqueda).get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        if(fechaI && fechaF && !guia){
+          let fechaFire = new Date(doc.data().FECHA.split("-").reverse().join("-")).getTime();
+          if(fechaI <= fechaFire && fechaFire <= fechaF){
+            response.push(doc.data());
+          }
+        } else {
+          response.push(doc.data())
+        }
+      });
+      if(!administracion){
+        response = response.filter((d) => d.REMITENTE == datos_usuario.centro_de_costo);
+      }
+      return response
+    }).then(data => {
+      mostrarPagos(data);
+      $("[data-funcion='pagar']").css("display", "none")
+      document.querySelector("#cargador-pagos").classList.add("d-none");
+    });
+    console.log(busqueda_trans);
+  }
+
+
 })
 
 //Muestra la situación de los pagos a consultar, recibe un arreglo de datos y los organiza por seller automáticamente
@@ -484,6 +522,10 @@ function mostrarPagos(datos) {
   datos.forEach((D, i) => {
     if(!D.GUIA) {
       D.ERROR = "Sin número de guía para subir: " + D.GUIA;
+    } else if (!D.TRANSPORTADORA){
+      D.ERROR = "Lo siento, no se a que transportadora subir la guía: " + D.GUIA;
+    } else if (D.TRANSPORTADORA.toLowerCase() !== "servientrega" && D.TRANSPORTADORA.toLowerCase() != "envía" && D.TRANSPORTADORA.toLowerCase() != "tcc"){
+      D.ERROR = "Por favor, Asegurate que la factura de la guía: " + D.GUIA + " le pertenezca a <b>Envía, TCC, O Servientrega</b>"
     }
     datos.forEach((d, j) => {
       if(i != j){

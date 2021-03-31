@@ -577,7 +577,7 @@
             </div>
           </div>
 
-          <div class="container-fluid" id="pagos">
+          <div class="container-fluid" id="pagos" style="display: none;">
             <div class="card mt-5">
               <div class="card-body">
                 <form enctype="multipart/form-data" id="form-pagos">
@@ -619,6 +619,19 @@
                       <div class="col-12 col-md-4 mt-2">
                         <h6>Por Guía</h6>
                         <input type="text" name="filtro-pago-guia" class="form-control" id="filtro-pago-guia">
+                      </div>
+
+                      <div class="col d-flex justify-content-center form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1" name="filtro-trasnportadoras" value="Servientrega">
+                        <label class="form-check-label" for="filtro-trasnportadora1">Servientrega</label>
+                      </div>
+                      <div class="col d-flex justify-content-center form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2" name="filtro-trasnportadoras" value="Envía">
+                        <label class="form-check-label" for="filtro-trasnportadora2">Envía</label>
+                      </div>
+                      <div class="col d-flex justify-content-center form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="filtro-trasnportadora3" name="filtro-trasnportadoras" value="TCC">
+                        <label class="form-check-label" for="filtro-trasnportadora3">TCC</label>
                       </div>
                     </div>
 

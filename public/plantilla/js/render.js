@@ -329,6 +329,7 @@ function tablaPagos(arrData, id) {
     thead.classList.add("thead-light");
     thead.innerHTML = `<tr>
         <th>Centro de Costo</th>
+        <th>Transportadora</th>
         <th>Guía</th>
         <th>Recaudo</th>
         <th>Envío Total</th>
@@ -339,7 +340,6 @@ function tablaPagos(arrData, id) {
     encabezado.setAttribute("href", "#" + arrData[0].REMITENTE);  
     encabezado.setAttribute("aria-controls", arrData[0].REMITENTE);
     cuerpo.setAttribute("id", arrData[0].REMITENTE);
-    total.classList.add("text-success");
         
     for(let data of arrData){
         let tr = document.createElement("tr");
@@ -347,6 +347,7 @@ function tablaPagos(arrData, id) {
         tr.setAttribute("data-remitente", data.REMITENTE);
         tr.innerHTML = `
             <td>${data.REMITENTE}</td>
+            <td>${data.TRANSPORTADORA}</td>
             <td>${data.GUIA}</td>
             <td>${data.RECAUDO}</td>
             <td>${data["ENVÍO TOTAL"]}</td>

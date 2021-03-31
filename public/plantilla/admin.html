@@ -377,7 +377,7 @@
             </div>
           </div>
 
-          <div class="container-fluid" id="usuarios">
+          <div class="container-fluid" id="usuarios" style="display: none;">
             <div class="row">
               <div class="col-md-3"></div>
               <form class="input-group mb-3 col-md-6">
@@ -719,7 +719,7 @@
             </div>
           </div>
 
-          <div class="container-fluid" id="documentos">
+          <div class="container-fluid" id="documentos" style="display: none;">
             <div class="row">
               <div class="form-group row mb-3">
                 <div class="col-sm-6 mb-3 mb-sm-0">
@@ -739,7 +739,7 @@
             <div class="row" id="mostrador-documentos"></div>
           </div>
 
-          <div class="container-fluid" id="actualizador">
+          <div class="container-fluid" id="actualizador" style="display: none;">
             <div class="card mt-5">
               <div class="card-body">
                 <form enctype="multipart/form-data" id="form-estado">
@@ -761,7 +761,7 @@
             </div>
           </div>
 
-          <div class="container-fluid" id="pagos">
+          <div class="container-fluid" id="pagos" style="display: none;">
             <div class="card mt-5">
               <div class="card-body">
                 <form enctype="multipart/form-data" id="form-pagos">
@@ -811,6 +811,19 @@
                       <div class="col-6 col-md-3 mt-2">
                         <h6>Por Guía</h6>
                         <input type="text" name="filtro-pago-guia" class="form-control" id="filtro-pago-guia">
+                      </div>
+
+                      <div class="col d-flex justify-content-center form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1" name="filtro-trasnportadoras" value="Servientrega">
+                        <label class="form-check-label" for="filtro-trasnportadora1">Servientrega</label>
+                      </div>
+                      <div class="col d-flex justify-content-center form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2" name="filtro-trasnportadoras" value="Envía">
+                        <label class="form-check-label" for="filtro-trasnportadora2">Envía</label>
+                      </div>
+                      <div class="col d-flex justify-content-center form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" id="filtro-trasnportadora3" name="filtro-trasnportadoras" value="TCC">
+                        <label class="form-check-label" for="filtro-trasnportadora3">TCC</label>
                       </div>
                     </div>
 
@@ -874,7 +887,7 @@
     </div>
 
     <!--Avisos-->
-    <div class="d-none" id="aviso" style="position: fixed; top: 10px; right: 10px; cursor: pointer">
+    <div class="d-none" id="aviso" style="position: fixed; top: 10px; right: 10px; cursor: pointer; z-index: 1;">
       <div class="card shadow h-100 py-2">
         <div class="card-body">
           <div class="row no-gutters align-items-center">
