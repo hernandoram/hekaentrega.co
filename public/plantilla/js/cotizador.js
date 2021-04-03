@@ -60,9 +60,9 @@ function cotizador(){
                 document.getElementById("boton_continuar").disabled = true;
                 verificador("valor-a-recaudar", true);
             } else if(precios_personalizados.activar_saldo && datos_de_cotizacion.precio > precios_personalizados.saldo){
-                alert("Ups! al parecer no dispones de saldo suficiente para continuar con el envío, para recargar saldo, por favor comuníquese con nuestros asesores.");
                 let aviso = document.createElement("p")
-                aviso.textContent = "No dispone de saldo suficiente para continuar con su transacción, si desea continuar, por favor comuniquese con nuestros asesores, para mayor información"
+                aviso.textContent = "No dispone de saldo suficiente para continuar con su transacción, si desea continuar, por favor comuniquese con nuestros asesores para mayor información"
+                aviso.classList.add("text-danger");
                 mostrador.insertBefore(aviso, document.getElementById("boton_continuar").parentNode);
                 document.getElementById("boton_continuar").disabled = true;
                 document.getElementById("boton_continuar").style.display = "none";
@@ -538,18 +538,54 @@ function enviar_firestore(datos){
             firestore.collection("usuarios").doc(localStorage.user_id).collection("informacion").doc("heka").get()
             .then((doc) => {
                 if(doc.exists){
+                    let momento = new Date().getTime();
                     let saldo = doc.data().saldo;
+                    
+                    let saldo_detallado = {
+                        saldo: saldo,
+                        saldo_anterior: saldo,
+                        activar_saldo: doc.data().activar_saldo,
+                        fecha: genFecha(),
+                        user_id: localStorage.user_id,
+                        momento: momento,
+                        diferencia: 0
+                    }
                     if(doc.data().activar_saldo){
+                        saldo_detallado.saldo = saldo - datos_de_cotizacion.precio;
+                        saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
                         firestore.collection("usuarios").doc(localStorage.user_id).collection("informacion").doc("heka")
                         .update({
                             saldo: saldo - datos_de_cotizacion.precio
+                        }).then(() => {
+                            firebase.firestore().collection("prueba").add(saldo_detallado)
+                            .then((docRef1)=> {
+                                firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("movimientos").add(saldo_detallado)
+                                .then((docRef2) => {
+                                    firebase.firestore().collection("usuarios").doc("22032021").get()
+                                    .then((doc) => {
+                                        pagos = doc.data().pagos;
+                                        pagos.push({
+                                            id1: docRef1.id,
+                                            id2: docRef2.id,
+                                            user: saldo_detallado.user_id,
+                                            medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + saldo_detallado.user_id
+                                        })
+                                        return pagos;
+                                    }).then(reg => {
+                                        console.log(reg);
+                                        firebase.firestore().collection("usuarios").doc("22032021").update({
+                                            pagos: reg
+                                        });
+                                    })
+                                })
+                            });
                         })
                     }
                 }
             })
             return id;
         }).then((id) => {
-            avisar("¡Guía creada exitósamente!", "Indetificador Heka = " + id, "", "plataforma2.html");
+            avisar("¡Guía creada exitósamente!", "Indetificador Heka = " + id, "");
         }).catch((err)=> {
             console.log("revisa que paso, algo salio mal => ", err);
             avisar("¡Lo sentimos! Error inesperado", "Intente nuevamente al desaparecer este mensaje. \n si su problema persiste, comuniquese con nosotros", "advertencia", "plataforma2.html");

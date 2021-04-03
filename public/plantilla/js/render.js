@@ -340,6 +340,7 @@ function tablaPagos(arrData, id) {
     encabezado.setAttribute("href", "#" + arrData[0].REMITENTE);  
     encabezado.setAttribute("aria-controls", arrData[0].REMITENTE);
     cuerpo.setAttribute("id", arrData[0].REMITENTE);
+    cuerpo.setAttribute("data-usuario", arrData[0].REMITENTE)
         
     for(let data of arrData){
         let tr = document.createElement("tr");
@@ -366,11 +367,12 @@ function tablaPagos(arrData, id) {
         }
         tbody.appendChild(tr);
         totalizador += parseInt(data["TOTAL A PAGAR"]);
+
     }
 
     table.append(thead, tbody);
     total.textContent = "$" + convertirMiles(totalizador);
-    total.setAttribute("data-total", totalizador);
+    total.setAttribute("data-total", totalizador.toFixed(2));
     total.setAttribute("id", "total" + arrData[0].REMITENTE);
     usuario.textContent = arrData[0].REMITENTE;
     encabezado.append(usuario, total);
@@ -379,7 +381,6 @@ function tablaPagos(arrData, id) {
     cuerpo.appendChild(btn_pagar);
     card.append(encabezado, cuerpo);
     document.getElementById(id).appendChild(card);
-
 };
 
 // tablaPagos([{

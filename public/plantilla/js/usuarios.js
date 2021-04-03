@@ -1,4 +1,5 @@
 //Script utilizado Solo en admin.html
+document.getElementById("CPNusuario_corporativo").checked = true;
 
 function nuevaCuentaViejo(){
     //datos de registro 
@@ -318,7 +319,8 @@ function nuevaCuenta(){
         correo: value("CPNcorreo"),
         con: value("CPNcontraseña"),
         centro_de_costo: value("CPNcentro_costo"),
-        objetos_envio: value("CPNobjetos_envio").split(",").map(s => s.trim())
+        objetos_envio: value("CPNobjetos_envio").split(",").map(s => s.trim()),
+        usuario_corporativo: document.getElementById("CPNusuario_corporativo").checked
     }
 
     let datos_relevantes = {
@@ -328,7 +330,8 @@ function nuevaCuenta(){
         contacto: value("CPNtelefono"),
         direccion: `${value("CPNdireccion")}, ${value("CPNbarrio")}, ${value("CPNciudad")}`,
         objetos_envio: value("CPNobjetos_envio").split(",").map(s => s.trim()),
-        centro_de_costo: value("CPNcentro_costo")
+        centro_de_costo: value("CPNcentro_costo"),
+        usuario_corporativo: document.getElementById("CPNusuario_corporativo").checked
     }
 
     let datos_bancarios = {
@@ -399,6 +402,15 @@ function nuevaCuenta(){
                                     .catch(function(error){
                                         inHTML('error_crear_cuenta',`<h6 class="text-danger">Problemas al agregar Datos bancarios</h6>`);
                                     });
+                                }).then(() => {
+                                    if(datos_relevantes.usuario_corporativo){
+                                        firebase.firestore().collection('usuarios').doc(user.uid)
+                                        .collection("informacion").doc("heka").set({
+                                            activar_saldo: true,
+                                            fecha: genFecha(),
+                                            saldo: 0
+                                        })
+                                    }
                                 }).then(function(){
                                     avisar("¡Cuenta creada con éxito!", 
                                     "User_id = "+ user.uid + "\n Puede ingresar con: " + value("CPNnumero_documento"));
@@ -547,6 +559,25 @@ function seleccionarUsuario(id){
 
 // esta funcion solo llena los datos solicitados en los inputs
 function mostrarDatosPersonales(data, info) {
+
+    $("#aumentar_saldo").val("");
+    asignacion("actualizar_costo_zonal1", data.costo_zonal1);
+    asignacion("actualizar_costo_zonal2", data.costo_zonal2);
+    asignacion("actualizar_costo_zonal3", data.costo_zonal3);
+    asignacion("actualizar_costo_nacional1", data.costo_nacional1);
+    asignacion("actualizar_costo_nacional2", data.costo_nacional2);
+    asignacion("actualizar_costo_nacional3", data.costo_nacional3);
+    asignacion("actualizar_costo_especial1", data.costo_especial1);
+    asignacion("actualizar_costo_especial2", data.costo_especial2);
+    asignacion("actualizar_costo_especial3", data.costo_especial3);
+    asignacion("actualizar_comision_servi", data.comision_servi);
+    asignacion("actualizar_comision_heka", data.comision_heka);
+    let mostrador_saldo = document.getElementById("actualizar_saldo");
+    mostrador_saldo.textContent = "$" + convertirMiles(0);
+    mostrador_saldo.setAttribute("data-saldo", 0);
+    mostrador_saldo.setAttribute("data-saldo_anterior", 0);
+
+
     if(info == "personal"){
         // Datos personales
         inHTML("nombre-usuario", data.nombres.split(" ")[0] + " " + data.apellidos.split(" ")[0]);
@@ -565,6 +596,7 @@ function mostrarDatosPersonales(data, info) {
         asignacion("actualizar_contraseña", data.con);
         asignacion("actualizar_repetir_contraseña", data.con);
         asignacion("actualizar_objetos_envio", data.objetos_envio);
+
     } else if(info == "bancaria") {
         // Datos bancarios
         asignacion("actualizar_banco", data.banco);
@@ -576,6 +608,7 @@ function mostrarDatosPersonales(data, info) {
         asignacion("actualizar_numero_identificacion_banco", data.numero_iden_banco);
         asignacion("actualizar_confirmar_numero_identificacion_banco", data.numero_iden_banco);
     } else {
+        $("#aumentar_saldo").val("");
         asignacion("actualizar_costo_zonal1", data.costo_zonal1);
         asignacion("actualizar_costo_zonal2", data.costo_zonal2);
         asignacion("actualizar_costo_zonal3", data.costo_zonal3);
@@ -587,9 +620,52 @@ function mostrarDatosPersonales(data, info) {
         asignacion("actualizar_costo_especial3", data.costo_especial3);
         asignacion("actualizar_comision_servi", data.comision_servi);
         asignacion("actualizar_comision_heka", data.comision_heka);
-        asignacion("actualizar_saldo", data.saldo);
-        document.getElementById("activador-saldo").checked = data.activar_saldo
+        mostrador_saldo.textContent = "$" + convertirMiles(data.saldo) || 0;
+        mostrador_saldo.setAttribute("data-saldo", data.saldo || 0);
+        mostrador_saldo.setAttribute("data-saldo_anterior", data.saldo || 0);
+        document.getElementById("activador-saldo").checked = data.activar_saldo;
+
+        
     }
+
+    $("#aumentar_saldo").keyup((e) => {
+        let saldo_nuevo = parseInt(data.saldo || 0) + parseInt(e.target.value);
+        if(e.target.value && typeof saldo_nuevo == "number"){
+            $("#actualizar_saldo").attr("data-saldo", saldo_nuevo)
+            .text("$" + convertirMiles(saldo_nuevo))
+            .addClass("text-success");
+        } else {
+            $("#actualizar_saldo").attr("data-saldo", data.saldo || 0)
+            .text("$" + convertirMiles(data.saldo || 0))
+            .removeClass("text-success");
+        }  
+    });
+
+    activarDesactivarSaldo(data.activar_saldo)
+    $("#activador-saldo").change((e) => {
+        activarDesactivarSaldo(e.target.checked)
+    })
+
+    function activarDesactivarSaldo(boolean){
+        if(boolean){
+            $("#mostrador_saldo").removeClass("d-none");
+        } else {
+            $("#mostrador_saldo").addClass("d-none");
+        } 
+    }
+
+    let id_user = $("#usuario-seleccionado").attr("data-id");
+    firebase.firestore().collection("usuarios").doc(id_user)
+    .get().then((doc) => {
+        if(doc.data().usuario_corporativo){
+            document.getElementById("activador-saldo").parentNode.classList.remove("d-none");
+        } else {
+            document.getElementById("mostrador_saldo").classList.add("d-none");
+            document.getElementById("activador-saldo").checked = false;
+            document.getElementById("activador-saldo").parentNode.classList.add("d-none");
+        }
+    })
+    
 }
 
 function actualizarInformacionPersonal() {
@@ -649,6 +725,8 @@ function actualizarInformacionBancaria() {
 
 function actualizarInformacionHeka() {
     // Datos contabilidad
+    document.querySelector('[onclick="actualizarInformacionHeka()"]').value = "cargando";
+
     let datos = {
         costo_zonal1: value("actualizar_costo_zonal1"),
         costo_zonal2: value("actualizar_costo_zonal2"),
@@ -661,17 +739,123 @@ function actualizarInformacionHeka() {
         costo_especial3: value("actualizar_costo_especial3"),
         comision_servi: value("actualizar_comision_servi"),
         comision_heka: value("actualizar_comision_heka"),
-        saldo: value("actualizar_saldo"),
+        saldo: $("#actualizar_saldo").attr("data-saldo"),
         activar_saldo: document.getElementById("activador-saldo").checked,
         fecha: genFecha()
     };
-  
-    let id_usuario = document.getElementById("usuario-seleccionado").getAttribute("data-id");
 
+    
+    let momento = new Date().getTime();
+    let id_usuario = document.getElementById("usuario-seleccionado").getAttribute("data-id");
+    
+    saldo = {
+        saldo: $("#actualizar_saldo").attr("data-saldo"),
+        saldo_anterior: $("#actualizar_saldo").attr("data-saldo_anterior"),
+        activar_saldo: document.getElementById("activador-saldo").checked,
+        fecha: genFecha(),
+        user_id: id_usuario,
+        momento: momento,
+        diferencia: $("#aumentar_saldo").val() || 0
+    }
     firebase.firestore().collection("usuarios").doc(id_usuario).collection("informacion").doc("heka").set(datos)
     .then(() => {
+        firebase.firestore().collection("prueba").add(saldo)
+        .then((docRef1)=> {
+            console.log(docRef1.id)
+            firebase.firestore().collection("usuarios").doc(id_usuario).collection("movimientos").add(saldo)
+            .then((docRef2) => {
+                firebase.firestore().collection("usuarios").doc("22032021").get()
+                .then((doc) => {
+                    pagos = doc.data().pagos;
+                    pagos.push({
+                        id1: docRef1.id,
+                        id2: docRef2.id,
+                        user: saldo.user_id,
+                        medio: "Administrador: " + localStorage.user_id
+                    })
+                    return pagos;
+                }).then(reg => {
+                    firebase.firestore().collection("usuarios").doc("22032021").update({
+                        pagos: reg
+                    });
+                })
+            })
+        });
+    }).then(() => {
+        document.querySelector('[onclick="actualizarInformacionHeka()"]').value = "Actualizar Costos de Envío";
         avisar("Actualización de Datos exitosa", 
         "Se han registrado cambios en los costos de envíos para id: " + value("actualizar_numero_documento"));
     })
+
+
 }
 
+
+
+/*****************
+    ******************* ATENTO CON ESTA PARTE DEL CÓDIGO *****************
+**********************/
+async function prueba(usuario){
+    try {
+        let buscador = await firebase.firestore().collection("usuarios").doc("22032021")
+        .get().then((doc) => {
+            let pagos = doc.data().pagos;
+            pagos.filter((d) => {
+                return d.user == usuario
+            });
+            return pagos
+        }) 
+
+
+        async function miradorUsuario(usuario){
+            let res = []
+            await firebase.firestore().collection("usuarios").doc(usuario).collection("movimientos")
+            .get().then((querySnapshot) => {
+                querySnapshot.forEach(doc => {
+                    res.push(doc.data());
+                })
+            });
+            return res
+        }
+
+        async function miradorPrueba(usuario){
+            let res = []
+            await firebase.firestore().collection("prueba").where("user_id", "==", usuario)
+            .get().then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    res.push(doc.data());
+                })
+            })
+            return res
+        }
+
+        let data1, data2
+        console.log(buscador)
+        miradorUsuario(usuario).then(data => {
+            data2 = data;
+            console.log(data2);
+            miradorPrueba(usuario).then(d2 => data1 = d2)
+            .then(() => {
+                let saldo_legal = data1.reduce((a,b) => {
+                    return parseInt(a) + parseInt(b.diferencia)
+                }, 0);
+
+                console.log(buscador.length == data2.length);
+                console.log(buscador.length == data1.length);
+                firebase.firestore().collection('usuarios').doc(usuario)
+                .collection("informacion").doc("heka")
+                .get().then((doc) => {
+                    if(doc.exists){
+                        console.log("Saldos coinciden? => ", parseInt(doc.data().saldo) == saldo_legal);
+                    }
+                });
+            });
+        })
+
+
+    } catch(error) {
+        console.log(error)
+    }
+}
+
+// prueba("nk58Yq6Y1GUFbaaRkdMFuwmDLxO2");

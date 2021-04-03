@@ -355,11 +355,11 @@
                               </div>
                             </div>
           
-                            <div class="form-group">
-                                </br> 
-                                </br>
-                                <input type="checkbox" id="CPNcheck_terminos_condiciones" onchange="checkTerminosCondiciones()"> <a href="/terminos.html">Acepto términos y condiciones</a>
-                                <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" name="CPNusuario_corporativo" id="CPNusuario_corporativo">
+                              <label class="form-check-label" for="CPMusuario_corporativo">Usuario Corporativo</label><br>
+                              <input class="form-check-input" type="checkbox" id="CPNcheck_terminos_condiciones" onchange="checkTerminosCondiciones()"> <a href="/terminos.html">Acepto términos y condiciones</a>
+                              <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
                             </div>
                         </form>
                           <button onclick="nuevaCuenta()" id="registrar-nueva-cuenta" class="btn btn-primary btn-user btn-block" disabled>
@@ -693,10 +693,14 @@
                             <input type="number" class="form-control form-control-user" 
                             step="any" id="actualizar_comision_heka">
                           </div>
-                          <div class="col-sm">
+                          <div class="col-sm mb-4 mb-sm-0" id="mostrador_saldo">
                             <h6>Saldo</h6>
-                            <input type="number" class="form-control form-control-user" 
-                            step="any" id="actualizar_saldo">
+                            <div class="input-group mb-3">
+                              <div class="input-group-prepend">
+                                <span class="input-group-text" id="actualizar_saldo"></span>
+                              </div>
+                              <input type="text" id="aumentar_saldo" class="form-control" placeholder="Aumentar Saldo" aria-label="Aumentar Saldo" aria-describedby="actualizar_saldo">
+                            </div>
                           </div>
                         </div>
                         <div class="mb-3 form-check">
@@ -705,9 +709,8 @@
                         </div>
 
 
-
                         <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4"
-                        onclick="actualizarInformacionHeka()" value="Actuaizar Costos de Envío">
+                        onclick="actualizarInformacionHeka()" value="Actualizar Costos de Envío">
                       </form>
 
                     </div>

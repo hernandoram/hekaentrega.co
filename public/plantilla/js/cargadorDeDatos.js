@@ -156,6 +156,7 @@ function cargarDatosUsuario(){
         }).then(() => {
           if(!precios_personalizados.activar_saldo){
             document.getElementById("saldo").classList.add("text-secondary");
+            $("#saldo").text("A descontar del envío");
           }
         })
 }
@@ -275,7 +276,7 @@ function cargarPagos(){
     }
     res.json().then((datos) => {
       // Me realiza un filtro desde los inputs de admin.html en la pestaña de pagos
-      let transportadoras = [];
+      let transportadoras = [], numero_flotante = 0;
       let filtro_transportadoras = document.getElementsByName("filtro-trasnportadoras");
       for(let transp of filtro_transportadoras){
         if(transp.checked){
@@ -285,16 +286,14 @@ function cargarPagos(){
       let filtroInputs = datos.filter((data) => {
         let fechaI, fechaF, guia, permitir_transportadora;
 
-          if(data.TRANSPORTADORA && transportadoras.indexOf(data.TRANSPORTADORA.toLowerCase()) != -1 && transportadoras.length != 0) {
-            permitir_transportadora = true;
-          } else if (transportadoras.length == 0){
-            permitir_transportadora = true;
-          }
-
-        // if($("#filtro-pago-usuario").val()){
-        //   busqueda = $("#filtro-pago-usuario").val();
-        //   tipo = "=="
-        // }
+        if(!Number.isInteger(data["ENVÍO TOTAL"]) || !Number.isInteger(data.RECAUDO) || !Number.isInteger(data["TOTAL A PAGAR"])){
+          numero_flotante += 1;
+        }
+        if(data.TRANSPORTADORA && transportadoras.indexOf(data.TRANSPORTADORA.toLowerCase()) != -1 && transportadoras.length != 0) {
+          permitir_transportadora = true;
+        } else if (transportadoras.length == 0){
+          permitir_transportadora = true;
+        }
       
         if($("#filtro-pago-guia").val()){
           guia = $("#filtro-pago-guia").val();
@@ -320,6 +319,10 @@ function cargarPagos(){
           }
         }
       })
+
+      if(numero_flotante) {
+        alert("He registrado "+ numero_flotante +" fila(s) con números decimales y los he transformado en enteros, revíselo con cuidado");
+      }
       // se insertan los datos filtrados
       mostrarPagos(filtroInputs);
     }).then(() => {
@@ -327,6 +330,7 @@ function cargarPagos(){
       let todas_fechas = document.querySelectorAll("th[data-id]");
       let botones_pago = document.querySelectorAll("button[data-funcion='pagar']");
       let row_guias = document.querySelectorAll("tr[id]");
+      let usuarios = document.querySelectorAll("div[data-usuario]");
       comprobarBoton(fecha);
 
       //me habilita un evento escucha para cambiar la fecha clickeada
@@ -377,20 +381,30 @@ function cargarPagos(){
         row_guias.forEach((guia) => {
           let identificador = guia.getAttribute("id");
           let transportadora = guia.querySelectorAll("td")[1].textContent;
-          firebase.firestore().collection("pagos").doc(transportadora.toLocaleLowerCase()).collection("pagos").doc(identificador.toString()).get()
+          let remitente = guia.getAttribute("data-remitente");
+          let mostrador_total_local = document.getElementById("total"+remitente);
+          let btn_local = document.getElementById("pagar" + remitente);
+          let total_local = mostrador_total_local.getAttribute("data-total");
+          
+          let mostrador_total = document.getElementById("total_pagos");
+          let total = mostrador_total.getAttribute("data-total");
+          let existe;
+        
+          firebase.firestore().collection("pagos").doc(transportadora.toLocaleLowerCase())
+          .collection("pagos").doc(identificador.toString()).get()
           .then((doc)=> {
             if(doc.exists){
               guia.setAttribute("data-ERROR", "La Guía "+identificador+" ya se encuentra registrada en la base de datos, verifique que ya ha sido pagada.")
               guia.classList.add("text-success");
 
-              let remitente = guia.getAttribute("data-remitente");
-              let mostrador_total_local = document.getElementById("total"+remitente);
-              let btn_local = document.getElementById("pagar" + remitente);
-              let total_local = mostrador_total_local.getAttribute("data-total");
+              mostrador_total_local = document.getElementById("total"+remitente);
+              btn_local = document.getElementById("pagar" + remitente);
+              total_local = mostrador_total_local.getAttribute("data-total");
               
-              let mostrador_total = document.getElementById("total_pagos");
-              let total = mostrador_total.getAttribute("data-total");
+              mostrador_total = document.getElementById("total_pagos");
+              total = mostrador_total.getAttribute("data-total");
               
+              console.log(total_local);
               total -= parseInt(guia.children[5].textContent);
               total_local -= parseInt(guia.children[5].textContent);
               mostrador_total_local.setAttribute("data-total", total_local);
@@ -399,9 +413,55 @@ function cargarPagos(){
               mostrador_total_local.textContent = "$"+convertirMiles(total_local);
               mostrador_total.setAttribute("data-total", total);
               mostrador_total.textContent = "Total $"+convertirMiles(total);
-              comprobarBoton(fecha)
+              comprobarBoton(fecha);
+              existe = true;
             }
+      
+            
+            firebase.firestore().collection("usuarios").where("centro_de_costo", "==", remitente)
+            .get().then(querySnapshot => {
+              querySnapshot.forEach(doc => {
+                if(doc.data().usuario_corporativo && !existe){  
+                  
+                  mostrador_total_local = document.getElementById("total"+remitente);
+                  btn_local = document.getElementById("pagar" + remitente);
+                  total_local = mostrador_total_local.getAttribute("data-total");
+                  
+                  mostrador_total = document.getElementById("total_pagos");
+                  total = mostrador_total.getAttribute("data-total");
+
+                  console.log(total_local);
+                  guia.children[5].textContent = guia.children[3].textContent
+                  total = parseInt(total) + parseInt(guia.children[4].textContent);
+                  mostrador_total.setAttribute("data-total", total);
+                  mostrador_total.textContent = "Total $"+convertirMiles(total);
+                  total_local = parseInt(total_local) + parseInt(guia.children[4].textContent);
+                  mostrador_total_local.setAttribute("data-total", total_local);
+                  btn_local.textContent = "Por Pagar $" + convertirMiles(total_local);
+                  mostrador_total_local.textContent = "$"+convertirMiles(total_local);
+                }
+              })
+            })
           })
+          
+        })
+        
+        usuarios.forEach(usuario => {
+          let remitente = usuario.getAttribute("data-usuario");
+          let tipo_usuario = document.createElement("p");
+          tipo_usuario.textContent = "Usuario no Encontrado en la base de Datos, (manéjelo con precaución)";
+          tipo_usuario.classList.add("text-center")
+          firebase.firestore().collection("usuarios").where("centro_de_costo", "==", remitente)
+          .get().then(querySnapshot => {
+            querySnapshot.forEach(doc => {
+              if(doc.data().usuario_corporativo){  
+                tipo_usuario.textContent = "Usuario Corporativo";
+              } else {
+                tipo_usuario.textContent = "Usuario no Corporativo";
+              }
+            })
+          })
+          usuario.parentNode.insertBefore(tipo_usuario, usuario);
         })
 
         //alterna las fechas entre la actual o la del documento ingresado
@@ -440,10 +500,26 @@ function cargarPagos(){
               document.getElementById("pagar"+identificador[0]).setAttribute("disabled", "");
             }
           });
+          
+        }
+
+        function totalizador(){
+          let total = 0;
+          let totales = document.querySelectorAll("h4[data-total]");
+          totales.forEach(mostrador_total_local => {
+            total_local = parseInt(mostrador_total_local.getAttribute("data-total"));
+            let mostrador_total = document.getElementById("total_pagos");
+            total += total_local;
+            mostrador_total.setAttribute("data-total", total);
+            mostrador_total.textContent = "Total $"+convertirMiles(total);
+          })
+          return total
         }
 
         document.querySelector("#cargador-pagos").classList.add("d-none");
     })
+  }).then(() => {
+    
   }).catch((err) => {
     avisar("Algo salió mal", err, "advertencia")
     document.querySelector("#cargador-pagos").classList.add("d-none");
@@ -520,6 +596,7 @@ function mostrarPagos(datos) {
   document.getElementById("visor_pagos").innerHTML = "";
   let centros_costo = [];
   datos.forEach((D, i) => {
+    
     if(!D.GUIA) {
       D.ERROR = "Sin número de guía para subir: " + D.GUIA;
     } else if (!D.TRANSPORTADORA){
@@ -534,6 +611,12 @@ function mostrarPagos(datos) {
         }
       }
     })
+
+    if (!D.REMITENTE) {
+      alert("Por favor, verifique tener registrado todos lo seller, de otra manera no se podrá continuar");
+      datos = [];
+      return [];
+    }
   })
   datos.sort((a,b) => {
       if (a["REMITENTE"] > b["REMITENTE"]){
@@ -552,7 +635,6 @@ function mostrarPagos(datos) {
 
   for(let user of centros_costo) {
     let filtrado = datos.filter((d) => d.REMITENTE == user);
-    console.log(filtrado);
     tablaPagos(filtrado, "visor_pagos");
   };
 
