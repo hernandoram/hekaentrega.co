@@ -441,10 +441,10 @@ function nuevaCuenta(){
     
                         }
                         if(errorCode=="auth/email-already-in-use"){
-                        errorCode="Correo en uso";
+                            errorCode="Correo en uso";
                         }
                         if(errorMessage=="The email address is already in use by another account."){
-                        errorMessage="EL correo ya está registrado";
+                            errorMessage="EL correo ya está registrado";
                         }
                         inHTML('error_crear_cuenta',`<h6 class="text-danger">${"error: "+errorCode+" | "+errorMessage}</h6>`);
     
@@ -755,7 +755,9 @@ function actualizarInformacionHeka() {
         fecha: genFecha(),
         user_id: id_usuario,
         momento: momento,
-        diferencia: $("#aumentar_saldo").val() || 0
+        diferencia: $("#aumentar_saldo").val() || 0,
+        mensaje: "Hubo algún cambio por parte del administrador",
+        medio: "Administrador: " + localStorage.user_id
     }
     firebase.firestore().collection("usuarios").doc(id_usuario).collection("informacion").doc("heka").set(datos)
     .then(() => {

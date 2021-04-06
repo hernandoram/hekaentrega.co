@@ -20,6 +20,14 @@ function cotizador(){
         largo: value("dimension-largo"), 
         alto: value("dimension-alto")
     }
+
+    document.getElementById("cotizador").querySelectorAll("input").forEach(i => {
+        i.addEventListener("input", (e) => {
+            if(document.getElementById("result_cotizacion").style.display != "none"){
+                document.getElementById("result_cotizacion").style.display = "none"
+            }
+        });
+    })
     
     if(value("ciudadR") != "" && value('ciudadD') != "" &&
     value("Kilos") != "" && value("valor-a-recaudar") != "" 
@@ -509,7 +517,15 @@ function crearGuiasServientrega() {
             datos_a_enviar.recoleccion_esporadica = recoleccion;
             datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`
 
-            document.getElementById("boton_final_cotizador").classList.add("disabled");
+            boton_final_cotizador = document.getElementById("boton_final_cotizador")
+            boton_final_cotizador.classList.add("disabled");
+
+            let cargador = document.createElement("div");
+            cargador.classList.add("d-flex", "justify-content-center");
+            cargador.innerHTML = "<div class='lds-ellipsis'><div></div><div></div><div></div><div></div></div>";
+            cargador.setAttribute("id", "respuesta-crear_guia");
+            boton_final_cotizador.parentNode.insertBefore(cargador, boton_final_cotizador);
+            boton_final_cotizador.remove()
 
             console.log(datos_a_enviar)
             enviar_firestore(datos_a_enviar);
@@ -548,18 +564,21 @@ function enviar_firestore(datos){
                         fecha: genFecha(),
                         user_id: localStorage.user_id,
                         momento: momento,
-                        diferencia: 0
+                        diferencia: 0,
+                        mensaje: "Guía " + id + " creada exitósamente",
+                        guia: id
                     }
                     if(doc.data().activar_saldo){
                         saldo_detallado.saldo = saldo - datos_de_cotizacion.precio;
                         saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
-                        firestore.collection("usuarios").doc(localStorage.user_id).collection("informacion").doc("heka")
-                        .update({
+                        firestore.collection("usuarios").doc(localStorage.user_id).collection("informacion")
+                        .doc("heka").update({
                             saldo: saldo - datos_de_cotizacion.precio
                         }).then(() => {
                             firebase.firestore().collection("prueba").add(saldo_detallado)
                             .then((docRef1)=> {
-                                firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("movimientos").add(saldo_detallado)
+                                firebase.firestore().collection("usuarios").doc(localStorage.user_id)
+                                .collection("movimientos").add(saldo_detallado)
                                 .then((docRef2) => {
                                     firebase.firestore().collection("usuarios").doc("22032021").get()
                                     .then((doc) => {
@@ -568,7 +587,8 @@ function enviar_firestore(datos){
                                             id1: docRef1.id,
                                             id2: docRef2.id,
                                             user: saldo_detallado.user_id,
-                                            medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + saldo_detallado.user_id
+                                            medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + saldo_detallado.user_id,
+                                            guia: id
                                         })
                                         return pagos;
                                     }).then(reg => {
@@ -585,7 +605,10 @@ function enviar_firestore(datos){
             })
             return id;
         }).then((id) => {
-            avisar("¡Guía creada exitósamente!", "Indetificador Heka = " + id, "");
+            let respuesta = document.getElementById("respuesta-crear_guia")
+            respuesta.innerHTML = "";
+            respuesta.innerHTML = "Guía Creada exitósamente.";
+            avisar("¡Guía creada exitósamente!", "Indetificador Heka = " + id, "", "plataforma2.html");
         }).catch((err)=> {
             console.log("revisa que paso, algo salio mal => ", err);
             avisar("¡Lo sentimos! Error inesperado", "Intente nuevamente al desaparecer este mensaje. \n si su problema persiste, comuniquese con nosotros", "advertencia", "plataforma2.html");

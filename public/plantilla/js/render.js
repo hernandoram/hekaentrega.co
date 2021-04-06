@@ -55,7 +55,8 @@ function tablaDeGuias(id, datos){
         <th>${datos.nombreD}</th>
         <th>$${convertirMiles(datos.valor)}</th>
         <th>$${convertirMiles(datos.costo_envio)}</th>
-        <th><button class="btn btn-danger btn-circle" data-id="${id}" id="eliminar_guia${id}" data-funcion="activar-desactivar" disabled>
+        <th><button class="btn btn-danger btn-circle" data-id="${id}" 
+        id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}" disabled>
             <i class="fas fa-trash"></i>
         </button></th> 
     </tr>`
@@ -241,16 +242,75 @@ function activarBotonesDeEnvio(id, enviado){
         }
       }
 
-      let eliminarGuia = document.getElementById("eliminar_guia"+id).addEventListener("click", () => {
+      let eliminarGuia = document.getElementById("eliminar_guia"+id).addEventListener("click", (e) => {
           let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
           if(confirmacion){
-              firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias").doc(id).delete().then(() => {
-                  console.log("Document successfully deleted!");
-                  avisar("Guia Eliminada", "La guia Número " + id + " Ha sido eliminada", "alerta");
-                  document.getElementById("historial-guias-row"+id).remove();
-              }).catch((error) => {
-                  console.error("Error removing document: ", error);
-              });
+            firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
+            .doc(id).delete().then(() => {
+                console.log("Document successfully deleted!");
+                avisar("Guia Eliminada", "La guia Número " + id + " Ha sido eliminada", "alerta");
+            }).then(() => {
+                firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("informacion")
+                .doc("heka").get().then((doc) => {
+                    if(doc.exists){
+                        let momento = new Date().getTime();
+                        let saldo = parseInt(doc.data().saldo);
+                        let boton_eliminar_guia = document.getElementById("eliminar_guia"+id);
+                        
+                        let saldo_detallado = {
+                            saldo: saldo + parseInt(boton_eliminar_guia.getAttribute("data-costo_envio")),
+                            saldo_anterior: saldo,
+                            activar_saldo: doc.data().activar_saldo,
+                            fecha: genFecha(),
+                            user_id: localStorage.user_id,
+                            momento: momento,
+                            diferencia: 0,
+                            mensaje: "Guía " + id + " eliminada exitósamente",
+                            guia: id
+                        }
+    
+                        saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
+                        console.log(saldo_detallado);
+                        console.log(saldo);
+                        console.log(parseInt(boton_eliminar_guia.getAttribute("data-costo_envio")));
+                        console.log(e.target);
+                        firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("informacion")
+                        .doc("heka").update({
+                            saldo: saldo_detallado.saldo
+                        }).then(() => {
+                            firebase.firestore().collection("prueba").add(saldo_detallado)
+                            .then((docRef1)=> {
+                                firebase.firestore().collection("usuarios").doc(localStorage.user_id)
+                                .collection("movimientos").add(saldo_detallado)
+                                .then((docRef2) => {
+                                    firebase.firestore().collection("usuarios").doc("22032021").get()
+                                    .then((doc) => {
+                                        pagos = doc.data().pagos;
+                                        pagos.push({
+                                            id1: docRef1.id,
+                                            id2: docRef2.id,
+                                            user: saldo_detallado.user_id,
+                                            medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + saldo_detallado.user_id,
+                                            guia: id
+                                        })
+                                        return pagos;
+                                    }).then(reg => {
+                                        console.log(reg);
+                                        firebase.firestore().collection("usuarios").doc("22032021").update({
+                                            pagos: reg
+                                        });
+                                    })
+                                })
+                            });
+                        }).then(() => {
+                            document.getElementById("historial-guias-row"+id).remove();
+                        })
+    
+                    }
+                })
+            }).catch((error) => {
+                console.error("Error removing document: ", error);
+            });
           }
       })
 }
@@ -321,7 +381,7 @@ function tablaPagos(arrData, id) {
 
     cuerpo.setAttribute("class", "card-body collapse table-responsive");
     btn_pagar.setAttribute("class", "btn btn-danger");
-    btn_pagar.setAttribute("id", "pagar"+arrData[0].REMITENTE);
+    btn_pagar.setAttribute("id", "pagar"+arrData[0].REMITENTE.replace(" ", ""));
     btn_pagar.setAttribute("data-funcion", "pagar");
     
 
@@ -334,12 +394,12 @@ function tablaPagos(arrData, id) {
         <th>Recaudo</th>
         <th>Envío Total</th>
         <th>Total a Pagar</th>
-        <th data-id="${arrData[0].REMITENTE}">Fecha</th>
+        <th data-id="${arrData[0].REMITENTE.replace(" ", "")}">Fecha</th>
     </tr>`
     
-    encabezado.setAttribute("href", "#" + arrData[0].REMITENTE);  
-    encabezado.setAttribute("aria-controls", arrData[0].REMITENTE);
-    cuerpo.setAttribute("id", arrData[0].REMITENTE);
+    encabezado.setAttribute("href", "#" + arrData[0].REMITENTE.replace(" ", ""));  
+    encabezado.setAttribute("aria-controls", arrData[0].REMITENTE.replace(" ", ""));
+    cuerpo.setAttribute("id", arrData[0].REMITENTE.replace(" ", ""));
     cuerpo.setAttribute("data-usuario", arrData[0].REMITENTE)
         
     for(let data of arrData){
@@ -373,7 +433,7 @@ function tablaPagos(arrData, id) {
     table.append(thead, tbody);
     total.textContent = "$" + convertirMiles(totalizador);
     total.setAttribute("data-total", totalizador.toFixed(2));
-    total.setAttribute("id", "total" + arrData[0].REMITENTE);
+    total.setAttribute("id", "total" + arrData[0].REMITENTE.replace(" ", ""));
     usuario.textContent = arrData[0].REMITENTE;
     encabezado.append(usuario, total);
     btn_pagar.textContent = "Pagar $" + convertirMiles(totalizador);
@@ -384,16 +444,18 @@ function tablaPagos(arrData, id) {
 };
 
 // tablaPagos([{
-//     REMITENTE: "SellerEj",
+//     REMITENTE: "Seller Ej",
 //     "ENVÍO TOTAL": "1000",
 //     GUIA: "20293029",
 //     RECAUDO: "55000",
-//     FECHA: "22-02-2021"
+//     FECHA: "22-02-2021",
+//     "TOTAL A PAGAR": 60000
 // },{
 //     REMITENTE: "SellerEj",
 //     "ENVÍO TOTAL": "2000",
 //     GUIA: "20393",
 //     RECAUDO: "30493",
-//     FECHA: "22-03-2021"  
-// }], "ej");
+//     FECHA: "22-03-2021",
+//     "TOTAL A PAGAR": 60000  
+// }], "visor_pagos");
 

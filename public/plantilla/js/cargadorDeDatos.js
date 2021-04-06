@@ -159,6 +159,13 @@ function cargarDatosUsuario(){
             $("#saldo").text("A descontar del envío");
           }
         })
+
+        informacion.doc("heka").onSnapshot(doc => {
+          if(doc.exists){
+            precios_personalizados.saldo = parseInt(doc.data().saldo);
+            $("#saldo").html("$" + convertirMiles(precios_personalizados.saldo));
+          }
+        })
 }
 
 //invocada por el boton para buscar guias
@@ -518,8 +525,6 @@ function cargarPagos(){
 
         document.querySelector("#cargador-pagos").classList.add("d-none");
     })
-  }).then(() => {
-    
   }).catch((err) => {
     avisar("Algo salió mal", err, "advertencia")
     document.querySelector("#cargador-pagos").classList.add("d-none");
