@@ -123,7 +123,7 @@ function avisar(title, content, type, redirigir){
 //// Esta funcion me retorna un card con informacion del usuario, sera invocada por otra funcion
 function mostrarUsuarios(data, id){
     return `<div class="col-md-4 mb-4">
-    <div class="card border-bottom-info id="${id}" shadow h-100 py-2">
+    <div class="card border-bottom-info" id="${id}" shadow="h-100 py-2">
         <div class="card-body">
             <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
@@ -272,8 +272,6 @@ function activarBotonesDeEnvio(id, enviado){
                         saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
                         console.log(saldo_detallado);
                         console.log(saldo);
-                        console.log(parseInt(boton_eliminar_guia.getAttribute("data-costo_envio")));
-                        console.log(e.target);
                         firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("informacion")
                         .doc("heka").update({
                             saldo: saldo_detallado.saldo

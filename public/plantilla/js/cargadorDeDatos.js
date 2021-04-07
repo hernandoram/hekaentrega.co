@@ -534,7 +534,8 @@ function cargarPagos(){
 
 
 //me consulta los pagos ya realizados y los filtra si es necesario
-$("#btn-revisar_pagos").click(() => {
+$("#btn-revisar_pagos").click((e) => {
+  console.log(e.target);
   document.querySelector("#cargador-pagos").classList.remove("d-none");
   let fechaI, fechaF, buscador="REMITENTE", busqueda = "", guia, tipo = "!="
   
@@ -582,6 +583,7 @@ $("#btn-revisar_pagos").click(() => {
         }
       });
       if(!administracion){
+
         response = response.filter((d) => d.REMITENTE == datos_usuario.centro_de_costo);
       }
       return response

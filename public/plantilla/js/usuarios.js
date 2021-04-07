@@ -301,6 +301,7 @@ function nuevaCuentaViejo(){
 
 //Para crear nueva cuenta
 function nuevaCuenta(){
+
     //datos de registro
     let datos_personales = {
         nombres: value("CPNnombres"),
@@ -324,7 +325,7 @@ function nuevaCuenta(){
     }
 
     let datos_relevantes = {
-        ingreso: value("CPNnumero_documento"),
+        ingreso: value("CPNnumero_documento").trim(),
         nombres: value("CPNnombres"),
         apellidos: value("CPNapellidos"),
         contacto: value("CPNtelefono"),
@@ -360,7 +361,6 @@ function nuevaCuenta(){
             "CPNnombre_empresa", "CPNcorreo", "CPNcontraseña", "CPNrepetir_contraseña"]);
         }else{
             //si todos los datos estan llenos
-            console.log(document.getElementById("usuario-existente").style.display)
             let puede_continuar = true;
             if(mostrar_ocultar_registro_bancario == "block"){
                 if(value("CPNbanco")=="" | value("CPNnombre_representante")=="" | value("CPNtipo_de_cuenta")=="" | value("CPNnumero_cuenta")=="" | value("CPNconfirmar_numero_cuenta")=="" |
@@ -377,78 +377,51 @@ function nuevaCuenta(){
                 inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Debes aceptar los términos y condiciones para poder seguir</h6>`);
             } else {
                 if(puede_continuar){
+                    let boton_crear_usuario = document.getElementById("registrar-nueva-cuenta");
+                    boton_crear_usuario.setAttribute("onclick", "");
+                    boton_crear_usuario.disabled = true;
+                    boton_crear_usuario.textContent = "Cargando...";
+
                     inHTML('error_crear_cuenta',`<h6 class="text-danger"> DATOS BANCARIOS: "${value("CPNbanco")}" | "${value("CPNnombre_representante")}" | "${value("CPNtipo_de_cuenta")}" | "${value("CPNnumero_cuenta")}" | "${value("CPNconfirmar_numero_cuenta")}" | 
                     "${value("CPNtipo_documento_banco")}" | "${value("CPNnumero_identificacion_banco")}" | "${value("CPNconfirmar_numero_identificacion_banco")}</"h6>`);
     
                     console.log(datos_bancarios);
                     console.log(datos_personales);
                     console.log(datos_relevantes);
+                    let user = value("CPNnumero_documento").toString().trim();
     
-                    firebase.auth().createUserWithEmailAndPassword(value("CPNcorreo"), value("CPNcontraseña"))
-                    .then(function(data){
-                        firebase.auth().onAuthStateChanged(function(user) {
-                            if(user){
-                                firebase.firestore().collection("usuarios").doc(user.uid)
-                                .collection("informacion").doc("personal").set(datos_personales)
-                                .then(() => {
-                                    firebase.firestore().collection("usuarios").doc(user.uid).set(datos_relevantes)
-                                    .catch((err) => {
-                                        inHTML('error_crear_cuenta',`<h6 class="text-danger">${err} \n
-                                            No se pudo crear el identificador de ingreso</h6>`);
-                                    })
-                                }).then(() => {
-                                    firebase.firestore().collection('usuarios').doc(user.uid)
-                                    .collection("informacion").doc("bancaria").set(datos_bancarios)
-                                    .catch(function(error){
-                                        inHTML('error_crear_cuenta',`<h6 class="text-danger">Problemas al agregar Datos bancarios</h6>`);
-                                    });
-                                }).then(() => {
-                                    if(datos_relevantes.usuario_corporativo){
-                                        firebase.firestore().collection('usuarios').doc(user.uid)
-                                        .collection("informacion").doc("heka").set({
-                                            activar_saldo: true,
-                                            fecha: genFecha(),
-                                            saldo: 0
-                                        })
-                                    }
-                                }).then(function(){
-                                    avisar("¡Cuenta creada con éxito!", 
-                                    "User_id = "+ user.uid + "\n Puede ingresar con: " + value("CPNnumero_documento"));
-                                })
-                                .catch(function(error){
-                                    inHTML('error_crear_cuenta',`<h6 class="text-danger">${error}</h6>`);
-                                });
-                            }else{}
+                    firebase.firestore().collection("usuarios").doc(user)
+                    .collection("informacion").doc("personal").set(datos_personales)
+                    .then(() => {
+                        firebase.firestore().collection("usuarios").doc(user).set(datos_relevantes)
+                        .catch((err) => {
+                            inHTML('error_crear_cuenta',`<h6 class="text-danger">${err} \n
+                                No se pudo crear el identificador de ingreso</h6>`);
                         })
-    
+                    }).then(() => {
+                        firebase.firestore().collection('usuarios').doc(user)
+                        .collection("informacion").doc("bancaria").set(datos_bancarios)
+                        .catch(function(error){
+                            inHTML('error_crear_cuenta',`<h6 class="text-danger">Problemas al agregar Datos bancarios</h6>`);
+                        });
+                    }).then(() => {
+                        if(datos_relevantes.usuario_corporativo){
+                            firebase.firestore().collection('usuarios').doc(user)
+                            .collection("informacion").doc("heka").set({
+                                activar_saldo: true,
+                                fecha: genFecha(),
+                                saldo: 0
+                            })
+                        }
+                    }).then(function(){
+                        avisar("¡Cuenta creada con éxito!", 
+                        "User_id = "+ user + "\n Puede ingresar con: " + value("CPNnumero_documento"), "", "admin.html");
                     })
-                    .catch(function (error) {
-                        // Handle Errors here.
-                        var errorCode = error.code;
-                        var errorMessage = error.message;
-                        
-                        if(errorCode=="auth/invalid-email"){
-                        errorCode="Correo invalido";
-                        }
-                        if(errorMessage=="The email address is badly formatted."){
-                        errorMessage="El correo es incorrecto";
-                        }
-                        if(errorCode=="auth/weak-password"){
-                        errorCode="Contraseña débil";
-                        }
-                        if(errorMessage=="Password should be at least 6 characters"){
-                        errorMessage="La contraseña debe ser mínimo de 6 caracteres";
-    
-                        }
-                        if(errorCode=="auth/email-already-in-use"){
-                            errorCode="Correo en uso";
-                        }
-                        if(errorMessage=="The email address is already in use by another account."){
-                            errorMessage="EL correo ya está registrado";
-                        }
-                        inHTML('error_crear_cuenta',`<h6 class="text-danger">${"error: "+errorCode+" | "+errorMessage}</h6>`);
-    
-                        // ...
+                    .catch(function(error){
+                        boton_crear_usuario.setAttribute("onclick", "nuevaCuenta()");
+                        boton_crear_usuario.disabled = false;
+                        boton_crear_usuario.textContent = "Registrar Cuenta";
+                        inHTML('error_crear_cuenta',`<h6 class="text-danger">${error}</h6>`);
                     });
                 }
             }
@@ -502,14 +475,21 @@ document.getElementById("CPNcentro_costo").addEventListener("blur", () => {
 function buscarUsuarios(){
     document.getElementById("cargador-usuarios").classList.remove("d-none");
     let busqueda = ["!=", ""];
-    if(value("buscador-de-usuarios")){
-        busqueda = ["==", value("buscador-de-usuarios")];
+    if(value("buscador_usuarios-id")){
+        busqueda = ["==", value("buscador_usuarios-id")];
     }
     inHTML("mostrador-usuarios", "");
-   firebase.firestore().collection("usuarios").limit(12).where("ingreso", busqueda[0], busqueda[1]).get()
+   firebase.firestore().collection("usuarios").where("ingreso", busqueda[0], busqueda[1]).get()
     .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-            document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
+            if(value("buscador_usuarios-nombre") && !value("buscador_usuarios-id")){
+                console.log(doc.data().nombres.toLowerCase().indexOf(value("buscador_usuarios-nombre").toLowerCase()));
+                if(doc.data().nombres.indexOf(value("buscador_usuarios-nombre")) != -1){
+                    document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
+                }
+            } else {
+                document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
+            }
             if(busqueda[0] == "=="){
                 document.getElementById("usuario-seleccionado").setAttribute("data-id", doc.id);
                 seleccionarUsuario(doc.id);
