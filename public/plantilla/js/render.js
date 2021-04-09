@@ -151,7 +151,7 @@ function mostrarUsuarios(data, id){
 //Retorna una tarjeta con informacion del documento por id
 function mostrarDocumentos(id, data, tipo_aviso) {
     return `<div class="col-md-4 mb-4">
-    <div class="card border-bottom-${tipo_aviso || "info"} id="${id}" shadow h-100 py-2">
+    <div class="card border-bottom-${tipo_aviso || "info"} shadow h-100 py-2" id="${id}">
         <div class="card-body">
             <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
@@ -245,6 +245,9 @@ function activarBotonesDeEnvio(id, enviado){
       let eliminarGuia = document.getElementById("eliminar_guia"+id).addEventListener("click", (e) => {
           let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
           if(confirmacion){
+            let boton_eliminar_guia = document.getElementById("eliminar_guia"+id);
+            boton_eliminar_guia.disabled = true;
+            boton_eliminar_guia.display = "none";
             firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
             .doc(id).delete().then(() => {
                 console.log("Document successfully deleted!");
@@ -255,7 +258,6 @@ function activarBotonesDeEnvio(id, enviado){
                     if(doc.exists){
                         let momento = new Date().getTime();
                         let saldo = parseInt(doc.data().saldo);
-                        let boton_eliminar_guia = document.getElementById("eliminar_guia"+id);
                         
                         let saldo_detallado = {
                             saldo: saldo + parseInt(boton_eliminar_guia.getAttribute("data-costo_envio")),
@@ -268,41 +270,43 @@ function activarBotonesDeEnvio(id, enviado){
                             mensaje: "Guía " + id + " eliminada exitósamente",
                             guia: id
                         }
-    
-                        saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
-                        console.log(saldo_detallado);
-                        console.log(saldo);
-                        firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("informacion")
-                        .doc("heka").update({
-                            saldo: saldo_detallado.saldo
-                        }).then(() => {
-                            firebase.firestore().collection("prueba").add(saldo_detallado)
-                            .then((docRef1)=> {
-                                firebase.firestore().collection("usuarios").doc(localStorage.user_id)
-                                .collection("movimientos").add(saldo_detallado)
-                                .then((docRef2) => {
-                                    firebase.firestore().collection("usuarios").doc("22032021").get()
-                                    .then((doc) => {
-                                        pagos = doc.data().pagos;
-                                        pagos.push({
-                                            id1: docRef1.id,
-                                            id2: docRef2.id,
-                                            user: saldo_detallado.user_id,
-                                            medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + saldo_detallado.user_id,
-                                            guia: id
+                        
+                        if(doc.data().activar_saldo){
+                            saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
+                            console.log(saldo_detallado);
+                            console.log(saldo);
+                            firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("informacion")
+                            .doc("heka").update({
+                                saldo: saldo_detallado.saldo
+                            }).then(() => {
+                                firebase.firestore().collection("prueba").add(saldo_detallado)
+                                .then((docRef1)=> {
+                                    firebase.firestore().collection("usuarios").doc(localStorage.user_id)
+                                    .collection("movimientos").add(saldo_detallado)
+                                    .then((docRef2) => {
+                                        firebase.firestore().collection("usuarios").doc("22032021").get()
+                                        .then((doc) => {
+                                            pagos = doc.data().pagos;
+                                            pagos.push({
+                                                id1: docRef1.id,
+                                                id2: docRef2.id,
+                                                user: saldo_detallado.user_id,
+                                                medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + saldo_detallado.user_id,
+                                                guia: id
+                                            })
+                                            return pagos;
+                                        }).then(reg => {
+                                            console.log(reg);
+                                            firebase.firestore().collection("usuarios").doc("22032021").update({
+                                                pagos: reg
+                                            });
                                         })
-                                        return pagos;
-                                    }).then(reg => {
-                                        console.log(reg);
-                                        firebase.firestore().collection("usuarios").doc("22032021").update({
-                                            pagos: reg
-                                        });
                                     })
-                                })
-                            });
-                        }).then(() => {
-                            document.getElementById("historial-guias-row"+id).remove();
-                        })
+                                });
+                            }).then(() => {
+                                document.getElementById("historial-guias-row"+id).remove();
+                            })
+                        }
     
                     }
                 })
@@ -457,3 +461,62 @@ function tablaPagos(arrData, id) {
 //     "TOTAL A PAGAR": 60000  
 // }], "visor_pagos");
 
+
+function mostrarNotificacion(data){
+    let notificacion = document.createElement("a"),
+        div_icon = document.createElement("div"),
+        circle = document.createElement("div"),
+        icon = document.createElement("i"),
+        div_info = document.createElement("div"),
+        info = document.createElement("div"),
+        mensaje = document.createElement("span");
+
+    notificacion.setAttribute("class", "dropdown-item d-flex align-items-center");
+    notificacion.setAttribute("href", "#documentos");
+    notificacion.setAttribute("onclick", "cargarDocumentos()")
+
+    div_icon.classList.add("mr-3");
+    circle.setAttribute("class", "icon-circle bg-primary");
+    icon.setAttribute("class", "fas fa-file-alt text-white");
+    circle.append(icon);
+    div_icon.append(circle);
+
+    info.setAttribute("class", "small text-gray-500");
+    info.textContent = data.fecha;
+    mensaje.textContent = data.mensaje;
+    div_info.append(info, mensaje);
+
+    notificacion.append(div_icon, div_info);
+    return notificacion;
+}
+
+
+function tablaMovimientos(arrData){
+    let tabla = document.createElement("table"),
+        t_head = document.createElement("tr");
+
+    t_head.innerHTML = `
+        <th>Fecha</th>
+        <th>Saldo Previo</th>
+        <th>Movimiento</th>
+        <th>Saldo Cuenta</th>
+        <th>Detalles</th>
+    `
+    tabla.setAttribute("class", "table text-center");
+    tabla.appendChild(t_head);
+
+    for(let data of arrData){
+        let row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${data.fecha}</td>
+            <td>${data.saldo_anterior}</td>
+            <td>${data.diferencia}</td>
+            <td>${data.saldo}</td>
+            <td>${data.mensaje}</td>
+        `
+        tabla.appendChild(row);
+    }
+
+    document.getElementById("card-movimientos").appendChild(tabla);
+}

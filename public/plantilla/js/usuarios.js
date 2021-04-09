@@ -343,7 +343,7 @@ function nuevaCuenta(){
         tipo_documento_banco: value("CPNtipo_documento_banco"),
         numero_iden_banco: value("CPNnumero_identificacion_banco")
     }
-     
+    console.log(value("CPNnumero_documento"));
    
     ///div datos bancarios
     var mostrar_ocultar_registro_bancario= document.getElementById('mostrar-ocultar-registro-bancario').style.display;
@@ -484,7 +484,7 @@ function buscarUsuarios(){
         querySnapshot.forEach((doc) => {
             if(value("buscador_usuarios-nombre") && !value("buscador_usuarios-id")){
                 console.log(doc.data().nombres.toLowerCase().indexOf(value("buscador_usuarios-nombre").toLowerCase()));
-                if(doc.data().nombres.indexOf(value("buscador_usuarios-nombre")) != -1){
+                if(doc.data().nombres.toLowerCase().indexOf(value("buscador_usuarios-nombre").toLowerCase()) != -1){
                     document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
                 }
             } else {
@@ -777,22 +777,22 @@ function actualizarInformacionHeka() {
 /*****************
     ******************* ATENTO CON ESTA PARTE DEL CÓDIGO *****************
 **********************/
+
 async function prueba(usuario){
     try {
         let buscador = await firebase.firestore().collection("usuarios").doc("22032021")
         .get().then((doc) => {
             let pagos = doc.data().pagos;
-            pagos.filter((d) => {
+            return pagos.filter((d) => {
                 return d.user == usuario
             });
-            return pagos
         }) 
 
 
         async function miradorUsuario(usuario){
             let res = []
             await firebase.firestore().collection("usuarios").doc(usuario).collection("movimientos")
-            .get().then((querySnapshot) => {
+            .orderBy("momento").get().then((querySnapshot) => {
                 querySnapshot.forEach(doc => {
                     res.push(doc.data());
                 })
@@ -815,9 +815,11 @@ async function prueba(usuario){
         console.log(buscador)
         miradorUsuario(usuario).then(data => {
             data2 = data;
-            console.log(data2);
             miradorPrueba(usuario).then(d2 => data1 = d2)
             .then(() => {
+                console.log(data2);
+                console.log(data1);
+                tablaMovimientos(data2);
                 let saldo_legal = data1.reduce((a,b) => {
                     return parseInt(a) + parseInt(b.diferencia)
                 }, 0);
@@ -840,4 +842,4 @@ async function prueba(usuario){
     }
 }
 
-// prueba("nk58Yq6Y1GUFbaaRkdMFuwmDLxO2");
+// prueba("pPQcEmYFJZMxZqcq66ju1P1q7nt1");

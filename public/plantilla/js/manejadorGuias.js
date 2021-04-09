@@ -20,6 +20,8 @@ if(administracion){
             e.preventDefault();
             cargarPagos();
         })
+
+        revisarNotificaciones();
     } else {
         let inputs = document.querySelectorAll("input");
         let botones = document.querySelectorAll("button")
@@ -68,6 +70,13 @@ function crearDocumentos() {
         }).then(() => {
             avisar("Documento creado Exitósamente", "Las guías " + guias + " han sido enviadas.", "platafora2.html#historial_documentos");
             document.getElementById("enviar-documentos").removeAttribute("disabled");
+            firebase.firestore().collection("notificaciones").add({
+                mensaje: `${datos_usuario.nombre_completo} ha creado un Documento con las Guías: ${guias}`,
+                fecha: genFecha(),
+                guias: guias,
+                usuario: datos_usuario.nombre_completo,
+                timeline: new Date().getTime()
+            })
         })
         .catch((error) => {
             console.error("Error adding document: ", error);
@@ -520,4 +529,43 @@ function actualizarEstado(){
     })
 }
 
+function revisarNotificaciones(){
+    let notificador = document.getElementById("notificaciones");
+    let audio = document.createElement("audio");
+    audio.innerHTML = `<source type="audio/mp3" src="./recursos/notificacion.mp3">`
 
+    notificador.addEventListener("click", e => {
+        let badge = notificador.querySelector("span");
+        badge.textContent = 0;
+        badge.classList.add("d-none");
+    })
+    firebase.firestore().collection("notificaciones").orderBy("timeline").limit(12).where("timeline", "!=", "")
+    .onSnapshot(snapshot => {
+        snapshot.docChanges().forEach(change => {
+            if(change.type == "added") {
+                audio.play();
+                let contador = notificador.querySelector("span");
+                contador.classList.remove("d-none");
+                contador.innerHTML = parseInt(contador.textContent) + 1;
+                if(parseInt(contador.textContent) > 9) {
+                    contador.innerHTML = 9 + "+".sup()
+                }
+                let mostrador = document.getElementById("mostrador-notificaciones");
+                mostrador.insertBefore(mostrarNotificacion(change.doc.data()), mostrador.firstChild);
+            }
+        })
+    })
+    
+}
+
+function eliminarNotificaciones(){
+    firebase.firestore().collection("notificaciones").get()
+    .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+            firebase.firestore().collection("notificaciones").doc(doc.id).delete()    
+        })
+    })
+    .then(() => {
+        avisar("Notificaciones vacías", "Si quiere ver lo cambios, recarge la página")
+    })
+}

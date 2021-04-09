@@ -121,6 +121,27 @@
 
             <!-- Topbar Navbar -->
             <ul class="navbar-nav ml-auto">
+              <!--Notifications-->
+              <li class="nav-item dropdown no-arrow mx-1">
+              <a class="nav-link dropdown-toggle" href="#" id="notificaciones" role="button" 
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-bell fa-fw"></i>
+                <!-- Counter - Alerts -->
+                <span class="badge badge-danger badge-counter d-none">0</span>
+              </a>
+              <!-- Dropdown - Alerts -->
+              <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" 
+              aria-labelledby="notificaciones">
+                <h6 class="dropdown-header">
+                  Centro de notificaciones
+                </h6>
+                <div id="mostrador-notificaciones">
+                  
+                  <p class="dropdown-item text-center small text-gray-500" onclick="eliminarNotificaciones()">
+                    Eliminar Todas las notificaciones (versión Prueba)</p>
+                </div>
+              </div>
+              </li>
                       
               <div class="topbar-divider d-none d-sm-block">
                 
@@ -149,8 +170,6 @@
         <!-- Main Content -->
         <div id="content">     
           <!-- Begin Page Content -->
-          
-
           <div class="container-fluid" id="registrador">
             <div class="card o-hidden border-0 shadow-lg my-2">
                 <div class="card-body p-0">
@@ -189,7 +208,7 @@
                             </div>
                             <div class="col-md-5">
                               <h6>Número identificación*</h6>
-                              <input type="number" class="form-control form-control-user" id="CPNnumero_documento" autocomplete="off" required>
+                              <input type="text" class="form-control form-control-user" id="CPNnumero_documento" autocomplete="off" required>
                               <p class="text-danger d-none" id="usuario-existente">¡El usuario ingresado ya existe!</p>
                             </div>
                             <div class="col-md mb-3 mb-sm-0">
@@ -846,6 +865,30 @@
               <div></div><div></div><div></div></div>
             </div>
             <div id="visor_pagos"></div>
+          </div>
+          
+          <div class="container-fluid" id="movimientos" style="display: none;">
+            <div>
+              <div class="form-group row mb-3">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                  <h6>Fecha inicio</h6>
+                  <input type="date" class="form-control form-control-user"  id="movs-fecha-inicio" required>
+                </div>
+                <div class="col-sm-6">
+                  <h6>Fecha final</h6>
+                  <input type="date" class="form-control form-control-user"  id="movs-fecha-final" required>
+                </div>
+              </div>
+              <button id="filtrador-movimientos" class="mb-4 btn btn-primary btn-user btn-block">
+                Buscar
+              </button>
+            </div>
+            <div class="card">
+              <div class="card-header">Nombre Apellido</div>
+              <div class="card-body" id="card-movimientos">
+                <!--Será llenada desde javascript-->
+              </div>
+            </div>
           </div>
         </div>   
         <!-- Footer -->
