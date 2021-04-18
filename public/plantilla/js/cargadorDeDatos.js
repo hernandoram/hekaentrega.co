@@ -219,6 +219,7 @@ function historialGuias(){
 
             //Habilita y deshabilita los checks de la tabla de guias
             reference.doc(doc.id).onSnapshot((row) => {
+              console.log("Se Ejecuta el oidor")
               if(row.exists) {
                 activarBotonesDeEnvio(row.id, row.data().enviado);
               }
@@ -253,15 +254,17 @@ function historialGuias(){
           document.getElementById('nohaydatosHistorialGuias').style.display='none';
         }
         $(document).ready( function () {
+          console.log("El data table se ejecuta")
           $('#dataTable').DataTable( {
             language: {
-                url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
-            }
+              url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+            },
+            lengthMenu: [ [-1, 10, 25, 50, 100], ["Todos", 10, 25, 50, 100] ]
           });
         });
       }
     }).then(() => {
-      // activarBotonesDeEnvio()
+      // activarBotonesDeEnvio();
     });
   } 
 }

@@ -1,5 +1,6 @@
 // const e = require("express");
 
+
 function escucha(id, e, funcion) {
     document.getElementById(id).addEventListener(e, funcion)
 }
@@ -140,8 +141,10 @@ function mostrarUsuarios(data, id){
                     <i class="fas fa-user fa-2x text-gray-300"></i>
                 </div>
             </div>
-            <div class="row" data-buscador="${id}">
-                <button class="col-12 col-md-5 btn btn-primary" data-funcion="ver-eliminar" value="">Ver Usuario</button>
+            <div class="btn-group" role="group" data-buscador="${id}" 
+            data-nombre="${data.nombres.split(" ")[0]} ${data.apellidos.split(" ")[0]}">
+                <button class="btn btn-primary" data-funcion="ver-eliminar" value="">Ver Usuario</button>
+                <button class="btn btn-info" data-funcion="movimientos" value="">Ver Movimientos</button>
             </div>
         </div>
     </div>
@@ -158,7 +161,7 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                     <div class="h4 font-weight-bold text-${tipo_aviso || "info"} text-uppercase mb-2">${data.nombre_usuario}</div>
                     <div class="row no-gutters align-items-center">
                         <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800">
-                            <p>Id Guias Generadas: <small>${data.guias}</small></p>
+                            <p>Id Guias Generadas: <small style="overflow-wrap: anywhere;">${data.guias}</small></p>
                             <p>Fecha: <small>${data.fecha}</small></p>
                         </div>
                     </div>
@@ -471,6 +474,7 @@ function mostrarNotificacion(data){
         info = document.createElement("div"),
         mensaje = document.createElement("span");
 
+
     notificacion.setAttribute("class", "dropdown-item d-flex align-items-center");
     notificacion.setAttribute("href", "#documentos");
     notificacion.setAttribute("onclick", "cargarDocumentos()")
@@ -483,6 +487,7 @@ function mostrarNotificacion(data){
 
     info.setAttribute("class", "small text-gray-500");
     info.textContent = data.fecha;
+    mensaje.style.overflowWrap = "anywhere";
     mensaje.textContent = data.mensaje;
     div_info.append(info, mensaje);
 
@@ -493,30 +498,131 @@ function mostrarNotificacion(data){
 
 function tablaMovimientos(arrData){
     let tabla = document.createElement("table"),
-        t_head = document.createElement("tr");
+        t_head = document.createElement("tr"),
+        detalles = document.createElement("h3");
+
+    detalles.textContent = "Detalles";
+    detalles.setAttribute("class", "text-center mt-3")
 
     t_head.innerHTML = `
         <th>Fecha</th>
         <th>Saldo Previo</th>
         <th>Movimiento</th>
         <th>Saldo Cuenta</th>
-        <th>Detalles</th>
+        <th>Mensaje</th>
     `
     tabla.setAttribute("class", "table text-center");
     tabla.appendChild(t_head);
 
+    let gastos_usuario = 0
     for(let data of arrData){
         let row = document.createElement("tr");
 
         row.innerHTML = `
             <td>${data.fecha}</td>
-            <td>${data.saldo_anterior}</td>
-            <td>${data.diferencia}</td>
-            <td>${data.saldo}</td>
+            <td class="text-right">$${convertirMiles(data.saldo_anterior)}</td>
+            <td class="text-right">$${convertirMiles(data.diferencia)}</td>
+            <td class="text-right">$${convertirMiles(data.saldo)}</td>
             <td>${data.mensaje}</td>
         `
+
+        if(parseInt(data.diferencia) < 0){
+            row.classList.add("table-secondary")
+        }
+        if(data.diferencia < 0 && data.guia) {
+            gastos_usuario -= parseInt(data.diferencia);
+        }
         tabla.appendChild(row);
     }
 
-    document.getElementById("card-movimientos").appendChild(tabla);
+    tabla.innerHTML += `<tr>
+        <td colspan="4"><h5>Gastos Totales Del usuario</h5></td>
+        <td><h5>$${convertirMiles(gastos_usuario)}</h5></td>
+    </tr>`
+
+    document.getElementById("card-movimientos").append(tabla, detalles);
+}
+
+function tablaNovedades(data, usuario){
+    let card = document.createElement("div"),
+        encabezado = document.createElement("a"),
+        cuerpo = document.createElement("div"),
+        table = document.createElement("table"),
+        thead = document.createElement("thead"),
+        tbody = document.createElement("tbody"),
+        tr = document.createElement("tr"),
+        ul = document.createElement("ul");
+
+    card.classList.add("card", "mt-5");
+    ul.classList.add("list-group", "list-group-flush");
+
+    encabezado.setAttribute("class","card-header d-flex justify-content-between");
+    encabezado.setAttribute("data-toggle", "collapse");
+    encabezado.setAttribute("role", "button");
+    encabezado.setAttribute("aria-expanded", "true");
+
+    cuerpo.setAttribute("class", "card-body collapse table-responsive");
+
+    table.classList.add("table");
+    thead.classList.add("text-light", "bg-gradient-primary");
+    thead.innerHTML = `<tr>
+        <th>Guía</th>
+        <th>Fecha de Envío</th>
+        <th class="text-center">Movimientos</th>
+    </tr>`
+    
+    encabezado.setAttribute("href", "#novedades-" + usuario.replace(" ", ""));  
+    encabezado.setAttribute("aria-controls", "novedades-" +usuario.replace(" ", ""));
+    encabezado.textContent = usuario;
+    cuerpo.setAttribute("id", "novedades-" + usuario.replace(" ", ""));
+    cuerpo.setAttribute("data-usuario", usuario.replace(" ", ""));
+    let cantMovs = data.movimientos.length
+    let reduceMovs = cantMovs > 5 ? cantMovs - 5 : 0;
+    for(let i = data.movimientos.length - 1; i >= reduceMovs; i--) {
+        let movimiento = data.movimientos[i];
+        let li = document.createElement("li");
+        li.classList.add("list-group-item", "list-group-item-action");
+        li.innerHTML = `<span class="badge badge-primary">${i + 1}</span>
+            Movimiento: ${movimiento.movimiento} - Fecha: ${movimiento.fecha} </br>
+            Descripcion: ${movimiento.descripcion} - Tipo de movimiento: ${movimiento.DesTipoMov}
+        `;
+
+        if(i != cantMovs - 1){
+            li.classList.add("d-none");
+        }
+        ul.appendChild(li);
+    }
+    
+    tr.innerHTML = `
+        <td>${data.fechaEnvio}</td>
+        <td>${data.numeroGuia}</td>
+        <td></td>
+    `
+    tr.children[2].appendChild(ul);
+
+    if(document.querySelector("#novedades-" + usuario.replace(" ", ""))){
+        document.querySelector("#novedades-" + usuario.replace(" ", "")).querySelector("tbody").appendChild(tr);
+    } else {
+        tbody.appendChild(tr);
+        table.append(thead, tbody);
+        cuerpo.appendChild(table);
+        card.append(encabezado, cuerpo);
+    
+        document.getElementById("visor_novedades").appendChild(card);
+    }
+
+    ul.addEventListener("click", e => {
+        let lista = ul.children;
+        if(lista.length > 1){
+            if(lista[2].classList.contains("d-none")) {
+                for(let i = 1; i < lista.length; i++) {
+                    lista[i].classList.remove("d-none");
+                }
+            } else {
+                for(let i = 1; i < lista.length; i++) {
+                    lista[i].classList.add("d-none");
+                }
+            }
+        }
+    })
 }

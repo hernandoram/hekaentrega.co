@@ -499,8 +499,10 @@ function buscarUsuarios(){
         if(document.getElementById("mostrador-usuarios").innerHTML == ""){
             inHTML("mostrador-usuarios", "<div class='card text-danger'><h5 class='m-3'>Lo sentimos, Sin resultados para tu búsqueda</h5></div>")
         } else {
-            let botones = document.querySelectorAll('[data-funcion="ver-eliminar"]');
-            for(let boton of botones){
+            let botones_ver = document.querySelectorAll('[data-funcion="ver-eliminar"]');
+            let botones_movimientos = document.querySelectorAll('[data-funcion="movimientos"]');
+            let boton_filtrador_movs = document.getElementById("filtrador-movimientos");
+            for(let boton of botones_ver){
                 boton.addEventListener("click", (e) => {
                     let identificador = e.target.parentNode.getAttribute("data-buscador");
                     seleccionarUsuario(identificador);
@@ -512,11 +514,34 @@ function buscarUsuarios(){
                     mostrador.classList.add("d-none");
                 })
             }
+
+            for(let boton of botones_movimientos){
+                boton.addEventListener("click", e => {
+                    let identificador = e.target.parentNode.getAttribute("data-buscador");
+                    let fechaI = genFecha().split("-");
+                    fechaI[1] -= 1;
+                    fechaI = new Date(fechaI.join("-")).getTime();
+                    let fechaF = new Date(genFecha()).getTime();
+                    console.log(fechaI, fechaF)
+                    verMovimientos(identificador, fechaI, fechaF + 8.64e+7);
+                    boton_filtrador_movs.setAttribute("data-usuario", identificador);
+                    document.getElementById("nombre-usuario-movs").textContent = e.target.parentNode.getAttribute("data-nombre")
+                    location.href = "#movimientos"
+                })
+            }
+            boton_filtrador_movs.addEventListener("click", e => {
+                let identificador = e.target.getAttribute("data-usuario")
+                fechaI = new Date(document.getElementById("movs-fecha-inicio").value).getTime()
+                fechaF = new Date(document.getElementById("movs-fecha-final").value).getTime()
+                verMovimientos(identificador, fechaI, fechaF + 8.64e+7);
+            })
         }
         document.getElementById("cargador-usuarios").classList.add("d-none");
 
     })
 }
+
+
 
 // esta funcion me busca el usuario seleccionado con informacion un poco mas detallada
 function seleccionarUsuario(id){
@@ -753,7 +778,8 @@ function actualizarInformacionHeka() {
                         id1: docRef1.id,
                         id2: docRef2.id,
                         user: saldo.user_id,
-                        medio: "Administrador: " + localStorage.user_id
+                        medio: "Administrador: " + localStorage.user_id,
+                        momento: momento
                     })
                     return pagos;
                 }).then(reg => {
@@ -778,13 +804,15 @@ function actualizarInformacionHeka() {
     ******************* ATENTO CON ESTA PARTE DEL CÓDIGO *****************
 **********************/
 
-async function prueba(usuario){
+async function verMovimientos(usuario, fechaI, fechaF){
+    document.getElementById("card-movimientos").innerHTML = "";
+    document.getElementById("card-movimientos").innerHTML = "<div class='d-flex justify-content-center'><div class='lds-ellipsis'><div></div><div></div><div></div><div></div></div>";
     try {
         let buscador = await firebase.firestore().collection("usuarios").doc("22032021")
         .get().then((doc) => {
             let pagos = doc.data().pagos;
             return pagos.filter((d) => {
-                return d.user == usuario
+                return d.user == usuario && fechaI <= d.momento && fechaF >= d.momento;
             });
         }) 
 
@@ -792,7 +820,7 @@ async function prueba(usuario){
         async function miradorUsuario(usuario){
             let res = []
             await firebase.firestore().collection("usuarios").doc(usuario).collection("movimientos")
-            .orderBy("momento").get().then((querySnapshot) => {
+            .orderBy("momento").startAt(fechaI).endAt(fechaF).get().then((querySnapshot) => {
                 querySnapshot.forEach(doc => {
                     res.push(doc.data());
                 })
@@ -817,21 +845,47 @@ async function prueba(usuario){
             data2 = data;
             miradorPrueba(usuario).then(d2 => data1 = d2)
             .then(() => {
+                document.getElementById("card-movimientos").innerHTML = "";
+                let detalles = document.createElement("ul");
+                lista_detalles = []
                 console.log(data2);
                 console.log(data1);
-                tablaMovimientos(data2);
+                let saldo_momento = data2.reduce((a,b) => {
+                    return parseInt(a) + parseInt(b.diferencia)
+                }, parseInt(data2[0].saldo_anterior));
+                let saldo_momento_legal = data1.reduce((a,b) => {
+                    if(b.momento >= fechaI && b.momento <= fechaF){
+                        return parseInt(a) + parseInt(b.diferencia);
+                    } else {
+                        return a
+                    }
+                }, parseInt(data2[0].saldo_anterior));
                 let saldo_legal = data1.reduce((a,b) => {
                     return parseInt(a) + parseInt(b.diferencia)
                 }, 0);
-
-                console.log(buscador.length == data2.length);
-                console.log(buscador.length == data1.length);
+                if(buscador.length == data2.length && buscador.length == data1.length) {
+                    lista_detalles.push("La cantidad de movimientos coinciden en todos los documentos")
+                } else if(buscador.length == data2.length) {
+                    lista_detalles.push("La cantidad de movimientos coincide solo con los movimientos del usuario");
+                } else if(buscador.length == data1.length) {
+                    lista_detalles.push("La cantidad de movimientos coincide solo con los movimientos secundarios, si no estás filtrando datos es posible qeu sea un error");
+                }
+                lista_detalles.push("El saldo del cliente a la fecha era de: $" + convertirMiles(saldo_momento)
+                + " Y debió haber sido de: $" + convertirMiles(saldo_momento_legal))
+                tablaMovimientos(data2);
                 firebase.firestore().collection('usuarios').doc(usuario)
                 .collection("informacion").doc("heka")
                 .get().then((doc) => {
                     if(doc.exists){
+                        lista_detalles.push("El saldo Actual del cliente es: $" + convertirMiles(doc.data().saldo)
+                        + " Y debería ser de: $" + convertirMiles(saldo_legal));
                         console.log("Saldos coinciden? => ", parseInt(doc.data().saldo) == saldo_legal);
                     }
+                }).then(() => {
+                    for(let d of lista_detalles) {
+                        detalles.innerHTML += `<li>${d}</li>`;
+                    }
+                    document.getElementById("card-movimientos").appendChild(detalles)
                 });
             });
         })
@@ -841,5 +895,3 @@ async function prueba(usuario){
         console.log(error)
     }
 }
-
-// prueba("pPQcEmYFJZMxZqcq66ju1P1q7nt1");

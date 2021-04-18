@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+
+  <div>
+<button onclick="estado()">Ver estado </button>
+
+<script>
+
+var SerXML=`<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <ConsultarGuia xmlns="http://servientrega.com/">
+      <NumeroGuia>2102566145</NumeroGuia>
+    </ConsultarGuia>
+  </soap:Body>
+</soap:Envelope>`;
+
+  function estado(){
+    var xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function (){
+      if (this.readyState ==4 && this.status ==200){
+        cargarXML(this);
+      }
+    };
+    xhr.open("POST", SerXML,true);
+    xhr.send();
+  }
+
+  function cargarXML(xml){
+var docXML = xml.responseXML;
+window.alert("Datos XML: "+docXML);
+  }
+
+</script>
+
+  </div>
+  
+</body>
+</html>

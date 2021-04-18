@@ -588,7 +588,8 @@ function enviar_firestore(datos){
                                             id2: docRef2.id,
                                             user: saldo_detallado.user_id,
                                             medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + saldo_detallado.user_id,
-                                            guia: id
+                                            guia: id,
+                                            momento: momento
                                         })
                                         return pagos;
                                     }).then(reg => {

@@ -21,6 +21,11 @@ if(administracion){
             cargarPagos();
         })
 
+        document.getElementById("btn-revisar-novedades").addEventListener("click", (e) => {
+            e.preventDefault();
+            revisarNovedades();
+        })
+
         revisarNotificaciones();
     } else {
         let inputs = document.querySelectorAll("input");
@@ -296,7 +301,72 @@ function JsonToCsv(JSONData, ReportTitle, guias) {
     document.body.removeChild(link);
 }
 
+function descargarInformeGuias(JSONData, ReportTitle) {
+    console.log(JSONData)
+    //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
+    var arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
 
+    //Aca esta organizado el encabezado
+    let CSV = '';
+    CSV = 'sep=,' + '\r\n';
+    let encabezado = "# Guía Heka,# Guía Servientrega,Centro de Costo,Comisión Heka,Comisión Servientrega,Flete,Recaudo,Total,Fecha";
+    CSV += encabezado + '\r\n';
+    
+    console.log(arrData.length);
+    //Se actulizara cada cuadro por fila, ***se comenta cual es el campo llenado en cada una***
+    for (var i = 0; i < arrData.length; i++) {
+        let row = "";
+        // # Guia Heka
+        row += '"' + arrData[i].guia + '",';
+        // Numero Guia Servientrega
+        row += '"' + arrData[i].id_servientrega + '",';
+        // Centro de costo
+        row += '"' + arrData[i].centro_de_costo + '",';
+        // Comision heka
+        row += '"' + arrData[i].detalles.comision_heka + '",';
+        // Comision servientrega
+        row += '"' + arrData[i].detalles.comision_trasportadora + '",';
+        //Flete
+        row += '"' + arrData[i].detalles.flete + '",';
+        //Recaudo
+        row += '"' + arrData[i].detalles.recaudo + '",';
+        //Total
+        row += '"' + arrData[i].detalles.total + '",';
+        // Fecha
+        row += '"' + arrData[i].fecha + '",';
+
+        
+        row.slice(0, row.length - 1);
+        
+        //agg un salto de linea por cada fila
+        CSV += row + '\r\n';
+        console.log(row)
+    }
+    
+    if (CSV == '') {        
+        alert("Datos invalidos");
+        return;
+    }   
+    
+    //nombre del archivo por defecto
+    var fileName = "guias_";
+    //Toma los espacios en blanco en el nombre colocado y los reemplaza con guion bajo
+    fileName += ReportTitle.replace(/ /g,"_");   
+    
+    //Para formato CSV
+    var uri = 'data:text/csv;charset=utf-8,' + escape(CSV);
+
+    // un Tag link que no sera visible, pero redirigira al archivo para descargarlo en cuanto se active este funcion
+    var link = document.createElement("a");    
+    link.href = uri;
+    
+    link.style = "visibility:hidden";
+    link.download = fileName + ".csv";
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 
 function subirDocumentos(){
     let cargadores = document.getElementsByName('cargar-documentos');
@@ -477,6 +547,9 @@ function actualizarEstado(){
         method: "POST",
         body: data
     }).then((res) => {
+        if(!res.ok){
+            throw Error("Lo sentimos, no pudimos cargar su documento, reviselo y vuelvalo a subir")
+        }
         res.json().then((datos) => {
             let res = "";
             if(datos.length == 0){
@@ -507,7 +580,7 @@ function actualizarEstado(){
                     .then(() => {})
                     .catch(() => {
                         avisar("Error!", "Hubo un error inesperado");
-                    })
+                    });
                 } else {
                     res = "falta id";
                 }
@@ -526,13 +599,17 @@ function actualizarEstado(){
 
           document.querySelector("#cargador-actualizador").classList.add("d-none");
         })
+    }).catch((err) => {
+        avisar("Algo salió mal", err, "advertencia")
+        document.querySelector("#cargador-actualizador").classList.add("d-none");
     })
 }
 
 function revisarNotificaciones(){
     let notificador = document.getElementById("notificaciones");
     let audio = document.createElement("audio");
-    audio.innerHTML = `<source type="audio/mp3" src="./recursos/notificacion.mp3">`
+    audio.innerHTML = `<source type="audio/mpeg" src="./recursos/notificacion.mp3">`;
+
 
     notificador.addEventListener("click", e => {
         let badge = notificador.querySelector("span");
@@ -553,7 +630,7 @@ function revisarNotificaciones(){
                 let mostrador = document.getElementById("mostrador-notificaciones");
                 mostrador.insertBefore(mostrarNotificacion(change.doc.data()), mostrador.firstChild);
             }
-        })
+        });
     })
     
 }
@@ -567,5 +644,209 @@ function eliminarNotificaciones(){
     })
     .then(() => {
         avisar("Notificaciones vacías", "Si quiere ver lo cambios, recarge la página")
+    })
+}
+
+function descargarHistorialGuias(){
+    avisar("Solicitud Recibida", "Procesando...", "aviso")
+    let fechaI = new Date(value("guias-fechaI-modal")).getTime();
+    let fechaF = new Date(value("guias-fechaF-modal")).getTime();
+    firebase.firestore().collection("usuarios").get().then(querySnapshot => {
+        return new Promise((res, rej) => {
+            let mirar = [];
+            querySnapshot.forEach((doc) => {
+                let x = doc.ref.collection("guias").get().then(querySnapshot => {
+                    querySnapshot.forEach(doc => {
+                        let fecha = new Date(doc.data().fecha).getTime()
+                        if(fechaI <= fecha && fecha <= fechaF){
+                            let res = doc.data();
+                            res.guia = doc.id;
+                            mirar.push(res);
+                        }
+                    })
+                    return mirar
+                })
+                res(x);
+            });
+        })
+    }).then((guias) => {
+        avisar("Solicitud Procesada", "Espere un momento, en breve iniciaremos con su descarga")
+        setTimeout(() => {
+            guias.sort((a,b) => {
+                if(parseInt(a.guia) > parseInt(b.guia)) {
+                    return 1
+                } else {
+                    return -1
+                }
+            })
+            console.log(guias)
+            console.log(guias.length)
+
+            descargarInformeGuias(guias, guias[0].guia + "-" + guias[guias.length - 1].guia)
+        }, 3000)
+    });
+}
+
+function cargarNovedades(){
+    document.querySelector("#cargador-novedades").classList.remove("d-none");
+    let data = new FormData(document.getElementById("form-novedades"));
+    console.log(data);
+    console.log(data.get("documento"));
+    fetch("/excel_to_json", {
+        method: "POST",
+        body: data
+    }).then(res => {
+        if(!res.ok) {
+            throw Error("Lo siento, No pudimos cargar sus Novedades, por favor, revise su documento e intent de nuevo");
+        }
+        res.json().then(datos => {
+            let novedades = [];
+            for(let data of datos){
+                if(data.NOVEDAD && data["NUMERO DOCUMENTO CLIENTE4"]) {
+                    let novedad = {
+                        guia: data["NUMERO GUIA"],
+                        fecha_envio: data["FECHA ENVIO"],
+                        id_heka: data["NUMERO DOCUMENTO CLIENTE4"],
+                        centro_de_costo: data["CENTRO COSTO CLIENTE"] || "SCC",
+                        novedades: [data["NOVEDAD"]],
+                        fechas_novedades: [data["FECHA NOVEDAD"]]
+                    }
+
+                    let i = 1
+                    while(i <= 3){
+                        if(data["NOVEDAD " + i]){
+                            novedad.novedades.push(data["NOVEDAD " + i]);
+                            novedad.fechas_novedades.push(data["FECHA NOVEDAD " + i]);
+                        }
+
+                        i++;
+                    }
+
+                    novedades.push(novedad);
+                    // firebase.firestore().collection("novedades").doc(novedad.guia.toString()).set(novedad);
+                }
+            }
+            console.log(novedades);
+            document.querySelector("#cargador-novedades").classList.add("d-none"); 
+        })
+    }).catch((err) => {
+        avisar("Algo salió mal", err, "advertencia")
+        document.querySelector("#cargador-novedades").classList.add("d-none");
+    })
+}
+
+function revisarNovedadesViejo(usuario){
+    document.getElementById("visor_novedades").innerHTML = "";
+    let operador = "==", filtro = usuario
+    if(!usuario && administracion){
+        operador = "!="; filtro = "";
+    }
+
+    firebase.firestore().collection("novedades").where("centro_de_costo", operador, filtro).get()
+    .then(querySnapshot => {
+        let res = []
+        querySnapshot.forEach(doc => {
+            res.push(doc.data());
+        })
+        return res;
+    }).then(res => {
+        let usuarios = []
+        res.sort((a,b) => {
+            if(a.centro_de_costo > b.centro_de_costo){
+                return 1
+            } else if(a.centro_de_costo < b.centro_de_costo){
+                return -1
+            } else {
+                return 0
+            }
+        }).reduce((a,b) => {
+            if(a.centro_de_costo != b.centro_de_costo){
+                usuarios.push(a.centro_de_costo);
+            }
+            return b;
+        });
+
+        for (let usuario of usuarios){
+            let filtrado = res.filter(v => {
+                return v.centro_de_costo == usuario;
+            })
+
+            console.log(filtrado);
+            tablaNovedades(filtrado);
+        }
+    })
+}
+
+function revisarNovedades(){
+    let filtro = "", toggle = "!=", buscador = "nombre_centro_costo"
+    
+    if($("#filtrado-novedades-guias").val()){
+        let filtrado = $("#filtrado-novedades-guias").val().split(",");
+        filtrado.forEach(v => {
+            consultarGuia(v.trim())
+        })
+    } else {
+        if($("#filtrado-novedades-usuario").val()){
+            filtro = $("#filtrado-novedades-usuario").val();
+            toggle = "==";
+        }
+    
+        firebase.firestore().collection("Estado de Guias").where(buscador, toggle, filtro).get()
+        .then(querySnapshot => {
+            querySnapshot.forEach(doc => {
+                let dato = doc.data();
+                consultarGuia(dato.numero_guia_servientrega, dato.nombre_centro_costo)
+                // console.log(doc.data());
+            });
+        })
+    }
+}
+
+$("#btn-vaciar-consulta").click(() => {
+    $("#visor_novedades").html("");
+})
+
+function consultarGuia(numGuia, usuario = "Consulta Personalizada"){
+    let data = {"guia": numGuia}
+    fetch("/servientrega/consultarGuia", {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+            "Content-Type": "application/json"
+        }
+    })
+    .then((res) => res.json())
+    .then(data => {
+        let parser = new DOMParser();
+        data = parser.parseFromString(data, "application/xml");
+        console.log(data.querySelector("ConsultarGuiaResult"));
+        if(data.querySelector("NumGui")){
+            let informacion = {
+                fechaEnvio: data.querySelector("FecEnv").textContent,
+                numeroGuia: data.querySelector("NumGui").textContent,
+                estadoActual: data.querySelector("EstAct").textContent,
+                movimientos: []
+            }
+            data.querySelectorAll("InformacionMov").forEach(mov => {
+                informacion.movimientos.push({
+                    movimiento: mov.querySelector("NomMov").textContent,
+                    fecha: mov.querySelector("FecMov").textContent,
+                    descripcion: mov.querySelector("DesMov").textContent,
+                    idViewCliente: mov.querySelector("IdViewCliente").textContent,
+                    tipoMov: mov.querySelector("TipoMov").textContent,
+                    DesTipoMov: mov.querySelector("DesTipoMov").textContent,
+                })
+            });
+
+            // console.log(informacion);
+            tablaNovedades(informacion, usuario)
+        } else {
+            document.getElementById("visor_novedades").innerHTML += `
+                <p class="border border-danger p-2 m-2">La Guía Número ${numGuia} No fue Encontrada en la base de datos.
+                <br>
+                Por favor, verifique que esté bien escrita</p>
+            `;
+        }
+
     })
 }
