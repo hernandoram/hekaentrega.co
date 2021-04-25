@@ -190,6 +190,7 @@ function cambiarFecha(){
 //Muestra el historial de guias en rango de fecha seleccionado
 function historialGuias(){
   $('#dataTable').DataTable().destroy();
+  document.getElementById("cargador-guias").classList.remove("d-none");
   if(user_id){     
     var reference = firebase.firestore().collection("usuarios").doc(user_id).collection("guias");
     reference.get().then((querySnapshot) => {
@@ -209,19 +210,14 @@ function historialGuias(){
           fecha_final = new Date(fecha_final).getTime();
           if(fechaFire >= fecha_inicio && fechaFire <= fecha_final){          
             tabla.push(tablaDeGuias(doc.id, doc.data()));
-            //Caragador de datos en tiepo real, sera utilizado para actualizar el estado de guia
-            firebase.firestore().collection("Estado de Guias").doc(doc.id).onSnapshot((row) => {
-              if(row.exists) {
-                document.getElementById("historial-guias-row" + row.id).children[2].textContent = row.data().numero_guia_servientrega;
-                document.getElementById("historial-guias-row" + row.id).children[3].textContent = row.data().estado_envio;
-              }
-            });
-
+            
             //Habilita y deshabilita los checks de la tabla de guias
             reference.doc(doc.id).onSnapshot((row) => {
               console.log("Se Ejecuta el oidor")
               if(row.exists) {
                 activarBotonesDeEnvio(row.id, row.data().enviado);
+                document.getElementById("historial-guias-row" + row.id).children[2].textContent = row.data().numeroGuia || "Generando...";
+                document.getElementById("historial-guias-row" + row.id).children[3].textContent = row.data().estado;
               }
             });
           } 
@@ -238,6 +234,7 @@ function historialGuias(){
 
       //si no encuentra guias...
       if(contarExistencia==0){
+        
         if(document.getElementById('tabla-historial-guias')){
           document.getElementById('tabla-historial-guias').style.display='none';
         }
@@ -264,7 +261,7 @@ function historialGuias(){
         });
       }
     }).then(() => {
-      // activarBotonesDeEnvio();
+      document.getElementById("cargador-guias").classList.add("d-none");
     });
   } 
 }
@@ -659,3 +656,4 @@ function mostrarPagos(datos) {
 function cerrarSession() {
   localStorage.clear()
 }
+

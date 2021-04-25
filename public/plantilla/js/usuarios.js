@@ -478,9 +478,9 @@ function buscarUsuarios(){
     if(value("buscador_usuarios-id")){
         busqueda = ["==", value("buscador_usuarios-id")];
     }
-    inHTML("mostrador-usuarios", "");
-   firebase.firestore().collection("usuarios").where("ingreso", busqueda[0], busqueda[1]).get()
+    firebase.firestore().collection("usuarios").where("ingreso", busqueda[0], busqueda[1]).get()
     .then((querySnapshot) => {
+        inHTML("mostrador-usuarios", "");
         querySnapshot.forEach((doc) => {
             if(value("buscador_usuarios-nombre") && !value("buscador_usuarios-id")){
                 console.log(doc.data().nombres.toLowerCase().indexOf(value("buscador_usuarios-nombre").toLowerCase()));

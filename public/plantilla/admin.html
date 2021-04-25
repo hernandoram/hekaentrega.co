@@ -86,8 +86,8 @@
         </li>
         <li class="nav-item">
           <a class="nav-link" href="#novedades" onclick="mostrar('novedades')">
-            <i class="fas fa-fw fa-exclamation"></i>
-            <span>Novedades</span></a>
+            <i class="fas fa-fw fa-truck"></i>
+            <span>Estado De Envío</span></a>
         </li>
 
         <!-- Divider -->
@@ -123,6 +123,7 @@
             <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
               <i class="fa fa-bars"></i>
             </button>
+            
 
             <!-- Topbar Navbar -->
             <ul class="navbar-nav ml-auto">
@@ -142,19 +143,34 @@
                 <h6 class="dropdown-header">
                   Centro de notificaciones
                 </h6>
-                <div id="mostrador-notificaciones">
-                  
-                  <p class="dropdown-item text-center small text-gray-500" onclick="eliminarNotificaciones()">
-                    Eliminar Todas las notificaciones (versión Prueba)</p>
-                </div>
+                <div id="mostrador-notificaciones"></div>
+                <p class="dropdown-item text-center small text-gray-500" onclick="eliminarNotificaciones()">
+                  Eliminar Todas las notificaciones (versión Prueba)</p>
               </div>
               </li>
-
               
-                      
-              <div class="topbar-divider d-none d-sm-block">
-                
-              </div>
+              <li class="nav-item dropdown no-arrow mx-1">
+                <a class="nav-link dropdown-toggle" href="#" id="notificaciones-novedades" role="button" 
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <i class="fas fa-exclamation fa-fw"></i>
+                  <!-- Counter - Alerts -->
+                  <span class="badge badge-danger badge-counter d-none">0</span>
+                </a>
+                <!-- Dropdown - Alerts -->
+                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated-grow-in" 
+                aria-labelledby="notificaciones-novedades">
+                  <h6 class="dropdown-header">
+                    Centro de Soluciones de Novedades
+                  </h6>
+                  <div>
+                    <div id="mostrador-info-novedades"></div>
+                    <p class="dropdown-item text-center small text-gray-500">
+                      Soluciones plateadas por los usuarios</p>
+                  </div>
+                </div>
+                </li>
+
+              <div class="topbar-divider d-none d-sm-block"></div>
                 
               <!-- Nav Item - User Information -->
               <li class="nav-item dropdown no-arrow">
@@ -804,7 +820,9 @@
                       <input type="text" class="form-control" id="filtrado-novedades-usuario" placeholder="Centro de costo" 
                       aria-label="Usuario" aria-describedby="btn-revisar-novedades">
                     </div>
-
+                    <input type="checkbox" name="check-mostrar-novedades" id="check-mostrar-novedades" checked>
+                    <label for="check-mostrar-novedades">Mostrar Solo La última Novedad</label>
+                    
                     <div class="btn-group col-12">
                       <input type="button" id="btn-vaciar-consulta" 
                       value="Limpiar Consulta" class="btn btn-secondary mt-4">

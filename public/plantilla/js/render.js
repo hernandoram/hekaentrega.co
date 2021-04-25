@@ -278,7 +278,8 @@ function activarBotonesDeEnvio(id, enviado){
                             saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
                             console.log(saldo_detallado);
                             console.log(saldo);
-                            firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("informacion")
+                            firebase.firestore().collection("usuarios").doc(localStorage.user_id)
+                            .collection("informacion")
                             .doc("heka").update({
                                 saldo: saldo_detallado.saldo
                             }).then(() => {
@@ -465,7 +466,7 @@ function tablaPagos(arrData, id) {
 // }], "visor_pagos");
 
 
-function mostrarNotificacion(data){
+function mostrarNotificacion(data, type){
     let notificacion = document.createElement("a"),
         div_icon = document.createElement("div"),
         circle = document.createElement("div"),
@@ -476,20 +477,30 @@ function mostrarNotificacion(data){
 
 
     notificacion.setAttribute("class", "dropdown-item d-flex align-items-center");
-    notificacion.setAttribute("href", "#documentos");
-    notificacion.setAttribute("onclick", "cargarDocumentos()")
-
+    
     div_icon.classList.add("mr-3");
     circle.setAttribute("class", "icon-circle bg-primary");
     icon.setAttribute("class", "fas fa-file-alt text-white");
     circle.append(icon);
     div_icon.append(circle);
-
+    
     info.setAttribute("class", "small text-gray-500");
-    info.textContent = data.fecha;
     mensaje.style.overflowWrap = "anywhere";
     mensaje.textContent = data.mensaje;
     div_info.append(info, mensaje);
+    
+    if(type == "novedad"){
+        // notificacion.setAttribute("href", "#");
+        notificacion.addEventListener("click",() => {
+            revisarMovimientosGuias(true, data.mensaje, data.id_heka, data.guia)
+            mostrar("novedades");
+        })
+        info.textContent = data.fecha + " a las " + data.hora;
+    } else {
+        info.textContent = data.fecha;
+        notificacion.setAttribute("href", "#documentos");
+        notificacion.setAttribute("onclick", "cargarDocumentos()")
+    }
 
     notificacion.append(div_icon, div_info);
     return notificacion;
@@ -543,7 +554,7 @@ function tablaMovimientos(arrData){
     document.getElementById("card-movimientos").append(tabla, detalles);
 }
 
-function tablaNovedades(data, usuario){
+function tablaMovimientosGuias(data, usuario){
     let card = document.createElement("div"),
         encabezado = document.createElement("a"),
         cuerpo = document.createElement("div"),
@@ -571,10 +582,10 @@ function tablaNovedades(data, usuario){
         <th class="text-center">Movimientos</th>
     </tr>`
     
-    encabezado.setAttribute("href", "#novedades-" + usuario.replace(" ", ""));  
-    encabezado.setAttribute("aria-controls", "novedades-" +usuario.replace(" ", ""));
+    encabezado.setAttribute("href", "#movimientos-guias-" + usuario.replace(" ", ""));  
+    encabezado.setAttribute("aria-controls", "movimientos-guias-" +usuario.replace(" ", ""));
     encabezado.textContent = usuario;
-    cuerpo.setAttribute("id", "novedades-" + usuario.replace(" ", ""));
+    cuerpo.setAttribute("id", "movimientos-guias-" + usuario.replace(" ", ""));
     cuerpo.setAttribute("data-usuario", usuario.replace(" ", ""));
     let cantMovs = data.movimientos.length
     let reduceMovs = cantMovs > 5 ? cantMovs - 5 : 0;
@@ -600,8 +611,8 @@ function tablaNovedades(data, usuario){
     `
     tr.children[2].appendChild(ul);
 
-    if(document.querySelector("#novedades-" + usuario.replace(" ", ""))){
-        document.querySelector("#novedades-" + usuario.replace(" ", "")).querySelector("tbody").appendChild(tr);
+    if(document.querySelector("#movimientos-guias-" + usuario.replace(" ", ""))){
+        document.querySelector("#movimientos-guias-" + usuario.replace(" ", "")).querySelector("tbody").appendChild(tr);
     } else {
         tbody.appendChild(tr);
         table.append(thead, tbody);
@@ -626,3 +637,130 @@ function tablaNovedades(data, usuario){
         }
     })
 }
+
+function tablaNovedades(data, usuario, observacion, id_heka, resuelta){
+    let card = document.createElement("div"),
+        encabezado = document.createElement("a"),
+        cuerpo = document.createElement("div"),
+        table = document.createElement("table"),
+        thead = document.createElement("thead"),
+        tbody = document.createElement("tbody"),
+        tr = document.createElement("tr"),
+        ul = document.createElement("ul");
+
+    card.classList.add("card", "mt-5");
+    ul.classList.add("list-group", "list-group-flush");
+
+    encabezado.setAttribute("class","card-header d-flex justify-content-between");
+    encabezado.setAttribute("data-toggle", "collapse");
+    encabezado.setAttribute("role", "button");
+    encabezado.setAttribute("aria-expanded", "true");
+
+    cuerpo.setAttribute("class", "card-body collapse table-responsive");
+
+    table.classList.add("table");
+    thead.classList.add("text-light", "bg-gradient-primary");
+    thead.innerHTML = `<tr>
+        <th>Guía</th>
+        <th class="text-center">Novedad</th>
+    </tr>`
+    
+    encabezado.setAttribute("href", "#novedades-" + usuario.replace(" ", ""));  
+    encabezado.setAttribute("aria-controls", "novedades-" +usuario.replace(" ", ""));
+    encabezado.textContent = "Novedades de " + usuario;
+    cuerpo.setAttribute("id", "novedades-" + usuario.replace(" ", ""));
+    cuerpo.setAttribute("data-usuario", usuario.replace(" ", ""));
+
+    if(data.guia != 0){
+        tr.setAttribute("id", "novedad"+data.guia);
+    }
+    
+    tr.innerHTML = `
+        <td>${data.guia}</td>
+        <td>${data.novedad} - ${data.fecha.split("T")[0]}</td>
+    `
+    if(administracion){
+        thead.firstChild.innerHTML += `<td>Observaciones</td>`;
+        let btn = "btn-success";
+        if(resuelta){
+            btn = "btn-secondary"
+        }
+        if(data.guia != 0) {
+            tr.innerHTML += `
+                <td>${observacion}
+                    <button class="btn ${btn}" id="solucionar-novedad-${data.guia}">Novedad Solucionada</button>
+                </td>
+            `
+        }
+    } else {
+        thead.firstChild.innerHTML += `<td>Solucionar</td>`;
+        if(data.guia != 0){
+            tr.innerHTML += `
+                <td>¿Tienes Alguna sugerencia para esta novedad?
+                    <textarea type="text" class="form-control" name="solucion-novedad" id="solucion-novedad-${data.guia}">${observacion}</textarea>
+                    <button class="btn btn-success" id="solucionar-novedad-${data.guia}">Solucionar</button>
+                </td>
+            `
+        }
+    }
+
+    if(document.querySelector("#novedad" + data.guia)) {
+        document.querySelector("#novedad" + data.guia).innerHTML = "";
+        document.querySelector("#novedad" + data.guia).innerHTML = tr.innerHTML
+    } else if(document.querySelector("#novedades-" + usuario.replace(" ", ""))){
+        document.querySelector("#novedades-" + usuario.replace(" ", "")).querySelector("tbody").appendChild(tr);
+    } else {
+        tbody.appendChild(tr);
+        table.append(thead, tbody);
+        cuerpo.appendChild(table);
+        card.append(encabezado, cuerpo);
+    
+        document.getElementById("visor_novedades").appendChild(card);
+    }
+
+    if(resuelta && !administracion){
+        document.querySelector("#solucionar-novedad-"+data.guia).classList.add("disabled");
+        document.querySelector("#solucionar-novedad-"+data.guia).disabled;
+        document.querySelector("#solucionar-novedad-"+data.guia).remove();
+    }
+    
+    $("#solucionar-novedad-"+data.guia).click(() => {
+        if(administracion){
+            firebase.firestore().collection("notificaciones").doc(id_heka).delete();
+            firebase.firestore().collectionGroup("guias").where("numeroGuia", "==", data.guia)
+            .get().then(querySnapshot => {
+                querySnapshot.forEach(doc => {
+                    firebase.firestore().doc(doc.ref.path).update({
+                        "novedad.resuelta": true
+                    })
+                })
+            }).then(() => {
+                avisar("¡Entendido!", "Se la actualizado el estado de lanovedad como resuelto");
+            })
+        } else {
+            console.log($("#solucion-novedad-"+data.guia).val())
+            firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
+            .doc(id_heka).update({
+                observaciones: $("#solucion-novedad-"+data.guia).val(),
+                "novedad.fecha": data.fecha
+            }).then(() => {
+                let momento = new Date().getTime();
+                let hora = new Date().getHours() + ":" + new Date().getMinutes();
+                firebase.firestore().collection("notificaciones").doc(id_heka).set({
+                    fecha: genFecha(),
+                    timeline: momento,
+                    mensaje: datos_usuario.nombre_completo + " Sugirió una solución para la guía " 
+                    + data.guia + ": " + $("#solucion-novedad-"+data.guia).val(),
+                    hora: hora,
+                    guia: data.guia,
+                    id_heka: id_heka,
+                    type: "novedad",
+                    user_id: user_id
+                })
+            }).then(() => {
+                avisar("Solicitud Recibida", "Hemos Recibido tu solicitud, pronto estaremos atendiendo su novedad")
+            })
+        }
+    })
+}
+

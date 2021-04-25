@@ -507,7 +507,7 @@ function crearGuiasServientrega() {
             datos_a_enviar.celularR = value("actualizar_celularR")
             datos_a_enviar.nombreD = value("nombreD");
             datos_a_enviar.identificacionD = value("identificacionD") || 123;
-            datos_a_enviar.direccionD = value("direccionD") + " " + value("barrioD");
+            datos_a_enviar.direccionD = value("direccionD") + " " + value("barrioD") + " " + value("observaciones");
             datos_a_enviar.telefonoD = value("telefonoD");
             datos_a_enviar.celularD = value("celularD") || value("telefonoD");
             datos_a_enviar.correoD = value("correoD") || "notiene@gmail.com";
@@ -545,13 +545,15 @@ function enviar_firestore(datos){
         .then((doc) => {
             if(doc.exists){
                 id_heka = doc.data().id.toString();
+                datos.id_heka = id_heka;
+                firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
                 firestore.collection("usuarios").doc(localStorage.user_id)
                     .collection("guias").doc(id_heka).set(datos);
-                firestore.collection("infoHeka").doc("heka_id").set({id: doc.data().id + 1})
                 return doc.data().id;
             }
         }).then((id) => {
-            firestore.collection("usuarios").doc(localStorage.user_id).collection("informacion").doc("heka").get()
+            firestore.collection("usuarios").doc(localStorage.user_id).collection("informacion")
+            .doc("heka").get()
             .then((doc) => {
                 if(doc.exists){
                     let momento = new Date().getTime();
