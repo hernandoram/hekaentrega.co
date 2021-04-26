@@ -616,11 +616,11 @@ function revisarNotificaciones(){
         badge.classList.add("d-none");
     });
     novedades.addEventListener("click", e => {
-        let badge = notificador.querySelector("span");
+        let badge = novedades.querySelector("span");
         badge.textContent = 0;
         badge.classList.add("d-none");
     })
-    firebase.firestore().collection("notificaciones").orderBy("timeline").where("timeline", "!=", "")
+    firebase.firestore().collection("notificaciones").orderBy("timeline", "desc").where("timeline", "!=", "")
     .onSnapshot(snapshot => {
         snapshot.docChanges().forEach(change => {
             let notification = change.doc.data();
@@ -828,20 +828,8 @@ function revisarMovimientosGuias(admin, mensaje, id_heka, guia){
                 let path = doc.ref.path.split("/")
                 let dato = doc.data();
                 contador++
-                let validacion;
-                if(dato.novedad){
-                    validacion = {
-                        resuelta: false,
-                        fecha: 0,
-                        ver: "todas"
-                    }
-                    
-                    if(dato.novedad.resuelta){
-                        validacion.resuelta = dato.novedad.resuelta;
-                    }
-                }
                 if($("#check-mostrar-novedades").is(":checked")){
-                    consultarNovedadFb(dato.numeroGuia, dato.centro_de_costo, contador, size, dato.observaciones, doc.id, path[1], validacion);
+                    consultarNovedadFb(dato.numeroGuia, dato.centro_de_costo, contador, size, dato.solucion_novedad || "", doc.id, path[1]);
                 } else {
                     consultarGuia(dato.numeroGuia, dato.centro_de_costo, contador, size)
                 }
@@ -858,24 +846,11 @@ function revisarMovimientosGuias(admin, mensaje, id_heka, guia){
             querySnapshot.forEach(doc => {
                 let dato = doc.data();
                 contador++
-                let validacion;
-                let observaciones = dato.observaciones;
-                if(dato.novedad){
-                    validacion = {
-                        resuelta: false,
-                        fecha: 0,
-                        ver: "todas"
-                    }
-                    
-                    if(dato.novedad.resuelta){
-                        validacion.resuelta = dato.novedad.resuelta;
-                    }
-                } else {
-                    observaciones = "";
-                }
+                let solucion = dato.solucion_novedad || "";
+                
 
                 consultarNovedadFb(dato.numeroGuia, datos_usuario.nombre_completo, contador, size, 
-                    observaciones, doc.id, localStorage.user_id, validacion);
+                    solucion, doc.id, localStorage.user_id);
             })
         })
     }
@@ -1000,7 +975,7 @@ function consultarNovedad(numGuia, usuario = "Novedades Personalizadas", contado
     
 }
 
-function consultarNovedadFb(numGuia, usuario = "Novedades", contador, totalConsultas, observacion, id_heka, user_id, validaciones) {
+function consultarNovedadFb(numGuia, usuario = "Novedades", contador, totalConsultas, solucion, id_heka, user_id) {
     firebase.firestore().collection("usuarios").doc(user_id).collection("novedades").doc(id_heka)
     .get().then((doc) => {
         if(doc.exists && numGuia) {
@@ -1009,15 +984,15 @@ function consultarNovedadFb(numGuia, usuario = "Novedades", contador, totalConsu
                 novedad: doc.data().novedad,
                 fecha: doc.data().fecha
             }
-            if(validaciones){
-                console.log("Si entró")
-                tablaNovedades(dataToObj, usuario, observacion, id_heka, validaciones.resuelta);
-            } else {
-                tablaNovedades(dataToObj, usuario, observacion, id_heka);
+            
+            console.log("Si entró")
+            tablaNovedades(dataToObj, usuario, solucion, id_heka, doc.data().solucionada);
+
+            if(!doc.data().solucionada){
                 document.querySelectorAll(".icon-notificacion-novedad").forEach(i => {
                     i.classList.remove("d-none");
                 });
-            }
+            }            
         }
     }).then(() => {
         if(contador == totalConsultas){
@@ -1043,30 +1018,18 @@ function actualizarNovedadesUsuario(){
             cantidad--;
             let info = change.doc.data()
             let numeroGuia = info.numeroGuia;
-            let validacion;
-            let observaciones = change.doc.data().observaciones;
-            if(info.novedad){
-                validacion = {
-                    resuelta: false,
-                    fecha: info.novedad.fecha
-                }
-                
-                if(info.novedad.resuelta){
-                    validacion.resuelta = info.novedad.resuelta;
-                }
-            } else {
-                observaciones = ""
-            }
-            if(change.type === "added" && !validacion) {
+            let solucion = change.doc.data().solucion_novedad || "";
+
+            if(change.type === "added") {
                 document.getElementById("cargador-novedades").classList.remove("d-none");
                 console.log(change.doc.id + " Agregado");
                 consultarNovedadFb(numeroGuia, datos_usuario.nombre_completo, cantidad, 0, 
-                    observaciones, change.doc.id, localStorage.user_id, validacion);
+                    solucion, change.doc.id, localStorage.user_id);
             } else if(change.type === "modified") {
                 document.getElementById("cargador-novedades").classList.remove("d-none");
                 console.log(change.doc.id + " Modificado");
                 consultarNovedadFb(numeroGuia, datos_usuario.nombre_completo, 0, 0, 
-                    change.doc.data().observaciones, change.doc.id, localStorage.user_id, validacion);
+                    solucion, change.doc.id, localStorage.user_id);
             }
         })
     })

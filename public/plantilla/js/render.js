@@ -638,7 +638,7 @@ function tablaMovimientosGuias(data, usuario){
     })
 }
 
-function tablaNovedades(data, usuario, observacion, id_heka, resuelta){
+function tablaNovedades(data, usuario, solucion, id_heka, resuelta){
     let card = document.createElement("div"),
         encabezado = document.createElement("a"),
         cuerpo = document.createElement("div"),
@@ -680,15 +680,16 @@ function tablaNovedades(data, usuario, observacion, id_heka, resuelta){
         <td>${data.novedad} - ${data.fecha.split("T")[0]}</td>
     `
     if(administracion){
-        thead.firstChild.innerHTML += `<td>Observaciones</td>`;
+        thead.firstChild.innerHTML += `<td>soluciones</td>`;
         let btn = "btn-success";
         if(resuelta){
             btn = "btn-secondary"
         }
         if(data.guia != 0) {
             tr.innerHTML += `
-                <td>${observacion}
-                    <button class="btn ${btn}" id="solucionar-novedad-${data.guia}">Novedad Solucionada</button>
+                <td>
+                    <p>${solucion}</p>
+                    <button class="btn ${btn} m-2" id="solucionar-novedad-${data.guia}">Novedad Solucionada</button>
                 </td>
             `
         }
@@ -696,9 +697,10 @@ function tablaNovedades(data, usuario, observacion, id_heka, resuelta){
         thead.firstChild.innerHTML += `<td>Solucionar</td>`;
         if(data.guia != 0){
             tr.innerHTML += `
-                <td>¿Tienes Alguna sugerencia para esta novedad?
-                    <textarea type="text" class="form-control" name="solucion-novedad" id="solucion-novedad-${data.guia}">${observacion}</textarea>
-                    <button class="btn btn-success" id="solucionar-novedad-${data.guia}">Solucionar</button>
+                <td>
+                    <p>¿Tienes Alguna sugerencia para esta novedad?</p>
+                    <textarea type="text" class="form-control" name="solucion-novedad" id="solucion-novedad-${data.guia}">${solucion}</textarea>
+                    <button class="btn btn-success m-2" id="solucionar-novedad-${data.guia}">Enviar Solución</button>
                 </td>
             `
         }
@@ -731,21 +733,27 @@ function tablaNovedades(data, usuario, observacion, id_heka, resuelta){
             .get().then(querySnapshot => {
                 querySnapshot.forEach(doc => {
                     firebase.firestore().doc(doc.ref.path).update({
-                        "novedad.resuelta": true
+                        "novedad.resuelta": true,
+                        "novedad.fecha": data.fecha
+                    }).then(() => {
+                        firebase.firestore().doc(doc.ref.path.toString().replace("guias", "novedades")).update({
+                            solucionada: true
+                        })
                     })
                 })
             }).then(() => {
-                avisar("¡Entendido!", "Se la actualizado el estado de lanovedad como resuelto");
+                avisar("¡Entendido!", "Se la actualizado el estado de la novedad como resuelto");
             })
         } else {
             console.log($("#solucion-novedad-"+data.guia).val())
             firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
             .doc(id_heka).update({
-                observaciones: $("#solucion-novedad-"+data.guia).val(),
+                solucion_novedad: $("#solucion-novedad-"+data.guia).val(),
                 "novedad.fecha": data.fecha
             }).then(() => {
                 let momento = new Date().getTime();
-                let hora = new Date().getHours() + ":" + new Date().getMinutes();
+                let hora = new Date().getMinutes() < 10 ? new Date().getHours() + ":0" + new Date().getMinutes() : new Date().getHours() + ":" + new Date().getMinutes();
+
                 firebase.firestore().collection("notificaciones").doc(id_heka).set({
                     fecha: genFecha(),
                     timeline: momento,
