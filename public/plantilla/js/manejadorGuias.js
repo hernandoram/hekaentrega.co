@@ -986,13 +986,14 @@ function consultarNovedadFb(numGuia, usuario = "Novedades", contador, totalConsu
             }
             
             console.log("Si entró")
-            tablaNovedades(dataToObj, usuario, solucion, id_heka, doc.data().solucionada);
-
-            if(!doc.data().solucionada){
+            if(!doc.data().solucionada && usuario == "Sin resolver"){
+                tablaNovedades(dataToObj, usuario, solucion, id_heka, doc.data().solucionada);
                 document.querySelectorAll(".icon-notificacion-novedad").forEach(i => {
                     i.classList.remove("d-none");
                 });
-            }            
+            } else if(usuario != "Sin resolver"){
+                tablaNovedades(dataToObj, usuario, solucion, id_heka, doc.data().solucionada);
+            }         
         }
     }).then(() => {
         if(contador == totalConsultas){
@@ -1023,7 +1024,7 @@ function actualizarNovedadesUsuario(){
             if(change.type === "added") {
                 document.getElementById("cargador-novedades").classList.remove("d-none");
                 console.log(change.doc.id + " Agregado");
-                consultarNovedadFb(numeroGuia, datos_usuario.nombre_completo, cantidad, 0, 
+                consultarNovedadFb(numeroGuia, "Sin resolver", cantidad, 0, 
                     solucion, change.doc.id, localStorage.user_id);
             } else if(change.type === "modified") {
                 document.getElementById("cargador-novedades").classList.remove("d-none");

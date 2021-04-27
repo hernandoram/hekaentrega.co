@@ -667,7 +667,7 @@ function tablaNovedades(data, usuario, solucion, id_heka, resuelta){
     
     encabezado.setAttribute("href", "#novedades-" + usuario.replace(" ", ""));  
     encabezado.setAttribute("aria-controls", "novedades-" +usuario.replace(" ", ""));
-    encabezado.textContent = "Novedades de " + usuario;
+    encabezado.textContent = "Novedades " + usuario;
     cuerpo.setAttribute("id", "novedades-" + usuario.replace(" ", ""));
     cuerpo.setAttribute("data-usuario", usuario.replace(" ", ""));
 

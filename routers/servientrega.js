@@ -102,7 +102,16 @@ function actualizarEstadosGuias(d) {
   firebase.firestore().collectionGroup("guias").orderBy("estado").where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"]).get()
   .then(querySnapshot => {
     console.log(querySnapshot.size);
+    let consulta = {
+      guias: [],
+      usuarios: []
+    }
     querySnapshot.forEach(doc => {
+      consulta.guias.push(doc.id + "/" + doc.data().numeroGuia);
+      if(consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
+        consulta.usuarios.push(doc.data().centro_de_costo);
+      }
+
       request.post("http://sismilenio.servientrega.com/wsrastreoenvios/wsrastreoenvios.asmx/ConsultarGuiaPorNumeroReferenciaCliente", {
         form: {
           Id_Cliente: "1072497419",
@@ -132,10 +141,13 @@ function actualizarEstadosGuias(d) {
         })
       })
     })
-  }).then(() => {
+    return consulta
+  }).then((consulta) => {
     firebase.firestore().collection("Actualizaciones de estados").add({
       fecha: d,
-      mensaje: "Se actualizaron los Estados de las guías"
+      mensaje: "Se intentaron actualizar los Estados de las guías de "+consulta.usuarios.length+" usuarios.",
+      guias: consulta.guias,
+      usuarios: consulta.usuarios
     })
   }) 
 }
@@ -148,8 +160,16 @@ function actualizarNovedades(d) {
   .get()
   .then(querySnapshot => {
       console.log(querySnapshot.size);
+      let consulta = {
+        guias: [],
+        usuarios: []
+      }
       querySnapshot.forEach(doc => {
         if(doc.data().numeroGuia) {
+          consulta.guias.push(doc.id + "/" + doc.data().numeroGuia);
+          if(consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
+            consulta.usuarios.push(doc.data().centro_de_costo);
+          }
           request.post({
             "headers": {"Content-Type": "text/xml"},
             "url": url + "/EstadoGuia",
@@ -169,9 +189,10 @@ function actualizarNovedades(d) {
               if(respuestaOk) {
                 let estadoGuia = result["DataSet"]["diffgr:diffgram"][0].NewDataSet[0].EstadosGuias[0];
                 console.log(estadoGuia);
-  
+                let fechaAnt = doc.data().novedad ? doc.data().novedad.fecha : 0
+                console.log(fechaAnt)
                 if(estadoGuia.Fecha_Entrega && estadoGuia.Guia && estadoGuia.Novedad) {
-                  if(estadoGuia.Guia[0] != "0") {
+                  if(estadoGuia.Guia[0] != "0" && new Date(fechaAnt).getTime() < new Date(estadoGuia.Fecha_Entrega[0]).getTime()) {
                     console.log("Se va a actualizar correctamente en las novedades de: " + doc.ref.parent.parent.path)
                     doc.ref.parent.parent.collection("novedades").doc(doc.id).set({
                       novedad: estadoGuia.Novedad[0],
@@ -191,10 +212,13 @@ function actualizarNovedades(d) {
           })
         }
       })
-  }).then(() => {
+      return consulta
+  }).then((consulta) => {
     firebase.firestore().collection("Actualizaciones de estados").add({
       fecha: d,
-      mensaje: "Se actualizaron Las Novedades"
+      mensaje: "Se intentaron actualizar Las Novedades de "+consulta.usuarios.length+" usuarios.",
+      usuarios: consulta.usuarios,
+      guias: consulta.guias
     })
   })
 }
