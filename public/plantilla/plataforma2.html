@@ -469,7 +469,11 @@
             <div class="card-shadow mb-4" style="display: none;" id="tabla-historial-guias">
               <div class="card-body">
                 <h6>La relación se descarga luego de crear todos los envíos a despachar</h6>
-                <button class="btn btn-success mb-3" id="enviar-documentos" onclick="crearDocumentos()">Crear Documentos</button>   
+                <button class="btn btn-success mb-3" id="enviar-documentos" onclick="crearDocumentos()">Crear Documentos</button>
+                <div>
+                  <input type="checkbox" name="check-select-all-guias" id="check-select-all-guias" autocomplete="off">
+                  <label for="check-select-all-guias">Seleccionar todas las visibles</label>
+                </div>
                 <div class="table-responsive">
                   <table  class="display table table-bordered" id="dataTable" width="100%" cellspacing="0">  
                     <thead>
@@ -611,6 +615,11 @@
                       value="Limpiar Consulta" class="btn btn-secondary mt-4">
                       <input type="submit" id="btn-revisar-novedades" 
                       value="Revisar Novedades" class="btn btn-primary mt-4">
+                    </div>
+
+                    <div class="m-4">
+                      <input type="checkbox" name="check-mostrar-novedades" id="check-mostrar-novedades">
+                      <label for="check-mostrar-novedades">Mostrar Todas las Novedades</label>
                     </div>
                   </div>
                 </form>

@@ -37,6 +37,19 @@ if(administracion){
     }
 }
 
+$("#check-select-all-guias").change((e) => {
+    let checks = document.getElementById("tabla-guias").querySelectorAll("input");
+    for(let check of checks){
+        if(!check.disabled) {
+            if(e.target.checked) {
+                check.checked = true;
+            } else {
+                check.checked = false;
+            }
+        }
+    }
+
+})
 function crearDocumentos() {
     let checks = document.getElementById("tabla-guias").querySelectorAll("input");
     let guias = [], id_user = localStorage.user_id
@@ -624,9 +637,10 @@ function revisarNotificaciones(){
     .onSnapshot(snapshot => {
         snapshot.docChanges().forEach(change => {
             let notification = change.doc.data();
+            let identificador = change.doc.id;
+            let mostrador, contador;
             if(change.type == "added" || change.type == "modified") {
                 audio.play();
-                let mostrador, contador;
                 if(notification.type == "novedad") {
                     contador = novedades.querySelector("span");
                     contador.classList.remove("d-none");
@@ -642,7 +656,18 @@ function revisarNotificaciones(){
                     contador.innerHTML = 9 + "+".sup()
                 }
                 // mostrador.insertBefore(mostrarNotificacion(notification), mostrador.firstChild);
-                mostrador.append(mostrarNotificacion(notification, notification.type));
+                mostrador.append(mostrarNotificacion(notification, notification.type, identificador));
+            } else if (change.type == "removed") {
+                if(document.querySelector("#notificacion-"+identificador)){
+                    if(notification.type == "novedad") {
+                        contador = novedades.querySelector("span");
+                        contador.innerHTML = parseInt(contador.textContent) <= 0 ? 0 : parseInt(contador.textContent) - 1;
+                    } else {
+                        contador = notificador.querySelector("span");
+                        contador.innerHTML = parseInt(contador.textContent) <= 0 ? 0 : parseInt(contador.textContent) - 1;
+                    }
+                    document.querySelector("#notificacion-"+identificador).remove();
+                }
             }
         });
     })
@@ -655,9 +680,6 @@ function eliminarNotificaciones(){
         querySnapshot.forEach(doc => {
             firebase.firestore().collection("notificaciones").doc(doc.id).delete()    
         })
-    })
-    .then(() => {
-        avisar("Notificaciones vacías", "Si quiere ver lo cambios, recarge la página")
     })
 }
 
@@ -848,9 +870,15 @@ function revisarMovimientosGuias(admin, mensaje, id_heka, guia){
                 contador++
                 let solucion = dato.solucion_novedad || "";
                 
+                let extra_data = {
+                    nombreD: dato.nombreD,
+                    celular1: dato.telefonoD,
+                    celular2: dato.celularD,
+                    direccion: dato.direccionD + ", " + dato.ciudadD + ", " + dato.departamentoD
+                }
 
                 consultarNovedadFb(dato.numeroGuia, datos_usuario.nombre_completo, contador, size, 
-                    solucion, doc.id, localStorage.user_id);
+                    solucion, doc.id, localStorage.user_id, extra_data);
             })
         })
     }
@@ -950,13 +978,13 @@ function consultarNovedad(numGuia, usuario = "Novedades Personalizadas", contado
                 if(validaciones && dataToObj){
                     console.log("Si entró")
                     if(dataToObj.guia == 0){
-                        tablaNovedades(dataToObj, usuario, observacion, id_heka);
+                        tablaNovedades(dataToObj, {}, usuario, observacion, id_heka);
                     } else if(validaciones.resuelta || new Date(validaciones.fecha).getTime() <= new Date(dataToObj.fecha).getTime()) {
-                        tablaNovedades(dataToObj, usuario, observacion, id_heka, validaciones.resuelta);
+                        tablaNovedades(dataToObj, {}, usuario, observacion, id_heka, validaciones.resuelta);
                     }
                 } else {
                     if(dataToObj){
-                        tablaNovedades(dataToObj, usuario, observacion, id_heka);
+                        tablaNovedades(dataToObj, {}, usuario, observacion, id_heka);
                         if(dataToObj.novedad && dataToObj.guia != 0){
                             document.querySelectorAll(".icon-notificacion-novedad").forEach(i => {
                                 i.classList.remove("d-none");
@@ -975,7 +1003,7 @@ function consultarNovedad(numGuia, usuario = "Novedades Personalizadas", contado
     
 }
 
-function consultarNovedadFb(numGuia, usuario = "Novedades", contador, totalConsultas, solucion, id_heka, user_id) {
+function consultarNovedadFb(numGuia, usuario = "Novedades", contador, totalConsultas, solucion, id_heka, user_id, info_adicional) {
     firebase.firestore().collection("usuarios").doc(user_id).collection("novedades").doc(id_heka)
     .get().then((doc) => {
         if(doc.exists && numGuia) {
@@ -984,19 +1012,21 @@ function consultarNovedadFb(numGuia, usuario = "Novedades", contador, totalConsu
                 novedad: doc.data().novedad,
                 fecha: doc.data().fecha
             }
-            
-            console.log("Si entró")
-            if(!doc.data().solucionada && usuario == "Sin resolver"){
-                tablaNovedades(dataToObj, usuario, solucion, id_heka, doc.data().solucionada);
-                document.querySelectorAll(".icon-notificacion-novedad").forEach(i => {
-                    i.classList.remove("d-none");
-                });
-            } else if(usuario != "Sin resolver"){
-                tablaNovedades(dataToObj, usuario, solucion, id_heka, doc.data().solucionada);
+
+            if(!doc.data().solucionada && !administracion && !document.querySelector("#check-mostrar-novedades").checked){
+                tablaNovedades(dataToObj, info_adicional, usuario, solucion, id_heka, doc.data().solucionada);
+            } else if (doc.data().solucionada && !administracion && !document.querySelector("#check-mostrar-novedades").checked){
+
+            } else {
+                tablaNovedades(dataToObj, info_adicional, usuario, solucion, id_heka, doc.data().solucionada);
             }         
         }
     }).then(() => {
         if(contador == totalConsultas){
+            console.log(usuario);
+            $("#tabla-novedades-"+usuario.replace(" ", "")).DataTable({
+                autoWidth: false
+            })
             document.getElementById("cargador-novedades").classList.add("d-none");
             if($("#visor_novedades").html() == ""){
                 $("#visor_novedades").html(`<div class="row"><div class="col-2"></div>
@@ -1014,28 +1044,28 @@ function actualizarNovedadesUsuario(){
     firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
     .where("numeroGuia", "!=", null).onSnapshot(snapshot => {
         let cantidad = snapshot.size;
-        $("#visor_novedades").html("");
         snapshot.docChanges().forEach(change => {
             cantidad--;
             let info = change.doc.data()
             let numeroGuia = info.numeroGuia;
             let solucion = change.doc.data().solucion_novedad || "";
-
-            if(change.type === "added") {
-                document.getElementById("cargador-novedades").classList.remove("d-none");
-                console.log(change.doc.id + " Agregado");
-                consultarNovedadFb(numeroGuia, "Sin resolver", cantidad, 0, 
-                    solucion, change.doc.id, localStorage.user_id);
-            } else if(change.type === "modified") {
-                document.getElementById("cargador-novedades").classList.remove("d-none");
+            let extra_data = {
+                nombreD: info.nombreD,
+                celular1: info.telefonoD,
+                celular2: info.celularD,
+                direccion: info.direccionD + ", " + info.ciudadD + ", " + info.departamentoD
+            }
+            if(change.type === "modified") {
                 console.log(change.doc.id + " Modificado");
-                consultarNovedadFb(numeroGuia, datos_usuario.nombre_completo, 0, 0, 
-                    solucion, change.doc.id, localStorage.user_id);
+                // if(document.getElementById("solucionar-novedad-"+numeroGuia)){
+                //     document.getElementById("solucionar-novedad-"+numeroGuia).remove();
+                // }
+                consultarNovedadFb(numeroGuia, usuario = "Novedades", 0, 
+                0, solucion, change.doc.id, localStorage.user_id, extra_data)
             }
         })
     })
 }
-
 actualizarNovedadesUsuario();
 
 $('[href="#novedades"]').click(() => {
@@ -1044,3 +1074,4 @@ $('[href="#novedades"]').click(() => {
         i.classList.add("d-none");
     });
 })
+

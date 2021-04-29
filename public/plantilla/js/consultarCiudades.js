@@ -117,4 +117,6 @@ if(document.getElementById("ciudadR")) {
 } else if(document.getElementById("actualizar_ciudad")) {
   autocomplete(document.getElementById("actualizar_ciudad"), ciudades);
   autocomplete(document.getElementById("CPNciudad"), ciudades);
+} else if(document.getElementById("CPNciudad")) {
+  autocomplete(document.getElementById("CPNciudad"), ciudades);
 }

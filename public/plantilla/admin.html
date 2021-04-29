@@ -400,9 +400,11 @@
                             </div>
           
                             <div class="form-check">
-                              <input class="form-check-input" type="checkbox" name="CPNusuario_corporativo" id="CPNusuario_corporativo">
+                              <input class="form-check-input" type="checkbox" name="CPNusuario_corporativo" 
+                              id="CPNusuario_corporativo" autocomplete="off">
                               <label class="form-check-label" for="CPMusuario_corporativo">Usuario Corporativo</label><br>
-                              <input class="form-check-input" type="checkbox" id="CPNcheck_terminos_condiciones" onchange="checkTerminosCondiciones()"> <a href="/terminos.html">Acepto términos y condiciones</a>
+                              <input class="form-check-input" type="checkbox" id="CPNcheck_terminos_condiciones" 
+                              onchange="checkTerminosCondiciones()" autocomplete="off"> <a href="/terminos.html">Acepto términos y condiciones</a>
                               <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
                             </div>
                         </form>
@@ -824,10 +826,10 @@
                     <label for="check-mostrar-novedades">Mostrar Solo La última Novedad</label>
                     
                     <div class="btn-group col-12">
-                      <input type="button" id="btn-vaciar-consulta" 
-                      value="Limpiar Consulta" class="btn btn-secondary mt-4">
-                      <input type="submit" id="btn-revisar-novedades" 
-                      value="Revisar Novedades" class="btn btn-primary mt-4">
+                      <button type="button" id="btn-vaciar-consulta" 
+                      class="btn btn-secondary mt-4">Limpiar Consulta</button>
+                      <button type="button" id="btn-revisar-novedades"
+                       class="btn btn-primary mt-4">Revisar Novedades</button>
                     </div>
                   </div>
                 </form>
@@ -853,7 +855,7 @@
                     <h2>Filtrado</h2>
                     <span>Si decide Buscar por Guía, se anularan los filtros restantes</span>
                     <div class="col-md-6 mt-2">
-                      <a href="javascript:filtroFecha()"><input type="checkbox" name="activador_filtro_fecha" id="activador_filtro_fecha"></a>
+                      <input type="checkbox" name="activador_filtro_fecha" id="activador_filtro_fecha">
                       <label for="activador_filtro_fecha">Activar Filtrado por fecha</label>
                     </div>
                       
@@ -870,17 +872,6 @@
                           </div>
                         </div>
                       </div>
-                      
-                      <script>
-                        filtroFecha();
-                        function filtroFecha() {
-                          if(document.getElementById("activador_filtro_fecha").checked){
-                            document.getElementById("fecha-pagos").style.display = "block";
-                          } else {
-                            document.getElementById("fecha-pagos").style.display = "none";
-                          }
-                        }
-                      </script>
 
                       <div class="col-6 col-md-3 mt-2">
                         <h6>Por Usuario</h6>

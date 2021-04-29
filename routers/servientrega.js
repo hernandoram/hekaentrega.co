@@ -96,18 +96,26 @@ cron.schedule("30 */6 * * *", () => {
   actualizarNovedades(d);
 })
 
+cron.schedule("00 00 00 * * 0", () => {
+  let d = new Date();
+  console.log("Se Actualizaron las Novedades: ", d);
+  limpiarNovedades(d);
+})
+
 
 // actualizarEstadosGuias(new Date());
 function actualizarEstadosGuias(d) {
   firebase.firestore().collectionGroup("guias").orderBy("estado").where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"]).get()
   .then(querySnapshot => {
+    let referencia = firebase.firestore().collection("reporte").doc();
     console.log(querySnapshot.size);
     let consulta = {
       guias: [],
-      usuarios: []
+      usuarios: [],
+      fecha: d,
+      total: querySnapshot.size
     }
     querySnapshot.forEach(doc => {
-      consulta.guias.push(doc.id + "/" + doc.data().numeroGuia);
       if(consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
         consulta.usuarios.push(doc.data().centro_de_costo);
       }
@@ -135,6 +143,13 @@ function actualizarEstadosGuias(d) {
                 numeroGuia: actualizar.NumGui[0],
                 estado: actualizar.EstAct[0],
                 ultima_actualizacion: d
+              }).then(() => {
+                consulta.guias.push(doc.id + "/" + doc.data().numeroGuia);
+                consulta.mensaje = "Se han actualizado exitósamente " + consulta.guias.length
+                + " Guías de " + consulta.total + " encontradas cuyos estados no son: \"Entregado o entregado remitente\"."
+                + " De " + consulta.usuarios.length + " usuarios."
+                
+                referencia.set(consulta);
               })
             }
           }
@@ -142,13 +157,6 @@ function actualizarEstadosGuias(d) {
       })
     })
     return consulta
-  }).then((consulta) => {
-    firebase.firestore().collection("Actualizaciones de estados").add({
-      fecha: d,
-      mensaje: "Se intentaron actualizar los Estados de las guías de "+consulta.usuarios.length+" usuarios.",
-      guias: consulta.guias,
-      usuarios: consulta.usuarios
-    })
   }) 
 }
 
@@ -159,66 +167,126 @@ function actualizarNovedades(d) {
   // .where("centro_de_costo", "==", "SellerWitotoAccesoriosYArtesanías ")
   .get()
   .then(querySnapshot => {
-      console.log(querySnapshot.size);
-      let consulta = {
-        guias: [],
-        usuarios: []
-      }
-      querySnapshot.forEach(doc => {
-        if(doc.data().numeroGuia) {
-          consulta.guias.push(doc.id + "/" + doc.data().numeroGuia);
-          if(consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
-            consulta.usuarios.push(doc.data().centro_de_costo);
-          }
-          request.post({
-            "headers": {"Content-Type": "text/xml"},
-            "url": url + "/EstadoGuia",
-            form: {
-              Id_Cliente: id_cliente,
-              guia: doc.data().numeroGuia
-            }
-          }, (err, response, body) => {
-            if(err) {
-              return console.dir(err)
-            }
-            // console.log(body)
-            parseString(body, (error, result) => {
-              // let path = doc.ref.path.split("/");
-              // console.log(result);
-              let respuestaOk = result["DataSet"]["diffgr:diffgram"][0].NewDataSet;
-              if(respuestaOk) {
-                let estadoGuia = result["DataSet"]["diffgr:diffgram"][0].NewDataSet[0].EstadosGuias[0];
-                console.log(estadoGuia);
-                let fechaAnt = doc.data().novedad ? doc.data().novedad.fecha : 0
-                console.log(fechaAnt)
-                if(estadoGuia.Fecha_Entrega && estadoGuia.Guia && estadoGuia.Novedad) {
-                  if(estadoGuia.Guia[0] != "0" && new Date(fechaAnt).getTime() < new Date(estadoGuia.Fecha_Entrega[0]).getTime()) {
-                    console.log("Se va a actualizar correctamente en las novedades de: " + doc.ref.parent.parent.path)
-                    doc.ref.parent.parent.collection("novedades").doc(doc.id).set({
-                      novedad: estadoGuia.Novedad[0],
-                      fecha: estadoGuia.Fecha_Entrega[0],
-                      guia: estadoGuia.Guia[0],
-                      id_heka: doc.id,
-                      centro_de_costo: doc.data().centro_de_costo,
-                      ultima_actualizacion: d
-                    })
-                  }
-                }
-              } else {
-                console.log("El servidor tardó en responder");
-              }
+    let referencia = firebase.firestore().collection("reporte").doc();
+    console.log(querySnapshot.size);
+    let consulta = {
+      novedades: [],
+      novedades_eliminadas: [],
+      usuarios: [],
+      error: [],
+      total_consulta: querySnapshot.size,
+      fecha: d
+    }
 
-            })
+    querySnapshot.forEach(doc => {
+      if(doc.data().numeroGuia) {
+        if(consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
+          consulta.usuarios.push(doc.data().centro_de_costo);
+        }
+        request.post({
+          "headers": {"Content-Type": "text/xml"},
+          "url": url + "/EstadoGuia",
+          form: {
+            Id_Cliente: id_cliente,
+            guia: doc.data().numeroGuia
+          }
+        }, (err, response, body) => {
+          if(err) {
+            return console.dir(err)
+          }
+          // console.log(body)
+          parseString(body, (error, result) => {
+            // let path = doc.ref.path.split("/");
+            // console.log(result);
+            let respuestaOk = result["DataSet"]["diffgr:diffgram"][0].NewDataSet;
+            if(respuestaOk) {
+              let estadoGuia = result["DataSet"]["diffgr:diffgram"][0].NewDataSet[0].EstadosGuias[0];
+              console.log(estadoGuia);
+              let fechaAnt = doc.data().novedad ? doc.data().novedad.fecha : 0
+              console.log(fechaAnt)
+              if(estadoGuia.Fecha_Entrega && estadoGuia.Guia && estadoGuia.Novedad) {
+                if(estadoGuia.Guia[0] != "0" && new Date(fechaAnt).getTime() < new Date(estadoGuia.Fecha_Entrega[0]).getTime()) {
+                  console.log("Se va a actualizar correctamente en las novedades de: " + doc.ref.parent.parent.path)
+                  
+                  doc.ref.parent.parent.collection("novedades").doc(doc.id).set({
+                    novedad: estadoGuia.Novedad[0],
+                    fecha: estadoGuia.Fecha_Entrega[0],
+                    guia: estadoGuia.Guia[0],
+                    id_heka: doc.id,
+                    centro_de_costo: doc.data().centro_de_costo,
+                    ultima_actualizacion: d
+                  }).then(() => {
+                    consulta.novedades.push(estadoGuia.Guia[0] + "/" + doc.id);
+                    consulta.mensaje = mensaje(consulta.novedades.length, consulta.novedades_eliminadas.length, 
+                      consulta.error.length, consulta.total_consulta, consulta.usuarios.length);
+                      
+                      referencia.set(consulta);
+                  })
+                }
+              } else if (estadoGuia.Fecha_Entrega && estadoGuia.Guia && !estadoGuia.Novedad) {
+                console.log("Se van a eliminar correctamente en las novedades de: " + doc.ref.parent.parent.path)
+                doc.ref.parent.parent.collection("novedades").doc(doc.id).delete().then(() => {
+                  consulta.novedades_eliminadas.push(estadoGuia.Guia[0] + "/" + doc.id);
+                  consulta.mensaje = mensaje(consulta.novedades.length, consulta.novedades_eliminadas.length, 
+                    consulta.error.length, consulta.total_consulta, consulta.usuarios.length);
+                    
+                  referencia.set(consulta);
+                });
+              }
+            }  else {
+              consulta.error.push(doc.data().numeroGuia + "/" + doc.id);
+              consulta.mensaje = mensaje(consulta.novedades.length, consulta.novedades_eliminadas.length, 
+                consulta.error.length, consulta.total_consulta, consulta.usuarios.length);
+
+              referencia.set(consulta);
+              
+              console.log("El servidor tardó en responder");
+            }
+
+            consulta.mensaje = mensaje(consulta.novedades.length, consulta.novedades_eliminadas.length, 
+              consulta.error.length, consulta.total_consulta, consulta.usuarios.length);
+
+          })
+        })
+
+
+      }
+    })
+  })
+  function mensaje(novedades, novedades_eliminadas, error, total, usuarios) {
+    return `Se han actualizado ${novedades} novedades,
+    eliminado ${novedades_eliminadas} y ${error} han sido fallidas,
+    de un total de ${total} registradas cuyo estado es: "En procesamiento" en ${usuarios} usuarios.
+    `
+  }
+}
+
+function limpiarNovedades(d) {
+  firebase.firestore().collectionGroup("novedades").get()
+  .then(novedadSnapshot => {
+    let referencia = firebase.firestore().collection("reporte").doc();
+    console.log(novedadSnapshot.size);
+    let consulta = {
+      novedades_eliminadas: [],
+      total_consulta: novedadSnapshot.size,
+      fecha: d
+    }
+    
+    novedadSnapshot.forEach(novedad => {
+      novedad.ref.parent.parent.collection("guias").doc(novedad.id).get()
+      .then(doc => {
+        let estado = doc.data().estado;
+        if(estado == "ENTREGADO" || estado == "ENTREGADO A REMITENTE") {
+          firebase.firestore().doc(novedad.ref.path).delete()
+          .then(() => {
+            consulta.novedades_eliminadas.push(novedad.id + "/" + novedad.data().guia);
+            consulta.mensaje = "Se han eliminado " +consulta.novedades_eliminadas.length
+            + " novedades de " +consulta.total_consulta+ " analizadas.";
+
+            referencia.set(consulta);
           })
         }
       })
-      return consulta
-  }).then((consulta) => {
-    firebase.firestore().collection("Actualizaciones de estados").add({
-      fecha: d,
-      mensaje: "Se intentaron actualizar Las Novedades de "+consulta.usuarios.length+" usuarios.",
-      usuarios: consulta.usuarios,
-      guias: consulta.guias
     })
   })
 }

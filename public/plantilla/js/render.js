@@ -466,18 +466,20 @@ function tablaPagos(arrData, id) {
 // }], "visor_pagos");
 
 
-function mostrarNotificacion(data, type){
+function mostrarNotificacion(data, type, id){
     let notificacion = document.createElement("a"),
         div_icon = document.createElement("div"),
         circle = document.createElement("div"),
         icon = document.createElement("i"),
         div_info = document.createElement("div"),
         info = document.createElement("div"),
-        mensaje = document.createElement("span");
+        mensaje = document.createElement("span"),
+        button_close = document.createElement("button");
 
 
     notificacion.setAttribute("class", "dropdown-item d-flex align-items-center");
-    
+    notificacion.setAttribute("id", "notificacion-"+id)
+
     div_icon.classList.add("mr-3");
     circle.setAttribute("class", "icon-circle bg-primary");
     icon.setAttribute("class", "fas fa-file-alt text-white");
@@ -489,12 +491,24 @@ function mostrarNotificacion(data, type){
     mensaje.textContent = data.mensaje;
     div_info.append(info, mensaje);
     
+    button_close.setAttribute("type", "button");
+    button_close.setAttribute("arial-label", "close");
+    button_close.setAttribute("class", "close d-flex align-self-start");
+    button_close.innerHTML = '<span aria-hidden="true" class="small">&times;</span>';
+    button_close.addEventListener("click", () => {
+        firebase.firestore().collection("notificaciones").doc(id).delete().then(() => {
+            console.log("Se ha eliminado una notificación con id: " + id)
+        });
+    })
+    
+
+
     if(type == "novedad"){
         // notificacion.setAttribute("href", "#");
         notificacion.addEventListener("click",() => {
             revisarMovimientosGuias(true, data.mensaje, data.id_heka, data.guia)
             mostrar("novedades");
-        })
+        });
         info.textContent = data.fecha + " a las " + data.hora;
     } else {
         info.textContent = data.fecha;
@@ -502,7 +516,7 @@ function mostrarNotificacion(data, type){
         notificacion.setAttribute("onclick", "cargarDocumentos()")
     }
 
-    notificacion.append(div_icon, div_info);
+    notificacion.append(div_icon, div_info, button_close);
     return notificacion;
 }
 
@@ -638,7 +652,7 @@ function tablaMovimientosGuias(data, usuario){
     })
 }
 
-function tablaNovedades(data, usuario, solucion, id_heka, resuelta){
+function tablaNovedades(data, extraData, usuario, solucion, id_heka, resuelta){
     let card = document.createElement("div"),
         encabezado = document.createElement("a"),
         cuerpo = document.createElement("div"),
@@ -659,6 +673,7 @@ function tablaNovedades(data, usuario, solucion, id_heka, resuelta){
     cuerpo.setAttribute("class", "card-body collapse table-responsive");
 
     table.classList.add("table");
+    table.setAttribute("id", "tabla-novedades-"+usuario.replace(" ", ""));
     thead.classList.add("text-light", "bg-gradient-primary");
     thead.innerHTML = `<tr>
         <th>Guía</th>
@@ -694,9 +709,18 @@ function tablaNovedades(data, usuario, solucion, id_heka, resuelta){
             `
         }
     } else {
-        thead.firstChild.innerHTML += `<td>Solucionar</td>`;
+        thead.firstChild.innerHTML += `
+        <td>Nombre</td>
+        <td>Celulares</td>
+        <td>Dirección</td>
+        <td>Solucionar</td>`;
         if(data.guia != 0){
             tr.innerHTML += `
+                <td>${extraData.nombreD}</td>
+                
+                <td><p>${extraData.celular1}</p>
+                <p>${extraData.celular2}</p></td>
+                <td>${extraData.direccion}</td>
                 <td>
                     <p>¿Tienes Alguna sugerencia para esta novedad?</p>
                     <textarea type="text" class="form-control" name="solucion-novedad" id="solucion-novedad-${data.guia}">${solucion}</textarea>
@@ -714,7 +738,10 @@ function tablaNovedades(data, usuario, solucion, id_heka, resuelta){
     } else {
         tbody.appendChild(tr);
         table.append(thead, tbody);
-        cuerpo.appendChild(table);
+        let mensaje = document.createElement("p");
+        mensaje.classList.add("text-center", "text-danger");
+        mensaje.innerHTML = "Tiempo óptimo de solución: 24 horas";
+        cuerpo.append(mensaje, table);
         card.append(encabezado, cuerpo);
     
         document.getElementById("visor_novedades").appendChild(card);
@@ -728,10 +755,13 @@ function tablaNovedades(data, usuario, solucion, id_heka, resuelta){
     
     $("#solucionar-novedad-"+data.guia).click(() => {
         if(administracion){
-            firebase.firestore().collection("notificaciones").doc(id_heka).delete();
+            console.log(data.guia);
             firebase.firestore().collectionGroup("guias").where("numeroGuia", "==", data.guia)
             .get().then(querySnapshot => {
                 querySnapshot.forEach(doc => {
+                    console.log(doc.ref.path, doc.data().numeroGuia);
+                    console.log(doc.ref.path.toString().replace("guias", "novedades"));
+                    
                     firebase.firestore().doc(doc.ref.path).update({
                         "novedad.resuelta": true,
                         "novedad.fecha": data.fecha
@@ -742,33 +772,44 @@ function tablaNovedades(data, usuario, solucion, id_heka, resuelta){
                     })
                 })
             }).then(() => {
+                firebase.firestore().collection("notificaciones").doc(id_heka).delete();
                 avisar("¡Entendido!", "Se la actualizado el estado de la novedad como resuelto");
             })
         } else {
             console.log($("#solucion-novedad-"+data.guia).val())
-            firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
-            .doc(id_heka).update({
-                solucion_novedad: $("#solucion-novedad-"+data.guia).val(),
-                "novedad.fecha": data.fecha
-            }).then(() => {
-                let momento = new Date().getTime();
-                let hora = new Date().getMinutes() < 10 ? new Date().getHours() + ":0" + new Date().getMinutes() : new Date().getHours() + ":" + new Date().getMinutes();
-
-                firebase.firestore().collection("notificaciones").doc(id_heka).set({
-                    fecha: genFecha(),
-                    timeline: momento,
-                    mensaje: datos_usuario.nombre_completo + " Sugirió una solución para la guía " 
-                    + data.guia + ": " + $("#solucion-novedad-"+data.guia).val(),
-                    hora: hora,
-                    guia: data.guia,
-                    id_heka: id_heka,
-                    type: "novedad",
-                    user_id: user_id
+            console.log(data.guia);
+            if($("#solucion-novedad-"+data.guia).val()) {
+                firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
+                .doc(id_heka).update({
+                    solucion_novedad: $("#solucion-novedad-"+data.guia).val(),
+                    "novedad.fecha": data.fecha
+                }).then(() => {
+                    let momento = new Date().getTime();
+                    let hora = new Date().getMinutes() < 10 ? new Date().getHours() + ":0" + new Date().getMinutes() : new Date().getHours() + ":" + new Date().getMinutes();
+    
+                    firebase.firestore().collection("notificaciones").doc(id_heka).set({
+                        fecha: genFecha(),
+                        timeline: momento,
+                        mensaje: datos_usuario.nombre_completo + "(" + datos_usuario.centro_de_costo 
+                        + ") Sugirió una solución para la guía " 
+                        + data.guia + ": " + $("#solucion-novedad-"+data.guia).val(),
+                        hora: hora,
+                        guia: data.guia,
+                        id_heka: id_heka,
+                        type: "novedad",
+                        user_id: user_id,
+                        usuario: datos_usuario.centro_de_costo
+                    })
+                }).then(() => {
+                    avisar("Solicitud Recibida", "Hemos Recibido tu solicitud, pronto estaremos atendiendo su novedad")
                 })
-            }).then(() => {
-                avisar("Solicitud Recibida", "Hemos Recibido tu solicitud, pronto estaremos atendiendo su novedad")
-            })
+            } else {
+                avisar("¡Error!", "No se puede enviar una solución vacía en la guía: " + data.guia);
+            }
         }
     })
 }
 
+$("#activador_filtro_fecha").change((e) => {
+    e.target.checked ? $("#fecha-pagos").show("fast") : $("#fecha-pagos").hide("fast")
+})

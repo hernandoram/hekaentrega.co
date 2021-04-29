@@ -28,7 +28,7 @@
     
 
     <div class="card o-hidden border-0 shadow-lg my-5">
-      <div class="card-body p-0">
+      <div class="card-body p-0" id="content">
         
         <!-- Nested Row within Card Body -->
         <div class="row">
@@ -43,9 +43,9 @@
                 Regresar
               </a>
 
-              <div class="row user">
+              <div class="row">
                 <div class="col-lg-12">
-                  <div class="p-5">
+                  <div class="p-4">
                     <div class="text-center" >
                         <img style="max-width:100%;width:200px;height:200px;" src="img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg"  alt="1">
                         <h1 class="h4 text-gray-900 mb-4"> Creando cuenta...</h1>
@@ -53,18 +53,18 @@
                     </div>
                     <form class="user">
                       <div class="form-group row">
-                        <div class="col-sm-6 mb-3 mb-sm-0">
+                        <div class="col-md-6 mb-3 mb-sm-2">
                           <h6>Nombres*</h6>
                           <input type="text" class="form-control form-control-user" id="CPNnombres" autocomplete="off" required>
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-md-6 mb-3">
                           <h6>Apellidos*</h6>
                           <input type="text" class="form-control form-control-user" id="CPNapellidos" autocomplete="off" required>
                         </div> 
                       </div>
       
-                      <div class="form-group row">
-                        <div class="col-md-2 mb-3 mb-sm-0">
+                      <div class="form-group row align-content-center">
+                        <div class="col-sm-4 col-md-2 mb-3 mb-sm-4">
                           <h6>Tipo documento*</6>
                           <h6></h6>
                           
@@ -74,58 +74,52 @@
                             <option value="NIT(RUT)">NIT (RUT)</option>
                           </select>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-sm-8 col-md-5">
                           <h6>Número identificación*</h6>
-                          <input type="text" class="form-control form-control-user" id="CPNnumero_documento" autocomplete="off" required>
-                          <p class="text-danger d-none" id="usuario-existente">¡El usuario ingresado ya existe!</p>
+                          <input type="number" class="form-control form-control-user" id="CPNnumero_documento" autocomplete="off" required>
                         </div>
                         <div class="col-md mb-3 mb-sm-0">
-                          <h6>Centro de Costo*</h6>
-                          <input type="text" class="form-control form-control-user" id="CPNcentro_costo"  autocomplete="off" required>
-                          <p class="text-danger d-none" id="centro_costo-existente">¡El Centro de Costo ingresado ya existe!</p>
+                          <h6>Nombre de la empresa*</h6>
+                          <input type="text" class="form-control form-control-user" id="CPNnombre_empresa" autocomplete="off" required>
+                          <p class="text-danger d-none" id="centro_costo-existente">¡EL nombre de empresa ingresado ya existe! por favor, intente con otro nombre.</p>
                         </div>
                         
                       </div>
       
                       <div class="form-group row">
-                        <div class="col-sm-6 mb-3 mb-sm-0">
+                        <div class="col-md-6 mb-3 mb-sm-0">
                           <h6>Celular*</h6>
                           <input type="number" class="form-control form-control-user" id="CPNtelefono" autocomplete="off" required>
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-md-6">
                           <h6>Celular #2</h6>
                           <input type="number" class="form-control form-control-user" id="CPNcelular" autocomplete="off">
                         </div>
                       </div>
       
-                      <div class="form-group row">
-                        <div class="col-sm-6 mb-3 mb-sm-0">
+                      <div class="form-group row align-items-end mb-4">
+                        <div class="col-md-6">
                           <h6>Ciudad*</h6>
                           <h6>**Elegir del menú desplegable**</h6>
                           <input name=""  class="form-control form-control-user" id="CPNciudad" autocomplete="off" size="1"></input>
                         </div>
-                        <div class="col-sm-6">
-                          <h6>Dirección de recogida*</h6>
-                        </br>
-                          <input type="text" class="form-control form-control-user" id="CPNdireccion" autocomplete="off" required>
-                        </div>
-                        
-                      </div>
-      
-                      <div class="form-group row">
-                        <div class="col-sm-6 mb-3 mb-sm-0">
+                        <div class="col-md-6">
                           <h6>Barrio*</h6>
                           <input type="text" class="form-control form-control-user" id="CPNbarrio" autocomplete="off" required>
                         </div>
-                        <div class="col-sm-6">
-                          <h6>Nombre de la empresa*</h6>
-                          <input type="text" class="form-control form-control-user" id="CPNnombre_empresa" autocomplete="off" required>
+                        
+                      </div>
+                      
+                      <div class="form-group row">
+                        <div class="col-12 mb-3 mb-sm-0">
+                          <h6>Dirección de recogida*</h6>
+                          <input type="text" class="form-control form-control-user" id="CPNdireccion" autocomplete="off" required>
                         </div>
                       </div>
       
                       <div class="form-group row">
                           
-                          <div class="col-sm-6">
+                          <div class="col-md-6 mb-2">
                             <h6>Correo electrónico*</h6>
                             <input type="email"  class="form-control form-control-user" id="CPNcorreo"
                                 aria-describedby="emailHelp" autocomplete="off" required>
@@ -136,12 +130,14 @@
                           </div>
                       </div>
       
-                      <div class="form-group row">
-                        <div class="col-sm-6 mb-3 mb-sm-0">
+                      <div class="form-group row mt-2">
+                        <p class="col-12">Los datos ingresados en el campo de contraseña será la infomación con la que ingresará a nuestra plataforma, asegurese que sea un campo único y que pueda recordar.</p>
+                        <div class="col-md-6 mb-3 mb-sm-2">
                           <h6>Contraseña*</h6>
                           <input type="password" class="form-control form-control-user" id="CPNcontraseña" autocomplete="off"  required>
+                          <p class="text-danger d-none" id="usuario-existente">¡No pudimos procesar su solicitud! porfavor ingrese un código diferente</p>
                         </div>
-                        <div class="col-sm-6">
+                        <div class="col-md-6">
                           <h6>Repetir contraseña*</h6>
                           <input type="password" class="form-control form-control-user" id="CPNrepetir_contraseña" autocomplete="off" required>
                         </div>
@@ -545,6 +541,8 @@
 <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-storage.js"></script>
 
   <!--main.js-->
   <script src="js/main.js"></script>
@@ -559,6 +557,10 @@
   <!-- Custom scripts for all pages-->
   <script src="js/sb-admin-2.min.js"></script>
   
+<script>let administracion = false;</script>
+<script src="js/render.js"></script>
+<script type="module" src="js/consultarCiudades.js"></script>
+<script src="js/usuarios.js"></script>
 
 </body>
 

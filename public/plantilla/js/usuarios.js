@@ -1,313 +1,30 @@
-//Script utilizado Solo en admin.html
-document.getElementById("CPNusuario_corporativo").checked = true;
-
-function nuevaCuentaViejo(){
-    //datos de registro 
-     var CPNnombres=value('CPNnombres');
-     var CPNapellidos=value('CPNapellidos');
-     var CPNtipo_documento=value('CPNtipo_documento');
-     var CPNnumero_documento=value('CPNnumero_documento');
-     var CPNtelefono=value('CPNtelefono');
-     var CPNcelular=value('CPNcelular');
-     var CPNciudad=value('CPNciudad');
-     var CPNdireccion=value('CPNdireccion');
-     var CPNbarrio=value('CPNbarrio');
-     var CPNnombre_empresa=value('CPNnombre_empresa');
-     var CPNcorreo=value('CPNcorreo');
-     var CPNcontraseña=value('CPNcontraseña');
-     var CPNrepetir_contraseña=value('CPNrepetir_contraseña');
-     var CPNcentro_costo = value("CPNcentro_costo");
-     var CPNobjetos_envio = value("CPNobjetos_envio").split(",");
-
-   
-     ///div datos bancarios
-     var mostrar_ocultar_registro_bancario= document.getElementById('mostrar-ocultar-registro-bancario').style.display;
-     //datos bancarios
-     var CPNbanco=value('CPNbanco');
-     var CPNnombre_representante=value('CPNnombre_representante');
-     var CPNtipo_de_cuenta=value('CPNtipo_de_cuenta');
-     var CPNnumero_cuenta=value('CPNnumero_cuenta');
-     var CPNconfirmar_numero_cuenta=value('CPNconfirmar_numero_cuenta');
-     var CPNtipo_documento_banco=value('CPNtipo_documento_banco');
-     var CPNnumero_identificacion_banco=value('CPNnumero_identificacion_banco');
-     var CPNconfirmar_numero_identificacion_banco=value('CPNconfirmar_numero_identificacion_banco');
-   
-     //retornar si check está activado o desactivado
-     var CPNcheck=document.getElementById('CPNdiv_terminos_condiciones').style.display;
-     
-   
-   
-   
-     
-     
-     
-     if(CPNnombres=="" | CPNapellidos==""  | CPNnumero_documento=="" | CPNtelefono=="" | CPNcelular=="" | CPNciudad=="" | CPNdireccion=="" | CPNbarrio=="" |
-     CPNnombre_empresa=="" | CPNcorreo=="" | CPNcontraseña=="" | CPNrepetir_contraseña==""){
-       //si todos los datos estan vacios 
-       inHTML('error_crear_cuenta','<h6 class="text-danger">Error: Ningún campo debe estar vacío</h6>');
-     }else{
-       //si todos los datos estan llenados
-   
-       //si la contraseña coincide
-       if(CPNcontraseña==CPNrepetir_contraseña){
-           // si el check de datos bancarios esta activado
-           if(mostrar_ocultar_registro_bancario=="block"){
-                
-                //si todos los datos bancarios estan en blanco
-                if(CPNbanco=="" | CPNnombre_representante=="" | CPNtipo_de_cuenta=="" | CPNnumero_cuenta=="" | CPNconfirmar_numero_cuenta=="" |
-                CPNtipo_documento_banco=="" | CPNnumero_identificacion_banco=="" | CPNconfirmar_numero_identificacion_banco==""){
-
-                 inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Ningún dato bancario puede estar vacio</h6>`);
-                
-                 //si los datos bancarios estan llenos   
-                }else{
-                    //si numero de cuenta coincide
-                    if(CPNnumero_cuenta==CPNconfirmar_numero_cuenta){
-                        //si numero de identificacion coindice
-                        if(CPNnumero_identificacion_banco==CPNconfirmar_numero_identificacion_banco){
-                        
-                            //si check de terminos y condiciones está activo
-                            if(CPNcheck=="block"){
-                            
-                                //COMPROBACIONES CORRECTAS CON DATOS BANCARIOS
-                                inHTML('error_crear_cuenta',`<h6 class="text-danger">${"CON DATOS BANCARIOS: "+CPNbanco+"|"+CPNnombre_representante+"|"+CPNtipo_de_cuenta+"|"+CPNnumero_cuenta+"|"+CPNconfirmar_numero_cuenta+"|"+
-                                CPNtipo_documento_banco+"|"+CPNnumero_identificacion_banco+"|"+CPNconfirmar_numero_identificacion_banco}</h6>`);
-
-                                
-                                //Registrar usuario firebase con cuenta bancaria////////////////////////////////////////////////////////////////////
-                                firebase.auth().createUserWithEmailAndPassword(CPNcorreo, CPNcontraseña)
-                                .then(function(data){
-                                    firebase.auth().onAuthStateChanged(function(user) {
-                                        if(user){
-                                            firebase.firestore().collection("usuarios").doc(user.uid)
-                                            .collection("informacion").doc("personal").set({
-                                                nombres: CPNnombres,
-                                                apellidos: CPNapellidos,
-                                                tipo_documento: CPNtipo_documento,
-                                                numero_documento: CPNnumero_documento,
-                                                
-                                                celular: CPNtelefono,
-                                                
-                                                celular2:CPNcelular,
-                                                ciudad: CPNciudad,
-                                                direccion: CPNdireccion,
-                                                barrio: CPNbarrio,
-                                                
-                                                nombre: CPNnombre_empresa,
-                                                correo: CPNcorreo,
-                                                con: CPNcontraseña,
-                                                centro_de_costo: CPNcentro_costo,
-                                                objetos_envio: CPNobjetos_envio
-                                            }).then(() => {
-                                                firebase.firestore().collection("usuarios").doc(user.uid).set({
-                                                    ingreso: CPNnumero_documento,
-                                                    nombres: CPNnombres,
-                                                    apellidos: CPNapellidos,
-                                                    contacto: CPNtelefono,
-                                                    direccion: `${CPNdireccion}, ${CPNbarrio}, ${CPNciudad}`,
-                                                    objetos_envio: CPNobjetos_envio,
-                                                    centro_de_costo: CPNcentro_costo
-                                                }).catch((err) => {
-                                                    inHTML('error_crear_cuenta',`<h6 class="text-danger">${err} \n
-                                                        No se pudo crear el identificador de ingreso</h6>`);
-                                                })
-                                            }).then(() => {
-                                                firebase.firestore().collection('usuarios').doc(user.uid)
-                                                .collection("informacion").doc("bancaria").set({
-                                               
-                                                    //////datos bancarios
-                                                    banco: CPNbanco,
-                                                    nombre_banco: CPNnombre_representante,
-                                                    tipo_de_cuenta: CPNtipo_de_cuenta,
-                                                    numero_cuenta: CPNnumero_cuenta,
-                                                    tipo_documento_banco: CPNtipo_documento_banco,
-                                                    numero_iden_banco: CPNnumero_identificacion_banco
-
-                                                }).catch(function(error){
-                                                    inHTML('error_crear_cuenta',`<h6 class="text-danger">Problemas al agregar Datos bancarios</h6>`);
-                                                });
-                                            }).then(function(){
-                                                avisar("¡Cuenta creada con éxito!", 
-                                                "User_id = "+ user.uid + "\n Puede ingresar con: " + CPNnumero_documento);
-                                            })
-                                            .catch(function(error){
-                                                inHTML('error_crear_cuenta',`<h6 class="text-danger">${error}</h6>`);
-                                            });
-                                        }else{}
-                                    })
-
-                                })
-                                .catch(function (error) {
-                                    // Handle Errors here.
-                                    var errorCode = error.code;
-                                    var errorMessage = error.message;
-                                    
-                                    if(errorCode=="auth/invalid-email"){
-                                    errorCode="Correo invalido";
-                                    }
-                                    if(errorMessage=="The email address is badly formatted."){
-                                    errorMessage="El correo es incorrecto";
-                                    }
-                                    if(errorCode=="auth/weak-password"){
-                                    errorCode="Contraseña débil";
-                                    }
-                                    if(errorMessage=="Password should be at least 6 characters"){
-                                    errorMessage="La contraseña debe ser mínimo de 6 caracteres";
-
-                                    }
-                                    if(errorCode=="auth/email-already-in-use"){
-                                    errorCode="Correo en uso";
-                                    }
-                                    if(errorMessage=="The email address is already in use by another account."){
-                                    errorMessage="EL correo ya está registrado";
-                                    }
-                                    inHTML('error_crear_cuenta',`<h6 class="text-danger">${"error: "+errorCode+" | "+errorMessage}</h6>`);
-
-                                    // ...
-                                });
-                        
-                                //si check de terminos y condiciones está desactivado
-                            }else{
-                             inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Debes aceptar los términos y condiciones para seguir</h6>`);
-                            }
-                        
-                    
-                    //si numero de identificacion no coincide
-                        }else{
-                            inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Los números de identificación no coinciden</h6>`);
-                        }
-                    //si numero de cuenta no coincide
-                    }else{
-                        inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Los números de cuenta no coinciden</h6>`);
-                    }
-                }
-                
-                //si el check de datos bancarios está desactivado
-            }else{
-                
-                //si check de terminos y condiciones está activado
-                if(CPNcheck=="block"){
-
-                    //COMPROBACIONES CORRECTAS SIN DATOS BANCARIOS
-                    inHTML('error_crear_cuenta',`<h6 class="text-danger">${"SIN DATOS BANCARIOS: "+CPNnombres+"|"+CPNapellidos+"|"
-                    +CPNtipo_documento+"|"+CPNnumero_documento+"|"+CPNtelefono+"|"+CPNcelular+"|"+CPNciudad+"|"+CPNdireccion+"|"+CPNbarrio+"|"
-                    +CPNnombre_empresa+"|"+CPNcorreo+"|"+CPNcontraseña+"|"+CPNrepetir_contraseña}</h6>`);
-
-                    //Registrar usuario firebase sin cuenta bancaria////////////////////////////////////////////////////////////////////
-                    firebase.auth().createUserWithEmailAndPassword(CPNcorreo, CPNcontraseña)
-                    .then(function(data){
-
-                        firebase.auth().onAuthStateChanged(function(user) {
-
-                            if(user){
-
-                                firebase.firestore().collection("usuarios").doc(user.uid)
-                                .collection("informacion").doc("personal").set({
-                                    nombres: CPNnombres,
-                                    apellidos: CPNapellidos,
-                                    tipo_documento: CPNtipo_documento,
-                                    numero_documento: CPNnumero_documento,
-                                    
-                                    celular: CPNtelefono,
-                                    
-                                    celular2:CPNcelular,
-                                    ciudad: CPNciudad,
-                                    direccion: CPNdireccion,
-                                    barrio: CPNbarrio,
-                                    
-                                    nombre: CPNnombre_empresa,
-                                    correo: CPNcorreo,
-                                    con: CPNcontraseña,
-                                    centro_de_costo: CPNcentro_costo,
-                                    objetos_envio: CPNobjetos_envio
-                                }).then(() => {
-                                    firebase.firestore().collection("usuarios").doc(user.uid).set({
-                                        ingreso: CPNnumero_documento,
-                                        nombres: CPNnombres,
-                                        apellidos: CPNapellidos,
-                                        contacto: CPNtelefono,
-                                        direccion: `${CPNdireccion}, ${CPNbarrio}, ${CPNciudad}`,
-                                        centro_de_costo: CPNcentro_costo,
-                                        objetos_envio: CPNobjetos_envio
-                                    }).catch((err) => {
-                                        inHTML('error_crear_cuenta',`<h6 class="text-danger">${err} \n
-                                            No se pudo crear el identificador de ingreso</h6>`);
-                                    })
-                                }).then(() => {
-                                    firebase.firestore().collection('usuarios').doc(user.uid)
-                                    .collection("informacion").doc("bancaria").set({
-                                
-                                        //////datos bancarios
-                                        banco: "",
-                                        nombre_banco: "",
-                                        tipo_de_cuenta: "",
-                                        numero_cuenta: "",
-                                        tipo_documento_banco: "",
-                                        numero_iden_banco: "",
-
-                                    }).catch(function(error){
-                                        inHTML('error_crear_cuenta',`<h6 class="text-danger">Problemas al agregar Datos bancarios</h6>`);
-                                    });
-                                }).then(function(data){
-                                    avisar("¡Cuenta creada con éxito!", 
-                                    "User_id = "+ user.uid + "\n Puede ingresar con: " + CPNnumero_documento);
-                                })
-                                .catch(function(error){
-                                    inHTML('error_crear_cuenta',`<h6 class="text-danger">${error}</h6>`);
-                                });
-                            }else{}
-                        })
-
-                    })
-                    .catch(function (error) {
-                        // Handle Errors here.
-                        var errorCode = error.code;
-                        var errorMessage = error.message;
-                        
-                        if(errorCode=="auth/invalid-email"){
-                        errorCode="Correo invalido";
-                        }
-                        if(errorMessage=="The email address is badly formatted."){
-                        errorMessage="El correo es incorrecto";
-                        }
-                        if(errorCode=="auth/weak-password"){
-                        errorCode="Contraseña débil";
-                        }
-                        if(errorMessage=="Password should be at least 6 characters"){
-                        errorMessage="La contraseña debe ser mínimo de 6 caracteres";
-
-                        }
-                        if(errorCode=="auth/email-already-in-use"){
-                        errorCode="Correo en uso";
-                        }
-                        if(errorMessage=="The email address is already in use by another account."){
-                        errorMessage="EL correo ya está registrado";
-                        }
-                        inHTML('error_crear_cuenta',`<h6 class="text-danger">${"error: "+errorCode+" | "+errorMessage}</h6>`);
-
-                        // ...
-                    });
-                    //si check de terminos y condiciones NO está activado  
-                }else{
-                    inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Debes aceptar los términos y condiciones para poder seguir</h6>`);
-                }
-            }
-   //si la contraseña no coincide
-        }else{
-            inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Las contraseñas no coinciden</h6>`);
-        }
-    } 
+let ingreso, seller
+if(administracion){
+    ingreso = "CPNnumero_documento";
+    seller = "CPNcentro_costo"
+} else {
+    ingreso = "CPNcontraseña";
+    seller = "CPNnombre_empresa"
 }
+// Verificar que el docuento de identificacion es unico
+document.getElementById(ingreso).addEventListener("blur", () => {
+    verificarExistencia(administracion);
+});
+
+// Verificar que el centro de costo es unico
+document.getElementById(seller).addEventListener("blur", () => {
+    verificarExistencia(administracion);
+});
 
 //Para crear nueva cuenta
-function nuevaCuenta(){
+function nuevaCuenta(administracion){
 
     //datos de registro
     let datos_personales = {
-        nombres: value("CPNnombres"),
-        apellidos: value("CPNapellidos"),
+        nombres: value("CPNnombres").trim(),
+        apellidos: value("CPNapellidos").trim(),
         tipo_documento: value("CPNtipo_documento"),
-        numero_documento: value("CPNnumero_documento"),
+        numero_documento: value("CPNnumero_documento").trim(),
         
         celular: value("CPNtelefono"),
         
@@ -316,23 +33,33 @@ function nuevaCuenta(){
         direccion: value("CPNdireccion"),
         barrio: value("CPNbarrio"),
         
-        nombre: value("CPNnombre_empresa"),
+        nombre: value("CPNnombre_empresa").trim(),
         correo: value("CPNcorreo"),
         con: value("CPNcontraseña"),
-        centro_de_costo: value("CPNcentro_costo"),
         objetos_envio: value("CPNobjetos_envio").split(",").map(s => s.trim()),
         usuario_corporativo: document.getElementById("CPNusuario_corporativo").checked
     }
 
+    
     let datos_relevantes = {
-        ingreso: value("CPNnumero_documento").trim(),
-        nombres: value("CPNnombres"),
-        apellidos: value("CPNapellidos"),
+        nombres: value("CPNnombres").trim(),
+        apellidos: value("CPNapellidos").trim(),
         contacto: value("CPNtelefono"),
         direccion: `${value("CPNdireccion")}, ${value("CPNbarrio")}, ${value("CPNciudad")}`,
         objetos_envio: value("CPNobjetos_envio").split(",").map(s => s.trim()),
-        centro_de_costo: value("CPNcentro_costo"),
         usuario_corporativo: document.getElementById("CPNusuario_corporativo").checked
+    }
+    
+    if(administracion){
+        datos_personales.centro_de_costo = value("CPNcentro_costo").trim().replaceAll(" ", "");
+
+        datos_relevantes.ingreso = value("CPNnumero_documento").trim();
+        datos_relevantes.centro_de_costo = value("CPNcentro_costo").trim().replaceAll(" ", "");
+    }else {
+        datos_personales.centro_de_costo = "Seller"+value("CPNnombre_empresa").trim().replaceAll(" ", "");
+
+        datos_relevantes.ingreso = value("CPNcontraseña");
+        datos_relevantes.centro_de_costo = "Seller"+value("CPNnombre_empresa").trim().replaceAll(" ", "");
     }
 
     let datos_bancarios = {
@@ -352,8 +79,11 @@ function nuevaCuenta(){
     //retornar si check está activado o desactivado
     var CPNcheck=document.getElementById('CPNdiv_terminos_condiciones').style.display;
     verificarExistencia().then(()=> {
-        if(value("CPNnombres")=="" | value("CPNapellidos")==""  | value("CPNnumero_documento")=="" | value("CPNtelefono")=="" | value("CPNcelular")=="" | value("CPNciudad")=="" | value("CPNdireccion")=="" | value("CPNbarrio")=="" |
-        value("CPNnombre_empresa")=="" | value("CPNcorreo")=="" | value("CPNcontraseña")=="" | value("CPNrepetir_contraseña")==""){
+        if(value("CPNnombres")=="" | value("CPNapellidos")==""  | value("CPNnumero_documento")=="" | 
+        value("CPNtelefono")=="" | value("CPNcelular")=="" | value("CPNciudad")=="" | 
+        value("CPNdireccion")=="" | value("CPNbarrio")=="" | value("CPNnombre_empresa")=="" | 
+        value("CPNcorreo")=="" | value("CPNcontraseña")=="" | value("CPNrepetir_contraseña")=="" |
+        value("CPNobjetos_envio") | datos_relevantes.centro_de_costo){
             //si todos los datos estan vacios 
             inHTML('error_crear_cuenta','<h6 class="text-danger">Error: Ningún campo debe estar vacío</h6>');
             verificador(["CPNnombres", "CPNapellidos", "CPNnumero_documento", 
@@ -385,44 +115,77 @@ function nuevaCuenta(){
                     inHTML('error_crear_cuenta',`<h6 class="text-danger"> DATOS BANCARIOS: "${value("CPNbanco")}" | "${value("CPNnombre_representante")}" | "${value("CPNtipo_de_cuenta")}" | "${value("CPNnumero_cuenta")}" | "${value("CPNconfirmar_numero_cuenta")}" | 
                     "${value("CPNtipo_documento_banco")}" | "${value("CPNnumero_identificacion_banco")}" | "${value("CPNconfirmar_numero_identificacion_banco")}</"h6>`);
     
-                    console.log(datos_bancarios);
-                    console.log(datos_personales);
-                    console.log(datos_relevantes);
                     let user = value("CPNnumero_documento").toString().trim();
-    
-                    firebase.firestore().collection("usuarios").doc(user)
-                    .collection("informacion").doc("personal").set(datos_personales)
-                    .then(() => {
-                        firebase.firestore().collection("usuarios").doc(user).set(datos_relevantes)
-                        .catch((err) => {
-                            inHTML('error_crear_cuenta',`<h6 class="text-danger">${err} \n
-                                No se pudo crear el identificador de ingreso</h6>`);
-                        })
-                    }).then(() => {
-                        firebase.firestore().collection('usuarios').doc(user)
-                        .collection("informacion").doc("bancaria").set(datos_bancarios)
-                        .catch(function(error){
-                            inHTML('error_crear_cuenta',`<h6 class="text-danger">Problemas al agregar Datos bancarios</h6>`);
-                        });
-                    }).then(() => {
-                        if(datos_relevantes.usuario_corporativo){
-                            firebase.firestore().collection('usuarios').doc(user)
-                            .collection("informacion").doc("heka").set({
-                                activar_saldo: true,
-                                fecha: genFecha(),
-                                saldo: 0
+                    
+                    firebase.firestore().collection("usuarios").doc(user).get()
+                    .then((doc) => {
+                        console.log(datos_bancarios);
+                        console.log(datos_personales);
+                        console.log(datos_relevantes);
+                        if(!doc.exists) {
+                            firebase.firestore().collection("usuarios").doc(user)
+                            .collection("informacion").doc("personal").set(datos_personales)
+                            .then(() => {
+                                firebase.firestore().collection("usuarios").doc(user).set(datos_relevantes)
+                                .catch((err) => {
+                                    inHTML('error_crear_cuenta',`<h6 class="text-danger">${err} \n
+                                        No se pudo crear el identificador de ingreso</h6>`);
+                                })
+                            }).then(() => {
+                                firebase.firestore().collection('usuarios').doc(user)
+                                .collection("informacion").doc("bancaria").set(datos_bancarios)
+                                .catch(function(error){
+                                    inHTML('error_crear_cuenta',`<h6 class="text-danger">Problemas al agregar Datos bancarios</h6>`);
+                                });
+                            }).then(() => {
+                                if(datos_relevantes.usuario_corporativo){
+                                    firebase.firestore().collection('usuarios').doc(user)
+                                    .collection("informacion").doc("heka").set({
+                                        activar_saldo: true,
+                                        fecha: genFecha(),
+                                        saldo: 0
+                                    })
+                                }
+                            }).then(function(){
+                                if(administracion) {
+                                    avisar("¡Cuenta creada con éxito!", 
+                                    "User_id = "+ user + "\n Puede ingresar con: " + value("CPNnumero_documento"), "", "admin.html");
+                                } else {
+                                    firebase.firestore().collection("usuarios").where("ingreso", "==", datos_relevantes.ingreso.toString()).get()
+                                    .then((querySnapshot) => {
+                                    localStorage.setItem("user_id", "");
+                                    querySnapshot.forEach((doc) => {
+                                        localStorage.setItem("user_id", doc.id);
+                                        localStorage.setItem("user_login", doc.data().ingreso);
+                                        console.log(localStorage);
+                                        
+                                        location.href = "plataforma2.html";
+                                    })
+                                    }).then((d) => {
+                                    if(localStorage.user_id == ""){
+                                        alert("Usuario no encontrado");
+                                    }
+                                    }).catch((error) => {
+                                    console.log("Error getting documents: ", error);
+                                    });
+                                }
                             })
+                            .catch(function(error){
+                                boton_crear_usuario.setAttribute("onclick", "nuevaCuenta()");
+                                boton_crear_usuario.disabled = false;
+                                boton_crear_usuario.textContent = "Registrar Cuenta";
+                                inHTML('error_crear_cuenta',`<h6 class="text-danger">${error}</h6>`);
+                            });
+                        } else {
+                            inHTML('error_crear_cuenta',`<h6 class="text-danger">No podemos procesar tu solicitud, ya existe un usuario con ese documento de identificación</h6>`);
+                            boton_crear_usuario.addEventListener("click", () => {
+                                nuevaCuenta(administracion);
+                            })
+                            boton_crear_usuario.disabled = false;
+                            boton_crear_usuario.textContent = "Crear Cuenta";
                         }
-                    }).then(function(){
-                        avisar("¡Cuenta creada con éxito!", 
-                        "User_id = "+ user + "\n Puede ingresar con: " + value("CPNnumero_documento"), "", "admin.html");
                     })
-                    .catch(function(error){
-                        boton_crear_usuario.setAttribute("onclick", "nuevaCuenta()");
-                        boton_crear_usuario.disabled = false;
-                        boton_crear_usuario.textContent = "Registrar Cuenta";
-                        inHTML('error_crear_cuenta',`<h6 class="text-danger">${error}</h6>`);
-                    });
+    
                 }
             }
         } 
@@ -430,16 +193,18 @@ function nuevaCuenta(){
 }
 
 //Verifica que el usuario a crear no exista ni el centro de costo que se le quiere asignar
-async function verificarExistencia(){
+async function verificarExistencia(administracion){
     await firebase.firestore().collection("usuarios").get()
     .then((querySnapshot) => {
         let existe_usuario = false, existe_centro_costo = false
+        let identificador = administracion ? value("CPNnumero_documento") : value("CPNcontraseña");
+        let centro_de_costo = administracion ? value("CPNcentro_costo") : "Seller" + value("CPNnombre_empresa");
         querySnapshot.forEach(doc => {
-            if(doc.data().ingreso == value("CPNnumero_documento")){
+            if(doc.data().ingreso == identificador.replaceAll(" ", "")){
                 document.getElementById("registrar-nueva-cuenta").disabled = true;
                 existe_usuario = true;
             }
-            if(doc.data().centro_de_costo == value("CPNcentro_costo")){
+            if(doc.data().centro_de_costo == centro_de_costo.replaceAll(" ", "")){
                 document.getElementById("registrar-nueva-cuenta").disabled = true;
                 existe_centro_costo = true;
             }
@@ -460,15 +225,7 @@ async function verificarExistencia(){
     })
 }
 
-// Verificar que el docuento de identificacion es unico
-document.getElementById("CPNnumero_documento").addEventListener("blur", () => {
-    verificarExistencia();
-});
 
-// Verificar que el centro de costo es unico
-document.getElementById("CPNcentro_costo").addEventListener("blur", () => {
-    verificarExistencia();
-});
 
 
 //esta funcion utilizara a otra para retornarme informacion basica del usuario
@@ -483,8 +240,10 @@ function buscarUsuarios(){
         inHTML("mostrador-usuarios", "");
         querySnapshot.forEach((doc) => {
             if(value("buscador_usuarios-nombre") && !value("buscador_usuarios-id")){
-                console.log(doc.data().nombres.toLowerCase().indexOf(value("buscador_usuarios-nombre").toLowerCase()));
-                if(doc.data().nombres.toLowerCase().indexOf(value("buscador_usuarios-nombre").toLowerCase()) != -1){
+                if(doc.data().centro_de_costo && 
+                doc.data().centro_de_costo.toLowerCase().indexOf(value("buscador_usuarios-nombre").toLowerCase()) != -1){
+                    document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
+                } else if(doc.data().nombres.toLowerCase().indexOf(value("buscador_usuarios-nombre").toLowerCase()) != -1){
                     document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
                 }
             } else {
@@ -797,7 +556,6 @@ function actualizarInformacionHeka() {
 
 
 }
-
 
 
 /*****************
