@@ -48,14 +48,20 @@ function tablaDeGuias(id, datos){
             </div>
         </th>
         <th>${id}</th>
-        <th>Generando...</th>
-        <th>Generando...</th>
+        <th></th>
+        <th></th>
         <th>${datos.fecha}</th>
         <th>${datos.nombreR}</th>
         <th>${datos.ciudadD}</th>
         <th>${datos.nombreD}</th>
         <th>$${convertirMiles(datos.valor)}</th>
         <th>$${convertirMiles(datos.costo_envio)}</th>
+
+        <th><button class="btn btn-primary btn-circle" data-id="${id}"
+        id="descargar_documento${id}">
+            <i class="fas fa-file-download"></i>
+        </button></th>
+
         <th><button class="btn btn-danger btn-circle" data-id="${id}" 
         id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}" disabled>
             <i class="fas fa-trash"></i>
@@ -153,15 +159,15 @@ function mostrarUsuarios(data, id){
 
 //Retorna una tarjeta con informacion del documento por id
 function mostrarDocumentos(id, data, tipo_aviso) {
-    return `<div class="col-md-4 mb-4">
+    return `<div class="col-sm-6 col-lg-4 mb-4">
     <div class="card border-bottom-${tipo_aviso || "info"} shadow h-100 py-2" id="${id}">
         <div class="card-body">
             <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
                     <div class="h4 font-weight-bold text-${tipo_aviso || "info"} text-uppercase mb-2">${data.nombre_usuario}</div>
                     <div class="row no-gutters align-items-center">
-                        <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800">
-                            <p>Id Guias Generadas: <small style="overflow-wrap: anywhere;">${data.guias}</small></p>
+                        <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800 w-100">
+                            <p>Id Guias Generadas: <small class="text-break">${data.guias}</small></p>
                             <p>Fecha: <small>${data.fecha}</small></p>
                         </div>
                     </div>
@@ -215,7 +221,9 @@ function genFecha(direccion){
 function tablaDeDocumentos(id, datos){
     return `<tr id="historial-docs-row${id}" data-id_doc="${id}">
         <th>${datos.fecha}</th>
-        <th>${datos.guias}</th>
+        <th>
+            <p class="text-break" style="width: 35em">${datos.guias}</p>
+        </th>
         <th>
             <button id="boton-descargar-relacion_envio${id}" class="btn btn-info m-2" disabled>Descargar Relacion</button>
         </th>
@@ -231,13 +239,15 @@ for(let input_fecha of document.querySelectorAll('[type="date"]')) {
 }
 
 //Activa los inputs y btones de cada guia que no haya sido enviada
-function activarBotonesDeEnvio(id, enviado){
+function activarBotonesDeGuias(id, enviado){
     let activos = document.querySelectorAll('[data-funcion="activar-desactivar"]');
       for (let actv of activos){
-          if(id == actv.getAttribute("data-id")){
-              actv.setAttribute("data-enviado", enviado)
-          }
+        if(id == actv.getAttribute("data-id")){
+        actv.setAttribute("data-enviado", enviado)
+        }
+
         let revisar = actv.getAttribute("data-enviado");
+
         if(revisar != "true"){
           actv.removeAttribute("disabled");
         } else {
@@ -245,7 +255,7 @@ function activarBotonesDeEnvio(id, enviado){
         }
       }
 
-      let eliminarGuia = document.getElementById("eliminar_guia"+id).addEventListener("click", (e) => {
+      document.getElementById("eliminar_guia"+id).addEventListener("click", (e) => {
           let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
           if(confirmacion){
             let boton_eliminar_guia = document.getElementById("eliminar_guia"+id);
@@ -318,6 +328,23 @@ function activarBotonesDeEnvio(id, enviado){
                 console.error("Error removing document: ", error);
             });
           }
+      });
+
+      document.getElementById("descargar_documento"+id).addEventListener("click", e => {
+        firebase.firestore().collection("documentos").where("guias", "array-contains", id).get()
+        .then(querySnapshot => {
+            if (!querySnapshot.size) {
+                avisar("Sin documento", "Esta guía no tiene ningún documento asignado aún", "aviso");
+            }
+            querySnapshot.forEach(doc => {
+                console.log(doc.data());
+                if(doc.data().descargar_relacion_envio && doc.data().descargar_guias) {
+                    descargarDocumentos(user_id, doc.id, doc.data().guias.toString());
+                } else {
+                    avisar("No permitido", "Aún no están disponibles ambos documentos", "aviso");
+                }
+            })
+        })
       })
 }
 
@@ -718,8 +745,8 @@ function tablaNovedades(data, extraData, usuario, solucion, id_heka, resuelta){
             tr.innerHTML += `
                 <td>${extraData.nombreD}</td>
                 
-                <td><p>${extraData.celular1}</p>
-                <p>${extraData.celular2}</p></td>
+                <td><a href="https://api.whatsapp.com/send?phone=57${extraData.celular1}" target="_blank">${extraData.celular1}</a>
+                <a href="https://api.whatsapp.com/send?phone=57${extraData.celular2}" target="_blank">${extraData.celular2}</a></td>
                 <td>${extraData.direccion}</td>
                 <td>
                     <p>¿Tienes Alguna sugerencia para esta novedad?</p>
@@ -747,6 +774,7 @@ function tablaNovedades(data, extraData, usuario, solucion, id_heka, resuelta){
         document.getElementById("visor_novedades").appendChild(card);
     }
 
+    console.log(resuelta);
     if(resuelta && !administracion){
         document.querySelector("#solucionar-novedad-"+data.guia).classList.add("disabled");
         document.querySelector("#solucionar-novedad-"+data.guia).disabled;
@@ -762,13 +790,13 @@ function tablaNovedades(data, extraData, usuario, solucion, id_heka, resuelta){
                     console.log(doc.ref.path, doc.data().numeroGuia);
                     console.log(doc.ref.path.toString().replace("guias", "novedades"));
                     
-                    firebase.firestore().doc(doc.ref.path).update({
-                        "novedad.resuelta": true,
-                        "novedad.fecha": data.fecha
+                    firebase.firestore().doc(doc.ref.path.toString().replace("guias", "novedades")).update({
+                        solucionada: true
                     }).then(() => {
-                        firebase.firestore().doc(doc.ref.path.toString().replace("guias", "novedades")).update({
-                            solucionada: true
-                        })
+                        firebase.firestore().doc(doc.ref.path).update({
+                            "novedad.resuelta": true,
+                            "novedad.fecha": data.fecha
+                        });
                     })
                 })
             }).then(() => {

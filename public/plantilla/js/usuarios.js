@@ -51,15 +51,15 @@ function nuevaCuenta(administracion){
     }
     
     if(administracion){
-        datos_personales.centro_de_costo = value("CPNcentro_costo").trim().replaceAll(" ", "");
+        datos_personales.centro_de_costo = value("CPNcentro_costo").trim().replace(/\s/g, "");
 
         datos_relevantes.ingreso = value("CPNnumero_documento").trim();
-        datos_relevantes.centro_de_costo = value("CPNcentro_costo").trim().replaceAll(" ", "");
+        datos_relevantes.centro_de_costo = value("CPNcentro_costo").trim().replace(/\s/g, "");
     }else {
-        datos_personales.centro_de_costo = "Seller"+value("CPNnombre_empresa").trim().replaceAll(" ", "");
+        datos_personales.centro_de_costo = "Seller"+value("CPNnombre_empresa").trim().replace(/\s/g, "");
 
         datos_relevantes.ingreso = value("CPNcontraseña");
-        datos_relevantes.centro_de_costo = "Seller"+value("CPNnombre_empresa").trim().replaceAll(" ", "");
+        datos_relevantes.centro_de_costo = "Seller"+value("CPNnombre_empresa").trim().replace(/\s/g, "");
     }
 
     let datos_bancarios = {
@@ -200,11 +200,11 @@ async function verificarExistencia(administracion){
         let identificador = administracion ? value("CPNnumero_documento") : value("CPNcontraseña");
         let centro_de_costo = administracion ? value("CPNcentro_costo") : "Seller" + value("CPNnombre_empresa");
         querySnapshot.forEach(doc => {
-            if(doc.data().ingreso == identificador.replaceAll(" ", "")){
+            if(doc.data().ingreso == identificador.replace(/\s/g, "")){
                 document.getElementById("registrar-nueva-cuenta").disabled = true;
                 existe_usuario = true;
             }
-            if(doc.data().centro_de_costo == centro_de_costo.replaceAll(" ", "")){
+            if(doc.data().centro_de_costo == centro_de_costo.replace(/\s/g, "")){
                 document.getElementById("registrar-nueva-cuenta").disabled = true;
                 existe_centro_costo = true;
             }

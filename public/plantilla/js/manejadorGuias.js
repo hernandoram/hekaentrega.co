@@ -81,7 +81,7 @@ function crearDocumentos() {
                 });
             }
         }).then(() => {
-            avisar("Documento creado Exitósamente", "Las guías " + guias + " han sido enviadas.", "platafora2.html#historial_documentos");
+            avisar("Documento creado Exitósamente", "Las guías " + guias + " Serán procesadas por un asesor, y apróximadamente en 10 minutos los documentos serán subidos.", "platafora2.html#historial_documentos");
             document.getElementById("enviar-documentos").removeAttribute("disabled");
             firebase.firestore().collection("notificaciones").add({
                 mensaje: `${datos_usuario.nombre_completo} ha creado un Documento con las Guías: ${guias}`,
@@ -104,7 +104,7 @@ function crearDocumentos() {
 
 let documento = [], guias = [];
 
-//muestra los documento y le otorga funcionalidad a los botones
+//muestra los documento al admin y le otorga funcionalidad a los botones
 function cargarDocumentos(filter) {
     let documentos = document.getElementById("mostrador-documentos");
     firebase.firestore().collection("documentos").get().then((querySnapshot) => {
@@ -139,6 +139,7 @@ function cargarDocumentos(filter) {
         //para el boton Que carga documentos
         for(let boton of botones){
             boton.addEventListener("click", (e) => {
+                boton.disabled = true;
                 let idUser = e.target.parentNode.getAttribute("data-user");
                 let guias = e.target.parentNode.getAttribute("data-guias").split(",");
                 let nombre = e.target.parentNode.getAttribute("data-nombre");
@@ -148,8 +149,10 @@ function cargarDocumentos(filter) {
                         let data = documento;
                         if(data == '')
                             return;
-                        JsonToCsv(data, nombre + " " + guias.join("_"), guias);
+                        descargarGuiasGeneradas(data, nombre + " " + guias.slice(0, 5).join("_"), guias);
                     });
+                }).then(() => {
+                    boton.disabled = false;
                 })
             })
         }
@@ -158,13 +161,13 @@ function cargarDocumentos(filter) {
         // Cuando esta habilitado, permite descarga el documento que ha sido enviado
         for(let descargar of descargador_completo){
             descargar.addEventListener("click", (e) => {
-                let info = {
-                    user_id: e.target.getAttribute("data-user"),
-                    id: e.target.getAttribute("data-id_guia"),
-                    guias: e.target.getAttribute("data-guias")
-                }
+                
+                let user_id = e.target.getAttribute("data-user"),
+                    id = e.target.getAttribute("data-id_guia"),
+                    guias =  e.target.getAttribute("data-guias");
+                
 
-                descargarDocumentos(info);
+                descargarDocumentos(user_id, id, guias);
             })
         }
     }).then(() => {
@@ -194,7 +197,7 @@ async function cargarDocumento(id_user, arrGuias) {
 }
 
 //Me convierte el conjunto de guias descargadas en archivo CsV
-function JsonToCsv(JSONData, ReportTitle, guias) {
+function descargarGuiasGeneradas(JSONData, ReportTitle, guias) {
     console.log(JSONData)
     //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
     var arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
@@ -208,6 +211,9 @@ function JsonToCsv(JSONData, ReportTitle, guias) {
     console.log(arrData.length);
     //Se actulizara cada cuadro por fila, ***se comenta cual es el campo llenado en cada una***
     for (var i = 0; i < arrData.length; i++) {
+        for(let campo in arrData[i]) {
+            arrData[i][campo] = arrData[i][campo].toString().replace(/,/g, "-");
+        }
         let row = "";
         //Ciudad/Cód DANE de Origen
         row += '"' + arrData[i].ciudadR + '",';
@@ -444,7 +450,7 @@ function subirDocumentos(){
 }
 
 
-//Similar a historial de Guias
+//Similar a historial de Guias, carga los documentos al usuario por fecha.
 function actualizarHistorialDeDocumentos(){
     console.log(document.getElementById("tabla_documentos"))
     // $('#tabla_documentos').DataTable().destroy();
@@ -532,13 +538,13 @@ function actualizarHistorialDeDocumentos(){
     } 
 }
 
-function descargarDocumentos(doc){
-    firebase.storage().ref().child(doc.user_id + "/" + doc.id + "/guias" + doc.guias + ".pdf")
+function descargarDocumentos(user_id, id_doc, guias){
+    firebase.storage().ref().child(user_id + "/" + id_doc + "/guias" + guias + ".pdf")
     .getDownloadURL().then((url) => {
         window.open(url, "_blank");
     });
 
-    firebase.storage().ref().child(doc.user_id + "/" + doc.id + "/relacion envio" + doc.guias + ".pdf")
+    firebase.storage().ref().child(user_id + "/" + id_doc + "/relacion envio" + guias + ".pdf")
     .getDownloadURL().then((url) => {
         console.log(url)
         window.open(url, "_blank");
@@ -633,7 +639,7 @@ function revisarNotificaciones(){
         badge.textContent = 0;
         badge.classList.add("d-none");
     })
-    firebase.firestore().collection("notificaciones").orderBy("timeline", "desc").where("timeline", "!=", "")
+    firebase.firestore().collection("notificaciones").orderBy("timeline").where("timeline", "!=", "")
     .onSnapshot(snapshot => {
         snapshot.docChanges().forEach(change => {
             let notification = change.doc.data();
@@ -655,8 +661,8 @@ function revisarNotificaciones(){
                 if(parseInt(contador.textContent) > 9) {
                     contador.innerHTML = 9 + "+".sup()
                 }
-                // mostrador.insertBefore(mostrarNotificacion(notification), mostrador.firstChild);
-                mostrador.append(mostrarNotificacion(notification, notification.type, identificador));
+                mostrador.insertBefore(mostrarNotificacion(notification, notification.type, identificador), mostrador.firstChild);
+                // mostrador.append(mostrarNotificacion(notification, notification.type, identificador));
             } else if (change.type == "removed") {
                 if(document.querySelector("#notificacion-"+identificador)){
                     if(notification.type == "novedad") {
@@ -877,8 +883,13 @@ function revisarMovimientosGuias(admin, mensaje, id_heka, guia){
                     direccion: dato.direccionD + ", " + dato.ciudadD + ", " + dato.departamentoD
                 }
 
-                consultarNovedadFb(dato.numeroGuia, datos_usuario.nombre_completo, contador, size, 
-                    solucion, doc.id, localStorage.user_id, extra_data);
+                if(document.querySelector("#check-mostrar-novedades").checked){
+                    consultarNovedadFb(dato.numeroGuia, "generales", contador, size, 
+                        solucion, doc.id, localStorage.user_id, extra_data);
+                } else {
+                    consultarNovedadFb(dato.numeroGuia, "nuevas", contador, size, 
+                        solucion, doc.id, localStorage.user_id, extra_data);
+                }
             })
         })
     }
@@ -1012,10 +1023,9 @@ function consultarNovedadFb(numGuia, usuario = "Novedades", contador, totalConsu
                 novedad: doc.data().novedad,
                 fecha: doc.data().fecha
             }
+            console.log(doc.data().guia, doc.data().solucionada);
 
-            if(!doc.data().solucionada && !administracion && !document.querySelector("#check-mostrar-novedades").checked){
-                tablaNovedades(dataToObj, info_adicional, usuario, solucion, id_heka, doc.data().solucionada);
-            } else if (doc.data().solucionada && !administracion && !document.querySelector("#check-mostrar-novedades").checked){
+            if (doc.data().solucionada && !administracion && usuario == "nuevas") {
 
             } else {
                 tablaNovedades(dataToObj, info_adicional, usuario, solucion, id_heka, doc.data().solucionada);
@@ -1023,8 +1033,8 @@ function consultarNovedadFb(numGuia, usuario = "Novedades", contador, totalConsu
         }
     }).then(() => {
         if(contador == totalConsultas){
-            console.log(usuario);
             $("#tabla-novedades-"+usuario.replace(" ", "")).DataTable({
+                destroy: true,
                 autoWidth: false
             })
             document.getElementById("cargador-novedades").classList.add("d-none");
@@ -1060,7 +1070,7 @@ function actualizarNovedadesUsuario(){
                 // if(document.getElementById("solucionar-novedad-"+numeroGuia)){
                 //     document.getElementById("solucionar-novedad-"+numeroGuia).remove();
                 // }
-                consultarNovedadFb(numeroGuia, usuario = "Novedades", 0, 
+                consultarNovedadFb(numeroGuia, "atendidas", 0, 
                 0, solucion, change.doc.id, localStorage.user_id, extra_data)
             }
         })

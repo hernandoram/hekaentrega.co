@@ -38,7 +38,8 @@ function cargarDatosUsuario(){
               nombre_completo: datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0],
               direccion: datos.direccion + " " + datos.barrio,
               celular: datos.celular,
-              correo: datos.correo
+              correo: datos.correo,
+              numero_documento: datos.numero_documento
             }
 
             // A partir de aqui, verificara que los elementos existan para mostrar datos
@@ -215,8 +216,8 @@ function historialGuias(){
             reference.doc(doc.id).onSnapshot((row) => {
               console.log("Se Ejecuta el oidor")
               if(row.exists) {
-                activarBotonesDeEnvio(row.id, row.data().enviado);
-                document.getElementById("historial-guias-row" + row.id).children[2].textContent = row.data().numeroGuia || "Generando...";
+                activarBotonesDeGuias(row.id, row.data().enviado);
+                document.getElementById("historial-guias-row" + row.id).children[2].textContent = row.data().numeroGuia || "";
                 document.getElementById("historial-guias-row" + row.id).children[3].textContent = row.data().estado;
               }
             });

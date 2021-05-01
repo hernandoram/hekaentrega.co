@@ -527,7 +527,7 @@ function crearGuiasServientrega() {
             boton_final_cotizador.parentNode.insertBefore(cargador, boton_final_cotizador);
             boton_final_cotizador.remove()
 
-            console.log(datos_a_enviar)
+            // console.log(datos_a_enviar)
             enviar_firestore(datos_a_enviar);
         }
     } else {
@@ -539,13 +539,15 @@ function crearGuiasServientrega() {
 
 
 function enviar_firestore(datos){
-    let id_heka;
+    let id_heka = datos_usuario.numero_documento.slice(-4);
     let firestore = firebase.firestore()
     firestore.collection("infoHeka").doc("heka_id").get()
         .then((doc) => {
             if(doc.exists){
-                id_heka = doc.data().id.toString();
+                id_heka += doc.data().id.toString();
+
                 datos.id_heka = id_heka;
+                console.log(datos);
                 firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
                 firestore.collection("usuarios").doc(localStorage.user_id)
                     .collection("guias").doc(id_heka).set(datos);
