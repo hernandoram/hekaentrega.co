@@ -1,7 +1,38 @@
 let ingreso, seller
+class MensajeError {
+    constructor (id) {
+        this.id = id
+    }
+
+    input(valores, mensaje) {
+        $(this.id).on("input", (e) => {
+            let mostrar = false;
+            valores.forEach(v => {
+                if(e.target.value.indexOf(v) != -1) {
+                    mostrar = true;
+                }
+            })
+            
+            if(mostrar) {
+                if($(this.id).parent().children(".mensaje-error").length) {
+                    $(this.id).parent().children(".mensaje-error").text(mensaje)
+                } else {
+                    $(this.id).parent().append('<p class="mensaje-error text-danger mt-2 text-center">'+ mensaje+ '</p>');
+                }
+                $("#registrar-nueva-cuenta").prop("disabled", true)
+            } else {
+                if($(this.id).parent().children(".mensaje-error")) {
+                    $(this.id).parent().children(".mensaje-error").remove();
+                }
+            }
+        })
+    }
+}
 if(administracion){
     ingreso = "CPNnumero_documento";
-    seller = "CPNcentro_costo"
+    seller = "CPNcentro_costo";
+    let documentoNvoUser = new MensajeError("#CPNnumero_documento");
+    documentoNvoUser.input(["/", " "], "Recuerde que los espacios y el carácter \"/\", serán ignorados");
 } else {
     ingreso = "CPNcontraseña";
     seller = "CPNnombre_empresa"
@@ -17,7 +48,7 @@ document.getElementById(seller).addEventListener("blur", () => {
 });
 
 //Para crear nueva cuenta
-function nuevaCuenta(administracion){
+function nuevaCuenta(){
 
     //datos de registro
     let datos_personales = {
@@ -35,9 +66,8 @@ function nuevaCuenta(administracion){
         
         nombre: value("CPNnombre_empresa").trim(),
         correo: value("CPNcorreo"),
-        con: value("CPNcontraseña"),
+        con: value("CPNcontraseña").replace(/\/|\s/g, ""),
         objetos_envio: value("CPNobjetos_envio").split(",").map(s => s.trim()),
-        usuario_corporativo: document.getElementById("CPNusuario_corporativo").checked
     }
 
     
@@ -47,18 +77,19 @@ function nuevaCuenta(administracion){
         contacto: value("CPNtelefono"),
         direccion: `${value("CPNdireccion")}, ${value("CPNbarrio")}, ${value("CPNciudad")}`,
         objetos_envio: value("CPNobjetos_envio").split(",").map(s => s.trim()),
-        usuario_corporativo: document.getElementById("CPNusuario_corporativo").checked
     }
     
     if(administracion){
         datos_personales.centro_de_costo = value("CPNcentro_costo").trim().replace(/\s/g, "");
-
-        datos_relevantes.ingreso = value("CPNnumero_documento").trim();
+        
+        datos_relevantes.ingreso = value("CPNnumero_documento").replace(/\/|\s/g, "");
         datos_relevantes.centro_de_costo = value("CPNcentro_costo").trim().replace(/\s/g, "");
+        datos_personales.usuario_corporativo = document.getElementById("CPNusuario_corporativo").checked;
+        datos_relevantes.usuario_corporativo = datos_personales.usuario_corporativo;
     }else {
         datos_personales.centro_de_costo = "Seller"+value("CPNnombre_empresa").trim().replace(/\s/g, "");
 
-        datos_relevantes.ingreso = value("CPNcontraseña");
+        datos_relevantes.ingreso = value("CPNcontraseña").replace(/\/|\s/g, "");
         datos_relevantes.centro_de_costo = "Seller"+value("CPNnombre_empresa").trim().replace(/\s/g, "");
     }
 
@@ -70,12 +101,11 @@ function nuevaCuenta(administracion){
         tipo_documento_banco: value("CPNtipo_documento_banco"),
         numero_iden_banco: value("CPNnumero_identificacion_banco")
     }
-    console.log(value("CPNnumero_documento"));
-   
+
     ///div datos bancarios
     var mostrar_ocultar_registro_bancario= document.getElementById('mostrar-ocultar-registro-bancario').style.display;
     //datos bancarios
-
+    console.log(datos_relevantes.centro_de_costo);
     //retornar si check está activado o desactivado
     var CPNcheck=document.getElementById('CPNdiv_terminos_condiciones').style.display;
     verificarExistencia().then(()=> {
@@ -83,29 +113,44 @@ function nuevaCuenta(administracion){
         value("CPNtelefono")=="" | value("CPNcelular")=="" | value("CPNciudad")=="" | 
         value("CPNdireccion")=="" | value("CPNbarrio")=="" | value("CPNnombre_empresa")=="" | 
         value("CPNcorreo")=="" | value("CPNcontraseña")=="" | value("CPNrepetir_contraseña")=="" |
-        value("CPNobjetos_envio") | datos_relevantes.centro_de_costo){
+        !value("CPNobjetos_envio") | datos_relevantes.centro_de_costo == ""){
             //si todos los datos estan vacios 
+            let id_centro_costo = administracion ? "CPNcentro_costo" : "CPNobjetos_envio";
             inHTML('error_crear_cuenta','<h6 class="text-danger">Error: Ningún campo debe estar vacío</h6>');
             verificador(["CPNnombres", "CPNapellidos", "CPNnumero_documento", 
             "CPNtelefono", "CPNcelular", "CPNciudad", "CPNdireccion", "CPNbarrio", 
-            "CPNnombre_empresa", "CPNcorreo", "CPNcontraseña", "CPNrepetir_contraseña"]);
+            "CPNnombre_empresa", "CPNcorreo", "CPNcontraseña", "CPNrepetir_contraseña", 
+            "CPNobjetos_envio", id_centro_costo], false, "Este campo no debería estar vacío.");
         }else{
             //si todos los datos estan llenos
             let puede_continuar = true;
-            if(mostrar_ocultar_registro_bancario == "block"){
-                if(value("CPNbanco")=="" | value("CPNnombre_representante")=="" | value("CPNtipo_de_cuenta")=="" | value("CPNnumero_cuenta")=="" | value("CPNconfirmar_numero_cuenta")=="" |
-                value("CPNtipo_documento_banco")=="" | value("CPNnumero_identificacion_banco")=="" | value("CPNconfirmar_numero_identificacion_banco")==""){
-                    puede_continuar = false;
-                    inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Ningún dato bancario puede estar vacio</h6>`);
-                }
-            }
             if(document.getElementById("registrar-nueva-cuenta").disabled == true){
-                inHTML('error_crear_cuenta','<h6 class="text-danger">Error en registro: el usuario o el centro de costo ya existe</h6>');
+                inHTML('error_crear_cuenta','<h6 class="text-danger">Error en registro: el usuario ya existe, o la contraseña es muy débil</h6>');
             } else if (value("CPNcontraseña")!=value("CPNrepetir_contraseña")){
+                verificador(["CPNcontraseña", "CPNrepetir_contraseña"], "no-scroll")
                 inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Las contraseñas no coinciden</h6>`);
             } else if (CPNcheck!="block"){
                 inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Debes aceptar los términos y condiciones para poder seguir</h6>`);
             } else {
+                if(mostrar_ocultar_registro_bancario == "block"){
+                    if(value("CPNbanco")=="" | value("CPNnombre_representante")=="" | value("CPNtipo_de_cuenta")=="" | value("CPNnumero_cuenta")=="" | value("CPNconfirmar_numero_cuenta")=="" |
+                    value("CPNtipo_documento_banco")=="" | value("CPNnumero_identificacion_banco")=="" | value("CPNconfirmar_numero_identificacion_banco")==""){
+                        puede_continuar = false;
+                        inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Ningún dato bancario puede estar vacio</h6>`);
+                        verificador(["CPNbanco", "CPNnombre_representante", "CPNtipo_de_cuenta", "CPNnumero_cuenta", 
+                        "CPNconfirmar_numero_cuenta", "CPNtipo_documento_banco", "CPNnumero_identificacion_banco", 
+                        "CPNconfirmar_numero_identificacion_banco"], false, "Este campo no debe estar vacío.")
+                    } else if (value("CPNnumero_cuenta") != value("CPNconfirmar_numero_cuenta")) {
+                        puede_continuar = false;
+                        inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Los números de cuenta no coinciden</h6>`);
+                        verificador(["CPNnumero_cuenta", "CPNconfirmar_numero_cuenta"], "no-scroll")
+                    } else if (value("CPNnumero_identificacion_banco") != value("CPNconfirmar_numero_identificacion_banco")) {
+                        puede_continuar = false;
+                        inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Los número de indentificación en los datos bancarios no coinciden</h6>`);
+                        verificador(["CPNnumero_identificacion_banco", "CPNconfirmar_numero_identificacion_banco"], "no-scroll")
+                    }
+                }
+
                 if(puede_continuar){
                     let boton_crear_usuario = document.getElementById("registrar-nueva-cuenta");
                     boton_crear_usuario.setAttribute("onclick", "");
@@ -178,6 +223,7 @@ function nuevaCuenta(administracion){
                             });
                         } else {
                             inHTML('error_crear_cuenta',`<h6 class="text-danger">No podemos procesar tu solicitud, ya existe un usuario con ese documento de identificación</h6>`);
+                            verificador("CPNnumero_documento", "no-scroll");
                             boton_crear_usuario.addEventListener("click", () => {
                                 nuevaCuenta(administracion);
                             })
@@ -192,6 +238,11 @@ function nuevaCuenta(administracion){
     })
 }
 
+
+let CpnKey = new MensajeError("#CPNcontraseña");
+CpnKey.input(["/", " "], "La contraseña no debe tener espacios ni el caráter \"/\", si continúa, los carácteres mencionados serán ignorados");
+
+
 //Verifica que el usuario a crear no exista ni el centro de costo que se le quiere asignar
 async function verificarExistencia(administracion){
     await firebase.firestore().collection("usuarios").get()
@@ -200,11 +251,13 @@ async function verificarExistencia(administracion){
         let identificador = administracion ? value("CPNnumero_documento") : value("CPNcontraseña");
         let centro_de_costo = administracion ? value("CPNcentro_costo") : "Seller" + value("CPNnombre_empresa");
         querySnapshot.forEach(doc => {
+            let sellerFb = doc.data().centro_de_costo
             if(doc.data().ingreso == identificador.replace(/\s/g, "")){
                 document.getElementById("registrar-nueva-cuenta").disabled = true;
                 existe_usuario = true;
             }
-            if(doc.data().centro_de_costo == centro_de_costo.replace(/\s/g, "")){
+
+            if(sellerFb && sellerFb.toString().toLowerCase() == centro_de_costo.toLowerCase().replace(/\s/g, "")){
                 document.getElementById("registrar-nueva-cuenta").disabled = true;
                 existe_centro_costo = true;
             }

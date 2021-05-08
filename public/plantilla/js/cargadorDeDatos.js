@@ -1,12 +1,14 @@
-let user_id = localStorage.user_id;
+let user_id = localStorage.user_id, usuarioDoc;
 if(localStorage.getItem("acceso_admin")){
 
 } else if(localStorage.user_id){
   cargarDatosUsuario();
+  usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
 } else {
   alert("La sesión ha expirado, por favor inicia sesión nuevamente");
   location.href = "iniciarSesion2.html"
 }
+
 //Administradara datos basicos del usuario que ingresa
 let datos_usuario = {},
 //Almacena los costos de envios (nacional, urbano...) y el porcentaje de comision
@@ -216,9 +218,9 @@ function historialGuias(){
             reference.doc(doc.id).onSnapshot((row) => {
               console.log("Se Ejecuta el oidor")
               if(row.exists) {
-                activarBotonesDeGuias(row.id, row.data().enviado);
-                document.getElementById("historial-guias-row" + row.id).children[2].textContent = row.data().numeroGuia || "";
-                document.getElementById("historial-guias-row" + row.id).children[3].textContent = row.data().estado;
+                activarBotonesDeGuias(row.id, row.data());
+                document.getElementById("historial-guias-row" + row.id).children[3].textContent = row.data().numeroGuia || "";
+                document.getElementById("historial-guias-row" + row.id).children[4].textContent = row.data().estado;
               }
             });
           } 

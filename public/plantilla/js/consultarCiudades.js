@@ -2,9 +2,9 @@ import ciudades from "./ciudades.js";
 
 
 //Funcion de autocompletado de las ciudades en los inputs de ciudad (Solo funciona en este Script)
-function autocomplete(inp, arr) {
-    var currentFocus;
-    
+export function autocomplete(inp, arr) {
+  var currentFocus;
+  if(inp) {
     //Agrega el envento escucha al elemento ingresado
     inp.addEventListener("input", function(e) {
       let ciudades1 = []
@@ -101,22 +101,19 @@ function autocomplete(inp, arr) {
       var x = document.getElementsByClassName("autocomplete-items");
       for (var i = 0; i < x.length; i++) {
         if (elmnt != x[i] && elmnt != inp) {
-        x[i].parentNode.removeChild(x[i]);
-      }
+          x[i].parentNode.removeChild(x[i]);
+        }
+      } 
     }
-  }
   
-  document.addEventListener("click", function (e) {
-      closeAllLists(e.target);
-  });
+    document.addEventListener("click", function (e) {
+        closeAllLists(e.target);
+    });
+  }
 }
 
-if(document.getElementById("ciudadR")) {
-  autocomplete(document.getElementById("ciudadR"), ciudades);
-  autocomplete(document.getElementById("ciudadD"), ciudades);
-} else if(document.getElementById("actualizar_ciudad")) {
-  autocomplete(document.getElementById("actualizar_ciudad"), ciudades);
-  autocomplete(document.getElementById("CPNciudad"), ciudades);
-} else if(document.getElementById("CPNciudad")) {
-  autocomplete(document.getElementById("CPNciudad"), ciudades);
-}
+autocomplete(document.getElementById("ciudadR"), ciudades);
+autocomplete(document.getElementById("ciudadD"), ciudades);
+autocomplete(document.getElementById("actualizar_ciudad"), ciudades);
+autocomplete(document.getElementById("CPNciudad"), ciudades);
+autocomplete(document.getElementById("CEdireccion"), ciudades);

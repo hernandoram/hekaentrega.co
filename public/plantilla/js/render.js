@@ -12,8 +12,9 @@ function escucha(id, e, funcion) {
 //Muestra en la pantalla lo que el cliente quiere hacer
 function mostrar(id) {
     let content = document.getElementById("content").children;
+
     
-    if(id == "" ){
+    if(id == ""){
         console.log(content)
         dNone(content);
         content[0].style.display = "block"
@@ -21,9 +22,16 @@ function mostrar(id) {
         if(window.top[id].classList[0] == "container-fluid") {
             dNone(content);
             content[id].style.display = "block"
+        } else if (window.top[id].classList[0] == "container" || 
+        window.top[id].nodeName == "BODY") {
+
+        } else {
+            mostrar(window.top[id].parentNode.getAttribute("id"))
         }
     }
+
 }
+
 
 function dNone(content) {
     for(let i = 0; i < content.length; i++){
@@ -47,6 +55,19 @@ function tablaDeGuias(id, datos){
                 data-funcion="activar-desactivar" aria-label="..." disabled>
             </div>
         </th>
+        <th class="d-flex justify-content-around">
+            <button class="btn btn-primary btn-circle btn-sm" data-id="${id}"
+            id="descargar_documento${id}">
+                <i class="fas fa-file-download"></i>
+            </button>
+
+            ${datos.numeroGuia ? 
+                `<button class="btn btn-primary btn-circle btn-sm" data-id="${id}"
+                id="ver_detalles${id}" data-toggle="modal" data-target="#modal-gestionarNovedad">
+                    <i class="fas fa-search-plus"></i>
+                </button>` : ""}
+        </th>
+
         <th>${id}</th>
         <th></th>
         <th></th>
@@ -57,10 +78,6 @@ function tablaDeGuias(id, datos){
         <th>$${convertirMiles(datos.valor)}</th>
         <th>$${convertirMiles(datos.costo_envio)}</th>
 
-        <th><button class="btn btn-primary btn-circle" data-id="${id}"
-        id="descargar_documento${id}">
-            <i class="fas fa-file-download"></i>
-        </button></th>
 
         <th><button class="btn btn-danger btn-circle" data-id="${id}" 
         id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}" disabled>
@@ -167,7 +184,11 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                     <div class="h4 font-weight-bold text-${tipo_aviso || "info"} text-uppercase mb-2">${data.nombre_usuario}</div>
                     <div class="row no-gutters align-items-center">
                         <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800 w-100">
-                            <p>Id Guias Generadas: <small class="text-break">${data.guias}</small></p>
+                            <p style="white-space: nowrap;
+                            text-overflow: ellipsis;
+                            cursor: zoom-in;
+                            overflow: hidden;"
+                            data-mostrar="texto">Id Guias Generadas: <br><small class="text-break">${data.guias}</small></p>
                             <p>Fecha: <small>${data.fecha}</small></p>
                         </div>
                     </div>
@@ -202,9 +223,9 @@ function mostrarDocumentos(id, data, tipo_aviso) {
 }
 
 //Muestra la fecha de hoy
-function genFecha(direccion){
+function genFecha(direccion, milliseconds){
     // Genera un formato de fecha AAAA-MM-DD
-    let fecha = new Date(), mes = fecha.getMonth() + 1, dia = fecha.getDate();
+    let fecha = new Date(milliseconds || new Date()), mes = fecha.getMonth() + 1, dia = fecha.getDate();
     if(dia < 10){
         dia = "0" + dia;
     }
@@ -239,11 +260,11 @@ for(let input_fecha of document.querySelectorAll('[type="date"]')) {
 }
 
 //Activa los inputs y btones de cada guia que no haya sido enviada
-function activarBotonesDeGuias(id, enviado){
+function activarBotonesDeGuias(id, data){
     let activos = document.querySelectorAll('[data-funcion="activar-desactivar"]');
       for (let actv of activos){
         if(id == actv.getAttribute("data-id")){
-        actv.setAttribute("data-enviado", enviado)
+            actv.setAttribute("data-enviado", data.enviado)
         }
 
         let revisar = actv.getAttribute("data-enviado");
@@ -345,52 +366,89 @@ function activarBotonesDeGuias(id, enviado){
                 }
             })
         })
-      })
+      });
+
+      $("#ver_detalles"+id).on("click", e => {
+        document.getElementById("contenedor-gestionarNovedad").innerHTML = ""
+        document.getElementById("contenedor-gestionarNovedad").innerHTML = `
+            <div class="d-flex justify-content-center align-items-center"><h1 class="text-primary">Cargando   </h1><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>
+        `;
+        usuarioDoc.collection("estadoGuias").doc(id)
+        .get().then(doc => {
+            console.log(doc.data());
+            if(doc.exists) {
+                gestionarNovedadModal(doc.data(), data);
+            } else {
+                document.getElementById("contenedor-gestionarNovedad").innerText = "El estado de esta guía aún no ha sido actualizado"; 
+            }
+        })
+      });
+
 }
 
 //funcion que me devuelve a los inputs que estan escritos incorrectamente o vacios
-function verificador(arr, boolean) {
-    let inputs = document.getElementsByTagName("input");
+function verificador(arr, scroll, mensaje) {
+    let inputs = document.querySelectorAll("input");
+    let mensajes_error = document.querySelectorAll(".mensaje-error");
     let primerInput;
+
+    mensajes_error.forEach(err => {
+        err.remove()
+    })
     for(let i = 0; i < inputs.length; i++){
-        inputs[i].classList.remove("border-danger", "border");
+        inputs[i].classList.remove("border-danger");
     }
 
     if(arr){
         if(typeof arr == "string") {
-            addId(arr)
+            if(addId(arr))
             primerInput = document.getElementById(arr).parentNode;
         } else {
             let error = [];
             for(let id of arr){
-                addId(id)
+                let inp = document.getElementById(id)
                 if(addId(id)){
                     error.push(id);
+                    if(mensaje) {
+                        if(inp.parentNode.querySelector(".mensaje-error")) {
+                            inp.parentNode.querySelector(".mensaje-error").innerText = mensaje;
+                        } else {
+                            let p = document.createElement("p");
+                            p.innerHTML = mensaje;
+                            p.setAttribute("class", "mensaje-error text-danger text-center mt-2")
+                            inp.parentNode.appendChild(p);
+                        }
+                    }
+                    // console.log(inp);
                     primerInput = document.getElementById(error[0]).parentNode;
                 }
             }
         }
-        primerInput.scrollIntoView({
-            behavior: "smooth"
-        })
-        console.log(primerInput)
+        if(primerInput) {
+            primerInput.scrollIntoView({
+                behavior: "smooth"
+            });
+            console.log(primerInput)
+        }
     }
     
     function addId(id){
         let elemento = document.getElementById(id);
-        if(elemento.value == ""){
-            elemento.classList.add("border", "border-danger");
+        if(!elemento.value){
+            elemento.classList.add("border-danger");
             return true
-        } else if(boolean) {
-            elemento.classList.add("border", "border-danger");
-            return true
+        } else if(scroll) {
+            elemento.classList.add("border-danger");
+            return scroll == "no-scroll" ? false : true
         } else {
+            console.log(elemento);
             elemento.classList.remove("border-danger");
             return false
         }
     }
 
 }
+
 
 function tablaPagos(arrData, id) {
     //tarjeta principal, head, body
@@ -504,8 +562,9 @@ function mostrarNotificacion(data, type, id){
         button_close = document.createElement("button");
 
 
-    notificacion.setAttribute("class", "dropdown-item d-flex align-items-center");
-    notificacion.setAttribute("id", "notificacion-"+id)
+    notificacion.setAttribute("class", "dropdown-item d-flex align-items-center justify-content-between");
+    notificacion.classList.add("notificacion-"+id);
+    notificacion.setAttribute("id", "notificacion-"+id);
 
     div_icon.classList.add("mr-3");
     circle.setAttribute("class", "icon-circle bg-primary");
@@ -533,7 +592,7 @@ function mostrarNotificacion(data, type, id){
     if(type == "novedad"){
         // notificacion.setAttribute("href", "#");
         notificacion.addEventListener("click",() => {
-            revisarMovimientosGuias(true, data.mensaje, data.id_heka, data.guia)
+            revisarMovimientosGuias(true, data.seguimiento, data.id_heka, data.guia);
             mostrar("novedades");
         });
         info.textContent = data.fecha + " a las " + data.hora;
@@ -593,90 +652,6 @@ function tablaMovimientos(arrData){
     </tr>`
 
     document.getElementById("card-movimientos").append(tabla, detalles);
-}
-
-function tablaMovimientosGuias(data, usuario){
-    let card = document.createElement("div"),
-        encabezado = document.createElement("a"),
-        cuerpo = document.createElement("div"),
-        table = document.createElement("table"),
-        thead = document.createElement("thead"),
-        tbody = document.createElement("tbody"),
-        tr = document.createElement("tr"),
-        ul = document.createElement("ul");
-
-    card.classList.add("card", "mt-5");
-    ul.classList.add("list-group", "list-group-flush");
-
-    encabezado.setAttribute("class","card-header d-flex justify-content-between");
-    encabezado.setAttribute("data-toggle", "collapse");
-    encabezado.setAttribute("role", "button");
-    encabezado.setAttribute("aria-expanded", "true");
-
-    cuerpo.setAttribute("class", "card-body collapse table-responsive");
-
-    table.classList.add("table");
-    thead.classList.add("text-light", "bg-gradient-primary");
-    thead.innerHTML = `<tr>
-        <th>Guía</th>
-        <th>Fecha de Envío</th>
-        <th class="text-center">Movimientos</th>
-    </tr>`
-    
-    encabezado.setAttribute("href", "#movimientos-guias-" + usuario.replace(" ", ""));  
-    encabezado.setAttribute("aria-controls", "movimientos-guias-" +usuario.replace(" ", ""));
-    encabezado.textContent = usuario;
-    cuerpo.setAttribute("id", "movimientos-guias-" + usuario.replace(" ", ""));
-    cuerpo.setAttribute("data-usuario", usuario.replace(" ", ""));
-    let cantMovs = data.movimientos.length
-    let reduceMovs = cantMovs > 5 ? cantMovs - 5 : 0;
-    for(let i = data.movimientos.length - 1; i >= reduceMovs; i--) {
-        let movimiento = data.movimientos[i];
-        let li = document.createElement("li");
-        li.classList.add("list-group-item", "list-group-item-action");
-        li.innerHTML = `<span class="badge badge-primary">${i + 1}</span>
-            Movimiento: ${movimiento.movimiento} - Fecha: ${movimiento.fecha} </br>
-            Descripcion: ${movimiento.descripcion} - Tipo de movimiento: ${movimiento.DesTipoMov}
-        `;
-
-        if(i != cantMovs - 1){
-            li.classList.add("d-none");
-        }
-        ul.appendChild(li);
-    }
-    
-    tr.innerHTML = `
-        <td>${data.fechaEnvio}</td>
-        <td>${data.numeroGuia}</td>
-        <td></td>
-    `
-    tr.children[2].appendChild(ul);
-
-    if(document.querySelector("#movimientos-guias-" + usuario.replace(" ", ""))){
-        document.querySelector("#movimientos-guias-" + usuario.replace(" ", "")).querySelector("tbody").appendChild(tr);
-    } else {
-        tbody.appendChild(tr);
-        table.append(thead, tbody);
-        cuerpo.appendChild(table);
-        card.append(encabezado, cuerpo);
-    
-        document.getElementById("visor_novedades").appendChild(card);
-    }
-
-    ul.addEventListener("click", e => {
-        let lista = ul.children;
-        if(lista.length > 1){
-            if(lista[2].classList.contains("d-none")) {
-                for(let i = 1; i < lista.length; i++) {
-                    lista[i].classList.remove("d-none");
-                }
-            } else {
-                for(let i = 1; i < lista.length; i++) {
-                    lista[i].classList.add("d-none");
-                }
-            }
-        }
-    })
 }
 
 function tablaNovedades(data, extraData, usuario, solucion, id_heka, resuelta){
@@ -826,7 +801,8 @@ function tablaNovedades(data, extraData, usuario, solucion, id_heka, resuelta){
                         id_heka: id_heka,
                         type: "novedad",
                         user_id: user_id,
-                        usuario: datos_usuario.centro_de_costo
+                        usuario: datos_usuario.centro_de_costo,
+                        visible_admin: true
                     })
                 }).then(() => {
                     avisar("Solicitud Recibida", "Hemos Recibido tu solicitud, pronto estaremos atendiendo su novedad")
@@ -838,6 +814,331 @@ function tablaNovedades(data, extraData, usuario, solucion, id_heka, resuelta){
     })
 }
 
+function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
+    let card = document.createElement("div"),
+        encabezado = document.createElement("a"),
+        cuerpo = document.createElement("div"),
+        table = document.createElement("table"),
+        thead = document.createElement("thead"),
+        tbody = document.createElement("tbody"),
+        tr = document.createElement("tr"),
+        ul = document.createElement("ul");
+
+    card.classList.add("card", "mt-5");
+    ul.classList.add("list-group", "list-group-flush");
+
+    encabezado.setAttribute("class","card-header d-flex justify-content-between");
+    encabezado.setAttribute("data-toggle", "collapse");
+    encabezado.setAttribute("role", "button");
+    encabezado.setAttribute("aria-expanded", "true");
+
+    cuerpo.setAttribute("class", "card-body collapse table-responsive");
+
+    table.classList.add("table");
+    table.setAttribute("id", "tabla-estadoGuias-"+usuario.replace(/\s/g, ""));
+    thead.classList.add("text-light", "bg-gradient-primary");
+    thead.innerHTML = `<tr>
+        <th>Guía</th>
+        <th class="text-center">Detalles</th>
+        <th>Gestionar</th>
+    </tr>`
+    
+    encabezado.setAttribute("href", "#estadoGuias-" + usuario.replace(/\s/g, ""));  
+    encabezado.setAttribute("aria-controls", "estadoGuias-" +usuario.replace(/\s/g, ""));
+    encabezado.textContent = usuario;
+    cuerpo.setAttribute("id", "estadoGuias-" + usuario.replace(/\s/g, ""));
+    cuerpo.setAttribute("data-usuario", usuario.replace(/\s/g, ""));
+
+    tr.setAttribute("id", "estadoGuia"+data.numeroGuia);
+    if(data.movimientos[data.movimientos.length - 1].IdConc != 0) {
+        tr.classList.add("text-danger");
+    }
+    
+    let btnGestionar;
+    if(administracion) {
+        if(extraData.centro_de_costo) {
+            btnGestionar = "Revisar";
+        } else {
+            btnGestionar = extraData.novedad_solucionada ? "Solucionada" : "Solucionar";
+        }
+    } else {
+        btnGestionar = extraData.novedad_solucionada ? "Revisar" : "Gestionar";
+    }
+    tr.innerHTML = `
+        <td>${data.numeroGuia}</td>
+        <td>
+            <h5>Último movimiento: <small>${data.movimientos[data.movimientos.length -1].NomMov} - ${data.movimientos[data.movimientos.length -1].FecMov}</small></h5>
+            ${extraData.seguimiento ? 
+                '<h5>Última Gestión: <small>'+extraData.seguimiento[extraData.seguimiento.length -1].gestion+ ' - ' + genFecha("LR", extraData.seguimiento[extraData.seguimiento.length -1].fecha.toMillis() || "").replace(/-/g, "/")+'</small></h5>' : ""
+            }
+        </td>
+        <td>
+            <button class="btn btn-${extraData.novedad_solucionada ? "secondary" : "primary"} m-2" 
+            id="gestionar-guia-${data.numeroGuia}"
+            ${btnGestionar != "Solucionar" && btnGestionar != "Solucionada" ? 
+            'data-toggle="modal" data-target="#modal-gestionarNovedad"' : ""}>
+                ${btnGestionar}
+            </button>
+        </td>
+    `;
+
+    
+
+    if(document.querySelector("#estadoGuia" + data.numeroGuia)) {
+        document.querySelector("#estadoGuia" + data.numeroGuia).innerHTML = "";
+        document.querySelector("#estadoGuia" + data.numeroGuia).innerHTML = tr.innerHTML
+    } else if(document.querySelector("#estadoGuias-" + usuario.replace(/\s/g, ""))){
+        document.querySelector("#estadoGuias-" + usuario.replace(/\s/g, "")).querySelector("tbody").appendChild(tr);
+    } else {
+        tbody.appendChild(tr);
+        table.append(thead, tbody);
+        let mensaje = document.createElement("p");
+        mensaje.classList.add("text-center", "text-danger");
+        mensaje.innerHTML = "Tiempo óptimo de solución: 24 horas";
+        cuerpo.append(mensaje, table);
+        card.append(encabezado, cuerpo);
+    
+        document.getElementById("visor_novedades").appendChild(card);
+    }
+
+    $("#gestionar-guia-"+data.numeroGuia).click(() => {
+        if(extraData.centro_de_costo){
+            extraData.id_heka = id_heka;
+            gestionarNovedadModal(data, extraData);
+        } else {
+            $("#gestionar-guia-"+data.numeroGuia).html(`
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Cargando...
+            `);
+            firebase.firestore().collection("usuarios").doc(id_user).collection("guias").doc(id_heka)
+            .update({
+                novedad_solucionada: true
+            }).then(() => {
+                firebase.firestore().collection("notificaciones").doc(id_heka).delete();
+                $("#gestionar-guia-"+data.numeroGuia).html(btnGestionar);
+                avisar("Guía Gestionada", "La guía " +data.numeroGuia+ " ha sido actualizada exitósamente como solucionada");
+            })
+        }
+    })
+}
+
+//dataN = data de la novedad, dataG = data de la guía
+function gestionarNovedadModal(dataN, dataG) {
+    //Acá estableceré la información general de la guía
+    let info_gen = document.createElement("div"),
+        info_guia = `
+            <div class="col-6 col-md mb-3">
+            <div class="card">
+            <div class="card-header">
+                <h5>Datos de la guía</h5>
+            </div>
+            <div class="card-body">
+                <p>Número de guía: <span>${dataN.numeroGuia}</span></p>
+                <p>Fecha de envío: <span>${dataN.fechaEnvio}</span></p>
+                <p>Estado: <span class="${dataN.movimientos[dataN.movimientos.length - 1].IdConc != "0" ? "text-danger" : "text-primary"}">
+                  ${dataN.movimientos[dataN.movimientos.length - 1].IdConc != "0" ? "En novedad" : dataN.estadoActual}
+                </span></p>
+                <p>Peso: <span>${dataG.detalles.peso_liquidar} Kg</span></p>
+                <p>Dice contener: <span>${dataG.dice_contener}</p>
+            </div>
+            </div>
+        </div>
+        `,
+        info_rem = `
+            <div class="col-6 col-md mb-3">
+                <div class="card">
+                <div class="card-header">
+                    <h5>Datos Remitente</h5>
+                </div>
+                <div class="card-body">
+                    <p>Nombre: <span>${dataG.nombreR}</span></p>
+                    <p>Direccion: <span>${dataG.direccionR}</span></p>
+                    <p>Ciudad: <span>${dataG.ciudadR}</span></p>
+                    <p>teléfono: <span>${dataG.celularR}</span></p>
+
+                </div>
+                </div>
+            </div>
+        `,
+        info_dest = `
+            <div class="col col-md mb-3">
+                <div class="card">
+                <div class="card-header">
+                    <h5>Datos del destinatario</h5>
+                </div>
+                <div class="card-body">
+                    <p>Nombre: <span>${dataG.nombreD}</span></p>
+                    <p>Direccion: <span>${dataG.direccionD}</span></p>
+                    <p>Ciudad: <span>${dataG.ciudadD}</span></p>
+                    <p>teléfonos: <span>
+                        <a href="https://api.whatsapp.com/send?phone=57${dataG.telefonoD.toString().replace(/\s/g, "")}" target="_blank">${dataG.telefonoD}</a>, 
+                        <a href="https://api.whatsapp.com/send?phone=57${dataG.celularD.toString().replace(/\s/g, "")}" target="_blank">${dataG.celularD}</a>
+                    </span></p>
+                </div>
+                </div>
+            </div>
+        `,
+        gestionar = `
+        <div class="col-6 col-md mb-3">
+            <p>Escribe aquí tu solución a la novedad</p>
+            <textarea type="text" class="form-control" name="solucion-novedad" id="solucion-novedad-${dataN.numeroGuia}"></textarea>
+            <button class="btn btn-success m-2" id="solucionar-novedad-${dataN.numeroGuia}">Enviar Solución</button>
+        </div>
+        `;
+
+    info_gen.classList.add("row");
+    info_gen.innerHTML = info_guia + info_rem + info_dest;
+
+
+    //Acá etableceré la información de movimientos y gestiones anteriores de la guía
+    let detalles = document.createElement("div"),
+        mensajeGetionada = dataG.novedad_solucionada ? "<p class='text-success text-center'>Esta guía ya ha sido gestionada en base a la última solución enviada.</p>" : "",
+        desplegadores = new DOMParser().parseFromString(`
+        <div class="col-12">
+        ${mensajeGetionada}
+        <div class="btn-group mb-3 col-12" role="group">
+            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#historial-estados-gestionarNovedad" aria-expanded="false" aria-controls="historial-estados-gestionarNovedad">Historial Estados</button>
+            <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#seguimiento-gestionarNovedad" aria-expanded="false" aria-controls="seguimiento-gestionarNovedad">Seguimiento</button>
+        </div></div>
+        `, "text/html").body.firstChild,
+        historial_estado = new DOMParser().parseFromString(`
+        <div class="collapse multi-collapse col-12 col-md mb-4" id="historial-estados-gestionarNovedad">
+            <ul class="list-group border-left-primary"></ul>
+        </div>
+        `, "text/html").body.firstChild,
+        seguimiento = new DOMParser().parseFromString(`
+        <div class="collapse multi-collapse col-12 col-md" id="seguimiento-gestionarNovedad">
+            <ul class="list-group border-left-primary"></ul>
+        </div>
+        `, "text/html").body.firstChild;
+    
+    if(dataN.movimientos) {
+        for(let i = dataN.movimientos.length - 1; i >= 0; i--){
+            let mov = dataN.movimientos[i];
+            let li = document.createElement("li");
+        
+            li.innerHTML = `
+            <span class="badge badge-primary badge-pill mr-2 d-flex align-self-start">${i+1}</span>
+            <div class="d-flexd-flex flex-column w-100">
+            <small class="d-flex justify-content-between">
+                <h6 class="text-danger">${mov.IdConc != "0" ? "En novedad" : ""}</h6>
+                <h6>${mov.FecMov}</h6>
+            </small>
+            <h5>${mov.NomMov}</h5>
+            <p>
+                ${mov.DesMov} </br>
+                <span class="text-danger">${mov.NomConc}</span>
+            </p>
+            </div>
+            `
+            li.setAttribute("class", "list-group-item d-flex");
+            historial_estado.children[0].appendChild(li);
+        }
+    }
+
+    if(dataG.seguimiento) {
+        for(let i = dataG.seguimiento.length - 1; i >= 0; i--) {
+            let seg = dataG.seguimiento[i];
+            let li = document.createElement("li");
+        
+            li.innerHTML = `
+            <span class="badge badge-primary badge-pill mr-2 d-flex align-self-start">${i+1}</span>
+            <div class="d-flexd-flex flex-column w-100">
+            <small class="d-flex justify-content-between">
+                <h6>${genFecha("LR", seg.fecha.toMillis())}</h6>
+                <h6>${seg.fecha.toDate().toString().match(/\d\d:\d\d/)[0]}</h6>
+            </small>
+            <p>
+                ${seg.gestion}
+            </p>
+            </div>
+            `
+            li.setAttribute("class", "list-group-item d-flex");
+            seguimiento.children[0].appendChild(li);
+        }
+    }
+
+    detalles.classList.add("row");
+    detalles.append(desplegadores, historial_estado, seguimiento);
+
+    
+    document.getElementById("contenedor-gestionarNovedad").innerHTML = ""
+    document.getElementById("contenedor-gestionarNovedad").append(info_gen, detalles);
+    
+    // Funciones para despues que cargue todo
+    if(!administracion) {
+        info_gen.innerHTML += gestionar;
+        let p = document.createElement("p");
+        p.classList.add("text-danger");
+        let idSolucion = "#solucion-novedad-"+dataN.numeroGuia;
+        let btn_solucionar = $("#solucionar-novedad-"+dataN.numeroGuia);
+
+        btn_solucionar.parent().append(p);
+
+        $(idSolucion).on("input", (e) => {
+            if(e.target.value) {
+                btn_solucionar.prop("disabled", false);
+                btn_solucionar.text("Enviar Solución");
+                p.innerHTML = "";
+            }
+        })
+        
+        btn_solucionar.click((e) => {
+            e.target.disabled = true;
+            e.target.innerHTML = "";
+            e.target.innerHTML = `
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                Cargando...`
+            if(!$(idSolucion).val()) {
+               p.innerText = "Error! No puedes enviar una solución vacía.";
+               p.classList.replace("text-success", "text-danger");
+            } else {
+                console.log($(idSolucion));
+                if(dataG.seguimiento) {
+                    dataG.seguimiento.push({
+                        gestion: $(idSolucion).val(),
+                        fecha: new Date()
+                    })
+                } else {
+                    dataG.seguimiento = [{
+                        gestion: $(idSolucion).val(),
+                        fecha: new Date()
+                    }]
+                }
+    
+                usuarioDoc.collection("guias").doc(dataG.id_heka).update({
+                    seguimiento: dataG.seguimiento,
+                    novedad_solucionada: false
+                }).then(() => {
+                    p.innerText = "Sugerencia enviada exitósamente";
+                    p.classList.replace("text-danger", "text-success");
+
+                    let momento = new Date().getTime();
+                    let hora = new Date().getMinutes() < 10 ? new Date().getHours() + ":0" + new Date().getMinutes() : new Date().getHours() + ":" + new Date().getMinutes();
+    
+                    firebase.firestore().collection("notificaciones").doc(dataG.id_heka).set({
+                        fecha: genFecha(),
+                        timeline: momento,
+                        mensaje: datos_usuario.nombre_completo + " (" + datos_usuario.centro_de_costo 
+                        + ") Sugirió una solución para la guía " 
+                        + dataN.numeroGuia + ": " + $(idSolucion).val(),
+                        hora: hora,
+                        guia: dataN.numeroGuia,
+                        id_heka: dataG.id_heka,
+                        type: "novedad",
+                        user_id: user_id,
+                        seguimiento: dataG.seguimiento,
+                        usuario: datos_usuario.centro_de_costo,
+                        visible_admin: true
+                    })
+                    btn_solucionar.text("Enviar Solución")
+                })
+            }
+        })
+    }
+}
+
 $("#activador_filtro_fecha").change((e) => {
     e.target.checked ? $("#fecha-pagos").show("fast") : $("#fecha-pagos").hide("fast")
-})
+});
+

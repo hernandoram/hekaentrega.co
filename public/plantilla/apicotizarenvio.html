@@ -10,12 +10,8 @@
   <meta name="author" content="">
   <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
 
+  <title>HEKA</title>
 
-  <title>hekaentrega.co</title>
-
-  <!--autocompeltar-->
-  <script type="text/javascript" src="https://www.HEKA.co/app/incluidos/jquery-1.9.1.min.js"></script>
-  <script type="text/javascript" src="https://www.HEKAHEKA.co/app/modulos/utilidades/jquery.autocomplete.min.js"></script>
   <!-- Custom fonts for this template-->
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
   <link
@@ -25,21 +21,100 @@
   <!-- Custom styles for this template-->
   <link href="css/sb-admin-2.min.css" rel="stylesheet">
 
-  
-
 </head>
 
 <body class="bg-gradient-primary">
-  <!--Verificar usuario comun-->
-  <!--
-  <div id="verificarUsuarioPuntoheka" ></div>
+<!--verificar usuario comun-->
+<!--  
+<div id="verificarUsuarioComun"></div>
   -->
-  
-  <div id="cargarDatosUsuarioComun2"></div>
- 
+  <!-- LOGIN -->
+  <div id="login-mostrar-ocultar" style="display: none;" class="container">
+
+
+
+
+    <!-- Outer Row -->
+    <div class="row justify-content-center">
+
+      <div class="col-xl-10 col-lg-12 col-md-9">
+
+        <div class="card o-hidden border-0 shadow-lg my-5">
+          <div class="card-body p-0">
+            <!-- Nested Row within Card Body -->
+            <div class="row">
+              <div class="col-lg-6 d-none d-lg-block "></div>
+              <div class="col-lg-6">
+                <div class="p-5">
+                  <div class="text-center">
+                    <h1 class="h4 text-gray-900 mb-4">Bienvenid@ a HEKA!</h1>
+                  </div>
+
+
+                  <div class="form-group">
+                    <input type="email" id="usuario" class="form-control form-control-user" id="exampleInputEmail"
+                      aria-describedby="emailHelp" placeholder="Correo eléctronico..." required>
+                  </div>
+
+                  <div class="form-group">
+                    <input type="password" id="contrasena" class="form-control form-control-user"
+                      id="exampleInputPassword" placeholder="Password" required>
+                  </div>
+
+
+                  <div class="form-group">
+                    <!--
+                      <div class="custom-control custom-checkbox small">
+                        <input type="checkbox" class="custom-control-input" id="customCheck">
+                        <label class="custom-control-label" for="customCheck">Remember Me</label>
+                      </div>
+                      -->
+                  </div>
+
+                  <button onclick="iniciarSesion()" type="submit" class="btn btn-danger btn-user btn-block">
+                    Entrar
+                  </button>
+
+
+
+
+                  <!--
+                    <a href="index.html" class="btn btn-google btn-user btn-block">
+                      <i class="fab fa-google fa-fw"></i> Login with Google
+                    </a>
+                    <a href="index.html" class="btn btn-facebook btn-user btn-block">
+                      <i class="fab fa-facebook-f fa-fw"></i> Login with Facebook
+                    </a>
+                    -->
+
+
+                  <div id="inicio">
+
+                  </div>
+
+
+                  <!--
+                  <div class="text-center">
+                    <a class="small" href="forgot-password.html">Forgot Password?</a>
+                  </div>
+                  <div class="text-center">
+                    <a class="small" href="register.html">Create an Account!</a>
+                  </div>
+                  -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
   <!-- COTIZADOR -->
 
-  <div id="sesionIniciada-mostrar-ocultar" style="display: block;">
+  <div id="sesionIniciada-mostrar-oculta" style="display: block;">
 
 
 
@@ -50,8 +125,7 @@
       <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion toggled" id="accordionSidebar">
 
         <!-- Sidebar - Brand -->
-        
-        <a class="sidebar-brand d-flex align-items-center justify-content-center" href="/plataformaPuntoheka.html">
+        <a class="sidebar-brand d-flex align-items-center justify-content-center"  href="/plataforma.html" >
           <div class="sidebar-brand-icon rotate-n-15">
             <i class="fas fa-laugh-wink"></i>
           </div>
@@ -61,36 +135,92 @@
         <!-- Divider -->
         <hr class="sidebar-divider my-0">
 
-       <!-- Nav Item - Cotizar envio -->
-       <li class="nav-item">
-        <a class="nav-link" href="/plataformaPuntoheka.html">
-          <i class="fas fa-fw fa-tachometer-alt"></i>
-          <span>Cotizar envío</span></a>
-      </li>
-
         <!-- Nav Item - Cotizar envio -->
-        <!--
         <li class="nav-item">
           <a class="nav-link" href="/plataforma.html">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Cotizar envío</span></a>
+        </li>       
+
+        <!-- Nav Item - Cotizar envio -->
+        <!--
+        <li class="nav-item">
+          <a class="nav-link" href="/plataforma.html" >
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Cotizar envío</span></a>
         </li>
         -->
+
+        
+        
+        
+      
 
         <!-- Divider -->
         <hr class="sidebar-divider">
 
         <!-- Heading -->
         <div class="sidebar-heading">
-          Guías
+          Estado
         </div>
-        <!--
+<!--
         <li class="nav-item">
           <a class="nav-link" href="/novedades2">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Historial de guías</span></a>
         </li>
         -->
+
+         
+      
+      
+      <!-- Generación de documentos ENVIA - TCC-->
+        <!--
+      <li class="nav-item">
+        <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapse3" aria-expanded="true" aria-controls="collapseTwo">
+          <i class="fas fa-fw fa-cog"></i>
+          <span>Generar documentos</span>
+        </a>
+        <div id="collapse3" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+          <div class="bg-white py-2 collapse-inner rounded">
+            <h6 class="collapse-header">Opciones:</h6>
+            <form action="relacionEnvio" method="post" name="Generar_documentosEnvia">
+          <input type="hidden" id="codigoFirebase" name="codigoFirebase" required>
+          <input type="hidden"  name="codigoTransportadora" value="29" required>
+        </form>
+        <form action="relacionEnvio" method="post" name="Generar_documentosTcc">
+        <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
+        <input type="hidden"  name="codigoTransportadora" value="1010" required>
+      </form>
+           
+            
+            <a class="collapse-item" href="javascript:generarDocumentosEnvia()">ENVIA</a>
+            <a class="collapse-item" href="javascript:generarDocumentosTcc()">TCC</a>
+  
+            <script>
+            function generarDocumentosEnvia(){
+              document.Generar_documentosEnvia.submit();
+            }
+            function generarDocumentosTcc(){
+              document.Generar_documentosTcc.submit();
+            }
+             
+
+            </script>
+
+            
+            
+          </div>
+        </div>
+      </li>
+      -->
+      
+
+
+
+
+
+
 
         <!-- Nav Item - Pages Collapse Menu -->
         
@@ -102,12 +232,14 @@
           <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
               <h6 class="collapse-header">Opciones:</h6>
-                <!--
+              
               <form action="estadoGuiasCreadas" method="post" name="estadoGuiasCreadasForm">
                 <input type="hidden" id="codigoFirebase" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="6" required>
+                
                 <input type="hidden" name="fecha_inicio" value="1" required>
                 <input type="hidden" name="fecha_final" value="1"  required>
+                
               </form>
 
               <form action="estadoGuiasCreadas" method="post" name="estadoGuiasEnProcesoForm">
@@ -116,13 +248,14 @@
                 <input type="hidden" name="fecha_inicio" value="1" required>
                 <input type="hidden" name="fecha_final" value="1"  required>
               </form>
+
               <form action="estadoGuiasCreadas" method="post" name="estadoGuiasEntregadasForm">
                 <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="2" required>
                 <input type="hidden" name="fecha_inicio" value="1" required>
                 <input type="hidden" name="fecha_final" value="1"  required>
               </form>
-              
+              <!--
               <form action="estadoGuiasCreadas" method="post" name="estadoGuiasPagadasForm">
                 <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="4" required>
@@ -132,17 +265,13 @@
                 <input type="hidden" id="codigoFirebase2" name="codigoFirebase" required>
                 <input type="hidden" name="valor" value="5" required>
               </form>
-              -->
-              
-              
-              <a class="collapse-item" href="historialGuiasPuntoheka.html">Historial Guías</a>
-
-              <!--
-               <a class="collapse-item" href="javascript:estadoGuiasCreadasForm()">Creadas</a>
+            -->
+            <a class="collapse-item" href="historialGuias.html">Historial Guías</a>
+            <!--
+              <a class="collapse-item" href="javascript:estadoGuiasCreadasForm()">Creadas</a>
               <a class="collapse-item" href="javascript:estadoGuiasEnProcesoForm()">En proceso de envío</a>
               
               <a class="collapse-item" href="javascript:estadoGuiasEntregadasForm()">Entregadas</a>
-            -->
               <!--
               <a class="collapse-item" href="javascript:estadoGuiasPagadasForm()">pagadas a HEKA </a>
               <a class="collapse-item" href="javascript:estadoGuiasDevolucionesForm()">Devoluciones</a>
@@ -168,11 +297,15 @@
                   document.estadoGuiasDevolucionesForm.submit();
                 }
 
+               
+
               </script>
-</div>
+
+              
+              
+            </div>
           </div>
         </li>
-
 
         <!-- relaciones de envío descargar nueva 2021-->
         <li class="nav-item">
@@ -185,9 +318,10 @@
               <h6 class="collapse-header">Opciones:</h6>
              
               
-              <a class="collapse-item" href="crearRelacionPuntoheka.html">Crear relación</a>
-              <a class="collapse-item" href="relacionesCreadasPuntoheka.html">Historial relaciones creadas</a>
+              <a class="collapse-item" href="crearRelacion.html">Crear relación</a>
+              <a class="collapse-item" href="relacionesCreadas.html">Historial relaciones creadas</a>
 
+         
              
 
               
@@ -197,24 +331,24 @@
             </div>
           </div>
         </li>
-      
-     
-          <!-- Relación de envío -->
-             <!--
+
+        <!-- Relación de envío -->
+        <!--
           <li class="nav-item">
             <a class="nav-link" href="/tablaRelacionEnvio.html">
               <i class="fas fa-fw fa-tachometer-alt"></i>
               <span>Descargar Relación</span></a>
           </li>
-        -->
+          -->
+        
+        
 
-
-       <!-- Nav Item - buscar por número de guía -->
-       <li class="nav-item">
-        <a class="nav-link" href="/buscarGuiaPuntoheka.html">
-          <i class="fas fa-fw fa-tachometer-alt"></i>
-          <span>Buscar # de guía</span></a>
-      </li>
+        <!-- Nav Item - buscar por número de guía -->
+        <li class="nav-item">
+          <a class="nav-link" href="/buscarGuia.html">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Buscar # de guía</span></a>
+        </li>
 
 
 
@@ -239,14 +373,14 @@
       <!-- End of Sidebar -->
 
       <!-- Content Wrapper -->
-      
       <div id="content-wrapper" class="d-flex flex-column">
 
-        <div class="row">
-          <div  class="text-center bg-dark text-white col-sm">Area logística +57 <a class="text-white" href="https://wa.link/j8l2ku">321 336 1911</a></div>
-          <div  class="text-center bg-dark text-white col-sm">Gerencia +57 <a class="text-white" href="https://wa.link/jwryoa">312 463 8608</a></div>
-          <div class="text-center text-white bg-info col-sm">Saldo: <a class="text-white" id="saldo" href="https://wa.link/jwryoa"></a></div>
-        </div>
+      <div class="row">
+      <div  class="text-center bg-dark text-white col-sm">Area logística +57 <a class="text-white" href="https://wa.link/j8l2ku">321 336 1911</a></div>
+      <div  class="text-center bg-dark text-white col-sm">Gerencia +57 <a class="text-white" href="https://wa.link/jwryoa">312 463 8608</a></div>
+      <div class="text-center text-white bg-info col-sm">Saldo: <a class="text-white" id="saldo" href="https://wa.link/jwryoa"></a></div>
+    </div>
+    
         <!-- Main Content -->
         <div id="content">
 
@@ -271,82 +405,57 @@
                 </div>
               </div>
             </form>
-          -->
-         <!-- Topbar Search -->
-            <!--
-                          <form class="d-none d-sm-inline-block form-inline mr-auto ml-md-3 my-2 my-md-0 mw-100 navbar-search">
-              <div class="input-group">
-               <input type="text" class="form-control bg-light border-0 small" placeholder="Asesora logística: Whatsapp +57 321 3361911"
-                  aria-label="Search" aria-describedby="basic-addon2"> 
-                <div class="input-group-append">
-                  
-                  <button class="btn btn-primary" type="button">
-                    
-                    <i class="fas fa-search fa-sm"></i>
-                    
-                  
-                  </button>
-                
-                </div>
-              </div>
-            </form>
-          -->
+            -->
 
             <!-- Topbar Navbar -->
             <ul class="navbar-nav ml-auto">
-              
 
               <!-- Nav Item - Search Dropdown (Visible Only XS) -->
               <!--
               <li class="nav-item dropdown no-arrow d-sm-none">
-                
                 <a class="nav-link dropdown-toggle" href="#" id="searchDropdown" role="button" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
                   <i class="fas fa-search fa-fw"></i>
                 </a>
-              -->
-              
-              
+                -->
+
+
+                
 
 
 
 
 
+                <div class="topbar-divider d-none d-sm-block"></div>
 
+             
 
+                <!-- Nav Item - User Information -->
+                <li class="nav-item dropdown no-arrow">
+                  <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                    aria-haspopup="true" aria-expanded="false">
+                    <span class="mr-2 d-none d-lg-inline text-gray-800 small"></span><code id="idUsuario2" class="text-dark"> </code>
+                    
+                  </a>
 
-                <div class="topbar-divider d-none d-sm-block">
-                  
-                </div>
-
-
-                 <!-- Nav Item - User Information -->
+                <!-- Nav Item - User Information -->
               <li class="nav-item dropdown no-arrow">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
-                  <span class="mr-2 d-none d-lg-inline text-gray-800 small"></span><code id="idUsuario2" class="text-dark"> </code>
-                  
-                </a>
-                
-
-               <!-- Nav Item - User Information -->
-               <li class="nav-item dropdown no-arrow">
-                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
-                  aria-haspopup="true" aria-expanded="false">
-                  <span class="mr-2 d-none d-lg-inline text-gray-600 small" ></span>
+                  <span class="mr-2 d-none d-lg-inline text-gray-600 small"></span>
                   <img class="img-profile rounded-circle" src="img/unnamed.png">
                 </a>
                 <!-- Dropdown - User Information -->
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                  <a class="dropdown-item" href="perfilPuntoheka.html">
-                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Perfil de usuario
-                  </a>
-                 
-                    <a class="dropdown-item" href="javascript:cerrarSesionPuntoheka()">
-                      <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                      Salir
-                    </a>
+                <a class="dropdown-item" href="perfil.html">
+                <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                Perfil de usuario
+              </a>
+             
+                <a class="dropdown-item" href="javascript:cerrarSesion()">
+                  <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                  Salir
+                </a>
                   <!--
                   <a class="dropdown-item" href="#">
                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -382,7 +491,7 @@
                 
       <div id="preciosEnvios-mostrar-ocultar" style="display: block;">
        <div class="container-fluid">
-       <a  class="btn btn-success"  href="/plataformaPuntoheka.html">
+       <a  class="btn btn-success"  href="/plataforma.html">
                 REGRESAR
               </a>
               <h1></h1>
@@ -390,7 +499,7 @@
 
               <hr class="sidebar-divider"></hr>
 
-       <h1 class="h3 mb-1 text-gray-800">Datos de envío (CONTRAENTREGA)</h1>
+       <h1 class="h3 mb-1 text-gray-800">Datos de envío (COMÚN)</h1>
      
          <!-- Datos cotizador -->
 
@@ -398,7 +507,7 @@
 
          <div class="col-sm-6 mb-3 mb-sm-0">
            <h6>Ciudad rem.</h6>
-           <input readonly="readonly" type="text" class="form-control form-control-user" value="BOGOTA(CUNDINAMARCA)" required>
+           <input readonly="readonly" type="text" class="form-control form-control-user" value="MEDELLIN(ANTIOQUIA)" required>
            
          </div>
    
@@ -408,7 +517,7 @@
    
          <div class="col-sm-6">
            <h6>Ciudad dest.</h6>
-           <input type="text" readonly="readonly" class="form-control form-control-user" value="MEDELLIN(ANTIOQUIA)"   required>
+           <input type="text" readonly="readonly" class="form-control form-control-user" value="BOGOTA(CUNDINAMARCA)"   required>
          </div>
 
        
@@ -422,12 +531,12 @@
 
        <div class="col-sm-6">
            <h6>Seguro</h6>
-           <input type="text" readonly="readonly" class="form-control form-control-user" value="35000"   required>
+           <input type="text" readonly="readonly" class="form-control form-control-user" value="10000"   required>
          </div>
 
          <div class="col-sm-6">
            <h6>Recaudo</h6>
-           <input type="text" readonly="readonly" class="form-control form-control-user" value="1"   required>
+           <input type="text" readonly="readonly" class="form-control form-control-user" value="0"   required>
          </div>
 
        </div>
@@ -455,7 +564,7 @@
           <div class="card position-relative">
             <div class="card-header py-3">
               <h6 class="m-0 font-weight-bold text-primary">
-              <a class="navbar-brand" href="#">TCC SA - nacional</a>
+              <a class="navbar-brand" href="#">ENVIA - nacional</a>
               </h6>
               
             </div>
@@ -468,7 +577,7 @@
               </div>
               <div class="small mb-1">TIEMPO DE ENTREGA: 2</div>
               <nav class="navbar navbar-expand navbar-light bg-light mb-4">
-                <a class="navbar-brand" href="#">COSTO DE ENVÍO: 16409</a>
+                <a class="navbar-brand" href="#">COSTO DE ENVÍO: 10949</a>
                 
                 <!--
                 <ul class="navbar-nav ml-auto">
@@ -492,21 +601,21 @@
   
               
               <h1> </h1>
-              <form action="listarGuiaEnviaTccPuntoheka" method="post" name="listarGuiaEnviaTcc1">
-              <input type="hidden" name="ciudadR" value="BOGOTA(CUNDINAMARCA)">
-              <input type="hidden" name="ciudadD" value="MEDELLIN(ANTIOQUIA)" >
+              <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc1">
+              <input type="hidden" name="ciudadR" value="MEDELLIN(ANTIOQUIA)">
+              <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
               <input type="hidden" name="kilos" value="1">
-              <input type="hidden" name="seguro" value="35000" >
-              <input type="hidden" name="recaudo" value="1" >
-              <input type="hidden" name="idtrans" value="1010" >
+              <input type="hidden" name="seguro" value="10000" >
+              <input type="hidden" name="recaudo" value="0" >
+              <input type="hidden" name="idtrans" value="29" >
              
 
-              <input type="hidden" name="fletetotal" value="9729" >
-              <input type="hidden" name="costoManejo" value="360" >
-              <input type="hidden" name="valorOtrosRecaudos" value="3600" >
-              <input type="hidden" name="comision_heka" value="2720" >
+              <input type="hidden" name="fletetotal" value="9776" >
+              <input type="hidden" name="costoManejo" value="0" >
+              <input type="hidden" name="valorOtrosRecaudos" value="0" >
+              <input type="hidden" name="comision_heka" value="1173" >
 
-              <input type="hidden" name="tipo_envio" value="CONTRAENTREGA" >
+              <input type="hidden" name="tipo_envio" value="COMUN" >
               
     
   
@@ -552,7 +661,7 @@
           <div class="card position-relative">
             <div class="card-header py-3">
               <h6 class="m-0 font-weight-bold text-primary">
-              <a class="navbar-brand" href="#">ENVIA - nacional</a>
+              <a class="navbar-brand" href="#">TCC SA - nacional</a>
               </h6>
               
             </div>
@@ -563,9 +672,9 @@
               -->
                 <code>TRAYECTO: nacional</code>
               </div>
-              <div class="small mb-1">TIEMPO DE ENTREGA: 1</div>
+              <div class="small mb-1">TIEMPO DE ENTREGA: 2</div>
               <nav class="navbar navbar-expand navbar-light bg-light mb-4">
-                <a class="navbar-brand" href="#">COSTO DE ENVÍO: 16854</a>
+                <a class="navbar-brand" href="#">COSTO DE ENVÍO: 11300</a>
                 
                 <!--
                 <ul class="navbar-nav ml-auto">
@@ -589,21 +698,21 @@
   
               
               <h1> </h1>
-              <form action="listarGuiaEnviaTccPuntoheka" method="post" name="listarGuiaEnviaTcc2">
-              <input type="hidden" name="ciudadR" value="BOGOTA(CUNDINAMARCA)">
-              <input type="hidden" name="ciudadD" value="MEDELLIN(ANTIOQUIA)" >
+              <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc2">
+              <input type="hidden" name="ciudadR" value="MEDELLIN(ANTIOQUIA)">
+              <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
               <input type="hidden" name="kilos" value="1">
-              <input type="hidden" name="seguro" value="35000" >
-              <input type="hidden" name="recaudo" value="1" >
-              <input type="hidden" name="idtrans" value="29" >
+              <input type="hidden" name="seguro" value="10000" >
+              <input type="hidden" name="recaudo" value="0" >
+              <input type="hidden" name="idtrans" value="1010" >
              
 
-              <input type="hidden" name="fletetotal" value="9776" >
-              <input type="hidden" name="costoManejo" value="350" >
-              <input type="hidden" name="valorOtrosRecaudos" value="4000" >
-              <input type="hidden" name="comision_heka" value="2728" >
+              <input type="hidden" name="fletetotal" value="9729" >
+              <input type="hidden" name="costoManejo" value="360" >
+              <input type="hidden" name="valorOtrosRecaudos" value="0" >
+              <input type="hidden" name="comision_heka" value="1211" >
 
-              <input type="hidden" name="tipo_envio" value="CONTRAENTREGA" >
+              <input type="hidden" name="tipo_envio" value="COMUN" >
               
     
   
@@ -673,7 +782,7 @@
       <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Ready to Leave?</h5>
+          <h5 class="modal-title" id="exampleModalLabel">Ready to LeHEKA?</h5>
           <button class="close" type="button" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">×</span>
           </button>

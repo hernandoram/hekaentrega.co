@@ -39,7 +39,7 @@
           <div class="col-lg-12">
            
             <div class="p-5">
-              <a href="/" class="btn btn-danger btn-user btn-block">
+              <a href="index.html" class="btn btn-danger btn-user btn-block">
                 Regresar
               </a>
 
@@ -101,7 +101,7 @@
                         <div class="col-md-6">
                           <h6>Ciudad*</h6>
                           <h6>**Elegir del menú desplegable**</h6>
-                          <input name=""  class="form-control form-control-user" id="CPNciudad" autocomplete="off" size="1"></input>
+                          <input class="form-control form-control-user" id="CPNciudad" autocomplete="off"></input>
                         </div>
                         <div class="col-md-6">
                           <h6>Barrio*</h6>
@@ -152,8 +152,8 @@
                         <div id="mostrar-ocultar-registro-bancario" style="display: none;">
                           <h6 class="text-danger">DATOS BANCARIOS</h6>
                             </br>
-                          <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
+                          <div class="form-group row align-items-center mb-4">
+                            <div class="col-12 col-md-5 mb-3 mb-sm-0">
                               <h6>Banco*</6>
                               <h6></h6>
                               <select  class="form-control form-control" id="CPNbanco">
@@ -176,40 +176,36 @@
                                 <option value="Daviplata (Desembolso: $7.500)">Daviplata (Desembolso: $7.500)</option>
                               </select>
                             </div>
-                            <div class="col-sm-6">
+                            <div class="col-12 col-md-7">
                               <h6>Nombre representante*</h6>
                               <input type="text" class="form-control form-control-user" id="CPNnombre_representante" autocomplete="off" required>
                             </div>
                           </div>
       
-                          <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
-                              <h6>Tipo de cuenta*</6>
+                          <div class="form-group row align-items-end mb-4">
+                            <div class="col-12 col-sm-12 col-md-2 mb-3">
+                              <h6>Tipo de cuenta*</h6>
                               <h6></h6>
-                              
+
                               <select  class="form-control form-control" id="CPNtipo_de_cuenta">
                                 <option value="Ahorros">Ahorros</option> 
                                 <option value="Corriente">Corriente</option>
-                               
                               </select>
                             </div>
-      
-      
-                            <div class="col-sm-6">
+
+                            <div class="col-12 col-sm-6 col-md-5">
                               <h6>Número de cuenta*</h6>
                               <input type="number" class="form-control form-control-user" id="CPNnumero_cuenta" autocomplete="off" required>
                             </div>
                             
-                          </div>
-      
-                          <div class="form-group row">
-                            <div class="col-sm-6">
+                            <div class="col-12 col-sm-6 col-md-5">
                               <h6>Confirmar número de cuenta*</h6>
                               <input type="number" class="form-control form-control-user" id="CPNconfirmar_numero_cuenta" autocomplete="off" required>
                             </div>
+                          </div>
       
-      
-                            <div class="col-sm-6 mb-3 mb-sm-0">
+                          <div class="form-group row align-items-end mb-4">
+                            <div class="col-12 col-sm-12 col-md-2 mb-3">
                               <h6>Tipo documento*</6>
                               <h6></h6>
                               
@@ -221,26 +217,21 @@
                               </select>
                             </div>
                             
-                          </div>
-      
-                          <div class="form-group row">
-                            <div class="col-sm-6">
+                            <div class="col-12 col-sm-6 col-md-5">
                               <h6>número de identificación*</h6>
                               <input type="number" class="form-control form-control-user" id="CPNnumero_identificacion_banco" autocomplete="off" required>
                             </div>
       
       
-                            <div class="col-sm-6">
+                            <div class="col-12 col-sm-6 col-md-5">
                               <h6>Confirmar número de identificación*</h6>
                               <input type="number" class="form-control form-control-user" id="CPNconfirmar_numero_identificacion_banco" autocomplete="off" required>
                             </div>
-                            
                           </div>
+      
                         </div>
       
                         <div class="form-check">
-                          <input class="form-check-input" type="checkbox" name="CPNusuario_corporativo" id="CPNusuario_corporativo">
-                          <label class="form-check-label" for="CPMusuario_corporativo">Usuario Corporativo</label><br>
                           <input class="form-check-input" type="checkbox" id="CPNcheck_terminos_condiciones" onchange="checkTerminosCondiciones()"> <a href="/terminos.html">Acepto términos y condiciones</a>
                           <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
                         </div>
@@ -264,280 +255,10 @@
     </div>
 
   </div>
-  <div style="display: none;" id="empresa" class="container">
-
-    <div class="card o-hidden border-0 shadow-lg my-5">
-      <div class="card-body p-0">
-        <!-- Nested Row within Card Body -->
-        <div class="row">
-          
-          <div class="col-lg-5 d-none d-lg-block bg-register-image"></div>
-          
-          <div class="col-lg-12">
-            <div class="p-5">
-              <div class="text-center">
-                
-                <img src="img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg" style="max-width:100%;width:200px;height:200px;" alt="">
-                
-                <h1 class="h4 text-gray-900 mb-4"> Creando cuenta...</h1>
-                <h5>Empresa</h5>
-                <div class="text-center text-danger">
-                  <a class="small text-danger" href="javascript:mostrarPersonaNatural()">PERSONA NATURAL |</a>
-                  <a class="small text-secondary"> EMPRESA</a>
-
-                  <script>
-                    function mostrarPersonaNatural(){
-                      document.getElementById('persona-natural').style.display="block";
-                      document.getElementById('empresa').style.display="none";
-                      
-                    }
-                    
-                  </script>
-                </div>
-              </br>
-              </div>
-              <form class="user">
-                
-                <div class="form-group">
-                  <h6>Razón social*</h6>
-                  <input type="text"  class="form-control form-control-user" id="CErazon_social"
-                    aria-describedby="emailHelp"  required>
-                </div>
-
-
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h6>Nombre*</h6>
-                    <input type="text" class="form-control form-control-user" id="CEnombres"  required>
-                  </div>
-                  <div class="col-sm-6">
-                    <h6>Apellidos*</h6>
-                    <input type="text" class="form-control form-control-user" id="CEapellidos"  required>
-                  </div>
-                  
-                </div>
-
-
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h6>Tipo documento*</6>
-                    <h6></h6>
-                    
-                    <select  class="form-control form-control" id="CEtipo_documento">
-                      
-                      <option value="NIT"selected>NIT</option>
-                    </select>
-                  </div>
-                  <div class="col-sm-6">
-                    <h6>NIT*</h6>
-                    <input type="number" class="form-control form-control-user" id="CEnumero_documento"  required>
-                  </div>
-                  
-                </div>
-
-
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h6>Celular #1*</h6>
-                    <input type="number" class="form-control form-control-user" id="CEtelefono"  required>
-                  </div>
-                  <div class="col-sm-6">
-                    <h6>Celular #2</h6>
-                    <input type="number" class="form-control form-control-user" id="CEcelular"  required>
-                  </div>
-                  
-                </div>
-
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h6>Ciudad*</h6>
-                    <h6>**Elegir del menú desplegable**</h6>
-                    <input type="text" list="ciudades" class="form-control form-control-user" id="CEciudad"  required>
-                    
-                  </div>
-                  <div class="col-sm-6">
-                    <h6>Dirección de recogida*</h6>
-                  </br>
-                    <input type="text" class="form-control form-control-user" id="CEdireccion"  required>
-                  </div>
-                  
-                </div>
-
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h6>Barrio*</h6>
-                    <input type="text" class="form-control form-control-user" id="CEbarrio"  required>
-                  </div>
-                  <div class="col-sm-6">
-                    <h6>Nombre de la empresa*</h6>
-                    <input type="text" class="form-control form-control-user" id="CEnombre_empresa"  required>
-                  </div>
-                  
-                </div>
-
-               
-
-                <div class="form-group">
-                  <h6>Correo electrónico*</h6>
-                  <input type="email"  class="form-control form-control-user" id="CEcorreo"
-                    aria-describedby="emailHelp"  required>
-                </div>
-
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h6>Contraseña*</h6>
-                    <input type="password" class="form-control form-control-user" id="CEcontraseña"  required>
-                  </div>
-                  <div class="col-sm-6">
-                    <h6>Repetir contraseña*</h6>
-                    <input type="password" class="form-control form-control-user" id="CErepetir_contraseña"  required>
-                  </div>
-                  
-                </div>
-
-                <div class="form-group">
-                </br> 
-              </br>
-                
-                  <input type="checkbox"  name="" id="checkbox-banco-empresa" onchange="pruebacheck_empresa()"> Registrar datos bancarios para el pago de envíos con recaudo
-                  </div>
-
-                  <div id="mostrar-ocultar-registro-bancario-empresa" style="display: none;">
-                    <h6 class="text-danger">DATOS BANCARIOS</h6>
-                  </br>
-                    <div class="form-group row">
-                      
-                      <div class="col-sm-6 mb-3 mb-sm-0">
-                        <h6>Banco*</6>
-                        <h6></h6>
-                        
-                        <select  class="form-control form-control" id="CEbanco">
-                          <option value="value1">Bancolombia(Desembolso: $0)</option> 
-                          <option value="value2">Nequi(desembolso: $0)</option>
-                          <option value="value3">Banco de bogotá(Desembolso: $7.500)</option>
-                          <option value="value4">Banco popular(Desembolso: $7.500)</option>
-                          <option value="value5">Itaú(Desembolso: $7.500)</option>
-                          <option value="value6">Citibank(Desembolso: $7.500)</option>
-                          <option value="value7">BBVA(Desembolso: $7.500)</option>
-                          <option value="value8">Colpatria(Desembolso: $7.500)</option>
-                          <option value="value9">Banco de occidente(Desembolso: $7.500)</option>
-                          <option value="value10">Banco caja social(Desembolso: $7.500)</option>
-                          <option value="value11">Banco Agrario(Desembolso: $7.500)</option>
-                          <option value="value12">Banco davivienda(Desembolso: $7.500)</option>
-                          <option value="value13">Banco Av Villas (Desembolso: $7.500)</option>
-                          <option value="value14">Banco Pichincha(Desembolso: $7.500)</option>
-                          <option value="value15">Bancoomeva(Desembolso: $7.500)</option>
-                          <option value="value16">Banco Falabella (Desembolso: $7.500)</option>
-                          <option value="value17">Daviplata (Desembolso: $7.500)</option>
-                        </select>
-                      </div>
-                      <div class="col-sm-6">
-                        <h6>Nombre representante*</h6>
-                        <input type="text" class="form-control form-control-user" id="CEnombre_representante"  required>
-                      </div>
-                    </div>
-
-                    <div class="form-group row">
-                      <div class="col-sm-6 mb-3 mb-sm-0">
-                        <h6>Tipo de cuenta*</6>
-                        <h6></h6>
-                        
-                        <select  class="form-control form-control" id="CEtipo_de_cuenta">
-                          <option value="Ahorro">Ahorros</option> 
-                          <option value="Corriente">Corriente</option>
-                         
-                        </select>
-                      </div>
-
-
-                      <div class="col-sm-6">
-                        <h6>Número de cuenta*</h6>
-                        <input type="number" class="form-control form-control-user" id="CEnumero_cuenta"  required>
-                      </div>
-                      
-                    </div>
-
-                    <div class="form-group row">
-                      <div class="col-sm-6">
-                        <h6>Confirmar número de cuenta*</h6>
-                        <input type="number" class="form-control form-control-user" id="CEconfirmar_numero_cuenta"  required>
-                      </div>
-
-
-                      <div class="col-sm-6 mb-3 mb-sm-0">
-                        <h6>Tipo documento*</6>
-                        <h6></h6>
-                        
-                        <select  class="form-control form-control" id="CEtipo_documento_banco">
-                          <option value="CC">CC</option> 
-                          <option value="NIT">NIT</option>
-                          <option value="Cédula extranjería">Cédula extranjería</option>
-                          
-                        </select>
-                      </div>
-                      
-                    </div>
-
-                    <div class="form-group row">
-                      <div class="col-sm-6">
-                        <h6>número de identificación*</h6>
-                        <input type="number" class="form-control form-control-user" id="CEnumero_identificacion_banco"  required>
-                      </div>
-
-
-                      <div class="col-sm-6">
-                        <h6>Confirmar número de identificación*</h6>
-                        <input type="number" class="form-control form-control-user" id="CEconfirmar_numero_identificacion_banco"  required>
-                      </div>
-                      
-                    </div>
-
-                  </div>
-
-                  <div class="form-group">
-                  </br> 
-                </br>
-                  
-                    <input type="checkbox" id="CEterminos_y_condiciones" onchange="checkTerminosCondicionesEmpresa()"> <a href="/terminos.html">Acepto términos y condiciones</a>
-                    <div id="CEdiv_terminos_condiciones" style="display: none;"></div>
-                    </div>
-                
-               
-              </form>
-                <button onclick="crearCuentaEmpresa()" class="btn btn-primary btn-user btn-block">
-                  Registrar cuenta
-                </button>
-              
-                <hr>
-                <!--
-                <a href="index.html" class="btn btn-google btn-user btn-block">
-                  <i class="fab fa-google fa-fw"></i> Register with Google
-                </a>
-                -->
-                <!--
-                <a href="index.html" class="btn btn-facebook btn-user btn-block">
-                  <i class="fab fa-facebook-f fa-fw"></i> Register with Facebook
-                </a>
-                -->
-              
-              <div id="error_crear_cuenta_empresa"></div>
-              <hr>
-              <div class="text-center">
-                <a class="small" href="olvida_contraseña.html">Olvidaste tu contraseña?</a>
-              </div>
-              <div class="text-center">
-                <a class="small" href="plataforma.html">Ya tienes una cuenta? Inicia sesión!</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-  </div>
 
   <!-- FIREBASE -->
 <!-- The core Firebase JS SDK is always required and must be listed first -->
+
 <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-database.js"></script>
@@ -562,6 +283,14 @@
 <script type="module" src="js/consultarCiudades.js"></script>
 <script src="js/usuarios.js"></script>
 
+<script>
+  window.onload = () => {
+    if(localStorage.getItem("user_id")) {
+      alert("Hemos detectado que ya tienes una sesión abierta, para registra un nuevo usuario, en necesario que salgas de la sesión que tienes activa.");
+      location.href = "plataforma2.html"
+    }
+  }
+</script>
 </body>
 
 </html>

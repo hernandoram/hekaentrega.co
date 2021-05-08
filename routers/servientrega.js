@@ -291,6 +291,92 @@ function limpiarNovedades(d) {
   })
 }
 
+// actualizarEstadoGuias(new Date());
+function actualizarEstadoGuias(d) {
+  firebase.firestore().collectionGroup("guias")
+  .where("estado", "==", "EN PROCESAMIENTO")
+  // .where("centro_de_costo", "==", "SellerWitotoAccesoriosYArtesanías")
+  // .where("numeroGuia", "==", "2102566956")
+  .get()
+  .then(querySnapshot => {
+    let referencia = firebase.firestore().collection("reporte").doc();
+    console.log(querySnapshot.size);
+    let consulta = {
+      guias: [],
+      usuarios: [],
+      total_consulta: querySnapshot.size,
+      fecha: d
+    }
+
+    querySnapshot.forEach(doc => {
+      if(doc.data().numeroGuia) {
+        if(consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
+          consulta.usuarios.push(doc.data().centro_de_costo);
+        }
+        request.post({
+          // "headers": {"Content-Type": "text/xml"},
+          "url": url + "/ConsultarGuia",
+          form: {
+            NumeroGuia: doc.data().numeroGuia
+          }
+        }, (err, response, body) => {
+          if(err) {
+            return console.dir(err)
+          }
+          // console.log(body)
+          parseString(body, (error, result) => {
+            // let path = doc.ref.path.split("/");
+            let data = result.InformacionGuiaMov;
+            let movimientos = data.Mov[0].InformacionMov;
+            // console.log(data.Mov[0].InformacionMov);
+            for(let movimiento of movimientos) {
+              for(let x in movimiento) {
+                movimiento[x] = movimiento[x][0];
+              }
+            }
+
+            let data_to_fb = {
+              numeroGuia: data.NumGui[0],
+              fechaEnvio: data.FecEnv[0],
+              ciudadD: data.CiuDes[0],
+              nombreD: data.NomDes[0],
+              direccionD: data.DirDes[0],
+              estadoActual: data.EstAct[0],
+              fecha: data.FecEst[0],
+              id_heka: doc.id,
+              movimientos
+            }; 
+
+            console.log(data_to_fb);
+
+            doc.ref.parent.parent.collection("estadoGuias").doc(doc.id)
+            // .get()
+            .set(data_to_fb)
+            .then(() => {
+              console.log("se ha subido el documento correctamente");
+              // console.log(doc.data());
+              consulta.guias.push(doc.id + " / " + doc.data().numeroGuia)
+              consulta.mensaje = `Se han actualizado ${consulta.guias.length} Estados de Guias,
+              de un total de ${consulta.total_consulta} registradas cuyo estado es: 
+              "En procesamiento" en ${consulta.usuarios.length} usuarios.`
+              console.log(consulta);
+              referencia.set(consulta);
+            });
+          })
+        })
+
+
+      }
+    })
+  })
+  function mensaje(novedades, novedades_eliminadas, error, total, usuarios) {
+    return `Se han actualizado ${novedades} novedades,
+    eliminado ${novedades_eliminadas} y ${error} han sido fallidas,
+    de un total de ${total} registradas cuyo estado es: "En procesamiento" en ${usuarios} usuarios.
+    `
+  }
+}
+
 
 router.post("/consultarGuia", (req, res) => {
   request.post({
