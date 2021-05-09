@@ -92,15 +92,10 @@ cron.schedule("00 10 * * *", () => {
 
 cron.schedule("30 */6 * * *", () => {
   let d = new Date();
-  console.log("Se Actualizaron las Novedades: ", d);
-  actualizarNovedades(d);
+  console.log("Se Actualizaron los movimientos de las guías: ", d);
+  actualizarMovimientosGuias()
 })
 
-cron.schedule("00 00 00 * * 0", () => {
-  let d = new Date();
-  console.log("Se Actualizaron las Novedades: ", d);
-  limpiarNovedades(d);
-})
 
 
 // actualizarEstadosGuias(new Date());
@@ -291,8 +286,8 @@ function limpiarNovedades(d) {
   })
 }
 
-// actualizarEstadoGuias(new Date());
-function actualizarEstadoGuias(d) {
+// actualizarMovimientosGuias(new Date());
+function actualizarMovimientosGuias(d) {
   firebase.firestore().collectionGroup("guias")
   .where("estado", "==", "EN PROCESAMIENTO")
   // .where("centro_de_costo", "==", "SellerWitotoAccesoriosYArtesanías")
@@ -328,40 +323,42 @@ function actualizarEstadoGuias(d) {
             // let path = doc.ref.path.split("/");
             let data = result.InformacionGuiaMov;
             let movimientos = data.Mov[0].InformacionMov;
-            // console.log(data.Mov[0].InformacionMov);
-            for(let movimiento of movimientos) {
-              for(let x in movimiento) {
-                movimiento[x] = movimiento[x][0];
+            // console.log(data);
+            if(movimientos) {
+              for(let movimiento of movimientos) {
+                for(let x in movimiento) {
+                  movimiento[x] = movimiento[x][0];
+                }
               }
+
+              let data_to_fb = {
+                numeroGuia: data.NumGui[0],
+                fechaEnvio: data.FecEnv[0],
+                ciudadD: data.CiuDes[0],
+                nombreD: data.NomDes[0],
+                direccionD: data.DirDes[0],
+                estadoActual: data.EstAct[0],
+                fecha: data.FecEst[0],
+                id_heka: doc.id,
+                movimientos
+              }; 
+
+              console.log(data_to_fb);
+
+              doc.ref.parent.parent.collection("estadoGuias").doc(doc.id)
+              // .get()
+              .set(data_to_fb)
+              .then(() => {
+                console.log("se ha subido el documento correctamente");
+                // console.log(doc.data());
+                consulta.guias.push(doc.id + " / " + doc.data().numeroGuia)
+                consulta.mensaje = `Se han actualizado ${consulta.guias.length} Estados de Guias,
+                de un total de ${consulta.total_consulta} registradas cuyo estado es: 
+                "En procesamiento" en ${consulta.usuarios.length} usuarios.`
+                console.log(consulta);
+                referencia.set(consulta);
+              });
             }
-
-            let data_to_fb = {
-              numeroGuia: data.NumGui[0],
-              fechaEnvio: data.FecEnv[0],
-              ciudadD: data.CiuDes[0],
-              nombreD: data.NomDes[0],
-              direccionD: data.DirDes[0],
-              estadoActual: data.EstAct[0],
-              fecha: data.FecEst[0],
-              id_heka: doc.id,
-              movimientos
-            }; 
-
-            console.log(data_to_fb);
-
-            doc.ref.parent.parent.collection("estadoGuias").doc(doc.id)
-            // .get()
-            .set(data_to_fb)
-            .then(() => {
-              console.log("se ha subido el documento correctamente");
-              // console.log(doc.data());
-              consulta.guias.push(doc.id + " / " + doc.data().numeroGuia)
-              consulta.mensaje = `Se han actualizado ${consulta.guias.length} Estados de Guias,
-              de un total de ${consulta.total_consulta} registradas cuyo estado es: 
-              "En procesamiento" en ${consulta.usuarios.length} usuarios.`
-              console.log(consulta);
-              referencia.set(consulta);
-            });
           })
         })
 

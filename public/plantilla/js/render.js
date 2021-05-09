@@ -854,13 +854,15 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         tr.classList.add("text-danger");
     }
     
-    let btnGestionar;
+    let btnGestionar, btn_solucionar = ""
     if(administracion) {
-        if(extraData.centro_de_costo) {
-            btnGestionar = "Revisar";
-        } else {
-            btnGestionar = extraData.novedad_solucionada ? "Solucionada" : "Solucionar";
-        }
+        btnGestionar = "Revisar";
+        btn_solucionar = `
+            <button class="btn btn-${extraData.novedad_solucionada ? "secondary" : "success"} m-2 col-12 col-md-6" 
+            id="solucionar-guia-${data.numeroGuia}">
+                ${extraData.novedad_solucionada ? "Solucionada" : "Solucionar"}
+            </button>
+        `;
     } else {
         btnGestionar = extraData.novedad_solucionada ? "Revisar" : "Gestionar";
     }
@@ -872,15 +874,16 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
                 '<h5>Última Gestión: <small>'+extraData.seguimiento[extraData.seguimiento.length -1].gestion+ ' - ' + genFecha("LR", extraData.seguimiento[extraData.seguimiento.length -1].fecha.toMillis() || "").replace(/-/g, "/")+'</small></h5>' : ""
             }
         </td>
-        <td>
-            <button class="btn btn-${extraData.novedad_solucionada ? "secondary" : "primary"} m-2" 
+        <td class="row justify-content-center">
+            <button class="btn btn-${extraData.novedad_solucionada ? "secondary" : "primary"} m-2 col" 
             id="gestionar-guia-${data.numeroGuia}"
-            ${btnGestionar != "Solucionar" && btnGestionar != "Solucionada" ? 
-            'data-toggle="modal" data-target="#modal-gestionarNovedad"' : ""}>
+            data-toggle="modal" data-target="#modal-gestionarNovedad"}>
                 ${btnGestionar}
             </button>
+            ${btn_solucionar}
         </td>
     `;
+
 
     
 
@@ -902,23 +905,23 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
     }
 
     $("#gestionar-guia-"+data.numeroGuia).click(() => {
-        if(extraData.centro_de_costo){
-            extraData.id_heka = id_heka;
-            gestionarNovedadModal(data, extraData);
-        } else {
-            $("#gestionar-guia-"+data.numeroGuia).html(`
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                Cargando...
-            `);
-            firebase.firestore().collection("usuarios").doc(id_user).collection("guias").doc(id_heka)
-            .update({
-                novedad_solucionada: true
-            }).then(() => {
-                firebase.firestore().collection("notificaciones").doc(id_heka).delete();
-                $("#gestionar-guia-"+data.numeroGuia).html(btnGestionar);
-                avisar("Guía Gestionada", "La guía " +data.numeroGuia+ " ha sido actualizada exitósamente como solucionada");
-            })
-        }
+        extraData.id_heka = id_heka;
+        gestionarNovedadModal(data, extraData);
+    })
+    
+    $("#solucionar-guia-"+data.numeroGuia).click(() => {
+        $("#solucionar-guia-"+data.numeroGuia).html(`
+            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+            Cargando...
+        `);
+        firebase.firestore().collection("usuarios").doc(id_user).collection("guias").doc(id_heka)
+        .update({
+            novedad_solucionada: true
+        }).then(() => {
+            firebase.firestore().collection("notificaciones").doc(id_heka).delete();
+            $("#solucionar-guia-"+data.numeroGuia).html("Solucionada");
+            avisar("Guía Gestionada", "La guía " +data.numeroGuia+ " ha sido actualizada exitósamente como solucionada");
+        })
     })
 }
 

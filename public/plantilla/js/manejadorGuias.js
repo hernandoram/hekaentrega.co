@@ -876,15 +876,20 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
                     querySnapshot.forEach(doc => {
                         let path = doc.ref.path.split("/");
                         let data = doc.data();
-                        data.centro_de_costo = "";
                         consultarGuiaFb(path[1], doc.id, data, "Consulta Personalizada", i+1, filtrado.length);
-                        console.log(doc.data())
                     })
                 })
             })
         } else {
-            let extraData = {seguimiento}
-            consultarGuiaFb("", filtrado, extraData); 
+            firebase.firestore().collectionGroup("guias").where("numeroGuia", "==", filtrado)
+            .get().then(querySnapshot => {
+                querySnapshot.size == 0 ? $("#cargador-novedades").addClass("d-none") : "";
+                querySnapshot.forEach(doc => {
+                    let path = doc.ref.path.split("/");
+                    let data = doc.data();
+                    consultarGuiaFb(path[1], doc.id, data, "Solucionar Novedad");
+                })
+            })
         }
     } else if (admin) {
         if($("#filtrado-novedades-usuario").val()){
