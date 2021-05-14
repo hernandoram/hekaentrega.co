@@ -29,13 +29,16 @@ export function autocomplete(inp, arr) {
             b.innerHTML += value.substr(val.length);
             b.innerHTML += "<input type='hidden' value='" + value + 
                 "' data-id='" + arr[i].id + "' data-tipo_trayecto='" + arr[i].tipo_trayecto + 
-                "' data-ciudad='"+ arr[i].ciudad +"' data-departamento='" + arr[i].departamento + "'/>";
+                "' data-ciudad='"+ arr[i].ciudad +"' data-departamento='" + arr[i].departamento +
+                "' data-frecuencia='" + arr[i].frecuencia +"' data-tipo_distribucion='" + arr[i].tipo_distribucion + "'/>";
             b.addEventListener("click", function(e) {
                 inp.value = this.getElementsByTagName("input")[0].value;
                 inp.dataset.id = this.getElementsByTagName("input")[0].getAttribute("data-id");
                 inp.dataset.tipo_trayecto = this.getElementsByTagName("input")[0].dataset.tipo_trayecto;
                 inp.dataset.ciudad = this.getElementsByTagName("input")[0].getAttribute("data-ciudad");
                 inp.dataset.departamento = this.getElementsByTagName("input")[0].getAttribute("data-departamento");
+                inp.dataset.frecuencia = this.getElementsByTagName("input")[0].getAttribute("data-frecuencia");
+                inp.dataset.tipo_distribucion = this.getElementsByTagName("input")[0].getAttribute("data-tipo_distribucion");
                 closeAllLists();
             });
             b.addEventListener("mouseenter", (e) => {
@@ -90,6 +93,7 @@ export function autocomplete(inp, arr) {
       
       x[currentFocus].classList.add("autocomplete-active");
     }
+    
     function removeActive(x) {
       for (var i = 0; i < x.length; i++) {
         x[i].classList.remove("autocomplete-active");
@@ -97,13 +101,12 @@ export function autocomplete(inp, arr) {
     }
 
     function closeAllLists(elmnt) {
-      
       var x = document.getElementsByClassName("autocomplete-items");
       for (var i = 0; i < x.length; i++) {
         if (elmnt != x[i] && elmnt != inp) {
           x[i].parentNode.removeChild(x[i]);
         }
-      } 
+      }
     }
   
     document.addEventListener("click", function (e) {

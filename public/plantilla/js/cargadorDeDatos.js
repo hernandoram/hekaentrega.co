@@ -13,17 +13,17 @@ if(localStorage.getItem("acceso_admin")){
 let datos_usuario = {},
 //Almacena los costos de envios (nacional, urbano...) y el porcentaje de comision
 precios_personalizados = {
-    costo_zonal1: 6750,
-    costo_zonal2: 10200,
-    costo_zonal3: 2700,
+    costo_zonal1: 9050,
+    costo_zonal2: 13050,
+    costo_zonal3: 2800,
     costo_nacional1: 11500,
-    costo_nacional2: 17700,
-    costo_nacional3: 3600,
-    costo_especial1: 21200,
+    costo_nacional2: 19250,
+    costo_nacional3: 3400,
+    costo_especial1: 22900,
     costo_especial2: 32000,
-    costo_especial3: 6700,
+    costo_especial3: 6300,
     comision_servi: 3.1,
-    comision_heka: 2.9,
+    comision_heka: 1,
     saldo: 0
 };
 

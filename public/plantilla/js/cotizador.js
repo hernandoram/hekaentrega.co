@@ -5,6 +5,7 @@ let datos_de_cotizacion,
 function cotizador(){
     let ciudadR = document.getElementById("ciudadR"),
     ciudadD = document.getElementById("ciudadD");
+    let info_precio = new CalcularCostoDeEnvio();
 
     datos_de_cotizacion = {
         tipo: "CONTRAENTREGA",
@@ -15,7 +16,10 @@ function cotizador(){
         recaudo: value("valor-a-recaudar"), 
         trayecto: revisarTrayecto(), 
         tiempo: "2-3", 
-        precio: new CalcularCostoDeEnvio().costoEnvio,
+        precio: info_precio.costoEnvio,
+        flete: info_precio.flete,
+        comision_trasportadora: info_precio.sobreflete,
+        seguro_mercancia: info_precio.sobreflete_heka,
         ancho: value("dimension-ancho"), 
         largo: value("dimension-largo"), 
         alto: value("dimension-alto")
@@ -90,7 +94,6 @@ function cotizador(){
             datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo;
 
             //Detalles del consto de Envío
-            let info_precio = new CalcularCostoDeEnvio();
             datos_a_enviar.detalles = {
                 peso_real: info_precio.kg,
                 flete: info_precio.flete,
@@ -148,6 +151,7 @@ function cotizador(){
 
 // me devuelve el resultado de cada formulario al hacer una cotizacion
 function response(datos, tipo) {
+    let c_destino = document.getElementById('ciudadD').dataset;
     let div_principal = document.createElement("DIV"),
         crearNodo = str => new DOMParser().parseFromString(str, "text/html").body,
         boton_regresar = crearNodo(`<a class="btn btn-outline-primary mb-2" href="#cotizar_envio" onclick="regresar()">
@@ -197,18 +201,38 @@ function response(datos, tipo) {
         </div>
         `),
         servientrega = crearNodo(`<div class="card card-shadow m-6">
-            <div class="card-header py-3">
-                <h4 class="m-0 font-weight-bold text-primary text-center">Servientrega</h4>
+            <div class="card-header py-3 bg-primary">
+                <div class="d-flex justify-content-center"><img style="max-width: 300px" class="w-100" src="img/servientrega-logotipo.png"/></div>
             </div>
             <div class="card-body row">
-                <div class="col-sm-8 mb-3 mb-sm-0">
+                <div class="col mb-3">
                     <h5>Tipo de Trayecto: <span>${datos.trayecto}</span></h5>
                     <h5>Tiempo de trayecto: <span>${datos.tiempo} días</span></h5>
-                    <div class="col-sm-6 mb-3 mb-sm-0">
-                        <h5>Costo de envío</h5>
-                        <input readonly="readonly" type="text" class="form-control form-control-user" value="$${convertirMiles(datos.precio)}" required="">  
-                    </div>
+                    <h5>Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span></h5>
+                    <h5>Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span></h5>
+                    <h5 class="mt-3 text-danger">En caso de devolución pagas solo el envío ida: $${convertirMiles(datos.precio)}</h5>
                 </div>
+                <div class="col-12 col-md-7 mb-3 mb-sm-0">
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Valor flete
+                        <span class="badge badge-secondary badge-pill">$${convertirMiles(datos.flete)}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Comisión Transportadora
+                        <span class="badge badge-secondary badge-pill">$${convertirMiles(datos.comision_trasportadora)}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Seguro Mercancía
+                        <span class="badge badge-secondary badge-pill">$${convertirMiles(datos.seguro_mercancia)}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Costo Total de Envío
+                        <span class="badge badge-primary badge-pill text-lg">$${convertirMiles(datos.precio)}</span>
+                        </li>
+                    </ul>
+                    </div>
+                
             </div>
         </div>`),
         datos_remitente = crearNodo(`
@@ -335,12 +359,14 @@ function revisarTrayecto(){
     let c_origen = document.getElementById('ciudadR').dataset;
     let c_destino = document.getElementById('ciudadD').dataset;
     if(c_destino.tipo_trayecto == "TRAYECTO ESPECIAL"){
-        return "Especial"
+        return "Especial";
     } else {
         if(c_destino.id == c_origen.id) {
             return "Urbano";
+        } else if(c_destino.departamento == c_origen.departamento) {
+            return "Zonal";
         } else {
-            return "Nacional, (Los precios pueden variar)"
+            return "Nacional";
         }
     }
 }
@@ -423,9 +449,7 @@ class CalcularCostoDeEnvio {
         this.kg = Math.max(this.pesoVolumen, this.kg)
 
         return this.kg;    
-    }
-
-    
+    } 
     
     get flete(){
         this.kgTomado;
@@ -459,11 +483,11 @@ class CalcularCostoDeEnvio {
             case "Especial":
                 return especial;
                 break;
-            case "Urbano":
-                return urbano;
+            case "Nacional":
+                return nacional;
                 break;
             default:
-                return nacional;
+                return urbano;
                 break;
         }
     }

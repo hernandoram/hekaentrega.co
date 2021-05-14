@@ -108,7 +108,7 @@ function nuevaCuenta(){
     console.log(datos_relevantes.centro_de_costo);
     //retornar si check está activado o desactivado
     var CPNcheck=document.getElementById('CPNdiv_terminos_condiciones').style.display;
-    verificarExistencia().then(()=> {
+    verificarExistencia(administracion).then(()=> {
         if(value("CPNnombres")=="" | value("CPNapellidos")==""  | value("CPNnumero_documento")=="" | 
         value("CPNtelefono")=="" | value("CPNcelular")=="" | value("CPNciudad")=="" | 
         value("CPNdireccion")=="" | value("CPNbarrio")=="" | value("CPNnombre_empresa")=="" | 
