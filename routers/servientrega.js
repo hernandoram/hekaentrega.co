@@ -13,6 +13,14 @@ const db = firebase.firestore()
 router.use(bodyParser.urlencoded({extended: true}));
 router.use(bodyParser.json());
 
+const rastreoEnvios = "http://sismilenio.servientrega.com/wsrastreoenvios/wsrastreoenvios.asmx";
+const generacionGuias = "http://web.servientrega.com:8081/generacionguias.asmx";
+const genGuiasPrueba = "http://190.131.194.159:8059/GeneracionGuias.asmx";
+const id_cliente = "1072497419"
+
+
+//A partir de aquí habrán solo funciones
+
 function consultarGuia(numGuia){
     let res=`<?xml version="1.0" encoding="utf-8"?>
     <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
@@ -38,52 +46,6 @@ function estadoGuia(numGuia){
   </soap:Envelope>`
 }
 
-var EncriptarContrasena = `<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-<soap:Body>
-<EncriptarContrasena xmlns="http://tempuri.org/">
-<strcontrasena>Stv1234</strcontrasena>
-</EncriptarContrasena>
-</soap:Body>
-</soap:Envelope>`
-
-var consultarGuiaPorNumDoc = `<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-  <soap:Header>
-  <AuthHeader xmlns="http://tempuri.org/">
-  <login>KatheRecaudo</login>
-  <pwd>Yt0208@s</pwd>
-  <Id_CodFacturacion>SER122990</Id_CodFacturacion>
-  <Nombre_Cargue></Nombre_Cargue>
-  </AuthHeader>
-  </soap:Header>
-  <soap:Body>
-  <ConsultarGuiasByNumDocumento xmlns="http://tempuri.org/">
-  <numeroGuia>2102566145</numeroGuia>
-  <Ide_CodFacturacion>SER122990</Ide_CodFacturacion>
-  </ConsultarGuiasByNumDocumento>
-  </soap:Body>
-  </soap:Envelope>`
-
-let url = "http://sismilenio.servientrega.com/wsrastreoenvios/wsrastreoenvios.asmx";
-let id_cliente = "1072497419"
-
-
-//  Prueba para revisar las guias por id_heka
-// request.post(url + "/ConsultarGuiaPorNumeroReferenciaCliente", {
-//   form: {
-//     Id_Cliente: "1072497419",
-//     Numero_referencia: "100"
-//   }
-// }, (err, response, body) => {
-//   if(err) {
-//     return console.dir(err);
-//   }
-//   console.log(body);
-//   console.log(response.headers);
-// })
-
-
 cron.schedule("00 10 * * *", () => {
   let d = new Date();
   console.log("Se Actualizaron las guías: ", d);
@@ -93,9 +55,8 @@ cron.schedule("00 10 * * *", () => {
 cron.schedule("30 */6 * * *", () => {
   let d = new Date();
   console.log("Se Actualizaron los movimientos de las guías: ", d);
-  actualizarMovimientosGuias()
+  actualizarMovimientosGuias(d);
 })
-
 
 
 // actualizarEstadosGuias(new Date());
@@ -180,7 +141,7 @@ function actualizarNovedades(d) {
         }
         request.post({
           "headers": {"Content-Type": "text/xml"},
-          "url": url + "/EstadoGuia",
+          "url": rastreoEnvios + "/EstadoGuia",
           form: {
             Id_Cliente: id_cliente,
             guia: doc.data().numeroGuia
@@ -310,7 +271,7 @@ function actualizarMovimientosGuias(d) {
         }
         request.post({
           // "headers": {"Content-Type": "text/xml"},
-          "url": url + "/ConsultarGuia",
+          "url": rastreoEnvios + "/ConsultarGuia",
           form: {
             NumeroGuia: doc.data().numeroGuia
           }
@@ -375,10 +336,196 @@ function actualizarMovimientosGuias(d) {
 }
 
 
+function generarGuia(datos, prueba) {
+  let auth_header = prueba ? `<ns1:AuthHeader>
+        <ns1:login>Luis1937</ns1:login>
+        <ns1:pwd>MZR0zNqnI/KplFlYXiFk7m8/G/Iqxb3O</ns1:pwd>
+        <ns1:Id_CodFacturacion>SER408</ns1:Id_CodFacturacion>
+        <ns1:Nombre_Cargue></ns1:Nombre_Cargue><!--AQUI VA EL NOMBRE DEL
+        CARGUE APARECERÁ EN SISCLINET-->
+      </ns1:AuthHeader>` 
+  : `<ns1:AuthHeader>
+      <ns1:login>1072497419SUC1</ns1:login>
+      <ns1:pwd>Tb8Hb+NLWsc=</ns1:pwd>
+      <ns1:Id_CodFacturacion>SER122990</ns1:Id_CodFacturacion>
+      <ns1:Nombre_Cargue></ns1:Nombre_Cargue><!--AQUI VA EL NOMBRE DEL
+      CARGUE APARECERÁ EN SISCLINET-->
+    </ns1:AuthHeader>`;
+
+  let consulta = `<?xml version="1.0" encoding="UTF-8"?>
+  <env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope" xmlns:ns1="http://tempuri.org/">
+    <env:Header>
+      ${auth_header}
+    </env:Header>
+    <env:Body>
+      <ns1:CargueMasivoExterno>
+        <ns1:envios>
+          <ns1:CargueMasivoExternoDTO>
+            <ns1:objEnvios>
+              <ns1:EnviosExterno>
+                <ns1:Num_Guia>0</ns1:Num_Guia>
+                <ns1:Num_Sobreporte>0</ns1:Num_Sobreporte>
+                <ns1:Num_SobreCajaPorte>0</ns1:Num_SobreCajaPorte>
+                <ns1:Doc_Relacionado></ns1:Doc_Relacionado>
+                <ns1:Num_Piezas>1</ns1:Num_Piezas>
+                <ns1:Des_TipoTrayecto>1</ns1:Des_TipoTrayecto>
+                <ns1:Ide_Producto>2</ns1:Ide_Producto><!--ENVÍO CON MERCACÍA PREMIER-->
+                <ns1:Des_FormaPago>2</ns1:Des_FormaPago>
+                <ns1:Ide_Num_Identific_Dest>${datos.identificacionD}</ns1:Ide_Num_Identific_Dest>
+                <ns1:Tipo_Doc_Destinatario>${datos.tipo_doc_Dest == "1" ? "NIT" : "CC"}</ns1:Tipo_Doc_Destinatario>
+                <ns1:Des_MedioTransporte>1</ns1:Des_MedioTransporte>
+                <ns1:Num_PesoTotal>${datos.peso}</ns1:Num_PesoTotal>
+                <ns1:Num_ValorDeclaradoTotal>${datos.valor}</ns1:Num_ValorDeclaradoTotal>
+                <ns1:Num_VolumenTotal>0</ns1:Num_VolumenTotal>
+                <ns1:Num_BolsaSeguridad>0</ns1:Num_BolsaSeguridad>
+                <ns1:Num_Precinto>0</ns1:Num_Precinto>
+                <ns1:Des_TipoDuracionTrayecto>1</ns1:Des_TipoDuracionTrayecto>
+                <ns1:Des_Telefono>${datos.telefonoD}</ns1:Des_Telefono>
+                <ns1:Des_Ciudad>${datos.ciudadD}</ns1:Des_Ciudad><!--o codigo dane para ciudad destino-->
+                <ns1:Des_Direccion>${datos.direccionD}</ns1:Des_Direccion>
+                <ns1:Nom_Contacto>${datos.nombreD}</ns1:Nom_Contacto>
+                <ns1:Des_VlrCampoPersonalizado1>${datos.id_heka}</ns1:Des_VlrCampoPersonalizado1>
+                <ns1:Num_ValorLiquidado>0</ns1:Num_ValorLiquidado>
+                <ns1:Des_DiceContener>${datos.dice_contener}</ns1:Des_DiceContener>
+                <ns1:Des_TipoGuia>1</ns1:Des_TipoGuia>
+                <ns1:Num_VlrSobreflete>0</ns1:Num_VlrSobreflete>
+                <ns1:Num_VlrFlete>0</ns1:Num_VlrFlete>
+                <ns1:Num_Descuento>0</ns1:Num_Descuento>
+                <ns1:idePaisOrigen>1</ns1:idePaisOrigen>
+                <ns1:idePaisDestino>1</ns1:idePaisDestino>
+                <ns1:Des_IdArchivoOrigen></ns1:Des_IdArchivoOrigen>
+                <ns1:Des_DireccionRemitente>${datos.direccionR}</ns1:Des_DireccionRemitente><!--Opcional-->
+                <ns1:Num_PesoFacturado>0</ns1:Num_PesoFacturado>
+                <ns1:Est_CanalMayorista>false</ns1:Est_CanalMayorista>
+                <ns1:Num_IdentiRemitente />
+                <ns1:Des_CiudadRemitente>${datos.ciudadR}</ns1:Des_CiudadRemitente>
+                <ns1:Num_TelefonoRemitente>${datos.celularR}</ns1:Num_TelefonoRemitente>
+                <ns1:Des_DiceContenerSobre>${datos.dice_contener}</ns1:Des_DiceContenerSobre>
+                <ns1:Num_Alto>${datos.alto}</ns1:Num_Alto>
+                <ns1:Num_Ancho>${datos.ancho}</ns1:Num_Ancho>
+                <ns1:Num_Largo>${datos.largo}</ns1:Num_Largo>
+                <ns1:Des_DepartamentoDestino>${datos.departamentoD}</ns1:Des_DepartamentoDestino>
+                <ns1:Des_DepartamentoOrigen>${datos.departamentoR}</ns1:Des_DepartamentoOrigen>
+                <ns1:Gen_Cajaporte>false</ns1:Gen_Cajaporte>
+                <ns1:Gen_Sobreporte>false</ns1:Gen_Sobreporte>
+                <ns1:Nom_UnidadEmpaque>GENERICA</ns1:Nom_UnidadEmpaque>
+                <ns1:Nom_RemitenteCanal />
+                <ns1:Des_UnidadLongitud>cm</ns1:Des_UnidadLongitud>
+                <ns1:Des_UnidadPeso>kg</ns1:Des_UnidadPeso>
+                <ns1:Num_ValorDeclaradoSobreTotal>0</ns1:Num_ValorDeclaradoSobreTotal>
+                <ns1:Num_Factura>0</ns1:Num_Factura>
+                <ns1:Des_CorreoElectronico>${datos.correoD}</ns1:Des_CorreoElectronico>
+                <ns1:Num_Recaudo>${prueba ? "0" : datos.valor}</ns1:Num_Recaudo>
+              </ns1:EnviosExterno>
+            </ns1:objEnvios>
+          </ns1:CargueMasivoExternoDTO>
+        </ns1:envios>
+      </ns1:CargueMasivoExterno>
+    </env:Body>
+  </env:Envelope>`
+
+  return consulta;
+}
+
+function crearGuiaSticker(numeroGuia, id_archivoCargar, prueba) {
+  console.log(numeroGuia, id_archivoCargar, prueba)
+
+  let auth_header = prueba ? `<tem:AuthHeader>
+  <!--Optional:-->
+  <tem:login>Luis1937</tem:login>
+  <!--Optional:-->
+  <tem:pwd>MZR0zNqnI/KplFlYXiFk7m8/G/Iqxb3O</tem:pwd>
+  <!--Optional:-->
+  <tem:Id_CodFacturacion>SER408</tem:Id_CodFacturacion>
+  </tem:AuthHeader>` : `<tem:AuthHeader>
+  <!--Optional:-->
+  <tem:login>1072497419SUC1</tem:login>
+  <!--Optional:-->
+  <tem:pwd>Tb8Hb+NLWsc=</tem:pwd>
+  <!--Optional:-->
+  <tem:Id_CodFacturacion>SER122990</tem:Id_CodFacturacion>
+  </tem:AuthHeader>`;
+
+  ide_codFacturacion = prueba ? "SER408" : "SER122990";
+
+  let consulta = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
+  xmlns:tem="http://tempuri.org/">
+  <soapenv:Header>
+    ${auth_header}
+  </soapenv:Header>
+  <soapenv:Body>
+      <GenerarGuiaSticker xmlns="http://tempuri.org/">
+        <num_Guia>${numeroGuia}</num_Guia>
+        <num_GuiaFinal>${numeroGuia}</num_GuiaFinal>
+        <ide_CodFacturacion>${ide_codFacturacion}</ide_CodFacturacion>
+        <sFormatoImpresionGuia>1</sFormatoImpresionGuia>
+        <Id_ArchivoCargar>${id_archivoCargar}</Id_ArchivoCargar>
+        <interno>false</interno>
+        <bytesReport></bytesReport>
+      </GenerarGuiaSticker>
+    </soapenv:Body>
+  </soapenv:Envelope>`
+
+  return consulta;
+}
+
+function generarManifiesto(arrGuias, prueba) {
+  let auth_header = prueba ? `<tem:AuthHeader>
+    <!--Optional:-->
+    <tem:login>Luis1937</tem:login>
+    <!--Optional:-->
+    <tem:pwd>MZR0zNqnI/KplFlYXiFk7m8/G/Iqxb3O</tem:pwd>
+    <!--Optional:-->
+    <tem:Id_CodFacturacion>SER408</tem:Id_CodFacturacion>
+  </tem:AuthHeader>`: `<tem:AuthHeader>
+    <!--Optional:-->
+    <tem:login>1072497419SUC1</tem:login>
+    <!--Optional:-->
+    <tem:pwd>Tb8Hb+NLWsc=</tem:pwd>
+    <!--Optional:-->
+    <tem:Id_CodFacturacion>SER122990</tem:Id_CodFacturacion>
+  </tem:AuthHeader>`
+
+  let guias = `<tem:Guias>`;
+  for(let i = 0; i < arrGuias.length; i++) {
+    guias += `<tem:ObjetoGuia>
+      <tem:Numero_Guia>${arrGuias[i]}</tem:Numero_Guia>
+    </tem:ObjetoGuia>`
+  }
+  guias += `</tem:Guias>`;
+
+  let consulta = `<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope"
+  xmlns:tem="http://tempuri.org/">
+    <soap:Header>
+      ${auth_header}
+    </soap:Header>
+    <soap:Body>
+        <tem:GenerarManifiesto>
+            <tem:Ide_Currier>0</tem:Ide_Currier>
+            <!--Optional:-->
+            <tem:Nombre_Currier>0</tem:Nombre_Currier>
+            <tem:Ide_Auxiliar>0</tem:Ide_Auxiliar>
+            <!--Optional:-->
+            <tem:Nombre_Auxiliar></tem:Nombre_Auxiliar>
+            <!--Optional:-->
+            <tem:Placa_Vehiculo>0</tem:Placa_Vehiculo>
+            <!--Optional:-->
+            <tem:Lista_Guias_Xml>
+              ${guias}
+            </tem:Lista_Guias_Xml>
+        </tem:GenerarManifiesto>
+    </soap:Body>
+  </soap:Envelope>`
+
+  return consulta
+}
+
+
+//A partir de aquí estarán todas las rutas
 router.post("/consultarGuia", (req, res) => {
   request.post({
     "headers": { "content-type": "text/xml" },
-    "url": url,
+    "url": rastreoEnvios,
     "body": consultarGuia(req.body.guia) 
   }, (error, response, body) => {
     if(error) {
@@ -394,7 +541,7 @@ router.post("/estadoGuia", (req, res) => {
   console.log(req.body.guia);
   request.post({
     "headers": {"Content-Type": "text/xml"},
-    "url": url,
+    "url": rastreoEnvios,
     "body": estadoGuia(req.body.guia)
   }, (err, response, body) => {
     if(err) {
@@ -405,43 +552,47 @@ router.post("/estadoGuia", (req, res) => {
   })
 })
 
-let ejemplo = `<?xml version="1.0" encoding="utf-8"?>
-<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
-  <soap:Header>
-    <AuthHeader xmlns="http://tempuri.org/">
-      <login>Luis1937</login>
-      <pwd>>MZR0zNqnI/KplFlYXiFk7m8/G/Iqxb3O</pwd>
-      <Id_CodFacturacion>SER408</Id_CodFacturacion>
-      <Nombre_Cargue></Nombre_Cargue>
-    </AuthHeader>
-  </soap:Header>
-  <soap:Body>
-    <GuiasPendientesXManifestar xmlns="http://tempuri.org/">
-      <FechaInicial>string</FechaInicial>
-      <FechaFinal>string</FechaFinal>
-      <mensaje>string</mensaje>
-      <idTrazaAuditoria>string</idTrazaAuditoria>
-      <usuarioTrazaAuditoria>string</usuarioTrazaAuditoria>
-      <urlTrazaAuditoria>string</urlTrazaAuditoria>
-    </GuiasPendientesXManifestar>
-  </soap:Body>
-</soap:Envelope>`;
+router.post("/crearGuia", (req, res) => {
+  request.post({
+    headers: {"Content-Type": "text/xml"},
+    url: genGuiasPrueba,
+    body: generarGuia(req.body, true)
+  }, (err, response, body) => {
+    if(err) return console.error(err);
 
-let urlEjemplo = "http://web.servientrega.com:8081/GeneracionGuias.asmx";
-
-router.get("/ejemplo", (req, res) => {
-    request.post({
-        "headers": {"Content-Type" : "text/xml"},
-        "url": urlEjemplo,
-        "body": ejemplo
-    }, (err, response, body) => {
-        if(err) {
-            return console.dir(err);
-        }
-
-        console.log(response.statusCode);
-        res.send(body);
-    })
+    console.log("Se está creando una guía");
+    res.send(JSON.stringify(body));
+  })
 })
-//2102566145
+
+router.post("/generarGuiaSticker", (req, res) => {
+  request.post({
+    headers: {"Content-Type": "text/xml"},
+    url: genGuiasPrueba,
+    body: crearGuiaSticker(req.body.numeroGuia, req.body.id_archivoCargar, true)
+  }, (error, response, body) => {
+    if(error) {
+      return console.dir(error);
+    }
+    console.log(response.statusCode);
+    // console.log(JSON.stringify(body));
+    res.send(JSON.stringify(body));
+  })
+});
+
+router.post("/generarManifiesto", (req, res) => {
+  request.post({
+    headers: {"Content-Type": "text/xml"},
+    url: genGuiasPrueba,
+    body: generarManifiesto(["290136660", "290136665", "290136666"], true)
+  }, (error, response, body) => {
+    if(error) {
+      return console.dir(error);
+    }
+    console.log(response.statusCode);
+    // console.log(JSON.stringify(body));
+    res.send(JSON.stringify(body));
+  })
+})
+
 module.exports = router;
