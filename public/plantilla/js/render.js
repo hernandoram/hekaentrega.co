@@ -1,6 +1,3 @@
-// const e = require("express");
-
-
 function escucha(id, e, funcion) {
     document.getElementById(id).addEventListener(e, funcion)
 }
@@ -51,7 +48,8 @@ function tablaDeGuias(id, datos){
         <th>
             <div class="form-check">
                 <input class="form-check-input position-static" type="checkbox" value="option1" 
-                data-id="${id}" 
+                data-id="${id}" data-numeroGuia="${datos.numeroGuia}"
+                data-prueba="${datos.prueba}" data-id_archivoCargar="${datos.id_archivoCargar}"
                 data-funcion="activar-desactivar" aria-label="..." disabled>
             </div>
         </th>
@@ -195,7 +193,8 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                 </div>
                 <div class="col-auto">
                     <i class="fa fa-file fa-2x text-gray-300" data-id_guia="${id}" 
-                    data-guias="${data.guias.toString()}" 
+                    data-guias="${data.guias.toString()}" data-nombre_guias="${data.nombre_guias}"
+                    data-nombre_relacion="${data.nombre_relacion}"
                     data-user="${data.id_user}" data-funcion="descargar-docs" 
                     id="descargar-docs${id}"></i>
                 </div>
@@ -360,7 +359,7 @@ function activarBotonesDeGuias(id, data){
             querySnapshot.forEach(doc => {
                 console.log(doc.data());
                 if(doc.data().descargar_relacion_envio && doc.data().descargar_guias) {
-                    descargarDocumentos(user_id, doc.id, doc.data().guias.toString());
+                    descargarDocumentos(user_id, doc.id, doc.data().guias.toString(), doc.data().nombre_guias, doc.data().nombre_relacion);
                 } else {
                     avisar("No permitido", "Aún no están disponibles ambos documentos", "aviso");
                 }

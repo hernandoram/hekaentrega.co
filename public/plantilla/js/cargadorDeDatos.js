@@ -27,6 +27,8 @@ precios_personalizados = {
     saldo: 0
 };
 
+let estado_prueba;
+
 //funcion principal del Script que carga todos los datos del usuario
 function cargarDatosUsuario(){
         var informacion = firebase.firestore().collection('usuarios').doc(user_id).collection("informacion");
@@ -102,8 +104,9 @@ function cargarDatosUsuario(){
           firebase.firestore().collection("usuarios").doc(user_id).get()
           .then((doc) => {
             if(doc.exists){
-              datos_usuario.centro_de_costo = doc.data().centro_de_costo,
-              datos_usuario.objetos_envio = doc.data().objetos_envio
+              datos_usuario.centro_de_costo = doc.data().centro_de_costo;
+              datos_usuario.objetos_envio = doc.data().objetos_envio;
+              estado_prueba = doc.data().centro_de_costo == "SellerNuevo" ? true : false;
             }
           })
         });
