@@ -32,7 +32,7 @@ if(administracion){
     ingreso = "CPNnumero_documento";
     seller = "CPNcentro_costo";
     let documentoNvoUser = new MensajeError("#CPNnumero_documento");
-    documentoNvoUser.input(["/", " "], "Recuerde que los espacios y el carácter \"/\", serán ignorados");
+    documentoNvoUser.input(["/", " ", "."], "Recuerde que los espacios y los carácteres \"/\", serán ignorados");
 } else {
     ingreso = "CPNcontraseña";
     seller = "CPNnombre_empresa"
@@ -83,14 +83,14 @@ function nuevaCuenta(){
         datos_personales.centro_de_costo = value("CPNcentro_costo").trim().replace(/\s/g, "");
         
         datos_relevantes.ingreso = value("CPNnumero_documento").replace(/\/|\s/g, "");
-        datos_relevantes.centro_de_costo = value("CPNcentro_costo").trim().replace(/\s/g, "");
+        datos_relevantes.centro_de_costo = value("CPNcentro_costo").trim().replace(/\s|\./g, "");
         datos_personales.usuario_corporativo = document.getElementById("CPNusuario_corporativo").checked;
         datos_relevantes.usuario_corporativo = datos_personales.usuario_corporativo;
     }else {
         datos_personales.centro_de_costo = "Seller"+value("CPNnombre_empresa").trim().replace(/\s/g, "");
 
         datos_relevantes.ingreso = value("CPNcontraseña").replace(/\/|\s/g, "");
-        datos_relevantes.centro_de_costo = "Seller"+value("CPNnombre_empresa").trim().replace(/\s/g, "");
+        datos_relevantes.centro_de_costo = "Seller"+value("CPNnombre_empresa").trim().replace(/\s|\./g, "");
     }
 
     let datos_bancarios = {
@@ -240,7 +240,7 @@ function nuevaCuenta(){
 
 
 let CpnKey = new MensajeError("#CPNcontraseña");
-CpnKey.input(["/", " "], "La contraseña no debe tener espacios ni el caráter \"/\", si continúa, los carácteres mencionados serán ignorados");
+CpnKey.input(["/", " "], "La contraseña no debe tener espacios ni los carácteres \"/\", si continúa, los carácteres mencionados serán ignorados");
 
 
 //Verifica que el usuario a crear no exista ni el centro de costo que se le quiere asignar
