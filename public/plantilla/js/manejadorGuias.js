@@ -21,7 +21,6 @@ if(administracion){
             cargarPagos();
         })
 
-        revisarNotificaciones();
     } else {
         let inputs = document.querySelectorAll("input");
         let botones = document.querySelectorAll("button")
@@ -36,6 +35,7 @@ if(administracion){
         avisar("Acceso Denegado", "No tienes acceso a esta plataforma, espera unos segundos o da click en este mensaje y serás redirigido", "advertencia", "plataforma2.html")
     }
 }
+revisarNotificaciones();
 
 $("#check-select-all-guias").change((e) => {
     let checks = document.getElementById("tabla-guias").querySelectorAll("input");

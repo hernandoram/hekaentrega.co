@@ -768,7 +768,7 @@ for(let i = 0; i < 2; i++) {
     }
 
     crearSticker[i] = {
-        numeroGuia: 290136801 + i,
+        numeroGuia: 290136808 + i,
         id_archivoCargar: "",
         prueba: true,
         id_heka: 11111450 + i
@@ -815,7 +815,11 @@ async function prueba() {
     return respuesta;
 }
 
-fusionarDocumentosGuias(crearSticker);
+fusionarDocumentosGuias(crearSticker, {
+    id_user: "nk58Yq6Y1GUFbaaRkdMFuwmDLxO2",
+    prueba: estado_prueba,
+    id_doc: "prueba"
+});
 
 async function fusionarDocumentosGuias(arrGuias, guiaActual) {
     let bytesReport = await obtenerBase64DeGuias(arrGuias);
@@ -894,4 +898,3 @@ function convertirMiles(n){
     }  
     return response.reverse().join("");
   };
-

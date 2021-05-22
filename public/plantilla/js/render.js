@@ -573,7 +573,7 @@ function mostrarNotificacion(data, type, id){
     
     info.setAttribute("class", "small text-gray-500");
     mensaje.style.overflowWrap = "anywhere";
-    mensaje.textContent = data.mensaje;
+    mensaje.innerHTML = data.mensaje;
     div_info.append(info, mensaje);
     
     button_close.setAttribute("type", "button");

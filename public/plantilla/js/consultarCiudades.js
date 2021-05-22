@@ -2,7 +2,7 @@ import ciudades from "./ciudades.js";
 
 
 //Funcion de autocompletado de las ciudades en los inputs de ciudad (Solo funciona en este Script)
-export function autocomplete(inp, arr) {
+function autocomplete(inp, arr) {
   var currentFocus;
   if(inp) {
     //Agrega el envento escucha al elemento ingresado
@@ -115,6 +115,10 @@ export function autocomplete(inp, arr) {
   }
 }
 
+
+globalThis.consultarCiudades = (inp, ciudades) => {
+  autocomplete(inp, ciudades)
+}
 autocomplete(document.getElementById("ciudadR"), ciudades);
 autocomplete(document.getElementById("ciudadD"), ciudades);
 autocomplete(document.getElementById("actualizar_ciudad"), ciudades);
