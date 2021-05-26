@@ -572,11 +572,14 @@ router.post("/crearGuia", (req, res) => {
   })
 })
 
-router.post("/generarGuiaSticker", async (req, res) => {
+router.post("/crearDocumentos", async (req, res) => {
   console.log(req.body);
   arr = []
-  let arrData = req.body;
+  let vinculo = req.body[1]
+  let arrData = req.body[0].filter(d => d.prueba == vinculo.prueba);
   let manifestarGuias = new Array();
+  let arrErroresUsuario = new Array();
+  if(arrData.length < req.body[0].length) arrErroresUsuario.push("Algunas guías que no corresponden con el estado actual no fueron tomadas en cuenta.");
   for (let data of arrData) {
     let promiseBase64 = new Promise((resolve, reject) => {
       request.post({
@@ -608,15 +611,46 @@ router.post("/generarGuiaSticker", async (req, res) => {
   }
 
   let arrBase64 = await Promise.all(arr);
-  console.log(arrBase64);
-  console.log(manifestarGuias);
+  // console.log(arrBase64);
+  // console.log(manifestarGuias);
+  if(arrData.length > manifestarGuias.length) arrErroresUsuario.push("Algunas guías presentaron errores para crear el Sticker, pruebe intentando de nuevo con las restantes, o clonarlas y eliminar las defectuosas");
   let base64Guias = await joinBase64WhitPdfDoc(arrBase64);
-  let base64Manifiesto = await generarStickerManifiesto(manifestarGuias, true);
+  let base64Manifiesto = await generarStickerManifiesto(manifestarGuias, vinculo);
+  if(!base64Manifiesto) arrErroresUsuario.push("Ocurrió un Error inesperado al crear el manifiesto de las guías, el problema será tranferido a centro logístico, procuraremos atenderlo en la brevedad posible, disculpe las molestias causadas");
 
-  let ejemploGuias = new Buffer.from(base64Guias, "base64");
+  if(arrData.length) {
+    db.collection("documentos").doc(vinculo.id_doc).update({
+      descargar_guias: base64Guias ? true : false,
+      descargar_relacion_envio: base64Manifiesto ? true : false,
+      guias: manifestarGuias.map(v => v.id_heka),
+      base64Guias,
+      base64Manifiesto
+    }).then(() => {
+      // for (let guia of manifestarGuias) {
+      //   db.collection("usuarios").doc(vinculo.id_user)
+      //   .collection("guias").doc(guia.id_heka)
+      //   .update({
+      //     enviado: true,
+      //     estado: "Enviado"
+      //   });
+      // }
+    }).then(() => {
+      console.log("Enviando Notificacion al usuario")
+      db.collection("notificaciones").add({
+        fecha: new Date().toString().split("T")[0],
+        visible_user: true,
+        timeline: new Date().getTime(),
+        icon: ["exclamation", "danger"],
+        mensaje: "Hemos registrado algún error al crear los documentos, revíselos para ver como resolverlos.",
+        detalles: arrErroresUsuario,
+        user_id: vinculo.id_user
+      })
+    })
+  }
+  // let ejemploGuias = new Buffer.from(base64Guias, "base64");
   // let ejemploManifiesto = new Buffer.from(base64Manifiesto, "base64");
   // fs.writeFileSync("ejemplo.pdf",ejemplo);
-  res.send(JSON.stringify(base64Manifiesto));
+  res.send(JSON.stringify(manifestarGuias));
 });
 
 async function joinBase64WhitPdfDoc(arrBase64) {
@@ -635,7 +669,12 @@ async function joinBase64WhitPdfDoc(arrBase64) {
       contador ++
     }  
     let resultBase64 = await pdfDoc.saveAsBase64();
-    return resultBase64;
+    if (contador) {
+      return resultBase64;
+    } else {
+      return 0;
+    }
+    
   } catch (error){
     console.log(error);
   }
@@ -669,14 +708,37 @@ async function generarStickerManifiesto(arrGuias, prueba) {
         console.log(response.statusCode);
     
         let xmlResponse = new DOMParser().parseFromString(body, "text/xml")
-        resolve(body);
+        // resolve(body);
         if(xmlResponse.documentElement.getElementsByTagName("GenerarManifiestoResult")[0].textContent == "true") {
           //------- Espacio para colocar la notificación a enviar a firebase 
           //
-          resolve(xmlResponse.documentElement.getElementsByTagName("bytesReport")[0].textContent);
+          resolve(xmlResponse.documentElement.getElementsByTagName("cadenaBytes")[0].textContent);
         } else {
-          let errorGeneradoPorGuia = xmlResponse.documentElement.getElementsByTagName("ErrorGeneradoPorGuia");
+          let errorGeneradoPorGuia = xmlResponse.documentElement.getElementsByTagName("Des_Error")[0].childNodes;
           let guiasConErrores = new Array();
+
+          console.log(errorGeneradoPorGuia);
+          for(let i = 0; i < errorGeneradoPorGuia.length; i++) {
+            
+            let guia = errorGeneradoPorGuia[i].childNodes[0].textContent;
+            let resErr = errorGeneradoPorGuia[i].childNodes[1].textContent;
+
+            console.log("guia", guia);
+            console.log("destalle", resErr);
+            guiasConErrores.push(guia +" - "+ resErr);
+          }
+
+          let fecha = new Date()
+          console.log("Guias con errores", guiasConErrores);
+          if(arrGuias) {
+            db.collection("notificaciones").add({
+              fecha: fecha.getDate() +"/"+ (fecha.getMonth() + 1) + "/" + fecha.getFullYear() + " - " + fecha.getHours() + ":" + fecha.getMinutes(),
+              // visible_admin: true,
+              mensaje: "Hubo un problema para crear el manifiesto de las guías " + arrGuias.map(v => v.id_heka).join(", "),
+              timeline: new Date().getTime(),
+              detalles: guiasConErrores
+            });
+          }
           
           resolve(0);
         }
@@ -689,5 +751,22 @@ async function generarStickerManifiesto(arrGuias, prueba) {
 
 }
 
+let vinculo = {
+  id_user: "nk58Yq6Y1GUFbaaRkdMFuwmDLxO2",
+  prueba: true,
+  id_doc: "0000"
+}
+
+let crearSticker = [];
+for(let i = 0; i < 2; i++) {
+    crearSticker[i] = {
+        numeroGuia: 290136812 + i,
+        id_archivoCargar: "",
+        prueba: true,
+        id_heka: 11111450 + i
+    }
+}
+
+generarStickerManifiesto(crearSticker, vinculo);
 
 module.exports = router;

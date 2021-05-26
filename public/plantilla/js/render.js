@@ -565,9 +565,12 @@ function mostrarNotificacion(data, type, id){
     notificacion.classList.add("notificacion-"+id);
     notificacion.setAttribute("id", "notificacion-"+id);
 
+    let color = data.icon ? data.icon[1] : "primary";
+    let type_icon = data.icon ? data.icon[0] : "file-alt"
+
     div_icon.classList.add("mr-3");
-    circle.setAttribute("class", "icon-circle bg-primary");
-    icon.setAttribute("class", "fas fa-file-alt text-white");
+    circle.setAttribute("class", "icon-circle bg-" +color);
+    icon.setAttribute("class", "fas fa-"+type_icon+" text-white");
     circle.append(icon);
     div_icon.append(circle);
     
@@ -597,8 +600,19 @@ function mostrarNotificacion(data, type, id){
         info.textContent = data.fecha + " a las " + data.hora;
     } else {
         info.textContent = data.fecha;
-        notificacion.setAttribute("href", "#documentos");
-        notificacion.setAttribute("onclick", "cargarDocumentos()")
+        if(data.detalles) {
+            notificacion.setAttribute("data-toggle", "modal");
+            notificacion.setAttribute("data-target", "#modal-detallesNotificacion");
+
+            notificacion.addEventListener("click", () => modalNotificacion(data.detalles));
+            $("#revisar-detallesNotificacion").click(() => {
+                notificacion.setAttribute("href", "#documentos");
+                notificacion.setAttribute("onclick", "cargarDocumentos()");
+            })
+        } else {
+            notificacion.setAttribute("href", "#documentos");
+            notificacion.setAttribute("onclick", "cargarDocumentos()");
+        }
     }
 
     notificacion.append(div_icon, div_info, button_close);
@@ -1138,6 +1152,24 @@ function gestionarNovedadModal(dataN, dataG) {
             }
         })
     }
+}
+
+function modalNotificacion(list) {
+    let contenedorModal = document.getElementById("contenedor-detallesNotificacion");
+    let lista = document.createElement("ul");
+
+    contenedorModal.innerHTML = "";
+    contenedorModal.innerHTML = "<h2 class='text-center'>Detalles</h2>";
+
+    for(let detalle of list) {
+        let li = document.createElement("li");
+        li.innerHTML = detalle;
+        lista.appendChild(li);
+    }
+
+    contenedorModal.appendChild(lista);
+
+    
 }
 
 $("#activador_filtro_fecha").change((e) => {

@@ -768,7 +768,7 @@ for(let i = 0; i < 2; i++) {
     }
 
     crearSticker[i] = {
-        numeroGuia: 290136808 + i,
+        numeroGuia: 290136812 + i,
         id_archivoCargar: "",
         prueba: true,
         id_heka: 11111450 + i
@@ -779,12 +779,12 @@ for(let i = 0; i < 2; i++) {
 // console.log(arr_guias);
 
 
-async function obtenerBase64DeGuias(arrGuias) {
-    
-    fetch("/servientrega/generarGuiaSticker", {
+async function obtenerBase64DeGuias(arrGuias, vinculo) {
+    let  data = [arrGuias, vinculo]
+    fetch("/servientrega/crearDocumentos", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(arrGuias)
+        body: JSON.stringify(data)
     }).then(res => res.json())
     .then(data => {
         let parser = new DOMParser();
@@ -814,15 +814,16 @@ async function prueba() {
     let respuesta = await Promise.all(arr);
     return respuesta;
 }
-
-fusionarDocumentosGuias(crearSticker, {
+let vinculo = {
     id_user: "nk58Yq6Y1GUFbaaRkdMFuwmDLxO2",
-    prueba: estado_prueba,
-    id_doc: "prueba"
-});
+    prueba: true,
+    id_doc: "0000"
+}
+console.log(vinculo);
+fusionarDocumentosGuias(crearSticker, vinculo);
 
-async function fusionarDocumentosGuias(arrGuias, guiaActual) {
-    let bytesReport = await obtenerBase64DeGuias(arrGuias);
+async function fusionarDocumentosGuias(arrGuias, vinculo) {
+    let bytesReport = await obtenerBase64DeGuias(arrGuias, vinculo);
     const pdfDoc = await PDFLib.PDFDocument.create();
     console.log(bytesReport);
     for await (let report of bytesReport) {
@@ -861,7 +862,7 @@ async function generarManifiesto(arrGuias) {
     .then(data => {
         let parser = new DOMParser();
         data = parser.parseFromString(data, "application/xml");
-        console.log(data)
+        // console.log(data)
         if(data.querySelector("GenerarManifiestoResult").textContent == "true") {
             return {
                 cadenaBytes: data.querySelector("cadenaBytes").textContent,
