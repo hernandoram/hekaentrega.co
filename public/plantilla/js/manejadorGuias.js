@@ -21,7 +21,6 @@ if(administracion){
             cargarPagos();
         })
 
-        revisarNotificaciones();
     } else {
         let inputs = document.querySelectorAll("input");
         let botones = document.querySelectorAll("button")
@@ -36,6 +35,7 @@ if(administracion){
         avisar("Acceso Denegado", "No tienes acceso a esta plataforma, espera unos segundos o da click en este mensaje y serás redirigido", "advertencia", "plataforma2.html")
     }
 }
+revisarNotificaciones();
 
 $("#check-select-all-guias").change((e) => {
     let checks = document.getElementById("tabla-guias").querySelectorAll("input");
@@ -50,13 +50,21 @@ $("#check-select-all-guias").change((e) => {
     }
 
 })
+
 function crearDocumentos() {
     let checks = document.getElementById("tabla-guias").querySelectorAll("input");
-    let guias = [], id_user = localStorage.user_id
+    let guias = [], id_user = localStorage.user_id, arrGuias = new Array();
     for(let check of checks){
-        if(check.checked){
+        if(check.checked && !check.disabled){
             guias.push(check.getAttribute("data-id"));
+            arrGuias.push({
+                numeroGuia: check.getAttribute("data-numeroGuia"),
+                id_heka:  check.getAttribute("data-id"),
+                id_archivoCargar: check.getAttribute("data-archivoCargar"),
+                prueba:  check.getAttribute("data-prueba") == "true" ? true : false
+            })
             check.checked = false;
+            check.disabled = true;
         }
     }
     
@@ -65,8 +73,8 @@ function crearDocumentos() {
         avisar("No se Pudo enviar su documento", "Asegurece de haber seleccionado al menos una guía", "aviso");
     } else {
         document.getElementById("enviar-documentos").setAttribute("disabled", "true");
-        firebase.firestore().collection("documentos").add({
-            guias: guias,
+        let documentReference = firebase.firestore().collection("documentos");
+        documentReference.add({
             id_user: id_user,
             nombre_usuario: datos_usuario.nombre_completo,
             fecha: genFecha(),
@@ -74,30 +82,66 @@ function crearDocumentos() {
         })
         .then((docRef) => {
             console.log("Document written with ID: ", docRef.id);
-            for(let guia of guias){
-                firebase.firestore().collection("usuarios").doc(id_user).collection("guias").doc(guia).update({
-                    enviado: true,
-                    estado: "Enviado"
-                });
-            }
-        }).then(() => {
-            avisar("Documento creado Exitósamente", "Las guías " + guias + " Serán procesadas por un asesor, y apróximadamente en 10 minutos los documentos serán subidos.", "platafora2.html#historial_documentos");
-            document.getElementById("enviar-documentos").removeAttribute("disabled");
-            firebase.firestore().collection("notificaciones").add({
-                mensaje: `${datos_usuario.nombre_completo} ha creado un Documento con las Guías: ${guias}`,
-                fecha: genFecha(),
-                guias: guias,
-                usuario: datos_usuario.nombre_completo,
-                timeline: new Date().getTime(),
-                type: "documento",
-                visible_admin: true
+            arrGuias.sort((a,b) => {
+                return a.numeroGuia > b.numeroGuia ? 1 : -1
             })
+            generarDocumentos(arrGuias, {
+                id_user, 
+                prueba: estado_prueba,
+                id_doc: docRef.id
+            })
+            
+
+
+
+        }).then(() => {
+            // firebase.firestore().collection("notificaciones").add({
+            //     mensaje: `${datos_usuario.nombre_completo} ha creado un Documento con las Guías: ${guias}`,
+            //     fecha: genFecha(),
+            //     guias: guias,
+            //     usuario: datos_usuario.nombre_completo,
+            //     timeline: new Date().getTime(),
+            //     type: "documento",
+            //     visible_admin: true
+            // })
         })
         .catch((error) => {
             console.error("Error adding document: ", error);
         });
     }
 }
+
+function base64ToArrayBuffer(base64) {
+    let binario = window.atob(base64);
+    let bytes = new Uint8Array(binario.length);
+    for(let i = 0; i < binario.length; i++) {
+        let ascii = binario.charCodeAt(i);
+        bytes[i] = ascii;
+    }
+
+    return bytes;
+}
+
+function generarDocumentos(arrGuias, vinculo) {
+    fetch("/servientrega/crearDocumentos", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify([arrGuias, vinculo])
+    }).then(res => res.json())
+    .then(data => {
+        console.log(data);
+        let guias = data.map(d => d.id_heka)
+        avisar("Documento creado Exitósamente", "Las guías " + guias + " Fueron procesadas exitosamente");
+        document.getElementById("enviar-documentos").removeAttribute("disabled");
+    })
+    .catch(error => {
+        avisar("Error", "Hubo un error al crear los documentos: " + error, "advertencia");
+        document.getElementById("enviar-documentos").removeAttribute("disabled");
+    })
+}
+
+
+
 
 /* Referencia de funciones utilizadas en este Script
  * MostrarDocumentos() ===> render.js
@@ -166,10 +210,12 @@ function cargarDocumentos(filter) {
                 
                 let user_id = e.target.getAttribute("data-user"),
                     id = e.target.getAttribute("data-id_guia"),
-                    guias =  e.target.getAttribute("data-guias");
+                    guias =  e.target.getAttribute("data-guias"),
+                    nombre_guias =  e.target.getAttribute("data-nombre_guias"),
+                    nombre_relacion =  e.target.getAttribute("data-nombre_relacion");
                 
 
-                descargarDocumentos(user_id, id, guias);
+                descargarDocumentos(user_id, id, guias, nombre_guias, nombre_relacion);
             })
         }
 
@@ -437,19 +483,24 @@ function subirDocumentos(){
             let id_user = parent.getAttribute("data-user");
             let numero_guias = parent.getAttribute("data-guias");
             let nombre_usuario = parent.getAttribute("data-nombre");
+            let nombre_documento = numero_guias[0] + (numero_guias.length > 1) ?
+                "_"+numero_guias[numero_guias.length - 1] : ""
+            let nombre_guias = "Guias" + nombre_documento;
+            let nombre_relacion = "Relacion" + nombre_documento;
             
             console.log(relacion_envio.files[0]);
             console.log(guias.files[0]);
+            console.log(numero_guias);
             
             var storageUser = firebase.storage().ref().child(id_user + "/" + id_doc);
             //Sube los documentos a Storage y coloca el indice de busqueda en firestore().documentos
-            storageUser.child("relacion envio" + numero_guias + ".pdf").put(relacion_envio.files[0]).then((querySnapshot) => {
+            storageUser.child(nombre_relacion + ".pdf").put(relacion_envio.files[0]).then((querySnapshot) => {
                 firebase.firestore().collection("documentos").doc(id_doc).update({
-                    descargar_relacion_envio: true
+                    descargar_relacion_envio: true, nombre_relacion
                 }).then(() => {
-                    storageUser.child("guias" + numero_guias + ".pdf").put(guias.files[0]).then((querySnapshot) => {
+                    storageUser.child(nombre_guias + ".pdf").put(guias.files[0]).then((querySnapshot) => {
                         firebase.firestore().collection("documentos").doc(id_doc).update({
-                            descargar_guias: true
+                            descargar_guias: true, nombre_guias
                         })
                     }).then(()=> {
                         e.target.disabled = false;
@@ -500,26 +551,46 @@ function actualizarHistorialDeDocumentos(){
               tabla.push(tablaDeDocumentos(doc.id, doc.data()));
               //funcionalidad de botones para descargar guias y relaciones
               firebase.firestore().collection("documentos").doc(doc.id).onSnapshot((row) => {
+                let nombre_guias = row.data().nombre_guias ? row.data().nombre_guias : "guias" + row.data().guias.toString();
+                let nombre_relacion = row.data().nombre_relacion ? row.data().nombre_relacion : "relacion envio" + row.data().guias.toString();
                 if(row.data().descargar_relacion_envio){
-                  document.getElementById("boton-descargar-guias" + doc.id).removeAttribute("disabled");
-                  document.getElementById("boton-descargar-guias" + doc.id).addEventListener("click", (e) => {
-                    console.log(e.target.parentNode)
-                    firebase.storage().ref().child(user_id + "/" + doc.id + "/guias" + doc.data().guias.toString() + ".pdf")
-                    .getDownloadURL().then((url) => {
-                      console.log(url)
-                      window.open(url, "_blank");
-                    })
+                    let btn_descarga = document.getElementById("boton-descargar-guias" + doc.id);
+                  btn_descarga.removeAttribute("disabled");
+                  btn_descarga.addEventListener("click", (e) => {
+                    if(row.data().base64Guias && !row.data().nombre_guias) {
+                       let base64 = row.data().base64Guias;
+                       let buff = base64ToArrayBuffer(base64);
+                       let blob = new Blob([buff], {type: "application/pdf"});
+                       let url = URL.createObjectURL(blob);
+                       window.open(url);
+                    } else {
+                        console.log(e.target.parentNode)
+                        firebase.storage().ref().child(user_id + "/" + doc.id + "/" + nombre_guias + ".pdf")
+                        .getDownloadURL().then((url) => {
+                          console.log(url)
+                          window.open(url, "_blank");
+                        })
+                    }
                   })
                 }
                 if(row.data().descargar_guias){
-                  document.getElementById("boton-descargar-relacion_envio" + doc.id).removeAttribute("disabled");
-                  document.getElementById("boton-descargar-relacion_envio" + doc.id).addEventListener("click", (e) => {
-                    console.log(e.target.parentNode)
-                    firebase.storage().ref().child(user_id + "/" + doc.id + "/relacion envio" + doc.data().guias.toString() + ".pdf")
-                    .getDownloadURL().then((url) => {
-                      console.log(url)
-                      window.open(url, "_blank");
-                    })
+                    let btn_descarga = document.getElementById("boton-descargar-relacion_envio" + doc.id);
+                    btn_descarga.removeAttribute("disabled");
+                    btn_descarga.addEventListener("click", (e) => {
+                      if(row.data().base64Manifiesto && !row.data().nombre_relacion) {
+                        let base64 = row.data().base64Manifiesto;
+                        let buff = base64ToArrayBuffer(base64);
+                        let blob = new Blob([buff], {type: "application/pdf"});
+                        let url = URL.createObjectURL(blob);
+                        window.open(url);
+                      } else {
+                          console.log(e.target.parentNode)
+                          firebase.storage().ref().child(user_id + "/" + doc.id + "/" + nombre_relacion + ".pdf")
+                          .getDownloadURL().then((url) => {
+                            console.log(url)
+                            window.open(url, "_blank");
+                          })
+                      }
                   })
                 }
               });
@@ -562,17 +633,42 @@ function actualizarHistorialDeDocumentos(){
     } 
 }
 
-function descargarDocumentos(user_id, id_doc, guias){
-    firebase.storage().ref().child(user_id + "/" + id_doc + "/guias" + guias + ".pdf")
-    .getDownloadURL().then((url) => {
-        window.open(url, "_blank");
-    });
+function descargarDocumentos(user_id, id_doc, guias, nombre_guias, nombre_relacion){
+    nombre_guias = nombre_guias == "undefined" ? "guias" + guias : nombre_guias;
+    nombre_relacion = nombre_relacion == "undefined" ? "relacion envio" + guias : nombre_relacion;
 
-    firebase.storage().ref().child(user_id + "/" + id_doc + "/relacion envio" + guias + ".pdf")
-    .getDownloadURL().then((url) => {
-        console.log(url)
-        window.open(url, "_blank");
+    firebase.firestore().collection("documentos").doc(id_doc).get()
+    .then(doc => {
+        if(doc.exists) {
+            if(doc.data().base64Guias && !doc.data().nombre_guias) {
+                let base64 = doc.data().base64Guias;
+                let buff = base64ToArrayBuffer(base64);
+                let blob = new Blob([buff], {type: "application/pdf"});
+                let url = URL.createObjectURL(blob);
+                window.open(url);  
+            } else {
+                firebase.storage().ref().child(user_id + "/" + id_doc + "/" + nombre_guias + ".pdf")
+                .getDownloadURL().then((url) => {
+                    window.open(url, "_blank");
+                });
+
+            }
+
+            if(doc.data().base64Manifiesto && !doc.data().nombre_relacion){
+                let base64 = doc.data().base64Manifiesto;
+                let buff = base64ToArrayBuffer(base64);
+                let blob = new Blob([buff], {type: "application/pdf"});
+                let url = URL.createObjectURL(blob);
+                window.open(url);
+            } else {
+                firebase.storage().ref().child(user_id + "/" + id_doc + "/" + nombre_relacion + ".pdf")
+                .getDownloadURL().then((url) => {
+                    window.open(url, "_blank");
+                });
+            }
+        }
     })
+
 }
 
 
@@ -1138,18 +1234,3 @@ $('[href="#novedades"]').click(() => {
         i.classList.add("d-none");
     });
 })
-
-// console.log("empieza consulta");
-// fetch("/servientrega/crearGuia", {
-//     method: "POST",
-//     headers: {"Content-Type": "application/json"}
-// })
-// .then(res => res.json())
-// .then(data => {
-//     let parser = new DOMParser();
-//     data = parser.parseFromString(data, "application/xml");
-//     console.log(data);
-//     console.log("se recibió respuesta");
-// })
-// .catch(err => console.log("nada", err))
-// console.log("termina consulta")

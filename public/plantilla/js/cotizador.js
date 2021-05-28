@@ -93,6 +93,8 @@ function cotizador(){
             datos_a_enviar.correoR = datos_usuario.correo || "notiene@gmail.com";
             datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo;
 
+            if(estado_prueba) datos_a_enviar.prueba = true;
+
             //Detalles del consto de Envío
             datos_a_enviar.detalles = {
                 peso_real: info_precio.kg,
@@ -566,18 +568,35 @@ function enviar_firestore(datos){
     let id_heka = datos_usuario.numero_documento.slice(-4);
     let firestore = firebase.firestore()
     firestore.collection("infoHeka").doc("heka_id").get()
-        .then((doc) => {
+        .then(async (doc) => {
             if(doc.exists){
                 id_heka += doc.data().id.toString();
 
                 datos.id_heka = id_heka;
                 console.log(datos);
+                let referenciaNuevaGuia = firestore.collection("usuarios").doc(localStorage.user_id)
+                .collection("guias").doc(id_heka);
                 firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
-                firestore.collection("usuarios").doc(localStorage.user_id)
-                    .collection("guias").doc(id_heka).set(datos);
-                return doc.data().id;
+                let respuesta = await referenciaNuevaGuia.set(datos)
+                    .then(async () => {
+                        let guia = await crearGuiaServientrega(datos)
+                        .then(resGuia => {
+                            referenciaNuevaGuia.update({
+                                numeroGuia: resGuia.numeroGuia,
+                                id_archivoCargar: resGuia.id_archivoCargar
+                            })
+                            return resGuia;
+                        })
+                        return guia;
+                    })
+                if(respuesta.numeroGuia != "0") {
+                    return doc.data().id;
+                } else {
+                    throw new Error();
+                }
             }
-        }).then((id) => {
+        })
+        .then((id) => {
             firestore.collection("usuarios").doc(localStorage.user_id).collection("informacion")
             .doc("heka").get()
             .then((doc) => {
@@ -633,7 +652,8 @@ function enviar_firestore(datos){
                 }
             })
             return id;
-        }).then((id) => {
+        })
+        .then((id) => {
             let respuesta = document.getElementById("respuesta-crear_guia")
             respuesta.innerHTML = "";
             respuesta.innerHTML = "Guía Creada exitósamente.";
@@ -642,6 +662,227 @@ function enviar_firestore(datos){
             console.log("revisa que paso, algo salio mal => ", err);
             avisar("¡Lo sentimos! Error inesperado", "Intente nuevamente al desaparecer este mensaje. \n si su problema persiste, comuniquese con nosotros", "advertencia", "plataforma2.html");
         })
+}
+
+async function crearGuiaServientrega(datos) {
+    let res = await fetch("/servientrega/crearGuia", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(datos)
+    })
+    .then(res => res.json())
+    .then(data => {
+        let parser = new DOMParser();
+        data = parser.parseFromString(data, "application/xml");
+        console.log(data);
+        console.log("se recibió respuesta");
+        let retorno = {
+            numeroGuia: data.querySelector("Num_Guia").textContent,
+            nombreD: data.querySelector("Nom_Contacto").textContent,
+            ciudadD: data.querySelector("Des_Ciudad").textContent,
+            id_archivoCargar: data.querySelector("Id_ArchivoCargar").textContent,
+            prueba: datos.centro_de_costo == "SellerNuevo" ? true : false
+        }
+        return retorno;
+    })
+    .catch(err => console.log("Hubo un error: ", err))
+
+    return res;
+}
+
+// crearGuiaServientrega({
+//     alto: "20",
+//     ancho: "5",
+//     celularD: "1231231231",
+//     celularR: "123",
+//     centro_de_costo: "SellerNuevo",
+//     ciudadD: "CALI",
+//     ciudadR: "CHIQUINQUIRA",
+//     correoD: "notiene@gmail.com",
+//     correoR: "usuarionuevo@gmail.com",
+//     costo_envio: 42250,
+//     departamentoD: "VALLE",
+//     departamentoR: "BOYACA",
+//     detalles: {peso_real: 6, flete: 19250, comision_heka: 7500, comision_trasportadora: 15500, peso_liquidar: 6},
+//     dice_contener: "calzado",
+//     direccionD: "direccion barrio ",
+//     direccionR: "sd asd",
+//     fecha: "2021-05-17",
+//     id_heka: "11111442",
+//     identificacionD: "456",
+//     largo: "20",
+//     nombreD: "nombre del destinatario",
+//     nombreR: "USUARIO PRUEBA",
+//     observaciones: "",
+//     peso: "6",
+//     prueba: true,
+//     recoleccion_esporadica: 0,
+//     telefonoD: "1231231231",
+//     tipo_doc_dest: "2",
+//     valor: "500000"
+// })
+
+function base64ToArrayBuffer(base64) {
+    let binario = window.atob(base64);
+    let bytes = new Uint8Array(binario.length);
+    for(let i = 0; i < binario.length; i++) {
+        let ascii = binario.charCodeAt(i);
+        bytes[i] = ascii;
+    }
+
+    return bytes;
+}
+
+let crearGuias = [], crearSticker = [];
+for(let i = 0; i < 2; i++) {
+    crearGuias[i] = {
+        alto: "20",
+        ancho: "5",
+        celularD: "1231231231",
+        celularR: "123",
+        centro_de_costo: "SellerNuevo",
+        ciudadD: "CALI",
+        ciudadR: "CHIQUINQUIRA",
+        correoD: "notiene@gmail.com",
+        correoR: "usuarionuevo@gmail.com",
+        costo_envio: 42250,
+        departamentoD: "VALLE",
+        departamentoR: "BOYACA",
+        detalles: {peso_real: 6, flete: 19250, comision_heka: 7500, comision_trasportadora: 15500, peso_liquidar: 6},
+        dice_contener: "calzado",
+        direccionD: "direccion barrio ",
+        direccionR: "sd asd",
+        fecha: "2021-05-17",
+        id_heka: "11111442",
+        identificacionD: "456",
+        largo: "20",
+        nombreD: "nombre del destinatario",
+        nombreR: "USUARIO PRUEBA",
+        observaciones: "",
+        peso: "6",
+        prueba: true,
+        recoleccion_esporadica: 0,
+        telefonoD: "1231231231",
+        tipo_doc_dest: "2",
+        valor: "500000"
+    }
+
+    crearSticker[i] = {
+        numeroGuia: 290136812 + i,
+        id_archivoCargar: "",
+        prueba: true,
+        id_heka: 11111450 + i
+    }
+}
+
+// let arr_guias = crearSticker.map(g => g.id_heka);
+// console.log(arr_guias);
+
+
+async function obtenerBase64DeGuias(arrGuias, vinculo) {
+    let  data = [arrGuias, vinculo]
+    fetch("/servientrega/crearDocumentos", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    }).then(res => res.json())
+    .then(data => {
+        let parser = new DOMParser();
+        data = parser.parseFromString(data, "application/xml");
+        console.log(data);
+        if(data.querySelector("GenerarGuiaStickerResult").textContent == "true") {
+            return data.querySelector("bytesReport").textContent;
+        } else {
+            return 0
+        }
+    })
+}
+
+async function prueba() {
+    let arr = [];
+    for (let i = 0; i < 5; i++) {
+        let y = new Promise((res, rej) => {
+            setTimeout(() => {
+                res("Esta es la promesa n° " + i);
+            }, 4000 + (i*1000));
+        })
+
+        y.then(d => console.log(d));
+        arr[i] = y;
+    }
+
+    let respuesta = await Promise.all(arr);
+    return respuesta;
+}
+let vinculo = {
+    id_user: "nk58Yq6Y1GUFbaaRkdMFuwmDLxO2",
+    prueba: true,
+    id_doc: "0000"
+}
+console.log(vinculo);
+fusionarDocumentosGuias(crearSticker, vinculo);
+
+async function fusionarDocumentosGuias(arrGuias, vinculo) {
+    let bytesReport = await obtenerBase64DeGuias(arrGuias, vinculo);
+    const pdfDoc = await PDFLib.PDFDocument.create();
+    console.log(bytesReport);
+    for await (let report of bytesReport) {
+        if(report) {
+            let byte = base64ToArrayBuffer(report);
+            let document = await PDFLib.PDFDocument.load(byte);
+            let [page] = await pdfDoc.copyPages(document, [0]);
+            pdfDoc.addPage(page);
+        }
+    }
+        
+    const pdfBytes = await pdfDoc.save();
+    let blob = new Blob([pdfBytes], {type: "application/pdf"});
+    window.open(URL.createObjectURL(blob));
+}
+
+function saveByteArray(reportName, byte) {
+    var blob = new Blob([byte], {type: "application/pdf"});
+    var link = document.createElement('a');
+    console.log(blob);
+    link.href = window.URL.createObjectURL(blob);
+    var fileName = reportName;
+    link.download = fileName;
+    link.click();
+};
+
+
+
+async function generarManifiesto(arrGuias) {
+    let data = {arrGuias, prueba: true}
+    let result = await fetch("/servientrega/generarManifiesto", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    }).then(res => res.json())
+    .then(data => {
+        let parser = new DOMParser();
+        data = parser.parseFromString(data, "application/xml");
+        // console.log(data)
+        if(data.querySelector("GenerarManifiestoResult").textContent == "true") {
+            return {
+                cadenaBytes: data.querySelector("cadenaBytes").textContent,
+                num_manifiesto: data.querySelector("Num_manifiesto").textContent
+            } 
+        } else {
+            let error = new Array();
+            data.querySelectorAll("ErrorGeneradoPorGuia").forEach(err => {
+                error.push({
+                    guia: err.querySelector("NumGuia").textContent,
+                    descripcion: data.querySelector("DesError").textContent
+                });
+            })
+        
+
+            throw new Error("Hubo un error inesperado, posiblemente "+ error[0].descripcion);
+        }
+    })
+
+    return result;
 }
 
 function convertirMiles(n){
@@ -658,4 +899,3 @@ function convertirMiles(n){
     }  
     return response.reverse().join("");
   };
-

@@ -9,6 +9,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
   <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
+  <script src="https://unpkg.com/pdf-lib"></script>
 
 
   <title>hekaentrega.co</title>
@@ -133,7 +134,7 @@
             <!-- Topbar Navbar -->
             <ul class="navbar-nav ml-auto">
               <!--Notifications-->
-              <!-- <li class="nav-item dropdown no-arrow mx-1">
+              <li class="nav-item dropdown no-arrow mx-1">
                 <a class="nav-link dropdown-toggle" href="#" id="notificaciones" role="button" 
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   <i class="fas fa-bell fa-fw"></i>
@@ -148,7 +149,7 @@
                   <p class="dropdown-item text-center small text-gray-500" onclick="eliminarNotificaciones()">
                     Eliminar Todas las notificaciones (versión Prueba)</p>
                 </div>
-                </li>     -->
+              </li>
               
               <div class="topbar-divider d-none d-sm-block">
                 
@@ -786,7 +787,29 @@
       </div>
     </div>
   </div>
-</div>   
+</div>  
+
+<!--Modal para ver detalles de notificaciones-->
+<div class="modal fade" id="modal-detallesNotificacion" data-backdrop="static" tabindex="-1" aria-labelledby="titulo-detallesNotificacion" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="titulo-detallesNotificacion">Detalles</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid" id="contenedor-detallesNotificacion">
+          Aquí irá la información detallada de la notificación seleccionada
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>  
     
     
     <!-- FIREBASE -->

@@ -1,6 +1,3 @@
-// const e = require("express");
-
-
 function escucha(id, e, funcion) {
     document.getElementById(id).addEventListener(e, funcion)
 }
@@ -51,7 +48,8 @@ function tablaDeGuias(id, datos){
         <th>
             <div class="form-check">
                 <input class="form-check-input position-static" type="checkbox" value="option1" 
-                data-id="${id}" 
+                data-id="${id}" data-numeroGuia="${datos.numeroGuia}"
+                data-prueba="${datos.prueba}" data-id_archivoCargar="${datos.id_archivoCargar}"
                 data-funcion="activar-desactivar" aria-label="..." disabled>
             </div>
         </th>
@@ -195,7 +193,8 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                 </div>
                 <div class="col-auto">
                     <i class="fa fa-file fa-2x text-gray-300" data-id_guia="${id}" 
-                    data-guias="${data.guias.toString()}" 
+                    data-guias="${data.guias.toString()}" data-nombre_guias="${data.nombre_guias}"
+                    data-nombre_relacion="${data.nombre_relacion}"
                     data-user="${data.id_user}" data-funcion="descargar-docs" 
                     id="descargar-docs${id}"></i>
                 </div>
@@ -360,7 +359,7 @@ function activarBotonesDeGuias(id, data){
             querySnapshot.forEach(doc => {
                 console.log(doc.data());
                 if(doc.data().descargar_relacion_envio && doc.data().descargar_guias) {
-                    descargarDocumentos(user_id, doc.id, doc.data().guias.toString());
+                    descargarDocumentos(user_id, doc.id, doc.data().guias.toString(), doc.data().nombre_guias, doc.data().nombre_relacion);
                 } else {
                     avisar("No permitido", "Aún no están disponibles ambos documentos", "aviso");
                 }
@@ -566,15 +565,18 @@ function mostrarNotificacion(data, type, id){
     notificacion.classList.add("notificacion-"+id);
     notificacion.setAttribute("id", "notificacion-"+id);
 
+    let color = data.icon ? data.icon[1] : "primary";
+    let type_icon = data.icon ? data.icon[0] : "file-alt"
+
     div_icon.classList.add("mr-3");
-    circle.setAttribute("class", "icon-circle bg-primary");
-    icon.setAttribute("class", "fas fa-file-alt text-white");
+    circle.setAttribute("class", "icon-circle bg-" +color);
+    icon.setAttribute("class", "fas fa-"+type_icon+" text-white");
     circle.append(icon);
     div_icon.append(circle);
     
     info.setAttribute("class", "small text-gray-500");
     mensaje.style.overflowWrap = "anywhere";
-    mensaje.textContent = data.mensaje;
+    mensaje.innerHTML = data.mensaje;
     div_info.append(info, mensaje);
     
     button_close.setAttribute("type", "button");
@@ -598,8 +600,19 @@ function mostrarNotificacion(data, type, id){
         info.textContent = data.fecha + " a las " + data.hora;
     } else {
         info.textContent = data.fecha;
-        notificacion.setAttribute("href", "#documentos");
-        notificacion.setAttribute("onclick", "cargarDocumentos()")
+        if(data.detalles) {
+            notificacion.setAttribute("data-toggle", "modal");
+            notificacion.setAttribute("data-target", "#modal-detallesNotificacion");
+
+            notificacion.addEventListener("click", () => modalNotificacion(data.detalles));
+            $("#revisar-detallesNotificacion").click(() => {
+                notificacion.setAttribute("href", "#documentos");
+                notificacion.setAttribute("onclick", "cargarDocumentos()");
+            })
+        } else {
+            notificacion.setAttribute("href", "#documentos");
+            notificacion.setAttribute("onclick", "cargarDocumentos()");
+        }
     }
 
     notificacion.append(div_icon, div_info, button_close);
@@ -1139,6 +1152,24 @@ function gestionarNovedadModal(dataN, dataG) {
             }
         })
     }
+}
+
+function modalNotificacion(list) {
+    let contenedorModal = document.getElementById("contenedor-detallesNotificacion");
+    let lista = document.createElement("ul");
+
+    contenedorModal.innerHTML = "";
+    contenedorModal.innerHTML = "<h2 class='text-center'>Detalles</h2>";
+
+    for(let detalle of list) {
+        let li = document.createElement("li");
+        li.innerHTML = detalle;
+        lista.appendChild(li);
+    }
+
+    contenedorModal.appendChild(lista);
+
+    
 }
 
 $("#activador_filtro_fecha").change((e) => {

@@ -1,14 +1,21 @@
 ///SErvientrega
-let express = require("express");
+const express = require("express");
 const app = express();
-let router = express.Router();
-let request = require("request");
-let parseString = require("xml2js").parseString;
+const router = express.Router();
+const request = require("request");
+const parseString = require("xml2js").parseString;
+const DOMParser = require("xmldom").DOMParser;
 const bodyParser = require("body-parser");
 const cron = require("node-cron");
+const {PDFDocument} = require("pdf-lib");
+const fs = require("fs");
+const Blob = require("node-blob");
+// globalThis.Blob = Blob;
+
 
 const firebase = require("../firebase");
-const db = firebase.firestore()
+const db = firebase.firestore();
+const storage = firebase.storage();
 
 router.use(bodyParser.urlencoded({extended: true}));
 router.use(bodyParser.json());
@@ -489,7 +496,7 @@ function generarManifiesto(arrGuias, prueba) {
   let guias = `<tem:Guias>`;
   for(let i = 0; i < arrGuias.length; i++) {
     guias += `<tem:ObjetoGuia>
-      <tem:Numero_Guia>${arrGuias[i]}</tem:Numero_Guia>
+      <tem:Numero_Guia>${arrGuias[i].numeroGuia}</tem:Numero_Guia>
     </tem:ObjetoGuia>`
   }
   guias += `</tem:Guias>`;
@@ -556,7 +563,7 @@ router.post("/crearGuia", (req, res) => {
   request.post({
     headers: {"Content-Type": "text/xml"},
     url: genGuiasPrueba,
-    body: generarGuia(req.body, true)
+    body: generarGuia(req.body, req.body.prueba)
   }, (err, response, body) => {
     if(err) return console.error(err);
 
@@ -565,26 +572,119 @@ router.post("/crearGuia", (req, res) => {
   })
 })
 
-router.post("/generarGuiaSticker", (req, res) => {
-  request.post({
-    headers: {"Content-Type": "text/xml"},
-    url: genGuiasPrueba,
-    body: crearGuiaSticker(req.body.numeroGuia, req.body.id_archivoCargar, true)
-  }, (error, response, body) => {
-    if(error) {
-      return console.dir(error);
-    }
-    console.log(response.statusCode);
-    // console.log(JSON.stringify(body));
-    res.send(JSON.stringify(body));
-  })
+router.post("/crearDocumentos", async (req, res) => {
+  console.log(req.body);
+  arr = []
+  let vinculo = req.body[1]
+  let arrData = req.body[0].filter(d => d.prueba == vinculo.prueba);
+  let manifestarGuias = new Array();
+  let arrErroresUsuario = new Array();
+  if(arrData.length < req.body[0].length) arrErroresUsuario.push("Algunas guías que no corresponden con el estado actual no fueron tomadas en cuenta.");
+  for (let data of arrData) {
+    let promiseBase64 = new Promise((resolve, reject) => {
+      request.post({
+        headers: { "Content-Type": "text/xml" },
+        url: data.prueba ? genGuiasPrueba : generacionGuias,
+        body: crearGuiaSticker(data.numeroGuia, data.id_archivoCargar, data.prueba)
+      }, (error, response, body) => {
+        if (error) {
+          reject(error);
+        }
+        console.log(response.statusCode);
+        // console.log(JSON.stringify(body));
+        
+        let xmlResponse = new DOMParser().parseFromString(body, "text/xml")
+        console.info(xmlResponse.documentElement.getElementsByTagName("GenerarGuiaStickerResponse")[0].textContent);
+        if(xmlResponse.documentElement.getElementsByTagName("GenerarGuiaStickerResult")[0].textContent == "true") {
+          manifestarGuias.push(data);
+          resolve(xmlResponse.documentElement.getElementsByTagName("bytesReport")[0].textContent);
+        } else {
+          resolve(0);
+        }
+
+        // resolve(body.slice(25, 50));
+        
+        // res.send(JSON.stringify(body));
+      })
+    }) 
+    arr.push(promiseBase64);
+  }
+
+  let arrBase64 = await Promise.all(arr);
+  // console.log(arrBase64);
+  // console.log(manifestarGuias);
+  if(arrData.length > manifestarGuias.length) arrErroresUsuario.push("Algunas guías presentaron errores para crear el Sticker, pruebe intentando de nuevo con las restantes, o clonarlas y eliminar las defectuosas");
+  let base64Guias = await joinBase64WhitPdfDoc(arrBase64);
+  let base64Manifiesto = await generarStickerManifiesto(manifestarGuias, vinculo);
+  if(!base64Manifiesto) arrErroresUsuario.push("Ocurrió un Error inesperado al crear el manifiesto de las guías, el problema será tranferido a centro logístico, procuraremos atenderlo en la brevedad posible, disculpe las molestias causadas");
+
+  if(arrData.length) {
+    db.collection("documentos").doc(vinculo.id_doc).update({
+      descargar_guias: base64Guias ? true : false,
+      descargar_relacion_envio: base64Manifiesto ? true : false,
+      guias: manifestarGuias.map(v => v.id_heka),
+      base64Guias,
+      base64Manifiesto
+    }).then(() => {
+      // for (let guia of manifestarGuias) {
+      //   db.collection("usuarios").doc(vinculo.id_user)
+      //   .collection("guias").doc(guia.id_heka)
+      //   .update({
+      //     enviado: true,
+      //     estado: "Enviado"
+      //   });
+      // }
+    }).then(() => {
+      console.log("Enviando Notificacion al usuario")
+      db.collection("notificaciones").add({
+        fecha: new Date().toString().split("T")[0],
+        visible_user: true,
+        timeline: new Date().getTime(),
+        icon: ["exclamation", "danger"],
+        mensaje: "Hemos registrado algún error al crear los documentos, revíselos para ver como resolverlos.",
+        detalles: arrErroresUsuario,
+        user_id: vinculo.id_user
+      })
+    })
+  }
+  // let ejemploGuias = new Buffer.from(base64Guias, "base64");
+  // let ejemploManifiesto = new Buffer.from(base64Manifiesto, "base64");
+  // fs.writeFileSync("ejemplo.pdf",ejemplo);
+  res.send(JSON.stringify(manifestarGuias));
 });
+
+async function joinBase64WhitPdfDoc(arrBase64) {
+  try {
+    const pdfDoc = await PDFDocument.create();
+    let manifestarGuias = new Array();
+    let contador = 0;
+    for(let base64 of arrBase64) {
+      if(base64) {
+        let buff = new Buffer.from(base64, "base64");
+        let documen = await PDFDocument.load(buff);
+        let [page] = await pdfDoc.copyPages(documen, [0]);
+        pdfDoc.addPage(page);
+        manifestarGuias.push(arrBase64[contador]);
+      }
+      contador ++
+    }  
+    let resultBase64 = await pdfDoc.saveAsBase64();
+    if (contador) {
+      return resultBase64;
+    } else {
+      return 0;
+    }
+    
+  } catch (error){
+    console.log(error);
+  }
+}
 
 router.post("/generarManifiesto", (req, res) => {
   request.post({
     headers: {"Content-Type": "text/xml"},
     url: genGuiasPrueba,
-    body: generarManifiesto(["290136660", "290136665", "290136666"], true)
+    body: generarManifiesto(req.body.arrGuias, req.body.prueba)
   }, (error, response, body) => {
     if(error) {
       return console.dir(error);
@@ -594,5 +694,79 @@ router.post("/generarManifiesto", (req, res) => {
     res.send(JSON.stringify(body));
   })
 })
+async function generarStickerManifiesto(arrGuias, prueba) {
+  if(arrGuias) {
+    let base64 = new Promise((resolve, reject) => {
+      request.post({
+        headers: {"Content-Type": "text/xml"},
+        url: prueba ? genGuiasPrueba : generacionGuias,
+        body: generarManifiesto(arrGuias, prueba)
+      }, (error, response, body) => {
+        if(error) {
+          return console.dir(error);
+        }
+        console.log(response.statusCode);
+    
+        let xmlResponse = new DOMParser().parseFromString(body, "text/xml")
+        // resolve(body);
+        if(xmlResponse.documentElement.getElementsByTagName("GenerarManifiestoResult")[0].textContent == "true") {
+          //------- Espacio para colocar la notificación a enviar a firebase 
+          //
+          resolve(xmlResponse.documentElement.getElementsByTagName("cadenaBytes")[0].textContent);
+        } else {
+          let errorGeneradoPorGuia = xmlResponse.documentElement.getElementsByTagName("Des_Error")[0].childNodes;
+          let guiasConErrores = new Array();
+
+          console.log(errorGeneradoPorGuia);
+          for(let i = 0; i < errorGeneradoPorGuia.length; i++) {
+            
+            let guia = errorGeneradoPorGuia[i].childNodes[0].textContent;
+            let resErr = errorGeneradoPorGuia[i].childNodes[1].textContent;
+
+            console.log("guia", guia);
+            console.log("destalle", resErr);
+            guiasConErrores.push(guia +" - "+ resErr);
+          }
+
+          let fecha = new Date()
+          console.log("Guias con errores", guiasConErrores);
+          if(arrGuias) {
+            db.collection("notificaciones").add({
+              fecha: fecha.getDate() +"/"+ (fecha.getMonth() + 1) + "/" + fecha.getFullYear() + " - " + fecha.getHours() + ":" + fecha.getMinutes(),
+              // visible_admin: true,
+              mensaje: "Hubo un problema para crear el manifiesto de las guías " + arrGuias.map(v => v.id_heka).join(", "),
+              timeline: new Date().getTime(),
+              detalles: guiasConErrores
+            });
+          }
+          
+          resolve(0);
+        }
+      })
+    })
+    return await base64;
+  } else {
+    return 0;
+  }
+
+}
+
+let vinculo = {
+  id_user: "nk58Yq6Y1GUFbaaRkdMFuwmDLxO2",
+  prueba: true,
+  id_doc: "0000"
+}
+
+let crearSticker = [];
+for(let i = 0; i < 2; i++) {
+    crearSticker[i] = {
+        numeroGuia: 290136812 + i,
+        id_archivoCargar: "",
+        prueba: true,
+        id_heka: 11111450 + i
+    }
+}
+
+generarStickerManifiesto(crearSticker, vinculo);
 
 module.exports = router;

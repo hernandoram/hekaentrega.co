@@ -1051,7 +1051,28 @@
       </div>
     </div>
     
-    
+    <!--Modal para ver detalles de notificaciones-->
+    <div class="modal fade" id="modal-detallesNotificacion" data-backdrop="static" tabindex="-1" aria-labelledby="titulo-detallesNotificacion" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="titulo-detallesNotificacion">Detalles</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="container-fluid" id="contenedor-detallesNotificacion">
+              Aquí irá la información detallada de la notificación seleccionada
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-dismiss="modal" id="revisar-detallesNotificacion">Revisar</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div> 
     
     
     <!-- FIREBASE -->
