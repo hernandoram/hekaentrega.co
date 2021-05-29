@@ -1138,18 +1138,3 @@ $('[href="#novedades"]').click(() => {
         i.classList.add("d-none");
     });
 })
-
-// console.log("empieza consulta");
-// fetch("/servientrega/crearGuia", {
-//     method: "POST",
-//     headers: {"Content-Type": "application/json"}
-// })
-// .then(res => res.json())
-// .then(data => {
-//     let parser = new DOMParser();
-//     data = parser.parseFromString(data, "application/xml");
-//     console.log(data);
-//     console.log("se recibió respuesta");
-// })
-// .catch(err => console.log("nada", err))
-// console.log("termina consulta")

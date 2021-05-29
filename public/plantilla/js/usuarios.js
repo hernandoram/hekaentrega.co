@@ -80,17 +80,17 @@ function nuevaCuenta(){
     }
     
     if(administracion){
-        datos_personales.centro_de_costo = value("CPNcentro_costo").trim().replace(/\s/g, "");
+        datos_personales.centro_de_costo = value("CPNcentro_costo").trim().replace(/[^A-Za-z1-9\-]/g, "");
         
         datos_relevantes.ingreso = value("CPNnumero_documento").replace(/\/|\s/g, "");
-        datos_relevantes.centro_de_costo = value("CPNcentro_costo").trim().replace(/\s|\./g, "");
+        datos_relevantes.centro_de_costo = value("CPNcentro_costo").trim().replace(/[^A-Za-z1-9\-]/g, "");
         datos_personales.usuario_corporativo = document.getElementById("CPNusuario_corporativo").checked;
         datos_relevantes.usuario_corporativo = datos_personales.usuario_corporativo;
     }else {
-        datos_personales.centro_de_costo = "Seller"+value("CPNnombre_empresa").trim().replace(/\s/g, "");
+        datos_personales.centro_de_costo = "Seller"+value("CPNnombre_empresa").trim().replace(/[^A-Za-z1-9\-]/g, "");
 
         datos_relevantes.ingreso = value("CPNcontraseña").replace(/\/|\s/g, "");
-        datos_relevantes.centro_de_costo = "Seller"+value("CPNnombre_empresa").trim().replace(/\s|\./g, "");
+        datos_relevantes.centro_de_costo = "Seller"+value("CPNnombre_empresa").trim().replace(/[^A-Za-z1-9\-]/g, "");
     }
 
     let datos_bancarios = {
@@ -167,7 +167,7 @@ function nuevaCuenta(){
                         console.log(datos_bancarios);
                         console.log(datos_personales);
                         console.log(datos_relevantes);
-                        if(!doc.exists) {
+                        if(doc.exists) {
                             firebase.firestore().collection("usuarios").doc(user)
                             .collection("informacion").doc("personal").set(datos_personales)
                             .then(() => {
@@ -257,7 +257,7 @@ async function verificarExistencia(administracion){
                 existe_usuario = true;
             }
 
-            if(sellerFb && sellerFb.toString().toLowerCase() == centro_de_costo.toLowerCase().replace(/\s/g, "")){
+            if(sellerFb && sellerFb.toString().toLowerCase() == centro_de_costo.toLowerCase().replace(/[^A-Za-z1-9\-]/g, "")){
                 document.getElementById("registrar-nueva-cuenta").disabled = true;
                 existe_centro_costo = true;
             }
