@@ -654,13 +654,22 @@ function enviar_firestore(datos){
             return id;
         })
         .then((id) => {
-            let respuesta = document.getElementById("respuesta-crear_guia")
-            respuesta.innerHTML = "";
-            respuesta.innerHTML = "Guía Creada exitósamente.";
-            avisar("¡Guía creada exitósamente!", "Indetificador Heka = " + id, "", "plataforma2.html");
+            Swal.fire({
+                icon: "success",
+                text: "¡Guía creada con éxito!",
+                timer: 6000
+            }).then(() => {
+                location.href = "plataforma2.html";
+            })
         }).catch((err)=> {
-            console.log("revisa que paso, algo salio mal => ", err);
-            avisar("¡Lo sentimos! Error inesperado", "Intente nuevamente al desaparecer este mensaje. \n si su problema persiste, comuniquese con nosotros", "advertencia", "plataforma2.html");
+            Swal.fire({
+                icon: "error",
+                text: "Hubo un error al crear la guía",
+                timer: 3000
+            }).then(() => {
+                console.log("revisa que paso, algo salio mal => ", err);
+                avisar("¡Lo sentimos! Error inesperado", "Intente nuevamente al desaparecer este mensaje. \n si su problema persiste, comuniquese con nosotros", "advertencia", "plataforma2.html");
+            })
         })
 }
 
@@ -690,37 +699,7 @@ async function crearGuiaServientrega(datos) {
     return res;
 }
 
-// crearGuiaServientrega({
-//     alto: "20",
-//     ancho: "5",
-//     celularD: "1231231231",
-//     celularR: "123",
-//     centro_de_costo: "SellerNuevo",
-//     ciudadD: "CALI",
-//     ciudadR: "CHIQUINQUIRA",
-//     correoD: "notiene@gmail.com",
-//     correoR: "usuarionuevo@gmail.com",
-//     costo_envio: 42250,
-//     departamentoD: "VALLE",
-//     departamentoR: "BOYACA",
-//     detalles: {peso_real: 6, flete: 19250, comision_heka: 7500, comision_trasportadora: 15500, peso_liquidar: 6},
-//     dice_contener: "calzado",
-//     direccionD: "direccion barrio ",
-//     direccionR: "sd asd",
-//     fecha: "2021-05-17",
-//     id_heka: "11111442",
-//     identificacionD: "456",
-//     largo: "20",
-//     nombreD: "nombre del destinatario",
-//     nombreR: "USUARIO PRUEBA",
-//     observaciones: "",
-//     peso: "6",
-//     prueba: true,
-//     recoleccion_esporadica: 0,
-//     telefonoD: "1231231231",
-//     tipo_doc_dest: "2",
-//     valor: "500000"
-// })
+
 
 function base64ToArrayBuffer(base64) {
     let binario = window.atob(base64);
@@ -760,11 +739,11 @@ for(let i = 0; i < 2; i++) {
         nombreR: "USUARIO PRUEBA",
         observaciones: "",
         peso: "6",
-        prueba: true,
+        prueba: false,
         recoleccion_esporadica: 0,
         telefonoD: "1231231231",
         tipo_doc_dest: "2",
-        valor: "500000"
+        valor: "0"
     }
 
     crearSticker[i] = {
@@ -819,8 +798,8 @@ let vinculo = {
     prueba: true,
     id_doc: "0000"
 }
-console.log(vinculo);
-fusionarDocumentosGuias(crearSticker, vinculo);
+// crearGuiaServientrega(crearGuias[0]);
+// fusionarDocumentosGuias(crearSticker, vinculo);
 
 async function fusionarDocumentosGuias(arrGuias, vinculo) {
     let bytesReport = await obtenerBase64DeGuias(arrGuias, vinculo);
@@ -890,12 +869,13 @@ function convertirMiles(n){
     let number_inv = entero.toString().split("").reverse();
     let response = []
     for(let i = 0; i < number_inv.length; i++){
-      response.push(number_inv[i]);
-      if((i+1) % 3 == 0){
+        response.push(number_inv[i]);
+        if((i+1) % 3 == 0){
         if(i+1 != number_inv.length){
             response.push(".")
         }   
-      }
+        }
     }  
     return response.reverse().join("");
-  };
+};
+

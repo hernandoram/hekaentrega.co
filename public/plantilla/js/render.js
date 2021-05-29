@@ -46,24 +46,37 @@ window.addEventListener("hashchange", () => {
 function tablaDeGuias(id, datos){
     return `<tr id="historial-guias-row${id}">
         <th>
-            <div class="form-check">
+            <div class="form-check text-center">
                 <input class="form-check-input position-static" type="checkbox" value="option1" 
                 data-id="${id}" data-numeroGuia="${datos.numeroGuia}"
                 data-prueba="${datos.prueba}" data-id_archivoCargar="${datos.id_archivoCargar}"
                 data-funcion="activar-desactivar" aria-label="..." disabled>
             </div>
         </th>
-        <th class="d-flex justify-content-around">
-            <button class="btn btn-primary btn-circle btn-sm" data-id="${id}"
-            id="descargar_documento${id}">
+        <th class="d-flex justify-content-around flex-wrap">
+            <button class="btn btn-primary btn-circle btn-sm mt-2" data-id="${id}"
+            id="descargar_documento${id}" title="Descargar Documentos">
                 <i class="fas fa-file-download"></i>
             </button>
 
             ${datos.numeroGuia ? 
-                `<button class="btn btn-primary btn-circle btn-sm" data-id="${id}"
-                id="ver_detalles${id}" data-toggle="modal" data-target="#modal-gestionarNovedad">
+                `<button class="btn btn-primary btn-circle btn-sm mt-2" data-id="${id}"
+                id="ver_detalles${id}" data-toggle="modal" data-target="#modal-gestionarNovedad"
+                title="Revisar movimientos">
                     <i class="fas fa-search-plus"></i>
                 </button>` : ""}
+
+            <button class="btn btn-success btn-circle btn-sm mt-2" data-id="${id}" 
+            id="clonar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}" disabled
+            title="Clonar Guía">
+                <i class="fas fa-clone"></i>
+            </button>
+
+            <button class="btn btn-danger btn-circle btn-sm mt-2" data-id="${id}" 
+            id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}" disabled
+            title="Eliminar Guía">
+                <i class="fas fa-trash"></i>
+            </button>
         </th>
 
         <th>${id}</th>
@@ -76,11 +89,6 @@ function tablaDeGuias(id, datos){
         <th>$${convertirMiles(datos.valor)}</th>
         <th>$${convertirMiles(datos.costo_envio)}</th>
 
-
-        <th><button class="btn btn-danger btn-circle" data-id="${id}" 
-        id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}" disabled>
-            <i class="fas fa-trash"></i>
-        </button></th> 
     </tr>`
 }
 
@@ -139,7 +147,6 @@ function avisar(title, content, type, redirigir){
         }
     })
 };
-
 
 
 //// Esta funcion me retorna un card con informacion del usuario, sera invocada por otra funcion
@@ -383,7 +390,26 @@ function activarBotonesDeGuias(id, data){
         })
       });
 
+      document.getElementById("clonar_guia"+id).addEventListener("click", () => {
+        Swal.fire({
+            title: "Clonando",
+            html: "Por favor espere mientra generamos el nuevo número de guía.",
+            didOpen: () => {
+                Swal.showLoading();
+            },
+            allowOutsideClick: false,
+            allowEnterKey: false,
+            showConfirmButton: false,
+            allowEscapeKey: true
+        })
+        usuarioDoc.collection("guias").doc(id)
+        .get().then(doc => {
+            enviar_firestore(doc.data());
+        })
+      })
+
 }
+
 
 //funcion que me devuelve a los inputs que estan escritos incorrectamente o vacios
 function verificador(arr, scroll, mensaje) {
@@ -575,7 +601,11 @@ function mostrarNotificacion(data, type, id){
     div_icon.append(circle);
     
     info.setAttribute("class", "small text-gray-500");
-    mensaje.style.overflowWrap = "anywhere";
+    mensaje.style.display = "-webkit-box";
+    mensaje.style.overflow = "hidden";
+    mensaje.style.webkitLineClamp = "4";
+    mensaje.style.webkitBoxOrient = "vertical";
+    mensaje.style.webkitBoxOrient = "vertical";
     mensaje.innerHTML = data.mensaje;
     div_info.append(info, mensaje);
     
@@ -588,32 +618,31 @@ function mostrarNotificacion(data, type, id){
             console.log("Se ha eliminado una notificación con id: " + id)
         });
     })
+    info.textContent = data.fecha + data.hora ? " A las " + data.hora : "";
     
 
-
-    if(type == "novedad"){
-        // notificacion.setAttribute("href", "#");
-        notificacion.addEventListener("click",() => {
-            revisarMovimientosGuias(true, data.seguimiento, data.id_heka, data.guia);
-            mostrar("novedades");
-        });
-        info.textContent = data.fecha + " a las " + data.hora;
-    } else {
-        info.textContent = data.fecha;
-        if(data.detalles) {
-            notificacion.setAttribute("data-toggle", "modal");
-            notificacion.setAttribute("data-target", "#modal-detallesNotificacion");
-
-            notificacion.addEventListener("click", () => modalNotificacion(data.detalles));
-            $("#revisar-detallesNotificacion").click(() => {
-                notificacion.setAttribute("href", "#documentos");
-                notificacion.setAttribute("onclick", "cargarDocumentos()");
-            })
-        } else {
-            notificacion.setAttribute("href", "#documentos");
-            notificacion.setAttribute("onclick", "cargarDocumentos()");
+    notificacion.addEventListener("click", e => {
+        if(!e.target.parentNode.classList.contains("close")) {
+            if(type == "novedad") {
+                revisarMovimientosGuias(true, data.seguimiento, data.id_heka, data.guia);
+                mostrar("novedades");
+            } else {
+                if(data.detalles) {
+                    notificacion.setAttribute("data-toggle", "modal");
+                    notificacion.setAttribute("data-target", "#modal-detallesNotificacion");
+                    modalNotificacion(data.detalles)
+                    $("#revisar-detallesNotificacion").click(() => {
+                        notificacion.setAttribute("href", "#documentos");
+                        notificacion.setAttribute("onclick", "cargarDocumentos()");
+                    })
+                } else {
+                    notificacion.setAttribute("href", "#documentos");
+                    cargarDocumentos()
+                }
+    
+            }
         }
-    }
+    })
 
     notificacion.append(div_icon, div_info, button_close);
     return notificacion;

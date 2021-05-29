@@ -343,8 +343,8 @@ function actualizarMovimientosGuias(d) {
 }
 
 
-function generarGuia(datos, prueba) {
-  let auth_header = prueba ? `<ns1:AuthHeader>
+function generarGuia(datos) {
+  let auth_header = datos.prueba ? `<ns1:AuthHeader>
         <ns1:login>Luis1937</ns1:login>
         <ns1:pwd>MZR0zNqnI/KplFlYXiFk7m8/G/Iqxb3O</ns1:pwd>
         <ns1:Id_CodFacturacion>SER408</ns1:Id_CodFacturacion>
@@ -353,7 +353,7 @@ function generarGuia(datos, prueba) {
       </ns1:AuthHeader>` 
   : `<ns1:AuthHeader>
       <ns1:login>1072497419SUC1</ns1:login>
-      <ns1:pwd>Tb8Hb+NLWsc=</ns1:pwd>
+      <ns1:pwd>NuBQAVjagIbdvqINzxg5lQ==</ns1:pwd>
       <ns1:Id_CodFacturacion>SER122990</ns1:Id_CodFacturacion>
       <ns1:Nombre_Cargue></ns1:Nombre_Cargue><!--AQUI VA EL NOMBRE DEL
       CARGUE APARECERÁ EN SISCLINET-->
@@ -422,7 +422,7 @@ function generarGuia(datos, prueba) {
                 <ns1:Num_ValorDeclaradoSobreTotal>0</ns1:Num_ValorDeclaradoSobreTotal>
                 <ns1:Num_Factura>0</ns1:Num_Factura>
                 <ns1:Des_CorreoElectronico>${datos.correoD}</ns1:Des_CorreoElectronico>
-                <ns1:Num_Recaudo>${prueba ? "0" : datos.valor}</ns1:Num_Recaudo>
+                <ns1:Num_Recaudo>${datos.prueba ? "0" : datos.valor}</ns1:Num_Recaudo>
               </ns1:EnviosExterno>
             </ns1:objEnvios>
           </ns1:CargueMasivoExternoDTO>
@@ -448,7 +448,7 @@ function crearGuiaSticker(numeroGuia, id_archivoCargar, prueba) {
   <!--Optional:-->
   <tem:login>1072497419SUC1</tem:login>
   <!--Optional:-->
-  <tem:pwd>Tb8Hb+NLWsc=</tem:pwd>
+  <tem:pwd>NuBQAVjagIbdvqINzxg5lQ==</tem:pwd>
   <!--Optional:-->
   <tem:Id_CodFacturacion>SER122990</tem:Id_CodFacturacion>
   </tem:AuthHeader>`;
@@ -488,7 +488,7 @@ function generarManifiesto(arrGuias, prueba) {
     <!--Optional:-->
     <tem:login>1072497419SUC1</tem:login>
     <!--Optional:-->
-    <tem:pwd>Tb8Hb+NLWsc=</tem:pwd>
+    <tem:pwd>NuBQAVjagIbdvqINzxg5lQ==</tem:pwd>
     <!--Optional:-->
     <tem:Id_CodFacturacion>SER122990</tem:Id_CodFacturacion>
   </tem:AuthHeader>`
@@ -527,6 +527,24 @@ function generarManifiesto(arrGuias, prueba) {
   return consulta
 }
 
+function encriptarContrasena(str) {
+  request.post({
+    headers: {"Content-Type": "text/xml"},
+    url: generacionGuias,
+    body: `<?xml version="1.0" encoding="utf-8"?>
+    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+      <soap:Body>
+        <EncriptarContrasena xmlns="http://tempuri.org/">
+          <strcontrasena>${str}</strcontrasena>
+        </EncriptarContrasena>
+      </soap:Body>
+    </soap:Envelope>`
+  }, (err, res, body) => {
+    console.log(body);
+  })
+}
+
+// encriptarContrasena("Hernandoram1998");
 
 //A partir de aquí estarán todas las rutas
 router.post("/consultarGuia", (req, res) => {
@@ -562,12 +580,13 @@ router.post("/estadoGuia", (req, res) => {
 router.post("/crearGuia", (req, res) => {
   request.post({
     headers: {"Content-Type": "text/xml"},
-    url: genGuiasPrueba,
-    body: generarGuia(req.body, req.body.prueba)
+    url: req.body.prueba ? genGuiasPrueba : generacionGuias,
+    body: generarGuia(req.body)
   }, (err, response, body) => {
     if(err) return console.error(err);
 
     console.log("Se está creando una guía");
+    // console.log(body);
     res.send(JSON.stringify(body));
   })
 })
@@ -594,7 +613,7 @@ router.post("/crearDocumentos", async (req, res) => {
         // console.log(JSON.stringify(body));
         
         let xmlResponse = new DOMParser().parseFromString(body, "text/xml")
-        console.info(xmlResponse.documentElement.getElementsByTagName("GenerarGuiaStickerResponse")[0].textContent);
+        // console.info(xmlResponse.documentElement.getElementsByTagName("GenerarGuiaStickerResponse")[0].textContent);
         if(xmlResponse.documentElement.getElementsByTagName("GenerarGuiaStickerResult")[0].textContent == "true") {
           manifestarGuias.push(data);
           resolve(xmlResponse.documentElement.getElementsByTagName("bytesReport")[0].textContent);
@@ -616,41 +635,52 @@ router.post("/crearDocumentos", async (req, res) => {
   if(arrData.length > manifestarGuias.length) arrErroresUsuario.push("Algunas guías presentaron errores para crear el Sticker, pruebe intentando de nuevo con las restantes, o clonarlas y eliminar las defectuosas");
   let base64Guias = await joinBase64WhitPdfDoc(arrBase64);
   let base64Manifiesto = await generarStickerManifiesto(manifestarGuias, vinculo);
-  if(!base64Manifiesto) arrErroresUsuario.push("Ocurrió un Error inesperado al crear el manifiesto de las guías, el problema será tranferido a centro logístico, procuraremos atenderlo en la brevedad posible, disculpe las molestias causadas");
+  if(!base64Manifiesto && manifestarGuias.length) arrErroresUsuario.push("Ocurrió un Error inesperado al crear el manifiesto de las guías, el problema será tranferido a centro logístico, procuraremos atenderlo en la brevedad posible, disculpe las molestias causadas");
+  
+  if(arrErroresUsuario.length) {
+    let fecha = new Date();
+    console.log("Enviando Notificacion al usuario")
+    db.collection("notificaciones").add({
+      fecha: fecha.getDate() +"/"+ (fecha.getMonth() + 1) + "/" + fecha.getFullYear() + " - " + fecha.getHours() + ":" + fecha.getMinutes(),
+      visible_user: true,
+      timeline: new Date().getTime(),
+      icon: ["exclamation", "danger"],
+      mensaje: "Hemos registrado algún error al crear los documentos, revíselos para ver como resolverlos.",
+      detalles: arrErroresUsuario,
+      user_id: vinculo.id_user
+    })
+  }
 
-  if(arrData.length) {
+  if(manifestarGuias.length) {
     db.collection("documentos").doc(vinculo.id_doc).update({
       descargar_guias: base64Guias ? true : false,
       descargar_relacion_envio: base64Manifiesto ? true : false,
       guias: manifestarGuias.map(v => v.id_heka),
       base64Guias,
       base64Manifiesto
-    }).then(() => {
-      // for (let guia of manifestarGuias) {
-      //   db.collection("usuarios").doc(vinculo.id_user)
-      //   .collection("guias").doc(guia.id_heka)
-      //   .update({
-      //     enviado: true,
-      //     estado: "Enviado"
-      //   });
-      // }
-    }).then(() => {
-      console.log("Enviando Notificacion al usuario")
-      db.collection("notificaciones").add({
-        fecha: new Date().toString().split("T")[0],
-        visible_user: true,
-        timeline: new Date().getTime(),
-        icon: ["exclamation", "danger"],
-        mensaje: "Hemos registrado algún error al crear los documentos, revíselos para ver como resolverlos.",
-        detalles: arrErroresUsuario,
-        user_id: vinculo.id_user
-      })
     })
+    .then(() => {
+      for (let guia of manifestarGuias) {
+        db.collection("usuarios").doc(vinculo.id_user)
+        .collection("guias").doc(guia.id_heka)
+        .update({
+          enviado: true,
+          estado: "Enviado"
+        });
+      }
+    })
+    .then(() => {
+      res.send(JSON.stringify(manifestarGuias));
+    })
+  } else {
+    db.collection("documentos").doc(vinculo.id_doc).delete();
+    res.status(422).send(JSON.stringify({error: "no hubo guía que procesar"}))
   }
+
+ 
   // let ejemploGuias = new Buffer.from(base64Guias, "base64");
   // let ejemploManifiesto = new Buffer.from(base64Manifiesto, "base64");
   // fs.writeFileSync("ejemplo.pdf",ejemplo);
-  res.send(JSON.stringify(manifestarGuias));
 });
 
 async function joinBase64WhitPdfDoc(arrBase64) {
@@ -694,6 +724,7 @@ router.post("/generarManifiesto", (req, res) => {
     res.send(JSON.stringify(body));
   })
 })
+
 async function generarStickerManifiesto(arrGuias, prueba) {
   if(arrGuias) {
     let base64 = new Promise((resolve, reject) => {
@@ -730,15 +761,15 @@ async function generarStickerManifiesto(arrGuias, prueba) {
 
           let fecha = new Date()
           console.log("Guias con errores", guiasConErrores);
-          if(arrGuias) {
-            db.collection("notificaciones").add({
-              fecha: fecha.getDate() +"/"+ (fecha.getMonth() + 1) + "/" + fecha.getFullYear() + " - " + fecha.getHours() + ":" + fecha.getMinutes(),
-              // visible_admin: true,
-              mensaje: "Hubo un problema para crear el manifiesto de las guías " + arrGuias.map(v => v.id_heka).join(", "),
-              timeline: new Date().getTime(),
-              detalles: guiasConErrores
-            });
-          }
+          
+          db.collection("notificaciones").add({
+            fecha: fecha.getDate() +"/"+ (fecha.getMonth() + 1) + "/" + fecha.getFullYear() + " - " + fecha.getHours() + ":" + fecha.getMinutes(),
+            // visible_admin: true,
+            mensaje: "Hubo un problema para crear el manifiesto de las guías " + arrGuias.map(v => v.id_heka).join(", "),
+            timeline: new Date().getTime(),
+            detalles: guiasConErrores
+          });
+        
           
           resolve(0);
         }
@@ -767,6 +798,6 @@ for(let i = 0; i < 2; i++) {
     }
 }
 
-generarStickerManifiesto(crearSticker, vinculo);
+// generarStickerManifiesto(crearSticker, vinculo);
 
 module.exports = router;

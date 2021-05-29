@@ -33,6 +33,9 @@
   Para llamarlo, tengo que introducir <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>-->
   <link rel="stylesheet" href="css/loader.css">
 
+  <!--Sweet Alert 2-->
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 </head>
 
 <body class="bg-gradient-primary">
@@ -483,16 +486,17 @@
               <div class="card-body">
                 <h6>Seleccionar las guías para crear los Documentos</h6>
                 <button class="btn btn-success mb-3" id="enviar-documentos" onclick="crearDocumentos()">Crear Documentos</button>
-                <div>
-                  <input type="checkbox" name="check-select-all-guias" id="check-select-all-guias" autocomplete="off">
-                  <label for="check-select-all-guias">Seleccionar todas las visibles</label>
-                </div>
+                
                 <div class="table-responsive">
                   <table  class="display table table-bordered" id="dataTable" width="100%" cellspacing="0">  
                     <thead>
                       <tr>
-                        <th>Check</th>
-                        <th>Descargar documento</th>
+                        <th class="text-center"> 
+                          Check
+                          <input type="checkbox" name="check-select-all-guias" 
+                          id="check-select-all-guias" autocomplete="off">
+                        </th>
+                        <th>Acciones</th>
                         <th># Guía Heka</th>
                         <th># Guía Servientrega</th>
                         <th>Estado</th>
@@ -502,7 +506,6 @@
                         <th>Nombre dest.</th>
                         <th>Recaudo</th>
                         <th>Costo envío</th>
-                        <th>Eliminar</th> 
                       </tr>
                     </thead>
                     <tbody id="tabla-guias">
@@ -511,7 +514,7 @@
                     <tfoot>
                       <tr>
                         <th>Check</th>
-                        <th>Descargar documento</th>
+                        <th>Acciones</th>
                         <th># Guía Heka</th>
                         <th># Guía Servientrega</th>
                         <th>Estado</th>
@@ -521,7 +524,6 @@
                         <th>Nombre dest.</th>
                         <th>Recaudo</th>
                         <th>Costo envío</th>
-                        <th>Eliminar</th> 
                       </tr>
                     </tfoot>
                   </table>

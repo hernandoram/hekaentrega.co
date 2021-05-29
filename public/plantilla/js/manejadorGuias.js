@@ -1,13 +1,13 @@
 if(administracion){
     if(localStorage.getItem("acceso_admin")){
         if($("#documentos")){
-            cargarDocumentos();
+            cargarDocumentos("sin gestionar");
             $("#buscador-documentos").on("click", () => {
-                cargarDocumentos(true);
+                cargarDocumentos("fecha");
             })
         
             $('[href="#documentos"]').on("click", () => {
-                cargarDocumentos();
+                cargarDocumentos("sin gestionar");
             })
         }
 
@@ -52,6 +52,7 @@ $("#check-select-all-guias").change((e) => {
 })
 
 function crearDocumentos() {
+   
     let checks = document.getElementById("tabla-guias").querySelectorAll("input");
     let guias = [], id_user = localStorage.user_id, arrGuias = new Array();
     for(let check of checks){
@@ -60,7 +61,7 @@ function crearDocumentos() {
             arrGuias.push({
                 numeroGuia: check.getAttribute("data-numeroGuia"),
                 id_heka:  check.getAttribute("data-id"),
-                id_archivoCargar: check.getAttribute("data-archivoCargar"),
+                id_archivoCargar: check.getAttribute("data-id_archivoCargar"),
                 prueba:  check.getAttribute("data-prueba") == "true" ? true : false
             })
             check.checked = false;
@@ -72,12 +73,24 @@ function crearDocumentos() {
     if(guias.length == 0){
         avisar("No se Pudo enviar su documento", "Asegurece de haber seleccionado al menos una guía", "aviso");
     } else {
+        swal.fire({
+            title: "Creando Documentos",
+            html: "Estamos trabajando en ello, por favor espere...",
+            didOpen: () => {
+                Swal.showLoading();
+            },
+            allowOutsideClick: false,
+            allowEnterKey: false,
+            showConfirmButton: false,
+            allowEscapeKey: true
+        })
         document.getElementById("enviar-documentos").setAttribute("disabled", "true");
         let documentReference = firebase.firestore().collection("documentos");
         documentReference.add({
             id_user: id_user,
             nombre_usuario: datos_usuario.nombre_completo,
             fecha: genFecha(),
+            timeline: new Date().getTime(),
             descargar_relacion_envio: false, descargar_guias: false
         })
         .then((docRef) => {
@@ -127,15 +140,28 @@ function generarDocumentos(arrGuias, vinculo) {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify([arrGuias, vinculo])
-    }).then(res => res.json())
+    }).then(res => {
+        if(res.status == 422) {
+            throw new Error("No hubo guía que procesar.");
+        }
+        return res.json()
+    })
     .then(data => {
         console.log(data);
         let guias = data.map(d => d.id_heka)
-        avisar("Documento creado Exitósamente", "Las guías " + guias + " Fueron procesadas exitosamente");
+        Swal.fire({
+            icon: "success",
+            text: "Las Guías " + guias + " Fueron creadas exitósamente",
+            timer: 6000
+        });
         document.getElementById("enviar-documentos").removeAttribute("disabled");
     })
     .catch(error => {
-        avisar("Error", "Hubo un error al crear los documentos: " + error, "advertencia");
+        Swal.fire({
+            icon: "success",
+            text: "Hubo un error al crear los documentos: " + error.message,
+            timer: 6000
+        });
         document.getElementById("enviar-documentos").removeAttribute("disabled");
     })
 }
@@ -151,30 +177,39 @@ let documento = [], guias = [];
 
 //muestra los documento al admin y le otorga funcionalidad a los botones
 function cargarDocumentos(filter) {
+    $("#buscador-documentos").html(`
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Cargando...
+    `)
     let documentos = document.getElementById("mostrador-documentos");
-    firebase.firestore().collection("documentos").get().then((querySnapshot) => {
+    let reference = firebase.firestore().collection("documentos"), docFiltrado;
+    let fecha_inicio = new Date(value("docs-fecha-inicio")).getTime(),
+        fecha_final = new Date(value("docs-fecha-final")).getTime();
+    switch(filter) {
+        case "fecha":
+            docFiltrado = reference.orderBy("timeline", "desc").startAt(fecha_final).endAt(fecha_inicio);
+            break;
+        case "sin gestionar":
+            docFiltrado = reference.where("descargar_relacion_envio", "==", "false");
+            break;
+        default: 
+            docFiltrado = reference.where("guias", "==", filter);
+
+    }
+    docFiltrado.get().then((querySnapshot) => {
         documentos.innerHTML = "";
+        console.log(querySnapshot.size);
         querySnapshot.forEach((doc) => {
-            let fecha_doc = new Date(doc.data().fecha).getTime(),
-                fecha_inicio = new Date(value("docs-fecha-inicio")).getTime(),
-                fecha_final = new Date(value("docs-fecha-final")).getTime();
-            if(filter && fecha_doc >= fecha_inicio && fecha_doc <= fecha_final) {
-                //Si la propiedad ingresada filter es tru, me lo filtra por fecha, sucede cuando se presiona el boton buscar
-                if(doc.data().descargar_relacion_envio && doc.data().descargar_guias){
-                    //si tiene la informacion completa cambia el modo es que se ve la tarjeta y habilita mas funciones
-                    documentos.innerHTML += mostrarDocumentos(doc.id, doc.data(), "warning");
-                    let descargador_completo = document.getElementById("descargar-docs"+doc.id);
-                    descargador_completo.classList.remove("fa", "fa-file");
-                    descargador_completo.classList.add("fas", "fa-file-alt");
-                    descargador_completo.style.cursor = "alias";
-                    
-                } else {
-                    documentos.innerHTML += mostrarDocumentos(doc.id, doc.data());
-                }
-            } else if (!filter){
-                if(!doc.data().descargar_relacion_envio || !doc.data().descargar_guias){
-                    documentos.innerHTML += mostrarDocumentos(doc.id, doc.data()); 
-                }
+            if(doc.data().descargar_relacion_envio && doc.data().descargar_guias){
+                //si tiene la informacion completa cambia el modo es que se ve la tarjeta y habilita mas funciones
+                documentos.innerHTML += mostrarDocumentos(doc.id, doc.data(), "warning");
+                let descargador_completo = document.getElementById("descargar-docs"+doc.id);
+                descargador_completo.classList.remove("fa", "fa-file");
+                descargador_completo.classList.add("fas", "fa-file-alt");
+                descargador_completo.style.cursor = "alias";
+                
+            } else {
+                documentos.innerHTML += mostrarDocumentos(doc.id, doc.data());
             }
         })
     }).then(() => {
@@ -233,6 +268,7 @@ function cargarDocumentos(filter) {
         };
     }).then(() => {
         subirDocumentos()
+        $("#buscador-documentos").text("Buscar");
         if(documentos.innerHTML == ""){
             documentos.innerHTML = `<div class="col-2"></div>
             <p class="col card m-3 p-3 border-danger text-danger text-center">
@@ -553,7 +589,7 @@ function actualizarHistorialDeDocumentos(){
               firebase.firestore().collection("documentos").doc(doc.id).onSnapshot((row) => {
                 let nombre_guias = row.data().nombre_guias ? row.data().nombre_guias : "guias" + row.data().guias.toString();
                 let nombre_relacion = row.data().nombre_relacion ? row.data().nombre_relacion : "relacion envio" + row.data().guias.toString();
-                if(row.data().descargar_relacion_envio){
+                if(row.data().descargar_guias){
                     let btn_descarga = document.getElementById("boton-descargar-guias" + doc.id);
                   btn_descarga.removeAttribute("disabled");
                   btn_descarga.addEventListener("click", (e) => {
@@ -573,7 +609,7 @@ function actualizarHistorialDeDocumentos(){
                     }
                   })
                 }
-                if(row.data().descargar_guias){
+                if(row.data().descargar_relacion_envio){
                     let btn_descarga = document.getElementById("boton-descargar-relacion_envio" + doc.id);
                     btn_descarga.removeAttribute("disabled");
                     btn_descarga.addEventListener("click", (e) => {
