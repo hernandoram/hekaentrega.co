@@ -519,6 +519,17 @@ function crearGuiasServientrega() {
         } else if(!datos_usuario.centro_de_costo) {
             avisar("¡Error al generar Guía!", "Póngase en Contacto con nosotros para asignarle un centro de costo", "advertencia");
         } else {
+            Swal.fire({
+                title: "Creando Guía",
+                text: "Por favor espere mientras le generamos su nueva Guía",
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+                allowOutsideClick: false,
+                allowEnterKey: false,
+                showConfirmButton: false,
+                allowEscapeKey: true
+            })
             let fecha = new Date(), mes = fecha.getMonth() + 1, dia = fecha.getDate();
             if(dia < 10){
                 dia = "0" + dia;
@@ -541,7 +552,8 @@ function crearGuiasServientrega() {
             datos_a_enviar.dice_contener = value("producto");
             datos_a_enviar.observaciones = value("observaciones");
             datos_a_enviar.recoleccion_esporadica = recoleccion;
-            datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`
+            datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`;
+            datos_a_enviar.timeline = new Date().getTime();
 
             boton_final_cotizador = document.getElementById("boton_final_cotizador")
             boton_final_cotizador.classList.add("disabled");
@@ -577,18 +589,22 @@ function enviar_firestore(datos){
                 let referenciaNuevaGuia = firestore.collection("usuarios").doc(localStorage.user_id)
                 .collection("guias").doc(id_heka);
                 firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
-                let respuesta = await referenciaNuevaGuia.set(datos)
-                    .then(async () => {
-                        let guia = await crearGuiaServientrega(datos)
-                        .then(resGuia => {
-                            referenciaNuevaGuia.update({
-                                numeroGuia: resGuia.numeroGuia,
-                                id_archivoCargar: resGuia.id_archivoCargar
-                            })
+                let respuesta = await crearGuiaServientrega(datos)
+                    .then(async (resGuia) => {
+                        datos.numeroGuia = resGuia.numeroGuia;
+                        datos.id_archivoCargar = resGuia.id_archivoCargar;
+                        let guia = await referenciaNuevaGuia.set(datos)
+                        .then(doc => {
                             return resGuia;
                         })
+                        .catch(err => {
+                            console.log("Hubo un error al crear ela guía con firebase => ", err);
+                            return {numeroGuia: "0"}
+                        })
+                        console.log(guia);
                         return guia;
                     })
+                    console.log(respuesta);
                 if(respuesta.numeroGuia != "0") {
                     return doc.data().id;
                 } else {
@@ -603,7 +619,6 @@ function enviar_firestore(datos){
                 if(doc.exists){
                     let momento = new Date().getTime();
                     let saldo = doc.data().saldo;
-                    
                     let saldo_detallado = {
                         saldo: saldo,
                         saldo_anterior: saldo,
@@ -878,4 +893,3 @@ function convertirMiles(n){
     }  
     return response.reverse().join("");
 };
-

@@ -196,37 +196,38 @@ function cambiarFecha(){
 //Muestra el historial de guias en rango de fecha seleccionado
 function historialGuias(){
   $('#dataTable').DataTable().destroy();
+  $("#btn-buscar-guias").html(`
+    <span class="spinner-border 
+    spinner-border-sm" role="status" aria-hidden="true"></span>
+    Cargando...
+  `)
   document.getElementById("cargador-guias").classList.remove("d-none");
   if(user_id){     
-    var reference = firebase.firestore().collection("usuarios").doc(user_id).collection("guias");
-    reference.get().then((querySnapshot) => {
+    var fecha_inicio = new Date($("#fecha_inicio").val()).getTime();
+    fecha_final = new Date($("#fecha_final").val()).getTime() + (8,64e+7);
+
+    var reference = firebase.firestore().collection("usuarios")
+    .doc(user_id).collection("guias");
+    let referencefilter = reference.orderBy("timeline", "desc")
+    .startAt(fecha_final).endAt(fecha_inicio);
+
+    referencefilter.get().then((querySnapshot) => {
       var tabla=[];
       if(document.getElementById('tabla-guias')){
         inHTML("tabla-guias", "");
       }  
       querySnapshot.forEach((doc) => {
-          if(document.getElementById('fecha_inicio')){
-            var fecha_inicio=document.getElementById('fecha_inicio').value;
-          }
-          if(document.getElementById('fecha_final')){
-            var fecha_final=document.getElementById('fecha_final').value;
-          }
-          var fechaFire = new Date(doc.data().fecha).getTime();
-          fecha_inicio = new Date(fecha_inicio).getTime();
-          fecha_final = new Date(fecha_final).getTime();
-          if(fechaFire >= fecha_inicio && fechaFire <= fecha_final){          
-            tabla.push(tablaDeGuias(doc.id, doc.data()));
-            
-            //Habilita y deshabilita los checks de la tabla de guias
-            reference.doc(doc.id).onSnapshot((row) => {
-              console.log("Se Ejecuta el oidor")
-              if(row.exists) {
-                activarBotonesDeGuias(row.id, row.data());
-                document.getElementById("historial-guias-row" + row.id).children[3].textContent = row.data().numeroGuia || "";
-                document.getElementById("historial-guias-row" + row.id).children[4].textContent = row.data().estado;
-              }
-            });
-          } 
+          tabla.push(tablaDeGuias(doc.id, doc.data()));
+          
+          //Habilita y deshabilita los checks de la tabla de guias
+          reference.doc(doc.id).onSnapshot((row) => {
+            console.log("Se Ejecuta el oidor")
+            if(row.exists) {
+              activarBotonesDeGuias(row.id, row.data());
+              document.getElementById("historial-guias-row" + row.id).children[3].textContent = row.data().numeroGuia || "";
+              document.getElementById("historial-guias-row" + row.id).children[4].textContent = row.data().estado;
+            }
+          });
       });
 
       var contarExistencia=0;
@@ -268,6 +269,7 @@ function historialGuias(){
       }
     }).then(() => {
       document.getElementById("cargador-guias").classList.add("d-none");
+      $("#btn-buscar-guias").html("Buscar")
     });
   } 
 }

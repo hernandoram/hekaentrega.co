@@ -634,7 +634,7 @@ router.post("/crearDocumentos", async (req, res) => {
   // console.log(manifestarGuias);
   if(arrData.length > manifestarGuias.length) arrErroresUsuario.push("Algunas guías presentaron errores para crear el Sticker, pruebe intentando de nuevo con las restantes, o clonarlas y eliminar las defectuosas");
   let base64Guias = await joinBase64WhitPdfDoc(arrBase64);
-  let base64Manifiesto = await generarStickerManifiesto(manifestarGuias, vinculo);
+  let base64Manifiesto = await generarStickerManifiesto(manifestarGuias, vinculo.prueba);
   if(!base64Manifiesto && manifestarGuias.length) arrErroresUsuario.push("Ocurrió un Error inesperado al crear el manifiesto de las guías, el problema será tranferido a centro logístico, procuraremos atenderlo en la brevedad posible, disculpe las molestias causadas");
   
   if(arrErroresUsuario.length) {
@@ -655,7 +655,7 @@ router.post("/crearDocumentos", async (req, res) => {
     db.collection("documentos").doc(vinculo.id_doc).update({
       descargar_guias: base64Guias ? true : false,
       descargar_relacion_envio: base64Manifiesto ? true : false,
-      guias: manifestarGuias.map(v => v.id_heka),
+      guias: manifestarGuias.map(v => v.id_heka).sort(),
       base64Guias,
       base64Manifiesto
     })
@@ -713,7 +713,7 @@ async function joinBase64WhitPdfDoc(arrBase64) {
 router.post("/generarManifiesto", (req, res) => {
   request.post({
     headers: {"Content-Type": "text/xml"},
-    url: genGuiasPrueba,
+    url: req.body.prueba ? genGuiasPrueba : generacionGuias,
     body: generarManifiesto(req.body.arrGuias, req.body.prueba)
   }, (error, response, body) => {
     if(error) {
@@ -764,7 +764,7 @@ async function generarStickerManifiesto(arrGuias, prueba) {
           
           db.collection("notificaciones").add({
             fecha: fecha.getDate() +"/"+ (fecha.getMonth() + 1) + "/" + fecha.getFullYear() + " - " + fecha.getHours() + ":" + fecha.getMinutes(),
-            // visible_admin: true,
+            visible_admin: true,
             mensaje: "Hubo un problema para crear el manifiesto de las guías " + arrGuias.map(v => v.id_heka).join(", "),
             timeline: new Date().getTime(),
             detalles: guiasConErrores

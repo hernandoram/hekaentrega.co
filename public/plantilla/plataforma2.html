@@ -82,7 +82,7 @@
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#historial_documentos" onclick="mostrar('historial_documentos')">
+          <a class="nav-link" href="#documentos" onclick="mostrar('documentos')">
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Documentos</span></a>
         </li>
@@ -471,7 +471,8 @@
                 </div>
               </div>
             
-              <button  onclick="cambiarFecha()" class="btn btn-primary btn-user btn-block">
+              <button  onclick="cambiarFecha()" id="btn-buscar-guias"
+              class="btn btn-primary btn-user btn-block">
                 Buscar
               </button>  
             </div>
@@ -550,7 +551,7 @@
             </form>
           </div>
           
-          <div class="container-fluid" id="historial_documentos" style="display: none;">
+          <div class="container-fluid" id="documentos" style="display: none;">
             <h3 class="m-0 font-weight-bold text-primary">Historial de documentos</h3>
             <br>
             
@@ -559,15 +560,16 @@
               <div class="form-group row">
                 <div class="col-sm-6 mb-3 mb-sm-0">
                   <h6>Fecha inicio</h6>
-                  <input type="date" class="form-control form-control-user"  id="fecha_inicio_doc"  required>
+                  <input type="date" class="form-control form-control-user"  id="docs-fecha-inicio"  required>
                 </div>
                 <div class="col-sm-6">
                   <h6>Fecha final</h6>
-                  <input type="date" class="form-control form-control-user"  id="fecha_final_doc"  required>
+                  <input type="date" class="form-control form-control-user"  id="docs-fecha-final"  required>
                 </div>
               </div>
             
-              <button  onclick="actualizarHistorialDeDocumentos()" class="btn btn-primary btn-user btn-block">
+              <button  onclick="actualizarHistorialDeDocumentos()" 
+              class="btn btn-primary btn-user btn-block" id="btn-historial-docs">
                 Buscar
               </button>  
             </div>

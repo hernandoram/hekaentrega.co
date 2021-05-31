@@ -365,8 +365,12 @@ function activarBotonesDeGuias(id, data){
             }
             querySnapshot.forEach(doc => {
                 console.log(doc.data());
+                console.log(doc.id)
                 if(doc.data().descargar_relacion_envio && doc.data().descargar_guias) {
-                    descargarDocumentos(user_id, doc.id, doc.data().guias.toString(), doc.data().nombre_guias, doc.data().nombre_relacion);
+                    let nombre_relacion = doc.data().nombre_relacion ? doc.data().nombre_relacion : "undefined"
+                    let nombre_guias = doc.data().nombre_guias ? doc.data().nombre_guias : "undefined"
+                    descargarDocumentos(user_id, doc.id, doc.data().guias.toString(), 
+                    nombre_guias, nombre_relacion);
                 } else {
                     avisar("No permitido", "Aún no están disponibles ambos documentos", "aviso");
                 }
@@ -618,7 +622,7 @@ function mostrarNotificacion(data, type, id){
             console.log("Se ha eliminado una notificación con id: " + id)
         });
     })
-    info.textContent = data.fecha + data.hora ? " A las " + data.hora : "";
+    info.textContent = data.fecha + (data.hora ? " A las " + data.hora : "");
     
 
     notificacion.addEventListener("click", e => {
@@ -633,11 +637,15 @@ function mostrarNotificacion(data, type, id){
                     modalNotificacion(data.detalles)
                     $("#revisar-detallesNotificacion").click(() => {
                         notificacion.setAttribute("href", "#documentos");
-                        notificacion.setAttribute("onclick", "cargarDocumentos()");
+                        notificacion.setAttribute("onclick", "cargarDocumentos('sin gestionar')");
                     })
                 } else {
                     notificacion.setAttribute("href", "#documentos");
-                    cargarDocumentos()
+                    if(administracion) {
+                        cargarDocumentos("sin gestionar");
+                    } else {
+                        actualizarHistorialDeDocumentos(data.timeline);
+                    }
                 }
     
             }
