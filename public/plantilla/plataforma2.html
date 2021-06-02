@@ -9,6 +9,7 @@
   <meta name="description" content="">
   <meta name="author" content="">
   <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
+  <script src="https://unpkg.com/pdf-lib"></script>
 
 
   <title>hekaentrega.co</title>
@@ -31,6 +32,9 @@
   <!--Cargador
   Para llamarlo, tengo que introducir <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>-->
   <link rel="stylesheet" href="css/loader.css">
+
+  <!--Sweet Alert 2-->
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 </head>
 
@@ -71,14 +75,14 @@
 
         <!-- Nav Item - Pages Collapse Menu -->
         <li class="nav-item">
-          <a class="nav-link" href="#historial_guias" data-toggle="collapse" onclick="mostrar('historial_guias')">
+          <a class="nav-link" href="#historial_guias" onclick="mostrar('historial_guias')">
             <i class="fas fa-fw fa-cog"></i>
             <span>Guías</span>
           </a>
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#historial_documentos" onclick="mostrar('historial_documentos')">
+          <a class="nav-link" href="#documentos" onclick="mostrar('documentos')">
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Documentos</span></a>
         </li>
@@ -133,22 +137,22 @@
             <!-- Topbar Navbar -->
             <ul class="navbar-nav ml-auto">
               <!--Notifications-->
-              <!-- <li class="nav-item dropdown no-arrow mx-1">
+              <li class="nav-item dropdown no-arrow mx-1">
                 <a class="nav-link dropdown-toggle" href="#" id="notificaciones" role="button" 
                 data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                   <i class="fas fa-bell fa-fw"></i>
                   <span class="badge badge-danger badge-counter d-none">0</span>
                 </a>
-                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" 
+                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in overflow-auto" 
                 aria-labelledby="notificaciones">
                   <h6 class="dropdown-header">
                     Centro de notificaciones
                   </h6>
                   <div id="mostrador-notificaciones"></div>
                   <p class="dropdown-item text-center small text-gray-500" onclick="eliminarNotificaciones()">
-                    Eliminar Todas las notificaciones (versión Prueba)</p>
+                    Eliminar Todas las notificaciones</p>
                 </div>
-                </li>     -->
+              </li>
               
               <div class="topbar-divider d-none d-sm-block">
                 
@@ -184,6 +188,7 @@
         <!-- Main Content -->
         <div id="content">     
           <!-- Begin Page Content -->
+          
           <div class="container-fluid" id="cotizar_envio">
             <!-- Page Heading -->
             <div style="display: block;" id="cotizador">
@@ -433,20 +438,24 @@
                 </br> 
               </br>
                 
-                  <input type="checkbox" id="CPNcheck_terminos_condiciones" onchange="checkTerminosCondiciones()"> <a href="terminos.html">Acepto términos y condiciones</a>
-                  <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
-                </div>  
-              </form>
-              <!--Desactivado este boton por ahora-->
-                <!-- <button onclick="actualizarCuenta()" class="btn btn-primary btn-user btn-block">
-                  Actualizar datos
-                </button> -->
-              </div>
-              
-                <hr>
-              <div id="error_crear_cuenta"></div>
-              <hr>
+              <input type="checkbox" id="CPNcheck_terminos_condiciones" onchange="checkTerminosCondiciones()"> <a href="terminos.html">Acepto términos y condiciones</a>
+              <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
+            </div>  
+            <div class="custom-control custom-switch text-center m-2">
+              <input type="checkbox" class="custom-control-input" id="switch-guias_automaticas">
+              <label class="custom-control-label" for="switch-guias_automaticas">Sistema automatizado para generar guías (versión prueba) desactivado.</label>
             </div>
+          </form>
+          <!--Desactivado este boton por ahora-->
+          <!-- <button onclick="actualizarCuenta()" class="btn btn-primary btn-user btn-block">
+            Actualizar datos
+          </button> -->
+        </div>
+        
+        <hr>
+        <div id="error_crear_cuenta"></div>
+         <hr>
+        </div>
           </div>
           <hr/>
 
@@ -467,7 +476,8 @@
                 </div>
               </div>
             
-              <button  onclick="cambiarFecha()" class="btn btn-primary btn-user btn-block">
+              <button  onclick="cambiarFecha()" id="btn-buscar-guias"
+              class="btn btn-primary btn-user btn-block">
                 Buscar
               </button>  
             </div>
@@ -482,16 +492,17 @@
               <div class="card-body">
                 <h6>Seleccionar las guías para crear los Documentos</h6>
                 <button class="btn btn-success mb-3" id="enviar-documentos" onclick="crearDocumentos()">Crear Documentos</button>
-                <div>
-                  <input type="checkbox" name="check-select-all-guias" id="check-select-all-guias" autocomplete="off">
-                  <label for="check-select-all-guias">Seleccionar todas las visibles</label>
-                </div>
+                
                 <div class="table-responsive">
                   <table  class="display table table-bordered" id="dataTable" width="100%" cellspacing="0">  
                     <thead>
                       <tr>
-                        <th>Check</th>
-                        <th>Descargar documento</th>
+                        <th class="text-center"> 
+                          Check
+                          <input type="checkbox" name="check-select-all-guias" 
+                          id="check-select-all-guias" autocomplete="off">
+                        </th>
+                        <th>Acciones</th>
                         <th># Guía Heka</th>
                         <th># Guía Servientrega</th>
                         <th>Estado</th>
@@ -501,7 +512,6 @@
                         <th>Nombre dest.</th>
                         <th>Recaudo</th>
                         <th>Costo envío</th>
-                        <th>Eliminar</th> 
                       </tr>
                     </thead>
                     <tbody id="tabla-guias">
@@ -510,7 +520,7 @@
                     <tfoot>
                       <tr>
                         <th>Check</th>
-                        <th>Descargar documento</th>
+                        <th>Acciones</th>
                         <th># Guía Heka</th>
                         <th># Guía Servientrega</th>
                         <th>Estado</th>
@@ -520,7 +530,6 @@
                         <th>Nombre dest.</th>
                         <th>Recaudo</th>
                         <th>Costo envío</th>
-                        <th>Eliminar</th> 
                       </tr>
                     </tfoot>
                   </table>
@@ -547,7 +556,7 @@
             </form>
           </div>
           
-          <div class="container-fluid" id="historial_documentos" style="display: none;">
+          <div class="container-fluid" id="documentos" style="display: none;">
             <h3 class="m-0 font-weight-bold text-primary">Historial de documentos</h3>
             <br>
             
@@ -556,15 +565,16 @@
               <div class="form-group row">
                 <div class="col-sm-6 mb-3 mb-sm-0">
                   <h6>Fecha inicio</h6>
-                  <input type="date" class="form-control form-control-user"  id="fecha_inicio_doc"  required>
+                  <input type="date" class="form-control form-control-user"  id="docs-fecha-inicio"  required>
                 </div>
                 <div class="col-sm-6">
                   <h6>Fecha final</h6>
-                  <input type="date" class="form-control form-control-user"  id="fecha_final_doc"  required>
+                  <input type="date" class="form-control form-control-user"  id="docs-fecha-final"  required>
                 </div>
               </div>
             
-              <button  onclick="actualizarHistorialDeDocumentos()" class="btn btn-primary btn-user btn-block">
+              <button  onclick="actualizarHistorialDeDocumentos()" 
+              class="btn btn-primary btn-user btn-block" id="btn-historial-docs">
                 Buscar
               </button>  
             </div>
@@ -572,29 +582,9 @@
             <div class="card-body" style="display: none;" id="nohaydatosHistorialDocumentos">
             <h6 class="text-danger">SIN DATOS EXISTENTES PARA TU BÚSQUEDA</h6>
             </div>
-            <div class="card-shadow mb-4" style="display: none;" id="tabla-historial-docs">
-              <div class="card-body">
-                <div class="table-responsive">
-                  <table  class="display table table-bordered" id="tabla_documentos" width="100%" cellspacing="0">  
-                    <thead>
-                      <tr>
-                        <th>Fecha</th>
-                        <th>Identificador de Guias</th>
-                        <th colspan="2">Descargar</th>
-                      </tr>
-                    </thead>
-                    <tbody id="body-documentos">
-                      
-                    </tbody>
-                    <tfoot>
-                      <tr>
-                        <th>Fecha</th>
-                        <th>Identificador de Guias</th>
-                        <th colspan="2">Descargar</th>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
+            <div class="card-shadow mb-4" style="display: none;" id="historial-docs">
+              <div class="row card-body" id="body-documentos">
+                
               </div>
             </div>
             
@@ -786,7 +776,29 @@
       </div>
     </div>
   </div>
-</div>   
+</div>  
+
+<!--Modal para ver detalles de notificaciones-->
+<div class="modal fade" id="modal-detallesNotificacion" data-backdrop="static" tabindex="-1" aria-labelledby="titulo-detallesNotificacion" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="titulo-detallesNotificacion">Detalles</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid" id="contenedor-detallesNotificacion">
+          Aquí irá la información detallada de la notificación seleccionada
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>  
     
     
     <!-- FIREBASE -->

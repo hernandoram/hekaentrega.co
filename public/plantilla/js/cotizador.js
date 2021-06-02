@@ -93,6 +93,8 @@ function cotizador(){
             datos_a_enviar.correoR = datos_usuario.correo || "notiene@gmail.com";
             datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo;
 
+            if(estado_prueba) datos_a_enviar.prueba = true;
+
             //Detalles del consto de Envío
             datos_a_enviar.detalles = {
                 peso_real: info_precio.kg,
@@ -517,6 +519,17 @@ function crearGuiasServientrega() {
         } else if(!datos_usuario.centro_de_costo) {
             avisar("¡Error al generar Guía!", "Póngase en Contacto con nosotros para asignarle un centro de costo", "advertencia");
         } else {
+            Swal.fire({
+                title: "Creando Guía",
+                text: "Por favor espere mientras le generamos su nueva Guía",
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+                allowOutsideClick: false,
+                allowEnterKey: false,
+                showConfirmButton: false,
+                allowEscapeKey: true
+            })
             let fecha = new Date(), mes = fecha.getMonth() + 1, dia = fecha.getDate();
             if(dia < 10){
                 dia = "0" + dia;
@@ -539,7 +552,8 @@ function crearGuiasServientrega() {
             datos_a_enviar.dice_contener = value("producto");
             datos_a_enviar.observaciones = value("observaciones");
             datos_a_enviar.recoleccion_esporadica = recoleccion;
-            datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`
+            datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`;
+            datos_a_enviar.timeline = new Date().getTime();
 
             boton_final_cotizador = document.getElementById("boton_final_cotizador")
             boton_final_cotizador.classList.add("disabled");
@@ -560,31 +574,73 @@ function crearGuiasServientrega() {
     }
 }
 
-
-
+//función que envía los datos tomados a servientrega
 function enviar_firestore(datos){
+    //tome los últimos 4 digitos del documento para crear el id
     let id_heka = datos_usuario.numero_documento.slice(-4);
     let firestore = firebase.firestore()
+
+    //Reviso por donde va el identificador heka
     firestore.collection("infoHeka").doc("heka_id").get()
-        .then((doc) => {
+        .then(async (doc) => {
             if(doc.exists){
                 id_heka += doc.data().id.toString();
 
+                //lo guardo en una varible
                 datos.id_heka = id_heka;
                 console.log(datos);
+
+                //Creo la referencia para la nueva guía generada con su respectivo id
+                let referenciaNuevaGuia = firestore.collection("usuarios").doc(localStorage.user_id)
+                .collection("guias").doc(id_heka);
                 firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
-                firestore.collection("usuarios").doc(localStorage.user_id)
-                    .collection("guias").doc(id_heka).set(datos);
-                return doc.data().id;
+                if(generacion_automatizada) {
+                    //Para cuando el usuario tenga activa la creación deguías automáticas.
+                    //Primero consulto la respuesta del web service
+                    let respuesta = await generarGuiaServientrega(datos)
+                        .then(async (resGuia) => {
+                            //le midifico los datos de respuesta al que será enviado a firebase
+                            datos.numeroGuia = resGuia.numeroGuia;
+                            datos.id_archivoCargar = resGuia.id_archivoCargar;
+                            //y creo el documento de firebase
+                            let guia = await referenciaNuevaGuia.set(datos)
+                            .then(doc => {
+                                return resGuia;
+                            })
+                            .catch(err => {
+                                console.log("Hubo un error al crear la guía con firebase => ", err);
+                                return {numeroGuia: "0"}
+                            })
+                            console.log(guia);
+                            return guia;
+                        })
+                        console.log(respuesta);
+                    
+                    if(respuesta.numeroGuia != "0") {
+                        return doc.data().id;
+                    } else {
+                        throw new Error("No se pudo generar el número de guía, por favor intente nuevamente");
+                    }
+                } else {
+                    //Para cuendo el usurio tenga la opcion de creacion de guias automática desactivada.
+
+                    //Creo la guía para que administracion le cree los documentos al usuario
+                    referenciaNuevaGuia.set(datos).then(() => {
+                        return doc.data().id;
+                    })
+                    .catch(() => {
+                        throw new Error("no pudimos guardar la información de su guía, por falla en la conexión, por favor intente nuevamente");
+                    })
+                }
             }
-        }).then((id) => {
+        })
+        .then((id) => {
             firestore.collection("usuarios").doc(localStorage.user_id).collection("informacion")
             .doc("heka").get()
             .then((doc) => {
                 if(doc.exists){
                     let momento = new Date().getTime();
                     let saldo = doc.data().saldo;
-                    
                     let saldo_detallado = {
                         saldo: saldo,
                         saldo_anterior: saldo,
@@ -633,15 +689,61 @@ function enviar_firestore(datos){
                 }
             })
             return id;
-        }).then((id) => {
-            let respuesta = document.getElementById("respuesta-crear_guia")
-            respuesta.innerHTML = "";
-            respuesta.innerHTML = "Guía Creada exitósamente.";
-            avisar("¡Guía creada exitósamente!", "Indetificador Heka = " + id, "", "plataforma2.html");
-        }).catch((err)=> {
-            console.log("revisa que paso, algo salio mal => ", err);
-            avisar("¡Lo sentimos! Error inesperado", "Intente nuevamente al desaparecer este mensaje. \n si su problema persiste, comuniquese con nosotros", "advertencia", "plataforma2.html");
         })
+        .then((id) => {
+            Swal.fire({
+                icon: "success",
+                title: "¡Guía creada con éxito!",
+                text: "¿Desea crear otra guía?",
+                timer: 6000,
+                showCancelButton: true,
+                confirmButtonText: "Si, ir al cotizador.",
+                cancelButtonText: "No, ver el historial."
+
+            }).then((res) => {
+                if(res.isConfirmed) {
+                    location.href = "plataforma2.html";
+                } else {
+                    location.href = "#historial_guias";
+                    cambiarFecha();
+                }
+            })
+        }).catch((err)=> {
+            Swal.fire({
+                icon: "error",
+                text: "Hubo un error al crear la guía",
+                timer: 3000
+            }).then(() => {
+                console.log("revisa que paso, algo salio mal => ", err);
+                avisar("¡Lo sentimos! Error inesperado", err.message);
+            })
+        })
+}
+
+async function generarGuiaServientrega(datos) {
+    let res = await fetch("/servientrega/crearGuia", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(datos)
+    })
+    .then(res => res.json())
+    .then(data => {
+        let parser = new DOMParser();
+        data = parser.parseFromString(data, "application/xml");
+        console.log(data);
+        console.log("se recibió respuesta");
+        let retorno = {
+            numeroGuia: data.querySelector("Num_Guia").textContent,
+            nombreD: data.querySelector("Nom_Contacto").textContent,
+            ciudadD: data.querySelector("Des_Ciudad").textContent,
+            id_archivoCargar: data.querySelector("Id_ArchivoCargar").textContent,
+            prueba: datos.centro_de_costo == "SellerNuevo" ? true : false
+        }
+        return retorno;
+    })
+    .catch(err => console.log("Hubo un error: ", err))
+
+    return res;
 }
 
 function convertirMiles(n){
@@ -649,13 +751,12 @@ function convertirMiles(n){
     let number_inv = entero.toString().split("").reverse();
     let response = []
     for(let i = 0; i < number_inv.length; i++){
-      response.push(number_inv[i]);
-      if((i+1) % 3 == 0){
+        response.push(number_inv[i]);
+        if((i+1) % 3 == 0){
         if(i+1 != number_inv.length){
             response.push(".")
         }   
-      }
+        }
     }  
     return response.reverse().join("");
-  };
-
+};

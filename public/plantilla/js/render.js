@@ -1,6 +1,3 @@
-// const e = require("express");
-
-
 function escucha(id, e, funcion) {
     document.getElementById(id).addEventListener(e, funcion)
 }
@@ -49,23 +46,37 @@ window.addEventListener("hashchange", () => {
 function tablaDeGuias(id, datos){
     return `<tr id="historial-guias-row${id}">
         <th>
-            <div class="form-check">
+            <div class="form-check text-center">
                 <input class="form-check-input position-static" type="checkbox" value="option1" 
-                data-id="${id}" 
+                data-id="${id}" data-numeroGuia="${datos.numeroGuia}"
+                data-prueba="${datos.prueba}" data-id_archivoCargar="${datos.id_archivoCargar}"
                 data-funcion="activar-desactivar" aria-label="..." disabled>
             </div>
         </th>
-        <th class="d-flex justify-content-around">
-            <button class="btn btn-primary btn-circle btn-sm" data-id="${id}"
-            id="descargar_documento${id}">
+        <th class="d-flex justify-content-around flex-wrap">
+            <button class="btn btn-primary btn-circle btn-sm mt-2" data-id="${id}"
+            id="descargar_documento${id}" title="Descargar Documentos">
                 <i class="fas fa-file-download"></i>
             </button>
 
             ${datos.numeroGuia ? 
-                `<button class="btn btn-primary btn-circle btn-sm" data-id="${id}"
-                id="ver_detalles${id}" data-toggle="modal" data-target="#modal-gestionarNovedad">
+                `<button class="btn btn-primary btn-circle btn-sm mt-2" data-id="${id}"
+                id="ver_detalles${id}" data-toggle="modal" data-target="#modal-gestionarNovedad"
+                title="Revisar movimientos">
                     <i class="fas fa-search-plus"></i>
                 </button>` : ""}
+
+            <button class="btn btn-success btn-circle btn-sm mt-2" data-id="${id}" 
+            id="clonar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}" disabled
+            title="Clonar Guía">
+                <i class="fas fa-clone"></i>
+            </button>
+
+            <button class="btn btn-danger btn-circle btn-sm mt-2" data-id="${id}" 
+            id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}" disabled
+            title="Eliminar Guía">
+                <i class="fas fa-trash"></i>
+            </button>
         </th>
 
         <th>${id}</th>
@@ -78,11 +89,6 @@ function tablaDeGuias(id, datos){
         <th>$${convertirMiles(datos.valor)}</th>
         <th>$${convertirMiles(datos.costo_envio)}</th>
 
-
-        <th><button class="btn btn-danger btn-circle" data-id="${id}" 
-        id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}" disabled>
-            <i class="fas fa-trash"></i>
-        </button></th> 
     </tr>`
 }
 
@@ -143,7 +149,6 @@ function avisar(title, content, type, redirigir){
 };
 
 
-
 //// Esta funcion me retorna un card con informacion del usuario, sera invocada por otra funcion
 function mostrarUsuarios(data, id){
     return `<div class="col-md-4 mb-4">
@@ -195,15 +200,16 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                 </div>
                 <div class="col-auto">
                     <i class="fa fa-file fa-2x text-gray-300" data-id_guia="${id}" 
-                    data-guias="${data.guias.toString()}" 
+                    data-guias="${data.guias.toString()}" data-nombre_guias="${data.nombre_guias}"
+                    data-nombre_relacion="${data.nombre_relacion}"
                     data-user="${data.id_user}" data-funcion="descargar-docs" 
                     id="descargar-docs${id}"></i>
                 </div>
             </div>
             <div class="row" data-guias="${data.guias.toString()}" data-id_guia="${id}" data-user="${data.id_user}" data-nombre="${data.nombre_usuario}">
-                <button class="col-12 col-md-6 btn btn-primary mb-3" data-funcion="descargar" value="">Descargar</button>
+                <button class="col-12 col-md-6 btn btn-primary mb-3 text-truncate" title="Descargar Excel" data-funcion="descargar" value="">Descargar</button>
                 <div class="col-12 col-md-6 dropdown no-arrow mb-3">
-                    <button class="col-12 btn btn-info dropdown-toggle" type="button" id="cargar${id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button class="col-12 btn btn-info dropdown-toggle text-truncate" title="Subir documentos" type="button" id="cargar${id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Subir Documentos
                     </button>
                     <div class="dropdown-menu" aria-labelledby="cargar${id}">
@@ -213,8 +219,16 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                 </div>
                 <input type="file" name="cargar-documentos" data-tipo="relacion-envio" id="cargar-relacion-envio${id}" style="display: none">
                 <input type="file" name="cargar-documentos" data-tipo="guias" id="cargar-guias${id}" style="display: none">
-                <p id="mostrar-relacion-envio${id}" class="ml-2"></p>
-                <p id="mostrar-guias${id}" class="ml-2"></p>
+                <p id="mostrar-relacion-envio${id}" class="ml-2" 
+                style="text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;"></p>
+                
+                <p id="mostrar-guias${id}" class="ml-2" 
+                style="text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;"></p>
+                
                 <button class="btn btn-danger d-none col-12" data-funcion="enviar" id="subir${id}">Subir</button>
             </div>
         </div>
@@ -239,11 +253,11 @@ function genFecha(direccion, milliseconds){
 }
 
 //Retorna una tabla de documentos filtrados
-function tablaDeDocumentos(id, datos){
-    return `<tr id="historial-docs-row${id}" data-id_doc="${id}">
-        <th>${datos.fecha}</th>
+function mostrarDocumentosUsuario(id, data){
+    let x = `<tr id="historial-docs-row${id}" data-id_doc="${id}">
+        <th>${data.fecha}</th>
         <th>
-            <p class="text-break" style="width: 35em">${datos.guias}</p>
+            <p class="text-break" style="width: 35em">${data.guias}</p>
         </th>
         <th>
             <button id="boton-descargar-relacion_envio${id}" class="btn btn-info m-2" disabled>Descargar Relacion</button>
@@ -252,6 +266,44 @@ function tablaDeDocumentos(id, datos){
             <button id="boton-descargar-guias${id}" class="btn btn-info m-2" disabled>Descargar Guías</button>
         </th>
     </tr>`
+    return `<div class="col-sm-6 col-lg-4 mb-4">
+    <div class="card border-bottom-info shadow h-100 py-2" id="${id}">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="h4 font-weight-bold text-info text-uppercase mb-2">${data.nombre_usuario}</div>
+                    <div class="row no-gutters align-items-center">
+                        <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800 w-100">
+                            <p style="white-space: nowrap;
+                            text-overflow: ellipsis;
+                            cursor: zoom-in;
+                            overflow: hidden;"
+                            data-mostrar="texto">Id Guias Generadas: <br><small class="text-break">${data.guias}</small></p>
+                            <p>Fecha: <small>${data.fecha}</small></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <i class="fa fa-file fa-2x text-gray-300" data-id_guia="${id}" 
+                    data-guias="${data.guias.toString()}" data-nombre_guias="${data.nombre_guias}"
+                    data-nombre_relacion="${data.nombre_relacion}"
+                    data-user="${data.id_user}" data-funcion="descargar-docs" 
+                    id="descargar-docs${id}"></i>
+                </div>
+            </div>
+            <div class="row" data-guias="${data.guias.toString()}" data-id_guia="${id}" data-user="${data.id_user}" data-nombre="${data.nombre_usuario}">
+                    <button class="col-12 btn btn-info mb-2" 
+                    type="button" id="boton-descargar-guias${id}" disabled>
+                        Descargar Guías
+                    </button>
+                    <button class="col btn btn-info mb-2" 
+                    type="button" id="boton-descargar-relacion_envio${id}" disabled>
+                        Descargar Manifiesto
+                    </button>
+            </div>
+        </div>
+    </div>
+  </div>`
 }
 
 //Actiualiza todos los inputs de fechas que hay en el documento
@@ -359,8 +411,12 @@ function activarBotonesDeGuias(id, data){
             }
             querySnapshot.forEach(doc => {
                 console.log(doc.data());
+                console.log(doc.id)
                 if(doc.data().descargar_relacion_envio && doc.data().descargar_guias) {
-                    descargarDocumentos(user_id, doc.id, doc.data().guias.toString());
+                    let nombre_relacion = doc.data().nombre_relacion ? doc.data().nombre_relacion : "undefined"
+                    let nombre_guias = doc.data().nombre_guias ? doc.data().nombre_guias : "undefined"
+                    descargarDocumentos(user_id, doc.id, doc.data().guias.toString(), 
+                    nombre_guias, nombre_relacion);
                 } else {
                     avisar("No permitido", "Aún no están disponibles ambos documentos", "aviso");
                 }
@@ -384,7 +440,26 @@ function activarBotonesDeGuias(id, data){
         })
       });
 
+      document.getElementById("clonar_guia"+id).addEventListener("click", () => {
+        Swal.fire({
+            title: "Clonando",
+            html: "Por favor espere mientra generamos el nuevo número de guía.",
+            didOpen: () => {
+                Swal.showLoading();
+            },
+            allowOutsideClick: false,
+            allowEnterKey: false,
+            showConfirmButton: false,
+            allowEscapeKey: true
+        })
+        usuarioDoc.collection("guias").doc(id)
+        .get().then(doc => {
+            enviar_firestore(doc.data());
+        })
+      })
+
 }
+
 
 //funcion que me devuelve a los inputs que estan escritos incorrectamente o vacios
 function verificador(arr, scroll, mensaje) {
@@ -566,18 +641,25 @@ function mostrarNotificacion(data, type, id){
     notificacion.classList.add("notificacion-"+id);
     notificacion.setAttribute("id", "notificacion-"+id);
 
+    let color = data.icon ? data.icon[1] : "primary";
+    let type_icon = data.icon ? data.icon[0] : "file-alt"
+
     div_icon.classList.add("mr-3");
-    circle.setAttribute("class", "icon-circle bg-primary");
-    icon.setAttribute("class", "fas fa-file-alt text-white");
+    circle.setAttribute("class", "icon-circle bg-" +color);
+    icon.setAttribute("class", "fas fa-"+type_icon+" text-white");
     circle.append(icon);
     div_icon.append(circle);
     
     info.setAttribute("class", "small text-gray-500");
-    mensaje.style.overflowWrap = "anywhere";
-    mensaje.textContent = data.mensaje;
+    mensaje.style.display = "-webkit-box";
+    mensaje.style.overflow = "hidden";
+    mensaje.style.webkitLineClamp = "4";
+    mensaje.style.webkitBoxOrient = "vertical";
+    mensaje.innerHTML = data.mensaje;
     div_info.append(info, mensaje);
     
     button_close.setAttribute("type", "button");
+    button_close.setAttribute("title", "Eliminar notificación");
     button_close.setAttribute("arial-label", "close");
     button_close.setAttribute("class", "close d-flex align-self-start");
     button_close.innerHTML = '<span aria-hidden="true" class="small">&times;</span>';
@@ -586,21 +668,36 @@ function mostrarNotificacion(data, type, id){
             console.log("Se ha eliminado una notificación con id: " + id)
         });
     })
+    info.textContent = data.fecha + (data.hora ? " A las " + data.hora : "");
     
 
-
-    if(type == "novedad"){
-        // notificacion.setAttribute("href", "#");
-        notificacion.addEventListener("click",() => {
-            revisarMovimientosGuias(true, data.seguimiento, data.id_heka, data.guia);
-            mostrar("novedades");
-        });
-        info.textContent = data.fecha + " a las " + data.hora;
-    } else {
-        info.textContent = data.fecha;
-        notificacion.setAttribute("href", "#documentos");
-        notificacion.setAttribute("onclick", "cargarDocumentos()")
-    }
+    notificacion.addEventListener("click", e => {
+        if(!e.target.parentNode.classList.contains("close") || !data.detalles) {
+            if(type == "novedad") {
+                revisarMovimientosGuias(true, data.seguimiento, data.id_heka, data.guia);
+                mostrar("novedades");
+            } else {
+                if(data.detalles) {
+                    console.log(data.detalles, data)
+                    notificacion.setAttribute("data-toggle", "modal");
+                    notificacion.setAttribute("data-target", "#modal-detallesNotificacion");
+                    modalNotificacion(data.detalles)
+                    $("#revisar-detallesNotificacion").click(() => {
+                        location.href = "#documentos";
+                        cargarDocumentos(data.guias.slice(0,5));
+                    })
+                } else {
+                    if(administracion) {
+                        cargarDocumentos("sin gestionar");
+                    } else {
+                        actualizarHistorialDeDocumentos(data.timeline);
+                    }
+                    notificacion.setAttribute("href", "#documentos");
+                }
+    
+            }
+        }
+    })
 
     notificacion.append(div_icon, div_info, button_close);
     return notificacion;
@@ -1139,6 +1236,24 @@ function gestionarNovedadModal(dataN, dataG) {
             }
         })
     }
+}
+
+function modalNotificacion(list) {
+    let contenedorModal = document.getElementById("contenedor-detallesNotificacion");
+    let lista = document.createElement("ul");
+
+    contenedorModal.innerHTML = "";
+    contenedorModal.innerHTML = "<h2 class='text-center'>Detalles</h2>";
+
+    for(let detalle of list) {
+        let li = document.createElement("li");
+        li.innerHTML = detalle;
+        lista.appendChild(li);
+    }
+
+    contenedorModal.appendChild(lista);
+
+    
 }
 
 $("#activador_filtro_fecha").change((e) => {
