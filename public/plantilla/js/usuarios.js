@@ -167,7 +167,7 @@ function nuevaCuenta(){
                         console.log(datos_bancarios);
                         console.log(datos_personales);
                         console.log(datos_relevantes);
-                        if(doc.exists) {
+                        if(!doc.exists) {
                             firebase.firestore().collection("usuarios").doc(user)
                             .collection("informacion").doc("personal").set(datos_personales)
                             .then(() => {
