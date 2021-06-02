@@ -27,7 +27,7 @@ precios_personalizados = {
     saldo: 0
 };
 
-let estado_prueba;
+let estado_prueba, generacion_automatizada;
 
 //funcion principal del Script que carga todos los datos del usuario
 function cargarDatosUsuario(){
@@ -107,6 +107,18 @@ function cargarDatosUsuario(){
               datos_usuario.centro_de_costo = doc.data().centro_de_costo;
               datos_usuario.objetos_envio = doc.data().objetos_envio;
               estado_prueba = doc.data().centro_de_costo == "SellerNuevo" ? true : false;
+              generacion_automatizada = doc.data().generacion_automatizada || false;
+
+              if(doc.data().generacion_automatizada) {
+                generacion_automatizada = doc.data().generacion_automatizada;
+                $("#switch-guias_automaticas").prop("checked",true);
+                $("#switch-guias_automaticas").parent().children("label")
+                .text((index, text) => {
+                  return text.replace("desactivado", "activado");
+                });
+
+
+              }
             }
           })
         });
@@ -158,6 +170,8 @@ function cargarDatosUsuario(){
             }
 
             $("#saldo").html("$" + convertirMiles(precios_personalizados.saldo));
+
+            
           }
         }).then(() => {
           if(!precios_personalizados.activar_saldo){
@@ -204,7 +218,7 @@ function historialGuias(){
   document.getElementById("cargador-guias").classList.remove("d-none");
   if(user_id){     
     var fecha_inicio = new Date($("#fecha_inicio").val()).getTime();
-    fecha_final = new Date($("#fecha_final").val()).getTime() + (8,64e+7);
+    fecha_final = new Date($("#fecha_final").val()).getTime() + 8.64e7;
 
     var reference = firebase.firestore().collection("usuarios")
     .doc(user_id).collection("guias");
@@ -221,7 +235,6 @@ function historialGuias(){
           
           //Habilita y deshabilita los checks de la tabla de guias
           reference.doc(doc.id).onSnapshot((row) => {
-            console.log("Se Ejecuta el oidor")
             if(row.exists) {
               activarBotonesDeGuias(row.id, row.data());
               document.getElementById("historial-guias-row" + row.id).children[3].textContent = row.data().numeroGuia || "";
@@ -660,6 +673,18 @@ function mostrarPagos(datos) {
     <h2 class="text-right mt-4" id="total_pagos" data-total="${total}">Total:  $${convertirMiles(total)}</h2>
   `;
 }
+
+$("#switch-guias_automaticas").click(function() {
+  let check = $(this).prop("checked")
+  usuarioDoc.update({
+    generacion_automatizada: check
+  }).then(() => {
+    $(this).parent().children("label").text((i, text) => {
+      return check ? text.replace("desactivado", "activado") : text.replace("activado", "desactivado");
+    });
+    generacion_automatizada = check;
+  })
+})
 
 function cerrarSession() {
   localStorage.clear()

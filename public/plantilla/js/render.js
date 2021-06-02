@@ -207,9 +207,9 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                 </div>
             </div>
             <div class="row" data-guias="${data.guias.toString()}" data-id_guia="${id}" data-user="${data.id_user}" data-nombre="${data.nombre_usuario}">
-                <button class="col-12 col-md-6 btn btn-primary mb-3" data-funcion="descargar" value="">Descargar</button>
+                <button class="col-12 col-md-6 btn btn-primary mb-3 text-truncate" title="Descargar Excel" data-funcion="descargar" value="">Descargar</button>
                 <div class="col-12 col-md-6 dropdown no-arrow mb-3">
-                    <button class="col-12 btn btn-info dropdown-toggle" type="button" id="cargar${id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button class="col-12 btn btn-info dropdown-toggle text-truncate" title="Subir documentos" type="button" id="cargar${id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         Subir Documentos
                     </button>
                     <div class="dropdown-menu" aria-labelledby="cargar${id}">
@@ -219,8 +219,16 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                 </div>
                 <input type="file" name="cargar-documentos" data-tipo="relacion-envio" id="cargar-relacion-envio${id}" style="display: none">
                 <input type="file" name="cargar-documentos" data-tipo="guias" id="cargar-guias${id}" style="display: none">
-                <p id="mostrar-relacion-envio${id}" class="ml-2"></p>
-                <p id="mostrar-guias${id}" class="ml-2"></p>
+                <p id="mostrar-relacion-envio${id}" class="ml-2" 
+                style="text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;"></p>
+                
+                <p id="mostrar-guias${id}" class="ml-2" 
+                style="text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;"></p>
+                
                 <button class="btn btn-danger d-none col-12" data-funcion="enviar" id="subir${id}">Subir</button>
             </div>
         </div>
@@ -245,11 +253,11 @@ function genFecha(direccion, milliseconds){
 }
 
 //Retorna una tabla de documentos filtrados
-function tablaDeDocumentos(id, datos){
-    return `<tr id="historial-docs-row${id}" data-id_doc="${id}">
-        <th>${datos.fecha}</th>
+function mostrarDocumentosUsuario(id, data){
+    let x = `<tr id="historial-docs-row${id}" data-id_doc="${id}">
+        <th>${data.fecha}</th>
         <th>
-            <p class="text-break" style="width: 35em">${datos.guias}</p>
+            <p class="text-break" style="width: 35em">${data.guias}</p>
         </th>
         <th>
             <button id="boton-descargar-relacion_envio${id}" class="btn btn-info m-2" disabled>Descargar Relacion</button>
@@ -258,6 +266,44 @@ function tablaDeDocumentos(id, datos){
             <button id="boton-descargar-guias${id}" class="btn btn-info m-2" disabled>Descargar Guías</button>
         </th>
     </tr>`
+    return `<div class="col-sm-6 col-lg-4 mb-4">
+    <div class="card border-bottom-info shadow h-100 py-2" id="${id}">
+        <div class="card-body">
+            <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                    <div class="h4 font-weight-bold text-info text-uppercase mb-2">${data.nombre_usuario}</div>
+                    <div class="row no-gutters align-items-center">
+                        <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800 w-100">
+                            <p style="white-space: nowrap;
+                            text-overflow: ellipsis;
+                            cursor: zoom-in;
+                            overflow: hidden;"
+                            data-mostrar="texto">Id Guias Generadas: <br><small class="text-break">${data.guias}</small></p>
+                            <p>Fecha: <small>${data.fecha}</small></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <i class="fa fa-file fa-2x text-gray-300" data-id_guia="${id}" 
+                    data-guias="${data.guias.toString()}" data-nombre_guias="${data.nombre_guias}"
+                    data-nombre_relacion="${data.nombre_relacion}"
+                    data-user="${data.id_user}" data-funcion="descargar-docs" 
+                    id="descargar-docs${id}"></i>
+                </div>
+            </div>
+            <div class="row" data-guias="${data.guias.toString()}" data-id_guia="${id}" data-user="${data.id_user}" data-nombre="${data.nombre_usuario}">
+                    <button class="col-12 btn btn-info mb-2" 
+                    type="button" id="boton-descargar-guias${id}" disabled>
+                        Descargar Guías
+                    </button>
+                    <button class="col btn btn-info mb-2" 
+                    type="button" id="boton-descargar-relacion_envio${id}" disabled>
+                        Descargar Manifiesto
+                    </button>
+            </div>
+        </div>
+    </div>
+  </div>`
 }
 
 //Actiualiza todos los inputs de fechas que hay en el documento
@@ -609,11 +655,11 @@ function mostrarNotificacion(data, type, id){
     mensaje.style.overflow = "hidden";
     mensaje.style.webkitLineClamp = "4";
     mensaje.style.webkitBoxOrient = "vertical";
-    mensaje.style.webkitBoxOrient = "vertical";
     mensaje.innerHTML = data.mensaje;
     div_info.append(info, mensaje);
     
     button_close.setAttribute("type", "button");
+    button_close.setAttribute("title", "Eliminar notificación");
     button_close.setAttribute("arial-label", "close");
     button_close.setAttribute("class", "close d-flex align-self-start");
     button_close.innerHTML = '<span aria-hidden="true" class="small">&times;</span>';
@@ -626,26 +672,27 @@ function mostrarNotificacion(data, type, id){
     
 
     notificacion.addEventListener("click", e => {
-        if(!e.target.parentNode.classList.contains("close")) {
+        if(!e.target.parentNode.classList.contains("close") || !data.detalles) {
             if(type == "novedad") {
                 revisarMovimientosGuias(true, data.seguimiento, data.id_heka, data.guia);
                 mostrar("novedades");
             } else {
                 if(data.detalles) {
+                    console.log(data.detalles, data)
                     notificacion.setAttribute("data-toggle", "modal");
                     notificacion.setAttribute("data-target", "#modal-detallesNotificacion");
                     modalNotificacion(data.detalles)
                     $("#revisar-detallesNotificacion").click(() => {
-                        notificacion.setAttribute("href", "#documentos");
-                        notificacion.setAttribute("onclick", "cargarDocumentos('sin gestionar')");
+                        location.href = "#documentos";
+                        cargarDocumentos(data.guias.slice(0,5));
                     })
                 } else {
-                    notificacion.setAttribute("href", "#documentos");
                     if(administracion) {
                         cargarDocumentos("sin gestionar");
                     } else {
                         actualizarHistorialDeDocumentos(data.timeline);
                     }
+                    notificacion.setAttribute("href", "#documentos");
                 }
     
             }

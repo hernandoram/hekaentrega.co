@@ -592,10 +592,10 @@ router.post("/crearGuia", (req, res) => {
 })
 
 router.post("/crearDocumentos", async (req, res) => {
-  console.log(req.body);
-  arr = []
-  let vinculo = req.body[1]
-  let arrData = req.body[0].filter(d => d.prueba == vinculo.prueba);
+  // console.log(req.body);
+  let arr = [];
+  let vinculo = req.body[1];
+  let arrData = req.body[0].filter(d => d.prueba == vinculo.prueba && d.numeroGuia != "undefined");
   let manifestarGuias = new Array();
   let arrErroresUsuario = new Array();
   if(arrData.length < req.body[0].length) arrErroresUsuario.push("Algunas guías que no corresponden con el estado actual no fueron tomadas en cuenta.");
@@ -670,7 +670,11 @@ router.post("/crearDocumentos", async (req, res) => {
       }
     })
     .then(() => {
-      res.send(JSON.stringify(manifestarGuias));
+      let guias_respuesta = manifestarGuias.map(v => v.id_heka).sort();
+      let respuesta = "Las Guías " + guias_respuesta + " Fueron creadas exitósamente.";
+      if(arrErroresUsuario.length) respuesta += "\n Pero se presentó un error, revise las notificaciones para obtener más detalles";
+
+      res.json(respuesta);
     })
   } else {
     db.collection("documentos").doc(vinculo.id_doc).delete();
@@ -762,13 +766,17 @@ async function generarStickerManifiesto(arrGuias, prueba) {
           let fecha = new Date()
           console.log("Guias con errores", guiasConErrores);
           
-          db.collection("notificaciones").add({
-            fecha: fecha.getDate() +"/"+ (fecha.getMonth() + 1) + "/" + fecha.getFullYear() + " - " + fecha.getHours() + ":" + fecha.getMinutes(),
-            visible_admin: true,
-            mensaje: "Hubo un problema para crear el manifiesto de las guías " + arrGuias.map(v => v.id_heka).join(", "),
-            timeline: new Date().getTime(),
-            detalles: guiasConErrores
-          });
+          if(arrGuias.length) {
+            db.collection("notificaciones").add({
+              fecha: fecha.getDate() +"/"+ (fecha.getMonth() + 1) + "/" + fecha.getFullYear() + " - " + fecha.getHours() + ":" + fecha.getMinutes(),
+              visible_admin: true,
+              mensaje: "Hubo un problema para crear el manifiesto de las guías " + arrGuias.map(v => v.id_heka).join(", "),
+              guias: arrGuias.map(v => v.id_heka),
+              timeline: new Date().getTime(),
+              detalles: guiasConErrores
+            });
+
+          }
         
           
           resolve(0);

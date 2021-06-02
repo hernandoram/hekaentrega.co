@@ -117,6 +117,12 @@
         return document.getElementById(request).value;
     }
 
+    document.getElementById("usuario").addEventListener("keypress", e => {
+      if(e.key == "Enter") {
+        iniciarSesion();
+      }
+    })
+
     function iniciarSesion() {
         let usuario = value("usuario");
         let buscardor = document.getElementById("buscador");

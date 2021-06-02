@@ -574,41 +574,63 @@ function crearGuiasServientrega() {
     }
 }
 
-
-
+//función que envía los datos tomados a servientrega
 function enviar_firestore(datos){
+    //tome los últimos 4 digitos del documento para crear el id
     let id_heka = datos_usuario.numero_documento.slice(-4);
     let firestore = firebase.firestore()
+
+    //Reviso por donde va el identificador heka
     firestore.collection("infoHeka").doc("heka_id").get()
         .then(async (doc) => {
             if(doc.exists){
                 id_heka += doc.data().id.toString();
 
+                //lo guardo en una varible
                 datos.id_heka = id_heka;
                 console.log(datos);
+
+                //Creo la referencia para la nueva guía generada con su respectivo id
                 let referenciaNuevaGuia = firestore.collection("usuarios").doc(localStorage.user_id)
                 .collection("guias").doc(id_heka);
                 firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
-                let respuesta = await crearGuiaServientrega(datos)
-                    .then(async (resGuia) => {
-                        datos.numeroGuia = resGuia.numeroGuia;
-                        datos.id_archivoCargar = resGuia.id_archivoCargar;
-                        let guia = await referenciaNuevaGuia.set(datos)
-                        .then(doc => {
-                            return resGuia;
+                if(generacion_automatizada) {
+                    //Para cuando el usuario tenga activa la creación deguías automáticas.
+                    //Primero consulto la respuesta del web service
+                    let respuesta = await generarGuiaServientrega(datos)
+                        .then(async (resGuia) => {
+                            //le midifico los datos de respuesta al que será enviado a firebase
+                            datos.numeroGuia = resGuia.numeroGuia;
+                            datos.id_archivoCargar = resGuia.id_archivoCargar;
+                            //y creo el documento de firebase
+                            let guia = await referenciaNuevaGuia.set(datos)
+                            .then(doc => {
+                                return resGuia;
+                            })
+                            .catch(err => {
+                                console.log("Hubo un error al crear la guía con firebase => ", err);
+                                return {numeroGuia: "0"}
+                            })
+                            console.log(guia);
+                            return guia;
                         })
-                        .catch(err => {
-                            console.log("Hubo un error al crear ela guía con firebase => ", err);
-                            return {numeroGuia: "0"}
-                        })
-                        console.log(guia);
-                        return guia;
-                    })
-                    console.log(respuesta);
-                if(respuesta.numeroGuia != "0") {
-                    return doc.data().id;
+                        console.log(respuesta);
+                    
+                    if(respuesta.numeroGuia != "0") {
+                        return doc.data().id;
+                    } else {
+                        throw new Error("No se pudo generar el número de guía, por favor intente nuevamente");
+                    }
                 } else {
-                    throw new Error();
+                    //Para cuendo el usurio tenga la opcion de creacion de guias automática desactivada.
+
+                    //Creo la guía para que administracion le cree los documentos al usuario
+                    referenciaNuevaGuia.set(datos).then(() => {
+                        return doc.data().id;
+                    })
+                    .catch(() => {
+                        throw new Error("no pudimos guardar la información de su guía, por falla en la conexión, por favor intente nuevamente");
+                    })
                 }
             }
         })
@@ -671,10 +693,20 @@ function enviar_firestore(datos){
         .then((id) => {
             Swal.fire({
                 icon: "success",
-                text: "¡Guía creada con éxito!",
-                timer: 6000
-            }).then(() => {
-                location.href = "plataforma2.html";
+                title: "¡Guía creada con éxito!",
+                text: "¿Desea crear otra guía?",
+                timer: 6000,
+                showCancelButton: true,
+                confirmButtonText: "Si, ir al cotizador.",
+                cancelButtonText: "No, ver el historial."
+
+            }).then((res) => {
+                if(res.isConfirmed) {
+                    location.href = "plataforma2.html";
+                } else {
+                    location.href = "#historial_guias";
+                    cambiarFecha();
+                }
             })
         }).catch((err)=> {
             Swal.fire({
@@ -683,12 +715,12 @@ function enviar_firestore(datos){
                 timer: 3000
             }).then(() => {
                 console.log("revisa que paso, algo salio mal => ", err);
-                avisar("¡Lo sentimos! Error inesperado", "Intente nuevamente al desaparecer este mensaje. \n si su problema persiste, comuniquese con nosotros", "advertencia", "plataforma2.html");
+                avisar("¡Lo sentimos! Error inesperado", err.message);
             })
         })
 }
 
-async function crearGuiaServientrega(datos) {
+async function generarGuiaServientrega(datos) {
     let res = await fetch("/servientrega/crearGuia", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -712,171 +744,6 @@ async function crearGuiaServientrega(datos) {
     .catch(err => console.log("Hubo un error: ", err))
 
     return res;
-}
-
-
-
-function base64ToArrayBuffer(base64) {
-    let binario = window.atob(base64);
-    let bytes = new Uint8Array(binario.length);
-    for(let i = 0; i < binario.length; i++) {
-        let ascii = binario.charCodeAt(i);
-        bytes[i] = ascii;
-    }
-
-    return bytes;
-}
-
-let crearGuias = [], crearSticker = [];
-for(let i = 0; i < 2; i++) {
-    crearGuias[i] = {
-        alto: "20",
-        ancho: "5",
-        celularD: "1231231231",
-        celularR: "123",
-        centro_de_costo: "SellerNuevo",
-        ciudadD: "CALI",
-        ciudadR: "CHIQUINQUIRA",
-        correoD: "notiene@gmail.com",
-        correoR: "usuarionuevo@gmail.com",
-        costo_envio: 42250,
-        departamentoD: "VALLE",
-        departamentoR: "BOYACA",
-        detalles: {peso_real: 6, flete: 19250, comision_heka: 7500, comision_trasportadora: 15500, peso_liquidar: 6},
-        dice_contener: "calzado",
-        direccionD: "direccion barrio ",
-        direccionR: "sd asd",
-        fecha: "2021-05-17",
-        id_heka: "11111442",
-        identificacionD: "456",
-        largo: "20",
-        nombreD: "nombre del destinatario",
-        nombreR: "USUARIO PRUEBA",
-        observaciones: "",
-        peso: "6",
-        prueba: false,
-        recoleccion_esporadica: 0,
-        telefonoD: "1231231231",
-        tipo_doc_dest: "2",
-        valor: "0"
-    }
-
-    crearSticker[i] = {
-        numeroGuia: 290136812 + i,
-        id_archivoCargar: "",
-        prueba: true,
-        id_heka: 11111450 + i
-    }
-}
-
-// let arr_guias = crearSticker.map(g => g.id_heka);
-// console.log(arr_guias);
-
-
-async function obtenerBase64DeGuias(arrGuias, vinculo) {
-    let  data = [arrGuias, vinculo]
-    fetch("/servientrega/crearDocumentos", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(data)
-    }).then(res => res.json())
-    .then(data => {
-        let parser = new DOMParser();
-        data = parser.parseFromString(data, "application/xml");
-        console.log(data);
-        if(data.querySelector("GenerarGuiaStickerResult").textContent == "true") {
-            return data.querySelector("bytesReport").textContent;
-        } else {
-            return 0
-        }
-    })
-}
-
-async function prueba() {
-    let arr = [];
-    for (let i = 0; i < 5; i++) {
-        let y = new Promise((res, rej) => {
-            setTimeout(() => {
-                res("Esta es la promesa n° " + i);
-            }, 4000 + (i*1000));
-        })
-
-        y.then(d => console.log(d));
-        arr[i] = y;
-    }
-
-    let respuesta = await Promise.all(arr);
-    return respuesta;
-}
-let vinculo = {
-    id_user: "nk58Yq6Y1GUFbaaRkdMFuwmDLxO2",
-    prueba: true,
-    id_doc: "0000"
-}
-// crearGuiaServientrega(crearGuias[0]);
-// fusionarDocumentosGuias(crearSticker, vinculo);
-
-async function fusionarDocumentosGuias(arrGuias, vinculo) {
-    let bytesReport = await obtenerBase64DeGuias(arrGuias, vinculo);
-    const pdfDoc = await PDFLib.PDFDocument.create();
-    console.log(bytesReport);
-    for await (let report of bytesReport) {
-        if(report) {
-            let byte = base64ToArrayBuffer(report);
-            let document = await PDFLib.PDFDocument.load(byte);
-            let [page] = await pdfDoc.copyPages(document, [0]);
-            pdfDoc.addPage(page);
-        }
-    }
-        
-    const pdfBytes = await pdfDoc.save();
-    let blob = new Blob([pdfBytes], {type: "application/pdf"});
-    window.open(URL.createObjectURL(blob));
-}
-
-function saveByteArray(reportName, byte) {
-    var blob = new Blob([byte], {type: "application/pdf"});
-    var link = document.createElement('a');
-    console.log(blob);
-    link.href = window.URL.createObjectURL(blob);
-    var fileName = reportName;
-    link.download = fileName;
-    link.click();
-};
-
-
-
-async function generarManifiesto(arrGuias) {
-    let data = {arrGuias, prueba: true}
-    let result = await fetch("/servientrega/generarManifiesto", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(data)
-    }).then(res => res.json())
-    .then(data => {
-        let parser = new DOMParser();
-        data = parser.parseFromString(data, "application/xml");
-        // console.log(data)
-        if(data.querySelector("GenerarManifiestoResult").textContent == "true") {
-            return {
-                cadenaBytes: data.querySelector("cadenaBytes").textContent,
-                num_manifiesto: data.querySelector("Num_manifiesto").textContent
-            } 
-        } else {
-            let error = new Array();
-            data.querySelectorAll("ErrorGeneradoPorGuia").forEach(err => {
-                error.push({
-                    guia: err.querySelector("NumGuia").textContent,
-                    descripcion: data.querySelector("DesError").textContent
-                });
-            })
-        
-
-            throw new Error("Hubo un error inesperado, posiblemente "+ error[0].descripcion);
-        }
-    })
-
-    return result;
 }
 
 function convertirMiles(n){

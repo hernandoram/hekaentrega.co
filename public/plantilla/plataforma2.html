@@ -75,7 +75,7 @@
 
         <!-- Nav Item - Pages Collapse Menu -->
         <li class="nav-item">
-          <a class="nav-link" href="#historial_guias" data-toggle="collapse" onclick="mostrar('historial_guias')">
+          <a class="nav-link" href="#historial_guias" onclick="mostrar('historial_guias')">
             <i class="fas fa-fw fa-cog"></i>
             <span>Guías</span>
           </a>
@@ -143,14 +143,14 @@
                   <i class="fas fa-bell fa-fw"></i>
                   <span class="badge badge-danger badge-counter d-none">0</span>
                 </a>
-                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" 
+                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in overflow-auto" 
                 aria-labelledby="notificaciones">
                   <h6 class="dropdown-header">
                     Centro de notificaciones
                   </h6>
                   <div id="mostrador-notificaciones"></div>
                   <p class="dropdown-item text-center small text-gray-500" onclick="eliminarNotificaciones()">
-                    Eliminar Todas las notificaciones (versión Prueba)</p>
+                    Eliminar Todas las notificaciones</p>
                 </div>
               </li>
               
@@ -188,6 +188,7 @@
         <!-- Main Content -->
         <div id="content">     
           <!-- Begin Page Content -->
+          
           <div class="container-fluid" id="cotizar_envio">
             <!-- Page Heading -->
             <div style="display: block;" id="cotizador">
@@ -437,20 +438,24 @@
                 </br> 
               </br>
                 
-                  <input type="checkbox" id="CPNcheck_terminos_condiciones" onchange="checkTerminosCondiciones()"> <a href="terminos.html">Acepto términos y condiciones</a>
-                  <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
-                </div>  
-              </form>
-              <!--Desactivado este boton por ahora-->
-                <!-- <button onclick="actualizarCuenta()" class="btn btn-primary btn-user btn-block">
-                  Actualizar datos
-                </button> -->
-              </div>
-              
-                <hr>
-              <div id="error_crear_cuenta"></div>
-              <hr>
+              <input type="checkbox" id="CPNcheck_terminos_condiciones" onchange="checkTerminosCondiciones()"> <a href="terminos.html">Acepto términos y condiciones</a>
+              <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
+            </div>  
+            <div class="custom-control custom-switch text-center m-2">
+              <input type="checkbox" class="custom-control-input" id="switch-guias_automaticas">
+              <label class="custom-control-label" for="switch-guias_automaticas">Sistema automatizado para generar guías (versión prueba) desactivado.</label>
             </div>
+          </form>
+          <!--Desactivado este boton por ahora-->
+          <!-- <button onclick="actualizarCuenta()" class="btn btn-primary btn-user btn-block">
+            Actualizar datos
+          </button> -->
+        </div>
+        
+        <hr>
+        <div id="error_crear_cuenta"></div>
+         <hr>
+        </div>
           </div>
           <hr/>
 
@@ -577,29 +582,9 @@
             <div class="card-body" style="display: none;" id="nohaydatosHistorialDocumentos">
             <h6 class="text-danger">SIN DATOS EXISTENTES PARA TU BÚSQUEDA</h6>
             </div>
-            <div class="card-shadow mb-4" style="display: none;" id="tabla-historial-docs">
-              <div class="card-body">
-                <div class="table-responsive">
-                  <table  class="display table table-bordered" id="tabla_documentos" width="100%" cellspacing="0">  
-                    <thead>
-                      <tr>
-                        <th>Fecha</th>
-                        <th>Identificador de Guias</th>
-                        <th colspan="2">Descargar</th>
-                      </tr>
-                    </thead>
-                    <tbody id="body-documentos">
-                      
-                    </tbody>
-                    <tfoot>
-                      <tr>
-                        <th>Fecha</th>
-                        <th>Identificador de Guias</th>
-                        <th colspan="2">Descargar</th>
-                      </tr>
-                    </tfoot>
-                  </table>
-                </div>
+            <div class="card-shadow mb-4" style="display: none;" id="historial-docs">
+              <div class="row card-body" id="body-documentos">
+                
               </div>
             </div>
             
