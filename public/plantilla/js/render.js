@@ -312,7 +312,7 @@ for(let input_fecha of document.querySelectorAll('[type="date"]')) {
 }
 
 //Activa los inputs y btones de cada guia que no haya sido enviada
-function activarBotonesDeGuias(id, data){
+function activarBotonesDeGuias(id, data, activate_once){
     let activos = document.querySelectorAll('[data-funcion="activar-desactivar"]');
       for (let actv of activos){
         if(id == actv.getAttribute("data-id")){
@@ -324,13 +324,16 @@ function activarBotonesDeGuias(id, data){
         if(revisar != "true"){
           actv.removeAttribute("disabled");
         } else {
-            actv.setAttribute("disabled", "true")
+          actv.setAttribute("disabled", "true")
         }
       }
+      
 
-      document.getElementById("eliminar_guia"+id).addEventListener("click", (e) => {
-          let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
-          if(confirmacion){
+      
+      if(activate_once) {
+        document.getElementById("eliminar_guia"+id).addEventListener("click", (e) => {
+            let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
+            if(confirmacion && revisar != "true"){
             let boton_eliminar_guia = document.getElementById("eliminar_guia"+id);
             boton_eliminar_guia.disabled = true;
             boton_eliminar_guia.display = "none";
@@ -400,31 +403,10 @@ function activarBotonesDeGuias(id, data){
             }).catch((error) => {
                 console.error("Error removing document: ", error);
             });
-          }
-      });
-
-      document.getElementById("descargar_documento"+id).addEventListener("click", e => {
-        firebase.firestore().collection("documentos").where("guias", "array-contains", id).get()
-        .then(querySnapshot => {
-            if (!querySnapshot.size) {
-                avisar("Sin documento", "Esta guía no tiene ningún documento asignado aún", "aviso");
             }
-            querySnapshot.forEach(doc => {
-                console.log(doc.data());
-                console.log(doc.id)
-                if(doc.data().descargar_relacion_envio && doc.data().descargar_guias) {
-                    let nombre_relacion = doc.data().nombre_relacion ? doc.data().nombre_relacion : "undefined"
-                    let nombre_guias = doc.data().nombre_guias ? doc.data().nombre_guias : "undefined"
-                    descargarDocumentos(user_id, doc.id, doc.data().guias.toString(), 
-                    nombre_guias, nombre_relacion);
-                } else {
-                    avisar("No permitido", "Aún no están disponibles ambos documentos", "aviso");
-                }
-            })
-        })
-      });
+        });
 
-      $("#ver_detalles"+id).on("click", e => {
+        $("#ver_detalles"+id).on("click", e => {
         document.getElementById("contenedor-gestionarNovedad").innerHTML = ""
         document.getElementById("contenedor-gestionarNovedad").innerHTML = `
             <div class="d-flex justify-content-center align-items-center"><h1 class="text-primary">Cargando   </h1><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>
@@ -438,9 +420,9 @@ function activarBotonesDeGuias(id, data){
                 document.getElementById("contenedor-gestionarNovedad").innerText = "El estado de esta guía aún no ha sido actualizado"; 
             }
         })
-      });
+        });
 
-      document.getElementById("clonar_guia"+id).addEventListener("click", () => {
+        document.getElementById("clonar_guia"+id).addEventListener("click", () => {
         Swal.fire({
             title: "Clonando",
             html: "Por favor espere mientra generamos el nuevo número de guía.",
@@ -456,7 +438,29 @@ function activarBotonesDeGuias(id, data){
         .get().then(doc => {
             enviar_firestore(doc.data());
         })
-      })
+        })
+
+        document.getElementById("descargar_documento"+id).addEventListener("click", e => {
+            firebase.firestore().collection("documentos").where("guias", "array-contains", id).get()
+            .then(querySnapshot => {
+                if (!querySnapshot.size) {
+                    avisar("Sin documento", "Esta guía no tiene ningún documento asignado aún", "aviso");
+                }
+                querySnapshot.forEach(doc => {
+                    console.log(doc.data());
+                    console.log(doc.id)
+                    if(doc.data().descargar_relacion_envio && doc.data().descargar_guias) {
+                        let nombre_relacion = doc.data().nombre_relacion ? doc.data().nombre_relacion : "undefined"
+                        let nombre_guias = doc.data().nombre_guias ? doc.data().nombre_guias : "undefined"
+                        descargarDocumentos(user_id, doc.id, doc.data().guias.toString(), 
+                        nombre_guias, nombre_relacion);
+                    } else {
+                        avisar("No permitido", "Aún no están disponibles ambos documentos", "aviso");
+                    }
+                })
+            })
+        });
+      }
 
 }
 

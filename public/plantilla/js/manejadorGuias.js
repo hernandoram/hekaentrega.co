@@ -617,8 +617,8 @@ function actualizarHistorialDeDocumentos(timeline){
     spinner-border-sm" role="status" aria-hidden="true"></span>
     Cargando...`)
     if(user_id){     
-        let fecha_inicio = timeline || new Date($("#docs-fecha-inicio").val()).getTime(),
-        fecha_final = timeline || new Date($("#docs-fecha-final").val()).getTime();
+        let fecha_inicio = timeline || new Date($("#docs-fecha-inicio").val() + ":").getTime(),
+        fecha_final = timeline || new Date($("#docs-fecha-final").val() + ":").getTime();
       var reference = firebase.firestore().collection("documentos")
       .where("id_user", "==", localStorage.user_id)
       .orderBy("timeline", "desc").startAt(fecha_final + 8.64e7).endAt(fecha_inicio)
@@ -792,13 +792,23 @@ function actualizarEstado(){
 
                 console.log(x);
                 if(x.id_guia){
-                    firebase.firestore().collection("Estado de Guias").doc(x.id_guia).set(x)
-                    .then(() => {
-                        
+                    firebase.firestore().collectionGroup("guias")
+                    .where("id_heka", "==", x.id_guia)
+                    .get().then(querySnapshot => {
+                        querySnapshot.forEach(doc => {
+                            firebase.firestore().doc(doc.ref.path)
+                            .update({
+                                numeroGuia: x.numero_guia_servientrega,
+                                estado: x.estado_envio
+                            })
+                            .then(() => {
+                                
+                            })
+                            .catch(() => {
+                                avisar("Error!", "Hubo un error inesperado");
+                            });
+                        })
                     })
-                    .catch(() => {
-                        avisar("Error!", "Hubo un error inesperado");
-                    });
                 } else {
                     res = "falta id";
                 }

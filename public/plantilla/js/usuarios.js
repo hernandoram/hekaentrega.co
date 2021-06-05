@@ -279,33 +279,41 @@ async function verificarExistencia(administracion){
 }
 
 
-
-
 //esta funcion utilizara a otra para retornarme informacion basica del usuario
 function buscarUsuarios(){
     document.getElementById("cargador-usuarios").classList.remove("d-none");
-    let busqueda = ["!=", ""];
-    if(value("buscador_usuarios-id")){
-        busqueda = ["==", value("buscador_usuarios-id")];
-    }
-    firebase.firestore().collection("usuarios").where("ingreso", busqueda[0], busqueda[1]).get()
+    // let busqueda = ["!=", ""];
+    // if(value("buscador_usuarios-id")){
+    //     busqueda = ["==", value("buscador_usuarios-id")];
+    // }
+    firebase.firestore().collection("usuarios").get()
     .then((querySnapshot) => {
         inHTML("mostrador-usuarios", "");
+        console.log(querySnapshot.size);
         querySnapshot.forEach((doc) => {
-            if(value("buscador_usuarios-nombre") && !value("buscador_usuarios-id")){
+            if(value("buscador_usuarios-nombre")){
                 if(doc.data().centro_de_costo && 
-                doc.data().centro_de_costo.toLowerCase().indexOf(value("buscador_usuarios-nombre").toLowerCase()) != -1){
-                    document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
-                } else if(doc.data().nombres.toLowerCase().indexOf(value("buscador_usuarios-nombre").toLowerCase()) != -1){
+                (doc.data().centro_de_costo.toLowerCase().indexOf(value("buscador_usuarios-nombre").toLowerCase()) != -1 || 
+                doc.data().nombres.toLowerCase().indexOf(value("buscador_usuarios-nombre").toLowerCase()) != -1)){
                     document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
                 }
-            } else {
+            }
+
+            if(value("buscador_usuarios-direccion")) {
+                if(doc.data().centro_de_costo && doc.data().direccion.toLowerCase().indexOf(value("buscador_usuarios-direccion").toLowerCase()) != -1 ) {
+                    document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
+                }
+            }
+
+            if(!value("buscador_usuarios-direccion") && !value("buscador_usuarios-nombre")){
                 document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
             }
-            if(busqueda[0] == "=="){
+            
+            if(value("buscador_usuarios-nombre").toLowerCase() == doc.data().nombres.toLowerCase()){
                 document.getElementById("usuario-seleccionado").setAttribute("data-id", doc.id);
                 seleccionarUsuario(doc.id);
             }
+            
         })
     }).then(() => {
         if(document.getElementById("mostrador-usuarios").innerHTML == ""){

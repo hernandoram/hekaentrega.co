@@ -217,9 +217,10 @@ function historialGuias(){
   `)
   document.getElementById("cargador-guias").classList.remove("d-none");
   if(user_id){     
-    var fecha_inicio = new Date($("#fecha_inicio").val()).getTime();
-    fecha_final = new Date($("#fecha_final").val()).getTime() + 8.64e7;
-
+    var fecha_inicio = new Date($("#fecha_inicio").val() + ":").getTime();
+    fecha_final = new Date($("#fecha_final").val() + ":").getTime() + 8.64e7;
+    console.log("Fecha de inicio =>", fecha_inicio)
+    console.log("Fecha de final =>", fecha_final)
     var reference = firebase.firestore().collection("usuarios")
     .doc(user_id).collection("guias");
     let referencefilter = reference.orderBy("timeline", "desc")
@@ -232,13 +233,19 @@ function historialGuias(){
       }  
       querySnapshot.forEach((doc) => {
           tabla.push(tablaDeGuias(doc.id, doc.data()));
-          
+          console.log(doc.data().timeline);
+          let activar_botones = true;
           //Habilita y deshabilita los checks de la tabla de guias
           reference.doc(doc.id).onSnapshot((row) => {
             if(row.exists) {
-              activarBotonesDeGuias(row.id, row.data());
+              
+              activarBotonesDeGuias(row.id, row.data(), activar_botones);
+          
+              console.log("el oidor de enventos");
+              
               document.getElementById("historial-guias-row" + row.id).children[3].textContent = row.data().numeroGuia || "";
               document.getElementById("historial-guias-row" + row.id).children[4].textContent = row.data().estado;
+              activar_botones = false;
             }
           });
       });
