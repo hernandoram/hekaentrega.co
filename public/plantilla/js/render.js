@@ -328,13 +328,12 @@ function activarBotonesDeGuias(id, data, activate_once){
         }
       }
       
-
       
       if(activate_once) {
         document.getElementById("eliminar_guia"+id).addEventListener("click", (e) => {
             let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
-            if(confirmacion && revisar != "true"){
             let boton_eliminar_guia = document.getElementById("eliminar_guia"+id);
+            if(confirmacion && boton_eliminar_guia.getAttribute("data-enviado") != "true"){
             boton_eliminar_guia.disabled = true;
             boton_eliminar_guia.display = "none";
             firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
@@ -403,6 +402,8 @@ function activarBotonesDeGuias(id, data, activate_once){
             }).catch((error) => {
                 console.error("Error removing document: ", error);
             });
+            } else {
+                avisar("No permitido", "La guia Número " + id + " no puede ser eliminada", "advertencia");
             }
         });
 

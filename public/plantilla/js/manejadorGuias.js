@@ -211,8 +211,8 @@ function cargarDocumentos(filter) {
     `)
     let documentos = document.getElementById("mostrador-documentos");
     let reference = firebase.firestore().collection("documentos"), docFiltrado;
-    let fecha_inicio = new Date(value("docs-fecha-inicio")).getTime(),
-        fecha_final = new Date(value("docs-fecha-final")).getTime() + 8.64e7;
+    let fecha_inicio = Date.parse(value("docs-fecha-inicio").replace(/\-/g, "/")),
+        fecha_final = Date.parse(value("docs-fecha-final").replace(/\-/g, "/")) + 8.64e7;
     switch(filter) {
         case "fecha":
             docFiltrado = reference.orderBy("timeline", "desc").startAt(fecha_final).endAt(fecha_inicio);
@@ -617,8 +617,8 @@ function actualizarHistorialDeDocumentos(timeline){
     spinner-border-sm" role="status" aria-hidden="true"></span>
     Cargando...`)
     if(user_id){     
-        let fecha_inicio = timeline || new Date($("#docs-fecha-inicio").val() + ":").getTime(),
-        fecha_final = timeline || new Date($("#docs-fecha-final").val() + ":").getTime();
+        let fecha_inicio = timeline || Date.parse($("#docs-fecha-inicio").val().replace(/\-/g, "/")),
+        fecha_final = timeline || Date.parse($("#docs-fecha-final").val().replace(/\-/g, "/"));
       var reference = firebase.firestore().collection("documentos")
       .where("id_user", "==", localStorage.user_id)
       .orderBy("timeline", "desc").startAt(fecha_final + 8.64e7).endAt(fecha_inicio)
