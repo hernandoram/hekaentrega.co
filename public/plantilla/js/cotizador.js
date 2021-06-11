@@ -2,24 +2,23 @@ let datos_de_cotizacion,
     datos_a_enviar = new Object({});
     console.log(datos_usuario)
 // Esta funcion verifica que los campos en el form esten llenados correctamente
-function cotizador(){
+async function cotizador(){
     let ciudadR = document.getElementById("ciudadR"),
     ciudadD = document.getElementById("ciudadD");
     let info_precio = new CalcularCostoDeEnvio();
 
     datos_de_cotizacion = {
-        tipo: "CONTRAENTREGA",
         ciudadR: value("ciudadR"),
         ciudadD: value("ciudadD"), 
         peso: value("Kilos") < 3 ? 3 : value("Kilos"),
-        seguro: value("valor-a-recaudar"), 
-        recaudo: value("valor-a-recaudar"), 
+        seguro: value("seguro-mercancia"), 
+        recaudo: 0, 
         trayecto: revisarTrayecto(), 
         tiempo: "2-3", 
-        precio: info_precio.costoEnvio,
-        flete: info_precio.flete,
-        comision_trasportadora: info_precio.sobreflete,
-        seguro_mercancia: info_precio.sobreflete_heka,
+        // precio: info_precio.costoEnvio,
+        // flete: info_precio.flete,
+        // comision_trasportadora: info_precio.sobreflete,
+        // seguro_mercancia: info_precio.sobreflete_heka,
         ancho: value("dimension-ancho"), 
         largo: value("dimension-largo"), 
         alto: value("dimension-alto")
@@ -34,7 +33,7 @@ function cotizador(){
     })
     
     if(value("ciudadR") != "" && value('ciudadD') != "" &&
-    value("Kilos") != "" && value("valor-a-recaudar") != "" 
+    value("Kilos") != "" && value("seguro-mercancia") != "" 
     && value("dimension-ancho") != "" && value("dimension-largo") != "" && value("dimension-alto") != ""){
         //Si todos los campos no estan vacios
         if(!ciudadR.dataset.ciudad || !ciudadD.dataset.ciudad) {
@@ -44,10 +43,10 @@ function cotizador(){
             // Si la cantidad de kilos excede el limite permitido
             alert("Lo sentimos, la cantidad de kilos ingresada no está permitida, procure ingresar un valor mayor a 0 y menor o igual a 25")
             verificador("Kilos", true);
-        } else if(value("valor-a-recaudar") < 5000 || value("valor-a-recaudar") > 2000000) {
+        } else if(value("seguro-mercancia") < 5000 || value("seguro-mercancia") > 300000000) {
             // Si el valor del recaudo excede el limite permitido
-            alert("Ups! el valor a recaudar no puede ser menor a $5.000, ni mayor a $2.000.000")
-            verificador("valor-a-recaudar", true);
+            alert("Ups! el valor declarado no puede ser menor a $5.000, ni mayor a $300.000.000")
+            verificador("seguro-mercancia", true);
         } else if(value("dimension-ancho") < 1 || value("dimension-largo") < 1 || value("dimension-alto") < 1 ||
         value("dimension-ancho") > 150 || value("dimension-largo") > 150 || value("dimension-alto") > 150) {
             // Si el valor de las dimensiones exceden el limite permitido
@@ -65,12 +64,13 @@ function cotizador(){
             }
             let mostrador = document.getElementById("result_cotizacion");
             mostrador.style.display = "block"
-            mostrador.innerHTML = response(datos_de_cotizacion);
+            let respuesta = await response(datos_de_cotizacion);
+            mostrador.innerHTML = respuesta;
             
             if(datos_de_cotizacion.recaudo < datos_de_cotizacion.precio) {
-                alert("El costo del envío excede el valor de recaudo, para continuar, debe incrementar el valor a recaudar");
+                alert("El costo del envío excede el valor declarado, para continuar, debe incrementar el valor declarado");
                 document.getElementById("boton_continuar").disabled = true;
-                verificador("valor-a-recaudar", true);
+                verificador("seguro-mercancia", true);
             } else if(precios_personalizados.activar_saldo && datos_de_cotizacion.precio > precios_personalizados.saldo){
                 let aviso = document.createElement("p")
                 aviso.textContent = "No dispone de saldo suficiente para continuar con su transacción, si desea continuar, por favor comuniquese con nuestros asesores para mayor información"
@@ -87,32 +87,32 @@ function cotizador(){
             datos_a_enviar.alto = value("dimension-alto");
             datos_a_enviar.ancho = value("dimension-ancho");
             datos_a_enviar.largo = value("dimension-largo");
-            datos_a_enviar.peso = datos_de_cotizacion.peso;
-            datos_a_enviar.valor = value("valor-a-recaudar");
-            datos_a_enviar.costo_envio = datos_de_cotizacion.precio;
+            // datos_a_enviar.valor = 0;
+            // datos_a_enviar.seguro = value("seguro-mercancia");
             datos_a_enviar.correoR = datos_usuario.correo || "notiene@gmail.com";
             datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo;
+            // datos_a_enviar.peso = datos_de_cotizacion.peso;
+            // datos_a_enviar.costo_envio = datos_de_cotizacion.precio;
 
             if(estado_prueba) datos_a_enviar.prueba = true;
 
             //Detalles del consto de Envío
-            datos_a_enviar.detalles = {
-                peso_real: info_precio.kg,
-                flete: info_precio.flete,
-                comision_heka: info_precio.sobreflete_heka,
-                comision_trasportadora: info_precio.sobreflete,
-                peso_liquidar: info_precio.kgTomado,
-                peso_con_volumen: info_precio.pesoVolumen,
-                total: info_precio.costoEnvio,
-                recaudo: value("valor-a-recaudar"),
-                seguro: value("valor-a-recaudar")
-            }
-            console.log(datos_a_enviar)
+            // datos_a_enviar.detalles = {
+            //     peso_real: info_precio.kg,
+            //     flete: info_precio.flete,
+            //     comision_heka: info_precio.sobreflete_heka,
+            //     comision_trasportadora: info_precio.sobreflete,
+            //     peso_liquidar: info_precio.kgTomado,
+            //     peso_con_volumen: info_precio.pesoVolumen,
+            //     total: info_precio.costoEnvio,
+            //     recaudo: 0,
+            //     seguro: value("seguro-mercancia")
+            // };
     
-            document.getElementById("boton_continuar").addEventListener("click", () =>{
+            $("#boton_continuar").click(() =>{
                 let creador = document.getElementById("crear_guia");
                 creador.innerHTML = "";
-                creador.innerHTML = response(datos_de_cotizacion, true);
+                creador.innerHTML = finalizarCotizacion(datos_de_cotizacion);
                 location.href = "#crear_guia";
                 scrollTo(0, 0);
 
@@ -151,8 +151,128 @@ function cotizador(){
 
 }
 
+async function i() {
+    let result_cotizacion;
+    let type = await Swal.fire({
+        title: '¿Desea habilitar pago contraentrega?',
+        text: "Su destinatario será quien pagará el valor de su venta",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonClass: "bg-primary",
+        confirmButtonText: 'Sí, lo necesito',
+        cancelButtonText: "no, gracias"
+    }).then((result) => {
+        if(result.isConfirmed) {
+            return "PAGO CONTRAENTREGA";
+        } else if(result.dismiss === Swal.DismissReason.cancel) {
+            return "CONVENCIONAL"
+        } else {
+            return ""
+        }
+    });
+
+    if(!type) {
+        return ""
+    }if(type == "PAGO CONTRAENTREGA") {
+        const { value: recaudo } = await Swal.fire({
+            title: 'Ingrese el valor a cobrar al cliente',
+            input: 'text',
+            text: 'recuerde que el valor del seguro de mercancía será sustituido por el que será ingresado a continuación...',
+            inputPlaceholder: 'ingrese monto',
+        });
+
+        console.log(recaudo);
+        if(/\D/.test(recaudo)) return "Número no válido"
+        if(recaudo) {
+            datos_a_enviar.valor = parseInt(recaudo);
+            datos_a_enviar.seguro = parseInt(recaudo);
+            result_cotizacion = new CalcularCostoDeEnvio(parseInt(recaudo))
+        }
+    }
+}
+// i().then(r => console.info(r))
+
 // me devuelve el resultado de cada formulario al hacer una cotizacion
-function response(datos, tipo) {
+async function response(datos) {
+    let result_cotizacion, act_btn_continuar = true;
+    let type = await Swal.fire({
+        title: '¿Desea habilitar pago contraentrega?',
+        text: "Su destinatario será quien pagará el valor de su venta",
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonClass: "bg-primary",
+        confirmButtonText: 'Sí, lo necesito',
+        cancelButtonText: "no, gracias"
+    }).then((result) => {
+        if(result.isConfirmed) {
+            return "PAGO CONTRAENTREGA";
+        } else if(result.dismiss === Swal.DismissReason.cancel) {
+            return "CONVENCIONAL"
+        } else {
+            return ""
+        }
+    });
+
+    if(!type) {
+        return ""
+    }if(type == "PAGO CONTRAENTREGA") {
+        const { value: recaudo } = await Swal.fire({
+            title: 'Ingrese el valor a cobrar al cliente',
+            input: 'text',
+            text: 'recuerde que el valor del seguro de mercancía será sustituido por el que será ingresado a continuación...',
+            inputPlaceholder: 'ingrese monto'
+        });
+        
+        if(/\D/.test(recaudo)) return "Número no válido"
+        if(recaudo) {
+            result_cotizacion = new CalcularCostoDeEnvio(parseInt(recaudo))
+            if(parseInt(recaudo) < 5000 || parseInt(recaudo) > 2000000) {
+                return "<p class='text-danger text-center border border-danger m-3 p-2'>"
+                +"El valor de recaudo no debe ser menor que $5.000 ni mayor que $2.000.000"
+                +"</p>";
+            } else if (parseInt(recaudo) < result_cotizacion.costoEnvio) {
+                act_btn_continuar = false;
+                Swal.fire({
+                    position: "top-end",
+                    icon: 'error',
+                    title: 'El valor de recaudo no debe ser menor que el costo del envío',
+                    showConfirmButton: false,
+                    timer: 5000
+                })
+                  
+            }
+        }
+    } else {
+        result_cotizacion = new CalcularCostoDeEnvio(value("seguro-mercancia"), type);
+    }
+
+    datos_a_enviar.peso = Math.max(3, result_cotizacion.kg);
+    datos_a_enviar.costo_envio = result_cotizacion.costoEnvio;
+    datos_a_enviar.valor = result_cotizacion.valor;
+    datos_a_enviar.seguro = result_cotizacion.seguro;
+    datos_a_enviar.type = type;
+
+    datos_de_cotizacion.peso = Math.max(3, result_cotizacion.kg);
+    datos_de_cotizacion.costo_envio = result_cotizacion.costoEnvio;
+    datos_de_cotizacion.valor = result_cotizacion.valor;
+    datos_de_cotizacion.seguro = result_cotizacion.seguro;
+    datos_de_cotizacion.type = type;
+
+    //Detalles del costo de Envío
+    datos_a_enviar.detalles = {
+        peso_real: result_cotizacion.kg,
+        flete: result_cotizacion.flete,
+        comision_heka: result_cotizacion.sobreflete_heka,
+        comision_trasportadora: result_cotizacion.sobreflete,
+        peso_liquidar: result_cotizacion.kgTomado,
+        peso_con_volumen: result_cotizacion.pesoVolumen,
+        total: result_cotizacion.costoEnvio,
+        recaudo: result_cotizacion.valor,
+        seguro: result_cotizacion.seguro
+    };
+    console.log(datos_a_enviar);
+
+
     let c_destino = document.getElementById('ciudadD').dataset;
     let div_principal = document.createElement("DIV"),
         crearNodo = str => new DOMParser().parseFromString(str, "text/html").body,
@@ -160,10 +280,60 @@ function response(datos, tipo) {
             Subir
             </a>`),
         divisor = crearNodo(`<hr class="sidebar-divider">`),
-        info_principal = crearNodo(`
+        info_principal = detalles_cotizacion(datos_de_cotizacion),
+        servientrega = crearNodo(`<div class="card card-shadow m-6">
+            <div class="card-header py-3 bg-primary">
+                <div class="d-flex justify-content-center"><img style="max-width: 300px" class="w-100" src="img/servientrega-logotipo.png"/></div>
+            </div>
+            <div class="card-body row">
+                <div class="col mb-3">
+                    <h5>Tipo de Trayecto: <span>${datos.trayecto}</span></h5>
+                    <h5>Tiempo de trayecto: <span>${datos.tiempo} días</span></h5>
+                    <h5>Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span></h5>
+                    <h5>Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span></h5>
+                    <h5 class="mt-3 text-danger">En caso de devolución pagas solo el envío ida: $${convertirMiles(result_cotizacion.costoEnvio)}</h5>
+                </div>
+                <div class="col-12 col-md-7 mb-3 mb-sm-0">
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Valor flete
+                        <span class="badge badge-secondary badge-pill">$${convertirMiles(result_cotizacion.flete)}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Comisión Transportadora
+                        <span class="badge badge-secondary badge-pill">$${convertirMiles(result_cotizacion.sobreflete)}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Seguro Mercancía
+                        <span class="badge badge-secondary badge-pill">$${convertirMiles(result_cotizacion.sobreflete_heka)}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Costo Total de Envío
+                        <span class="badge badge-primary badge-pill text-lg">$${convertirMiles(result_cotizacion.costoEnvio)}</span>
+                        </li>
+                    </ul>
+                    </div>
+                
+            </div>
+        </div>`),
+        boton_continuar = crearNodo(`<div class="d-flex justify-content-end"><input type="button" id="boton_continuar" 
+            class="btn btn-success mt-3" value="Continuar" ${!act_btn_continuar ? "disabled=true" : ""}></div>`);
+        
+
+    div_principal.append(divisor, boton_regresar, info_principal, servientrega, boton_continuar)
+    if(document.getElementById("cotizar_envio").getAttribute("data-index")){
+       boton_continuar.firstChild.firstChild.style.display = "none";
+       console.log("EStoy en el index");
+    }
+    
+    return  div_principal.innerHTML
+};
+
+function detalles_cotizacion(datos) {
+    return new DOMParser().parseFromString(`
         <div class="mb-4">
             <div class="card-header py-3">
-                <h4 class="m-0 font-weight-bold text-primary text-center">Datos de envío (${datos.tipo})</h4>
+                <h4 class="m-0 font-weight-bold text-primary text-center">Datos de envío (${datos.type})</h4>
             </div>
             <div class="card-body row">
                 <div class="col-sm-6 mb-3 mb-sm-2">
@@ -179,9 +349,14 @@ function response(datos, tipo) {
                     <input readonly="readonly" type="text" class="form-control form-control-user" value="${datos.peso} Kg" required="">  
                 </div>
                 <div class="col-sm-6 mb-3 mb-sm-2">
-                    <h5>Recaudo</h5>
-                    <input readonly="readonly" type="text" class="form-control form-control-user" value="$${convertirMiles(datos.recaudo)}" required="">  
+                    <h5>Valor declarado</h5>
+                    <input readonly="readonly" type="text" class="form-control form-control-user" value="$${convertirMiles(datos.seguro)}" required="">  
                 </div>
+                <div class="col-sm-12 mb-3 mb-sm-2 ${!datos.valor ? "d-none" : ""}">
+                    <h5>Recaudo (valor a cobrar al remitente)</h5>
+                    <input readonly="readonly" type="text" class="form-control form-control-user" value="$${convertirMiles(datos.valor)}" required="">  
+                </div>
+                
                 <div class="col">
                     <h5 class="mb-2 mt-3 text-center">Dimensiones <span>(Expresadas en Centímetros)</span></h5>
                     <div class="row d-flex justify-content-center">
@@ -201,41 +376,21 @@ function response(datos, tipo) {
                 </div>
             </div>
         </div>
-        `),
-        servientrega = crearNodo(`<div class="card card-shadow m-6">
-            <div class="card-header py-3 bg-primary">
-                <div class="d-flex justify-content-center"><img style="max-width: 300px" class="w-100" src="img/servientrega-logotipo.png"/></div>
-            </div>
-            <div class="card-body row">
-                <div class="col mb-3">
-                    <h5>Tipo de Trayecto: <span>${datos.trayecto}</span></h5>
-                    <h5>Tiempo de trayecto: <span>${datos.tiempo} días</span></h5>
-                    <h5>Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span></h5>
-                    <h5>Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span></h5>
-                    <h5 class="mt-3 text-danger">En caso de devolución pagas solo el envío ida: $${convertirMiles(datos.precio)}</h5>
-                </div>
-                <div class="col-12 col-md-7 mb-3 mb-sm-0">
-                    <ul class="list-group">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Valor flete
-                        <span class="badge badge-secondary badge-pill">$${convertirMiles(datos.flete)}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Comisión Transportadora
-                        <span class="badge badge-secondary badge-pill">$${convertirMiles(datos.comision_trasportadora)}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Seguro Mercancía
-                        <span class="badge badge-secondary badge-pill">$${convertirMiles(datos.seguro_mercancia)}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Costo Total de Envío
-                        <span class="badge badge-primary badge-pill text-lg">$${convertirMiles(datos.precio)}</span>
-                        </li>
-                    </ul>
-                    </div>
-                
-            </div>
+        `, "text/html").body;
+}
+
+function finalizarCotizacion(datos) {
+    let div_principal = document.createElement("DIV"),
+        crearNodo = str => new DOMParser().parseFromString(str, "text/html").body;
+
+    let detalles = detalles_cotizacion(datos),
+        boton_regresar = crearNodo(`<a class="btn btn-outline-primary btn-block mb-2" href="#cotizar_envio" onclick="regresar()">
+            Regresar
+            </a>`),
+        input_producto = crearNodo(`<div class="col mb-3 mb-sm-0">
+            <h6>producto <span>(Lo que se va a enviar)</span></h6>
+            <input id="producto" class="form-control form-control-user" name="producto" type="text" placeholder="Introduce el contenido de tu envío">
+            <p id="aviso-producto" class="text-danger d-none m-2"></p>
         </div>`),
         datos_remitente = crearNodo(`
         <div class="card card-shadow m-6 mt-5" id="informacion-personal">
@@ -318,37 +473,11 @@ function response(datos, tipo) {
             </form>
         </div>
         `),
-        boton_continuar = crearNodo(`<div class="d-flex justify-content-end"><input type="button" id="boton_continuar" 
-            class="btn btn-success mt-3" value="Continuar"/></div>`),
         boton_crear = crearNodo(`<input type="button" id="boton_final_cotizador" 
-            class="btn btn-success btn-block mt-5" value="Crear Guía" onclick="crearGuiasServientrega()"/>`),
-        input_producto = crearNodo(`<div class="col mb-3 mb-sm-0">
-            <h6>producto <span>(Lo que se va a enviar)</span></h6>
-            <input id="producto" class="form-control form-control-user" name="producto" type="text" placeholder="Introduce el contenido de tu envío">
-            <p id="aviso-producto" class="text-danger d-none m-2"></p>
-        </div>`);
+            class="btn btn-success btn-block mt-5" value="Crear Guía" onclick="crearGuiasServientrega()"/>`);
 
-    div_principal.append(divisor, boton_regresar, info_principal, servientrega, boton_continuar)
-    if(document.getElementById("cotizar_envio").getAttribute("data-index")){
-       boton_continuar.firstChild.firstChild.style.display = "none";
-       console.log("EStoy en el index");
-    }
-    boton_crear.firstChild.style.display = "none";
-    
-    if(tipo) {
-        divisor.remove();
-        boton_regresar.firstChild.textContent = "Regresar";
-        boton_continuar.firstChild.style.display = "none";
-        boton_continuar.firstChild.classList.remove("d-flex")
-        boton_crear.firstChild.style.display = "block";
-        servientrega.remove();
-        info_principal.firstChild.appendChild(input_producto)
-        div_principal.append(datos_remitente, datos_destinatario);
-        div_principal.appendChild(boton_crear)
-    }
-
-
-    return  div_principal.innerHTML
+    div_principal.append(boton_regresar, detalles, input_producto, datos_remitente, datos_destinatario, boton_crear);
+    return div_principal.innerHTML;
 }
 
 function regresar() {
@@ -373,67 +502,18 @@ function revisarTrayecto(){
     }
 }
 
-//Esta función está parcialmente eliminada, será sustituidad por la clase CalcularCostoDeEnvio
-function calcularCostoDeEnvio(kilos, vol) {
-    let kg = kilos || Math.floor(value("Kilos")), 
-        volumen = vol || value("dimension-ancho") * value("dimension-alto") * value("dimension-largo"),
-        factor_de_conversion = 0.022,
-        sobreflete = Math.ceil(Math.max(value("valor-a-recaudar") * precios_personalizados.comision_servi / 100, 3000)),
-        sobreflete_heka = Math.ceil(value("valor-a-recaudar") * precios_personalizados.comision_heka / 100),
-        total  = revisadorInterno(precios_personalizados.costo_especial2, 
-            precios_personalizados.costo_nacional2, precios_personalizados.costo_zonal2);
-
-    if(kg < 3){
-        kg = 3;
-    }
-
-    let peso_con_volumen = volumen * factor_de_conversion / 100;
-    peso_con_volumen = Math.ceil(Math.floor(peso_con_volumen * 10) / 10);
-
-    kg = Math.max(peso_con_volumen, kg)
-    
-    if(kg >= 1 && kg < 4){
-        total = revisadorInterno(precios_personalizados.costo_especial1, 
-            precios_personalizados.costo_nacional1, precios_personalizados.costo_zonal1)
-    } else if (kg >= 4 && kg < 9) {
-        
-    } else {
-        let kg_adicional = kg - 8;
-        total += (kg_adicional * revisadorInterno(precios_personalizados.costo_especial3, 
-            precios_personalizados.costo_nacional3, precios_personalizados.costo_zonal3))
-    }
-
-    function revisadorInterno(especial, nacional, urbano){
-        switch(revisarTrayecto()){
-            case "Especial":
-                return especial;
-                break;
-            case "Urbano":
-                return urbano;
-                break;
-            default:
-                return nacional;
-                break;
-        }
-    }
-
-    console.log("kg = ", Math.round(kg))
-    console.log("peso_con_volumen = ", peso_con_volumen);
-    console.log("volumen = ", volumen);
-    console.log("sobreflete = ", sobreflete);
-    console.log("sobreflete de heka = ", sobreflete_heka);
-    console.log("total del trayecto = ", total);
-    return total + sobreflete + sobreflete_heka;
-}
-
 // Realiza el calculo del envio y me devuelve sus detalles
 class CalcularCostoDeEnvio {
-    constructor(kilos, vol){
+    constructor(valor, type, kilos, vol){
+        this.valor = type == "CONVENCIONAL" ? 0 : valor;
+        this.seguro = valor;
         this.kg = kilos || Math.floor(value("Kilos"));
         this.volumen = vol || value("dimension-ancho") * value("dimension-alto") * value("dimension-largo");
         this.factor_de_conversion = 0.022;
-        this.sobreflete = Math.ceil(Math.max(value("valor-a-recaudar") * precios_personalizados.comision_servi / 100, 3000));
-        this.sobreflete_heka = Math.ceil(value("valor-a-recaudar") * precios_personalizados.comision_heka / 100);
+        this.comision_servi = type == "CONVENCIONAL" ? 1 : precios_personalizados.comision_servi;
+        this.sobreflete_min = type == "CONVENCIONAL" ? 350 : 3000;
+        this.sobreflete = Math.ceil(Math.max(valor * this.comision_servi / 100, this.sobreflete_min));
+        this.sobreflete_heka = Math.ceil(valor * precios_personalizados.comision_heka / 100);
     }
 
     get pesoVolumen(){
@@ -565,8 +645,8 @@ function crearGuiasServientrega() {
             boton_final_cotizador.parentNode.insertBefore(cargador, boton_final_cotizador);
             boton_final_cotizador.remove()
 
-            // console.log(datos_a_enviar)
-            enviar_firestore(datos_a_enviar);
+            console.log(datos_a_enviar)
+            // enviar_firestore(datos_a_enviar);
         }
     } else {
         alert("Por favor, verifique que los campos escenciales no estén vacíos");
