@@ -19090,7 +19090,7 @@ aria-hidden="true">
         <p>A partir del miércoles 23 de junio estaremos trabajando en mejorar las integraciones de todas las transportadoras actuales y las nuevas, por lo cual Envía y TCC estarán deshabilitadas momentáneamente, estaremos integrando prontamente más opciones de transportadoras y envíos, por el momento puedes crear tus envíos con la transportadora Servientrega normalmente, en caso de no tener activada la transportadora puedes comunicarte con asesoría logística al número de WhatsApp : <a href="https://wa.me/573213361911">+57 321 3361911</a>, lamentamos las molestias ocasionadas</p>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-dismiss="modal">Entiendo</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Entendido</button>
       </div>
     </div>
   </div>
@@ -46888,9 +46888,10 @@ autocomplete(document.getElementById("ciudadD"), ciudades);
 
 <script type="text/javascript">
   $('#notificacion').modal('show')
-  $('#notificacion').on('hidden.bs.modal', function (event) {
-    firebase.auth().signOut();
-  })
+  //Para cerrar sesión luego que se cierre el modal
+  // $('#notificacion').on('hidden.bs.modal', function (event) {
+  //   firebase.auth().signOut();
+  // })
 </script>
 </body>
 
