@@ -19074,11 +19074,33 @@ aria-hidden="true">
 </div>
 </div>
 
+<!-- Button trigger modal
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#staticBackdrop">
+  Launch static backdrop modal
+</button> -->
+
+<!-- Notificación y cierre de sesión -->
+<div class="modal fade" id="notificacion" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="notificacionLabel">Notificación</h5>
+      </div>
+      <div class="modal-body">
+        <p>A partir del miércoles 23 de junio estaremos trabajando en mejorar las integraciones de todas las transportadoras actuales y las nuevas, por lo cual Envía y TCC estarán deshabilitadas momentáneamente, estaremos integrando prontamente más opciones de transportadoras y envíos, por el momento puedes crear tus envíos con la transportadora Servientrega normalmente, en caso de no tener activada la transportadora puedes comunicarte con asesoría logística al número de WhatsApp : <a href="https://wa.me/573213361911">+57 321 3361911</a>, lamentamos las molestias ocasionadas</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Entiendo</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </div>
 
 
+
 <script type="text/javascript">
-  
 
 
 
@@ -46834,8 +46856,6 @@ document.addEventListener("click", function (e) {
 autocomplete(document.getElementById("ciudadR"), ciudades);
 autocomplete(document.getElementById("ciudadD"), ciudades);
 
-alert("Estimado usuario, le notificamos que a partir del próximo martes (20 de abril del 2020), serán DESHABILITADOS MOMENTANEAMENTE los envíos con las transportadoras Envía y TCC, por temas de negociación. \n\nGracias por su comprensión, nos disculpamos por las molestias causadas.");
-
     
 </script>
 
@@ -46866,7 +46886,12 @@ alert("Estimado usuario, le notificamos que a partir del próximo martes (20 de 
 <!-- Custom scripts for all pages-->
 <script src="js/sb-admin-2.min.js"></script>
 
-
+<script type="text/javascript">
+  $('#notificacion').modal('show')
+  $('#notificacion').on('hidden.bs.modal', function (event) {
+    firebase.auth().signOut();
+  })
+</script>
 </body>
 
 </html>
