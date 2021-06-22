@@ -151,46 +151,51 @@ async function cotizador(){
 
 }
 
-async function i() {
-    let result_cotizacion;
-    let type = await Swal.fire({
-        title: '¿Desea habilitar pago contraentrega?',
-        text: "Su destinatario será quien pagará el valor de su venta",
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonClass: "bg-primary",
-        confirmButtonText: 'Sí, lo necesito',
-        cancelButtonText: "no, gracias"
-    }).then((result) => {
-        if(result.isConfirmed) {
-            return "PAGO CONTRAENTREGA";
-        } else if(result.dismiss === Swal.DismissReason.cancel) {
-            return "CONVENCIONAL"
-        } else {
-            return ""
+async function pagoContraentrega() {
+    let recaudo = await Swal.fire({
+        title: '<strong>Valor de Recaudo</strong>',
+        icon: 'info',
+        html:`
+            <p>Recuerde que el "valor Declarado" será sustituido por el valor de recaudo</p>
+            <input type="number" id="valor-recaudo" class="form-control" placeholder="Ingrese monto"
+            min="5000" max="2000000" require></input>
+            <div class="form-group form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="sumar-envio-cotizador"></input>
+                <label class="form-check-label" for="sumar-envio-cotizador">¿Desea sumar costo de envío?</label>
+            </div>
+            <div class="form-group form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="restar-saldo-cotizador"></input>
+                <label class="form-check-label" for="restar-saldo-cotizador">¿Desea restar el costo del envío del saldo?</label>
+            </div>
+          `,
+        confirmButtonText:
+          'Continuar',
+        buttonsStyling: false,
+        customClass: {
+            confirmButton: "btn btn-success"
+        },
+        confirmButtonAriaLabel: 'continuar',
+        preConfirm: () => {
+            if(!value("valor-recaudo")) {
+                Swal.showValidationMessage(
+                    `¡Recuerde ingresar un valor!`
+                )
+            } else if (value("valor-recaudo") < 5000 || value("valor-recaudo") > 2000000) {
+                Swal.showValidationMessage("El valor no puede ser menor a $5.000 ni menor a $2.000.000")
+            }
+            return {
+                recaudo: value("valor-recaudo"),
+                sumar_envio: $("#sumar-envio-cotizador").prop("checked"),
+                restar_saldo: $("#restar-saldo-cotizador").prop("checked")
+            }
         }
+    }).then(result => {
+        return result.isConfirmed ? result : ""
     });
 
-    if(!type) {
-        return ""
-    }if(type == "PAGO CONTRAENTREGA") {
-        const { value: recaudo } = await Swal.fire({
-            title: 'Ingrese el valor a cobrar al cliente',
-            input: 'text',
-            text: 'recuerde que el valor del seguro de mercancía será sustituido por el que será ingresado a continuación...',
-            inputPlaceholder: 'ingrese monto',
-        });
-
-        console.log(recaudo);
-        if(/\D/.test(recaudo)) return "Número no válido"
-        if(recaudo) {
-            datos_a_enviar.valor = parseInt(recaudo);
-            datos_a_enviar.seguro = parseInt(recaudo);
-            result_cotizacion = new CalcularCostoDeEnvio(parseInt(recaudo))
-        }
-    }
+    return recaudo;
 }
-// i().then(r => console.info(r))
+// pagoContraentrega();
 
 // me devuelve el resultado de cada formulario al hacer una cotizacion
 async function response(datos) {
@@ -216,21 +221,22 @@ async function response(datos) {
     if(!type) {
         return ""
     }if(type == "PAGO CONTRAENTREGA") {
-        const { value: recaudo } = await Swal.fire({
-            title: 'Ingrese el valor a cobrar al cliente',
-            input: 'text',
-            text: 'recuerde que el valor del seguro de mercancía será sustituido por el que será ingresado a continuación...',
-            inputPlaceholder: 'ingrese monto'
-        });
-        
-        if(/\D/.test(recaudo)) return "Número no válido"
-        if(recaudo) {
-            result_cotizacion = new CalcularCostoDeEnvio(parseInt(recaudo))
-            if(parseInt(recaudo) < 5000 || parseInt(recaudo) > 2000000) {
-                return "<p class='text-danger text-center border border-danger m-3 p-2'>"
-                +"El valor de recaudo no debe ser menor que $5.000 ni mayor que $2.000.000"
-                +"</p>";
-            } else if (parseInt(recaudo) < result_cotizacion.costoEnvio) {
+        const tipo_pago_contraentrega = await pagoContraentrega();
+
+        if(tipo_pago_contraentrega) {
+            let recaudo = tipo_pago_contraentrega.value.recaudo;
+            result_cotizacion = new CalcularCostoDeEnvio(parseInt(recaudo));
+            if(tipo_pago_contraentrega.value.sumar_envio){
+                result_cotizacion = sumarCostoDeEnvio(parseInt(recaudo))
+            }
+
+            if(tipo_pago_contraentrega.value.restar_saldo) {
+                datos_a_enviar.debe = false;
+            } else {
+                datos_a_enviar.debe = -result_cotizacion.costoEnvio
+            }
+
+            if (result_cotizacion.seguro < result_cotizacion.costoEnvio) {
                 act_btn_continuar = false;
                 Swal.fire({
                     position: "top-end",
@@ -241,9 +247,12 @@ async function response(datos) {
                 })
                   
             }
+        } else {
+            return ""
         }
     } else {
         result_cotizacion = new CalcularCostoDeEnvio(value("seguro-mercancia"), type);
+        datos_a_enviar.debe = false;
     }
 
     datos_a_enviar.peso = Math.max(3, result_cotizacion.kg);
@@ -259,17 +268,7 @@ async function response(datos) {
     datos_de_cotizacion.type = type;
 
     //Detalles del costo de Envío
-    datos_a_enviar.detalles = {
-        peso_real: result_cotizacion.kg,
-        flete: result_cotizacion.flete,
-        comision_heka: result_cotizacion.sobreflete_heka,
-        comision_trasportadora: result_cotizacion.sobreflete,
-        peso_liquidar: result_cotizacion.kgTomado,
-        peso_con_volumen: result_cotizacion.pesoVolumen,
-        total: result_cotizacion.costoEnvio,
-        recaudo: result_cotizacion.valor,
-        seguro: result_cotizacion.seguro
-    };
+    datos_a_enviar.detalles = result_cotizacion.getDetails;
     console.log(datos_a_enviar);
 
 
@@ -316,9 +315,20 @@ async function response(datos) {
                 
             </div>
         </div>`),
-        boton_continuar = crearNodo(`<div class="d-flex justify-content-end"><input type="button" id="boton_continuar" 
+        boton_continuar = crearNodo(`<div class="d-flex justify-content-end mt-2"><input type="button" id="boton_continuar" 
             class="btn btn-success mt-3" value="Continuar" ${!act_btn_continuar ? "disabled=true" : ""}></div>`);
         
+    console.log(!datos_a_enviar.debe, !precios_personalizados.actv_credit);
+    if(!datos_a_enviar.debe && !precios_personalizados.actv_credit &&
+        datos_a_enviar.costo_envio > precios_personalizados.saldo) {
+            boton_continuar = crearNodo(`<div class="d-flex justify-content-center text-danger mt-3">
+                <p>Lo sentimos, en este momento, el costo de envío excede el saldo
+                que tienes actualmente, por lo tanto este metodo de envío no estará 
+                permitido hasta que recargues tu saldo.</p>
+                <p>Puedes comunicarte con la asesoría logística para conocer los pasos
+                a seguir para recargar tu saldo.</p>
+            </div>`)
+    }
 
     div_principal.append(divisor, boton_regresar, info_principal, servientrega, boton_continuar)
     if(document.getElementById("cotizar_envio").getAttribute("data-index")){
@@ -374,6 +384,8 @@ function detalles_cotizacion(datos) {
                         </div>
                     </div>
                 </div>
+                <p class="${datos.type == "CONVENCIONAL" ? "d-none" : "col-12 text-center mt-2"}">
+                El Valor consignado a tu cuenta será: $${convertirMiles(datos.valor - datos.costo_envio)}</p>
             </div>
         </div>
         `, "text/html").body;
@@ -502,9 +514,25 @@ function revisarTrayecto(){
     }
 }
 
+function sumarCostoDeEnvio(valor, type, kg, volumen) {
+    let constructor = new CalcularCostoDeEnvio(valor, type, kg, volumen);
+    // a = new CalcularCostoDeEnvio(a.costoEnvio + rec);
+    // console.log(a.valor - a.costoEnvio);
+    let counter = 0
+    while(valor > constructor.valor - constructor.costoEnvio) {
+        counter ++;
+        console.log("\n *** Estamos en bucle fase " + counter)
+        constructor.getDetails;
+        constructor = new CalcularCostoDeEnvio(valor + constructor.costoEnvio, type, kg, volumen);
+    }
+
+    return constructor
+};
+
 // Realiza el calculo del envio y me devuelve sus detalles
 class CalcularCostoDeEnvio {
     constructor(valor, type, kilos, vol){
+        this.type = type;
         this.valor = type == "CONVENCIONAL" ? 0 : valor;
         this.seguro = valor;
         this.kg = kilos || Math.floor(value("Kilos"));
@@ -551,13 +579,31 @@ class CalcularCostoDeEnvio {
     }
 
     get costoEnvio(){
+        let resultado = this.flete + this.sobreflete + this.sobreflete_heka;
+        return resultado;
+    }
+    
+    get getDetails() {
+        console.groupCollapsed("Detalles de Cotización")
+        console.log("Valor ingresado =>", this.seguro);
         console.log("Kg => ", this.kgTomado);
         console.log("Volumen => ", this.volumen);
         console.log("comision Servientrega => ", this.sobreflete);
         console.log("Comision heka => ", this.sobreflete_heka);
         console.log("Flete => ", this.flete);
-        let resultado = this.flete + this.sobreflete + this.sobreflete_heka;
-        return resultado;
+        console.log("Costo de envío =>", this.costoEnvio);
+        console.groupEnd();
+        return {
+            peso_real: this.kg,
+            flete: this.flete,
+            comision_heka: this.sobreflete_heka,
+            comision_trasportadora: this.sobreflete,
+            peso_liquidar: this.kgTomado,
+            peso_con_volumen: this.pesoVolumen,
+            total: this.costoEnvio,
+            recaudo: this.valor,
+            seguro: this.seguro
+        };
     }
 
     revisadorInterno(especial, nacional, urbano){
@@ -618,6 +664,11 @@ function crearGuiasServientrega() {
                 mes = "0" + mes;
             }
 
+            let user_debe;
+            precios_personalizados.saldo <= 0 ? user_debe = datos_a_enviar.costo_envio
+            : user_debe = - precios_personalizados.saldo + datos_a_enviar.costo_envio;
+
+            if(user_debe > 0) datos_a_enviar.user_debe = user_debe;
             
             datos_a_enviar.nombreR = value("actualizar_nombreR")
             datos_a_enviar.direccionR = value("actualizar_direccionR")
@@ -634,6 +685,8 @@ function crearGuiasServientrega() {
             datos_a_enviar.recoleccion_esporadica = recoleccion;
             datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`;
             datos_a_enviar.timeline = new Date().getTime();
+            datos_a_enviar.id_user = user_id;
+            
 
             boton_final_cotizador = document.getElementById("boton_final_cotizador")
             boton_final_cotizador.classList.add("disabled");
@@ -646,7 +699,7 @@ function crearGuiasServientrega() {
             boton_final_cotizador.remove()
 
             console.log(datos_a_enviar)
-            // enviar_firestore(datos_a_enviar);
+            enviar_firestore(datos_a_enviar);
         }
     } else {
         alert("Por favor, verifique que los campos escenciales no estén vacíos");
@@ -663,6 +716,7 @@ function enviar_firestore(datos){
     //Reviso por donde va el identificador heka
     firestore.collection("infoHeka").doc("heka_id").get()
         .then(async (doc) => {
+            // return doc.data().id;
             if(doc.exists){
                 id_heka += doc.data().id.toString();
 
@@ -683,16 +737,18 @@ function enviar_firestore(datos){
                             datos.numeroGuia = resGuia.numeroGuia;
                             datos.id_archivoCargar = resGuia.id_archivoCargar;
                             //y creo el documento de firebase
-                            let guia = await referenciaNuevaGuia.set(datos)
-                            .then(doc => {
-                                return resGuia;
-                            })
-                            .catch(err => {
-                                console.log("Hubo un error al crear la guía con firebase => ", err);
-                                return {numeroGuia: "0"}
-                            })
-                            console.log(guia);
-                            return guia;
+                            if(resGuia.numeroGuia) {
+                                let guia = await referenciaNuevaGuia.set(datos)
+                                .then(doc => {
+                                    return resGuia;
+                                })
+                                .catch(err => {
+                                    console.log("Hubo un error al crear la guía con firebase => ", err);
+                                    return {numeroGuia: "0"}
+                                })
+                                console.log(guia);
+                                return guia;
+                            }
                         })
                         console.log(respuesta);
                     
@@ -705,12 +761,14 @@ function enviar_firestore(datos){
                     //Para cuendo el usurio tenga la opcion de creacion de guias automática desactivada.
 
                     //Creo la guía para que administracion le cree los documentos al usuario
-                    referenciaNuevaGuia.set(datos).then(() => {
+                    let id = await referenciaNuevaGuia.set(datos).then(() => {
                         return doc.data().id;
                     })
                     .catch(() => {
                         throw new Error("no pudimos guardar la información de su guía, por falla en la conexión, por favor intente nuevamente");
                     })
+
+                    return id;
                 }
             }
         })
@@ -724,53 +782,33 @@ function enviar_firestore(datos){
                     let saldo_detallado = {
                         saldo: saldo,
                         saldo_anterior: saldo,
-                        activar_saldo: doc.data().activar_saldo,
+                        limit_credit: doc.data().limit_credit || 0,
+                        actv_credit: doc.data().actv_credit || false,
                         fecha: genFecha(),
-                        user_id: localStorage.user_id,
-                        momento: momento,
                         diferencia: 0,
                         mensaje: "Guía " + id + " creada exitósamente",
-                        guia: id
+                        momento: momento,
+                        user_id: localStorage.user_id,
+                        guia: id,
+                        medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id
                     }
-                    if(doc.data().activar_saldo){
-                        saldo_detallado.saldo = saldo - datos_de_cotizacion.precio;
+
+                    if(!datos.debe){
+                        saldo_detallado.saldo = saldo - datos.costo_envio;
                         saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
-                        firestore.collection("usuarios").doc(localStorage.user_id).collection("informacion")
-                        .doc("heka").update({
-                            saldo: saldo - datos_de_cotizacion.precio
-                        }).then(() => {
-                            firebase.firestore().collection("prueba").add(saldo_detallado)
-                            .then((docRef1)=> {
-                                firebase.firestore().collection("usuarios").doc(localStorage.user_id)
-                                .collection("movimientos").add(saldo_detallado)
-                                .then((docRef2) => {
-                                    firebase.firestore().collection("usuarios").doc("22032021").get()
-                                    .then((doc) => {
-                                        pagos = doc.data().pagos;
-                                        pagos.push({
-                                            id1: docRef1.id,
-                                            id2: docRef2.id,
-                                            user: saldo_detallado.user_id,
-                                            medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + saldo_detallado.user_id,
-                                            guia: id,
-                                            momento: momento
-                                        })
-                                        return pagos;
-                                    }).then(reg => {
-                                        console.log(reg);
-                                        firebase.firestore().collection("usuarios").doc("22032021").update({
-                                            pagos: reg
-                                        });
-                                    })
-                                })
-                            });
-                        })
+                        let factor_diferencial = parseInt(doc.data().limit_credit) + parseInt(saldo);
+                        console.log(saldo_detallado);
+
+                        if(factor_diferencial <= datos.costo_envio && factor_diferencial > 0) {
+                            notificarExcesoDeGasto();
+                        }
+                        actualizarSaldo(saldo_detallado);
                     }
+                    return saldo_detallado;
                 }
             })
-            return id;
         })
-        .then((id) => {
+        .then(() => {
             Swal.fire({
                 icon: "success",
                 title: "¡Guía creada con éxito!",
@@ -788,7 +826,8 @@ function enviar_firestore(datos){
                     cambiarFecha();
                 }
             })
-        }).catch((err)=> {
+        })
+        .catch((err)=> {
             Swal.fire({
                 icon: "error",
                 text: "Hubo un error al crear la guía",
@@ -799,6 +838,21 @@ function enviar_firestore(datos){
             })
         })
 }
+
+function notificarExcesoDeGasto() {
+    enviarNotificacion({
+        mensaje: `El usuario ${datos_usuario.nombre_completo} acaba de exceder el límite de Gastos asignado.`,
+        detalles: ["Su límite de gastos es de " + precios_personalizados.limit_credit,
+        "Tenía un saldo de: " + precios_personalizados.saldo,
+        "Sumando el envío realizado: " + (precios_personalizados.saldo - datos_a_enviar.costo_envio)],
+        icon: ["dollar-sign", "warning"],
+        visible_user: true,
+        user_id,
+        href: "usuarios"
+    })
+}
+
+// setTimeout(notificarExcesoDeGasto, 5000);
 
 async function generarGuiaServientrega(datos) {
     let res = await fetch("/servientrega/crearGuia", {

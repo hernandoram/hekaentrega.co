@@ -44,12 +44,17 @@ window.addEventListener("hashchange", () => {
 
 //// funcion muestra el resultado de busqueda de guia por fecha
 function tablaDeGuias(id, datos){
-    return `<tr id="historial-guias-row${id}">
+    return `<tr id="historial-guias-row${id}"
+        data-id="${id}
+        data-costo_envio="${datos.costo_envio}"
+        data-debe=${datos.debe}
+    >
         <th>
             <div class="form-check text-center">
                 <input class="form-check-input position-static" type="checkbox" value="option1" 
                 data-id="${id}" data-numeroGuia="${datos.numeroGuia}"
                 data-prueba="${datos.prueba}" data-id_archivoCargar="${datos.id_archivoCargar}"
+                data-type="${datos.type}"
                 data-funcion="activar-desactivar" aria-label="..." disabled>
             </div>
         </th>
@@ -82,10 +87,12 @@ function tablaDeGuias(id, datos){
         <th>${id}</th>
         <th></th>
         <th></th>
+        <th>${datos.type}</th>
         <th>${datos.fecha}</th>
         <th>${datos.nombreR}</th>
         <th>${datos.ciudadD}</th>
         <th>${datos.nombreD}</th>
+        <th>$${convertirMiles(datos.seguro || datos.valor)}</th>
         <th>$${convertirMiles(datos.valor)}</th>
         <th>$${convertirMiles(datos.costo_envio)}</th>
 
@@ -189,24 +196,23 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                     <div class="h4 font-weight-bold text-${tipo_aviso || "info"} text-uppercase mb-2">${data.nombre_usuario}</div>
                     <div class="row no-gutters align-items-center">
                         <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800 w-100">
-                            <p style="white-space: nowrap;
-                            text-overflow: ellipsis;
-                            cursor: zoom-in;
-                            overflow: hidden;"
+                            <p class="text-truncate"
+                            style="cursor: zoom-in"
                             data-mostrar="texto">Id Guias Generadas: <br><small class="text-break">${data.guias}</small></p>
+                            <p>Tipo: <small class="text-break">${data.type || "PAGO CONTRAENTREGA"}</span></p>
                             <p>Fecha: <small>${data.fecha}</small></p>
                         </div>
                     </div>
                 </div>
                 <div class="col-auto">
                     <i class="fa fa-file fa-2x text-gray-300" data-id_guia="${id}" 
-                    data-guias="${data.guias.toString()}" data-nombre_guias="${data.nombre_guias}"
+                    data-guias="${data.guias}" data-nombre_guias="${data.nombre_guias}"
                     data-nombre_relacion="${data.nombre_relacion}"
                     data-user="${data.id_user}" data-funcion="descargar-docs" 
                     id="descargar-docs${id}"></i>
                 </div>
             </div>
-            <div class="row" data-guias="${data.guias.toString()}" data-id_guia="${id}" data-user="${data.id_user}" data-nombre="${data.nombre_usuario}">
+            <div class="row" data-guias="${data.guias}" data-id_guia="${id}" data-user="${data.id_user}" data-nombre="${data.nombre_usuario}">
                 <button class="col-12 col-md-6 btn btn-primary mb-3 text-truncate" title="Descargar Excel" data-funcion="descargar" value="">Descargar</button>
                 <div class="col-12 col-md-6 dropdown no-arrow mb-3">
                     <button class="col-12 btn btn-info dropdown-toggle text-truncate" title="Subir documentos" type="button" id="cargar${id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -254,18 +260,6 @@ function genFecha(direccion, milliseconds){
 
 //Retorna una tabla de documentos filtrados
 function mostrarDocumentosUsuario(id, data){
-    let x = `<tr id="historial-docs-row${id}" data-id_doc="${id}">
-        <th>${data.fecha}</th>
-        <th>
-            <p class="text-break" style="width: 35em">${data.guias}</p>
-        </th>
-        <th>
-            <button id="boton-descargar-relacion_envio${id}" class="btn btn-info m-2" disabled>Descargar Relacion</button>
-        </th>
-        <th>
-            <button id="boton-descargar-guias${id}" class="btn btn-info m-2" disabled>Descargar Guías</button>
-        </th>
-    </tr>`
     return `<div class="col-sm-6 col-lg-4 mb-4">
     <div class="card border-bottom-info shadow h-100 py-2" id="${id}">
         <div class="card-body">
@@ -274,10 +268,8 @@ function mostrarDocumentosUsuario(id, data){
                     <div class="h4 font-weight-bold text-info text-uppercase mb-2">${data.nombre_usuario}</div>
                     <div class="row no-gutters align-items-center">
                         <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800 w-100">
-                            <p style="white-space: nowrap;
-                            text-overflow: ellipsis;
-                            cursor: zoom-in;
-                            overflow: hidden;"
+                            <p style="cursor: zoom-in;"
+                            class="text-truncate"
                             data-mostrar="texto">Id Guias Generadas: <br><small class="text-break">${data.guias}</small></p>
                             <p>Fecha: <small>${data.fecha}</small></p>
                         </div>
@@ -330,78 +322,55 @@ function activarBotonesDeGuias(id, data, activate_once){
       
       
       if(activate_once) {
-        document.getElementById("eliminar_guia"+id).addEventListener("click", (e) => {
+        let row = document.getElementById("historial-guias-row" + id);
+        let dataset = row.dataset;
+        let boton_eliminar_guia = document.getElementById("eliminar_guia"+id);
+        boton_eliminar_guia.addEventListener("click", (e) => {
             let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
-            let boton_eliminar_guia = document.getElementById("eliminar_guia"+id);
             if(confirmacion && boton_eliminar_guia.getAttribute("data-enviado") != "true"){
-            boton_eliminar_guia.disabled = true;
-            boton_eliminar_guia.display = "none";
-            firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
-            .doc(id).delete().then(() => {
-                console.log("Document successfully deleted!");
-                avisar("Guia Eliminada", "La guia Número " + id + " Ha sido eliminada", "alerta");
-            }).then(() => {
-                firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("informacion")
-                .doc("heka").get().then((doc) => {
-                    if(doc.exists){
-                        let momento = new Date().getTime();
-                        let saldo = parseInt(doc.data().saldo);
-                        
-                        let saldo_detallado = {
-                            saldo: saldo + parseInt(boton_eliminar_guia.getAttribute("data-costo_envio")),
-                            saldo_anterior: saldo,
-                            activar_saldo: doc.data().activar_saldo,
-                            fecha: genFecha(),
-                            user_id: localStorage.user_id,
-                            momento: momento,
-                            diferencia: 0,
-                            mensaje: "Guía " + id + " eliminada exitósamente",
-                            guia: id
+                boton_eliminar_guia.disabled = true;
+                boton_eliminar_guia.display = "none";
+                firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
+                .doc(id).delete().then((res) => {
+                    console.log(res);
+                    console.log("Document successfully deleted!");
+                    avisar("Guia Eliminada", "La guia Número " + id + " Ha sido eliminada", "alerta");
+                }).then(() => {
+                    firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("informacion")
+                    .doc("heka").get().then((doc) => {
+                        if(doc.exists){
+                            let momento = new Date().getTime();
+                            let saldo = parseInt(doc.data().saldo);
+                            
+                            let saldo_detallado = {
+                                saldo: saldo + parseInt(boton_eliminar_guia.getAttribute("data-costo_envio")),
+                                saldo_anterior: saldo,
+                                actv_credit: doc.data().actv_credit || false,
+                                fecha: genFecha(),
+                                momento: momento,
+                                diferencia: 0,
+                                mensaje: "Guía " + id + " eliminada exitósamente",
+                                user_id: localStorage.user_id,
+                                guia: id,
+                                medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id
+                            }
+                            
+                            if(dataset.debe == "false"){
+                                saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
+                                console.log(saldo_detallado);
+                                console.log(saldo);
+                                actualizarSaldo(saldo_detallado);
+                                
+                                row.remove();
+                            } else {
+                                row.remove();
+                            }
+        
                         }
-                        
-                        if(doc.data().activar_saldo){
-                            saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
-                            console.log(saldo_detallado);
-                            console.log(saldo);
-                            firebase.firestore().collection("usuarios").doc(localStorage.user_id)
-                            .collection("informacion")
-                            .doc("heka").update({
-                                saldo: saldo_detallado.saldo
-                            }).then(() => {
-                                firebase.firestore().collection("prueba").add(saldo_detallado)
-                                .then((docRef1)=> {
-                                    firebase.firestore().collection("usuarios").doc(localStorage.user_id)
-                                    .collection("movimientos").add(saldo_detallado)
-                                    .then((docRef2) => {
-                                        firebase.firestore().collection("usuarios").doc("22032021").get()
-                                        .then((doc) => {
-                                            pagos = doc.data().pagos;
-                                            pagos.push({
-                                                id1: docRef1.id,
-                                                id2: docRef2.id,
-                                                user: saldo_detallado.user_id,
-                                                medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + saldo_detallado.user_id,
-                                                guia: id
-                                            })
-                                            return pagos;
-                                        }).then(reg => {
-                                            console.log(reg);
-                                            firebase.firestore().collection("usuarios").doc("22032021").update({
-                                                pagos: reg
-                                            });
-                                        })
-                                    })
-                                });
-                            }).then(() => {
-                                document.getElementById("historial-guias-row"+id).remove();
-                            })
-                        }
-    
-                    }
-                })
-            }).catch((error) => {
-                console.error("Error removing document: ", error);
-            });
+                    })
+                }).catch((error) => {
+                    console.error("Error removing document: ", error);
+                });
             } else {
                 avisar("No permitido", "La guia Número " + id + " no puede ser eliminada", "advertencia");
             }
@@ -566,6 +535,7 @@ function tablaPagos(arrData, id) {
         <th>Envío Total</th>
         <th>Total a Pagar</th>
         <th data-id="${arrData[0].REMITENTE.replace(" ", "")}">Fecha</th>
+        <th>Estado</th>
     </tr>`
     
     encabezado.setAttribute("href", "#" + arrData[0].REMITENTE.replace(" ", ""));  
@@ -585,6 +555,7 @@ function tablaPagos(arrData, id) {
             <td>${data["ENVÍO TOTAL"]}</td>
             <td>${data["TOTAL A PAGAR"]}</td>
             <td data-id="${data.REMITENTE}" data-fecha="${data.FECHA}" data-funcion="cambiar_fecha">${data.FECHA}</td>
+            <td>${data.estado}</td>
         `;
         if(!data.FECHA){
             btn_pagar.setAttribute("disabled", "");
@@ -602,12 +573,15 @@ function tablaPagos(arrData, id) {
     }
 
     table.append(thead, tbody);
-    total.textContent = "$" + convertirMiles(totalizador);
-    total.setAttribute("data-total", totalizador.toFixed(2));
+    // total.textContent = "$" + convertirMiles(totalizador);
+    total.textContent = "$" + convertirMiles(0);
+    // total.setAttribute("data-total", totalizador.toFixed(2));
+    total.setAttribute("data-total", "0");
     total.setAttribute("id", "total" + arrData[0].REMITENTE.replace(" ", ""));
     usuario.textContent = arrData[0].REMITENTE;
     encabezado.append(usuario, total);
-    btn_pagar.textContent = "Pagar $" + convertirMiles(totalizador);
+    // btn_pagar.textContent = "Pagar $" + convertirMiles(totalizador);
+    btn_pagar.textContent = "Pagar $" + convertirMiles(0);
     cuerpo.appendChild(table);
     cuerpo.appendChild(btn_pagar);
     card.append(encabezado, cuerpo);
@@ -1264,4 +1238,145 @@ function modalNotificacion(list) {
 $("#activador_filtro_fecha").change((e) => {
     e.target.checked ? $("#fecha-pagos").show("fast") : $("#fecha-pagos").hide("fast")
 });
+
+function enviarNotificacion(options) {
+    let fecha = genFecha("ltr").replace(/\-/g, "/");
+    let hora = new Date().getHours();
+    let minutos = new Date().getMinutes();    
+    if(hora <= 9) hora = "0" + hora;
+    if(minutos <= 9) minutos = "0" + minutos;
+    fecha += ` - ${hora}:${minutos}`;;
+    let notificacion = {
+        fecha,
+        timeline: new Date().getTime()
+    };
+
+    for(let option in options) {
+        notificacion[option] = options[option];
+    }
+
+    console.log(notificacion);
+
+    // let n = {
+    //     visible_user: true,
+    //     visible_admin: false,
+    //     icon: ["exclamation", "danger"],
+        
+    //     detalles: arrErroresUsuario,
+    //     user_id: vinculo.id_user
+    // }
+    firebase.firestore().collection("notificaciones").add(notificacion)
+};
+
+function mostradorDeudas(data) {
+    let visor_deudas = document.getElementById("visor-deudas"),
+        card = document.createElement("div"),
+        encabezado = document.createElement("a"),
+        cuerpo = document.createElement("div"),
+        table = document.createElement("table"),
+        thead = document.createElement("thead"),
+        tbody = document.createElement("tbody"),
+        tr = document.createElement("tr")
+    
+    card.classList.add("card", "mt-3");
+    card.setAttribute("data-filter", data.centro_de_costo);
+    
+    encabezado.setAttribute("class","card-header d-flex justify-content-between");
+    encabezado.setAttribute("data-toggle", "collapse");
+    encabezado.setAttribute("role", "button");
+    encabezado.setAttribute("aria-expanded", "true");
+    encabezado.setAttribute("href", "#deudas-" + data.id_user.replace(" ", ""));  
+    encabezado.setAttribute("aria-controls", "deudas-" +data.id_user.replace(" ", ""));
+    encabezado.textContent = "Deudas de: " + data.centro_de_costo;
+
+    cuerpo.setAttribute("id", "deudas-" + data.id_user);
+    cuerpo.setAttribute("class", "card-body collapse table-responsive");
+    cuerpo.setAttribute("data-function", "consolidarTotales");
+    table.classList.add("table")
+    tbody.setAttribute("id", "tabla-deudas" + data.id_user);    
+
+    thead.innerHTML = `
+        <tr>
+            <th class="text-center" data-function="selectAll">
+            <input type="checkbox"/> Select</th>
+            <th>Identificador</th>
+            <th>Deuda</th>
+            <th>Fecha</th>
+        </tr>
+    `;
+    tr.innerHTML = `
+       <td><input type="checkbox" 
+       data-id_heka="${data.id_heka}"
+       data-deuda="${data.user_debe}"
+       data-id_user="${data.id_user}" class="takeThis"></input></td> 
+       <td>${data.id_heka}</td> 
+       <td class="totalizador">${data.user_debe}</td> 
+       <td>${data.fecha}</td> 
+    `;
+
+    if(document.getElementById("tabla-deudas" + data.id_user)){
+        document.getElementById("tabla-deudas" + data.id_user).appendChild(tr);
+    } else {
+        tbody.appendChild(tr);
+        table.append(thead, tbody);
+        cuerpo.append(table);
+        card.append(encabezado, cuerpo);
+        visor_deudas.appendChild(card);
+    }
+}
+
+function actualizarSaldo(data) {
+    const data_de_ejemplo = {
+        saldo: "Aquí muestra como va a quedar el saldo",
+        saldo_anterior: "Saldo anterior",
+        actv_credit: "doc.data().actv_credit || false",
+        fecha: "fecha",
+        diferencia: 0,
+        mensaje: "Guía X eliminada exitósamente",
+        
+        //si alguno de estos datos es undefined podría generar error al subirlos
+        momento: "timeline in semiseconds",
+        user_id: "user_id",
+        guia: "id guia",
+        medio: "Usuario ó admin realizó X cambio"
+    }
+
+    firebase.firestore().collection("usuarios").doc(data.user_id)
+    .collection("informacion").doc("heka").update({
+        saldo: data.saldo
+    }).then(() => {
+        firebase.firestore().collection("prueba").add(data)
+        .then((docRef1)=> {
+            firebase.firestore().collection("usuarios").doc(data.user_id)
+            .collection("movimientos").add(data)
+            .then((docRef2) => {
+                firebase.firestore().collection("usuarios").doc("22032021").get()
+                .then((doc) => {
+                    pagos = doc.data().pagos;
+                    pagos.push({
+                        id1: docRef1.id,
+                        id2: docRef2.id,
+                        user: data.user_id,
+                        medio: data.medio,
+                        guia: data.guia,
+                        momento: data.momento
+                    })
+                    return pagos;
+                }).then(reg => {
+                    console.log(reg);
+                    firebase.firestore().collection("usuarios").doc("22032021").update({
+                        pagos: reg
+                    });
+                })
+            })
+        });
+    })
+};
+
+// enviarNotificacion({
+//     mensaje: "Mira loco, este es mi mensaje",
+//     visible_admin: true,
+//     icon: ["opt1", "opt2"],
+//     user_id: "identificador"
+// });
 

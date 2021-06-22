@@ -66,12 +66,25 @@ function crearDocumentos() {
                 numeroGuia: check.getAttribute("data-numeroGuia"),
                 id_heka:  check.getAttribute("data-id"),
                 id_archivoCargar: check.getAttribute("data-id_archivoCargar"),
-                prueba:  check.getAttribute("data-prueba") == "true" ? true : false
-            })
+                prueba:  check.getAttribute("data-prueba") == "true" ? true : false,
+                type: check.getAttribute("data-type")
+            });
+            let tipos_diferentes = arrGuias.some((v, i, arr) => {
+                return v.type != arr[i? i - 1 :i].type
+            });
+
+            if(tipos_diferentes) {
+                return avisar("!error!", "No se pudo procesar la información, los tipos de guías seleccionados no coinciden.", "advertencia");
+            }
+        }
+    }
+
+    checks.forEach((check) => {
+        if(check.checked && !check.disabled){
             check.checked = false;
             check.disabled = true;
         }
-    }
+    })
 
     console.log(guias);
     
@@ -97,7 +110,8 @@ function crearDocumentos() {
             nombre_usuario: datos_usuario.nombre_completo,
             fecha: genFecha(),
             timeline: new Date().getTime(),
-            descargar_relacion_envio: false, descargar_guias: false
+            descargar_relacion_envio: false, descargar_guias: false,
+            type: arrGuias[0].type
         })
         .then((docRef) => {
             console.log("Document written with ID: ", docRef.id);
@@ -227,7 +241,14 @@ function cargarDocumentos(filter) {
     docFiltrado.get().then((querySnapshot) => {
         documentos.innerHTML = "";
         console.log(querySnapshot.size);
+        let users = new Array();
+        let counter_guias = 0;
+        let counter_convencional = 0, counter_pagoContraentrega = 0;
         querySnapshot.forEach((doc) => {
+            doc.data().type == "CONVENCIONAL" ? counter_convencional++ : counter_pagoContraentrega ++
+            if(!users.includes(doc.data().id_user)) users.push(doc.data().id_user);
+            counter_guias += doc.data().guias.length;
+            
             if(doc.data().descargar_relacion_envio || doc.data().descargar_guias){
                 //si tiene la informacion completa cambia el modo es que se ve la tarjeta y habilita mas funciones
                 documentos.innerHTML += mostrarDocumentos(doc.id, doc.data(), "warning");
@@ -249,6 +270,12 @@ function cargarDocumentos(filter) {
                 documentos.innerHTML += mostrarDocumentos(doc.id, doc.data());
             }
         })
+        showStatistics("#mostrador-documentos", [
+            ["Usuarios", users.length, "users"],
+            ["Guías / Documentos", counter_guias +" / "+ querySnapshot.size, "file-alt"],
+            ["Pago Contraentrega", counter_pagoContraentrega, "hand-holding-usd"],
+            ["Convencional", counter_convencional, "hand-holding"]
+        ])
     }).then(() => {
         //Luego de cargar todo, agrega funciones a los botones
         let botones = document.querySelectorAll('[data-funcion="descargar"]');
@@ -293,14 +320,9 @@ function cargarDocumentos(filter) {
 
         for(let element of visor_guias) {
             element.addEventListener("click", () => {
-                let prop = element.style
-                if(prop.whiteSpace == "nowrap") {
-                    prop.whiteSpace = "normal";
-                    prop.cursor = "zoom-out";
-                } else {
-                    prop.whiteSpace = "nowrap";
-                    prop.cursor = "zoom-in";
-                }
+                element.classList.toggle("text-truncate");
+                element.style.cursor = "zoom-out";
+                if(element.classList.contains("text-truncate")) element.style.cursor = "zoom-in";
             })
         };
     }).then(() => {
@@ -315,6 +337,47 @@ function cargarDocumentos(filter) {
 
 }
 
+/*Funcion que tomará un identificador como primer arg, creará un div que 
+me muestre cierta información que irá siento alterada cada vez que se
+llame el método
+*/
+
+function showStatistics(query, arr, insertAfter) {
+    let html = document.querySelector(query);
+    let div = document.createElement("div");
+    div.setAttribute("id", "mostrador-total-" + query)
+    div.classList.add("row");
+
+    if(document.getElementById("mostrador-total-" + query)){
+        div = document.getElementById("mostrador-total-" + query);
+    }
+
+    div.innerHTML = "";
+    for(let card of arr) {
+       div.innerHTML  += `<div class="col-12 col-sm-6 col-md mb-4">
+            <div class="card border-left-${card[3] || "primary"} shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-${card[3] || "primary"} text-uppercase mb-1">${card[0]}</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">${card[1]}</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-${card[2]} fa-2x text-gray-300"></i>
+                        </div>
+                    
+                    </div>
+                </div>
+            </div>
+        </div>`
+    }
+    
+    if(insertAfter) {
+        html.appendChild(div);
+    } else {
+        html.parentNode.insertBefore(div, html)
+    }
+}
 
 //En invocada cada vez que se va a cargar un documento
 async function cargarDocumento(id_user, arrGuias) {
@@ -710,6 +773,14 @@ function actualizarHistorialDeDocumentos(timeline){
             // });
           }
       }).then(() => {
+          let view_guide = document.querySelectorAll('[data-mostrar="texto"]');
+          for(let element of view_guide) {
+            element.addEventListener("click", () => {
+                element.classList.toggle("text-truncate");
+                element.style.cursor = "zoom-out";
+                if(element.classList.contains("text-truncate")) element.style.cursor = "zoom-in";
+            })
+          }
         $("#btn-historial-docs").html("Buscar")
       });
     } 
@@ -1328,9 +1399,241 @@ function consultarNovedadFb(numGuia, usuario = "Novedades", contador, totalConsu
   
 }
 
+function crearDatosPrueba() {
+    let objectProof = new Array();
+    let sellers = ["SellerNuevo", "Seller2", "Seller3", "seller4"];
+    let idInicial = 1234
+    let id_ficticio = new Array(4)
+    for(let i = 0; i < id_ficticio.length; i++){
+        let letra = new Array(8);
+        for(let j = 0; j < letra.length; j++){
+            letra[j] = String.fromCharCode(Math.floor(Math.random() * (122 - 97)) + 97);
+            id_ficticio[i] = letra.join("");
+        }
+    }
+    id_ficticio[0] = "nk58Yq6Y1GUFbaaRkdMFuwmDLxO2";
+    // id_ficticio[0] = "000000";
+    console.log(id_ficticio)
+    
+    for (let i = 0; i < 20; i++){
+        let numero = Math.floor(Math.random() * (sellers.length))
+        let obj = {
+            id_heka: idInicial + i,
+            centro_de_costo: sellers[numero],
+            user_debe: (Math.floor((Math.random() * 20000) / 50) + 1000) * 50,
+            fecha: "2021-05-" + Math.floor(Math.random() * 31),
+            id_user: id_ficticio[numero]
+        }
+
+
+        objectProof.push(obj)
+    }
+    return objectProof;
+}
+
+function revisarDeudas() {
+    firebase.firestore().collectionGroup("guias")
+    .where("user_debe", ">", 0).get()
+    .then(querySnapshot => {
+        let id_users = new Array()
+        querySnapshot.forEach(doc => {
+            let data = doc.data();
+            mostradorDeudas(data);
+            if(id_users.indexOf(data.id_user) == -1) {
+                id_users.push(data.id_user);
+            }
+        });
+        id_users.forEach(async id_user => {
+            let reference = firebase.firestore().collection("usuarios")
+    
+            let saldo = await reference.doc(id_user)
+            .collection("informacion").doc("heka")
+            .get().then(doc => {
+                if(doc.exists){
+                    return doc.data().saldo
+                }
+                return "saldo no encontrado"
+            });
+            consolidadorTotales("#deudas-"+id_user, saldo);
+        })
+        habilitarSeleccionDeFilasInternas('[data-function="selectAll"]')
+    })
+};
+
+function revisarDeudasPrueba() {
+    let objPrueba = crearDatosPrueba();
+    let id_users = new Array()
+    for(let data of objPrueba) {
+        mostradorDeudas(data);
+        if(id_users.indexOf(data.id_user) == -1) {
+            id_users.push(data.id_user);
+        }
+    }
+    console.log(id_users);
+    id_users.forEach(async id_user => {
+        let reference = firebase.firestore().collection("usuarios")
+
+        let saldo = await reference.doc(id_user)
+        .collection("informacion").doc("heka")
+        .get().then(doc => {
+            if(doc.exists){
+                return doc.data().saldo
+            }
+            return "Usuario no encontrado"
+        });
+        console.log(saldo);
+        consolidadorTotales("#deudas-"+id_user, saldo);
+    })
+    habilitarSeleccionDeFilasInternas('[data-function="selectAll"]')
+    // consolidadorTotales('[data-function="consolidarTotales"]');
+}
+
+function habilitarSeleccionDeFilasInternas(query) {
+    $(query).on("change", function() {
+        let table = $(this).parent().parent().next();
+        let inpInt = table.find("input");
+        inpInt.prop("checked", !$(this).children("input").prop("checked"))
+        inpInt.click()
+    })
+}
+
+function consolidadorTotales(query, saldo) {
+    // let mostradores = new Array();
+    let deuda = typeof saldo == "number" ? "$" + convertirMiles(saldo) 
+    : saldo;
+
+    let mostrador = [
+        ["Actualmente Debe", deuda, "search-dollar"],
+        ["Deuda sumada", "", "dollar-sign"]
+    ];
+    
+    let totalizadores = $(query).find(".totalizador");
+    let totalInt = 0
+    totalizadores.each(function(i, e) {
+        totalInt += parseInt($(e).text())
+    })
+    // mostrador[0][1] = "$"+convertirMiles(totalInt);
+    mostrador[1][1] = "$"+convertirMiles(totalInt);
+    showStatistics("#"+$(query).attr("id"),
+    mostrador, true);
+    
+    $(query).find(".takeThis").on("change", function(){
+        let parent = $(this).parents().filter(function() {
+            return $(this).hasClass("card-body");
+        }).get()
+        let totalizadores = $(parent).find(".totalizador");
+        let checks = $(parent).find(".takeThis");
+        let checked =  $(parent).find(".takeThis:checked");
+        // console.log(checks);
+        let sumaChecks = 0, totalInt = 0;
+        checks.each(function(i, check) {
+            totalInt += parseInt($(totalizadores[i]).text())
+            if($(check).prop("checked")) sumaChecks += parseInt($(totalizadores[i]).text())
+        })
+
+        console.log(checked)
+        let resto = isNaN(saldo) ? totalInt - sumaChecks : saldo + sumaChecks
+        let detalle_saldado = {
+            saldo: saldo + sumaChecks,
+            saldo_anterior: saldo,
+            actv_credit: true,
+            fecha: genFecha(),
+            diferencia: sumaChecks,
+            
+            //si alguno de estos datos es undefined podría generar error al subirlos
+            momento: new Date().getTime(),
+            user_id: query.replace("#deudas-", ""),
+            guia: "",
+            medio: "Administración " + localStorage.user_id
+        };
+        
+        let btn_saldar = `<button 
+        class="btn btn-primary ${isNaN(saldo) ? "disabled" : "saldar"}">
+        $${convertirMiles(sumaChecks)}</button>`;
+        
+        mostrador[1][1] = "$"+convertirMiles(totalInt);
+        mostrador[2] = ["Quedaría", "$"+convertirMiles(resto), "funnel-dollar"];
+        mostrador[3] = ["Saldar", btn_saldar, "hand-holding-usd"];
+        if(!sumaChecks) {
+            mostrador = mostrador.slice(0, 3)
+        }
+        showStatistics("#"+$(parent).attr("id"),
+        mostrador, true);
+        
+        $(parent).find(".saldar").click(async () => {
+            console.log(detalle_saldado);
+            // let deuda = await saldar(checked)
+            let deuda = false;
+            if(!deuda) {
+                return avisar("¡Error!","Todas la guía seleccionadas tuvieron problemas para ser actualizadas, por favor intente nuevamente", "advertencia")
+            }
+            detalle_saldado.saldo = saldo + deuda[0];
+            detalle_saldado.diferencia = deuda[0]
+            detalle_saldado.mensaje = "Administración ha saldado $" + convertirMiles(deuda[0]) + " en " + deuda[1] + " Guías",
+
+            console.log(detalle_saldado);
+            // actualizarSaldo(detalle_saldado);
+            avisar("Información","Se Saldó $" + convertirMiles(deuda[0]) + " en " + deuda[1] + " Guías. Por favor verifique el saldo del usuario.", "aviso")
+        })
+    })
+}
+
+async function saldar(checked) {
+    let deudaGuias = 0;
+    let selected_checks = 0
+    
+    for await( let check of checked) {
+        console.log(check.getAttribute("data-id_heka"));
+        let id_heka = check.getAttribute("data-id_heka");
+        let id_user = check.getAttribute("data-id_user");
+        let deuda = check.getAttribute("data-deuda");
+        try {
+            let reference = firebase.firestore()
+            .collection("usuarios")
+            .doc(id_user);
+           
+            let data = await reference.collection("guias")
+            .doc(id_heka).get().then(doc => doc.data())
+                       
+            if(data) {
+                await reference.collection("guiasSaldadas")
+                .doc(id_heka).set(data);
+               
+                await reference.collection("guias").doc(id_heka)
+                .update({user_debe: 0});
+
+
+                deudaGuias += parseInt(deuda);
+                selected_checks ++
+            }
+        } catch (err){
+            console.log(err);
+        }
+    }
+    return [deudaGuias, selected_checks];
+}
+
+$("#filter-user-deudas").on("input", function() {
+    let valores = $(this).val().replace(/\s/g, "").toLowerCase().split(",")
+    let filters = new Array();
+    $("[data-filter]").each(function() {
+        filters.push($(this).attr("data-filter"))
+    });
+    for(let filter of filters) {
+        $("[data-filter='"+filter+"']").hide();
+        for(let inp of valores) {
+            if(filter.toLowerCase().indexOf(inp) != -1) {
+                $("[data-filter='"+filter+"']").show();
+            }
+        }
+    }
+})
+
+if(administracion) revisarDeudas();
+
 $('[href="#novedades"]').click(() => {
     mostrar("novedades");
     document.querySelectorAll(".icon-notificacion-novedad").forEach(i => {
         i.classList.add("d-none");
     });
-})
+});

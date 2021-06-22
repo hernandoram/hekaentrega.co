@@ -26,6 +26,30 @@ const generacionGuias = "http://web.servientrega.com:8081/generacionguias.asmx";
 const genGuiasPrueba = "http://190.131.194.159:8059/GeneracionGuias.asmx";
 const id_cliente = "1072497419"
 
+const auth_header_prueba = `<tem:AuthHeader>
+<tem:login>Luis1937</tem:login>
+<tem:pwd>MZR0zNqnI/KplFlYXiFk7m8/G/Iqxb3O</tem:pwd>
+<tem:Id_CodFacturacion>SER408</tem:Id_CodFacturacion>
+<tem:Nombre_Cargue></tem:Nombre_Cargue><!--AQUI VA EL NOMBRE DEL
+CARGUE APARECERÁ EN SISCLINET-->
+</tem:AuthHeader>`;
+
+const auth_header_convencional = `<tem:AuthHeader>
+<tem:login>1072497419</tem:login>
+<tem:pwd>Tb8Hb+NLWsc=</tem:pwd>
+<tem:Id_CodFacturacion>SER122989</tem:Id_CodFacturacion>
+<tem:Nombre_Cargue></tem:Nombre_Cargue><!--AQUI VA EL NOMBRE DEL
+CARGUE APARECERÁ EN SISCLINET-->
+</tem:AuthHeader>`;
+
+const auth_header_pagoContraentrega = `<tem:AuthHeader>
+<tem:login>1072497419SUC1</tem:login>
+<tem:pwd>NuBQAVjagIbdvqINzxg5lQ==</tem:pwd>
+<tem:Id_CodFacturacion>SER122990</tem:Id_CodFacturacion>
+<tem:Nombre_Cargue></tem:Nombre_Cargue><!--AQUI VA EL NOMBRE DEL
+CARGUE APARECERÁ EN SISCLINET-->
+</tem:AuthHeader>`
+
 
 //A partir de aquí habrán solo funciones
 
@@ -298,117 +322,110 @@ async function actualizarMovimientosGuias(d) {
 
 
 function generarGuia(datos) {
-  let auth_header = datos.prueba ? `<ns1:AuthHeader>
-        <ns1:login>Luis1937</ns1:login>
-        <ns1:pwd>MZR0zNqnI/KplFlYXiFk7m8/G/Iqxb3O</ns1:pwd>
-        <ns1:Id_CodFacturacion>SER408</ns1:Id_CodFacturacion>
-        <ns1:Nombre_Cargue></ns1:Nombre_Cargue><!--AQUI VA EL NOMBRE DEL
-        CARGUE APARECERÁ EN SISCLINET-->
-      </ns1:AuthHeader>` 
-  : `<ns1:AuthHeader>
-      <ns1:login>1072497419SUC1</ns1:login>
-      <ns1:pwd>NuBQAVjagIbdvqINzxg5lQ==</ns1:pwd>
-      <ns1:Id_CodFacturacion>SER122990</ns1:Id_CodFacturacion>
-      <ns1:Nombre_Cargue></ns1:Nombre_Cargue><!--AQUI VA EL NOMBRE DEL
-      CARGUE APARECERÁ EN SISCLINET-->
-    </ns1:AuthHeader>`;
+  let auth_header;
+
+  if(datos.type == "CONVENCIONAL") {
+    auth_header = auth_header_convencional;
+  } else {
+    auth_header = auth_header_pagoContraentrega
+  }
+
+  if(datos.prueba) auth_header = auth_header_prueba;
+  
+  console.log(auth_header);
 
   let consulta = `<?xml version="1.0" encoding="UTF-8"?>
-  <env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope" xmlns:ns1="http://tempuri.org/">
+  <env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope" xmlns:tem="http://tempuri.org/">
     <env:Header>
       ${auth_header}
     </env:Header>
     <env:Body>
-      <ns1:CargueMasivoExterno>
-        <ns1:envios>
-          <ns1:CargueMasivoExternoDTO>
-            <ns1:objEnvios>
-              <ns1:EnviosExterno>
-                <ns1:Num_Guia>0</ns1:Num_Guia>
-                <ns1:Num_Sobreporte>0</ns1:Num_Sobreporte>
-                <ns1:Num_SobreCajaPorte>0</ns1:Num_SobreCajaPorte>
-                <ns1:Doc_Relacionado></ns1:Doc_Relacionado>
-                <ns1:Num_Piezas>1</ns1:Num_Piezas>
-                <ns1:Des_TipoTrayecto>1</ns1:Des_TipoTrayecto>
-                <ns1:Ide_Producto>2</ns1:Ide_Producto><!--ENVÍO CON MERCACÍA PREMIER-->
-                <ns1:Des_FormaPago>2</ns1:Des_FormaPago>
-                <ns1:Ide_Num_Identific_Dest>${datos.identificacionD}</ns1:Ide_Num_Identific_Dest>
-                <ns1:Tipo_Doc_Destinatario>${datos.tipo_doc_Dest == "1" ? "NIT" : "CC"}</ns1:Tipo_Doc_Destinatario>
-                <ns1:Des_MedioTransporte>1</ns1:Des_MedioTransporte>
-                <ns1:Num_PesoTotal>${datos.peso}</ns1:Num_PesoTotal>
-                <ns1:Num_ValorDeclaradoTotal>${datos.valor}</ns1:Num_ValorDeclaradoTotal>
-                <ns1:Num_VolumenTotal>0</ns1:Num_VolumenTotal>
-                <ns1:Num_BolsaSeguridad>0</ns1:Num_BolsaSeguridad>
-                <ns1:Num_Precinto>0</ns1:Num_Precinto>
-                <ns1:Des_TipoDuracionTrayecto>1</ns1:Des_TipoDuracionTrayecto>
-                <ns1:Des_Telefono>${datos.telefonoD}</ns1:Des_Telefono>
-                <ns1:Des_Ciudad>${datos.ciudadD}</ns1:Des_Ciudad><!--o codigo dane para ciudad destino-->
-                <ns1:Des_Direccion>${datos.direccionD}</ns1:Des_Direccion>
-                <ns1:Nom_Contacto>${datos.nombreD}</ns1:Nom_Contacto>
-                <ns1:Des_VlrCampoPersonalizado1>${datos.id_heka}</ns1:Des_VlrCampoPersonalizado1>
-                <ns1:Num_ValorLiquidado>0</ns1:Num_ValorLiquidado>
-                <ns1:Des_DiceContener>${datos.dice_contener}</ns1:Des_DiceContener>
-                <ns1:Des_TipoGuia>1</ns1:Des_TipoGuia>
-                <ns1:Num_VlrSobreflete>0</ns1:Num_VlrSobreflete>
-                <ns1:Num_VlrFlete>0</ns1:Num_VlrFlete>
-                <ns1:Num_Descuento>0</ns1:Num_Descuento>
-                <ns1:idePaisOrigen>1</ns1:idePaisOrigen>
-                <ns1:idePaisDestino>1</ns1:idePaisDestino>
-                <ns1:Des_IdArchivoOrigen></ns1:Des_IdArchivoOrigen>
-                <ns1:Des_DireccionRemitente>${datos.direccionR}</ns1:Des_DireccionRemitente><!--Opcional-->
-                <ns1:Num_PesoFacturado>0</ns1:Num_PesoFacturado>
-                <ns1:Est_CanalMayorista>false</ns1:Est_CanalMayorista>
-                <ns1:Num_IdentiRemitente />
-                <ns1:Des_CiudadRemitente>${datos.ciudadR}</ns1:Des_CiudadRemitente>
-                <ns1:Num_TelefonoRemitente>${datos.celularR}</ns1:Num_TelefonoRemitente>
-                <ns1:Des_DiceContenerSobre>${datos.dice_contener}</ns1:Des_DiceContenerSobre>
-                <ns1:Num_Alto>${datos.alto}</ns1:Num_Alto>
-                <ns1:Num_Ancho>${datos.ancho}</ns1:Num_Ancho>
-                <ns1:Num_Largo>${datos.largo}</ns1:Num_Largo>
-                <ns1:Des_DepartamentoDestino>${datos.departamentoD}</ns1:Des_DepartamentoDestino>
-                <ns1:Des_DepartamentoOrigen>${datos.departamentoR}</ns1:Des_DepartamentoOrigen>
-                <ns1:Gen_Cajaporte>false</ns1:Gen_Cajaporte>
-                <ns1:Gen_Sobreporte>false</ns1:Gen_Sobreporte>
-                <ns1:Nom_UnidadEmpaque>GENERICA</ns1:Nom_UnidadEmpaque>
-                <ns1:Nom_RemitenteCanal />
-                <ns1:Des_UnidadLongitud>cm</ns1:Des_UnidadLongitud>
-                <ns1:Des_UnidadPeso>kg</ns1:Des_UnidadPeso>
-                <ns1:Num_ValorDeclaradoSobreTotal>0</ns1:Num_ValorDeclaradoSobreTotal>
-                <ns1:Num_Factura>0</ns1:Num_Factura>
-                <ns1:Des_CorreoElectronico>${datos.correoD}</ns1:Des_CorreoElectronico>
-                <ns1:Num_Recaudo>${datos.prueba ? "0" : datos.valor}</ns1:Num_Recaudo>
-              </ns1:EnviosExterno>
-            </ns1:objEnvios>
-          </ns1:CargueMasivoExternoDTO>
-        </ns1:envios>
-      </ns1:CargueMasivoExterno>
+      <CargueMasivoExterno xmlns="http://tempuri.org/">
+        <envios>
+          <CargueMasivoExternoDTO>
+            <objEnvios>
+              <EnviosExterno>
+                <Num_Guia>0</Num_Guia>
+                <Num_Sobreporte>0</Num_Sobreporte>
+                <Num_SobreCajaPorte>0</Num_SobreCajaPorte>
+                <Doc_Relacionado></Doc_Relacionado>
+                <Num_Piezas>1</Num_Piezas>
+                <Des_TipoTrayecto>1</Des_TipoTrayecto>
+                <Ide_Producto>2</Ide_Producto><!--ENVÍO CON MERCACÍA PREMIER-->
+                <Des_FormaPago>2</Des_FormaPago>
+                <Ide_Num_Identific_Dest>${datos.identificacionD}</Ide_Num_Identific_Dest>
+                <Tipo_Doc_Destinatario>${datos.tipo_doc_Dest == "1" ? "NIT" : "CC"}</Tipo_Doc_Destinatario>
+                <Des_MedioTransporte>1</Des_MedioTransporte>
+                <Num_PesoTotal>${datos.peso}</Num_PesoTotal>
+                <Num_ValorDeclaradoTotal>${datos.seguro}</Num_ValorDeclaradoTotal>
+                <Num_VolumenTotal>0</Num_VolumenTotal>
+                <Num_BolsaSeguridad>0</Num_BolsaSeguridad>
+                <Num_Precinto>0</Num_Precinto>
+                <Des_TipoDuracionTrayecto>1</Des_TipoDuracionTrayecto>
+                <Des_Telefono>${datos.telefonoD}</Des_Telefono>
+                <Des_Ciudad>${datos.ciudadD}</Des_Ciudad><!--o codigo dane para ciudad destino-->
+                <Des_Direccion>${datos.direccionD}</Des_Direccion>
+                <Nom_Contacto>${datos.nombreD}</Nom_Contacto>
+                <Des_VlrCampoPersonalizado1>${datos.id_heka}</Des_VlrCampoPersonalizado1>
+                <Num_ValorLiquidado>0</Num_ValorLiquidado>
+                <Des_DiceContener>${datos.dice_contener}</Des_DiceContener>
+                <Des_TipoGuia>1</Des_TipoGuia>
+                <Num_VlrSobreflete>0</Num_VlrSobreflete>
+                <Num_VlrFlete>0</Num_VlrFlete>
+                <Num_Descuento>0</Num_Descuento>
+                <idePaisOrigen>1</idePaisOrigen>
+                <idePaisDestino>1</idePaisDestino>
+                <Des_IdArchivoOrigen></Des_IdArchivoOrigen>
+                <Des_DireccionRemitente>${datos.direccionR}</Des_DireccionRemitente><!--Opcional-->
+                <Num_PesoFacturado>0</Num_PesoFacturado>
+                <Est_CanalMayorista>false</Est_CanalMayorista>
+                <Num_IdentiRemitente />
+                <Des_CiudadRemitente>${datos.ciudadR}</Des_CiudadRemitente>
+                <Num_TelefonoRemitente>${datos.celularR}</Num_TelefonoRemitente>
+                <Des_DiceContenerSobre>${datos.dice_contener}</Des_DiceContenerSobre>
+                <Num_Alto>${datos.alto}</Num_Alto>
+                <Num_Ancho>${datos.ancho}</Num_Ancho>
+                <Num_Largo>${datos.largo}</Num_Largo>
+                <Des_DepartamentoDestino>${datos.departamentoD}</Des_DepartamentoDestino>
+                <Des_DepartamentoOrigen>${datos.departamentoR}</Des_DepartamentoOrigen>
+                <Gen_Cajaporte>false</Gen_Cajaporte>
+                <Gen_Sobreporte>false</Gen_Sobreporte>
+                <Nom_UnidadEmpaque>GENERICA</Nom_UnidadEmpaque>
+                <Nom_RemitenteCanal />
+                <Des_UnidadLongitud>cm</Des_UnidadLongitud>
+                <Des_UnidadPeso>kg</Des_UnidadPeso>
+                <Num_ValorDeclaradoSobreTotal>0</Num_ValorDeclaradoSobreTotal>
+                <Num_Factura>0</Num_Factura>
+                <Des_CorreoElectronico>${datos.correoD}</Des_CorreoElectronico>
+                <Num_Recaudo>${datos.prueba ? "0" : datos.valor}</Num_Recaudo>
+              </EnviosExterno>
+            </objEnvios>
+          </CargueMasivoExternoDTO>
+        </envios>
+      </CargueMasivoExterno>
     </env:Body>
   </env:Envelope>`
 
   return consulta;
 }
 
-function crearGuiaSticker(numeroGuia, id_archivoCargar, prueba) {
-  console.log(numeroGuia, id_archivoCargar, prueba)
+function crearGuiaSticker(numeroGuia, id_archivoCargar, type, prueba) {
+  let auth_header, ide_codFacturacion;
 
-  let auth_header = prueba ? `<tem:AuthHeader>
-  <!--Optional:-->
-  <tem:login>Luis1937</tem:login>
-  <!--Optional:-->
-  <tem:pwd>MZR0zNqnI/KplFlYXiFk7m8/G/Iqxb3O</tem:pwd>
-  <!--Optional:-->
-  <tem:Id_CodFacturacion>SER408</tem:Id_CodFacturacion>
-  </tem:AuthHeader>` : `<tem:AuthHeader>
-  <!--Optional:-->
-  <tem:login>1072497419SUC1</tem:login>
-  <!--Optional:-->
-  <tem:pwd>NuBQAVjagIbdvqINzxg5lQ==</tem:pwd>
-  <!--Optional:-->
-  <tem:Id_CodFacturacion>SER122990</tem:Id_CodFacturacion>
-  </tem:AuthHeader>`;
+  if(type == "CONVENCIONAL") {
+    auth_header = auth_header_convencional;
+    ide_codFacturacion = "SER122989";
+  } else {
+    auth_header = auth_header_pagoContraentrega
+    ide_codFacturacion = "SER122990";
+  }
 
-  ide_codFacturacion = prueba ? "SER408" : "SER122990";
+  if(prueba) {
+    auth_header = auth_header_prueba;
+    ide_codFacturacion = "SER408"
+  } 
 
+  console.log(auth_header)
   let consulta = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
   xmlns:tem="http://tempuri.org/">
   <soapenv:Header>
@@ -431,22 +448,17 @@ function crearGuiaSticker(numeroGuia, id_archivoCargar, prueba) {
 }
 
 function generarManifiesto(arrGuias, prueba) {
-  let auth_header = prueba ? `<tem:AuthHeader>
-    <!--Optional:-->
-    <tem:login>Luis1937</tem:login>
-    <!--Optional:-->
-    <tem:pwd>MZR0zNqnI/KplFlYXiFk7m8/G/Iqxb3O</tem:pwd>
-    <!--Optional:-->
-    <tem:Id_CodFacturacion>SER408</tem:Id_CodFacturacion>
-  </tem:AuthHeader>`: `<tem:AuthHeader>
-    <!--Optional:-->
-    <tem:login>1072497419SUC1</tem:login>
-    <!--Optional:-->
-    <tem:pwd>NuBQAVjagIbdvqINzxg5lQ==</tem:pwd>
-    <!--Optional:-->
-    <tem:Id_CodFacturacion>SER122990</tem:Id_CodFacturacion>
-  </tem:AuthHeader>`
+  let auth_header;
 
+  if(arrGuias[0].type == "CONVENCIONAL") {
+    auth_header = auth_header_convencional;
+  } else {
+    auth_header = auth_header_pagoContraentrega
+  }
+
+  if(prueba) auth_header = auth_header_prueba;
+
+  console.log(auth_header);
   let guias = `<tem:Guias>`;
   for(let i = 0; i < arrGuias.length; i++) {
     guias += `<tem:ObjetoGuia>
@@ -570,8 +582,11 @@ async function generarStickerManifiesto(arrGuias, prueba) {
               guias: arrGuias.map(v => v.id_heka),
               timeline: new Date().getTime(),
               detalles: guiasConErrores
+            }).catch((err) => {
+              db.collection("errores").add({
+                err: err
+              })
             });
-
           }
         
           
@@ -644,7 +659,7 @@ router.post("/crearDocumentos", async (req, res) => {
       request.post({
         headers: { "Content-Type": "text/xml" },
         url: data.prueba ? genGuiasPrueba : generacionGuias,
-        body: crearGuiaSticker(data.numeroGuia, data.id_archivoCargar, data.prueba)
+        body: crearGuiaSticker(data.numeroGuia, data.id_archivoCargar, data.type, data.prueba)
       }, (error, response, body) => {
         if (error) {
           reject(error);

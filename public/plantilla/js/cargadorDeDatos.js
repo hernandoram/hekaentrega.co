@@ -156,7 +156,7 @@ function cargarDatosUsuario(){
         });
 
         //Modifica los costos de envio si el usuario tiene costos personalizados
-        informacion.doc("heka").get().then((doc) => {
+        informacion.doc("heka").onSnapshot(doc => {
           if(doc.exists){
             for(let precio in doc.data()){
               if(precio != "fecha" && precio != "activar_saldo"){
@@ -171,19 +171,8 @@ function cargarDatosUsuario(){
 
             $("#saldo").html("$" + convertirMiles(precios_personalizados.saldo));
 
-            
-          }
-        }).then(() => {
-          if(!precios_personalizados.activar_saldo){
-            document.getElementById("saldo").classList.add("text-secondary");
-            $("#saldo").html("A descontar del envío");
-          }
-        })
-
-        informacion.doc("heka").onSnapshot(doc => {
-          if(doc.exists && precios_personalizados.activar_saldo){
-            precios_personalizados.saldo = parseInt(doc.data().saldo);
-            $("#saldo").html("$" + convertirMiles(precios_personalizados.saldo));
+            // precios_personalizados.saldo = parseInt(doc.data().saldo);
+            // $("#saldo").html("$" + convertirMiles(precios_personalizados.saldo));
           }
         })
 }
@@ -313,9 +302,8 @@ function cargarPagos(){
           transportadoras.push(transp.value.toLowerCase());
         }
       }
-      let filtroInputs = datos.filter((data) => {
+      let filtroInputs = datos.filter(async (data) => {
         let fechaI, fechaF, guia, permitir_transportadora;
-
         if(!Number.isInteger(data["ENVÍO TOTAL"]) || !Number.isInteger(data.RECAUDO) || !Number.isInteger(data["TOTAL A PAGAR"])){
           numero_flotante += 1;
         }
@@ -334,8 +322,6 @@ function cargarPagos(){
           fechaObtenida = fechaI;
           if(data.FECHA != undefined) {
             fechaObtenida = new Date(data.FECHA.split("-").reverse().join("-")).getTime();
-            console.log(fechaI, fechaObtenida, fechaF)
-            console.log(data.FECHA)
           }
           remitente = $("#filtro-pago-usuario").val();
           if($("#fecha-pagos").css("display") != "none" && $("#filtro-pago-usuario").val()){
@@ -408,21 +394,42 @@ function cargarPagos(){
         })
 
         // me revisa todas las guías mostradas, para verificar que no están registrada en firebase
-        row_guias.forEach((guia) => {
+        row_guias.forEach(async (guia) => {
           let identificador = guia.getAttribute("id");
           let transportadora = guia.querySelectorAll("td")[1].textContent;
           let remitente = guia.getAttribute("data-remitente");
           let mostrador_total_local = document.getElementById("total"+remitente);
           let btn_local = document.getElementById("pagar" + remitente);
           let total_local = mostrador_total_local.getAttribute("data-total");
-          
+          console.log("Antes del algoritmo: ",total_local);
           let mostrador_total = document.getElementById("total_pagos");
           let total = mostrador_total.getAttribute("data-total");
-          let existe;
         
+          let datos_guia = await firebase.firestore().collectionGroup("guias")
+          .where("numeroGuia", "==", identificador)
+          .get().then(querySnapshot => {
+            let datos;
+            let row_guia_actual = guia.children[7]
+            row_guia_actual.textContent = " La guía no se encuentra en la base de datos"
+            querySnapshot.forEach(doc => {
+              datos = doc.data();
+            })
+            return datos;
+          })
+
+          let usuario_corporativo = await firebase.firestore().collection("usuarios").where("centro_de_costo", "==", remitente)
+          .get().then(querySnapshot => {
+            let usuario_corporativo = false
+            querySnapshot.forEach(doc => {
+              if(doc.data().usuario_corporativo) usuario_corporativo = true 
+            })
+          })
+
           firebase.firestore().collection("pagos").doc(transportadora.toLocaleLowerCase())
           .collection("pagos").doc(identificador.toString()).get()
           .then((doc)=> {
+            let existe;
+
             if(doc.exists){
               guia.setAttribute("data-ERROR", "La Guía "+identificador+" ya se encuentra registrada en la base de datos, verifique que ya ha sido pagada.")
               guia.classList.add("text-success");
@@ -447,31 +454,22 @@ function cargarPagos(){
               existe = true;
             }
       
-            
-            firebase.firestore().collection("usuarios").where("centro_de_costo", "==", remitente)
-            .get().then(querySnapshot => {
-              querySnapshot.forEach(doc => {
-                if(doc.data().usuario_corporativo && !existe){  
-                  
-                  mostrador_total_local = document.getElementById("total"+remitente);
-                  btn_local = document.getElementById("pagar" + remitente);
-                  total_local = mostrador_total_local.getAttribute("data-total");
-                  
-                  mostrador_total = document.getElementById("total_pagos");
-                  total = mostrador_total.getAttribute("data-total");
+            if(datos_guia) {
+              let row_guia_actual = guia.children[7];
+              row_guia_actual.textContent = datos_guia.type || "PAGO CONTRAENTREGA";
+                
+              if(datos_guia.debe == false || usuario_corporativo) {
+                row_guia_actual.textContent += " La guía fue descontada.";
+                if(!existe) sumarCostoEnvio(guia, remitente);
+              } else {
+                row_guia_actual.textContent += " La guía no ha sido descontada aún."
+              }
+            }
 
-                  console.log(total_local);
-                  guia.children[5].textContent = guia.children[3].textContent
-                  total = parseInt(total) + parseInt(guia.children[4].textContent);
-                  mostrador_total.setAttribute("data-total", total);
-                  mostrador_total.textContent = "Total $"+convertirMiles(total);
-                  total_local = parseInt(total_local) + parseInt(guia.children[4].textContent);
-                  mostrador_total_local.setAttribute("data-total", total_local);
-                  btn_local.textContent = "Por Pagar $" + convertirMiles(total_local);
-                  mostrador_total_local.textContent = "$"+convertirMiles(total_local);
-                }
-              })
-            })
+
+            
+            totalizador(guia, remitente);
+
           })
           
         })
@@ -493,6 +491,8 @@ function cargarPagos(){
           })
           usuario.parentNode.insertBefore(tipo_usuario, usuario);
         })
+
+        
 
         //alterna las fechas entre la actual o la del documento ingresado
         function alternarFecha(contenido){
@@ -533,19 +533,19 @@ function cargarPagos(){
           
         }
 
-        function totalizador(){
-          let total = 0;
-          let totales = document.querySelectorAll("h4[data-total]");
-          totales.forEach(mostrador_total_local => {
-            total_local = parseInt(mostrador_total_local.getAttribute("data-total"));
-            let mostrador_total = document.getElementById("total_pagos");
-            total += total_local;
-            mostrador_total.setAttribute("data-total", total);
-            mostrador_total.textContent = "Total $"+convertirMiles(total);
-          })
-          return total
+        function sumarCostoEnvio(guia, remitente){
+          const mostrador_total_local = document.getElementById("total"+remitente);
+          const btn_local = document.getElementById("pagar" + remitente);
+          
+          let total_local = mostrador_total_local.getAttribute("data-total");
+          let mostrador_total = document.getElementById("total_pagos");
+          let total = mostrador_total.getAttribute("data-total");
+          let recaudo = parseInt(guia.children[4].textContent);
+
+          guia.children[5].textContent = guia.children[3].textContent;
         }
 
+        
         document.querySelector("#cargador-pagos").classList.add("d-none");
     })
   }).catch((err) => {
@@ -553,8 +553,6 @@ function cargarPagos(){
     document.querySelector("#cargador-pagos").classList.add("d-none");
   })
 }
-
-
 
 //me consulta los pagos ya realizados y los filtra si es necesario
 $("#btn-revisar_pagos").click((e) => {
@@ -614,12 +612,37 @@ $("#btn-revisar_pagos").click((e) => {
       mostrarPagos(data);
       $("[data-funcion='pagar']").css("display", "none")
       document.querySelector("#cargador-pagos").classList.add("d-none");
-    });
+
+      let row_guias = document.querySelectorAll("tr[id]");
+      for(let guia of row_guias) {
+        const remitente = guia.getAttribute("data-remitente");
+        totalizador(guia, remitente);
+      }
+    })
     console.log(busqueda_trans);
   }
 
 
 })
+
+function totalizador(guia, remitente) {
+  const mostrador_total_local = document.getElementById("total"+remitente);
+  const btn_local = document.getElementById("pagar" + remitente);
+  
+  let total_local = mostrador_total_local.getAttribute("data-total");
+  let mostrador_total = document.getElementById("total_pagos");
+  let total = mostrador_total.getAttribute("data-total");
+  let recaudo = parseInt(guia.children[4].textContent);
+
+  
+  total = parseInt(total) + parseInt(guia.children[5].textContent);
+  mostrador_total.setAttribute("data-total", total);
+  mostrador_total.textContent = "Total $"+convertirMiles(total);
+  total_local = parseInt(total_local) + parseInt(guia.children[5].textContent);
+  mostrador_total_local.setAttribute("data-total", total_local);
+  btn_local.textContent = "Por Pagar $" + convertirMiles(total_local);
+  mostrador_total_local.textContent = "$"+convertirMiles(total_local);
+}
 
 //Muestra la situación de los pagos a consultar, recibe un arreglo de datos y los organiza por seller automáticamente
 function mostrarPagos(datos) {
@@ -673,8 +696,9 @@ function mostrarPagos(datos) {
     return a + parseInt(b["TOTAL A PAGAR"]);
   }, 0);
   
+  // <h2 class="text-right mt-4" id="total_pagos" data-total="${total}">Total:  $${convertirMiles(total)}</h2>
   document.getElementById("visor_pagos").innerHTML += `
-    <h2 class="text-right mt-4" id="total_pagos" data-total="${total}">Total:  $${convertirMiles(total)}</h2>
+    <h2 class="text-right mt-4" id="total_pagos" data-total="0">Total:  $${convertirMiles(0)}</h2>
   `;
 }
 
@@ -693,4 +717,3 @@ $("#switch-guias_automaticas").click(function() {
 function cerrarSession() {
   localStorage.clear()
 }
-

@@ -92,13 +92,19 @@
 
         <!-- Divider -->
         <hr class="sidebar-divider">
-        <div class="sidebar-heading">
-          Pagos
-        </div>
-        <li class="nav-item">
-          <a class="nav-link" href="#pagos" onclick="mostrar('pagos')">
+        
+        <li class="nav-item active">
+          <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
             <i class="fas fa-fw fa-dollar-sign"></i>
-            <span>Pagos</span></a>
+            <span>Pagos</span>
+          </a>
+          <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <h6 class="collapse-header">Gestor De Pagos:</h6>
+              <a class="collapse-item" href="#pagos">Pagos</a>
+              <a class="collapse-item" href="#deudas">Deudas</a>
+            </div>
+          </div>
         </li>
 
         <!-- Sidebar Toggler (Sidebar) -->
@@ -195,6 +201,11 @@
         <!-- Main Content -->
         <div id="content">     
           <!-- Begin Page Content -->
+          <div class="container-fluid" id="deudas">
+            <input id="filter-user-deudas" class="form-control" type="text" placeholder="seller1, seller2, etc...">
+            <div id="visor-deudas"></div>
+          </div>
+
           <div class="container-fluid" id="registrador">
             <div class="card o-hidden border-0 shadow-lg my-2">
                 <div class="card-body p-0">
@@ -688,7 +699,7 @@
                             <input type="number" class="form-control form-control-user" id="actualizar_costo_zonal1">
                           </div>
                           <div class="col-sm-4">
-                            <h6>3-6 Kg</h6>
+                            <h6>3-8 Kg</h6>
                             <input type="number" class="form-control form-control-user" id="actualizar_costo_zonal2">
                           </div> 
                           <div class="col-sm-4">
@@ -704,7 +715,7 @@
                             <input type="number" class="form-control form-control-user" id="actualizar_costo_nacional1">
                           </div>
                           <div class="col-sm-4">
-                            <h6>3-6 Kg</h6>
+                            <h6>3-8 Kg</h6>
                             <input type="number" class="form-control form-control-user" id="actualizar_costo_nacional2">
                           </div> 
                           <div class="col-sm-4">
@@ -720,7 +731,7 @@
                             <input type="number" class="form-control form-control-user" id="actualizar_costo_especial1">
                           </div>
                           <div class="col-sm-4">
-                            <h6>3-6 Kg</h6>
+                            <h6>3-8 Kg</h6>
                             <input type="number" class="form-control form-control-user" id="actualizar_costo_especial2">
                           </div> 
                           <div class="col-sm-4">
@@ -751,8 +762,17 @@
                           </div>
                         </div>
                         <div class="mb-3 form-check">
-                          <input class="form-check-input" type="checkbox" name="activador-saldo" id="activador-saldo">
-                          <label class="form-check-label" for="activador-saldo">Activar Saldo para el usuario</label>
+                          <input class="form-check-input" type="checkbox" name="actv_credit" id="actv_credit">
+                          <label class="form-check-label" for="actv_credit">Habilitar crédito para el usuario</label>
+                        </div>
+                        
+                        <div id="mostrador-credito" class="mb-3">
+                          <p>Actualmente el usuario tiene un límite de gasto de $[limite]</p>
+                          <p>Será enviada una alerta al momento que el usuario supere dicho límite.</p>
+                          <div class="form-group">
+                            <label for="limit_credit">¿Deseas cambiar el límite?</label>
+                            <input class="form-control" id="limit_credit" value="200000">
+                          </div>
                         </div>
 
 
