@@ -1432,6 +1432,8 @@ function crearDatosPrueba() {
 }
 
 function revisarDeudas() {
+    $("#cargador-deudas").children().removeClass("d-none");
+    $("#visor-deudas").html("");
     firebase.firestore().collectionGroup("guias")
     .where("user_debe", ">", 0).get()
     .then(querySnapshot => {
@@ -1457,6 +1459,7 @@ function revisarDeudas() {
             consolidadorTotales("#deudas-"+id_user, saldo);
         })
         habilitarSeleccionDeFilasInternas('[data-function="selectAll"]')
+        $("#cargador-deudas").children().addClass("d-none");
     })
 };
 
@@ -1492,8 +1495,14 @@ function habilitarSeleccionDeFilasInternas(query) {
     $(query).on("change", function() {
         let table = $(this).parent().parent().next();
         let inpInt = table.find("input");
-        inpInt.prop("checked", !$(this).children("input").prop("checked"))
-        inpInt.click()
+        let check = $(this).children("input").prop("checked");
+        inpInt.each(function() {
+            if(!this.disabled) {
+                $(this).prop("checked", !check)
+                $(this).click()
+            }
+
+        })
     })
 }
 
@@ -1506,6 +1515,14 @@ function consolidadorTotales(query, saldo) {
         ["Actualmente Debe", deuda, "search-dollar"],
         ["Deuda sumada", "", "dollar-sign"]
     ];
+    firebase.firestore().collection("usuarios")
+    .doc(query.replace("#deudas-", "")).collection("informacion")
+    .doc("heka").onSnapshot(doc=> {
+        if(doc.exists) {
+            saldo = doc.data().saldo;
+            mostrador[0][1] = "$" + convertirMiles(doc.data().saldo);   
+        }
+    })
     
     let totalizadores = $(query).find(".totalizador");
     let totalInt = 0
@@ -1560,11 +1577,12 @@ function consolidadorTotales(query, saldo) {
         showStatistics("#"+$(parent).attr("id"),
         mostrador, true);
         
-        $(parent).find(".saldar").click(async () => {
-            console.log(detalle_saldado);
-            // let deuda = await saldar(checked)
-            let deuda = false;
-            if(!deuda) {
+        $(parent).find(".saldar").click(async function() {
+            this.disabled = true;
+            let momento = new Date().getTime();
+            let deuda = await saldar(checked, momento)
+        
+            if(!deuda[0]) {
                 return avisar("¡Error!","Todas la guía seleccionadas tuvieron problemas para ser actualizadas, por favor intente nuevamente", "advertencia")
             }
             detalle_saldado.saldo = saldo + deuda[0];
@@ -1572,18 +1590,19 @@ function consolidadorTotales(query, saldo) {
             detalle_saldado.mensaje = "Administración ha saldado $" + convertirMiles(deuda[0]) + " en " + deuda[1] + " Guías",
 
             console.log(detalle_saldado);
-            // actualizarSaldo(detalle_saldado);
+            actualizarSaldo(detalle_saldado);
             avisar("Información","Se Saldó $" + convertirMiles(deuda[0]) + " en " + deuda[1] + " Guías. Por favor verifique el saldo del usuario.", "aviso")
         })
     })
 }
 
-async function saldar(checked) {
+async function saldar(checked, momento_saldado) {
     let deudaGuias = 0;
     let selected_checks = 0
     
     for await( let check of checked) {
-        console.log(check.getAttribute("data-id_heka"));
+        check.disabled = true;
+        check.checked = false;
         let id_heka = check.getAttribute("data-id_heka");
         let id_user = check.getAttribute("data-id_user");
         let deuda = check.getAttribute("data-deuda");
@@ -1593,14 +1612,18 @@ async function saldar(checked) {
             .doc(id_user);
            
             let data = await reference.collection("guias")
-            .doc(id_heka).get().then(doc => doc.data())
-                       
+            .doc(id_heka).get().then(doc => doc.data());
+
             if(data) {
-                await reference.collection("guiasSaldadas")
-                .doc(id_heka).set(data);
+                // await reference.collection("guiasSaldadas")
+                // .doc(id_heka).set(data);
                
                 await reference.collection("guias").doc(id_heka)
-                .update({user_debe: 0});
+                .update({
+                    user_debe: 0,
+                    momento_saldado,
+                    dinero_saldado: deuda
+                });
 
 
                 deudaGuias += parseInt(deuda);
@@ -1628,8 +1651,6 @@ $("#filter-user-deudas").on("input", function() {
         }
     }
 })
-
-if(administracion) revisarDeudas();
 
 $('[href="#novedades"]').click(() => {
     mostrar("novedades");

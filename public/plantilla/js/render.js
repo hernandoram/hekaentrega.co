@@ -1305,7 +1305,8 @@ function mostradorDeudas(data) {
         </tr>
     `;
     tr.innerHTML = `
-       <td><input type="checkbox" 
+       <td id="row-deudas-"+${data.id_heka}><input type="checkbox"
+       ${!data.enviado ? "disabled" : ""}
        data-id_heka="${data.id_heka}"
        data-deuda="${data.user_debe}"
        data-id_user="${data.id_user}" class="takeThis"></input></td> 

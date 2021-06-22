@@ -102,7 +102,7 @@
             <div class="bg-white py-2 collapse-inner rounded">
               <h6 class="collapse-header">Gestor De Pagos:</h6>
               <a class="collapse-item" href="#pagos">Pagos</a>
-              <a class="collapse-item" href="#deudas">Deudas</a>
+              <a class="collapse-item" href="#deudas" onclick="revisarDeudas()">Deudas</a>
             </div>
           </div>
         </li>
@@ -201,10 +201,6 @@
         <!-- Main Content -->
         <div id="content">     
           <!-- Begin Page Content -->
-          <div class="container-fluid" id="deudas">
-            <input id="filter-user-deudas" class="form-control" type="text" placeholder="seller1, seller2, etc...">
-            <div id="visor-deudas"></div>
-          </div>
 
           <div class="container-fluid" id="registrador">
             <div class="card o-hidden border-0 shadow-lg my-2">
@@ -930,6 +926,14 @@
               <div></div><div></div><div></div></div>
             </div>
             <div id="visor_pagos"></div>
+          </div>
+
+          <div class="container-fluid" id="deudas" style="display: none;">
+            <input id="filter-user-deudas" class="form-control" type="text" placeholder="seller1, seller2, etc...">
+            <div id="cargador-deudas" class="d-flex justify-content-center">
+              <div class="d-none lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+            </div>
+            <div id="visor-deudas"></div>
           </div>
           
           <div class="container-fluid" id="movimientos" style="display: none;">
