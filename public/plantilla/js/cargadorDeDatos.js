@@ -555,7 +555,7 @@ function cargarPagos(){
 }
 
 //me consulta los pagos ya realizados y los filtra si es necesario
-$("#btn-revisar_pagos").click((e) => {
+$("#btn-revisar_pagos").click(async(e) => {
   console.log(e.target);
   document.querySelector("#cargador-pagos").classList.remove("d-none");
   let fechaI, fechaF, buscador="REMITENTE", busqueda = "", guia, tipo = "!="
@@ -590,8 +590,8 @@ $("#btn-revisar_pagos").click((e) => {
   }
 
   let response = []
-  for(let busqueda_trans of transportadoras) {
-    firebase.firestore().collection("pagos").doc(busqueda_trans).collection("pagos").where(buscador, tipo, busqueda).get()
+  for await(let busqueda_trans of transportadoras) {
+    await firebase.firestore().collection("pagos").doc(busqueda_trans).collection("pagos").where(buscador, tipo, busqueda).get()
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
         if(fechaI && fechaF && !guia){
@@ -604,25 +604,25 @@ $("#btn-revisar_pagos").click((e) => {
         }
       });
       if(!administracion){
-
         response = response.filter((d) => d.REMITENTE == datos_usuario.centro_de_costo);
-      }
-      return response
-    }).then(data => {
-      mostrarPagos(data);
-      $("[data-funcion='pagar']").css("display", "none")
-      document.querySelector("#cargador-pagos").classList.add("d-none");
-
-      let row_guias = document.querySelectorAll("tr[id]");
-      for(let guia of row_guias) {
-        const remitente = guia.getAttribute("data-remitente");
-        totalizador(guia, remitente);
       }
     })
     console.log(busqueda_trans);
   }
+  if(administracion) {
+    mostrarPagos(response);
+    $("[data-funcion='pagar']").css("display", "none")
+    document.querySelector("#cargador-pagos").classList.add("d-none");
 
-
+    let row_guias = document.querySelectorAll("tr[id]");
+    for(let guia of row_guias) {
+      const remitente = guia.getAttribute("data-remitente");
+      totalizador(guia, remitente);
+    }
+  } else {
+    mostrarPagosUsuario(response);
+    document.querySelector("#cargador-pagos").classList.add("d-none");
+  }
 })
 
 function totalizador(guia, remitente) {
@@ -700,6 +700,93 @@ function mostrarPagos(datos) {
   document.getElementById("visor_pagos").innerHTML += `
     <h2 class="text-right mt-4" id="total_pagos" data-total="0">Total:  $${convertirMiles(0)}</h2>
   `;
+}
+
+function mostrarPagosUsuario(data) {
+  $("#visor-pagos").DataTable({
+    data: data,
+    destroy: true,
+    language: {
+        url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+    },
+    lengthMenu: [ [-1, 10, 25, 50, 100], ["Todos", 10, 25, 50, 100] ],
+    columnDefs: [
+        {className: "cell-border"}
+    ],
+    columns: [
+        { data: "TRANSPORTADORA", title: "Transportadora"},
+        { data: "GUIA", title: "Guía"},
+        { data: "FECHA", title: "Fecha"},
+        { data: "RECAUDO", title: "Recaudo" },
+        { data: "ENVÍO TOTAL", title: "Envío Total" },
+        { data: "TOTAL A PAGAR", title: "Total a Pagar"}
+    ],
+    order: [[2, "desc"]],
+    fixedHeader: {footer:true},
+    "drawCallback": function ( settings ) {
+        let api = this.api();
+
+        var rows = api.rows( {page:'current'} ).nodes();
+        var last=null;
+
+        api.column(2, {page:'current'} ).data().each( function ( group, i ) {
+            if ( last !== group ) {
+                $(rows).eq( i ).before(
+                    '<tr class="group text-center"><td colspan="6">Pagos Realizados el '+group+'</td></tr>'
+                );
+
+                last = group;
+            }
+        } );
+
+        let intVal = function(i) {
+            return typeof i === 'string' ?
+            i.replace(/[\$.]/g, '')*1 :
+            typeof i === 'number' ?
+                i : 0;
+        }
+
+        total = api.column(5).data()
+        .reduce((a,b) => {
+            return intVal(a) + intVal(b)
+        }, 0);
+
+        pageTotal = api.column(5, {page: "current"})
+        .data().reduce((a,b) => {
+            return intVal(a) + intVal(b);
+        }, 0);
+
+        $(this).children("tfoot").html(`
+        <tr>
+            <td colspan="4"></td>
+            <td colspan="2"><h4>$${convertirMiles(pageTotal)} (total: $${convertirMiles(total)})</h4></td>
+        </tr>
+        `);
+        $(api.column(4).footer()).html(
+            // "Probando"
+            `$${convertirMiles(pageTotal)} (${convertirMiles(total)} : total)`
+        )
+        // alert("quiero saber que pasa")
+    },
+    initComplete: function () {
+      let column = this.api().column(2)
+      var select = $('<select class="form-control mb-3"><option value="">Seleccione fecha</option></select>')
+          .appendTo( $("#filtrar-fecha-visor-pagos").empty())
+          .on( 'change', function () {
+              var val = $.fn.dataTable.util.escapeRegex(
+                  $(this).val()
+              );
+
+              column
+                  .search( val ? '^'+val+'$' : '', true, false )
+                  .draw();
+          } );
+
+      column.data().unique().sort().each( function ( d, j ) {
+          select.append( '<option value="'+d+'">'+d+'</option>' )
+      } );
+  }
+  })
 }
 
 $("#switch-guias_automaticas").click(function() {

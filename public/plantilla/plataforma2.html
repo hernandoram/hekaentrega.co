@@ -634,63 +634,68 @@
           </div>
 
           <div class="container-fluid" id="pagos" style="display: none;">
-            <div class="card mt-5">
+            <div class="card my-5">
               <div class="card-body">
                 <form enctype="multipart/form-data" id="form-pagos">
                   <div class="form-group">
-
                     <h2 class="text-center text-primary mb-4">Pagos Recibidos</h2>
-                    <hr>
-                    <span>Si decide Buscar por Guía, el filtro por fecha será desactivado automáticamente</span>
-                    <div class="col-md-6 mt-2">
-                      <a href="javascript:filtroFecha()" onclick="filtroFecha()"><input type="checkbox" name="activador_filtro_fecha" id="activador_filtro_fecha"></a>
-                      <label for="activador_filtro_fecha">Activar Filtrado por fecha</label>
-                    </div>
-                      
-                    <div class="row">
-                      <div id="fecha-pagos" class="col-md-8 mt-2" style="display: none;">
-                        <div class="form-group row mb-3">
-                          <div class="col-sm-6 mb-3 mb-sm-0">
-                            <h6>Fecha inicio</h6>
-                            <input id="filtro-fechaI" type="date" class="form-control form-control-user">
-                          </div>
-                          <div class="col-sm-6">
-                            <h6>Fecha final</h6>
-                            <input id="filtro-fechaF" type="date" class="form-control form-control-user">
+                    <div class="d-none" id="filtrador-pagos">
+                      <hr>
+                      <span>Si decide Buscar por Guía, el filtro por fecha será desactivado automáticamente</span>
+                      <div class="col-md-6 mt-2">
+                        <a href="javascript:filtroFecha()" onclick="filtroFecha()"><input type="checkbox" name="activador_filtro_fecha" id="activador_filtro_fecha"></a>
+                        <label for="activador_filtro_fecha">Activar Filtrado por fecha</label>
+                      </div>
+                        
+                      <div class="row">
+                        <div id="fecha-pagos" class="col-md-8 mt-2" style="display: none;">
+                          <div class="form-group row mb-3">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                              <h6>Fecha inicio</h6>
+                              <input id="filtro-fechaI" type="date" class="form-control form-control-user">
+                            </div>
+                            <div class="col-sm-6">
+                              <h6>Fecha final</h6>
+                              <input id="filtro-fechaF" type="date" class="form-control form-control-user">
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      
-                      <script>
-                        filtroFecha();
-                        function filtroFecha() {
-                          if(document.getElementById("activador_filtro_fecha").checked){
-                            document.getElementById("fecha-pagos").style.display = "block";
-                          } else {
-                            document.getElementById("fecha-pagos").style.display = "none";
+                        
+                        <script>
+                          filtroFecha();
+                          function filtroFecha() {
+                            if(document.getElementById("activador_filtro_fecha").checked){
+                              document.getElementById("fecha-pagos").style.display = "block";
+                            } else {
+                              document.getElementById("fecha-pagos").style.display = "none";
+                            }
                           }
-                        }
-                      </script>
-
-                      <div class="col-12 col-md-4 mt-2">
-                        <h6>Por Guía</h6>
-                        <input type="text" name="filtro-pago-guia" class="form-control" id="filtro-pago-guia">
-                      </div>
-
-                      <div class="col d-flex justify-content-center form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1" name="filtro-trasnportadoras" value="Servientrega">
-                        <label class="form-check-label" for="filtro-trasnportadora1">Servientrega</label>
-                      </div>
-                      <div class="col d-flex justify-content-center form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2" name="filtro-trasnportadoras" value="Envía">
-                        <label class="form-check-label" for="filtro-trasnportadora2">Envía</label>
-                      </div>
-                      <div class="col d-flex justify-content-center form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="filtro-trasnportadora3" name="filtro-trasnportadoras" value="TCC">
-                        <label class="form-check-label" for="filtro-trasnportadora3">TCC</label>
+                        </script>
+  
+                        <div class="col-12 col-md-4 mt-2">
+                          <h6>Por Guía</h6>
+                          <input type="text" name="filtro-pago-guia" class="form-control" id="filtro-pago-guia">
+                        </div>
+  
+                        <div class="col d-flex justify-content-center form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1" name="filtro-trasnportadoras" value="Servientrega">
+                          <label class="form-check-label" for="filtro-trasnportadora1">Servientrega</label>
+                        </div>
+                        <div class="col d-flex justify-content-center form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2" name="filtro-trasnportadoras" value="Envía">
+                          <label class="form-check-label" for="filtro-trasnportadora2">Envía</label>
+                        </div>
+                        <div class="col d-flex justify-content-center form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora3" name="filtro-trasnportadoras" value="TCC">
+                          <label class="form-check-label" for="filtro-trasnportadora3">TCC</label>
+                        </div>
                       </div>
                     </div>
 
+                    <div class="custom-control custom-switch text-center m-2">
+                      <input type="checkbox" class="custom-control-input" id="switch-habilitar-filtrado-pagos">
+                      <label class="custom-control-label" for="switch-habilitar-filtrado-pagos">Habilitar busqueda avanzada</label>
+                    </div>
                     <input type="button" id="btn-revisar_pagos" 
                     value="Revisar Pagos" class="btn btn-primary mt-4">
                   </div>
@@ -701,7 +706,12 @@
               <div class="lds-ellipsis mt-4 d-none" id="cargador-pagos"><div></div>
               <div></div><div></div><div></div></div>
             </div>
-            <div id="visor_pagos"></div>
+            <table id="visor-pagos" class="table table-striped" width="100%">
+              <div id="filtrar-fecha-visor-pagos"></div>
+              <thead></thead>
+              <tbody></tbody>
+              <tfoot></tfoot>
+            </table>
           </div>
 
           <div class="container-fluid" id="deudas" style="display: none;">

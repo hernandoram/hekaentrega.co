@@ -1683,7 +1683,6 @@ function revisarGuiasSaldas() {
             columnDefs: [
                 {className: "cell-border"}
             ],
-            buttons: ["copy"],
             columns: [
                 { data: "id_heka", title: "# Guía Heka"},
                 { data: "fecha", title: "Fecha creación"},

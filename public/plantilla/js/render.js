@@ -1238,6 +1238,10 @@ function modalNotificacion(list) {
 $("#activador_filtro_fecha").change((e) => {
     e.target.checked ? $("#fecha-pagos").show("fast") : $("#fecha-pagos").hide("fast")
 });
+$("#switch-habilitar-filtrado-pagos").change((e) => {
+    $("#filtrador-pagos").toggleClass("d-none")
+    e.target.checked ? $("#filtrador-pagos").show("fast") : $("#filtrador-pagos").hide("fast")
+});
 
 function enviarNotificacion(options) {
     let fecha = genFecha("ltr").replace(/\-/g, "/");
