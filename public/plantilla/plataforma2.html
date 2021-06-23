@@ -99,13 +99,18 @@
 
         <!-- Divider -->
         <hr class="sidebar-divider">
-        <div class="sidebar-heading">
-          Pagos
-        </div>
-        <li class="nav-item">
-          <a class="nav-link" href="#pagos" onclick="mostrar('pagos')">
+        <li class="nav-item active">
+          <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
             <i class="fas fa-fw fa-dollar-sign"></i>
-            <span>Pagos</span></a>
+            <span>Pagos</span>
+          </a>
+          <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <h6 class="collapse-header">Gestor De Pagos:</h6>
+              <a class="collapse-item" href="#pagos">Pagos</a>
+              <a class="collapse-item" href="#deudas">Deudas</a>
+            </div>
+          </div>
         </li>
 
         <!-- Sidebar Toggler (Sidebar) -->
@@ -697,6 +702,18 @@
               <div></div><div></div><div></div></div>
             </div>
             <div id="visor_pagos"></div>
+          </div>
+
+          <div class="container-fluid" id="deudas" style="display: none;">
+            <button class="btn btn-primary btn-lg mb-4" onclick="revisarGuiasSaldas()">Revisar Guías Saldadas</button>
+            <div id="cargador-deudas" class="d-flex justify-content-center">
+              <div class="d-none lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+            </div>
+            <table id="visor-deudas" class="table table-striped" width="100%">
+              <thead></thead>
+              <tbody></tbody>
+              <tfoot></tfoot>
+            </table>
           </div>
         </div>   
         <!-- Footer -->

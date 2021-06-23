@@ -1658,3 +1658,76 @@ $('[href="#novedades"]').click(() => {
         i.classList.add("d-none");
     });
 });
+
+function revisarGuiasSaldas() {
+    $("#cargador-deudas").children().removeClass("d-none");
+    usuarioDoc.collection("guias").orderBy("momento_saldado")
+    .get()
+    .then(querySnapshot => {
+        let data = [];
+        querySnapshot.forEach(doc => {
+            let info = doc.data();
+            info.fecha_saldada = genFecha(info.momento_saldado);
+            data.push(info)
+        })
+        console.log(data)
+        
+        $("#visor-deudas").DataTable({
+            data: data,
+            destroy: true,
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
+                "emptyTable": "Aún no tienes guías saldadas."
+            },
+            lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"] ],
+            columnDefs: [
+                {className: "cell-border"}
+            ],
+            buttons: ["copy"],
+            columns: [
+                { data: "id_heka", title: "# Guía Heka"},
+                { data: "fecha", title: "Fecha creación"},
+                { data: "fecha_saldada", title: "Fecha Saldada" },
+                { data: "type", title: "Tipo Guía" },
+                { data: "dinero_saldado", title: "Cant. Saldada"}
+            ],
+            fixedHeader: {footer:true},
+            "drawCallback": function ( settings ) {
+                let api = this.api();
+    
+                
+    
+                let intVal = function(i) {
+                    return typeof i === 'string' ?
+                    i.replace(/[\$.]/g, '')*1 :
+                    typeof i === 'number' ?
+                        i : 0;
+                }
+    
+                total = api.column(4).data()
+                .reduce((a,b) => {
+                    return intVal(a) + intVal(b)
+                }, 0);
+    
+                pageTotal = api.column(4, {page: "current"})
+                .data().reduce((a,b) => {
+                    return intVal(a) + intVal(b);
+                }, 0);
+    
+                $(this).children("tfoot").html(`
+                <tr>
+                    <td colspan="3"></td>
+                    <td colspan="2"><h4>$${convertirMiles(pageTotal)} (total: $${convertirMiles(total)})</h4></td>
+                </tr>
+                `);
+                $(api.column(3).footer()).html(
+                    // "Probando"
+                    `$${convertirMiles(pageTotal)} (${convertirMiles(total)} : total)`
+                )
+                // alert("quiero saber que pasa")
+            }
+        })
+        $("#cargador-deudas").children().addClass("d-none")
+    })
+}
+
