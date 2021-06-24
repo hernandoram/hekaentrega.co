@@ -263,12 +263,14 @@ function cargarDocumentos(filter) {
                 let nombre = e.target.parentNode.getAttribute("data-nombre");
                 documento = [];
                 cargarDocumento(idUser, guias).then(() =>{
-                    $(document).ready(function(){
-                        let data = documento;
-                        if(data == '')
-                            return;
-                        descargarGuiasGeneradas(data, nombre + " " + guias.slice(0, 5).join("_"), guias);
-                    });
+                    let data = documento;
+                    data.sort((obja, objb) => {
+                        return parseInt(obja.id_heka) - parseInt(objb.id_heka)
+                    }, data.id_heka);
+                    if(guiaRepetida(data)) return avisar("¡Posible error Detectado!", "Alguna de las guías se encuentra repetida, se ha interrumpido el proceso antes de convertirlo en excel.", "aviso")
+                    if(data == '')
+                        return;
+                    descargarGuiasGeneradas(data, nombre + " " + guias.slice(0, 5).join("_"), guias);
                 }).then(() => {
                     boton.disabled = false;
                 })
@@ -315,10 +317,20 @@ function cargarDocumentos(filter) {
 
 }
 
+function guiaRepetida(arr) {
+    for(let i = 1; i < arr.length; i++) {
+        if(arr[i] == arr[i-1]) {
+            return true
+        }
+    }
+    return false
+}
 
 //En invocada cada vez que se va a cargar un documento
 async function cargarDocumento(id_user, arrGuias) {
     guias = arrGuias;
+    guias.sort();
+    if(guiaRepetida(guias)) return avisar("¡Posible error Detectado!", "Uno de los identificadores encontrados, está repetido, el proceso ha sido cancelado, le recomiendo recargar la página", "aviso")
     for(let guia of guias){
         await firebase.firestore().collection("usuarios").doc(id_user).collection("guias").doc(guia)
         .get().then((doc) => {
@@ -343,6 +355,7 @@ function descargarGuiasGeneradas(JSONData, ReportTitle, guias) {
     CSV += encabezado + '\r\n';
     
     console.log(arrData.length);
+    let visor_final = new Array();
     //Se actulizara cada cuadro por fila, ***se comenta cual es el campo llenado en cada una***
     for (var i = 0; i < arrData.length; i++) {
         for(let campo in arrData[i]) {
@@ -398,7 +411,7 @@ function descargarGuiasGeneradas(JSONData, ReportTitle, guias) {
         //Medio de Transporte
         row += '1,';
         // Campo personalizado 1
-        row += '"' + guias[i] + '",';
+        row += '"' + arrData[i].id_heka + '",';
         // Unidad de longitud
         row += 'cm,';
         // Unidad de peso
@@ -422,9 +435,10 @@ function descargarGuiasGeneradas(JSONData, ReportTitle, guias) {
         
         //agg un salto de linea por cada fila
         CSV += row + '\r\n';
+        visor_final.push(arrData[i].id_heka);
         console.log(row)
     }
-    
+
     if (CSV == '') {        
         alert("Datos invalidos");
         return;
@@ -448,6 +462,7 @@ function descargarGuiasGeneradas(JSONData, ReportTitle, guias) {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    if(guiaRepetida(visor_final)) avisar("¡Posible Error, poco común!", "Se ha detectado alguna gu+ia repetida en el documento descargado, manejelo con precausión o recargue la página e intente nuevamente para comprobar el error.", "avisar")
 }
 
 function descargarInformeGuias(JSONData, ReportTitle) {
