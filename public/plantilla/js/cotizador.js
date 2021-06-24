@@ -176,18 +176,31 @@ async function pagoContraentrega() {
         },
         confirmButtonAriaLabel: 'continuar',
         preConfirm: () => {
-            if(!value("valor-recaudo")) {
+            let valor_recaudo = value("valor-recaudo");
+            let cotizacion = new CalcularCostoDeEnvio(parseInt(valor_recaudo));
+            let sumar_envio= $("#sumar-envio-cotizador").prop("checked");
+            let restar_saldo = $("#restar-saldo-cotizador").prop("checked");
+        
+            if(sumar_envio){
+                cotizacion = sumarCostoDeEnvio(parseInt(valor_recaudo))
+            }
+    
+            if(restar_saldo) {
+                datos_a_enviar.debe = false;
+            } else {
+                datos_a_enviar.debe = -cotizacion.costoEnvio
+            }
+
+            if(!valor_recaudo) {
                 Swal.showValidationMessage(
                     `¡Recuerde ingresar un valor!`
                 )
             } else if (value("valor-recaudo") < 5000 || value("valor-recaudo") > 2000000) {
                 Swal.showValidationMessage("El valor no puede ser menor a $5.000 ni menor a $2.000.000")
+            } else if (cotizacion.seguro < cotizacion.costoEnvio) {
+                Swal.showValidationMessage("El valor del recaudo no debe ser menor al costo del envío ($" + convertirMiles(cotizacion.costoEnvio) +")");
             }
-            return {
-                recaudo: value("valor-recaudo"),
-                sumar_envio: $("#sumar-envio-cotizador").prop("checked"),
-                restar_saldo: $("#restar-saldo-cotizador").prop("checked")
-            }
+            return cotizacion;
         }
     }).then(result => {
         return result.isConfirmed ? result : ""
@@ -221,35 +234,12 @@ async function response(datos) {
     if(!type) {
         return ""
     }if(type == "PAGO CONTRAENTREGA") {
-        const tipo_pago_contraentrega = await pagoContraentrega();
-
-        if(tipo_pago_contraentrega) {
-            let recaudo = tipo_pago_contraentrega.value.recaudo;
-            result_cotizacion = new CalcularCostoDeEnvio(parseInt(recaudo));
-            if(tipo_pago_contraentrega.value.sumar_envio){
-                result_cotizacion = sumarCostoDeEnvio(parseInt(recaudo))
-            }
-
-            if(tipo_pago_contraentrega.value.restar_saldo) {
-                datos_a_enviar.debe = false;
-            } else {
-                datos_a_enviar.debe = -result_cotizacion.costoEnvio
-            }
-
-            if (result_cotizacion.seguro < result_cotizacion.costoEnvio) {
-                act_btn_continuar = false;
-                Swal.fire({
-                    position: "top-end",
-                    icon: 'error',
-                    title: 'El valor de recaudo no debe ser menor que el costo del envío',
-                    showConfirmButton: false,
-                    timer: 5000
-                })
-                  
-            }
-        } else {
-            return ""
+        let resp_usuario = await pagoContraentrega();
+        result_cotizacion = resp_usuario.value;
+        if(!resp_usuario) {
+            return "";
         }
+        
     } else {
         result_cotizacion = new CalcularCostoDeEnvio(value("seguro-mercancia"), type);
         datos_a_enviar.debe = false;
