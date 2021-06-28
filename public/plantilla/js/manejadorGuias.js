@@ -1720,10 +1720,8 @@ function revisarGuiasSaldas() {
                 </tr>
                 `);
                 $(api.column(3).footer()).html(
-                    // "Probando"
                     `$${convertirMiles(pageTotal)} (${convertirMiles(total)} : total)`
                 )
-                // alert("quiero saber que pasa")
             }
         })
         $("#cargador-deudas").children().addClass("d-none")

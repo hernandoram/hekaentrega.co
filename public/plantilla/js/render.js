@@ -87,7 +87,7 @@ function tablaDeGuias(id, datos){
         <th>${id}</th>
         <th></th>
         <th></th>
-        <th>${datos.type}</th>
+        <th>${datos.type || "Pago Contraentrega"}</th>
         <th>${datos.fecha}</th>
         <th>${datos.nombreR}</th>
         <th>${datos.ciudadD}</th>
@@ -325,7 +325,7 @@ function activarBotonesDeGuias(id, data, activate_once){
         let row = document.getElementById("historial-guias-row" + id);
         let dataset = row.dataset;
         let boton_eliminar_guia = document.getElementById("eliminar_guia"+id);
-        boton_eliminar_guia.addEventListener("click", (e) => {
+        boton_eliminar_guia.addEventListener("click", function(e) {
             let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
             if(confirmacion && boton_eliminar_guia.getAttribute("data-enviado") != "true"){
                 boton_eliminar_guia.disabled = true;
@@ -360,12 +360,9 @@ function activarBotonesDeGuias(id, data, activate_once){
                                 console.log(saldo_detallado);
                                 console.log(saldo);
                                 actualizarSaldo(saldo_detallado);
-                                
-                                row.remove();
-                            } else {
-                                row.remove();
                             }
-        
+                            
+                            historialGuias();
                         }
                     })
                 }).catch((error) => {
@@ -662,8 +659,12 @@ function mostrarNotificacion(data, type, id){
                     notificacion.setAttribute("data-target", "#modal-detallesNotificacion");
                     modalNotificacion(data.detalles)
                     $("#revisar-detallesNotificacion").click(() => {
-                        location.href = "#documentos";
-                        cargarDocumentos(data.guias.slice(0,5));
+                        location.href = "#"+data.href || "#documentos";
+                        if(data.href == "deudas") {
+                            revisarDeudas();
+                        } else {
+                            cargarDocumentos(data.guias.slice(0,5));
+                        }
                     })
                 } else {
                     if(administracion) {
@@ -1379,9 +1380,9 @@ function actualizarSaldo(data) {
 };
 
 // enviarNotificacion({
-//     mensaje: "Mira loco, este es mi mensaje",
+//     mensaje: "This is my massage",
 //     visible_admin: true,
 //     icon: ["opt1", "opt2"],
-//     user_id: "identificador"
+//     user_id: "identifier"
 // });
 

@@ -169,7 +169,7 @@ function cargarDatosUsuario(){
               }
             }
 
-            $("#saldo").html("$" + convertirMiles(precios_personalizados.saldo));
+            $("#saldo").html("$" + convertirMiles(doc.data().saldo));
 
             // precios_personalizados.saldo = parseInt(doc.data().saldo);
             // $("#saldo").html("$" + convertirMiles(precios_personalizados.saldo));
@@ -212,8 +212,12 @@ function historialGuias(){
     console.log("Fecha de final =>", fecha_final)
     var reference = firebase.firestore().collection("usuarios")
     .doc(user_id).collection("guias");
-    let referencefilter = reference.orderBy("timeline", "desc")
-    .startAt(fecha_final).endAt(fecha_inicio);
+    let referencefilter = reference.orderBy("timeline")
+    .startAt(fecha_inicio).endAt(fecha_final);
+
+    if($("#numeroGuia-historial_guias").val()) {
+      referencefilter = reference.where("numeroGuia", "==", $("#numeroGuia-historial_guias").val());
+    }
 
     referencefilter.get().then((querySnapshot) => {
       var tabla=[];
@@ -594,13 +598,16 @@ $("#btn-revisar_pagos").click(async(e) => {
     await firebase.firestore().collection("pagos").doc(busqueda_trans).collection("pagos").where(buscador, tipo, busqueda).get()
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
+        let data = doc.data();
+        let fecha_estandar = doc.data().FECHA.split("-").reverse().join("-")
+        data.momento = new Date(fecha_estandar).getTime();
         if(fechaI && fechaF && !guia){
-          let fechaFire = new Date(doc.data().FECHA.split("-").reverse().join("-")).getTime();
+          let fechaFire = new Date(fecha_estandar).getTime();
           if(fechaI <= fechaFire && fechaFire <= fechaF){
-            response.push(doc.data());
+            response.push(data);
           }
         } else {
-          response.push(doc.data())
+          response.push(data)
         }
       });
       if(!administracion){
@@ -719,9 +726,10 @@ function mostrarPagosUsuario(data) {
         { data: "FECHA", title: "Fecha"},
         { data: "RECAUDO", title: "Recaudo" },
         { data: "ENVÍO TOTAL", title: "Envío Total" },
-        { data: "TOTAL A PAGAR", title: "Total a Pagar"}
+        { data: "TOTAL A PAGAR", title: "Total a Pagar"},
+        { data: "momento", title: "Momento", visible: false}
     ],
-    order: [[2, "desc"]],
+    order: [[6, "asc"]],
     fixedHeader: {footer:true},
     "drawCallback": function ( settings ) {
         let api = this.api();
@@ -748,14 +756,15 @@ function mostrarPagosUsuario(data) {
 
         total = api.column(5).data()
         .reduce((a,b) => {
-            return intVal(a) + intVal(b)
+            return parseInt(a) + parseInt(b)
         }, 0);
 
         pageTotal = api.column(5, {page: "current"})
         .data().reduce((a,b) => {
-            return intVal(a) + intVal(b);
+            return parseInt(a) + parseInt(b);
         }, 0);
 
+        console.log(pageTotal)
         $(this).children("tfoot").html(`
         <tr>
             <td colspan="4"></td>
@@ -763,27 +772,33 @@ function mostrarPagosUsuario(data) {
         </tr>
         `);
         $(api.column(4).footer()).html(
-            // "Probando"
             `$${convertirMiles(pageTotal)} (${convertirMiles(total)} : total)`
         )
-        // alert("quiero saber que pasa")
     },
     initComplete: function () {
       let column = this.api().column(2)
-      var select = $('<select class="form-control mb-3"><option value="">Seleccione fecha</option></select>')
+      let totales = this.api().column(5).nodes();
+      let select = $('<select class="form-control mb-3"><option value="">Seleccione fecha</option></select>')
           .appendTo( $("#filtrar-fecha-visor-pagos").empty())
           .on( 'change', function () {
-              var val = $.fn.dataTable.util.escapeRegex(
-                  $(this).val()
+              let val = $.fn.dataTable.util.escapeRegex(
+                $(this).val()
               );
 
               column
-                  .search( val ? '^'+val+'$' : '', true, false )
-                  .draw();
+                .search( val ? '^'+val+'$' : '', true, false )
+                .draw();
           } );
 
-      column.data().unique().sort().each( function ( d, j ) {
-          select.append( '<option value="'+d+'">'+d+'</option>' )
+      column.data().unique().each( function ( d, j ) {
+        let sum = 0;
+        $(totales).parent().each(function (){
+          if($(this).children(":eq(2)").text() == d) {
+            sum += parseInt($(this).children(":eq(5)").text());
+          }
+        })
+
+        select.append( '<option value="'+d+'">'+d+ ' - Total pagado: $'+convertirMiles(sum)+'</option>' )
       } );
   }
   })

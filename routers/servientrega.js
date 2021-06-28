@@ -147,18 +147,20 @@ function actualizarEstadosGuias(d) {
 
 // actualizarMovimientosGuias(new Date()).then((detalles) => {
 //  console.log(detalles);
-//  firebase.firestore().collection("reporte").add(detalles);
+// //  firebase.firestore().collection("reporte").add(detalles);
 // });
 async function actualizarMovimientosGuias(d) {
   let inicio_func = new Date().getTime();
   return await firebase.firestore().collectionGroup("guias")
   .orderBy("estado")
   .where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"])
-  // .where("centro_de_costo", "==", "SellerWitotoAccesoriosYArtesanías")
-  // .where("numeroGuia", "in", ["2102533904", "2102533906", "2112739770", "2112739771"])
+  // .where("centro_de_costo", "==", "SellerNuevo")
+  // .where("numeroGuia", "in", ["6100000099", "6100000100", "0", "2112740014", "290147258"])
+  // .limit(200)
   .get()
   .then(async querySnapshot => {
     console.log(querySnapshot.size);
+    // throw "no babe"
     let consulta = {
       guias_est_actualizado: [],
       guias_mov_actualizado: [],
@@ -190,87 +192,104 @@ async function actualizarMovimientosGuias(d) {
           // console.log(body)
           let respuesta = await new Promise((resolve, reject) => {
             parseString(body, async (error, result) => {
-              if(error) throw new Error();
-              // let path = doc.ref.path.split("/");
-              let data = result.InformacionGuiaMov;
-              let movimientos = data.Mov[0].InformacionMov;
-              // console.log(data);
-              let upte_estado = await doc.ref.parent.parent.collection("guias")
-              .doc(doc.id).update({
-                estado: data.EstAct[0],
-                ultima_actualizacion: d
-              })
-              .then(() => {
-                // console.log(doc.data());
-                return{
-                  estado: "Est.A",
-                  guia: doc.id + " / " + doc.data().numeroGuia
+              if(error) return {
+                estado: "Est.N.A",
+                guia: doc.id + " / " + doc.data().numeroGuia
+              }
+              try {
+                // let path = doc.ref.path.split("/");
+                let data = result.InformacionGuiaMov;
+                // console.log("198 => ",data)
+                if(!data.Mov) {
+                  throw " Esta guía no manifiesta movimientos."
                 }
-                
-              }).catch(err => {
-                return {
-                  estado: "Est.N.A",
-                  guia: doc.id + " / " + doc.data().numeroGuia
-                }
-              });
-              
-              let upte_movs;
-              if(movimientos) {
-                for(let movimiento of movimientos) {
-                  for(let x in movimiento) {
-                    movimiento[x] = movimiento[x][0];
-                  }
-                }
-  
-                let data_to_fb = {
-                  numeroGuia: data.NumGui[0],
-                  fechaEnvio: data.FecEnv[0],
-                  ciudadD: data.CiuDes[0],
-                  nombreD: data.NomDes[0],
-                  direccionD: data.DirDes[0],
-                  estadoActual: data.EstAct[0],
-                  fecha: data.FecEst[0],
-                  id_heka: doc.id,
-                  movimientos
-                }; 
-  
-                // console.log(data_to_fb);
-  
-                upte_movs = await doc.ref.parent.parent.collection("estadoGuias")
-                .doc(doc.id)
-                // .get()
-                .set(data_to_fb)
+                let movimientos = data.Mov[0].InformacionMov;
+                // console.log(data);
+                let upte_estado = await doc.ref.parent.parent.collection("guias")
+                .doc(doc.id).update({
+                  estado: data.EstAct[0],
+                  ultima_actualizacion: d
+                })
                 .then(() => {
                   // console.log(doc.data());
                   return{
-                    estado: "Mov.A",
+                    estado: "Est.A",
                     guia: doc.id + " / " + doc.data().numeroGuia
                   }
-  
+                  
                 }).catch(err => {
                   return {
-                    estado: "Mov.N.A",
+                    estado: "Est.N.A",
                     guia: doc.id + " / " + doc.data().numeroGuia
                   }
                 });
-              } else {
-                upte_movs = {
-                  estado: "Sn.Mov",
-                  guia: doc.id + " / " + doc.data().numeroGuia
+                
+                let upte_movs;
+                if(movimientos) {
+                  for(let movimiento of movimientos) {
+                    for(let x in movimiento) {
+                      movimiento[x] = movimiento[x][0];
+                    }
+                  }
+    
+                  let data_to_fb = {
+                    numeroGuia: data.NumGui[0],
+                    fechaEnvio: data.FecEnv[0],
+                    ciudadD: data.CiuDes[0],
+                    nombreD: data.NomDes[0],
+                    direccionD: data.DirDes[0],
+                    estadoActual: data.EstAct[0],
+                    fecha: data.FecEst[0],
+                    id_heka: doc.id,
+                    movimientos
+                  }; 
+    
+                  // console.log(data_to_fb);
+    
+                  upte_movs = await doc.ref.parent.parent.collection("estadoGuias")
+                  .doc(doc.id)
+                  // .get()
+                  .set(data_to_fb)
+                  .then(() => {
+                    // console.log(doc.data());
+                    return{
+                      estado: "Mov.A",
+                      guia: doc.id + " / " + doc.data().numeroGuia
+                    }
+    
+                  }).catch(err => {
+                    return {
+                      estado: "Mov.N.A",
+                      guia: doc.id + " / " + doc.data().numeroGuia
+                    }
+                  });
+                } else {
+                  upte_movs = {
+                    estado: "Sn.Mov",
+                    guia: doc.id + " / " + doc.data().numeroGuia
+                  }
                 }
+
+                resolve([upte_estado, upte_movs]);
+              } catch (e){
+                console.log("error el actualizar guias");
+                console.log(e)
+                resolve([{
+                  estado: "error",
+                  guia: doc.id + " / " + doc.data().numeroGuia + e
+                }]);
               }
   
-              resolve([upte_estado, upte_movs]);
             });
           })
 
           return respuesta;
         })
         .catch(err => {
-          // console.log(err);
+          console.log("289 => ",err);
           return [{
             estado: "error",
-            guia: doc.id + " / " + doc.data().numeroGuia
+            guia: doc.id + " / " + doc.data().numeroGuia + err.message
           }]
         });
 
@@ -311,7 +330,7 @@ async function actualizarMovimientosGuias(d) {
     // console.log("246",consulta);
     
     return consulta;
-  })
+  }).catch(err => console.log(err))
   function mensaje(novedades, novedades_eliminadas, error, total, usuarios) {
     return `Se han actualizado ${novedades} novedades,
     eliminado ${novedades_eliminadas} y ${error} han sido fallidas,
@@ -367,6 +386,7 @@ function generarGuia(datos) {
                 <Des_Direccion>${datos.direccionD}</Des_Direccion>
                 <Nom_Contacto>${datos.nombreD}</Nom_Contacto>
                 <Des_VlrCampoPersonalizado1>${datos.id_heka}</Des_VlrCampoPersonalizado1>
+                
                 <Num_ValorLiquidado>0</Num_ValorLiquidado>
                 <Des_DiceContener>${datos.dice_contener}</Des_DiceContener>
                 <Des_TipoGuia>1</Des_TipoGuia>
@@ -425,7 +445,7 @@ function crearGuiaSticker(numeroGuia, id_archivoCargar, type, prueba) {
     ide_codFacturacion = "SER408"
   } 
 
-  console.log(auth_header)
+  console.log("numero guia =>", numeroGuia);
   let consulta = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
   xmlns:tem="http://tempuri.org/">
   <soapenv:Header>
@@ -458,7 +478,7 @@ function generarManifiesto(arrGuias, prueba) {
 
   if(prueba) auth_header = auth_header_prueba;
 
-  console.log(auth_header);
+  console.log(arrGuias);
   let guias = `<tem:Guias>`;
   for(let i = 0; i < arrGuias.length; i++) {
     guias += `<tem:ObjetoGuia>
@@ -552,45 +572,51 @@ async function generarStickerManifiesto(arrGuias, prueba) {
     
         let xmlResponse = new DOMParser().parseFromString(body, "text/xml")
         // resolve(body);
-        if(xmlResponse.documentElement.getElementsByTagName("GenerarManifiestoResult")[0].textContent == "true") {
-          //------- Espacio para colocar la notificación a enviar a firebase 
-          //
-          resolve(xmlResponse.documentElement.getElementsByTagName("cadenaBytes")[0].textContent);
-        } else {
-          let errorGeneradoPorGuia = xmlResponse.documentElement.getElementsByTagName("Des_Error")[0].childNodes;
-          let guiasConErrores = new Array();
-
-          console.log(errorGeneradoPorGuia);
-          for(let i = 0; i < errorGeneradoPorGuia.length; i++) {
+        try {
+          if(xmlResponse.documentElement.getElementsByTagName("GenerarManifiestoResult")[0].textContent == "true") {
+            //------- Espacio para colocar la notificación a enviar a firebase 
+            //
+            resolve(xmlResponse.documentElement.getElementsByTagName("cadenaBytes")[0].textContent);
+            // console.log(xmlResponse.documentElement.getElementsByTagName("cadenaBytes")[0].textContent)
+          } else {
+            let errorGeneradoPorGuia = xmlResponse.documentElement.getElementsByTagName("Des_Error")[0].childNodes;
+            let guiasConErrores = new Array();
+  
+            console.log(errorGeneradoPorGuia);
+            for(let i = 0; i < errorGeneradoPorGuia.length; i++) {
+              
+              let guia = errorGeneradoPorGuia[i].childNodes[0].textContent;
+              let resErr = errorGeneradoPorGuia[i].childNodes[1].textContent;
+  
+              console.log("guia", guia);
+              console.log("destalle", resErr);
+              guiasConErrores.push(guia +" - "+ resErr);
+            }
+  
+            let fecha = new Date()
+            console.log("Guias con errores", guiasConErrores);
             
-            let guia = errorGeneradoPorGuia[i].childNodes[0].textContent;
-            let resErr = errorGeneradoPorGuia[i].childNodes[1].textContent;
-
-            console.log("guia", guia);
-            console.log("destalle", resErr);
-            guiasConErrores.push(guia +" - "+ resErr);
+            if(arrGuias.length) {
+              db.collection("notificaciones").add({
+                fecha: fecha.getDate() +"/"+ (fecha.getMonth() + 1) + "/" + fecha.getFullYear() + " - " + fecha.getHours() + ":" + fecha.getMinutes(),
+                visible_admin: true,
+                mensaje: "Hubo un problema para crear el manifiesto de las guías " + arrGuias.map(v => v.id_heka).join(", "),
+                guias: arrGuias.map(v => v.id_heka),
+                timeline: new Date().getTime(),
+                detalles: guiasConErrores
+              }).catch((err) => {
+                db.collection("errores").add({
+                  err: err
+                })
+              });
+            }
+          
+            
+            resolve(0);
           }
 
-          let fecha = new Date()
-          console.log("Guias con errores", guiasConErrores);
-          
-          if(arrGuias.length) {
-            db.collection("notificaciones").add({
-              fecha: fecha.getDate() +"/"+ (fecha.getMonth() + 1) + "/" + fecha.getFullYear() + " - " + fecha.getHours() + ":" + fecha.getMinutes(),
-              visible_admin: true,
-              mensaje: "Hubo un problema para crear el manifiesto de las guías " + arrGuias.map(v => v.id_heka).join(", "),
-              guias: arrGuias.map(v => v.id_heka),
-              timeline: new Date().getTime(),
-              detalles: guiasConErrores
-            }).catch((err) => {
-              db.collection("errores").add({
-                err: err
-              })
-            });
-          }
-        
-          
-          resolve(0);
+        } catch (error) {
+          console.log(error);
         }
       })
     })
@@ -690,50 +716,78 @@ router.post("/crearDocumentos", async (req, res) => {
   if(arrData.length > manifestarGuias.length) arrErroresUsuario.push("Algunas guías presentaron errores para crear el Sticker, pruebe intentando de nuevo con las restantes, o clonarlas y eliminar las defectuosas");
   let base64Guias = await joinBase64WhitPdfDoc(arrBase64);
   let base64Manifiesto = await generarStickerManifiesto(manifestarGuias, vinculo.prueba);
-  if(!base64Manifiesto && manifestarGuias.length) arrErroresUsuario.push("Ocurrió un Error inesperado al crear el manifiesto de las guías, el problema será tranferido a centro logístico, procuraremos atenderlo en la brevedad posible, disculpe las molestias causadas");
+  console.log("mustra de los primeros 10 datos de base64manifiesto => ",base64Manifiesto.toString().slice(0, 10));
+  try {
+    if(!base64Manifiesto && manifestarGuias.length) arrErroresUsuario.push("Ocurrió un Error inesperado al crear el manifiesto de las guías, el problema será tranferido a centro logístico, procuraremos atenderlo en la brevedad posible, disculpe las molestias causadas");
+    
+    if(arrErroresUsuario.length) {
+      console.log("Hubo algún error mientras se creaban los documentos.");
+      let fecha = new Date();
+      console.log("Enviando Notificacion al usuario")
+      db.collection("notificaciones").add({
+        fecha: fecha.getDate() +"/"+ (fecha.getMonth() + 1) + "/" + fecha.getFullYear() + " - " + fecha.getHours() + ":" + fecha.getMinutes(),
+        visible_user: true,
+        timeline: new Date().getTime(),
+        icon: ["exclamation", "danger"],
+        mensaje: "Hemos registrado algún error al crear los documentos, revíselos para ver como resolverlos.",
+        detalles: arrErroresUsuario,
+        user_id: vinculo.id_user
+      }).catch((error) => {
+        console.log("error Al enviar la notificación al usuario => ", error);
+      })
+    }
   
-  if(arrErroresUsuario.length) {
-    let fecha = new Date();
-    console.log("Enviando Notificacion al usuario")
-    db.collection("notificaciones").add({
-      fecha: fecha.getDate() +"/"+ (fecha.getMonth() + 1) + "/" + fecha.getFullYear() + " - " + fecha.getHours() + ":" + fecha.getMinutes(),
-      visible_user: true,
-      timeline: new Date().getTime(),
-      icon: ["exclamation", "danger"],
-      mensaje: "Hemos registrado algún error al crear los documentos, revíselos para ver como resolverlos.",
-      detalles: arrErroresUsuario,
-      user_id: vinculo.id_user
-    })
-  }
+    if(manifestarGuias.length) {
+      console.log("empieza a configurar los documentos");
+      let guias = manifestarGuias.map(v => v.id_heka).sort();
+      console.log(guias,
+        base64Guias.length,
+        base64Manifiesto.length);
+      
+      console.log(base64Guias);
+      await db.collection("documentos").doc(vinculo.id_doc).update({
+        descargar_guias: base64Guias ? true : false,
+        descargar_relacion_envio: base64Manifiesto ? true : false,
+        guias,
+        base64Guias,
+        base64Manifiesto
+      })
+      .then(() => {
+        console.log("Ya se configuró el documento correctamente")
+        for (let guia of manifestarGuias) {
+          console.log("Actualizando estado =>", guia.id_heka);
+          db.collection("usuarios").doc(vinculo.id_user)
+          .collection("guias").doc(guia.id_heka)
+          .update({
+            enviado: true,
+            estado: "Enviado"
+          }).catch((error) => {
+            console.log("hubo un error Al actualizar el estado de la guia a \"Enviado\" => ", error)
+          });
+        }
+        console.log("Se actualizaron todos los estados")
+        let guias_respuesta = manifestarGuias.map(v => v.id_heka).sort();
+        let respuesta = "Las Guías " + guias_respuesta + " Fueron creadas exitósamente.";
+        if(arrErroresUsuario.length) respuesta += "\n Pero se presentó un error, revise las notificaciones para obtener más detalles";
+        console.log(respuesta);
+        res.json(respuesta);
+      })
+      .catch(error => {
+        console.log("Hubo un error para configurar el documento");
+        console.log(error)
+        console.log(JSON.stringify(error))
+        console.log(error.error)
+        console.log(error.toString())
+        console.log(error.message)
 
-  if(manifestarGuias.length) {
-    db.collection("documentos").doc(vinculo.id_doc).update({
-      descargar_guias: base64Guias ? true : false,
-      descargar_relacion_envio: base64Manifiesto ? true : false,
-      guias: manifestarGuias.map(v => v.id_heka).sort(),
-      base64Guias,
-      base64Manifiesto
-    })
-    .then(() => {
-      for (let guia of manifestarGuias) {
-        db.collection("usuarios").doc(vinculo.id_user)
-        .collection("guias").doc(guia.id_heka)
-        .update({
-          enviado: true,
-          estado: "Enviado"
-        });
-      }
-    })
-    .then(() => {
-      let guias_respuesta = manifestarGuias.map(v => v.id_heka).sort();
-      let respuesta = "Las Guías " + guias_respuesta + " Fueron creadas exitósamente.";
-      if(arrErroresUsuario.length) respuesta += "\n Pero se presentó un error, revise las notificaciones para obtener más detalles";
-
-      res.json(respuesta);
-    })
-  } else {
-    db.collection("documentos").doc(vinculo.id_doc).delete();
-    res.status(422).send(JSON.stringify({error: "no hubo guía que procesar"}))
+      })
+  
+    } else {
+      db.collection("documentos").doc(vinculo.id_doc).delete();
+      res.status(422).send(JSON.stringify({error: "no hubo guía que procesar"}))
+    }
+  } catch (error) {
+    console.log(error);
   }
 
  

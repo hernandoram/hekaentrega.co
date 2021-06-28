@@ -109,6 +109,14 @@ async function cotizador(){
             //     seguro: value("seguro-mercancia")
             // };
     
+            $("#list-transportadoras .ver-mas").click(function(e){
+                e.preventDefault();
+                $(this).parents("a").tab("show");
+                $("#nav-contentTransportadoras").parent().removeClass("d-none")
+                
+                console.log($("#nav-contentTransportadoras").parent())
+            })
+
             $("#boton_continuar").click(() =>{
                 let creador = document.getElementById("crear_guia");
                 creador.innerHTML = "";
@@ -261,6 +269,7 @@ async function response(datos) {
     datos_a_enviar.detalles = result_cotizacion.getDetails;
     console.log(datos_a_enviar);
 
+    let htmlTransportadoras = detallesTransportadoras(datos_de_cotizacion)
 
     let c_destino = document.getElementById('ciudadD').dataset;
     let div_principal = document.createElement("DIV"),
@@ -270,9 +279,21 @@ async function response(datos) {
             </a>`),
         divisor = crearNodo(`<hr class="sidebar-divider">`),
         info_principal = detalles_cotizacion(datos_de_cotizacion),
+        transportadoras = crearNodo(`<div class="row">
+            <div class="col">
+                <div class="list-group" id="list-transportadoras" role="tablist">
+                    ${htmlTransportadoras[0]}
+                </div>
+            </div>
+            <div class="col-12 col-md-7 mt-4 d-none">
+                <div class="tab-content" id="nav-contentTransportadoras">
+                    ${htmlTransportadoras[1]}
+                </div>
+            </div>
+        </div>`),
         servientrega = crearNodo(`<div class="card card-shadow m-6">
             <div class="card-header py-3 bg-primary">
-                <div class="d-flex justify-content-center"><img style="max-width: 300px" class="w-100" src="img/servientrega-logotipo.png"/></div>
+                <div class="d-flex justify-content-center"><img style="max-width: 300px" class="w-100" src="img/transportadoras-logotipo.png"/></div>
             </div>
             <div class="card-body row">
                 <div class="col mb-3">
@@ -320,14 +341,80 @@ async function response(datos) {
             </div>`)
     }
 
-    div_principal.append(divisor, boton_regresar, info_principal, servientrega, boton_continuar)
+    div_principal.append(divisor, boton_regresar, info_principal, transportadoras, boton_continuar)
     if(document.getElementById("cotizar_envio").getAttribute("data-index")){
-       boton_continuar.firstChild.firstChild.style.display = "none";
+       boton_continuar.firstChild.style.display = "none";
        console.log("EStoy en el index");
     }
     
     return  div_principal.innerHTML
 };
+
+function detallesTransportadoras(data) {
+    let transportadoras = [{
+        nombre: "SERVIENTREGA",
+        src: "img/logoServi.png",
+        altImg: "Logo Servientrega"
+    }, {
+        nombre: "servientrega",
+        src: "img/logoServi.png",
+        altImg: "Logo Servientrega"
+    }, {
+        nombre: "Servientrega",
+        src: "img/logoServi.png",
+        altImg: "Logo Servientrega"
+    }];
+    let encabezados = "", detalles = "";
+
+    transportadoras.forEach((transportadora, i) => {
+        let cotizacion = new CalcularCostoDeEnvio(data.valor, data.type);
+        encabezados += `<a class="list-group-item list-group-item-action" id="list-transportadora-${transportadora.nombre}-list" 
+        role="tab" 
+        href="#list-transportadora-${transportadora.nombre}" 
+        aria-controls="transportadora-${transportadora.nombre}"
+        >
+        <!--data-toggle="list" -->
+            <div class="d-flex justify-content-between">
+                <img src="${transportadora.src}" class="float-left" alt="${transportadora.altImg}" height="3em">
+                <div class="w-100">
+                    <small class="float-right ver-mas"
+                    data-toggle="list" role="tab">
+                    <button class="btn btn-danger badge badge-pill">ver más</button></small>
+                    <h5 class="mb-1">${transportadora.nombre}</h5>
+                    <p class="mb-1">tiempo de entrega: 3 días</p>
+                    <p class="${data.type == "CONVENCIONAL" ? "d-none" : ""}">Costo de envío para Recaudo: <b>$${convertirMiles(cotizacion.seguro)}</b></p>
+                </div>
+                <p>$${convertirMiles(cotizacion.costoEnvio)}</p>
+            </div>
+        </a>`;
+
+        detalles += `<div class="tab-pane fade" id="list-transportadora-${transportadora.nombre}" role="tabpanel" aria-labelledby="list-transportadora-${transportadora.nombre}-list">
+            <ul class="list-group">
+                <li class="list-group-item d-flex justify-content-between align-items-center active">
+                    ${transportadora.nombre}
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                Valor flete
+                <span class="badge badge-secondary badge-pill">$${convertirMiles(cotizacion.flete)}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                Comisión Transportadora
+                <span class="badge badge-secondary badge-pill">${convertirMiles(cotizacion.sobreflete)}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                Seguro Mercancía
+                <span class="badge badge-secondary badge-pill">${convertirMiles(cotizacion.sobreflete_heka)}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                Costo Total de Envío
+                <span class="badge badge-primary badge-pill text-lg">${convertirMiles(cotizacion.costoEnvio)}</span>
+                </li>
+            </ul>
+        </div>`;
+    });
+
+    return [encabezados, detalles];
+}
 
 function detalles_cotizacion(datos) {
     return new DOMParser().parseFromString(`
@@ -391,7 +478,9 @@ function finalizarCotizacion(datos) {
             </a>`),
         input_producto = crearNodo(`<div class="col mb-3 mb-sm-0">
             <h6>producto <span>(Lo que se va a enviar)</span></h6>
-            <input id="producto" class="form-control form-control-user" name="producto" type="text" placeholder="Introduce el contenido de tu envío">
+            <input id="producto" class="form-control form-control-user" 
+            name="producto" type="text" maxlength="50"
+            placeholder="Introduce el contenido de tu envío">
             <p id="aviso-producto" class="text-danger d-none m-2"></p>
         </div>`),
         datos_remitente = crearNodo(`
@@ -453,7 +542,8 @@ function finalizarCotizacion(datos) {
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Celular del Destinatario</h5>
-                        <input type="tel" id="telefonoD" class="form-control form-control-user" value="" placeholder="Celular" required="">
+                        <input type="tel" id="telefonoD" class="form-control form-control-user" 
+                        value="" placeholder="Celular" required="" maxlengt="10">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Otro celular del Destinatario</h5>
@@ -717,7 +807,9 @@ function enviar_firestore(datos){
                 //Creo la referencia para la nueva guía generada con su respectivo id
                 let referenciaNuevaGuia = firestore.collection("usuarios").doc(localStorage.user_id)
                 .collection("guias").doc(id_heka);
+                
                 firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
+
                 if(generacion_automatizada) {
                     //Para cuando el usuario tenga activa la creación deguías automáticas.
                     //Primero consulto la respuesta del web service
@@ -725,7 +817,7 @@ function enviar_firestore(datos){
                         .then(async (resGuia) => {
                             //le midifico los datos de respuesta al que será enviado a firebase
                             datos.numeroGuia = resGuia.numeroGuia;
-                            datos.id_archivoCargar = resGuia.id_archivoCargar;
+                            datos.id_archivoCargar = resGuia.id_archivoCargar || "";
                             //y creo el documento de firebase
                             if(resGuia.numeroGuia) {
                                 let guia = await referenciaNuevaGuia.set(datos)
@@ -734,18 +826,20 @@ function enviar_firestore(datos){
                                 })
                                 .catch(err => {
                                     console.log("Hubo un error al crear la guía con firebase => ", err);
-                                    return {numeroGuia: "0"}
+                                    return {numeroGuia: 0, error: "Lo sentimos, hubo un problema con conexión con nuestra base de datos, le recomendamos recargar la página."}
                                 })
                                 console.log(guia);
                                 return guia;
+                            } else {
+                                return {numeroGuia: 0, error: resGuia.error}
                             }
                         })
                         console.log(respuesta);
                     
-                    if(respuesta.numeroGuia != "0") {
+                    if(respuesta.numeroGuia) {
                         return doc.data().id;
                     } else {
-                        throw new Error("No se pudo generar el número de guía, por favor intente nuevamente");
+                        throw new Error(respuesta.error);
                     }
                 } else {
                     //Para cuendo el usurio tenga la opcion de creacion de guias automática desactivada.
@@ -820,11 +914,10 @@ function enviar_firestore(datos){
         .catch((err)=> {
             Swal.fire({
                 icon: "error",
-                text: "Hubo un error al crear la guía",
-                timer: 3000
+                title: "¡Lo sentimos! Error inesperado",
+                html: "Hemos detectado el siguiente error: \"" + err.message + "\". Si desconoce la posible causa, por favor comuniquese con asesoría logistica (<a href='https://wa.me/573213361911' target='_blank'>+57 321 3361911</a>) enviando un capture o detallando el mensaje expuesto. \nmuchas gracias por su colaboración y discupe las molestias causadas."
             }).then(() => {
                 console.log("revisa que paso, algo salio mal => ", err);
-                avisar("¡Lo sentimos! Error inesperado", err.message);
             })
         })
 }
@@ -836,13 +929,11 @@ function notificarExcesoDeGasto() {
         "Tenía un saldo de: " + precios_personalizados.saldo,
         "Sumando el envío realizado: " + (precios_personalizados.saldo - datos_a_enviar.costo_envio)],
         icon: ["dollar-sign", "warning"],
-        visible_user: true,
+        visible_admin: true,
         user_id,
-        href: "usuarios"
+        href: "deudas"
     })
 }
-
-// setTimeout(notificarExcesoDeGasto, 5000);
 
 async function generarGuiaServientrega(datos) {
     let res = await fetch("/servientrega/crearGuia", {
@@ -856,13 +947,34 @@ async function generarGuiaServientrega(datos) {
         data = parser.parseFromString(data, "application/xml");
         console.log(data);
         console.log("se recibió respuesta");
-        let retorno = {
-            numeroGuia: data.querySelector("Num_Guia").textContent,
-            nombreD: data.querySelector("Nom_Contacto").textContent,
-            ciudadD: data.querySelector("Des_Ciudad").textContent,
-            id_archivoCargar: data.querySelector("Id_ArchivoCargar").textContent,
-            prueba: datos.centro_de_costo == "SellerNuevo" ? true : false
+        let retorno = new Object({});
+        if(data.querySelector("parsererror")) {
+            retorno.numeroGuia = 0;
+            retorno.error = "Alguno de los carácteres ingresados no está permitido"
+            return retorno;
         }
+
+        if(data.querySelector("Text")) {
+            retorno.numeroGuia = 0;
+            retorno.error = data.querySelector("Text").textContent
+            return retorno;
+        }
+
+        if(data.querySelector("CargueMasivoExternoResult").textContent === "true") {
+            retorno = {
+                numeroGuia: data.querySelector("Num_Guia").textContent,
+                nombreD: data.querySelector("Nom_Contacto").textContent,
+                ciudadD: data.querySelector("Des_Ciudad").textContent,
+                id_archivoCargar: data.querySelector("Id_ArchivoCargar").textContent,
+                prueba: datos.centro_de_costo == "SellerNuevo" ? true : false
+            }
+        } else {
+            retorno = {
+                numeroGuia: 0,
+                error: data.querySelector("arrayGuias").children[0].textContent + "\""
+            }
+        }
+        console.log(data.querySelector("arrayGuias").children);
         return retorno;
     })
     .catch(err => console.log("Hubo un error: ", err))
