@@ -46889,9 +46889,9 @@ autocomplete(document.getElementById("ciudadD"), ciudades);
 <script type="text/javascript">
   $('#notificacion').modal('show')
   //Para cerrar sesión luego que se cierre el modal
-  // $('#notificacion').on('hidden.bs.modal', function (event) {
-  //   firebase.auth().signOut();
-  // })
+  $('#notificacion').on('hidden.bs.modal', function (event) {
+    firebase.auth().signOut();
+  })
 </script>
 </body>
 
