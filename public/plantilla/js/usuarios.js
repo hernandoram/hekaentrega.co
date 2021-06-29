@@ -592,22 +592,14 @@ function actualizarInformacionHeka() {
             console.log(docRef1.id)
             firebase.firestore().collection("usuarios").doc(id_usuario).collection("movimientos").add(saldo)
             .then((docRef2) => {
-                firebase.firestore().collection("usuarios").doc("22032021").get()
-                .then((doc) => {
-                    pagos = doc.data().pagos;
-                    pagos.push({
-                        id1: docRef1.id,
-                        id2: docRef2.id,
-                        user: saldo.user_id,
-                        medio: "Administrador: " + localStorage.user_id,
-                        momento: momento
-                    })
-                    return pagos;
-                }).then(reg => {
-                    firebase.firestore().collection("usuarios").doc("22032021").update({
-                        pagos: reg
-                    });
-                })
+                firebase.firestore().collection("usuarios").doc("22032021")
+                .collection("movimientos").add({
+                    id1: docRef1.id,
+                    id2: docRef2.id,
+                    user: saldo.user_id,
+                    medio: "Administrador: " + localStorage.user_id,
+                    momento: momento
+                });
             })
         });
     }).then(() => {
@@ -629,14 +621,17 @@ async function verMovimientos(usuario, fechaI, fechaF){
     document.getElementById("card-movimientos").innerHTML = "<div class='d-flex justify-content-center'><div class='lds-ellipsis'><div></div><div></div><div></div><div></div></div>";
     try {
         let buscador = await firebase.firestore().collection("usuarios").doc("22032021")
-        .get().then((doc) => {
-            let pagos = doc.data().pagos;
-            return pagos.filter((d) => {
-                return d.user == usuario && fechaI <= d.momento && fechaF >= d.momento;
-            });
-        }) 
+        .collection("movimientos").get().then((querySnapshot) => {
+            let pagos = new Array();
+            querySnapshot.forEach(doc => {
+                let pago = doc.data();
+                if(pago.user == usuario && fechaI <= pago.momento && fechaF >= pago.momento) pagos.push(pago);
+            })
+            return pagos
+        });
 
 
+        console.log(buscador);
         async function miradorUsuario(usuario){
             let res = []
             await firebase.firestore().collection("usuarios").doc(usuario).collection("movimientos")
@@ -667,7 +662,7 @@ async function verMovimientos(usuario, fechaI, fechaF){
             .then(() => {
                 document.getElementById("card-movimientos").innerHTML = "";
                 let detalles = document.createElement("ul");
-                lista_detalles = []
+                lista_detalles = [];
                 console.log(data2);
                 console.log(data1);
                 let saldo_momento = data2.reduce((a,b) => {

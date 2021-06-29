@@ -10,8 +10,7 @@ function escucha(id, e, funcion) {
 function mostrar(id) {
     let content = document.getElementById("content").children;
 
-    
-    if(id == ""){
+    if(id == "" || !window.top[id]){
         console.log(content)
         dNone(content);
         content[0].style.display = "block"
@@ -1356,23 +1355,14 @@ function actualizarSaldo(data) {
             firebase.firestore().collection("usuarios").doc(data.user_id)
             .collection("movimientos").add(data)
             .then((docRef2) => {
-                firebase.firestore().collection("usuarios").doc("22032021").get()
-                .then((doc) => {
-                    pagos = doc.data().pagos;
-                    pagos.push({
-                        id1: docRef1.id,
-                        id2: docRef2.id,
-                        user: data.user_id,
-                        medio: data.medio,
-                        guia: data.guia,
-                        momento: data.momento
-                    })
-                    return pagos;
-                }).then(reg => {
-                    console.log(reg);
-                    firebase.firestore().collection("usuarios").doc("22032021").update({
-                        pagos: reg
-                    });
+                firebase.firestore().collection("usuarios").doc("22032021")
+                .collection("movimientos").add({
+                    id1: docRef1.id,
+                    id2: docRef2.id,
+                    user: data.user_id,
+                    medio: data.medio,
+                    guia: data.guia,
+                    momento: data.momento
                 })
             })
         });

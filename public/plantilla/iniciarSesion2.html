@@ -126,17 +126,7 @@
     function iniciarSesion() {
         let usuario = value("usuario");
         let buscardor = document.getElementById("buscador");
-        // let x = db.ref("usuarios");
-        // x.once("value", (snapshot) => {
-        //     snapshot.forEach((res) =>{
-        //         if(res.val().numero_documento == usuario) {
-        //             console.log(res.val());
-        //             localStorage.setItem("user_id", res.key);
-        //             localStorage.setItem("user_login", res.val().numero_documento);
-        //             location.href = "plataforma2.html"
-        //         }
-        //     });
-        // });
+
         firebase.firestore().collection("usuarios").where("ingreso", "==", usuario).get()
         .then((querySnapshot) => {
           localStorage.setItem("user_id", "");
@@ -160,7 +150,8 @@
         }).catch((error) => {
           console.log("Error getting documents: ", error);
         });
-    }
+    };
+    
     window.onload = () => {
       if(localStorage.getItem("acceso_admin")){
         location.href = "admin.html"

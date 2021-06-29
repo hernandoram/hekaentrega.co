@@ -109,13 +109,16 @@ async function cotizador(){
             //     seguro: value("seguro-mercancia")
             // };
     
-            $("#list-transportadoras .ver-mas").click(function(e){
-                e.preventDefault();
+            $("#list-transportadoras .detalles").click(function(e){
                 $(this).parents("a").tab("show");
-                $("#nav-contentTransportadoras").parent().removeClass("d-none")
-                
-                console.log($("#nav-contentTransportadoras").parent())
+                $("#nav-contentTransportadoras").parent().removeClass("d-none");             
+            });
+
+            $('a[data-toggle="list"]').on('shown.bs.tab', function (event) {
+                event.target.classList.remove("active");
             })
+
+            $("#list-transportadoras a").click(seleccionarTransportadora);
 
             $("#boton_continuar").click(() =>{
                 let creador = document.getElementById("crear_guia");
@@ -145,8 +148,6 @@ async function cotizador(){
                 console.log(informacion)
             })
 
-            console.log(datos_de_cotizacion.tiempo)
-
             location.href = "#result_cotizacion"
         }
     }else{
@@ -158,6 +159,59 @@ async function cotizador(){
 
 
 }
+
+function seleccionarTransportadora(e) {
+    if (e.target.classList.contains("detalles")) return
+    let transp = this.getAttribute("data-transp");
+    let result_cotizacion = datos_de_cotizacion[transp];
+    Swal.fire({
+        icon: 'info',
+        title: 'Tener en cuenta con ' + transp,
+        html: observacionesServientrega(result_cotizacion),
+        width: "50em",
+        customClass: {
+            cancelButton: "btn btn-secondary m-2",
+            confirmButton: "btn btn-primary m-2",
+        },
+        showCancelButton: true,
+        showCloseButton: true,
+        cancelButtonText: "Cancelar",
+        confirmButtonText: "Continuar",
+        buttonsStyling: false,
+    }).then((result) => {
+        console.log(result);
+        if (result.isConfirmed) {
+            datos_a_enviar.peso = Math.max(3, result_cotizacion.kg);
+            datos_a_enviar.costo_envio = result_cotizacion.costoEnvio;
+            datos_a_enviar.valor = result_cotizacion.valor;
+            datos_a_enviar.seguro = result_cotizacion.seguro;
+            datos_a_enviar.type = result_cotizacion.type;
+        
+            if(document.getElementById("cotizar_envio").getAttribute("data-index")){
+                location.href = "iniciarSesion2.html";
+            }else if(!datos_a_enviar.debe && !precios_personalizados.actv_credit &&
+                datos_a_enviar.costo_envio > precios_personalizados.saldo) {
+                Swal.fire("¡No permitido!", `Lo sentimos, en este momento, el costo de envío excede el saldo
+                que tienes actualmente, por lo tanto este metodo de envío no estará 
+                permitido hasta que recargues tu saldo. Puedes comunicarte con la asesoría logística para conocer los pasos
+                a seguir para recargar tu saldo.`)
+                boton_continuar = crearNodo(`<div class="d-flex justify-content-center text-danger mt-3">
+                    <p></p>
+                    <p>Puedes comunicarte con la asesoría logística para conocer los pasos
+                    a seguir para recargar tu saldo.</p>
+                </div>`)
+            } else {
+                finalizarCotizacion(datos_de_cotizacion)
+            }
+
+        }
+    })
+
+    //Detalles del costo de Envío
+    datos_a_enviar.detalles = result_cotizacion.getDetails;
+    console.log(datos_a_enviar);
+}
+
 
 async function pagoContraentrega() {
     let recaudo = await Swal.fire({
@@ -171,10 +225,12 @@ async function pagoContraentrega() {
                 <input type="checkbox" class="form-check-input" id="sumar-envio-cotizador"></input>
                 <label class="form-check-label" for="sumar-envio-cotizador">¿Desea sumar costo de envío?</label>
             </div>
+            ${$("cotizar-envío").attr("data-index") ? `
             <div class="form-group form-check mt-2">
                 <input type="checkbox" class="form-check-input" id="restar-saldo-cotizador"></input>
                 <label class="form-check-label" for="restar-saldo-cotizador">¿Desea restar el costo del envío del saldo?</label>
             </div>
+            `: ""}
           `,
         confirmButtonText:
           'Continuar',
@@ -253,25 +309,16 @@ async function response(datos) {
         datos_a_enviar.debe = false;
     }
 
-    datos_a_enviar.peso = Math.max(3, result_cotizacion.kg);
-    datos_a_enviar.costo_envio = result_cotizacion.costoEnvio;
-    datos_a_enviar.valor = result_cotizacion.valor;
-    datos_a_enviar.seguro = result_cotizacion.seguro;
-    datos_a_enviar.type = type;
 
     datos_de_cotizacion.peso = Math.max(3, result_cotizacion.kg);
     datos_de_cotizacion.costo_envio = result_cotizacion.costoEnvio;
     datos_de_cotizacion.valor = result_cotizacion.valor;
     datos_de_cotizacion.seguro = result_cotizacion.seguro;
     datos_de_cotizacion.type = type;
-
-    //Detalles del costo de Envío
-    datos_a_enviar.detalles = result_cotizacion.getDetails;
-    console.log(datos_a_enviar);
+    
 
     let htmlTransportadoras = detallesTransportadoras(datos_de_cotizacion)
 
-    let c_destino = document.getElementById('ciudadD').dataset;
     let div_principal = document.createElement("DIV"),
         crearNodo = str => new DOMParser().parseFromString(str, "text/html").body,
         boton_regresar = crearNodo(`<a class="btn btn-outline-primary mb-2" href="#cotizar_envio" onclick="regresar()">
@@ -285,63 +332,18 @@ async function response(datos) {
                     ${htmlTransportadoras[0]}
                 </div>
             </div>
-            <div class="col-12 col-md-7 mt-4 d-none">
+            <div class="col-12 col-md-5 mt-4 mt-md-0 d-none">
                 <div class="tab-content" id="nav-contentTransportadoras">
                     ${htmlTransportadoras[1]}
                 </div>
             </div>
         </div>`),
-        servientrega = crearNodo(`<div class="card card-shadow m-6">
-            <div class="card-header py-3 bg-primary">
-                <div class="d-flex justify-content-center"><img style="max-width: 300px" class="w-100" src="img/transportadoras-logotipo.png"/></div>
-            </div>
-            <div class="card-body row">
-                <div class="col mb-3">
-                    <h5>Tipo de Trayecto: <span>${datos.trayecto}</span></h5>
-                    <h5>Tiempo de trayecto: <span>${datos.tiempo} días</span></h5>
-                    <h5>Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span></h5>
-                    <h5>Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span></h5>
-                    <h5 class="mt-3 text-danger">En caso de devolución pagas solo el envío ida: $${convertirMiles(result_cotizacion.costoEnvio)}</h5>
-                </div>
-                <div class="col-12 col-md-7 mb-3 mb-sm-0">
-                    <ul class="list-group">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Valor flete
-                        <span class="badge badge-secondary badge-pill">$${convertirMiles(result_cotizacion.flete)}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Comisión Transportadora
-                        <span class="badge badge-secondary badge-pill">$${convertirMiles(result_cotizacion.sobreflete)}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Seguro Mercancía
-                        <span class="badge badge-secondary badge-pill">$${convertirMiles(result_cotizacion.sobreflete_heka)}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Costo Total de Envío
-                        <span class="badge badge-primary badge-pill text-lg">$${convertirMiles(result_cotizacion.costoEnvio)}</span>
-                        </li>
-                    </ul>
-                    </div>
-                
-            </div>
-        </div>`),
+        
         boton_continuar = crearNodo(`<div class="d-flex justify-content-end mt-2"><input type="button" id="boton_continuar" 
             class="btn btn-success mt-3" value="Continuar" ${!act_btn_continuar ? "disabled=true" : ""}></div>`);
         
-    console.log(!datos_a_enviar.debe, !precios_personalizados.actv_credit);
-    if(!datos_a_enviar.debe && !precios_personalizados.actv_credit &&
-        datos_a_enviar.costo_envio > precios_personalizados.saldo) {
-            boton_continuar = crearNodo(`<div class="d-flex justify-content-center text-danger mt-3">
-                <p>Lo sentimos, en este momento, el costo de envío excede el saldo
-                que tienes actualmente, por lo tanto este metodo de envío no estará 
-                permitido hasta que recargues tu saldo.</p>
-                <p>Puedes comunicarte con la asesoría logística para conocer los pasos
-                a seguir para recargar tu saldo.</p>
-            </div>`)
-    }
 
-    div_principal.append(divisor, boton_regresar, info_principal, transportadoras, boton_continuar)
+    div_principal.append(divisor, boton_regresar, info_principal, transportadoras)
     if(document.getElementById("cotizar_envio").getAttribute("data-index")){
        boton_continuar.firstChild.style.display = "none";
        console.log("EStoy en el index");
@@ -355,37 +357,33 @@ function detallesTransportadoras(data) {
         nombre: "SERVIENTREGA",
         src: "img/logoServi.png",
         altImg: "Logo Servientrega"
-    }, {
-        nombre: "servientrega",
-        src: "img/logoServi.png",
-        altImg: "Logo Servientrega"
-    }, {
-        nombre: "Servientrega",
-        src: "img/logoServi.png",
-        altImg: "Logo Servientrega"
     }];
     let encabezados = "", detalles = "";
 
     transportadoras.forEach((transportadora, i) => {
-        let cotizacion = new CalcularCostoDeEnvio(data.valor, data.type);
-        encabezados += `<a class="list-group-item list-group-item-action" id="list-transportadora-${transportadora.nombre}-list" 
-        role="tab" 
+        let cotizacion = new CalcularCostoDeEnvio(data.seguro, data.type);
+        datos_de_cotizacion[transportadora.nombre] = cotizacion;
+        encabezados += `<a class="list-group-item list-group-item-action" 
+        id="list-transportadora-${transportadora.nombre}-list" 
+        role="tab"
+        data-toggle="list"
+        data-transp="${transportadora.nombre}"
         href="#list-transportadora-${transportadora.nombre}" 
         aria-controls="transportadora-${transportadora.nombre}"
         >
-        <!--data-toggle="list" -->
             <div class="d-flex justify-content-between">
-                <img src="${transportadora.src}" class="float-left" alt="${transportadora.altImg}" height="3em">
+                <img src="${transportadora.src}" class="d-flex align-self-center mr-2" alt="${transportadora.altImg}" height="50px">
                 <div class="w-100">
-                    <small class="float-right ver-mas"
-                    data-toggle="list" role="tab">
-                    <button class="btn btn-danger badge badge-pill">ver más</button></small>
                     <h5 class="mb-1">${transportadora.nombre}</h5>
-                    <p class="mb-1">tiempo de entrega: 3 días</p>
-                    <p class="${data.type == "CONVENCIONAL" ? "d-none" : ""}">Costo de envío para Recaudo: <b>$${convertirMiles(cotizacion.seguro)}</b></p>
-                </div>
-                <p>$${convertirMiles(cotizacion.costoEnvio)}</p>
-            </div>
+                    <p class="mb-1">tiempo de entrega: ${datos_de_cotizacion.tiempo} Días</p>
+                    </div>
+                    <div class="d-flex flex-column justify-content-around">
+                    <small class="detalles btn btn-secondary badge badge-pill">
+                    Detalles</small>
+                    <b>$${convertirMiles(cotizacion.costoEnvio)}</b>
+                    </div>
+                    </div>
+                    <p class="text-center mb-0 mt-2 ${data.type == "CONVENCIONAL" ? "d-none" : ""}">Costo de envío para Recaudo: <b>$${convertirMiles(cotizacion.seguro)}</b></p>
         </a>`;
 
         detalles += `<div class="tab-pane fade" id="list-transportadora-${transportadora.nombre}" role="tabpanel" aria-labelledby="list-transportadora-${transportadora.nombre}-list">
@@ -472,8 +470,12 @@ function finalizarCotizacion(datos) {
     let div_principal = document.createElement("DIV"),
         crearNodo = str => new DOMParser().parseFromString(str, "text/html").body;
 
+    let creador = document.getElementById("crear_guia");
+    
+
+
     let detalles = detalles_cotizacion(datos),
-        boton_regresar = crearNodo(`<a class="btn btn-outline-primary btn-block mb-2" href="#cotizar_envio" onclick="regresar()">
+        boton_regresar = crearNodo(`<a class="btn btn-outline-primary btn-block mb-3" href="#cotizar_envio" onclick="regresar()">
             Regresar
             </a>`),
         input_producto = crearNodo(`<div class="col mb-3 mb-sm-0">
@@ -569,7 +571,28 @@ function finalizarCotizacion(datos) {
             class="btn btn-success btn-block mt-5" value="Crear Guía" onclick="crearGuiasServientrega()"/>`);
 
     div_principal.append(boton_regresar, detalles, input_producto, datos_remitente, datos_destinatario, boton_crear);
-    return div_principal.innerHTML;
+    creador.innerHTML = "";
+    creador.innerHTML = div_principal.innerHTML;
+    location.href = "#crear_guia";
+    scrollTo(0, 0);
+
+    let informacion = document.getElementById("informacion-personal");
+    document.getElementById("producto").addEventListener("blur", () => {
+        let normalmente_envia = false;
+        for(let product of datos_usuario.objetos_envio){
+            product = product.toLowerCase();
+            if(value("producto").trim().toLowerCase() == product){
+                normalmente_envia = true;
+            }
+        }
+        let aviso = document.getElementById("aviso-producto");
+        if(!normalmente_envia){
+            aviso.innerHTML = "No se registra en lo que normalmente envías: <b>\"" + datos_usuario.objetos_envio.join(", ") + "\".</b> \r si deseas continuar de todos modos, solo ignora este mensaje";
+            aviso.classList.remove("d-none");
+        }else {
+            aviso.classList.add("d-none")
+        }
+    })
 }
 
 function regresar() {
@@ -614,7 +637,7 @@ class CalcularCostoDeEnvio {
     constructor(valor, type, kilos, vol){
         this.type = type;
         this.valor = type == "CONVENCIONAL" ? 0 : valor;
-        this.seguro = valor;
+        this.seguro = parseInt(valor);
         this.kg = kilos || Math.floor(value("Kilos"));
         this.volumen = vol || value("dimension-ancho") * value("dimension-alto") * value("dimension-largo");
         this.factor_de_conversion = 0.022;
@@ -996,3 +1019,68 @@ function convertirMiles(n){
     }  
     return response.reverse().join("");
 };
+
+function observacionesServientrega(result_cotizacion) {
+    console.log(result_cotizacion);
+    let c_destino = document.getElementById('ciudadD').dataset;
+    let lists = ["Los tiempos de entrega son aproximados, no son exactos, ya que pueden suceder problemas operativos.", "El paquete deberá estar correctamente embalado, de lo contrario la transportadora no responderá por averías.", "En algunas ciudades y/o municipios, según las rutas, si el vehículo encargado de realizar las entregas no alcanza a culminar la ruta operativa dejara el paquete en una oficina para que sea reclamado por el destinatario.", "En caso de novedad en la cual el destinatario no se encuentre la transportadora realizará un nuevo intento de entrega, en caso de presentarse una novedad distinta la transportadora se comunicará con el remitente y destinario, en caso de no tener respuesta a la llamada la transportadora genera la devolución. (Por eso recomendamos solucionar las novedades lo antes posible para intentar retener el proceso de devolución).", "En caso de devolución la transportadora cobrará el valor completo del envío el cual estará reflejado en el cotizador. (Aplica para envíos en pago contra entrega).", "Las recolecciones deberán ser solicitadas antes de las 10:00 am para que pasen el mismo día, en caso de ser solicitadas después de este horario quedaran automáticamente para el siguiente día.", "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.", "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero o la oficina donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
+    `Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span>`,
+    `Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`,
+    `En caso de devolución pagas solo el envío ida: $${convertirMiles(result_cotizacion.costoEnvio)}`]
+
+    let ul = document.createElement("ul");
+    ul.classList.add("text-left")
+
+    for(let list of lists) {
+        let li = document.createElement("li");
+        li.classList.add("my-3")
+        li.innerHTML = list;
+        ul.append(li);
+    }
+
+    return ul;
+    let servientrega = crearNodo(`<div class="card card-shadow m-6">
+            <div class="card-header py-3 bg-primary">
+                <div class="d-flex justify-content-center"><img style="max-width: 300px" class="w-100" src="img/transportadoras-logotipo.png"/></div>
+            </div>
+            <div class="card-body row">
+                <div class="col mb-3">
+                    <h5>Tipo de Trayecto: <span>${datos.trayecto}</span></h5>
+                    <h5>Tiempo de trayecto: <span>${datos.tiempo} días</span></h5>
+                    <h5>Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span></h5>
+                    <h5>Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span></h5>
+                    <h5 class="mt-3 text-danger">En caso de devolución pagas solo el envío ida: $${convertirMiles(result_cotizacion.costoEnvio)}</h5>
+                </div>
+                <div class="col-12 col-md-7 mb-3 mb-sm-0">
+                    <ul class="list-group">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Valor flete
+                        <span class="badge badge-secondary badge-pill">$${convertirMiles(result_cotizacion.flete)}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Comisión Transportadora
+                        <span class="badge badge-secondary badge-pill">$${convertirMiles(result_cotizacion.sobreflete)}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Seguro Mercancía
+                        <span class="badge badge-secondary badge-pill">$${convertirMiles(result_cotizacion.sobreflete_heka)}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                        Costo Total de Envío
+                        <span class="badge badge-primary badge-pill text-lg">$${convertirMiles(result_cotizacion.costoEnvio)}</span>
+                        </li>
+                    </ul>
+                    </div>
+                
+            </div>
+        </div>`)
+}
+
+// let buscador = firebase.firestore().collection("usuarios").doc("22032021")
+// .get().then((doc) => {
+//     let pagos = doc.data().pagos;
+//     pagos.forEach((d) => {
+//         firebase.firestore().doc(doc.ref.path).collection("movimientos").add(d);
+//         return d.user == usuario && fechaI <= d.momento && fechaF >= d.momento;
+//     });
+// }) 

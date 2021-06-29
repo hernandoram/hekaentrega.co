@@ -69,6 +69,7 @@ function crearDocumentos() {
                 prueba:  check.getAttribute("data-prueba") == "true" ? true : false,
                 type: check.getAttribute("data-type")
             });
+
             let tipos_diferentes = arrGuias.some((v, i, arr) => {
                 return v.type != arr[i? i - 1 :i].type
             });
@@ -79,15 +80,15 @@ function crearDocumentos() {
         }
     }
 
-    checks.forEach((check) => {
+    checks.forEach((check, i) => {
         if(check.checked && !check.disabled){
             check.checked = false;
             check.disabled = true;
+            $(check).parents("tr").find('button').prop("disabled", true);
         }
     })
 
     console.log(guias);
-    
     // Add a new document with a generated id.
     if(guias.length == 0){
         avisar("No se Pudo enviar su documento", "Asegurece de haber seleccionado al menos una guía", "aviso");
