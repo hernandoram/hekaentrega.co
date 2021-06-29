@@ -445,12 +445,11 @@ function mostrarDatosPersonales(data, info) {
         asignacion("actualizar_costo_especial3", data.costo_especial3);
         asignacion("actualizar_comision_servi", data.comision_servi);
         asignacion("actualizar_comision_heka", data.comision_heka);
+        asignacion("limit_credit", data.limit_credit);
         mostrador_saldo.textContent = "$" + convertirMiles(data.saldo) || 0;
         mostrador_saldo.setAttribute("data-saldo", data.saldo || 0);
         mostrador_saldo.setAttribute("data-saldo_anterior", data.saldo || 0);
-        document.getElementById("activador-saldo").checked = data.activar_saldo;
-
-        
+        document.getElementById("actv_credit").checked = data.actv_credit;
     }
 
     $("#aumentar_saldo").keyup((e) => {
@@ -466,30 +465,23 @@ function mostrarDatosPersonales(data, info) {
         }  
     });
 
-    activarDesactivarSaldo(data.activar_saldo)
-    $("#activador-saldo").change((e) => {
-        activarDesactivarSaldo(e.target.checked)
-    })
+    activarDesactivarCredito(data.actv_credit)
+    $("#actv_credit").change((e) => {
+        activarDesactivarCredito(e.target.checked)
+    });
 
-    function activarDesactivarSaldo(boolean){
+    function activarDesactivarCredito(boolean){
         if(boolean){
-            $("#mostrador_saldo").removeClass("d-none");
+            $("#mostrador-credito").removeClass("d-none");
+            $("#mostrador-credito").children("p").first().text((i,t) => {
+                return t.replace("[limite]", convertirMiles(value("limit_credit")));
+            });
+            $("#actv_credit").prop("checked");
         } else {
-            $("#mostrador_saldo").addClass("d-none");
+            $("#mostrador-credito").addClass("d-none");
+            $("#actv_credit").prop("checked", false);
         } 
     }
-
-    let id_user = $("#usuario-seleccionado").attr("data-id");
-    firebase.firestore().collection("usuarios").doc(id_user)
-    .get().then((doc) => {
-        if(doc.data().usuario_corporativo){
-            document.getElementById("activador-saldo").parentNode.classList.remove("d-none");
-        } else {
-            document.getElementById("mostrador_saldo").classList.add("d-none");
-            document.getElementById("activador-saldo").checked = false;
-            document.getElementById("activador-saldo").parentNode.classList.add("d-none");
-        }
-    })
     
 }
 
@@ -565,7 +557,8 @@ function actualizarInformacionHeka() {
         comision_servi: value("actualizar_comision_servi"),
         comision_heka: value("actualizar_comision_heka"),
         saldo: $("#actualizar_saldo").attr("data-saldo"),
-        activar_saldo: document.getElementById("activador-saldo").checked,
+        actv_credit: document.getElementById("actv_credit").checked ? 1 : 0,
+        limit_credit: value("limit_credit"),
         fecha: genFecha()
     };
 
@@ -576,37 +569,37 @@ function actualizarInformacionHeka() {
     saldo = {
         saldo: $("#actualizar_saldo").attr("data-saldo"),
         saldo_anterior: $("#actualizar_saldo").attr("data-saldo_anterior"),
-        activar_saldo: document.getElementById("activador-saldo").checked,
+        actv_credit: document.getElementById("actv_credit").checked,
+        limit_credit: value("limit_credit"),
         fecha: genFecha(),
-        user_id: id_usuario,
-        momento: momento,
         diferencia: $("#aumentar_saldo").val() || 0,
         mensaje: "Hubo algún cambio por parte del administrador",
+        guia: "",
+        momento: momento,
+        user_id: id_usuario,
         medio: "Administrador: " + localStorage.user_id
     }
-    firebase.firestore().collection("usuarios").doc(id_usuario).collection("informacion").doc("heka").set(datos)
+    if(saldo.saldo_anterior < 0 && saldo.saldo != saldo.saldo_anterior) {
+        document.querySelector('[onclick="actualizarInformacionHeka()"]').value = "Actualizar Costos de Envío";
+        return avisar("No permitido", "Se detecta un saldo negativo, por favor justifica el saldo canjeado en deudas, o contace al desarrollador para agregar una excepción.", "advertencia")
+    };
+    // return console.log(datos, saldo)
+    firebase.firestore().collection("usuarios").doc(id_usuario)
+    .collection("informacion").doc("heka").set(datos)
     .then(() => {
         firebase.firestore().collection("prueba").add(saldo)
         .then((docRef1)=> {
             console.log(docRef1.id)
             firebase.firestore().collection("usuarios").doc(id_usuario).collection("movimientos").add(saldo)
             .then((docRef2) => {
-                firebase.firestore().collection("usuarios").doc("22032021").get()
-                .then((doc) => {
-                    pagos = doc.data().pagos;
-                    pagos.push({
-                        id1: docRef1.id,
-                        id2: docRef2.id,
-                        user: saldo.user_id,
-                        medio: "Administrador: " + localStorage.user_id,
-                        momento: momento
-                    })
-                    return pagos;
-                }).then(reg => {
-                    firebase.firestore().collection("usuarios").doc("22032021").update({
-                        pagos: reg
-                    });
-                })
+                firebase.firestore().collection("usuarios").doc("22032021")
+                .collection("movimientos").add({
+                    id1: docRef1.id,
+                    id2: docRef2.id,
+                    user: saldo.user_id,
+                    medio: "Administrador: " + localStorage.user_id,
+                    momento: momento
+                });
             })
         });
     }).then(() => {
@@ -628,14 +621,17 @@ async function verMovimientos(usuario, fechaI, fechaF){
     document.getElementById("card-movimientos").innerHTML = "<div class='d-flex justify-content-center'><div class='lds-ellipsis'><div></div><div></div><div></div><div></div></div>";
     try {
         let buscador = await firebase.firestore().collection("usuarios").doc("22032021")
-        .get().then((doc) => {
-            let pagos = doc.data().pagos;
-            return pagos.filter((d) => {
-                return d.user == usuario && fechaI <= d.momento && fechaF >= d.momento;
-            });
-        }) 
+        .collection("movimientos").get().then((querySnapshot) => {
+            let pagos = new Array();
+            querySnapshot.forEach(doc => {
+                let pago = doc.data();
+                if(pago.user == usuario && fechaI <= pago.momento && fechaF >= pago.momento) pagos.push(pago);
+            })
+            return pagos
+        });
 
 
+        console.log(buscador);
         async function miradorUsuario(usuario){
             let res = []
             await firebase.firestore().collection("usuarios").doc(usuario).collection("movimientos")
@@ -666,7 +662,7 @@ async function verMovimientos(usuario, fechaI, fechaF){
             .then(() => {
                 document.getElementById("card-movimientos").innerHTML = "";
                 let detalles = document.createElement("ul");
-                lista_detalles = []
+                lista_detalles = [];
                 console.log(data2);
                 console.log(data1);
                 let saldo_momento = data2.reduce((a,b) => {
@@ -682,6 +678,7 @@ async function verMovimientos(usuario, fechaI, fechaF){
                 let saldo_legal = data1.reduce((a,b) => {
                     return parseInt(a) + parseInt(b.diferencia)
                 }, 0);
+
                 if(buscador.length == data2.length && buscador.length == data1.length) {
                     lista_detalles.push("La cantidad de movimientos coinciden en todos los documentos")
                 } else if(buscador.length == data2.length) {
@@ -689,6 +686,7 @@ async function verMovimientos(usuario, fechaI, fechaF){
                 } else if(buscador.length == data1.length) {
                     lista_detalles.push("La cantidad de movimientos coincide solo con los movimientos secundarios, si no estás filtrando datos es posible qeu sea un error");
                 }
+
                 lista_detalles.push("El saldo del cliente a la fecha era de: $" + convertirMiles(saldo_momento)
                 + " Y debió haber sido de: $" + convertirMiles(saldo_momento_legal))
                 tablaMovimientos(data2);

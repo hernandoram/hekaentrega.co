@@ -99,13 +99,18 @@
 
         <!-- Divider -->
         <hr class="sidebar-divider">
-        <div class="sidebar-heading">
-          Pagos
-        </div>
-        <li class="nav-item">
-          <a class="nav-link" href="#pagos" onclick="mostrar('pagos')">
+        <li class="nav-item active">
+          <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
             <i class="fas fa-fw fa-dollar-sign"></i>
-            <span>Pagos</span></a>
+            <span>Pagos</span>
+          </a>
+          <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <h6 class="collapse-header">Gestor De Pagos:</h6>
+              <a class="collapse-item" href="#pagos">Pagos</a>
+              <a class="collapse-item" href="#deudas">Deudas</a>
+            </div>
+          </div>
         </li>
 
         <!-- Sidebar Toggler (Sidebar) -->
@@ -187,8 +192,7 @@
 
         <!-- Main Content -->
         <div id="content">     
-          <!-- Begin Page Content -->
-          
+          <!-- Begin Page Content -->          
           <div class="container-fluid" id="cotizar_envio">
             <!-- Page Heading -->
             <div style="display: block;" id="cotizador">
@@ -215,8 +219,8 @@
                     <input type="number" class="form-control form-control-user" step="any" name="kilos" id="Kilos" min="3" max="25" autocomplete="off" required>  
                   </div>      
                   <div class="col mb-3 mb-sm-3">
-                    <h6>Recaudo <span>(valor a cobrar al cliente)</span></h6>
-                    <input type="number" class="form-control form-control-user" id="valor-a-recaudar" step="1000" name="recaudo" autocomplete="off" min="5000" max="2000000" >
+                    <h6>Valor Declarado</h6>
+                    <input type="number" class="form-control form-control-user" id="seguro-mercancia" step="1000" name="recaudo" autocomplete="off" min="5000" max="2000000" >
                   </div>      
                 </div>
 
@@ -441,10 +445,12 @@
               <input type="checkbox" id="CPNcheck_terminos_condiciones" onchange="checkTerminosCondiciones()"> <a href="terminos.html">Acepto términos y condiciones</a>
               <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
             </div>  
-            <div class="custom-control custom-switch text-center m-2">
+
+            <!-- para activar o desactivar las guias automáticas, por ahora quedará inhabilitado -->
+            <!-- <div class="custom-control custom-switch text-center m-2">
               <input type="checkbox" class="custom-control-input" id="switch-guias_automaticas">
               <label class="custom-control-label" for="switch-guias_automaticas">Sistema automatizado para generar guías (versión prueba) desactivado.</label>
-            </div>
+            </div> -->
           </form>
           <!--Desactivado este boton por ahora-->
           <!-- <button onclick="actualizarCuenta()" class="btn btn-primary btn-user btn-block">
@@ -465,22 +471,23 @@
             
             <!--Formulario de busqueda guias-->
             <div class="form-group row">
-              <div class="form-group row">
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                  <h6>Fecha inicio</h6>
-                  <input type="date" class="form-control form-control-user"  id="fecha_inicio"   required>
-                </div>
-                <div class="col-sm-6">
-                  <h6>Fecha final</h6>
-                  <input type="date" class="form-control form-control-user"  id="fecha_final"    required>
-                </div>
+              <div class="col-sm-4 mb-3">
+                <h6>Fecha inicio</h6>
+                <input type="date" class="form-control form-control-user"  id="fecha_inicio" required>
               </div>
-            
-              <button  onclick="cambiarFecha()" id="btn-buscar-guias"
-              class="btn btn-primary btn-user btn-block">
-                Buscar
-              </button>  
+              <div class="col-sm-4 mb-3">
+                <h6>Fecha final</h6>
+                <input type="date" class="form-control form-control-user"  id="fecha_final" required>
+              </div>
+              <div class="col-sm-4">
+                <h6>Número de Guía</h6>
+                <input type="text" class="form-control form-control-user"  id="numeroGuia-historial_guias">
+              </div>
             </div>
+            <button  onclick="cambiarFecha()" id="btn-buscar-guias"
+            class="btn btn-primary btn-user btn-block">
+              Buscar
+            </button>
             <br/>
             <div class="d-flex justify-content-center">
               <div id="cargador-guias" class="lds-ellipsis d-none"><div></div><div></div><div></div><div></div></div>
@@ -506,10 +513,12 @@
                         <th># Guía Heka</th>
                         <th># Guía Servientrega</th>
                         <th>Estado</th>
+                        <th>Tipo</th>
                         <th>Fecha generación</th>
                         <th>Remitente</th>
                         <th>Ciudad dest.</th>
                         <th>Nombre dest.</th>
+                        <th>Seguro</th>
                         <th>Recaudo</th>
                         <th>Costo envío</th>
                       </tr>
@@ -524,10 +533,12 @@
                         <th># Guía Heka</th>
                         <th># Guía Servientrega</th>
                         <th>Estado</th>
+                        <th>Tipo</th>
                         <th>Fecha generación</th>
                         <th>Remitente</th>
                         <th>Ciudad dest.</th>
                         <th>Nombre dest.</th>
+                        <th>Seguro</th>
                         <th>Recaudo</th>
                         <th>Costo envío</th>
                       </tr>
@@ -625,63 +636,68 @@
           </div>
 
           <div class="container-fluid" id="pagos" style="display: none;">
-            <div class="card mt-5">
+            <div class="card my-5">
               <div class="card-body">
                 <form enctype="multipart/form-data" id="form-pagos">
                   <div class="form-group">
-
                     <h2 class="text-center text-primary mb-4">Pagos Recibidos</h2>
-                    <hr>
-                    <span>Si decide Buscar por Guía, el filtro por fecha será desactivado automáticamente</span>
-                    <div class="col-md-6 mt-2">
-                      <a href="javascript:filtroFecha()" onclick="filtroFecha()"><input type="checkbox" name="activador_filtro_fecha" id="activador_filtro_fecha"></a>
-                      <label for="activador_filtro_fecha">Activar Filtrado por fecha</label>
-                    </div>
-                      
-                    <div class="row">
-                      <div id="fecha-pagos" class="col-md-8 mt-2" style="display: none;">
-                        <div class="form-group row mb-3">
-                          <div class="col-sm-6 mb-3 mb-sm-0">
-                            <h6>Fecha inicio</h6>
-                            <input id="filtro-fechaI" type="date" class="form-control form-control-user">
-                          </div>
-                          <div class="col-sm-6">
-                            <h6>Fecha final</h6>
-                            <input id="filtro-fechaF" type="date" class="form-control form-control-user">
+                    <div class="d-none" id="filtrador-pagos">
+                      <hr>
+                      <span>Si decide Buscar por Guía, el filtro por fecha será desactivado automáticamente</span>
+                      <div class="col-md-6 mt-2">
+                        <a href="javascript:filtroFecha()" onclick="filtroFecha()"><input type="checkbox" name="activador_filtro_fecha" id="activador_filtro_fecha"></a>
+                        <label for="activador_filtro_fecha">Activar Filtrado por fecha</label>
+                      </div>
+                        
+                      <div class="row">
+                        <div id="fecha-pagos" class="col-md-8 mt-2" style="display: none;">
+                          <div class="form-group row mb-3">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                              <h6>Fecha inicio</h6>
+                              <input id="filtro-fechaI" type="date" class="form-control form-control-user">
+                            </div>
+                            <div class="col-sm-6">
+                              <h6>Fecha final</h6>
+                              <input id="filtro-fechaF" type="date" class="form-control form-control-user">
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      
-                      <script>
-                        filtroFecha();
-                        function filtroFecha() {
-                          if(document.getElementById("activador_filtro_fecha").checked){
-                            document.getElementById("fecha-pagos").style.display = "block";
-                          } else {
-                            document.getElementById("fecha-pagos").style.display = "none";
+                        
+                        <script>
+                          filtroFecha();
+                          function filtroFecha() {
+                            if(document.getElementById("activador_filtro_fecha").checked){
+                              document.getElementById("fecha-pagos").style.display = "block";
+                            } else {
+                              document.getElementById("fecha-pagos").style.display = "none";
+                            }
                           }
-                        }
-                      </script>
-
-                      <div class="col-12 col-md-4 mt-2">
-                        <h6>Por Guía</h6>
-                        <input type="text" name="filtro-pago-guia" class="form-control" id="filtro-pago-guia">
-                      </div>
-
-                      <div class="col d-flex justify-content-center form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1" name="filtro-trasnportadoras" value="Servientrega">
-                        <label class="form-check-label" for="filtro-trasnportadora1">Servientrega</label>
-                      </div>
-                      <div class="col d-flex justify-content-center form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2" name="filtro-trasnportadoras" value="Envía">
-                        <label class="form-check-label" for="filtro-trasnportadora2">Envía</label>
-                      </div>
-                      <div class="col d-flex justify-content-center form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="filtro-trasnportadora3" name="filtro-trasnportadoras" value="TCC">
-                        <label class="form-check-label" for="filtro-trasnportadora3">TCC</label>
+                        </script>
+  
+                        <div class="col-12 col-md-4 mt-2">
+                          <h6>Por Guía</h6>
+                          <input type="text" name="filtro-pago-guia" class="form-control" id="filtro-pago-guia">
+                        </div>
+  
+                        <div class="col d-flex justify-content-center form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1" name="filtro-trasnportadoras" value="Servientrega">
+                          <label class="form-check-label" for="filtro-trasnportadora1">Servientrega</label>
+                        </div>
+                        <div class="col d-flex justify-content-center form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2" name="filtro-trasnportadoras" value="Envía">
+                          <label class="form-check-label" for="filtro-trasnportadora2">Envía</label>
+                        </div>
+                        <div class="col d-flex justify-content-center form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora3" name="filtro-trasnportadoras" value="TCC">
+                          <label class="form-check-label" for="filtro-trasnportadora3">TCC</label>
+                        </div>
                       </div>
                     </div>
 
+                    <div class="custom-control custom-switch text-center m-2">
+                      <input type="checkbox" class="custom-control-input" id="switch-habilitar-filtrado-pagos">
+                      <label class="custom-control-label" for="switch-habilitar-filtrado-pagos">Habilitar busqueda avanzada</label>
+                    </div>
                     <input type="button" id="btn-revisar_pagos" 
                     value="Revisar Pagos" class="btn btn-primary mt-4">
                   </div>
@@ -692,7 +708,24 @@
               <div class="lds-ellipsis mt-4 d-none" id="cargador-pagos"><div></div>
               <div></div><div></div><div></div></div>
             </div>
-            <div id="visor_pagos"></div>
+            <table id="visor-pagos" class="table table-striped" width="100%">
+              <div id="filtrar-fecha-visor-pagos"></div>
+              <thead></thead>
+              <tbody></tbody>
+              <tfoot></tfoot>
+            </table>
+          </div>
+
+          <div class="container-fluid" id="deudas" style="display: none;">
+            <button class="btn btn-primary btn-lg mb-4" onclick="revisarGuiasSaldas()">Revisar Guías Saldadas</button>
+            <div id="cargador-deudas" class="d-flex justify-content-center">
+              <div class="d-none lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+            </div>
+            <table id="visor-deudas" class="table table-striped" width="100%">
+              <thead></thead>
+              <tbody></tbody>
+              <tfoot></tfoot>
+            </table>
           </div>
         </div>   
         <!-- Footer -->
