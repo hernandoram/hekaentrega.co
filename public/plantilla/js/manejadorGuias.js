@@ -433,47 +433,51 @@ function descargarGuiasGeneradas(JSONData, ReportTitle, type) {
         }
         let row = "";
         //Ciudad/Cód DANE de Origen
-        row += '"' + arrData[i].ciudadR + '",';
+        row += arrData[i].ciudadR + ',';
         //Tiempo de Entrega
         row += 1+",";
         // Documento de Identificación
-        row += '"' + arrData[i].identificacionD + '",';
+        row += arrData[i].identificacionD + ',';
         // Nombre del Destinatario
-        row += '"' + arrData[i].nombreD + '",';
+        row += arrData[i].nombreD + ',';
         //Dirección
-        row += '"' + arrData[i].direccionD + '",';
+        row += arrData[i].direccionD + ',';
         // Ciudad/Cód DANE de destino
-        row += '"' + arrData[i].ciudadD + '",';
+        row += arrData[i].ciudadD + ',';
         //Departamento
-        row += '"' + arrData[i].departamentoD + '",';
+        row += arrData[i].departamentoD + ',';
         //Teléfono
-        row += '"' + arrData[i].telefonoD + '",';
+        row += arrData[i].telefonoD + ',';
         //Correo Electrónico Destinatario
-        row += '"' + arrData[i].correoD + '",';
+        row += arrData[i].correoD + ',';
         //Celular
-        row += '"' + arrData[i].celularD + '",';
+        row += arrData[i].celularD + ',';
         //Departamento de Origen
-        row += '"' + arrData[i].departamentoR + '",';
+        row += arrData[i].departamentoR + ',';
         //Direccion Remitente
-        row += '"' + arrData[i].direccionR + '",';
+        row += arrData[i].direccionR + ',';
         // Nombre de la Unidad de Empaque
         row += 'heka,';
         //Dice Contener
-        row += '"' + arrData[i].dice_contener + '",';
+        row += arrData[i].dice_contener + ',';
         // Valor declarado
-        row += ',';
+        if(type == "CONVENCIONAL") {
+            row += arrData[i].seguro + ',';
+        } else {
+            row += ',';
+        }
         // Número de Piezas
         row += '1,';
         // Cantidad
         row += '1,';
         //Alto
-        row += '"' + arrData[i].alto + '",';
+        row += arrData[i].alto + ',';
         //Ancho
-        row += '"' + arrData[i].ancho + '",';
+        row += arrData[i].ancho + ',';
         // Largo
-        row += '"' + arrData[i].largo + '",';
+        row += arrData[i].largo + ',';
         //Peso
-        row += '"' + arrData[i].peso + '",';
+        row += arrData[i].peso + ',';
         //Producto
         row += '2,';
         //Forma de Pago
@@ -481,28 +485,28 @@ function descargarGuiasGeneradas(JSONData, ReportTitle, type) {
         //Medio de Transporte
         row += '1,';
         // Campo personalizado 1
-        row += '"' + arrData[i].id_heka + '",';
+        row += arrData[i].id_heka + ',';
         // Unidad de longitud
         row += 'cm,';
         // Unidad de peso
         row += 'kg,';
         //Centro de costo
-        row += '"' + arrData[i].centro_de_costo + '",';
+        row += arrData[i].centro_de_costo + ',';
         //Recolección Esporádica
-        row += '"' + arrData[i].recoleccion_esporadica + '",';
+        row += arrData[i].recoleccion_esporadica + ',';
         // Tipo de Documento
         if(type != "CONVENCIONAL") {
-            row += '"' + arrData[i].tipo_doc_dest + '",';
+            row += arrData[i].tipo_doc_dest + ',';
         }
         // Nombre contacto remitente
-        row += '"' + arrData[i].nombreR + '",';
+        row += arrData[i].nombreR + ',';
         // Correo electrónico del remitente
-        row += '"' + arrData[i].correoR + '",';
+        row += arrData[i].correoR + ',';
         // Numero de telefono movil del remitente.
-        row += '"' + arrData[i].celularR + '",';
+        row += arrData[i].celularR + ',';
         // Valor a cobrar por el Producto
         if(type != "CONVENCIONAL") {
-            row += '"' + arrData[i].valor + '",';
+            row += arrData[i].valor + ',';
         }
 
         row.slice(0, row.length - 1);

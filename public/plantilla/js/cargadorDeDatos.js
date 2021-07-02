@@ -461,7 +461,10 @@ function cargarPagos(){
             if(datos_guia) {
               let row_guia_actual = guia.children[7];
               row_guia_actual.textContent = datos_guia.type || "PAGO CONTRAENTREGA";
-                
+              if(datos_guia.centro_de_costo != remitente) {
+                row_guia_actual.textContent += " El centro de costo de la guía subida no coincide con el registrado en la base de datos.\n";
+              }
+              
               if(datos_guia.debe == false || usuario_corporativo) {
                 row_guia_actual.textContent += " La guía fue descontada.";
                 if(!existe) sumarCostoEnvio(guia, remitente);
