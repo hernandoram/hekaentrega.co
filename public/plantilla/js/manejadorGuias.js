@@ -289,6 +289,7 @@ function cargarDocumentos(filter) {
                 let idUser = e.target.parentNode.getAttribute("data-user");
                 let guias = e.target.parentNode.getAttribute("data-guias").split(",");
                 let nombre = e.target.parentNode.getAttribute("data-nombre");
+                let type = e.target.parentNode.getAttribute("data-type");
                 documento = [];
                 cargarDocumento(idUser, guias).then(() =>{
                     let data = documento;
@@ -297,8 +298,8 @@ function cargarDocumentos(filter) {
                     }, data.id_heka);
                     if(guiaRepetida(data)) return avisar("¡Posible error Detectado!", "Alguna de las guías se encuentra repetida, se ha interrumpido el proceso antes de convertirlo en excel.", "aviso")
                     if(data == '')
-                        return;
-                    descargarGuiasGeneradas(data, nombre + " " + guias.slice(0, 5).join("_"), guias);
+                        return avisar("documento vacío", "No se detectaron guías en este documento", "advertencia");
+                    descargarGuiasGeneradas(data, nombre + " " + guias.slice(0, 5).join("_"), type);
                 }).then(() => {
                     boton.disabled = false;
                 })
@@ -408,7 +409,7 @@ async function cargarDocumento(id_user, arrGuias) {
 }
 
 //Me convierte el conjunto de guias descargadas en archivo CsV
-function descargarGuiasGeneradas(JSONData, ReportTitle, guias) {
+function descargarGuiasGeneradas(JSONData, ReportTitle, type) {
     console.log(JSONData)
     //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
     var arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
@@ -416,9 +417,13 @@ function descargarGuiasGeneradas(JSONData, ReportTitle, guias) {
     //Aca esta organizado el encabezado
     let CSV = '';
     CSV = 'sep=,' + '\r\n';
-    let encabezado = "Ciudad/Cód DANE de Origen,Tiempo de Entrega,Documento de Identificación,Nombre del Destinatario,Dirección,Ciudad/Cód DANE de destino,Departamento,Teléfono,Correo Electrónico Destinatario,Celular,Departamento de Origen,Direccion Remitente,Nombre de la Unidad de Empaque,Dice Contener,Valor declarado,Número de Piezas,Cantidad,Alto,Ancho,Largo,Peso,Producto,Forma de Pago,Medio de Transporte,Campo personalizado 1,Unidad de longitud,Unidad de peso,Centro de costo,Recolección Esporádica,Tipo de Documento,Nombre contacto remitente,Correo electrónico del remitente,Numero de telefono movil del remitente.,Valor a cobrar por el Producto";
-    CSV += encabezado + '\r\n';
-    
+    let encabezado = ["Ciudad/Cód DANE de Origen","Tiempo de Entrega","Documento de Identificación","Nombre del Destinatario","Dirección","Ciudad/Cód DANE de destino","Departamento","Teléfono","Correo Electrónico Destinatario","Celular","Departamento de Origen","Direccion Remitente","Nombre de la Unidad de Empaque","Dice Contener","Valor declarado","Número de Piezas","Cantidad","Alto","Ancho","Largo","Peso","Producto","Forma de Pago","Medio de Transporte","Campo personalizado 1","Unidad de longitud","Unidad de peso","Centro de costo","Recolección Esporádica","Tipo de Documento","Nombre contacto remitente","Correo electrónico del remitente","Numero de telefono movil del remitente.","Valor a cobrar por el Producto"];
+    if(type == "CONVENCIONAL") {
+        encabezado.splice(-5, 1);
+        encabezado.splice(-1,1)
+    }
+    CSV += encabezado.join() + '\r\n';
+    console.log(CSV);
     console.log(arrData.length);
     let visor_final = new Array();
     //Se actulizara cada cuadro por fila, ***se comenta cual es el campo llenado en cada una***
@@ -486,7 +491,9 @@ function descargarGuiasGeneradas(JSONData, ReportTitle, guias) {
         //Recolección Esporádica
         row += '"' + arrData[i].recoleccion_esporadica + '",';
         // Tipo de Documento
-        row += '"' + arrData[i].tipo_doc_dest + '",';
+        if(type != "CONVENCIONAL") {
+            row += '"' + arrData[i].tipo_doc_dest + '",';
+        }
         // Nombre contacto remitente
         row += '"' + arrData[i].nombreR + '",';
         // Correo electrónico del remitente
@@ -494,7 +501,9 @@ function descargarGuiasGeneradas(JSONData, ReportTitle, guias) {
         // Numero de telefono movil del remitente.
         row += '"' + arrData[i].celularR + '",';
         // Valor a cobrar por el Producto
-        row += '"' + arrData[i].valor + '",';
+        if(type != "CONVENCIONAL") {
+            row += '"' + arrData[i].valor + '",';
+        }
 
         row.slice(0, row.length - 1);
         
@@ -854,15 +863,20 @@ function actualizarEstado(){
         if(!res.ok){
             throw Error("Lo sentimos, no pudimos cargar su documento, reviselo y vuelvalo a subir")
         }
-        res.json().then((datos) => {
+        res.json().then(async (datos) => {
             let res = "";
             if(datos.length == 0){
                 res = "vacio";
             }
     
-            for (let dato of datos){
+            let total_datos = datos.length;
+            let actualizadas = new Array();
+            let regresiveCounter = datos.length
+            console.log($("#cargador-actualizador").find("span"))
+            $("#cargador-actualizador").find("span").text(regresiveCounter)
+            for await(let dato of datos){
                 let x = {
-                    numero_guia_servientrega: dato["Número de Guia"],
+                    numero_guia_servientrega: dato["Número de Guia"].toString(),
                     fecha_envio: dato["Fecha de Envio"],
                     producto: dato["Producto"],
                     fecha_imp_envio: dato["Fecha Imp. Envio"],
@@ -871,35 +885,40 @@ function actualizarEstado(){
                     valor_flete: dato["Valor Flete"],
                     valor_sobreflete: dato["Valor SobreFlete"],
                     valor_liquidado: dato["Valor Liquidado"],
-                    id_guia: dato["IdCliente"],
+                    id_guia: dato["IdCliente"].toString(),
                     estado_envio: dato["Estado Envío"],
                     mensaje_mov: dato["Mensaje Mov"],
                     fecha_ult_mov: dato["Fecha Ult Mov"],
                     nombre_centro_costo: dato["Nombre Centro Costo"]
                 };
-
-                console.log(x);
+                // console.log(x);
                 if(x.id_guia){
-                    firebase.firestore().collectionGroup("guias")
+                    let id_guia = await firebase.firestore().collectionGroup("guias")
                     .where("id_heka", "==", x.id_guia)
                     .get().then(querySnapshot => {
-                        querySnapshot.forEach(doc => {
-                            firebase.firestore().doc(doc.ref.path)
+                        let guia;
+                        querySnapshot.forEach(async doc => {
+                            guia = await firebase.firestore().doc(doc.ref.path)
                             .update({
                                 numeroGuia: x.numero_guia_servientrega,
                                 estado: x.estado_envio
                             })
                             .then(() => {
-                                
+                                // console.log(x.id_guia + " Actualizada exitósamente");
+                                return x.id_guia;
                             })
                             .catch(() => {
-                                avisar("Error!", "Hubo un error inesperado");
+                                console.log("No se pudo actualizar la guia " + x.id_guia)
                             });
                         })
+                        return guia;
                     })
-                } else {
-                    res = "falta id";
+                    actualizadas.push(id_guia);
+                    // console.log(x.id_guia, new Date().getTime())
                 }
+                res = {total_datos, actualizadas}
+                regresiveCounter --
+                $("#cargador-actualizador").find("span").text(regresiveCounter);
             }
 
             return res;
@@ -910,7 +929,8 @@ function actualizarEstado(){
             } else if (r == "falta id"){
             avisar("Algo Salió mal", "hubo un error en alguno de los documentos, es posible que no todos se hayan enviado correctamente", "aviso");
           } else {
-            avisar("Documentos Actualizados", "La actualización de guías ha sido exitosa");
+            console.log(r)
+            avisar("Actualizando Documentos", "Se han actualizado " + r.actualizadas.length + " Guías de " + r.total_datos + " Registradas.", "", false, 20000);
           }
 
           document.querySelector("#cargador-actualizador").classList.add("d-none");
@@ -1298,9 +1318,7 @@ function consultarGuiaFb(id_user, id, extraData, usuario = "Movimientos", contad
        }).then(() => {
            if(contador == total_consulta) {
                $("#cargador-novedades").addClass("d-none");
-               $("#tabla-estadoGuias-"+usuario.replace(/\s/g, "")).DataTable({
-                   destroy: true
-               })
+               $("#tabla-estadoGuias-"+usuario.replace(/\s/g, "")).DataTable();
            }
        })
    } else {
@@ -1744,4 +1762,3 @@ function revisarGuiasSaldas() {
         $("#cargador-deudas").children().addClass("d-none")
     })
 }
-

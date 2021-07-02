@@ -99,7 +99,7 @@ function tablaDeGuias(id, datos){
 }
 
 //Cada vez que es habilita muestra un mensaje editable
-function avisar(title, content, type, redirigir){
+function avisar(title, content, type, redirigir, tiempo = 5000){
     let aviso = document.getElementById("aviso");
     let titulo = document.getElementById("titulo-aviso");
     let texto = document.getElementById("texto-aviso");
@@ -144,7 +144,7 @@ function avisar(title, content, type, redirigir){
         aviso.addEventListener("mouseleave", () => {setTimeout(desaparecer, 1000)});
         }, 100) 
     } 
-    setTimeout(desaparecer, 5000);
+    setTimeout(desaparecer, tiempo);
 
     aviso.addEventListener("click", () => {
         aviso.classList.add("d-none");
@@ -211,7 +211,8 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                     id="descargar-docs${id}"></i>
                 </div>
             </div>
-            <div class="row" data-guias="${data.guias}" data-id_guia="${id}" data-user="${data.id_user}" data-nombre="${data.nombre_usuario}">
+            <div class="row" data-guias="${data.guias}" data-type="${data.type}"
+            data-id_guia="${id}" data-user="${data.id_user}" data-nombre="${data.nombre_usuario}">
                 <button class="col-12 col-md-6 btn btn-primary mb-3 text-truncate" title="Descargar Excel" data-funcion="descargar" value="">Descargar</button>
                 <div class="col-12 col-md-6 dropdown no-arrow mb-3">
                     <button class="col-12 btn btn-info dropdown-toggle text-truncate" title="Subir documentos" type="button" id="cargar${id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -964,9 +965,12 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
     
 
     if(document.querySelector("#estadoGuia" + data.numeroGuia)) {
+        console.log("Condicional 1")
         document.querySelector("#estadoGuia" + data.numeroGuia).innerHTML = "";
         document.querySelector("#estadoGuia" + data.numeroGuia).innerHTML = tr.innerHTML
     } else if(document.querySelector("#estadoGuias-" + usuario.replace(/\s/g, ""))){
+        $("#tabla-estadoGuias-"+usuario.replace(/\s/g, "")).DataTable().destroy();
+        console.log(document.querySelector("#estadoGuias-" + usuario.replace(/\s/g, "")).querySelector("tbody"))
         document.querySelector("#estadoGuias-" + usuario.replace(/\s/g, "")).querySelector("tbody").appendChild(tr);
     } else {
         tbody.appendChild(tr);

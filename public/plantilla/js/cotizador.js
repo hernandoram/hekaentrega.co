@@ -96,25 +96,14 @@ async function cotizador(){
 
             if(estado_prueba) datos_a_enviar.prueba = true;
 
-            //Detalles del consto de Envío
-            // datos_a_enviar.detalles = {
-            //     peso_real: info_precio.kg,
-            //     flete: info_precio.flete,
-            //     comision_heka: info_precio.sobreflete_heka,
-            //     comision_trasportadora: info_precio.sobreflete,
-            //     peso_liquidar: info_precio.kgTomado,
-            //     peso_con_volumen: info_precio.pesoVolumen,
-            //     total: info_precio.costoEnvio,
-            //     recaudo: 0,
-            //     seguro: value("seguro-mercancia")
-            // };
     
             $("#list-transportadoras .detalles").click(function(e){
+                $("#nav-contentTransportadoras").parent().toggleClass("d-none"); 
                 $(this).parents("a").tab("show");
-                $("#nav-contentTransportadoras").parent().removeClass("d-none");             
             });
 
             $('a[data-toggle="list"]').on('shown.bs.tab', function (event) {
+                // console.log(event.relatedTarget);
                 event.target.classList.remove("active");
             })
 
@@ -225,12 +214,12 @@ async function pagoContraentrega() {
                 <input type="checkbox" class="form-check-input" id="sumar-envio-cotizador"></input>
                 <label class="form-check-label" for="sumar-envio-cotizador">¿Desea sumar costo de envío?</label>
             </div>
-            ${$("cotizar-envío").attr("data-index") ? `
+            ${true ? "" : `
             <div class="form-group form-check mt-2">
                 <input type="checkbox" class="form-check-input" id="restar-saldo-cotizador"></input>
                 <label class="form-check-label" for="restar-saldo-cotizador">¿Desea restar el costo del envío del saldo?</label>
             </div>
-            `: ""}
+            `}
           `,
         confirmButtonText:
           'Continuar',
@@ -272,7 +261,6 @@ async function pagoContraentrega() {
 
     return recaudo;
 }
-// pagoContraentrega();
 
 // me devuelve el resultado de cada formulario al hacer una cotizacion
 async function response(datos) {
@@ -371,19 +359,21 @@ function detallesTransportadoras(data) {
         href="#list-transportadora-${transportadora.nombre}" 
         aria-controls="transportadora-${transportadora.nombre}"
         >
-            <div class="d-flex justify-content-between">
-                <img src="${transportadora.src}" class="d-flex align-self-center mr-2" alt="${transportadora.altImg}" height="50px">
-                <div class="w-100">
-                    <h5 class="mb-1">${transportadora.nombre}</h5>
-                    <p class="mb-1">tiempo de entrega: ${datos_de_cotizacion.tiempo} Días</p>
-                    </div>
-                    <div class="d-flex flex-column justify-content-around">
-                    <small class="detalles btn btn-secondary badge badge-pill">
+            <div class="row">
+                <img src="${transportadora.src}" class="col" alt="${transportadora.altImg}">
+                <div class="col-12 col-sm-6 mt-3 mt-sm-0 order-1 order-sm-0">
+                    <h5>${transportadora.nombre}</h5>
+                    <h6>tiempo de entrega: ${datos_de_cotizacion.tiempo} Días</h6>
+                    <h6 class="${data.type == "CONVENCIONAL" ? "d-none" : "mb-1"}">
+                    El Valor consignado a tu cuenta será: <b>$${convertirMiles(cotizacion.valor - cotizacion.costoEnvio)}</b></h6>
+                </div>
+                <div class="col d-flex flex-column justify-content-around">
+                    <small class="detalles btn btn-outline-primary badge badge-pill">
                     Detalles</small>
                     <b>$${convertirMiles(cotizacion.costoEnvio)}</b>
-                    </div>
-                    </div>
-                    <p class="text-center mb-0 mt-2 ${data.type == "CONVENCIONAL" ? "d-none" : ""}">Costo de envío para Recaudo: <b>$${convertirMiles(cotizacion.seguro)}</b></p>
+                </div>
+            </div>
+            <p class="text-center mb-0 mt-2 ${data.type == "CONVENCIONAL" ? "d-none" : ""}">Costo de envío para Recaudo: <b>$${convertirMiles(cotizacion.seguro)}</b></p>
         </a>`;
 
         detalles += `<div class="tab-pane fade" id="list-transportadora-${transportadora.nombre}" role="tabpanel" aria-labelledby="list-transportadora-${transportadora.nombre}-list">
@@ -459,8 +449,6 @@ function detalles_cotizacion(datos) {
                         </div>
                     </div>
                 </div>
-                <p class="${datos.type == "CONVENCIONAL" ? "d-none" : "col-12 text-center mt-2"}">
-                El Valor consignado a tu cuenta será: $${convertirMiles(datos.valor - datos.costo_envio)}</p>
             </div>
         </div>
         `, "text/html").body;
@@ -641,10 +629,10 @@ class CalcularCostoDeEnvio {
         this.kg = kilos || Math.floor(value("Kilos"));
         this.volumen = vol || value("dimension-ancho") * value("dimension-alto") * value("dimension-largo");
         this.factor_de_conversion = 0.022;
-        this.comision_servi = type == "CONVENCIONAL" ? 1 : precios_personalizados.comision_servi;
-        this.sobreflete_min = type == "CONVENCIONAL" ? 350 : 3000;
-        this.sobreflete = Math.ceil(Math.max(valor * this.comision_servi / 100, this.sobreflete_min));
-        this.sobreflete_heka = Math.ceil(valor * precios_personalizados.comision_heka / 100);
+        this.comision_servi = precios_personalizados.comision_servi;
+        this.sobreflete_min = 3000;
+        this.sobreflete = type == "CONVENCIONAL" ? 0 : Math.ceil(Math.max(valor * this.comision_servi / 100, this.sobreflete_min));
+        this.sobreflete_heka = Math.ceil(valor * ( type == "CONVENCIONAL" ? 1 : precios_personalizados.comision_heka) / 100);
     }
 
     get pesoVolumen(){
@@ -766,12 +754,6 @@ function crearGuiasServientrega() {
             if(mes < 10) {
                 mes = "0" + mes;
             }
-
-            let user_debe;
-            precios_personalizados.saldo <= 0 ? user_debe = datos_a_enviar.costo_envio
-            : user_debe = - precios_personalizados.saldo + datos_a_enviar.costo_envio;
-
-            if(user_debe > 0) datos_a_enviar.user_debe = user_debe;
             
             datos_a_enviar.nombreR = value("actualizar_nombreR")
             datos_a_enviar.direccionR = value("actualizar_direccionR")
@@ -801,7 +783,6 @@ function crearGuiasServientrega() {
             boton_final_cotizador.parentNode.insertBefore(cargador, boton_final_cotizador);
             boton_final_cotizador.remove()
 
-            console.log(datos_a_enviar)
             enviar_firestore(datos_a_enviar);
         }
     } else {
@@ -814,135 +795,151 @@ function crearGuiasServientrega() {
 function enviar_firestore(datos){
     //tome los últimos 4 digitos del documento para crear el id
     let id_heka = datos_usuario.numero_documento.slice(-4);
-    let firestore = firebase.firestore()
+    let firestore = firebase.firestore();
+    if(!datos.debe && !precios_personalizados.actv_credit &&
+        datos.costo_envio > precios_personalizados.saldo) {
+        return Swal.fire("¡No permitido!", `Lo sentimos, en este momento, el costo de envío excede el saldo
+        que tienes actualmente, por lo tanto este metodo de envío no estará 
+        permitido hasta que recargues tu saldo. Puedes comunicarte con la asesoría logística para conocer los pasos
+        a seguir para recargar tu saldo.`);
+    };
 
+    let user_debe;
+    precios_personalizados.saldo <= 0 ? user_debe = datos.costo_envio
+    : user_debe = - precios_personalizados.saldo + datos.costo_envio;
+
+    if(user_debe > 0) datos.user_debe = user_debe;
+
+    console.log(datos);
+    // return;
+    
     //Reviso por donde va el identificador heka
     firestore.collection("infoHeka").doc("heka_id").get()
-        .then(async (doc) => {
-            // return doc.data().id;
-            if(doc.exists){
-                id_heka += doc.data().id.toString();
+    .then(async (doc) => {
+        // return doc.data().id;
+        if(doc.exists){
+            id_heka += doc.data().id.toString();
 
-                //lo guardo en una varible
-                datos.id_heka = id_heka;
-                console.log(datos);
+            //lo guardo en una varible
+            datos.id_heka = id_heka;
+            console.log(datos);
 
-                //Creo la referencia para la nueva guía generada con su respectivo id
-                let referenciaNuevaGuia = firestore.collection("usuarios").doc(localStorage.user_id)
-                .collection("guias").doc(id_heka);
+            //Creo la referencia para la nueva guía generada con su respectivo id
+            let referenciaNuevaGuia = firestore.collection("usuarios").doc(localStorage.user_id)
+            .collection("guias").doc(id_heka);
+            
+            firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
+
+            if(generacion_automatizada) {
+                //Para cuando el usuario tenga activa la creación deguías automáticas.
+                //Primero consulto la respuesta del web service
+                let respuesta = await generarGuiaServientrega(datos)
+                    .then(async (resGuia) => {
+                        //le midifico los datos de respuesta al que será enviado a firebase
+                        datos.numeroGuia = resGuia.numeroGuia;
+                        datos.id_archivoCargar = resGuia.id_archivoCargar || "";
+                        //y creo el documento de firebase
+                        if(resGuia.numeroGuia) {
+                            let guia = await referenciaNuevaGuia.set(datos)
+                            .then(doc => {
+                                return resGuia;
+                            })
+                            .catch(err => {
+                                console.log("Hubo un error al crear la guía con firebase => ", err);
+                                return {numeroGuia: 0, error: "Lo sentimos, hubo un problema con conexión con nuestra base de datos, le recomendamos recargar la página."}
+                            })
+                            console.log(guia);
+                            return guia;
+                        } else {
+                            return {numeroGuia: 0, error: resGuia.error}
+                        }
+                    })
+                    console.log(respuesta);
                 
-                firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
-
-                if(generacion_automatizada) {
-                    //Para cuando el usuario tenga activa la creación deguías automáticas.
-                    //Primero consulto la respuesta del web service
-                    let respuesta = await generarGuiaServientrega(datos)
-                        .then(async (resGuia) => {
-                            //le midifico los datos de respuesta al que será enviado a firebase
-                            datos.numeroGuia = resGuia.numeroGuia;
-                            datos.id_archivoCargar = resGuia.id_archivoCargar || "";
-                            //y creo el documento de firebase
-                            if(resGuia.numeroGuia) {
-                                let guia = await referenciaNuevaGuia.set(datos)
-                                .then(doc => {
-                                    return resGuia;
-                                })
-                                .catch(err => {
-                                    console.log("Hubo un error al crear la guía con firebase => ", err);
-                                    return {numeroGuia: 0, error: "Lo sentimos, hubo un problema con conexión con nuestra base de datos, le recomendamos recargar la página."}
-                                })
-                                console.log(guia);
-                                return guia;
-                            } else {
-                                return {numeroGuia: 0, error: resGuia.error}
-                            }
-                        })
-                        console.log(respuesta);
-                    
-                    if(respuesta.numeroGuia) {
-                        return doc.data().id;
-                    } else {
-                        throw new Error(respuesta.error);
-                    }
+                if(respuesta.numeroGuia) {
+                    return doc.data().id;
                 } else {
-                    //Para cuendo el usurio tenga la opcion de creacion de guias automática desactivada.
-
-                    //Creo la guía para que administracion le cree los documentos al usuario
-                    let id = await referenciaNuevaGuia.set(datos).then(() => {
-                        return doc.data().id;
-                    })
-                    .catch(() => {
-                        throw new Error("no pudimos guardar la información de su guía, por falla en la conexión, por favor intente nuevamente");
-                    })
-
-                    return id;
+                    throw new Error(respuesta.error);
                 }
+            } else {
+                //Para cuendo el usurio tenga la opcion de creacion de guias automática desactivada.
+
+                //Creo la guía para que administracion le cree los documentos al usuario
+                let id = await referenciaNuevaGuia.set(datos).then(() => {
+                    return doc.data().id;
+                })
+                .catch(() => {
+                    throw new Error("no pudimos guardar la información de su guía, por falla en la conexión, por favor intente nuevamente");
+                })
+
+                return id;
+            }
+        }
+    })
+    .then((id) => {
+        firestore.collection("usuarios").doc(localStorage.user_id).collection("informacion")
+        .doc("heka").get()
+        .then((doc) => {
+            if(doc.exists){
+                let momento = new Date().getTime();
+                let saldo = doc.data().saldo;
+                let saldo_detallado = {
+                    saldo: saldo,
+                    saldo_anterior: saldo,
+                    limit_credit: doc.data().limit_credit || 0,
+                    actv_credit: doc.data().actv_credit || false,
+                    fecha: genFecha(),
+                    diferencia: 0,
+                    mensaje: "Guía " + id + " creada exitósamente",
+                    momento: momento,
+                    user_id: localStorage.user_id,
+                    guia: id,
+                    medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id
+                }
+
+                if(!datos.debe){
+                    saldo_detallado.saldo = saldo - datos.costo_envio;
+                    saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
+                    let factor_diferencial = parseInt(doc.data().limit_credit) + parseInt(saldo);
+                    console.log(saldo_detallado);
+
+                    if(factor_diferencial <= datos.costo_envio && factor_diferencial > 0) {
+                        notificarExcesoDeGasto();
+                    }
+                    actualizarSaldo(saldo_detallado);
+                }
+                return saldo_detallado;
             }
         })
-        .then((id) => {
-            firestore.collection("usuarios").doc(localStorage.user_id).collection("informacion")
-            .doc("heka").get()
-            .then((doc) => {
-                if(doc.exists){
-                    let momento = new Date().getTime();
-                    let saldo = doc.data().saldo;
-                    let saldo_detallado = {
-                        saldo: saldo,
-                        saldo_anterior: saldo,
-                        limit_credit: doc.data().limit_credit || 0,
-                        actv_credit: doc.data().actv_credit || false,
-                        fecha: genFecha(),
-                        diferencia: 0,
-                        mensaje: "Guía " + id + " creada exitósamente",
-                        momento: momento,
-                        user_id: localStorage.user_id,
-                        guia: id,
-                        medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id
-                    }
+    })
+    .then(() => {
+        Swal.fire({
+            icon: "success",
+            title: "¡Guía creada con éxito!",
+            text: "¿Desea crear otra guía?",
+            timer: 6000,
+            showCancelButton: true,
+            confirmButtonText: "Si, ir al cotizador.",
+            cancelButtonText: "No, ver el historial."
 
-                    if(!datos.debe){
-                        saldo_detallado.saldo = saldo - datos.costo_envio;
-                        saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
-                        let factor_diferencial = parseInt(doc.data().limit_credit) + parseInt(saldo);
-                        console.log(saldo_detallado);
-
-                        if(factor_diferencial <= datos.costo_envio && factor_diferencial > 0) {
-                            notificarExcesoDeGasto();
-                        }
-                        actualizarSaldo(saldo_detallado);
-                    }
-                    return saldo_detallado;
-                }
-            })
+        }).then((res) => {
+            if(res.isConfirmed) {
+                location.href = "plataforma2.html";
+            } else {
+                location.href = "#historial_guias";
+                cambiarFecha();
+            }
         })
-        .then(() => {
-            Swal.fire({
-                icon: "success",
-                title: "¡Guía creada con éxito!",
-                text: "¿Desea crear otra guía?",
-                timer: 6000,
-                showCancelButton: true,
-                confirmButtonText: "Si, ir al cotizador.",
-                cancelButtonText: "No, ver el historial."
-
-            }).then((res) => {
-                if(res.isConfirmed) {
-                    location.href = "plataforma2.html";
-                } else {
-                    location.href = "#historial_guias";
-                    cambiarFecha();
-                }
-            })
+    })
+    .catch((err)=> {
+        Swal.fire({
+            icon: "error",
+            title: "¡Lo sentimos! Error inesperado",
+            html: "Hemos detectado el siguiente error: \"" + err.message + "\". Si desconoce la posible causa, por favor comuniquese con asesoría logistica (<a href='https://wa.me/573213361911' target='_blank'>+57 321 3361911</a>) enviando un capture o detallando el mensaje expuesto. \nmuchas gracias por su colaboración y discupe las molestias causadas."
+        }).then(() => {
+            console.log("revisa que paso, algo salio mal => ", err);
         })
-        .catch((err)=> {
-            Swal.fire({
-                icon: "error",
-                title: "¡Lo sentimos! Error inesperado",
-                html: "Hemos detectado el siguiente error: \"" + err.message + "\". Si desconoce la posible causa, por favor comuniquese con asesoría logistica (<a href='https://wa.me/573213361911' target='_blank'>+57 321 3361911</a>) enviando un capture o detallando el mensaje expuesto. \nmuchas gracias por su colaboración y discupe las molestias causadas."
-            }).then(() => {
-                console.log("revisa que paso, algo salio mal => ", err);
-            })
-        })
+    })
 }
 
 function notificarExcesoDeGasto() {
@@ -1026,7 +1023,7 @@ function observacionesServientrega(result_cotizacion) {
     let lists = ["Los tiempos de entrega son aproximados, no son exactos, ya que pueden suceder problemas operativos.", "El paquete deberá estar correctamente embalado, de lo contrario la transportadora no responderá por averías.", "En algunas ciudades y/o municipios, según las rutas, si el vehículo encargado de realizar las entregas no alcanza a culminar la ruta operativa dejara el paquete en una oficina para que sea reclamado por el destinatario.", "En caso de novedad en la cual el destinatario no se encuentre la transportadora realizará un nuevo intento de entrega, en caso de presentarse una novedad distinta la transportadora se comunicará con el remitente y destinario, en caso de no tener respuesta a la llamada la transportadora genera la devolución. (Por eso recomendamos solucionar las novedades lo antes posible para intentar retener el proceso de devolución).", "En caso de devolución la transportadora cobrará el valor completo del envío el cual estará reflejado en el cotizador. (Aplica para envíos en pago contra entrega).", "Las recolecciones deberán ser solicitadas antes de las 10:00 am para que pasen el mismo día, en caso de ser solicitadas después de este horario quedaran automáticamente para el siguiente día.", "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.", "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero o la oficina donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
     `Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span>`,
     `Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`,
-    `En caso de devolución pagas solo el envío ida: $${convertirMiles(result_cotizacion.costoEnvio)}`]
+    `En caso de devolución pagas solo el envío ida: $${convertirMiles(result_cotizacion.costoEnvio)} (Aplica solo para envíos en pago contra entrega)`]
 
     let ul = document.createElement("ul");
     ul.classList.add("text-left")
@@ -1075,12 +1072,3 @@ function observacionesServientrega(result_cotizacion) {
             </div>
         </div>`)
 }
-
-// let buscador = firebase.firestore().collection("usuarios").doc("22032021")
-// .get().then((doc) => {
-//     let pagos = doc.data().pagos;
-//     pagos.forEach((d) => {
-//         firebase.firestore().doc(doc.ref.path).collection("movimientos").add(d);
-//         return d.user == usuario && fechaI <= d.momento && fechaF >= d.momento;
-//     });
-// }) 

@@ -540,7 +540,7 @@ function actualizarInformacionBancaria() {
     })
 }
 
-function actualizarInformacionHeka() {
+async function actualizarInformacionHeka() {
     // Datos contabilidad
     document.querySelector('[onclick="actualizarInformacionHeka()"]').value = "cargando";
 
@@ -566,26 +566,49 @@ function actualizarInformacionHeka() {
     let momento = new Date().getTime();
     let id_usuario = document.getElementById("usuario-seleccionado").getAttribute("data-id");
     
-    saldo = {
-        saldo: $("#actualizar_saldo").attr("data-saldo"),
-        saldo_anterior: $("#actualizar_saldo").attr("data-saldo_anterior"),
-        actv_credit: document.getElementById("actv_credit").checked,
-        limit_credit: value("limit_credit"),
-        fecha: genFecha(),
-        diferencia: $("#aumentar_saldo").val() || 0,
-        mensaje: "Hubo algún cambio por parte del administrador",
-        guia: "",
-        momento: momento,
-        user_id: id_usuario,
-        medio: "Administrador: " + localStorage.user_id
-    }
+    let reference = firebase.firestore().collection("usuarios").doc(id_usuario)
+    .collection("informacion").doc("heka");
+
+    let mensaje = "";
+
+    let saldo = await reference.get().then(doc => {
+        detalles = {
+            saldo: parseInt($("#actualizar_saldo").attr("data-saldo")),
+            saldo_anterior: parseInt($("#actualizar_saldo").attr("data-saldo_anterior")),
+            actv_credit: document.getElementById("actv_credit").checked,
+            limit_credit: parseInt(value("limit_credit")),
+            fecha: genFecha(),
+            diferencia: parseInt($("#aumentar_saldo").val()) || 0,
+            mensaje: "Hubo algún cambio por parte del administrador",
+            guia: "",
+            momento: momento,
+            user_id: id_usuario,
+            medio: "Administrador: " + localStorage.user_id
+        }
+        if(doc.exists) {
+            let s = parseInt(doc.data().saldo);
+            detalles.saldo_anterior = s;
+            detalles.saldo = s + detalles.diferencia;
+            datos.saldo = s + detalles.diferencia;
+            
+            mensaje = ". Se notó una discrepancia entre el saldo mostrado ($" + convertirMiles($("#actualizar_saldo").attr("data-saldo_anterior"))
+            + ") y el encontrado en la base de datos, se modificó en base a: <b>$" + convertirMiles(s) + "</b>"
+        }
+
+        return detalles;
+    })
+
+    // console.log(saldo);
+    // console.log(datos);
+    // // mostrarDatosPersonales(datos, "heka");
+    // return;
+
     if(saldo.saldo_anterior < 0 && saldo.saldo != saldo.saldo_anterior) {
         document.querySelector('[onclick="actualizarInformacionHeka()"]').value = "Actualizar Costos de Envío";
         return avisar("No permitido", "Se detecta un saldo negativo, por favor justifica el saldo canjeado en deudas, o contace al desarrollador para agregar una excepción.", "advertencia")
     };
     // return console.log(datos, saldo)
-    firebase.firestore().collection("usuarios").doc(id_usuario)
-    .collection("informacion").doc("heka").set(datos)
+    reference.set(datos)
     .then(() => {
         firebase.firestore().collection("prueba").add(saldo)
         .then((docRef1)=> {
@@ -603,9 +626,10 @@ function actualizarInformacionHeka() {
             })
         });
     }).then(() => {
+        mostrarDatosPersonales(datos, "heka");
         document.querySelector('[onclick="actualizarInformacionHeka()"]').value = "Actualizar Costos de Envío";
         avisar("Actualización de Datos exitosa", 
-        "Se han registrado cambios en los costos de envíos para id: " + value("actualizar_numero_documento"));
+        "Se han registrado cambios en los costos de envíos para id: " + value("actualizar_numero_documento") + mensaje);
     })
 
 

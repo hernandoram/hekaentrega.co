@@ -16,7 +16,8 @@ const Blob = require("node-blob");
 
 const firebase = require("../firebase");
 const db = firebase.firestore();
-const storage = firebase.storage();
+// const storage = firebase.storage();
+
 
 router.use(bodyParser.urlencoded({extended: true}));
 router.use(bodyParser.json());
@@ -155,8 +156,8 @@ async function actualizarMovimientosGuias(d) {
   .orderBy("estado")
   .where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"])
   // .where("centro_de_costo", "==", "SellerNuevo")
-  // .where("numeroGuia", "in", ["6100000099", "6100000100", "0", "2112740014", "290147258"])
-  // .limit(200)
+  // .where("numeroGuia", "in", ["2112740014", "290147258"])
+  // .limit(500)
   .get()
   .then(async querySnapshot => {
     console.log(querySnapshot.size);
@@ -286,7 +287,7 @@ async function actualizarMovimientosGuias(d) {
           return respuesta;
         })
         .catch(err => {
-          console.log("289 => ",err);
+          // console.log("289 => ",err);
           return [{
             estado: "error",
             guia: doc.id + " / " + doc.data().numeroGuia + err.message
