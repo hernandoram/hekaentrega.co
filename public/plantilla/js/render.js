@@ -14,10 +14,16 @@ function mostrar(id) {
         console.log(content)
         dNone(content);
         content[0].style.display = "block"
+        let firstItem = $(".nav-item:first").addClass("active");
     } else {
         if(window.top[id].classList[0] == "container-fluid") {
             dNone(content);
             content[id].style.display = "block"
+            $(".nav-item, .collapse-item").removeClass("active");
+            
+            let item = $("[href='#"+id+"']");
+            item.parents(".nav-item").addClass("active");
+            if(item.hasClass("collapse-item")) item.addClass("active");
         } else if (window.top[id].classList[0] == "container" || 
         window.top[id].nodeName == "BODY") {
 
@@ -1018,8 +1024,8 @@ function gestionarNovedadModal(dataN, dataG) {
             <div class="card-body">
                 <p>Número de guía: <span>${dataN.numeroGuia}</span></p>
                 <p>Fecha de envío: <span>${dataN.fechaEnvio}</span></p>
-                <p>Estado: <span class="${dataN.movimientos[dataN.movimientos.length - 1].IdConc != "0" ? "text-danger" : "text-primary"}">
-                  ${dataN.movimientos[dataN.movimientos.length - 1].IdConc != "0" ? "En novedad" : dataN.estadoActual}
+                <p>Estado: <span class="${dataN.movimientos[dataN.movimientos.length - 1].TipoMov != "0" ? "text-danger" : "text-primary"}">
+                  ${dataN.movimientos[dataN.movimientos.length - 1].TipoMov != "0" ? "En novedad" : dataN.estadoActual}
                 </span></p>
                 <p>Peso: <span>${dataG.detalles.peso_liquidar} Kg</span></p>
                 <p>Dice contener: <span>${dataG.dice_contener}</p>
@@ -1104,12 +1110,12 @@ function gestionarNovedadModal(dataN, dataG) {
             <span class="badge badge-primary badge-pill mr-2 d-flex align-self-start">${i+1}</span>
             <div class="d-flexd-flex flex-column w-100">
             <small class="d-flex justify-content-between">
-                <h6 class="text-danger">${mov.IdConc != "0" ? "En novedad" : ""}</h6>
+                <h6 class="text-danger">${mov.TipoMov == "1" ? "En novedad" : ""}</h6>
                 <h6>${mov.FecMov}</h6>
             </small>
             <h5>${mov.NomMov}</h5>
             <p>
-                ${mov.DesMov} </br>
+                <b>${mov.DesTipoMov}</b></br>
                 <span class="text-danger">${mov.NomConc}</span>
             </p>
             </div>

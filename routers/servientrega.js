@@ -86,6 +86,15 @@ cron.schedule("00 */6 * * *", () => {
     console.log(detalles);
     firebase.firestore().collection("reporte").add(detalles);
    });
+});
+
+cron.schedule("* * * * 0", () => {
+  let d = new Date();
+  console.log("Se Actualizaron los movimientos de las guías: ", d);
+  actualizarMovimientosGuias(d, true).then((detalles) => {
+    console.log(detalles);
+    firebase.firestore().collection("reporte").add(detalles);
+   });
 })
 
 
@@ -146,21 +155,31 @@ function actualizarEstadosGuias(d) {
   }) 
 }
 
-// actualizarMovimientosGuias(new Date()).then((detalles) => {
-//  console.log(detalles);
-// //  firebase.firestore().collection("reporte").add(detalles);
-// });
-async function actualizarMovimientosGuias(d) {
+actualizarMovimientosGuias(new Date()).then((detalles) => {
+ console.log(159, detalles);
+//  firebase.firestore().collection("reporte").add(detalles);
+});
+async function actualizarMovimientosGuias(d, general) {
   let inicio_func = new Date().getTime();
-  return await firebase.firestore().collectionGroup("guias")
-  .orderBy("estado")
-  .where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"])
-  // .where("centro_de_costo", "==", "SellerNuevo")
-  // .where("numeroGuia", "in", ["2112740014", "290147258"])
-  // .limit(500)
-  .get()
-  .then(async querySnapshot => {
-    console.log(querySnapshot.size);
+  let referencePpal = firebase.firestore().collectionGroup("guias")
+
+  if(general) {
+    referencePpal = referencePpal.orderBy("timeline").startAt(d.getTime() - 69.12e7)
+    .endAt(d.getTime())
+  } else {
+    referencePpal = referencePpal
+    // .orderBy("estado")
+    // .where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"])
+    .where("centro_de_costo", "==", 'SellerCabar-0')
+    // .where("numeroGuia", "in", ["2112740014", "290147258"])
+    // .limit(5)
+  }
+  
+  try {
+    let resultado = await referencePpal.get()
+    // .then(async querySnapshot => {
+    // }).catch(err => console.log(err))
+    console.log(resultado.size);
     // throw "no babe"
     let consulta = {
       guias_est_actualizado: [],
@@ -168,71 +187,73 @@ async function actualizarMovimientosGuias(d) {
       guias_sin_mov: [],
       guias_con_errores: [],
       usuarios: [],
-      total_consulta: querySnapshot.size,
+      total_consulta: resultado.size,
       fecha: d
     }
-
+  
     let resultado_guias = new Array();
-
-    querySnapshot.forEach(async doc => {
-      if(doc.data().numeroGuia) {
-        if(consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
+  
+    for await (let doc of resultado.docs) {
+      if (doc.data().numeroGuia) {
+        if (consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
           consulta.usuarios.push(doc.data().centro_de_costo);
         }
         
-        let guia = requestPromise({
+        let guia = await requestPromise({
           // "headers": {"Content-Type": "text/xml"},
           method: "POST",
-          "uri": rastreoEnvios + "/ConsultarGuia",
+          "uri": rastreoEnvios + "/ConsultarGuiaExterno",
           form: {
             NumeroGuia: doc.data().numeroGuia
           },
           json: true
         })
-        .then(async body => {
+        .then(async (body) => {
+          console.log("inicio =>", new Date().getTime())
           // console.log(body)
           let respuesta = await new Promise((resolve, reject) => {
             parseString(body, async (error, result) => {
-              if(error) return {
-                estado: "Est.N.A",
-                guia: doc.id + " / " + doc.data().numeroGuia
-              }
+              if (error)
+                return {
+                  estado: "Est.N.A",
+                  guia: doc.id + " / " + doc.data().numeroGuia
+                };
               try {
                 // let path = doc.ref.path.split("/");
                 let data = result.InformacionGuiaMov;
                 // console.log("198 => ",data)
-                if(!data.Mov) {
-                  throw " Esta guía no manifiesta movimientos."
+                if (!data.Mov) {
+                  throw " Esta guía no manifiesta movimientos.";
                 }
                 let movimientos = data.Mov[0].InformacionMov;
                 // console.log(data);
                 let upte_estado = await doc.ref.parent.parent.collection("guias")
-                .doc(doc.id).update({
-                  estado: data.EstAct[0],
-                  ultima_actualizacion: d
-                })
-                .then(() => {
-                  // console.log(doc.data());
-                  return{
-                    estado: "Est.A",
-                    guia: doc.id + " / " + doc.data().numeroGuia
-                  }
-                  
-                }).catch(err => {
-                  return {
-                    estado: "Est.N.A",
-                    guia: doc.id + " / " + doc.data().numeroGuia
-                  }
-                });
-                
+                  .doc(doc.id).update({
+                    estado: data.EstAct[0],
+                    ultima_actualizacion: d
+                  })
+                  .then(() => {
+                    // console.log(doc.data());
+                    return {
+                      estado: "Est.A",
+                      guia: doc.id + " / " + doc.data().numeroGuia
+                    };
+  
+                  }).catch(err => {
+                    return {
+                      estado: "Est.N.A",
+                      guia: doc.id + " / " + doc.data().numeroGuia
+                    };
+                  });
+  
                 let upte_movs;
-                if(movimientos) {
-                  for(let movimiento of movimientos) {
-                    for(let x in movimiento) {
+                if (movimientos) {
+                  for (let movimiento of movimientos) {
+                    for (let x in movimiento) {
                       movimiento[x] = movimiento[x][0];
                     }
                   }
-    
+  
                   let data_to_fb = {
                     numeroGuia: data.NumGui[0],
                     fechaEnvio: data.FecEnv[0],
@@ -243,38 +264,37 @@ async function actualizarMovimientosGuias(d) {
                     fecha: data.FecEst[0],
                     id_heka: doc.id,
                     movimientos
-                  }; 
-    
+                  };
+  
                   // console.log(data_to_fb);
-    
                   upte_movs = await doc.ref.parent.parent.collection("estadoGuias")
-                  .doc(doc.id)
-                  // .get()
-                  .set(data_to_fb)
-                  .then(() => {
-                    // console.log(doc.data());
-                    return{
-                      estado: "Mov.A",
-                      guia: doc.id + " / " + doc.data().numeroGuia
-                    }
-    
-                  }).catch(err => {
-                    return {
-                      estado: "Mov.N.A",
-                      guia: doc.id + " / " + doc.data().numeroGuia
-                    }
-                  });
+                    .doc(doc.id)
+                    // .get()
+                    .set(data_to_fb)
+                    .then(() => {
+                      // console.log(doc.data());
+                      return {
+                        estado: "Mov.A",
+                        guia: doc.id + " / " + doc.data().numeroGuia
+                      };
+  
+                    }).catch(err => {
+                      return {
+                        estado: "Mov.N.A",
+                        guia: doc.id + " / " + doc.data().numeroGuia
+                      };
+                    });
                 } else {
                   upte_movs = {
                     estado: "Sn.Mov",
                     guia: doc.id + " / " + doc.data().numeroGuia
-                  }
+                  };
                 }
-
+  
                 resolve([upte_estado, upte_movs]);
-              } catch (e){
+              } catch (e) {
                 console.log("error el actualizar guias");
-                console.log(e)
+                console.log(e);
                 resolve([{
                   estado: "error",
                   guia: doc.id + " / " + doc.data().numeroGuia + e
@@ -282,8 +302,9 @@ async function actualizarMovimientosGuias(d) {
               }
   
             });
-          })
-
+          });
+  
+          console.log("final =>", new Date().getTime())
           return respuesta;
         })
         .catch(err => {
@@ -291,15 +312,17 @@ async function actualizarMovimientosGuias(d) {
           return [{
             estado: "error",
             guia: doc.id + " / " + doc.data().numeroGuia + err.message
-          }]
+          }];
         });
-
-        resultado_guias.push(guia)
+  
+        resultado_guias.push(guia);
       }
-    })
+      // resultado.forEach(async (doc) => {
+      // })
+    }
     
-
-    let guias_procesadas = await Promise.all(resultado_guias);
+    console.log(resultado_guias)
+    let guias_procesadas = resultado_guias;
     for(let guia of guias_procesadas) {
         if(guia.length == 1) {
           consulta.guias_con_errores.push(guia[0].guia);
@@ -308,7 +331,7 @@ async function actualizarMovimientosGuias(d) {
           if(modo_estado.estado == "Est.A") {
             consulta.guias_est_actualizado.push(guia[0].guia)
           } 
-
+  
           if(modo_movimientos.estado == "Mov.A") {
             consulta.guias_mov_actualizado.push(modo_movimientos.guia);
           } else if (modo_movimientos.estado == "Sn.Mov") {
@@ -320,23 +343,19 @@ async function actualizarMovimientosGuias(d) {
     
     let final_func = new Date().getTime();
     consulta.tiempo_ejecucion  = (final_func - inicio_func) + "ms";
-
+  
     consulta.mensaje = `Se han actualizado: los estados de ${consulta.guias_est_actualizado.length} Guias, 
     los movimientos de ${consulta.guias_mov_actualizado.length} Guias.
     Hubo errores en ${consulta.guias_con_errores.length} Guias.
     De un total de ${consulta.total_consulta} registradas cuyo estado son diferentes a 
     "Entregado" y "Entregado a Remitente" en ${consulta.usuarios.length} usuarios.
     Tiempo de ejecución: ${consulta.tiempo_ejecucion}`;
-
+  
     // console.log("246",consulta);
     
     return consulta;
-  }).catch(err => console.log(err))
-  function mensaje(novedades, novedades_eliminadas, error, total, usuarios) {
-    return `Se han actualizado ${novedades} novedades,
-    eliminado ${novedades_eliminadas} y ${error} han sido fallidas,
-    de un total de ${total} registradas cuyo estado es: "En procesamiento" en ${usuarios} usuarios.
-    `
+  } catch {
+    console.log("Hubo un error,es probable que no se haya actualizado nada.")
   }
 }
 

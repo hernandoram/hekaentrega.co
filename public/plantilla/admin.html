@@ -38,6 +38,7 @@
   <!--Verificar usuario comun-->
   <!-- <div id="verificarUsuarioComun" ></div> -->
   <!-- COTIZADOR -->
+
   <div id="sesionIniciada-mostrar-ocultar" style="display: block;">
     <!-- Page Wrapper -->
     <div id="wrapper">
@@ -55,15 +56,15 @@
 
         <!-- Nav Item - Cotizar envio -->
         <li class="nav-item">
-          <a class="nav-link" href="#registrador" onclick="mostrar('registrador')">
-            <i class="fas fa-fw fa-user-plus"></i>
-            <span>Agregar usuario</span></a>
-        </li>
-
-        <li class="nav-item">
           <a class="nav-link" href="#usuarios" onclick="mostrar('usuarios')">
             <i class="fas fa-fw fa-users"></i>
             <span>Usuarios</span></a>
+        </li>
+        
+        <li class="nav-item">
+          <a class="nav-link" href="#registrador" onclick="mostrar('registrador')">
+            <i class="fas fa-fw fa-user-plus"></i>
+            <span>Agregar usuario</span></a>
         </li>
 
         <!-- Divider -->
@@ -80,26 +81,40 @@
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Documentos</span></a>
         </li>
+
         <li class="nav-item">
-          <a class="nav-link" href="#actualizador" onclick="mostrar('actualizador')">
+          <a class="nav-link" href="#historial_guias">
             <i class="fas fa-fw fa-file-alt"></i>
-            <span>Actualizar Estado</span></a>
+            <span>Guias</span></a>
         </li>
+
         <li class="nav-item">
-          <a class="nav-link" href="#novedades" onclick="mostrar('novedades')">
+          <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseEstados" 
+          aria-expanded="true" 
+          aria-controls="collapseEstados">
             <i class="fas fa-fw fa-truck"></i>
-            <span>Estado De Envío</span></a>
+            <span>Estados</span>
+          </a>
+          <div id="collapseEstados" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <h6 class="collapse-header">Gestor De Pagos:</h6>
+              <a class="collapse-item" href="#actualizador">Actualizar Estados</a>
+              <a class="collapse-item" href="#novedades">Estado De Envío</a>
+            </div>
+          </div>
         </li>
 
         <!-- Divider -->
         <hr class="sidebar-divider">
         
-        <li class="nav-item active">
-          <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+        <li class="nav-item">
+          <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePagos" aria-expanded="true"  aria-controls="collapsePagos">
             <i class="fas fa-fw fa-dollar-sign"></i>
             <span>Pagos</span>
           </a>
-          <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+          <div id="collapsePagos" class="collapse" 
+          aria-labelledby="headingTwo" 
+          data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
               <h6 class="collapse-header">Gestor De Pagos:</h6>
               <a class="collapse-item" href="#pagos">Pagos</a>
@@ -202,235 +217,6 @@
         <!-- Main Content -->
         <div id="content">     
           <!-- Begin Page Content -->
-
-          <div class="container-fluid" id="registrador">
-            <div class="card o-hidden border-0 shadow-lg my-2">
-                <div class="card-body p-0">
-                  
-                  <!-- Nested Row within Card Body -->
-                  <div class="row">
-                    <div class="col-lg-12">
-                      <div class="p-5">
-                        <div class="text-center" >
-                            <img style="max-width:100%;width:200px;height:200px;" src="img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg"  alt="1">
-                            <h1 class="h4 text-gray-900 mb-4"> Creando cuenta...</h1>
-                            </br>
-                        </div>
-                        <form class="user">
-                          <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
-                              <h6>Nombres*</h6>
-                              <input type="text" class="form-control form-control-user" id="CPNnombres" autocomplete="off" required>
-                            </div>
-                            <div class="col-sm-6">
-                              <h6>Apellidos*</h6>
-                              <input type="text" class="form-control form-control-user" id="CPNapellidos" autocomplete="off" required>
-                            </div> 
-                          </div>
-          
-                          <div class="form-group row">
-                            <div class="col-md-2 mb-3 mb-sm-0">
-                              <h6>Tipo documento*</6>
-                              <h6></h6>
-                              
-                              <select  class="form-control form-control" id="CPNtipo_documento">
-                                <option value="CC"selected>CC</option> 
-                                <option value="PASAPORTE">PASAPORTE</option>
-                                <option value="NIT(RUT)">NIT (RUT)</option>
-                              </select>
-                            </div>
-                            <div class="col-md-5">
-                              <h6>Número identificación*</h6>
-                              <input type="text" class="form-control form-control-user" id="CPNnumero_documento" autocomplete="off" required>
-                              <p class="text-danger d-none" id="usuario-existente">¡El usuario ingresado ya existe!</p>
-                            </div>
-                            <div class="col-md mb-3 mb-sm-0">
-                              <h6>Centro de Costo*</h6>
-                              <input type="text" class="form-control form-control-user" id="CPNcentro_costo"  autocomplete="off" required>
-                              <p class="text-danger d-none" id="centro_costo-existente">¡El Centro de Costo ingresado ya existe!</p>
-                            </div>
-                            
-                          </div>
-          
-                          <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
-                              <h6>Celular*</h6>
-                              <input type="number" class="form-control form-control-user" id="CPNtelefono" autocomplete="off" required>
-                            </div>
-                            <div class="col-sm-6">
-                              <h6>Celular #2</h6>
-                              <input type="number" class="form-control form-control-user" id="CPNcelular" autocomplete="off">
-                            </div>
-                          </div>
-          
-                          <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
-                              <h6>Ciudad*</h6>
-                              <h6>**Elegir del menú desplegable**</h6>
-                              <input name=""  class="form-control form-control-user" id="CPNciudad" autocomplete="off" size="1"></input>
-                            </div>
-                            <div class="col-sm-6">
-                              <h6>Dirección de recogida*</h6>
-                            </br>
-                              <input type="text" class="form-control form-control-user" id="CPNdireccion" autocomplete="off" required>
-                            </div>
-                            
-                          </div>
-          
-                          <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
-                              <h6>Barrio*</h6>
-                              <input type="text" class="form-control form-control-user" id="CPNbarrio" autocomplete="off" required>
-                            </div>
-                            <div class="col-sm-6">
-                              <h6>Nombre de la empresa*</h6>
-                              <input type="text" class="form-control form-control-user" id="CPNnombre_empresa" autocomplete="off" required>
-                            </div>
-                          </div>
-          
-                          <div class="form-group row">
-                              
-                              <div class="col-sm-6">
-                                <h6>Correo electrónico*</h6>
-                                <input type="email"  class="form-control form-control-user" id="CPNcorreo"
-                                    aria-describedby="emailHelp" autocomplete="off" required>
-                              </div>
-                              <div class="col">
-                                <h6>Cosas que envía</h6>
-                                <input type="text" class="form-control form-control-user" id="CPNobjetos_envio" placeholder="objeto1,objeto2,etc..." autocomplete="off" required>
-                              </div>
-                          </div>
-          
-                          <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
-                              <h6>Contraseña*</h6>
-                              <input type="password" class="form-control form-control-user" id="CPNcontraseña" autocomplete="off"  required>
-                            </div>
-                            <div class="col-sm-6">
-                              <h6>Repetir contraseña*</h6>
-                              <input type="password" class="form-control form-control-user" id="CPNrepetir_contraseña" autocomplete="off" required>
-                            </div>
-                          </div>
-          
-                          <div class="form-group">
-                            </br> 
-                            </br>
-                            <input type="checkbox"  name="" id="checkbox-banco" onchange="pruebacheck()"> Registrar datos bancarios para el pago de envíos con recaudo
-                          </div>
-          
-                            <div id="mostrar-ocultar-registro-bancario" style="display: none;">
-                              <h6 class="text-danger">DATOS BANCARIOS</h6>
-                                </br>
-                              <div class="form-group row">
-                                <div class="col-sm-6 mb-3 mb-sm-0">
-                                  <h6>Banco*</6>
-                                  <h6></h6>
-                                  <select  class="form-control form-control" id="CPNbanco">
-                                    <option value="Bancolombia(Desembolso: $0)">Bancolombia(Desembolso: $0)</option> 
-                                    <option value="Nequi(desembolso: $0)">Nequi(desembolso: $0)</option>
-                                    <option value="Banco de bogotá(Desembolso: $7.500)">Banco de bogotá(Desembolso: $7.500)</option>
-                                    <option value="Banco popular(Desembolso: $7.500)">Banco popular(Desembolso: $7.500)</option>
-                                    <option value="Itaú(Desembolso: $7.500)">Itaú(Desembolso: $7.500)</option>
-                                    <option value="Citibank(Desembolso: $7.500)">Citibank(Desembolso: $7.500)</option>
-                                    <option value="BBVA(Desembolso: $7.500)">BBVA(Desembolso: $7.500)</option>
-                                    <option value="Colpatria(Desembolso: $7.500)">Colpatria(Desembolso: $7.500)</option>
-                                    <option value="Banco de occidente(Desembolso: $7.500)">Banco de occidente(Desembolso: $7.500)</option>
-                                    <option value="Banco caja social(Desembolso: $7.500)">Banco caja social(Desembolso: $7.500)</option>
-                                    <option value="Banco Agrario(Desembolso: $7.500)">Banco Agrario(Desembolso: $7.500)</option>
-                                    <option value="Banco davivienda(Desembolso: $7.500)">Banco davivienda(Desembolso: $7.500)</option>
-                                    <option value="Banco Av Villas (Desembolso: $7.500)">Banco Av Villas (Desembolso: $7.500)</option>
-                                    <option value="Banco Pichincha(Desembolso: $7.500)">Banco Pichincha(Desembolso: $7.500)</option>
-                                    <option value="Bancoomeva(Desembolso: $7.500)">Bancoomeva(Desembolso: $7.500)</option>
-                                    <option value="Banco Falabella (Desembolso: $7.500)">Banco Falabella (Desembolso: $7.500)</option>
-                                    <option value="Daviplata (Desembolso: $7.500)">Daviplata (Desembolso: $7.500)</option>
-                                  </select>
-                                </div>
-                                <div class="col-sm-6">
-                                  <h6>Nombre representante*</h6>
-                                  <input type="text" class="form-control form-control-user" id="CPNnombre_representante" autocomplete="off" required>
-                                </div>
-                              </div>
-          
-                              <div class="form-group row">
-                                <div class="col-sm-6 mb-3 mb-sm-0">
-                                  <h6>Tipo de cuenta*</6>
-                                  <h6></h6>
-                                  
-                                  <select  class="form-control form-control" id="CPNtipo_de_cuenta">
-                                    <option value="Ahorros">Ahorros</option> 
-                                    <option value="Corriente">Corriente</option>
-                                   
-                                  </select>
-                                </div>
-          
-          
-                                <div class="col-sm-6">
-                                  <h6>Número de cuenta*</h6>
-                                  <input type="number" class="form-control form-control-user" id="CPNnumero_cuenta" autocomplete="off" required>
-                                </div>
-                                
-                              </div>
-          
-                              <div class="form-group row">
-                                <div class="col-sm-6">
-                                  <h6>Confirmar número de cuenta*</h6>
-                                  <input type="number" class="form-control form-control-user" id="CPNconfirmar_numero_cuenta" autocomplete="off" required>
-                                </div>
-          
-          
-                                <div class="col-sm-6 mb-3 mb-sm-0">
-                                  <h6>Tipo documento*</6>
-                                  <h6></h6>
-                                  
-                                  <select  class="form-control form-control" id="CPNtipo_documento_banco">
-                                    <option value="CC">CC</option> 
-                                    <option value="NIT">NIT</option>
-                                    <option value="Cédula extranjería">Cédula extranjería</option>
-                                    
-                                  </select>
-                                </div>
-                                
-                              </div>
-          
-                              <div class="form-group row">
-                                <div class="col-sm-6">
-                                  <h6>número de identificación*</h6>
-                                  <input type="number" class="form-control form-control-user" id="CPNnumero_identificacion_banco" autocomplete="off" required>
-                                </div>
-          
-          
-                                <div class="col-sm-6">
-                                  <h6>Confirmar número de identificación*</h6>
-                                  <input type="number" class="form-control form-control-user" id="CPNconfirmar_numero_identificacion_banco" autocomplete="off" required>
-                                </div>
-                                
-                              </div>
-                            </div>
-          
-                            <div class="form-check">
-                              <input class="form-check-input" type="checkbox" name="CPNusuario_corporativo" 
-                              id="CPNusuario_corporativo" autocomplete="off">
-                              <label class="form-check-label" for="CPMusuario_corporativo">Usuario Corporativo</label><br>
-                              <input class="form-check-input" type="checkbox" id="CPNcheck_terminos_condiciones" 
-                              onchange="checkTerminosCondiciones()" autocomplete="off"> <a href="/terminos.html">Acepto términos y condiciones</a>
-                              <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
-                            </div>
-                        </form>
-                          <button onclick="nuevaCuenta()" id="registrar-nueva-cuenta" class="btn btn-primary btn-user btn-block" disabled>
-                            Registrar cuenta
-                          </button>
-                        
-                          <hr>
-                        
-                        <div id="error_crear_cuenta"></div>
-                        <hr>                       
-                      </div>
-                    </div>
-                  </div>
-                </div>
-            </div>
-          </div>
-
           <div class="container-fluid" id="usuarios" style="display: none;">
             <div class="row">
               <div class="col-md-3"></div>
@@ -786,7 +572,236 @@
             </div>
           </div>
 
+          <div class="container-fluid" id="registrador">
+            <div class="card o-hidden border-0 shadow-lg my-2">
+                <div class="card-body p-0">
+                  
+                  <!-- Nested Row within Card Body -->
+                  <div class="row">
+                    <div class="col-lg-12">
+                      <div class="p-5">
+                        <div class="text-center" >
+                            <img style="max-width:100%;width:200px;height:200px;" src="img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg"  alt="1">
+                            <h1 class="h4 text-gray-900 mb-4"> Creando cuenta...</h1>
+                            </br>
+                        </div>
+                        <form class="user">
+                          <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                              <h6>Nombres*</h6>
+                              <input type="text" class="form-control form-control-user" id="CPNnombres" autocomplete="off" required>
+                            </div>
+                            <div class="col-sm-6">
+                              <h6>Apellidos*</h6>
+                              <input type="text" class="form-control form-control-user" id="CPNapellidos" autocomplete="off" required>
+                            </div> 
+                          </div>
+          
+                          <div class="form-group row">
+                            <div class="col-md-2 mb-3 mb-sm-0">
+                              <h6>Tipo documento*</6>
+                              <h6></h6>
+                              
+                              <select  class="form-control form-control" id="CPNtipo_documento">
+                                <option value="CC"selected>CC</option> 
+                                <option value="PASAPORTE">PASAPORTE</option>
+                                <option value="NIT(RUT)">NIT (RUT)</option>
+                              </select>
+                            </div>
+                            <div class="col-md-5">
+                              <h6>Número identificación*</h6>
+                              <input type="text" class="form-control form-control-user" id="CPNnumero_documento" autocomplete="off" required>
+                              <p class="text-danger d-none" id="usuario-existente">¡El usuario ingresado ya existe!</p>
+                            </div>
+                            <div class="col-md mb-3 mb-sm-0">
+                              <h6>Centro de Costo*</h6>
+                              <input type="text" class="form-control form-control-user" id="CPNcentro_costo"  autocomplete="off" required>
+                              <p class="text-danger d-none" id="centro_costo-existente">¡El Centro de Costo ingresado ya existe!</p>
+                            </div>
+                            
+                          </div>
+          
+                          <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                              <h6>Celular*</h6>
+                              <input type="number" class="form-control form-control-user" id="CPNtelefono" autocomplete="off" required>
+                            </div>
+                            <div class="col-sm-6">
+                              <h6>Celular #2</h6>
+                              <input type="number" class="form-control form-control-user" id="CPNcelular" autocomplete="off">
+                            </div>
+                          </div>
+          
+                          <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                              <h6>Ciudad*</h6>
+                              <h6>**Elegir del menú desplegable**</h6>
+                              <input name=""  class="form-control form-control-user" id="CPNciudad" autocomplete="off" size="1"></input>
+                            </div>
+                            <div class="col-sm-6">
+                              <h6>Dirección de recogida*</h6>
+                            </br>
+                              <input type="text" class="form-control form-control-user" id="CPNdireccion" autocomplete="off" required>
+                            </div>
+                            
+                          </div>
+          
+                          <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                              <h6>Barrio*</h6>
+                              <input type="text" class="form-control form-control-user" id="CPNbarrio" autocomplete="off" required>
+                            </div>
+                            <div class="col-sm-6">
+                              <h6>Nombre de la empresa*</h6>
+                              <input type="text" class="form-control form-control-user" id="CPNnombre_empresa" autocomplete="off" required>
+                            </div>
+                          </div>
+          
+                          <div class="form-group row">
+                              
+                              <div class="col-sm-6">
+                                <h6>Correo electrónico*</h6>
+                                <input type="email"  class="form-control form-control-user" id="CPNcorreo"
+                                    aria-describedby="emailHelp" autocomplete="off" required>
+                              </div>
+                              <div class="col">
+                                <h6>Cosas que envía</h6>
+                                <input type="text" class="form-control form-control-user" id="CPNobjetos_envio" placeholder="objeto1,objeto2,etc..." autocomplete="off" required>
+                              </div>
+                          </div>
+          
+                          <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                              <h6>Contraseña*</h6>
+                              <input type="password" class="form-control form-control-user" id="CPNcontraseña" autocomplete="off"  required>
+                            </div>
+                            <div class="col-sm-6">
+                              <h6>Repetir contraseña*</h6>
+                              <input type="password" class="form-control form-control-user" id="CPNrepetir_contraseña" autocomplete="off" required>
+                            </div>
+                          </div>
+          
+                          <div class="form-group">
+                            </br> 
+                            </br>
+                            <input type="checkbox"  name="" id="checkbox-banco" onchange="pruebacheck()"> Registrar datos bancarios para el pago de envíos con recaudo
+                          </div>
+          
+                            <div id="mostrar-ocultar-registro-bancario" style="display: none;">
+                              <h6 class="text-danger">DATOS BANCARIOS</h6>
+                                </br>
+                              <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                  <h6>Banco*</6>
+                                  <h6></h6>
+                                  <select  class="form-control form-control" id="CPNbanco">
+                                    <option value="Bancolombia(Desembolso: $0)">Bancolombia(Desembolso: $0)</option> 
+                                    <option value="Nequi(desembolso: $0)">Nequi(desembolso: $0)</option>
+                                    <option value="Banco de bogotá(Desembolso: $7.500)">Banco de bogotá(Desembolso: $7.500)</option>
+                                    <option value="Banco popular(Desembolso: $7.500)">Banco popular(Desembolso: $7.500)</option>
+                                    <option value="Itaú(Desembolso: $7.500)">Itaú(Desembolso: $7.500)</option>
+                                    <option value="Citibank(Desembolso: $7.500)">Citibank(Desembolso: $7.500)</option>
+                                    <option value="BBVA(Desembolso: $7.500)">BBVA(Desembolso: $7.500)</option>
+                                    <option value="Colpatria(Desembolso: $7.500)">Colpatria(Desembolso: $7.500)</option>
+                                    <option value="Banco de occidente(Desembolso: $7.500)">Banco de occidente(Desembolso: $7.500)</option>
+                                    <option value="Banco caja social(Desembolso: $7.500)">Banco caja social(Desembolso: $7.500)</option>
+                                    <option value="Banco Agrario(Desembolso: $7.500)">Banco Agrario(Desembolso: $7.500)</option>
+                                    <option value="Banco davivienda(Desembolso: $7.500)">Banco davivienda(Desembolso: $7.500)</option>
+                                    <option value="Banco Av Villas (Desembolso: $7.500)">Banco Av Villas (Desembolso: $7.500)</option>
+                                    <option value="Banco Pichincha(Desembolso: $7.500)">Banco Pichincha(Desembolso: $7.500)</option>
+                                    <option value="Bancoomeva(Desembolso: $7.500)">Bancoomeva(Desembolso: $7.500)</option>
+                                    <option value="Banco Falabella (Desembolso: $7.500)">Banco Falabella (Desembolso: $7.500)</option>
+                                    <option value="Daviplata (Desembolso: $7.500)">Daviplata (Desembolso: $7.500)</option>
+                                  </select>
+                                </div>
+                                <div class="col-sm-6">
+                                  <h6>Nombre representante*</h6>
+                                  <input type="text" class="form-control form-control-user" id="CPNnombre_representante" autocomplete="off" required>
+                                </div>
+                              </div>
+          
+                              <div class="form-group row">
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                  <h6>Tipo de cuenta*</6>
+                                  <h6></h6>
+                                  
+                                  <select  class="form-control form-control" id="CPNtipo_de_cuenta">
+                                    <option value="Ahorros">Ahorros</option> 
+                                    <option value="Corriente">Corriente</option>
+                                   
+                                  </select>
+                                </div>
+          
+          
+                                <div class="col-sm-6">
+                                  <h6>Número de cuenta*</h6>
+                                  <input type="number" class="form-control form-control-user" id="CPNnumero_cuenta" autocomplete="off" required>
+                                </div>
+                                
+                              </div>
+          
+                              <div class="form-group row">
+                                <div class="col-sm-6">
+                                  <h6>Confirmar número de cuenta*</h6>
+                                  <input type="number" class="form-control form-control-user" id="CPNconfirmar_numero_cuenta" autocomplete="off" required>
+                                </div>
+          
+          
+                                <div class="col-sm-6 mb-3 mb-sm-0">
+                                  <h6>Tipo documento*</6>
+                                  <h6></h6>
+                                  
+                                  <select  class="form-control form-control" id="CPNtipo_documento_banco">
+                                    <option value="CC">CC</option> 
+                                    <option value="NIT">NIT</option>
+                                    <option value="Cédula extranjería">Cédula extranjería</option>
+                                    
+                                  </select>
+                                </div>
+                                
+                              </div>
+          
+                              <div class="form-group row">
+                                <div class="col-sm-6">
+                                  <h6>número de identificación*</h6>
+                                  <input type="number" class="form-control form-control-user" id="CPNnumero_identificacion_banco" autocomplete="off" required>
+                                </div>
+          
+          
+                                <div class="col-sm-6">
+                                  <h6>Confirmar número de identificación*</h6>
+                                  <input type="number" class="form-control form-control-user" id="CPNconfirmar_numero_identificacion_banco" autocomplete="off" required>
+                                </div>
+                                
+                              </div>
+                            </div>
+          
+                            <div class="form-check">
+                              <input class="form-check-input" type="checkbox" name="CPNusuario_corporativo" 
+                              id="CPNusuario_corporativo" autocomplete="off">
+                              <label class="form-check-label" for="CPMusuario_corporativo">Usuario Corporativo</label><br>
+                              <input class="form-check-input" type="checkbox" id="CPNcheck_terminos_condiciones" 
+                              onchange="checkTerminosCondiciones()" autocomplete="off"> <a href="/terminos.html">Acepto términos y condiciones</a>
+                              <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
+                            </div>
+                        </form>
+                          <button onclick="nuevaCuenta()" id="registrar-nueva-cuenta" class="btn btn-primary btn-user btn-block" disabled>
+                            Registrar cuenta
+                          </button>
+                        
+                          <hr>
+                        
+                        <div id="error_crear_cuenta"></div>
+                        <hr>                       
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </div>
+          </div>
+
           <div class="container-fluid" id="documentos" style="display: none;">
+            <h2>Documentos</h2>
             <div class="row">
               <div class="form-group row mb-3">
                 <div class="col-sm-6 mb-3 mb-sm-0">
@@ -804,6 +819,29 @@
             
             </div>
             <div class="row" id="mostrador-documentos"></div>
+          </div>
+          
+          <div class="container-fluid" id="historial_guias">
+            <h2>Historial De Guías</h2>
+            <div class="row">
+              <div class="form-group row mb-3">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                  <label for="fechaI-hist-guias">Fecha inicio</label>
+                  <input type="date" class="form-control form-control-user"  id="fechaI-hist-guias">
+                </div>
+                <div class="col-sm-6">
+                  <label for="fechaF-hist-guias">Fecha final</label>
+                  <input type="date" class="form-control form-control-user"  id="fechaF-hist-guias">
+                </div>
+              </div>
+              <button id="buscador-hist-guias" onclick="historialGuiasAdmin()" class="mb-4 btn btn-primary btn-user btn-block">
+                Buscar
+              </button>  
+            </div>
+            <div class="d-flex justify-content-center">
+              <div class="cargador d-none lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+            </div>
+            <table id="tabla-hist-guias" class="table table-responsive" width="100%"></table>
           </div>
 
           <div class="container-fluid" id="actualizador" style="display: none;">

@@ -1036,48 +1036,61 @@ function eliminarNotificaciones(){
     })
 }
 
-function descargarHistorialGuias(){
+async function descargarHistorialGuias(){
     avisar("Solicitud Recibida", "Procesando...", "aviso")
     let fechaI = new Date(value("guias-fechaI-modal")).getTime();
     let fechaF = new Date(value("guias-fechaF-modal")).getTime();
-    firebase.firestore().collection("usuarios").get().then(querySnapshot => {
-        return new Promise((res, rej) => {
-            let mirar = [];
-            querySnapshot.forEach((doc) => {
-                let x = doc.ref.collection("guias").get().then(querySnapshot => {
-                    querySnapshot.forEach(doc => {
-                        let fecha = new Date(doc.data().fecha).getTime()
-                        if(fechaI <= fecha && fecha <= fechaF){
-                            let res = doc.data();
-                            res.id_heka = doc.id;
-                            mirar.push(res);
 
-                            /*esta subida de datos está idealizada para copiar los datos de las guías de
-                            los usuarios y sacarlo al nodo guias*/
-                            // firebase.firestore().collection("guias").doc(doc.id).set(res);
-                        }
-                    })
-                    return mirar
-                })
-                res(x);
-            });
+    avisar("Solicitud Procesada", "Espere un momento, en breve iniciaremos con su descarga")
+
+    let guias = await firebase.firestore().collectionGroup("guias").orderBy("timeline")
+    .startAt(new Date(fechaI).getTime()).endAt(new Date(fechaF).getTime() + 8.64e+7)
+    .get().then(querySnapshot => {
+        let res = new Array()
+        console.log(querySnapshot.size);
+        querySnapshot.forEach(doc => {
+            res.push(doc.data());
         })
-    }).then((guias) => {
-        avisar("Solicitud Procesada", "Espere un momento, en breve iniciaremos con su descarga")
-        setTimeout(() => {
-            guias.sort((a,b) => {
-                if(parseInt(a.guia) > parseInt(b.guia)) {
-                    return 1
-                } else {
-                    return -1
-                }
-            })
-            console.log(guias)
-            console.log(guias.length)
-
-            descargarInformeGuias(guias, guias[0].id_heka + "-" + guias[guias.length - 1].id_heka)
-        }, 3000)
+        return res;
     });
+
+
+    guias.sort((a,b) => {
+        if(parseInt(a.id_heka) > parseInt(b.id_heka)) {
+            return 1
+        } else {
+            return -1
+        }
+    })
+    console.log(guias)
+    console.log(guias.length)
+
+    descargarInformeGuias(guias, guias[0].id_heka + "-" + guias[guias.length - 1].id_heka)
+    
+
+    // firebase.firestore().collection("usuarios").get().then(querySnapshot => {
+    //     return new Promise((res, rej) => {
+    //         let mirar = [];
+    //         querySnapshot.forEach((doc) => {
+    //             let x = doc.ref.collection("guias").get().then(querySnapshot => {
+    //                 querySnapshot.forEach(doc => {
+    //                     let fecha = new Date(doc.data().fecha).getTime()
+    //                     if(fechaI <= fecha && fecha <= fechaF){
+    //                         let res = doc.data();
+    //                         res.id_heka = doc.id;
+    //                         mirar.push(res);
+
+    //                         /*esta subida de datos está idealizada para copiar los datos de las guías de
+    //                         los usuarios y sacarlo al nodo guias*/
+    //                         // firebase.firestore().collection("guias").doc(doc.id).set(res);
+    //                     }
+    //                 })
+    //                 return mirar
+    //             })
+    //             res(x);
+    //         });
+    //     })
+    // })
 }
 
 function cargarNovedades(){
@@ -1221,9 +1234,12 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
     } else {
         if((document.getElementById("visor_novedades").innerHTML == "" && seguimiento == "once") || !seguimiento) {
             firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
-            .where("numeroGuia", "!=", null).get().then(querySnapshot => {
+            .orderBy("estado")
+            .where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"])
+            .get().then(querySnapshot => {
                 let contador = 0;
                 let size = querySnapshot.size;
+                console.log(size)
                 $("#visor_novedades").html("");
                 querySnapshot.forEach(doc => {
                     let dato = doc.data();
@@ -1316,7 +1332,7 @@ function consultarGuiaFb(id_user, id, extraData, usuario = "Movimientos", contad
        firebase.firestore().collection("usuarios").doc(id_user).collection("estadoGuias").doc(id)
        .get().then(doc => {
            if(doc.exists) {
-               if(administracion || doc.data().movimientos[doc.data().movimientos.length - 1].IdConc != 0)
+               if(administracion || doc.data().movimientos[doc.data().movimientos.length - 1].TipoMov == "1")
                tablaMovimientosGuias(doc.data(), extraData, usuario, id, id_user);
             }
        }).then(() => {
@@ -1765,4 +1781,69 @@ function revisarGuiasSaldas() {
         })
         $("#cargador-deudas").children().addClass("d-none")
     })
+}
+
+async function historialGuiasAdmin() {
+    let fechaI = document.querySelector("#fechaI-hist-guias").value;
+    let fechaF = document.querySelector("#fechaF-hist-guias").value;
+    $("#historial_guias .cargador").removeClass("d-none");
+
+    let data = await firebase.firestore().collectionGroup("guias").orderBy("timeline")
+    .startAt(new Date(fechaI).getTime()).endAt(new Date(fechaF).getTime() + 8.64e+7)
+    .get().then(querySnapshot => {
+        let res = new Array()
+        console.log(querySnapshot.size);
+        querySnapshot.forEach(doc => {
+            res.push(doc.data());
+        })
+        return res;
+    });
+
+    console.log(data);
+    let nombre = "Historial Guias" + fechaI + "_" + fechaF;
+    let encabezado = "Guias creadas desde el " + fechaI + " Hasta " + fechaF
+    
+    // data= [{nombre: "nombre", apellido: "apellido"}]
+
+    let tabla = $("#tabla-hist-guias").DataTable({
+        data: data,
+        destroy: true,
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
+            "emptyTable": "Aún no tienes guías saldadas."
+        },
+        columns: [
+            { data: "id_heka", title: "# Guía Heka"},
+            { data: "numeroGuia", title: "# Guía Servientrega", defaultContent: ""},
+            { data: "centro_de_costo", title: "Centro de Costo" },
+            { data: "detalles.comision_heka", title: "Comisión Heka"},
+            { data: "detalles.comision_trasportadora", title: "Comisión Transportadora"},
+            { data: "detalles.flete", title: "Flete"},
+            { data: "detalles.recaudo", title: "Recaudo"},
+            { data: "detalles.total", title: "Total"},
+            { data: "fecha", title: "Fecha"},
+        ],
+        dom: 'Bfrtip',
+        buttons: [{
+            extend: "excel",
+            text: "Descargar Historial",
+            filename: nombre,
+            title: encabezado
+        }],
+        // action: function() {}
+    });
+
+
+    tabla.on( 'buttons-processing', function ( e, indicator, btnApi, dt, node ) {
+        console.log(indicator);
+        if ( indicator ) {
+            $(node).text("Descargando...");
+            $(node).prop("disabled", true);
+        }
+        else {
+            $(node).text("Descargar Historial")
+        }
+    } );
+
+    $("#historial_guias .cargador").addClass("d-none");
 }
