@@ -109,33 +109,7 @@ async function cotizador(){
 
             $("#list-transportadoras a").click(seleccionarTransportadora);
 
-            $("#boton_continuar").click(() =>{
-                let creador = document.getElementById("crear_guia");
-                creador.innerHTML = "";
-                creador.innerHTML = finalizarCotizacion(datos_de_cotizacion);
-                location.href = "#crear_guia";
-                scrollTo(0, 0);
-
-                let informacion = document.getElementById("informacion-personal");
-                document.getElementById("producto").addEventListener("blur", () => {
-                    let normalmente_envia = false;
-                    for(let product of datos_usuario.objetos_envio){
-                        product = product.toLowerCase();
-                        if(value("producto").trim().toLowerCase() == product){
-                            normalmente_envia = true;
-                        }
-                    }
-                    let aviso = document.getElementById("aviso-producto");
-                    if(!normalmente_envia){
-                        aviso.innerHTML = "No se registra en lo que normalmente envías: <b>\"" + datos_usuario.objetos_envio.join(", ") + "\".</b> \r si deseas continuar de todos modos, solo ignora este mensaje";
-                        aviso.classList.remove("d-none");
-                    }else {
-                        aviso.classList.add("d-none")
-                    }
-                })
-
-                console.log(informacion)
-            })
+            $("#boton_continuar").click(seleccionarTransportadora)
 
             location.href = "#result_cotizacion"
         }
@@ -327,11 +301,12 @@ async function response(datos) {
             </div>
         </div>`),
         
-        boton_continuar = crearNodo(`<div class="d-flex justify-content-end mt-2"><input type="button" id="boton_continuar" 
+        boton_continuar = crearNodo(`<div class="d-flex justify-content-end mt-2"><input type="button" 
+            data-transp="SERVIENTREGA" id="boton_continuar" 
             class="btn btn-success mt-3" value="Continuar" ${!act_btn_continuar ? "disabled=true" : ""}></div>`);
         
 
-    div_principal.append(divisor, boton_regresar, info_principal, transportadoras)
+    div_principal.append(divisor, boton_regresar, info_principal, transportadoras, boton_continuar)
     if(document.getElementById("cotizar_envio").getAttribute("data-index")){
        boton_continuar.firstChild.style.display = "none";
        console.log("EStoy en el index");
@@ -808,7 +783,7 @@ function enviar_firestore(datos){
     precios_personalizados.saldo <= 0 ? user_debe = datos.costo_envio
     : user_debe = - precios_personalizados.saldo + datos.costo_envio;
 
-    if(user_debe > 0) datos.user_debe = user_debe;
+    if(user_debe > 0 && !datos.debe) datos.user_debe = user_debe;
 
     console.log(datos);
     // return;
