@@ -240,13 +240,12 @@ async function pagoContraentrega() {
 async function response(datos) {
     let result_cotizacion, act_btn_continuar = true;
     let type = await Swal.fire({
-        title: '¿Desea habilitar pago contraentrega?',
-        text: "Su destinatario será quien pagará el valor de su venta",
+        title: '¿Qué tipo de envío deseas realizar?',
         icon: 'question',
         showCancelButton: true,
         confirmButtonClass: "bg-primary",
-        confirmButtonText: 'Sí, lo necesito',
-        cancelButtonText: "no, gracias"
+        confirmButtonText: 'Pago Contra Entrega',
+        cancelButtonText: "Común"
     }).then((result) => {
         if(result.isConfirmed) {
             return "PAGO CONTRAENTREGA";
