@@ -88,14 +88,15 @@ cron.schedule("00 */6 * * *", () => {
    });
 });
 
-cron.schedule("* * * * 0", () => {
+cron.schedule("0 0 * * 0", () => {
   let d = new Date();
   console.log("Se Actualizaron los movimientos de las guías: ", d);
   actualizarMovimientosGuias(d, true).then((detalles) => {
     console.log(detalles);
+    detalles.actulización_semanal = true;
     firebase.firestore().collection("reporte").add(detalles);
    });
-})
+});
 
 
 // actualizarEstadosGuias(new Date());
@@ -155,10 +156,10 @@ function actualizarEstadosGuias(d) {
   }) 
 }
 
-actualizarMovimientosGuias(new Date()).then((detalles) => {
- console.log(159, detalles);
-//  firebase.firestore().collection("reporte").add(detalles);
-});
+// actualizarMovimientosGuias(new Date()).then((detalles) => {
+//  console.log(159, detalles);
+// //  firebase.firestore().collection("reporte").add(detalles);
+// });
 async function actualizarMovimientosGuias(d, general) {
   let inicio_func = new Date().getTime();
   let referencePpal = firebase.firestore().collectionGroup("guias")
@@ -168,9 +169,9 @@ async function actualizarMovimientosGuias(d, general) {
     .endAt(d.getTime())
   } else {
     referencePpal = referencePpal
-    // .orderBy("estado")
-    // .where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"])
-    .where("centro_de_costo", "==", 'SellerCabar-0')
+    .orderBy("estado")
+    .where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"])
+    // .where("centro_de_costo", "==", 'SellerCabar-0')
     // .where("numeroGuia", "in", ["2112740014", "290147258"])
     // .limit(5)
   }

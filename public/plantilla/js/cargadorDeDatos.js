@@ -494,6 +494,13 @@ function cargarPagos(){
               } else {
                 tipo_usuario.textContent = "Usuario no Corporativo";
               }
+
+              doc.ref.collection("informacion").doc(heka)
+              .get().then(doc => {
+                if(doc.exists) {
+                  console.log(doc.data());
+                }
+              })
             })
           })
           usuario.parentNode.insertBefore(tipo_usuario, usuario);
@@ -803,6 +810,9 @@ function mostrarPagosUsuario(data) {
 
         select.append( '<option value="'+d+'">'+d+ ' - Total pagado: $'+convertirMiles(sum)+'</option>' )
       } );
+
+      $("#visor-pagos_info").removeClass("dataTables_info");
+      $("#visor-pagos_info").addClass("text-center");
   }
   })
 }
