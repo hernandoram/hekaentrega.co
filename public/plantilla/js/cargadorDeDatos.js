@@ -484,6 +484,8 @@ function cargarPagos(){
         usuarios.forEach(usuario => {
           let remitente = usuario.getAttribute("data-usuario");
           let tipo_usuario = document.createElement("p");
+          let bank_info = document.createElement("div");
+
           tipo_usuario.textContent = "Usuario no Encontrado en la base de Datos, (manéjelo con precaución)";
           tipo_usuario.classList.add("text-center")
           firebase.firestore().collection("usuarios").where("centro_de_costo", "==", remitente)
@@ -495,14 +497,26 @@ function cargarPagos(){
                 tipo_usuario.textContent = "Usuario no Corporativo";
               }
 
-              doc.ref.collection("informacion").doc(heka)
-              .get().then(doc => {
-                if(doc.exists) {
+              doc.ref.collection("informacion").doc("bancaria")
+              .get().then(docBank => {
+                if(docBank.exists) {
+                  docBank = docBank.data()
+                  bank_info.innerHTML = `<div class="dropdown">
+                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdown-${doc.data().centro_de_costo}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Información Bancaria
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdown-${doc.data().centro_de_costo}">
+                      <h6 class="dropdown-item">${docBank.banco}</h6>
+                      <h6 class="dropdown-item">Representante: ${docBank.nombre_banco}</h6>
+                      <h6 class="dropdown-item">${docBank.tipo_de_cuenta}: ${docBank.numero_cuenta}</h6>
+                        <h6 class="dropdown-item">${docBank.tipo_documento_banco} - ${docBank.numero_iden_banco}</h6>
+                  </div>`;
                   console.log(doc.data());
                 }
               })
             })
           })
+          usuario.insertBefore(bank_info, usuario.firstChild);
           usuario.parentNode.insertBefore(tipo_usuario, usuario);
         })
 
