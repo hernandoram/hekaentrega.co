@@ -65,15 +65,27 @@ function tablaDeGuias(id, datos){
         </th>
         <th class="d-flex justify-content-around flex-wrap">
             <button class="btn btn-primary btn-circle btn-sm mt-2" data-id="${id}"
+            id="ver_detalles${id}" data-toggle="modal" data-target="#modal-detallesGuias"
+            title="Detalles">
+                <i class="fas fa-search-plus"></i>
+            </button>
+
+            <button class="btn btn-primary btn-circle btn-sm mt-2" data-id="${id}"
             id="descargar_documento${id}" title="Descargar Documentos">
                 <i class="fas fa-file-download"></i>
             </button>
 
+            <button class="btn btn-primary btn-circle btn-sm mt-2" data-id="${id}"
+            data-funcion="activar-desactivar" data-activate="after"
+            id="generar_rotulo${id}" title="Generar Rótulo">
+                <i class="fas fa-ticket-alt"></i>
+            </button>
+
             ${datos.numeroGuia ? 
                 `<button class="btn btn-primary btn-circle btn-sm mt-2" data-id="${id}"
-                id="ver_detalles${id}" data-toggle="modal" data-target="#modal-gestionarNovedad"
+                id="ver_movimientos${id}" data-toggle="modal" data-target="#modal-gestionarNovedad"
                 title="Revisar movimientos">
-                    <i class="fas fa-search-plus"></i>
+                    <i class="fas fa-truck"></i>
                 </button>` : ""}
 
             <button class="btn btn-success btn-circle btn-sm mt-2" data-id="${id}" 
@@ -203,7 +215,7 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                         <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800 w-100">
                             <p class="text-truncate"
                             style="cursor: zoom-in"
-                            data-mostrar="texto">Id Guias Generadas: <br><small class="text-break">${data.guias}</small></p>
+                            data-mostrar="texto">Id Guias Generadas: <br><small class="text-break">${data.guias}</small> </p>
                             <p>Tipo: <small class="text-break">${data.type || "PAGO CONTRAENTREGA"}</span></p>
                             <p>Fecha: <small>${data.fecha}</small></p>
                         </div>
@@ -215,6 +227,8 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                     data-nombre_relacion="${data.nombre_relacion}"
                     data-user="${data.id_user}" data-funcion="descargar-docs" 
                     id="descargar-docs${id}"></i>
+
+                    <small class="badge badge-primary badge-counter float-right">${data.guias.length}</small>
                 </div>
             </div>
             <div class="row" data-guias="${data.guias}" data-type="${data.type}"
@@ -290,14 +304,16 @@ function mostrarDocumentosUsuario(id, data){
                 </div>
             </div>
             <div class="row" data-guias="${data.guias.toString()}" data-id_guia="${id}" data-user="${data.id_user}" data-nombre="${data.nombre_usuario}">
-                    <button class="col-12 btn btn-info mb-2" 
-                    type="button" id="boton-descargar-guias${id}" disabled>
-                        Descargar Guías
-                    </button>
-                    <button class="col btn btn-info mb-2" 
-                    type="button" id="boton-descargar-relacion_envio${id}" disabled>
-                        Descargar Manifiesto
-                    </button>
+                <button class="col-12 btn btn-info mb-2" 
+                type="button" id="boton-descargar-guias${id}" disabled>
+                    Descargar Guías
+                </button>
+                <button class="col btn btn-info mb-2" 
+                type="button" id="boton-descargar-relacion_envio${id}" disabled>
+                    Descargar Manifiesto
+                </button>
+                <button class="col-12 btn btn-info mb-2" 
+                type="button" id="boton-generar-rotulo${id}">Genera Rótulo</button>
             </div>
         </div>
     </div>
@@ -318,12 +334,15 @@ function activarBotonesDeGuias(id, data, activate_once){
         }
 
         let revisar = actv.getAttribute("data-enviado");
+        let when = actv.getAttribute("data-activate");
+        let operador = when != "after" ? revisar != "true" : revisar == "true";
 
-        if(revisar != "true"){
+        if(operador){
           actv.removeAttribute("disabled");
         } else {
           actv.setAttribute("disabled", "true")
         }
+
       }
       
       
@@ -379,7 +398,7 @@ function activarBotonesDeGuias(id, data, activate_once){
             }
         });
 
-        $("#ver_detalles"+id).on("click", e => {
+        $("#ver_movimientos"+id).on("click", e => {
         document.getElementById("contenedor-gestionarNovedad").innerHTML = ""
         document.getElementById("contenedor-gestionarNovedad").innerHTML = `
             <div class="d-flex justify-content-center align-items-center"><h1 class="text-primary">Cargando   </h1><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>
@@ -433,6 +452,18 @@ function activarBotonesDeGuias(id, data, activate_once){
                 })
             })
         });
+
+        $("#ver_detalles" + id).click(verDetallesGuia)
+
+        $("#generar_rotulo" + id).click(function() {
+            let id = this.getAttribute("data-id");
+            firebase.firestore().collection("documentos").where("guias", "array-contains", id)
+            .get().then(querySnapshot => {
+                querySnapshot.forEach(doc => {
+                    generarRotulo(doc.data().guias);
+                })
+            })
+        })
       }
 
 }
@@ -1379,6 +1410,27 @@ function actualizarSaldo(data) {
     })
 };
 
+
+function verDetallesGuia() {
+    let id = this.getAttribute("data-id");
+    usuarioDoc.collection("guias").doc(id)
+    .get().then(doc => {
+        let data = doc.data();
+        let html = "<table class='table table-bordered'>"
+        let mostrador = [["id_heka", "numeroGuia", "estado", "type", "fecha", "nombreD", "direccionD", "ciudadD", "departamentoD", "seguro", "valor", "alto", "largo", "ancho", "peso", "costo_envio", "telefonoD"],
+        ["Identificador Guía", "Número de Guía", "Estado", "Tipo de envío", "Fecha de creación", "Nombre del Destinatario", "Dirección", "Ciudad", "Departamento", "Valor Declarado", "Recaudo", "Alto", "Largo", "Ancho", "Peso", "Costo del envío", "Celular"]]
+
+        mostrador[0].forEach((v, n) => {
+            let info = data[v] || "No registra";
+            html += "<tr><td class='text-left'>" + mostrador[1][n] + "</td> <td><b>" + info + "</b></td></tr>";
+        })
+        html += "</table>";
+        Swal.fire({
+            title: "Detalles de Guía",
+            html
+        });
+    })
+}
 // enviarNotificacion({
 //     mensaje: "This is my massage",
 //     visible_admin: true,

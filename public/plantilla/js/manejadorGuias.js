@@ -423,21 +423,22 @@ function descargarGuiasGeneradas(JSONData, ReportTitle, type) {
         encabezado.splice(-1,1)
     }
     CSV += encabezado.join() + '\r\n';
-    console.log(CSV);
     console.log(arrData.length);
+    console.log(arrData);
     let visor_final = new Array();
     //Se actulizara cada cuadro por fila, ***se comenta cual es el campo llenado en cada una***
     for (var i = 0; i < arrData.length; i++) {
         for(let campo in arrData[i]) {
             arrData[i][campo] = arrData[i][campo].toString().replace(/,/g, "-");
         }
+        console.log(arrData[i].id_heka)
         let row = "";
         //Ciudad/Cód DANE de Origen
         row += arrData[i].ciudadR + ',';
         //Tiempo de Entrega
         row += 1+",";
         // Documento de Identificación
-        row += arrData[i].identificacionD + ',';
+        row += '"' + arrData[i].identificacionD + '",';
         // Nombre del Destinatario
         row += arrData[i].nombreD + ',';
         //Dirección
@@ -491,7 +492,7 @@ function descargarGuiasGeneradas(JSONData, ReportTitle, type) {
         // Unidad de peso
         row += 'kg,';
         //Centro de costo
-        row += arrData[i].centro_de_costo + ',';
+        row += '"'+arrData[i].centro_de_costo + '",';
         //Recolección Esporádica
         row += arrData[i].recoleccion_esporadica + ',';
         // Tipo de Documento
@@ -770,7 +771,11 @@ function actualizarHistorialDeDocumentos(timeline){
                     }
                 })
               }
-            });   
+
+              document.getElementById("boton-generar-rotulo" + doc.id).addEventListener("click", function() {
+                generarRotulo(this.parentNode.getAttribute("data-guias").split(","))
+              })
+            });
               
         });
     
@@ -1846,4 +1851,68 @@ async function historialGuiasAdmin() {
     } );
 
     $("#historial_guias .cargador").addClass("d-none");
+}
+
+async function generarRotulo(id_guias) {
+    let div = document.createElement("div")
+    let table = document.createElement("table");
+    let tbody = document.createElement("tbody");
+    let guias = new Array();
+    for (let id of id_guias) {
+        let x = usuarioDoc.collection("guias").doc(id).get().then(d => d.data()) 
+        guias.push(x);
+    }
+
+    let data_guias = await Promise.all(guias);
+    console.log(data_guias)
+
+    table.setAttribute("class", "table");
+    for(let data of data_guias) {
+        let tr = document.createElement("tr");
+        tr.classList.add("border-bottom-secondary")
+
+        let imgs = `<td><div class="align-items-center d-flex flex-column">
+            <img src="img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg" width="100px">
+            <img src="img/logoServi.png" width="100px">
+        </div></td>`;
+        let infoRem = `<td>
+        <h2>Datos Del Remitente</h2>
+        <h5 class="text-dark">Nombre: <strong>${data.nombreR}</strong></h5>
+        <h5 class="text-dark">Dirección: <strong>${data.direccionR}</strong></h5>
+        <h5 class="text-dark">Ciudad:  <strong>${data.ciudadR}(${data.departamentoR})</strong>  </h5>
+        <h5 class="text-dark">Celular:  <strong>${data.celularR}</strong></h5>          
+        </td>`;
+
+        let infoDest = `<td>
+        <h2>Datos Del Destinatario</h2>
+        <h5 class="text-dark">Nombre: <strong>${data.nombreD}</strong></h5>
+        <h5 class="text-dark">Dirección: <strong>${data.direccionD}</strong></h5>
+        <h5 class="text-dark">Ciudad:  <strong>${data.ciudadD}(${data.departamentoD})</strong>  </h5>
+        <h5 class="text-dark">Celular:  <strong>${data.celularD != data.telefonoD ? data.celularD +" - "+ data.telefonoD : data.telefonoD}</strong></h5>          
+        </td>`;
+
+        tr.innerHTML = imgs + infoRem + infoDest
+        tbody.appendChild(tr);
+    }
+    table.appendChild(tbody);
+    div.appendChild(table);
+
+    w = window.open();
+    w.document.write(`<html><head>
+        <meta charset="utf-8">
+
+        <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
+
+        <link href="css/sb-admin-2.min.css" rel="stylesheet">
+        
+        <title>Rótulo Heka</title>
+    </head><body>`);
+    w.document.write(div.innerHTML);
+    w.document.write("</body></html>");
+    w.document.close();
+    w.focus();
+    setTimeout(() => {
+        w.print();
+        w.close();
+    }, 100)
 }
