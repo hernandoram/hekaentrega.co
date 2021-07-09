@@ -1026,11 +1026,12 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         gestionarNovedadModal(data, extraData);
     })
     
-    $("#solucionar-guia-"+data.numeroGuia).click(() => {
+    $("#solucionar-guia-"+data.numeroGuia).click(async () => {
         $("#solucionar-guia-"+data.numeroGuia).html(`
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             Cargando...
         `);
+
         firebase.firestore().collection("usuarios").doc(id_user).collection("guias").doc(id_heka)
         .update({
             novedad_solucionada: true
@@ -1039,6 +1040,66 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
             $("#solucionar-guia-"+data.numeroGuia).html("Solucionada");
             avisar("Guía Gestionada", "La guía " +data.numeroGuia+ " ha sido actualizada exitósamente como solucionada");
         })
+
+
+        return; 
+        /* ESPACIO APRTADO, PARA CUANDO SE HABILITE RESPUESTA A NOVEDAD DEL USUARIO
+            mientras tanto, solo va a resolver la novedad
+        */
+        const { value: text } = await Swal.fire({
+            input: 'textarea',
+            inputLabel: 'Respuesta',
+            inputPlaceholder: 'Escribe tu mensaje',
+            inputAttributes: {
+              'aria-label': 'Escribe tu respuesta'
+            },
+            showCancelButton: true
+          })
+
+          
+          if (text == undefined) {
+          } else if (text) {
+            avisar("Se enviará mensaje al usuario", text);
+            if(extraData.seguimiento) {
+                extraData.seguimiento.push({
+                    gestion: "Asistencia Logística dice: " + text.trim(),
+                    fecha: new Date()
+                })
+            } else {
+                extraData.seguimiento = [{
+                    gestion: "Asistencia Logística dice: " + text.trim(),
+                    fecha: new Date()
+                }]
+            }
+
+            console.log(extraData)
+            return
+
+            usuarioDoc.collection("guias").doc(id_heka).update({
+                seguimiento: extraData.seguimiento,
+                novedad_solucionada: true
+            }).then(() => {
+                firebase.firestore().collection("notificaciones").doc(id_heka).delete();
+                
+                enviarNotificacion({
+                    visible_user: true,
+                    user_id: id_user,
+                    mensaje: "Respuesta a Solución de la guía número " + extraData.numeroGuia + ": " + text.trim(),
+                    href: "novedades"
+                })
+            })
+          } else {
+            firebase.firestore().collection("usuarios").doc(id_user).collection("guias").doc(id_heka)
+            .update({
+                novedad_solucionada: true
+            }).then(() => {
+                firebase.firestore().collection("notificaciones").doc(id_heka).delete();
+                $("#solucionar-guia-"+data.numeroGuia).html("Solucionada");
+                avisar("Guía Gestionada", "La guía " +data.numeroGuia+ " ha sido actualizada exitósamente como solucionada");
+            })
+          }
+
+
     })
 }
 
@@ -1302,14 +1363,15 @@ function enviarNotificacion(options) {
 
     console.log(notificacion);
 
-    // let n = {
-    //     visible_user: true,
-    //     visible_admin: false,
-    //     icon: ["exclamation", "danger"],
-        
-    //     detalles: arrErroresUsuario,
-    //     user_id: vinculo.id_user
-    // }
+    let example_data = {
+        visible_user: true,
+        visible_admin: false,
+        icon: ["exclamation", "danger"],
+        detalles: arrErroresUsuario,
+        user_id: vinculo.id_user,
+        mensaje: "Mensaje a mostrar en la notificación",
+        href: "id destino"
+    }
     firebase.firestore().collection("notificaciones").add(notificacion)
 };
 
