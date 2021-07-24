@@ -1,0 +1,108 @@
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item"><a href="/tienda/{{producto.nombre_tienda}}/productos">Productos</a></li>
+                    <li class="breadcrumb-item active">{{producto.nombre}}</li>
+                </ol>
+            </div>
+            <h4 class="page-title">{{producto.nombre}}</h4>
+        </div>
+    </div>
+</div> 
+
+<div class="card-box">
+    <div class="row">
+        <div class="col-lg-5">
+
+            <div class="tab-content pt-0">
+                {{#each producto.imagesUrl}}
+                    <div class="tab-pane {{#unless @index}}active show{{/unless}}" id="product-{{@index}}-item">
+                        <img src="{{this.url}}" alt="" class="img-fluid mx-auto d-block rounded">
+                    </div>
+                {{/each}}
+                
+                <div class="tab-pane" id="product-5-item">
+                    <img src="/assets/images/products/product-10.jpg" alt="" class="img-fluid mx-auto d-block rounded">
+                </div>
+                <div class="tab-pane" id="product-6-item">
+                    <img src="/assets/images/products/product-11.jpg" alt="" class="img-fluid mx-auto d-block rounded">
+                </div>
+                <div class="tab-pane" id="product-7-item">
+                    <img src="/assets/images/products/product-12.jpg" alt="" class="img-fluid mx-auto d-block rounded">
+                </div>
+            </div>
+
+            <ul class="nav nav-pills nav-justified">
+                {{#each producto.imagesUrl}}
+                    <li class="nav-item">
+                        <a href="#product-{{@index}}-item" data-toggle="tab" aria-expanded="false" class="nav-link product-thumb {{#unless @index}}active show{{/unless}}">
+                            <img src="{{this.url}}" alt="" class="img-fluid mx-auto d-block rounded">
+                        </a>
+                    </li>
+                {{/each}}
+                <li class="nav-item">
+                    <a href="#product-5-item" data-toggle="tab" aria-expanded="true" class="nav-link product-thumb">
+                        <img src="/assets/images/products/product-10.jpg" alt="" class="img-fluid mx-auto d-block rounded">
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#product-6-item" data-toggle="tab" aria-expanded="false" class="nav-link product-thumb">
+                        <img src="/assets/images/products/product-11.jpg" alt="" class="img-fluid mx-auto d-block rounded">
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#product-7-item" data-toggle="tab" aria-expanded="false" class="nav-link product-thumb">
+                        <img src="/assets/images/products/product-12.jpg" alt="" class="img-fluid mx-auto d-block rounded">
+                    </a>
+                </li>
+            </ul>
+        </div> <!-- end col -->
+        <div class="col-lg-7">
+            <div class="pl-xl-3 mt-3 mt-xl-0">
+                <a href="#" class="text-primary">{{producto.nombre}}</a>
+                <h4 class="mb-3">{{producto.descripcion}}</h4>
+                <p class="text-muted float-left mr-3">
+                    <span class="mdi mdi-star text-warning"></span>
+                    <span class="mdi mdi-star text-warning"></span>
+                    <span class="mdi mdi-star text-warning"></span>
+                    <span class="mdi mdi-star text-warning"></span>
+                    <span class="mdi mdi-star"></span>
+                </p>
+                <p class="mb-4"><a href="" class="text-muted">( 36 Customer Reviews )</a></p>
+                <h6 class="text-danger text-uppercase">20 % Off</h6>
+                <h4 class="mb-4">Price : <span class="text-muted mr-2"><del>$80 USD</del></span> <b>{{producto.precio}}</b></h4>
+                <h4><span class="badge bg-soft-success text-success mb-4">Instock</span></h4>
+                <p class="text-muted mb-4">{{producto.descripcion_detallada}}</p>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div>
+                            <p class="text-muted"><i class="mdi mdi-checkbox-marked-circle-outline h6 text-primary mr-2"></i> Sed ut perspiciatis unde</p>
+                            <p class="text-muted"><i class="mdi mdi-checkbox-marked-circle-outline h6 text-primary mr-2"></i> Nemo enim ipsam voluptatem</p>
+                            <p class="text-muted"><i class="mdi mdi-checkbox-marked-circle-outline h6 text-primary mr-2"></i> Temporibus autem quibusdam et</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div>
+                            <p class="text-muted"><i class="mdi mdi-checkbox-marked-circle-outline h6 text-primary mr-2"></i> Itaque earum rerum hic</p>
+                            <p class="text-muted"><i class="mdi mdi-checkbox-marked-circle-outline h6 text-primary mr-2"></i> Donec quam felis ultricies nec</p>
+                        </div>
+                    </div>
+                </div>
+                
+                {{#listar_atributos producto.stock}}   
+                    <li>{{this}}</li>
+                {{/listar_atributos}}
+
+                <div>
+                    {{!-- <button type="button" class="btn btn-danger mr-2"><i class="mdi mdi-heart-outline"></i></button> --}}
+                    <button type="button" id="agregar-al-carrito" data-tienda="{{producto.nombre_tienda}}" data-storeId="{{producto.storeId}}" data-id="{{producto.id}}" class="btn btn-success waves-effect waves-light">
+                        <span class="btn-label"><i class="mdi mdi-cart"></i></span>Añadir al carrito
+                    </button>
+                </div>
+            </div>
+        </div> <!-- end col -->
+    </div>
+    <!-- end row -->
+</div> <!-- end card-->

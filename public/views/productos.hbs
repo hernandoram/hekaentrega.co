@@ -1,0 +1,70 @@
+<div class="row">
+    <div class="col-12">
+        <div class="card-box">
+            <div class="row">
+                <div class="col-lg-8">
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label for="inputPassword2" class="sr-only">Search</label>
+                            <input type="search" class="form-control" id="inputPassword2" placeholder="Search...">
+                        </div>
+                        <div class="form-group mx-sm-3">
+                            <label for="status-select" class="mr-2">Sort By</label>
+                            <select class="custom-select" id="status-select">
+                                <option selected="">All</option>
+                                <option value="1">Popular</option>
+                                <option value="2">Price Low</option>
+                                <option value="3">Price High</option>
+                                <option value="4">Sold Out</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-lg-4">
+                    <div class="text-lg-right mt-3 mt-lg-0">
+                        <button type="button" class="btn btn-success waves-effect waves-light mr-1"><i class="mdi mdi-cog"></i></button>
+                        <a href="ecommerce-product-edit.html" class="btn btn-danger waves-effect waves-light"><i class="mdi mdi-plus-circle mr-1"></i> Add New</a>
+                    </div>
+                </div><!-- end col-->
+            </div> <!-- end row -->
+        </div> <!-- end card-box -->
+    </div> <!-- end col-->
+</div>
+
+<div class="row">
+    {{#each productos}}
+    <div class="col-md-6 col-xl-3">
+        <div class="card-box product-box">
+
+            <div class="product-action">
+                <a href="javascript: void(0);" class="btn btn-success btn-xs waves-effect waves-light"><i class="mdi mdi-pencil"></i> Ver producto</a>
+            </div>
+
+            <div class="bg-light d-flex justify-content-center">
+                <img src="{{this.showImg}}" alt="product-pic" class="img-fluid" />
+            </div>
+
+            <div class="product-info">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="font-16 mt-0 sp-line-1"><a href="/tienda/{{this.nombre_tienda}}/producto/{{this.id}}" class="text-dark">{{this.nombre}}</a> </h4>
+                        <div class="text-warning mb-2 font-13">
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                        </div>
+                        <h5 class="m-0"> <span class="text-muted"> Stocks : {{this.showStock.cantidad}} pcs</span></h5>
+                    </div>
+                    <div class="col-auto">
+                        <div class="product-price-tag">
+                            {{this.precio}}
+                        </div>
+                    </div>
+                </div> <!-- end row -->
+            </div> <!-- end product info-->
+        </div> <!-- end card-box-->
+    </div> <!-- end col-->
+    {{/each}}
+</div>
