@@ -16,6 +16,7 @@ exports.buscarUsuario = async (req, res, next) => {
     });
 
     req.params.tiendaId = id;
+    if (!req.session.tienda) req.session.tienda = req.params.nombre_tienda;
 
     next();
 };
@@ -27,7 +28,8 @@ exports.obtenerProductos = async (req, res) => {
         let productos = new Array()
         querySnapshot.forEach(producto => {
             let editProducto = producto.data();
-            editProducto.showImg = editProducto.imagesUrl[0].url;
+            console.log(producto.data())
+            editProducto.showImg = editProducto.imagesUrl[0] ? editProducto.imagesUrl[0].url : "/img/heka entrega.png";
             editProducto.showStock = editProducto.stock[0];
             editProducto.id = producto.id;
             editProducto.nombre_tienda = req.params.nombre_tienda;
@@ -35,13 +37,14 @@ exports.obtenerProductos = async (req, res) => {
         })
         return productos;
     });
-
-    console.log(productos)
-    res.render("productos", {productos});
+    
+    // if (!req.session.tienda) req.session.tienda = req.params.nombre_tienda;
+    if(req.query.json) return res.json(productos);
+    res.render("productos", {productos, session: req.session});
 };
 
 exports.obtenerProducto = async (req, res) => {
-    // console.log(req.params);
+    console.log(req.params);
     let producto = await db.collection("tiendas").doc(req.params.tiendaId)
     .collection("productos").doc(req.params.productId)
     .get().then(doc => {
@@ -54,7 +57,7 @@ exports.obtenerProducto = async (req, res) => {
         }
     });
 
-    res.render("producto", {producto});
+    res.render("producto", {producto, session: req.session});
 };
 
 let counter = 0
@@ -65,53 +68,10 @@ exports.probarSession = (req, res) => {
 }
 
 exports.carritoDeCompra = (req, res) => {
-    let ej = [
-        {
-          imagesUrl: 'https://firebasestorage.googleapis.com/v0/b/hekaapp-23c89.appspot.com/o/000000%2Fproductos%2FGoCbJZgMj6q2GjndHg3t%2Fdescarga.jpg?alt=media&token=b91e1e37-f845-4710-880e-05d608657cfd',
-          descripcion_detallada: 'Adorna tu oficina con estos hermoso cuadros ',
-          ancho: 5,
-          precio: 27900,
-          sumar_envio: 0,
-          categoria: 'Arte',
-          stock: { color: 'Verde', forma: 'Cuadrada', detalles: [Object] },
-          nombre: 'Pintura',
-          peso: 4,
-          largo: 40,
-          alto: 20,
-          garantia: 3,
-          descripcion: 'Cuadro Corporativo',
-          detalles: { precio: 27900, cantidad: 12, cod: 'Pi-Ve-Cu' },
-          atributos: { color: 'Verde', forma: 'Cuadrada' },
-          external: 'GoCbJZgMj6q2GjndHg3t',
-          cantidad: 2,
-          storeId: "000000",
-          store: "prueba"
-        }, {
-            imagesUrl: 'https://firebasestorage.googleapis.com/v0/b/hekaapp-23c89.appspot.com/o/000000%2Fproductos%2FGoCbJZgMj6q2GjndHg3t%2Fdescarga.jpg?alt=media&token=b91e1e37-f845-4710-880e-05d608657cfd',
-            descripcion_detallada: 'Adorna tu oficina con estos hermoso cuadros ',
-            ancho: 5,
-            precio: 27900,
-            sumar_envio: 0,
-            categoria: 'Arte',
-            stock: { color: 'Verde', forma: 'Cuadrada', detalles: [Object] },
-            nombre: 'Pintura',
-            peso: 4,
-            largo: 40,
-            alto: 20,
-            garantia: 3,
-            descripcion: 'Cuadro Corporativo',
-            detalles: { precio: 27900, cantidad: 12, cod: 'Pi-Ve-Cu' },
-            atributos: { color: 'Verde', forma: 'Cuadrada' },
-            external: 'GoCbJZgMj6q2GjndHg3t2',
-            cantidad: 5,
-            storeId: "000000",
-            store: "prueba"
-          }
-      ];
-    //   req.session.carrito = ej;
+    if(req.query.json) return res.json(req.session.carrito || [])
     res.render("carrito", {
         carrito: req.session.carrito || [],
-        tienda: req.session.tienda
+        session: req.session
     });
 }
 
@@ -121,6 +81,7 @@ exports.getCarrito = (req, res) => {
 }
 
 exports.agregarAlCarrito = async (req, res) => {
+    
     let data = await db.collection("tiendas").doc(req.body.storeId)
     .collection("productos").doc(req.params.id)
     .get().then((doc) => {
@@ -128,6 +89,7 @@ exports.agregarAlCarrito = async (req, res) => {
         if(doc.exists) {
             data = doc.data()
             data.imagesUrl = data.imagesUrl[0];
+            data.tienda = req.body.tienda;
             data.stock = data.stock.filter(atrib => {
                 let pertenece = true;
                 for (let val in req.body.atributos) {
@@ -146,14 +108,19 @@ exports.agregarAlCarrito = async (req, res) => {
             data.external = doc.id;
             data.id_producto = doc.id;
             data.precio = data.detalles.precio;
+            console.log("REVISANDO AGREGADO", data);
         };
         return data;
     });
+    
+    let send = "Agregado al carrito"
     
     if(req.session.carrito) {
         let add = true;
         for(let prod of req.session.carrito) {
             let sumar = true;
+            if(!Object.keys(data.atributos).length 
+            && prod.external != data.external) sumar = false;
             for(let at in data.atributos) {
                 if(prod.atributos[at] != data.atributos[at]) {
                     sumar = false;
@@ -164,6 +131,9 @@ exports.agregarAlCarrito = async (req, res) => {
             if(sumar) {
                 add = false;
                 prod.cantidad++;
+                if(prod.cantidad > prod.detalles.cantidad) {
+                    send = "Es posible que haya excedido la cantidad en inventario del producto."
+                }
             }
         }
         
@@ -182,12 +152,18 @@ exports.agregarAlCarrito = async (req, res) => {
         req.session.carrito = new Array(data);
     }
 
+    console.log(data.cantidad)
+    console.log(data.detalles.cantidad)
+    if(data.cantidad > data.detalles.cantidad) {
+        send = "Es posible que haya excedido la cantidad en inventario del producto."
+    }
+
     console.log(req.session.carrito);
     console.log(req.session.tienda);
     console.log(req.body.tienda);
     if(!req.session.tienda) req.session.tienda = req.body.tienda;
 
-    res.send("Todo bien mano")
+    res.json({carrito: req.session.carrito, send});
 }
 
 exports.quitarDelCarrito = (req,res) => {
@@ -232,6 +208,7 @@ exports.modificarItemCarrito = (req, res) => {
 exports.crearGuiaServientrega = async(req, res) => {
     console.log("Hola")
     let identificador = req.body.identificacionR.toString().slice(-4);
+    identificador = identificador[0] == "0" ? "1-"+identificador : identificador
     let id = await db.collection("infoHeka").doc("heka_id")
     .get().then(doc => {
         if(doc.exists) {
@@ -244,23 +221,23 @@ exports.crearGuiaServientrega = async(req, res) => {
     let data = req.body;
 
     data.id_heka = identificador;
+    data.id_pedido = identificador;
 
     console.log(data);
 
     await db.collection("usuarios").doc(req.body.id_user)
     .collection("guias").doc(identificador).set(data);
-    res.send("creación exitosa");
+    res.json(data);
 };
 
 exports.crearPedido = async (req, res) => {
-    let id = await db.collection("tiendas").doc(req.body.id_user)
-    .collection("pedidos").add(req.body).then(docRef => docRef.id);
+    await db.collection("tiendas").doc(req.body.id_user)
+    .collection("pedidos").doc(req.body.id).set(req.body)
 
     db.collection("tiendas").doc(req.body.id_user)
     .collection("productos").doc(req.body.id_producto)
     .get().then(doc => {
         let stock = doc.data().stock;
-        console.log("AFTER",stock);
         for(let item of stock) {
             let isEqual = true
             for(let attr in req.body.atributos) {
@@ -276,12 +253,14 @@ exports.crearPedido = async (req, res) => {
                 break;
             }
         }
-        console.log("BEFORE", stock);
-
 
         doc.ref.update({stock})
     });
 
-    req.body.id = id;
     res.json(req.body)
+};
+
+exports.vaciarCarrito = (req, res) => {
+    req.session.carrito = [];
+    res.json(req.session.carrito);
 }

@@ -37,10 +37,10 @@
                                 {{#each carrito}}
                                     <tr id="{{this.external}}">
                                         <td>
-                                            <img src="{{this.imagesUrl.url}}" alt="contact-img"
-                                                title="contact-img" class="rounded mr-3" height="48" />
+                                            <img src="{{this.imagesUrl.url}}" alt="{{this.nombre}}"
+                                                title="{{this.nombre}}" class="rounded mr-3" height="48" />
                                             <p class="m-0 d-inline-block align-middle font-16">
-                                                <a href="ecommerce-product-detail.html" class="text-reset font-family-secondary">{{this.nombre}}</a>
+                                                <a href="/tienda/{{this.tienda}}/producto/{{this.id_producto}}" class="text-reset font-family-secondary">{{this.nombre}}</a>
                                                 <br>
                                                 {{#each this.atributos}}
                                                     <small class="mr-2"><b>{{@key}}:</b> {{this}} </small>
@@ -70,9 +70,9 @@
                 <div class="row">
                     <div class="col-12 mt-4">
                         <div class="form-group">
-                            <label for="ciudadD">Ciudad</label>
-                            <input class="form-control" data-tienda="{{tienda}}"
-                            type="text" placeholder="Seleccionar del desplegable" id="ciudadD" />
+                            <label for="ciudadD">Ciudad <span class="text-danger">*</span></label>
+                            <input class="form-control" data-tienda="{{session.tienda}}"
+                            type="text" placeholder="Seleccionar del desplegable" id="ciudadD" required/>
                         </div>
                     </div>
                     <div class="col border p-3 mt-4 mt-lg-0 rounded">
@@ -110,8 +110,8 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="billing-nombre">Nombre</label>
-                                                    <input class="form-control" type="text" placeholder="Ingrese su nombre" id="billing-nombre" />
+                                                    <label for="billing-nombre">Nombre <span class="text-danger">*</span></label>
+                                                    <input class="form-control" type="text" placeholder="Ingrese su nombre" id="billing-nombre" required/>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
@@ -124,14 +124,14 @@
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="billing-email">Correo electrónico <span class="text-danger">*</span></label>
+                                                    <label for="billing-email">Correo electrónico</label>
                                                     <input class="form-control" type="email" data-campo="correoD" placeholder="Enter your email" id="billing-email" />
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label for="billing-phone">Teléfono <span class="text-danger">*</span></label>
-                                                    <input class="form-control" type="text" data-campo="talefonoD" placeholder="1234567890" id="billing-phone" />
+                                                    <input class="form-control" type="text" data-campo="talefonoD" placeholder="1234567890" id="billing-phone" required/>
                                                 </div>
                                             </div>
                                         </div> <!-- end row -->
@@ -144,8 +144,8 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
-                                                    <label for="billing-barrio">Barrio</label>
-                                                    <input class="form-control" type="text" placeholder="Ingresar barrio" id="billing-barrio" />
+                                                    <label for="billing-barrio">Barrio <span class="text-danger">*</span></label>
+                                                    <input class="form-control" type="text" placeholder="Ingresar barrio" id="billing-barrio" required/>
                                                 </div>
                                             </div>
                                             
@@ -153,8 +153,8 @@
                                         <div class="row">
                                             <div class="col-12">
                                                 <div class="form-group">
-                                                    <label for="billing-direccion">Dirección</label>
-                                                    <input class="form-control" type="text" placeholder="Ingrese dirección" id="billing-direccion">
+                                                    <label for="billing-direccion">Dirección <span class="text-danger">*</span></label>
+                                                    <input class="form-control" type="text" placeholder="Ingrese dirección" id="billing-direccion" required>
                                                 </div>
                                             </div>
                                             
@@ -172,12 +172,12 @@
 
                                         <div class="row mt-4">
                                             <div class="col-sm-6">
-                                                <a href="/tienda/{{tienda}}/productos" class="btn btn-secondary">
+                                                <a href="/tienda/{{session.tienda}}/productos" class="btn btn-secondary">
                                                     <i class="mdi mdi-arrow-left"></i> Volver a la tienda </a>
                                             </div> <!-- end col -->
                                             <div class="col-sm-6">
                                                 <div class="text-sm-right mt-2 mt-sm-0">
-                                                    <a href="javascript:void(0)" id="comprar" data-tienda="{{tienda}}" class="btn btn-success">
+                                                    <a href="javascript:void(0)" id="comprar" data-tienda="{{session.tienda}}" class="btn btn-success">
                                                         <i class="mdi mdi-truck-fast mr-1"></i> Comprar </a>
                                                 </div>
                                             </div> <!-- end col -->

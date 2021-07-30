@@ -1527,5 +1527,13 @@ function createModal() {
   return m;
 }
 
-// document.body.append(createModal("ejemplodelmodal"));
-// console.log($("#ejemplodelmodal").modal("show"))
+const Toast = Swal.mixin({
+    toast: true,
+    position: "bottom-start",
+    showConfirmButton: false,
+    timer: 3000,
+    didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+});

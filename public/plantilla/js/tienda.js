@@ -3,6 +3,10 @@ $("[data-function='quitar']").click(quitarDelCarrito);
 $("[data-function='adicionar']").change(calcItem);
 $("#ciudadD").blur(calcularCostoEnvio);
 $("#comprar").click(calcularCostoEnvio);
+$("#inp-search-product").on("input", filtrarProductoPorNombre);
+$("#categoria-select").change(filtrarProductoPorCategoria);
+$("#sort-select").change(organizarProductos);
+$(".vaciar-carrito").click(vaciarCarrito);
 
 let storeInfo;
 
@@ -20,13 +24,13 @@ function agregarAlCarrito() {
         method: "POST",
         body: JSON.stringify(data),
         headers: {"Content-Type": "application/json"}
-    }).then(d => console.log(d));
+    }).then(d => d.json().then(res => llenarNotificacionCarrito(res.carrito)));
 };
 
 function quitarDelCarrito() {
     let identificadorItem = $(this).attr("data-id");
     fetch("/tienda/quitarDelCarrito/"+identificadorItem)
-    .then(d => d.json().then((data) => console.log(data)));
+    .then(d => d.json().then((data) => llenarNotificacionCarrito(data)));
     $("#"+identificadorItem).remove();
     calcTotal();
 };
@@ -38,6 +42,7 @@ function calcItem() {
     let price = $("#"+identificador).children()[3];
     $(price).html(unitPrice * cant);
     calcTotal()
+    if(cant <= 0) return quitarDelCarrito.call(this);
     modificarItemCarrito(this);
 }
 
@@ -54,7 +59,17 @@ function calcTotal() {
 function modificarItemCarrito(input) {
     console.log("se está modificando el item del carrito");
     let identificador = $(input).attr("data-id");
-    let value = $(input).val();
+    let value = parseInt($(input).val());
+    let maxValue = $(input).attr("max");
+    $(input).parent().children("p").remove()
+    if(value > maxValue) {
+        let p = document.createElement("p");
+        p.classList.add("text-danger");
+        p.innerHTML = "La cantidad solicitada excede la cantidad en inventario, por favor asegurece que la tienda tenga lo que solicita.";
+
+        $(p).insertAfter(input);
+    };
+
     fetch("/tienda/modificarItemCarrito/"+identificador, {
         method: "POST",
         body: JSON.stringify({cantidad: value}),
@@ -126,6 +141,7 @@ async function calcularCostoEnvio() {
 };
 
 async function crearGuia(item, cotizador) {
+    if(revisarCampos()) return;
     let nuevaGuia = new Object();
     let infoDestino = document.getElementById("ciudadD").dataset;
     $("[data-campo]").each((i, input) => {
@@ -133,6 +149,7 @@ async function crearGuia(item, cotizador) {
         nuevaGuia[campo] = $(input).val();
     });
     console.log(item);
+    console.log(storeInfo);
     let camposItem = ["alto", "ancho", "largo", "peso", "centro_de_costo"];
     let camposCiudad = ["ciudad", "departamento"];
     let camposTienda = ["celular", "correo", "direccion", "nombre"];
@@ -152,9 +169,11 @@ async function crearGuia(item, cotizador) {
     let mes = parseInt(fecha.getMonth()) + 1;
     mes = mes < 10 ? "0" + mes : mes;
     nuevaGuia.nombreD = $("#billing-nombre").val() + " " + $("#billing-apellido").val();
-    nuevaGuia.nombreD.trim();
+    nuevaGuia.nombreD = nuevaGuia.nombreD.trim();
     nuevaGuia.direccionD = $("#billing-direccion").val() + " " + $("#billing-barrio").val();
-    nuevaGuia.direccionD.trim();
+    nuevaGuia.direccionD = nuevaGuia.direccionD.trim();
+    if (!nuevaGuia.celularD) nuevaGuia.celularD = nuevaGuia.telefonoD; 
+    if (!nuevaGuia.correoD) nuevaGuia.correoD = "notiene@gmail.com";
     nuevaGuia.detalles = cotizador.getDetails;
     nuevaGuia.fecha = fecha.getFullYear() + "-" + mes + "-" + dia;
     nuevaGuia.timeline = new Date().getTime();
@@ -166,19 +185,48 @@ async function crearGuia(item, cotizador) {
     nuevaGuia.identificacionR = storeInfo.numero_documento;
     nuevaGuia.valor = cotizador.valor;
     nuevaGuia.type = "PAGO CONTRAENTREGA"
-    nuevaGuia.id_producto = item.id;
+    nuevaGuia.recoleccion_esporadica = 1;
+    nuevaGuia.id_producto = item.id_producto;
 
-    let pedido = await crearPedido(item);
-
-    nuevaGuia.id_pedido = pedido.id;
-
-    await fetch("/tienda/crearGuiaServientrega", {
+    
+    // nuevaGuia.id_pedido = pedido.id;
+    
+    let guiaCreada = await fetch("/tienda/crearGuiaServientrega", {
         method: "POST",
         body: JSON.stringify(nuevaGuia),
         headers: {"Content-Type": "application/json"}
-    }).then( d => console.log(d))
+    }).then( d => d.json());
+    console.log(guiaCreada);
+    
+    item.id = guiaCreada.id_pedido;
+    await crearPedido(item);
     // return pr;
 };
+
+function revisarCampos() {
+    let vacios = 0;
+    $(".mensaje-error").remove();
+    $("[required]").each((i,e) => {
+        $(e).removeClass("border-danger");
+        if(!$(e).val()) {
+            vacios++
+            $(e).addClass("border-danger");
+            $(e).after("<p class='text-danger text-center mensaje-error'>Este campo no debe estar vacío</p>");
+            if(vacios == 1) {
+                $(e).parent()[0].scrollIntoView({behavior: "smooth"});
+            }
+        }
+    });
+    if(vacios) return true
+    let ciudad = $("#ciudadD")[0].dataset;
+    if(Object.entries(ciudad).length <= 1) {
+        $("#ciudadD").addClass("border-danger");
+        $("#ciudadD").after("<p class='text-danger text-center mensaje-error'>Por favor asegurese de seleccionar del desplegable</p>");
+        $("#ciudadD").parent()[0].scrollIntoView({behavior: "smooth"});
+        return true;
+    };
+    return true;
+}
 
 async function crearPedido(item) {
     return await fetch("/tienda/crearPedido", {
@@ -186,4 +234,105 @@ async function crearPedido(item) {
         body: JSON.stringify(item),
         headers: {"Content-Type": "application/json"}
     }).then(d => d.json())
+};
+
+function filtrarProductoPorNombre() {
+    let filtro = this.value.toLowerCase();
+    
+    let productos = $(".visible");
+    productos.removeClass("d-none");
+    if(!filtro) return;
+    productos.each((i,e) => {
+        let filtrado = $(e).attr("data-filter-name").toLowerCase();
+        if(!filtrado.includes(filtro)) $(e).addClass("d-none");
+    }); 
 }
+
+function filtrarProductoPorCategoria() {
+    let filtro = this.value;
+
+    let productos = $(".producto");
+    productos.removeClass("d-none");
+    productos.addClass("visible")
+    // if(!filtro) return;
+    productos.each((i,e) => {
+        let filtrado = $(e).attr("data-filter-categoria");
+        if(!filtrado.includes(filtro)) {
+            $(e).addClass("d-none");
+            $(e).removeClass("visible");
+        }
+    });
+    let filtradorInp = document.getElementById("inp-search-product");
+
+    filtrarProductoPorNombre.call(filtradorInp);
+};
+
+function organizarProductos() {
+    let sortBy = this.value;
+    if(!sortBy) return;
+    let stock = $(".visible");
+    for(let i = 1; i < stock.length; i++) {
+        let anterior = stock[i - 1];
+        let actual = stock[i];
+        let valAnt = parseInt(anterior.getAttribute("data-sort-precio"));
+        let valAct = parseInt(actual.getAttribute("data-sort-precio"));
+        let variante = sortBy == "1" ? valAnt > valAct : valAnt < valAct;
+        if(variante) {
+            anterior.parentNode.insertBefore(actual, anterior);
+        }
+    }
+};
+
+function llenarNotificacionCarrito(carrito) {
+    let notificacion = document.getElementById("carrito-noti");
+    let menu = document.getElementById("carrito-side-menu");
+
+    notificacion.innerHTML = "";
+    menu.innerHTML = "";
+    console.log(carrito);
+    carrito.forEach(item => {
+        let atributos = "";
+        for (let attr in item.atributos) {
+            atributos += `<small class="mr-2"><b>${attr}:</b> ${item.atributos[attr]} </small>`; 
+        }
+
+        notificacion.innerHTML += `<a href="/tienda/${item.tienda}/producto/${item.id_producto}" class="dropdown-item notify-item">
+            <div class="notify-icon">
+                <img src="${item.imagesUrl ? item.imagesUrl.url : "/img/heka entrega.png"}" class="img-fluid rounded-circle" alt="" /> </div>
+            <p class="notify-details">${item.nombre}</p>
+            <p class="text-muted mb-0 user-msg">
+                <small>${atributos}</small>
+            </p>
+        </a>`;
+
+        menu.innerHTML += `<li>
+            <a href="/tienda/${item.tienda}/producto/${item.id_producto}">
+                <span> ${item.nombre} <small>(${item.detalles.cod})</small> </span>
+            </a>
+        </li>`;
+    });
+
+    $(".counter-carrito").text(carrito.length)
+    $(".counter-carrito").removeClass("d-none");
+    if(!carrito.length) {
+        $(".counter-carrito").addClass("d-none")
+    }
+};
+
+function vaciarCarrito() {
+    fetch("/tienda/vaciarCarrito")
+    .then(res => {
+        if(res.ok) {
+            llenarNotificacionCarrito([]);
+        }
+    })
+};
+
+
+$(document).ready(function() {
+    fetch("/tienda/carrito?json=true")
+    .then(res => {
+        console.log(res);
+        res.json().then(d => llenarNotificacionCarrito(d));
+    })
+});

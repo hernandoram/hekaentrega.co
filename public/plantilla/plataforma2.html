@@ -200,6 +200,7 @@
         <div id="content">     
           <!-- Begin Page Content -->
           <div class="container-fluid" id="cotizar_envio">
+
             <!-- Page Heading -->
             <div style="display: block;" id="cotizador">
               <h1 class="h3 mb-4 text-gray-800">Cotizar envío</h1>
@@ -275,10 +276,64 @@
                 </div>
               </nav>
               <div class="tab-content" id="nav-tienda-tabContent">
-                <div class="tab-pane fade show active" id="nav-tienda-home" role="tabpanel" aria-labelledby="nav-tienda-home-tab">Información de mi tienda</div>
+                <div class="tab-pane fade show active" id="nav-tienda-home" role="tabpanel" aria-labelledby="nav-tienda-home-tab">
+                  <div id="link-tienda"></div>
+                  <form id="form-tienda" class="mt-4">
+                    <div class="row">
+                      <div class="form-group col">
+                        <label for="nombre-tienda">Nombre de la tienda</label>
+                        <input type="text" class="form-control" pattern="\w+|\d+"
+                        name="tienda" id="nombre-tienda" maxlength="20" required>
+                        <div class="invalid-feedback">
+                          Nombre de tienda no válido
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-md-6">
+                        <label for="nombre-propietario-tienda">Nombre del propietario</label>
+                        <input type="text" class="form-control" name="nombre" id="nombre-propietario-tienda" required>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label for="celular-tienda">Número Celular</label>
+                        <input type="number" class="form-control" name="celular" id="celular-tienda" maxlength="10" required>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-md-6">
+                        <label for="numero-documento-tienda">Número Documento</label>
+                        <input type="number" class="form-control" name="numero_documento" id="numero-documento-tienda" required>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label for="correo-tienda">Correo electrónico</label>
+                        <input type="email" class="form-control" name="correo" id="correo-tienda" required>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-md-6">
+                        <label for="ciudad-tienda">Ciudad</label>
+                        <input type="text" name="ciudad"
+                        class="form-control" id="ciudad-tienda" required>
+                        <small class="form-text text-muted">Ingrese la ciudad y seleccione del menú desplegable.</small>
+                      </div>
+                      <div class="form-group col-md-6">
+                        <label for="dreccion-tienda">Dirección de recogida</label>
+                        <input type="text" class="form-control" name="direccion" id="dreccion-tienda" required>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-12">
+                        <label for="descripcion-tienda">Descripción</label>
+                        <textarea class="form-control" name="descripcion" id="descripcion-tienda" rows="5"></textarea>
+                      </div>
+                    </div>
+
+                    <button type="button" class="btn btn-primary btn-block" id="actualizar-tienda">Actualizar tienda</button>
+                  </form>
+                </div>
                 <div class="tab-pane p-3 fade" id="nav-tienda-productos" role="tabpanel" aria-labelledby="nav-tienda-productos-tab">
-                  <div class="row px-2">
-                    <p class="col-6">Producto</p>
+                  <div class="row px-2 d-none d-md-flex">
+                    <p class="col-6 offset-1">Producto</p>
                     <p class="col">Cod</p>
                     <p class="col">Precio</p>
                     <p class="col">Inventario</p>
@@ -771,6 +826,7 @@
               <tfoot></tfoot>
             </table>
           </div>
+
         </div>   
         <!-- Footer -->
         <footer class="sticky-footer bg-white">

@@ -124,3 +124,4 @@ autocomplete(document.getElementById("ciudadD"), ciudades);
 autocomplete(document.getElementById("actualizar_ciudad"), ciudades);
 autocomplete(document.getElementById("CPNciudad"), ciudades);
 autocomplete(document.getElementById("CEdireccion"), ciudades);
+autocomplete(document.getElementById("ciudad-tienda"), ciudades);

@@ -1,29 +1,44 @@
 <div class="row">
     <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item active">Productos</li>
+                </ol>
+            </div>
+            <h4 class="page-title">Productos</h4>
+        </div>
+    </div>
+</div> 
+
+<div class="row">
+    <div class="col-12">
         <div class="card-box">
             <div class="row">
                 <div class="col-lg-8">
                     <form class="form-inline">
                         <div class="form-group">
-                            <label for="inputPassword2" class="sr-only">Search</label>
-                            <input type="search" class="form-control" id="inputPassword2" placeholder="Search...">
+                            <label for="inp-search-product" class="sr-only">Search</label>
+                            <input type="search" class="form-control" id="inp-search-product" placeholder="Search...">
                         </div>
                         <div class="form-group mx-sm-3">
-                            <label for="status-select" class="mr-2">Sort By</label>
-                            <select class="custom-select" id="status-select">
-                                <option selected="">All</option>
-                                <option value="1">Popular</option>
-                                <option value="2">Price Low</option>
-                                <option value="3">Price High</option>
-                                <option value="4">Sold Out</option>
+                            <label for="categoria-select" class="mr-2">Categorías</label>
+                            <select class="custom-select" id="categoria-select">
+                                {{#categorias productos}}
+                                    <option value="{{this}}">{{this}}</option>
+                                {{/categorias}}
                             </select>
                         </div>
                     </form>
                 </div>
                 <div class="col-lg-4">
-                    <div class="text-lg-right mt-3 mt-lg-0">
-                        <button type="button" class="btn btn-success waves-effect waves-light mr-1"><i class="mdi mdi-cog"></i></button>
-                        <a href="ecommerce-product-edit.html" class="btn btn-danger waves-effect waves-light"><i class="mdi mdi-plus-circle mr-1"></i> Add New</a>
+                    <div class="form-group mx-sm-3">
+                        <label for="sort-select" class="mr-2">Organizar por</label>
+                        <select class="custom-select" id="sort-select">
+                            <option selected="">seleccione</option>
+                            <option value="1">Precios bajos</option>
+                            <option value="2">Precios altos</option>
+                        </select>
                     </div>
                 </div><!-- end col-->
             </div> <!-- end row -->
@@ -33,7 +48,8 @@
 
 <div class="row">
     {{#each productos}}
-    <div class="col-md-6 col-xl-3">
+    <div class="col-sm-6 col-xl-3 producto visible" data-filter-categoria="{{this.categoria}}"
+        data-filter-name="{{this.nombre}}" data-sort-precio="{{this.precio}}">
         <div class="card-box product-box">
 
             <div class="product-action">
@@ -47,20 +63,22 @@
             <div class="product-info">
                 <div class="row align-items-center">
                     <div class="col">
-                        <h4 class="font-16 mt-0 sp-line-1"><a href="/tienda/{{this.nombre_tienda}}/producto/{{this.id}}" class="text-dark">{{this.nombre}}</a> </h4>
-                        <div class="text-warning mb-2 font-13">
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
+                        <h4 class="font-16 mt-0 sp-line-1">
+                            <a href="/tienda/{{this.nombre_tienda}}/producto/{{this.id}}" 
+                            class="text-dark" >{{this.nombre}}</a>
+                        </h4>
+                        <div class="text-warning mb-2 font-13 d-none d-md-block">
+                            {{this.categoria}}
                         </div>
-                        <h5 class="m-0"> <span class="text-muted"> Stocks : {{this.showStock.cantidad}} pcs</span></h5>
+                        <h5 class="m-0 d-none d-md-block"> <span class="text-muted"> Stocks : {{this.showStock.detalles.cantidad}} pcs</span></h5>
                     </div>
                     <div class="col-auto">
-                        <div class="product-price-tag">
-                            {{this.precio}}
+                        <div class="product-price-tag d-none d-md-block">
+                            {{getCurrency this.precio}}
                         </div>
+                        <small class="product-price-tag">
+                            {{getCurrency this.precio}}
+                        </small>
                     </div>
                 </div> <!-- end row -->
             </div> <!-- end product info-->

@@ -1,3 +1,20 @@
+$("#nav-tienda-productos-tab").click(fillProducts);
+$("#nav-tienda-home-tab").click(cargarInfoTienda);
+
+$("#agregar-producto-tienda").click(() => {
+    let modal = new VentanaCrearProducto();
+    modal.showModal();
+    new Dropzone("#imagenes-producto");
+    modal.hideElements();
+});
+
+$("#actualizar-tienda").click(actualizarTienda)
+$("#nombre-tienda").blur(verificarExistenciaTienda);
+
+$(document).ready(function(){
+    $("#mytoast").toast("show");
+})
+
 Dropzone.options.imagenesProducto = {
     paramName: "file", // The name that will be used to transfer the file
     maxFilesize: 2, // MB
@@ -13,9 +30,9 @@ let tiendaDoc = firebase.firestore().collection("tiendas").doc(user_id);
 
 let categorias = ["Tecnología", "Vehículos", "Hoga y Electrodométicos", "moda"];
 let atributos = {
-    color: [["Azul", "Verde", "Rojo", "Rosado", "Morado", "Negro"]],
-    talla: [["SS", "S", "M", "X", "XL"]],
-    forma: [["Cuadrada", "redonda", "rectangular"]]
+    color: ["Azul", "Verde", "Rojo", "Rosado", "Morado", "Negro"],
+    talla: ["SS", "S", "M", "X", "XL"],
+    forma: ["Cuadrada", "redonda", "rectangular"]
 }
 
 
@@ -29,16 +46,16 @@ class VentanaCrearProducto {
     }
 
     appendBasicInfo() {
-        this.modal.find(".modal-body").html(`<div>
+        this.modal.find(".modal-body").html(`<div class="my-4">
             <h3>Información general</h3>
             <form class="row align-items-end">
             <div class="form-group col-12">
                 <label for="nombre-${this.id}">Nombre del producto</label>
-                <input type="text" name="nombre-${this.id}" data-campo="nombre" id="nombre-${this.id}" class="form-control">
+                <input type="text" name="nombre-${this.id}" data-campo="nombre" id="nombre-${this.id}" class="form-control" required>
             </div>
             <div class="form-group col">
                 <label for="precio-${this.id}">Precio</label>
-                <input type="number" name="precio-${this.id}" id="precio-${this.id}" data-campo="precio" class="form-control">
+                <input type="number" name="precio-${this.id}" id="precio-${this.id}" data-campo="precio" class="form-control" required>
             </div>
             <div class="form-group col-12 col-sm-6">
             
@@ -68,7 +85,7 @@ class VentanaCrearProducto {
             </form>
         </div>`);
 
-        $("#nombre-"+this.id+", #precio-"+this.id).on("input", () => {
+        $("#nombre-"+this.id+", #precio-"+this.id).blur(() => {
             console.log($("#nombre-"+this.id).val());
             console.log($("#precio-"+this.id).val());
             console.log(this.id);
@@ -93,8 +110,6 @@ class VentanaCrearProducto {
     }
     
     addNewCategory() {
-        console.log(this.modal.find("#add-categoria-"+this.id))
-        console.log(this.modal.find("#habilitar-nueva-categoria-" + this.id));
         this.modal.find("#habilitar-nueva-categoria-" + this.id).click(function () {
             console.log(this)
             $(this).parents(".input-group").hide("slow")
@@ -130,12 +145,13 @@ class VentanaCrearProducto {
     appendAttributes() {
         let htmlAtributos = document.createElement("div");
         htmlAtributos.setAttribute("id", "atributos-"+this.id);
-        htmlAtributos.classList.add("mb-4")
+        htmlAtributos.classList.add("my-4")
         let titulo = document.createElement("h3");
         titulo.innerHTML = "Atributos del producto";
+        let definicion = document.createElement("div");
+        definicion.innerHTML = "<h6 class='ml-2'><small>Puede que tu producto tenga uno, varios o ningún atributo o característica. Elige los atributos de tu producto y sus respectivas variaciones.</small></h6>"
+        definicion.classList.add("text-muted", "border-left-secondary");
         let btn_group = document.createElement("div");
-        // btn_group.setAttribute("data-toggle", "buttons");
-        // btn_group.setAttribute("class", "btn-group-toggle");
 
         for(let attrTitle in this.atributos) {
             let btn_inner_group = document.createElement("div")
@@ -147,7 +163,7 @@ class VentanaCrearProducto {
             
             btn_group.innerHTML += `<input type="button" class="btn btn-outline-info m-1 campo" value="${attrTitle}">`;
 
-            for (let attr of this.atributos[attrTitle][0]) {
+            for (let attr of this.atributos[attrTitle]) {
                 btn_inner_group.innerHTML += `<input type="button" class="btn btn-outline-info m-1 btn-toggle atributo" data-fillStock="${attrTitle}" value="${attr}">`;
             }
 
@@ -155,7 +171,7 @@ class VentanaCrearProducto {
             btn_group.appendChild(card);
         }
 
-        htmlAtributos.append(titulo, btn_group);
+        htmlAtributos.append(titulo, definicion, btn_group);
         htmlAtributos.innerHTML += `<input type="button" class="btn btn-info m-1" value="Ninguno" id="sn-attr-${this.id}">
         </input>`
 
@@ -164,16 +180,21 @@ class VentanaCrearProducto {
 
     selectAttributes() {
         $("input.campo").click(function() {
-            console.log($("input.campo.active").length > 1);
             if($("input.campo.active").length < 2 || $(this).hasClass("active")) {
                 $(this).toggleClass("active");
                 $(this).next().toggle("slow");
+            } else {
+                Toast.fire({
+                    icon: "error",
+                    title: "Solo puedes seleccionar 2 atributos."
+                })
             }
         });
 
         $("#sn-attr-"+ this.id).click(() => {
             $(".atributo, .campo").removeClass("active");
-            $(".attr-card").hide("fast")
+            $(".attr-card").hide("fast");
+
         })
 
     }
@@ -181,26 +202,28 @@ class VentanaCrearProducto {
     appendDimentions() {
         let dimentions = document.createElement("div");
         dimentions.classList.add("mb-3");
-        let htmlDimentions = `<div>
+        let htmlDimentions = `<div class="my-4">
         <h3>Dimensiones</h3>
-        <p class="leads">Las dimensiones de Longitud serán expresadas en centímetros y el peso en kilogramos (Tomar en cuenta las limitaciones de la transportadora en cuanto a valores máximos y mínimos)</p>
+        <div class="text-muted border-left-secondary">
+            <h6 class="ml-2"><small>Las dimensiones de Longitud serán expresadas en centímetros y el peso en kilogramos, se utilizan para calcular el costo de envío al momento de realizar la compra (Tomar en cuenta las limitaciones de la transportadora en cuanto a valores máximos y mínimos).</small></h6>
+        </div>
         <form>
           <div class="form-row">
             <div class="form-group col-6 col-sm-3">
               <label for="dim-alto-${this.id}">Alto</label>
-              <input type="number" class="form-control" data-campo="alto" id="dim-alto-${this.id}">
+              <input type="number" class="form-control" data-campo="alto" id="dim-alto-${this.id}" required>
             </div>
             <div class="form-group col-6 col-sm-3">
               <label for="dim-ancho-${this.id}">Ancho</label>
-              <input type="number" class="form-control" data-campo="ancho" id="dim-ancho-${this.id}">
+              <input type="number" class="form-control" data-campo="ancho" id="dim-ancho-${this.id}" required>
             </div>
             <div class="form-group col-6 col-sm-3">
               <label for="dim-largo-${this.id}">Largo</label>
-              <input type="number" class="form-control" data-campo="largo" id="dim-largo-${this.id}">
+              <input type="number" class="form-control" data-campo="largo" id="dim-largo-${this.id}" required>
             </div>
             <div class="form-group col-6 col-sm-3">
               <label for="dim-peso-${this.id}">Peso</label>
-              <input type="number" class="form-control" data-campo="peso" id="dim-peso-${this.id}">
+              <input type="number" class="form-control" data-campo="peso" id="dim-peso-${this.id}" required>
             </div>
           </div>
         </form>`
@@ -211,8 +234,12 @@ class VentanaCrearProducto {
 
     appendProductImgs() {
         let divProducImgs = document.createElement("div")
+        divProducImgs.classList.add("my-4")
         divProducImgs.setAttribute("id", "contenedor-imagenes-producto");
         divProducImgs.innerHTML = `<h3>Imágenes del Producto</h3>
+        <div class="text-muted border-left-secondary">
+            <h6 class="ml-2"><small>Procura utilizar imágenes cuadradas de máximo 1000 pixeles de ancho y que su tamaño no sea mayor a 2 mb</small></h6>
+        </div>
         <form action="/tienda/subirImagen" class="dropzone" id="imagenes-producto">
           <div class="fallback">
             <input name="file" type="file" accept=".jpg, .jpeg, .png" multiple/>
@@ -227,13 +254,19 @@ class VentanaCrearProducto {
 
     appendVariants() {
         let htmlVariants = document.createElement("div");
+        htmlVariants.classList.add("my-4")
         $(htmlVariants).appendTo(this.modal.find(".modal-body"));
-        htmlVariants.innerHTML = "<h3>Variantes de producto</h3>"
+        htmlVariants.innerHTML = "<h3>Variantes de producto</h3>";
+
+        let definicion = document.createElement("div");
+        definicion.innerHTML = "<h6 class='ml-2'><small>Cada variación tiene un precio, código de almacenamiento y una cantidad en inventario.</small></h6>"
+        definicion.classList.add("text-muted", "border-left-secondary");
+        htmlVariants.appendChild(definicion);
         let table = document.createElement("table");
         table.setAttribute("class", "table table-responsive");
         table.setAttribute("id", "table-"+this.id);
 
-        $(".atributo,.campo").click((e) => {
+        $(".atributo,.campo,#sn-attr-"+this.id).click((e) => {
             if ($(e.target).hasClass("atributo")) $(e.target).toggleClass("active");
             
             this.fillVariants();
@@ -257,16 +290,22 @@ class VentanaCrearProducto {
                 if(at != "precio" && at != "cantidad" && typeof atrib[at] != "object") arrAttr.push(atrib[at]);
             }
             arrAttr.unshift(nombre)
-            console.log(arrAttr);
             arrAttr = arrAttr.map(v => {
                 return v.slice(0,2);
             })
+
+            if(document.getElementById(arrAttr.join("-"))) {
+                let el = document.querySelectorAll("#"+arrAttr.join("-")).length;
+                console.log(document.querySelectorAll("#"+arrAttr.join("-")))
+                console.log(el)
+            }
             let tr = document.createElement("tr");
             tr.setAttribute("id", arrAttr.join("-"));
+            console.log(arrAttr.join("-"));
             tr.innerHTML = `
-                <td><input class="form-control" data-campo-stock="precio" value="${atrib.precio}"/></td>
+                <td><input class="form-control" data-campo-stock="precio" value="${atrib.precio}" required/></td>
                 <td><input class="form-control" data-campo-stock="cod" value="${arrAttr.join("-")}" readonly/></td>
-                <td><input class="form-control" data-campo-stock="cantidad" value="${atrib.cantidad}"/></td>
+                <td><input class="form-control" data-campo-stock="cantidad" value="${atrib.cantidad}" required/></td>
             `;
             table.appendChild(tr)
         }
@@ -302,10 +341,6 @@ class VentanaCrearProducto {
             }
         })
 
-        // console.log(this.atributos);
-        let precio = $("#precio-" + this.id).val();
-        let nombre = $("#nombre-" +this.id).val();
-
         // ****** ALGORITMO REAL ************///
         let variantes = new Array({});
         for(let attr in this.atributos) {
@@ -328,7 +363,6 @@ class VentanaCrearProducto {
             }
         }
 
-        console.log(variantes)
 
         variantes = variantes.filter((v, i) => {
             let res = true;
@@ -348,21 +382,23 @@ class VentanaCrearProducto {
         });
 
         variantes.forEach(v => v.detalles = new Object());
-        console.log(variantes);
         return variantes;
     }
 
     appendAditionalInfo() {
         let htmlAditionalInfo = document.createElement("div");
+        htmlAditionalInfo.classList.add("my-4");
         htmlAditionalInfo.innerHTML = "<h3>Infomación adicional</h3>"
 
-        let btn_cobra_envio = `<div class="btn-group-toggle d-flex flex-wrap" data-toggle="buttons">
+        let btn_cobra_envio = `<div class="btn-group-toggle m-3 d-flex flex-wrap" data-toggle="buttons">
             <label class="btn btn-block btn-outline-success">
             <input type="checkbox" id="sumar-envio-${this.id}" data-campo="sumar_envio" value="0">
             <i class="fa fa-check-circle mr-3"></i>
             Cobrar Envío
             </label>
-            <h6 class="text-center mt-2">Si eliges, Se cobrará el envío del producto.</h6>    
+        </div>
+        <div class="text-muted border-left-secondary">
+            <h6 class="ml-2"><small>Si habilitas \"Cobrar envío\", el costo del envío no lo asumirá tu tienda, se sumará al valor del recaudo de la transacción</small></h6>
         </div>`;
 
         let form = `<form class="mt-3">
@@ -415,6 +451,7 @@ class VentanaCrearProducto {
 
         firestoreRef.get().then((doc) => {
             let urlsAntiguas = doc.data().imagesUrl;
+            console.log(doc.data());
             if(urlsAntiguas) {
                 urls = urls.concat(urlsAntiguas);
             }
@@ -485,19 +522,20 @@ class VentanaCrearProducto {
 
     fillImagesPreloaded(urls) {
         let div = document.createElement("div");
+        div.setAttribute("id", "imagenes-precargadas")
         div.setAttribute("class", "d-flex justify-content-arround");
-        for(let url of urls) {
+        for(let urlInfo of urls) {
             let imgCont = document.createElement("div");
             let img = document.createElement("img");
             let action = document.createElement("span");
             action.innerHTML = "<i class='fa fa-trash d-md-none'></i><span class='d-none d-md-block'>Eliminar</span>";
             action.setAttribute("class", "btn btn-danger badge badge-pill float-right eliminar-imagen")
             action.addEventListener("click", () => {
-                this.deleteImage(url, urls)
+                this.deleteImage(urlInfo, urls)
             })
             action.style.position = "relative";
 
-            img.setAttribute("src", url.url);
+            img.setAttribute("src", urlInfo.url);
             img.classList.add("rounded", "w-100")
             imgCont.classList.add("m-1")
             action.classList.add("m-2")
@@ -510,26 +548,27 @@ class VentanaCrearProducto {
 
         console.log(div);
         $(div).insertBefore("#imagenes-producto");
-
-        // $("img.w-100").css("width", "100%");
     }
 
-    deleteImage(url, urls) {
+    deleteImage(urlInfo, urls) {
         console.log(urls);
 
         urls = urls.filter(dato => {
-            return dato != url
+            return dato.url != urlInfo.url
         });
         console.log(urls);
 
         let storageRef = firebase.storage().ref()
-        .child(user_id+"/productos/" + this.productId);
+        .child(user_id+"/productos/" + this.id);
 
-        storageRef.child(url.fileName).delete().catch(() => {
-            console.log("El documento .../" + this.productId + "/" + url.fileName + " no existe");
+        storageRef.child(urlInfo.fileName).delete().catch(() => {
+            console.log("El documento .../" + this.id + "/" + urlInfo.fileName + " no existe");
         });
 
-        tiendaDoc.collection("productos").doc(this.productId).update({imagesUrl: urls})
+        tiendaDoc.collection("productos").doc(this.id).update({imagesUrl: urls}).then(() => {
+            $("#imagenes-precargadas").remove();
+            this.fillImagesPreloaded(urls);
+        })
     }
 
     appendBtnDelete() {
@@ -550,6 +589,7 @@ class VentanaCrearProducto {
 
         btn.innerHTML = "Eliminar Producto"
         this.modal.find(".modal-footer > button:first").before(btn);
+        this.modal.find(".modal-footer > button:last").text("Actualizar");
     };
  
     activatefunctions() {
@@ -576,6 +616,11 @@ class VentanaCrearProducto {
 
     async createProduct() {
         let producto = this.productCreated;
+        console.log(this.invalidFields);
+        if(this.invalidFields) {
+            return;
+        };
+
         let docRef = tiendaDoc.collection("productos");
         let docId;
 
@@ -583,7 +628,7 @@ class VentanaCrearProducto {
             docId = await docRef.add(producto).then(docRef => docRef.id);
         } else {
             docId = this.id;
-            docRef.doc(docId).set(producto);
+            docRef.doc(docId).update(producto);
         }
 
         console.log(docId);
@@ -591,9 +636,29 @@ class VentanaCrearProducto {
         let storageRef = firebase.storage().ref().child(user_id+"/productos/" + docId);
         let firestoreRef = docRef.doc(docId);
 
-        this.uploadImages(storageRef, firestoreRef);
+        await this.uploadImages(storageRef, firestoreRef);
         this.modal.modal("hide");
         fillProducts();
+    }
+
+    get invalidFields() {
+        console.log(this.modal.find("[required]"))
+        let invalid = false;
+        let scroll;
+        this.modal.find("[required]").each((i,e) => {
+            $(e).parent().children(".mensaje-error").remove();
+            $(e).removeClass("border-danger");
+
+            console.log(e.checkValidity());
+            if(!e.checkValidity()) {
+                $(e).addClass("border-danger")
+                $(e).parent().append("<div class='d-flex text-danger mensaje-error'><i class='fa fa-exclamation-circle'></i><small class='ml-1'>Este campo también es importante</small></div>")
+                invalid = true;
+                if(!scroll) scroll = $(e).parent()[0];
+            }
+        });
+        if(scroll) scroll.scrollIntoView({behavior: "smooth"});
+        return invalid;
     }
 
     btnToggle() {
@@ -618,11 +683,17 @@ class VentanaCrearProducto {
 
     configurateDropzone() {
         let drop = new Dropzone("#imagenes-producto", {
-            limit: 10 - this.imagesUrl.length
+            maxFiles: 10 - this.imagesUrl.length
         });
         console.log(drop)
         if(this.imagesUrl.length >= 10) {
             drop.disable();
+            $("#imagenes-producto").click(() => {
+                Toast.fire({
+                    icon: "error",
+                    title: "Puede cargar como máximo 10 imágenes"
+                })
+            })
         }
     }
 }
@@ -632,23 +703,46 @@ globalThis.mod = new VentanaCrearProducto();
 
 async function fillProducts() {
     let list = $("#nav-tienda-productos > ul")
-    list.html("");
     console.log(list);
     await tiendaDoc.collection("productos").get()
     .then(querySnapshot => {
+        list.html("");
         querySnapshot.forEach(doc => {
             let data = doc.data();
+            console.log(data);
             let url = data.imagesUrl[0] ? data.imagesUrl[0].url : "";
             let li = document.createElement("li");
-            li.setAttribute("class", "list-group-item list-group-item-action d-flex");
+            li.setAttribute("class", "list-group-item list-group-item-action");
             li.setAttribute("id", "tienda-producto-" + doc.id);
             li.innerHTML = `
-                <div class="col-6">
-                    <img src="${url}" width="50px" class="mr-1 rounded"/>${data.nombre}
+            <div class="row">
+                <div class="col-3 col-md-1" style="
+                background-image: url(${url});
+                background-size: 100%;
+                background-position: center;
+                background-repeat: no-repeat;
+                "></div>
+                <div class="col-9 col-md-11">
+                    <div class="row">
+                        <div class="col-12 col-md-6 mb-2 mb-md-0">
+                            <b>${data.nombre}</b>
+                        </div>
+                        <div class="col d-none d-md-block">
+                            <small class="text-muted d-md-none">Código</small>
+                            <p class="d-none d-md-block">${data.stock[0].detalles.cod}</p>
+                        </div>
+                        <div class="col">
+                            <small class="text-muted d-md-none">Precio: <br/>
+                            $${convertirMiles(data.stock[0].detalles.precio)}</small>
+                            <p class="d-none d-md-block">$${convertirMiles(data.stock[0].detalles.precio)}</p>
+                        </div>
+                        <div class="col">
+                            <small class="text-muted d-md-none">Cantidad: <br/>${data.stock[0].detalles.cantidad} Unids.</small>
+                            <p class="d-none d-md-block">${data.stock[0].detalles.cantidad} Unidades.</p>
+                        </div>
+                    </div>
                 </div>
-                <div class="col">${data.stock[0].detalles.cod}</div>
-                <div class="col">$${convertirMiles(data.stock[0].detalles.precio)}</div>
-                <div class="col">${data.stock[0].detalles.cantidad} Unids.</div>
+            </div>
             `;
 
             list.append(li)
@@ -677,11 +771,131 @@ async function fillProducts() {
     }
 }
 
-$("#nav-tienda-productos-tab").click(fillProducts);
+async function cargarInfoTienda() {
+    let info = await firebase.firestore().collection("tiendas")
+    .doc(user_id).get().then(doc => doc.data());
 
-$("#agregar-producto-tienda").click(() => {
-    let modal = new VentanaCrearProducto();
-    modal.showModal();
-    new Dropzone("#imagenes-producto");
-    modal.hideElements();
-});
+    obtenerLinkTienda(info);
+    if(!info) {
+        info = datos_usuario;
+        info.nombre = info.nombre_completo;
+        info.tienda = info.centro_de_costo.replace(/seller/i, "").toLowerCase();
+        $("#actualizar-tienda").text("Activar")
+    }
+
+    for (let campo in info) {
+        $("#form-tienda [name='"+campo+"']").val(info[campo]);
+    }
+
+    if(info.ciudadT) {
+        for(let campo in info.ciudadT) {
+            console.log(campo)
+            $("#ciudad-tienda").attr("data-"+campo, info.ciudadT[campo])
+        }
+    }
+};
+
+function obtenerLinkTienda(data) {
+    let contenedor = $("#link-tienda");
+    let link = document.createElement("p");
+    let btnLink = document.createElement("a");
+
+    contenedor.html("");
+    contenedor.addClass("alert d-flex flex-wrap justify-content-around m-2");
+    contenedor.attr("role", "alert")
+    btnLink.setAttribute("class", "btn btn-primary");
+    link.classList.add("text-center", "w-100", "text-break")
+
+    if(!data) {
+        contenedor.addClass("alert-danger");
+        link.innerHTML = "Actualmente la tienda no se encuentra activa. Por favor, llene la información correspondiente para activarla.";
+        btnLink.setAttribute("href", "javascript: void(0);");
+        btnLink.innerText = "Activar";
+        btnLink.addEventListener("click", actualizarTienda);
+    } else {
+        contenedor.addClass("alert-success");
+        link.innerHTML = "www.hekaetrega.co/tienda/" + data.tienda + "/productos";
+        btnLink.setAttribute("href", "/tienda/" + data.tienda + "/productos");
+        btnLink.innerText = "Ver tienda";
+    };
+
+    contenedor.append(link, btnLink);
+};
+
+async function actualizarTienda() {
+    let data = new Object();
+    let ciudad = document.getElementById("ciudad-tienda").dataset
+    let invalid = new Array();
+    $("#form-tienda [name]").each((i, e) => {
+        let campo = e.name;
+        let valor = $(e).val();
+        if(e.validity.valueMissing) invalid.push($(e).attr("id"));
+        data[campo] = valor;
+    });
+    
+    
+    ciudad = JSON.parse(JSON.stringify(ciudad));
+    
+    verificador(invalid, "scroll", "Este campo no debe estar vacío.");
+    let storeCity = $("#ciudad-tienda");
+    storeCity.removeClass("border-danger");
+    if(!Object.entries(ciudad).length) {
+        storeCity.addClass("border-danger");
+        storeCity.parent().children("small").addClass("text-danger");
+        storeCity.parent().children("small").removeClass("text-muted");
+    };
+
+    if (await verificarExistenciaTienda() || invalid.length
+    || !Object.entries(ciudad).length) return;
+    
+    data.ciudadT = ciudad;
+    data.centro_de_costo = datos_usuario.centro_de_costo;
+    data.id_user = user_id
+
+    console.log(data);
+    swal.fire({
+        title: "Actualizando tienda",
+        html: "Estamos trabajando en ello, por favor espere...",
+        didOpen: () => {
+            Swal.showLoading();
+        },
+        allowOutsideClick: false,
+        allowEnterKey: false,
+        showConfirmButton: false,
+        allowEscapeKey: true
+    });
+
+    firebase.firestore().collection("tiendas").doc(user_id)
+    .set(data).then(() => {
+        Swal.fire({
+            icon: "success",
+            text: "Tienda actualizada exitósamente"
+        }).then(() => {
+            cargarInfoTienda();
+        });
+    });
+};
+
+async function verificarExistenciaTienda() {
+    let tienda = $("#nombre-tienda");
+    tienda.removeClass("is-invalid");
+    let exists = await firebase.firestore().collection("tiendas")
+    .where("tienda", "==", tienda.val()).get()
+    .then(querySnapshot => {
+        let bool = true;
+        if(querySnapshot.empty) return false;
+        querySnapshot.forEach(doc => {
+            if(doc.id == user_id) bool = false
+        });
+        return bool;
+    });
+
+    console.log(exists)
+
+    if(exists || !tienda[0].checkValidity()) {
+        tienda.addClass("is-invalid")
+        tienda.parent()[0].scrollIntoView({behavior: "smooth"})
+    }
+
+    return exists
+};

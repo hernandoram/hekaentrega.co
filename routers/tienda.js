@@ -46,8 +46,12 @@ router.post("/crearGuiaServientrega", tiendaCtrl.crearGuiaServientrega);
 
 router.post("/crearPedido", tiendaCtrl.crearPedido);
 
+router.get("/vaciarCarrito", tiendaCtrl.vaciarCarrito);
+
 Handlebars.registerHelper("listar_atributos", function(context, options) {
     let atributos = new Object()
+    console.log(context);
+    console.log(options);
     context.forEach((variante, i) => {
         for (let campo in variante) {
             console.log(40,typeof variante[campo]);
@@ -85,6 +89,27 @@ Handlebars.registerHelper("calcTotal", carrito => {
     }
 
     return total;
+});
+
+Handlebars.registerHelper("categorias", (context, options) => {
+   let res = "<option value=''>Seleccionar Todas</option>";
+   let categorias = new Array();
+   context.forEach(item => {
+       if(!categorias.includes(item.categoria) && item.categoria) {
+           categorias.push(item.categoria);
+           res += options.fn(item.categoria);
+       } 
+   })
+
+   return res;
+});
+
+Handlebars.registerHelper("getCurrency", context => {
+    return context.toLocaleString("es-CO", {
+        style: "currency", 
+        currency: "COP",
+        minimumFractionDigits: 0
+    });
 })
 
 
