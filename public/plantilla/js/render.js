@@ -1493,10 +1493,47 @@ function verDetallesGuia() {
         });
     })
 }
-// enviarNotificacion({
-//     mensaje: "This is my massage",
-//     visible_admin: true,
-//     icon: ["opt1", "opt2"],
-//     user_id: "identifier"
-// });
 
+function createModal() {
+    let modal = new DOMParser().parseFromString(`<div class="modal fade" id="modal-creado" 
+    tabindex="-1" aria-labelledby="titulo-modal-creado" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="titulo-modal-creado">Título modal creado</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-primary" id="btn-continuar-modal-creado">Continuar</button>
+        </div>
+      </div>
+    </div>
+  </div>`, "text/html").body.children[0]
+
+  let m = $(modal);
+  m.find("[data-dismiss='modal']").click(() => {
+    console.log("ha sido clickado");
+  })
+
+  m.on('hidden.bs.modal', function (event) {
+    this.remove()
+  })
+
+  document.body.append(modal);
+  return m;
+}
+
+const Toast = Swal.mixin({
+    toast: true,
+    position: "bottom-start",
+    showConfirmButton: false,
+    timer: 3000,
+    didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+});

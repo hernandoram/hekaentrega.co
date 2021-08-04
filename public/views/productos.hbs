@@ -1,0 +1,89 @@
+<div class="row">
+    <div class="col-12">
+        <div class="page-title-box">
+            <div class="page-title-right">
+                <ol class="breadcrumb m-0">
+                    <li class="breadcrumb-item active">Productos</li>
+                </ol>
+            </div>
+            <h4 class="page-title">Productos</h4>
+        </div>
+    </div>
+</div> 
+
+<div class="row">
+    <div class="col-12">
+        <div class="card-box">
+            <div class="row">
+                <div class="col-lg-8">
+                    <form class="form-inline">
+                        <div class="form-group">
+                            <label for="inp-search-product" class="sr-only">Buscar</label>
+                            <input type="search" class="form-control" id="inp-search-product" placeholder="Buscar...">
+                        </div>
+                        <div class="form-group m-sm-2">
+                            <label for="categoria-select" class="mr-2">Categorías</label>
+                            <select class="custom-select" id="categoria-select">
+                                {{#categorias productos}}
+                                    <option value="{{this}}">{{this}}</option>
+                                {{/categorias}}
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="col-lg-4">
+                    <div class="form-group">
+                        <label for="sort-select" class="mr-2">Organizar por</label>
+                        <select class="custom-select" id="sort-select">
+                            <option selected="">seleccione</option>
+                            <option value="1">Precios bajos</option>
+                            <option value="2">Precios altos</option>
+                        </select>
+                    </div>
+                </div><!-- end col-->
+            </div> <!-- end row -->
+        </div> <!-- end card-box -->
+    </div> <!-- end col-->
+</div>
+
+<div class="row">
+    {{#each productos}}
+    <div class="col-sm-6 col-xl-3 producto visible" data-filter-categoria="{{this.categoria}}"
+        data-filter-name="{{this.nombre}}" data-sort-precio="{{this.precio}}">
+        <div class="card-box product-box">
+
+            <div class="product-action">
+                <a href="/producto/{{this.id}}" class="btn btn-success btn-xs waves-effect waves-light"><i class="mdi mdi-pencil"></i> Ver producto</a>
+            </div>
+
+            <a href="/producto/{{this.id}}" 
+            class="bg-light d-flex justify-content-center contenedor-img">
+                <img src="{{this.showImg}}" alt="product-pic" class="img-fluid" />
+            </a>
+
+            <div class="product-info">
+                <div class="row align-items-center">
+                    <div class="col">
+                        <h4 class="font-16 mt-0 sp-line-1">
+                            <a href="/producto/{{this.id}}" 
+                            class="text-dark" >{{this.nombre}}</a>
+                        </h4>
+                        <div class="text-warning mb-2 font-13 d-none d-md-block">
+                            {{this.categoria}}
+                        </div>
+                        <h5 class="m-0 d-none d-md-block"> <span class="text-muted"> Stocks : {{this.showStock.detalles.cantidad}} pcs</span></h5>
+                    </div>
+                    <div class="col-auto">
+                        <div class="product-price-tag d-none d-md-block">
+                            {{getCurrency this.precio}}
+                        </div>
+                        <small class="product-price-tag d-md-none">
+                            {{getCurrency this.precio}}
+                        </small>
+                    </div>
+                </div> <!-- end row -->
+            </div> <!-- end product info-->
+        </div> <!-- end card-box-->
+    </div> <!-- end col-->
+    {{/each}}
+</div>

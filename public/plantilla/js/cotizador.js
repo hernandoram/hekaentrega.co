@@ -1,6 +1,5 @@
 let datos_de_cotizacion,
     datos_a_enviar = new Object({});
-    console.log(datos_usuario)
 // Esta funcion verifica que los campos en el form esten llenados correctamente
 async function cotizador(){
     let ciudadR = document.getElementById("ciudadR"),
@@ -57,9 +56,9 @@ async function cotizador(){
             verificador()
 
             
-            if(revisarTrayecto() == "Urbano") {
+            if(new CalcularCostoDeEnvio().revisarTrayecto() == "Urbano") {
                 datos_de_cotizacion.tiempo = "1-2"
-            } else if(revisarTrayecto() == "Especial"){
+            } else if(new CalcularCostoDeEnvio().revisarTrayecto() == "Especial"){
                 datos_de_cotizacion.tiempo = "5-8"
             }
             let mostrador = document.getElementById("result_cotizacion");
@@ -579,16 +578,14 @@ function revisarTrayecto(){
     }
 }
 
-function sumarCostoDeEnvio(valor, type, kg, volumen) {
-    let constructor = new CalcularCostoDeEnvio(valor, type, kg, volumen);
-    // a = new CalcularCostoDeEnvio(a.costoEnvio + rec);
-    // console.log(a.valor - a.costoEnvio);
+function sumarCostoDeEnvio(valor, type, kg, volumen, extraData) {
+    let constructor = new CalcularCostoDeEnvio(valor, type, kg, volumen, extraData);
     let counter = 0
     while(valor > constructor.valor - constructor.costoEnvio) {
         counter ++;
         console.log("\n *** Estamos en bucle fase " + counter)
         constructor.getDetails;
-        constructor = new CalcularCostoDeEnvio(valor + constructor.costoEnvio, type, kg, volumen);
+        constructor = new CalcularCostoDeEnvio(valor + constructor.costoEnvio, type, kg, volumen, extraData);
     }
 
     return constructor
@@ -596,17 +593,19 @@ function sumarCostoDeEnvio(valor, type, kg, volumen) {
 
 // Realiza el calculo del envio y me devuelve sus detalles
 class CalcularCostoDeEnvio {
-    constructor(valor, type, kilos, vol){
+    constructor(valor, type, kilos, vol, extraData){
         this.type = type;
         this.valor = type == "CONVENCIONAL" ? 0 : valor;
         this.seguro = parseInt(valor);
         this.kg = kilos || Math.floor(value("Kilos"));
         this.volumen = vol || value("dimension-ancho") * value("dimension-alto") * value("dimension-largo");
         this.factor_de_conversion = 0.022;
-        this.comision_servi = precios_personalizados.comision_servi;
+        this.data = extraData || new Object();
+        this.precios = extraData ? extraData.precios : precios_personalizados;
+        this.comision_servi = this.precios.comision_servi;
         this.sobreflete_min = 3000;
         this.sobreflete = type == "CONVENCIONAL" ? 0 : Math.ceil(Math.max(valor * this.comision_servi / 100, this.sobreflete_min));
-        this.sobreflete_heka = Math.ceil(valor * ( type == "CONVENCIONAL" ? 1 : precios_personalizados.comision_heka) / 100);
+        this.sobreflete_heka = Math.ceil(valor * ( type == "CONVENCIONAL" ? 1 : this.precios.comision_heka) / 100);
     }
 
     get pesoVolumen(){
@@ -624,21 +623,21 @@ class CalcularCostoDeEnvio {
         this.kg = Math.max(this.pesoVolumen, this.kg)
 
         return this.kg;    
-    } 
+    };
     
     get flete(){
         this.kgTomado;
-        let total = this.revisadorInterno(precios_personalizados.costo_especial2,
-            precios_personalizados.costo_nacional2, precios_personalizados.costo_zonal2);
+        let total = this.revisadorInterno(this.precios.costo_especial2,
+            this.precios.costo_nacional2, this.precios.costo_zonal2);
         if(this.kg >= 1 && this.kg < 4){
-            total = this.revisadorInterno(precios_personalizados.costo_especial1, 
-                precios_personalizados.costo_nacional1, precios_personalizados.costo_zonal1)
+            total = this.revisadorInterno(this.precios.costo_especial1, 
+                this.precios.costo_nacional1, this.precios.costo_zonal1)
         } else if (this.kg >= 4 && this.kg < 9) {
 
         } else {
             let kg_adicional = this.kg - 8;
-            total += (kg_adicional * this.revisadorInterno(precios_personalizados.costo_especial3, 
-                precios_personalizados.costo_nacional3, precios_personalizados.costo_zonal3))
+            total += (kg_adicional * this.revisadorInterno(this.precios.costo_especial3, 
+                this.precios.costo_nacional3, this.precios.costo_zonal3))
         }
         return total;
     }
@@ -672,7 +671,9 @@ class CalcularCostoDeEnvio {
     }
 
     revisadorInterno(especial, nacional, urbano){
-        switch(revisarTrayecto()){
+        let c_destino = this.data ? this.data.ciudadD : "";
+        let c_origen = this.data ? this.data.ciudadR : "";
+        switch(this.revisarTrayecto(c_origen, c_destino)){
             case "Especial":
                 return especial;
                 break;
@@ -684,6 +685,22 @@ class CalcularCostoDeEnvio {
                 break;
         }
     }
+
+    revisarTrayecto(origen, destino){
+        let c_origen = origen || document.getElementById('ciudadR').dataset;
+        let c_destino = destino || document.getElementById('ciudadD').dataset;
+        if(c_destino.tipo_trayecto == "TRAYECTO ESPECIAL"){
+            return "Especial";
+        } else {
+            if(c_destino.id == c_origen.id) {
+                return "Urbano";
+            } else if(c_destino.departamento == c_origen.departamento) {
+                return "Zonal";
+            } else {
+                return "Nacional";
+            }
+        }
+    };
 }
 
 // Para enviar la guia generada a firestore
@@ -708,7 +725,7 @@ function crearGuiasServientrega() {
         } else if (value("telefonoD").length != 10) {
             alert("Por favor verifique que el celular esta escrito correctamente (debe contener 10 digitos)")
         } else if(!datos_usuario.centro_de_costo) {
-            avisar("¡Error al generar Guía!", "Póngase en Contacto con nosotros para asignarle un centro de costo", "advertencia");
+            avisar("¡Error al generar Guía!", "Por favor, recargue la página, e intente nuevamente, si su problema persiste, póngase en Contacto con nosotros para asignarle un centro de costo", "advertencia");
         } else {
             Swal.fire({
                 title: "Creando Guía",
