@@ -1,5 +1,6 @@
 $("#nav-tienda-productos-tab").click(fillProducts);
 $("#nav-tienda-home-tab").click(cargarInfoTienda);
+$("[href='#tienda']").click(cargarInfoTienda);
 
 $("#agregar-producto-tienda").click(() => {
     let modal = new VentanaCrearProducto();
@@ -8,8 +9,9 @@ $("#agregar-producto-tienda").click(() => {
     modal.hideElements();
 });
 
-$("#actualizar-tienda").click(actualizarTienda)
-$("#nombre-tienda").blur(verificarExistenciaTienda);
+$("#actualizar-tienda").click(actualizarTienda);
+$("#url-tienda").blur(verificarExistenciaTienda);
+$("#url-tienda").on("input", muestraDelLinkTienda);
 
 $(document).ready(function(){
     $("#mytoast").toast("show");
@@ -28,20 +30,20 @@ Dropzone.options.imagenesProducto = {
 };
 let tiendaDoc = firebase.firestore().collection("tiendas").doc(user_id);
 
-let categorias = ["Tecnología", "Vehículos", "Hoga y Electrodométicos", "moda"];
+let categorias = ["Juguetes y Bebés", "Accesorios para Vehículos", "Herramientas e Industrias", "Bienestar", "Kits", "Alimentos", "Moda", "Arte", "Rituales", "Telas y Espumas", "Aretes", "Mascotas", "Tecnología", "Relojes y Joyas", "Hogar y electrodomesticos", "Hilo piedra", "Collares", "Anillos", "Salud sexual", "Vehículos", "Pulseras", "Inmuebles", "Velas", "Deportes y Aire Libre", "Colchones y Colchonetas", "Belleza y Cuidado Personal", "Otros", "Sin Categoría"];
 let atributos = {
-    color: ["Azul", "Verde", "Rojo", "Rosado", "Morado", "Negro"],
-    talla: ["SS", "S", "M", "X", "XL"],
-    forma: ["Cuadrada", "redonda", "rectangular"]
+    color: ["Amarillo", "Azul", "Rojo", "Verde", "Rosado", "Purpura", "Marrón", "Blanco", "Negro", "Naranja"],
+    talla: ["XXS", "XS", "S", "M", "L", "XL", "XXL"],
+    sabor: ["Vainilla", "Chocolate", "Fresa", "Mora", "Arequipe", "Coco", "Chicle"]
 }
 
-
+globalThis.verAttr = () => console.log(atributos);
 class VentanaCrearProducto {
     constructor(id) {
         this.modal = createModal();
         this.id = id || "producto";
-        this.categorias = categorias;
-        this.atributos = atributos;
+        this.categorias = categorias.slice();
+        this.atributos = JSON.parse(JSON.stringify(atributos));
         this.stock; this.dropzone; this.imagesUrl;
     }
 
@@ -51,7 +53,8 @@ class VentanaCrearProducto {
             <form class="row align-items-end">
             <div class="form-group col-12">
                 <label for="nombre-${this.id}">Nombre del producto</label>
-                <input type="text" name="nombre-${this.id}" data-campo="nombre" id="nombre-${this.id}" class="form-control" required>
+                <input type="text" name="nombre-${this.id}" data-campo="nombre"
+                id="nombre-${this.id}" class="form-control" maxlength="25" required>
             </div>
             <div class="form-group col">
                 <label for="precio-${this.id}">Precio</label>
@@ -61,19 +64,19 @@ class VentanaCrearProducto {
             
                 <label for="categoria-${this.id}">Seleccionar categoría</label>
                 <div class="input-group">
-                    <select class="custom-select" data-campo="categoria" id="categoria-${this.id}" aria-label="Seleccionar Categoría">
+                    <select class="custom-select form-control" data-campo="categoria" id="categoria-${this.id}" aria-label="Seleccionar Categoría">
                         <option value="">Seleccione una Categoría...</option>
                     </select>
                     <div class="input-group-append">
-                        <button id="habilitar-nueva-categoria-${this.id}" alt="Agregar nueva" class="btn btn-outline-secondary" type="button"><i class="fa fa-plus d-md-none"></i><span class="d-none d-md-block">Agregar Nueva</span></button>
+                        <button id="habilitar-nueva-categoria-${this.id}" alt="Agregar nueva" class="btn btn-outline-secondary" type="button"><i class="fa fa-plus d-lg-none"></i><span class="d-none d-lg-block">Agregar Nueva</span></button>
                     </div>
                 </div>
 
                 <div class="input-group" style="display: none">
                     <input type="text" class="form-control" id="new-categoria-${this.id}" placeholder="Agregar Categoría"></input>
                     <div class="input-group-append">
-                        <button id="cancel-add-categoria-${this.id}" alt="cancelar" class="btn btn-outline-secondary" type="button"><i class="fa fa-times d-md-none"></i><span class="d-none d-md-block">Cancelar</span></button>
-                        <button id="add-categoria-${this.id}" alt="Agregar nueva categoría" class="btn btn-outline-primary" type="button"><i class="fa fa-check d-md-none"></i><span class="d-none d-md-block">Agregar</span></button>
+                        <button id="cancel-add-categoria-${this.id}" alt="cancelar" class="btn btn-outline-secondary" type="button"><i class="fa fa-times d-lg-none"></i><span class="d-none d-lg-block">Cancelar</span></button>
+                        <button id="add-categoria-${this.id}" alt="Agregar nueva categoría" class="btn btn-outline-primary" type="button"><i class="fa fa-check d-lg-none"></i><span class="d-none d-lg-block">Agregar</span></button>
                     </div>
                 </div>
                 
@@ -125,8 +128,6 @@ class VentanaCrearProducto {
         addCategoria.click(async (e) => {
             let newCategory = addCategoria.parent().prev().val();
 
-            console.log(newCategory);
-                
             if (newCategory) {
                 this.categorias.push(newCategory);
                 let option = document.createElement("option");
@@ -143,6 +144,7 @@ class VentanaCrearProducto {
     }
 
     appendAttributes() {
+        console.info("appendAttributes")
         let htmlAtributos = document.createElement("div");
         htmlAtributos.setAttribute("id", "atributos-"+this.id);
         htmlAtributos.classList.add("my-4")
@@ -253,6 +255,7 @@ class VentanaCrearProducto {
     }
 
     appendVariants() {
+        console.info("appendVariants");
         let htmlVariants = document.createElement("div");
         htmlVariants.classList.add("my-4")
         $(htmlVariants).appendTo(this.modal.find(".modal-body"));
@@ -273,21 +276,22 @@ class VentanaCrearProducto {
         });
 
         htmlVariants.append(table);
+
     }
 
     fillVariants() {
         let variantes = this.fillAtributes();
-        console.log("Variantes", variantes)
         let table = document.getElementById("table-"+this.id);
-        table.innerHTML = "<tr><th>Precio</th><th>Cód</th><th>Cantidad</th></tr>"
+        table.innerHTML = "<tr><th>Precio</th><th>Cód</th><th>Cantidad</th></tr>";
+        //itero entre los atributos de cada variante
         for (let atrib of variantes) {
             let arrAttr = new Array();
             let precio = $("#precio-" + this.id).val();
             let nombre = $("#nombre-" +this.id).val();
-            atrib.precio = precio;
-            atrib.cantidad = 10;
+            let cantidad = 10;
+            //Itero entre los atributos para generar el codigo de la variante
             for(let at in atrib)  {
-                if(at != "precio" && at != "cantidad" && typeof atrib[at] != "object") arrAttr.push(atrib[at]);
+                if(typeof atrib[at] != "object") arrAttr.push(atrib[at]);
             }
             arrAttr.unshift(nombre)
             arrAttr = arrAttr.map(v => {
@@ -301,17 +305,19 @@ class VentanaCrearProducto {
             }
             let tr = document.createElement("tr");
             tr.setAttribute("id", arrAttr.join("-"));
-            console.log(arrAttr.join("-"));
             tr.innerHTML = `
-                <td><input class="form-control" data-campo-stock="precio" value="${atrib.precio}" required/></td>
+                <td><input class="form-control" data-campo-stock="precio" value="${precio}" required/></td>
                 <td><input class="form-control" data-campo-stock="cod" value="${arrAttr.join("-")}" readonly/></td>
-                <td><input class="form-control" data-campo-stock="cantidad" value="${atrib.cantidad}" required/></td>
+                <td><input class="form-control" data-campo-stock="cantidad" value="${cantidad}" required/></td>
             `;
             table.appendChild(tr)
         }
 
-        this.stock = this.fillAtributes();
+        console.log(variantes);
+        this.stock = variantes;
         this.saveVariants()
+        console.info("fillVariants");
+
     }
 
     saveVariants() {
@@ -323,47 +329,61 @@ class VentanaCrearProducto {
             let campo = v.getAttribute("data-campo-stock");
             if(typeof this.stock[counter].detalles != "object") this.stock[counter] = new Object()
             this.stock[counter].detalles[campo] = isNaN(parseInt(v.value)) ? v.value : parseInt(v.value);
-        })
-
+        });
     }
 
     fillAtributes() {
-        let atributos = new Object();
+        let atributes = new Object();
 
+        //reviso entre los botones de las distiguidas clases para insertar los atribitos con
+        //sus pares clave-valor en {atributes}
         $(".atributo.active").each(function() {
-            let active = $(this).parents(".attr-card").prev().hasClass("active")
-            if(atributos[$(this).attr("data-fillStock")] && active) {
-                atributos[$(this).attr("data-fillStock")].push($(this).val())
+            let active = $(this).parents(".attr-card").prev().hasClass("active");
+            if(atributes[$(this).attr("data-fillStock")] && active) {
+                //verifica que exita la clave para solo sumar el atributo al final del array
+                atributes[$(this).attr("data-fillStock")].push($(this).val())
             } else if (active) {
-                atributos[$(this).attr("data-fillStock")] = new Array($(this).val())
-            } else if(atributos[$(this).attr("data-fillStock")]) {
-                atributos[$(this).attr("data-fillStock")].remove()
+                //si la condicion anterior no se cumple, me crea un arreglo con el valor actual
+                atributes[$(this).attr("data-fillStock")] = new Array($(this).val())
             }
-        })
+        });
+
 
         // ****** ALGORITMO REAL ************///
         let variantes = new Array({});
-        for(let attr in this.atributos) {
-            this.atributos[attr].splice(1,1)
-            if(atributos[attr]) {
-                this.atributos[attr][1] = atributos[attr];
-                for (let i = 0; i < atributos[attr].length; i++) {
-                    variantes.map((v,j) => {
-                        let conjAttr = Object.assign({}, v);
-                        conjAttr[attr] = atributos[attr][i];
-                        if(!v[attr]) {
-                            variantes[j][attr] = atributos[attr][i];
-                        } else if(variantes.length == j + 1){
-                            variantes.splice(j+1,1,conjAttr);
-                        } else {
-                            variantes.push(conjAttr)
-                        }
-                    })
-                }
-            }
+        
+        //Itero entre las llaves de los atributos llenos previamente para llenar las variantes
+        let x = 0;
+        console.group("\nComienza algoritmo");
+        for(let attr in atributes) {
+            x++
+            console.group("viendo atributo")
+            console.log(x, attr)
+            for (let i = 0; i < atributes[attr].length; i++) {
+                console.log("viendo valor atributo", i, atributes[attr][i]);
+                //por cada atributo reviso las variantes para llenarla.
+                variantes.map((v,j) => {
+                    //copio la variante
+                    let conjAttr = Object.assign({}, v);
+                    //le asigno el valor del atributo actual
+                    conjAttr[attr] = atributes[attr][i];
+                    
+                    if(!v[attr]) {
+                        //Si no exite el atributo, lo introduzco en el arreglo de variantes
+                        variantes[j][attr] = atributes[attr][i];
+                    } else if(variantes.length == j + 1){
+                        variantes.splice(j+1,1,conjAttr);
+                    } else {
+                        variantes.push(conjAttr)
+                    }
+                    console.log("Conociendo las variantes", v);
+                })
+            };
+            console.groupEnd();
         }
+        console.groupEnd("Termina algoritmo");
 
-
+        //Necesito filtrar para aliminar aquellas variantes que se parecen, y así no duplicarlas
         variantes = variantes.filter((v, i) => {
             let res = true;
             for(let j = i+1; j < variantes.length; j++) {
@@ -380,6 +400,7 @@ class VentanaCrearProducto {
             }
             return res;
         });
+
 
         variantes.forEach(v => v.detalles = new Object());
         return variantes;
@@ -404,7 +425,8 @@ class VentanaCrearProducto {
         let form = `<form class="mt-3">
             <div class="form-group">
             <label for="descripcion-corta-producto">Descripción corta</label>
-            <input type="text" name="descripcion-corta-producto" data-campo="descripcion" id="descripcion-corta-producto" class="form-control">
+            <input type="text" name="descripcion-corta-producto" data-campo="descripcion"
+            id="descripcion-corta-producto" class="form-control" maxlength="40">
             </div>
             <div class="form-group">
             <label for="descripcion-completa-producto">Descripción completa</label>
@@ -436,15 +458,17 @@ class VentanaCrearProducto {
 
     async uploadImages(storageRef, firestoreRef) {
         let files = document.getElementById("imagenes-producto").dropzone.files;
+        
         let urls = new Array()
         for await(let file of files) {
-            let type = file.name.match(/\.\w+$/)[0];
-            
-            
-            let fileUploaded = await storageRef.child(file.name).put(file);
+            if(!file.accepted) continue;
+            let name = new Date().getTime() + file.name;
+            name = name.replace(/[\(\)]/g, "");
+            console.log(file)
+            let fileUploaded = await storageRef.child(name).put(file);
             // await fileUploaded;
             let url = await fileUploaded.task.snapshot.ref.getDownloadURL()
-            urls.push({url, fileName: file.name});
+            urls.push({url, fileName: name});
         }
 
         console.log(urls)
@@ -455,7 +479,6 @@ class VentanaCrearProducto {
             if(urlsAntiguas) {
                 urls = urls.concat(urlsAntiguas);
             }
-            console.log(urls)
 
             doc.ref.update({imagesUrl: urls});
         })
@@ -480,15 +503,14 @@ class VentanaCrearProducto {
     }
 
     fillAll(data) {
-        console.log(data)
         for(let campo in data) {
             $("[data-campo='"+campo+"']").val(data[campo])
-            if(campo == "categoria") {
+            if(campo == "categoria" && this.categorias.indexOf(data[campo]) == -1) {
                 let categoria = this.modal.find("#new-categoria-"+this.id)
                 let addCategoria = this.modal.find("#add-categoria-"+this.id)
                 categoria.val(data[campo]);
                 addCategoria.click()
-            }
+            };
         }
 
         data.stock.forEach((stock, i) => {
@@ -514,7 +536,12 @@ class VentanaCrearProducto {
             let campo = $(item).attr("data-campo-stock");
             let stock = data.stock[counter];
             $(item).val(stock.detalles[campo]);
-        })
+        });
+
+        let sumar_envio = $("#sumar-envio-"+this.id);
+        if(parseInt(sumar_envio.val())) {
+            sumar_envio.click();
+        }
 
         this.imagesUrl = data.imagesUrl;
         this.fillImagesPreloaded(data.imagesUrl);
@@ -528,7 +555,11 @@ class VentanaCrearProducto {
             let imgCont = document.createElement("div");
             let img = document.createElement("img");
             let action = document.createElement("span");
-            action.innerHTML = "<i class='fa fa-trash d-md-none'></i><span class='d-none d-md-block'>Eliminar</span>";
+            if(urls.length < 6) {
+                action.innerHTML = "<i class='fa fa-trash d-md-none'></i><span class='d-none d-md-block text-truncate'>Eliminar</span>";
+            } else {
+                action.innerHTML = "<small><i class='fa fa-trash fa-sm'></i></small>"
+            }
             action.setAttribute("class", "btn btn-danger badge badge-pill float-right eliminar-imagen")
             action.addEventListener("click", () => {
                 this.deleteImage(urlInfo, urls)
@@ -546,17 +577,14 @@ class VentanaCrearProducto {
             div.appendChild(imgCont);
         }
 
-        console.log(div);
         $(div).insertBefore("#imagenes-producto");
     }
 
     deleteImage(urlInfo, urls) {
-        console.log(urls);
 
         urls = urls.filter(dato => {
             return dato.url != urlInfo.url
         });
-        console.log(urls);
 
         let storageRef = firebase.storage().ref()
         .child(user_id+"/productos/" + this.id);
@@ -594,9 +622,10 @@ class VentanaCrearProducto {
  
     activatefunctions() {
         let btn_continue = this.modal.find("#btn-continuar-modal-creado");
-        console.log(btn_continue)
         btn_continue.text("Crear Producto");
         btn_continue.click(() => {
+            btn_continue.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...')
+            btn_continue.prop("disabled", true);
             this.createProduct();
         });
     }
@@ -618,6 +647,9 @@ class VentanaCrearProducto {
         let producto = this.productCreated;
         console.log(this.invalidFields);
         if(this.invalidFields) {
+            let btn = this.modal.find("#btn-continuar-modal-creado");
+            btn.removeAttr("disabled");
+            btn.html("Continuar")
             return;
         };
 
@@ -631,12 +663,15 @@ class VentanaCrearProducto {
             docRef.doc(docId).update(producto);
         }
 
-        console.log(docId);
 
         let storageRef = firebase.storage().ref().child(user_id+"/productos/" + docId);
         let firestoreRef = docRef.doc(docId);
 
         await this.uploadImages(storageRef, firestoreRef);
+        Toast.fire({
+            icon: "success",
+            title: "¡Producto creado exitósamente!"
+        })
         this.modal.modal("hide");
         fillProducts();
     }
@@ -649,7 +684,6 @@ class VentanaCrearProducto {
             $(e).parent().children(".mensaje-error").remove();
             $(e).removeClass("border-danger");
 
-            console.log(e.checkValidity());
             if(!e.checkValidity()) {
                 $(e).addClass("border-danger")
                 $(e).parent().append("<div class='d-flex text-danger mensaje-error'><i class='fa fa-exclamation-circle'></i><small class='ml-1'>Este campo también es importante</small></div>")
@@ -685,7 +719,6 @@ class VentanaCrearProducto {
         let drop = new Dropzone("#imagenes-producto", {
             maxFiles: 10 - this.imagesUrl.length
         });
-        console.log(drop)
         if(this.imagesUrl.length >= 10) {
             drop.disable();
             $("#imagenes-producto").click(() => {
@@ -703,13 +736,11 @@ globalThis.mod = new VentanaCrearProducto();
 
 async function fillProducts() {
     let list = $("#nav-tienda-productos > ul")
-    console.log(list);
     await tiendaDoc.collection("productos").get()
     .then(querySnapshot => {
         list.html("");
         querySnapshot.forEach(doc => {
             let data = doc.data();
-            console.log(data);
             let url = data.imagesUrl[0] ? data.imagesUrl[0].url : "";
             let li = document.createElement("li");
             li.setAttribute("class", "list-group-item list-group-item-action");
@@ -775,6 +806,7 @@ async function cargarInfoTienda() {
     let info = await firebase.firestore().collection("tiendas")
     .doc(user_id).get().then(doc => doc.data());
 
+    console.log(info)
     obtenerLinkTienda(info);
     if(!info) {
         info = datos_usuario;
@@ -792,13 +824,16 @@ async function cargarInfoTienda() {
             console.log(campo)
             $("#ciudad-tienda").attr("data-"+campo, info.ciudadT[campo])
         }
-    }
+    };
+
+    muestraDelLinkTienda.call($("#url-tienda")[0]);
 };
 
 function obtenerLinkTienda(data) {
     let contenedor = $("#link-tienda");
     let link = document.createElement("p");
     let btnLink = document.createElement("a");
+    console.log(data);
 
     contenedor.html("");
     contenedor.addClass("alert d-flex flex-wrap justify-content-around m-2");
@@ -806,7 +841,7 @@ function obtenerLinkTienda(data) {
     btnLink.setAttribute("class", "btn btn-primary");
     link.classList.add("text-center", "w-100", "text-break")
 
-    if(!data) {
+    if(!data || !data.tienda) {
         contenedor.addClass("alert-danger");
         link.innerHTML = "Actualmente la tienda no se encuentra activa. Por favor, llene la información correspondiente para activarla.";
         btnLink.setAttribute("href", "javascript: void(0);");
@@ -814,13 +849,28 @@ function obtenerLinkTienda(data) {
         btnLink.addEventListener("click", actualizarTienda);
     } else {
         contenedor.addClass("alert-success");
-        link.innerHTML = "www.hekaetrega.co/tienda/" + data.tienda + "/productos";
-        btnLink.setAttribute("href", "/tienda/" + data.tienda + "/productos");
+        let host = window.location.host;
+        host = host.split(".")[0] == "www" ? host.split(".").splice(0,1).join(".") : host
+        let dir = data.tienda + "." + host;
+        let protocol = window.location.protocol;
+        link.innerHTML = dir;
+        btnLink.setAttribute("href", protocol + "//" + dir);
         btnLink.innerText = "Ver tienda";
     };
 
     contenedor.append(link, btnLink);
 };
+
+
+function muestraDelLinkTienda() {
+    this.value = this.value.toLowerCase();
+    let protocol = window.location.protocol;
+    let host = window.location.hostname;
+    host = host.split(".")[0] == "www" ? host.split(".").splice(0,1).join(".") : host
+
+    let valor = this.value;
+    $("#ver-url-tienda").html(protocol + "//" + "<b>" + valor + "</b>." + host);
+}
 
 async function actualizarTienda() {
     let data = new Object();
@@ -831,6 +881,7 @@ async function actualizarTienda() {
         let valor = $(e).val();
         if(e.validity.valueMissing) invalid.push($(e).attr("id"));
         data[campo] = valor;
+        console.log(data[campo]);
     });
     
     
@@ -877,7 +928,7 @@ async function actualizarTienda() {
 };
 
 async function verificarExistenciaTienda() {
-    let tienda = $("#nombre-tienda");
+    let tienda = $("#url-tienda");
     tienda.removeClass("is-invalid");
     let exists = await firebase.firestore().collection("tiendas")
     .where("tienda", "==", tienda.val()).get()
@@ -894,7 +945,8 @@ async function verificarExistenciaTienda() {
 
     if(exists || !tienda[0].checkValidity()) {
         tienda.addClass("is-invalid")
-        tienda.parent()[0].scrollIntoView({behavior: "smooth"})
+        tienda.parent()[0].scrollIntoView({behavior: "smooth"});
+        return true;
     }
 
     return exists

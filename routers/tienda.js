@@ -24,13 +24,13 @@ router.post("/subirImagen", (req, res) => {
     res.send("Archivo cargado")
 })
 
-router.get("/*/productos", tiendaCtrl.buscarUsuario, tiendaCtrl.obtenerProductos);
+router.get("/", tiendaCtrl.buscarTienda, tiendaCtrl.obtenerProductos);
 
-router.get("/*/producto/:productId", tiendaCtrl.buscarUsuario, tiendaCtrl.obtenerProducto);
-
-router.get("/pruebaSession", tiendaCtrl.probarSession);
+router.get("/producto/:productId", tiendaCtrl.buscarTienda, tiendaCtrl.obtenerProducto);
 
 router.get("/carrito", tiendaCtrl.carritoDeCompra);
+
+router.get("/prueba", tiendaCtrl.probarSession);
 
 router.post("/agregarAlCarrito/:id", tiendaCtrl.agregarAlCarrito);
 
@@ -47,6 +47,8 @@ router.post("/crearGuiaServientrega", tiendaCtrl.crearGuiaServientrega);
 router.post("/crearPedido", tiendaCtrl.crearPedido);
 
 router.get("/vaciarCarrito", tiendaCtrl.vaciarCarrito);
+
+router.post("/enviarNotificacion", tiendaCtrl.enviarNotificacion);
 
 Handlebars.registerHelper("listar_atributos", function(context, options) {
     let atributos = new Object()

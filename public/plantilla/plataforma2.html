@@ -70,6 +70,11 @@
             <i class="fas fa-fw fa-balance-scale"></i>
             <span>Cotizar envío</span></a>
         </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#tienda">
+            <i class="fas fa-fw fa-store"></i>
+            <span>Tienda</span></a>
+        </li>
 
         <!-- Divider -->
         <hr class="sidebar-divider">
@@ -280,12 +285,19 @@
                   <div id="link-tienda"></div>
                   <form id="form-tienda" class="mt-4">
                     <div class="row">
-                      <div class="form-group col">
+                      <div class="form-group col-md">
                         <label for="nombre-tienda">Nombre de la tienda</label>
+                        <input type="text" class="form-control" name="nombre_tienda"
+                        id="nombre-tienda" maxlength="20" required>
+                      </div>
+                      <div class="form-group col-md">
+                        <label for="url-tienda">URL de la tienda</label>
                         <input type="text" class="form-control" pattern="\w+|\d+"
-                        name="tienda" id="nombre-tienda" maxlength="20" required>
+                        style="text-transform: lowercase;"
+                        name="tienda" id="url-tienda" maxlength="20" required>
+                        <small id="ver-url-tienda"></small>
                         <div class="invalid-feedback">
-                          Nombre de tienda no válido
+                          URL de tienda no válido
                         </div>
                       </div>
                     </div>

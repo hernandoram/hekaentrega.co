@@ -18,10 +18,10 @@
                 <div class="col-lg-8">
                     <form class="form-inline">
                         <div class="form-group">
-                            <label for="inp-search-product" class="sr-only">Search</label>
-                            <input type="search" class="form-control" id="inp-search-product" placeholder="Search...">
+                            <label for="inp-search-product" class="sr-only">Buscar</label>
+                            <input type="search" class="form-control" id="inp-search-product" placeholder="Buscar...">
                         </div>
-                        <div class="form-group mx-sm-3">
+                        <div class="form-group m-sm-2">
                             <label for="categoria-select" class="mr-2">Categorías</label>
                             <select class="custom-select" id="categoria-select">
                                 {{#categorias productos}}
@@ -32,7 +32,7 @@
                     </form>
                 </div>
                 <div class="col-lg-4">
-                    <div class="form-group mx-sm-3">
+                    <div class="form-group">
                         <label for="sort-select" class="mr-2">Organizar por</label>
                         <select class="custom-select" id="sort-select">
                             <option selected="">seleccione</option>
@@ -53,18 +53,19 @@
         <div class="card-box product-box">
 
             <div class="product-action">
-                <a href="javascript: void(0);" class="btn btn-success btn-xs waves-effect waves-light"><i class="mdi mdi-pencil"></i> Ver producto</a>
+                <a href="/producto/{{this.id}}" class="btn btn-success btn-xs waves-effect waves-light"><i class="mdi mdi-pencil"></i> Ver producto</a>
             </div>
 
-            <div class="bg-light d-flex justify-content-center">
+            <a href="/producto/{{this.id}}" 
+            class="bg-light d-flex justify-content-center contenedor-img">
                 <img src="{{this.showImg}}" alt="product-pic" class="img-fluid" />
-            </div>
+            </a>
 
             <div class="product-info">
                 <div class="row align-items-center">
                     <div class="col">
                         <h4 class="font-16 mt-0 sp-line-1">
-                            <a href="/tienda/{{this.nombre_tienda}}/producto/{{this.id}}" 
+                            <a href="/producto/{{this.id}}" 
                             class="text-dark" >{{this.nombre}}</a>
                         </h4>
                         <div class="text-warning mb-2 font-13 d-none d-md-block">
@@ -76,7 +77,7 @@
                         <div class="product-price-tag d-none d-md-block">
                             {{getCurrency this.precio}}
                         </div>
-                        <small class="product-price-tag">
+                        <small class="product-price-tag d-md-none">
                             {{getCurrency this.precio}}
                         </small>
                     </div>

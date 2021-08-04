@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="utf-8" />
-    <title>Probando Template UBold</title>
+    <title>Tiendas - Heka entrega</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
     <meta content="Coderthemes" name="author" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <!-- App favicon -->
-    {{!-- <link rel="shortcut icon" href="../../plantilla/assets/images/favicon.ico"> --}}
+    <link rel="shortcut icon" href="/img/heka entrega.png">
 
     <!-- App css -->
     <link href="/assets/css/bootstrap-modern.min.css" rel="stylesheet" type="text/css" id="bs-default-stylesheet" />
@@ -29,13 +29,40 @@
     
 
 </head>
-  <body class="loading" data-layout-mode="detached" data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": true}, "topbar": {"color": "dark"}, "showRightSidebarOnPageLoad": true}'>
+  <body class="loading" data-layout-mode="detached" data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": true}, "topbar": {"color": "light"}, "showRightSidebarOnPageLoad": true}'>
     <div id="wrapper">
 
       <!-- Topbar Start -->
       <div class="navbar-custom">
           <div class="container-fluid">
               <ul class="list-unstyled topnav-menu float-right mb-0">
+                <li class="d-none d-lg-block">
+                    <form class="app-search">
+                        <div class="app-search-box dropdown">
+                            <div class="input-group">
+                                <input type="search" class="form-control" placeholder="Search..." id="top-search">
+                                <div class="input-group-append">
+                                    <button class="btn" type="submit">
+                                        <i class="fe-search"></i>
+                                    </button>
+                                </div>
+                            </div>  
+                        </div>
+                    </form>
+                </li>
+
+                <li class="dropdown d-none d-lg-inline-block">
+                    <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" data-toggle="fullscreen" href="#">
+                        <i class="fe-maximize noti-icon"></i>
+                    </a>
+                </li>
+
+                <li class="dropdown d-none d-lg-inline-block topbar-dropdown">
+                    <a class="nav-link dropdown-toggle arrow-none waves-effect waves-light" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
+                        <img src="/img/bandera_colombia.png" alt="user-image" height="16">
+                    </a>
+                </li>
+
                 <li class="dropdown notification-list topbar-dropdown">
                   <a class="nav-link dropdown-toggle waves-effect waves-light" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                       <i class="fe-shopping-cart noti-icon"></i>
@@ -64,12 +91,26 @@
 
                   </div>
                 </li>
+
+                <li class="ml-1">
+                    <div class="custom-control custom-switch mt-1">
+                        <input type="radio" class="custom-control-input" name="color-scheme-mode" value="light"
+                            id="light-mode-check" checked />
+                        <label class="custom-control-label" for="light-mode-check">Light Mode</label>
+                    </div>
+
+                    <div class="custom-control custom-switch mt-1">
+                        <input type="radio" class="custom-control-input" name="color-scheme-mode" value="dark"
+                            id="dark-mode-check" />
+                        <label class="custom-control-label" for="dark-mode-check">Dark Mode</label>
+                    </div>
+                </li>
               </ul>
 
               <!-- LOGO -->
               <div class="logo-box">
-                  <a href="/index.html" class="logo text-center">
-                    <img src="/img/heka entrega.png" alt="" height="22">
+                  <a href="/" class="logo text-center">
+                    <img src="/img/heka entrega.png" class="rounded-circle" alt="" height="40">
                   </a>
               </div>
 
@@ -118,23 +159,26 @@
                       class="rounded-circle avatar-md">
                   <div class="dropdown">
                       <a href="javascript: void(0);" class="text-dark font-weight-normal dropdown-toggle h5 mt-2 mb-1 d-block"
-                          data-toggle="dropdown">Nombre tienda</a>
+                          data-toggle="dropdown" data-store_info="nombre_tienda">Nombre tienda</a>
                       <div class="dropdown-menu user-pro-dropdown">
 
                           <!-- item-->
-                          <a href="/tienda/{{session.tienda}}/productos" class="dropdown-item notify-item">
+                          <a href="/" class="dropdown-item notify-item">
                               <i class="fa fa-store mr-1"></i>
                               <span>Productos</span>
                           </a>
 
                           <!-- item-->
-                          <a href="/tienda/carrito" class="dropdown-item notify-item">
+                          <a href="/carrito" class="dropdown-item notify-item">
                               <i class="fa fa-shopping-cart mr-1"></i>
                               <span>Carrito</span>
                           </a>
                       </div>
                   </div>
-                  <p class="text-muted text-truncate mx-2">comentarios agregados de la tienda u alguna descripcion</p>
+                  <p class="text-muted text-truncate mx-2" data-store_info="descripcion">comentarios agregados de la tienda u alguna descripcion</p>
+                  <p class="text-muted mx-2" data-store_info="nombre"></p>
+                  <p class="text-muted mx-2" data-store_info="celular"></p>
+                  <p class="text-muted mx-2" data-store_info="correo"></p>
               </div>
 
               <!--- Sidemenu -->
@@ -154,14 +198,14 @@
                     </li>
 
                     <li>
-                        <a href="/tienda/carrito">
+                        <a href="/carrito">
                             <i data-feather="shopping-cart"></i>
                             <span> Ver carrito </span>
                         </a>
                     </li>
                       
                     <li>
-                        <a href="/tienda/{{session.tienda}}/productos">
+                        <a href="/">
                             <i data-feather="archive"></i>
                             <span> Productos </span>
                         </a>
@@ -184,12 +228,14 @@
         <div class="content">
           <div class="container-fluid">{{{body}}}</div>
         </div>
+
+
         <!-- Footer Start -->
         <footer class="footer">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-md-6">
-                        2018 - <script>document.write(new Date().getFullYear())</script> &copy; <a href="">Heka entrega</a> 
+                        2018 - <script>document.write(new Date().getFullYear())</script> &copy; <a href="/index.html">Heka entrega</a> 
                     </div>
                     <div class="col-md-6">
                         <div class="text-md-right footer-links d-none d-sm-block">
@@ -202,9 +248,10 @@
         <!-- end Footer -->
           
       </div>
+
+
     </div>
     
-
     <!-- Vendor js -->
     <script src="/assets/js/vendor.min.js"></script>
 

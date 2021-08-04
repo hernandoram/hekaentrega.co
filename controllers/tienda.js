@@ -1,8 +1,9 @@
+const vhost = require("vhost");
 const firebase = require("../firebase");
 const db = firebase.firestore();
 
-exports.buscarUsuario = async (req, res, next) => {
-    let nombre_tienda = req.params[0].split("/")[0];
+exports.buscarTienda = async (req, res, next) => {
+    let nombre_tienda = req.vhost.hostname.split(".")[0];
     req.params.nombre_tienda = nombre_tienda;
     console.log(nombre_tienda);
     let id = await db.collection("tiendas").where("tienda", "==", nombre_tienda)
@@ -17,12 +18,13 @@ exports.buscarUsuario = async (req, res, next) => {
 
     req.params.tiendaId = id;
     if (!req.session.tienda) req.session.tienda = req.params.nombre_tienda;
+    if(!id) return res.status(404).render("404", {url: req.vhost.hostname})
 
     next();
 };
 
 exports.obtenerProductos = async (req, res) => {
-    let id = req.params.tiendaId
+    let id = req.params.tiendaId || "";
     let productos = await db.collection("tiendas").doc(id).collection("productos")
     .get().then(querySnapshot => {
         let productos = new Array()
@@ -56,6 +58,8 @@ exports.obtenerProducto = async (req, res) => {
             return data
         }
     });
+    console.log(producto);
+    if(!producto) return res.status(404).render("404", {url: req.url})
 
     res.render("producto", {producto, session: req.session});
 };
@@ -64,6 +68,9 @@ let counter = 0
 exports.probarSession = (req, res) => {
     counter += 1;
     console.log(req)
+    console.log("REVISANDO")
+    console.log(req.vhost);
+    console.log(req.vhost[0]);
     res.render("pruebaSession", {counter})
 }
 
@@ -77,7 +84,7 @@ exports.carritoDeCompra = (req, res) => {
 
 exports.getCarrito = (req, res) => {
     console.log("CARRITO", req.session.carrito);
-    res.json(req.session.carrito);
+    res.json(req.session.carrito || {});
 }
 
 exports.agregarAlCarrito = async (req, res) => {
@@ -163,7 +170,7 @@ exports.agregarAlCarrito = async (req, res) => {
     console.log(req.body.tienda);
     if(!req.session.tienda) req.session.tienda = req.body.tienda;
 
-    res.json({carrito: req.session.carrito, send});
+    res.json({carrito: req.session.carrito, mensaje: send});
 }
 
 exports.quitarDelCarrito = (req,res) => {
@@ -206,13 +213,12 @@ exports.modificarItemCarrito = (req, res) => {
 }
 
 exports.crearGuiaServientrega = async(req, res) => {
-    console.log("Hola")
     let identificador = req.body.identificacionR.toString().slice(-4);
-    identificador = identificador[0] == "0" ? "1-"+identificador : identificador
+    identificador = identificador.replace(/^0/, 1);
     let id = await db.collection("infoHeka").doc("heka_id")
     .get().then(doc => {
         if(doc.exists) {
-            // doc.ref.update({id: firebase.firestore.FieldValue.increment(1)});
+            doc.ref.update({id: firebase.firestore.FieldValue.increment(1)});
             return doc.data().id;
         }
     })
@@ -263,4 +269,9 @@ exports.crearPedido = async (req, res) => {
 exports.vaciarCarrito = (req, res) => {
     req.session.carrito = [];
     res.json(req.session.carrito);
+};
+
+exports.enviarNotificacion = (req,res) => {
+    db.collection("notificaciones").add(req.body);
+    res.send("enviando notificación");
 }

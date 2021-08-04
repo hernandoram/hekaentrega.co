@@ -9,6 +9,18 @@ $("#sort-select").change(organizarProductos);
 $(".vaciar-carrito").click(vaciarCarrito);
 
 let storeInfo;
+let tienda = window.location.hostname.split(".")[0];
+
+const Toast = Swal.mixin({
+    toast: true,
+    position: "bottom-start",
+    showConfirmButton: false,
+    timer: 3000,
+    didOpen: (toast) => {
+        toast.addEventListener('mouseenter', Swal.stopTimer)
+        toast.addEventListener('mouseleave', Swal.resumeTimer)
+    }
+});
 
 function agregarAlCarrito() {
     let atributos = new  Object();
@@ -16,7 +28,7 @@ function agregarAlCarrito() {
         atributos[select.dataset.campo] = select.value
     });
 
-    let tienda = $(this).attr("data-tienda");
+    // let tienda = $(this).attr("data-tienda");
     let storeId = $(this).attr("data-storeId");
     let data = new Object({atributos, tienda, storeId})
     
@@ -24,7 +36,14 @@ function agregarAlCarrito() {
         method: "POST",
         body: JSON.stringify(data),
         headers: {"Content-Type": "application/json"}
-    }).then(d => d.json().then(res => llenarNotificacionCarrito(res.carrito)));
+    }).then(d => d.json().then(res => {
+        llenarNotificacionCarrito(res.carrito);
+        let verMensaje = res.mensaje.split(" ")[0]
+        Toast.fire({
+            icon: verMensaje == "Agregado" ? "success":"warning",
+            title: res.mensaje
+        })
+    }));
 };
 
 function quitarDelCarrito() {
@@ -70,6 +89,8 @@ function modificarItemCarrito(input) {
         $(p).insertAfter(input);
     };
 
+    calcularCostoEnvio();
+
     fetch("/tienda/modificarItemCarrito/"+identificador, {
         method: "POST",
         body: JSON.stringify({cantidad: value}),
@@ -82,6 +103,11 @@ async function getStoreInfo(tienda) {
     .then(async d => {
         return await d.json();
     });
+
+    $("[data-store_info]").each((i,e) => {
+        let campo = e.getAttribute("data-store_info");
+        $(e).text(info[campo]);
+    })
 
     storeInfo = info;
     return info;
@@ -103,40 +129,80 @@ let precios = {
 };
 
 async function getCarrito() {
-    let carrito = await fetch("/tienda/getCarrito")
-    .then(d => d.json());
-
-    console.log(carrito);
-    return carrito;
+    try {
+        let carrito = await fetch("/tienda/getCarrito")
+        .then(d => d.json());
+    
+        console.log(carrito);
+        return carrito;
+    } catch (error){
+        console.log(error);
+    };
 }
 
 async function calcularCostoEnvio() {
     console.log(this);
-    let tienda = $(this).attr("data-tienda");
-    let ciudadR = await getStoreInfo(tienda);
+    // let tienda = $(this).attr("data-tienda");
     let carrito = await getCarrito();
+    if(JSON.stringify(carrito) == "{}") {
+        return Toast.fire({
+            icon: "error",
+            text: "El carrito está vacío."
+        })
+    }
     // let recaudo = parseInt($("#sub-total").text().replace(/\D/, ""));
     let datos_de_cotizacion = {
         precios,
-        ciudadR: ciudadR.ciudadT,
+        ciudadR: storeInfo.ciudadT,
         ciudadD: document.getElementById("ciudadD").dataset
     };
     let costo_envio = 0;
+    let guias = new Array();
+
+    if($(this).attr("id") == "comprar") {
+        $(this).prop("disabled", true);
+        $(this).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> Cargando...');
+    };
 
     for await (let item of carrito) {
-        console.log(item)
         let volumen = item.alto * item.ancho * item.largo * item.cantidad;
         let peso = item.peso * item.cantidad;
         let recaudo = item.precio * item.cantidad
+        console.log(item)
         let cotizador = item.sumar_envio ? 
             sumarCostoDeEnvio(recaudo, "PAGO CONTRAENTREGA", peso, volumen, datos_de_cotizacion) :
             new CalcularCostoDeEnvio(recaudo, "PAGO CONTRAENTREGA", peso, volumen, datos_de_cotizacion);
         costo_envio += cotizador.costoEnvio;
-        if(this.getAttribute("id") == "comprar") await crearGuia(item, cotizador);
+        console.log(cotizador);
+        if($(this).attr("id") == "comprar") {
+            let guia = await crearGuia(item, cotizador);
+            if (guia) {
+                guias.push(guia);
+            }
+        };
     };
 
     $("#costo-envio").text(costo_envio);
     $("#total").text(costo_envio + calcTotal());
+    $(this).html('<i class="mdi mdi-truck-fast mr-1"></i> Comprar');
+    $(this).removeAttr("disabled");
+    if($(this).attr("id") == "comprar" && !guias.length) {
+        Swal.close();
+        Toast.fire({
+            icon: "error",
+            text: "Por favor revise los datos ingresados."
+        })
+    } else if (guias.length) {
+        enviarNotificacion(guias);
+        Swal.fire({
+            icon: "success",
+            title: "¡Pedido realizado exitosamente!",
+            text: "Se recomienda confirmar su pedido a través de WhatsApp, por medio de la siguiente ventana emergente."
+        }).then(() =>{
+            enviarWhatsappRemitente(guias);
+            vaciarCarrito();
+        });
+    };
     return cotizador;
 };
 
@@ -158,7 +224,9 @@ async function crearGuia(item, cotizador) {
         nuevaGuia[city + "D"] = infoDestino[city];
         nuevaGuia[city + "R"] = storeInfo.ciudadT[city];
     })
-    camposItem.forEach(c => nuevaGuia[c] = item[c]);
+    camposItem.forEach(c => {
+        nuevaGuia[c] = typeof item[c] == "number" ? item[c] * item.cantidad : item[c];
+    });
     camposTienda.forEach(c => nuevaGuia[c+"R"] = storeInfo[c]);
     nuevaGuia.id_user = storeInfo.id_user
     item.id_user = storeInfo.id_user;
@@ -184,7 +252,7 @@ async function crearGuia(item, cotizador) {
     nuevaGuia.dice_contener = item.nombre;
     nuevaGuia.identificacionR = storeInfo.numero_documento;
     nuevaGuia.valor = cotizador.valor;
-    nuevaGuia.type = "PAGO CONTRAENTREGA"
+    nuevaGuia.type = "PAGO CONTRAENTREGA";
     nuevaGuia.recoleccion_esporadica = 1;
     nuevaGuia.id_producto = item.id_producto;
 
@@ -199,33 +267,40 @@ async function crearGuia(item, cotizador) {
     console.log(guiaCreada);
     
     item.id = guiaCreada.id_pedido;
-    await crearPedido(item);
+    let pedido = await crearPedido(item);
+    let orden = Object.assign({}, pedido, guiaCreada);
+    return orden;
     // return pr;
 };
 
 function revisarCampos() {
     let vacios = 0;
     $(".mensaje-error").remove();
+
     $("[required]").each((i,e) => {
-        $(e).removeClass("border-danger");
-        if(!$(e).val()) {
+        $(e).removeClass("is-invalid");
+        if(!$(e)[0].checkValidity()) {
+            console.log(e);
+            $(e).addClass("is-invalid")
             vacios++
-            $(e).addClass("border-danger");
-            $(e).after("<p class='text-danger text-center mensaje-error'>Este campo no debe estar vacío</p>");
-            if(vacios == 1) {
-                $(e).parent()[0].scrollIntoView({behavior: "smooth"});
-            }
         }
+    });
+
+    let inpTelefonos = ["billing-phone", "billing-phone2"];
+    inpTelefonos.forEach(t => {
+        $("#"+t).removeClass("is-invalid")
+        if ($("#"+t).val().length > 10) {
+            $("#"+t).addClass("is-invalid");
+            return true
+        };
     });
     if(vacios) return true
     let ciudad = $("#ciudadD")[0].dataset;
     if(Object.entries(ciudad).length <= 1) {
-        $("#ciudadD").addClass("border-danger");
-        $("#ciudadD").after("<p class='text-danger text-center mensaje-error'>Por favor asegurese de seleccionar del desplegable</p>");
-        $("#ciudadD").parent()[0].scrollIntoView({behavior: "smooth"});
+        $("#ciudadD").addClass("is-invalid");
         return true;
     };
-    return true;
+    return false;
 }
 
 async function crearPedido(item) {
@@ -234,6 +309,67 @@ async function crearPedido(item) {
         body: JSON.stringify(item),
         headers: {"Content-Type": "application/json"}
     }).then(d => d.json())
+};
+
+function enviarWhatsappRemitente(arrData) {
+    let mensaje = "Hola, vengo de la tienda en Heka Entrega %0A"
+    mensaje+= "*Mi nombre es:* " + arrData[0].nombreD + "%0A";
+    mensaje+= "*Ciudad y departamento:* " + arrData[0].ciudadD + ", " + arrData[0].departamentoD + "%0A";
+    mensaje+= "*Dirección:* " + arrData[0].direccionD + "%0A";
+    mensaje+= "*Números de contacto:* ";
+    mensaje += arrData[0].telefonoD == arrData[0].celularD ?
+        arrData[0].telefonoD : arrData[0].telefonoD +", "+ arrData[0].celularD;
+    
+    let identificadores = arrData.reduce((a,b,i) => {
+        console.log(a);
+        console.log(b.id_heka);
+        console.log("index", i);
+        return a + "%0A-" + b.id_heka;
+    }, "");
+    
+    mensaje += "%0A%0AMi pedido ha sido realizado con los Nº:" + identificadores;
+    if(arrData[0].observaciones) mensaje += "%0A%0ANota adicional: " + arrData[0].observaciones;
+
+    console.log(arrData);
+    console.log(mensaje);
+    window.open("https://api.whatsapp.com/send?phone=+57" +arrData[0].celularR+ "&text="+mensaje, "_blank");
+};
+
+function enviarNotificacion(arrData) {
+    let fecha = new Date(),
+        year = fecha.getFullYear(),
+        mes = estandarizar(parseInt(fecha.getMonth()) + 1),
+        dia = estandarizar(fecha.getDay()),
+        hora = estandarizar(fecha.getHours()),
+        minutos = estandarizar(fecha.getMinutes());
+
+    function estandarizar(n) {
+        return n < 10 ? "0"+n : n;
+    };
+
+    fecha = dia + "/" + mes + "/" + year + " - " + hora + ":" + minutos;
+
+    let detalles = new Array();
+    let guiasPlural = arrData.length > 1 ? "las guías: " : "la guía: ";
+    let mensaje = arrData.reduce((a,b,i) => {
+        let divisor = i == arrData.length - 1 ? "." : ", ";
+        detalles.push(b.id_heka);
+        return a + b.id_heka + divisor;
+    }, "Ha sido generado un pedido desde latienda con " + guiasPlural);
+
+    let dataToSend = {
+        icon: ["store", "primary"],
+        timeline: new Date().getTime(),
+        visible_user: true, fecha,
+        user_id: arrData[0].id_user,
+        mensaje, detalles
+    };
+
+    fetch("/tienda/enviarNotificacion", {
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(dataToSend),
+        method: "POST"
+    });
 };
 
 function filtrarProductoPorNombre() {
@@ -246,7 +382,7 @@ function filtrarProductoPorNombre() {
         let filtrado = $(e).attr("data-filter-name").toLowerCase();
         if(!filtrado.includes(filtro)) $(e).addClass("d-none");
     }); 
-}
+};
 
 function filtrarProductoPorCategoria() {
     let filtro = this.value;
@@ -296,7 +432,7 @@ function llenarNotificacionCarrito(carrito) {
             atributos += `<small class="mr-2"><b>${attr}:</b> ${item.atributos[attr]} </small>`; 
         }
 
-        notificacion.innerHTML += `<a href="/tienda/${item.tienda}/producto/${item.id_producto}" class="dropdown-item notify-item">
+        notificacion.innerHTML += `<a href="/producto/${item.id_producto}" class="dropdown-item notify-item">
             <div class="notify-icon">
                 <img src="${item.imagesUrl ? item.imagesUrl.url : "/img/heka entrega.png"}" class="img-fluid rounded-circle" alt="" /> </div>
             <p class="notify-details">${item.nombre}</p>
@@ -306,7 +442,7 @@ function llenarNotificacionCarrito(carrito) {
         </a>`;
 
         menu.innerHTML += `<li>
-            <a href="/tienda/${item.tienda}/producto/${item.id_producto}">
+            <a href="/producto/${item.id_producto}">
                 <span> ${item.nombre} <small>(${item.detalles.cod})</small> </span>
             </a>
         </li>`;
@@ -330,9 +466,19 @@ function vaciarCarrito() {
 
 
 $(document).ready(function() {
+    getStoreInfo(tienda);
     fetch("/tienda/carrito?json=true")
     .then(res => {
         console.log(res);
         res.json().then(d => llenarNotificacionCarrito(d));
-    })
+    });
+    
+    $(".contenedor-img").each((i,e) => {
+        let w = $(e).css("width");
+        console.log(w);
+        $(e).css("height", w);
+    });
 });
+
+
+console.log(window);
