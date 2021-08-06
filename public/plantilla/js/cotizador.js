@@ -1,5 +1,8 @@
 let datos_de_cotizacion,
-    datos_a_enviar = new Object({});
+    datos_a_enviar = new Object({}),
+    obsTransportadora = {
+        "SERVIENTREGA": observacionesServientrega
+    };
 // Esta funcion verifica que los campos en el form esten llenados correctamente
 async function cotizador(){
     let ciudadR = document.getElementById("ciudadR"),
@@ -120,62 +123,11 @@ async function cotizador(){
     }
 
 
-}
-
-function seleccionarTransportadora(e) {
-    if (e.target.classList.contains("detalles")) return
-    let transp = this.getAttribute("data-transp");
-    let result_cotizacion = datos_de_cotizacion[transp];
-    Swal.fire({
-        icon: 'info',
-        title: 'Tener en cuenta con ' + transp,
-        html: observacionesServientrega(result_cotizacion),
-        width: "50em",
-        customClass: {
-            cancelButton: "btn btn-secondary m-2",
-            confirmButton: "btn btn-primary m-2",
-        },
-        showCancelButton: true,
-        showCloseButton: true,
-        cancelButtonText: "Cancelar",
-        confirmButtonText: "Continuar",
-        buttonsStyling: false,
-    }).then((result) => {
-        console.log(result);
-        if (result.isConfirmed) {
-            datos_a_enviar.peso = Math.max(3, result_cotizacion.kg);
-            datos_a_enviar.costo_envio = result_cotizacion.costoEnvio;
-            datos_a_enviar.valor = result_cotizacion.valor;
-            datos_a_enviar.seguro = result_cotizacion.seguro;
-            datos_a_enviar.type = result_cotizacion.type;
-        
-            if(document.getElementById("cotizar_envio").getAttribute("data-index")){
-                location.href = "iniciarSesion2.html";
-            }else if(!datos_a_enviar.debe && !precios_personalizados.actv_credit &&
-                datos_a_enviar.costo_envio > precios_personalizados.saldo) {
-                Swal.fire("¡No permitido!", `Lo sentimos, en este momento, el costo de envío excede el saldo
-                que tienes actualmente, por lo tanto este metodo de envío no estará 
-                permitido hasta que recargues tu saldo. Puedes comunicarte con la asesoría logística para conocer los pasos
-                a seguir para recargar tu saldo.`)
-                boton_continuar = crearNodo(`<div class="d-flex justify-content-center text-danger mt-3">
-                    <p></p>
-                    <p>Puedes comunicarte con la asesoría logística para conocer los pasos
-                    a seguir para recargar tu saldo.</p>
-                </div>`)
-            } else {
-                finalizarCotizacion(datos_de_cotizacion)
-            }
-
-        }
-    })
-
-    //Detalles del costo de Envío
-    datos_a_enviar.detalles = result_cotizacion.getDetails;
-    console.log(datos_a_enviar);
-}
-
+};
 
 async function pagoContraentrega() {
+    //le muestra al usuario las opciones del pago contraentrega y 
+    // devuelve un objeto conciertas opciones a implementar al cotizador
     let recaudo = await Swal.fire({
         title: '<strong>Valor de Recaudo</strong>',
         icon: 'info',
@@ -202,21 +154,28 @@ async function pagoContraentrega() {
         },
         confirmButtonAriaLabel: 'continuar',
         preConfirm: () => {
+            //Antes de continuar, utiliza un validador
             let valor_recaudo = value("valor-recaudo");
             let cotizacion = new CalcularCostoDeEnvio(parseInt(valor_recaudo));
             let sumar_envio= $("#sumar-envio-cotizador").prop("checked");
             let restar_saldo = $("#restar-saldo-cotizador").prop("checked");
         
+            //Si el usuario accede a sumar el envío, se calcula cual debería
+            //ser el valor de recaudo, para que se sume el costo del envío
             if(sumar_envio){
                 cotizacion = sumarCostoDeEnvio(parseInt(valor_recaudo))
             }
     
+            /* si el usuario desea restar el saldo, la variable de la guia 
+            "debe" pasa a ser false, ya que el usuario habrá pagado envío previamente */
             if(restar_saldo) {
                 datos_a_enviar.debe = false;
             } else {
                 datos_a_enviar.debe = -cotizacion.costoEnvio
             }
 
+            /*Verifica que haya valor en el recaudo, que no supere los límites ingresados
+            Y que no sea menor al costo del envío*/
             if(!valor_recaudo) {
                 Swal.showValidationMessage(
                     `¡Recuerde ingresar un valor!`
@@ -225,7 +184,9 @@ async function pagoContraentrega() {
                 Swal.showValidationMessage("El valor no puede ser menor a $5.000 ni menor a $2.000.000")
             } else if (cotizacion.seguro < cotizacion.costoEnvio) {
                 Swal.showValidationMessage("El valor del recaudo no debe ser menor al costo del envío ($" + convertirMiles(cotizacion.costoEnvio) +")");
-            }
+            };
+
+            //me devuelve la clase del cotizador
             return cotizacion;
         }
     }).then(result => {
@@ -238,6 +199,8 @@ async function pagoContraentrega() {
 // me devuelve el resultado de cada formulario al hacer una cotizacion
 async function response(datos) {
     let result_cotizacion, act_btn_continuar = true;
+    
+    //Primero le consulta al usuario por el tipo de envío
     let type = await Swal.fire({
         title: '¿Qué tipo de envío deseas realizar?',
         icon: 'question',
@@ -255,9 +218,11 @@ async function response(datos) {
         }
     });
 
+    //si no selecciona ninguno, no devuelve nada
     if(!type) {
         return ""
     }if(type == "PAGO CONTRAENTREGA") {
+        // Para esta selección activa un nuevo modal que me devuleve los datos de cotización
         let resp_usuario = await pagoContraentrega();
         result_cotizacion = resp_usuario.value;
         if(!resp_usuario) {
@@ -265,20 +230,22 @@ async function response(datos) {
         }
         
     } else {
+        // de resto calcula el costo del envío directamente con el seguro de mercancía o valor declarado
         result_cotizacion = new CalcularCostoDeEnvio(value("seguro-mercancia"), type);
         datos_a_enviar.debe = false;
     }
 
 
+    //Lleno algunos campos de los datos de cotizacióm
     datos_de_cotizacion.peso = Math.max(3, result_cotizacion.kg);
     datos_de_cotizacion.costo_envio = result_cotizacion.costoEnvio;
     datos_de_cotizacion.valor = result_cotizacion.valor;
     datos_de_cotizacion.seguro = result_cotizacion.seguro;
     datos_de_cotizacion.type = type;
-    
 
     let htmlTransportadoras = detallesTransportadoras(datos_de_cotizacion)
 
+    //Creo un html con los detalles de la consulta y las transportadoras involucradas
     let div_principal = document.createElement("DIV"),
         crearNodo = str => new DOMParser().parseFromString(str, "text/html").body,
         boton_regresar = crearNodo(`<a class="btn btn-outline-primary mb-2" href="#cotizar_envio" onclick="regresar()">
@@ -313,6 +280,7 @@ async function response(datos) {
     return  div_principal.innerHTML
 };
 
+//Para llenar los diversos precios de las transportadoras que funcionarán con el cotizador
 function detallesTransportadoras(data) {
     let transportadoras = [{
         nombre: "SERVIENTREGA",
@@ -321,6 +289,7 @@ function detallesTransportadoras(data) {
     }];
     let encabezados = "", detalles = "";
 
+    //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
     transportadoras.forEach((transportadora, i) => {
         let cotizacion = new CalcularCostoDeEnvio(data.seguro, data.type);
         datos_de_cotizacion[transportadora.nombre] = cotizacion;
@@ -374,9 +343,69 @@ function detallesTransportadoras(data) {
         </div>`;
     });
 
+    /* Devuelve el html en dos manera, con la lista, y con los detalles particulares */
     return [encabezados, detalles];
 }
 
+//Selecciona la transportadora a utilizar
+function seleccionarTransportadora(e) {
+    if (e.target.classList.contains("detalles")) return
+    let transp = this.getAttribute("data-transp");
+    let result_cotizacion = datos_de_cotizacion[transp];
+
+    //Muestra algún dato relevante en un modal
+    Swal.fire({
+        icon: 'info',
+        title: 'Tener en cuenta con ' + transp,
+        html: obsTransportadora[transp](result_cotizacion),
+        width: "50em",
+        customClass: {
+            cancelButton: "btn btn-secondary m-2",
+            confirmButton: "btn btn-primary m-2",
+        },
+        showCancelButton: true,
+        showCloseButton: true,
+        cancelButtonText: "Cancelar",
+        confirmButtonText: "Continuar",
+        buttonsStyling: false,
+    }).then((result) => {
+        console.log(result);
+        //continúa si el cliente termina seleccionando la transportadora
+        if (result.isConfirmed) {
+            datos_a_enviar.peso = Math.max(3, result_cotizacion.kg);
+            datos_a_enviar.costo_envio = result_cotizacion.costoEnvio;
+            datos_a_enviar.valor = result_cotizacion.valor;
+            datos_a_enviar.seguro = result_cotizacion.seguro;
+            datos_a_enviar.type = result_cotizacion.type;
+        
+            if(document.getElementById("cotizar_envio").getAttribute("data-index")){
+                location.href = "iniciarSesion2.html";
+            }else if(!datos_a_enviar.debe && !precios_personalizados.actv_credit &&
+                datos_a_enviar.costo_envio > precios_personalizados.saldo) {
+                /* Si el usuario no tiene el crédito activo, la guía que quiere crear
+                muestra que debe saldo y se verifica que el costo del envío excede el saldo
+                Arroja la excepción*/
+                Swal.fire("¡No permitido!", `Lo sentimos, en este momento, el costo de envío excede el saldo
+                que tienes actualmente, por lo tanto este metodo de envío no estará 
+                permitido hasta que recargues tu saldo. Puedes comunicarte con la asesoría logística para conocer los pasos
+                a seguir para recargar tu saldo.`)
+                // boton_continuar = new DOMParser().parseFromString(`<div class="d-flex justify-content-center text-danger mt-3">
+                //     <p></p>
+                //     <p>Puedes comunicarte con la asesoría logística para conocer los pasos
+                //     a seguir para recargar tu saldo.</p>
+                // </div>, "text/html`).body
+            } else {
+                finalizarCotizacion(datos_de_cotizacion)
+            }
+        }
+    })
+
+    //Detalles del costo de Envío
+    datos_a_enviar.detalles = result_cotizacion.getDetails;
+    console.log(datos_a_enviar);
+};
+
+//Me devuelveun html con los detalles de la cotización que ya están implícitos en los datos ingresados
 function detalles_cotizacion(datos) {
     return new DOMParser().parseFromString(`
         <div class="mb-4">
@@ -427,13 +456,12 @@ function detalles_cotizacion(datos) {
         `, "text/html").body;
 }
 
+//M edevuelve el html del último formulario del cotizador
 function finalizarCotizacion(datos) {
     let div_principal = document.createElement("DIV"),
         crearNodo = str => new DOMParser().parseFromString(str, "text/html").body;
 
     let creador = document.getElementById("crear_guia");
-    
-
 
     let detalles = detalles_cotizacion(datos),
         boton_regresar = crearNodo(`<a class="btn btn-outline-primary btn-block mb-3" href="#cotizar_envio" onclick="regresar()">
@@ -559,7 +587,7 @@ function finalizarCotizacion(datos) {
 function regresar() {
     document.getElementById("result_cotizacion").style.display = "none";
     location.href = "#cotizar_envio"
-}
+};
 
 // Verifica que el trayecto sea especial, nacional, o urbano
 function revisarTrayecto(){
@@ -576,11 +604,16 @@ function revisarTrayecto(){
             return "Nacional";
         }
     }
-}
+};
 
+//Algoritmo que suma el costo del envío al recaudo, para que el envío sea cubierto por el usuario final
 function sumarCostoDeEnvio(valor, type, kg, volumen, extraData) {
+    //Inicializo la clase que me devuelve un constructor
     let constructor = new CalcularCostoDeEnvio(valor, type, kg, volumen, extraData);
     let counter = 0
+    /* Mientras que el valor ingresado se mayor al valor devuelto por el contructor
+    menos el costo del envío ingresa al bucle que le suma al valor ingresado el costo 
+    del envío impuesto por el viejo contructor, para así sustituir el constructor*/
     while(valor > constructor.valor - constructor.costoEnvio) {
         counter ++;
         console.log("\n *** Estamos en bucle fase " + counter)
@@ -588,6 +621,7 @@ function sumarCostoDeEnvio(valor, type, kg, volumen, extraData) {
         constructor = new CalcularCostoDeEnvio(valor + constructor.costoEnvio, type, kg, volumen, extraData);
     }
 
+    //cuando finaliza el bucle, me devuelve el contructor final de la iteración
     return constructor
 };
 
@@ -608,6 +642,7 @@ class CalcularCostoDeEnvio {
         this.sobreflete_heka = Math.ceil(valor * ( type == "CONVENCIONAL" ? 1 : this.precios.comision_heka) / 100);
     }
 
+    //Devuelve el paso generado del volumen, debido al factor dec conversión
     get pesoVolumen(){
         let peso_con_volumen = this.volumen * this.factor_de_conversion / 100;
         peso_con_volumen = Math.ceil(Math.floor(peso_con_volumen * 10) / 10);
@@ -615,6 +650,7 @@ class CalcularCostoDeEnvio {
         return peso_con_volumen
     }
     
+    //revisa entre el peso del volumen i el paso igresado cual es el mayor para devolverlo
     get kgTomado(){
         if(this.kg < 3){
             this.kg = 3;
@@ -670,6 +706,7 @@ class CalcularCostoDeEnvio {
         };
     }
 
+    //según sea el trayecto devuelve entre los valores ingresados al primero que coincida
     revisadorInterno(especial, nacional, urbano){
         let c_destino = this.data ? this.data.ciudadD : "";
         let c_origen = this.data ? this.data.ciudadR : "";
@@ -686,6 +723,7 @@ class CalcularCostoDeEnvio {
         }
     }
 
+    // revisa las opciones de la ciudad de destino y origen para devolverme el tipo de trayecto
     revisarTrayecto(origen, destino){
         let c_origen = origen || document.getElementById('ciudadR').dataset;
         let c_destino = destino || document.getElementById('ciudadD').dataset;
@@ -786,6 +824,7 @@ function crearGuiasServientrega() {
 function enviar_firestore(datos){
     //tome los últimos 4 digitos del documento para crear el id
     let id_heka = datos_usuario.numero_documento.slice(-4);
+    id_heka = id_heka.replace(/^0/, 1);
     let firestore = firebase.firestore();
     if(!datos.debe && !precios_personalizados.actv_credit &&
         datos.costo_envio > precios_personalizados.saldo) {
@@ -844,6 +883,7 @@ function enviar_firestore(datos){
                         } else {
                             return {numeroGuia: 0, error: resGuia.error}
                         }
+                        //Procuro devolver un objeto con el número de guía y el respectivo mensaje de erro si lo tiene
                     })
                     console.log(respuesta);
                 
@@ -886,14 +926,20 @@ function enviar_firestore(datos){
                     user_id: localStorage.user_id,
                     guia: id,
                     medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id
-                }
+                };
 
+                //***si se descuenta del saldo***
                 if(!datos.debe){
                     saldo_detallado.saldo = saldo - datos.costo_envio;
                     saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
+                    
                     let factor_diferencial = parseInt(doc.data().limit_credit) + parseInt(saldo);
                     console.log(saldo_detallado);
-
+                    
+                    /* creo un factor diferencial que sume el limite de credito del usuario
+                    (si posee alguno) más el saldo actual para asegurarme que 
+                    este por encima de cero y por debajo del costo de envío, 
+                    en caso de que no se cumpla, se envía una notificación a administración del exceso de gastos*/
                     if(factor_diferencial <= datos.costo_envio && factor_diferencial > 0) {
                         notificarExcesoDeGasto();
                     }
@@ -931,7 +977,7 @@ function enviar_firestore(datos){
             console.log("revisa que paso, algo salio mal => ", err);
         })
     })
-}
+};
 
 function notificarExcesoDeGasto() {
     enviarNotificacion({
@@ -944,8 +990,9 @@ function notificarExcesoDeGasto() {
         user_id,
         href: "deudas"
     })
-}
+};
 
+//función que utiliza el webservice para crear las guías de manera automática
 async function generarGuiaServientrega(datos) {
     let res = await fetch("/servientrega/crearGuia", {
         method: "POST",
@@ -954,23 +1001,28 @@ async function generarGuiaServientrega(datos) {
     })
     .then(res => res.json())
     .then(data => {
+        //Devuelve un xml en string, que necestito convetir al formato correspondiente
         let parser = new DOMParser();
         data = parser.parseFromString(data, "application/xml");
         console.log(data);
         console.log("se recibió respuesta");
         let retorno = new Object({});
+
+        //Se verifica que la respuesta no muestre error de sintaxis
         if(data.querySelector("parsererror")) {
             retorno.numeroGuia = 0;
             retorno.error = "Alguno de los carácteres ingresados no está permitido"
             return retorno;
         }
 
+        //También verifica otros tipos de errores devueltos por el xml
         if(data.querySelector("Text")) {
             retorno.numeroGuia = 0;
             retorno.error = data.querySelector("Text").textContent
             return retorno;
         }
 
+        //si el resultado el es positivo me devuelve un objeto con el numero de guía
         if(data.querySelector("CargueMasivoExternoResult").textContent === "true") {
             retorno = {
                 numeroGuia: data.querySelector("Num_Guia").textContent,
@@ -980,6 +1032,7 @@ async function generarGuiaServientrega(datos) {
                 prueba: datos.centro_de_costo == "SellerNuevo" ? true : false
             }
         } else {
+            //En caso contrario retorna el error devuelto por el webservice
             retorno = {
                 numeroGuia: 0,
                 error: data.querySelector("arrayGuias").children[0].textContent + "\""
@@ -991,7 +1044,7 @@ async function generarGuiaServientrega(datos) {
     .catch(err => console.log("Hubo un error: ", err))
 
     return res;
-}
+};
 
 function convertirMiles(n){
     let entero = Math.floor(n);
@@ -1027,39 +1080,4 @@ function observacionesServientrega(result_cotizacion) {
     }
 
     return ul;
-    let servientrega = crearNodo(`<div class="card card-shadow m-6">
-            <div class="card-header py-3 bg-primary">
-                <div class="d-flex justify-content-center"><img style="max-width: 300px" class="w-100" src="img/transportadoras-logotipo.png"/></div>
-            </div>
-            <div class="card-body row">
-                <div class="col mb-3">
-                    <h5>Tipo de Trayecto: <span>${datos.trayecto}</span></h5>
-                    <h5>Tiempo de trayecto: <span>${datos.tiempo} días</span></h5>
-                    <h5>Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span></h5>
-                    <h5>Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span></h5>
-                    <h5 class="mt-3 text-danger">En caso de devolución pagas solo el envío ida: $${convertirMiles(result_cotizacion.costoEnvio)}</h5>
-                </div>
-                <div class="col-12 col-md-7 mb-3 mb-sm-0">
-                    <ul class="list-group">
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Valor flete
-                        <span class="badge badge-secondary badge-pill">$${convertirMiles(result_cotizacion.flete)}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Comisión Transportadora
-                        <span class="badge badge-secondary badge-pill">$${convertirMiles(result_cotizacion.sobreflete)}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Seguro Mercancía
-                        <span class="badge badge-secondary badge-pill">$${convertirMiles(result_cotizacion.sobreflete_heka)}</span>
-                        </li>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                        Costo Total de Envío
-                        <span class="badge badge-primary badge-pill text-lg">$${convertirMiles(result_cotizacion.costoEnvio)}</span>
-                        </li>
-                    </ul>
-                    </div>
-                
-            </div>
-        </div>`)
-}
+};

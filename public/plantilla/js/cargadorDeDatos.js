@@ -753,17 +753,21 @@ function mostrarPagosUsuario(data) {
         { data: "TOTAL A PAGAR", title: "Total a Pagar"},
         { data: "momento", title: "Momento", visible: false}
     ],
+    //Es importante organizarlo por fecha de manera específica, para poder segmentarlo
     order: [[6, "asc"]],
     fixedHeader: {footer:true},
     "drawCallback": function ( settings ) {
+      //Me realiza una sumatoria de todos los elementos de una columna y los coloca en un footer
         let api = this.api();
 
         var rows = api.rows( {page:'current'} ).nodes();
         var last=null;
 
+        //función del Datatable que me coloca una fila completa para segmentarlo por fecha
         api.column(2, {page:'current'} ).data().each( function ( group, i ) {
             if ( last !== group ) {
                 $(rows).eq( i ).before(
+                  //Ingresa la siguiente fila antes de cada grupo para que el usuario identifique el segmento en el que se encuentra
                     '<tr class="group text-center"><td colspan="6">Pagos Realizados el '+group+'</td></tr>'
                 );
 
@@ -771,24 +775,20 @@ function mostrarPagosUsuario(data) {
             }
         } );
 
-        let intVal = function(i) {
-            return typeof i === 'string' ?
-            i.replace(/[\$.]/g, '')*1 :
-            typeof i === 'number' ?
-                i : 0;
-        }
-
+        //la sumatoria de la columna cinco en toda la consulta
         total = api.column(5).data()
         .reduce((a,b) => {
             return parseInt(a) + parseInt(b)
         }, 0);
 
+        //La sumatoria de la columna cinco en la página actual
         pageTotal = api.column(5, {page: "current"})
         .data().reduce((a,b) => {
             return parseInt(a) + parseInt(b);
         }, 0);
 
         console.log(pageTotal)
+        //Finalmente muestro los totales en el footer
         $(this).children("tfoot").html(`
         <tr>
             <td colspan="4"></td>
@@ -800,8 +800,11 @@ function mostrarPagosUsuario(data) {
         )
     },
     initComplete: function () {
+      //a lfinalizar la carga de datos, filtro las fechas para llenar un select
       let column = this.api().column(2)
       let totales = this.api().column(5).nodes();
+
+      //me aseguro de agegar el select en un nodo vacío para que no se dupliquen por cada consulta
       let select = $('<select class="form-control mb-3"><option value="">Seleccione fecha</option></select>')
           .appendTo( $("#filtrar-fecha-visor-pagos").empty())
           .on( 'change', function () {
@@ -809,19 +812,25 @@ function mostrarPagosUsuario(data) {
                 $(this).val()
               );
 
+              //realiza una busqueda en la columna especificada anteriormente para aquellos valores que coincidad
+              // y me reescribe la tabla con los tados filtrados
               column
                 .search( val ? '^'+val+'$' : '', true, false )
                 .draw();
           } );
 
       column.data().unique().each( function ( d, j ) {
+        //Toma aquellas fechas diferentes de la anterios y me crea un option por cada una
+        
+        //reviso todos los totales correspondientes a la fecha filtrada para agregarle también el total
         let sum = 0;
         $(totales).parent().each(function (){
           if($(this).children(":eq(2)").text() == d) {
             sum += parseInt($(this).children(":eq(5)").text());
           }
-        })
+        });
 
+        //finalmente agrega el option para pder filtrar por fecha
         select.append( '<option value="'+d+'">'+d+ ' - Total pagado: $'+convertirMiles(sum)+'</option>' )
       } );
 
@@ -831,6 +840,7 @@ function mostrarPagosUsuario(data) {
   })
 }
 
+//Una función para que la generación de guías sea a través del webservice
 $("#switch-guias_automaticas").click(function() {
   let check = $(this).prop("checked")
   usuarioDoc.update({

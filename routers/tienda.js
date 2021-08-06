@@ -30,8 +30,6 @@ router.get("/producto/:productId", tiendaCtrl.buscarTienda, tiendaCtrl.obtenerPr
 
 router.get("/carrito", tiendaCtrl.carritoDeCompra);
 
-router.get("/prueba", tiendaCtrl.probarSession);
-
 router.post("/agregarAlCarrito/:id", tiendaCtrl.agregarAlCarrito);
 
 router.get("/quitarDelCarrito/:external", tiendaCtrl.quitarDelCarrito);
@@ -51,22 +49,24 @@ router.get("/vaciarCarrito", tiendaCtrl.vaciarCarrito);
 router.post("/enviarNotificacion", tiendaCtrl.enviarNotificacion);
 
 Handlebars.registerHelper("listar_atributos", function(context, options) {
-    let atributos = new Object()
-    console.log(context);
-    console.log(options);
+    //Este ayudante de handlebars me lista todos los atributos existentes el listas de select
+    let atributos = new Object();
+
     context.forEach((variante, i) => {
+        //Itero cada variante del contexto, para luego revisar cada campo
         for (let campo in variante) {
-            console.log(40,typeof variante[campo]);
             if(typeof variante[campo] == "object") continue;
+            //Si no existe en la lista de atributos, lo crea, en caso contrario agrega el atributo al campo que corresponda
             if(!atributos[campo]) {
                 atributos[campo] = [variante[campo]]
             } else if(atributos[campo].indexOf(variante[campo]) == -1){
                 atributos[campo].push(variante[campo])
             }
         }
-    })
+    });
     
     let res = '<form class="form-inline mb-4">'
+    //Luego itera entre todos los campos de atributos para crear el selecto crrespondiente de la lista de posibilidades
     for(let campo in atributos) {
         res += '<label class="my-1 mr-2" for="'+campo+'input">' + campo + '</label>';
         res += '<select data-campo="'+campo+'" class="custom-select my-1 mr-sm-3" id="'+campo+'input">'
@@ -80,10 +80,12 @@ Handlebars.registerHelper("listar_atributos", function(context, options) {
 });
 
 Handlebars.registerHelper("calcular_precio", function(context) {
+    //devuelve el precio ingresado por la cantidad
     return context.cantidad * context.precio;
 });
 
 Handlebars.registerHelper("calcTotal", carrito => {
+    //devuelve el computo del valor neto de cada item
     let total = 0;
     console.log(carrito)
     for(let it of carrito) {
@@ -94,6 +96,7 @@ Handlebars.registerHelper("calcTotal", carrito => {
 });
 
 Handlebars.registerHelper("categorias", (context, options) => {
+    //Me devuelve un html de opciones del total de característica de productos existente en la tienda
    let res = "<option value=''>Seleccionar Todas</option>";
    let categorias = new Array();
    context.forEach(item => {

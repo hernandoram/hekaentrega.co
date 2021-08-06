@@ -49,19 +49,19 @@ $("#check-select-all-guias").change((e) => {
         }
     }
 
-})
+});
 
-/* Referencia de funciones utilizadas en este Script
- * MostrarDocumentos(), genFecha() ===> render.js
- */
-
+//función utilizada por el usuario para crear lo documentos
 function crearDocumentos() {
-   
     let checks = document.getElementById("tabla-guias").querySelectorAll("input");
     let guias = [], id_user = localStorage.user_id, arrGuias = new Array();
+    //Primero revisa todos los checks de las guias
     for(let check of checks){
+        //toma todo check activo y que no esté desactivado
         if(check.checked && !check.disabled){
             guias.push(check.getAttribute("data-id"));
+
+            //Luego llena el arreglo de guias que serán creadas
             arrGuias.push({
                 numeroGuia: check.getAttribute("data-numeroGuia"),
                 id_heka:  check.getAttribute("data-id"),
@@ -70,16 +70,19 @@ function crearDocumentos() {
                 type: check.getAttribute("data-type")
             });
 
+            //Verifica que todas las guias crrespondan al mismo tipo
             let tipos_diferentes = arrGuias.some((v, i, arr) => {
                 return v.type != arr[i? i - 1 :i].type
             });
 
+            //Si no corresponden, arroja una excepción
             if(tipos_diferentes) {
                 return avisar("!error!", "No se pudo procesar la información, los tipos de guías seleccionados no coinciden.", "advertencia");
             }
         }
     }
 
+    //Luego deshabilita todos los check y los deselecciona, al igual que todos los botones que estan dentro
     checks.forEach((check, i) => {
         if(check.checked && !check.disabled){
             check.checked = false;
@@ -103,9 +106,10 @@ function crearDocumentos() {
             allowEnterKey: false,
             showConfirmButton: false,
             allowEscapeKey: true
-        })
+        });
         document.getElementById("enviar-documentos").setAttribute("disabled", "true");
         let documentReference = firebase.firestore().collection("documentos");
+        //corresponde al nuevo documento creado
         documentReference.add({
             id_user: id_user,
             nombre_usuario: datos_usuario.nombre_completo,
@@ -118,7 +122,11 @@ function crearDocumentos() {
             console.log("Document written with ID: ", docRef.id);
             arrGuias.sort((a,b) => {
                 return a.numeroGuia > b.numeroGuia ? 1 : -1
-            })
+            });
+
+            /* Si tiene inhabilitado la creción de guías automáticas 
+            solo actualizará las guías que pasaron el filtro anterior y enviará una 
+            notificación a administración, es caso contrario utilizará el web service */
             if(generacion_automatizada) {
                 generarDocumentos(arrGuias, {
                     id_user, 
@@ -170,6 +178,7 @@ function crearDocumentos() {
     }
 }
 
+//toma el un string de base64 y me devuelve un array buffer
 function base64ToArrayBuffer(base64) {
     let binario = window.atob(base64);
     let bytes = new Uint8Array(binario.length);
@@ -181,6 +190,7 @@ function base64ToArrayBuffer(base64) {
     return bytes;
 }
 
+//Función que utiliza el web service para crear documentos
 function generarDocumentos(arrGuias, vinculo) {
     fetch("/servientrega/crearDocumentos", {
         method: "POST",
@@ -230,15 +240,20 @@ function cargarDocumentos(filter) {
         fecha_final = Date.parse(value("docs-fecha-final").replace(/\-/g, "/")) + 8.64e7;
     switch(filter) {
         case "fecha":
-            docFiltrado = reference.orderBy("timeline", "desc").startAt(fecha_final).endAt(fecha_inicio);
+            docFiltrado = reference.orderBy("timeline", "desc").
+            startAt(fecha_final).endAt(fecha_inicio);
             break;
         case "sin gestionar":
-            docFiltrado = reference.where("descargar_relacion_envio", "==", false);
+            docFiltrado = reference
+            // .orderBy("timeline", "desc")
+            // .where("descargar_relacion_envio", "==", false)
+            .where("descargar_guias", "==", false);
             break;
         default:
             docFiltrado = reference.where("guias", "array-contains-any", filter);
 
-    }
+    };
+
     docFiltrado.get().then((querySnapshot) => {
         documentos.innerHTML = "";
         console.log(querySnapshot.size);
@@ -246,6 +261,7 @@ function cargarDocumentos(filter) {
         let counter_guias = 0;
         let counter_convencional = 0, counter_pagoContraentrega = 0;
         querySnapshot.forEach((doc) => {
+            console.log(doc.data().timeline, doc.data().nombre_usuario);
             doc.data().type == "CONVENCIONAL" ? counter_convencional++ : counter_pagoContraentrega ++
             if(!users.includes(doc.data().id_user)) users.push(doc.data().id_user);
             counter_guias += doc.data().guias.length;
@@ -354,7 +370,6 @@ function guiaRepetida(arr) {
 me muestre cierta información que irá siento alterada cada vez que se
 llame el método
 */
-
 function showStatistics(query, arr, insertAfter) {
     let html = document.querySelector(query);
     let div = document.createElement("div");
@@ -611,6 +626,7 @@ function descargarInformeGuias(JSONData, ReportTitle) {
     document.body.removeChild(link);
 }
 
+//Función que es utilizada por el admin para cargar los documentos al usuario
 function subirDocumentos(){
     let cargadores = document.getElementsByName('cargar-documentos');
     let botones_envio = document.querySelectorAll('[data-funcion="enviar"]');
@@ -636,7 +652,7 @@ function subirDocumentos(){
                 document.getElementById("subir" + id_doc).classList.add("d-none")
             }
 
-        })
+        });
     }
 
     for (let enviar of botones_envio) {
@@ -702,7 +718,6 @@ function subirDocumentos(){
     }
 
 }
-
 
 //Similar a historial de Guias, carga los documentos al usuario por fecha.
 function actualizarHistorialDeDocumentos(timeline){
@@ -821,6 +836,7 @@ function actualizarHistorialDeDocumentos(timeline){
     } 
 }
 
+//Función que descarga todos los documentos cargados
 function descargarDocumentos(user_id, id_doc, guias, nombre_guias, nombre_relacion){
     nombre_guias = nombre_guias == "undefined" ? "guias" + guias : nombre_guias;
     nombre_relacion = nombre_relacion == "undefined" ? "relacion envio" + guias : nombre_relacion;
@@ -859,7 +875,6 @@ function descargarDocumentos(user_id, id_doc, guias, nombre_guias, nombre_relaci
 
 }
 
-// ESta función pronto desaparecerá
 function actualizarEstado(){
     document.querySelector("#cargador-actualizador").classList.remove("d-none");
     let data = new FormData(document.getElementById("form-estado"));
@@ -1071,31 +1086,6 @@ async function descargarHistorialGuias(){
     console.log(guias.length)
 
     descargarInformeGuias(guias, guias[0].id_heka + "-" + guias[guias.length - 1].id_heka)
-    
-
-    // firebase.firestore().collection("usuarios").get().then(querySnapshot => {
-    //     return new Promise((res, rej) => {
-    //         let mirar = [];
-    //         querySnapshot.forEach((doc) => {
-    //             let x = doc.ref.collection("guias").get().then(querySnapshot => {
-    //                 querySnapshot.forEach(doc => {
-    //                     let fecha = new Date(doc.data().fecha).getTime()
-    //                     if(fechaI <= fecha && fecha <= fechaF){
-    //                         let res = doc.data();
-    //                         res.id_heka = doc.id;
-    //                         mirar.push(res);
-
-    //                         /*esta subida de datos está idealizada para copiar los datos de las guías de
-    //                         los usuarios y sacarlo al nodo guias*/
-    //                         // firebase.firestore().collection("guias").doc(doc.id).set(res);
-    //                     }
-    //                 })
-    //                 return mirar
-    //             })
-    //             res(x);
-    //         });
-    //     })
-    // })
 }
 
 function cargarNovedades(){
@@ -1316,7 +1306,7 @@ function consultarGuia(numGuia, usuario = "Consulta Personalizada", contador, to
             document.getElementById("cargador-novedades").classList.add("d-none");
         }
     })
-}
+};
 
 actualizarMovimientoGuia();
 function actualizarMovimientoGuia() {
@@ -1459,38 +1449,6 @@ function consultarNovedadFb(numGuia, usuario = "Novedades", contador, totalConsu
   
 }
 
-function crearDatosPrueba() {
-    let objectProof = new Array();
-    let sellers = ["SellerNuevo", "Seller2", "Seller3", "seller4"];
-    let idInicial = 1234
-    let id_ficticio = new Array(4)
-    for(let i = 0; i < id_ficticio.length; i++){
-        let letra = new Array(8);
-        for(let j = 0; j < letra.length; j++){
-            letra[j] = String.fromCharCode(Math.floor(Math.random() * (122 - 97)) + 97);
-            id_ficticio[i] = letra.join("");
-        }
-    }
-    id_ficticio[0] = "nk58Yq6Y1GUFbaaRkdMFuwmDLxO2";
-    // id_ficticio[0] = "000000";
-    console.log(id_ficticio)
-    
-    for (let i = 0; i < 20; i++){
-        let numero = Math.floor(Math.random() * (sellers.length))
-        let obj = {
-            id_heka: idInicial + i,
-            centro_de_costo: sellers[numero],
-            user_debe: (Math.floor((Math.random() * 20000) / 50) + 1000) * 50,
-            fecha: "2021-05-" + Math.floor(Math.random() * 31),
-            id_user: id_ficticio[numero]
-        }
-
-
-        objectProof.push(obj)
-    }
-    return objectProof;
-}
-
 function revisarDeudas() {
     $("#cargador-deudas").children().removeClass("d-none");
     $("#visor-deudas").html("");
@@ -1522,34 +1480,6 @@ function revisarDeudas() {
         $("#cargador-deudas").children().addClass("d-none");
     })
 };
-
-function revisarDeudasPrueba() {
-    let objPrueba = crearDatosPrueba();
-    let id_users = new Array()
-    for(let data of objPrueba) {
-        mostradorDeudas(data);
-        if(id_users.indexOf(data.id_user) == -1) {
-            id_users.push(data.id_user);
-        }
-    }
-    console.log(id_users);
-    id_users.forEach(async id_user => {
-        let reference = firebase.firestore().collection("usuarios")
-
-        let saldo = await reference.doc(id_user)
-        .collection("informacion").doc("heka")
-        .get().then(doc => {
-            if(doc.exists){
-                return doc.data().saldo
-            }
-            return "Usuario no encontrado"
-        });
-        console.log(saldo);
-        consolidadorTotales("#deudas-"+id_user, saldo);
-    })
-    habilitarSeleccionDeFilasInternas('[data-function="selectAll"]')
-    // consolidadorTotales('[data-function="consolidarTotales"]');
-}
 
 function habilitarSeleccionDeFilasInternas(query) {
     $(query).on("change", function() {

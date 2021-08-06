@@ -622,23 +622,7 @@ function tablaPagos(arrData, id) {
     document.getElementById(id).appendChild(card);
 };
 
-// tablaPagos([{
-//     REMITENTE: "Seller Ej",
-//     "ENVÍO TOTAL": "1000",
-//     GUIA: "20293029",
-//     RECAUDO: "55000",
-//     FECHA: "22-02-2021",
-//     "TOTAL A PAGAR": 60000
-// },{
-//     REMITENTE: "SellerEj",
-//     "ENVÍO TOTAL": "2000",
-//     GUIA: "20393",
-//     RECAUDO: "30493",
-//     FECHA: "22-03-2021",
-//     "TOTAL A PAGAR": 60000  
-// }], "visor_pagos");
-
-
+//muestra la notificación específica para agregarla al panel, ademñas de asignarle funcionalidades
 function mostrarNotificacion(data, type, id){
     let notificacion = document.createElement("a"),
         div_icon = document.createElement("div"),
@@ -705,7 +689,7 @@ function mostrarNotificacion(data, type, id){
                     })
                 } else {
                     if(administracion) {
-                        cargarDocumentos("sin gestionar");
+                        cargarDocumentos(data.guias.slice(0,5));
                     } else {
                         actualizarHistorialDeDocumentos(data.timeline);
                     }
@@ -720,7 +704,7 @@ function mostrarNotificacion(data, type, id){
     return notificacion;
 }
 
-
+//Muestra los igresos y egresos de los usuarios a medida que van generando guías
 function tablaMovimientos(arrData){
     let tabla = document.createElement("table"),
         t_head = document.createElement("tr"),
@@ -768,6 +752,7 @@ function tablaMovimientos(arrData){
     document.getElementById("card-movimientos").append(tabla, detalles);
 }
 
+/**** Funcion obsoleta */
 function tablaNovedades(data, extraData, usuario, solucion, id_heka, resuelta){
     let card = document.createElement("div"),
         encabezado = document.createElement("a"),
@@ -928,7 +913,9 @@ function tablaNovedades(data, extraData, usuario, solucion, id_heka, resuelta){
     })
 }
 
+//Mustra los movimientos de las guías
 function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
+    //Preparon los componentes necesarios
     let card = document.createElement("div"),
         encabezado = document.createElement("a"),
         cuerpo = document.createElement("div"),
@@ -964,11 +951,14 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
     cuerpo.setAttribute("data-usuario", usuario.replace(/\s/g, ""));
 
     tr.setAttribute("id", "estadoGuia"+data.numeroGuia);
+
+    //Si parece una novedad, el texto lo pinta de rojo
     if(data.movimientos[data.movimientos.length - 1].IdConc != 0) {
         tr.classList.add("text-danger");
     }
     
     let btnGestionar, btn_solucionar = ""
+    //Según el tipo de usuario, cambia el botón que realiza la gestión
     if(administracion) {
         btnGestionar = "Revisar";
         btn_solucionar = `
@@ -998,11 +988,8 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         </td>
     `;
 
-
-    
-
+    //si existe la guía en la ventana mostrada la sustituye
     if(document.querySelector("#estadoGuia" + data.numeroGuia)) {
-        console.log("Condicional 1")
         document.querySelector("#estadoGuia" + data.numeroGuia).innerHTML = "";
         document.querySelector("#estadoGuia" + data.numeroGuia).innerHTML = tr.innerHTML
     } else if(document.querySelector("#estadoGuias-" + usuario.replace(/\s/g, ""))){
@@ -1346,6 +1333,16 @@ $("#switch-habilitar-filtrado-pagos").change((e) => {
 });
 
 function enviarNotificacion(options) {
+    //Este es el patrón utilizado para el objeto que se ingresa en las notificaciones
+    let example_data = {
+        visible_user: true,
+        visible_admin: false,
+        icon: ["exclamation", "danger"],
+        detalles: arrErroresUsuario,
+        user_id: vinculo.id_user,
+        mensaje: "Mensaje a mostrar en la notificación",
+        href: "id destino"
+    }
     let fecha = genFecha("ltr").replace(/\-/g, "/");
     let hora = new Date().getHours();
     let minutos = new Date().getMinutes();    
@@ -1363,15 +1360,6 @@ function enviarNotificacion(options) {
 
     console.log(notificacion);
 
-    let example_data = {
-        visible_user: true,
-        visible_admin: false,
-        icon: ["exclamation", "danger"],
-        detalles: arrErroresUsuario,
-        user_id: vinculo.id_user,
-        mensaje: "Mensaje a mostrar en la notificación",
-        href: "id destino"
-    }
     firebase.firestore().collection("notificaciones").add(notificacion)
 };
 
