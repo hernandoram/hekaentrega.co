@@ -507,7 +507,7 @@
 
          <div class="col-sm-6 mb-3 mb-sm-0">
            <h6>Ciudad rem.</h6>
-           <input readonly="readonly" type="text" class="form-control form-control-user" value="MEDELLIN(ANTIOQUIA)" required>
+           <input readonly="readonly" type="text" class="form-control form-control-user" value="CALI(VALLE DEL CAUCA)" required>
            
          </div>
    
@@ -601,8 +601,8 @@
   
               
               <h1> </h1>
-              <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc1">
-              <input type="hidden" name="ciudadR" value="MEDELLIN(ANTIOQUIA)">
+              <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc0">
+              <input type="hidden" name="ciudadR" value="CALI(VALLE DEL CAUCA)">
               <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
               <input type="hidden" name="kilos" value="1">
               <input type="hidden" name="seguro" value="10000" >
@@ -624,17 +624,17 @@
       
               </form>
               
-              <a  class="btn btn-danger"  id="boton1" href="javascript:boton1()" aria-haspopup="true" aria-expanded="false">
+              <a  class="btn btn-danger"  id="boton0" href="javascript:boton0()" aria-haspopup="true" aria-expanded="false">
                 CREAR GUÍA
               </a>
   
               <script>
   
-   function boton1(){
+   function boton0(){
      
   
-  document.getElementById('boton1').style='display:none;';
-  document.listarGuiaEnviaTcc1.submit();
+  document.getElementById('boton0').style='display:none;';
+  document.listarGuiaEnviaTcc0.submit();
   
   
   }
@@ -698,8 +698,8 @@
   
               
               <h1> </h1>
-              <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc2">
-              <input type="hidden" name="ciudadR" value="MEDELLIN(ANTIOQUIA)">
+              <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc1">
+              <input type="hidden" name="ciudadR" value="CALI(VALLE DEL CAUCA)">
               <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
               <input type="hidden" name="kilos" value="1">
               <input type="hidden" name="seguro" value="10000" >
@@ -711,6 +711,103 @@
               <input type="hidden" name="costoManejo" value="360" >
               <input type="hidden" name="valorOtrosRecaudos" value="0" >
               <input type="hidden" name="comision_heka" value="1211" >
+
+              <input type="hidden" name="tipo_envio" value="COMUN" >
+              
+    
+  
+  
+    
+      
+              </form>
+              
+              <a  class="btn btn-danger"  id="boton1" href="javascript:boton1()" aria-haspopup="true" aria-expanded="false">
+                CREAR GUÍA
+              </a>
+  
+              <script>
+  
+   function boton1(){
+     
+  
+  document.getElementById('boton1').style='display:none;';
+  document.listarGuiaEnviaTcc1.submit();
+  
+  
+  }
+  </script>
+              
+             
+              
+              <!--
+              <p class="mb-0 small">NOTA: This utility animates the CSS transform property, meaning it will override any existing transforms on an element being animated! In this theme, the grow in animation is only being used on dropdowns within the navbar.</p>
+                -->
+  
+            </div>
+            
+            
+          </div>
+          </div>
+  
+        
+  
+         <!------------------------------------------------------------------------------------------------>
+          <!-- TCC -->
+        <div  class="col-lg-6" >
+  
+          <div class="card position-relative">
+            <div class="card-header py-3">
+              <h6 class="m-0 font-weight-bold text-primary">
+              <a class="navbar-brand" href="#">SERVIENTREGA - nacional</a>
+              </h6>
+              
+            </div>
+            <div class="card-body">
+              <div class="mb-3">
+              <!--
+              <h6>ok | cotizaciones encontradas</h6>
+              -->
+                <code>TRAYECTO: nacional</code>
+              </div>
+              <div class="small mb-1">TIEMPO DE ENTREGA: 1</div>
+              <nav class="navbar navbar-expand navbar-light bg-light mb-4">
+                <a class="navbar-brand" href="#">COSTO DE ENVÍO: 18950</a>
+                
+                <!--
+                <ul class="navbar-nav ml-auto">
+                  <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                      Dropdown
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right animated--grow-in" aria-labelledby="navbarDropdown">
+                      <a class="dropdown-item" href="#">Action</a>
+                      <a class="dropdown-item" href="#">Another action</a>
+                      <div class="dropdown-divider"></div>
+                      <a class="dropdown-item" href="#">Something else here</a>
+                    </div>
+                    
+                   
+                  </li>
+                </ul>
+                -->
+                
+              </nav>
+  
+              
+              <h1> </h1>
+              <form action="listarGuiaEnviaTcc" method="post" name="listarGuiaEnviaTcc2">
+              <input type="hidden" name="ciudadR" value="CALI(VALLE DEL CAUCA)">
+              <input type="hidden" name="ciudadD" value="BOGOTA(CUNDINAMARCA)" >
+              <input type="hidden" name="kilos" value="1">
+              <input type="hidden" name="seguro" value="10000" >
+              <input type="hidden" name="recaudo" value="0" >
+              <input type="hidden" name="idtrans" value="33" >
+             
+
+              <input type="hidden" name="fletetotal" value="16560" >
+              <input type="hidden" name="costoManejo" value="360" >
+              <input type="hidden" name="valorOtrosRecaudos" value="0" >
+              <input type="hidden" name="comision_heka" value="2030" >
 
               <input type="hidden" name="tipo_envio" value="COMUN" >
               

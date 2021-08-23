@@ -1,21 +1,96 @@
 let datos_de_cotizacion,
     datos_a_enviar = new Object({}),
-    obsTransportadora = {
-        "SERVIENTREGA": observacionesServientrega
+    codTransp = "SERVIENTREGA"
+
+// Objeto principal en que se basa la transportadora a ser utilizada
+let transportadoras = {
+    "SERVIENTREGA": {
+        nombre: "Servientrega",
+        observaciones: observacionesServientrega,
+        logoPath: "img/logoServi.png",
+        limitesPeso: [3,15],
+        limitesLongitud: [1,150],
+        limitesRecaudo: [5000, 2000000],
+        limitesValorDeclarado: (valor) => {
+            return [5000,300000000]
+        }
+    },
+    "ENVIA": {
+        nombre: "Envía",
+        observaciones: observacionesServientrega,
+        logoPath: "img/2001.png",
+        limitesPeso: [3,15],
+        limitesLongitud: [1,150],
+        limitesRecaudo: [5000, 2000000],
+        limitesValorDeclarado: (valor) => {
+            return [5000,300000000]
+        }
+    },
+    "INTERRAPIDISIMO": {
+        nombre: "Inter Rapidísimo",
+        observaciones: observacionesServientrega,
+        logoPath: "img/logo-inter.png",
+        limitesPeso: [0.1,5],
+        limitesLongitud: [1,150],
+        limitesRecaudo: [10000, 3000000],
+        limitesValorDeclarado: (valor) => {
+            if(valor <= 2) return [12500, 30000000]
+            if(valor <= 5) return [27500, 30000000]
+            return [37500, 30000000]
+        }
+    }
+};
+
+function gestionarTransportadora() {
+    let html = "";
+    for (let transp in transportadoras) {
+        html+= `<button class="btn btn-primary m-2"
+        onclick="cambiarTransportadora('${transp}')">${transportadoras[transp].nombre}</button>`;
     };
+
+    Swal.fire({
+        title: "Seleccione transportadora",
+        showConfirmButton: false,
+        html
+    })
+}
+
+function cambiarTransportadora(nuevaTranps) {
+    Swal.close();
+    console.log("se ha cambiado la transportadora");
+    codTransp = nuevaTranps;
+    ocultarCotizador();
+    mostrarTransportadora();
+    return codTransp
+};
+
+function mostrarTransportadora() {
+    $(".transportadora").text(transportadoras[codTransp].nombre);
+};
+mostrarTransportadora();
+
+function ocultarCotizador() {
+    if(document.getElementById("result_cotizacion").style.display != "none"){
+        document.getElementById("result_cotizacion").style.display = "none"
+    }
+}
+
 // Esta funcion verifica que los campos en el form esten llenados correctamente
 async function cotizador(){
     let ciudadR = document.getElementById("ciudadR"),
     ciudadD = document.getElementById("ciudadD");
     let info_precio = new CalcularCostoDeEnvio();
 
+    console.log(info_precio);
     datos_de_cotizacion = {
         ciudadR: value("ciudadR"),
-        ciudadD: value("ciudadD"), 
-        peso: value("Kilos") < 3 ? 3 : value("Kilos"),
+        ciudadD: value("ciudadD"),
+        dane_ciudadR: ciudadR.dataset.dane_ciudad,
+        dane_ciudadD: ciudadD.dataset.dane_ciudad,
+        peso: value("Kilos"),
         seguro: value("seguro-mercancia"), 
         recaudo: 0, 
-        trayecto: revisarTrayecto(), 
+        trayecto: info_precio.revisarTrayecto(), 
         tiempo: "2-3", 
         // precio: info_precio.costoEnvio,
         // flete: info_precio.flete,
@@ -27,13 +102,9 @@ async function cotizador(){
     }
 
     document.getElementById("cotizador").querySelectorAll("input").forEach(i => {
-        i.addEventListener("input", (e) => {
-            if(document.getElementById("result_cotizacion").style.display != "none"){
-                document.getElementById("result_cotizacion").style.display = "none"
-            }
-        });
-    })
-    
+        i.addEventListener("input", ocultarCotizador);
+    });
+
     if(value("ciudadR") != "" && value('ciudadD') != "" &&
     value("Kilos") != "" && value("seguro-mercancia") != "" 
     && value("dimension-ancho") != "" && value("dimension-largo") != "" && value("dimension-alto") != ""){
@@ -41,16 +112,28 @@ async function cotizador(){
         if(!ciudadR.dataset.ciudad || !ciudadD.dataset.ciudad) {
             alert("Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable");
             verificador(["ciudadR", "CiudadD"], true); 
-        } else if(value("Kilos") <= 0 || value("Kilos") > 25 ) {
+        } else if(value("Kilos") <= 0 
+        || value("Kilos") > transportadoras[codTransp].limitesPeso[1] ) {
             // Si la cantidad de kilos excede el limite permitido
-            alert("Lo sentimos, la cantidad de kilos ingresada no está permitida, procure ingresar un valor mayor a 0 y menor o igual a 25")
+            alert("Lo sentimos, la cantidad de kilos ingresada para la transportadora: "
+            + codTransp + " no está permitida, procure ingresar un valor mayor a 0 y menor o igual a " 
+            +transportadoras[codTransp].limitesPeso[1])
             verificador("Kilos", true);
-        } else if(value("seguro-mercancia") < 5000 || value("seguro-mercancia") > 300000000) {
+        } else if(value("seguro-mercancia") < transportadoras[codTransp].limitesValorDeclarado(value("Kilos"))[0] 
+        || value("seguro-mercancia") > transportadoras[codTransp].limitesValorDeclarado(value("Kilos"))[1]) {
             // Si el valor del recaudo excede el limite permitido
-            alert("Ups! el valor declarado no puede ser menor a $5.000, ni mayor a $300.000.000")
+            alert("Ups! el valor declarado en base a "
+            +value("Kilos")+"Kg no puede ser menor a $"
+            +convertirMiles(transportadoras[codTransp].limitesValorDeclarado(value("Kilos"))[0])+", ni mayor a $"
+            +convertirMiles(transportadoras[codTransp].limitesValorDeclarado(value("Kilos"))[1]))
             verificador("seguro-mercancia", true);
-        } else if(value("dimension-ancho") < 1 || value("dimension-largo") < 1 || value("dimension-alto") < 1 ||
-        value("dimension-ancho") > 150 || value("dimension-largo") > 150 || value("dimension-alto") > 150) {
+        } else if(value("dimension-ancho") < transportadoras[codTransp].limitesLongitud[0] 
+        || value("dimension-largo") < transportadoras[codTransp].limitesLongitud[0] 
+        || value("dimension-alto") < transportadoras[codTransp].limitesLongitud[0] 
+        ||value("dimension-ancho") > transportadoras[codTransp].limitesLongitud[1] 
+        || value("dimension-largo") > transportadoras[codTransp].limitesLongitud[1] 
+        || value("dimension-alto") > transportadoras[codTransp].limitesLongitud[1])
+        {
             // Si el valor de las dimensiones exceden el limite permitido
             alert("Alguno de los valores ingresados en la dimensiones no es válido, Por favor verifique que no sean menor a 1cm, o mayor a 150cm");
             verificador(["dimension-alto", "dimension-largo", "dimension-ancho"], true)
@@ -100,8 +183,10 @@ async function cotizador(){
 
     
             $("#list-transportadoras .detalles").click(function(e){
-                $("#nav-contentTransportadoras").parent().toggleClass("d-none"); 
+                const info = $("#nav-contentTransportadoras").parent()
+                info.removeClass("d-none");
                 $(this).parents("a").tab("show");
+                info[0].scrollIntoView({behavior: "smooth"})
             });
 
             $('a[data-toggle="list"]').on('shown.bs.tab', function (event) {
@@ -163,7 +248,7 @@ async function pagoContraentrega() {
             //Si el usuario accede a sumar el envío, se calcula cual debería
             //ser el valor de recaudo, para que se sume el costo del envío
             if(sumar_envio){
-                cotizacion = sumarCostoDeEnvio(parseInt(valor_recaudo))
+                cotizacion.sumar_envio = true;
             }
     
             /* si el usuario desea restar el saldo, la variable de la guia 
@@ -235,15 +320,17 @@ async function response(datos) {
         datos_a_enviar.debe = false;
     }
 
+    $("#result_cotizacion").html('<div class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
 
     //Lleno algunos campos de los datos de cotizacióm
-    datos_de_cotizacion.peso = Math.max(3, result_cotizacion.kg);
+    datos_de_cotizacion.peso = (result_cotizacion.kg);
     datos_de_cotizacion.costo_envio = result_cotizacion.costoEnvio;
     datos_de_cotizacion.valor = result_cotizacion.valor;
     datos_de_cotizacion.seguro = result_cotizacion.seguro;
+    datos_de_cotizacion.sumar_envio = result_cotizacion.sumar_envio
     datos_de_cotizacion.type = type;
 
-    let htmlTransportadoras = detallesTransportadoras(datos_de_cotizacion)
+    let htmlTransportadoras = await detallesTransportadoras(datos_de_cotizacion)
 
     //Creo un html con los detalles de la consulta y las transportadoras involucradas
     let div_principal = document.createElement("DIV"),
@@ -251,7 +338,7 @@ async function response(datos) {
         boton_regresar = crearNodo(`<a class="btn btn-outline-primary mb-2" href="#cotizar_envio" onclick="regresar()">
             Subir
             </a>`),
-        divisor = crearNodo(`<hr class="sidebar-divider">`),
+        head = crearNodo(`<h4 class="text-center mb-3">Seleccione transportadora</h4>`),
         info_principal = detalles_cotizacion(datos_de_cotizacion),
         transportadoras = crearNodo(`<div class="row">
             <div class="col">
@@ -259,7 +346,7 @@ async function response(datos) {
                     ${htmlTransportadoras[0]}
                 </div>
             </div>
-            <div class="col-12 col-md-5 mt-4 mt-md-0 d-none">
+            <div class="col-12 col-md-5 mt-4 mt-md-0 d-none d-md-block">
                 <div class="tab-content" id="nav-contentTransportadoras">
                     ${htmlTransportadoras[1]}
                 </div>
@@ -267,11 +354,17 @@ async function response(datos) {
         </div>`),
         
         boton_continuar = crearNodo(`<div class="d-flex justify-content-end mt-2"><input type="button" 
-            data-transp="SERVIENTREGA" id="boton_continuar" 
+            data-transp="${codTransp}" id="boton_continuar" 
             class="btn btn-success mt-3" value="Continuar" ${!act_btn_continuar ? "disabled=true" : ""}></div>`);
         
 
-    div_principal.append(divisor, boton_regresar, info_principal, transportadoras, boton_continuar)
+    div_principal.append(
+        // boton_regresar, 
+        // info_principal,
+        head,
+        transportadoras, 
+        // boton_continuar
+    );
     if(document.getElementById("cotizar_envio").getAttribute("data-index")){
        boton_continuar.firstChild.style.display = "none";
        console.log("EStoy en el index");
@@ -281,31 +374,48 @@ async function response(datos) {
 };
 
 //Para llenar los diversos precios de las transportadoras que funcionarán con el cotizador
-function detallesTransportadoras(data) {
-    let transportadoras = [{
-        nombre: "SERVIENTREGA",
-        src: "img/logoServi.png",
-        altImg: "Logo Servientrega"
-    }];
+async function detallesTransportadoras(data) {
     let encabezados = "", detalles = "";
+    console.log(data);
 
     //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
-    transportadoras.forEach((transportadora, i) => {
-        let cotizacion = new CalcularCostoDeEnvio(data.seguro, data.type);
-        datos_de_cotizacion[transportadora.nombre] = cotizacion;
-        encabezados += `<a class="list-group-item list-group-item-action" 
-        id="list-transportadora-${transportadora.nombre}-list" 
+    for(let transp in transportadoras) {
+        if(transp === "ENVIA") continue;
+        let transportadora = transportadoras[transp];
+        let valor = Math.max(data.seguro, transportadora.limitesValorDeclarado(data.peso)[0]);
+        let cotizacion = await new CalcularCostoDeEnvio(valor, data.type)
+        .putTransp(transp, {
+            dane_ciudadR: data.dane_ciudadR,
+            dane_ciudadD: data.dane_ciudadD,
+        });
+
+        if(data.sumar_envio) {
+            cotizacion.sumarCostoDeEnvio = cotizacion.valor;
+        }
+
+        console.log(cotizacion);
+        console.log(cotizacion.costoEnvio);
+        console.log(cotizacion.codTransp, cotizacion.empty);
+        
+        if(cotizacion.empty) continue;
+
+        transportadora.cotizacion = cotizacion;
+
+        encabezados += `<a class="list-group-item list-group-item-action shadow-sm mb-2" 
+        id="list-transportadora-${transp}-list" 
         role="tab"
         data-toggle="list"
-        data-transp="${transportadora.nombre}"
-        href="#list-transportadora-${transportadora.nombre}" 
-        aria-controls="transportadora-${transportadora.nombre}"
+        data-transp="${transp}"
+        href="#list-transportadora-${transp}" 
+        aria-controls="transportadora-${transp}"
         >
             <div class="row">
-                <img src="${transportadora.src}" class="col" alt="${transportadora.altImg}">
+                <img src="${transportadora.logoPath}" 
+                class="col" style="max-height:min-content; max-width:fit-content"
+                alt="logo-${transportadora.nombre}">
                 <div class="col-12 col-sm-6 mt-3 mt-sm-0 order-1 order-sm-0">
                     <h5>${transportadora.nombre}</h5>
-                    <h6>tiempo de entrega: ${datos_de_cotizacion.tiempo} Días</h6>
+                    <h6>tiempo de entrega: ${cotizacion.tiempo || datos_de_cotizacion.tiempo} Días</h6>
                     <h6 class="${data.type == "CONVENCIONAL" ? "d-none" : "mb-1"}">
                     El Valor consignado a tu cuenta será: <b>$${convertirMiles(cotizacion.valor - cotizacion.costoEnvio)}</b></h6>
                 </div>
@@ -315,10 +425,12 @@ function detallesTransportadoras(data) {
                     <b>$${convertirMiles(cotizacion.costoEnvio)}</b>
                 </div>
             </div>
-            <p class="text-center mb-0 mt-2 ${data.type == "CONVENCIONAL" ? "d-none" : ""}">Costo de envío para Recaudo: <b>$${convertirMiles(cotizacion.seguro)}</b></p>
+            <p class="text-center mb-0 mt-2 ${data.type == "CONVENCIONAL" ? "d-none" : ""}">Costo de envío para Recaudo: <b>$${convertirMiles(cotizacion.valor)}</b></p>
         </a>`;
 
-        detalles += `<div class="tab-pane fade" id="list-transportadora-${transportadora.nombre}" role="tabpanel" aria-labelledby="list-transportadora-${transportadora.nombre}-list">
+        detalles += `<div class="tab-pane fade 
+        ${transp == "SERVIENTREGA" ? "show active" : ""}" 
+        id="list-transportadora-${transp}" role="tabpanel" aria-labelledby="list-transportadora-${transp}-list">
             <ul class="list-group">
                 <li class="list-group-item d-flex justify-content-between align-items-center active">
                     ${transportadora.nombre}
@@ -333,6 +445,10 @@ function detallesTransportadoras(data) {
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
                 Seguro Mercancía
+                <span class="badge badge-secondary badge-pill">${convertirMiles(cotizacion.seguroMercancia)}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                Comisión heka
                 <span class="badge badge-secondary badge-pill">${convertirMiles(cotizacion.sobreflete_heka)}</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -341,7 +457,7 @@ function detallesTransportadoras(data) {
                 </li>
             </ul>
         </div>`;
-    });
+    }
 
     /* Devuelve el html en dos manera, con la lista, y con los detalles particulares */
     return [encabezados, detalles];
@@ -351,13 +467,13 @@ function detallesTransportadoras(data) {
 function seleccionarTransportadora(e) {
     if (e.target.classList.contains("detalles")) return
     let transp = this.getAttribute("data-transp");
-    let result_cotizacion = datos_de_cotizacion[transp];
+    let result_cotizacion = transportadoras[transp].cotizacion;
 
     //Muestra algún dato relevante en un modal
     Swal.fire({
         icon: 'info',
         title: 'Tener en cuenta con ' + transp,
-        html: obsTransportadora[transp](result_cotizacion),
+        html: transportadoras[transp].observaciones(result_cotizacion),
         width: "50em",
         customClass: {
             cancelButton: "btn btn-secondary m-2",
@@ -372,11 +488,17 @@ function seleccionarTransportadora(e) {
         console.log(result);
         //continúa si el cliente termina seleccionando la transportadora
         if (result.isConfirmed) {
-            datos_a_enviar.peso = Math.max(3, result_cotizacion.kg);
+            console.log(datos_a_enviar);
+            datos_a_enviar.peso = result_cotizacion.kgTomado;
             datos_a_enviar.costo_envio = result_cotizacion.costoEnvio;
             datos_a_enviar.valor = result_cotizacion.valor;
             datos_a_enviar.seguro = result_cotizacion.seguro;
             datos_a_enviar.type = result_cotizacion.type;
+            datos_a_enviar.dane_ciudadR = datos_de_cotizacion.dane_ciudadR;
+            datos_a_enviar.dane_ciudadD = datos_de_cotizacion.dane_ciudadD;
+            datos_a_enviar.transportadora = transp;
+
+            cambiarTransportadora(transp);
         
             if(document.getElementById("cotizar_envio").getAttribute("data-index")){
                 location.href = "iniciarSesion2.html";
@@ -395,7 +517,7 @@ function seleccionarTransportadora(e) {
                 //     a seguir para recargar tu saldo.</p>
                 // </div>, "text/html`).body
             } else {
-                finalizarCotizacion(datos_de_cotizacion)
+                finalizarCotizacion(datos_a_enviar)
             }
         }
     })
@@ -410,16 +532,16 @@ function detalles_cotizacion(datos) {
     return new DOMParser().parseFromString(`
         <div class="mb-4">
             <div class="card-header py-3">
-                <h4 class="m-0 font-weight-bold text-primary text-center">Datos de envío (${datos.type})</h4>
+                <h4 class="m-0 font-weight-bold text-primary text-center">Datos de envío - ${datos.transportadora} (${datos.type})</h4>
             </div>
             <div class="card-body row">
                 <div class="col-sm-6 mb-3 mb-sm-2">
                     <h5>Ciudad de Origen</h5>
-                    <input readonly="readonly" type="text" class="form-control form-control-user" value="${datos.ciudadR}" required="">  
+                    <input readonly="readonly" type="text" class="form-control form-control-user" value="${datos.ciudadR}(${datos.departamentoR})" required="">  
                 </div>
                 <div class="col-sm-6 mb-3 mb-sm-2">
                     <h5>Ciudad de Destino</h5>
-                    <input readonly="readonly" type="text" class="form-control form-control-user" value="${datos.ciudadD}" required="">  
+                    <input readonly="readonly" type="text" class="form-control form-control-user" value="${datos.ciudadD}(${datos.departamentoD})" required="">  
                 </div>
                 <div class="col-sm-6 mb-3 mb-sm-2">
                     <h5>Kilos</h5>
@@ -430,10 +552,10 @@ function detalles_cotizacion(datos) {
                     <input readonly="readonly" type="text" class="form-control form-control-user" value="$${convertirMiles(datos.seguro)}" required="">  
                 </div>
                 <div class="col-sm-12 mb-3 mb-sm-2 ${!datos.valor ? "d-none" : ""}">
-                    <h5>Recaudo (valor a cobrar al remitente)</h5>
+                    <h5>Recaudo (valor a cobrar al destinatario)</h5>
                     <input readonly="readonly" type="text" class="form-control form-control-user" value="$${convertirMiles(datos.valor)}" required="">  
                 </div>
-                
+                <!--
                 <div class="col">
                     <h5 class="mb-2 mt-3 text-center">Dimensiones <span>(Expresadas en Centímetros)</span></h5>
                     <div class="row d-flex justify-content-center">
@@ -451,6 +573,7 @@ function detalles_cotizacion(datos) {
                         </div>
                     </div>
                 </div>
+                -->
             </div>
         </div>
         `, "text/html").body;
@@ -462,6 +585,7 @@ function finalizarCotizacion(datos) {
         crearNodo = str => new DOMParser().parseFromString(str, "text/html").body;
 
     let creador = document.getElementById("crear_guia");
+    const readonly = datos.transportadora == "INTERRAPIDISIMO";
 
     let detalles = detalles_cotizacion(datos),
         boton_regresar = crearNodo(`<a class="btn btn-outline-primary btn-block mb-3" href="#cotizar_envio" onclick="regresar()">
@@ -470,7 +594,7 @@ function finalizarCotizacion(datos) {
         input_producto = crearNodo(`<div class="col mb-3 mb-sm-0">
             <h6>producto <span>(Lo que se va a enviar)</span></h6>
             <input id="producto" class="form-control form-control-user" 
-            name="producto" type="text" maxlength="50"
+            name="producto" type="text" maxlength="40"
             placeholder="Introduce el contenido de tu envío">
             <p id="aviso-producto" class="text-danger d-none m-2"></p>
         </div>`),
@@ -482,15 +606,15 @@ function finalizarCotizacion(datos) {
             <div class="card-body row">
                 <div class="col-sm-6 mb-3 mb-sm-0">
                     <h5>Nombre del Remitente</h5>
-                    <input id="actualizar_nombreR" type="text" class="form-control form-control-user" value="${datos_usuario.nombre_completo}" required="">  
+                    <input id="actualizar_nombreR" type="text" class="form-control form-control-user" value="${datos_usuario.nombre_completo}" ${readonly && "readonly"} required="">  
                 </div>
                 <div class="col-sm-6 mb-3 mb-sm-0">
                     <h5>Dirección del Remitente</h5>
-                    <input id="actualizar_direccionR" type="text" class="form-control form-control-user" value="${datos_usuario.direccion}" required="">  
+                    <input id="actualizar_direccionR" type="text" class="form-control form-control-user" value="${datos_usuario.direccion}" ${readonly && "readonly"} required="">  
                 </div>
                 <div class="col-sm-6 mb-3 mb-sm-0">
                     <h5>Celular del remitente</h5>
-                    <input id="actualizar_celularR"  type="text" class="form-control form-control-user" value="${datos_usuario.celular}" required="">  
+                    <input id="actualizar_celularR"  type="text" class="form-control form-control-user" value="${datos_usuario.celular}" ${readonly && "readonly"} required="">  
                 </div>
             </div>
         </div>
@@ -533,12 +657,12 @@ function finalizarCotizacion(datos) {
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Celular del Destinatario</h5>
-                        <input type="tel" id="telefonoD" class="form-control form-control-user" 
+                        <input type="number" id="telefonoD" class="form-control form-control-user" 
                         value="" placeholder="Celular" required="" maxlengt="10">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Otro celular del Destinatario</h5>
-                        <input type="tel" id="celularD" class="form-control form-control-user" value="" placeholder="celular">
+                        <input type="number" id="celularD" class="form-control form-control-user" value="" placeholder="celular">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Email</h5>
@@ -550,14 +674,14 @@ function finalizarCotizacion(datos) {
                     </div>
                     <div class="col-sm-6 mb-3 mb-2 form-check">
                         <input type="checkbox" id="recoleccion" class="form-check-input">
-                        <label for="recoleccion" class="form-check-label">Solicitud de Recolección</label>
+                        <label for="recoleccion" class="form-check-label" checked>Solicitud de Recolección</label>
                     </div>
                 </div>
             </form>
         </div>
         `),
         boton_crear = crearNodo(`<input type="button" id="boton_final_cotizador" 
-            class="btn btn-success btn-block mt-5" value="Crear Guía" onclick="crearGuiasServientrega()"/>`);
+            class="btn btn-success btn-block mt-5" value="Crear Guía" onclick="crearGuia()"/>`);
 
     div_principal.append(boton_regresar, detalles, input_producto, datos_remitente, datos_destinatario, boton_crear);
     creador.innerHTML = "";
@@ -628,23 +752,26 @@ function sumarCostoDeEnvio(valor, type, kg, volumen, extraData) {
 // Realiza el calculo del envio y me devuelve sus detalles
 class CalcularCostoDeEnvio {
     constructor(valor, type, kilos, vol, extraData){
+        //Datos por defecto para Servientrega
         this.type = type;
-        this.valor = type == "CONVENCIONAL" ? 0 : valor;
+        this.valor = type == "CONVENCIONAL" ? 0 : parseInt(valor);
         this.seguro = parseInt(valor);
-        this.kg = kilos || Math.floor(value("Kilos"));
+        this.kg = kilos || parseInt(value("Kilos"));
         this.volumen = vol || value("dimension-ancho") * value("dimension-alto") * value("dimension-largo");
-        this.factor_de_conversion = 0.022;
+        this.factor_de_conversion = 0.022 / 100;
         this.data = extraData || new Object();
         this.precios = extraData ? extraData.precios : precios_personalizados;
-        this.comision_servi = this.precios.comision_servi;
+        this.comision_transp = this.precios.comision_servi;
         this.sobreflete_min = 3000;
-        this.sobreflete = type == "CONVENCIONAL" ? 0 : Math.ceil(Math.max(valor * this.comision_servi / 100, this.sobreflete_min));
-        this.sobreflete_heka = Math.ceil(valor * ( type == "CONVENCIONAL" ? 1 : this.precios.comision_heka) / 100);
+        this.seguroMercancia = 0;
+        this.kg_min = 3;
+        this.codTransp = "SERVIENTREGA";
+        
     }
 
     //Devuelve el paso generado del volumen, debido al factor dec conversión
     get pesoVolumen(){
-        let peso_con_volumen = this.volumen * this.factor_de_conversion / 100;
+        let peso_con_volumen = this.volumen * this.factor_de_conversion;
         peso_con_volumen = Math.ceil(Math.floor(peso_con_volumen * 10) / 10);
 
         return peso_con_volumen
@@ -652,43 +779,41 @@ class CalcularCostoDeEnvio {
     
     //revisa entre el peso del volumen i el paso igresado cual es el mayor para devolverlo
     get kgTomado(){
-        if(this.kg < 3){
-            this.kg = 3;
+        if(this.kg < this.kg_min){
+            this.kg = this.kg_min;
         }
-
-        this.kg = Math.max(this.pesoVolumen, this.kg)
-
-        return this.kg;    
+        return Math.max(this.pesoVolumen, this.kg)
     };
     
     get flete(){
-        this.kgTomado;
-        let total = this.revisadorInterno(this.precios.costo_especial2,
+        if(this.total_flete) return this.total_flete;
+        this.total_flete = this.revisadorInterno(this.precios.costo_especial2,
             this.precios.costo_nacional2, this.precios.costo_zonal2);
         if(this.kg >= 1 && this.kg < 4){
-            total = this.revisadorInterno(this.precios.costo_especial1, 
+            this.total_flete = this.revisadorInterno(this.precios.costo_especial1, 
                 this.precios.costo_nacional1, this.precios.costo_zonal1)
         } else if (this.kg >= 4 && this.kg < 9) {
 
         } else {
             let kg_adicional = this.kg - 8;
-            total += (kg_adicional * this.revisadorInterno(this.precios.costo_especial3, 
+            this.total_flete += (kg_adicional * this.revisadorInterno(this.precios.costo_especial3, 
                 this.precios.costo_nacional3, this.precios.costo_zonal3))
         }
-        return total;
+        return this.total_flete;
     }
 
     get costoEnvio(){
-        let resultado = this.flete + this.sobreflete + this.sobreflete_heka;
+        let resultado = this.flete + this.sobreFletes(this.valor);
         return resultado;
     }
     
     get getDetails() {
         console.groupCollapsed("Detalles de Cotización")
-        console.log("Valor ingresado =>", this.seguro);
+        console.log("Valor ingresado =>", this.valor);
         console.log("Kg => ", this.kgTomado);
         console.log("Volumen => ", this.volumen);
-        console.log("comision Servientrega => ", this.sobreflete);
+        console.log("comision transportadora => ", this.sobreflete);
+        console.log("Seguro mercancia => ", this.seguroMercancia);
         console.log("Comision heka => ", this.sobreflete_heka);
         console.log("Flete => ", this.flete);
         console.log("Costo de envío =>", this.costoEnvio);
@@ -704,6 +829,48 @@ class CalcularCostoDeEnvio {
             recaudo: this.valor,
             seguro: this.seguro
         };
+    }
+
+    get empty() {
+        return this.indisponible;
+    }
+
+    set flete(val) {
+        this.total_flete = val;
+    }
+
+    set sumarCostoDeEnvio(val) {
+        let counter = 0
+        /* Mientras que el valor ingresado se mayor al valor devuelto por el contructor
+        menos el costo del envío ingresa al bucle que le suma al valor ingresado el costo 
+        del envío impuesto por el viejo contructor, para así sustituir el constructor*/
+        while(val > this.valor - this.costoEnvio) {
+            this.valor = val + this.costoEnvio;
+            counter ++;
+            console.log("\n *** Estamos en bucle fase " + counter)
+            this.getDetails;
+        }
+        this.seguro = this.valor;
+    }
+
+    set empty(val) {
+        this.indisponible = val;
+    }
+
+    sobreFletes(valor) {
+        this.sobreflete = Math.ceil(Math.max(valor * this.comision_transp / 100, this.sobreflete_min));
+        
+        let comision_heka = this.precios.comision_heka
+        if(!valor) {
+            this.seguroMercancia = this.sobreflete;
+            this.sobreflete = 0;
+            comision_heka = 1;
+        }
+        if(this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
+        this.sobreflete_heka = Math.ceil(valor * ( comision_heka ) / 100);
+
+        const respuesta = this.sobreflete + this.seguroMercancia + this.sobreflete_heka;
+        return respuesta;
     }
 
     //según sea el trayecto devuelve entre los valores ingresados al primero que coincida
@@ -727,6 +894,9 @@ class CalcularCostoDeEnvio {
     revisarTrayecto(origen, destino){
         let c_origen = origen || document.getElementById('ciudadR').dataset;
         let c_destino = destino || document.getElementById('ciudadD').dataset;
+
+        if(c_destino.tipo_trayecto == "undefined" && this.codTransp == "SERVIENTREGA") this.empty = true;
+
         if(c_destino.tipo_trayecto == "TRAYECTO ESPECIAL"){
             return "Especial";
         } else {
@@ -739,10 +909,78 @@ class CalcularCostoDeEnvio {
             }
         }
     };
+
+    async putTransp(transportadora, dataObj) {
+        this.codTransp = transportadora;
+        switch (transportadora) {
+            case "INTERRAPIDISIMO":
+                this.factor_de_conversion = 1 / 6000;
+                this.kg_min = 0.1;
+                let respuestaCotizacion = await this.cotizarInter(dataObj.dane_ciudadR, dataObj.dane_ciudadD);
+
+                console.log(respuestaCotizacion);
+                if(!respuestaCotizacion) {
+                    this.empty = true;
+                    break;
+                };
+
+                this.precio = respuestaCotizacion.Precio
+                this.tiempo = respuestaCotizacion.TiempoEntrega;
+
+                this.intoInter(this.precio)
+
+                break;
+        
+            default:
+                break;
+        };
+
+        return this;
+    };
+
+    async intoInter(precio) {
+        this.sobreflete = precio.ValorPrimaSeguro
+        if(this.type != "CONVENCIONAL") {
+            let servicioContraPago;
+            if(this.valor < 50000) {
+                servicioContraPago = 2500
+            } else {
+                servicioContraPago = this.valor * 0.05;
+            }
+            this.seguroMercancia = Math.ceil(servicioContraPago);
+        }
+
+        this.comision_transp = 2;
+        this.sobreflete_min = 0
+
+        this.flete = precio.Valor;
+        
+    }
+
+    async cotizarInter(dane_ciudadR, dane_ciudadD) {
+        console.log("cotizando Interrapidisimo");
+        let url = "https://servicios.interrapidisimo.com/ApiServInter/api/Cotizador/ResultadoListaCotizar";
+        
+        console.log(this.seguro);
+        console.log(this.kgTomado);
+
+        let res = await fetch(url+"/"
+        +dane_ciudadR+"/"
+        +dane_ciudadD+"/"+this.kgTomado+"/"+this.seguro+"/1/" + genFecha("LR"))
+        .then(data => data.json());
+
+        console.log(res);
+        let mensajeria = res.filter(d => d.IdServicio === 3);
+
+        if(!mensajeria.length) return 0;
+
+        // console.log(res);
+        return mensajeria[0];
+    }
 }
 
 // Para enviar la guia generada a firestore
-function crearGuiasServientrega() {
+function crearGuia() {
     if(value("nombreD") != "" && value("direccionD") != "" && value("barrioD") != "" && 
     value("telefonoD") != ""){
         let recoleccion = 0
@@ -818,6 +1056,39 @@ function crearGuiasServientrega() {
         alert("Por favor, verifique que los campos escenciales no estén vacíos");
         verificador(["producto", "nombreD", "direccionD", "barrioD", "telefonoD"]);
     }
+};
+
+async function crearGuiaServientrega(datos) {
+    //Primero consulto la respuesta del web service
+    let respuesta = await generarGuiaServientrega(datos)
+    .then(async (resGuia) => {
+        //le midifico los datos de respuesta al que será enviado a firebase
+        datos.numeroGuia = resGuia.numeroGuia;
+        datos.id_archivoCargar = resGuia.id_archivoCargar || "";
+        //y creo el documento de firebase
+        if(resGuia.numeroGuia) {
+            let guia = await referenciaNuevaGuia.set(datos)
+            .then(doc => {
+                return resGuia;
+            })
+            .catch(err => {
+                console.log("Hubo un error al crear la guía con firebase => ", err);
+                return {numeroGuia: 0, error: "Lo sentimos, hubo un problema con conexión con nuestra base de datos, le recomendamos recargar la página."}
+            })
+            console.log(guia);
+            return guia;
+        } else {
+            return {numeroGuia: 0, error: resGuia.error}
+        }
+        //Procuro devolver un objeto con el número de guía y el respectivo mensaje de erro si lo tiene
+    })
+    console.log(respuesta);
+
+    if(respuesta.numeroGuia) {
+        return doc.data().id;
+    } else {
+        throw new Error(respuesta.error);
+    }
 }
 
 //función que envía los datos tomados a servientrega
@@ -862,36 +1133,8 @@ function enviar_firestore(datos){
 
             if(generacion_automatizada) {
                 //Para cuando el usuario tenga activa la creación deguías automáticas.
-                //Primero consulto la respuesta del web service
-                let respuesta = await generarGuiaServientrega(datos)
-                    .then(async (resGuia) => {
-                        //le midifico los datos de respuesta al que será enviado a firebase
-                        datos.numeroGuia = resGuia.numeroGuia;
-                        datos.id_archivoCargar = resGuia.id_archivoCargar || "";
-                        //y creo el documento de firebase
-                        if(resGuia.numeroGuia) {
-                            let guia = await referenciaNuevaGuia.set(datos)
-                            .then(doc => {
-                                return resGuia;
-                            })
-                            .catch(err => {
-                                console.log("Hubo un error al crear la guía con firebase => ", err);
-                                return {numeroGuia: 0, error: "Lo sentimos, hubo un problema con conexión con nuestra base de datos, le recomendamos recargar la página."}
-                            })
-                            console.log(guia);
-                            return guia;
-                        } else {
-                            return {numeroGuia: 0, error: resGuia.error}
-                        }
-                        //Procuro devolver un objeto con el número de guía y el respectivo mensaje de erro si lo tiene
-                    })
-                    console.log(respuesta);
-                
-                if(respuesta.numeroGuia) {
-                    return doc.data().id;
-                } else {
-                    throw new Error(respuesta.error);
-                }
+                if(datos.transportadora !== "SERVIENTREGA") throw new Error("Lo sentimos, ésta transportadora no está optimizada para generar guías de manera automática.");
+               return crearGuiaServientrega(datos);
             } else {
                 //Para cuendo el usurio tenga la opcion de creacion de guias automática desactivada.
 
@@ -1081,3 +1324,10 @@ function observacionesServientrega(result_cotizacion) {
 
     return ul;
 };
+
+
+// fetch("https://servicios.interrapidisimo.com/ApiServInter/api/Cotizador/ResultadoListaCotizar/54206000/05001000/1/12500/1/20-08-2021")
+// .then(response => {
+//     console.log(response);
+//     response.json().then(d => console.log(d))
+// })

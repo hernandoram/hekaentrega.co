@@ -54,16 +54,17 @@ function tablaDeGuias(id, datos){
         data-costo_envio="${datos.costo_envio}"
         data-debe=${datos.debe}
     >
-        <th>
+        <td>
             <div class="form-check text-center">
                 <input class="form-check-input position-static" type="checkbox" value="option1" 
                 data-id="${id}" data-numeroGuia="${datos.numeroGuia}"
                 data-prueba="${datos.prueba}" data-id_archivoCargar="${datos.id_archivoCargar}"
                 data-type="${datos.type}"
+                data-transportadora="${datos.transportadora}"
                 data-funcion="activar-desactivar" aria-label="..." disabled>
             </div>
-        </th>
-        <th class="d-flex justify-content-around flex-wrap">
+        </td>
+        <td class="d-flex justify-content-around flex-wrap">
             <button class="btn btn-primary btn-circle btn-sm mt-2" data-id="${id}"
             id="ver_detalles${id}" data-toggle="modal" data-target="#modal-detallesGuias"
             title="Detalles">
@@ -99,19 +100,20 @@ function tablaDeGuias(id, datos){
             title="Eliminar Guía">
                 <i class="fas fa-trash"></i>
             </button>
-        </th>
+        </td>
 
-        <th>${id}</th>
-        <th></th>
-        <th></th>
-        <th>${datos.type || "Pago Contraentrega"}</th>
-        <th>${datos.fecha}</th>
-        <th>${datos.nombreR}</th>
-        <th>${datos.ciudadD}</th>
-        <th>${datos.nombreD}</th>
-        <th>$${convertirMiles(datos.seguro || datos.valor)}</th>
-        <th>$${convertirMiles(datos.valor)}</th>
-        <th>$${convertirMiles(datos.costo_envio)}</th>
+        <td>${id}</td>
+        <td></td>
+        <td></td>
+        <td>${datos.transportadora || "SERVIENTREGA"}</td>
+        <td>${datos.type || "Pago Contraentrega"}</td>
+        <td>${datos.fecha}</td>
+        <td>${datos.nombreR}</td>
+        <td>${datos.ciudadD}</td>
+        <td>${datos.nombreD}</td>
+        <td>$${convertirMiles(datos.seguro || datos.valor)}</td>
+        <td>$${convertirMiles(datos.valor)}</td>
+        <td>$${convertirMiles(datos.costo_envio)}</td>
 
     </tr>`
 }
@@ -175,7 +177,9 @@ function avisar(title, content, type, redirigir, tiempo = 5000){
 
 //// Esta funcion me retorna un card con informacion del usuario, sera invocada por otra funcion
 function mostrarUsuarios(data, id){
-    return `<div class="col-md-4 mb-4">
+    return `<div class="col-md-4 mb-4" 
+    data-filter-nombres="${data.nombres}" data-filter-apellidos="${data.apellidos}"
+    data-filter-centro_de_coste="${data.centro_de_coste}" data-filter-direccion="${data.direccion}">
     <div class="card border-bottom-info" id="${id}" shadow="h-100 py-2">
         <div class="card-body">
             <div class="row no-gutters align-items-center">
@@ -232,7 +236,8 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                 </div>
             </div>
             <div class="row" data-guias="${data.guias}" data-type="${data.type}"
-            data-id_guia="${id}" data-user="${data.id_user}" data-nombre="${data.nombre_usuario}">
+            data-id_guia="${id}" data-user="${data.id_user}" 
+            data-nombre="${data.nombre_usuario}" data-transportadora="${data.transportadora || "SERVIENTREGA"}">
                 <button class="col-12 col-md-6 btn btn-primary mb-3 text-truncate" title="Descargar Excel" data-funcion="descargar" value="">Descargar</button>
                 <div class="col-12 col-md-6 dropdown no-arrow mb-3">
                     <button class="col-12 btn btn-info dropdown-toggle text-truncate" title="Subir documentos" type="button" id="cargar${id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -257,6 +262,7 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                 
                 <button class="btn btn-danger d-none col-12" data-funcion="enviar" id="subir${id}">Subir</button>
             </div>
+            <h6 class='text-center'>${data.transportadora || "Servientrega"}</h6>
         </div>
     </div>
   </div>`
@@ -353,6 +359,7 @@ function activarBotonesDeGuias(id, data, activate_once){
         boton_eliminar_guia.addEventListener("click", function(e) {
             let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
             if(confirmacion && boton_eliminar_guia.getAttribute("data-enviado") != "true"){
+                $("#enviar-documentos").prop("disabled", true)
                 boton_eliminar_guia.disabled = true;
                 boton_eliminar_guia.display = "none";
                 firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
@@ -360,6 +367,7 @@ function activarBotonesDeGuias(id, data, activate_once){
                     console.log(res);
                     console.log("Document successfully deleted!");
                     avisar("Guia Eliminada", "La guia Número " + id + " Ha sido eliminada", "alerta");
+                    row.remove();
                 }).then(() => {
                     firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("informacion")
                     .doc("heka").get().then((doc) => {
@@ -389,9 +397,12 @@ function activarBotonesDeGuias(id, data, activate_once){
                             
                             historialGuias();
                         }
-                    })
+                    });
+                    $("#enviar-documentos").prop("disabled", false);
                 }).catch((error) => {
                     console.error("Error removing document: ", error);
+                    $("#enviar-documentos").prop("disabled", false);
+
                 });
             } else {
                 avisar("No permitido", "La guia Número " + id + " no puede ser eliminada", "advertencia");
@@ -508,6 +519,7 @@ function verificador(arr, scroll, mensaje) {
             }
         }
         if(primerInput) {
+            primerInput.querySelector("input").focus()
             primerInput.scrollIntoView({
                 behavior: "smooth"
             });
@@ -1525,3 +1537,42 @@ const Toast = Swal.mixin({
         toast.addEventListener('mouseleave', Swal.resumeTimer)
     }
 });
+
+
+async function probandoCotizadorAve(){
+    let auth = await fetch("https://aveonline.co/api/comunes/v1.0/autenticarusuario.php", {
+        method: "POST",
+        headers: {"Content-type": "application/json"},
+        body: JSON.stringify({
+            tipo: "auth",
+            usuario: "hernandoram1998",
+            clave: "3456"
+        })
+    }).then((res) => {
+        console.log(res);
+        return res.json();
+    });
+
+    console.log(auth);
+
+    let cotizacion = await fetch("https://aveonline.co/api/nal/v1.0/generarGuiaTransporteNacional.php", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        "body": JSON.stringify({
+            "tipo":"cotizar",
+            "token": auth.token,
+            "idempresa": "11635",
+            "origen": "GENOVA(QUINDIO)",
+            "destino":"MEDELLIN(ANTIOQUIA)",
+            "unidades":"1",
+            "kilos":"1",
+            "valordeclarado":"10000",
+            "idasumecosto":"1",
+            "contraentrega":"1",
+            "valorrecaudo":"1"
+        })
+    }).then(res => res.json());
+
+    console.log(cotizacion)
+
+}

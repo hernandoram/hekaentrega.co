@@ -291,25 +291,37 @@ function buscarUsuarios(){
         inHTML("mostrador-usuarios", "");
         console.log(querySnapshot.size);
         querySnapshot.forEach((doc) => {
-            if(value("buscador_usuarios-nombre")){
-                if(doc.data().centro_de_costo && 
-                (doc.data().centro_de_costo.toLowerCase().indexOf(value("buscador_usuarios-nombre").toLowerCase()) != -1 || 
-                doc.data().nombres.toLowerCase().indexOf(value("buscador_usuarios-nombre").toLowerCase()) != -1)){
+            //Luego de la consulta se realizan tres filtros
+
+            const nombre = doc.data().nombres.trim().toLowerCase();
+            const apellido = doc.data().apellidos.trim().toLowerCase();
+            const nombre_completo = nombre + " " + apellido;
+            const nombre_apellido = nombre.split(" ")[0] + " " + apellido.split(" ")[0];
+            const centro_de_costo = doc.data().centro_de_costo || "SCC";
+            const direccion = doc.data().direccion || "SD"
+            const nombreInp = value("buscador_usuarios-nombre").toLowerCase();
+            const dirInp = value("buscador_usuarios-direccion").toLowerCase();
+
+            //Primer filtro para buscar por nombre de usuario
+            if(nombreInp){
+                if (centro_de_costo.toLowerCase().includes(nombreInp) 
+                || nombre.includes(nombreInp) || apellido.includes(nombreInp)
+                || nombre_completo.includes(nombreInp) || nombre_apellido.includes(nombreInp)){
                     document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
                 }
             }
 
-            if(value("buscador_usuarios-direccion")) {
-                if(doc.data().centro_de_costo && doc.data().direccion.toLowerCase().indexOf(value("buscador_usuarios-direccion").toLowerCase()) != -1 ) {
+            if(dirInp) {
+                if(direccion.toLowerCase().indexOf(dirInp) != -1 ) {
                     document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
                 }
             }
 
-            if(!value("buscador_usuarios-direccion") && !value("buscador_usuarios-nombre")){
+            if(!dirInp && !nombreInp){
                 document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
             }
             
-            if(value("buscador_usuarios-nombre").toLowerCase() == doc.data().nombres.toLowerCase()){
+            if(nombreInp == nombre){
                 document.getElementById("usuario-seleccionado").setAttribute("data-id", doc.id);
                 seleccionarUsuario(doc.id);
             }
@@ -359,8 +371,24 @@ function buscarUsuarios(){
         document.getElementById("cargador-usuarios").classList.add("d-none");
 
     })
+};
+
+//Funcion que filtrará a los usuarios luego de realizar que el dom esté lleno
+function filtrarBusquedaUsuarios(e) {
+    let input = e.target.value.toLowerCase();
+    let children = $("#mostrador-usuarios").children();
+    children.each((i, child) => {
+        const data = Object.values(child.dataset);
+        let filt = data.some((value) => value.toLowerCase().includes(input));
+
+        filt ? $(child).removeClass("d-none") : $(child).addClass("d-none");
+    })
 }
 
+$("#buscador_usuarios-nombre, #buscador_usuarios-direccion").keyup(e => {
+    if(e.keyCode === 13) buscarUsuarios();
+    filtrarBusquedaUsuarios(e);
+})
 
 
 // esta funcion me busca el usuario seleccionado con informacion un poco mas detallada

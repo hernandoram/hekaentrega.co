@@ -66,7 +66,7 @@
 
         <!-- Nav Item - Cotizar envio -->
         <li class="nav-item">
-          <a class="nav-link" href="#cotizar_envio" onclick="mostrar('cotizar_envio')">
+          <a class="nav-link" href="#cotizar_envio" onclick="gestionarTransportadora()">
             <i class="fas fa-fw fa-balance-scale"></i>
             <span>Cotizar envío</span></a>
         </li>
@@ -208,6 +208,12 @@
 
             <!-- Page Heading -->
             <div style="display: block;" id="cotizador">
+              <div class="d-flex justify-content-end align-items-center mb-3 mb-sm-0">
+                <p class="m-0">Estás cotizando con: <b class="transportadora"></b></p>
+                <button class="btn btn-info ml-2"
+                onclick="gestionarTransportadora()"
+                alt="Cambiar Transportadora">Cambiar</button>
+              </div>
               <h1 class="h3 mb-4 text-gray-800">Cotizar envío</h1>
               <hr class="sidebar-divider"></hr>
               <form class="user" name="cotizacionEnvio" id="cotizar-envio">
@@ -228,7 +234,7 @@
                 <div class="form-group row align-items-end mb-3">
                   <div class="col-sm-6 mb-3 mb-sm-3">
                     <h6>KILOS</h6>
-                    <input type="number" class="form-control form-control-user" step="any" name="kilos" id="Kilos" min="3" max="25" autocomplete="off" required>  
+                    <input type="number" class="form-control form-control-user" step="any" name="kilos" id="Kilos" min="1" max="25" autocomplete="off" required>  
                   </div>      
                   <div class="col mb-3 mb-sm-3">
                     <h6>Valor Declarado</h6>
@@ -256,16 +262,15 @@
                   </div>
                 </div>
 
-                <hr class="sidebar-divider"></hr>
               </form>
-  
-              <div id="texto_envio"></div>
-              <button style="display: block;" id="boton_cotizar"  onclick="cotizador()" class="btn btn-primary btn-user">
+              <button id="boton_cotizar"  onclick="cotizador()" 
+              class="btn btn-primary btn-block btn-lg mb-3">
                 Cotizar envío
               </button>
+  
               <!-- End of Main Content -->
             </div> <!-- End of Main Content -->
-            <div id="result_cotizacion" class="col-sm"></div>
+            <div id="result_cotizacion" class="mt-5"></div>
           </div>
 
           <div class="container-fluid" id="tienda">
@@ -611,7 +616,7 @@
                 
                 <div class="table-responsive">
                   <table  class="display table table-bordered" id="dataTable" width="100%" cellspacing="0">  
-                    <thead>
+                    <thead class="text-truncate">
                       <tr>
                         <th class="text-center"> 
                           Check
@@ -620,8 +625,9 @@
                         </th>
                         <th>Acciones</th>
                         <th># Guía Heka</th>
-                        <th># Guía Servientrega</th>
+                        <th># Guía transportadora</th>
                         <th>Estado</th>
+                        <th>Transportadora</th>
                         <th>Tipo</th>
                         <th>Fecha generación</th>
                         <th>Remitente</th>
@@ -640,8 +646,9 @@
                         <th>Check</th>
                         <th>Acciones</th>
                         <th># Guía Heka</th>
-                        <th># Guía Servientrega</th>
+                        <th># Guía transportadora</th>
                         <th>Estado</th>
+                        <th>Transportadora</th>
                         <th>Tipo</th>
                         <th>Fecha generación</th>
                         <th>Remitente</th>

@@ -28,7 +28,7 @@
     "node-blob": "^0.0.2",
     "node-cron": "^2.0.3",
     "pdf-lib": "^1.16.0",
-    "puppeteer": "^5.2.1",
+    "puppeteer": "^5.5.0",
     "request": "^2.88.2",
     "request-promise": "^4.2.6",
     "sanitizer": "^0.1.3",

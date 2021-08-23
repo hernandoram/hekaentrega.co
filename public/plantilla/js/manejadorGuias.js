@@ -67,17 +67,18 @@ function crearDocumentos() {
                 id_heka:  check.getAttribute("data-id"),
                 id_archivoCargar: check.getAttribute("data-id_archivoCargar"),
                 prueba:  check.getAttribute("data-prueba") == "true" ? true : false,
-                type: check.getAttribute("data-type")
+                type: check.getAttribute("data-type"),
+                transportadora: check.getAttribute("data-transportadora")
             });
 
             //Verifica que todas las guias crrespondan al mismo tipo
             let tipos_diferentes = arrGuias.some((v, i, arr) => {
-                return v.type != arr[i? i - 1 :i].type
+                return v.type != arr[i? i - 1 :i].type || v.transportadora != arr[i? i - 1 :i].transportadora
             });
 
             //Si no corresponden, arroja una excepción
             if(tipos_diferentes) {
-                return avisar("!error!", "No se pudo procesar la información, los tipos de guías seleccionados no coinciden.", "advertencia");
+                return avisar("!No se pudo procesar la información!", "Los tipos o transportadoras de guías seleccionadas no coinciden.", "advertencia");
             }
         }
     }
@@ -116,7 +117,8 @@ function crearDocumentos() {
             fecha: genFecha(),
             timeline: new Date().getTime(),
             descargar_relacion_envio: false, descargar_guias: false,
-            type: arrGuias[0].type
+            type: arrGuias[0].type,
+            transportadora: arrGuias[0].transportadora
         })
         .then((docRef) => {
             console.log("Document written with ID: ", docRef.id);
@@ -246,8 +248,8 @@ function cargarDocumentos(filter) {
         case "sin gestionar":
             docFiltrado = reference
             // .orderBy("timeline", "desc")
-            // .where("descargar_relacion_envio", "==", false)
-            .where("descargar_guias", "==", false);
+            .where("descargar_relacion_envio", "==", false)
+            // .where("descargar_guias", "==", false);
             break;
         default:
             docFiltrado = reference.where("guias", "array-contains-any", filter);
@@ -260,8 +262,11 @@ function cargarDocumentos(filter) {
         let users = new Array();
         let counter_guias = 0;
         let counter_convencional = 0, counter_pagoContraentrega = 0;
-        querySnapshot.forEach((doc) => {
-            console.log(doc.data().timeline, doc.data().nombre_usuario);
+        
+        let docs = querySnapshot.docs;
+        docs.sort((a,b) => b.data().timeline - a.data().timeline);
+
+        docs.forEach((doc) => {
             doc.data().type == "CONVENCIONAL" ? counter_convencional++ : counter_pagoContraentrega ++
             if(!users.includes(doc.data().id_user)) users.push(doc.data().id_user);
             counter_guias += doc.data().guias.length;
@@ -302,10 +307,11 @@ function cargarDocumentos(filter) {
         for(let boton of botones){
             boton.addEventListener("click", (e) => {
                 boton.disabled = true;
-                let idUser = e.target.parentNode.getAttribute("data-user");
-                let guias = e.target.parentNode.getAttribute("data-guias").split(",");
-                let nombre = e.target.parentNode.getAttribute("data-nombre");
-                let type = e.target.parentNode.getAttribute("data-type");
+                const idUser = e.target.parentNode.getAttribute("data-user");
+                const guias = e.target.parentNode.getAttribute("data-guias").split(",");
+                const nombre = e.target.parentNode.getAttribute("data-nombre");
+                const type = e.target.parentNode.getAttribute("data-type");
+                const transp = e.target.parentNode.getAttribute("data-transportadora");
                 documento = [];
                 cargarDocumento(idUser, guias).then(() =>{
                     let data = documento;
@@ -315,7 +321,11 @@ function cargarDocumentos(filter) {
                     if(guiaRepetida(data)) return avisar("¡Posible error Detectado!", "Alguna de las guías se encuentra repetida, se ha interrumpido el proceso antes de convertirlo en excel.", "aviso")
                     if(data == '')
                         return avisar("documento vacío", "No se detectaron guías en este documento", "advertencia");
-                    descargarGuiasGeneradas(data, nombre + " " + guias.slice(0, 5).join("_"), type);
+                    if(transp == "INTERRAPIDISIMO") {
+                        descargarExcelInter(data, "heka_inter" + nombre + " " + guias.slice(0, 5).join("_"), type);
+                    } else {
+                        descargarExcelServi(data, "heka_servi"+nombre + " " + guias.slice(0, 5).join("_"), type);
+                    }
                 }).then(() => {
                     boton.disabled = false;
                 })
@@ -424,139 +434,91 @@ async function cargarDocumento(id_user, arrGuias) {
 }
 
 //Me convierte el conjunto de guias descargadas en archivo CsV
-function descargarGuiasGeneradas(JSONData, ReportTitle, type) {
+function descargarExcelServi(JSONData, ReportTitle, type) {
     console.log(JSONData)
     //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
     var arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
-
-    //Aca esta organizado el encabezado
-    let CSV = '';
-    CSV = 'sep=,' + '\r\n';
-    let encabezado = ["Ciudad/Cód DANE de Origen","Tiempo de Entrega","Documento de Identificación","Nombre del Destinatario","Dirección","Ciudad/Cód DANE de destino","Departamento","Teléfono","Correo Electrónico Destinatario","Celular","Departamento de Origen","Direccion Remitente","Nombre de la Unidad de Empaque","Dice Contener","Valor declarado","Número de Piezas","Cantidad","Alto","Ancho","Largo","Peso","Producto","Forma de Pago","Medio de Transporte","Campo personalizado 1","Unidad de longitud","Unidad de peso","Centro de costo","Recolección Esporádica","Tipo de Documento","Nombre contacto remitente","Correo electrónico del remitente","Numero de telefono movil del remitente.","Valor a cobrar por el Producto"];
+    
+    //un arreglo cuyo cada elemento contiene un arreglo: ["titulo de la columna", "la información a inrertar en dicha columna"]
+    //Está ordenado, como saldrá en el excel
+    let encabezado = [["Ciudad/Cód DANE de Origen", "ciudadR"],["Tiempo de Entrega", 1],["Documento de Identificación", "identificacionD"],["Nombre del Destinatario", "nombreD"],["Dirección", "direccionD"],["Ciudad/Cód DANE de destino","ciudadD"],["Departamento", "departamentoD"],["Teléfono", "telefonoD"],["Correo Electrónico Destinatario", "correoD"],["Celular", "celularD"],["Departamento de Origen", "departamentoR"],["Direccion Remitente", "direccionR"],["Nombre de la Unidad de Empaque", "heka"],["Dice Contener", "dice_contener"],["Valor declarado", "seguro"],["Número de Piezas", 1],["Cantidad", 1],["Alto", "alto"],["Ancho", "ancho"],["Largo", "largo"],["Peso", "peso"],["Producto", 2],["Forma de Pago", 2],["Medio de Transporte", 1],["Campo personalizado 1", "id_heka"],["Unidad de longitud", "cm"],["Unidad de peso", "kg"],["Centro de costo", "centro_de_costo"],["Recolección Esporádica", "recoleccion_esporadica"],["Tipo de Documento", "tipo_doc_dest"],["Nombre contacto remitente","nombreR"],["Correo electrónico del remitente", "correoR"],["Numero de telefono movil del remitente.", "celularR"],["Valor a cobrar por el Producto", "valor"]];
+    
     if(type == "CONVENCIONAL") {
         encabezado.splice(-5, 1);
         encabezado.splice(-1,1)
+    };
+
+    let recolecciones = new Array();
+    let newDoc = arrData.map((dat, i) => {
+        let d = new Object();
+        encabezado.forEach(([headExcel, fromData]) => {
+            if(fromData === "recoleccion_esporadica") {
+                fromData = i ? 0 : 1;
+                if(fromData) recolecciones.push(i + 1);
+            }
+            d[headExcel] = dat[fromData] || fromData;
+        });
+        console.log(d);
+        return d
+    });
+
+    const titulo_rec = "Recolección esporádica";
+    let texto_rec;
+    if(recolecciones.length === 1 ) {
+        texto_rec = "Solo la fila " + recolecciones[0] + " tiene habilitada la recolección esporádica.";
+    } else if (recolecciones.length > 1) {
+        texto_rec = "Las filas " + recolecciones + " tiene habilitada la recolección esporádica.";
+    } else {
+        texto_rec = "Ninguna fila tiene habilitada la recolección esporádica.";
     }
-    CSV += encabezado.join() + '\r\n';
-    console.log(arrData.length);
-    console.log(arrData);
-    let visor_final = new Array();
-    //Se actulizara cada cuadro por fila, ***se comenta cual es el campo llenado en cada una***
-    for (var i = 0; i < arrData.length; i++) {
-        for(let campo in arrData[i]) {
-            arrData[i][campo] = arrData[i][campo].toString().replace(/,/g, "-");
-        }
-        console.log(arrData[i].id_heka)
-        let row = "";
-        //Ciudad/Cód DANE de Origen
-        row += arrData[i].ciudadR + ',';
-        //Tiempo de Entrega
-        row += 1+",";
-        // Documento de Identificación
-        row += '"' + arrData[i].identificacionD + '",';
-        // Nombre del Destinatario
-        row += arrData[i].nombreD + ',';
-        //Dirección
-        row += arrData[i].direccionD + ',';
-        // Ciudad/Cód DANE de destino
-        row += arrData[i].ciudadD + ',';
-        //Departamento
-        row += arrData[i].departamentoD + ',';
-        //Teléfono
-        row += arrData[i].telefonoD + ',';
-        //Correo Electrónico Destinatario
-        row += arrData[i].correoD + ',';
-        //Celular
-        row += arrData[i].celularD + ',';
-        //Departamento de Origen
-        row += arrData[i].departamentoR + ',';
-        //Direccion Remitente
-        row += arrData[i].direccionR + ',';
-        // Nombre de la Unidad de Empaque
-        row += 'heka,';
-        //Dice Contener
-        row += arrData[i].dice_contener + ',';
-        // Valor declarado
-        if(type == "CONVENCIONAL") {
-            row += arrData[i].seguro + ',';
-        } else {
-            row += ',';
-        }
-        // Número de Piezas
-        row += '1,';
-        // Cantidad
-        row += '1,';
-        //Alto
-        row += arrData[i].alto + ',';
-        //Ancho
-        row += arrData[i].ancho + ',';
-        // Largo
-        row += arrData[i].largo + ',';
-        //Peso
-        row += arrData[i].peso + ',';
-        //Producto
-        row += '2,';
-        //Forma de Pago
-        row += '2,';
-        //Medio de Transporte
-        row += '1,';
-        // Campo personalizado 1
-        row += arrData[i].id_heka + ',';
-        // Unidad de longitud
-        row += 'cm,';
-        // Unidad de peso
-        row += 'kg,';
-        //Centro de costo
-        row += '"'+arrData[i].centro_de_costo + '",';
-        //Recolección Esporádica
-        row += arrData[i].recoleccion_esporadica + ',';
-        // Tipo de Documento
-        if(type != "CONVENCIONAL") {
-            row += arrData[i].tipo_doc_dest + ',';
-        }
-        // Nombre contacto remitente
-        row += arrData[i].nombreR + ',';
-        // Correo electrónico del remitente
-        row += arrData[i].correoR + ',';
-        // Numero de telefono movil del remitente.
-        row += arrData[i].celularR + ',';
-        // Valor a cobrar por el Producto
-        if(type != "CONVENCIONAL") {
-            row += arrData[i].valor + ',';
-        }
+    
+    avisar(titulo_rec, texto_rec, "aviso");
 
-        row.slice(0, row.length - 1);
-        
-        //agg un salto de linea por cada fila
-        CSV += row + '\r\n';
-        visor_final.push(arrData[i].id_heka);
-        console.log(row)
-    }
+    crearExcel(newDoc, ReportTitle);
+    return;
 
-    if (CSV == '') {        
-        alert("Datos invalidos");
-        return;
-    }   
-    
-    //nombre del archivo por defecto
-    var fileName = "heka_";
-    //Toma los espacios en blanco en el nombre colocado y los reemplaza con guion bajo
-    fileName += ReportTitle.replace(/ /g,"_");   
-    
-    //Para formato CSV
-    var uri = 'data:text/csv;charset=utf-8,' + escape(CSV);
+};
 
-    // un Tag link que no sera visible, pero redirigira al archivo para descargarlo en cuanto se active este funcion
-    var link = document.createElement("a");    
-    link.href = uri;
+function descargarExcelInter(JSONData, ReportTitle, type) {
+    //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
+    var arrData = typeof JSONData != 'object' ? JSON.parse(JSONData) : JSONData;
     
-    link.style = "visibility:hidden";
-    link.download = fileName + ".csv";
+    //un arreglo cuyo cada elemento contiene un arreglo: ["titulo de la columna", "la información a inrertar en dicha columna"]
+    //Está ordenado, como saldrá en el excel
+    let encabezado = [["NUMERO GUIA", ""], ["ID DESTINATARIO", "_idDestinatario"], ["NOMBRE DESTINATARIO", "nombreD"], ["APELLIDO1 DESTINATARIO", ""], ["APELLIDO2 DESTINATARIO", ""], ["TELEFONO DESTINATARIO", "telefonoD"],	["DIRECCION DESTINATARIO", "direccionD"], ["CODIGO CIUDAD DESTINO", "dane_ciudadD"], ["CIUDAD DESTINO", "_ciudad"], ["DICE CONTENER", "dice_contener"], ["OBSERVACIONES", "id_heka"],	["BOLSA DE SEGURIDAD", ""], ["PESO", "peso"], ["VALOR COMERCIAL", "valor"], ["NO PEDIDO", ""], ["DIRECCION AGENCIA DESTINO", ""]]
+
+    let newDoc = arrData.map((dat, i) => {
+        let d = new Object();
+        encabezado.forEach(([headExcel, fromData]) => {
+            if(fromData === "_idDestinatario") {
+                fromData = i + 1;
+            };
+
+            if(fromData === "_ciudad") {
+                fromData = dat.ciudadD + "/" + dat.departamentoD;
+            }
+
+            d[headExcel] = dat[fromData] || fromData;
+        });
+        console.log(d);
+        return d
+    });
+
+    crearExcel(newDoc, ReportTitle);
+    return;
+
+};
+
+function crearExcel(newDoc, nombre) {
+    console.log(newDoc);
+
+    let ws = XLSX.utils.json_to_sheet(newDoc);
     
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    if(guiaRepetida(visor_final)) avisar("¡Posible Error, poco común!", "Se ha detectado alguna gu+ia repetida en el documento descargado, manejelo con precausión o recargue la página e intente nuevamente para comprobar el error.", "avisar")
+    let wb = XLSX.utils.book_new();
+    console.log(wb);
+    XLSX.utils.book_append_sheet(wb, ws, "1");
+    
+    XLSX.writeFile(wb, nombre.replace(/ /g,"_")+".xlsx")
 }
 
 function descargarInformeGuias(JSONData, ReportTitle) {
@@ -737,7 +699,7 @@ function actualizarHistorialDeDocumentos(timeline){
         console.log(localStorage.user_id)
         if(document.getElementById('body-documentos')){
           inHTML("body-documentos", "");
-        }  
+        }
 
         //query que me carga la información en la tabla
         querySnapshot.forEach((doc) => {
