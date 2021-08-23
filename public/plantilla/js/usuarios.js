@@ -286,7 +286,7 @@ function buscarUsuarios(){
     // if(value("buscador_usuarios-id")){
     //     busqueda = ["==", value("buscador_usuarios-id")];
     // }
-    firebase.firestore().collection("usuarios").get()
+    firebase.firestore().collection("usuarios").limit(5).get()
     .then((querySnapshot) => {
         inHTML("mostrador-usuarios", "");
         console.log(querySnapshot.size);
@@ -414,17 +414,7 @@ function seleccionarUsuario(id){
 function mostrarDatosPersonales(data, info) {
 
     $("#aumentar_saldo").val("");
-    asignacion("actualizar_costo_zonal1", data.costo_zonal1);
-    asignacion("actualizar_costo_zonal2", data.costo_zonal2);
-    asignacion("actualizar_costo_zonal3", data.costo_zonal3);
-    asignacion("actualizar_costo_nacional1", data.costo_nacional1);
-    asignacion("actualizar_costo_nacional2", data.costo_nacional2);
-    asignacion("actualizar_costo_nacional3", data.costo_nacional3);
-    asignacion("actualizar_costo_especial1", data.costo_especial1);
-    asignacion("actualizar_costo_especial2", data.costo_especial2);
-    asignacion("actualizar_costo_especial3", data.costo_especial3);
-    asignacion("actualizar_comision_servi", data.comision_servi);
-    asignacion("actualizar_comision_heka", data.comision_heka);
+    asignarValores(data, "#usuario-seleccionado");
     let mostrador_saldo = document.getElementById("actualizar_saldo");
     mostrador_saldo.textContent = "$" + convertirMiles(0);
     mostrador_saldo.setAttribute("data-saldo", 0);
@@ -434,46 +424,8 @@ function mostrarDatosPersonales(data, info) {
     if(info == "personal"){
         // Datos personales
         inHTML("nombre-usuario", data.nombres.split(" ")[0] + " " + data.apellidos.split(" ")[0]);
-        asignacion("actualizar_nombres", data.nombres);
-        asignacion("actualizar_apellidos", data.apellidos);
-        asignacion("actualizar_tipo_documento", data.tipo_documento);
-        asignacion("actualizar_numero_documento", data.numero_documento);
-        asignacion("actualizar_telefono", data.celular);
-        asignacion("actualizar_celular", data.celular2);
-        asignacion("actualizar_ciudad", data.ciudad);
-        asignacion("actualizar_direccion", data.direccion);
-        asignacion("actualizar_barrio", data.barrio);
-        asignacion("actualizar_nombre_empresa", data.nombre);
-        asignacion("actualizar_centro_costo", data.centro_de_costo);
-        asignacion("actualizar_correo", data.correo);
-        asignacion("actualizar_contraseña", data.con);
-        asignacion("actualizar_repetir_contraseña", data.con);
-        asignacion("actualizar_objetos_envio", data.objetos_envio);
-
-    } else if(info == "bancaria") {
-        // Datos bancarios
-        asignacion("actualizar_banco", data.banco);
-        asignacion("actualizar_nombre_representante", data.nombre_banco);
-        asignacion("actualizar_tipo_de_cuenta", data.tipo_de_cuenta);
-        asignacion("actualizar_numero_cuenta", data.numero_cuenta);
-        asignacion("actualizar_confirmar_numero_cuenta", data.numero_cuenta);
-        asignacion("actualizar_tipo_documento_banco", data.tipo_documento_banco);
-        asignacion("actualizar_numero_identificacion_banco", data.numero_iden_banco);
-        asignacion("actualizar_confirmar_numero_identificacion_banco", data.numero_iden_banco);
-    } else {
+    } else if(info == "heka") {
         $("#aumentar_saldo").val("");
-        asignacion("actualizar_costo_zonal1", data.costo_zonal1);
-        asignacion("actualizar_costo_zonal2", data.costo_zonal2);
-        asignacion("actualizar_costo_zonal3", data.costo_zonal3);
-        asignacion("actualizar_costo_nacional1", data.costo_nacional1);
-        asignacion("actualizar_costo_nacional2", data.costo_nacional2);
-        asignacion("actualizar_costo_nacional3", data.costo_nacional3);
-        asignacion("actualizar_costo_especial1", data.costo_especial1);
-        asignacion("actualizar_costo_especial2", data.costo_especial2);
-        asignacion("actualizar_costo_especial3", data.costo_especial3);
-        asignacion("actualizar_comision_servi", data.comision_servi);
-        asignacion("actualizar_comision_heka", data.comision_heka);
-        asignacion("limit_credit", data.limit_credit);
         mostrador_saldo.textContent = "$" + convertirMiles(data.saldo) || 0;
         mostrador_saldo.setAttribute("data-saldo", data.saldo || 0);
         mostrador_saldo.setAttribute("data-saldo_anterior", data.saldo || 0);
@@ -511,6 +463,12 @@ function mostrarDatosPersonales(data, info) {
         } 
     }
     
+}
+
+function asignarValores(data, query) {
+    for(let value in data) {
+        $(query).find(`[name="${value}"]`).val(data[value]);
+    }
 }
 
 function actualizarInformacionPersonal() {
@@ -573,23 +531,21 @@ async function actualizarInformacionHeka() {
     document.querySelector('[onclick="actualizarInformacionHeka()"]').value = "cargando";
 
     let datos = {
-        costo_zonal1: value("actualizar_costo_zonal1"),
-        costo_zonal2: value("actualizar_costo_zonal2"),
-        costo_zonal3: value("actualizar_costo_zonal3"),
-        costo_nacional1: value("actualizar_costo_nacional1"),
-        costo_nacional2: value("actualizar_costo_nacional2"),
-        costo_nacional3: value("actualizar_costo_nacional3"),
-        costo_especial1: value("actualizar_costo_especial1"),
-        costo_especial2: value("actualizar_costo_especial2"),
-        costo_especial3: value("actualizar_costo_especial3"),
-        comision_servi: value("actualizar_comision_servi"),
-        comision_heka: value("actualizar_comision_heka"),
         saldo: $("#actualizar_saldo").attr("data-saldo"),
-        actv_credit: document.getElementById("actv_credit").checked ? 1 : 0,
-        limit_credit: value("limit_credit"),
         fecha: genFecha()
     };
 
+    $("#informacion-heka").find("[type=checkbox]").each((i, el) => {
+        const value = $(el).attr("id");
+        datos[value] = $(el).prop("checked");
+    });
+
+    $("#informacion-heka").find("[name]").each((i, el) => {
+        const value = $(el).attr("name");
+        datos[value] = $(el).val();
+    });
+
+    console.log(datos)
     
     let momento = new Date().getTime();
     let id_usuario = document.getElementById("usuario-seleccionado").getAttribute("data-id");

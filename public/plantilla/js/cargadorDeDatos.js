@@ -13,18 +13,20 @@ if(localStorage.getItem("acceso_admin")){
 let datos_usuario = {},
 //Almacena los costos de envios (nacional, urbano...) y el porcentaje de comision
 precios_personalizados = {
-    costo_zonal1: 9050,
-    costo_zonal2: 13050,
-    costo_zonal3: 2800,
-    costo_nacional1: 11500,
-    costo_nacional2: 19250,
-    costo_nacional3: 3400,
-    costo_especial1: 22900,
-    costo_especial2: 32000,
-    costo_especial3: 6300,
-    comision_servi: 3.1,
-    comision_heka: 1,
-    saldo: 0
+  costo_zonal1: 7550,
+  costo_zonal2: 11550,
+  costo_zonal3: 2800,
+  costo_nacional1: 10000,
+  costo_nacional2: 17750,
+  costo_nacional3: 3400,
+  costo_especial1: 21400,
+  costo_especial2: 30500,
+  costo_especial3: 6300,
+  comision_servi: 3.1,
+  comision_heka: 1,
+  constante_convencional: 600,
+  constante_pagoContraentrega: 1500,
+  saldo: 0
 };
 
 let estado_prueba, generacion_automatizada;
@@ -159,15 +161,16 @@ function cargarDatosUsuario(){
         informacion.doc("heka").onSnapshot(doc => {
           if(doc.exists){
             for(let precio in doc.data()){
-              if(precio != "fecha" && precio != "activar_saldo"){
-                let pryce = parseFloat(doc.data()[precio]);
-                if(pryce && typeof pryce == "number"){
-                  precios_personalizados[precio] = pryce;
-                }
-              }else {
-                precios_personalizados[precio] = doc.data()[precio];
+              const value = doc.data()[precio];
+              if(!value) continue;
+              if(!/[^\d+.]/.test(value.toString())) {
+                precios_personalizados[precio] = parseInt(value);
+              } else {
+                precios_personalizados[precio] = value;
               }
             }
+
+            console.log(precios_personalizados);
 
             $("#saldo").html("$" + convertirMiles(doc.data().saldo));
 

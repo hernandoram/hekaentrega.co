@@ -5,9 +5,11 @@ let datos_de_cotizacion,
 // Objeto principal en que se basa la transportadora a ser utilizada
 let transportadoras = {
     "SERVIENTREGA": {
+        habilitada: precios_personalizados.habilitar_servientrega,
         nombre: "Servientrega",
         observaciones: observacionesServientrega,
         logoPath: "img/logoServi.png",
+        color: "success",
         limitesPeso: [3,15],
         limitesLongitud: [1,150],
         limitesRecaudo: [5000, 2000000],
@@ -16,9 +18,11 @@ let transportadoras = {
         }
     },
     "ENVIA": {
+        habilitada: precios_personalizados.habilitar_envia,
         nombre: "Envía",
         observaciones: observacionesServientrega,
         logoPath: "img/2001.png",
+        color: "success",
         limitesPeso: [3,15],
         limitesLongitud: [1,150],
         limitesRecaudo: [5000, 2000000],
@@ -27,9 +31,11 @@ let transportadoras = {
         }
     },
     "INTERRAPIDISIMO": {
+        habilitada: precios_personalizados.habilitar_interrapidisimo,
         nombre: "Inter Rapidísimo",
         observaciones: observacionesServientrega,
         logoPath: "img/logo-inter.png",
+        color: "dark",
         limitesPeso: [0.1,5],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
@@ -377,6 +383,7 @@ async function response(datos) {
 async function detallesTransportadoras(data) {
     let encabezados = "", detalles = "";
     console.log(data);
+    let corredor = 0;
 
     //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
     for(let transp in transportadoras) {
@@ -401,7 +408,7 @@ async function detallesTransportadoras(data) {
 
         transportadora.cotizacion = cotizacion;
 
-        encabezados += `<a class="list-group-item list-group-item-action shadow-sm mb-2" 
+        encabezados += `<a class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
         id="list-transportadora-${transp}-list" 
         role="tab"
         data-toggle="list"
@@ -429,10 +436,10 @@ async function detallesTransportadoras(data) {
         </a>`;
 
         detalles += `<div class="tab-pane fade 
-        ${transp == "SERVIENTREGA" ? "show active" : ""}" 
+        ${!corredor ? "show active" : ""}" 
         id="list-transportadora-${transp}" role="tabpanel" aria-labelledby="list-transportadora-${transp}-list">
             <ul class="list-group">
-                <li class="list-group-item d-flex justify-content-between align-items-center active">
+                <li class="list-group-item d-flex justify-content-between align-items-center text-light bg-${transportadora.color}">
                     ${transportadora.nombre}
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
@@ -457,6 +464,8 @@ async function detallesTransportadoras(data) {
                 </li>
             </ul>
         </div>`;
+
+        corredor ++
     }
 
     /* Devuelve el html en dos manera, con la lista, y con los detalles particulares */
@@ -468,6 +477,21 @@ function seleccionarTransportadora(e) {
     if (e.target.classList.contains("detalles")) return
     let transp = this.getAttribute("data-transp");
     let result_cotizacion = transportadoras[transp].cotizacion;
+
+    const texto_tranp_no_disponible = `Actualmente no tienes habilitada esta transportadora, 
+    si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/jwryoa">312 463 8608</a>`;
+
+    const swal_error = {
+        icon: "error",
+        html: texto_tranp_no_disponible
+    };
+    if(transp != "INTERRAPIDISIMO") {
+        if(transportadoras[transp].habilitada === false) {
+            return Swal.fire(swal_error);
+        }
+    } else if(!transportadoras[transp].habilitada) {
+        return Swal.fire(swal_error);
+    }
 
     //Muestra algún dato relevante en un modal
     Swal.fire({
@@ -755,6 +779,7 @@ class CalcularCostoDeEnvio {
         //Datos por defecto para Servientrega
         this.type = type;
         this.valor = type == "CONVENCIONAL" ? 0 : parseInt(valor);
+        this.convencional = type === "CONVENCIONAL";
         this.seguro = parseInt(valor);
         this.kg = kilos || parseInt(value("Kilos"));
         this.volumen = vol || value("dimension-ancho") * value("dimension-alto") * value("dimension-largo");
@@ -860,14 +885,17 @@ class CalcularCostoDeEnvio {
     sobreFletes(valor) {
         this.sobreflete = Math.ceil(Math.max(valor * this.comision_transp / 100, this.sobreflete_min));
         
-        let comision_heka = this.precios.comision_heka
-        if(!valor) {
+        let comision_heka = this.precios.comision_heka;
+        let constante_heka = this.precios.constante_pagoContraentrega
+        if(this.convencional) {
             this.seguroMercancia = this.sobreflete;
             this.sobreflete = 0;
             comision_heka = 1;
+            constante_heka = this.precios.constante_convencional
         }
         if(this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
-        this.sobreflete_heka = Math.ceil(valor * ( comision_heka ) / 100);
+        
+        this.sobreflete_heka = Math.ceil(valor * ( comision_heka ) / 100) + constante_heka;
 
         const respuesta = this.sobreflete + this.seguroMercancia + this.sobreflete_heka;
         return respuesta;
@@ -932,6 +960,12 @@ class CalcularCostoDeEnvio {
                 break;
         
             default:
+                //La transportadora por defecto es servientrega
+                //el envío por defecto es PAGO CONTRAENTREGA
+                if(this.convencional) {
+                    this.sobreflete_min = 350;
+                    this.comision_transp = 1
+                }
                 break;
         };
 
@@ -939,7 +973,7 @@ class CalcularCostoDeEnvio {
     };
 
     async intoInter(precio) {
-        this.sobreflete = precio.ValorPrimaSeguro
+        this.seguroMercancia = Math.ceil(this.seguro * 0.02);
         if(this.type != "CONVENCIONAL") {
             let servicioContraPago;
             if(this.valor < 50000) {
@@ -947,7 +981,7 @@ class CalcularCostoDeEnvio {
             } else {
                 servicioContraPago = this.valor * 0.05;
             }
-            this.seguroMercancia = Math.ceil(servicioContraPago);
+            this.sobreflete = Math.ceil(servicioContraPago);
         }
 
         this.comision_transp = 2;
