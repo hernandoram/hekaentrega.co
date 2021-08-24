@@ -179,7 +179,7 @@ function avisar(title, content, type, redirigir, tiempo = 5000){
 function mostrarUsuarios(data, id){
     return `<div class="col-md-4 mb-4" 
     data-filter-nombres="${data.nombres}" data-filter-apellidos="${data.apellidos}"
-    data-filter-centro_de_coste="${data.centro_de_coste}" data-filter-direccion="${data.direccion}">
+    data-filter-centro_de_costo="${data.centro_de_costo}" data-filter-direccion="${data.direccion}">
     <div class="card border-bottom-info" id="${id}" shadow="h-100 py-2">
         <div class="card-body">
             <div class="row no-gutters align-items-center">
@@ -1135,7 +1135,7 @@ function gestionarNovedadModal(dataN, dataG) {
                     <p>Direccion: <span>${dataG.direccionR}</span></p>
                     <p>Ciudad: <span>${dataG.ciudadR}</span></p>
                     <p>teléfono: <span>${dataG.celularR}</span></p>
-
+                    ${administracion && `<p>Centro de Costo: <span>${dataG.centro_de_costo}</p>`}
                 </div>
                 </div>
             </div>

@@ -266,11 +266,12 @@ async function pagoContraentrega() {
     
             /* si el usuario desea restar el saldo, la variable de la guia 
             "debe" pasa a ser false, ya que el usuario habrá pagado envío previamente */
-            if(restar_saldo) {
-                datos_a_enviar.debe = false;
-            } else {
-                datos_a_enviar.debe = -cotizacion.costoEnvio
-            }
+            cotizacion.debe = !restar_saldo
+            // if(!restar_saldo) {
+            //     cotizacion.debe = -cotizacion.costoEnvio
+            // } else {
+            //     cotizacion.debe = false;
+            // }
 
             /*Verifica que haya valor en el recaudo, que no supere los límites ingresados
             Y que no sea menor al costo del envío*/
@@ -341,7 +342,8 @@ async function response(datos) {
     datos_de_cotizacion.costo_envio = result_cotizacion.costoEnvio;
     datos_de_cotizacion.valor = result_cotizacion.valor;
     datos_de_cotizacion.seguro = result_cotizacion.seguro;
-    datos_de_cotizacion.sumar_envio = result_cotizacion.sumar_envio
+    datos_de_cotizacion.sumar_envio = result_cotizacion.sumar_envio;
+    datos_de_cotizacion.debe = result_cotizacion.debe;
     datos_de_cotizacion.type = type;
 
     let htmlTransportadoras = await detallesTransportadoras(datos_de_cotizacion)
@@ -408,12 +410,9 @@ async function detallesTransportadoras(data) {
             cotizacion.sumarCostoDeEnvio = cotizacion.valor;
         }
 
-        console.log(cotizacion);
-        console.log(cotizacion.costoEnvio);
-        console.log(cotizacion.codTransp, cotizacion.empty);
-        
         if(cotizacion.empty) continue;
 
+        cotizacion.debe = data.debe;
         transportadora.cotizacion = cotizacion;
 
         encabezados += `<a class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
@@ -440,37 +439,38 @@ async function detallesTransportadoras(data) {
                     <b>$${convertirMiles(cotizacion.costoEnvio)}</b>
                 </div>
             </div>
-            <p class="text-center mb-0 mt-2 ${data.type == "CONVENCIONAL" ? "d-none" : ""}">Costo de envío para Recaudo: <b>$${convertirMiles(cotizacion.valor)}</b></p>
+            <p class="text-center mb-0 mt-2">Costo de envío para ${data.type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"}: <b>$${convertirMiles(cotizacion.seguro)}</b></p>
         </a>`;
 
         detalles += `<div class="tab-pane fade 
         ${!corredor ? "show active" : ""}" 
         id="list-transportadora-${transp}" role="tabpanel" aria-labelledby="list-transportadora-${transp}-list">
-            <ul class="list-group">
-                <li class="list-group-item d-flex justify-content-between align-items-center text-light bg-${transportadora.color}">
+            <div class="card">
+                <div class="card-header bg-${transportadora.color} text-light">
                     ${transportadora.nombre}
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                Valor flete
-                <span class="badge badge-secondary badge-pill">$${convertirMiles(cotizacion.flete)}</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                Comisión Transportadora
-                <span class="badge badge-secondary badge-pill">${convertirMiles(cotizacion.sobreflete)}</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                Seguro Mercancía
-                <span class="badge badge-secondary badge-pill">${convertirMiles(cotizacion.seguroMercancia)}</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                Comisión heka
-                <span class="badge badge-secondary badge-pill">${convertirMiles(cotizacion.sobreflete_heka)}</span>
-                </li>
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                Costo Total de Envío
-                <span class="badge badge-primary badge-pill text-lg">${convertirMiles(cotizacion.costoEnvio)}</span>
-                </li>
-            </ul>
+                </div>
+                <div class="card-body">
+                    <div class="card my-3 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Costo Transportadora</h5>
+                            <p class="card-text d-flex justify-content-between">Valor flete <b>$${convertirMiles(cotizacion.flete)}</b></p>
+                            <p class="card-text d-flex justify-content-between">Comisión transportadora <b>$${convertirMiles(cotizacion.sobreflete)}</b></p>
+                            <p class="card-text d-flex justify-content-between">Seguro mercancía <b>$${convertirMiles(cotizacion.seguroMercancia)}</b></p>
+                        </div>
+                    </div>
+                    <div class="card my-3 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Costo Heka entrega</h5>
+                            <p class="card-text d-flex justify-content-between">Comisión heka <b>$${convertirMiles(cotizacion.sobreflete_heka)}</b></p>
+                        </div>
+                    </div>
+                    <div class="card my-3 shadow-sm border-${transportadora.color}">
+                        <div class="card-body">
+                            <h3 class="card-text d-flex justify-content-between">Total <b>$${convertirMiles(cotizacion.costoEnvio)}</b></h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>`;
 
         corredor ++
@@ -500,6 +500,8 @@ function seleccionarTransportadora(e) {
     } else if(!transportadoras[transp].habilitada()) {
         return Swal.fire(swal_error);
     }
+
+    if (result_cotizacion.debe) datos_a_enviar.debe = -result_cotizacion.costoEnvio
 
     if (result_cotizacion.seguro < result_cotizacion.costoEnvio) {
         return Toast.fire({
@@ -862,7 +864,7 @@ class CalcularCostoDeEnvio {
             peso_real: this.kg,
             flete: this.flete,
             comision_heka: this.sobreflete_heka,
-            comision_trasportadora: this.sobreflete,
+            comision_trasportadora: this.sobreflete + this.seguroMercancia,
             peso_liquidar: this.kgTomado,
             peso_con_volumen: this.pesoVolumen,
             total: this.costoEnvio,
@@ -886,11 +888,11 @@ class CalcularCostoDeEnvio {
         del envío impuesto por el viejo contructor, para así sustituir el constructor*/
         while(val > this.valor - this.costoEnvio) {
             this.valor = val + this.costoEnvio;
+            this.seguro = this.valor;
             counter ++;
             console.log("\n *** Estamos en bucle fase " + counter)
             this.getDetails;
         }
-        this.seguro = this.valor;
     }
 
     set empty(val) {
@@ -898,8 +900,9 @@ class CalcularCostoDeEnvio {
     }
 
     sobreFletes(valor) {
-        this.sobreflete = Math.ceil(Math.max(valor * this.comision_transp / 100, this.sobreflete_min));
-        
+        console.log(this.comision_transp, valor * this.comision_transp / 100, this.sobreflete_min, Math.ceil(Math.max(valor * this.comision_transp / 100, this.sobreflete_min)))
+        this.sobreflete = Math.ceil(Math.max(this.seguro * this.comision_transp / 100, this.sobreflete_min));
+    
         let comision_heka = this.precios.comision_heka;
         let constante_heka = this.precios.constante_pagoContraentrega
         if(this.convencional) {
@@ -911,7 +914,7 @@ class CalcularCostoDeEnvio {
         if(this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
         
         this.sobreflete_heka = Math.ceil(valor * ( comision_heka ) / 100) + constante_heka;
-
+        
         const respuesta = this.sobreflete + this.seguroMercancia + this.sobreflete_heka;
         return respuesta;
     }
@@ -1146,6 +1149,7 @@ function enviar_firestore(datos){
     let id_heka = datos_usuario.numero_documento.slice(-4);
     id_heka = id_heka.replace(/^0/, 1);
     let firestore = firebase.firestore();
+    console.log(datos.debe);
     if(!datos.debe && !precios_personalizados.actv_credit &&
         datos.costo_envio > precios_personalizados.saldo) {
         return Swal.fire("¡No permitido!", `Lo sentimos, en este momento, el costo de envío excede el saldo

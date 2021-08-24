@@ -597,6 +597,7 @@ async function actualizarInformacionHeka() {
     // return console.log(datos, saldo)
     reference.set(datos)
     .then(() => {
+        if(saldo.saldo_anterior === saldo.saldo) return;
         firebase.firestore().collection("prueba").add(saldo)
         .then((docRef1)=> {
             console.log(docRef1.id)

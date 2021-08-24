@@ -327,6 +327,21 @@
 
 	<!--Funciones escenciales-->
 	<script>
+		function genFecha(direccion, milliseconds){
+			// Genera un formato de fecha AAAA-MM-DD
+			let fecha = new Date(milliseconds || new Date()), mes = fecha.getMonth() + 1, dia = fecha.getDate();
+			if(dia < 10){
+				dia = "0" + dia;
+			}
+			if(mes < 10) {
+				mes = "0" + mes;
+			}
+			if(direccion == "LR"){
+				return `${dia}-${mes}-${fecha.getFullYear()}` 
+			} else
+			return `${fecha.getFullYear()}-${mes}-${dia}`
+		}
+
 		function value(request) {
 			return document.getElementById(request).value;
 		}
@@ -339,18 +354,20 @@
             correo: "correo@ejemplo.com"
         }
 
-		let precios_personalizados = {
-			costo_zonal1: 9050,
-			costo_zonal2: 13050,
+		precios_personalizados = {
+			costo_zonal1: 7550,
+			costo_zonal2: 11550,
 			costo_zonal3: 2800,
-			costo_nacional1: 11500,
-			costo_nacional2: 19250,
+			costo_nacional1: 10000,
+			costo_nacional2: 17750,
 			costo_nacional3: 3400,
-			costo_especial1: 22900,
-			costo_especial2: 32000,
+			costo_especial1: 21400,
+			costo_especial2: 30500,
 			costo_especial3: 6300,
 			comision_servi: 3.1,
 			comision_heka: 1,
+			constante_convencional: 600,
+			constante_pagoContraentrega: 1500,
 			saldo: 0
 		};
 
