@@ -5,7 +5,6 @@ let datos_de_cotizacion,
 // Objeto principal en que se basa la transportadora a ser utilizada
 let transportadoras = {
     "SERVIENTREGA": {
-        habilitada: precios_personalizados.habilitar_servientrega,
         nombre: "Servientrega",
         observaciones: observacionesServientrega,
         logoPath: "img/logoServi.png",
@@ -15,10 +14,12 @@ let transportadoras = {
         limitesRecaudo: [5000, 2000000],
         limitesValorDeclarado: (valor) => {
             return [5000,300000000]
-        }
+        },
+        habilitada: () => {
+            return precios_personalizados.habilitar_servientrega
+        },
     },
     "ENVIA": {
-        habilitada: precios_personalizados.habilitar_envia,
         nombre: "Envía",
         observaciones: observacionesServientrega,
         logoPath: "img/2001.png",
@@ -28,10 +29,12 @@ let transportadoras = {
         limitesRecaudo: [5000, 2000000],
         limitesValorDeclarado: (valor) => {
             return [5000,300000000]
-        }
+        },
+        habilitada: () => {
+            return precios_personalizados.habilitar_envia
+        },
     },
     "INTERRAPIDISIMO": {
-        habilitada: precios_personalizados.habilitar_interrapidisimo,
         nombre: "Inter Rapidísimo",
         observaciones: observacionesServientrega,
         logoPath: "img/logo-inter.png",
@@ -43,9 +46,14 @@ let transportadoras = {
             if(valor <= 2) return [12500, 30000000]
             if(valor <= 5) return [27500, 30000000]
             return [37500, 30000000]
-        }
+        },
+        habilitada: () => {
+            return precios_personalizados.habilitar_interrapidisimo
+        },
     }
 };
+
+console.log(transportadoras);
 
 function gestionarTransportadora() {
     let html = "";
@@ -62,18 +70,17 @@ function gestionarTransportadora() {
 }
 
 function cambiarTransportadora(nuevaTranps) {
-    Swal.close();
+    // Swal.close();
     console.log("se ha cambiado la transportadora");
     codTransp = nuevaTranps;
     ocultarCotizador();
-    mostrarTransportadora();
+    // mostrarTransportadora();
     return codTransp
 };
 
 function mostrarTransportadora() {
     $(".transportadora").text(transportadoras[codTransp].nombre);
 };
-mostrarTransportadora();
 
 function ocultarCotizador() {
     if(document.getElementById("result_cotizacion").style.display != "none"){
@@ -273,9 +280,10 @@ async function pagoContraentrega() {
                 )
             } else if (value("valor-recaudo") < 5000 || value("valor-recaudo") > 2000000) {
                 Swal.showValidationMessage("El valor no puede ser menor a $5.000 ni menor a $2.000.000")
-            } else if (cotizacion.seguro < cotizacion.costoEnvio) {
-                Swal.showValidationMessage("El valor del recaudo no debe ser menor al costo del envío ($" + convertirMiles(cotizacion.costoEnvio) +")");
-            };
+            } 
+            // else if (cotizacion.seguro < cotizacion.costoEnvio) {
+            //     Swal.showValidationMessage("El valor del recaudo no debe ser menor al costo del envío ($" + convertirMiles(cotizacion.costoEnvio) +")");
+            // };
 
             //me devuelve la clase del cotizador
             return cotizacion;
@@ -418,7 +426,7 @@ async function detallesTransportadoras(data) {
         >
             <div class="row">
                 <img src="${transportadora.logoPath}" 
-                class="col" style="max-height:min-content; max-width:fit-content"
+                class="col" style="max-height:120px; max-width:fit-content"
                 alt="logo-${transportadora.nombre}">
                 <div class="col-12 col-sm-6 mt-3 mt-sm-0 order-1 order-sm-0">
                     <h5>${transportadora.nombre}</h5>
@@ -486,12 +494,19 @@ function seleccionarTransportadora(e) {
         html: texto_tranp_no_disponible
     };
     if(transp != "INTERRAPIDISIMO") {
-        if(transportadoras[transp].habilitada === false) {
+        if(transportadoras[transp].habilitada() === false) {
             return Swal.fire(swal_error);
         }
-    } else if(!transportadoras[transp].habilitada) {
+    } else if(!transportadoras[transp].habilitada()) {
         return Swal.fire(swal_error);
     }
+
+    if (result_cotizacion.seguro < result_cotizacion.costoEnvio) {
+        return Toast.fire({
+            icon: "error",
+            text: "El valor del recaudo no debe ser menor al costo del envío."
+        });
+    };
 
     //Muestra algún dato relevante en un modal
     Swal.fire({

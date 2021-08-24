@@ -958,7 +958,7 @@
           </div>
 
           <div class="container-fluid" id="pagos" style="display: none;">
-            <div class="card mt-5">
+            <div class="card mt-3">
               <div class="card-body">
                 <form enctype="multipart/form-data" id="form-pagos">
                   <div class="form-group">
@@ -997,26 +997,31 @@
                         <h6>Por Guía</h6>
                         <input type="text" name="filtro-pago-guia" class="form-control" id="filtro-pago-guia">
                       </div>
-
-                      <div class="col d-flex justify-content-center form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1" name="filtro-trasnportadoras" value="Servientrega">
-                        <label class="form-check-label" for="filtro-trasnportadora1">Servientrega</label>
+                      <div class="col d-flex justify-content-around flex-wrap align-items-end m-2">
+                        <div class="d-flex justify-content-center m-2 form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1" name="filtro-trasnportadoras" value="Servientrega">
+                          <label class="form-check-label" for="filtro-trasnportadora1">Servientrega</label>
+                        </div>
+                        <div class="d-flex justify-content-center m-2 form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2" name="filtro-trasnportadoras" value="Envía">
+                          <label class="form-check-label" for="filtro-trasnportadora2">Envía</label>
+                        </div>
+                        <div class="d-flex justify-content-center m-2 form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora3" name="filtro-trasnportadoras" value="TCC">
+                          <label class="form-check-label" for="filtro-trasnportadora3">TCC</label>
+                        </div>
+                        <div class="d-flex justify-content-center m-2 form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora4" name="filtro-trasnportadoras" value="Interrapidisimo">
+                          <label class="form-check-label" for="filtro-trasnportadora4">Inter Rapidísimo</label>
+                        </div>
                       </div>
-                      <div class="col d-flex justify-content-center form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2" name="filtro-trasnportadoras" value="Envía">
-                        <label class="form-check-label" for="filtro-trasnportadora2">Envía</label>
                       </div>
-                      <div class="col d-flex justify-content-center form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="filtro-trasnportadora3" name="filtro-trasnportadoras" value="TCC">
-                        <label class="form-check-label" for="filtro-trasnportadora3">TCC</label>
-                      </div>
-                    </div>
 
                     <div class="btn-group col-12">
                       <input type="button" id="btn-revisar_pagos" 
-                      value="Revisar Pagos" class="btn btn-secondary mt-4">
+                      value="Revisar Pagos" class="btn btn-secondary mt-4 text-truncate">
                       <input type="submit" id="btn-cargar_pagos" 
-                      value="Cargar Pagos" class="btn btn-primary mt-4">
+                      value="Cargar Pagos" class="btn btn-primary mt-4 text-truncate">
                     </div>
                   </div>
                 </form>

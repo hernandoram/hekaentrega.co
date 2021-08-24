@@ -286,7 +286,7 @@ function buscarUsuarios(){
     // if(value("buscador_usuarios-id")){
     //     busqueda = ["==", value("buscador_usuarios-id")];
     // }
-    firebase.firestore().collection("usuarios").limit(5).get()
+    firebase.firestore().collection("usuarios").get()
     .then((querySnapshot) => {
         inHTML("mostrador-usuarios", "");
         console.log(querySnapshot.size);
@@ -571,12 +571,15 @@ async function actualizarInformacionHeka() {
         }
         if(doc.exists) {
             let s = parseInt(doc.data().saldo);
+            const afirmar_saldo_anterior = detalles.saldo_anterior;
             detalles.saldo_anterior = s;
             detalles.saldo = s + detalles.diferencia;
             datos.saldo = s + detalles.diferencia;
             
-            mensaje = ". Se notó una discrepancia entre el saldo mostrado ($" + convertirMiles($("#actualizar_saldo").attr("data-saldo_anterior"))
-            + ") y el encontrado en la base de datos, se modificó en base a: <b>$" + convertirMiles(s) + "</b>"
+            if(afirmar_saldo_anterior != s) {
+                mensaje = ". Se notó una discrepancia entre el saldo mostrado ($" + convertirMiles(afirmar_saldo_anterior)
+                + ") y el encontrado en la base de datos, se modificó en base a: <b>$" + convertirMiles(s) + "</b>"
+            }
         }
 
         return detalles;

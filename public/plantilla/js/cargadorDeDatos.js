@@ -162,7 +162,7 @@ function cargarDatosUsuario(){
           if(doc.exists){
             for(let precio in doc.data()){
               const value = doc.data()[precio];
-              if(!value) continue;
+              if(value === "") continue;
               if(!/[^\d+.]/.test(value.toString())) {
                 precios_personalizados[precio] = parseInt(value);
               } else {
@@ -322,7 +322,7 @@ function cargarPagos(){
       
         if($("#filtro-pago-guia").val()){
           guia = $("#filtro-pago-guia").val();
-          return permitir_transportadora && data.GUIA == guia && permitir_transportadora;
+          return permitir_transportadora && data.GUIA == guia;
         } else {
           fechaI = new Date($("#filtro-fechaI").val()).getTime();
           fechaF = new Date($("#filtro-fechaF").val()).getTime();
@@ -688,8 +688,11 @@ function mostrarPagos(datos) {
       D.ERROR = "Sin número de guía para subir: " + D.GUIA;
     } else if (!D.TRANSPORTADORA){
       D.ERROR = "Lo siento, no se a que transportadora subir la guía: " + D.GUIA;
-    } else if (D.TRANSPORTADORA.toLowerCase() !== "servientrega" && D.TRANSPORTADORA.toLowerCase() != "envía" && D.TRANSPORTADORA.toLowerCase() != "tcc"){
-      D.ERROR = "Por favor, Asegurate que la factura de la guía: " + D.GUIA + " le pertenezca a <b>Envía, TCC, O Servientrega</b>"
+    } else if (D.TRANSPORTADORA.toLowerCase() !== "servientrega" 
+    && D.TRANSPORTADORA.toLowerCase() != "envía" 
+    && D.TRANSPORTADORA.toLowerCase() != "tcc"
+    && D.TRANSPORTADORA.toLowerCase() != "interrapidisimo"){
+      D.ERROR = "Por favor, Asegurate que la factura de la guía: " + D.GUIA + " le pertenezca a <b>Envía, TCC, Servientrega o Interrapidisimo</b>"
     }
     datos.forEach((d, j) => {
       if(i != j){
