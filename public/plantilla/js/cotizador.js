@@ -36,7 +36,7 @@ let transportadoras = {
     },
     "INTERRAPIDISIMO": {
         nombre: "Inter Rapidísimo",
-        observaciones: observacionesServientrega,
+        observaciones: observacionesInteRapidisimo,
         logoPath: "img/logo-inter.png",
         color: "dark",
         limitesPeso: [0.1,5],
@@ -1366,10 +1366,19 @@ function convertirMiles(n){
 function observacionesServientrega(result_cotizacion) {
     console.log(result_cotizacion);
     let c_destino = document.getElementById('ciudadD').dataset;
-    let lists = ["Los tiempos de entrega son aproximados, no son exactos, ya que pueden suceder problemas operativos.", "El paquete deberá estar correctamente embalado, de lo contrario la transportadora no responderá por averías.", "En algunas ciudades y/o municipios, según las rutas, si el vehículo encargado de realizar las entregas no alcanza a culminar la ruta operativa dejara el paquete en una oficina para que sea reclamado por el destinatario.", "En caso de novedad en la cual el destinatario no se encuentre la transportadora realizará un nuevo intento de entrega, en caso de presentarse una novedad distinta la transportadora se comunicará con el remitente y destinario, en caso de no tener respuesta a la llamada la transportadora genera la devolución. (Por eso recomendamos solucionar las novedades lo antes posible para intentar retener el proceso de devolución).", "En caso de devolución la transportadora cobrará el valor completo del envío el cual estará reflejado en el cotizador. (Aplica para envíos en pago contra entrega).", "Las recolecciones deberán ser solicitadas antes de las 10:00 am para que pasen el mismo día, en caso de ser solicitadas después de este horario quedaran automáticamente para el siguiente día.", "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.", "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero o la oficina donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
-    `Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span>`,
-    `Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`,
-    `En caso de devolución pagas solo el envío ida: $${convertirMiles(result_cotizacion.costoEnvio - result_cotizacion.sobreflete_heka)} (Aplica solo para envíos en pago contra entrega)`]
+    let lists = [
+        "Los tiempos de entrega son aproximados, no son exactos, ya que pueden suceder problemas operativos.", 
+        "El paquete deberá estar correctamente embalado, de lo contrario la transportadora no responderá por averías.", 
+        "En algunas ciudades y/o municipios, según las rutas, si el vehículo encargado de realizar las entregas no alcanza a culminar la ruta operativa dejara el paquete en una oficina para que sea reclamado por el destinatario.", 
+        "En caso de novedad en la cual el destinatario no se encuentre la transportadora realizará un nuevo intento de entrega, en caso de presentarse una novedad distinta la transportadora se comunicará con el remitente y destinario, en caso de no tener respuesta a la llamada la transportadora genera la devolución. (Por eso recomendamos solucionar las novedades lo antes posible para intentar retener el proceso de devolución).", 
+        "En caso de devolución la transportadora cobrará el valor completo del envío el cual estará reflejado en el cotizador. (Aplica para envíos en pago contra entrega).", 
+        "Las recolecciones deberán ser solicitadas antes de las 10:00 am para que pasen el mismo día, en caso de ser solicitadas después de este horario quedaran automáticamente para el siguiente día.", 
+        "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.", 
+        "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero o la oficina donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
+        `Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span>`,
+        `Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`,
+        `En caso de devolución pagas solo el envío ida: $${convertirMiles(result_cotizacion.costoEnvio - result_cotizacion.sobreflete_heka)} (Aplica solo para envíos en pago contra entrega)`
+    ]
 
     let ul = document.createElement("ul");
     ul.classList.add("text-left")
@@ -1383,3 +1392,29 @@ function observacionesServientrega(result_cotizacion) {
 
     return ul;
 };
+
+function observacionesInteRapidisimo(result_cotizacion) {
+    let lists = [
+        "Los tiempos de entrega son aproximados, no son exactos, ya que pueden suceder problemas operativos.",
+        "El paquete deberá estar correctamente embalado, de lo contrario la transportadora no responderá por averías.",
+        "En algunos municipios, si la entrega es en dirección y está fuera de la cobertura de la oficina el cliente deberá reclamar su paquete en la oficina.",
+        "En caso de novedad la transportadora llama a destinatario y/o remitente para solucionar.",
+        "En caso de devolución la transportadora cobrará el valor del flete ida + seguro de mercancía, no se cobra comisión de recaudo, ni flete de vuelta.",
+        "Las recolecciones deberán ser solicitadas el día anterior o el mismo antes de las 9:00 am para que pasen el mismo día.",
+        "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
+        "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
+        "En caso de devolución pagas solo el envío ida + seguro: $"+ convertirMiles(result_cotizacion.flete + result_cotizacion.seguroMercancia) +" (Aplica solo para envíos en pago contra entrega)",
+    ]
+
+    let ul = document.createElement("ul");
+    ul.classList.add("text-left")
+
+    for(let list of lists) {
+        let li = document.createElement("li");
+        li.classList.add("my-3")
+        li.innerHTML = list;
+        ul.append(li);
+    }
+
+    return ul;
+}

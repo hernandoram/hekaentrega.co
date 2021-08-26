@@ -426,6 +426,10 @@ function mostrarDatosPersonales(data, info) {
         inHTML("nombre-usuario", data.nombres.split(" ")[0] + " " + data.apellidos.split(" ")[0]);
     } else if(info == "heka") {
         $("#aumentar_saldo").val("");
+        $("#informacion-heka").find("[type=checkbox]").each((i, el) => {
+            const id = $(el).attr("id");
+            $(el).prop("checked", data[id]);
+        });
         mostrador_saldo.textContent = "$" + convertirMiles(data.saldo) || 0;
         mostrador_saldo.setAttribute("data-saldo", data.saldo || 0);
         mostrador_saldo.setAttribute("data-saldo_anterior", data.saldo || 0);
@@ -466,8 +470,10 @@ function mostrarDatosPersonales(data, info) {
 }
 
 function asignarValores(data, query) {
+    console.log(data);
     for(let value in data) {
-        $(query).find(`[name="${value}"]`).val(data[value]);
+        const input = $(query).find(`[name="${value}"]`);
+        input.val(data[value]);
     }
 }
 

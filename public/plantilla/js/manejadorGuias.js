@@ -1757,16 +1757,22 @@ async function generarRotulo(id_guias) {
     }
 
     let data_guias = await Promise.all(guias);
-    console.log(data_guias)
+    console.log(data_guias);
 
     table.setAttribute("class", "table");
     for(let data of data_guias) {
         let tr = document.createElement("tr");
         tr.classList.add("border-bottom-secondary")
 
+        let src_logo_transp = "img/logoServi.png";
+
+        if(data.transportadora === "INTERRAPIDISIMO") {
+            src_logo_transp = "img/logo-inter.png";
+        }
+
         let imgs = `<td><div class="align-items-center d-flex flex-column">
             <img src="img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg" width="100px">
-            <img src="img/logoServi.png" width="100px">
+            <img src="${src_logo_transp}" width="100px">
         </div></td>`;
         let infoRem = `<td>
         <h2>Datos Del Remitente</h2>
@@ -1808,4 +1814,4 @@ async function generarRotulo(id_guias) {
         w.print();
         w.close();
     }, 100)
-}
+};

@@ -232,7 +232,11 @@
                   </div>      
                   <div class="col mb-3 mb-sm-3">
                     <h6>Valor Declarado</h6>
-                    <input type="number" class="form-control form-control-user" id="seguro-mercancia" step="1000" name="recaudo" autocomplete="off" min="5000" max="2000000" >
+                    <input type="number" onchange="this.classList.add('is-invalid')"
+                    class="form-control form-control-user" id="seguro-mercancia" value="12500" step="1000" name="recaudo" autocomplete="off" min="5000" max="2000000" >
+                    <div class="invalid-feedback">
+                      Incrementar el valor asegurado también incrementará el costo del envío.
+                    </div>
                   </div>      
                 </div>
 
