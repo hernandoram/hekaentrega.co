@@ -114,6 +114,7 @@ function crearDocumentos() {
         documentReference.add({
             id_user: id_user,
             nombre_usuario: datos_usuario.nombre_completo,
+            centro_de_costo: datos_usuario.centro_de_costo || "SCC",
             fecha: genFecha(),
             timeline: new Date().getTime(),
             descargar_relacion_envio: false, descargar_guias: false,

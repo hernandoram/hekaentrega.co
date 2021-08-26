@@ -210,11 +210,14 @@ function mostrarUsuarios(data, id){
 //Retorna una tarjeta con informacion del documento por id
 function mostrarDocumentos(id, data, tipo_aviso) {
     return `<div class="col-sm-6 col-lg-4 mb-4">
-    <div class="card border-bottom-${tipo_aviso || "info"} shadow h-100 py-2" id="${id}">
+    <div class="card shadow h-100" id="${id}">
+        <h6 class='text-center card-header'>${data.transportadora || "Servientrega"}</h6>
+
         <div class="card-body">
+            <h5 class="card-title font-weight-bold text-${tipo_aviso || "info"} text-uppercase mb-2">${data.nombre_usuario}</h5>
+            <h6 class="card-subtitle text-muted mb-2">${data.centro_de_costo || "Centro de costo"}</h6>
             <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
-                    <div class="h4 font-weight-bold text-${tipo_aviso || "info"} text-uppercase mb-2">${data.nombre_usuario}</div>
                     <div class="row no-gutters align-items-center">
                         <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800 w-100">
                             <p class="text-truncate"
@@ -262,7 +265,6 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                 
                 <button class="btn btn-danger d-none col-12" data-funcion="enviar" id="subir${id}">Subir</button>
             </div>
-            <h6 class='text-center'>${data.transportadora || "Servientrega"}</h6>
         </div>
     </div>
   </div>`

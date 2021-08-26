@@ -122,9 +122,10 @@ async function cotizador(){
     value("Kilos") != "" && value("seguro-mercancia") != "" 
     && value("dimension-ancho") != "" && value("dimension-largo") != "" && value("dimension-alto") != ""){
         //Si todos los campos no estan vacios
-        if(!ciudadR.dataset.ciudad || !ciudadD.dataset.ciudad) {
+        if(!ciudadR.dataset.ciudad || !ciudadD.dataset.ciudad
+            || !/^.+\(.+\)$/.test(ciudadR.value) || !/^.+\(.+\)$/.test(ciudadD.value)) {
             alert("Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable");
-            verificador(["ciudadR", "CiudadD"], true); 
+            verificador(["ciudadR", "ciudadD"], true); 
         } else if(value("Kilos") <= 0 
         || value("Kilos") > transportadoras[codTransp].limitesPeso[1] ) {
             // Si la cantidad de kilos excede el limite permitido
@@ -406,15 +407,17 @@ async function detallesTransportadoras(data) {
             dane_ciudadD: data.dane_ciudadD,
         });
 
+        console.log(cotizacion);
+
         if(data.sumar_envio) {
             cotizacion.sumarCostoDeEnvio = cotizacion.valor;
         }
 
-        if(cotizacion.empty) continue;
-
         cotizacion.debe = data.debe;
         transportadora.cotizacion = cotizacion;
-
+        
+        if(!cotizacion.flete || cotizacion.empty) continue;
+        
         encabezados += `<a class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
         id="list-transportadora-${transp}-list" 
         role="tab"
@@ -831,10 +834,10 @@ class CalcularCostoDeEnvio {
         if(this.total_flete) return this.total_flete;
         this.total_flete = this.revisadorInterno(this.precios.costo_especial2,
             this.precios.costo_nacional2, this.precios.costo_zonal2);
-        if(this.kg >= 1 && this.kg < 4){
+        if(this.kgTomado >= 1 && this.kgTomado < 4){
             this.total_flete = this.revisadorInterno(this.precios.costo_especial1, 
                 this.precios.costo_nacional1, this.precios.costo_zonal1)
-        } else if (this.kg >= 4 && this.kg < 9) {
+        } else if (this.kgTomado >= 4 && this.kgTomado < 9) {
 
         } else {
             let kg_adicional = this.kg - 8;
@@ -900,7 +903,6 @@ class CalcularCostoDeEnvio {
     }
 
     sobreFletes(valor) {
-        console.log(this.comision_transp, valor * this.comision_transp / 100, this.sobreflete_min, Math.ceil(Math.max(valor * this.comision_transp / 100, this.sobreflete_min)))
         this.sobreflete = Math.ceil(Math.max(this.seguro * this.comision_transp / 100, this.sobreflete_min));
     
         let comision_heka = this.precios.comision_heka;
@@ -909,7 +911,7 @@ class CalcularCostoDeEnvio {
             this.seguroMercancia = this.sobreflete;
             this.sobreflete = 0;
             comision_heka = 1;
-            constante_heka = this.precios.constante_convencional
+            constante_heka = this.precios.constante_convencional;
         }
         if(this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
         
@@ -930,6 +932,10 @@ class CalcularCostoDeEnvio {
             case "Nacional":
                 return nacional;
                 break;
+            case "NA":
+                this.empty = true;
+                return 0;
+                break
             default:
                 return urbano;
                 break;
@@ -941,7 +947,7 @@ class CalcularCostoDeEnvio {
         let c_origen = origen || document.getElementById('ciudadR').dataset;
         let c_destino = destino || document.getElementById('ciudadD').dataset;
 
-        if(c_destino.tipo_trayecto == "undefined" && this.codTransp == "SERVIENTREGA") this.empty = true;
+        if(c_destino.tipo_trayecto == "undefined" && this.codTransp == "SERVIENTREGA") return "NA";
 
         if(c_destino.tipo_trayecto == "TRAYECTO ESPECIAL"){
             return "Especial";
@@ -1363,7 +1369,7 @@ function observacionesServientrega(result_cotizacion) {
     let lists = ["Los tiempos de entrega son aproximados, no son exactos, ya que pueden suceder problemas operativos.", "El paquete deberá estar correctamente embalado, de lo contrario la transportadora no responderá por averías.", "En algunas ciudades y/o municipios, según las rutas, si el vehículo encargado de realizar las entregas no alcanza a culminar la ruta operativa dejara el paquete en una oficina para que sea reclamado por el destinatario.", "En caso de novedad en la cual el destinatario no se encuentre la transportadora realizará un nuevo intento de entrega, en caso de presentarse una novedad distinta la transportadora se comunicará con el remitente y destinario, en caso de no tener respuesta a la llamada la transportadora genera la devolución. (Por eso recomendamos solucionar las novedades lo antes posible para intentar retener el proceso de devolución).", "En caso de devolución la transportadora cobrará el valor completo del envío el cual estará reflejado en el cotizador. (Aplica para envíos en pago contra entrega).", "Las recolecciones deberán ser solicitadas antes de las 10:00 am para que pasen el mismo día, en caso de ser solicitadas después de este horario quedaran automáticamente para el siguiente día.", "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.", "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero o la oficina donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
     `Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span>`,
     `Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`,
-    `En caso de devolución pagas solo el envío ida: $${convertirMiles(result_cotizacion.costoEnvio)} (Aplica solo para envíos en pago contra entrega)`]
+    `En caso de devolución pagas solo el envío ida: $${convertirMiles(result_cotizacion.costoEnvio - result_cotizacion.sobreflete_heka)} (Aplica solo para envíos en pago contra entrega)`]
 
     let ul = document.createElement("ul");
     ul.classList.add("text-left")
@@ -1377,10 +1383,3 @@ function observacionesServientrega(result_cotizacion) {
 
     return ul;
 };
-
-
-// fetch("https://servicios.interrapidisimo.com/ApiServInter/api/Cotizador/ResultadoListaCotizar/54206000/05001000/1/12500/1/20-08-2021")
-// .then(response => {
-//     console.log(response);
-//     response.json().then(d => console.log(d))
-// })
