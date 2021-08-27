@@ -490,7 +490,7 @@ function seleccionarTransportadora(e) {
     let result_cotizacion = transportadoras[transp].cotizacion;
 
     const texto_tranp_no_disponible = `Actualmente no tienes habilitada esta transportadora, 
-    si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/jwryoa">312 463 8608</a>`;
+    si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/j8l2ku">321 336 1911</a>`;
 
     const swal_error = {
         icon: "error",
