@@ -1116,13 +1116,23 @@ function crearGuia() {
     }
 };
 
-async function crearGuiaServientrega(datos) {
+async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
     //Primero consulto la respuesta del web service
-    let respuesta = await generarGuiaServientrega(datos)
-    .then(async (resGuia) => {
+    let generarGuia;
+
+    if(datos.transportadora === "SERVIENTREGA") {
+        generarGuia = generarGuiaServientrega(datos);
+    } else if(datos.transportadora === "INTERRAPIDISIMO") {
+        generarGuia = generarGuiaInterrapidisimo(datos);
+    } else {
+        return new Error("Lo sentimos, ésta transportadora no está optimizada para generar guías de manera automática.");
+    }
+    
+    const respuesta = await generarGuia.then(async (resGuia) => {
         //le midifico los datos de respuesta al que será enviado a firebase
         datos.numeroGuia = resGuia.numeroGuia;
         datos.id_archivoCargar = resGuia.id_archivoCargar || "";
+        datos.has_sticker = resGuia.has_sticker;
         //y creo el documento de firebase
         if(resGuia.numeroGuia) {
             let guia = await referenciaNuevaGuia.set(datos)
@@ -1143,11 +1153,12 @@ async function crearGuiaServientrega(datos) {
     console.log(respuesta);
 
     if(respuesta.numeroGuia) {
-        return doc.data().id;
+        return datos.id_heka;
     } else {
         throw new Error(respuesta.error);
     }
 }
+
 
 //función que envía los datos tomados a servientrega
 function enviar_firestore(datos){
@@ -1188,12 +1199,12 @@ function enviar_firestore(datos){
             let referenciaNuevaGuia = firestore.collection("usuarios").doc(localStorage.user_id)
             .collection("guias").doc(id_heka);
             
-            firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
+            // firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
 
             if(generacion_automatizada) {
                 //Para cuando el usuario tenga activa la creación deguías automáticas.
-                if(datos.transportadora !== "SERVIENTREGA") throw new Error("Lo sentimos, ésta transportadora no está optimizada para generar guías de manera automática.");
-               return crearGuiaServientrega(datos);
+                return await crearGuiaTransportadora(datos, referenciaNuevaGuia);
+                 
             } else {
                 //Para cuendo el usurio tenga la opcion de creacion de guias automática desactivada.
 
@@ -1328,6 +1339,7 @@ async function generarGuiaServientrega(datos) {
         if(data.querySelector("CargueMasivoExternoResult").textContent === "true") {
             retorno = {
                 numeroGuia: data.querySelector("Num_Guia").textContent,
+                id_heka: datos.id_heka,
                 nombreD: data.querySelector("Nom_Contacto").textContent,
                 ciudadD: data.querySelector("Des_Ciudad").textContent,
                 id_archivoCargar: data.querySelector("Id_ArchivoCargar").textContent,
@@ -1343,10 +1355,58 @@ async function generarGuiaServientrega(datos) {
         console.log(data.querySelector("arrayGuias").children);
         return retorno;
     })
-    .catch(err => console.log("Hubo un error: ", err))
+    .catch(err => {
+        console.log("Hubo un error: ", err)
+        return err;
+    });
+
+    if(res.numeroGuia) {
+        res.type = datos.type;
+        console.log(res);
+        let XMLbase64Guia = await fetch("/servientrega/generarGuiaSticker", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(res)
+        }).then(data => data.json());
+
+        let parser = new DOMParser();
+        XMLbase64Guia = parser.parseFromString(XMLbase64Guia, "application/xml");
+        console.log(XMLbase64Guia);
+
+        let base64;
+        if(XMLbase64Guia.querySelector("GenerarGuiaStickerResult").textContent === "true") {
+            base64 = XMLbase64Guia.querySelector("bytesReport").textContent;
+            await firebase.storage().ref().child(user_id + "/guias").child(res.id_heka + ".pdf")
+            .putString(base64, "base64").then(snapshot => {
+                console.log(snapshot);
+                res.has_sticker = true;
+                console.log("Documento subido con exito");
+            });
+        }
+
+        console.log(res);
+    }
 
     return res;
 };
+
+//función para consultar la api en el back para crear guiade inter rapidisimo.
+async function generarGuiaInterrapidisimo(datos) {
+    let respuesta = await fetch("/inter/crearGuia", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(datos)
+    }).then(d => d.json())
+    .catch(error => {error});
+
+    respuesta = JSON.parse(respuesta);
+    if(respuesta.error) return {numeroGuia: 0, error: respuesta.error};
+
+    respuesta.numeroGuia = respuesta.numeroPreenvio;
+    console.log("interrapidísimo => ",respuesta);
+
+    return respuesta;
+}
 
 function convertirMiles(n){
     let entero = Math.floor(n);
@@ -1418,3 +1478,13 @@ function observacionesInteRapidisimo(result_cotizacion) {
 
     return ul;
 }
+
+// fetch("/inter/crearGuia", {
+//     method: "POST",
+//     headers: {"Content-Type": "application/json"},
+//     body: JSON.stringify(
+//         )
+// }).then(res => {
+//     console.log(res);
+//     res.json().then(d => console.log(d));
+// })

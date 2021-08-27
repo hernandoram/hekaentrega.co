@@ -691,6 +691,20 @@ router.post("/crearGuia", (req, res) => {
     // console.log(body);
     res.send(JSON.stringify(body));
   })
+});
+
+router.post("/generarGuiaSticker", (req, res) => {
+  request.post({
+    headers: {"Content-Type": "text/xml"},
+    url: req.body.prueba ? genGuiasPrueba : generacionGuias,
+    body: crearGuiaSticker(req.body.numeroGuia, req.body.id_archivoCargar, req.body.type, req.body.prueba)
+  }, (err, response, body) => {
+    if(err) return console.error(err);
+
+    console.log("Se está creando una guía");
+    console.log(body);
+    res.send(JSON.stringify(body));
+  })
 })
 
 router.post("/crearDocumentos", async (req, res) => {
