@@ -68,7 +68,8 @@ function crearDocumentos() {
                 id_archivoCargar: check.getAttribute("data-id_archivoCargar"),
                 prueba:  check.getAttribute("data-prueba") == "true" ? true : false,
                 type: check.getAttribute("data-type"),
-                transportadora: check.getAttribute("data-transportadora")
+                transportadora: check.getAttribute("data-transportadora"),
+                has_sticker: check.getAttribute("data-has_sticker")
             });
 
             //Verifica que todas las guias crrespondan al mismo tipo
@@ -117,7 +118,7 @@ function crearDocumentos() {
             centro_de_costo: datos_usuario.centro_de_costo || "SCC",
             fecha: genFecha(),
             timeline: new Date().getTime(),
-            descargar_relacion_envio: false, descargar_guias: false,
+            descargar_relacion_envio: true, descargar_guias: true,
             type: arrGuias[0].type,
             transportadora: arrGuias[0].transportadora
         })
@@ -131,7 +132,7 @@ function crearDocumentos() {
             solo actualizará las guías que pasaron el filtro anterior y enviará una 
             notificación a administración, es caso contrario utilizará el web service */
             if(generacion_automatizada) {
-                generarDocumentos(arrGuias, {
+                crearManifiestoServientrega(arrGuias, {
                     id_user, 
                     prueba: estado_prueba,
                     id_doc: docRef.id
@@ -195,6 +196,7 @@ function base64ToArrayBuffer(base64) {
 
 //Función que utiliza el web service para crear documentos
 function generarDocumentos(arrGuias, vinculo) {
+    return;
     fetch("/servientrega/crearDocumentos", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -218,6 +220,27 @@ function generarDocumentos(arrGuias, vinculo) {
 
         document.getElementById("enviar-documentos").removeAttribute("disabled");
     })
+    // .catch(error => co)
+};
+
+async function crearManifiestoServientrega(arrGuias, vinculo) {
+    let mensaje = "";
+    sin_stiker = 0;
+    arrGuias = arrGuias.filter(v => {
+        if(!v.has_sticker) sin_stiker ++;
+        return v.has_sticker
+    });
+
+    if(sin_stiker) {
+        mensaje += "Hay " + sin_stiker + " guias que no pudieron ser procesadas por no contar con el sticker de la guía. \n"
+        mensaje += "intente le recomendamos clonar la(s) guía(s) involucrada, y eliminar la defectuosa";
+    }
+
+    let base64 = await fetch("/servientrega/generarManifiesto", {
+        method: "POST",
+        headers: {"Content-type": "application/json"},
+        body: JSON.stringify({arrGuias, vinculo})
+    }).then(data => data.text())
     .catch(error => {
         console.log(error);
         Swal.fire({
@@ -226,7 +249,27 @@ function generarDocumentos(arrGuias, vinculo) {
         });
         firebase.firestore().collection("documentos").doc(vinculo.id_doc).delete();
         document.getElementById("enviar-documentos").removeAttribute("disabled");
-    })
+    });
+    
+    const nombre_relacion = "relacion envio";
+
+    let documento_guardado;
+    if(base64) {
+        documento_guardado = await guardarBase64ToStorage(base64, user_id + "/" + vinculo.id_doc + "/" + nombre_relacion + ".pdf")
+    };
+
+    if(documento_guardado) {
+        await firebase.firestore().collection("documentos").doc(vinculo.id_doc)
+        .update({nombre_relacion});
+    };
+
+    Swal.fire({
+        icon: "warning",
+        text: mensaje
+    });
+
+    document.getElementById("enviar-documentos").removeAttribute("disabled");
+
 }
 
 let documento = [], guias = [];
@@ -812,7 +855,7 @@ function descargarDocumentos(user_id, id_doc, guias, nombre_guias, nombre_relaci
                 let buff = base64ToArrayBuffer(base64);
                 let blob = new Blob([buff], {type: "application/pdf"});
                 let url = URL.createObjectURL(blob);
-                window.open(url);  
+                window.open(url);
             } else {
                 firebase.storage().ref().child(user_id + "/" + id_doc + "/" + nombre_guias + ".pdf")
                 .getDownloadURL().then((url) => {

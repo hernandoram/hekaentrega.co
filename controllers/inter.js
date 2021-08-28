@@ -1,6 +1,6 @@
 const request = require("request");
 
-const urlPrueba = "http://stgwww3.interrapidisimo.com/ApiVentaCreditoStg/api/Admision/InsertarAdmision/";
+const urlPrueba = "https://stgwww3.interrapidisimo.com/ApiVentaCreditoStg/api/";
 const usuario_prueba = "userHernandoStg";
 const token = "Bearer jmulmNkpR_dKYIv_pnuUMh-mOeXMW-wjyXe1iISalHlrlBQJhkCWHzdoYfmedHqv2I66dYminzaWCtkTL-0GCSHoeOZDANwsgQWylFRm5FtAaz7PhzVdJaQ9wrDmYc3h92O5KumsguBx-REgQkQcFD0xtVptWpSI8FaW4gjn4iE7kSwK5m_9KoS_gV2G-crJ9Hp3Cv6mCdfUywH2my2ARKVzWbhlob_QKNiC285efws-S68d4_gZ-fEbFdqmpTjb";
 
@@ -46,7 +46,7 @@ exports.crearGuia = (req, res) => {
         "Observaciones": guia.id_heka
     }
 
-    request.post(urlPrueba, {
+    request.post(urlPrueba + "Admision/InsertarAdmision/", {
         headers: {
             "x-app-signature": usuario_prueba,
             "x-app-security_token": token,
@@ -54,8 +54,21 @@ exports.crearGuia = (req, res) => {
         },
         body: JSON.stringify(data)
     }, (error, response, body) => {
-        if(error) res.send(error);
+        if(error) res.send("Hubo un error => "+error);
 
         res.json(body);
+    })
+};
+
+exports.crearStickerGuia = (req, res) => {
+    request.get(urlPrueba + "ClienteCorporativo/ObtenerBase64PdfGuia/" + req.params.id, {
+        headers: {
+            "x-app-signature": usuario_prueba,
+            "x-app-security_token": token
+        }
+    }, (error, response, body) => {
+        if(error) res.send("Hubo un error => "+error);
+
+        res.send(JSON.parse(body));
     })
 }

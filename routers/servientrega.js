@@ -195,6 +195,7 @@ async function actualizarMovimientosGuias(d, general) {
     let resultado_guias = new Array();
   
     for await (let doc of resultado.docs) {
+      if(!doc.data().transportadora && doc.data().transportadora !== "SERVIENTREGA") continue;
       if (doc.data().numeroGuia) {
         if (consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
           consulta.usuarios.push(doc.data().centro_de_costo);
@@ -579,7 +580,7 @@ async function joinBase64WhitPdfDoc(arrBase64) {
 }
 
 async function generarStickerManifiesto(arrGuias, prueba) {
-  if(arrGuias) {
+  if(arrGuias.length) {
     let base64 = new Promise((resolve, reject) => {
       request.post({
         headers: {"Content-Type": "text/xml"},
@@ -589,7 +590,6 @@ async function generarStickerManifiesto(arrGuias, prueba) {
         if(error) {
           return console.dir(error);
         }
-        console.log(response.statusCode);
     
         let xmlResponse = new DOMParser().parseFromString(body, "text/xml")
         // resolve(body);
@@ -603,7 +603,6 @@ async function generarStickerManifiesto(arrGuias, prueba) {
             let errorGeneradoPorGuia = xmlResponse.documentElement.getElementsByTagName("Des_Error")[0].childNodes;
             let guiasConErrores = new Array();
   
-            console.log(errorGeneradoPorGuia);
             for(let i = 0; i < errorGeneradoPorGuia.length; i++) {
               
               let guia = errorGeneradoPorGuia[i].childNodes[0].textContent;
@@ -626,6 +625,7 @@ async function generarStickerManifiesto(arrGuias, prueba) {
                 timeline: new Date().getTime(),
                 detalles: guiasConErrores
               }).catch((err) => {
+                Console.LOG("Error enviando notificacion")
                 db.collection("errores").add({
                   err: err
                 })
@@ -633,10 +633,11 @@ async function generarStickerManifiesto(arrGuias, prueba) {
             }
           
             
-            resolve(0);
+            resolve("");
           }
 
         } catch (error) {
+          reject(error);
           console.log(error);
         }
       })
@@ -653,7 +654,7 @@ router.post("/consultarGuia", (req, res) => {
   request.post({
     "headers": { "content-type": "text/xml" },
     "url": rastreoEnvios,
-    "body": consultarGuia(req.body.guia) 
+    "body": consultarGuia(guias.guia) 
   }, (error, response, body) => {
     if(error) {
         return console.dir(error);
@@ -831,19 +832,84 @@ router.post("/crearDocumentos", async (req, res) => {
   // fs.writeFileSync("ejemplo.pdf",ejemplo);
 });
 
-router.post("/generarManifiesto", (req, res) => {
-  request.post({
-    headers: {"Content-Type": "text/xml"},
-    url: req.body.prueba ? genGuiasPrueba : generacionGuias,
-    body: generarManifiesto(req.body.arrGuias, req.body.prueba)
-  }, (error, response, body) => {
-    if(error) {
-      return console.dir(error);
-    }
-    console.log(response.statusCode);
-    // console.log(JSON.stringify(body));
-    res.send(JSON.stringify(body));
-  })
+function segmentarString(base64, limite = 1000) {
+  if (!base64) return new Array(0);
+  let initial = 0;
+  let final = limite;
+  let parts = Math.floor(base64.length / limite);
+
+  let res = new Array();
+
+  for(let i = 0; i < parts; i ++) {
+    res.push(base64.substring(initial, final));
+    initial += limite;
+    final += limite;
+  };
+
+  res.push(base64.substring(initial));
+
+  return res
+}
+
+router.post("/generarManifiesto", async (req, res) => {
+  
+  let guias = req.body.arrGuias;
+  console.log(req.body.arrGuias);
+  const vinculo = req.body.vinculo
+  const base64 = await generarStickerManifiesto(guias, vinculo.prueba);
+  let numeroGuias = guias.map(v => v.id_heka).sort();
+
+  let campos_actualizados = {
+    guias: numeroGuias
+  }
+
+  if(!base64) {
+    campos_actualizados.descargar_relacion_envio = false;
+  };
+
+  res.send(base64);
+
+  const arrBase64 = segmentarString(base64, 100000);
+  
+  for (let i = 0; i < arrBase64.length; i++) {
+    await db.collection("documentos").doc(vinculo.id_doc)
+    .collection("manifiestoSegmentado").doc(i.toString())
+    .set({
+      segmento: arrBase64[i],
+      index: i
+    })
+  }
+  
+  try {
+    await db.collection("documentos").doc(vinculo.id_doc).update(campos_actualizados)
+    .then(() => {
+      console.log("Ya se configuró el documento correctamente")
+      for (let guia of guias) {
+        console.log("Actualizando estado =>", guia.id_heka);
+        db.collection("usuarios").doc(vinculo.id_user)
+        .collection("guias").doc(guia.id_heka)
+        .update({
+          enviado: true,
+          estado: "Enviado"
+        }).catch((error) => {
+          console.log("hubo un error Al actualizar el estado de la guia a \"Enviado\" => ", error)
+        });
+      }
+      console.log("Se están actualizando todos los estados");
+    })
+    .catch(error => {
+      console.log("Hubo un error para configurar el documento");
+      console.log(error)
+      console.log(JSON.stringify(error))
+      console.log(error.error)
+      console.log(error.toString())
+      console.log(error.message)
+
+    });
+
+  } catch (err) {
+    console.error(err);
+  }
 })
 
 

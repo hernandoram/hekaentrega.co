@@ -61,7 +61,9 @@ router.get("/consultarGuia", (req, res) => {
     })();
 });
 
-router.post("/crearGuia", interRouter.crearGuia)
+router.post("/crearGuia", interRouter.crearGuia);
+
+router.get("/crearStickerGuia/:id", interRouter.crearStickerGuia);
 
 function retornarEstado() {
     let info = new Object();

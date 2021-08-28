@@ -1362,32 +1362,38 @@ async function generarGuiaServientrega(datos) {
 
     if(res.numeroGuia) {
         res.type = datos.type;
-        console.log(res);
-        let XMLbase64Guia = await fetch("/servientrega/generarGuiaSticker", {
-            method: "POST",
-            headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(res)
-        }).then(data => data.json());
 
-        let parser = new DOMParser();
-        XMLbase64Guia = parser.parseFromString(XMLbase64Guia, "application/xml");
-        console.log(XMLbase64Guia);
-
-        let base64;
-        if(XMLbase64Guia.querySelector("GenerarGuiaStickerResult").textContent === "true") {
-            base64 = XMLbase64Guia.querySelector("bytesReport").textContent;
-            await firebase.storage().ref().child(user_id + "/guias").child(res.id_heka + ".pdf")
-            .putString(base64, "base64").then(snapshot => {
-                console.log(snapshot);
-                res.has_sticker = true;
-                console.log("Documento subido con exito");
-            });
-        }
-
-        console.log(res);
+        res.has_sticker = await guardarStickerGuiaServientrega(res);
     }
 
     return res;
+};
+
+//consulta al web service para crear el documento con el firestorage, si la creación resulta exitosa
+// me devuelve agrega la variable *has_sticker* al objeto ingresado y lo devuleve
+async function guardarStickerGuiaServientrega(data) {
+    console.log(data);
+    let XMLbase64Guia = await fetch("/servientrega/generarGuiaSticker", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    }).then(data => data.json());
+
+    //convierto la respuesta en formato xml
+    let parser = new DOMParser();
+    XMLbase64Guia = parser.parseFromString(XMLbase64Guia, "application/xml");
+    console.log(XMLbase64Guia);
+
+    let base64;
+    /* del xml necesito el elemento *GenerarStickerResult*, si es correcto, se busca
+    el valor *bytesReport*, se agrega al storage y devuelve has_sticker = true */
+    if(XMLbase64Guia.querySelector("GenerarGuiaStickerResult").textContent === "true") {
+        base64 = XMLbase64Guia.querySelector("bytesReport").textContent;
+        return await guardarBase64ToStorage(base64, user_id + "/guias/" + data.id_heka + ".pdf")
+    }
+
+    console.log(data);
+    return false;
 };
 
 //función para consultar la api en el back para crear guiade inter rapidisimo.
@@ -1403,10 +1409,21 @@ async function generarGuiaInterrapidisimo(datos) {
     if(respuesta.error) return {numeroGuia: 0, error: respuesta.error};
 
     respuesta.numeroGuia = respuesta.numeroPreenvio;
+    respuesta.id_heka = datos.id_heka;
+    respuesta.has_sticker = await generarStickerGuiaInterrapidisimo(respuesta);
+
     console.log("interrapidísimo => ",respuesta);
 
     return respuesta;
-}
+};
+
+async function generarStickerGuiaInterrapidisimo(data) {
+    let base64Guia = await fetch("/inter/crearStickerGuia/" + data.numeroGuia)
+    .then(data => data.text())
+    .catch(error => console.log("Hubo un error al consultar el base64 de INTERRAPÌDISIMO => ", error));
+
+    return await guardarBase64ToStorage(base64Guia, user_id + "/guias/" + data.id_heka + ".pdf")
+};
 
 function convertirMiles(n){
     let entero = Math.floor(n);
