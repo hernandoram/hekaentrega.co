@@ -840,7 +840,7 @@ class CalcularCostoDeEnvio {
         } else if (this.kgTomado >= 4 && this.kgTomado < 9) {
 
         } else {
-            let kg_adicional = this.kg - 8;
+            let kg_adicional = this.kgTomado - 8;
             this.total_flete += (kg_adicional * this.revisadorInterno(this.precios.costo_especial3, 
                 this.precios.costo_nacional3, this.precios.costo_zonal3))
         }
