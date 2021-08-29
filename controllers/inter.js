@@ -1,4 +1,5 @@
 const request = require("request");
+const extsFunc = require("../extends/funciones");
 
 const urlPrueba = "https://stgwww3.interrapidisimo.com/ApiVentaCreditoStg/api/";
 const usuario_prueba = "userHernandoStg";
@@ -69,6 +70,13 @@ exports.crearStickerGuia = (req, res) => {
     }, (error, response, body) => {
         if(error) res.send("Hubo un error => "+error);
 
-        res.send(JSON.parse(body));
+        let base64 = JSON.stringify(body);
+
+        let segmentar = parseInt(req.query.segmentar);
+        if(segmentar) {
+            res.send(extsFunc.segmentarString(base64, segmentar))
+        } else {
+            res.send(base64);
+        }
     })
-}
+};

@@ -120,7 +120,8 @@ function crearDocumentos() {
             timeline: new Date().getTime(),
             descargar_relacion_envio: true, descargar_guias: true,
             type: arrGuias[0].type,
-            transportadora: arrGuias[0].transportadora
+            transportadora: arrGuias[0].transportadora,
+            guias: []
         })
         .then((docRef) => {
             console.log("Document written with ID: ", docRef.id);
@@ -131,7 +132,7 @@ function crearDocumentos() {
             /* Si tiene inhabilitado la creción de guías automáticas 
             solo actualizará las guías que pasaron el filtro anterior y enviará una 
             notificación a administración, es caso contrario utilizará el web service */
-            if(generacion_automatizada) {
+            if(generacion_automatizada && arrGuias[0].transportadora === "SERVIENTREGA") {
                 crearManifiestoServientrega(arrGuias, {
                     id_user, 
                     prueba: estado_prueba,
@@ -194,37 +195,17 @@ function base64ToArrayBuffer(base64) {
     return bytes;
 }
 
-//Función que utiliza el web service para crear documentos
-function generarDocumentos(arrGuias, vinculo) {
-    return;
-    fetch("/servientrega/crearDocumentos", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify([arrGuias, vinculo])
-    }).then(res => {
-        console.log(res);
-        if(!res.ok) {
-            throw new Error(res.status + " " + res.statusText);
-        }
-        if(res.status == 422) {
-            throw new Error("No hubo guía que procesar.");
-        }
-        return res.json()
-    })
-    .then(respuesta => {
-        console.log(respuesta);
-        Swal.fire({
-            icon: "success",
-            text: respuesta
-        });
-
-        document.getElementById("enviar-documentos").removeAttribute("disabled");
-    })
-    // .catch(error => co)
-};
+function openPdfFromBase64(base64) {
+    const buffer = base64ToArrayBuffer(base64);
+    let blob = new Blob([buffer], {type: "application/pdf"});
+    let url = URL.createObjectURL(blob);
+    window.open(url);
+}
 
 async function crearManifiestoServientrega(arrGuias, vinculo) {
-    let mensaje = "";
+    let mensaje = document.createElement("div");
+    let ul = document.createElement("ul");
+
     sin_stiker = 0;
     arrGuias = arrGuias.filter(v => {
         if(!v.has_sticker) sin_stiker ++;
@@ -232,8 +213,8 @@ async function crearManifiestoServientrega(arrGuias, vinculo) {
     });
 
     if(sin_stiker) {
-        mensaje += "Hay " + sin_stiker + " guias que no pudieron ser procesadas por no contar con el sticker de la guía. \n"
-        mensaje += "intente le recomendamos clonar la(s) guía(s) involucrada, y eliminar la defectuosa";
+        ul.innerHTML += `<li>${sin_stiker} guias no pudieron ser procesadas por no contar con el sticker de la guía. \n"
+        Le recomendamos clonar la(s) guía(s) involucrada, y eliminar la defectuosa</li>`;
     }
 
     let base64 = await fetch("/servientrega/generarManifiesto", {
@@ -251,11 +232,19 @@ async function crearManifiestoServientrega(arrGuias, vinculo) {
         document.getElementById("enviar-documentos").removeAttribute("disabled");
     });
     
-    const nombre_relacion = "relacion envio";
+    let numero_guias = arrGuias.map(d => d.numeroGuia).sort();
+    const rango = numero_guias[0] + ((numero_guias.length > 1) ?
+        "_"+numero_guias[numero_guias.length - 1] : "");
+    const nombre_relacion = "Relacion " + rango;
 
     let documento_guardado;
     if(base64) {
         documento_guardado = await guardarBase64ToStorage(base64, user_id + "/" + vinculo.id_doc + "/" + nombre_relacion + ".pdf")
+    } else {
+        if(arrGuias.length !== 0) {
+            ul.innerHTML += `Por razones desconocidas, no se pudo crear el manifiesto, el problema ha sido transferido a asesoría logística,
+            trataremos de corregirlo en la brevedad posible.`;
+        }
     };
 
     if(documento_guardado) {
@@ -263,10 +252,20 @@ async function crearManifiestoServientrega(arrGuias, vinculo) {
         .update({nombre_relacion});
     };
 
-    Swal.fire({
-        icon: "warning",
-        text: mensaje
-    });
+    if(ul.innerHTML) {
+        mensaje.appendChild(ul);
+        Swal.fire({
+            icon: "warning",
+            title: "Obeservaciones",
+            html: mensaje
+        });
+    } else {
+        Swal.fire({
+            icon: "success",
+            html: "¡Documento creado exitósamente!"
+        });
+    }
+    
 
     document.getElementById("enviar-documentos").removeAttribute("disabled");
 
@@ -776,21 +775,8 @@ function actualizarHistorialDeDocumentos(timeline){
                   let btn_descarga = document.getElementById("boton-descargar-relacion_envio" + doc.id);
                   btn_descarga.removeAttribute("disabled");
                   btn_descarga.addEventListener("click", (e) => {
-                    if(row.data().base64Manifiesto && !row.data().nombre_relacion) {
-                      let base64 = row.data().base64Manifiesto;
-                      let buff = base64ToArrayBuffer(base64);
-                      let blob = new Blob([buff], {type: "application/pdf"});
-                      let url = URL.createObjectURL(blob);
-                      window.open(url);
-                    } else {
-                        console.log(e.target.parentNode)
-                        firebase.storage().ref().child(user_id + "/" + doc.id + "/" + nombre_relacion + ".pdf")
-                        .getDownloadURL().then((url) => {
-                          console.log(url)
-                          window.open(url, "_blank");
-                        })
-                    }
-                })
+                    descargarManifiesto(row);
+                  })
               }
 
               document.getElementById("boton-generar-rotulo" + doc.id).addEventListener("click", function() {
@@ -864,21 +850,72 @@ function descargarDocumentos(user_id, id_doc, guias, nombre_guias, nombre_relaci
 
             }
 
-            if(doc.data().base64Manifiesto && !doc.data().nombre_relacion){
-                let base64 = doc.data().base64Manifiesto;
-                let buff = base64ToArrayBuffer(base64);
-                let blob = new Blob([buff], {type: "application/pdf"});
-                let url = URL.createObjectURL(blob);
-                window.open(url);
-            } else {
-                firebase.storage().ref().child(user_id + "/" + id_doc + "/" + nombre_relacion + ".pdf")
-                .getDownloadURL().then((url) => {
-                    window.open(url, "_blank");
-                });
-            }
+            descargarManifiesto(doc);
         }
     })
 
+}
+
+// funcion que, dependiendo de las situaciones abre una pestaña para mostrarme el manifiesto
+// Recive como parametro el doc devuelto por firebase
+function descargarManifiesto(doc) {
+    if (doc.data().nombre_relacion){
+        
+        firebase.storage().ref().child(doc.data().id_user + "/" + doc.id + "/" + doc.data().nombre_relacion + ".pdf")
+        .getDownloadURL().then((url) => {
+            console.log(url)
+            window.open(url, "_blank");
+        })
+    } else if(doc.data().base64Manifiesto) {
+        let base64 = doc.data().base64Manifiesto;
+        openPdfFromBase64(base64);
+    } else {
+        doc.ref.collection("manifiestoSegmentado")
+        .get().then(querySnapshot => {
+            if(!querySnapshot.size) return alert("Lo siento, no consigo una relación que descargar.");
+
+            let base64 = "";
+
+            querySnapshot.forEach(doc => {
+                base64 += doc.data().segmento;
+            });
+
+            openPdfFromBase64(base64);
+        });
+    }
+}
+
+// funcion que, dependiendo de las situaciones descarga el sticker de guia
+// Recive como parametro el doc devuelto por firebase
+async function descargarStickerGuias(doc) {
+    if(row.data().nombre_guias) {
+        firebase.storage().ref().child(doc.data().id_user + "/" + doc.id + "/" + nombre_guias + ".pdf")
+        .getDownloadURL().then((url) => {
+            console.log(url);
+            window.open(url, "_blank");
+        })
+    } else if(row.data().base64Guias) {
+        let base64 = row.data().base64Guias;
+        openPdfFromBase64(base64);
+    } else {
+        const guias = doc.data().guias;
+        for(let guia of guias) {
+            firebase.storage().ref().child(doc.data().id_user + "/" + doc.id + "/" + nombre_guias + ".pdf")
+        .getDownloadURL().then((url) => {
+            console.log(url);
+            window.open(url, "_blank");
+        })
+        }
+    }
+};
+
+openPdfFromUrl("https://firebasestorage.googleapis.com/v0/b/hekaapp-23c89.appspot.com/o/nk58Yq6Y1GUFbaaRkdMFuwmDLxO2%2FplVtdJP3DuQDKtUnMZbB%2Frelacion%20envio.pdf?alt=media&token=288f072a-97ed-4b76-af4c-c26ed3c73d64");
+async function openPdfFromUrl(url) {
+    const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer())
+    const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+    const pages = pdfDoc.getPages()
+    const pdfBytes = await pdfDoc.save()
+    console.log(pdfBytes);
 }
 
 function actualizarEstado(){
