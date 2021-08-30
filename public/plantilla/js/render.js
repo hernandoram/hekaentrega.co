@@ -1553,40 +1553,6 @@ async function guardarBase64ToStorage(base64, path) {
     });
 };
 
-async function probandoCotizadorAve(){
-    let auth = await fetch("https://aveonline.co/api/comunes/v1.0/autenticarusuario.php", {
-        method: "POST",
-        headers: {"Content-type": "application/json"},
-        body: JSON.stringify({
-            tipo: "auth",
-            usuario: "hernandoram1998",
-            clave: "3456"
-        })
-    }).then((res) => {
-        console.log(res);
-        return res.json();
-    });
-
-    console.log(auth);
-
-    let cotizacion = await fetch("https://aveonline.co/api/nal/v1.0/generarGuiaTransporteNacional.php", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        "body": JSON.stringify({
-            "tipo":"cotizar",
-            "token": auth.token,
-            "idempresa": "11635",
-            "origen": "GENOVA(QUINDIO)",
-            "destino":"MEDELLIN(ANTIOQUIA)",
-            "unidades":"1",
-            "kilos":"1",
-            "valordeclarado":"10000",
-            "idasumecosto":"1",
-            "contraentrega":"1",
-            "valorrecaudo":"1"
-        })
-    }).then(res => res.json());
-
-    console.log(cotizacion)
-
+function indexarGuias(guias){
+    return guias[0] + ((guias.length > 1) ? "_"+guias[guias.length - 1] : "")
 }

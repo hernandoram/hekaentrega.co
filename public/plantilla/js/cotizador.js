@@ -1372,24 +1372,21 @@ async function generarGuiaServientrega(datos) {
 //consulta al web service para crear el documento con el firestorage, si la creación resulta exitosa
 // me devuelve agrega la variable *has_sticker* al objeto ingresado y lo devuleve
 async function guardarStickerGuiaServientrega(data) {
-    console.log(data);
-    let XMLbase64Guia = await fetch("/servientrega/generarGuiaSticker", {
+    const maxPorSegmento = 500000;
+
+    let base64GuiaSegmentada = await fetch("/servientrega/generarGuiaSticker/?segmentar=" + maxPorSegmento, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(data)
     }).then(data => data.json());
 
-    //convierto la respuesta en formato xml
-    let parser = new DOMParser();
-    XMLbase64Guia = parser.parseFromString(XMLbase64Guia, "application/xml");
-    console.log(XMLbase64Guia);
+    const referenciaSegmentar = firebase.firestore().collection("base64StickerGuias")
+    .doc(data.id_heka).collection("guiaSegmentada");
 
-    let base64;
     /* del xml necesito el elemento *GenerarStickerResult*, si es correcto, se busca
     el valor *bytesReport*, se agrega al storage y devuelve has_sticker = true */
-    if(XMLbase64Guia.querySelector("GenerarGuiaStickerResult").textContent === "true") {
-        base64 = XMLbase64Guia.querySelector("bytesReport").textContent;
-        return await guardarBase64ToStorage(base64, user_id + "/guias/" + data.id_heka + ".pdf")
+    if(base64GuiaSegmentada.length) {
+        return await guardarDocumentoSegmentado(base64GuiaSegmentada, referenciaSegmentar);
     }
 
     console.log(data);
@@ -1418,12 +1415,41 @@ async function generarGuiaInterrapidisimo(datos) {
 };
 
 async function generarStickerGuiaInterrapidisimo(data) {
-    let base64Guia = await fetch("/inter/crearStickerGuia/" + data.numeroGuia)
-    .then(data => data.text())
+    const maxPorSegmento = 500000;
+    let base64GuiaSegmentada = await fetch("/inter/crearStickerGuia/" + data.numeroGuia + "?segmentar=" + maxPorSegmento)
+    .then(data => data.json())
     .catch(error => console.log("Hubo un error al consultar el base64 de INTERRAPÌDISIMO => ", error));
 
-    return await guardarBase64ToStorage(base64Guia, user_id + "/guias/" + data.id_heka + ".pdf")
+    const referenciaSegmentar = firebase.firestore().collection("base64StickerGuias")
+    .doc(data.id_heka).collection("guiaSegmentada");
+    return await guardarDocumentoSegmentado(base64GuiaSegmentada, referenciaSegmentar);
+    // return await guardarBase64ToStorage(base64Guia, user_id + "/guias/" + data.id_heka + ".pdf")
 };
+
+// esta función me toma un arreglo de strings, junto con la refenrecia de FB, y lo guarda en una collectio indexada
+async function guardarDocumentoSegmentado(base64Segmentada, referencia) {
+    if(typeof base64Segmentada !== "object") return false;
+
+    if(!base64Segmentada.length) return false;
+
+    let guardado = true;
+    for (let i = 0; i < base64Segmentada.length; i++) {
+        const res = await referencia.doc(i.toString()).set({
+            index: i, segmento: base64Segmentada[i]
+        })
+        .then(() => true)
+        .catch((error) => {
+            console.log("hubo un error al guardar una parte del documento segmentado => ", error)
+            guardado = false;
+            return false;
+        });
+        
+        if(!res) break;
+    };
+
+    return guardado;
+};
+
 
 function convertirMiles(n){
     let entero = Math.floor(n);

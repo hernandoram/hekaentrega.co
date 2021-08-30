@@ -101,11 +101,18 @@ exports.generarGuiaSticker = (req, res) => {
   
       console.log("Se está creando una guía");
       console.log(body);
-      let base64 = JSON.stringify(body);
+      let base64 = ""
+
+      let xmlResponse = new DOMParser().parseFromString(body, "text/xml");
+
+      if(xmlResponse.documentElement.getElementsByTagName("GenerarGuiaStickerResult")[0].textContent === "true") {
+        base64 = xmlResponse.documentElement.getElementsByTagName("bytesReport")[0].textContent;
+      }
 
       let segmentar = parseInt(req.query.segmentar);
       if(segmentar) {
-        res.send(extsFunc.segmentarString(base64, segmentar))
+        const segmentado = Math.min(segmentar, 1000000);
+        res.json(extsFunc.segmentarString(base64, segmentado));
       } else {
           res.send(base64);
       }
@@ -171,7 +178,7 @@ exports.generarManifiesto = async (req, res) => {
     } catch (err) {
       console.error(err);
     }
-  }
+};
 
 exports.crearDocumentos = async (req, res) => {
     // console.log(req.body);

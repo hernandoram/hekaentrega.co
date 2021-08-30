@@ -74,7 +74,8 @@ exports.crearStickerGuia = (req, res) => {
 
         let segmentar = parseInt(req.query.segmentar);
         if(segmentar) {
-            res.send(extsFunc.segmentarString(base64, segmentar))
+            const segementado = Math.min(segmentar, 1000000)
+            res.json(extsFunc.segmentarString(base64, segementado))
         } else {
             res.send(base64);
         }

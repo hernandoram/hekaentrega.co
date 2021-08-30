@@ -749,26 +749,12 @@ function actualizarHistorialDeDocumentos(timeline){
             tabla.push(mostrarDocumentosUsuario(doc.id, doc.data()));
             //funcionalidad de botones para descargar guias y relaciones
             firebase.firestore().collection("documentos").doc(doc.id).onSnapshot((row) => {
-              let nombre_guias = row.data().nombre_guias ? row.data().nombre_guias : "guias" + row.data().guias.toString();
-              let nombre_relacion = row.data().nombre_relacion ? row.data().nombre_relacion : "relacion envio" + row.data().guias.toString();
+              
               if(row.data().descargar_guias){
-                  let btn_descarga = document.getElementById("boton-descargar-guias" + doc.id);
+                let btn_descarga = document.getElementById("boton-descargar-guias" + doc.id);
                 btn_descarga.removeAttribute("disabled");
                 btn_descarga.addEventListener("click", (e) => {
-                  if(row.data().base64Guias && !row.data().nombre_guias) {
-                     let base64 = row.data().base64Guias;
-                     let buff = base64ToArrayBuffer(base64);
-                     let blob = new Blob([buff], {type: "application/pdf"});
-                     let url = URL.createObjectURL(blob);
-                     window.open(url);
-                  } else {
-                      console.log(e.target.parentNode)
-                      firebase.storage().ref().child(user_id + "/" + doc.id + "/" + nombre_guias + ".pdf")
-                      .getDownloadURL().then((url) => {
-                        console.log(url)
-                        window.open(url, "_blank");
-                      })
-                  }
+                    descargarStickerGuias(row);
                 })
               }
               if(row.data().descargar_relacion_envio){
@@ -859,9 +845,10 @@ function descargarDocumentos(user_id, id_doc, guias, nombre_guias, nombre_relaci
 // funcion que, dependiendo de las situaciones abre una pestaña para mostrarme el manifiesto
 // Recive como parametro el doc devuelto por firebase
 function descargarManifiesto(doc) {
+    let nombre_relacion = doc.data().nombre_relacion ? doc.data().nombre_relacion : "relacion envio" + doc.data().guias.toString();
     if (doc.data().nombre_relacion){
         
-        firebase.storage().ref().child(doc.data().id_user + "/" + doc.id + "/" + doc.data().nombre_relacion + ".pdf")
+        firebase.storage().ref().child(doc.data().id_user + "/" + doc.id + "/" + nombre_relacion + ".pdf")
         .getDownloadURL().then((url) => {
             console.log(url)
             window.open(url, "_blank");
@@ -888,35 +875,50 @@ function descargarManifiesto(doc) {
 // funcion que, dependiendo de las situaciones descarga el sticker de guia
 // Recive como parametro el doc devuelto por firebase
 async function descargarStickerGuias(doc) {
-    if(row.data().nombre_guias) {
+    let nombre_guias = doc.data().nombre_guias ? doc.data().nombre_guias : "guias" + doc.data().guias.toString();
+
+    if(doc.data().nombre_guias) {
         firebase.storage().ref().child(doc.data().id_user + "/" + doc.id + "/" + nombre_guias + ".pdf")
         .getDownloadURL().then((url) => {
             console.log(url);
             window.open(url, "_blank");
         })
-    } else if(row.data().base64Guias) {
-        let base64 = row.data().base64Guias;
+    } else if(doc.data().base64Guias) {
+        let base64 = doc.data().base64Guias;
         openPdfFromBase64(base64);
     } else {
         const guias = doc.data().guias;
-        for(let guia of guias) {
-            firebase.storage().ref().child(doc.data().id_user + "/" + doc.id + "/" + nombre_guias + ".pdf")
-        .getDownloadURL().then((url) => {
-            console.log(url);
-            window.open(url, "_blank");
-        })
+        const pdfDoc = await PDFLib.PDFDocument.create();
+
+        for await (let guia of guias) {
+            console.log(guia);
+            await firebase.firestore().collection("base64StickerGuias").doc(guia)
+            .collection("guiaSegmentada").get().then(async querySnapshot => {
+                let base64 = "";
+                console.log(querySnapshot.size);
+                querySnapshot.forEach(doc => {
+                    base64 += doc.data().segmento;
+                });
+                const page = await PDFLib.PDFDocument.load(base64);
+
+                const [existingPage] = await pdfDoc.copyPages(page, [0])
+                pdfDoc.addPage(existingPage);
+            })
+        };
+        console.log(pdfDoc.getPages());
+        const pdfBase64 = await pdfDoc.saveAsBase64();
+        openPdfFromBase64(pdfBase64);
+
+        nombre_guias = "Guias " + indexarGuias(guias);
+
+        const storagePath = doc.data().id_user + "/" + doc.id + "/" + nombre_guias + ".pdf";
+        let cargarGuiasStorage = await guardarBase64ToStorage(pdfBase64, storagePath);
+
+        if(cargarGuiasStorage) {
+            doc.ref.update({nombre_guias});
         }
     }
 };
-
-openPdfFromUrl("https://firebasestorage.googleapis.com/v0/b/hekaapp-23c89.appspot.com/o/nk58Yq6Y1GUFbaaRkdMFuwmDLxO2%2FplVtdJP3DuQDKtUnMZbB%2Frelacion%20envio.pdf?alt=media&token=288f072a-97ed-4b76-af4c-c26ed3c73d64");
-async function openPdfFromUrl(url) {
-    const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer())
-    const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
-    const pages = pdfDoc.getPages()
-    const pdfBytes = await pdfDoc.save()
-    console.log(pdfBytes);
-}
 
 function actualizarEstado(){
     document.querySelector("#cargador-actualizador").classList.remove("d-none");
