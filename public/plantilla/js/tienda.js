@@ -102,9 +102,10 @@ function modificarItemCarrito(input) {
     if(value > maxValue) {
         let p = document.createElement("p");
         p.classList.add("text-danger");
-        p.innerHTML = "La cantidad solicitada excede la cantidad en inventario, por favor asegurece que la tienda tenga lo que solicita.";
-
+        p.innerHTML = "Excede la cantidad registrada en inventario. será modificado a: " + maxValue;
+        
         $(p).insertAfter(input);
+        $(input).val(maxValue)
     };
 
     //Empieza a utilizar el cotizador
@@ -131,6 +132,10 @@ async function getStoreInfo(tienda) {
         $(e).text(info[campo]);
     });
 
+    if(info.logoUrl) {
+        $("img[alt='Logo tienda']").attr("src", info.logoUrl);
+    }
+
     //Retorna la información de la tienda y también me llena la variable global donde que hace refencia a la misma
     storeInfo = info;
     return info;
@@ -138,17 +143,19 @@ async function getStoreInfo(tienda) {
 
 //La tienda tienda sus propios precios personalizados
 let precios = {
-    costo_zonal1: 9050,
-    costo_zonal2: 13050,
+    costo_zonal1: 7550,
+    costo_zonal2: 11550,
     costo_zonal3: 2800,
-    costo_nacional1: 11500,
-    costo_nacional2: 19250,
+    costo_nacional1: 10000,
+    costo_nacional2: 17750,
     costo_nacional3: 3400,
-    costo_especial1: 22900,
-    costo_especial2: 32000,
+    costo_especial1: 21400,
+    costo_especial2: 30500,
     costo_especial3: 6300,
     comision_servi: 3.1,
     comision_heka: 1,
+    constante_convencional: 600,
+    constante_pagoContraentrega: 1500,
     saldo: 0
 };
 
@@ -196,6 +203,21 @@ async function calcularCostoEnvio() {
 
         $(this).prop("disabled", true);
         $(this).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> Cargando...');
+
+        const continuar = await Swal.fire({
+            icon: "question",
+            title: "¿Desea continuar con su compra?",
+            showConfirmButton: true,
+            showCancelButton: true
+        }).then((result) =>{
+            if(result.isConfirmed) return true;
+
+            $(this).html('<i class="mdi mdi-truck-fast mr-1"></i> Comprar');
+            $(this).removeAttr("disabled");
+            return false;
+        });
+
+        if(!continuar) return;
     };
 
     //comienza la revisión de cada item del carrito
@@ -211,10 +233,10 @@ async function calcularCostoEnvio() {
             sumarCostoDeEnvio(recaudo, "PAGO CONTRAENTREGA", peso, volumen, datos_de_cotizacion) :
             new CalcularCostoDeEnvio(recaudo, "PAGO CONTRAENTREGA", peso, volumen, datos_de_cotizacion);
         
-        console.log("El costo de envío",costo_envio);
-        console.log("El costo de envío",cotizador.costoEnvio);
+        
+        if(!cotizador.flete) continue;
+
         costo_envio += cotizador.costoEnvio;
-        console.log("El costo de envío",costo_envio);
         console.log(cotizador);
 
         //Si fue llamada desde el botón de comprar, comienza a crear la guía del item actual
@@ -231,8 +253,14 @@ async function calcularCostoEnvio() {
     };
 
     console.log("El costo de envío",costo_envio);
+    let total = costo_envio + calcTotal();
+    if(!costo_envio) {
+        total = "No disponible";
+        $("#total").addClass("text-danger");
+    };
+
     $("#costo-envio").text(costo_envio);
-    $("#total").text(costo_envio + calcTotal());
+    $("#total").text(total);
     $(this).html('<i class="mdi mdi-truck-fast mr-1"></i> Comprar');
     $(this).removeAttr("disabled");
 
@@ -248,6 +276,7 @@ async function calcularCostoEnvio() {
         }).then(() =>{
             enviarWhatsappRemitente(guias);
             vaciarCarrito();
+            location.reload();
         });
     };
 };
@@ -318,6 +347,7 @@ async function crearGuia(item, cotizador) {
     console.log(guiaCreada);
     
     item.id = guiaCreada.id_pedido;
+    item.timeline = new Date().getTime();
 
     //Genero el pedido con el mismo id de la guía
     let pedido = await crearPedido(item);
@@ -353,7 +383,9 @@ function revisarCampos() {
             return true
         };
     });
+
     if(vacios) return true;
+
     let ciudad = $("#ciudadD")[0].dataset;
     if(Object.entries(ciudad).length <= 1) {
         $("#ciudadD").addClass("is-invalid");
