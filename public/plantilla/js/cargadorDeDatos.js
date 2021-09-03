@@ -164,7 +164,7 @@ function cargarDatosUsuario(){
               const value = doc.data()[precio];
               if(value === "") continue;
               if(!/[^\d+.]/.test(value.toString())) {
-                precios_personalizados[precio] = parseInt(value);
+                precios_personalizados[precio] = parseFloat(value);
               } else {
                 precios_personalizados[precio] = value;
               }
