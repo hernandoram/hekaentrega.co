@@ -64,6 +64,7 @@ exports.obtenerProducto = async (req, res) => {
             data.id = doc.id;
             data.storeId = req.params.tiendaId;
             data.nombre_tienda = req.params.nombre_tienda;
+            data.cantidad = data.stock[0].detalles.cantidad;
             return data
         }
     });

@@ -7,6 +7,7 @@ $("#inp-search-product").on("input", filtrarProductoPorNombre);
 $("#categoria-select").change(filtrarProductoPorCategoria);
 $("#sort-select").change(organizarProductos);
 $(".vaciar-carrito").click(vaciarCarrito);
+$("[data-campo]").change(modifyPricesAndLimitsPerProduct);
 
 let storeInfo;
 let tienda = window.location.hostname.split(".")[0];
@@ -561,6 +562,83 @@ function vaciarCarrito() {
     })
 };
 
+//Revisa las opciones seleccionadas en el formulario de atributos y me devuelve el indice coincidente
+function getFilteredIndex() {
+    const selectores = $("#selectores-atributos").children("select");
+    
+    let indices;
+
+    //Revisa todos los selectores del formulario
+    selectores.each((i,selector) => {
+        const selectVal = selector.value;
+        let indexes;
+        const opciones = selector.querySelectorAll("option");
+        
+        //Luego revisa entre las opciones que coincidan con el valor seleccionado
+        for(let i = 0; i < opciones.length; i++) {
+            if(opciones[i].value === selectVal) {
+                indexes = $(opciones[i]).attr("data-indexes");
+                break;
+            }
+        }
+
+        indexes = indexes.split(",");
+
+        //para el caso de que haya un solo select
+        if(!indices) {
+            indices = indexes;
+        } else {
+            //si hay más de un selector, comienza a filtrar solo aquellos indices coincidentes
+            //De manera que la longitud final de *indices* termina siendo 1
+            indices = indices.filter(i => {
+                let res = false;
+                indexes.forEach(j => {
+                    if (j === i) res = true;
+                });
+
+                return res
+            });
+
+        }
+    });
+
+    const indice = indices.reduce(v => v);
+    return indice;
+}
+
+function modifyPricesAndLimitsPerProduct() {
+    const index = getFilteredIndex();
+    const precios = $("#precios_filtrado").text().split(",");
+    const inventarios = $("#inventarios_filtrado").text().split(",");
+    const precio = precios[index];
+    const inventario = inventarios[index];
+    const mostrador_precio = $("#mostrador-precio");
+    const mostrador_inventario = $("#mostrador-inventario");
+
+    mostrador_precio.addClass("text-danger alert");
+    mostrador_precio.text(currency(precio));
+    
+    mostrador_inventario.addClass("text-danger alert");
+    mostrador_inventario.text(inventario);
+
+    setTimeout(() => {
+        mostrador_inventario.removeClass("text-danger alert");
+        mostrador_precio.removeClass("text-danger alert");
+    }, 500);
+
+}
+
+function currency(val) {
+    val = parseInt(val);
+    const res = val.toLocaleString("es-CO", {
+        style: "currency", 
+        currency: "COP",
+        minimumFractionDigits: 0
+    });
+
+    return res;
+}
+globalThis.p = modifyPricesAndLimitsPerProduct;
 
 $(document).ready(function() {
     //solicitamos la info de la tienda

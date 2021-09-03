@@ -51,28 +51,49 @@ router.post("/enviarNotificacion", tiendaCtrl.enviarNotificacion);
 Handlebars.registerHelper("listar_atributos", function(context, options) {
     //Este ayudante de handlebars me lista todos los atributos existentes el listas de select
     let atributos = new Object();
+    let precios = new Array();
+    let limites = new Array();
 
     context.forEach((variante, i) => {
         //Itero cada variante del contexto, para luego revisar cada campo
         for (let campo in variante) {
-            if(typeof variante[campo] == "object") continue;
+            if(typeof variante[campo] == "object") {
+                precios.push(variante[campo].precio);
+                limites.push(variante[campo].cantidad);
+                continue;
+            };
             //Si no existe en la lista de atributos, lo crea, en caso contrario agrega el atributo al campo que corresponda
             if(!atributos[campo]) {
                 atributos[campo] = [variante[campo]]
-            } else if(atributos[campo].indexOf(variante[campo]) == -1){
+            } else{
                 atributos[campo].push(variante[campo])
             }
         }
     });
     
-    let res = '<form class="form-inline mb-4">'
+    let res = '<form class="form-inline mb-4" id="selectores-atributos">'
+    res+= `<span id="precios_filtrado" class="d-none">${precios}</span>`
+    res+= `<span id="inventarios_filtrado" class="d-none">${limites}</span>`
     //Luego itera entre todos los campos de atributos para crear el selecto crrespondiente de la lista de posibilidades
     for(let campo in atributos) {
+        let attrIndx = new Object();
+        atributos[campo].forEach((value, i) => {
+            if(!attrIndx[value]) {
+                attrIndx[value] = [i];
+            } else {
+                attrIndx[value].push(i);
+            }
+        });
+
         res += '<label class="my-1 mr-2" for="'+campo+'input">' + campo + '</label>';
         res += '<select data-campo="'+campo+'" class="custom-select my-1 mr-sm-3" id="'+campo+'input">'
-        atributos[campo].forEach(value => {
-            res += '<option value="'+value+'">' + value + '</option>'
-        });
+        
+        for (let value in attrIndx) {
+            console.log(attrIndx[value]);
+            res += '<option value="'+value+'" data-indexes="'+attrIndx[value]+'">' 
+            + value + '</option>'
+        }
+
         res += '</select>';
     }
     res += '</form>';
