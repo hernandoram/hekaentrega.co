@@ -9,7 +9,7 @@ let transportadoras = {
         observaciones: observacionesServientrega,
         logoPath: "img/logoServi.png",
         color: "success",
-        limitesPeso: [3,15],
+        limitesPeso: [3,25],
         limitesLongitud: [1,150],
         limitesRecaudo: [5000, 2000000],
         limitesValorDeclarado: (valor) => {
@@ -418,6 +418,13 @@ async function detallesTransportadoras(data) {
         
         if(!cotizacion.flete || cotizacion.empty) continue;
         
+        let descuento;
+        if(cotizacion.descuento) {
+            const percent = Math.round((cotizacion.costoEnvioPrev - cotizacion.costoEnvio) * 100 / cotizacion.costoEnvioPrev)
+            console.log("tiene un descuento de: " + percent +"%");
+            descuento = percent + " %"
+        }
+
         encabezados += `<a class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
         id="list-transportadora-${transp}-list" 
         role="tab"
@@ -439,7 +446,8 @@ async function detallesTransportadoras(data) {
                 <div class="col d-flex flex-column justify-content-around">
                     <small class="detalles btn btn-outline-primary badge badge-pill">
                     Detalles</small>
-                    <b>$${convertirMiles(cotizacion.costoEnvio)}</b>
+                    <span class="badge text-danger mt-1 ml-2 p-1 ${!descuento && "d-none"}">Descuento del ${descuento}</span>
+                    <h5><b>$${convertirMiles(cotizacion.costoEnvio)} </b></h5>
                 </div>
             </div>
             <p class="text-center mb-0 mt-2">Costo de envío para ${data.type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"}: <b>$${convertirMiles(cotizacion.seguro)}</b></p>
@@ -469,7 +477,16 @@ async function detallesTransportadoras(data) {
                     </div>
                     <div class="card my-3 shadow-sm border-${transportadora.color}">
                         <div class="card-body">
-                            <h3 class="card-text d-flex justify-content-between">Total <b>$${convertirMiles(cotizacion.costoEnvio)}</b></h3>
+                            <h3 class="card-text d-flex justify-content-between">Total: 
+                                <small class="text-danger ${!descuento && "d-none"}">
+                                    <del>${convertirMiles(cotizacion.costoEnvioPrev)}</del>
+                                    <h6><small>Precio al público</small></h6>
+                                </small> 
+                                <b>
+                                    $${convertirMiles(cotizacion.costoEnvio)}
+                                    <h6><small>Con nosotros</small></h6>
+                                </b>
+                            </h3>
                         </div>
                     </div>
                 </div>
@@ -844,11 +861,18 @@ class CalcularCostoDeEnvio {
             this.total_flete += (kg_adicional * this.revisadorInterno(this.precios.costo_especial3, 
                 this.precios.costo_nacional3, this.precios.costo_zonal3))
         }
+        this.fletePrev = (this.total_flete * 0.18) + this.total_flete;
+        this.descuento = true;
         return this.total_flete;
     }
 
     get costoEnvio(){
         let resultado = this.flete + this.sobreFletes(this.valor);
+        return resultado;
+    }
+
+    get costoEnvioPrev() {
+        let resultado = this.fletePrev + this.sobreFletes(this.valor);
         return resultado;
     }
     
@@ -1000,10 +1024,10 @@ class CalcularCostoDeEnvio {
         this.seguroMercancia = Math.ceil(this.seguro * 0.02);
         if(this.type != "CONVENCIONAL") {
             let servicioContraPago;
-            if(this.valor < 50000) {
-                servicioContraPago = 2500
+            if(this.valor > 50000) {
+                servicioContraPago = this.valor * 0.03;
             } else {
-                servicioContraPago = this.valor * 0.05;
+                servicioContraPago = 2500
             }
             this.sobreflete = Math.ceil(servicioContraPago);
         }
@@ -1011,8 +1035,9 @@ class CalcularCostoDeEnvio {
         this.comision_transp = 2;
         this.sobreflete_min = 0
 
-        this.flete = precio.Valor;
-        
+        this.fletePrev = precio.Valor
+        this.descuento = true;
+        this.flete = precio.Valor * 0.83;    
     }
 
     async cotizarInter(dane_ciudadR, dane_ciudadD) {
