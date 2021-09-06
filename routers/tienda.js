@@ -118,12 +118,12 @@ Handlebars.registerHelper("calcTotal", carrito => {
 
 Handlebars.registerHelper("categorias", (context, options) => {
     //Me devuelve un html de opciones del total de característica de productos existente en la tienda
-   let res = "<option value=''>Seleccionar Todas</option>";
+   let res = "";
    let categorias = new Array();
    context.forEach(item => {
        if(!categorias.includes(item.categoria) && item.categoria) {
            categorias.push(item.categoria);
-           res += options.fn(item.categoria);
+           res += options.fn(item);
        } 
    })
 

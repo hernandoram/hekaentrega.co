@@ -4,7 +4,7 @@ $("[data-function='adicionar']").change(calcItem);
 $("#ciudadD").blur(calcularCostoEnvio);
 $("#comprar").click(calcularCostoEnvio);
 $("#inp-search-product").on("input", filtrarProductoPorNombre);
-$("#categoria-select").change(filtrarProductoPorCategoria);
+$("#categoria-select > .category-filter").click(filtrarProductoPorCategoria);
 $("#sort-select").change(organizarProductos);
 $(".vaciar-carrito").click(vaciarCarrito);
 $("[data-campo]").change(modifyPricesAndLimitsPerProduct);
@@ -466,11 +466,11 @@ function enviarNotificacion(arrData) {
 };
 
 //*PÁGINA PRINCIPAL DE LA TIENDA*
-//funciones que utilizan las clases .visible .producto para sortearlo o filtrarlo
+//funciones que utilizan las clases .ver .producto para sortearlo o filtrarlo
 function filtrarProductoPorNombre() {
     let filtro = this.value.toLowerCase();
     
-    let productos = $(".visible");
+    let productos = $(".ver");
     productos.removeClass("d-none");
     if(!filtro) return;
     productos.each((i,e) => {
@@ -480,17 +480,17 @@ function filtrarProductoPorNombre() {
 };
 
 function filtrarProductoPorCategoria() {
-    let filtro = this.value;
+    let filtro = this.getAttribute("data-category");
 
     let productos = $(".producto");
     productos.removeClass("d-none");
-    productos.addClass("visible")
+    productos.addClass("ver")
     // if(!filtro) return;
     productos.each((i,e) => {
         let filtrado = $(e).attr("data-filter-categoria");
         if(!filtrado.includes(filtro)) {
             $(e).addClass("d-none");
-            $(e).removeClass("visible");
+            $(e).removeClass("ver");
         }
     });
     let filtradorInp = document.getElementById("inp-search-product");
@@ -501,7 +501,7 @@ function filtrarProductoPorCategoria() {
 function organizarProductos() {
     let sortBy = this.value;
     if(!sortBy) return;
-    let stock = $(".visible");
+    let stock = $(".ver");
     for(let i = 1; i < stock.length; i++) {
         let anterior = stock[i - 1];
         let actual = stock[i];
@@ -513,6 +513,38 @@ function organizarProductos() {
         }
     }
 };
+
+const swiper = new Swiper('.swiper', {
+    // Optional parameters
+    direction: 'horizontal',
+    // loop: true,
+    spaceBetween: 10,
+    slidesPerView: 4,
+    breakpoints: {
+        640: {
+            slidesPerView: 6,
+        },
+        1080: {
+            slidesPerView: 10
+        }
+    }
+
+    // // If we need pagination
+    // pagination: {
+    //     el: '.swiper-pagination',
+    // },
+
+    // // Navigation arrows
+    // navigation: {
+    //     nextEl: '.swiper-button-next',
+    //     prevEl: '.swiper-button-prev',
+    // },
+
+    // // And if we need scrollbar
+    // scrollbar: {
+    //     el: '.swiper-scrollbar',
+    // },
+});
 //*FIN DE PÁGINA PRINCIPAL DE LA TIENDA*
 
 //llena la barra lateral de la tienda y la notificación del carrito, mostrando los items seleccionados y su cantidad
