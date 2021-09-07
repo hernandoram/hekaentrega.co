@@ -4,9 +4,10 @@ $("[data-function='adicionar']").change(calcItem);
 $("#ciudadD").blur(calcularCostoEnvio);
 $("#comprar").click(calcularCostoEnvio);
 $("#inp-search-product").on("input", filtrarProductoPorNombre);
-$("#categoria-select").change(filtrarProductoPorCategoria);
+$("#categoria-select > .category-filter").click(filtrarProductoPorCategoria);
 $("#sort-select").change(organizarProductos);
 $(".vaciar-carrito").click(vaciarCarrito);
+$("[data-campo]").change(modifyPricesAndLimitsPerProduct);
 
 let storeInfo;
 let tienda = window.location.hostname.split(".")[0];
@@ -102,9 +103,10 @@ function modificarItemCarrito(input) {
     if(value > maxValue) {
         let p = document.createElement("p");
         p.classList.add("text-danger");
-        p.innerHTML = "La cantidad solicitada excede la cantidad en inventario, por favor asegurece que la tienda tenga lo que solicita.";
-
+        p.innerHTML = "Excede la cantidad registrada en inventario. será modificado a: " + maxValue;
+        
         $(p).insertAfter(input);
+        $(input).val(maxValue)
     };
 
     //Empieza a utilizar el cotizador
@@ -131,6 +133,10 @@ async function getStoreInfo(tienda) {
         $(e).text(info[campo]);
     });
 
+    if(info.logoUrl) {
+        $("img[alt='Logo tienda']").attr("src", info.logoUrl);
+    }
+
     //Retorna la información de la tienda y también me llena la variable global donde que hace refencia a la misma
     storeInfo = info;
     return info;
@@ -138,17 +144,19 @@ async function getStoreInfo(tienda) {
 
 //La tienda tienda sus propios precios personalizados
 let precios = {
-    costo_zonal1: 9050,
-    costo_zonal2: 13050,
+    costo_zonal1: 7550,
+    costo_zonal2: 11550,
     costo_zonal3: 2800,
-    costo_nacional1: 11500,
-    costo_nacional2: 19250,
+    costo_nacional1: 10000,
+    costo_nacional2: 17750,
     costo_nacional3: 3400,
-    costo_especial1: 22900,
-    costo_especial2: 32000,
+    costo_especial1: 21400,
+    costo_especial2: 30500,
     costo_especial3: 6300,
     comision_servi: 3.1,
     comision_heka: 1,
+    constante_convencional: 600,
+    constante_pagoContraentrega: 1500,
     saldo: 0
 };
 
@@ -196,6 +204,21 @@ async function calcularCostoEnvio() {
 
         $(this).prop("disabled", true);
         $(this).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> Cargando...');
+
+        const continuar = await Swal.fire({
+            icon: "question",
+            title: "¿Desea continuar con su compra?",
+            showConfirmButton: true,
+            showCancelButton: true
+        }).then((result) =>{
+            if(result.isConfirmed) return true;
+
+            $(this).html('<i class="mdi mdi-truck-fast mr-1"></i> Comprar');
+            $(this).removeAttr("disabled");
+            return false;
+        });
+
+        if(!continuar) return;
     };
 
     //comienza la revisión de cada item del carrito
@@ -211,10 +234,10 @@ async function calcularCostoEnvio() {
             sumarCostoDeEnvio(recaudo, "PAGO CONTRAENTREGA", peso, volumen, datos_de_cotizacion) :
             new CalcularCostoDeEnvio(recaudo, "PAGO CONTRAENTREGA", peso, volumen, datos_de_cotizacion);
         
-        console.log("El costo de envío",costo_envio);
-        console.log("El costo de envío",cotizador.costoEnvio);
+        
+        if(!cotizador.flete) continue;
+
         costo_envio += cotizador.costoEnvio;
-        console.log("El costo de envío",costo_envio);
         console.log(cotizador);
 
         //Si fue llamada desde el botón de comprar, comienza a crear la guía del item actual
@@ -231,8 +254,14 @@ async function calcularCostoEnvio() {
     };
 
     console.log("El costo de envío",costo_envio);
+    let total = costo_envio + calcTotal();
+    if(!costo_envio) {
+        total = "No disponible";
+        $("#total").addClass("text-danger");
+    };
+
     $("#costo-envio").text(costo_envio);
-    $("#total").text(costo_envio + calcTotal());
+    $("#total").text(total);
     $(this).html('<i class="mdi mdi-truck-fast mr-1"></i> Comprar');
     $(this).removeAttr("disabled");
 
@@ -248,6 +277,7 @@ async function calcularCostoEnvio() {
         }).then(() =>{
             enviarWhatsappRemitente(guias);
             vaciarCarrito();
+            location.reload();
         });
     };
 };
@@ -318,6 +348,7 @@ async function crearGuia(item, cotizador) {
     console.log(guiaCreada);
     
     item.id = guiaCreada.id_pedido;
+    item.timeline = new Date().getTime();
 
     //Genero el pedido con el mismo id de la guía
     let pedido = await crearPedido(item);
@@ -353,7 +384,9 @@ function revisarCampos() {
             return true
         };
     });
+
     if(vacios) return true;
+
     let ciudad = $("#ciudadD")[0].dataset;
     if(Object.entries(ciudad).length <= 1) {
         $("#ciudadD").addClass("is-invalid");
@@ -433,11 +466,11 @@ function enviarNotificacion(arrData) {
 };
 
 //*PÁGINA PRINCIPAL DE LA TIENDA*
-//funciones que utilizan las clases .visible .producto para sortearlo o filtrarlo
+//funciones que utilizan las clases .ver .producto para sortearlo o filtrarlo
 function filtrarProductoPorNombre() {
     let filtro = this.value.toLowerCase();
     
-    let productos = $(".visible");
+    let productos = $(".ver");
     productos.removeClass("d-none");
     if(!filtro) return;
     productos.each((i,e) => {
@@ -447,17 +480,17 @@ function filtrarProductoPorNombre() {
 };
 
 function filtrarProductoPorCategoria() {
-    let filtro = this.value;
+    let filtro = this.getAttribute("data-category");
 
     let productos = $(".producto");
     productos.removeClass("d-none");
-    productos.addClass("visible")
+    productos.addClass("ver")
     // if(!filtro) return;
     productos.each((i,e) => {
         let filtrado = $(e).attr("data-filter-categoria");
         if(!filtrado.includes(filtro)) {
             $(e).addClass("d-none");
-            $(e).removeClass("visible");
+            $(e).removeClass("ver");
         }
     });
     let filtradorInp = document.getElementById("inp-search-product");
@@ -468,7 +501,7 @@ function filtrarProductoPorCategoria() {
 function organizarProductos() {
     let sortBy = this.value;
     if(!sortBy) return;
-    let stock = $(".visible");
+    let stock = $(".ver");
     for(let i = 1; i < stock.length; i++) {
         let anterior = stock[i - 1];
         let actual = stock[i];
@@ -480,6 +513,38 @@ function organizarProductos() {
         }
     }
 };
+
+const swiper = new Swiper('.swiper', {
+    // Optional parameters
+    direction: 'horizontal',
+    // loop: true,
+    spaceBetween: 10,
+    slidesPerView: 4,
+    breakpoints: {
+        640: {
+            slidesPerView: 6,
+        },
+        1080: {
+            slidesPerView: 10
+        }
+    }
+
+    // // If we need pagination
+    // pagination: {
+    //     el: '.swiper-pagination',
+    // },
+
+    // // Navigation arrows
+    // navigation: {
+    //     nextEl: '.swiper-button-next',
+    //     prevEl: '.swiper-button-prev',
+    // },
+
+    // // And if we need scrollbar
+    // scrollbar: {
+    //     el: '.swiper-scrollbar',
+    // },
+});
 //*FIN DE PÁGINA PRINCIPAL DE LA TIENDA*
 
 //llena la barra lateral de la tienda y la notificación del carrito, mostrando los items seleccionados y su cantidad
@@ -529,6 +594,82 @@ function vaciarCarrito() {
     })
 };
 
+//Revisa las opciones seleccionadas en el formulario de atributos y me devuelve el indice coincidente
+function getFilteredIndex() {
+    const selectores = $("#selectores-atributos").children("select");
+    
+    let indices;
+
+    //Revisa todos los selectores del formulario
+    selectores.each((i,selector) => {
+        const selectVal = selector.value;
+        let indexes;
+        const opciones = selector.querySelectorAll("option");
+        
+        //Luego revisa entre las opciones que coincidan con el valor seleccionado
+        for(let i = 0; i < opciones.length; i++) {
+            if(opciones[i].value === selectVal) {
+                indexes = $(opciones[i]).attr("data-indexes");
+                break;
+            }
+        }
+
+        indexes = indexes.split(",");
+
+        //para el caso de que haya un solo select
+        if(!indices) {
+            indices = indexes;
+        } else {
+            //si hay más de un selector, comienza a filtrar solo aquellos indices coincidentes
+            //De manera que la longitud final de *indices* termina siendo 1
+            indices = indices.filter(i => {
+                let res = false;
+                indexes.forEach(j => {
+                    if (j === i) res = true;
+                });
+
+                return res
+            });
+
+        }
+    });
+
+    const indice = indices.reduce(v => v);
+    return indice;
+}
+
+function modifyPricesAndLimitsPerProduct() {
+    const index = getFilteredIndex();
+    const precios = $("#precios_filtrado").text().split(",");
+    const inventarios = $("#inventarios_filtrado").text().split(",");
+    const precio = precios[index];
+    const inventario = inventarios[index];
+    const mostrador_precio = $("#mostrador-precio");
+    const mostrador_inventario = $("#mostrador-inventario");
+
+    mostrador_precio.addClass("text-danger alert");
+    mostrador_precio.text(currency(precio));
+    
+    mostrador_inventario.addClass("text-danger alert");
+    mostrador_inventario.text(inventario);
+
+    setTimeout(() => {
+        mostrador_inventario.removeClass("text-danger alert");
+        mostrador_precio.removeClass("text-danger alert");
+    }, 500);
+
+}
+
+function currency(val) {
+    val = parseInt(val);
+    const res = val.toLocaleString("es-CO", {
+        style: "currency", 
+        currency: "COP",
+        minimumFractionDigits: 0
+    });
+
+    return res;
+}
 
 $(document).ready(function() {
     //solicitamos la info de la tienda

@@ -13,6 +13,10 @@ $("#actualizar-tienda").click(actualizarTienda);
 $("#url-tienda").blur(verificarExistenciaTienda);
 $("#url-tienda").on("input", muestraDelLinkTienda);
 
+$("#subir-logo-tienda").click(cargarLogo);
+
+$("#btn-buscar-pedidos").click(fillPedidos);
+
 $(document).ready(function(){
     $("#mytoast").toast("show");
 })
@@ -29,7 +33,9 @@ Dropzone.options.imagenesProducto = {
     acceptedFiles: "image/*",
     dictRemoveFile: "<button class='btn btn-danger badge'>Eliminar</button>"
 };
-let tiendaDoc = firebase.firestore().collection("tiendas").doc(user_id);
+
+const db = firebase.firestore()
+let tiendaDoc = db.collection("tiendas").doc(user_id);
 
 let categorias = ["Juguetes y Bebés", "Accesorios para Vehículos", "Herramientas e Industrias", "Bienestar", "Kits", "Alimentos", "Moda", "Arte", "Rituales", "Telas y Espumas", "Aretes", "Mascotas", "Tecnología", "Relojes y Joyas", "Hogar y electrodomesticos", "Hilo piedra", "Collares", "Anillos", "Salud sexual", "Vehículos", "Pulseras", "Inmuebles", "Velas", "Deportes y Aire Libre", "Colchones y Colchonetas", "Belleza y Cuidado Personal", "Otros", "Sin Categoría"];
 let atributos = {
@@ -891,6 +897,10 @@ async function cargarInfoTienda() {
         }
     };
 
+    if(info.logoUrl) {
+        mostrarLogoCargado(info.logoUrl);
+    }
+
     muestraDelLinkTienda.call($("#url-tienda")[0]);
 };
 
@@ -928,6 +938,10 @@ function obtenerLinkTienda(data) {
     contenedor.append(link, btnLink);
 };
 
+function mostrarLogoCargado(url) {
+    const img = $("#img-logo-tienda");
+    img.attr("src", url);
+}
 
 function muestraDelLinkTienda() {
     this.value = this.value.toLowerCase();
@@ -943,6 +957,7 @@ async function actualizarTienda() {
     let data = new Object();
     let ciudad = document.getElementById("ciudad-tienda").dataset
     let invalid = new Array();
+    const logo = document.getElementById("logo-tienda");
 
     //revisa que los inputs necesarios estén llenos
     $("#form-tienda [name]").each((i, e) => {
@@ -952,7 +967,6 @@ async function actualizarTienda() {
         data[campo] = valor;
         console.log(data[campo]);
     });
-    
     
     ciudad = JSON.parse(JSON.stringify(ciudad));
     
@@ -970,11 +984,22 @@ async function actualizarTienda() {
     //si alguna de las varificaciones anterires falla, solo muetra el fallo y no se actualiza ni habilita la tienda
     if (await verificarExistenciaTienda() || invalid.length
     || !Object.entries(ciudad).length) return;
+
+    if(logo.files.length) {
+        let file = logo.files[0];
+        const nombre_logo = "logo" + file.name.match(/\.\w+$/)[0];
+        const storageRef = firebase.storage().ref().child(user_id).child("tienda");
+
+        let fileUploaded = await storageRef.child(nombre_logo).put(file);
+        let url = await fileUploaded.task.snapshot.ref.getDownloadURL()
+        data.nombre_logo = nombre_logo
+        data.logoUrl = url;
+    }
     
     //lleno datos que son implícitos y necesarios para el correcto funcionamiento de la tienda
     data.ciudadT = ciudad;
     data.centro_de_costo = datos_usuario.centro_de_costo;
-    data.id_user = user_id
+    data.id_user = user_id;
 
     console.log(data);
     swal.fire({
@@ -1024,3 +1049,133 @@ async function verificarExistenciaTienda() {
 
     return exists
 };
+
+function fillPedidos() {
+    let fecha_inicio = Date.parse(value("fecha_inicio-pedidos").replace(/\-/g, "/")),
+        fecha_final = Date.parse(value("fecha_final-pedidos").replace(/\-/g, "/")) + 8.64e7;
+
+    tiendaDoc.collection("pedidos")
+    .orderBy("timeline", "desc")
+    .startAt(fecha_final).endAt(fecha_inicio)
+    .get()
+    .then(querySnapshot => {
+        let data = new Array();
+        querySnapshot.forEach(doc => {
+            let dato = doc.data();
+            dato.total = dato.cantidad * dato.precio;
+            data.push(dato);
+        });
+
+        console.log(data);
+        const table = $("#tabla-pedidos-tienda").DataTable({
+            data,
+            destroy: true,
+            language: {
+                url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
+                "emptyTable": "Aún no tienes guías saldadas."
+            },
+            columns: [
+                {
+                    "className": 'details-control text-center',
+                    "orderable": false,
+                    "data": null,
+                    "defaultContent": "<button class='btn btn-success btn-circle btn-sm'><i class='fa fa-plus'></i></button>"
+                },
+                {data: "id", title: "identificador heka", className: "identificador"},
+                {data: "nombre", title: "Producto"},
+                {data: "stock.detalles.cod", title: "Cód"},
+                {data: "categoria", title: "categoría"},
+                {
+                    data: "atributos",
+                    title: "Atibutos",
+                    render: function(data) {
+                        let res = "";
+                        for(let atributo in data) {
+                            res += `<b>${atributo}:</b> ${data[atributo]} <br>`
+                        }
+                        return res;
+                    }
+                },
+                {data: "precio", title: "Precio"},
+                {data: "cantidad", title: "Cant."},
+                {data: "total", title:"Total"}
+            ]
+        });
+
+        const infoExtra  = new InfoExtraPedidos(table);
+
+        $('#tabla-pedidos-tienda tbody').on('click', 'td.details-control', function() {
+            infoExtra.mostrarInfo(this, table);
+        });
+    })
+}
+
+class InfoExtraPedidos {
+    constructor() {
+        this.infoGuardada = new Object();
+    }
+    
+    mostrarInfo(target, table) {
+        var tr = $(target).closest('tr');
+        var row = table.row( tr );
+        const guia = $(target).parent().children(".identificador").text();
+        
+        if ( row.child.isShown() ) {
+            $(target).html("<button class='btn btn-success btn-circle btn-sm'><i class='fa fa-plus'></i></button>")
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            row.child( '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>Cargando...' ).show();
+
+            if(this.infoGuardada[guia]) {
+                const info = this.infoGuardada[guia];
+                row.child(this.resInfo(info)).show();
+                console.log("info desde la base guardada");
+
+            } else {
+                console.log("info desde firestore");
+                usuarioDoc.collection("guias").doc(guia)
+                .get().then(doc => {
+                    if(doc.exists) {
+                        this.infoGuardada[doc.id] = doc.data();
+                        row.child(this.resInfo(doc.data())).show();
+                    }
+                })
+            }
+            $(target).html("<button class='btn btn-danger btn-circle btn-sm'><i class='fa fa-minus'></i></button>")
+
+            tr.addClass('shown');
+        }
+    }
+
+    resInfo(data) {
+        return `<h5>${data.nombreD}</h5>
+        <p><b>Telefono: </b> ${data.telefonoD}</p>
+        <p><b>Dirección: </b> ${data.direccionD}</p>
+        <p><b>Costo envío: </b> ${data.costo_envio}</p>
+        `
+    }
+}
+
+function cargarLogo() {
+    const contenedor = $("#contenedor-logo-tienda");
+    const inputFile = $("#logo-tienda");
+    const reader = new FileReader();
+    inputFile.click();
+    inputFile.on("change", (e) => {
+        const file = e.target.files[0];
+        console.log(file);
+        reader.readAsDataURL(file)
+    });
+    
+    reader.addEventListener('load', (event) => {
+        const result = event.target.result;
+        const img = contenedor.children("img");
+        img.attr("src", result);
+        // console.log(result);
+
+    });
+    
+    
+}

@@ -48,30 +48,30 @@
             <div class="pl-xl-3 mt-3 mt-xl-0">
                 <a href="#" class="text-primary">{{producto.nombre}}</a>
                 <h4 class="mb-3">{{producto.descripcion}}</h4>
-                <p class="text-muted float-left mr-3">
+                {{!-- <p class="text-muted float-left mr-3">
                     <span class="mdi mdi-star text-warning"></span>
                     <span class="mdi mdi-star text-warning"></span>
                     <span class="mdi mdi-star text-warning"></span>
                     <span class="mdi mdi-star text-warning"></span>
                     <span class="mdi mdi-star"></span>
-                </p>
-                <p class="mb-4"><a href="" class="text-muted">( 36 Customer Reviews )</a></p>
-                <h6 class="text-danger text-uppercase">20 % Off</h6>
-                <h4 class="mb-4">Price : <span class="text-muted mr-2"><del>$80 USD</del></span> <b>{{getCurrency producto.precio}}</b></h4>
+                </p> --}}
+                {{!-- <p class="mb-4"><a href="" class="text-muted">( 36 Customer Reviews )</a></p> --}}
+                {{!-- <h6 class="text-danger text-uppercase">20 % Off</h6> --}}
+                <h4 class="mb-4">Precio : <b id="mostrador-precio" style="transition: 0.5s;">{{getCurrency producto.precio}}</b></h4>
                 <h4><span class="badge bg-soft-success text-success mb-4">{{producto.categoria}}</span></h4>
                 <p class="text-muted mb-4">{{producto.descripcion_detallada}}</p>
                 <div class="row mb-3">
                     <div class="col-md-6">
                         <div>
-                            <p class="text-muted"><i class="mdi mdi-checkbox-marked-circle-outline h6 text-primary mr-2"></i><b>Peso:</b> <spam>{{producto.peso}}</spam> Kg</p>
                             <p class="text-muted"><i class="mdi mdi-checkbox-marked-circle-outline h6 text-primary mr-2"></i><b>Alto:</b> <spam>{{producto.alto}}</spam> Centímetros</p>
-                            <p class="text-muted"><i class="mdi mdi-checkbox-marked-circle-outline h6 text-primary mr-2"></i> Temporibus autem quibusdam et</p>
+                            <p class="text-muted"><i class="mdi mdi-checkbox-marked-circle-outline h6 text-primary mr-2"></i><b>Largo:</b> <spam>{{producto.largo}}</spam> Centímetros</p>
+                            <p class="text-muted"><i class="mdi mdi-checkbox-marked-circle-outline h6 text-primary mr-2"></i><b>Ancho:</b> <spam>{{producto.ancho}}</spam> Centímetros</p>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div>
-                            <p class="text-muted"><i class="mdi mdi-checkbox-marked-circle-outline h6 text-primary mr-2"></i><b>Largo:</b> <spam>{{producto.largo}}</spam> Centímetros</p>
-                            <p class="text-muted"><i class="mdi mdi-checkbox-marked-circle-outline h6 text-primary mr-2"></i><b>Ancho:</b> <spam>{{producto.ancho}}</spam> Centímetros</p>
+                            <p class="text-muted"><i class="mdi mdi-checkbox-marked-circle-outline h6 text-primary mr-2"></i><b>Peso:</b> <spam>{{producto.peso}}</spam> Kg</p>
+                            <p class="text-muted"><i class="mdi mdi-checkbox-marked-circle-outline h6 text-primary mr-2"></i><b>Inventario:</b> <spam id="mostrador-inventario" style="transition: 0.5s;">{{producto.cantidad}}</spam> Unidades</p>
                         </div>
                     </div>
                 </div>

@@ -14,41 +14,46 @@
 <div class="row">
     <div class="col-12">
         <div class="card-box">
-            <div class="row">
-                <div class="col-lg-8">
-                    <form class="form-inline">
-                        <div class="form-group">
-                            <label for="inp-search-product" class="sr-only">Buscar</label>
-                            <input type="search" class="form-control" id="inp-search-product" placeholder="Buscar...">
-                        </div>
-                        <div class="form-group m-sm-2">
-                            <label for="categoria-select" class="mr-2">Categorías</label>
-                            <select class="custom-select" id="categoria-select">
-                                {{#categorias productos}}
-                                    <option value="{{this}}">{{this}}</option>
-                                {{/categorias}}
-                            </select>
-                        </div>
-                    </form>
+            <form class="form-inline">
+                <div class="form-group">
+                    <label for="inp-search-product" class="sr-only">Buscar</label>
+                    <input type="search" class="form-control" id="inp-search-product" placeholder="Buscar...">
                 </div>
-                <div class="col-lg-4">
-                    <div class="form-group">
-                        <label for="sort-select" class="mr-2">Organizar por</label>
-                        <select class="custom-select" id="sort-select">
-                            <option selected="">seleccione</option>
-                            <option value="1">Precios bajos</option>
-                            <option value="2">Precios altos</option>
-                        </select>
-                    </div>
-                </div><!-- end col-->
-            </div> <!-- end row -->
+                <div class="form-group m-sm-2">
+                    <label for="sort-select" class="mr-2">Organizar por</label>
+                    <select class="custom-select" id="sort-select">
+                        <option selected="">seleccione</option>
+                        <option value="1">Precios bajos</option>
+                        <option value="2">Precios altos</option>
+                    </select>
+                </div>
+            </form>
         </div> <!-- end card-box -->
     </div> <!-- end col-->
 </div>
 
+<div class="swiper">
+    <div class="swiper-wrapper" id="categoria-select">
+        <figure class="text-center category-filter swiper-slide"
+            data-category="" style="width: 60px;">
+                <img alt="Todos" class="rounded-circle avatar-lg" src="/img/heka entrega.png"
+                style="object-fit:cover">
+                <h6 class="text-truncate">Todos</h6>
+            </figure>
+        {{#categorias productos}}
+            <figure class="text-center category-filter swiper-slide"
+            data-category="{{this.categoria}}" style="width: 60px;">
+                <img alt="{{this.categoria}}" class="rounded-circle avatar-lg" src="{{this.showImg}}"
+                style="object-fit:cover">
+                <h6 class="text-truncate">{{this.categoria}}</h6>
+            </figure>
+        {{/categorias}}
+    </div>
+</div>
+
 <div class="row">
     {{#each productos}}
-    <div class="col-sm-6 col-xl-3 producto visible" data-filter-categoria="{{this.categoria}}"
+    <div class="col-sm-6 col-xl-3 producto ver" data-filter-categoria="{{this.categoria}}"
         data-filter-name="{{this.nombre}}" data-sort-precio="{{this.precio}}">
         <div class="card-box product-box">
 
