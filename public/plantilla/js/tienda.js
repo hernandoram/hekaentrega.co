@@ -670,7 +670,6 @@ function currency(val) {
 
     return res;
 }
-globalThis.p = modifyPricesAndLimitsPerProduct;
 
 $(document).ready(function() {
     //solicitamos la info de la tienda
