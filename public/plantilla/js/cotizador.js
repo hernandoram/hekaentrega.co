@@ -1195,6 +1195,8 @@ function enviar_firestore(datos){
 
     if(user_debe > 0 && !datos.debe) datos.user_debe = user_debe;
 
+    datos.seguimiento_finalizado = false;
+
     console.log(datos);
     // return;
     

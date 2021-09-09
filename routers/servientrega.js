@@ -157,7 +157,7 @@ function actualizarEstadosGuias(d) {
 }
 
 // actualizarMovimientosGuias(new Date()).then((detalles) => {
-//  console.log(159, detalles);
+//  console.log("DETALLES FINALES: ", detalles);
 // //  firebase.firestore().collection("reporte").add(detalles);
 // });
 async function actualizarMovimientosGuias(d, general) {
@@ -168,12 +168,15 @@ async function actualizarMovimientosGuias(d, general) {
     referencePpal = referencePpal.orderBy("timeline").startAt(d.getTime() - 69.12e7)
     .endAt(d.getTime())
   } else {
+    
     referencePpal = referencePpal
+    // .where("transportadora", "==", "SERVIENTREGA")
     .orderBy("estado")
     .where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"])
+    // .where("seguimiento_finalizado", "!=", true)
     // .where("centro_de_costo", "==", 'SellerCabar-0')
     // .where("numeroGuia", "in", ["2112740014", "290147258"])
-    // .limit(5)
+    // .limit(100)
   }
   
   try {
@@ -231,7 +234,8 @@ async function actualizarMovimientosGuias(d, general) {
                 let upte_estado = await doc.ref.parent.parent.collection("guias")
                   .doc(doc.id).update({
                     estado: data.EstAct[0],
-                    ultima_actualizacion: d
+                    ultima_actualizacion: d,
+                    seguimiento_finalizado: data.EstAct[0] === "ENTREGADO" || data.EstAct[0] === "ENTREGADO A REMITENTE"
                   })
                   .then(() => {
                     // console.log(doc.data());
@@ -355,8 +359,9 @@ async function actualizarMovimientosGuias(d, general) {
     // console.log("246",consulta);
     
     return consulta;
-  } catch {
+  } catch (error){
     console.log("Hubo un error,es probable que no se haya actualizado nada.")
+    console.error(error)
   }
 }
 

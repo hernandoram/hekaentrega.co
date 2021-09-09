@@ -880,12 +880,12 @@ function actualizarEstado(){
                 };
                 // console.log(x);
                 if(x.id_guia){
-                    let id_guia = await firebase.firestore().collectionGroup("guias")
+                    await firebase.firestore().collectionGroup("guias")
                     .where("id_heka", "==", x.id_guia)
                     .get().then(querySnapshot => {
-                        let guia;
+                        // let guia;
                         querySnapshot.forEach(async doc => {
-                            guia = await firebase.firestore().doc(doc.ref.path)
+                            const guia = firebase.firestore().doc(doc.ref.path)
                             .update({
                                 numeroGuia: x.numero_guia_servientrega,
                                 estado: x.estado_envio
@@ -897,18 +897,17 @@ function actualizarEstado(){
                             .catch(() => {
                                 console.log("No se pudo actualizar la guia " + x.id_guia)
                             });
+                            actualizadas.push(guia)
                         })
-                        return guia;
                     })
-                    actualizadas.push(id_guia);
                     // console.log(x.id_guia, new Date().getTime())
                 }
-                res = {total_datos, actualizadas}
                 regresiveCounter --
                 $("#cargador-actualizador").find("span").text(regresiveCounter);
             }
 
-            return res;
+            actualizadas = await Promise.all(actualizadas);
+            return {total_datos, actualizadas};
         }).then((r) => {
             console.log(r)
             if(r == "vacio"){
