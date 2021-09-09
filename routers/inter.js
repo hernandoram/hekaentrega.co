@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const router = express.Router();
 const puppeteer = require("puppeteer");
+const interRouter = require("../controllers/inter");
 
 router.get("/consultarGuia", (req, res) => {
     const url = "http://reportes.interrapidisimo.com/Reportes/ExploradorEnvios/ExploradorEnvios.aspx?keyInter=1)";
@@ -59,6 +60,10 @@ router.get("/consultarGuia", (req, res) => {
         res.json(respuesta);
     })();
 });
+
+router.post("/crearGuia", interRouter.crearGuia);
+
+router.get("/crearStickerGuia/:id", interRouter.crearStickerGuia);
 
 function retornarEstado() {
     let info = new Object();

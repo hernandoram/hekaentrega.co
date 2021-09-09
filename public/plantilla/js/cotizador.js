@@ -1141,13 +1141,23 @@ function crearGuia() {
     }
 };
 
-async function crearGuiaServientrega(datos) {
+async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
     //Primero consulto la respuesta del web service
-    let respuesta = await generarGuiaServientrega(datos)
-    .then(async (resGuia) => {
+    let generarGuia;
+
+    if(datos.transportadora === "SERVIENTREGA") {
+        generarGuia = generarGuiaServientrega(datos);
+    } else if(datos.transportadora === "INTERRAPIDISIMO") {
+        generarGuia = generarGuiaInterrapidisimo(datos);
+    } else {
+        return new Error("Lo sentimos, ésta transportadora no está optimizada para generar guías de manera automática.");
+    }
+    
+    const respuesta = await generarGuia.then(async (resGuia) => {
         //le midifico los datos de respuesta al que será enviado a firebase
         datos.numeroGuia = resGuia.numeroGuia;
         datos.id_archivoCargar = resGuia.id_archivoCargar || "";
+        datos.has_sticker = resGuia.has_sticker;
         //y creo el documento de firebase
         if(resGuia.numeroGuia) {
             let guia = await referenciaNuevaGuia.set(datos)
@@ -1168,11 +1178,12 @@ async function crearGuiaServientrega(datos) {
     console.log(respuesta);
 
     if(respuesta.numeroGuia) {
-        return doc.data().id;
+        return datos.id_heka;
     } else {
         throw new Error(respuesta.error);
     }
 }
+
 
 //función que envía los datos tomados a servientrega
 function enviar_firestore(datos){
@@ -1215,12 +1226,12 @@ function enviar_firestore(datos){
             let referenciaNuevaGuia = firestore.collection("usuarios").doc(localStorage.user_id)
             .collection("guias").doc(id_heka);
             
-            firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
+            // firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
 
             if(generacion_automatizada) {
                 //Para cuando el usuario tenga activa la creación deguías automáticas.
-                if(datos.transportadora !== "SERVIENTREGA") throw new Error("Lo sentimos, ésta transportadora no está optimizada para generar guías de manera automática.");
-               return crearGuiaServientrega(datos);
+                return await crearGuiaTransportadora(datos, referenciaNuevaGuia);
+                 
             } else {
                 //Para cuendo el usurio tenga la opcion de creacion de guias automática desactivada.
 
@@ -1355,6 +1366,7 @@ async function generarGuiaServientrega(datos) {
         if(data.querySelector("CargueMasivoExternoResult").textContent === "true") {
             retorno = {
                 numeroGuia: data.querySelector("Num_Guia").textContent,
+                id_heka: datos.id_heka,
                 nombreD: data.querySelector("Nom_Contacto").textContent,
                 ciudadD: data.querySelector("Des_Ciudad").textContent,
                 id_archivoCargar: data.querySelector("Id_ArchivoCargar").textContent,
@@ -1370,10 +1382,101 @@ async function generarGuiaServientrega(datos) {
         console.log(data.querySelector("arrayGuias").children);
         return retorno;
     })
-    .catch(err => console.log("Hubo un error: ", err))
+    .catch(err => {
+        console.log("Hubo un error: ", err)
+        return err;
+    });
+
+    if(res.numeroGuia) {
+        res.type = datos.type;
+
+        res.has_sticker = await guardarStickerGuiaServientrega(res);
+    }
 
     return res;
 };
+
+//consulta al web service para crear el documento con el firestorage, si la creación resulta exitosa
+// me devuelve agrega la variable *has_sticker* al objeto ingresado y lo devuleve
+async function guardarStickerGuiaServientrega(data) {
+    const maxPorSegmento = 500000;
+
+    let base64GuiaSegmentada = await fetch("/servientrega/generarGuiaSticker/?segmentar=" + maxPorSegmento, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    }).then(data => data.json());
+
+    const referenciaSegmentar = firebase.firestore().collection("base64StickerGuias")
+    .doc(data.id_heka).collection("guiaSegmentada");
+
+    /* del xml necesito el elemento *GenerarStickerResult*, si es correcto, se busca
+    el valor *bytesReport*, se agrega al storage y devuelve has_sticker = true */
+    if(base64GuiaSegmentada.length) {
+        return await guardarDocumentoSegmentado(base64GuiaSegmentada, referenciaSegmentar);
+    }
+
+    console.log(data);
+    return false;
+};
+
+//función para consultar la api en el back para crear guiade inter rapidisimo.
+async function generarGuiaInterrapidisimo(datos) {
+    let respuesta = await fetch("/inter/crearGuia", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(datos)
+    }).then(d => d.json())
+    .catch(error => {error});
+
+    respuesta = JSON.parse(respuesta);
+    if(respuesta.error) return {numeroGuia: 0, error: respuesta.error};
+
+    respuesta.numeroGuia = respuesta.numeroPreenvio;
+    respuesta.id_heka = datos.id_heka;
+    respuesta.has_sticker = await generarStickerGuiaInterrapidisimo(respuesta);
+
+    console.log("interrapidísimo => ",respuesta);
+
+    return respuesta;
+};
+
+async function generarStickerGuiaInterrapidisimo(data) {
+    const maxPorSegmento = 500000;
+    let base64GuiaSegmentada = await fetch("/inter/crearStickerGuia/" + data.numeroGuia + "?segmentar=" + maxPorSegmento)
+    .then(data => data.json())
+    .catch(error => console.log("Hubo un error al consultar el base64 de INTERRAPÌDISIMO => ", error));
+
+    const referenciaSegmentar = firebase.firestore().collection("base64StickerGuias")
+    .doc(data.id_heka).collection("guiaSegmentada");
+    return await guardarDocumentoSegmentado(base64GuiaSegmentada, referenciaSegmentar);
+    // return await guardarBase64ToStorage(base64Guia, user_id + "/guias/" + data.id_heka + ".pdf")
+};
+
+// esta función me toma un arreglo de strings, junto con la refenrecia de FB, y lo guarda en una collectio indexada
+async function guardarDocumentoSegmentado(base64Segmentada, referencia) {
+    if(typeof base64Segmentada !== "object") return false;
+
+    if(!base64Segmentada.length) return false;
+
+    let guardado = true;
+    for (let i = 0; i < base64Segmentada.length; i++) {
+        const res = await referencia.doc(i.toString()).set({
+            index: i, segmento: base64Segmentada[i]
+        })
+        .then(() => true)
+        .catch((error) => {
+            console.log("hubo un error al guardar una parte del documento segmentado => ", error)
+            guardado = false;
+            return false;
+        });
+        
+        if(!res) break;
+    };
+
+    return guardado;
+};
+
 
 function convertirMiles(n){
     let entero = Math.floor(n);
@@ -1445,3 +1548,13 @@ function observacionesInteRapidisimo(result_cotizacion) {
 
     return ul;
 }
+
+// fetch("/inter/crearGuia", {
+//     method: "POST",
+//     headers: {"Content-Type": "application/json"},
+//     body: JSON.stringify(
+//         )
+// }).then(res => {
+//     console.log(res);
+//     res.json().then(d => console.log(d));
+// })

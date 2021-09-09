@@ -59,7 +59,7 @@ function tablaDeGuias(id, datos){
                 <input class="form-check-input position-static" type="checkbox" value="option1" 
                 data-id="${id}" data-numeroGuia="${datos.numeroGuia}"
                 data-prueba="${datos.prueba}" data-id_archivoCargar="${datos.id_archivoCargar}"
-                data-type="${datos.type}"
+                data-type="${datos.type}" data-has_sticker="${datos.has_sticker}"
                 data-transportadora="${datos.transportadora}"
                 data-funcion="activar-desactivar" aria-label="..." disabled>
             </div>
@@ -1540,41 +1540,19 @@ const Toast = Swal.mixin({
     }
 });
 
-
-async function probandoCotizadorAve(){
-    let auth = await fetch("https://aveonline.co/api/comunes/v1.0/autenticarusuario.php", {
-        method: "POST",
-        headers: {"Content-type": "application/json"},
-        body: JSON.stringify({
-            tipo: "auth",
-            usuario: "hernandoram1998",
-            clave: "3456"
-        })
-    }).then((res) => {
-        console.log(res);
-        return res.json();
+//guar la base64 en el path (ruta) ingresado. devuelve true si fue guardado con éxito, caso contrario devuelve false
+async function guardarBase64ToStorage(base64, path) {
+    return await firebase.storage().ref().child(path)
+    .putString(base64, "base64").then(snapshot => {
+        console.log(snapshot);
+        console.log("Documento subido con exito");
+        return true
+    }).catch(error => {
+        console.log("hubo un error para subir el documento => " + error);
+        return false;
     });
+};
 
-    console.log(auth);
-
-    let cotizacion = await fetch("https://aveonline.co/api/nal/v1.0/generarGuiaTransporteNacional.php", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        "body": JSON.stringify({
-            "tipo":"cotizar",
-            "token": auth.token,
-            "idempresa": "11635",
-            "origen": "GENOVA(QUINDIO)",
-            "destino":"MEDELLIN(ANTIOQUIA)",
-            "unidades":"1",
-            "kilos":"1",
-            "valordeclarado":"10000",
-            "idasumecosto":"1",
-            "contraentrega":"1",
-            "valorrecaudo":"1"
-        })
-    }).then(res => res.json());
-
-    console.log(cotizacion)
-
+function indexarGuias(guias){
+    return guias[0] + ((guias.length > 1) ? "_"+guias[guias.length - 1] : "")
 }
