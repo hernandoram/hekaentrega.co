@@ -1226,7 +1226,7 @@ function enviar_firestore(datos){
             let referenciaNuevaGuia = firestore.collection("usuarios").doc(localStorage.user_id)
             .collection("guias").doc(id_heka);
             
-            // firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
+            firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
 
             if(generacion_automatizada) {
                 //Para cuando el usuario tenga activa la creación deguías automáticas.

@@ -68,8 +68,7 @@ function crearDocumentos() {
                 id_archivoCargar: check.getAttribute("data-id_archivoCargar"),
                 prueba:  check.getAttribute("data-prueba") == "true" ? true : false,
                 type: check.getAttribute("data-type"),
-                transportadora: check.getAttribute("data-transportadora"),
-                has_sticker: check.getAttribute("data-has_sticker")
+                transportadora: check.getAttribute("data-transportadora")
             });
 
             //Verifica que todas las guias crrespondan al mismo tipo
@@ -118,10 +117,9 @@ function crearDocumentos() {
             centro_de_costo: datos_usuario.centro_de_costo || "SCC",
             fecha: genFecha(),
             timeline: new Date().getTime(),
-            descargar_relacion_envio: true, descargar_guias: true,
+            descargar_relacion_envio: false, descargar_guias: false,
             type: arrGuias[0].type,
-            transportadora: arrGuias[0].transportadora,
-            guias: []
+            transportadora: arrGuias[0].transportadora
         })
         .then((docRef) => {
             console.log("Document written with ID: ", docRef.id);
@@ -132,8 +130,8 @@ function crearDocumentos() {
             /* Si tiene inhabilitado la creción de guías automáticas 
             solo actualizará las guías que pasaron el filtro anterior y enviará una 
             notificación a administración, es caso contrario utilizará el web service */
-            if(generacion_automatizada && arrGuias[0].transportadora === "SERVIENTREGA") {
-                crearManifiestoServientrega(arrGuias, {
+            if(generacion_automatizada) {
+                generarDocumentos(arrGuias, {
                     id_user, 
                     prueba: estado_prueba,
                     id_doc: docRef.id
@@ -195,33 +193,31 @@ function base64ToArrayBuffer(base64) {
     return bytes;
 }
 
-function openPdfFromBase64(base64) {
-    const buffer = base64ToArrayBuffer(base64);
-    let blob = new Blob([buffer], {type: "application/pdf"});
-    let url = URL.createObjectURL(blob);
-    window.open(url);
-}
-
-async function crearManifiestoServientrega(arrGuias, vinculo) {
-    let mensaje = document.createElement("div");
-    let ul = document.createElement("ul");
-
-    sin_stiker = 0;
-    arrGuias = arrGuias.filter(v => {
-        if(!v.has_sticker) sin_stiker ++;
-        return v.has_sticker
-    });
-
-    if(sin_stiker) {
-        ul.innerHTML += `<li>${sin_stiker} guias no pudieron ser procesadas por no contar con el sticker de la guía. \n"
-        Le recomendamos clonar la(s) guía(s) involucrada, y eliminar la defectuosa</li>`;
-    }
-
-    let base64 = await fetch("/servientrega/generarManifiesto", {
+//Función que utiliza el web service para crear documentos
+function generarDocumentos(arrGuias, vinculo) {
+    fetch("/servientrega/crearDocumentos", {
         method: "POST",
-        headers: {"Content-type": "application/json"},
-        body: JSON.stringify({arrGuias, vinculo})
-    }).then(data => data.text())
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify([arrGuias, vinculo])
+    }).then(res => {
+        console.log(res);
+        if(!res.ok) {
+            throw new Error(res.status + " " + res.statusText);
+        }
+        if(res.status == 422) {
+            throw new Error("No hubo guía que procesar.");
+        }
+        return res.json()
+    })
+    .then(respuesta => {
+        console.log(respuesta);
+        Swal.fire({
+            icon: "success",
+            text: respuesta
+        });
+
+        document.getElementById("enviar-documentos").removeAttribute("disabled");
+    })
     .catch(error => {
         console.log(error);
         Swal.fire({
@@ -230,45 +226,7 @@ async function crearManifiestoServientrega(arrGuias, vinculo) {
         });
         firebase.firestore().collection("documentos").doc(vinculo.id_doc).delete();
         document.getElementById("enviar-documentos").removeAttribute("disabled");
-    });
-    
-    let numero_guias = arrGuias.map(d => d.numeroGuia).sort();
-    const rango = numero_guias[0] + ((numero_guias.length > 1) ?
-        "_"+numero_guias[numero_guias.length - 1] : "");
-    const nombre_relacion = "Relacion " + rango;
-
-    let documento_guardado;
-    if(base64) {
-        documento_guardado = await guardarBase64ToStorage(base64, user_id + "/" + vinculo.id_doc + "/" + nombre_relacion + ".pdf")
-    } else {
-        if(arrGuias.length !== 0) {
-            ul.innerHTML += `Por razones desconocidas, no se pudo crear el manifiesto, el problema ha sido transferido a asesoría logística,
-            trataremos de corregirlo en la brevedad posible.`;
-        }
-    };
-
-    if(documento_guardado) {
-        await firebase.firestore().collection("documentos").doc(vinculo.id_doc)
-        .update({nombre_relacion});
-    };
-
-    if(ul.innerHTML) {
-        mensaje.appendChild(ul);
-        Swal.fire({
-            icon: "warning",
-            title: "Obeservaciones",
-            html: mensaje
-        });
-    } else {
-        Swal.fire({
-            icon: "success",
-            html: "¡Documento creado exitósamente!"
-        });
-    }
-    
-
-    document.getElementById("enviar-documentos").removeAttribute("disabled");
-
+    })
 }
 
 let documento = [], guias = [];
@@ -749,20 +707,47 @@ function actualizarHistorialDeDocumentos(timeline){
             tabla.push(mostrarDocumentosUsuario(doc.id, doc.data()));
             //funcionalidad de botones para descargar guias y relaciones
             firebase.firestore().collection("documentos").doc(doc.id).onSnapshot((row) => {
-              
+              let nombre_guias = row.data().nombre_guias ? row.data().nombre_guias : "guias" + row.data().guias.toString();
+              let nombre_relacion = row.data().nombre_relacion ? row.data().nombre_relacion : "relacion envio" + row.data().guias.toString();
               if(row.data().descargar_guias){
-                let btn_descarga = document.getElementById("boton-descargar-guias" + doc.id);
+                  let btn_descarga = document.getElementById("boton-descargar-guias" + doc.id);
                 btn_descarga.removeAttribute("disabled");
                 btn_descarga.addEventListener("click", (e) => {
-                    descargarStickerGuias(row);
+                  if(row.data().base64Guias && !row.data().nombre_guias) {
+                     let base64 = row.data().base64Guias;
+                     let buff = base64ToArrayBuffer(base64);
+                     let blob = new Blob([buff], {type: "application/pdf"});
+                     let url = URL.createObjectURL(blob);
+                     window.open(url);
+                  } else {
+                      console.log(e.target.parentNode)
+                      firebase.storage().ref().child(user_id + "/" + doc.id + "/" + nombre_guias + ".pdf")
+                      .getDownloadURL().then((url) => {
+                        console.log(url)
+                        window.open(url, "_blank");
+                      })
+                  }
                 })
               }
               if(row.data().descargar_relacion_envio){
                   let btn_descarga = document.getElementById("boton-descargar-relacion_envio" + doc.id);
                   btn_descarga.removeAttribute("disabled");
                   btn_descarga.addEventListener("click", (e) => {
-                    descargarManifiesto(row);
-                  })
+                    if(row.data().base64Manifiesto && !row.data().nombre_relacion) {
+                      let base64 = row.data().base64Manifiesto;
+                      let buff = base64ToArrayBuffer(base64);
+                      let blob = new Blob([buff], {type: "application/pdf"});
+                      let url = URL.createObjectURL(blob);
+                      window.open(url);
+                    } else {
+                        console.log(e.target.parentNode)
+                        firebase.storage().ref().child(user_id + "/" + doc.id + "/" + nombre_relacion + ".pdf")
+                        .getDownloadURL().then((url) => {
+                          console.log(url)
+                          window.open(url, "_blank");
+                        })
+                    }
+                })
               }
 
               document.getElementById("boton-generar-rotulo" + doc.id).addEventListener("click", function() {
@@ -827,7 +812,7 @@ function descargarDocumentos(user_id, id_doc, guias, nombre_guias, nombre_relaci
                 let buff = base64ToArrayBuffer(base64);
                 let blob = new Blob([buff], {type: "application/pdf"});
                 let url = URL.createObjectURL(blob);
-                window.open(url);
+                window.open(url);  
             } else {
                 firebase.storage().ref().child(user_id + "/" + id_doc + "/" + nombre_guias + ".pdf")
                 .getDownloadURL().then((url) => {
@@ -836,92 +821,26 @@ function descargarDocumentos(user_id, id_doc, guias, nombre_guias, nombre_relaci
 
             }
 
-            descargarManifiesto(doc);
+            if(doc.data().base64Manifiesto && !doc.data().nombre_relacion){
+                let base64 = doc.data().base64Manifiesto;
+                let buff = base64ToArrayBuffer(base64);
+                let blob = new Blob([buff], {type: "application/pdf"});
+                let url = URL.createObjectURL(blob);
+                window.open(url);
+            } else {
+                firebase.storage().ref().child(user_id + "/" + id_doc + "/" + nombre_relacion + ".pdf")
+                .getDownloadURL().then((url) => {
+                    window.open(url, "_blank");
+                });
+            }
         }
     })
 
 }
 
-// funcion que, dependiendo de las situaciones abre una pestaña para mostrarme el manifiesto
-// Recive como parametro el doc devuelto por firebase
-function descargarManifiesto(doc) {
-    let nombre_relacion = doc.data().nombre_relacion ? doc.data().nombre_relacion : "relacion envio" + doc.data().guias.toString();
-    if (doc.data().nombre_relacion){
-        
-        firebase.storage().ref().child(doc.data().id_user + "/" + doc.id + "/" + nombre_relacion + ".pdf")
-        .getDownloadURL().then((url) => {
-            console.log(url)
-            window.open(url, "_blank");
-        })
-    } else if(doc.data().base64Manifiesto) {
-        let base64 = doc.data().base64Manifiesto;
-        openPdfFromBase64(base64);
-    } else {
-        doc.ref.collection("manifiestoSegmentado")
-        .get().then(querySnapshot => {
-            if(!querySnapshot.size) return alert("Lo siento, no consigo una relación que descargar.");
-
-            let base64 = "";
-
-            querySnapshot.forEach(doc => {
-                base64 += doc.data().segmento;
-            });
-
-            openPdfFromBase64(base64);
-        });
-    }
-}
-
-// funcion que, dependiendo de las situaciones descarga el sticker de guia
-// Recive como parametro el doc devuelto por firebase
-async function descargarStickerGuias(doc) {
-    let nombre_guias = doc.data().nombre_guias ? doc.data().nombre_guias : "guias" + doc.data().guias.toString();
-
-    if(doc.data().nombre_guias) {
-        firebase.storage().ref().child(doc.data().id_user + "/" + doc.id + "/" + nombre_guias + ".pdf")
-        .getDownloadURL().then((url) => {
-            console.log(url);
-            window.open(url, "_blank");
-        })
-    } else if(doc.data().base64Guias) {
-        let base64 = doc.data().base64Guias;
-        openPdfFromBase64(base64);
-    } else {
-        const guias = doc.data().guias;
-        const pdfDoc = await PDFLib.PDFDocument.create();
-
-        for await (let guia of guias) {
-            console.log(guia);
-            await firebase.firestore().collection("base64StickerGuias").doc(guia)
-            .collection("guiaSegmentada").get().then(async querySnapshot => {
-                let base64 = "";
-                console.log(querySnapshot.size);
-                querySnapshot.forEach(doc => {
-                    base64 += doc.data().segmento;
-                });
-                const page = await PDFLib.PDFDocument.load(base64);
-
-                const [existingPage] = await pdfDoc.copyPages(page, [0])
-                pdfDoc.addPage(existingPage);
-            })
-        };
-        console.log(pdfDoc.getPages());
-        const pdfBase64 = await pdfDoc.saveAsBase64();
-        openPdfFromBase64(pdfBase64);
-
-        nombre_guias = "Guias " + indexarGuias(guias);
-
-        const storagePath = doc.data().id_user + "/" + doc.id + "/" + nombre_guias + ".pdf";
-        let cargarGuiasStorage = await guardarBase64ToStorage(pdfBase64, storagePath);
-
-        if(cargarGuiasStorage) {
-            doc.ref.update({nombre_guias});
-        }
-    }
-};
-
 function actualizarEstado(){
     document.querySelector("#cargador-actualizador").classList.remove("d-none");
+    document.querySelector("#resultado-actualizador").innerHTML = "";
     let data = new FormData(document.getElementById("form-estado"));
     console.log(data);
     console.log(data.get("documento"));
@@ -945,7 +864,7 @@ function actualizarEstado(){
             $("#cargador-actualizador").find("span").text(regresiveCounter)
             for await(let dato of datos){
                 let x = {
-                    numero_guia_servientrega: dato["Número de Guia"].toString(),
+                    numero_guia_servientrega: dato["Número de Guia"],
                     fecha_envio: dato["Fecha de Envio"],
                     producto: dato["Producto"],
                     fecha_imp_envio: dato["Fecha Imp. Envio"],
@@ -954,35 +873,52 @@ function actualizarEstado(){
                     valor_flete: dato["Valor Flete"],
                     valor_sobreflete: dato["Valor SobreFlete"],
                     valor_liquidado: dato["Valor Liquidado"],
-                    id_guia: dato["IdCliente"].toString(),
+                    id_guia: dato["IdCliente"],
                     estado_envio: dato["Estado Envío"],
                     mensaje_mov: dato["Mensaje Mov"],
                     fecha_ult_mov: dato["Fecha Ult Mov"],
                     nombre_centro_costo: dato["Nombre Centro Costo"]
                 };
                 // console.log(x);
-                if(x.id_guia){
+                if(x.id_guia && x.numero_guia_servientrega){
+                    const id = x.id_guia.toString();
+                    const numeroGuia = x.numero_guia_servientrega.toString();
                     await firebase.firestore().collectionGroup("guias")
-                    .where("id_heka", "==", x.id_guia)
+                    .where("id_heka", "==", id)
                     .get().then(querySnapshot => {
                         // let guia;
                         querySnapshot.forEach(async doc => {
-                            const guia = firebase.firestore().doc(doc.ref.path)
-                            .update({
-                                numeroGuia: x.numero_guia_servientrega,
-                                estado: x.estado_envio
-                            })
-                            .then(() => {
-                                // console.log(x.id_guia + " Actualizada exitósamente");
-                                return x.id_guia;
-                            })
-                            .catch(() => {
-                                console.log("No se pudo actualizar la guia " + x.id_guia)
-                            });
-                            actualizadas.push(guia)
+                            try {
+                                const guia = firebase.firestore().doc(doc.ref.path)
+                                .update({
+                                    numeroGuia,
+                                    estado: x.estado_envio,
+                                    seguimiento_finalizado: false
+                                })
+                                .then(() => {
+                                    // console.log(id + " Actualizada exitósamente");
+                                    return id;
+                                })
+                                actualizadas.push(guia)
+                            } catch (error) {
+                                document.querySelector("#resultado-actualizador").innerHTML += `
+                                    <li>
+                                        No se pudo actualizar la guía ${id} en la fila ${total_datos - regresiveCounter + 2}
+                                        revise que tenga un estado que actualizar
+                                    </li>
+                                `
+                                console.log("No se pudo actualizar la guía: " + id)
+                                console.log(error);
+                            }
                         })
-                    })
+                    });
                     // console.log(x.id_guia, new Date().getTime())
+                } else {
+                    document.querySelector("#resultado-actualizador").innerHTML += `
+                        <li>
+                            No sé a que guía actualizar o no hay un número de guía en la fila ${total_datos - regresiveCounter + 2}
+                        </li>
+                    `
                 }
                 regresiveCounter --
                 $("#cargador-actualizador").find("span").text(regresiveCounter);

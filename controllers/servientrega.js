@@ -2,7 +2,6 @@ const request = require("request");
 const requestPromise = require("request-promise");
 const parseString = require("xml2js").parseString;
 const DOMParser = require("xmldom").DOMParser;
-const cron = require("node-cron");
 const {PDFDocument} = require("pdf-lib");
 
 const firebase = require("../firebase");
@@ -304,6 +303,8 @@ exports.crearDocumentos = async (req, res) => {
     // fs.writeFileSync("ejemplo.pdf",ejemplo);
 };
 
+exports.actualizarMovimientos = actualizarMovimientos
+
 //***** FIN DEL EXPORTADOR DE RUTAS ******/
 
 
@@ -334,288 +335,107 @@ function estadoGuia(numGuia){
   </soap:Envelope>`
 }
 
-cron.schedule("00 */6 * * *", () => {
-  let d = new Date();
-  console.log("Se Actualizaron los movimientos de las guías: ", d);
-  actualizarMovimientosGuias(d).then((detalles) => {
-    console.log(detalles);
-    firebase.firestore().collection("reporte").add(detalles);
-   });
-});
-
-cron.schedule("0 0 * * 0", () => {
-  let d = new Date();
-  console.log("Se Actualizaron los movimientos de las guías: ", d);
-  actualizarMovimientosGuias(d, true).then((detalles) => {
-    console.log(detalles);
-    detalles.actulización_semanal = true;
-    firebase.firestore().collection("reporte").add(detalles);
-   });
-});
-
-
-// actualizarEstadosGuias(new Date());
-function actualizarEstadosGuias(d) {
-  firebase.firestore().collectionGroup("guias").orderBy("estado").where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"]).get()
-  .then(querySnapshot => {
-    let referencia = firebase.firestore().collection("reporte").doc();
-    console.log(querySnapshot.size);
-    let consulta = {
-      guias: [],
-      usuarios: [],
-      fecha: d,
-      total: querySnapshot.size
-    }
-    querySnapshot.forEach(doc => {
-      if(consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
-        consulta.usuarios.push(doc.data().centro_de_costo);
-      }
-
-      request.post("http://sismilenio.servientrega.com/wsrastreoenvios/wsrastreoenvios.asmx/ConsultarGuiaPorNumeroReferenciaCliente", {
-        form: {
-          Id_Cliente: "1072497419",
-          Numero_referencia: doc.id
-        }
-      }, (err, response, body) => {
-        if(err) {
-          return console.dir(err);
-        }
-        parseString(body, (error, result) => {
-          if(error){
-            return console.dir(error);
+async function actualizarMovimientos(doc) {
+  // para servientrega se realiza un request
+  return await requestPromise({
+    // "headers": {"Content-Type": "text/xml"},
+    method: "POST",
+    "uri": rastreoEnvios + "/ConsultarGuiaExterno",
+    form: {
+      NumeroGuia: doc.data().numeroGuia
+    },
+    json: true
+  })
+  .then(async (body) => {
+    console.log("inicio =>", new Date().getTime())
+    // console.log(body)
+    //Aquí comienza el proceso interno de actualización
+    let respuesta = await new Promise((resolve, reject) => {
+      parseString(body, async (error, result) => {
+        if (error)
+          return {
+            estado: "Est.N.A", //Estado no actualizado
+            guia: doc.id + " / " + doc.data().numeroGuia
+          };
+        try {
+          // let path = doc.ref.path.split("/");
+          let data = result.InformacionGuiaMov;
+          // console.log("198 => ",data)
+          if (!data.Mov) {
+            throw " Esta guía no manifiesta movimientos.";
           }
-          if(result) {
-            actualizar = result.InformacionGuiaMov;
-            if(actualizar.NumGui && parseInt(actualizar.NumGui) != 0) {
-              console.dir("Id_heka / numero de Guía: " + doc.id + " / " + actualizar.NumGui[0]);
-              console.dir("Estado", actualizar.EstAct[0]);
-              // console.log(result.InformacionGuiaMov);
-              firebase.firestore().doc(doc.ref.path).update({
-                numeroGuia: actualizar.NumGui[0],
-                estado: actualizar.EstAct[0],
-                ultima_actualizacion: d
-              }).then(() => {
-                consulta.guias.push(doc.id + "/" + doc.data().numeroGuia);
-                consulta.mensaje = "Se han actualizado exitósamente " + consulta.guias.length
-                + " Guías de " + consulta.total + " encontradas cuyos estados no son: \"Entregado o entregado remitente\"."
-                + " De " + consulta.usuarios.length + " usuarios."
-                
-                referencia.set(consulta);
-              })
-            }
-          }
-        })
-      })
-    })
-    return consulta
-  }) 
-}
+          let movimientos = data.Mov[0].InformacionMov;
+          // console.log(data);
 
-// actualizarMovimientosGuias(new Date()).then((detalles) => {
-//  console.log(159, detalles);
-// //  firebase.firestore().collection("reporte").add(detalles);
-// });
-async function actualizarMovimientosGuias(d, general) {
-  let inicio_func = new Date().getTime();
-  let referencePpal = firebase.firestore().collectionGroup("guias")
+          /*Respuesta a la actualización de los estados,
+          ésta me actualiza el estado actual que manifiesta la guía, si el seguimiento
+          fue finalizado, y la fecha de actualización*/
+          const movimiento_culminado = ["ENTREGADO", "ENTREGADO A REMITENTE"];
+          let upte_estado = await extsFunc.actualizarEstado(doc, {
+            estado: data.EstAct[0],
+            ultima_actualizacion: new Date(),
+            seguimiento_finalizado: movimiento_culminado.some(v => v === data.EstAct[0])
+          })
 
-  if(general) {
-    referencePpal = referencePpal.orderBy("timeline").startAt(d.getTime() - 69.12e7)
-    .endAt(d.getTime())
-  } else {
-    referencePpal = referencePpal
-    .orderBy("estado")
-    .where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"])
-    // .where("centro_de_costo", "==", 'SellerCabar-0')
-    // .where("numeroGuia", "in", ["2112740014", "290147258"])
-    // .limit(5)
-  }
-  
-  try {
-    let resultado = await referencePpal.get()
-    // .then(async querySnapshot => {
-    // }).catch(err => console.log(err))
-    console.log(resultado.size);
-    // throw "no babe"
-    let consulta = {
-      guias_est_actualizado: [],
-      guias_mov_actualizado: [],
-      guias_sin_mov: [],
-      guias_con_errores: [],
-      usuarios: [],
-      total_consulta: resultado.size,
-      fecha: d
-    }
-  
-    let resultado_guias = new Array();
-  
-    for await (let doc of resultado.docs) {
-      if(!doc.data().transportadora && doc.data().transportadora !== "SERVIENTREGA") continue;
-      if (doc.data().numeroGuia) {
-        if (consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
-          consulta.usuarios.push(doc.data().centro_de_costo);
-        }
-        
-        let guia = await requestPromise({
-          // "headers": {"Content-Type": "text/xml"},
-          method: "POST",
-          "uri": rastreoEnvios + "/ConsultarGuiaExterno",
-          form: {
-            NumeroGuia: doc.data().numeroGuia
-          },
-          json: true
-        })
-        .then(async (body) => {
-          console.log("inicio =>", new Date().getTime())
-          // console.log(body)
-          let respuesta = await new Promise((resolve, reject) => {
-            parseString(body, async (error, result) => {
-              if (error)
-                return {
-                  estado: "Est.N.A",
-                  guia: doc.id + " / " + doc.data().numeroGuia
-                };
-              try {
-                // let path = doc.ref.path.split("/");
-                let data = result.InformacionGuiaMov;
-                // console.log("198 => ",data)
-                if (!data.Mov) {
-                  throw " Esta guía no manifiesta movimientos.";
-                }
-                let movimientos = data.Mov[0].InformacionMov;
-                // console.log(data);
-                let upte_estado = await doc.ref.parent.parent.collection("guias")
-                  .doc(doc.id).update({
-                    estado: data.EstAct[0],
-                    ultima_actualizacion: d
-                  })
-                  .then(() => {
-                    // console.log(doc.data());
-                    return {
-                      estado: "Est.A",
-                      guia: doc.id + " / " + doc.data().numeroGuia
-                    };
-  
-                  }).catch(err => {
-                    return {
-                      estado: "Est.N.A",
-                      guia: doc.id + " / " + doc.data().numeroGuia
-                    };
-                  });
-  
-                let upte_movs;
-                if (movimientos) {
-                  for (let movimiento of movimientos) {
-                    for (let x in movimiento) {
-                      movimiento[x] = movimiento[x][0];
-                    }
-                  }
-  
-                  let data_to_fb = {
-                    numeroGuia: data.NumGui[0],
-                    fechaEnvio: data.FecEnv[0],
-                    ciudadD: data.CiuDes[0],
-                    nombreD: data.NomDes[0],
-                    direccionD: data.DirDes[0],
-                    estadoActual: data.EstAct[0],
-                    fecha: data.FecEst[0],
-                    id_heka: doc.id,
-                    movimientos
-                  };
-  
-                  // console.log(data_to_fb);
-                  upte_movs = await doc.ref.parent.parent.collection("estadoGuias")
-                    .doc(doc.id)
-                    // .get()
-                    .set(data_to_fb)
-                    .then(() => {
-                      // console.log(doc.data());
-                      return {
-                        estado: "Mov.A",
-                        guia: doc.id + " / " + doc.data().numeroGuia
-                      };
-  
-                    }).catch(err => {
-                      return {
-                        estado: "Mov.N.A",
-                        guia: doc.id + " / " + doc.data().numeroGuia
-                      };
-                    });
-                } else {
-                  upte_movs = {
-                    estado: "Sn.Mov",
-                    guia: doc.id + " / " + doc.data().numeroGuia
-                  };
-                }
-  
-                resolve([upte_estado, upte_movs]);
-              } catch (e) {
-                console.log("error el actualizar guias");
-                console.log(e);
-                resolve([{
-                  estado: "error",
-                  guia: doc.id + " / " + doc.data().numeroGuia + e
-                }]);
+          let upte_movs;
+          //Confirmo si hay movimientos para actualizarlos
+          if (movimientos) {
+            for (let movimiento of movimientos) {
+              for (let x in movimiento) {
+                movimiento[x] = movimiento[x][0];
               }
-  
-            });
-          });
-  
-          console.log("final =>", new Date().getTime())
-          return respuesta;
-        })
-        .catch(err => {
-          // console.log("289 => ",err);
-          return [{
-            estado: "error",
-            guia: doc.id + " / " + doc.data().numeroGuia + err.message
-          }];
-        });
-  
-        resultado_guias.push(guia);
-      }
-      // resultado.forEach(async (doc) => {
-      // })
-    }
-    
-    console.log(resultado_guias)
-    let guias_procesadas = resultado_guias;
-    for(let guia of guias_procesadas) {
-        if(guia.length == 1) {
-          consulta.guias_con_errores.push(guia[0].guia);
-        } else {
-          let modo_estado = guia[0], modo_movimientos = guia[1];
-          if(modo_estado.estado == "Est.A") {
-            consulta.guias_est_actualizado.push(guia[0].guia)
-          } 
-  
-          if(modo_movimientos.estado == "Mov.A") {
-            consulta.guias_mov_actualizado.push(modo_movimientos.guia);
-          } else if (modo_movimientos.estado == "Sn.Mov") {
-            consulta.guias_sin_mov.push(modo_movimientos.guia);
-          }
-        }
-    }
-    
-    
-    let final_func = new Date().getTime();
-    consulta.tiempo_ejecucion  = (final_func - inicio_func) + "ms";
-  
-    consulta.mensaje = `Se han actualizado: los estados de ${consulta.guias_est_actualizado.length} Guias, 
-    los movimientos de ${consulta.guias_mov_actualizado.length} Guias.
-    Hubo errores en ${consulta.guias_con_errores.length} Guias.
-    De un total de ${consulta.total_consulta} registradas cuyo estado son diferentes a 
-    "Entregado" y "Entregado a Remitente" en ${consulta.usuarios.length} usuarios.
-    Tiempo de ejecución: ${consulta.tiempo_ejecucion}`;
-  
-    // console.log("246",consulta);
-    
-    return consulta;
-  } catch {
-    console.log("Hubo un error,es probable que no se haya actualizado nada.")
-  }
-}
+            }
 
+            //Maqueta general para mostrar el estado y sus respctivos movimientos
+            let data_to_fb = {
+              numeroGuia: data.NumGui[0], //guia devuelta por la transportadora
+              fechaEnvio: data.FecEnv[0], 
+              ciudadD: data.CiuDes[0],
+              nombreD: data.NomDes[0],
+              direccionD: data.DirDes[0],
+              estadoActual: data.EstAct[0],
+              fecha: data.FecEst[0], //fecha del estado
+              id_heka: doc.id,
+              transportadora: doc.data().transportadora,
+              movimientos // movimientos registrados por la transportadora
+            };
+
+            // console.log(data_to_fb);
+
+            /*Respuesta ante la actualización de movimientos.
+            se actulizan aquellos estados que sean diferentes y que estén registrados en este objeto*/
+            upte_movs = extsFunc.actualizarMovimientos(doc, data_to_fb);
+          } else {
+            upte_movs = {
+              estado: "Sn.Mov",
+              guia: doc.id + " / " + doc.data().numeroGuia
+            };
+          }
+
+          resolve([upte_estado, upte_movs]);
+        } catch (e) {
+          console.log("error el actualizar guias");
+          console.log(e);
+          resolve([{
+            estado: "error",
+            guia: doc.id + " / " + doc.data().numeroGuia + e
+          }]);
+        }
+
+      });
+    });
+
+    console.log("final =>", new Date().getTime())
+    return respuesta;
+  })
+  .catch(err => {
+    // console.log("289 => ",err);
+    return [{
+      estado: "error",
+      guia: doc.id + " / " + doc.data().numeroGuia + err.message
+    }];
+  });
+}
 
 function generarGuia(datos) {
   let auth_header;
