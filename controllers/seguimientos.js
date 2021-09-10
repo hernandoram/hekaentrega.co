@@ -25,10 +25,10 @@ cron.schedule("0 0 * * 0", () => {
    });
 });
 
-actualizarMovimientosGuias(new Date()).then((detalles) => {
-    console.log(159, detalles);
-    //  firebase.firestore().collection("reporte").add(detalles);
-});
+// actualizarMovimientosGuias(new Date()).then((detalles) => {
+//     console.log(159, detalles);
+//     //  firebase.firestore().collection("reporte").add(detalles);
+// });
 async function actualizarMovimientosGuias(d, general) {
     let inicio_func = new Date().getTime();
     let referencePpal = firebase.firestore().collectionGroup("guias")
@@ -40,11 +40,11 @@ async function actualizarMovimientosGuias(d, general) {
     .endAt(d.getTime())
     } else {
     referencePpal = referencePpal
-    // .orderBy("estado")
-    // .where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"])
+    .orderBy("estado")
+    .where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"])
     // .where("seguimiento_finalizado", "!=", true)
     // .where("centro_de_costo", "==", 'SellerCabar-0')
-    .where("numeroGuia", "in", ["230009515920", "230009514161", "230009514160", "230009514159", "230009514158", "230009506495"])
+    // .where("numeroGuia", "in", ["230009515920", "230009514161", "230009514160", "230009514159", "230009514158", "230009506495"])
     // .limit(5)
     }
     
