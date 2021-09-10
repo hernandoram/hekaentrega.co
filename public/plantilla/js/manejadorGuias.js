@@ -195,6 +195,7 @@ function base64ToArrayBuffer(base64) {
     return bytes;
 }
 
+//Toma la base 64 y abre una nueva pestaña con el documento obtenido
 function openPdfFromBase64(base64) {
     const buffer = base64ToArrayBuffer(base64);
     let blob = new Blob([buffer], {type: "application/pdf"});
