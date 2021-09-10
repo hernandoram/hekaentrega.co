@@ -193,9 +193,30 @@ function base64ToArrayBuffer(base64) {
     return bytes;
 }
 
-//Función que utiliza el web service para crear documentos
-function generarDocumentos(arrGuias, vinculo) {
-    fetch("/servientrega/crearDocumentos", {
+//Toma la base 64 y abre una nueva pestaña con el documento obtenido
+function openPdfFromBase64(base64) {
+    const buffer = base64ToArrayBuffer(base64);
+    let blob = new Blob([buffer], {type: "application/pdf"});
+    let url = URL.createObjectURL(blob);
+    window.open(url);
+}
+
+async function crearManifiestoServientrega(arrGuias, vinculo) {
+    let mensaje = document.createElement("div");
+    let ul = document.createElement("ul");
+
+    sin_stiker = 0;
+    arrGuias = arrGuias.filter(v => {
+        if(!v.has_sticker) sin_stiker ++;
+        return v.has_sticker
+    });
+
+    if(sin_stiker) {
+        ul.innerHTML += `<li>${sin_stiker} guias no pudieron ser procesadas por no contar con el sticker de la guía. \n"
+        Le recomendamos clonar la(s) guía(s) involucrada, y eliminar la defectuosa</li>`;
+    }
+
+    let base64 = await fetch("/servientrega/generarManifiesto", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify([arrGuias, vinculo])
