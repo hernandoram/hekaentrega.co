@@ -3,9 +3,9 @@ const extsFunc = require("../extends/funciones");
 const puppeteer = require("puppeteer");
 
 
-const urlPrueba = "https://stgwww3.interrapidisimo.com/ApiVentaCreditoStg/api/";
+const urlPrueba = "https://stgwww3.interrapidisimo.com/ApiVentaCreditoStg/api/Admision";
 const usuario_prueba = "userHernandoStg";
-const token = "Bearer jmulmNkpR_dKYIv_pnuUMh-mOeXMW-wjyXe1iISalHlrlBQJhkCWHzdoYfmedHqv2I66dYminzaWCtkTL-0GCSHoeOZDANwsgQWylFRm5FtAaz7PhzVdJaQ9wrDmYc3h92O5KumsguBx-REgQkQcFD0xtVptWpSI8FaW4gjn4iE7kSwK5m_9KoS_gV2G-crJ9Hp3Cv6mCdfUywH2my2ARKVzWbhlob_QKNiC285efws-S68d4_gZ-fEbFdqmpTjb";
+const token = "Bearer bd50xQS4eKLa20KiR0fXEMwPjcZQIIze44u9NYaXWaTzHYly0cdwx6tdVT1fA-hbrXRP7gYrSOCgdEgtlP3dmZomBEzG-ONW9Mx0UXCVRd48sVQp45yuzmwwa5IxzAg5e0pqUK83e9MxODrFH9M1FZWI0kr7syv8d61tBP49u7AWZOnXlvJkud371yeH-lPk6kOY09CUyuED3P6P7ECIyPrCBP5cHXl-B-Q2RvjM5tVeC3vMvY-Y0yIb-uAQOFzR";
 
 //FUNCIONES REGULARES
 function retornarEstado() {
@@ -180,7 +180,7 @@ exports.crearGuia = (req, res) => {
         "Observaciones": guia.id_heka
     }
 
-    request.post(urlPrueba + "Admision/InsertarAdmision/", {
+    request.post(urlPrueba + "/InsertarAdmision", {
         headers: {
             "x-app-signature": usuario_prueba,
             "x-app-security_token": token,
@@ -195,7 +195,7 @@ exports.crearGuia = (req, res) => {
 };
 
 exports.crearStickerGuia = (req, res) => {
-    request.get(urlPrueba + "ClienteCorporativo/ObtenerBase64PdfGuia/" + req.params.id, {
+    request.get(urlPrueba + "/ObtenerBase64PdfPreGuia/" + req.params.id, {
         headers: {
             "x-app-signature": usuario_prueba,
             "x-app-security_token": token
@@ -203,8 +203,8 @@ exports.crearStickerGuia = (req, res) => {
     }, (error, response, body) => {
         if(error) res.send("Hubo un error => "+error);
 
-        let base64 = JSON.stringify(body);
-
+        let base64 = JSON.parse(body);
+        
         let segmentar = parseInt(req.query.segmentar);
         if(segmentar) {
             const segementado = Math.min(segmentar, 1000000)

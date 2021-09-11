@@ -381,14 +381,9 @@ function cargarDocumentos(filter) {
         for(let descargar of descargador_completo){
             descargar.addEventListener("click", (e) => {
                 
-                let user_id = e.target.getAttribute("data-user"),
-                    id = e.target.getAttribute("data-id_guia"),
-                    guias =  e.target.getAttribute("data-guias"),
-                    nombre_guias =  e.target.getAttribute("data-nombre_guias"),
-                    nombre_relacion =  e.target.getAttribute("data-nombre_relacion");
-                
+                let id = e.target.getAttribute("data-id_guia");
 
-                descargarDocumentos(user_id, id, guias, nombre_guias, nombre_relacion);
+                descargarDocumentos(id);
             })
         }
 
@@ -747,29 +742,49 @@ function actualizarHistorialDeDocumentos(timeline){
 
         //query que me carga la información en la tabla
         querySnapshot.forEach((doc) => {
-            tabla.push(mostrarDocumentosUsuario(doc.id, doc.data()));
+            // tabla.push(mostrarDocumentosUsuario(doc.id, doc.data()));
+            //PRimero convertimos el string devuelto en un nodo de html con parser String, para poder utilizar la función append
+            const htmlDocConverted = new DOMParser().parseFromString(mostrarDocumentosUsuario(doc.id, doc.data()), "text/html").body.firstChild;
+
+            //Utilizamos el append, ya que de otra manera los oidores de enventos no funcionan, si no para el último elemento
+            $("#body-documentos").append(htmlDocConverted);
+            const id_descargar_guia = "#boton-descargar-guias";
+            const id_descargar_relacion = "#boton-descargar-relacion_envio";
+            const btn_descarga_guia = document.querySelector(id_descargar_guia + doc.id);
+            const btn_descarga_relacion = document.querySelector(id_descargar_relacion + doc.id);
+            
             //funcionalidad de botones para descargar guias y relaciones
             firebase.firestore().collection("documentos").doc(doc.id).onSnapshot((row) => {
               
               if(row.data().descargar_guias){
-                let btn_descarga = document.getElementById("boton-descargar-guias" + doc.id);
-                btn_descarga.removeAttribute("disabled");
-                btn_descarga.addEventListener("click", (e) => {
-                    descargarStickerGuias(row);
-                })
+                $(id_descargar_guia + row.id).prop("disabled", false);
+                
               }
               if(row.data().descargar_relacion_envio){
-                  let btn_descarga = document.getElementById("boton-descargar-relacion_envio" + doc.id);
-                  btn_descarga.removeAttribute("disabled");
-                  btn_descarga.addEventListener("click", (e) => {
-                    descargarManifiesto(row);
-                  })
+                $(id_descargar_relacion + row.id).prop("disabled", false);  
               }
 
-              document.getElementById("boton-generar-rotulo" + doc.id).addEventListener("click", function() {
-                generarRotulo(this.parentNode.getAttribute("data-guias").split(","))
-              })
             });
+
+            btn_descarga_guia.addEventListener("click", async (e) => {
+                e.target.innerHTML = "<span class='spinner-border spinner-border-sm'></span> Cargando..."
+                e.target.setAttribute("disabled", true);
+                await descargarStickerGuias(doc);
+                e.target.innerHTML = "Descargar Guías"
+                e.target.removeAttribute("disabled");
+            });
+
+            btn_descarga_relacion.addEventListener("click", (e) => {
+                e.target.innerHTML = "<span class='spinner-border spinner-border-sm'></span> Cargando..."
+                e.target.setAttribute("disabled", true);
+                descargarManifiesto(doc);
+                e.target.innerHTML = "Descargar Manifiesto"
+                e.target.removeAttribute("disabled");
+            });
+
+            document.getElementById("boton-generar-rotulo" + doc.id).addEventListener("click", function() {
+                generarRotulo(this.parentNode.getAttribute("data-guias").split(","))
+            })
               
         });
     
@@ -782,7 +797,7 @@ function actualizarHistorialDeDocumentos(timeline){
             contarExistencia++;
           }
     
-          if(contarExistencia==0){
+          if(contarExistencia){
             if(document.getElementById('historial-docs')){
               document.getElementById('historial-docs').style.display='none';
             }
@@ -816,26 +831,11 @@ function actualizarHistorialDeDocumentos(timeline){
 }
 
 //Función que descarga todos los documentos cargados
-function descargarDocumentos(user_id, id_doc, guias, nombre_guias, nombre_relacion){
-    nombre_guias = nombre_guias == "undefined" ? "guias" + guias : nombre_guias;
-    nombre_relacion = nombre_relacion == "undefined" ? "relacion envio" + guias : nombre_relacion;
-
+function descargarDocumentos(id_doc){
     firebase.firestore().collection("documentos").doc(id_doc).get()
     .then(doc => {
         if(doc.exists) {
-            if(doc.data().base64Guias && !doc.data().nombre_guias) {
-                let base64 = doc.data().base64Guias;
-                let buff = base64ToArrayBuffer(base64);
-                let blob = new Blob([buff], {type: "application/pdf"});
-                let url = URL.createObjectURL(blob);
-                window.open(url);
-            } else {
-                firebase.storage().ref().child(user_id + "/" + id_doc + "/" + nombre_guias + ".pdf")
-                .getDownloadURL().then((url) => {
-                    window.open(url, "_blank");
-                });
-
-            }
+            descargarStickerGuias(doc);
 
             descargarManifiesto(doc);
         }

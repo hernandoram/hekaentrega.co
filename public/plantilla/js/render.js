@@ -455,10 +455,7 @@ function activarBotonesDeGuias(id, data, activate_once){
                     console.log(doc.data());
                     console.log(doc.id)
                     if(doc.data().descargar_relacion_envio && doc.data().descargar_guias) {
-                        let nombre_relacion = doc.data().nombre_relacion ? doc.data().nombre_relacion : "undefined"
-                        let nombre_guias = doc.data().nombre_guias ? doc.data().nombre_guias : "undefined"
-                        descargarDocumentos(user_id, doc.id, doc.data().guias.toString(), 
-                        nombre_guias, nombre_relacion);
+                        descargarDocumentos(doc.id);
                     } else {
                         avisar("No permitido", "Aún no están disponibles ambos documentos", "aviso");
                     }
