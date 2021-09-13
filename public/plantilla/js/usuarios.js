@@ -280,13 +280,37 @@ async function verificarExistencia(administracion){
 
 
 //esta funcion utilizara a otra para retornarme informacion basica del usuario
-function buscarUsuarios(){
+async function buscarUsuarios(){
     document.getElementById("cargador-usuarios").classList.remove("d-none");
     // let busqueda = ["!=", ""];
     // if(value("buscador_usuarios-id")){
     //     busqueda = ["==", value("buscador_usuarios-id")];
     // }
-    firebase.firestore().collection("usuarios").get()
+    const nombreInp = value("buscador_usuarios-nombre").toLowerCase();
+    const dirInp = value("buscador_usuarios-direccion").toLowerCase();
+    const reference = firebase.firestore().collection("usuarios")
+
+    const especifico = nombreInp && await reference.doc(nombreInp).collection("informacion").doc("personal")
+    .get().then((doc) => {
+        if(doc.exists) {
+            seleccionarUsuario(nombreInp);
+
+            let contenedor = document.getElementById("usuario-seleccionado");
+            let mostrador = document.getElementById("mostrador-usuarios");
+            contenedor.setAttribute("data-id", nombreInp);
+            contenedor.classList.remove("d-none");
+            mostrador.classList.add("d-none");
+            document.getElementById("cargador-usuarios").classList.add("d-none");
+
+
+            return true;
+        }
+        return false;
+    });
+
+    if(especifico) return
+
+    reference.get()
     .then((querySnapshot) => {
         inHTML("mostrador-usuarios", "");
         console.log(querySnapshot.size);
@@ -299,8 +323,7 @@ function buscarUsuarios(){
             const nombre_apellido = nombre.split(" ")[0] + " " + apellido.split(" ")[0];
             const centro_de_costo = doc.data().centro_de_costo || "SCC";
             const direccion = doc.data().direccion || "SD"
-            const nombreInp = value("buscador_usuarios-nombre").toLowerCase();
-            const dirInp = value("buscador_usuarios-direccion").toLowerCase();
+            
 
             //Primer filtro para buscar por nombre de usuario
             if(nombreInp){
@@ -321,10 +344,6 @@ function buscarUsuarios(){
                 document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
             }
             
-            if(nombreInp == nombre){
-                document.getElementById("usuario-seleccionado").setAttribute("data-id", doc.id);
-                seleccionarUsuario(doc.id);
-            }
             
         })
     }).then(() => {
@@ -371,6 +390,9 @@ function buscarUsuarios(){
         document.getElementById("cargador-usuarios").classList.add("d-none");
 
     })
+
+    
+    
 };
 
 //Funcion que filtrará a los usuarios luego de realizar que el dom esté lleno

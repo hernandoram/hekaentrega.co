@@ -397,8 +397,8 @@ function activarBotonesDeGuias(id, data, activate_once){
                                 actualizarSaldo(saldo_detallado);
                             }
                             
-                            historialGuias();
                         }
+                        historialGuias();
                     });
                     $("#enviar-documentos").prop("disabled", false);
                 }).catch((error) => {
@@ -1212,6 +1212,12 @@ function gestionarNovedadModal(dataN, dataG) {
             `
             li.setAttribute("class", "list-group-item d-flex");
             historial_estado.children[0].appendChild(li);
+        }
+
+        if(dataG.transportadora === "INTERRAPIDISIMO") {
+            historial_estado.children[0].innerHTML = `<li class="list-group-item d-flex">En este momento estamos trabajando para que pueda ver los movimientos de su guía con interrapidísimo,
+            esperamos culminarlo lo más pronto posible, disculpe las molestias causadas.</li>
+            `;
         }
     }
 
