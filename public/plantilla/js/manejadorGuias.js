@@ -1199,57 +1199,17 @@ function cargarNovedades(){
     })
 }
 
-function revisarMovimientosGuiasViejo(usuario){
-    document.getElementById("visor_novedades").innerHTML = "";
-    let operador = "==", filtro = usuario
-    if(!usuario && administracion){
-        operador = "!="; filtro = "";
-    }
-
-    firebase.firestore().collection("novedades").where("centro_de_costo", operador, filtro).get()
-    .then(querySnapshot => {
-        let res = []
-        querySnapshot.forEach(doc => {
-            res.push(doc.data());
-        })
-        return res;
-    }).then(res => {
-        let usuarios = []
-        res.sort((a,b) => {
-            if(a.centro_de_costo > b.centro_de_costo){
-                return 1
-            } else if(a.centro_de_costo < b.centro_de_costo){
-                return -1
-            } else {
-                return 0
-            }
-        }).reduce((a,b) => {
-            if(a.centro_de_costo != b.centro_de_costo){
-                usuarios.push(a.centro_de_costo);
-            }
-            return b;
-        });
-
-        for (let usuario of usuarios){
-            let filtrado = res.filter(v => {
-                return v.centro_de_costo == usuario;
-            })
-
-            console.log(filtrado);
-            tablaMovimientosGuias(filtrado);
-        }
-    })
-}
-
+//función que me revisa los movimientos de las guías
 function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
     let filtro = "", toggle = "!=", buscador = "centro_de_costo"
     document.getElementById("cargador-novedades").classList.remove("d-none");
+    
     
     if(($("#filtrado-novedades-guias").val() || guia) && admin){
         let filtrado = guia || $("#filtrado-novedades-guias").val().split(",");
         if(typeof filtrado == "object") {
             filtrado.forEach((v, i) => {
-                firebase.firestore().collectionGroup("guias").where("numeroGuia", "==", v.trim())
+                firebase.firestore().collectionGroup("estadoGuias").where("numeroGuia", "==", v.trim())
                 .get().then(querySnapshot => {
                     querySnapshot.size == 0 ? $("#cargador-novedades").addClass("d-none") : "";
                     querySnapshot.forEach(doc => {
@@ -1260,7 +1220,7 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
                 })
             })
         } else {
-            firebase.firestore().collectionGroup("guias").where("numeroGuia", "==", filtrado)
+            firebase.firestore().collectionGroup("estadoGuias").where("numeroGuia", "==", filtrado)
             .get().then(querySnapshot => {
                 querySnapshot.size == 0 ? $("#cargador-novedades").addClass("d-none") : "";
                 querySnapshot.forEach(doc => {
@@ -1276,7 +1236,7 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
             toggle = "==";
         }
     
-        firebase.firestore().collectionGroup("guias").where(buscador, toggle, filtro).get()
+        firebase.firestore().collectionGroup("estadoGuias").where(buscador, toggle, filtro).get()
         .then(querySnapshot => {
             let contador = 0;
             let size = querySnapshot.size;
@@ -1291,12 +1251,16 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
         })
     } else {
         if((document.getElementById("visor_novedades").innerHTML == "" && seguimiento == "once") || !seguimiento) {
-            firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
-            .orderBy("estado")
-            .where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"])
+            firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("estadoGuias")
+            // .orderBy("estado")
+            .where("mostrar_usuario", "==", true)
+            // .limit(10)
             .get().then(querySnapshot => {
                 let contador = 0;
                 let size = querySnapshot.size;
+                if(!querySnapshot.size) {
+                    return document.getElementById("cargador-novedades").classList.add("d-none");
+                }
                 console.log(size)
                 $("#visor_novedades").html("");
                 querySnapshot.forEach(doc => {
@@ -1321,7 +1285,7 @@ $("#btn-vaciar-consulta").click(() => {
     $("#visor_novedades").html("");
 })
 
-//En cualquier momento esta dejará dde funcionar
+//No está en funcionamiento, pero puede servir
 function consultarGuia(numGuia, usuario = "Consulta Personalizada", contador, totalConsultas){
     let data = {"guia": numGuia}
     fetch("/servientrega/consultarGuia", {
@@ -1374,24 +1338,34 @@ function consultarGuia(numGuia, usuario = "Consulta Personalizada", contador, to
 actualizarMovimientoGuia();
 function actualizarMovimientoGuia() {
     if(!administracion)
-    usuarioDoc.collection("guias").where("numeroGuia", "!=", null)
+    usuarioDoc.collection("guias").where("seguimiento_finalizado", "==", false)
     .onSnapshot(snapshot => {
         snapshot.docChanges().forEach(change => {
             if(change.type == "modified") {
-                consultarGuiaFb(user_id, change.doc.id, change.doc.data());
+                console.log(change.doc.data())
+                consultarEstadoGuiasParaUsuario(change.doc.data(), change.doc.id);
             }
         })
     })
 }
 
-function consultarGuiaFb(id_user, id, extraData, usuario = "Movimientos", contador, total_consulta){
+function consultarEstadoGuiasParaUsuario(data, id) {
+    usuarioDoc.collection("estadoGuias").doc(id)
+    .get().then(doc => {
+        if(doc.exists) {
+            if(doc.data().mostrar_usuario)
+            tablaMovimientosGuias(doc.data(), data, usuario, id, id_user);
+        }
+    })
+}
+
+function consultarGuiaFb(id_user, id, data, usuario = "Movimientos", contador, total_consulta){
     //Cuando Id_user existe, id corresponde a el id_heka, cuando no, corresponde al número de gíia
    if(id_user) {
-       firebase.firestore().collection("usuarios").doc(id_user).collection("estadoGuias").doc(id)
+       firebase.firestore().collection("usuarios").doc(id_user).collection("guias").doc(id)
        .get().then(doc => {
            if(doc.exists) {
-               if(administracion || doc.data().movimientos[doc.data().movimientos.length - 1].TipoMov == "1")
-               tablaMovimientosGuias(doc.data(), extraData, usuario, id, id_user);
+               tablaMovimientosGuias(data, doc.data(), usuario, id, id_user);
             }
        }).then(() => {
            if(contador == total_consulta) {
@@ -1400,11 +1374,11 @@ function consultarGuiaFb(id_user, id, extraData, usuario = "Movimientos", contad
            }
        })
    } else {
-       firebase.firestore().collectionGroup("estadoGuias").where("numeroGuia", "==", id)
+       firebase.firestore().collectionGroup("guias").where("numeroGuia", "==", id)
        .get().then(querySnapshot => {
            querySnapshot.forEach(doc => {
                let path = doc.ref.path.split("/");
-               tablaMovimientosGuias(doc.data(), extraData, usuario, path[3], path[1]);
+               tablaMovimientosGuias(data, doc.data(), usuario, path[3], path[1]);
            })
        }).then(() => {
            if(contador == total_consulta) {
@@ -1412,104 +1386,6 @@ function consultarGuiaFb(id_user, id, extraData, usuario = "Movimientos", contad
            }
        })
    }
-}
-
-//En cualquier momento esta no servirá
-function consultarNovedad(numGuia, usuario = "Novedades Personalizadas", contador, totalConsultas, observacion, id_heka, validaciones){
-    fetch("/servientrega/estadoGuia", {
-        method: "POST",
-        body: JSON.stringify({"guia": numGuia}),
-        headers: {
-            "Content-Type": "application/json"
-        }
-    })
-    .then((res) => res.json())
-    .then(data => {
-        let parser = new DOMParser();
-        data = parser.parseFromString(data, "application/xml");
-        let estadoGuia = data.querySelector("EstadosGuias");
-        console.log(estadoGuia);
-        if(numGuia){
-            if(estadoGuia.querySelector("Estado_Envio") != "ENTREGADO") {
-                let dataToObj;
-                if(estadoGuia.querySelector("Novedad") && estadoGuia.querySelector("Fecha_Entrega")) {
-                    dataToObj = {
-                        guia: estadoGuia.querySelector("Guia").textContent,
-                        novedad: estadoGuia.querySelector("Novedad").textContent,
-                        fecha: estadoGuia.querySelector("Fecha_Entrega").textContent
-                    }
-                    
-                } else if (estadoGuia.querySelector("Novedad") && !estadoGuia.querySelector("Fecha_Entrega")) {
-                    dataToObj = {
-                        guia: estadoGuia.querySelector("Guia").textContent,
-                        novedad: estadoGuia.querySelector("Novedad").textContent,
-                        fecha: ""
-                    }
-                }
-
-
-                if(validaciones && dataToObj){
-                    console.log("Si entró")
-                    if(dataToObj.guia == 0){
-                        tablaNovedades(dataToObj, {}, usuario, observacion, id_heka);
-                    } else if(validaciones.resuelta || new Date(validaciones.fecha).getTime() <= new Date(dataToObj.fecha).getTime()) {
-                        tablaNovedades(dataToObj, {}, usuario, observacion, id_heka, validaciones.resuelta);
-                    }
-                } else {
-                    if(dataToObj){
-                        tablaNovedades(dataToObj, {}, usuario, observacion, id_heka);
-                        if(dataToObj.novedad && dataToObj.guia != 0){
-                            document.querySelectorAll(".icon-notificacion-novedad").forEach(i => {
-                                i.classList.remove("d-none");
-                            });
-                        }
-                    }
-                }
-            }
-        }
-
-
-        if(contador == totalConsultas){
-            document.getElementById("cargador-novedades").classList.add("d-none");
-        }
-    })
-    
-}
-
-function consultarNovedadFb(numGuia, usuario = "Novedades", contador, totalConsultas, solucion, id_heka, user_id, info_adicional) {
-    firebase.firestore().collection("usuarios").doc(user_id).collection("novedades").doc(id_heka)
-    .get().then((doc) => {
-        if(doc.exists && numGuia) {
-            let dataToObj = {
-                guia: doc.data().guia,
-                novedad: doc.data().novedad,
-                fecha: doc.data().fecha
-            }
-            console.log(doc.data().guia, doc.data().solucionada);
-
-            if (doc.data().solucionada && !administracion && usuario == "nuevas") {
-
-            } else {
-                tablaNovedades(dataToObj, info_adicional, usuario, solucion, id_heka, doc.data().solucionada);
-            }         
-        }
-    }).then(() => {
-        if(contador == totalConsultas){
-            $("#tabla-novedades-"+usuario.replace(" ", "")).DataTable({
-                destroy: true,
-                autoWidth: false
-            })
-            document.getElementById("cargador-novedades").classList.add("d-none");
-            if($("#visor_novedades").html() == ""){
-                $("#visor_novedades").html(`<div class="row"><div class="col-2"></div>
-                <p class="col card m-3 p-3 border-danger text-danger text-center">
-                Sin novedades</p><div class="col-2"></div></div>`);
-            }
-        }
-        
-    })
-
-  
 }
 
 function revisarDeudas() {

@@ -927,7 +927,7 @@ function obtenerLinkTienda(data) {
     } else {
         contenedor.addClass("alert-success");
         let host = window.location.host;
-        host = host.split(".")[0] == "www" ? host.split(".").splice(0,1).join(".") : host
+        // host = host.split(".")[0] == "www" ? host.split(".").splice(1).join(".") : host
         let dir = data.tienda + "." + host;
         let protocol = window.location.protocol;
         link.innerHTML = dir;
