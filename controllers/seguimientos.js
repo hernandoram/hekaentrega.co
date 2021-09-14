@@ -44,7 +44,7 @@ async function actualizarMovimientosGuias(d, general) {
     .where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"])
     // .where("seguimiento_finalizado", "!=", true)
     // .where("centro_de_costo", "==", 'SellerCabar-0')
-    // .where("numeroGuia", "in", ["230009515920", "230009514161", "230009514160", "230009514159", "230009514158", "230009506495"])
+    // .where("numeroGuia", "in", ["2118876764"])
     // .limit(5)
     }
     

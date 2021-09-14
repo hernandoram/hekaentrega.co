@@ -395,8 +395,6 @@ async function actualizarMovimientos(doc) {
               direccionD: data.DirDes[0],
               estadoActual: data.EstAct[0],
               fecha: data.FecEst[0], //fecha del estado
-              id_heka: doc.id,
-              transportadora: doc.data().transportadora,
               movimientos // movimientos registrados por la transportadora
             };
 
@@ -404,7 +402,7 @@ async function actualizarMovimientos(doc) {
 
             /*Respuesta ante la actualización de movimientos.
             se actulizan aquellos estados que sean diferentes y que estén registrados en este objeto*/
-            upte_movs = extsFunc.actualizarMovimientos(doc, data_to_fb);
+            upte_movs = await extsFunc.actualizarMovimientos(doc, data_to_fb);
           } else {
             upte_movs = {
               estado: "Sn.Mov",

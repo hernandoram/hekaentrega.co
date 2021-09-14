@@ -3,7 +3,8 @@ const firebase = require("../firebase");
 const db = firebase.firestore();
 
 exports.buscarTienda = async (req, res, next) => {
-    let nombre_tienda = req.vhost.hostname.split(".")[0];
+    console.log("VHOST => ", req.vhost);
+    let nombre_tienda = req.vhost[0];
     req.params.nombre_tienda = nombre_tienda;
     console.log(nombre_tienda);
     let id = await db.collection("tiendas").where("tienda", "==", nombre_tienda)

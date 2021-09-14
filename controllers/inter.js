@@ -110,13 +110,12 @@ const actualizarMovimientos = async function(doc) {
         const movimientos = {
             numeroGuia: doc.data().numeroGuia, //guia devuelta por la transportadora
             fechaEnvio: consulta.estado["Fecha Asignación"], 
-            // ciudadD: consulta.estado.CiuDes[0],
-            // nombreD: consulta.estado.NomDes[0],
-            // direccionD: consulta.estado.DirDes[0],
+            ciudadD: doc.data().ciudadD,
+            nombreD: doc.data().nombreD,
+            direccionD: doc.data().direccionD,
             estadoActual: consulta.estado['Ultimo Estado'],
             fecha: ultimo_estado["Fecha Cambio Estado"], //fecha del estado
             id_heka: doc.id,
-            transportadora: doc.data().transportadora,
             movimientos: consulta.flujo // movimientos registrados por la transportadora
         };
 
