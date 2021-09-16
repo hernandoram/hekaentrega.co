@@ -1,7 +1,74 @@
 let ingreso, seller
 class MensajeError {
     constructor (id) {
-        this.id = id
+        this.id = id;
+        this.booleans = new Array();
+        this.message = "Valor inválido"
+    }
+
+    init(type = "input") {
+        $(this.id).on(type, (e) => {
+            this.value = e.target.value;
+
+            const index = this.booleans.findIndex(bool => this.comprobateBoolean(bool));
+            const bool = index != -1;
+
+            const boolTaken = this.booleans[index]
+            const message = bool && boolTaken[3] ? boolTaken[3] : this.message;
+            this.showHideErr(bool, message);
+        });
+
+        return this;
+    }
+
+    comprobateBoolean(arrBool) {
+        const caso = this.viewCase(arrBool[0]);
+        const operator = arrBool[1];
+        const valor = arrBool[2];
+        let bool = false;
+
+        if(!this.value) return false;
+
+        switch (operator) {
+            case ">":
+                bool = caso > valor
+                break;
+            case "<":
+                bool = caso < valor
+                break;
+            case ">=":
+                bool = caso >= valor
+                break;
+            case "<=":
+                bool = caso <= valor
+                break;
+            case "==":
+                bool = caso == valor
+                break;
+            case "!=":
+                bool = caso != valor
+                break;
+            case "contains":
+                bool = valor.split("|").some(v => caso.includes(v));
+                break;
+        }
+
+        return bool;
+    }
+
+    viewCase(caso) {
+        let respuesta;
+        switch (caso) {
+            case "length":
+                respuesta = this.value.length
+                break;
+            case "number":
+                respuesta = parseInt(this.value)
+                break
+            default:
+                respuesta = this.value
+        }
+        return respuesta || this.value
     }
 
     input(valores, mensaje) {
@@ -27,7 +94,31 @@ class MensajeError {
             }
         })
     }
+
+    set setDefaultMessage(message) {
+        this.message = message
+    }
+
+    set insertBoolean(booleans) {
+        this.booleans.push(booleans)
+    }
+    
+    showHideErr(hasErr, message) {
+        if(hasErr) {
+            if($(this.id).parent().children(".mensaje-error").length) {
+                $(this.id).parent().children(".mensaje-error").text(message)
+            } else {
+                $(this.id).parent().append('<p class="mensaje-error text-danger mt-2 text-center">'+ message+ '</p>');
+            }
+            $("#registrar-nueva-cuenta").prop("disabled", true)
+        } else {
+            if($(this.id).parent().children(".mensaje-error")) {
+                $(this.id).parent().children(".mensaje-error").remove();
+            }
+        }
+    }
 }
+
 if(administracion){
     ingreso = "CPNnumero_documento";
     seller = "CPNcentro_costo";
@@ -116,6 +207,10 @@ function nuevaCuenta(){
         !value("CPNobjetos_envio") | datos_relevantes.centro_de_costo == ""){
             //si todos los datos estan vacios 
             let id_centro_costo = administracion ? "CPNcentro_costo" : "CPNobjetos_envio";
+            Toast.fire({
+                icon: "error",
+                text: "Error: Ningún campo debe estar vacío."
+            })
             inHTML('error_crear_cuenta','<h6 class="text-danger">Error: Ningún campo debe estar vacío</h6>');
             verificador(["CPNnombres", "CPNapellidos", "CPNnumero_documento", 
             "CPNtelefono", "CPNcelular", "CPNciudad", "CPNdireccion", "CPNbarrio", 
@@ -131,6 +226,8 @@ function nuevaCuenta(){
                 inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Las contraseñas no coinciden</h6>`);
             } else if (CPNcheck!="block"){
                 inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Debes aceptar los términos y condiciones para poder seguir</h6>`);
+            } else if (value("CPNnombre_empresa").length > 25) {
+                inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: La longitud para el nombre de la empresa no debe exceder los 25 caracteres.</h6>`);
             } else {
                 if(mostrar_ocultar_registro_bancario == "block"){
                     if(value("CPNbanco")=="" | value("CPNnombre_representante")=="" | value("CPNtipo_de_cuenta")=="" | value("CPNnumero_cuenta")=="" | value("CPNconfirmar_numero_cuenta")=="" |
@@ -238,6 +335,8 @@ function nuevaCuenta(){
     })
 }
 
+const inpNombreEmpresa = new MensajeError("#CPNnombre_empresa").init("keydown");
+inpNombreEmpresa.insertBoolean = ["length", ">=", 25, "Has llegado al límite de carácteres."];
 
 let CpnKey = new MensajeError("#CPNcontraseña");
 CpnKey.input(["/", " "], "La contraseña no debe tener espacios ni los carácteres \"/\", si continúa, los carácteres mencionados serán ignorados");
