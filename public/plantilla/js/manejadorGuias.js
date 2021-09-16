@@ -1202,7 +1202,8 @@ function cargarNovedades(){
 //función que me revisa los movimientos de las guías
 function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
     let filtro = "", toggle = "!=", buscador = "centro_de_costo"
-    document.getElementById("cargador-novedades").classList.remove("d-none");
+    const cargadorClass = document.getElementById("cargador-novedades").classList
+    cargadorClass.remove("d-none");
     
     
     if(($("#filtrado-novedades-guias").val() || guia) && admin){
@@ -1258,10 +1259,10 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
             .get().then(querySnapshot => {
                 let contador = 0;
                 let size = querySnapshot.size;
-                if(!querySnapshot.size) {
-                    return document.getElementById("cargador-novedades").classList.add("d-none");
-                }
                 console.log(size)
+                if(!querySnapshot.size) {
+                    return cargadorClass.add("d-none");
+                }
                 $("#visor_novedades").html("");
                 querySnapshot.forEach(doc => {
                     let dato = doc.data();
@@ -1271,9 +1272,25 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
                 })
             })
         } else {
-            document.getElementById("cargador-novedades").classList.add("d-none");
+            cargadorClass.add("d-none");
         }
     }
+}
+
+function revisarGuiaUser(id_heka) {
+    const cargadorClass = document.getElementById("cargador-novedades").classList
+    cargadorClass.remove("d-none");
+    
+    usuarioDoc.collection("guias").doc(id_heka).get()
+    .then(doc => {
+        if(doc.exists) {
+            console.log(id_heka);
+            consultarEstadoGuiasParaUsuario(doc.data(), id_heka);
+        }
+        cargadorClass.add("d-none");
+
+    });
+
 }
 
 document.getElementById("btn-revisar-novedades").addEventListener("click", (e) => {
@@ -1353,8 +1370,8 @@ function consultarEstadoGuiasParaUsuario(data, id) {
     usuarioDoc.collection("estadoGuias").doc(id)
     .get().then(doc => {
         if(doc.exists) {
-            if(doc.data().mostrar_usuario)
-            tablaMovimientosGuias(doc.data(), data, usuario, id, id_user);
+            // if(doc.data().mostrar_usuario)
+            tablaMovimientosGuias(doc.data(), data, "Para revisar", id, localStorage.user_id);
         }
     })
 }
@@ -1370,7 +1387,7 @@ function consultarGuiaFb(id_user, id, data, usuario = "Movimientos", contador, t
        }).then(() => {
            if(contador == total_consulta) {
                $("#cargador-novedades").addClass("d-none");
-               $("#tabla-estadoGuias-"+usuario.replace(/\s/g, "")).DataTable();
+               const table = $("#tabla-estadoGuias-"+usuario.replace(/\s/g, "")).DataTable();
            }
        })
    } else {

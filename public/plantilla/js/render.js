@@ -697,22 +697,38 @@ function mostrarNotificacion(data, type, id){
                         } else {
                             cargarDocumentos(data.guias.slice(0,5));
                         }
-                    })
-                } else {
-                    if(administracion) {
-                        cargarDocumentos(data.guias.slice(0,5));
-                    } else {
-                        actualizarHistorialDeDocumentos(data.timeline);
-                    }
-                    notificacion.setAttribute("href", "#documentos");
+                    });
+                    
+                    return;
                 }
-    
+
+                let href;
+                if(administracion) {
+                    cargarDocumentos(data.guias.slice(0,5));
+                } else {
+                    href = userClickNotification(data)
+                }
+                
+                notificacion.setAttribute("href", "#" + (href || "documentos"));
             }
         }
     })
 
     notificacion.append(div_icon, div_info, button_close);
     return notificacion;
+}
+
+function userClickNotification(data) {
+    let href;
+    if(data.href === "novedades") {
+        console.log(data);
+        revisarGuiaUser(data.id_heka)
+        href = data.href;
+    } else {
+        href = "documentos";
+        actualizarHistorialDeDocumentos(data.timeline);    
+    }
+    return href;
 }
 
 //Muestra los igresos y egresos de los usuarios a medida que van generando guías
@@ -761,167 +777,6 @@ function tablaMovimientos(arrData){
     </tr>`
 
     document.getElementById("card-movimientos").append(tabla, detalles);
-}
-
-/**** Funcion obsoleta */
-function tablaNovedades(data, extraData, usuario, solucion, id_heka, resuelta){
-    let card = document.createElement("div"),
-        encabezado = document.createElement("a"),
-        cuerpo = document.createElement("div"),
-        table = document.createElement("table"),
-        thead = document.createElement("thead"),
-        tbody = document.createElement("tbody"),
-        tr = document.createElement("tr"),
-        ul = document.createElement("ul");
-
-    card.classList.add("card", "mt-5");
-    ul.classList.add("list-group", "list-group-flush");
-
-    encabezado.setAttribute("class","card-header d-flex justify-content-between");
-    encabezado.setAttribute("data-toggle", "collapse");
-    encabezado.setAttribute("role", "button");
-    encabezado.setAttribute("aria-expanded", "true");
-
-    cuerpo.setAttribute("class", "card-body collapse table-responsive");
-
-    table.classList.add("table");
-    table.setAttribute("id", "tabla-novedades-"+usuario.replace(" ", ""));
-    thead.classList.add("text-light", "bg-gradient-primary");
-    thead.innerHTML = `<tr>
-        <th>Guía</th>
-        <th class="text-center">Novedad</th>
-    </tr>`
-    
-    encabezado.setAttribute("href", "#novedades-" + usuario.replace(" ", ""));  
-    encabezado.setAttribute("aria-controls", "novedades-" +usuario.replace(" ", ""));
-    encabezado.textContent = "Novedades " + usuario;
-    cuerpo.setAttribute("id", "novedades-" + usuario.replace(" ", ""));
-    cuerpo.setAttribute("data-usuario", usuario.replace(" ", ""));
-
-    if(data.guia != 0){
-        tr.setAttribute("id", "novedad"+data.guia);
-    }
-    
-    tr.innerHTML = `
-        <td>${data.guia}</td>
-        <td>${data.novedad} - ${data.fecha.split("T")[0]}</td>
-    `
-    if(administracion){
-        thead.firstChild.innerHTML += `<td>soluciones</td>`;
-        let btn = "btn-success";
-        if(resuelta){
-            btn = "btn-secondary"
-        }
-        if(data.guia != 0) {
-            tr.innerHTML += `
-                <td>
-                    <p>${solucion}</p>
-                    <button class="btn ${btn} m-2" id="solucionar-novedad-${data.guia}">Novedad Solucionada</button>
-                </td>
-            `
-        }
-    } else {
-        thead.firstChild.innerHTML += `
-        <td>Nombre</td>
-        <td>Celulares</td>
-        <td>Dirección</td>
-        <td>Solucionar</td>`;
-        if(data.guia != 0){
-            tr.innerHTML += `
-                <td>${extraData.nombreD}</td>
-                
-                <td><a href="https://api.whatsapp.com/send?phone=57${extraData.celular1}" target="_blank">${extraData.celular1}</a>
-                <a href="https://api.whatsapp.com/send?phone=57${extraData.celular2}" target="_blank">${extraData.celular2}</a></td>
-                <td>${extraData.direccion}</td>
-                <td>
-                    <p>¿Tienes Alguna sugerencia para esta novedad?</p>
-                    <textarea type="text" class="form-control" name="solucion-novedad" id="solucion-novedad-${data.guia}">${solucion}</textarea>
-                    <button class="btn btn-success m-2" id="solucionar-novedad-${data.guia}">Enviar Solución</button>
-                </td>
-            `
-        }
-    }
-
-    if(document.querySelector("#novedad" + data.guia)) {
-        document.querySelector("#novedad" + data.guia).innerHTML = "";
-        document.querySelector("#novedad" + data.guia).innerHTML = tr.innerHTML
-    } else if(document.querySelector("#novedades-" + usuario.replace(" ", ""))){
-        document.querySelector("#novedades-" + usuario.replace(" ", "")).querySelector("tbody").appendChild(tr);
-    } else {
-        tbody.appendChild(tr);
-        table.append(thead, tbody);
-        let mensaje = document.createElement("p");
-        mensaje.classList.add("text-center", "text-danger");
-        mensaje.innerHTML = "Tiempo óptimo de solución: 24 horas";
-        cuerpo.append(mensaje, table);
-        card.append(encabezado, cuerpo);
-    
-        document.getElementById("visor_novedades").appendChild(card);
-    }
-
-    console.log(resuelta);
-    if(resuelta && !administracion){
-        document.querySelector("#solucionar-novedad-"+data.guia).classList.add("disabled");
-        document.querySelector("#solucionar-novedad-"+data.guia).disabled;
-        document.querySelector("#solucionar-novedad-"+data.guia).remove();
-    }
-    
-    $("#solucionar-novedad-"+data.guia).click(() => {
-        if(administracion){
-            console.log(data.guia);
-            firebase.firestore().collectionGroup("guias").where("numeroGuia", "==", data.guia)
-            .get().then(querySnapshot => {
-                querySnapshot.forEach(doc => {
-                    console.log(doc.ref.path, doc.data().numeroGuia);
-                    console.log(doc.ref.path.toString().replace("guias", "novedades"));
-                    
-                    firebase.firestore().doc(doc.ref.path.toString().replace("guias", "novedades")).update({
-                        solucionada: true
-                    }).then(() => {
-                        firebase.firestore().doc(doc.ref.path).update({
-                            "novedad.resuelta": true,
-                            "novedad.fecha": data.fecha
-                        });
-                    })
-                })
-            }).then(() => {
-                firebase.firestore().collection("notificaciones").doc(id_heka).delete();
-                avisar("¡Entendido!", "Se la actualizado el estado de la novedad como resuelto");
-            })
-        } else {
-            console.log($("#solucion-novedad-"+data.guia).val())
-            console.log(data.guia);
-            if($("#solucion-novedad-"+data.guia).val()) {
-                firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
-                .doc(id_heka).update({
-                    solucion_novedad: $("#solucion-novedad-"+data.guia).val(),
-                    "novedad.fecha": data.fecha
-                }).then(() => {
-                    let momento = new Date().getTime();
-                    let hora = new Date().getMinutes() < 10 ? new Date().getHours() + ":0" + new Date().getMinutes() : new Date().getHours() + ":" + new Date().getMinutes();
-    
-                    firebase.firestore().collection("notificaciones").doc(id_heka).set({
-                        fecha: genFecha(),
-                        timeline: momento,
-                        mensaje: datos_usuario.nombre_completo + "(" + datos_usuario.centro_de_costo 
-                        + ") Sugirió una solución para la guía " 
-                        + data.guia + ": " + $("#solucion-novedad-"+data.guia).val(),
-                        hora: hora,
-                        guia: data.guia,
-                        id_heka: id_heka,
-                        type: "novedad",
-                        user_id: user_id,
-                        usuario: datos_usuario.centro_de_costo,
-                        visible_admin: true
-                    })
-                }).then(() => {
-                    avisar("Solicitud Recibida", "Hemos Recibido tu solicitud, pronto estaremos atendiendo su novedad")
-                })
-            } else {
-                avisar("¡Error!", "No se puede enviar una solución vacía en la guía: " + data.guia);
-            }
-        }
-    })
 }
 
 //Mustra los movimientos de las guías
@@ -982,9 +837,14 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
     const ultimo_seguimiento = extraData.seguimiento ? extraData.seguimiento[extraData.seguimiento.length - 1] : "";
     const millis_ultimo_seguimiento = ultimo_seguimiento && extraData.novedad_solucionada 
         ? ultimo_seguimiento.fecha.toMillis() : new Date();
-    
-    
+        
     const mov = traducirMovimientoGuia(data.transportadora);
+
+    const tiempo_en_novedad = diferenciaDeTiempo(momento_novedad[mov.fechaMov] || new Date(), new Date());
+    
+    console.log(tiempo_en_novedad)
+    if(tiempo_en_novedad > 3 && data.transportadora == "INTERRAPIDISIMO" && !administracion) return;
+    
     let btnGestionar, btn_solucionar = ""
     //Según el tipo de usuario, cambia el botón que realiza la gestión
     if(administracion) {
@@ -1016,7 +876,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
 
         <td class="text-center">
             <span class="badge badge-danger p-2 my-auto">
-                ${diferenciaDeTiempo(momento_novedad[mov.fechaMov] || new Date(), new Date())} días
+                ${tiempo_en_novedad} días
             </span>
         </td>
 
@@ -1073,56 +933,44 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         gestionarNovedadModal(data, extraData);
     })
     
-    $("#solucionar-guia-"+data.numeroGuia).click(async () => {
-        $("#solucionar-guia-"+data.numeroGuia).html(`
+    const boton_solucion = $("#solucionar-guia-"+data.numeroGuia)
+    boton_solucion.click(async () => {
+        const html_btn = boton_solucion.html();
+        boton_solucion.html(`
             <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             Cargando...
         `);
 
-        firebase.firestore().collection("usuarios").doc(id_user).collection("guias").doc(id_heka)
-        .update({
-            novedad_solucionada: true
-        }).then(() => {
-            firebase.firestore().collection("notificaciones").doc(id_heka).delete();
-            $("#solucionar-guia-"+data.numeroGuia).html("Solucionada");
-            avisar("Guía Gestionada", "La guía " +data.numeroGuia+ " ha sido actualizada exitósamente como solucionada");
-        })
-
-
-        return; 
-        /* ESPACIO APRTADO, PARA CUANDO SE HABILITE RESPUESTA A NOVEDAD DEL USUARIO
-            mientras tanto, solo va a resolver la novedad
-        */
+        const referenciaGuia = firebase.firestore().collection("usuarios").doc(id_user).collection("guias").doc(id_heka)
+        
         const { value: text } = await Swal.fire({
             input: 'textarea',
             inputLabel: 'Respuesta',
             inputPlaceholder: 'Escribe tu mensaje',
             inputAttributes: {
-              'aria-label': 'Escribe tu respuesta'
+                'aria-label': 'Escribe tu respuesta'
             },
             showCancelButton: true
-          })
+        })
 
-          
-          if (text == undefined) {
-          } else if (text) {
+        if (text == undefined) {
+            boton_solucion.html(html_btn);
+        } else if (text) {
+            const solucion = {
+                gestion: "<b>Asistencia Logística dice:</b> " + text.trim(),
+                fecha: new Date()
+            }
             avisar("Se enviará mensaje al usuario", text);
             if(extraData.seguimiento) {
-                extraData.seguimiento.push({
-                    gestion: "Asistencia Logística dice: " + text.trim(),
-                    fecha: new Date()
-                })
+                extraData.seguimiento.push(solucion)
             } else {
-                extraData.seguimiento = [{
-                    gestion: "Asistencia Logística dice: " + text.trim(),
-                    fecha: new Date()
-                }]
+                extraData.seguimiento = new Array(solucion)
             }
 
             console.log(extraData)
-            return
+            // return
 
-            usuarioDoc.collection("guias").doc(id_heka).update({
+            referenciaGuia.update({
                 seguimiento: extraData.seguimiento,
                 novedad_solucionada: true
             }).then(() => {
@@ -1131,20 +979,25 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
                 enviarNotificacion({
                     visible_user: true,
                     user_id: id_user,
+                    id_heka: extraData.id_heka,
                     mensaje: "Respuesta a Solución de la guía número " + extraData.numeroGuia + ": " + text.trim(),
                     href: "novedades"
                 })
+
+                boton_solucion.html("Solucionada");
+
             })
-          } else {
-            firebase.firestore().collection("usuarios").doc(id_user).collection("guias").doc(id_heka)
-            .update({
+        } else {
+            console.log("No se envió mensaje");
+            // return
+            referenciaGuia.update({
                 novedad_solucionada: true
             }).then(() => {
                 firebase.firestore().collection("notificaciones").doc(id_heka).delete();
-                $("#solucionar-guia-"+data.numeroGuia).html("Solucionada");
+                boton_solucion.html("Solucionada");
                 avisar("Guía Gestionada", "La guía " +data.numeroGuia+ " ha sido actualizada exitósamente como solucionada");
             })
-          }
+        }
 
 
     })
@@ -1457,8 +1310,8 @@ function enviarNotificacion(options) {
         visible_user: true,
         visible_admin: false,
         icon: ["exclamation", "danger"],
-        detalles: arrErroresUsuario,
-        user_id: vinculo.id_user,
+        detalles: "arrErroresUsuario", //mostrar una lista de posibles causas
+        user_id: "vinculo.id_user",
         mensaje: "Mensaje a mostrar en la notificación",
         href: "id destino"
     }
@@ -1670,1100 +1523,3 @@ function diferenciaDeTiempo(inicial, final) {
     return Math.floor(diff / (1000*60*60*24));
 
 }
-
-const pruebaGuia = [
-    {
-        "debe": -15350,
-        "dice_contener": "calzado",
-        "correoD": "notiene@gmail.com",
-        "id_user": "1090493242",
-        "recoleccion_esporadica": 0,
-        "celularD": "3024599821",
-        "alto": "15",
-        "tipo_doc_dest": "2",
-        "largo": "15",
-        "fecha": "2021-08-31",
-        "direccionD": "carrera 82 a # 35 13  simon bolivar ",
-        "telefonoD": "3024599821",
-        "observaciones": "",
-        "ancho": "15",
-        "detalles": {
-            "seguro": 85000,
-            "peso_con_volumen": 1,
-            "recaudo": 85000,
-            "peso_liquidar": 3,
-            "peso_real": 3,
-            "flete": 10000,
-            "comision_trasportadora": 3000,
-            "comision_heka": 2350,
-            "total": 15350
-        },
-        "nombreR": "NATALIA MENDOZA",
-        "timeline": 1630438053690,
-        "valor": 85000,
-        "id_heka": "324216624",
-        "correoR": "nataandrea_10@hotmail.com",
-        "dane_ciudadR": "54001000",
-        "nombreD": "sergio perez - may s ",
-        "estado": "ENTREGADO",
-        "ciudadR": "CUCUTA",
-        "transportadora": "SERVIENTREGA",
-        "dane_ciudadD": "05001000",
-        "direccionR": "Calle 23 número 3 49 apártamento 201 Tasajero los patios",
-        "seguro": 85000,
-        "celularR": "3223727739",
-        "enviado": true,
-        "centro_de_costo": "SellerNatalia",
-        "identificacionD": 123,
-        "ciudadD": "MEDELLIN",
-        "departamentoR": "NORTE DE SANTANDER",
-        "peso": 3,
-        "departamentoD": "ANTIOQUIA",
-        "ultima_actualizacion": {
-            "seconds": 1631037600,
-            "nanoseconds": 2000000
-        },
-        "type": "PAGO CONTRAENTREGA",
-        "numeroGuia": "2118879519",
-        "costo_envio": 15350
-    },
-    {
-        "debe": -18060,
-        "dane_ciudadD": "05001000",
-        "ciudadR": "CUCUTA",
-        "transportadora": "SERVIENTREGA",
-        "departamentoD": "ANTIOQUIA",
-        "correoD": "notiene@gmail.com",
-        "costo_envio": 18060,
-        "valor": 160000,
-        "ultima_actualizacion": {
-            "seconds": 1631426400,
-            "nanoseconds": 1000000
-        },
-        "timeline": 1630437568271,
-        "ciudadD": "MEDELLIN",
-        "enviado": true,
-        "alto": "15",
-        "estado": "ENTREGADO",
-        "fecha": "2021-08-31",
-        "celularR": "3223727739",
-        "detalles": {
-            "recaudo": 160000,
-            "peso_con_volumen": 1,
-            "total": 18060,
-            "comision_heka": 3100,
-            "seguro": 160000,
-            "comision_trasportadora": 4960,
-            "peso_real": 3,
-            "peso_liquidar": 3,
-            "flete": 10000
-        },
-        "peso": 3,
-        "direccionR": "Calle 23 número 3 49 apártamento 201 Tasajero los patios",
-        "seguimiento_finalizado": false,
-        "centro_de_costo": "SellerNatalia",
-        "departamentoR": "NORTE DE SANTANDER",
-        "nombreR": "NATALIA MENDOZA",
-        "identificacionD": 123,
-        "type": "PAGO CONTRAENTREGA",
-        "numeroGuia": "2118879515",
-        "celularD": "3145881170",
-        "nombreD": "Leidy Alexandra Ruiz Echavarría sa ",
-        "correoR": "nataandrea_10@hotmail.com",
-        "largo": "15",
-        "observaciones": "",
-        "telefonoD": "3145881170",
-        "ancho": "15",
-        "id_heka": "324216615",
-        "dane_ciudadR": "54001000",
-        "direccionD": "reclama en oficina  . ",
-        "tipo_doc_dest": "2",
-        "seguro": 160000,
-        "dice_contener": "calzado",
-        "id_user": "1090493242",
-        "recoleccion_esporadica": 0
-    },
-    {
-        "id_user": "1090493242",
-        "identificacionD": 123,
-        "estado": "EN PROCESAMIENTO",
-        "correoD": "notiene@gmail.com",
-        "fecha": "2021-08-14",
-        "correoR": "nataandrea_10@hotmail.com",
-        "nombreD": "miguel angel tovar ramirez - sa ",
-        "id_heka": "324213716",
-        "ciudadD": "RIVERA",
-        "alto": "15",
-        "tipo_doc_dest": "2",
-        "celularR": "3223727739",
-        "numeroGuia": "2118876764",
-        "largo": "15",
-        "seguimiento_finalizado": false,
-        "centro_de_costo": "SellerNatalia",
-        "peso": 3,
-        "recoleccion_esporadica": 0,
-        "timeline": 1628957471706,
-        "celularD": "3142880651",
-        "ciudadR": "CUCUTA",
-        "dice_contener": "calzado",
-        "telefonoD": "3142880651",
-        "ultima_actualizacion": {
-            "seconds": 1631556000,
-            "nanoseconds": 2000000
-        },
-        "costo_envio": 15775,
-        "valor": 85000,
-        "seguro": 85000,
-        "observaciones": "",
-        "direccionR": "Calle 23 número 3 49 apártamento 201 Tasajero los patios",
-        "enviado": true,
-        "ancho": "15",
-        "direccionD": "carrera 6 # 4 50  centro ",
-        "departamentoD": "HUILA",
-        "departamentoR": "NORTE DE SANTANDER",
-        "type": "PAGO CONTRAENTREGA",
-        "nombreR": "NATALIA MENDOZA",
-        "debe": -15775,
-        "detalles": {
-            "peso_con_volumen": 1,
-            "comision_heka": 1275,
-            "peso_liquidar": 3,
-            "seguro": 85000,
-            "flete": 11500,
-            "peso_real": 3,
-            "recaudo": 85000,
-            "total": 15775,
-            "comision_trasportadora": 3000
-        }
-    },
-    {
-        "seguro": 170000,
-        "dane_ciudadD": "27006000",
-        "celularR": "3223727739",
-        "tipo_doc_dest": "2",
-        "direccionR": "Calle 23 número 3 49 apártamento 201 Tasajero los patios",
-        "identificacionD": 123,
-        "numeroGuia": "230009514158",
-        "debe": -30850,
-        "ciudadD": "ACANDI",
-        "id_user": "1090493242",
-        "peso": 1,
-        "fecha": "2021-08-31",
-        "telefonoD": "3225052387",
-        "dane_ciudadR": "54001000",
-        "dice_contener": "calzado",
-        "detalles": {
-            "peso_liquidar": 1,
-            "total": 30850,
-            "flete": 15750,
-            "comision_trasportadora": 11900,
-            "recaudo": 170000,
-            "seguro": 170000,
-            "comision_heka": 3200,
-            "peso_real": 1,
-            "peso_con_volumen": 1
-        },
-        "departamentoD": "CHOCO",
-        "largo": "15",
-        "departamentoR": "NORTE DE SANTANDER",
-        "recoleccion_esporadica": 0,
-        "timeline": 1630435615816,
-        "ciudadR": "CUCUTA",
-        "seguimiento_finalizado": false,
-        "celularD": "3225052387",
-        "nombreR": "NATALIA MENDOZA",
-        "alto": "15",
-        "nombreD": "elver javier gutierez castro tot",
-        "id_heka": "324216597",
-        "ancho": "15",
-        "correoR": "nataandrea_10@hotmail.com",
-        "direccionD": "reclama en oficina  - ",
-        "centro_de_costo": "SellerNatalia",
-        "type": "PAGO CONTRAENTREGA",
-        "ultima_actualizacion": {
-            "seconds": 1631554135,
-            "nanoseconds": 593000000
-        },
-        "transportadora": "INTERRAPIDISIMO",
-        "costo_envio": 30850,
-        "estado": "Viajando en Ruta Regional",
-        "enviado": true,
-        "correoD": "notiene@gmail.com",
-        "valor": 170000,
-        "observaciones": ""
-    },
-    {
-        "valor": "160000",
-        "novedad_solucionada": true,
-        "departamentoR": "NORTE DE SANTANDER",
-        "fecha": "2021-04-30",
-        "largo": "15",
-        "celularR": "3223727739",
-        "dice_contener": "calzado",
-        "ultima_actualizacion": {
-            "seconds": 1625256187,
-            "nanoseconds": 27000000
-        },
-        "correoD": "notiene@gmail.com",
-        "alto": "15",
-        "enviado": true,
-        "costo_envio": 21100,
-        "ciudadR": "CUCUTA",
-        "correoR": "nataandrea_10@hotmail.com",
-        "timeline": 1619740800000,
-        "estado": "ENTREGADO",
-        "departamentoD": "CUNDINAMARCA",
-        "observaciones": "",
-        "id_heka": "1102",
-        "centro_de_costo": "SellerNatalia",
-        "seguimiento": [
-            {
-                "fecha": {
-                    "seconds": 1621302408,
-                    "nanoseconds": 420000000,
-                    toMillis: () => 1621302408420
-                },
-                "gestion": "Ofrecer nuevamente el cliente estara atento a la entrega "
-            }
-        ],
-        "id_user": "1090493242",
-        "nombreD": "fidel andres caicedo - ox",
-        "numeroGuia": "2102567626",
-        "detalles": {
-            "peso_con_volumen": 1,
-            "total": 21100,
-            "comision_heka": 4640,
-            "seguro": "160000",
-            "flete": 11500,
-            "peso_real": 3,
-            "recaudo": "160000",
-            "peso_liquidar": 3,
-            "comision_trasportadora": 4960
-        },
-        "direccionR": "CALLE 2 NUMERO 10 36 EL PORTAL DE LOS PATIOS",
-        "tipo_doc_dest": "2",
-        "nombreR": "NATALIA MENDOZA",
-        "direccionD": "carrera 98 b bis 42 a sur 13 localidad kennedy  la ribera  ",
-        "peso": "3",
-        "identificacionD": "10998657768",
-        "telefonoD": "3053238384",
-        "ancho": "15",
-        "celularD": "3053238384",
-        "recoleccion_esporadica": 0,
-        "ciudadD": "BOGOTA"
-    }
-]
-
-const movs = [
-    {
-        "numeroGuia": "2118879519",
-        "fechaEnvio": "08/31/2021 14:32:00",
-        "fecha": "",
-        "nombreD": "sergio perez - may s ",
-        "id_heka": "324216624",
-        "estadoActual": "EN PROCESAMIENTO",
-        "movimientos": [
-            {
-                "IdViewCliente": "1",
-                "DesTipoMov": "",
-                "IdProc": "1",
-                "OriMov": "BOGOTA (CUNDINAMARCA)",
-                "FechaProb": "01/01/0001 00:00",
-                "IdConc": "0",
-                "NomMov": "GUIA GENERADA",
-                "DesMov": "BOGOTA (CUNDINAMARCA)",
-                "NomConc": "",
-                "TipoMov": "0",
-                "FecMov": "08/31/2021 14:32:00"
-            },
-            {
-                "FecMov": "09/01/2021 20:36:18",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO",
-                "OriMov": "CUCUTA (NORTE DE SANTANDER)",
-                "TipoMov": "0",
-                "IdConc": "0",
-                "IdProc": "6",
-                "IdViewCliente": "1",
-                "FechaProb": "12/01/2021 00:00",
-                "DesTipoMov": "",
-                "DesMov": "CUCUTA (NORTE DE SANTANDER)",
-                "NomConc": ""
-            },
-            {
-                "IdConc": "0",
-                "IdViewCliente": "1",
-                "NomMov": "SALIO A CIUDAD DESTINO",
-                "TipoMov": "0",
-                "DesTipoMov": "",
-                "FechaProb": "12/01/2021 00:00",
-                "IdProc": "12",
-                "FecMov": "09/01/2021 20:48:19",
-                "NomConc": "",
-                "DesMov": "MEDELLIN (ANTIOQUIA)",
-                "OriMov": "CUCUTA (NORTE DE SANTANDER)"
-            },
-            {
-                "IdViewCliente": "1",
-                "IdConc": "0",
-                "NomConc": "",
-                "DesMov": "MEDELLIN (ANTIOQUIA)",
-                "FecMov": "09/03/2021 08:23:12",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO",
-                "OriMov": "MEDELLIN (ANTIOQUIA)",
-                "DesTipoMov": "",
-                "FechaProb": "11/03/2021 00:00",
-                "IdProc": "14",
-                "TipoMov": "0"
-            },
-            {
-                "TipoMov": "0",
-                "FecMov": "09/04/2021 07:20:39",
-                "FechaProb": "12/04/2021 00:00",
-                "NomConc": "SALIDA A ZONA",
-                "IdProc": "9",
-                "DesMov": "MEDELLIN (ANTIOQUIA)",
-                "IdViewCliente": "1",
-                "DesTipoMov": "",
-                "NomMov": "EN ZONA DE DISTRIBUCION",
-                "OriMov": "MEDELLIN (ANTIOQUIA)",
-                "IdConc": "1"
-            },
-            {
-                "DesTipoMov": "DIRECCION ERRADA",
-                "FecMov": "09/04/2021 09:44:33",
-                "OriMov": "MEDELLIN (ANTIOQUIA)",
-                "IdConc": "19",
-                "NomConc": "DATOS ADICIONALES A LA DIRECCION",
-                "DesMov": "MEDELLIN (ANTIOQUIA)",
-                "TipoMov": "1",
-                "FechaProb": "12/04/2021 00:00",
-                "IdProc": "25",
-                "IdViewCliente": "1",
-                "NomMov": "NOTIFICACION DE DEVOLUCION"
-            },
-            {
-                "DesMov": "MEDELLIN (ANTIOQUIA)",
-                "NomConc": "DATOS ADICIONALES A LA DIRECCION",
-                "IdConc": "19",
-                "FecMov": "09/04/2021 15:25:50",
-                "IdProc": "10",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO POR DEVOLUCION",
-                "IdViewCliente": "1",
-                "OriMov": "MEDELLIN (ANTIOQUIA)",
-                "DesTipoMov": "DIRECCION ERRADA",
-                "TipoMov": "1",
-                "FechaProb": "12/04/2021 00:00"
-            },
-            {
-                "IdViewCliente": "1",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO POR DEVOLUCION",
-                "NomConc": "DATOS ADICIONALES A LA DIRECCION",
-                "IdConc": "19",
-                "FecMov": "09/04/2021 15:25:50",
-                "TipoMov": "1",
-                "FechaProb": "12/04/2021 00:00",
-                "DesTipoMov": "REHUSADO",
-                "OriMov": "MEDELLIN (ANTIOQUIA)",
-                "IdProc": "10",
-                "DesMov": "MEDELLIN (ANTIOQUIA)"
-            },
-            {
-                "NomConc": "C.O.D RECLAMO OFICINA",
-                "IdProc": "9",
-                "TipoMov": "0",
-                "FecMov": "09/06/2021 13:20:05",
-                "IdViewCliente": "1",
-                "NomMov": "EN ZONA DE DISTRIBUCION",
-                "OriMov": "MEDELLIN (ANTIOQUIA)",
-                "FechaProb": "11/06/2021 00:00",
-                "DesMov": "",
-                "IdConc": "4",
-                "DesTipoMov": ""
-            }
-        ],
-        "direccionD": "carrera 82 a 35 13 simon bolivar",
-        "ciudadD": "MEDELLIN - ANTIOQUIA"
-    },
-    {
-        "fechaEnvio": "08/31/2021 14:32:00",
-        "fecha": "09/11/2021 06:00:00",
-        "id_heka": "324216615",
-        "direccionD": "reclama en oficina .",
-        "numeroGuia": "2118879515",
-        "estadoActual": "ENTREGADO",
-        "movimientos": [
-            {
-                "NomMov": "GUIA GENERADA",
-                "DesTipoMov": "",
-                "DesMov": "BOGOTA (CUNDINAMARCA)",
-                "OriMov": "BOGOTA (CUNDINAMARCA)",
-                "IdViewCliente": "1",
-                "FechaProb": "01/01/0001 00:00",
-                "TipoMov": "0",
-                "FecMov": "08/31/2021 14:31:59",
-                "IdProc": "1",
-                "NomConc": "",
-                "IdConc": "0"
-            },
-            {
-                "FechaProb": "01/01/0001 00:00",
-                "IdConc": "0",
-                "DesMov": "CUCUTA (NORTE DE SANTANDER)",
-                "IdViewCliente": "1",
-                "IdProc": "6",
-                "TipoMov": "0",
-                "NomConc": "",
-                "FecMov": "08/31/2021 20:05:17",
-                "OriMov": "CUCUTA (NORTE DE SANTANDER)",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO",
-                "DesTipoMov": ""
-            },
-            {
-                "OriMov": "CUCUTA (NORTE DE SANTANDER)",
-                "TipoMov": "0",
-                "IdProc": "12",
-                "FechaProb": "01/01/0001 00:00",
-                "NomMov": "SALIO A CIUDAD DESTINO",
-                "IdViewCliente": "1",
-                "DesMov": "MEDELLIN (ANTIOQUIA)",
-                "IdConc": "0",
-                "DesTipoMov": "",
-                "NomConc": "",
-                "FecMov": "08/31/2021 21:36:03"
-            },
-            {
-                "DesMov": "MEDELLIN (ANTIOQUIA)",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO",
-                "IdProc": "14",
-                "IdViewCliente": "1",
-                "OriMov": "MEDELLIN (ANTIOQUIA)",
-                "FechaProb": "11/02/2021 00:00",
-                "TipoMov": "0",
-                "IdConc": "0",
-                "DesTipoMov": "",
-                "NomConc": "",
-                "FecMov": "09/02/2021 09:37:24"
-            },
-            {
-                "TipoMov": "0",
-                "DesTipoMov": "",
-                "NomMov": "EN ZONA DE DISTRIBUCION",
-                "IdConc": "4",
-                "FechaProb": "11/02/2021 00:00",
-                "FecMov": "09/02/2021 10:59:54",
-                "IdViewCliente": "1",
-                "NomConc": "C.O.D RECLAMO OFICINA",
-                "IdProc": "9",
-                "DesMov": "MEDELLIN (ANTIOQUIA)",
-                "OriMov": "MEDELLIN (ANTIOQUIA)"
-            },
-            {
-                "FecMov": "09/11/2021 06:00:00",
-                "FechaProb": "11/11/2021 00:00",
-                "NomConc": "",
-                "OriMov": "MEDELLIN (ANTIOQUIA)",
-                "TipoMov": "0",
-                "IdProc": "11",
-                "IdViewCliente": "1",
-                "DesTipoMov": "",
-                "DesMov": "MEDELLIN (ANTIOQUIA)",
-                "NomMov": "ENTREGA VERIFICADA",
-                "IdConc": "0"
-            }
-        ],
-        "ciudadD": "MEDELLIN - ANTIOQUIA",
-        "nombreD": "Leidy Alexandra Ruiz Echavarria sa "
-    },
-    {
-        "nombreD": "miguel angel tovar ramirez - sa ",
-        "id_heka": "324213716",
-        "direccionD": "carrera 6 4 50 centro",
-        "fecha": "",
-        "numeroGuia": "2118876764",
-        "estadoActual": "EN PROCESAMIENTO",
-        "ciudadD": "RIVERA - HUILA",
-        "fechaEnvio": "08/14/2021 11:52:00",
-        "movimientos": [
-            {
-                "NomMov": "GUIA GENERADA",
-                "TipoMov": "0",
-                "FecMov": "08/14/2021 11:51:36",
-                "NomConc": "",
-                "OriMov": "BOGOTA (CUNDINAMARCA)",
-                "DesMov": "BOGOTA (CUNDINAMARCA)",
-                "IdProc": "1",
-                "FechaProb": "01/01/0001 00:00",
-                "IdConc": "0",
-                "IdViewCliente": "1",
-                "DesTipoMov": ""
-            },
-            {
-                "IdProc": "6",
-                "FecMov": "08/14/2021 18:16:42",
-                "TipoMov": "0",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO",
-                "OriMov": "CUCUTA (NORTE DE SANTANDER)",
-                "IdViewCliente": "1",
-                "DesTipoMov": "",
-                "DesMov": "CUCUTA (NORTE DE SANTANDER)",
-                "NomConc": "",
-                "IdConc": "0",
-                "FechaProb": "01/01/0001 00:00"
-            },
-            {
-                "FechaProb": "01/01/0001 00:00",
-                "IdViewCliente": "1",
-                "DesMov": "BOGOTA (CUNDINAMARCA)",
-                "IdProc": "12",
-                "TipoMov": "0",
-                "IdConc": "0",
-                "FecMov": "08/14/2021 19:00:31",
-                "NomConc": "",
-                "OriMov": "CUCUTA (NORTE DE SANTANDER)",
-                "NomMov": "SALIO A CIUDAD DESTINO",
-                "DesTipoMov": ""
-            },
-            {
-                "DesTipoMov": "",
-                "DesMov": "BOGOTA (CUNDINAMARCA)",
-                "IdProc": "14",
-                "FechaProb": "01/01/0001 00:00",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO",
-                "NomConc": "",
-                "FecMov": "08/17/2021 01:02:09",
-                "IdViewCliente": "1",
-                "OriMov": "BOGOTA (CUNDINAMARCA)",
-                "IdConc": "0",
-                "TipoMov": "0"
-            },
-            {
-                "FecMov": "08/17/2021 21:02:23",
-                "TipoMov": "0",
-                "IdProc": "12",
-                "FechaProb": "01/01/0001 00:00",
-                "IdViewCliente": "1",
-                "NomConc": "",
-                "OriMov": "BOGOTA (CUNDINAMARCA)",
-                "DesTipoMov": "",
-                "IdConc": "0",
-                "NomMov": "SALIO A CIUDAD DESTINO",
-                "DesMov": "NEIVA (HUILA)"
-            },
-            {
-                "DesTipoMov": "",
-                "DesMov": "NEIVA (HUILA)",
-                "IdConc": "0",
-                "TipoMov": "0",
-                "IdViewCliente": "1",
-                "OriMov": "NEIVA (HUILA)",
-                "FechaProb": "01/01/0001 00:00",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO",
-                "IdProc": "14",
-                "NomConc": "",
-                "FecMov": "08/18/2021 05:29:24"
-            },
-            {
-                "NomConc": "SALIDA A ZONA",
-                "IdViewCliente": "1",
-                "IdConc": "1",
-                "FecMov": "08/18/2021 08:43:48",
-                "FechaProb": "01/01/0001 00:00",
-                "TipoMov": "0",
-                "DesMov": "TERUEL (HUILA)",
-                "DesTipoMov": "",
-                "IdProc": "9",
-                "OriMov": "NEIVA (HUILA)",
-                "NomMov": "EN ZONA DE DISTRIBUCION"
-            },
-            {
-                "NomConc": "SE TRASLADO",
-                "NomMov": "NOTIFICACION DE DEVOLUCION",
-                "DesMov": "NEIVA (HUILA)",
-                "TipoMov": "1",
-                "FechaProb": "01/01/0001 00:00",
-                "DesTipoMov": "NO RESIDE",
-                "IdViewCliente": "1",
-                "OriMov": "NEIVA (HUILA)",
-                "IdConc": "5",
-                "FecMov": "08/18/2021 10:43:00",
-                "IdProc": "25"
-            },
-            {
-                "DesTipoMov": "NO RECLAMADO",
-                "IdProc": "10",
-                "IdConc": "5",
-                "DesMov": "NEIVA (HUILA)",
-                "FechaProb": "01/01/0001 00:00",
-                "NomConc": "SE TRASLADO",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO POR DEVOLUCION",
-                "IdViewCliente": "1",
-                "OriMov": "NEIVA (HUILA)",
-                "TipoMov": "1",
-                "FecMov": "08/18/2021 19:21:21"
-            },
-            {
-                "NomConc": "SE TRASLADO",
-                "FechaProb": "01/01/0001 00:00",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO POR DEVOLUCION",
-                "DesTipoMov": "NO RESIDE",
-                "IdViewCliente": "1",
-                "TipoMov": "1",
-                "OriMov": "NEIVA (HUILA)",
-                "DesMov": "NEIVA (HUILA)",
-                "IdProc": "10",
-                "FecMov": "08/18/2021 19:21:21",
-                "IdConc": "5"
-            },
-            {
-                "IdConc": "9",
-                "OriMov": "NEIVA (HUILA)",
-                "DesMov": "RIVERA (HUILA)",
-                "DesTipoMov": "",
-                "TipoMov": "0",
-                "FechaProb": "01/01/0001 00:00",
-                "IdViewCliente": "1",
-                "NomConc": "EMPRESARIO SATELITE C.O.D. Y/O LPC",
-                "FecMov": "08/24/2021 09:06:37",
-                "IdProc": "9",
-                "NomMov": "EN ZONA DE DISTRIBUCION"
-            },
-            {
-                "IdViewCliente": "1",
-                "TipoMov": "0",
-                "FechaProb": "01/01/0001 00:00",
-                "IdConc": "0",
-                "NomConc": "",
-                "FecMov": "08/24/2021 11:05:38",
-                "OriMov": "NEIVA (HUILA)",
-                "IdProc": "31",
-                "DesTipoMov": "",
-                "DesMov": "RIVERA (HUILA)",
-                "NomMov": "ENVIO PARA ENTREGA EN OFICINA"
-            },
-            {
-                "NomMov": "INGRESO AL CENTRO LOGISTICO POR DEVOLUCION",
-                "OriMov": "RIVERA (HUILA)",
-                "IdConc": "7",
-                "DesMov": "RIVERA (HUILA)",
-                "DesTipoMov": "DIRECCION ERRADA",
-                "IdProc": "10",
-                "FechaProb": "01/01/0001 00:00",
-                "FecMov": "09/04/2021 14:50:06",
-                "TipoMov": "1",
-                "NomConc": "NO RECLAMO EN OFICINA",
-                "IdViewCliente": "1"
-            },
-            {
-                "NomConc": "NO RECLAMO EN OFICINA",
-                "FechaProb": "01/01/0001 00:00",
-                "OriMov": "RIVERA (HUILA)",
-                "DesMov": "RIVERA (HUILA)",
-                "IdProc": "10",
-                "IdViewCliente": "1",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO POR DEVOLUCION",
-                "DesTipoMov": "NO RECLAMADO",
-                "FecMov": "09/04/2021 14:50:06",
-                "IdConc": "7",
-                "TipoMov": "1"
-            },
-            {
-                "IdProc": "10",
-                "NomConc": "NO RECLAMO EN OFICINA",
-                "IdConc": "7",
-                "TipoMov": "1",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO POR DEVOLUCION",
-                "FechaProb": "01/01/0001 00:00",
-                "FecMov": "09/04/2021 14:50:06",
-                "OriMov": "RIVERA (HUILA)",
-                "DesMov": "RIVERA (HUILA)",
-                "DesTipoMov": "NO RESIDE",
-                "IdViewCliente": "1"
-            }
-        ]
-    },
-    {
-        "transportadora": "INTERRAPIDISIMO",
-        "estadoActual": "Viajando en Ruta Regional",
-        "fechaEnvio": "2/09/2021 3:11:17 p.m.",
-        "fecha": "2/09/2021 3:11:17 p.m.",
-        "numeroGuia": "230009514158",
-        "movimientos": [
-            {
-                "Motivo": "",
-                "Observacion": "CARGA MASIVA DE MENSAJERIA",
-                "Usuario": "cliente.cetina",
-                "Descripcion Tipo Impreso": "",
-                "Numero Tipo Impreso": "",
-                "Descripcion Estado": "Envío Admitido",
-                "Ciudad": "LOS PATIOS\\NORT\\COL",
-                "Fecha Cambio Estado": "31/08/2021 2:36:47 p.m.",
-                "Mensajero": "",
-                " ": ""
-            },
-            {
-                "Descripcion Tipo Impreso": "",
-                "Descripcion Estado": "Ingresado a Bodega",
-                "Numero Tipo Impreso": "",
-                "Motivo": "",
-                "Observacion": "",
-                "Ciudad": "CUCUTA",
-                "Mensajero": "",
-                "Usuario": "alexisjsayagom",
-                " ": "",
-                "Fecha Cambio Estado": "31/08/2021 6:52:36 p.m."
-            },
-            {
-                "Observacion": "",
-                "Ciudad": "CUCUTA",
-                "Usuario": "alexisjsayagom",
-                "Descripcion Tipo Impreso": "",
-                "Descripcion Estado": "Viajando en Ruta Nacional",
-                "Numero Tipo Impreso": "",
-                "Mensajero": "",
-                " ": "",
-                "Motivo": "",
-                "Fecha Cambio Estado": "31/08/2021 6:57:49 p.m."
-            },
-            {
-                "Descripcion Estado": "Ingresado a Bodega",
-                "Usuario": "DarwinsonGBlanco",
-                "Numero Tipo Impreso": "",
-                "Ciudad": "BUCARAMANGA",
-                "Observacion": "",
-                "Descripcion Tipo Impreso": "",
-                "Fecha Cambio Estado": "1/09/2021 5:24:20 p.m.",
-                "Motivo": "",
-                "Mensajero": "",
-                " ": ""
-            },
-            {
-                "Mensajero": "",
-                "Fecha Cambio Estado": "1/09/2021 5:24:21 p.m.",
-                "Motivo": "",
-                " ": "",
-                "Observacion": "",
-                "Descripcion Estado": "Viajando en Ruta Nacional",
-                "Ciudad": "BUCARAMANGA",
-                "Numero Tipo Impreso": "",
-                "Descripcion Tipo Impreso": "",
-                "Usuario": "DarwinsonGBlanco"
-            },
-            {
-                " ": "",
-                "Mensajero": "",
-                "Fecha Cambio Estado": "2/09/2021 10:44:56 a.m.",
-                "Usuario": "JohnJMorenoP",
-                "Numero Tipo Impreso": "",
-                "Descripcion Estado": "Ingresado a Bodega",
-                "Ciudad": "MEDELLIN",
-                "Observacion": "",
-                "Motivo": "",
-                "Descripcion Tipo Impreso": ""
-            },
-            {
-                "Numero Tipo Impreso": "",
-                "Fecha Cambio Estado": "2/09/2021 3:11:17 p.m.",
-                " ": "",
-                "Ciudad": "MEDELLIN",
-                "Observacion": "",
-                "Descripcion Tipo Impreso": "",
-                "Descripcion Estado": "Viajando en Ruta Regional",
-                "Motivo": "",
-                "Usuario": "mauricioguzmang",
-                "Mensajero": ""
-            }
-        ],
-        "id_heka": "324216597"
-    },
-    {
-        "movimientos": [
-            {
-                "NomMov": "GUIA GENERADA",
-                "DesMov": "BOGOTA (CUNDINAMARCA)",
-                "FecMov": "04/30/2021 14:56:51",
-                "IdConc": "0",
-                "IdViewCliente": "1",
-                "FechaProb": "01/01/0001 00:00",
-                "DesTipoMov": "",
-                "NomConc": "",
-                "OriMov": "BOGOTA (CUNDINAMARCA)",
-                "TipoMov": "0",
-                "IdProc": "1"
-            },
-            {
-                "FechaProb": "01/01/0001 00:00",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO",
-                "IdViewCliente": "1",
-                "IdProc": "6",
-                "OriMov": "CUCUTA (NORTE DE SANTANDER)",
-                "IdConc": "0",
-                "NomConc": "",
-                "DesMov": "CUCUTA (NORTE DE SANTANDER)",
-                "TipoMov": "0",
-                "DesTipoMov": "",
-                "FecMov": "04/30/2021 17:30:45"
-            },
-            {
-                "DesMov": "BUCARAMANGA (SANTANDER)",
-                "IdViewCliente": "1",
-                "DesTipoMov": "",
-                "IdConc": "0",
-                "FechaProb": "01/01/0001 00:00",
-                "NomMov": "SALIO A CIUDAD DESTINO",
-                "NomConc": "",
-                "OriMov": "CUCUTA (NORTE DE SANTANDER)",
-                "TipoMov": "2",
-                "IdProc": "12",
-                "FecMov": "04/30/2021 19:58:24"
-            },
-            {
-                "DesMov": "BUCARAMANGA (SANTANDER)",
-                "IdProc": "14",
-                "IdConc": "0",
-                "IdViewCliente": "1",
-                "FecMov": "05/03/2021 15:17:39",
-                "FechaProb": "08/03/2021 00:00",
-                "TipoMov": "0",
-                "NomConc": "",
-                "DesTipoMov": "",
-                "OriMov": "BUCARAMANGA (SANTANDER)",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO"
-            },
-            {
-                "FechaProb": "08/03/2021 00:00",
-                "IdViewCliente": "1",
-                "TipoMov": "2",
-                "IdConc": "0",
-                "NomConc": "",
-                "IdProc": "12",
-                "NomMov": "SALIO A CIUDAD DESTINO",
-                "OriMov": "BUCARAMANGA (SANTANDER)",
-                "DesTipoMov": "",
-                "DesMov": "BARRANQUILLA (ATLANTICO)",
-                "FecMov": "05/03/2021 19:45:06"
-            },
-            {
-                "TipoMov": "0",
-                "IdProc": "14",
-                "DesMov": "BARRANQUILLA (ATLANTICO)",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO",
-                "DesTipoMov": "",
-                "NomConc": "",
-                "IdConc": "0",
-                "FecMov": "05/05/2021 09:55:10",
-                "IdViewCliente": "1",
-                "FechaProb": "07/05/2021 00:00",
-                "OriMov": "BARRANQUILLA (ATLANTICO)"
-            },
-            {
-                "FechaProb": "07/07/2021 00:00",
-                "IdViewCliente": "1",
-                "NomMov": "EN ZONA DE DISTRIBUCION",
-                "IdProc": "9",
-                "FecMov": "05/07/2021 03:17:24",
-                "IdConc": "9",
-                "DesTipoMov": "",
-                "DesMov": "BOSCONIA (CESAR)",
-                "TipoMov": "0",
-                "NomConc": "EMPRESARIO SATELITE C.O.D. Y/O LPC",
-                "OriMov": "BARRANQUILLA (ATLANTICO)"
-            },
-            {
-                "IdViewCliente": "1",
-                "TipoMov": "0",
-                "DesMov": "EL COPEY (CESAR)",
-                "NomMov": "ENVIO PARA ENTREGA EN OFICINA",
-                "FecMov": "05/07/2021 09:16:02",
-                "FechaProb": "07/07/2021 00:00",
-                "IdConc": "0",
-                "OriMov": "BARRANQUILLA (ATLANTICO)",
-                "NomConc": "",
-                "DesTipoMov": "",
-                "IdProc": "31"
-            },
-            {
-                "TipoMov": "1",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO POR DEVOLUCION",
-                "FechaProb": "07/07/2021 00:00",
-                "DesTipoMov": "DIRECCION ERRADA",
-                "IdViewCliente": "1",
-                "NomConc": "NO PRESTAMOS SERVICIO",
-                "FecMov": "05/07/2021 16:57:38",
-                "IdConc": "2",
-                "OriMov": "EL COPEY (CESAR)",
-                "DesMov": "EL COPEY (CESAR)",
-                "IdProc": "10"
-            },
-            {
-                "DesMov": "EL COPEY (CESAR)",
-                "TipoMov": "1",
-                "IdViewCliente": "1",
-                "FecMov": "05/07/2021 16:57:38",
-                "FechaProb": "07/07/2021 00:00",
-                "DesTipoMov": "OTROS",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO POR DEVOLUCION",
-                "NomConc": "NO PRESTAMOS SERVICIO",
-                "OriMov": "EL COPEY (CESAR)",
-                "IdProc": "10",
-                "IdConc": "2"
-            },
-            {
-                "NomConc": "NO PRESTAMOS SERVICIO",
-                "DesTipoMov": "DIRECCION ERRADA",
-                "FechaProb": "01/01/0001 00:00",
-                "OriMov": "BARRANQUILLA (ATLANTICO)",
-                "IdConc": "2",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO POR DEVOLUCION",
-                "IdProc": "10",
-                "TipoMov": "1",
-                "FecMov": "05/19/2021 12:18:14",
-                "DesMov": "BARRANQUILLA (ATLANTICO)",
-                "IdViewCliente": "1"
-            },
-            {
-                "NomConc": "NO PRESTAMOS SERVICIO",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO POR DEVOLUCION",
-                "FechaProb": "01/01/0001 00:00",
-                "FecMov": "05/19/2021 12:18:14",
-                "OriMov": "BARRANQUILLA (ATLANTICO)",
-                "DesTipoMov": "OTROS",
-                "TipoMov": "1",
-                "IdProc": "10",
-                "IdViewCliente": "1",
-                "DesMov": "BARRANQUILLA (ATLANTICO)",
-                "IdConc": "2"
-            },
-            {
-                "IdProc": "9",
-                "DesMov": "EL DIFICIL (MAGDALENA)",
-                "DesTipoMov": "",
-                "IdViewCliente": "1",
-                "FechaProb": "01/01/0001 00:00",
-                "NomConc": "EMPRESARIO SATELITE C.O.D. Y/O LPC",
-                "OriMov": "BARRANQUILLA (ATLANTICO)",
-                "NomMov": "EN ZONA DE DISTRIBUCION",
-                "IdConc": "9",
-                "TipoMov": "0",
-                "FecMov": "05/21/2021 03:16:03"
-            },
-            {
-                "DesTipoMov": "",
-                "FecMov": "05/21/2021 08:53:10",
-                "FechaProb": "01/01/0001 00:00",
-                "IdConc": "0",
-                "NomConc": "",
-                "DesMov": "EL COPEY (CESAR)",
-                "OriMov": "BARRANQUILLA (ATLANTICO)",
-                "IdProc": "31",
-                "NomMov": "ENVIO PARA ENTREGA EN OFICINA",
-                "IdViewCliente": "1",
-                "TipoMov": "0"
-            },
-            {
-                "IdViewCliente": "1",
-                "OriMov": "BARRANQUILLA (ATLANTICO)",
-                "FecMov": "06/15/2021 21:46:27",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO POR DEVOLUCION",
-                "NomConc": "NO HAY QUIEN RECIBA",
-                "DesMov": "BARRANQUILLA (ATLANTICO)",
-                "IdConc": "4",
-                "DesTipoMov": "",
-                "FechaProb": "01/01/0001 00:00",
-                "TipoMov": "0",
-                "IdProc": "10"
-            },
-            {
-                "NomMov": "SALIO A CIUDAD DESTINO",
-                "OriMov": "BARRANQUILLA (ATLANTICO)",
-                "FecMov": "06/16/2021 01:59:45",
-                "NomConc": "",
-                "FechaProb": "01/01/0001 00:00",
-                "DesMov": "BUCARAMANGA (SANTANDER)",
-                "IdProc": "12",
-                "IdViewCliente": "1",
-                "TipoMov": "2",
-                "DesTipoMov": "",
-                "IdConc": "0"
-            },
-            {
-                "DesTipoMov": "",
-                "FechaProb": "01/01/0001 00:00",
-                "OriMov": "BUCARAMANGA (SANTANDER)",
-                "FecMov": "06/16/2021 17:56:27",
-                "IdConc": "0",
-                "IdProc": "14",
-                "DesMov": "BUCARAMANGA (SANTANDER)",
-                "NomConc": "",
-                "TipoMov": "0",
-                "IdViewCliente": "1",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO"
-            },
-            {
-                "IdProc": "12",
-                "OriMov": "BUCARAMANGA (SANTANDER)",
-                "TipoMov": "0",
-                "IdConc": "0",
-                "FecMov": "06/16/2021 23:04:03",
-                "FechaProb": "01/01/0001 00:00",
-                "DesTipoMov": "",
-                "IdViewCliente": "1",
-                "NomMov": "SALIO A CIUDAD DESTINO",
-                "NomConc": "",
-                "DesMov": "CUCUTA (NORTE DE SANTANDER)"
-            },
-            {
-                "DesMov": "CUCUTA (NORTE DE SANTANDER)",
-                "NomConc": "",
-                "DesTipoMov": "",
-                "FecMov": "06/17/2021 08:14:58",
-                "IdViewCliente": "1",
-                "IdProc": "14",
-                "NomMov": "INGRESO AL CENTRO LOGISTICO",
-                "OriMov": "CUCUTA (NORTE DE SANTANDER)",
-                "TipoMov": "0",
-                "IdConc": "0",
-                "FechaProb": "01/01/0001 00:00"
-            },
-            {
-                "NomMov": "EN ZONA DE DISTRIBUCION",
-                "IdViewCliente": "1",
-                "DesMov": "CUCUTA (NORTE DE SANTANDER)",
-                "IdConc": "1",
-                "FecMov": "06/17/2021 09:12:44",
-                "TipoMov": "0",
-                "IdProc": "9",
-                "NomConc": "SALIDA A ZONA",
-                "OriMov": "CUCUTA (NORTE DE SANTANDER)",
-                "FechaProb": "01/01/0001 00:00",
-                "DesTipoMov": ""
-            },
-            {
-                "TipoMov": "0",
-                "OriMov": "CUCUTA (NORTE DE SANTANDER)",
-                "IdProc": "11",
-                "IdViewCliente": "1",
-                "FechaProb": "01/01/0001 00:00",
-                "DesMov": "CUCUTA (NORTE DE SANTANDER)",
-                "NomConc": "",
-                "DesTipoMov": "",
-                "IdConc": "0",
-                "FecMov": "06/17/2021 21:00:54",
-                "NomMov": "ENTREGA VERIFICADA"
-            }
-        ],
-        "ciudadD": "EL COPEY - CESAR",
-        "nombreD": "luz elena cardona mosquera - yo ",
-        "numeroGuia": "2102567626",
-        "fecha": "06/17/2021 21:00:54",
-        "estadoActual": "ENTREGADO",
-        "id_heka": "1102",
-        "direccionD": "mz 6 casa16 villa azul",
-        "fechaEnvio": "04/30/2021 14:57:00"
-    }
-]
-
-
-
-movs.forEach((mov, i) => {
-    tablaMovimientosGuias(mov, pruebaGuia[i], "usuario", pruebaGuia[i].id_heka, "id_user")
-})
