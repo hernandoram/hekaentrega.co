@@ -976,7 +976,6 @@ function actualizarEstado(){
                                 .update({
                                     numeroGuia,
                                     estado: x.estado_envio,
-                                    seguimiento_finalizado: false
                                 })
                                 .then(() => {
                                     // console.log(id + " Actualizada exitósamente");

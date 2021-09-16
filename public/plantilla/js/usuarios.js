@@ -515,13 +515,17 @@ $("#buscador_usuarios-nombre, #buscador_usuarios-direccion").keyup(e => {
 // esta funcion me busca el usuario seleccionado con informacion un poco mas detallada
 function seleccionarUsuario(id){
     let type = ["personal", "bancaria", "heka"], n = 0;
+
     while(n < 3){
         firebase.firestore().collection("usuarios").doc(id).collection("informacion").doc(type[n]).get()
         .then((doc) => {
             if (doc.exists) {
                 mostrarDatosPersonales(doc.data(), doc.id);
             } else {
-                // doc.data() will be undefined in this case
+                // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
+                //Hasta que todos los usuario futuramente tengan el doc "heka"
+                limpiarFormulario("#informacion-heka", "input")
+                $("#habilitar_servientrega").prop("checked", true);
                 console.log("No such document!");
             }
         }).catch((error) => {
@@ -598,6 +602,16 @@ function asignarValores(data, query) {
     }
 }
 
+function limpiarFormulario(parent, query) {
+    $(parent).find(query).each((i, e) => {
+        if($(e).attr("type") === "checkbox") {
+            return $(e).prop("checked", false);
+        }
+
+        $(e).val("")
+    })
+}
+
 function actualizarInformacionPersonal() {
     let datos = {
         nombres: value("actualizar_nombres"), 
@@ -668,8 +682,10 @@ async function actualizarInformacionHeka() {
     });
 
     $("#informacion-heka").find("[name]").each((i, el) => {
-        const value = $(el).attr("name");
-        datos[value] = $(el).val();
+        const campo = $(el).attr("name");
+        const value = $(el).val();
+        
+        datos[campo] = value;
     });
 
     console.log(datos)
@@ -682,6 +698,7 @@ async function actualizarInformacionHeka() {
 
     let mensaje = "";
 
+    let exists = false;
     let saldo = await reference.get().then(doc => {
         detalles = {
             saldo: parseInt($("#actualizar_saldo").attr("data-saldo")),
@@ -697,6 +714,7 @@ async function actualizarInformacionHeka() {
             medio: "Administrador: " + localStorage.user_id
         }
         if(doc.exists) {
+            exists = true;
             let s = parseInt(doc.data().saldo);
             const afirmar_saldo_anterior = detalles.saldo_anterior;
             detalles.saldo_anterior = s;
@@ -722,8 +740,8 @@ async function actualizarInformacionHeka() {
         return avisar("No permitido", "Se detecta un saldo negativo, por favor justifica el saldo canjeado en deudas, o contace al desarrollador para agregar una excepción.", "advertencia")
     };
     // return console.log(datos, saldo)
-    reference.set(datos)
-    .then(() => {
+
+    reference.set(datos).then(() => {
         if(saldo.saldo_anterior === saldo.saldo) return;
         firebase.firestore().collection("prueba").add(saldo)
         .then((docRef1)=> {
@@ -751,9 +769,7 @@ async function actualizarInformacionHeka() {
 }
 
 
-/*****************
-    ******************* ATENTO CON ESTA PARTE DEL CÓDIGO *****************
-**********************/
+/* Para ver los movimientos en efectivo de los usuarios */
 
 async function verMovimientos(usuario, fechaI, fechaF){
     document.getElementById("card-movimientos").innerHTML = "";
