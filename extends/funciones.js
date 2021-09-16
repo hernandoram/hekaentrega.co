@@ -36,6 +36,14 @@ exports.actualizarEstado = async (doc, toUpdate) => {
 }
 
 exports.actualizarMovimientos = async (doc, toUpdate) => {
+  const ultimo_mov = toUpdate.movimientos[toUpdate.movimientos.length - 1];
+
+  toUpdate.transportadora = doc.data().transportadora || "SERVIENTREGA";
+  toUpdate.centro_de_costo = doc.data().centro_de_costo;
+  toUpdate.id_heka = doc.id;
+
+  toUpdate.mostrar_usuario = Boolean(revisarNovedad(ultimo_mov, doc.data().transportadora));
+
   return await doc.ref.parent.parent.collection("estadoGuias")
   .doc(doc.id)
   // .get()
@@ -53,4 +61,14 @@ exports.actualizarMovimientos = async (doc, toUpdate) => {
       guia: doc.id + " / " + doc.data().numeroGuia
     };
   });
+}
+
+
+/** FUNCIONES */
+function revisarNovedad(mov, transp) {
+  if(transp === "INTERRAPIDISIMO") {
+      return mov.Motivo;
+  } else {
+      return mov.TipoMov === "1";
+  }
 }
