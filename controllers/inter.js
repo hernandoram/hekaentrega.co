@@ -52,12 +52,13 @@ async function scrapEstados(numeroGuia, tipoconsulta) {
     const url = "http://reportes.interrapidisimo.com/Reportes/ExploradorEnvios/ExploradorEnvios.aspx?keyInter=1)";
 
     const browser = await puppeteer.launch();
+    try {
         const page = await browser.newPage();
         console.log("accediendo a la página");
         await page.goto(url);
-    
+
         console.log("Escribiendo el numero de guia");
-        await page.type("#tbxNumeroGuia", numeroGuia);
+        await page.type("#tbxNumeroGuia", numeroGuia.toString());
         console.log("presionando el botón de buscar");
         await page.click("#btnShow");
 
@@ -71,10 +72,10 @@ async function scrapEstados(numeroGuia, tipoconsulta) {
         const novedades = await page.evaluate(retornarDetalles, "#TabContainer2_TabPanel18_gvNovedadesGuia");
         const caja = await page.evaluate(retornarDetalles, "#TabContainer2_TabPanel21_GridViewAfectCaja")
 
-    
-        console.log("Cerrando navegador")
+
         await browser.close();
-       
+        console.log("Navegador cerrado")
+        
         let respuesta = {
             estado, flujo, novedades, caja
         };
@@ -98,6 +99,14 @@ async function scrapEstados(numeroGuia, tipoconsulta) {
         }
 
         return respuesta;
+    } catch (e) {
+        console.log("Hubo un error con puppeteer")
+        console.log(e);
+        console.log(numeroGuia)
+        await browser.close();
+
+    }
+    
 }
 
 const actualizarMovimientos = async function(doc) {
@@ -119,10 +128,13 @@ const actualizarMovimientos = async function(doc) {
             movimientos: consulta.flujo // movimientos registrados por la transportadora
         };
 
+        let finalizar_seguimiento = doc.data().prueba ? true : false
+
         updte_estados = await extsFunc.actualizarEstado(doc, {
             estado: consulta.estado['Ultimo Estado'],
             ultima_actualizacion: new Date(),
             seguimiento_finalizado: estados_finalizacion.some(v => consulta.estado["Gestion del Envio"] === v)
+                || finalizar_seguimiento
         });
         
         updte_movs = await extsFunc.actualizarMovimientos(doc, movimientos);

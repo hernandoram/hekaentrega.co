@@ -366,7 +366,7 @@ async function actualizarMovimientos(doc) {
           }
           let movimientos = data.Mov[0].InformacionMov;
           // console.log(data);
-
+          let finalizar_seguimiento = doc.data().prueba ? true : false
           /*Respuesta a la actualización de los estados,
           ésta me actualiza el estado actual que manifiesta la guía, si el seguimiento
           fue finalizado, y la fecha de actualización*/
@@ -375,6 +375,7 @@ async function actualizarMovimientos(doc) {
             estado: data.EstAct[0],
             ultima_actualizacion: new Date(),
             seguimiento_finalizado: movimiento_culminado.some(v => v === data.EstAct[0])
+            || finalizar_seguimiento
           })
 
           let upte_movs;
