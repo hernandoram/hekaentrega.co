@@ -537,6 +537,10 @@ function descargarExcelInter(JSONData, ReportTitle, type) {
                 fromData = dat.ciudadD + "/" + dat.departamentoD;
             }
 
+            if(dat.type === "CONVENCIONAL" && fromData === "valor") {
+                fromData = dat.seguro;
+            }
+
             d[headExcel] = dat[fromData] || fromData;
         });
         console.log(d);

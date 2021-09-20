@@ -26,8 +26,9 @@ cron.schedule("0 0 * * 0", () => {
 });
 
 // actualizarMovimientosGuias(new Date()).then((detalles) => {
-//     console.log(159, detalles);
-//     //  firebase.firestore().collection("reporte").add(detalles);
+//     console.log("DETALLES DE ACTUALIZACIÓN: ", detalles);
+//      firebase.firestore().collection("reporte").add(detalles);
+//      process.exit();
 // });
 async function actualizarMovimientosGuias(d, general) {
     let inicio_func = new Date().getTime();

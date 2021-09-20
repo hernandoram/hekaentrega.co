@@ -856,7 +856,8 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
             </button>
         `;
     } else {
-        btnGestionar = extraData.novedad_solucionada ? "Revisar" : "Gestionar";
+        btnGestionar = extraData.novedad_solucionada 
+        || extraData.transportadora === "INTERRAPIDISIMO" ? "Revisar" : "Gestionar";
     }
     tr.innerHTML = `
         <td>${data.numeroGuia}</td>
@@ -1113,11 +1114,15 @@ function gestionarNovedadModal(dataN, dataG) {
             </div>
         `,
         gestionar = `
-        <div class="col mb-3">
-            <p>Escribe aquí tu solución a la novedad</p>
-            <textarea type="text" class="form-control" name="solucion-novedad" id="solucion-novedad-${dataN.numeroGuia}"></textarea>
-            <button class="btn btn-success m-2" id="solucionar-novedad-${dataN.numeroGuia}">Enviar Solución</button>
-        </div>
+            <div class="col mb-3">
+            ${ dataG.transportadora === "INTERRAPIDISIMO" ? 
+                `<p>La transportadora Interrapidisimo llamará a destinatario y/o remitente para gestionar las novedades de tus envíos</p>` 
+                : `
+                    <p>Escribe aquí tu solución a la novedad</p>
+                    <textarea type="text" class="form-control" name="solucion-novedad" id="solucion-novedad-${dataN.numeroGuia}"></textarea>
+                    <button class="btn btn-success m-2" id="solucionar-novedad-${dataN.numeroGuia}">Enviar Solución</button>
+                `}
+            </div>
         `;
 
     info_gen.classList.add("row");
