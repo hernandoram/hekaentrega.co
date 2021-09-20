@@ -139,6 +139,10 @@ async function actualizarMovimientosGuias(d, general) {
         return consulta;
     } catch (error) {
         console.log(error);
+        firebase.firestore().collection("reporte").add({
+            error,
+            mensaje: "Hubo un error al actualizar."
+        })
         console.log("Hubo un error,es probable que no se haya actualizado nada.")
     }
 }

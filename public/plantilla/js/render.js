@@ -105,12 +105,15 @@ function tablaDeGuias(id, datos){
         <td>${id}</td>
         <td></td>
         <td></td>
+        <td>${datos.nombreD}</td>
+        <td>
+            <a class="btn btn-light d-flex align-items-baseline" href="https://api.whatsapp.com/send?phone=57${datos.telefonoD.toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i> ${datos.telefonoD}</a>
+            <a class="btn btn-light d-flex align-items-baseline" href="https://api.whatsapp.com/send?phone=57${datos.celularD.toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i> ${datos.celularD}</a>
+        </td>
         <td>${datos.transportadora || "SERVIENTREGA"}</td>
         <td>${datos.type || "Pago Contraentrega"}</td>
         <td>${datos.fecha}</td>
-        <td>${datos.nombreR}</td>
         <td>${datos.ciudadD}</td>
-        <td>${datos.nombreD}</td>
         <td>$${convertirMiles(datos.seguro || datos.valor)}</td>
         <td>$${convertirMiles(datos.valor)}</td>
         <td>$${convertirMiles(datos.costo_envio)}</td>

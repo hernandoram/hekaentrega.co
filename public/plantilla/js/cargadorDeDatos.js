@@ -223,34 +223,31 @@ function historialGuias(){
     }
 
     referencefilter.get().then((querySnapshot) => {
-      var tabla=[];
       if(document.getElementById('tabla-guias')){
         inHTML("tabla-guias", "");
       }  
-      querySnapshot.forEach((doc) => {
-          tabla.push(tablaDeGuias(doc.id, doc.data()));
-          console.log(doc.data().timeline);
-          let activar_botones = true;
-          //Habilita y deshabilita los checks de la tabla de guias
-          reference.doc(doc.id).onSnapshot((row) => {
-            if(row.exists) {
-              activarBotonesDeGuias(row.id, row.data(), activar_botones);
-              
-              document.getElementById("historial-guias-row" + row.id).children[3].textContent = row.data().numeroGuia || "";
-              document.getElementById("historial-guias-row" + row.id).children[4].textContent = row.data().estado;
-              activar_botones = false;
-            }
-          });
-      });
 
       var contarExistencia=0;
-      for(let i=tabla.length-1;i>=0;i--){
-        
-        if(document.getElementById('tabla-guias')){
-          printHTML('tabla-guias',tabla[i]);
-        }
-        contarExistencia++;
-      }
+
+      querySnapshot.forEach((doc) => {
+        const row = tablaDeGuias(doc.id, doc.data());
+
+        printHTML('tabla-guias', row);
+
+        contarExistencia ++;
+        let activar_botones = true;
+        //Habilita y deshabilita los checks de la tabla de guias
+        reference.doc(doc.id).onSnapshot((row) => {
+          if(row.exists) {
+            activarBotonesDeGuias(row.id, row.data(), activar_botones);
+            
+            document.getElementById("historial-guias-row" + row.id).children[3].textContent = row.data().numeroGuia || "";
+            document.getElementById("historial-guias-row" + row.id).children[4].textContent = row.data().estado;
+            activar_botones = false;
+          }
+        });
+      });
+
 
       //si no encuentra guias...
       if(contarExistencia==0){
