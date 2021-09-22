@@ -9,6 +9,7 @@ if(localStorage.getItem("acceso_admin")){
   location.href = "iniciarSesion2.html"
 }
 
+
 //Administradara datos basicos del usuario que ingresa
 let datos_usuario = {},
 //Almacena los costos de envios (nacional, urbano...) y el porcentaje de comision
@@ -227,10 +228,31 @@ function historialGuias(){
         inHTML("tabla-guias", "");
       }  
 
-      var contarExistencia=0;
+      let [generadas, finalizadas, anuladas, enProceso, contarExistencia] = [0,0,0,0,0]
+     
+      const estGeneradas = ["Envío Admitido", "RECIBIDO DEL CLIENTE", "Enviado", "", undefined];
+      const estAnuladas = ["Documento Anulado"];
 
       querySnapshot.forEach((doc) => {
-        const row = tablaDeGuias(doc.id, doc.data());
+        const data = doc.data();
+        let filter = ""
+        if(estGeneradas.some(v => data.estado === v)) {
+          generadas ++
+          filter = "generada";
+        } else if (data.seguimiento_finalizado) {
+          finalizadas ++
+          filter = "finalizada";
+        } else if (estAnuladas[0] === data.estado) {
+          anuladas ++
+          filter = "anulada";
+        } else {
+          enProceso ++
+          filter = "en proceso";
+        }
+
+        data.filtrar = filter;
+
+        const row = tablaDeGuias(doc.id, data);
 
         printHTML('tabla-guias', row);
 
@@ -248,6 +270,18 @@ function historialGuias(){
         });
       });
 
+      $(".generadas > span").text(generadas);
+      $(".en-proceso > span").text(enProceso);
+      $(".finalizadas > span").text(finalizadas);
+      $(".anuladas > span").text(anuladas);
+      $(".todas > span").text(contarExistencia);
+
+      const btnsFilter = $(".hist-guias-filter");
+
+      btnsFilter.addClass("btn-secondary");
+      $(".todas").removeClass("btn-secondary")
+      btnsFilter.removeClass("btn-primary");
+      $(".todas").addClass("btn-primary")
 
       //si no encuentra guias...
       if(contarExistencia==0){
@@ -273,7 +307,12 @@ function historialGuias(){
             language: {
               url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
             },
-            lengthMenu: [ [-1, 10, 25, 50, 100], ["Todos", 10, 25, 50, 100] ]
+            scrollY: '50vh',
+            scrollX: true,
+            scrollCollapse: true,
+            paging: false,
+            lengthMenu: [ [-1, 10, 25, 50, 100], ["Todos", 10, 25, 50, 100] ],
+            initComplete: clasificarGuias
           });
         });
       }
@@ -282,6 +321,21 @@ function historialGuias(){
       $("#btn-buscar-guias").html("Buscar")
     });
   } 
+}
+
+//Para clasificarme las guías por estados
+function clasificarGuias() {
+  const api = this.api();
+  const btnsFilter = $(".hist-guias-filter");
+  btnsFilter.click(function() {
+    const filtrador = this.getAttribute("data-filtrar");
+    btnsFilter.addClass("btn-secondary");
+    $(this).removeClass("btn-secondary")
+    btnsFilter.removeClass("btn-primary");
+    $(this).addClass("btn-primary")
+
+    api.search(filtrador).draw();
+  })
 }
 
 //Habilitado por una función en Manejador guias, me envia un excel al /excel_to_json en index.js y me devuelve un Json

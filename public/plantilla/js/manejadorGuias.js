@@ -276,6 +276,7 @@ let documento = [], guias = [];
 
 //muestra los documento al admin y le otorga funcionalidad a los botones
 function cargarDocumentos(filter) {
+    $("#statistics-filter-user").remove();
     $("#buscador-documentos").html(`
         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
         Cargando...
@@ -306,13 +307,14 @@ function cargarDocumentos(filter) {
         let users = new Array();
         let counter_guias = 0;
         let counter_convencional = 0, counter_pagoContraentrega = 0;
+        let [counter_inter, counter_servi] = [0,0];
         
         let docs = querySnapshot.docs;
         docs.sort((a,b) => b.data().timeline - a.data().timeline);
 
         docs.forEach((doc) => {
             doc.data().type == "CONVENCIONAL" ? counter_convencional++ : counter_pagoContraentrega ++
-            if(!users.includes(doc.data().id_user)) users.push(doc.data().id_user);
+            if(!users.includes(doc.data().centro_de_costo)) users.push(doc.data().centro_de_costo);
             counter_guias += doc.data().guias.length;
             
             if(doc.data().descargar_relacion_envio || doc.data().descargar_guias){
@@ -335,13 +337,27 @@ function cargarDocumentos(filter) {
             } else {
                 documentos.innerHTML += mostrarDocumentos(doc.id, doc.data());
             }
+
+            switch(doc.data().transportadora) {
+                case "INTERRAPIDISIMO":
+                    counter_inter++
+                    break;
+                default:
+                    counter_servi++
+            }
         })
         showStatistics("#mostrador-documentos", [
             ["Usuarios", users.length, "users"],
             ["Guías / Documentos", counter_guias +" / "+ querySnapshot.size, "file-alt"],
             ["Pago Contraentrega", counter_pagoContraentrega, "hand-holding-usd"],
-            ["Convencional", counter_convencional, "hand-holding"]
-        ])
+            ["Convencional", counter_convencional, "hand-holding"],
+            ["Interrapidísimo", counter_inter, "truck"],
+            ["Servientrega", counter_servi, "truck"],
+        ]);
+        
+        filtrarDocsPorUsuarioAdmin(users);
+        habilitarOtrosFiltrosDeDocumentosAdmin();
+
     }).then(() => {
         //Luego de cargar todo, agrega funciones a los botones
         let botones = document.querySelectorAll('[data-funcion="descargar"]');
@@ -421,17 +437,27 @@ llame el método
 */
 function showStatistics(query, arr, insertAfter) {
     let html = document.querySelector(query);
-    let div = document.createElement("div");
-    div.setAttribute("id", "mostrador-total-" + query)
-    div.classList.add("row");
+    const complement = "-" + query.replace(/[^\w||-]/ig, "");
+    console.log(complement)
+    let splide = document.createElement("div");
+    splide.setAttribute("id", "statistics" + complement)
+    splide.classList.add("splide", "mb-3");
 
-    if(document.getElementById("mostrador-total-" + query)){
-        div = document.getElementById("mostrador-total-" + query);
+    let div = document.createElement("div");
+    div.classList.add("splide__track");
+
+    if(document.getElementById("statistics" + complement)){
+        splide = document.getElementById("statistics" + complement);
     }
 
-    div.innerHTML = "";
+    splide.innerHTML = "";
+    let ul = document.createElement("ul");
+    ul.classList.add("row", "splide__list")
+    splide.append(div);
+    div.append(ul);
+
     for(let card of arr) {
-       div.innerHTML  += `<div class="col-12 col-sm-6 col-md mb-4">
+       ul.innerHTML  += `<li class="tarjeta splide__slide">
             <div class="card border-left-${card[3] || "primary"} shadow h-100 py-2">
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
@@ -446,13 +472,89 @@ function showStatistics(query, arr, insertAfter) {
                     </div>
                 </div>
             </div>
-        </div>`
+        </li>`
     }
     
     if(insertAfter) {
-        html.appendChild(div);
+        html.appendChild(splide);
     } else {
-        html.parentNode.insertBefore(div, html)
+        html.parentNode.insertBefore(splide, html)
+    }
+
+    new Splide("#statistics" + complement, {
+        perPage: 4,
+        gap: 4,
+        easing: "ease",
+        breakpoints: {
+            640: {
+                perPage: 2,
+            },
+            380: {
+                perPage: 1
+            }
+        }
+    }).mount();
+}
+
+function filtrarDocsPorUsuarioAdmin(usuarios) {
+    usuarios.sort();
+    const userCard = $("#statistics-mostrador-documentos .tarjeta:first-child");
+    let userContainer = document.createElement("div");
+    userContainer.classList.add("list-group", "position-absolute", "shadow-lg");
+    userContainer.setAttribute("id", "statistics-filter-user");
+    userContainer.setAttribute("style", "width: fit-content; z-index: 1; max-width: 300px; display: none")
+    userContainer.innerHTML = `<button type="button" class="list-group-item list-group-item-action active" aria-current="true">
+        Filtrar por usuario <span class="float-right">&times;</span>
+    </button>`;
+
+    const userSelectors = document.createElement("div");
+    userSelectors.classList.add("overflow-auto")
+    userSelectors.setAttribute("style", "height: 50vh")
+    userContainer.appendChild(userSelectors)
+
+    usuarios.forEach(user => {
+        const userBtn = document.createElement("button");
+        userBtn.setAttribute("type", "button");
+        userBtn.setAttribute("class", "list-group-item list-group-item-action text-truncate");
+        userBtn.innerHTML = user;
+        userBtn.onclick = (e) => {
+            const filtrador = e.target.textContent;
+            const documento = $(".document-filter");
+            
+            documento.hide();
+            $("[data-filter_user="+filtrador+"]").show("slow");
+        }
+
+        userSelectors.appendChild(userBtn);
+    });
+
+    $("#statistics-mostrador-documentos").after(userContainer);
+    userCard.click(() => {
+        $(userContainer).toggle("fast")
+    });
+
+    $(userContainer).click(() => {
+        $(userContainer).hide();
+    });
+}
+
+function habilitarOtrosFiltrosDeDocumentosAdmin() {
+    const pagoContraentregaCard = $("#statistics-mostrador-documentos .tarjeta:nth-child(3)");
+    const pagoConvencionalCard = $("#statistics-mostrador-documentos .tarjeta:nth-child(4)");
+    const interCard = $("#statistics-mostrador-documentos .tarjeta:nth-child(5)");
+    const serviCard = $("#statistics-mostrador-documentos .tarjeta:nth-child(6)");
+    
+    pagoContraentregaCard.click(() => filtrar("PAGOCONTRAENTREGA", "type"));
+    pagoConvencionalCard.click(() => filtrar("CONVENCIONAL", "type"));
+    interCard.click(() => filtrar("INTERRAPIDISIMO", "transportadora"));
+    serviCard.click(() => filtrar("SERVIENTREGA", "transportadora"));
+    
+    function filtrar(valor, param) {
+        const filtrador = valor
+        const documento = $(".document-filter");
+        
+        documento.hide();
+        $("[data-filter_"+param+"="+filtrador+"]").show("slow");
     }
 }
 
@@ -1389,8 +1491,10 @@ function consultarGuiaFb(id_user, id, data, usuario = "Movimientos", contador, t
             }
        }).then(() => {
            if(contador == total_consulta) {
-               $("#cargador-novedades").addClass("d-none");
-               const table = $("#tabla-estadoGuias-"+usuario.replace(/\s/g, "")).DataTable();
+            $("#cargador-novedades").addClass("d-none");
+            let table = $("#tabla-estadoGuias-"+usuario.replace(/\s/g, ""));
+
+            table = table.DataTable();
            }
        })
    } else {
@@ -1684,6 +1788,7 @@ async function historialGuiasAdmin() {
 
     let data = await firebase.firestore().collectionGroup("guias").orderBy("timeline")
     .startAt(new Date(fechaI).getTime()).endAt(new Date(fechaF).getTime() + 8.64e+7)
+    .limit(10)
     .get().then(querySnapshot => {
         let res = new Array()
         console.log(querySnapshot.size);
@@ -1709,7 +1814,9 @@ async function historialGuiasAdmin() {
         columns: [
             { data: "id_heka", title: "# Guía Heka"},
             { data: "numeroGuia", title: "# Guía Servientrega", defaultContent: ""},
+            { data: "estado", title: "Estado"},
             { data: "centro_de_costo", title: "Centro de Costo" },
+            { data: "transportadora", title: "Transportadora", defaultContent: "Servientrega", visible: false},
             { data: "detalles.comision_heka", title: "Comisión Heka"},
             { data: "detalles.comision_trasportadora", title: "Comisión Transportadora"},
             { data: "detalles.flete", title: "Flete"},
@@ -1724,6 +1831,30 @@ async function historialGuiasAdmin() {
             filename: nombre,
             title: encabezado
         }],
+        initComplete: function() {
+            const api = this.api();
+            const tabla = $(this);
+            tabla.before("<h5>Mostrar/ocultar Columnas</h5>")
+            api.columns().header().each((val, i) => {
+                const column = api.column(i);
+                const visible = column.visible();
+                const boton = document.createElement("span");
+                boton.classList.add("badge", "text-truncate", "m-1", "p-1");
+                boton.style.cursor = "pointer";
+                boton.classList.add(visible ? "badge-info" : "badge-secondary");
+                
+                $(boton).click((e) => {
+                    const badge = e.target;
+                    column.visible(!column.visible());
+                    $(badge).toggleClass("badge-info");
+                    $(badge).toggleClass("badge-secondary");
+                })
+
+                boton.textContent = val.textContent;
+                tabla.before(boton);
+            });
+            
+        }
         // action: function() {}
     });
 

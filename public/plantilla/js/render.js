@@ -54,7 +54,8 @@ function tablaDeGuias(id, datos){
         data-costo_envio="${datos.costo_envio}"
         data-debe=${datos.debe}
     >
-        <td>
+        <td 
+        data-search="${datos.filtrar}">
             <div class="form-check text-center">
                 <input class="form-check-input position-static" type="checkbox" value="option1" 
                 data-id="${id}" data-numeroGuia="${datos.numeroGuia}"
@@ -107,7 +108,7 @@ function tablaDeGuias(id, datos){
         <td></td>
         <td>${datos.nombreD}</td>
         <td>
-            <a class="btn btn-light d-flex align-items-baseline" href="https://api.whatsapp.com/send?phone=57${datos.telefonoD.toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i> ${datos.telefonoD}</a>
+            <a class="btn btn-light d-flex align-items-baseline mb-1" href="https://api.whatsapp.com/send?phone=57${datos.telefonoD.toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i> ${datos.telefonoD}</a>
             <a class="btn btn-light d-flex align-items-baseline" href="https://api.whatsapp.com/send?phone=57${datos.celularD.toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i> ${datos.celularD}</a>
         </td>
         <td>${datos.transportadora || "SERVIENTREGA"}</td>
@@ -212,7 +213,11 @@ function mostrarUsuarios(data, id){
 
 //Retorna una tarjeta con informacion del documento por id
 function mostrarDocumentos(id, data, tipo_aviso) {
-    return `<div class="col-sm-6 col-lg-4 mb-4">
+    return `<div class="col-sm-6 col-lg-4 mb-4 document-filter" 
+    data-filter_user="${data.centro_de_costo}"
+    data-filter_transportadora="${data.transportadora || "SERVIENTREGA"}"
+    data-filter_type="${data.type ? data.type.replace(/\s/g, "") : "PAGOCONTRAENTREGA"}"
+    >
     <div class="card shadow h-100" id="${id}">
         <h6 class='text-center card-header'>${data.transportadora || "Servientrega"}</h6>
 
@@ -825,6 +830,8 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         <th class="${classHead}">Números</th>
         <th class="${classHead}">Destino</th>
         <th class="${classHead}">Movimiento</th>
+        <th class="${classHead}">Gestión</th>
+        
     </tr>`
     
     encabezado.setAttribute("href", "#estadoGuias-" + usuario.replace(/\s/g, ""));  
@@ -908,6 +915,10 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         
         <td>
             ${ultimo_movimiento[mov.descripcionMov]}
+        </td>
+        
+        <td style="min-width:250px; max-width:300px">
+            ${ultimo_seguimiento.gestion || "No aplica"}
         </td>
         
     `;
@@ -1045,7 +1056,6 @@ function buscarMomentoNovedad(movimientos, transp) {
         }
     }
 
-    console.log(movimiento)
     return movimiento;
 }
 
@@ -1090,8 +1100,9 @@ function gestionarNovedadModal(dataN, dataG) {
                 </div>
                 <div class="card-body">
                     <p>Nombre: <span>${dataG.nombreR}</span></p>
+                    ${administracion ? 
+                        `<p>Centro de Costo: <span>${dataG.centro_de_costo}</span></p>` : ""}
                     <p>Direccion: <span>${dataG.direccionR}</span></p>
-                    ${administracion ? `<p>Centro de Costo: <span>${dataG.centro_de_costo}</span></p>` : ""}
                     <p>Ciudad: <span>${dataG.ciudadR}</span></p>
                     <p>teléfono: <span>${dataG.celularR}</span></p>
                 </div>
