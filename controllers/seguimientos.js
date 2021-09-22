@@ -8,6 +8,7 @@ const interrapidisimoCtrl = require("./inter");
 
 cron.schedule("00 */6 * * *", () => {
   let d = new Date();
+  firebase.firestore().collection("reporte").add({mensaje: "Comenzó el cron de actualización de guías"})
   console.log("Se Actualizaron los movimientos de las guías: ", d);
   actualizarMovimientosGuias(d).then((detalles) => {
     console.log(detalles);
@@ -17,7 +18,7 @@ cron.schedule("00 */6 * * *", () => {
 
 cron.schedule("0 0 * * 0", () => {
   let d = new Date();
-  console.log("Se Actualizaron los movimientos de las guías: ", d);
+  console.log("Se Actualizaron los movimientos semanales de las guías: ", d);
   actualizarMovimientosGuias(d, true).then((detalles) => {
     console.log(detalles);
     detalles.actulización_semanal = true;
@@ -130,8 +131,8 @@ async function actualizarMovimientosGuias(d, general) {
         consulta.mensaje = `Se han actualizado: los estados de ${consulta.guias_est_actualizado.length} Guias, 
         los movimientos de ${consulta.guias_mov_actualizado.length} Guias.
         Hubo errores en ${consulta.guias_con_errores.length} Guias.
-        De un total de ${consulta.total_consulta} registradas cuyo estado son diferentes a 
-        "Entregado" y "Entregado a Remitente" en ${consulta.usuarios.length} usuarios.
+        De un total de ${consulta.total_consulta} registradas cuyo proceso no haya
+        sido finalizado en ${consulta.usuarios.length} usuarios.
         Tiempo de ejecución: ${consulta.tiempo_ejecucion}`;
         
         // console.log("246",consulta);

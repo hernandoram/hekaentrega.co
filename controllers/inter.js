@@ -103,8 +103,9 @@ async function scrapEstados(numeroGuia, tipoconsulta) {
         console.log("Hubo un error con puppeteer")
         console.log(e);
         console.log(numeroGuia)
-        await browser.close();
 
+        await browser.close();
+        return false;
     }
     
 }
@@ -114,6 +115,7 @@ const actualizarMovimientos = async function(doc) {
     const consulta = await scrapEstados(doc.data().numeroGuia);
     let updte_estados, updte_movs;
     try {
+        if(!consulta) throw " Hubo un error en el scrap de estados"
         const estados_finalizacion = ["Documento Anulado", "Entrega Exitosa", "Devuelto al Remitente"];
         const ultimo_estado = consulta.flujo[consulta.flujo.length - 1];
         const movimientos = {
