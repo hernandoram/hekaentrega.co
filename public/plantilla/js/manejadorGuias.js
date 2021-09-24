@@ -452,7 +452,7 @@ function showStatistics(query, arr, insertAfter) {
 
     splide.innerHTML = "";
     let ul = document.createElement("ul");
-    ul.classList.add("row", "splide__list")
+    ul.classList.add("row", "splide__list");
     splide.append(div);
     div.append(ul);
 
@@ -485,6 +485,10 @@ function showStatistics(query, arr, insertAfter) {
         perPage: 4,
         gap: 4,
         easing: "ease",
+        classes: {
+            prev: "splide__arrow--prev ml-n3 bg-transparent",
+            next: "splide__arrow--next mr-n3 bg-transparent"
+        },
         breakpoints: {
             640: {
                 perPage: 2,
@@ -1788,7 +1792,6 @@ async function historialGuiasAdmin() {
 
     let data = await firebase.firestore().collectionGroup("guias").orderBy("timeline")
     .startAt(new Date(fechaI).getTime()).endAt(new Date(fechaF).getTime() + 8.64e+7)
-    .limit(10)
     .get().then(querySnapshot => {
         let res = new Array()
         console.log(querySnapshot.size);
@@ -1923,6 +1926,19 @@ async function generarRotulo(id_guias) {
     table.appendChild(tbody);
     div.appendChild(table);
 
+    var element = div
+    var opt = {
+    margin:       0,
+    filename:     'myfile.pdf',
+    image:        { type: 'jpeg', quality: 0.98 },
+    html2canvas:  { scale: 2 },
+    pagebreak: {mode: "avoid-all"},
+    // jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    // New Promise-based usage:
+    // html2pdf().set(opt).from(element).save();
+
     w = window.open();
     w.document.write(`<html><head>
         <meta charset="utf-8">
@@ -1940,5 +1956,143 @@ async function generarRotulo(id_guias) {
     setTimeout(() => {
         w.print();
         w.close();
-    }, 100)
+    }, 500)
 };
+
+
+function crearManifiestoInter(numeroGuias) {
+    
+    const guiasPerPage = 26; // Para utilizar la librería de pdf en su tamaño por defecto, la cant. optimo es de 16
+    let div = "";
+    const numberOfPages = Math.ceil(numeroGuias.length / guiasPerPage);
+    let pageNumber = 1;
+
+    const organizarTablaGuias = (numeroGuias) => {
+        let tabla = "";
+        numeroGuias.forEach(guia => {
+            tabla += `<tr><td>${guia}</td></tr>`;
+        })
+        return tabla
+    }
+    const page = (listaGuias) => `
+    
+    <div class="page">
+
+            <div class="row">
+              <h2 class="text-center col-12 mt-4">CONSOLIDADO DE ENVÍOS</h2>
+            </div>
+            <div class="row">
+              <div class="col m-3 p-2 d-flex justify-content-center align-items-center border"><img height="70px" src="./img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg" alt="log de heka"></div>
+              <div class="col m-3 p-2 d-flex justify-content-center align-items-center border"><img height="70px" src="./img/logo-inter2.png" alt="logo inter"></div>
+            </div>
+
+            <div class="row">
+              <div class="col-4">
+                <table class="table table-bordered text-gray-900">
+                  <tr><th class="text-center">Número de guía</th></tr>
+                  
+                  ${listaGuias}
+                  
+                </table>
+              </div>
+              <div class="col-8">
+                <div class="h-100 d-flex flex-column justify-content-around">
+                  <div class="my-3">
+                    <div class="card">
+                      <div class="card-header text-center"><h4>Datos transportadora / oficina</h4></div>
+                      <div class="card-body">
+                        <div class="d-flex flex-column justify-content-between" style="height: 250px;">
+                          <div>
+                            <p class="w-100 d-flex"><b>Nombre funcionario: </b> <span class="col ml-2" style="border-bottom: solid 1px #3a3b45;"></span></p>
+                            <p class="w-100 d-flex"><b>Fecha: </b> <span class="col ml-2" style="border-bottom: solid 1px #3a3b45;"></span></p>
+                          </div>
+                          <div>
+                            <p class="w-100 d-flex mt-6"><b>Firma y/o sello: </b> <span class="col ml-2" style="border-bottom: solid 1px #3a3b45;"></span></p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div class="my-3">
+                    <div class="card">
+                      <div class="card-header text-center"><h4>Datos transportadora / oficina</h4></div>
+                      <div class="card-body">
+                        <div class="d-flex flex-column justify-content-between" style="height: 250px;">
+                          <div>
+                            <p class="w-100 d-flex"><b>Nombre funcionario: </b> <span class="col ml-2" style="border-bottom: solid 1px #3a3b45;"></span></p>
+                            <p class="w-100 d-flex"><b>Fecha: </b> <span class="col ml-2" style="border-bottom: solid 1px #3a3b45;"></span></p>
+                          </div>
+                          <div>
+                            <p class="w-100 d-flex mt-6"><b>Firma y/o sello: </b> <span class="col ml-2" style="border-bottom: solid 1px #3a3b45;"></span></p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          
+          </div>`;
+
+    const inicio = `<!DOCTYPE html>
+    <html lang="es">
+        <head>
+            <meta charset="utf-8">
+            <meta http-equiv="X-UA-Compatible" content="IE=edge">
+            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+            <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
+
+            <link href="css/sb-admin-2.min.css" rel="stylesheet">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+            
+            <title>Rótulo Heka</title>
+        </head>
+        <body><div class="container">
+        <div class="container-fluid text-gray-900 m-3">`;
+
+    const final = "</div></div></body></html>";
+
+    while(pageNumber <= numberOfPages) {
+        const guiaInicial = pageNumber - 1 * guiasPerPage;
+        const guiaFinal = pageNumber * guiasPerPage;
+        const guias = numeroGuias.splice(guiaInicial, guiaFinal);
+        div += page(organizarTablaGuias(guias));
+
+        pageNumber++
+    }
+
+    w = window.open();
+    w.document.write(inicio);
+    w.document.write(div);
+    w.document.write(final);
+    w.document.close();
+    w.focus();
+    setTimeout(() => {
+        
+
+        
+        var element = w.document.querySelector(".container > .container-fluid");
+        var opt = {
+            margin:       0,
+            filename:     'myfile.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            pagebreak: {mode: "css", after: ".page"},
+            // jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        
+        // New Promise-based usage:
+        html2pdf().set(opt).from(element).outputPdf().then(d => {
+            openPdfFromBase64(w.btoa(d));
+            // w.print();
+            // w.close();
+        });
+
+        // html2pdf().set(opt).from(element).save();
+    }, 100)
+  
+}
