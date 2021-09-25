@@ -1542,3 +1542,10 @@ function diferenciaDeTiempo(inicial, final) {
     return Math.floor(diff / (1000*60*60*24));
 
 }
+
+function getDateRangeMs(idInicial, idFinal) {
+    let fecha_inicio = Date.parse(document.getElementById(idInicial).value.replace(/\-/g, "/")),
+        fecha_final = Date.parse(document.getElementById(idFinal).value.replace(/\-/g, "/")) + 8.64e7;
+
+    return [fecha_inicio, fecha_final];
+}

@@ -956,6 +956,10 @@ function descargarDocumentos(id_doc){
 // funcion que, dependiendo de las situaciones abre una pestaña para mostrarme el manifiesto
 // Recive como parametro el doc devuelto por firebase
 function descargarManifiesto(doc) {
+    Swal.fire({
+        icon: "info",
+        text: "Para descarga los manifiestos de inter rapidísimo, debe ingresar a \"Manifiesto inter\", buscar filtrando por fecha y seleccionar las guías que desea gestionar para crearlo."
+    });
     let nombre_relacion = doc.data().nombre_relacion ? doc.data().nombre_relacion : "relacion envio" + doc.data().guias.toString();
     if (doc.data().nombre_relacion){
         
@@ -967,6 +971,11 @@ function descargarManifiesto(doc) {
     } else if(doc.data().base64Manifiesto) {
         let base64 = doc.data().base64Manifiesto;
         openPdfFromBase64(base64);
+    } else if (doc.data().transportadora === "INTERRAPIDISIMO") {
+        Swal.fire({
+            icon: "info",
+            text: "Para descarga los manifiestos de inter rapidísimo, debe ingresar a \"Manifiesto inter\", buscar filtrando por fecha y seleccionar las guías que desea gestionar para crearlo."
+        });
     } else {
         doc.ref.collection("manifiestoSegmentado")
         .get().then(querySnapshot => {
@@ -1817,7 +1826,7 @@ async function historialGuiasAdmin() {
         columns: [
             { data: "id_heka", title: "# Guía Heka"},
             { data: "numeroGuia", title: "# Guía Servientrega", defaultContent: ""},
-            { data: "estado", title: "Estado"},
+            { data: "estado", title: "Estado", defaultContent: ""},
             { data: "centro_de_costo", title: "Centro de Costo" },
             { data: "transportadora", title: "Transportadora", defaultContent: "Servientrega", visible: false},
             { data: "detalles.comision_heka", title: "Comisión Heka"},
@@ -1959,8 +1968,137 @@ async function generarRotulo(id_guias) {
     }, 500)
 };
 
+$("#buscar-guias_inter").click(buscarGuiasInter);
+function buscarGuiasInter() {
+    $("#cargador-guias_inter").removeClass("d-none")
+    const [fechaI, fechaF] = getDateRangeMs("fecha_inicio-guias_inter", "fecha_final-guias_inter");
+
+    const reference = usuarioDoc.collection("guias").orderBy("timeline", "desc").
+    startAt(fechaF).endAt(fechaI)
+    .where("transportadora", "==", "INTERRAPIDISIMO")
+    // .limit(10)
+
+    if(!this.getAttribute("data-table_initialized")) {
+        incializarTablaTablaGuiasInter();
+        this.setAttribute("data-table_initialized", true);
+    }
+    
+    const tabla = $("#tabla-guias_inter").DataTable();
+    // return;
+    reference.get().then(querySnapshot => {
+        const size = querySnapshot.size;
+        if(size) {
+            $("#mostrador-guias_inter").show("fast");
+            $("#sin-guias_inter").hide("slow");
+        } else {
+            $("#mostrador-guias_inter").hide("slow");
+            $("#sin-guias_inter").show("fast");
+        }
+
+        tabla.clear();
+
+        querySnapshot.forEach(doc => {
+            if(doc.data().numeroGuia) {
+                tabla.rows.add([doc.data()]);
+            }
+        })
+
+        tabla.draw();
+        
+
+        
+        $("#cargador-guias_inter").addClass("d-none")
+    })
+}
+
+function agregarFilaGuiasInter() {
+    $("#tabla-guias_inter").DataTable().rows.add([{
+        "id_heka": "# Guía Heka",
+        "transportadora": "Fecha creación",
+        "fecha": "Fecha Saldada" ,
+        "type": "Tipo Guía" ,
+        "valor": "Cant. Saldada"
+    }]).draw()
+}
+
+function incializarTablaTablaGuiasInter() {
+    const tabla = $("#tabla-guias_inter").DataTable({
+        destroy: true,
+        language: {
+            url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
+        },
+        lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "Todos"] ],
+        columnDefs: [
+            {
+                render: function(data,type,row) {
+                    let result = "";
+                    let n = 1
+                    let telefono = data;
+                    while (n <= 1) {
+                        result += `<a class="btn btn-light d-flex align-items-baseline mb-1" 
+                        href="https://api.whatsapp.com/send?phone=57${telefono.toString().replace(/\s/g, "")}" 
+                        target="_blank">
+                            <i class="fab fa-whatsapp mr-1" style="color: #25D366"></i> 
+                            ${telefono}
+                        </a>`
+
+                        telefono = row.celularD
+                        n++;
+                    }
+                    return result;
+                },
+                targets: 5
+            }
+            
+        ],
+        columns: [
+            { data: "id_heka", title: "# Guía Heka"},
+            { data: "numeroGuia", title: "# Guía transportadora"},
+            { data: "estado", title: "Estado" },
+            { data: "type", title: "Tipo"},
+            { data: "nombreD", title: "Nombre" },
+            { data: "telefonoD", title: "Telefonos"},
+            { data: "fecha", title: "Fecha generación"},
+            { data: "ciudadD", title: "Ciudad Dest."},
+            { data: "seguro", title: "Seguro"},
+            { data: "valor", title: "Recaudo"},
+            { data: "costo_envio", title: "Costo de envío"},
+        ],
+        scrollY: "50vh",
+        scrollX: true,
+    });
+
+    const btn_crear_manifiesto = $("#crear-manifiesto-guias_inter");
+    const mostrador_guias_seleccionadas = $('[aria-describedby="crear-manifiesto-guias_inter"]')
+
+    tabla.on( 'click', 'tr', function (e) {
+        if(e.target.parentNode.nodeName !== "TR") return;
+        
+        $(this).toggleClass('selected bg-gray-300');
+        
+        mostrador_guias_seleccionadas.val(guiasSeleccionadas());
+    } );
+
+    btn_crear_manifiesto.click(() => {
+        crearManifiestoInter(guiasSeleccionadas());
+    })
+
+    function guiasSeleccionadas() {
+        let guias = new Array();
+        tabla.rows(".selected").data().each((d, o) => {
+            guias.push(d.numeroGuia)
+        });
+        return guias;
+    }
+    console.log(tabla);
+
+}
 
 function crearManifiestoInter(numeroGuias) {
+    if(!numeroGuias || !numeroGuias.length) return new Toast({
+        icon: "error",
+        title: "Debes seleccionar las guías antes de crear la relación"
+    });
     
     const guiasPerPage = 26; // Para utilizar la librería de pdf en su tamaño por defecto, la cant. optimo es de 16
     let div = "";
@@ -2071,9 +2209,9 @@ function crearManifiestoInter(numeroGuias) {
     w.document.write(final);
     w.document.close();
     w.focus();
+    
+    
     setTimeout(() => {
-        
-
         
         var element = w.document.querySelector(".container > .container-fluid");
         var opt = {
@@ -2086,13 +2224,11 @@ function crearManifiestoInter(numeroGuias) {
         };
         
         // New Promise-based usage:
-        html2pdf().set(opt).from(element).outputPdf().then(d => {
-            openPdfFromBase64(w.btoa(d));
-            // w.print();
-            // w.close();
-        });
-
-        // html2pdf().set(opt).from(element).save();
+        // html2pdf().set(opt).from(element).outputPdf().then(d => {
+        //     // openPdfFromBase64(w.btoa(d));
+        // });
+        w.print();
+        w.close();
     }, 100)
   
 }
