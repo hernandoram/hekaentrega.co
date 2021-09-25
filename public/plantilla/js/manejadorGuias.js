@@ -956,10 +956,6 @@ function descargarDocumentos(id_doc){
 // funcion que, dependiendo de las situaciones abre una pestaña para mostrarme el manifiesto
 // Recive como parametro el doc devuelto por firebase
 function descargarManifiesto(doc) {
-    Swal.fire({
-        icon: "info",
-        text: "Para descarga los manifiestos de inter rapidísimo, debe ingresar a \"Manifiesto inter\", buscar filtrando por fecha y seleccionar las guías que desea gestionar para crearlo."
-    });
     let nombre_relacion = doc.data().nombre_relacion ? doc.data().nombre_relacion : "relacion envio" + doc.data().guias.toString();
     if (doc.data().nombre_relacion){
         
@@ -974,7 +970,7 @@ function descargarManifiesto(doc) {
     } else if (doc.data().transportadora === "INTERRAPIDISIMO") {
         Swal.fire({
             icon: "info",
-            text: "Para descarga los manifiestos de inter rapidísimo, debe ingresar a \"Manifiesto inter\", buscar filtrando por fecha y seleccionar las guías que desea gestionar para crearlo."
+            text: "Para descargar los manifiestos de inter rapidísimo, debe ingresar a \"Manifiesto inter\", buscar filtrando por fecha y seleccionar las guías que desea gestionar para crearlo."
         });
     } else {
         doc.ref.collection("manifiestoSegmentado")

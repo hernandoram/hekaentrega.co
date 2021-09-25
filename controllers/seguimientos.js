@@ -80,7 +80,7 @@ async function actualizarMovimientosGuias(d, general) {
         //Itero entre todos los registros de guías encontrados
         for await (let doc of resultado.docs) {
             //Verifico que exista un número de guía
-            if (doc.data().numeroGuia || doc.data().transportadora !== "INTERRAPIDISIMO") {
+            if (doc.data().numeroGuia) {
                 if (consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
                     consulta.usuarios.push(doc.data().centro_de_costo);
                 }
@@ -148,6 +148,7 @@ async function actualizarMovimientosGuias(d, general) {
             mensaje: "Hubo un error al actualizar."
         })
         console.log("Hubo un error,es probable que no se haya actualizado nada.")
+        return error;
     }
 }
 

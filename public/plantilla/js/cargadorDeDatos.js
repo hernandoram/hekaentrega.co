@@ -642,6 +642,11 @@ $("#btn-revisar_pagos").click(async(e) => {
   document.querySelector("#cargador-pagos").classList.remove("d-none");
   let fechaI, fechaF, buscador="REMITENTE", busqueda = "", guia, tipo = "!="
   
+  if(!administracion){
+    tipo = "=="
+    busqueda = datos_usuario.centro_de_costo
+  }
+
   if($("#fecha-pagos").css("display") != "none"){
     fechaI = new Date($("#filtro-fechaI").val()).getTime();
     fechaF = new Date($("#filtro-fechaF").val()).getTime();
@@ -668,13 +673,15 @@ $("#btn-revisar_pagos").click(async(e) => {
   }
 
   if (transportadoras.length == 0){
-    transportadoras = ["servientrega", "envía", "tcc"]; 
+    transportadoras = ["servientrega", "envía", "tcc", "interrapidisimo"]; 
   }
 
   let response = []
+  let consulta = 0
   for await(let busqueda_trans of transportadoras) {
     await firebase.firestore().collection("pagos").doc(busqueda_trans).collection("pagos").where(buscador, tipo, busqueda).get()
     .then((querySnapshot) => {
+      consulta += querySnapshot.size;
       querySnapshot.forEach((doc) => {
         let data = doc.data();
         let fecha_estandar = doc.data().FECHA.split("-").reverse().join("-")
@@ -688,10 +695,12 @@ $("#btn-revisar_pagos").click(async(e) => {
           response.push(data)
         }
       });
+
       if(!administracion){
         response = response.filter((d) => d.REMITENTE == datos_usuario.centro_de_costo);
       }
     })
+    console.log("total consulta", consulta)
     console.log(busqueda_trans);
   }
   if(administracion) {
