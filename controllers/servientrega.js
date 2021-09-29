@@ -4,10 +4,12 @@ const parseString = require("xml2js").parseString;
 const DOMParser = require("xmldom").DOMParser;
 const {PDFDocument} = require("pdf-lib");
 
-const firebase = require("../firebase");
+const firebase = require("../keys/firebase");
 const db = firebase.firestore();
 
 const extsFunc = require("../extends/funciones");
+
+const {UsuarioPrueba, Credenciales} = require("../keys/serviCredentials")
 
 // const storage = firebase.storage();
 
@@ -16,30 +18,30 @@ const extsFunc = require("../extends/funciones");
 // router.use(bodyParser.json());
 
 const rastreoEnvios = "http://sismilenio.servientrega.com/wsrastreoenvios/wsrastreoenvios.asmx";
-const generacionGuias = "http://web.servientrega.com:8081/generacionguias.asmx";
-const genGuiasPrueba = "http://190.131.194.159:8059/GeneracionGuias.asmx";
-const id_cliente = "1072497419"
+const generacionGuias = Credenciales.url_generar_guias;
+const genGuiasPrueba = UsuarioPrueba.url_generar_guias;
+const id_cliente = "1072497419";
 
 const auth_header_prueba = `<tem:AuthHeader>
-<tem:login>Luis1937</tem:login>
-<tem:pwd>MZR0zNqnI/KplFlYXiFk7m8/G/Iqxb3O</tem:pwd>
-<tem:Id_CodFacturacion>SER408</tem:Id_CodFacturacion>
+<tem:login>${UsuarioPrueba.login}</tem:login>
+<tem:pwd>${UsuarioPrueba.password}</tem:pwd>
+<tem:Id_CodFacturacion>${UsuarioPrueba.id_codFacturacion}</tem:Id_CodFacturacion>
 <tem:Nombre_Cargue></tem:Nombre_Cargue><!--AQUI VA EL NOMBRE DEL
 CARGUE APARECERÁ EN SISCLINET-->
 </tem:AuthHeader>`;
 
 const auth_header_convencional = `<tem:AuthHeader>
-<tem:login>1072497419</tem:login>
-<tem:pwd>Tb8Hb+NLWsc=</tem:pwd>
-<tem:Id_CodFacturacion>SER122989</tem:Id_CodFacturacion>
+<tem:login>${Credenciales.Conv.login}</tem:login>
+<tem:pwd>${Credenciales.Conv.password}</tem:pwd>
+<tem:Id_CodFacturacion>${Credenciales.Conv.id_codFacturacion}</tem:Id_CodFacturacion>
 <tem:Nombre_Cargue></tem:Nombre_Cargue><!--AQUI VA EL NOMBRE DEL
 CARGUE APARECERÁ EN SISCLINET-->
 </tem:AuthHeader>`;
 
 const auth_header_pagoContraentrega = `<tem:AuthHeader>
-<tem:login>1072497419SUC1</tem:login>
-<tem:pwd>NuBQAVjagIbdvqINzxg5lQ==</tem:pwd>
-<tem:Id_CodFacturacion>SER122990</tem:Id_CodFacturacion>
+<tem:login>${Credenciales.PgCon.login}</tem:login>
+<tem:pwd>${Credenciales.PgCon.password}</tem:pwd>
+<tem:Id_CodFacturacion>${Credenciales.PgCon.id_codFacturacion}</tem:Id_CodFacturacion>
 <tem:Nombre_Cargue></tem:Nombre_Cargue><!--AQUI VA EL NOMBRE DEL
 CARGUE APARECERÁ EN SISCLINET-->
 </tem:AuthHeader>`
@@ -132,6 +134,7 @@ exports.generarManifiesto = async (req, res) => {
   
     if(!base64) {
       campos_actualizados.descargar_relacion_envio = false;
+      campos_actualizados.important = true;
     };
   
     res.send(base64);
@@ -469,6 +472,7 @@ function generarGuia(datos) {
                 <Ide_Producto>2</Ide_Producto><!--ENVÍO CON MERCACÍA PREMIER-->
                 <Des_FormaPago>2</Des_FormaPago>
                 <Ide_Num_Identific_Dest>${datos.identificacionD}</Ide_Num_Identific_Dest>
+                <CentroCosto>${datos.prueba ? "" : datos.centro_de_costo}</CentroCosto>
                 <Tipo_Doc_Destinatario>${datos.tipo_doc_Dest == "1" ? "NIT" : "CC"}</Tipo_Doc_Destinatario>
                 <Des_MedioTransporte>1</Des_MedioTransporte>
                 <Num_PesoTotal>${datos.peso}</Num_PesoTotal>
@@ -478,7 +482,7 @@ function generarGuia(datos) {
                 <Num_Precinto>0</Num_Precinto>
                 <Des_TipoDuracionTrayecto>1</Des_TipoDuracionTrayecto>
                 <Des_Telefono>${datos.telefonoD}</Des_Telefono>
-                <Des_Ciudad>${datos.ciudadD}</Des_Ciudad><!--o codigo dane para ciudad destino-->
+                <Des_Ciudad>${datos.dane_ciudadD}</Des_Ciudad><!--o codigo dane para ciudad destino-->
                 <Des_Direccion>${datos.direccionD}</Des_Direccion>
                 <Nom_Contacto>${datos.nombreD}</Nom_Contacto>
                 <Des_VlrCampoPersonalizado1>${datos.id_heka}</Des_VlrCampoPersonalizado1>
@@ -496,7 +500,7 @@ function generarGuia(datos) {
                 <Num_PesoFacturado>0</Num_PesoFacturado>
                 <Est_CanalMayorista>false</Est_CanalMayorista>
                 <Num_IdentiRemitente />
-                <Des_CiudadRemitente>${datos.ciudadR}</Des_CiudadRemitente>
+                <Des_CiudadRemitente>${datos.dane_ciudadR}</Des_CiudadRemitente>
                 <Num_TelefonoRemitente>${datos.celularR}</Num_TelefonoRemitente>
                 <Des_DiceContenerSobre>${datos.dice_contener}</Des_DiceContenerSobre>
                 <Num_Alto>${datos.alto}</Num_Alto>
@@ -538,7 +542,7 @@ function crearGuiaSticker(numeroGuia, id_archivoCargar, type, prueba) {
 
   if(prueba) {
     auth_header = auth_header_prueba;
-    ide_codFacturacion = "SER408"
+    ide_codFacturacion = UsuarioPrueba.id_codFacturacion
   } 
 
   console.log("numero guia =>", numeroGuia);

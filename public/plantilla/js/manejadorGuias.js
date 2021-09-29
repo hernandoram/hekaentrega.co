@@ -1,15 +1,16 @@
 if(administracion){
     if(localStorage.getItem("acceso_admin")){
-        if($("#documentos")){
-            cargarDocumentos("sin gestionar");
-            $("#buscador-documentos").on("click", () => {
-                cargarDocumentos("fecha");
-            })
-        
-            $('[href="#documentos"]').on("click", () => {
-                cargarDocumentos("sin gestionar");
-            })
+        if(location.hash === "#documentos"){
+            cargarDocumentos("important");
         }
+        
+        $("#buscador-documentos").on("click", () => {
+            cargarDocumentos("fecha");
+        })
+    
+        $('[href="#documentos"]').on("click", () => {
+            cargarDocumentos("important");
+        })
 
         document.getElementById("btn_actualizador").addEventListener("click", (e) => {
             e.preventDefault();
@@ -35,21 +36,28 @@ if(administracion){
         avisar("Acceso Denegado", "No tienes acceso a esta plataforma, espera unos segundos o da click en este mensaje y serás redirigido", "advertencia", "plataforma2.html")
     }
 }
-revisarNotificaciones();
 
-$("#check-select-all-guias").change((e) => {
-    let checks = document.getElementById("tabla-guias").querySelectorAll("input");
-    for(let check of checks){
-        if(!check.disabled) {
-            if(e.target.checked) {
-                check.checked = true;
-            } else {
-                check.checked = false;
+$(document).ready(() => {
+    $("#check-select-all-guias").change((e) => {
+        let checks = document.getElementById("tabla-guias").querySelectorAll("input");
+        const limit = 50;
+        let checked = 0;
+        for(let check of checks){
+            if(!check.disabled) {
+                if(e.target.checked && checked < limit) {
+                    check.checked = true;
+                    checked ++
+                } else {
+                    check.checked = false;
+                }
             }
         }
-    }
+    });
 
-});
+    revisarNotificaciones();
+
+})
+
 
 //función utilizada por el usuario para crear lo documentos
 function crearDocumentos() {
@@ -72,16 +80,19 @@ function crearDocumentos() {
                 has_sticker: check.getAttribute("data-has_sticker")
             });
 
-            //Verifica que todas las guias crrespondan al mismo tipo
-            let tipos_diferentes = arrGuias.some((v, i, arr) => {
-                return v.type != arr[i? i - 1 :i].type || v.transportadora != arr[i? i - 1 :i].transportadora
-            });
-
-            //Si no corresponden, arroja una excepción
-            if(tipos_diferentes) {
-                return avisar("!No se pudo procesar la información!", "Los tipos o transportadoras de guías seleccionadas no coinciden.", "advertencia");
-            }
         }
+    }
+    
+    //Verifica que todas las guias crrespondan al mismo tipo
+    let tipos_diferentes = revisarCompatibilidadGuiasSeleccionadas(arrGuias);
+
+    //Si no corresponden, arroja una excepción
+    if(tipos_diferentes) {
+        return Swal.fire({
+            icon: "error",
+            title: "!No se pudo procesar la información!",
+            html: tipos_diferentes
+        })
     }
 
     //Luego deshabilita todos los check y los deselecciona, al igual que todos los botones que estan dentro
@@ -121,9 +132,10 @@ function crearDocumentos() {
             descargar_relacion_envio: true, descargar_guias: true,
             type: arrGuias[0].type,
             transportadora: arrGuias[0].transportadora,
-            guias: []
+            guias: arrGuias.map(v => v.id_heka).sort()
         })
-        .then((docRef) => {
+        .then(async (docRef) => {
+            const transportadora = arrGuias[0].transportadora;
             console.log("Document written with ID: ", docRef.id);
             arrGuias.sort((a,b) => {
                 return a.numeroGuia > b.numeroGuia ? 1 : -1
@@ -132,28 +144,34 @@ function crearDocumentos() {
             /* Si tiene inhabilitado la creción de guías automáticas 
             solo actualizará las guías que pasaron el filtro anterior y enviará una 
             notificación a administración, es caso contrario utilizará el web service */
-            if(generacion_automatizada && arrGuias[0].transportadora === "SERVIENTREGA") {
-                crearManifiestoServientrega(arrGuias, {
-                    id_user, 
-                    prueba: estado_prueba,
-                    id_doc: docRef.id
-                })
+            if(generacion_automatizada) {
+                if(transportadora === "INTERRAPIDISIMO") {
+                  // Con esta transportadora no creamos manifiestos de esta forma,
+                  //ya que el usuario los crea por su cuenta  
+                    await actualizarEstadoGuiasDocCreado(arrGuias);
+                    Toast.fire({
+                        icon: "success",
+                        text: "¡Documento creado exitósamente!"
+                    });
+                    actualizarHistorialDeDocumentos();
+                    location.href = "#documentos";
+                    document.getElementById("enviar-documentos").removeAttribute("disabled");
+                } else {
+                    crearManifiestoServientrega(arrGuias, {
+                        id_user, 
+                        prueba: estado_prueba,
+                        id_doc: docRef.id
+                    })
+                }
             } else {
                 documentReference.doc(docRef.id)
                 .update({
                     descargar_guias: false,
                     descargar_relacion_envio: false,
-                    guias: arrGuias.map(v => v.id_heka).sort()
+                    important: true
                 })
                 .then(() => {
-                    for (let guia of arrGuias) {
-                        usuarioDoc
-                        .collection("guias").doc(guia.id_heka)
-                        .update({
-                            enviado: true,
-                            estado: "Enviado"
-                        });
-                    }
+                    actualizarEstadoGuiasDocCreado(arrGuias)
 
                     Swal.fire({
                         icon: "success",
@@ -173,12 +191,62 @@ function crearDocumentos() {
                     type: "documento",
                     visible_admin: true
                 }).then(() => {
+                    actualizarHistorialDeDocumentos();
+                    location.href = "#documentos"
                     document.getElementById("enviar-documentos").removeAttribute("disabled");
                 })
             }
         })
         .catch((error) => {
             console.error("Error adding document: ", error);
+        });
+    }
+}
+
+
+/*Utilizada para comprobar que las guís seleccionadas por el usuario para crear
+los documentos cuenten con las mismas carácterísticas para no generar futuros errores
+y me devuelve el mensaje con el error*/
+function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
+    let mensaje
+    const diferentes = arrGuias.some((v, i, arr) => {
+        if(v.type != arr[i? i - 1 :i].type) {
+            mensaje = "Los tipos de guías seleccionadas no coinciden.";
+            return true
+        } else if (v.transportadora != arr[i? i - 1 :i].transportadora) {
+            mensaje = "Las transportadoras seleccionadas no coinciden."
+            return true
+        } else if (generacion_automatizada && v.has_sticker !== "true") {
+            let guias = arr.filter(t => {
+                return t.has_sticker === "true";
+            }).map(v => v.id_heka);
+            
+            const cantidad = guias.length;
+
+            mensaje = "Por alguna razón, la(s) guía(s) " + guias + " no fue(ron) creada(s) completamente, para finalizar el proceso correcto, "
+            + "presione <i class='fa fa-stamp rounded'></i> o intente clonar la guía para generarle el documento correctamente.";
+            let match = cantidad > 1 ? /\(|\)/g : /\(\w+\)/g;
+            mensaje = mensaje.replace(match, "");
+            return true;
+        } else if (generacion_automatizada && !v.numeroGuia) {
+            mensaje = "Para el modo automático de guías, es necesario que todas las seleccionadas, contengan el número de guía de la transportadora";
+            
+            return true;
+        }
+
+        return false;
+    });
+
+    return mensaje
+}
+
+async function actualizarEstadoGuiasDocCreado(arrGuias) {
+    for await (let guia of arrGuias) {
+        usuarioDoc
+        .collection("guias").doc(guia.id_heka)
+        .update({
+            enviado: true,
+            estado: "Enviado"
         });
     }
 }
@@ -261,13 +329,14 @@ async function crearManifiestoServientrega(arrGuias, vinculo) {
             html: mensaje
         });
     } else {
-        Swal.fire({
+        Toast.fire({
             icon: "success",
             html: "¡Documento creado exitósamente!"
         });
     }
     
-
+    actualizarHistorialDeDocumentos();
+    location.href = "#documentos"
     document.getElementById("enviar-documentos").removeAttribute("disabled");
 
 }
@@ -295,6 +364,10 @@ function cargarDocumentos(filter) {
             // .orderBy("timeline", "desc")
             .where("descargar_relacion_envio", "==", false)
             // .where("descargar_guias", "==", false);
+            break;
+        case "important":
+            docFiltrado = reference
+            .where("important", "==", true);
             break;
         default:
             docFiltrado = reference.where("guias", "array-contains-any", filter);
@@ -410,6 +483,8 @@ function cargarDocumentos(filter) {
                 if(element.classList.contains("text-truncate")) element.style.cursor = "zoom-in";
             })
         };
+
+        $(".resaltar-doc").click(cambiarRelevanciaDeDocumento)
     }).then(() => {
         subirDocumentos()
         $("#buscador-documentos").text("Buscar");
@@ -420,6 +495,32 @@ function cargarDocumentos(filter) {
         }
     });
 
+}
+
+function cambiarRelevanciaDeDocumento(e) {
+    const idDoc = e.target.getAttribute("data-id");
+    let important = e.target.getAttribute("data-important");
+    important = important === "true" ? true : false;
+    Swal.fire({
+        icon: "question",
+        text: "Seguro que deseas "+ (important ? "ocultar" : "mostrar") + " este documento al inicio?",
+        showCancelButton: true,
+        cancelButtonText: '<i class="fa fa-thumbs-down"></i>',
+        confirmButtonText: '<i class="fa fa-thumbs-up"></i> Si'
+    }).then((result) => {
+        console.log(result);
+        if(!result.isConfirmed) return;
+        if(important === true) {
+            $(this).removeClass("fa-eye");
+            $(this).addClass("fa-eye-slash");
+            $(this).attr("data-important", false);
+        } else {
+            $(this).addClass("fa-eye");
+            $(this).removeClass("fa-eye-slash");
+            $(this).attr("data-important", true);
+        }
+        db.collection("documentos").doc(idDoc).update({important: !important})
+    })
 }
 
 function guiaRepetida(arr) {
@@ -438,7 +539,6 @@ llame el método
 function showStatistics(query, arr, insertAfter) {
     let html = document.querySelector(query);
     const complement = "-" + query.replace(/[^\w||-]/ig, "");
-    console.log(complement)
     let splide = document.createElement("div");
     splide.setAttribute("id", "statistics" + complement)
     splide.classList.add("splide", "mb-3");
@@ -804,23 +904,27 @@ function subirDocumentos(){
                 guias_enviadas = await storageUser.child(nombre_guias + ".pdf")
                 .put(guias.files[0]).then((querySnapshot) => {
                     firebase.firestore().collection("documentos").doc(id_doc).update({
-                        descargar_guias: true, nombre_guias
+                        descargar_guias: true, nombre_guias,
+                        important: !relacion_enviada
                     })
                     return true;
                 })
             }
+
             
             if(guias_enviadas || relacion_enviada) {
                 avisar("Documentos cargados con éxito", nombre_usuario + " ya puede descargar sus documentos");
-                firebase.firestore().collection("notificaciones").add({
-                    mensaje: `Se ha cargado un documento con las guias: ${numero_guias} a su cuenta.`,
-                    fecha: genFecha(),
-                    guias: numero_guias.split(","),
-                    user_id: id_user,
-                    visible_user: true,
-                    timeline: new Date().getTime(),
-                    type: "documento"
-                })
+                
+                // firebase.firestore().collection("notificaciones").add({
+                //     mensaje: `Se ha cargado un documento con las guias: ${numero_guias} a su cuenta.`,
+                //     fecha: genFecha(),
+                //     guias: numero_guias,
+                //     user_id: id_user,
+                //     visible_user: true,
+                //     timeline: new Date().getTime(),
+                //     type: "documento",
+                //     important
+                // })
             }
 
             enviar.disabled = false;
@@ -1142,7 +1246,6 @@ function actualizarEstado(){
     })
 }
 
-// revisarNotificaciones();
 function revisarNotificaciones(){
     let notificador = document.getElementById("notificaciones"); 
     let audio = document.createElement("audio");
@@ -1166,7 +1269,6 @@ function revisarNotificaciones(){
         badge.classList.add("d-none");
     });
 
-    console.log(busqueda);
 
     firebase.firestore().collection("notificaciones").orderBy("timeline")
     .where(buscador, operador, busqueda)

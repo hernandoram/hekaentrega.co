@@ -16,7 +16,7 @@ let transportadoras = {
             return [5000,300000000]
         },
         habilitada: () => {
-            return precios_personalizados.habilitar_servientrega
+            return datos_personalizados.habilitar_servientrega
         },
     },
     "ENVIA": {
@@ -31,7 +31,7 @@ let transportadoras = {
             return [5000,300000000]
         },
         habilitada: () => {
-            return precios_personalizados.habilitar_envia
+            return datos_personalizados.habilitar_envia
         },
     },
     "INTERRAPIDISIMO": {
@@ -48,7 +48,7 @@ let transportadoras = {
             return [37500, 30000000]
         },
         habilitada: () => {
-            return precios_personalizados.habilitar_interrapidisimo
+            return datos_personalizados.habilitar_interrapidisimo
         },
     }
 };
@@ -170,7 +170,7 @@ async function cotizador(){
                 alert("El costo del envío excede el valor declarado, para continuar, debe incrementar el valor declarado");
                 document.getElementById("boton_continuar").disabled = true;
                 verificador("seguro-mercancia", true);
-            } else if(precios_personalizados.activar_saldo && datos_de_cotizacion.precio > precios_personalizados.saldo){
+            } else if(datos_personalizados.activar_saldo && datos_de_cotizacion.precio > datos_personalizados.saldo){
                 let aviso = document.createElement("p")
                 aviso.textContent = "No dispone de saldo suficiente para continuar con su transacción, si desea continuar, por favor comuniquese con nuestros asesores para mayor información"
                 aviso.classList.add("text-danger");
@@ -563,8 +563,8 @@ function seleccionarTransportadora(e) {
         
             if(document.getElementById("cotizar_envio").getAttribute("data-index")){
                 location.href = "iniciarSesion2.html";
-            }else if(!datos_a_enviar.debe && !precios_personalizados.actv_credit &&
-                datos_a_enviar.costo_envio > precios_personalizados.saldo) {
+            }else if(!datos_a_enviar.debe && !datos_personalizados.actv_credit &&
+                datos_a_enviar.costo_envio > datos_personalizados.saldo) {
                 /* Si el usuario no tiene el crédito activo, la guía que quiere crear
                 muestra que debe saldo y se verifica que el costo del envío excede el saldo
                 Arroja la excepción*/
@@ -822,7 +822,7 @@ class CalcularCostoDeEnvio {
         this.volumen = vol || value("dimension-ancho") * value("dimension-alto") * value("dimension-largo");
         this.factor_de_conversion = 0.022 / 100;
         this.data = extraData || new Object();
-        this.precios = extraData ? extraData.precios : precios_personalizados;
+        this.precios = extraData ? extraData.precios : datos_personalizados;
         this.comision_transp = this.precios.comision_servi;
         this.sobreflete_min = 3000;
         this.seguroMercancia = 0;
@@ -1035,19 +1035,20 @@ class CalcularCostoDeEnvio {
         this.comision_transp = 2;
         this.sobreflete_min = 0
 
-        this.fletePrev = precio.Valor
+        this.fletePrev = precio.Valor + precio.Valor * 0.17
         this.descuento = true;
-        this.flete = precio.Valor * 0.83;    
+        this.flete = precio.Valor;   
     }
 
     async cotizarInter(dane_ciudadR, dane_ciudadD) {
         console.log("cotizando Interrapidisimo");
-        let url = "https://servicios.interrapidisimo.com/ApiServInter/api/Cotizador/ResultadoListaCotizar";
+        let url = "https://www3.interrapidisimo.com/ApiServInter/api/Cotizadorcliente/ResultadoListaCotizar/";
         
         console.log(this.seguro);
         console.log(this.kgTomado);
 
         let res = await fetch(url+"/"
+        +6635+ "/"
         +dane_ciudadR+"/"
         +dane_ciudadD+"/"+this.kgTomado+"/"+this.seguro+"/1/" + genFecha("LR"))
         .then(data => data.json());
@@ -1192,8 +1193,8 @@ function enviar_firestore(datos){
     id_heka = id_heka.replace(/^0/, 1);
     let firestore = firebase.firestore();
     console.log(datos.debe);
-    if(!datos.debe && !precios_personalizados.actv_credit &&
-        datos.costo_envio > precios_personalizados.saldo) {
+    if(!datos.debe && !datos_personalizados.actv_credit &&
+        datos.costo_envio > datos_personalizados.saldo) {
         return Swal.fire("¡No permitido!", `Lo sentimos, en este momento, el costo de envío excede el saldo
         que tienes actualmente, por lo tanto este metodo de envío no estará 
         permitido hasta que recargues tu saldo. Puedes comunicarte con la asesoría logística para conocer los pasos
@@ -1201,8 +1202,8 @@ function enviar_firestore(datos){
     };
 
     let user_debe;
-    precios_personalizados.saldo <= 0 ? user_debe = datos.costo_envio
-    : user_debe = - precios_personalizados.saldo + datos.costo_envio;
+    datos_personalizados.saldo <= 0 ? user_debe = datos.costo_envio
+    : user_debe = - datos_personalizados.saldo + datos.costo_envio;
 
     if(user_debe > 0 && !datos.debe) datos.user_debe = user_debe;
 
@@ -1322,9 +1323,9 @@ function enviar_firestore(datos){
 function notificarExcesoDeGasto() {
     enviarNotificacion({
         mensaje: `El usuario ${datos_usuario.nombre_completo} acaba de exceder el límite de Gastos asignado.`,
-        detalles: ["Su límite de gastos es de " + precios_personalizados.limit_credit,
-        "Tenía un saldo de: " + precios_personalizados.saldo,
-        "Sumando el envío realizado: " + (precios_personalizados.saldo - datos_a_enviar.costo_envio)],
+        detalles: ["Su límite de gastos es de " + datos_personalizados.limit_credit,
+        "Tenía un saldo de: " + datos_personalizados.saldo,
+        "Sumando el envío realizado: " + (datos_personalizados.saldo - datos_a_enviar.costo_envio)],
         icon: ["dollar-sign", "warning"],
         visible_admin: true,
         user_id,
@@ -1422,6 +1423,7 @@ async function guardarStickerGuiaServientrega(data) {
 
 //función para consultar la api en el back para crear guiade inter rapidisimo.
 async function generarGuiaInterrapidisimo(datos) {
+    datos.codigo_sucursal = datos_personalizados.codigo_sucursal_inter
     let respuesta = await fetch("/inter/crearGuia", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -1431,9 +1433,11 @@ async function generarGuiaInterrapidisimo(datos) {
 
     respuesta = JSON.parse(respuesta);
     if(respuesta.error) return {numeroGuia: 0, error: respuesta.error};
+    if(respuesta.Message) return {numeroGuia: 0, error: respuesta.Message};
 
     respuesta.numeroGuia = respuesta.numeroPreenvio;
     respuesta.id_heka = datos.id_heka;
+    respuesta.prueba = datos.prueba;
     respuesta.has_sticker = await generarStickerGuiaInterrapidisimo(respuesta);
 
     console.log("interrapidísimo => ",respuesta);
@@ -1443,9 +1447,14 @@ async function generarGuiaInterrapidisimo(datos) {
 
 async function generarStickerGuiaInterrapidisimo(data) {
     const maxPorSegmento = 500000;
-    let base64GuiaSegmentada = await fetch("/inter/crearStickerGuia/" + data.numeroGuia + "?segmentar=" + maxPorSegmento)
+    let url = "/inter/crearStickerGuia/" + data.numeroGuia + "?segmentar=" + maxPorSegmento;
+    if(data.prueba) {
+        url += "&prueba=" + data.prueba;
+    }
+    
+    let base64GuiaSegmentada = await fetch(url)
     .then(data => data.json())
-    .catch(error => console.log("Hubo un error al consultar el base64 de INTERRAPÌDISIMO => ", error));
+    .catch(error => console.log("Hubo un error al consultar el base64 de INTERRAPÍDISIMO => ", error));
 
     const referenciaSegmentar = firebase.firestore().collection("base64StickerGuias")
     .doc(data.id_heka).collection("guiaSegmentada");

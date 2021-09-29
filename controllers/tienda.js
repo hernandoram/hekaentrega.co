@@ -1,5 +1,5 @@
 const vhost = require("vhost");
-const firebase = require("../firebase");
+const firebase = require("../keys/firebase");
 const db = firebase.firestore();
 
 exports.buscarTienda = async (req, res, next) => {

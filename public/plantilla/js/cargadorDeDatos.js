@@ -13,7 +13,7 @@ if(localStorage.getItem("acceso_admin")){
 //Administradara datos basicos del usuario que ingresa
 let datos_usuario = {},
 //Almacena los costos de envios (nacional, urbano...) y el porcentaje de comision
-precios_personalizados = {
+datos_personalizados = {
   costo_zonal1: 7550,
   costo_zonal2: 11550,
   costo_zonal3: 2800,
@@ -165,18 +165,18 @@ function cargarDatosUsuario(){
               const value = doc.data()[precio];
               if(value === "") continue;
               if(!/[^\d+.]/.test(value.toString())) {
-                precios_personalizados[precio] = parseFloat(value);
+                datos_personalizados[precio] = parseFloat(value);
               } else {
-                precios_personalizados[precio] = value;
+                datos_personalizados[precio] = value;
               }
             }
 
-            console.log(precios_personalizados);
+            console.log(datos_personalizados);
 
             $("#saldo").html("$" + convertirMiles(doc.data().saldo));
 
-            // precios_personalizados.saldo = parseInt(doc.data().saldo);
-            // $("#saldo").html("$" + convertirMiles(precios_personalizados.saldo));
+            // datos_personalizados.saldo = parseInt(doc.data().saldo);
+            // $("#saldo").html("$" + convertirMiles(datos_personalizados.saldo));
           }
         })
 }
@@ -319,8 +319,22 @@ function historialGuias(){
     }).then(() => {
       document.getElementById("cargador-guias").classList.add("d-none");
       $("#btn-buscar-guias").html("Buscar")
+      limitarSeleccionGuias();
     });
   } 
+}
+
+function limitarSeleccionGuias(limit = 50) {
+  $("#tabla-guias").find(".check-guias").change(e => {
+    const checked = $(".check-guias:checked")
+    if(checked.length > limit) {
+          $(e.target).prop("checked", false);
+          Toast.fire({
+              icon: "error",
+              text: "Puede seleccionar como máximo " + limit + " guías por documento"
+          });
+      }
+  });
 }
 
 //Para clasificarme las guías por estados

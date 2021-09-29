@@ -1,3 +1,17 @@
+var firebaseConfig = {
+    apiKey: "AIzaSyCtzXKSoweSMLPej5-MbkTfQzFH719y-MM",
+    authDomain: "hekaapp-23c89.firebaseapp.com",
+    databaseURL: "https://hekaapp-23c89.firebaseio.com",
+    projectId: "hekaapp-23c89",
+    storageBucket: "hekaapp-23c89.appspot.com",
+    messagingSenderId: "539740310887",
+    appId: "1:539740310887:web:66f9ab535d18addeb173c2"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
 function escucha(id, e, funcion) {
     document.getElementById(id).addEventListener(e, funcion)
 }
@@ -11,7 +25,6 @@ function mostrar(id) {
     let content = document.getElementById("content").children;
 
     if(id == "" || !window.top[id]){
-        console.log(content)
         dNone(content);
         content[0].style.display = "block"
         let firstItem = $(".nav-item:first").addClass("active");
@@ -34,7 +47,7 @@ function mostrar(id) {
 
 }
 
-
+//Función invocada desde mostrar() para ocultar todos los elementos principales
 function dNone(content) {
     for(let i = 0; i < content.length; i++){
         content[i].style.display = "none";
@@ -57,7 +70,7 @@ function tablaDeGuias(id, datos){
         <td 
         data-search="${datos.filtrar}">
             <div class="form-check text-center">
-                <input class="form-check-input position-static" type="checkbox" value="option1" 
+                <input class="form-check-input position-static check-guias" type="checkbox"
                 data-id="${id}" data-numeroGuia="${datos.numeroGuia}"
                 data-prueba="${datos.prueba}" data-id_archivoCargar="${datos.id_archivoCargar}"
                 data-type="${datos.type}" data-has_sticker="${datos.has_sticker}"
@@ -82,13 +95,21 @@ function tablaDeGuias(id, datos){
             id="generar_rotulo${id}" title="Generar Rótulo">
                 <i class="fas fa-ticket-alt"></i>
             </button>
-
+            
             ${datos.numeroGuia ? 
                 `<button class="btn btn-primary btn-circle btn-sm mt-2" data-id="${id}"
                 id="ver_movimientos${id}" data-toggle="modal" data-target="#modal-gestionarNovedad"
                 title="Revisar movimientos">
                     <i class="fas fa-truck"></i>
                 </button>` : ""}
+
+            ${datos.numeroGuia && !datos.has_sticker && generacion_automatizada ?
+                `<button class="btn btn-primary btn-circle btn-sm mt-2" data-id="${id}"
+                data-funcion="activar-desactivar"
+                id="crear_sticker${id}" title="Crear Sticker de la guía">
+                    <i class="fas fa-stamp"></i>
+                </button>` : ""
+            }                
 
             <button class="btn btn-success btn-circle btn-sm mt-2" data-id="${id}" 
             id="clonar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}" disabled
@@ -222,6 +243,9 @@ function mostrarDocumentos(id, data, tipo_aviso) {
         <h6 class='text-center card-header'>${data.transportadora || "Servientrega"}</h6>
 
         <div class="card-body">
+            <i class="fa fa-eye${!data.important ? "-slash" : ""} float-right resaltar-doc"
+            data-id="${id}" data-important="${data.important}"
+            style="cursor: pointer;"></i>
             <h5 class="card-title font-weight-bold text-${tipo_aviso || "info"} text-uppercase mb-2">${data.nombre_usuario}</h5>
             <h6 class="card-subtitle text-muted mb-2">${data.centro_de_costo || "Centro de costo"}</h6>
             <div class="row no-gutters align-items-center">
@@ -482,8 +506,66 @@ function activarBotonesDeGuias(id, data, activate_once){
                 })
             })
         })
+
+        $("#crear_sticker" + id).click(crearStickerParticular)
       }
 
+}
+
+
+function crearStickerParticular() {
+    swal.fire({
+        title: "Creando Sticker",
+        html: "Estamos trabajando en ello, por favor espere...",
+        didOpen: () => {
+            Swal.showLoading();
+        },
+        allowOutsideClick: false,
+        allowEnterKey: false,
+        showConfirmButton: false,
+        allowEscapeKey: true
+    });
+    const id_heka = this.getAttribute("data-id");
+    console.log(id_heka)
+    usuarioDoc.collection("guias").doc(id_heka).get()
+    .then(async doc => {
+        if(doc.exists) {
+            const data = doc.data();
+            const para_crear = {
+                numeroGuia: data.numeroGuia,
+                id_heka: data.id_heka,
+                id_archivoCargar: data.id_archivoCargar, // paraservientrega (no es tan necesario)
+                prueba: data.prueba
+            }
+    
+            let has_sticker;
+    
+            if(data.transportadora === "INTERRAPIDISIMO") {
+                has_sticker = await generarStickerGuiaInterrapidisimo(para_crear);
+            } else {
+                has_sticker = await guardarStickerGuiaServientrega(para_crear);
+            }
+    
+            try {
+                if(!has_sticker) throw "No se creó el sticker";
+
+                doc.ref.update({has_sticker}).then(() => {
+                    Toast.fire({
+                        icon: "success",
+                        text: "Sticker de guía creado exitósamente"
+                    });
+                    
+                    actualizarHistorialDeDocumentos();
+                });
+
+            } catch {
+                Toast.fire({
+                    icon: "error",
+                    text: "Lo siento, hubo un error para guardar el sticker"
+                });
+            }
+        }
+    })
 }
 
 
@@ -1549,3 +1631,61 @@ function getDateRangeMs(idInicial, idFinal) {
 
     return [fecha_inicio, fecha_final];
 }
+
+function value(request) {
+    return document.getElementById(request).value;
+}
+
+function asignacion(request, response) {
+    return document.getElementById(request).value = response;
+}
+
+function printHTML(request, response) {
+  return document.getElementById(request).innerHTML += response;
+}
+
+function inHTML(request, response) {
+    return document.getElementById(request).innerHTML = response;
+}
+
+//DESACTIVAR MODULO
+function desactivar(a) {
+    var x = document.getElementById(a);
+    x.style.display = "none";
+}
+
+//ACTIVAR MODULO
+function activar(a) {
+    var x = document.getElementById(a);
+    x.style.display = "block";
+}
+function activar_query(a) {
+  var x = document.querySelector(a);
+  x.style.display = "block";
+}
+
+////////////validar email////////////7
+function validar_email(email) {
+    var regex = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+    return regex.test(email) ? true : false;
+}
+
+
+function soloNumeros(campo){
+    var textoFinal="";
+
+    var numeros="1234567890";
+    for(let i=0;i<campo.length;i++){
+        for(let j=0;j<numeros.length;j++){
+        if(campo[i]==numeros[j]){
+            textoFinal+=campo[i];
+        }
+
+        }
+
+    }
+    return textoFinal;
+
+}
+ 
+  
