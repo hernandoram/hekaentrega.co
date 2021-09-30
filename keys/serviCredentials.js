@@ -16,5 +16,5 @@ exports.Credenciales = {
         password: "NuBQAVjagIbdvqINzxg5lQ==",
         id_codFacturacion: "SER122990",
     }, 
-    url_generar_guias: "http://190.131.194.159:8059/GeneracionGuias.asmx"
+    url_generar_guias: "http://web.servientrega.com:8081/GeneracionGuias.asmx"
 }
