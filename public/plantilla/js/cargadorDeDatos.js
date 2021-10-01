@@ -228,7 +228,7 @@ function historialGuias(){
         inHTML("tabla-guias", "");
       }  
 
-      let [generadas, finalizadas, anuladas, enProceso, contarExistencia] = [0,0,0,0,0]
+      let [generadas, finalizadas, anuladas, enProceso, contarExistencia, pagadas] = [0,0,0,0,0,0]
      
       const estGeneradas = ["Envío Admitido", "RECIBIDO DEL CLIENTE", "Enviado", "", undefined];
       const estAnuladas = ["Documento Anulado"];
@@ -248,6 +248,12 @@ function historialGuias(){
         } else {
           enProceso ++
           filter = "en proceso";
+        }
+
+        if(!data.debe) {
+          pagadas ++
+          filter += " pagada"
+          console.log(doc.data())
         }
 
         data.filtrar = filter;
@@ -274,6 +280,7 @@ function historialGuias(){
       $(".en-proceso > span").text(enProceso);
       $(".finalizadas > span").text(finalizadas);
       $(".anuladas > span").text(anuladas);
+      $(".pagadas > span").text(pagadas);
       $(".todas > span").text(contarExistencia);
 
       const btnsFilter = $(".hist-guias-filter");
@@ -341,8 +348,9 @@ function limitarSeleccionGuias(limit = 50) {
 function clasificarGuias() {
   const api = this.api();
   const btnsFilter = $(".hist-guias-filter");
-  btnsFilter.click(function() {
+  btnsFilter.click(async function() {
     const filtrador = this.getAttribute("data-filtrar");
+
     btnsFilter.addClass("btn-secondary");
     $(this).removeClass("btn-secondary")
     btnsFilter.removeClass("btn-primary");
@@ -351,6 +359,7 @@ function clasificarGuias() {
     api.search(filtrador).draw();
   })
 }
+
 
 //Habilitado por una función en Manejador guias, me envia un excel al /excel_to_json en index.js y me devuelve un Json
 function cargarPagos(){
@@ -449,7 +458,8 @@ function cargarPagos(){
             guia.forEach(g => {
               let celda = g.querySelectorAll("td");
               let identificador = g.getAttribute("id");
-              firebase.firestore().collection("pagos").doc(celda[1].textContent.toLowerCase()).collection("pagos").doc(identificador).set({
+              firebase.firestore().collection("pagos").doc(celda[1].textContent.toLowerCase())
+              .collection("pagos").doc(identificador).set({
                 REMITENTE: celda[0].textContent,
                 TRANSPORTADORA: celda[1].textContent,
                 GUIA: celda[1].textContent,
@@ -459,7 +469,13 @@ function cargarPagos(){
                 "TOTAL A PAGAR": celda[5].textContent,
                 FECHA: celda[6].textContent
               }).then(() => {
-                g.classList.add("text-success");
+                firebase.firestore().collectionGroup("guias").where("numeroGuia", "==", identificador)
+                .get().then((querySnapshot) => {
+                  querySnapshot.forEach(doc => {
+                    doc.ref.update({debe: 0})
+                  })
+                }).then(() => g.classList.add("text-success"))
+                
               })
             })
           })
@@ -533,11 +549,11 @@ function cargarPagos(){
                 row_guia_actual.textContent += " El centro de costo de la guía subida no coincide con el registrado en la base de datos.\n";
               }
               
-              if(datos_guia.debe == false || usuario_corporativo) {
+              if(!datos_guia.debe || usuario_corporativo) {
                 row_guia_actual.textContent += " La guía fue descontada.";
                 if(!existe) sumarCostoEnvio(guia, remitente);
               } else {
-                row_guia_actual.textContent += " La guía no ha sido descontada aún."
+                row_guia_actual.textContent += " Falta por descontar $" + convertirMiles(Math.abs(datos_guia.debe))
               }
             }
 

@@ -125,8 +125,8 @@ function tablaDeGuias(id, datos){
         </td>
 
         <td>${id}</td>
-        <td></td>
-        <td></td>
+        <td>${datos.numeroGuia}</td>
+        <td>${datos.estado}</td>
         <td>${datos.nombreD}</td>
         <td>
             <a class="btn btn-light d-flex align-items-baseline mb-1" href="https://api.whatsapp.com/send?phone=57${datos.telefonoD.toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i> ${datos.telefonoD}</a>
