@@ -113,6 +113,7 @@ const actualizarMovimientos = async function(doc) {
     let updte_estados, updte_movs;
     try {
         if(!consulta) throw " Hubo un error en el scrap de estados"
+        if(consulta.flujo === "Empty Data") throw " No presenta movimientos aún."
         const estados_finalizacion = ["Documento Anulado", "Entrega Exitosa", "Devuelto al Remitente"];
         const ultimo_estado = consulta.flujo[consulta.flujo.length - 1];
         const movimientos = {

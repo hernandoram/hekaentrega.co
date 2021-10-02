@@ -76,6 +76,7 @@ function tablaDeGuias(id, datos){
                 data-type="${datos.type}" data-has_sticker="${datos.has_sticker}"
                 data-transportadora="${datos.transportadora}"
                 data-funcion="activar-desactivar" aria-label="..." disabled>
+                <span class="sr-only">${!datos.debe ? "PAGADA" : ""}</span>
             </div>
         </td>
         <td class="d-flex justify-content-around flex-wrap">
@@ -129,16 +130,16 @@ function tablaDeGuias(id, datos){
         <td>${datos.estado}</td>
         <td>${datos.nombreD}</td>
         <td>
-            <a class="btn btn-light d-flex align-items-baseline mb-1" href="https://api.whatsapp.com/send?phone=57${datos.telefonoD.toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i> ${datos.telefonoD}</a>
-            <a class="btn btn-light d-flex align-items-baseline" href="https://api.whatsapp.com/send?phone=57${datos.celularD.toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i> ${datos.celularD}</a>
+            <a class="btn btn-light d-flex align-items-baseline mb-1" href="https://api.whatsapp.com/send?phone=57${datos.telefonoD.toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i>${datos.telefonoD}</a>
+            <a class="btn btn-light d-flex align-items-baseline" href="https://api.whatsapp.com/send?phone=57${datos.celularD.toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i>${datos.celularD}</a>
         </td>
         <td>${datos.transportadora || "SERVIENTREGA"}</td>
         <td>${datos.type || "Pago Contraentrega"}</td>
         <td>${datos.fecha}</td>
         <td>${datos.ciudadD}</td>
-        <td>$${convertirMiles(datos.seguro || datos.valor)}</td>
-        <td>$${convertirMiles(datos.valor)}</td>
-        <td>$${convertirMiles(datos.costo_envio)}</td>
+        <td>${convertirMoneda(datos.seguro || datos.valor)}</td>
+        <td>${convertirMoneda(datos.valor)}</td>
+        <td>${convertirMoneda(datos.costo_envio)}</td>
 
     </tr>`
 }
@@ -1688,4 +1689,11 @@ function soloNumeros(campo){
 
 }
  
+function convertirMoneda(number, locales = "es-Co", currency = "COP", minimumFractionDigits = 0) {
+    return new Intl.NumberFormat(locales, {
+        style: 'currency',
+        currency,
+        minimumFractionDigits
+      }).format(number)
+}
   

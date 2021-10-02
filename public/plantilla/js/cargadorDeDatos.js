@@ -252,7 +252,7 @@ function historialGuias(){
 
         if(!data.debe) {
           pagadas ++
-          filter += " pagada"
+          filter = "pagada"
           console.log(doc.data())
         }
 
@@ -314,6 +314,15 @@ function historialGuias(){
             language: {
               url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
             },
+            dom: 'Bfrtip',
+            buttons: [{
+                extend: "excel",
+                text: "Descargar Guias",
+                filename: "Historial Guías",
+                exportOptions: {
+                  columns: [0,2,3,4,5,6,7,8,9,10,11,12,13]
+                }
+            }],
             scrollY: '50vh',
             scrollX: true,
             scrollCollapse: true,

@@ -1161,6 +1161,7 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
         datos.has_sticker = resGuia.has_sticker;
         //y creo el documento de firebase
         if(resGuia.numeroGuia) {
+            data.numeroGuia = data.numeroGuia.toString();
             let guia = await referenciaNuevaGuia.set(datos)
             .then(doc => {
                 return resGuia;

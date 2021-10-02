@@ -1910,7 +1910,12 @@ async function historialGuiasAdmin() {
 
     console.log(data);
     let nombre = "Historial Guias" + fechaI + "_" + fechaF;
-    let encabezado = "Guias creadas desde el " + fechaI + " Hasta " + fechaF
+    let encabezado;
+    if(fechaI == fechaF) {
+        encabezado = "Guias creadas el " + fechaI
+    } else {
+        encabezado = "Guias creadas desde el " + fechaI + " Hasta " + fechaF
+    }
     
     // data= [{nombre: "nombre", apellido: "apellido"}]
 
@@ -1927,19 +1932,29 @@ async function historialGuiasAdmin() {
             { data: "estado", title: "Estado", defaultContent: ""},
             { data: "centro_de_costo", title: "Centro de Costo" },
             { data: "transportadora", title: "Transportadora", defaultContent: "Servientrega", visible: false},
+            { data: "type", title: "Tipo", defaultContent: "Pago contraentrega", visible: false},
             { data: "detalles.comision_heka", title: "Comisión Heka"},
             { data: "detalles.comision_trasportadora", title: "Comisión Transportadora"},
             { data: "detalles.flete", title: "Flete"},
             { data: "detalles.recaudo", title: "Recaudo"},
             { data: "detalles.total", title: "Total"},
             { data: "fecha", title: "Fecha"},
+            { data: "debe", title: "deuda", visible:false, defaultContent: "no aplica", render: function(content, display, data) {
+                console.log(content, display, data)
+                if(data.debe && data.seguimiento_finalizado
+                    && data.type!=="CONVENCIONAL") return (-content) + '<span class="sr-only"> Por pagar</span>'
+                return -content
+            }},
         ],
         dom: 'Bfrtip',
         buttons: [{
             extend: "excel",
             text: "Descargar Historial",
             filename: nombre,
-            title: encabezado
+            title: encabezado,
+            exportOptions: {
+                columns: ":visible"
+            }
         }],
         initComplete: function() {
             const api = this.api();

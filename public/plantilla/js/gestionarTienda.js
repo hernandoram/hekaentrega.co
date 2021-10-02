@@ -17,9 +17,9 @@ $("#subir-logo-tienda").click(cargarLogo);
 
 $("#btn-buscar-pedidos").click(fillPedidos);
 
-$(document).ready(function(){
-    $("#mytoast").toast("show");
-})
+// $(document).ready(function(){
+//     $("#mytoast").toast("show");
+// })
 
 //comienzo configurando dropzone
 Dropzone.options.imagenesProducto = {
