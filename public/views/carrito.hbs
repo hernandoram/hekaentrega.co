@@ -39,7 +39,7 @@
                                             <img src="{{this.imagesUrl.url}}" alt="{{this.nombre}}"
                                                 title="{{this.nombre}}" class="rounded mr-3" height="48" />
                                             <p class="m-0 d-inline-block align-middle font-16">
-                                                <a href="/producto/{{this.id_producto}}" class="text-reset font-family-secondary">{{this.nombre}}</a>
+                                                <a href="{{this.tienda}}/producto/{{this.id_producto}}" class="text-reset font-family-secondary">{{this.nombre}}</a>
                                                 <br>
                                                 {{#each this.atributos}}
                                                     <small class="mr-2"><b>{{@key}}:</b> {{this}} </small>
@@ -178,8 +178,8 @@
 
                                         <div class="row mt-4">
                                             <div class="col-sm-6">
-                                                <a href="/" class="btn btn-secondary">
-                                                    <i class="mdi mdi-arrow-left"></i> Volver a la tienda </a>
+                                                <a href="javascript: history.back()" class="btn btn-secondary">
+                                                    <i class="mdi mdi-arrow-left"></i> Regresar </a>
                                             </div> <!-- end col -->
                                             <div class="col-sm-6">
                                                 <div class="text-sm-right mt-2 mt-sm-0">

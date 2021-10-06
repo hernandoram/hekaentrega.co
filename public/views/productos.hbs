@@ -58,10 +58,10 @@
         <div class="card-box product-box">
 
             <div class="product-action">
-                <a href="/producto/{{this.id}}" class="btn btn-success btn-xs waves-effect waves-light"><i class="mdi mdi-pencil"></i> Ver producto</a>
+                <a href="/{{this.nombre_tienda}}/producto/{{this.id}}" class="btn btn-success btn-xs waves-effect waves-light"><i class="mdi mdi-pencil"></i> Ver producto</a>
             </div>
 
-            <a href="/producto/{{this.id}}" 
+            <a href="/{{this.nombre_tienda}}/producto/{{this.id}}" 
             class="bg-light d-flex justify-content-center contenedor-img">
                 <img src="{{this.showImg}}" alt="product-pic" class="img-fluid" />
             </a>
@@ -70,7 +70,7 @@
                 <div class="row align-items-center">
                     <div class="col">
                         <h4 class="font-16 mt-0 sp-line-1">
-                            <a href="/producto/{{this.id}}" 
+                            <a href="/{{this.nombre_tienda}}/producto/{{this.id}}" 
                             class="text-dark" >{{this.nombre}}</a>
                         </h4>
                         <div class="text-warning mb-2 font-13 d-none d-md-block">

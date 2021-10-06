@@ -3,11 +3,14 @@ const firebase = require("../keys/firebase");
 const db = firebase.firestore();
 
 exports.buscarTienda = async (req, res, next) => {
-    console.log("VHOST => ", req.vhost);
-    let nombre_tienda = req.vhost[0];
-    req.params.nombre_tienda = nombre_tienda;
-    console.log(nombre_tienda);
-    let id = await db.collection("tiendas").where("tienda", "==", nombre_tienda)
+    // console.log("VHOST => ", req.vhost);
+    // let tienda = req.vhost[0];
+    // req.params.tienda = tienda;
+    const tienda = req.params.tienda
+    console.log("está buscando tienda")
+    console.log(req.params)
+    console.log("tienda => ", tienda);
+    let id = await db.collection("tiendas").where("tienda", "==", tienda)
     .get().then(querySnapshot => {
         let identificador;
         querySnapshot.forEach(doc => {
@@ -20,8 +23,8 @@ exports.buscarTienda = async (req, res, next) => {
     //Realizo la busqueda de la tienda especificada en host par obtener su id
     //Luego utilizo esa información y lo paso como parámetro al siguiente middleware
     req.params.tiendaId = id;
-    if (!req.session.tienda) req.session.tienda = req.params.nombre_tienda;
-    if(!id) return res.status(404).render("404", {url: req.vhost.hostname})
+    if (!req.session.tienda) req.session.tienda = req.params.tienda;
+    if(!id) return res.status(404).render("404", {url: req.hostname})
 
     next();
 };
@@ -40,21 +43,22 @@ exports.obtenerProductos = async (req, res) => {
             editProducto.showImg = editProducto.imagesUrl[0] ? editProducto.imagesUrl[0].url : "/img/heka entrega.png";
             editProducto.showStock = editProducto.stock[0];
             editProducto.id = producto.id;
-            editProducto.nombre_tienda = req.params.nombre_tienda;
+            editProducto.nombre_tienda = req.params.tienda;
             productos.push(editProducto);
         })
         return productos;
     });
     
-    // if (!req.session.tienda) req.session.tienda = req.params.nombre_tienda;
+    // if (!req.session.tienda) req.session.tienda = req.params.tienda;
     //Se revisan los parámetro para ver si se devuelve un json o si renderiza a la página correspondiente
     if(req.query.json) return res.json(productos);
+    console.log(req.session)
     res.render("productos", {productos, session: req.session});
 };
 
 exports.obtenerProducto = async (req, res) => {
     //Obtiene la información de un producto especificado en los parámetros de la url
-    //que son tiendaId, productId y nombre_tienda, los primeros dos son estrictamente necesarios
+    //que son tiendaId, productId y tienda, los primeros dos son estrictamente necesarios
 
     console.log(req.params);
     let producto = await db.collection("tiendas").doc(req.params.tiendaId)
@@ -64,7 +68,7 @@ exports.obtenerProducto = async (req, res) => {
             let data = doc.data();
             data.id = doc.id;
             data.storeId = req.params.tiendaId;
-            data.nombre_tienda = req.params.nombre_tienda;
+            data.nombre_tienda = req.params.tienda;
             data.cantidad = data.stock[0].detalles.cantidad;
             return data
         }
@@ -77,17 +81,19 @@ exports.obtenerProducto = async (req, res) => {
 
 exports.carritoDeCompra = (req, res) => {
     //dependiendo del query devuelve un arreglo json del carrito o renderiza a la página correspondiente.
+    console.count("Acceso al carrito")
     if(req.query.json) return res.json(req.session.carrito || [])
     res.render("carrito", {
         carrito: req.session.carrito || [],
-        session: req.session
+        session: req.session,
+        layout: "shopping"
     });
 }
 
 exports.getCarrito = (req, res) => {
     //Devuelve un json del carrito
     console.log("CARRITO", req.session.carrito);
-    res.json(req.session.carrito || {});
+    res.json(req.session.carrito || []);
 }
 
 exports.agregarAlCarrito = async (req, res) => {

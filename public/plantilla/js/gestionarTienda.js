@@ -928,7 +928,7 @@ function obtenerLinkTienda(data) {
         contenedor.addClass("alert-success");
         let host = window.location.host;
         // host = host.split(".")[0] == "www" ? host.split(".").splice(1).join(".") : host
-        let dir = data.tienda + "." + host;
+        let dir = host + "/" + data.tienda + "/productos"
         let protocol = window.location.protocol;
         link.innerHTML = dir;
         btnLink.setAttribute("href", protocol + "//" + dir);
@@ -947,10 +947,10 @@ function muestraDelLinkTienda() {
     this.value = this.value.toLowerCase();
     let protocol = window.location.protocol;
     let host = window.location.hostname;
-    host = host.split(".")[0] == "www" ? host.split(".").splice(0,1).join(".") : host
+    // host = host.split(".")[0] == "www" ? host.split(".").splice(0,1).join(".") : host
 
     let valor = this.value;
-    $("#ver-url-tienda").html(protocol + "//" + "<b>" + valor + "</b>." + host);
+    $("#ver-url-tienda").html(host + "/<b>" + valor + "</b>/productos");
 }
 
 async function actualizarTienda() {

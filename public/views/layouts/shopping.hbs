@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="utf-8" />
-    <title>Tiendas - Heka entrega</title>
+    <title>Carrito</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta content="A fully featured admin theme which can be used to build CRM, CMS, etc." name="description" />
     <meta content="Coderthemes" name="author" />
@@ -70,7 +70,7 @@
                     </a>
                 </li>
 
-                <li class="dropdown notification-list topbar-dropdown">
+                {{!-- <li class="dropdown notification-list topbar-dropdown">
                   <a class="nav-link dropdown-toggle waves-effect waves-light" data-toggle="dropdown" href="#" role="button" aria-haspopup="false" aria-expanded="false">
                       <i class="fe-shopping-cart noti-icon"></i>
                       <span class="badge badge-danger rounded-circle noti-icon-badge counter-carrito d-none"></span>
@@ -97,7 +97,7 @@
                       </a>
 
                   </div>
-                </li>
+                </li> --}}
 
                 <li class="ml-1">
                     <div class="custom-control custom-switch mt-1">
@@ -155,82 +155,6 @@
       </div>
       <!-- end Topbar -->
 
-      <!-- ========== Left Sidebar Start ========== -->
-      <div class="left-side-menu">
-
-          <div class="h-100" data-simplebar>
-
-              <!-- User box -->
-              <div class="user-box text-center">
-                  <img src="/img/heka entrega.png" alt="Logo tienda" title="Mat Helme"
-                      class="rounded-circle avatar-md">
-                  <div class="dropdown">
-                      <a href="javascript: void(0);" class="text-dark font-weight-normal dropdown-toggle h5 mt-2 mb-1 d-block"
-                          data-toggle="dropdown" data-store_info="nombre_tienda">Nombre tienda</a>
-                      <div class="dropdown-menu user-pro-dropdown">
-
-                          <!-- item-->
-                          <a href="/" class="dropdown-item notify-item">
-                              <i class="fa fa-store mr-1"></i>
-                              <span>Productos</span>
-                          </a>
-
-                          <!-- item-->
-                          <a href="/carrito" class="dropdown-item notify-item">
-                              <i class="fa fa-shopping-cart mr-1"></i>
-                              <span>Carrito</span>
-                          </a>
-                      </div>
-                  </div>
-                  <p class="text-muted text-truncate mx-2" data-store_info="descripcion">comentarios agregados de la tienda u alguna descripcion</p>
-                  <p class="text-muted mx-2" data-store_info="nombre"></p>
-                  <p class="text-muted mx-2" data-store_info="celular"></p>
-                  <p class="text-muted mx-2" data-store_info="correo"></p>
-              </div>
-
-              <!--- Sidemenu -->
-              <div id="sidebar-menu">
-
-                  <ul id="side-menu">
-                      <li class="menu-title mt-2">Tienda</li>
-                      <li>
-                        <a href="#sidebarCarrito" data-toggle="collapse">
-                            <i data-feather="shopping-bag"></i>
-                            <span class="badge badge-success badge-pill float-right counter-carrito d-none"></span>
-                            <span> Carrito </span>
-                        </a>
-                        <div class="collapse" id="sidebarCarrito">
-                            <ul class="nav-second-level" id="carrito-side-menu"></ul>
-                        </div>
-                    </li>
-
-                    <li>
-                        <a href="/carrito">
-                            <i data-feather="shopping-cart"></i>
-                            <span> Ver carrito </span>
-                        </a>
-                    </li>
-                      
-                    <li>
-                        <a href="/{{session.tienda}}/productos">
-                            <i data-feather="archive"></i>
-                            <span> Productos </span>
-                        </a>
-                    </li>
-
-                  </ul>
-
-              </div>
-              <!-- End Sidebar -->
-
-              <div class="clearfix"></div>
-
-          </div>
-          <!-- Sidebar -left -->
-
-      </div>
-      <!-- Left Sidebar End -->
-
       <div class="content-page">
         <div class="content">
           <div class="container-fluid">{{{body}}}</div>
@@ -264,6 +188,6 @@
 
     <!-- App js -->
     <script src="/assets/js/app.min.js"></script>
-    <script src="/js/tienda.js" type="module"></script>
+    <script src="/js/carrito.js" type="module"></script>
   </body>
 </html>

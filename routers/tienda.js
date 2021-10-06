@@ -24,9 +24,9 @@ router.post("/subirImagen", (req, res) => {
     res.send("Archivo cargado")
 })
 
-router.get("/", tiendaCtrl.buscarTienda, tiendaCtrl.obtenerProductos);
+router.get("/:tienda/productos", tiendaCtrl.buscarTienda, tiendaCtrl.obtenerProductos);
 
-router.get("/producto/:productId", tiendaCtrl.buscarTienda, tiendaCtrl.obtenerProducto);
+router.get("/:tienda/producto/:productId", tiendaCtrl.buscarTienda, tiendaCtrl.obtenerProducto);
 
 router.get("/carrito", tiendaCtrl.carritoDeCompra);
 
