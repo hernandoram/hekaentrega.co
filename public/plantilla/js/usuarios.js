@@ -168,6 +168,7 @@ function nuevaCuenta(){
         contacto: value("CPNtelefono"),
         direccion: `${value("CPNdireccion")}, ${value("CPNbarrio")}, ${value("CPNciudad")}`,
         objetos_envio: value("CPNobjetos_envio").split(",").map(s => s.trim()),
+        fecha_creacion: new Date()
     }
     
     if(administracion){
