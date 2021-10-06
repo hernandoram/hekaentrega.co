@@ -28,7 +28,7 @@ router.get("/:tienda/productos", tiendaCtrl.buscarTienda, tiendaCtrl.obtenerProd
 
 router.get("/:tienda/producto/:productId", tiendaCtrl.buscarTienda, tiendaCtrl.obtenerProducto);
 
-router.get("/carrito", tiendaCtrl.carritoDeCompra);
+router.get("/:tienda/carrito", tiendaCtrl.carritoDeCompra);
 
 router.post("/agregarAlCarrito/:id", tiendaCtrl.agregarAlCarrito);
 

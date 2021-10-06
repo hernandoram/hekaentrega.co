@@ -5,6 +5,8 @@ $("#inp-search-product").on("input", filtrarProductoPorNombre);
 $("#categoria-select > .category-filter").click(filtrarProductoPorCategoria);
 $("#sort-select").change(organizarProductos);
 $("[data-campo]").change(modifyPricesAndLimitsPerProduct);
+$(".vaciar-carrito").click(() => controllers.vaciarCarrito(tienda));
+
 
 let storeInfo;
 console.log(location)
@@ -29,6 +31,7 @@ function agregarAlCarrito() {
         headers: {"Content-Type": "application/json"}
     }).then(d => d.json().then(res => {
         //cuando obtiene respuesta me va llenando el carrito
+        res.carrito.filter(d => d.tienda === tienda)
         controllers.llenarNotificacionCarrito(res.carrito);
         let verMensaje = res.mensaje.split(" ")[0]
         Toast.fire({
@@ -159,53 +162,6 @@ const swiper = new Swiper('.swiper', {
 });
 //*FIN DE PÁGINA PRINCIPAL DE LA TIENDA*
 
-//llena la barra lateral de la tienda y la notificación del carrito, mostrando los items seleccionados y su cantidad
-// function controllers.llenarNotificacionCarrito(carrito) {
-//     let notificacion = document.getElementById("carrito-noti");
-//     let menu = document.getElementById("carrito-side-menu");
-
-//     notificacion.innerHTML = "";
-//     menu.innerHTML = "";
-//     console.log(carrito);
-//     carrito.forEach(item => {
-//         let atributos = "";
-//         for (let attr in item.atributos) {
-//             atributos += `<small class="mr-2"><b>${attr}:</b> ${item.atributos[attr]} </small>`; 
-//         }
-
-//         notificacion.innerHTML += `<a href="/producto/${item.id_producto}" class="dropdown-item notify-item">
-//             <div class="notify-icon">
-//                 <img src="${item.imagesUrl ? item.imagesUrl.url : "/img/heka entrega.png"}" class="img-fluid rounded-circle" alt="" /> </div>
-//             <p class="notify-details">${item.nombre}</p>
-//             <p class="text-muted mb-0 user-msg">
-//                 <small>${atributos}</small>
-//             </p>
-//         </a>`;
-
-//         menu.innerHTML += `<li>
-//             <a href="/producto/${item.id_producto}">
-//                 <span> ${item.nombre} <small>(${item.detalles.cod})</small> </span>
-//             </a>
-//         </li>`;
-//     });
-
-//     $(".counter-carrito").text(carrito.length)
-//     $(".counter-carrito").removeClass("d-none");
-
-//     if(!carrito.length) {
-//         $(".counter-carrito").addClass("d-none")
-//     }
-// };
-
-// function vaciarCarrito() {
-//     fetch("/tienda/vaciarCarrito")
-//     .then(res => {
-//         if(res.ok) {
-//             controllers.llenarNotificacionCarrito([]);
-//         }
-//     })
-// };
-
 //Revisa las opciones seleccionadas en el formulario de atributos y me devuelve el indice coincidente
 function getFilteredIndex() {
     const selectores = $("#selectores-atributos").children("select");
@@ -286,7 +242,7 @@ function modifyPricesAndLimitsPerProduct() {
 $(document).ready(function() {
     //solicitamos la info de la tienda
     storeInfo = controllers.getStoreInfo(tienda);
-    fetch("/tienda/carrito?json=true")
+    fetch("/"+tienda+"/carrito?json=true")
     .then(res => {
         console.log(res);
         res.json().then(d => controllers.llenarNotificacionCarrito(d));

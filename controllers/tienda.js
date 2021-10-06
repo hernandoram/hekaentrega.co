@@ -23,7 +23,7 @@ exports.buscarTienda = async (req, res, next) => {
     //Realizo la busqueda de la tienda especificada en host par obtener su id
     //Luego utilizo esa información y lo paso como parámetro al siguiente middleware
     req.params.tiendaId = id;
-    if (!req.session.tienda) req.session.tienda = req.params.tienda;
+    // if (!req.session.tienda) req.session.tienda = req.params.tienda;
     if(!id) return res.status(404).render("404", {url: req.hostname})
 
     next();
@@ -53,7 +53,7 @@ exports.obtenerProductos = async (req, res) => {
     //Se revisan los parámetro para ver si se devuelve un json o si renderiza a la página correspondiente
     if(req.query.json) return res.json(productos);
     console.log(req.session)
-    res.render("productos", {productos, session: req.session});
+    res.render("productos", {productos, tienda: req.params.tienda});
 };
 
 exports.obtenerProducto = async (req, res) => {
@@ -76,16 +76,25 @@ exports.obtenerProducto = async (req, res) => {
     console.log(producto);
     if(!producto) return res.status(404).render("404", {url: req.url})
 
-    res.render("producto", {producto, session: req.session});
+    res.render("producto", {producto, tienda: req.params.tienda});
 };
 
 exports.carritoDeCompra = (req, res) => {
     //dependiendo del query devuelve un arreglo json del carrito o renderiza a la página correspondiente.
     console.count("Acceso al carrito")
-    if(req.query.json) return res.json(req.session.carrito || [])
+    let carrito = new Array();
+    if(req.params.tienda
+    && req.session.carrito) {
+        req.session.carrito.forEach(data => {
+            if(data.tienda == req.params.tienda) carrito.push(data)
+        })
+    } 
+
+    console.log("carrito ", req.session.carrito);
+    if(req.query.json) return res.json(carrito || [])
     res.render("carrito", {
-        carrito: req.session.carrito || [],
-        session: req.session,
+        carrito: carrito || [],
+        tienda: req.params.tienda || "no",
         layout: "shopping"
     });
 }
@@ -297,7 +306,11 @@ exports.crearPedido = async (req, res) => {
 };
 
 exports.vaciarCarrito = (req, res) => {
-    req.session.carrito = [];
+    if(req.query.tienda) {
+        req.session.carrito.filter(data => data.tienda !== req.query.tienda)
+    } else {
+        req.session.carrito = [];
+    }
     res.json(req.session.carrito);
 };
 

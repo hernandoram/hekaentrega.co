@@ -91,7 +91,7 @@
                       </div>
 
                       <!-- All-->
-                      <a href="/tienda/carrito" class="dropdown-item text-center text-primary notify-item notify-all">
+                      <a href="/{{tienda}}/carrito" class="dropdown-item text-center text-primary notify-item notify-all">
                           Ver carrito
                           <i class="fe-arrow-right"></i>
                       </a>
@@ -142,7 +142,7 @@
       
                   {{!-- <li class="dropdown d-none d-md-block">
                       <a class="nav-link dropdown-toggle waves-effect waves-light"
-                      id="mostrar-productos" data-tienda="{{session.tienda}}" data-toggle="dropdown"
+                      id="mostrar-productos" data-tienda="{{tienda}}" data-toggle="dropdown"
                       href="#" role="button" aria-haspopup="false" aria-expanded="false">
                           Productos
                           <i class="mdi mdi-chevron-down"></i> 
@@ -176,7 +176,7 @@
                           </a>
 
                           <!-- item-->
-                          <a href="/carrito" class="dropdown-item notify-item">
+                          <a href="/{{tienda}}/carrito" class="dropdown-item notify-item">
                               <i class="fa fa-shopping-cart mr-1"></i>
                               <span>Carrito</span>
                           </a>
@@ -205,14 +205,14 @@
                     </li>
 
                     <li>
-                        <a href="/carrito">
+                        <a href="/{{tienda}}/carrito">
                             <i data-feather="shopping-cart"></i>
                             <span> Ver carrito </span>
                         </a>
                     </li>
                       
                     <li>
-                        <a href="/{{session.tienda}}/productos">
+                        <a href="/{{tienda}}/productos">
                             <i data-feather="archive"></i>
                             <span> Productos </span>
                         </a>

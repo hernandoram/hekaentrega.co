@@ -1,4 +1,3 @@
-$(".vaciar-carrito").click(vaciarCarrito);
 
 
 export const Toast = Swal.mixin({
@@ -19,6 +18,7 @@ export async function getCarrito() {
         .then(d => d.json());
     
         console.log(carrito);
+        llenarNotificacionCarrito(carrito);
         return carrito;
     } catch (error){
         console.log(error);
@@ -73,8 +73,8 @@ export function currency(val) {
     return res;
 }
 
-function vaciarCarrito() {
-    fetch("/tienda/vaciarCarrito")
+export function vaciarCarrito(tienda = "") {
+    fetch("/tienda/vaciarCarrito" + "?filter=" + tienda)
     .then(res => {
         if(res.ok) {
             controllers.llenarNotificacionCarrito([]);
