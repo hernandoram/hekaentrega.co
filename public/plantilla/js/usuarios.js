@@ -138,6 +138,20 @@ document.getElementById(seller).addEventListener("blur", () => {
     verificarExistencia(administracion);
 });
 
+
+function pruebacheck(){
+    var id_banco=document.getElementById('mostrar-ocultar-registro-bancario');
+    var chekBanco=document.getElementById('checkbox-banco');
+    
+    if(chekBanco.checked){
+      id_banco.style.display="block";
+    }else{
+      id_banco.style.display="none";
+    }
+  }
+ 
+
+
 //Para crear nueva cuenta
 function nuevaCuenta(){
 
@@ -199,7 +213,7 @@ function nuevaCuenta(){
     //datos bancarios
     console.log(datos_relevantes.centro_de_costo);
     //retornar si check está activado o desactivado
-    var CPNcheck=document.getElementById('CPNdiv_terminos_condiciones').style.display;
+    var checkTermCond = document.getElementById('CPNcheck_terminos_condiciones').checked
     verificarExistencia(administracion).then(()=> {
         if(value("CPNnombres")=="" | value("CPNapellidos")==""  | value("CPNnumero_documento")=="" | 
         value("CPNtelefono")=="" | value("CPNcelular")=="" | value("CPNciudad")=="" | 
@@ -225,7 +239,7 @@ function nuevaCuenta(){
             } else if (value("CPNcontraseña")!=value("CPNrepetir_contraseña")){
                 verificador(["CPNcontraseña", "CPNrepetir_contraseña"], "no-scroll")
                 inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Las contraseñas no coinciden</h6>`);
-            } else if (CPNcheck!="block"){
+            } else if (!checkTermCond){
                 inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: Debes aceptar los términos y condiciones para poder seguir</h6>`);
             } else if (value("CPNnombre_empresa").length > 25) {
                 inHTML('error_crear_cuenta',`<h6 class="text-danger">Error: La longitud para el nombre de la empresa no debe exceder los 25 caracteres.</h6>`);
