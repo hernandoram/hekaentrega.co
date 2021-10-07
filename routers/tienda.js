@@ -86,7 +86,7 @@ Handlebars.registerHelper("listar_atributos", function(context, options) {
         });
 
         res += '<label class="my-1 mr-2" for="'+campo+'input">' + campo + '</label>';
-        res += '<select data-campo="'+campo+'" class="custom-select my-1 mr-sm-3" id="'+campo+'input">'
+        res += '<select data-campo="'+campo+'" class="custom-select my-1 mr-sm-3 price-changer" id="'+campo+'input">'
         
         for (let value in attrIndx) {
             console.log(attrIndx[value]);

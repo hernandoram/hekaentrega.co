@@ -11,14 +11,14 @@ export const Toast = Swal.mixin({
     }
 });
 
-export async function getCarrito() {
+export async function getCarrito(tienda) {
     //función que me devuelve la lista de items colocados en el carrito.
     try {
-        let carrito = await fetch("/tienda/getCarrito")
+        let carrito = await fetch("/" + tienda + "/carrito?json=true")
         .then(d => d.json());
     
         console.log(carrito);
-        llenarNotificacionCarrito(carrito);
+        // llenarNotificacionCarrito(carrito);
         return carrito;
     } catch (error){
         console.log(error);
@@ -77,7 +77,7 @@ export function vaciarCarrito(tienda = "") {
     fetch("/tienda/vaciarCarrito" + "?filter=" + tienda)
     .then(res => {
         if(res.ok) {
-            controllers.llenarNotificacionCarrito([]);
+            llenarNotificacionCarrito([]);
         }
     })
 };

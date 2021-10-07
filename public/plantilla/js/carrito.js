@@ -1,10 +1,11 @@
 import * as Ctrl from "./controladoresTienda.js"
 
 $("#ciudadD").blur(calcularCostoEnvio);
-$("#comprar").click(calcularCostoEnvio);
+$("#comprar").click(realizarCompra);
 $("[data-function='adicionar']").change(calcItem);
 $("[data-function='quitar']").click(quitarDelCarrito);
 
+let tienda = location.pathname.split("/")[1];
 
 const Toast = Ctrl.Toast;
 
@@ -98,7 +99,7 @@ function modificarItemCarrito(input) {
 
 async function calcularCostoEnvio() {
     //Comienzo de la función que utiliza el cotizador que utiliza la plataforma principal para calcular el costo del envío
-    let carrito = await Ctrl.getCarrito();
+    let carrito = await Ctrl.getCarrito(tienda);
     if(!carrito.length) {
         return Toast.fire({
             icon: "error",
@@ -113,35 +114,6 @@ async function calcularCostoEnvio() {
     };
     let costo_envio = 0;
     let guias = new Array();
-
-    //si se le da click al botón de comprar, me inhabilita el boton y le coloca un spiner
-    if($(this).attr("id") == "comprar") {
-        //Lo primero es revisar que todos los campos son válidos, caso contrario, arroja la excepción
-        if(revisarCampos()) {
-            return Toast.fire({
-                icon: "error",
-                text: "Por favor revise los datos ingresados."
-            });
-        };
-
-        $(this).prop("disabled", true);
-        $(this).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> Cargando...');
-
-        const continuar = await Swal.fire({
-            icon: "question",
-            title: "¿Desea continuar con su compra?",
-            showConfirmButton: true,
-            showCancelButton: true
-        }).then((result) =>{
-            if(result.isConfirmed) return true;
-
-            $(this).html('<i class="mdi mdi-truck-fast mr-1"></i> Comprar');
-            $(this).removeAttr("disabled");
-            return false;
-        });
-
-        if(!continuar) return;
-    };
 
     //comienza la revisión de cada item del carrito
     for await (let item of carrito) {
@@ -164,17 +136,6 @@ async function calcularCostoEnvio() {
         costo_envio += cotizador.costoEnvio;
         console.log(cotizador);
 
-        //Si fue llamada desde el botón de comprar, comienza a crear la guía del item actual
-        if($(this).attr("id") == "comprar") {
-            let guia = await crearGuia(item, cotizador);
-
-            //si la función me retorna una guía la guarda, es importante que el usuario verifique la compra
-            //ya que la función continúa sin generar error
-            if (guia) {
-                guias.push(guia);
-            }
-        };
-
     };
 
     console.log("El costo de envío",costo_envio);
@@ -188,23 +149,83 @@ async function calcularCostoEnvio() {
     $("#total").text(total);
     $(this).html('<i class="mdi mdi-truck-fast mr-1"></i> Comprar');
     $(this).removeAttr("disabled");
+};
 
-    //si se accede a comprar pero por alguna razón no se generó ninguna guía, el progama detona el error
+async function realizarCompra() {
+    let guias = new Array();
+    //Lo primero es revisar que todos los campos son válidos, caso contrario, arroja la excepción
+    if(revisarCampos()) {
+        return Toast.fire({
+            icon: "error",
+            text: "Por favor revise los datos ingresados."
+        });
+    };
+
+    $(this).prop("disabled", true);
+    $(this).html('<span class="spinner-grow spinner-grow-sm" role="status" aria-hidden="true"></span> Cargando...');
+
+    const continuar = await Swal.fire({
+        icon: "question",
+        title: "¿Desea continuar con su compra?",
+        showConfirmButton: true,
+        showCancelButton: true
+    }).then((result) =>{
+        if(result.isConfirmed) return true;
+
+        $(this).html('<i class="mdi mdi-truck-fast mr-1"></i> Comprar');
+        $(this).removeAttr("disabled");
+        return false;
+    });
+
+    if(!continuar) return;
+    //Fin del primer proceso
+
+    //El siguiente proceso es verificar que el carrito no esté vacío
+    let carrito = await Ctrl.getCarrito(tienda);
+    if(!carrito.length) {
+        return Toast.fire({
+            icon: "error",
+            text: "El carrito está vacío."
+        })
+    }
+    //Fin del segundo proceso
+
+    //Revisa cada item del carrito para generar pedido
+    for await (let item of carrito) {
+        //Si fue llamada desde el botón de comprar, comienza a crear la guía del item actual
+        let guia = await crearPedido(item);
+
+        //si la función me retorna una guía la guarda, es importante que el usuario verifique la compra
+        //ya que la función continúa sin generar error
+        if (guia) {
+            guias.push(guia);
+        }
+    };
+
     if (guias.length) {
         //caso contrario, envía una notificación al dueño de la tienda en la plataforma
         //y acomoda el whatsapp que se enviará al mismo (este si tiene que ser manual por parte del comprador)
         enviarNotificacion(guias);
+        Ctrl.vaciarCarrito(tienda);
         Swal.fire({
             icon: "success",
             title: "¡Pedido realizado exitosamente!",
             text: "Se recomienda confirmar su pedido a través de WhatsApp, por medio de la siguiente ventana emergente."
         }).then(() =>{
             enviarWhatsappRemitente(guias);
-            Ctrl.vaciarCarrito();
             location.reload();
         });
+    } else {
+        Swal.fire({
+            icon: "error",
+            title: "Error desconocido",
+            text: "Sus pedido no fue realizado correctamente."
+        })
     };
-};
+
+    $(this).html('<i class="mdi mdi-truck-fast mr-1"></i> Comprar');
+    $(this).removeAttr("disabled");
+}
 
 async function crearGuia(item, cotizador) {
     // if(revisarCampos()) return;
@@ -249,20 +270,20 @@ async function crearGuia(item, cotizador) {
     nuevaGuia.direccionD = nuevaGuia.direccionD.trim();
     if (!nuevaGuia.celularD) nuevaGuia.celularD = nuevaGuia.telefonoD; 
     if (!nuevaGuia.correoD) nuevaGuia.correoD = "notiene@gmail.com";
-    nuevaGuia.detalles = cotizador.getDetails;
-    nuevaGuia.fecha = fecha.getFullYear() + "-" + mes + "-" + dia;
-    nuevaGuia.timeline = new Date().getTime();
-    nuevaGuia.identificacionD = 123;
+    nuevaGuia.detalles = cotizador.getDetails; //no aplicaría
+    nuevaGuia.fecha = fecha.getFullYear() + "-" + mes + "-" + dia; //no aplicaria
+    nuevaGuia.timeline = new Date().getTime(); //no aplicaría
+    nuevaGuia.identificacionD = 123; 
     nuevaGuia.tipo_doc_dest = 2;
-    nuevaGuia.costo_envio = cotizador.costoEnvio;
-    nuevaGuia.debe = -cotizador.costoEnvio;
-    nuevaGuia.dice_contener = item.nombre;
+    nuevaGuia.costo_envio = cotizador.costoEnvio; //no aplicaría
+    nuevaGuia.debe = -cotizador.costoEnvio; //no aplicaria
+    nuevaGuia.dice_contener = item.nombre; 
     nuevaGuia.identificacionR = storeInfo.numero_documento;
-    nuevaGuia.valor = cotizador.valor;
-    nuevaGuia.type = "PAGO CONTRAENTREGA";
-    nuevaGuia.recoleccion_esporadica = 1;
-    nuevaGuia.id_producto = item.id_producto;
-    nuevaGuia.transportadora = "SERVIENTREGA";
+    nuevaGuia.valor = cotizador.valor; //no aplicaria
+    nuevaGuia.type = "PAGO CONTRAENTREGA"; //no aplicaria
+    nuevaGuia.recoleccion_esporadica = 1; //no aplicaria
+    nuevaGuia.id_producto = item.id_producto; 
+    nuevaGuia.transportadora = "SERVIENTREGA"; //no aplicaria
 
     
     //Envío la solicitud POST para crear la guía correspondiente a la base de datos, que me devuelve el objeto de la guía creada    
@@ -323,6 +344,46 @@ function revisarCampos() {
 }
 
 async function crearPedido(item) {
+    const infoDestino = document.getElementById("ciudadD").dataset;
+    const storeInfo = await Ctrl.getStoreInfo(item.tienda);
+
+    //La nueva guía comienza por utilizar los campos llenados para agregarlos al destinatario automáticamente
+    $("[data-campo]").each((i, input) => {
+        let campo = $(input).attr("data-campo");
+        item[campo] = $(input).val();
+    });
+
+    //Creo arreglos de los que puedo sacar información necesaria contenida en cada objeto de manera más sencilla
+    let camposCiudad = ["ciudad", "departamento"];
+
+    //Luego itero sobre los mismos para llenar la información de la guía correspondiente
+    camposCiudad.forEach(city => {
+        item[city + "D"] = infoDestino[city];
+    });
+
+    let fecha = new Date();
+    let dia = fecha.getDate() < 10 ? "0" + fecha.getDate() : fecha.getDate();
+    let mes = parseInt(fecha.getMonth()) + 1;
+    mes = mes < 10 ? "0" + mes : mes;
+
+    //lleno de forma manual aquellos datos que no pudieron ser llenos de manera automática
+    item.nombreD = $("#billing-nombre").val() + " " + $("#billing-apellido").val();
+    item.nombreD = item.nombreD.trim();
+
+    item.direccionD = $("#billing-direccion").val() + " " + $("#billing-barrio").val();
+    item.direccionD = item.direccionD.trim();
+
+    if (!item.celularD) item.celularD = item.telefonoD; 
+    if (!item.correoD) item.correoD = "notiene@gmail.com";
+
+    item.identificacionD = 123; 
+    item.tipo_doc_dest = 2;
+    item.dice_contener = item.nombre; 
+    item.identificacionR = storeInfo.numero_documento;
+    item.celularR = storeInfo.celular;
+    item.id_producto = item.id_producto;
+    item.timeline = new Date().getTime();
+    console.log(item);
     return await fetch("/tienda/crearPedido", {
         method: "POST",
         body: JSON.stringify(item),
@@ -341,9 +402,9 @@ function enviarWhatsappRemitente(arrData) {
     
     let identificadores = arrData.reduce((a,b,i) => {
         console.log(a);
-        console.log(b.id_heka);
+        console.log(b.id);
         console.log("index", i);
-        return a + "%0A-" + b.id_heka;
+        return a + "%0A-" + b.id;
     }, "");
     
     mensaje += "%0A%0AMi pedido ha sido realizado con los Nº:" + identificadores;

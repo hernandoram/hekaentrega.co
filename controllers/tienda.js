@@ -94,8 +94,7 @@ exports.carritoDeCompra = (req, res) => {
     if(req.query.json) return res.json(carrito || [])
     res.render("carrito", {
         carrito: carrito || [],
-        tienda: req.params.tienda || "no",
-        layout: "shopping"
+        tienda: req.params.tienda || "no"
     });
 }
 
@@ -272,11 +271,22 @@ exports.crearGuiaServientrega = async(req, res) => {
 };
 
 exports.crearPedido = async (req, res) => {
-    //Luego de crear la guía, se procura crear el pedido correspondiente y me devuelve el mismo
-    await db.collection("tiendas").doc(req.body.id_user)
-    .collection("pedidos").doc(req.body.id).set(req.body)
+    //solicito el id de lata tienda
+    let id = await db.collection("infoHeka").doc("tienda")
+    .get().then(doc => {
+        if(doc.exists) {
+            doc.ref.update({id: firebase.firestore.FieldValue.increment(1)});
+            console.log(doc.data().id)
+            return doc.data().id.toString();
+        }
+    });
 
-    db.collection("tiendas").doc(req.body.id_user)
+    req.body.id = id;
+    //Luego de crear la guía, se procura crear el pedido correspondiente y me devuelve el mismo
+    await db.collection("tiendas").doc(req.body.storeId)
+    .collection("pedidos").doc(id).set(req.body)
+
+    db.collection("tiendas").doc(req.body.storeId)
     .collection("productos").doc(req.body.id_producto)
     .get().then(doc => {
         let stock = doc.data().stock;

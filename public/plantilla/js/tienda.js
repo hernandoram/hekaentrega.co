@@ -4,7 +4,7 @@ $("#agregar-al-carrito").click(agregarAlCarrito);
 $("#inp-search-product").on("input", filtrarProductoPorNombre);
 $("#categoria-select > .category-filter").click(filtrarProductoPorCategoria);
 $("#sort-select").change(organizarProductos);
-$("[data-campo]").change(modifyPricesAndLimitsPerProduct);
+$(".price-changer").change(modifyPricesAndLimitsPerProduct);
 $(".vaciar-carrito").click(() => controllers.vaciarCarrito(tienda));
 
 
@@ -31,8 +31,8 @@ function agregarAlCarrito() {
         headers: {"Content-Type": "application/json"}
     }).then(d => d.json().then(res => {
         //cuando obtiene respuesta me va llenando el carrito
-        res.carrito.filter(d => d.tienda === tienda)
-        controllers.llenarNotificacionCarrito(res.carrito);
+        const carrito = res.carrito.filter(d => d.tienda === tienda)
+        controllers.llenarNotificacionCarrito(carrito);
         let verMensaje = res.mensaje.split(" ")[0]
         Toast.fire({
             icon: verMensaje == "Agregado" ? "success":"warning",
