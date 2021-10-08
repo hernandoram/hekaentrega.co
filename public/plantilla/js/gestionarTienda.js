@@ -877,7 +877,6 @@ async function cargarInfoTienda() {
     .doc(user_id).get().then(doc => doc.data());
 
     //intenta llenarme toda la info de la tienda, esté activa o no
-    console.log(info)
     obtenerLinkTienda(info);
     if(!info) {
         info = datos_usuario;
@@ -902,13 +901,13 @@ async function cargarInfoTienda() {
     }
 
     muestraDelLinkTienda.call($("#url-tienda")[0]);
+    return info
 };
 
 function obtenerLinkTienda(data) {
     let contenedor = $("#link-tienda");
     let link = document.createElement("p");
     let btnLink = document.createElement("a");
-    console.log(data);
 
     contenedor.html("");
     contenedor.addClass("alert d-flex flex-wrap justify-content-around m-2");
@@ -1082,9 +1081,7 @@ function fillPedidos() {
                     "defaultContent": "<button class='btn btn-success btn-circle btn-sm'><i class='fa fa-plus'></i></button>"
                 },
                 {data: "id", title: "identificador heka", className: "identificador"},
-                {data: "nombre", title: "Producto"},
-                {data: "stock.detalles.cod", title: "Cód"},
-                {data: "categoria", title: "categoría"},
+                
                 {
                     data: "atributos",
                     title: "Atibutos",
@@ -1096,9 +1093,6 @@ function fillPedidos() {
                         return res;
                     }
                 },
-                {data: "precio", title: "Precio"},
-                {data: "cantidad", title: "Cant."},
-                {data: "total", title:"Total"}
             ]
         });
 
@@ -1178,4 +1172,441 @@ function cargarLogo() {
     });
     
     
+}
+
+const ej = [
+    {
+        "categoria": "especial",
+        "imagesUrl": {
+            "url": "https://firebasestorage.googleapis.com/v0/b/hekaapp-23c89.appspot.com/o/000000%2Fproductos%2F4G00fglTsBo0WKw14bsM%2F1628022637864descarga%202.jpg?alt=media&token=d7f12bed-7d77-4450-8cda-db0eebf5857a",
+            "fileName": "1628022637864descarga 2.jpg"
+        },
+        "timeline": 1633627495172,
+        "detalles": {
+            "cantidad": 6,
+            "cod": "pr-Am-XX",
+            "precio": 12000
+        },
+        "correoD": "notiene@gmail.com",
+        "telefonoD": "123456",
+        "stock": {
+            "detalles": {
+                "cantidad": 6,
+                "cod": "pr-Am-XX",
+                "precio": 12000
+            },
+            "talla": "XXS",
+            "color": "Amarillo"
+        },
+        "celularD": "123456",
+        "tienda": "juan",
+        "celularR": "3124567897",
+        "ancho": 10,
+        "largo": 10,
+        "identificacionR": "154897865",
+        "identificacionD": 123,
+        "sumar_envio": 1,
+        "storeId": "000000",
+        "precio": 12000,
+        "external": "4G00fglTsBo0WKw14bsM",
+        "cantidad": 1,
+        "alto": 10,
+        "departamentoD": "ANTIOQUIA",
+        "observaciones": "",
+        "atributos": {
+            "talla": "XXS",
+            "color": "Amarillo"
+        },
+        "nombreD": "nombre",
+        "direccionD": "direccion barrio",
+        "tipo_doc_dest": 2,
+        "peso": 10,
+        "dice_contener": "producto",
+        "ciudadD": "CAUCASIA",
+        "id": "7",
+        "descripcion_detallada": "",
+        "nombre": "producto",
+        "id_producto": "4G00fglTsBo0WKw14bsM",
+        "descripcion": "",
+        "garantia": 4,
+        "total": 12000,
+        dane_ciudadD: 54001000
+    },
+    {
+        "cantidad": 1,
+        "timeline": 1633626223524,
+        "departamentoD": "ANTIOQUIA",
+        "nombre": "Otro producto",
+        "identificacionR": "154897865",
+        "dice_contener": "Otro producto",
+        "imagesUrl": {
+            "url": "https://firebasestorage.googleapis.com/v0/b/hekaapp-23c89.appspot.com/o/000000%2Fproductos%2Fj1oZnBpNEI3o4hRaN7e1%2Fimagensensible-kYzD-U90285421336FWD-624x385%40Diario%20Sur.jpg?alt=media&token=6ac1576b-316f-451c-a4ac-a041ed96c259",
+            "fileName": "imagensensible-kYzD-U90285421336FWD-624x385@Diario Sur.jpg"
+        },
+        "identificacionD": 123,
+        "atributos": {
+            "talla": "X"
+        },
+        "correoD": "notiene@gmail.com",
+        "peso": 2,
+        "storeId": "000000",
+        "id_producto": "j1oZnBpNEI3o4hRaN7e1",
+        "ancho": 1,
+        "alto": 2,
+        "celularD": "123456",
+        "sumar_envio": 0,
+        "precio": 40000,
+        "nombreD": "nombre",
+        "celularR": "3124567897",
+        "tienda": "juan",
+        "direccionD": "direccion barrio",
+        "garantia": 5,
+        "stock": {
+            "detalles": {
+                "cod": "Ot-X",
+                "cantidad": 6,
+                "precio": 40000
+            },
+            "talla": "X"
+        },
+        "ciudadD": "CAUCASIA",
+        "largo": 2,
+        "descripcion": "Descripción corta",
+        "telefonoD": "123456",
+        "id": "5",
+        "detalles": {
+            "cod": "Ot-X",
+            "cantidad": 6,
+            "precio": 40000
+        },
+        "tipo_doc_dest": 2,
+        "external": "j1oZnBpNEI3o4hRaN7e1-1",
+        "observaciones": "",
+        "descripcion_detallada": "La descripción más completa del producto",
+        "categoria": "Tecnología",
+        "total": 40000,
+        dane_ciudadD: 54001000
+    },
+    {
+        "descripcion_detallada": "La descripción más completa del producto",
+        "dice_contener": "Otro producto",
+        "ancho": 1,
+        "external": "j1oZnBpNEI3o4hRaN7e1",
+        "departamentoD": "ANTIOQUIA",
+        "timeline": 1633626113057,
+        "nombreD": "nombre",
+        "sumar_envio": 0,
+        "garantia": 5,
+        "tipo_doc_dest": 2,
+        "identificacionD": 123,
+        "detalles": {
+            "cod": "Ot-X",
+            "precio": 40000,
+            "cantidad": 7
+        },
+        "celularD": "123456",
+        "ciudadD": "CAUCASIA",
+        "atributos": {
+            "talla": "X"
+        },
+        "descripcion": "Descripción corta",
+        "id_producto": "j1oZnBpNEI3o4hRaN7e1",
+        "storeId": "000000",
+        "stock": {
+            "detalles": {
+                "cod": "Ot-X",
+                "precio": 40000,
+                "cantidad": 7
+            },
+            "talla": "X"
+        },
+        "celularR": "3124567897",
+        "largo": 2,
+        "categoria": "Tecnología",
+        "nombre": "Otro producto",
+        "cantidad": 1,
+        "direccionD": "direccion barrio",
+        "observaciones": "",
+        "alto": 2,
+        "precio": 40000,
+        "correoD": "notiene@gmail.com",
+        "telefonoD": "123456",
+        "imagesUrl": {
+            "url": "https://firebasestorage.googleapis.com/v0/b/hekaapp-23c89.appspot.com/o/000000%2Fproductos%2Fj1oZnBpNEI3o4hRaN7e1%2Fimagensensible-kYzD-U90285421336FWD-624x385%40Diario%20Sur.jpg?alt=media&token=6ac1576b-316f-451c-a4ac-a041ed96c259",
+            "fileName": "imagensensible-kYzD-U90285421336FWD-624x385@Diario Sur.jpg"
+        },
+        "id": "4",
+        "identificacionR": "154897865",
+        "peso": 2,
+        "tienda": "juan",
+        "total": 40000,
+        dane_ciudadD: 54001000
+    },
+    {
+        "precio": 40000,
+        "ciudadD": "CAUCASIA",
+        "descripcion": "Descripción corta",
+        "correoD": "notiene@gmail.com",
+        "categoria": "Tecnología",
+        "celularD": "123456",
+        "stock": {
+            "detalles": {
+                "precio": 40000,
+                "cod": "Ot-X",
+                "cantidad": 8
+            },
+            "talla": "X"
+        },
+        "direccionD": "direccion barrio",
+        "ancho": 1,
+        "telefonoD": "123456",
+        "dice_contener": "Otro producto",
+        "identificacionR": "154897865",
+        "cantidad": 1,
+        "external": "j1oZnBpNEI3o4hRaN7e1",
+        "imagesUrl": {
+            "url": "https://firebasestorage.googleapis.com/v0/b/hekaapp-23c89.appspot.com/o/000000%2Fproductos%2Fj1oZnBpNEI3o4hRaN7e1%2Fimagensensible-kYzD-U90285421336FWD-624x385%40Diario%20Sur.jpg?alt=media&token=6ac1576b-316f-451c-a4ac-a041ed96c259",
+            "fileName": "imagensensible-kYzD-U90285421336FWD-624x385@Diario Sur.jpg"
+        },
+        "id": "3",
+        "tipo_doc_dest": 2,
+        "descripcion_detallada": "La descripción más completa del producto",
+        "timeline": 1633624642982,
+        "largo": 2,
+        "detalles": {
+            "cod": "Ot-X",
+            "precio": 40000,
+            "cantidad": 8
+        },
+        "identificacionD": 123,
+        "alto": 2,
+        "garantia": 5,
+        "peso": 2,
+        "nombreD": "nombre",
+        "observaciones": "",
+        "nombre": "Otro producto",
+        "atributos": {
+            "talla": "X"
+        },
+        "storeId": "000000",
+        "tienda": "juan",
+        "departamentoD": "ANTIOQUIA",
+        "id_producto": "j1oZnBpNEI3o4hRaN7e1",
+        "sumar_envio": 0,
+        "total": 40000,
+        dane_ciudadD: 54001000
+    }
+]
+
+const table = $("#tabla-pedidos-tienda").DataTable({
+    data: ej,
+    destroy: true,
+    language: {
+        url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
+        "emptyTable": "Aún no tienes guías saldadas."
+    },
+    columns: [
+        {
+            "className": 'details-control text-center',
+            "orderable": false,
+            "data": null,
+            "defaultContent": "<button class='btn btn-success btn-circle btn-sm'><i class='fa fa-plus'></i></button>"
+        },
+        {data: "id", title: "id", className: "identificador"},
+        {
+            data: null,
+            title: "Transportadoras",
+            defaultContent: `
+                <button type="button" class="btn btn-light m-2 selector"
+                data-filter="SERVIENTREGA"><img src="img/servientrega-logotipo.png" width="80px"/></button>
+                <button type="button" class="btn btn-light m-2 selector"
+                data-filter="INTERRAPIDISIMO"><img src="img/logo-inter2.png" width="80px"/></button>
+            `
+        },
+        {
+            data: null,
+            title: "Tipo",
+            defaultContent: `
+                <button type="button" class="btn btn-light m-2 selector text-truncate" 
+                data-filter="CONVENCIONAL">CONVENCIONAL</button>
+                <button type="button" class="btn btn-light m-2 selector text-truncate" 
+                data-filter="PAGO CONTRAENTREGA">PAGO CONTRAENTREGA</button>
+            `
+        },
+        {
+            data: null,
+            title: "Costo P.C",
+            defaultContent: `
+                <p class="precio"
+                data-transp="SERVIENTREGA"
+                data-filter="PAGO CONTRAENTREGA,SERVIENTREGA">------</p> 
+                <br/> 
+                <p class="precio"
+                data-transp="INTERRAPIDISIMO"
+                data-filter="PAGO CONTRAENTREGA,INTERRAPIDISIMO">------</p>
+            `
+        },
+        {
+            data: null,
+            title: "Costo C",
+            defaultContent: `
+                <p class="precio"
+                data-transp="SERVIENTREGA"
+                data-filter="CONVENCIONAL,SERVIENTREGA">------</p> 
+                <br/> 
+                <p class="precio"
+                data-transp="INTERRAPIDISIMO"
+                data-filter="CONVENCIONAL,INTERRAPIDISIMO">------</p>
+            `
+        },
+        {
+            data: "atributos",
+            title: "Atibutos",
+            render: function(data) {
+                let res = "";
+                for(let atributo in data) {
+                    res += `<b>${atributo}:</b> ${data[atributo]} <br>`
+                }
+                return res;
+            }
+        },
+    ],
+    dom: 'B<"clear">lfrtip',
+    buttons: [{
+        text: "Generar Guías",
+        className: "btn btn-primary",
+        colTr: 2,
+        colTp: 3,
+        action: crearGuiasDesdePedido
+    }, {
+        text: "Cotizar",
+        className: "btn btn-secondary",
+        colPc: 4,
+        colC: 5,
+        action: calcularCostoEnvioPedidos
+    }],
+    initComplete: agregarFuncionalidadesTablaPedidos
+});
+
+function agregarFuncionalidadesTablaPedidos() {
+    $(".selector").click(function() {
+        const tr = $(this).parents("tr");
+        const td = $(this).parent();
+
+        td.children(".selector").removeClass("active");
+        $(this).toggleClass("active");
+
+        let filters = new Array();
+        tr.find(".selector").each((i, el) => {
+            if($(el).hasClass("active"))
+            filters.push($(el).attr("data-filter"))
+        });
+
+        tr.find(".precio").removeClass("alert-success img-thumbnail")
+        tr.find(".precio").each((i, el) => {
+            const innerFilter = $(el).attr("data-filter").split(",");
+            const corresponde = filters.every(val => innerFilter.includes(val));
+
+            if (corresponde) $(el).addClass("alert-success img-thumbnail");
+        });
+
+    });
+
+    $('tbody', this).on( 'click', 'tr', function (e) {
+        if(!e.target.classList.contains("selector") && e.target.nodeName !== "IMG")
+        $(this).toggleClass('selected bg-gray-300');
+    } );
+
+    // setTimeout(() => {
+    //     calcularCostoEnvioPedidos(null, this.api())
+    // }, 5000)
+}
+
+async function calcularCostoEnvioPedidos(e, dt, node, config) {
+    let api = dt;
+    let datas = api.rows().data();
+    const storeInfo = await cargarInfoTienda();
+    console.log(datas);
+    let datos_de_cotizacion = {
+        precios: datos_personalizados,
+        ciudadR: storeInfo.ciudadT,
+        ciudadD: storeInfo.ciudadT,
+    };
+    for (let i = 0; i < datas.length; i++) {
+        const row = api.rows(i).nodes()[0];
+
+        const pedido = datas[i];
+        let volumen = pedido.alto * pedido.ancho * pedido.largo * pedido.cantidad;
+        let peso = pedido.peso * pedido.cantidad;
+        let recaudo = pedido.precio * pedido.cantidad
+        console.log(recaudo)
+        // datos_de_cotizacion.ciudadD = storeInfo.ciudadT
+
+        const trasnportadoras = ["SERVIENTREGA", "INTERRAPIDISIMO"];
+
+        for (let transp of trasnportadoras) {
+            if(!row.classList.contains("selected")) continue;
+
+            let cotizacionPC = await new CalcularCostoDeEnvio(recaudo, "PAGO CONTRAENTREGA", peso, volumen, datos_de_cotizacion)
+            .putTransp(transp, {
+                dane_ciudadR: storeInfo.ciudadT.dane_ciudad,
+                dane_ciudadD: pedido.dane_ciudadD,
+            });
+            
+            let cotizacionC = await new CalcularCostoDeEnvio(recaudo, "CONVENCIONAL", peso, volumen, datos_de_cotizacion)
+            .putTransp(transp, {
+                dane_ciudadR: storeInfo.ciudadT.dane_ciudad,
+                dane_ciudadD: pedido.dane_ciudadD,
+            });
+
+            // if(pedido.sumar_envio) cotizacionPC.sumarCostoDeEnvio = cotizacionPC.valor
+
+    
+            console.log(api.cell("[data-transp='"+transp+"']"))
+            const pc = config.colPc, c = config.colC
+        
+            const cellPc = $("td", row).eq(pc);
+            const cellC = $("td", row).eq(c);
+            
+            if(!cotizacionPC.empty) {
+                const mostrador = cellPc.find("[data-transp='"+transp+"']")
+                mostrador.text(cotizacionPC.costoEnvio)
+                api.rows().data()[0].transportadora = "Hola, transportadora"
+            }
+            
+            if(!cotizacionC.empty) {
+                const mostrador = cellC.find("[data-transp='"+transp+"']")
+                mostrador.text(cotizacionPC.costoEnvio)
+                api.rows().data()[0].transportadora = "Hola, transportadora"
+
+            }
+        
+        }
+    }
+
+}
+
+function crearGuiasDesdePedido(e, dt, node, config) {
+    let api = dt;
+    console.log(api.data())
+    const selectedRows = api.rows(".selected");
+    let datas = selectedRows.data();
+    const nodos = selectedRows.nodes();
+
+    for ( let i = 0; i < nodos.length; i++) {
+        const row = nodos[i];
+        const data = datas[i];
+
+        const seleccionTr = $("td",row).eq(config.colTr);
+        const transp = seleccionTr.find(".active").attr("data-filter")
+
+        const seleccionTp = $("td",row).eq(config.colTp);
+        const type = seleccionTp.find(".active").attr("data-filter")
+
+        if(transp) data.transportadora = transp;
+        if(type) data.type = type;
+    }
+    
+
+    console.log(selectedRows.nodes());
 }

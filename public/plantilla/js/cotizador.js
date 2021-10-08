@@ -1002,7 +1002,7 @@ class CalcularCostoDeEnvio {
 
                 this.precio = respuestaCotizacion.Precio
                 this.tiempo = respuestaCotizacion.TiempoEntrega;
-
+                console.log("PRECIO", this.precio);
                 this.intoInter(this.precio)
 
                 break;
@@ -1034,7 +1034,6 @@ class CalcularCostoDeEnvio {
 
         this.comision_transp = 2;
         this.sobreflete_min = 0
-
         this.fletePrev = precio.Valor + precio.Valor * 0.17
         this.descuento = true;
         this.flete = precio.Valor;   
