@@ -1586,16 +1586,23 @@ async function calcularCostoEnvioPedidos(e, dt, node, config) {
 
 }
 
-function crearGuiasDesdePedido(e, dt, node, config) {
+async function crearGuiasDesdePedido(e, dt, node, config) {
     let api = dt;
     console.log(api.data())
     const selectedRows = api.rows(".selected");
     let datas = selectedRows.data();
     const nodos = selectedRows.nodes();
+    const storeInfo = await cargarInfoTienda();
+
+    let datos_de_cotizacion = {
+        precios: datos_personalizados,
+        ciudadR: storeInfo.ciudadT,
+        ciudadD: storeInfo.ciudadT,
+    };
 
     for ( let i = 0; i < nodos.length; i++) {
         const row = nodos[i];
-        const data = datas[i];
+        const pedido = datas[i];
 
         const seleccionTr = $("td",row).eq(config.colTr);
         const transp = seleccionTr.find(".active").attr("data-filter")
@@ -1603,8 +1610,22 @@ function crearGuiasDesdePedido(e, dt, node, config) {
         const seleccionTp = $("td",row).eq(config.colTp);
         const type = seleccionTp.find(".active").attr("data-filter")
 
-        if(transp) data.transportadora = transp;
-        if(type) data.type = type;
+        const transpDef = $("#transportadora-pedidos").val();
+        const typeDef = $("#type-pedidos").val();
+
+        pedido.transportadora = transp || transpDef;
+        pedido.type = type || typeDef;
+
+        let volumen = pedido.alto * pedido.ancho * pedido.largo * pedido.cantidad;
+        let peso = pedido.peso * pedido.cantidad;
+        let recaudo = pedido.precio * pedido.cantidad
+
+        let cotizacion = await new CalcularCostoDeEnvio(recaudo, pedido.type, peso, volumen, datos_de_cotizacion)
+        .putTransp(pedido.transportadora, {
+            dane_ciudadR: storeInfo.ciudadT.dane_ciudad,
+            dane_ciudadD: pedido.dane_ciudadD,
+        });
+        
     }
     
 
