@@ -1495,7 +1495,7 @@ function mostradorDeudas(data) {
     }
 }
 
-function actualizarSaldo(data) {
+async function actualizarSaldo(data) {
     const data_de_ejemplo = {
         saldo: "Aquí muestra como va a quedar el saldo",
         saldo_anterior: "Saldo anterior",
@@ -1511,7 +1511,7 @@ function actualizarSaldo(data) {
         medio: "Usuario ó admin realizó X cambio"
     }
 
-    firebase.firestore().collection("usuarios").doc(data.user_id)
+    return await firebase.firestore().collection("usuarios").doc(data.user_id)
     .collection("informacion").doc("heka").update({
         saldo: data.saldo
     }).then(() => {
@@ -1531,6 +1531,8 @@ function actualizarSaldo(data) {
                 })
             })
         });
+
+        return data;
     })
 };
 

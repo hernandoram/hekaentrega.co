@@ -1133,7 +1133,33 @@ function crearGuia() {
             boton_final_cotizador.parentNode.insertBefore(cargador, boton_final_cotizador);
             boton_final_cotizador.remove()
 
-            enviar_firestore(datos_a_enviar);
+            enviar_firestore(datos_a_enviar).then(res => {
+                if(res.icon === "success") {
+                    Swal.fire({
+                        icon: "success",
+                        title: res.title,
+                        text: res.mensaje,
+                        timer: 6000,
+                        showCancelButton: true,
+                        confirmButtonText: "Si, ir al cotizador.",
+                        cancelButtonText: "No, ver el historial."
+            
+                    }).then((res) => {
+                        if(res.isConfirmed) {
+                            location.href = "plataforma2.html";
+                        } else {
+                            location.href = "#historial_guias";
+                            cambiarFecha();
+                        }
+                    })
+                } else {
+                    Swal.fire({
+                        icon: res.icon,
+                        title: res.title,
+                        html: res.mensaje
+                    })
+                }
+            })
         }
     } else {
         alert("Por favor, verifique que los campos escenciales no estén vacíos");
@@ -1187,14 +1213,34 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
 
 
 //función que envía los datos tomados a servientrega
-function enviar_firestore(datos){
+async function enviar_firestore(datos){
     //tome los últimos 4 digitos del documento para crear el id
     let id_heka = datos_usuario.numero_documento.slice(-4);
     id_heka = id_heka.replace(/^0/, 1);
     let firestore = firebase.firestore();
+    const datos_heka = await firestore.collection("usuarios").doc(localStorage.user_id)
+    .collection("informacion").doc("heka").get().then(doc => doc.data());
+    if(!datos_heka) {
+        return {
+            mensaje: "Lo sentimos, no pudimos carga su información de pago, por favor intente nuevamente.",
+            mensajeCorto: "No se pudo cargar su información de pago",
+            icon: "error",
+            title: "Sin procesar"
+        }
+    }
+
     console.log(datos.debe);
     if(!datos.debe && !datos_personalizados.actv_credit &&
         datos.costo_envio > datos_personalizados.saldo) {
+        return {
+            mensaje: `Lo sentimos, en este momento, el costo de envío excede el saldo
+            que tienes actualmente, por lo tanto este metodo de envío no estará 
+            permitido hasta que recargues tu saldo. Puedes comunicarte con la asesoría logística para conocer los pasos
+            a seguir para recargar tu saldo.`,
+            mensajeCorto: "El costo de envío excede el saldo que tienes actualmente",
+            icon: "error",
+            title: "¡No permitido!"
+        }
         return Swal.fire("¡No permitido!", `Lo sentimos, en este momento, el costo de envío excede el saldo
         que tienes actualmente, por lo tanto este metodo de envío no estará 
         permitido hasta que recargues tu saldo. Puedes comunicarte con la asesoría logística para conocer los pasos
@@ -1213,7 +1259,7 @@ function enviar_firestore(datos){
     // return;
     
     //Reviso por donde va el identificador heka
-    firestore.collection("infoHeka").doc("heka_id").get()
+    return await firestore.collection("infoHeka").doc("heka_id").get()
     .then(async (doc) => {
         // return doc.data().id;
         if(doc.exists){
@@ -1248,49 +1294,49 @@ function enviar_firestore(datos){
             }
         }
     })
-    .then((id) => {
-        firestore.collection("usuarios").doc(localStorage.user_id).collection("informacion")
-        .doc("heka").get()
-        .then((doc) => {
-            if(doc.exists){
-                let momento = new Date().getTime();
-                let saldo = doc.data().saldo;
-                let saldo_detallado = {
-                    saldo: saldo,
-                    saldo_anterior: saldo,
-                    limit_credit: doc.data().limit_credit || 0,
-                    actv_credit: doc.data().actv_credit || false,
-                    fecha: genFecha(),
-                    diferencia: 0,
-                    mensaje: "Guía " + id + " creada exitósamente",
-                    momento: momento,
-                    user_id: localStorage.user_id,
-                    guia: id,
-                    medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id
-                };
+    .then(async (id) => {
+        let momento = new Date().getTime();
+        let saldo = datos_heka.saldo;
+        let saldo_detallado = {
+            saldo: saldo,
+            saldo_anterior: saldo,
+            limit_credit: datos_heka.limit_credit || 0,
+            actv_credit: datos_heka.actv_credit || false,
+            fecha: genFecha(),
+            diferencia: 0,
+            mensaje: "Guía " + id + " creada exitósamente",
+            momento: momento,
+            user_id: localStorage.user_id,
+            guia: id,
+            medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id
+        };
 
-                //***si se descuenta del saldo***
-                if(!datos.debe){
-                    saldo_detallado.saldo = saldo - datos.costo_envio;
-                    saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
-                    
-                    let factor_diferencial = parseInt(doc.data().limit_credit) + parseInt(saldo);
-                    console.log(saldo_detallado);
-                    
-                    /* creo un factor diferencial que sume el limite de credito del usuario
-                    (si posee alguno) más el saldo actual para asegurarme que 
-                    este por encima de cero y por debajo del costo de envío, 
-                    en caso de que no se cumpla, se envía una notificación a administración del exceso de gastos*/
-                    if(factor_diferencial <= datos.costo_envio && factor_diferencial > 0) {
-                        notificarExcesoDeGasto();
-                    }
-                    actualizarSaldo(saldo_detallado);
-                }
-                return saldo_detallado;
+        //***si se descuenta del saldo***
+        if(!datos.debe){
+            saldo_detallado.saldo = saldo - datos.costo_envio;
+            saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
+            
+            let factor_diferencial = parseInt(datos_heka.limit_credit) + parseInt(saldo);
+            console.log(saldo_detallado);
+            
+            /* creo un factor diferencial que sume el limite de credito del usuario
+            (si posee alguno) más el saldo actual para asegurarme que 
+            este por encima de cero y por debajo del costo de envío, 
+            en caso de que no se cumpla, se envía una notificación a administración del exceso de gastos*/
+            if(factor_diferencial <= datos.costo_envio && factor_diferencial > 0) {
+                notificarExcesoDeGasto();
             }
-        })
+            await actualizarSaldo(saldo_detallado);
+        }
+        return saldo_detallado;
     })
     .then(() => {
+        return {
+            icon: "success",
+            title: "¡Guía creada con éxito!",
+            mensaje: "¿Deseas crear otra guía?",
+            mensajeCorto: "¡Guía creada con éxito!"
+        }
         Swal.fire({
             icon: "success",
             title: "¡Guía creada con éxito!",
@@ -1310,6 +1356,12 @@ function enviar_firestore(datos){
         })
     })
     .catch((err)=> {
+        return {
+            icon: "error",
+            title: "¡Lo sentimos! Error inesperado",
+            mensaje: "Hemos detectado el siguiente error: \"" + err.message + "\". Si desconoce la posible causa, por favor comuniquese con asesoría logistica (<a href='https://wa.me/573213361911' target='_blank'>+57 321 3361911</a>) enviando un capture o detallando el mensaje expuesto. \nmuchas gracias por su colaboración y discupe las molestias causadas.",
+            mensajeCorto: err.menssage
+        }
         Swal.fire({
             icon: "error",
             title: "¡Lo sentimos! Error inesperado",
