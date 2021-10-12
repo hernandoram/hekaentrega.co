@@ -1,6 +1,6 @@
 import * as Ctrl from "./controladoresTienda.js"
 
-$("#ciudadD").blur(calcularCostoEnvio);
+// $("#ciudadD").blur(calcularCostoEnvio);
 $("#comprar").click(realizarCompra);
 $("[data-function='adicionar']").change(calcItem);
 $("[data-function='quitar']").click(quitarDelCarrito);
@@ -53,7 +53,7 @@ function calcItem() {
     //si la cantidad de productos solicitado es reducido a cero, se llama la función que elimina el item del carrito
     if(cant <= 0) return quitarDelCarrito.call(this);
 
-    modificarItemCarrito(this);
+    // modificarItemCarrito(this);
 }
 
 function calcTotal() {
@@ -353,14 +353,6 @@ async function crearPedido(item) {
         item[campo] = $(input).val();
     });
 
-    //Creo arreglos de los que puedo sacar información necesaria contenida en cada objeto de manera más sencilla
-    let camposCiudad = ["ciudad", "departamento"];
-
-    //Luego itero sobre los mismos para llenar la información de la guía correspondiente
-    camposCiudad.forEach(city => {
-        item[city + "D"] = infoDestino[city];
-    });
-
     let fecha = new Date();
     let dia = fecha.getDate() < 10 ? "0" + fecha.getDate() : fecha.getDate();
     let mes = parseInt(fecha.getMonth()) + 1;
@@ -372,6 +364,8 @@ async function crearPedido(item) {
 
     item.direccionD = $("#billing-direccion").val() + " " + $("#billing-barrio").val();
     item.direccionD = item.direccionD.trim();
+
+    item.ciudad = infoDestino;
 
     if (!item.celularD) item.celularD = item.telefonoD; 
     if (!item.correoD) item.correoD = "notiene@gmail.com";

@@ -1339,11 +1339,12 @@ async function enviar_firestore(datos){
         }
     })
     .catch((err)=> {
+        console.log(err.message)
         return {
             icon: "error",
             title: "¡Lo sentimos! Error inesperado",
             mensaje: "Hemos detectado el siguiente error: \"" + err.message + "\". Si desconoce la posible causa, por favor comuniquese con asesoría logistica (<a href='https://wa.me/573213361911' target='_blank'>+57 321 3361911</a>) enviando un capture o detallando el mensaje expuesto. \nmuchas gracias por su colaboración y discupe las molestias causadas.",
-            mensajeCorto: err.menssage
+            mensajeCorto: err.message
         }
         Swal.fire({
             icon: "error",

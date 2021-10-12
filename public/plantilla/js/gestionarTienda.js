@@ -1079,8 +1079,53 @@ function fillPedidos() {
                     "data": null,
                     "defaultContent": "<button class='btn btn-success btn-circle btn-sm'><i class='fa fa-plus'></i></button>"
                 },
-                {data: "id", title: "identificador heka", className: "identificador"},
-                
+                {data: "id", title: "id", className: "identificador"},
+                {
+                    data: null,
+                    title: "Transportadoras",
+                    defaultContent: `
+                        <button type="button" class="btn btn-light m-2 selector"
+                        data-filter="SERVIENTREGA"><img src="img/servientrega-logotipo.png" width="80px"/></button>
+                        <button type="button" class="btn btn-light m-2 selector"
+                        data-filter="INTERRAPIDISIMO"><img src="img/logo-inter2.png" width="80px"/></button>
+                    `
+                },
+                {
+                    data: null,
+                    title: "Tipo",
+                    defaultContent: `
+                        <button type="button" class="btn btn-light m-2 selector text-truncate" 
+                        data-filter="CONVENCIONAL">CONVENCIONAL</button>
+                        <button type="button" class="btn btn-light m-2 selector text-truncate" 
+                        data-filter="PAGO CONTRAENTREGA">PAGO CONTRAENTREGA</button>
+                    `
+                },
+                {
+                    data: null,
+                    title: "Costo P.C",
+                    defaultContent: `
+                        <p class="precio"
+                        data-transp="SERVIENTREGA"
+                        data-filter="PAGO CONTRAENTREGA,SERVIENTREGA">------</p> 
+                        <br/> 
+                        <p class="precio"
+                        data-transp="INTERRAPIDISIMO"
+                        data-filter="PAGO CONTRAENTREGA,INTERRAPIDISIMO">------</p>
+                    `
+                },
+                {
+                    data: null,
+                    title: "Costo C",
+                    defaultContent: `
+                        <p class="precio"
+                        data-transp="SERVIENTREGA"
+                        data-filter="CONVENCIONAL,SERVIENTREGA">------</p> 
+                        <br/> 
+                        <p class="precio"
+                        data-transp="INTERRAPIDISIMO"
+                        data-filter="CONVENCIONAL,INTERRAPIDISIMO">------</p>
+                    `
+                },
                 {
                     data: "atributos",
                     title: "Atibutos",
@@ -1092,7 +1137,22 @@ function fillPedidos() {
                         return res;
                     }
                 },
-            ]
+            ],
+            dom: 'B<"clear">lfrtip',
+            buttons: [{
+                text: "Generar Guías",
+                className: "btn btn-primary",
+                colTr: 2,
+                colTp: 3,
+                action: crearGuiasDesdePedido
+            }, {
+                text: "Cotizar",
+                className: "btn btn-secondary",
+                colPc: 4,
+                colC: 5,
+                action: calcularCostoEnvioPedidos
+            }],
+            initComplete: agregarFuncionalidadesTablaPedidos
         });
 
         const infoExtra  = new InfoExtraPedidos(table);
@@ -1304,7 +1364,7 @@ const ej = [
         "departamentoD": "ANTIOQUIA",
         "timeline": 1633626113057,
         "nombreD": "nombre",
-        "sumar_envio": 0,
+        "sumar_envio": 1,
         "garantia": 5,
         "tipo_doc_dest": 2,
         "identificacionD": 123,
@@ -1508,6 +1568,21 @@ const table = $("#tabla-pedidos-tienda").DataTable({
 });
 
 function agregarFuncionalidadesTablaPedidos() {
+    this.before(`
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="select-all-orders">
+            <label class="form-check-label" for="select-all-orders">Seleccionar Todas</label>
+        </div>
+    `);
+
+    $("#select-all-orders").change((e) => {
+        if(e.target.checked) {
+            $("tr:gt(0)", this).addClass("selected bg-gray-300");
+        } else {
+            $("tr:gt(0)", this).removeClass("selected bg-gray-300");
+        }
+    })
+
     $(".selector").click(function() {
         const tr = $(this).parents("tr");
         const td = $(this).parent();
@@ -1531,6 +1606,14 @@ function agregarFuncionalidadesTablaPedidos() {
 
     });
 
+
+    if (this[0].getAttribute("data-table_initialized")) {
+        return;
+    } else {
+        this[0].setAttribute("data-table_initialized", true);
+    }
+
+
     $('tbody', this).on( 'click', 'tr', function (e) {
         if(!e.target.classList.contains("selector") && e.target.nodeName !== "IMG")
         $(this).toggleClass('selected bg-gray-300');
@@ -1553,11 +1636,10 @@ async function calcularCostoEnvioPedidos(e, dt, node, config) {
 
     let datas = api.rows().data();
     const storeInfo = await cargarInfoTienda();
-    console.log(datas);
+    console.log(storeInfo);
     let datos_de_cotizacion = {
         precios: datos_personalizados,
         ciudadR: storeInfo.ciudadT,
-        ciudadD: storeInfo.ciudadT,
     };
     for (let i = 0; i < datas.length; i++) {
         const row = api.rows(i).nodes()[0];
@@ -1566,9 +1648,7 @@ async function calcularCostoEnvioPedidos(e, dt, node, config) {
         let volumen = pedido.alto * pedido.ancho * pedido.largo * pedido.cantidad;
         let peso = pedido.peso * pedido.cantidad;
         let recaudo = pedido.precio * pedido.cantidad
-        console.log(recaudo)
-        // datos_de_cotizacion.ciudadD = storeInfo.ciudadT
-
+        datos_de_cotizacion.ciudadD = pedido.ciudad;
         const trasnportadoras = ["SERVIENTREGA", "INTERRAPIDISIMO"];
 
         for (let transp of trasnportadoras) {
@@ -1577,34 +1657,34 @@ async function calcularCostoEnvioPedidos(e, dt, node, config) {
             let cotizacionPC = await new CalcularCostoDeEnvio(recaudo, "PAGO CONTRAENTREGA", peso, volumen, datos_de_cotizacion)
             .putTransp(transp, {
                 dane_ciudadR: storeInfo.ciudadT.dane_ciudad,
-                dane_ciudadD: pedido.dane_ciudadD,
+                dane_ciudadD: pedido.ciudad.dane_ciudad,
             });
             
             let cotizacionC = await new CalcularCostoDeEnvio(recaudo, "CONVENCIONAL", peso, volumen, datos_de_cotizacion)
             .putTransp(transp, {
                 dane_ciudadR: storeInfo.ciudadT.dane_ciudad,
-                dane_ciudadD: pedido.dane_ciudadD,
+                dane_ciudadD: pedido.ciudad.dane_ciudad,
             });
 
-            // if(pedido.sumar_envio) cotizacionPC.sumarCostoDeEnvio = cotizacionPC.valor
-
-    
-            console.log(api.cell("[data-transp='"+transp+"']"))
             const pc = config.colPc, c = config.colC
         
             const cellPc = $("td", row).eq(pc);
             const cellC = $("td", row).eq(c);
             
             if(!cotizacionPC.empty) {
+                if(pedido.sumar_envio) cotizacionPC.sumarCostoDeEnvio = cotizacionPC.valor
+                // console.log("Pago contraentrega", cotizacionPC)
+
                 const mostrador = cellPc.find("[data-transp='"+transp+"']")
                 mostrador.text(cotizacionPC.costoEnvio)
-                api.rows().data()[0].transportadora = "Hola, transportadora"
+                console.log(cotizacionPC);
             }
             
             if(!cotizacionC.empty) {
                 const mostrador = cellC.find("[data-transp='"+transp+"']")
-                mostrador.text(cotizacionPC.costoEnvio)
-                api.rows().data()[0].transportadora = "Hola, transportadora"
+                // console.log("Pago contraentrega", cotizacionC)
+
+                mostrador.text(cotizacionC.costoEnvio)
 
             }
         
@@ -1643,7 +1723,6 @@ async function crearGuiasDesdePedido(e, dt, node, config) {
         const fieldFromOrder = ["celularD", "correoD", "dice_contener", "direccionD", "identificacionD", "nombreD", "observaciones", "telefonoD", "tipo_doc_dest"]
         const fieldFromCity = ["ciudad", "departamento", "dane_ciudad"];
         const fieldFromStore = ["celular", "correo", "direccion", "nombre"];
-        
 
         let guia = new Object();
 
@@ -1683,13 +1762,18 @@ async function crearGuiasDesdePedido(e, dt, node, config) {
         let cotizacion = await new CalcularCostoDeEnvio(recaudo, guia.type, peso, volumen, datos_de_cotizacion)
         .putTransp(guia.transportadora, {
             dane_ciudadR: storeInfo.ciudadT.dane_ciudad,
-            dane_ciudadD: pedido.dane_ciudadD,
+            dane_ciudadD: pedido.ciudad.dane_ciudad,
         });
+        
+        console.log(cotizacion);
 
         if(cotizacion.empty) {
-            notificacionPorGuia(row, "Sin resultados por parte de la transportadore seleccionada", "exclamation-circle", "text-danger")
+            notificacionPorGuia(row, "Sin resultados por parte de la transportadora seleccionada", "exclamation-circle", "text-danger")
             continue;
         }
+
+        if(pedido.sumar_envio) cotizacion.sumarCostoDeEnvio = cotizacion.valor
+
 
         if(cotizacion.seguro < cotizacion.costoEnvio) {
             notificacionPorGuia(row, "El valor del recaudo no debe ser menor al costo del envío.", "exclamation-triangle", "text-danger")
@@ -1707,6 +1791,7 @@ async function crearGuiasDesdePedido(e, dt, node, config) {
         guia.id_user = localStorage.user_id;
         guia.recoleccion_esporadica = 1;
         guia.id_pedido = pedido.id;
+        // guia.prueba = estado_prueba;
 
         guia.debe = guia.type === "CONVENCIONAL" ? false : -guia.costo_envio;
 
@@ -1717,6 +1802,7 @@ async function crearGuiasDesdePedido(e, dt, node, config) {
         if(respuesta.icon === "success") {
             icon = "clipboard-check";
             color = "text-success"
+            row.classList.remove("selected", "bg-gray-300")
         } else {
             icon = "exclamation-circle";
             color = "text-danger";
@@ -1738,3 +1824,27 @@ async function crearGuiasDesdePedido(e, dt, node, config) {
     })
 }
 
+//Para seleccionar la catización más económica puesta en los productos
+function buscarMasEconomicoEnPedido() {
+    const table = $("#tabla-pedidos-tienda").DataTable();
+    table.rows().every((i,e) => {
+        const row = table.row(i).node()
+        let selected = Infinity;
+        let filtrado;
+        $(".precio", row).each((i,e) => {
+            const precio = parseInt($(e).text());
+            if(precio < selected) {
+                filtrado = $(e).attr("data-filter").split(",");
+                
+                selected = precio;
+            } 
+        });
+
+        if(filtrado) {
+            for (let filter of filtrado) {
+                $("[data-filter='"+filter+"']", row).click();
+            }
+        }
+
+    })
+}
