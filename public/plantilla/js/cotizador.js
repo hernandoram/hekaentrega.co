@@ -1241,10 +1241,6 @@ async function enviar_firestore(datos){
             icon: "error",
             title: "¡No permitido!"
         }
-        return Swal.fire("¡No permitido!", `Lo sentimos, en este momento, el costo de envío excede el saldo
-        que tienes actualmente, por lo tanto este metodo de envío no estará 
-        permitido hasta que recargues tu saldo. Puedes comunicarte con la asesoría logística para conocer los pasos
-        a seguir para recargar tu saldo.`);
     };
 
     let user_debe;
@@ -1254,6 +1250,8 @@ async function enviar_firestore(datos){
     if(user_debe > 0 && !datos.debe) datos.user_debe = user_debe;
 
     datos.seguimiento_finalizado = false;
+    datos.fecha = genFecha();
+    datos.timeline = new Date().getTime();
 
     console.log(datos);
     // return;
@@ -1284,7 +1282,7 @@ async function enviar_firestore(datos){
 
                 //Creo la guía para que administracion le cree los documentos al usuario
                 let id = await referenciaNuevaGuia.set(datos).then(() => {
-                    return doc.data().id;
+                    return id_heka;
                 })
                 .catch(() => {
                     throw new Error("no pudimos guardar la información de su guía, por falla en la conexión, por favor intente nuevamente");
@@ -1295,6 +1293,8 @@ async function enviar_firestore(datos){
         }
     })
     .then(async (id) => {
+        if(!datos_heka) return id;
+
         let momento = new Date().getTime();
         let saldo = datos_heka.saldo;
         let saldo_detallado = {
@@ -1328,32 +1328,15 @@ async function enviar_firestore(datos){
             }
             await actualizarSaldo(saldo_detallado);
         }
-        return saldo_detallado;
+        return id;
     })
-    .then(() => {
+    .then((id) => {
         return {
             icon: "success",
             title: "¡Guía creada con éxito!",
             mensaje: "¿Deseas crear otra guía?",
-            mensajeCorto: "¡Guía creada con éxito!"
+            mensajeCorto: "¡Guía con id: " +id+ " creada con éxito!"
         }
-        Swal.fire({
-            icon: "success",
-            title: "¡Guía creada con éxito!",
-            text: "¿Desea crear otra guía?",
-            timer: 6000,
-            showCancelButton: true,
-            confirmButtonText: "Si, ir al cotizador.",
-            cancelButtonText: "No, ver el historial."
-
-        }).then((res) => {
-            if(res.isConfirmed) {
-                location.href = "plataforma2.html";
-            } else {
-                location.href = "#historial_guias";
-                cambiarFecha();
-            }
-        })
     })
     .catch((err)=> {
         return {

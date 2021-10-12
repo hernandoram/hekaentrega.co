@@ -1602,6 +1602,16 @@ const Toast = Swal.mixin({
     }
 });
 
+const Cargador = Swal.mixin({
+    didOpen: () => {
+        Swal.showLoading();
+    },
+    allowOutsideClick: false,
+    allowEnterKey: false,
+    showConfirmButton: false,
+    allowEscapeKey: true
+})
+
 //guar la base64 en el path (ruta) ingresado. devuelve true si fue guardado con éxito, caso contrario devuelve false
 async function guardarBase64ToStorage(base64, path) {
     return await firebase.storage().ref().child(path)

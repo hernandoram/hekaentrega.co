@@ -891,7 +891,6 @@ async function cargarInfoTienda() {
 
     if(info.ciudadT) {
         for(let campo in info.ciudadT) {
-            console.log(campo)
             $("#ciudad-tienda").attr("data-"+campo, info.ciudadT[campo])
         }
     };
@@ -1230,7 +1229,12 @@ const ej = [
         "descripcion": "",
         "garantia": 4,
         "total": 12000,
-        dane_ciudadD: 54001000
+        dane_ciudadD: 54001000,
+        ciudad: {
+            dane_ciudad: 54001000,
+            "departamento": "ANTIOQUIA",
+            "ciudad": "CAUCASIA",
+        }
     },
     {
         "cantidad": 1,
@@ -1285,7 +1289,12 @@ const ej = [
         "descripcion_detallada": "La descripción más completa del producto",
         "categoria": "Tecnología",
         "total": 40000,
-        dane_ciudadD: 54001000
+        dane_ciudadD: 54001000,
+        ciudad: {
+            dane_ciudad: 54001000,
+            "departamento": "ANTIOQUIA",
+            "ciudad": "CAUCASIA",
+        }
     },
     {
         "descripcion_detallada": "La descripción más completa del producto",
@@ -1340,7 +1349,12 @@ const ej = [
         "peso": 2,
         "tienda": "juan",
         "total": 40000,
-        dane_ciudadD: 54001000
+        dane_ciudadD: 54001000,
+        ciudad: {
+            dane_ciudad: 54001000,
+            "departamento": "ANTIOQUIA",
+            "ciudad": "CAUCASIA",
+        }
     },
     {
         "precio": 40000,
@@ -1394,7 +1408,12 @@ const ej = [
         "id_producto": "j1oZnBpNEI3o4hRaN7e1",
         "sumar_envio": 0,
         "total": 40000,
-        dane_ciudadD: 54001000
+        dane_ciudadD: 54001000,
+        ciudad: {
+            dane_ciudad: 54001000,
+            "departamento": "ANTIOQUIA",
+            "ciudad": "CAUCASIA",
+        }
     }
 ]
 
@@ -1524,6 +1543,14 @@ function agregarFuncionalidadesTablaPedidos() {
 
 async function calcularCostoEnvioPedidos(e, dt, node, config) {
     let api = dt;
+
+    const btnInitialText = $(node).text();
+    $(node).prop("disabled", true);
+    $(node).html(`
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Cotizando
+    `);
+
     let datas = api.rows().data();
     const storeInfo = await cargarInfoTienda();
     console.log(datas);
@@ -1584,11 +1611,22 @@ async function calcularCostoEnvioPedidos(e, dt, node, config) {
         }
     }
 
+    $(node).text(btnInitialText);
+    $(node).prop("disabled", false);
+
 }
 
 async function crearGuiasDesdePedido(e, dt, node, config) {
     let api = dt;
-    console.log(api.data())
+    const btnInitialText = $(node).text();
+    $(node).prop("disabled", true);
+    $(node).html(`
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Generando guías
+    `);
+
+    Cargador.fire("Creando guías", "Estamos generando las guías solicitadas, esto podría demorar unos minutos, por favor espere.")
+
     const selectedRows = api.rows(".selected");
     let datas = selectedRows.data();
     const nodos = selectedRows.nodes();
@@ -1597,12 +1635,32 @@ async function crearGuiasDesdePedido(e, dt, node, config) {
     let datos_de_cotizacion = {
         precios: datos_personalizados,
         ciudadR: storeInfo.ciudadT,
-        ciudadD: storeInfo.ciudadT,
     };
 
     for ( let i = 0; i < nodos.length; i++) {
         const row = nodos[i];
         const pedido = datas[i];
+        const fieldFromOrder = ["celularD", "correoD", "dice_contener", "direccionD", "identificacionD", "nombreD", "observaciones", "telefonoD", "tipo_doc_dest"]
+        const fieldFromCity = ["ciudad", "departamento", "dane_ciudad"];
+        const fieldFromStore = ["celular", "correo", "direccion", "nombre"];
+        
+
+        let guia = new Object();
+
+        for (let campo of fieldFromOrder) {
+            guia[campo] = pedido[campo]
+        }
+        
+        for (let campo of fieldFromCity) {
+            guia[campo + "D"] = pedido.ciudad[campo]
+            guia[campo + "R"] = storeInfo.ciudadT[campo]
+        }
+        
+        for (let campo of fieldFromStore) {
+            guia[campo + "R"] = storeInfo[campo]
+        }
+
+        guia.centro_de_costo = storeInfo.centro_de_costo || datos_usuario.centro_de_costo
 
         const seleccionTr = $("td",row).eq(config.colTr);
         const transp = seleccionTr.find(".active").attr("data-filter")
@@ -1612,22 +1670,71 @@ async function crearGuiasDesdePedido(e, dt, node, config) {
 
         const transpDef = $("#transportadora-pedidos").val();
         const typeDef = $("#type-pedidos").val();
+       
+        datos_de_cotizacion.ciudadD = pedido.ciudad;
 
-        pedido.transportadora = transp || transpDef;
-        pedido.type = type || typeDef;
+        guia.transportadora = transp || transpDef;
+        guia.type = type || typeDef;
 
         let volumen = pedido.alto * pedido.ancho * pedido.largo * pedido.cantidad;
         let peso = pedido.peso * pedido.cantidad;
         let recaudo = pedido.precio * pedido.cantidad
 
-        let cotizacion = await new CalcularCostoDeEnvio(recaudo, pedido.type, peso, volumen, datos_de_cotizacion)
-        .putTransp(pedido.transportadora, {
+        let cotizacion = await new CalcularCostoDeEnvio(recaudo, guia.type, peso, volumen, datos_de_cotizacion)
+        .putTransp(guia.transportadora, {
             dane_ciudadR: storeInfo.ciudadT.dane_ciudad,
             dane_ciudadD: pedido.dane_ciudadD,
         });
+
+        if(cotizacion.empty) {
+            notificacionPorGuia(row, "Sin resultados por parte de la transportadore seleccionada", "exclamation-circle", "text-danger")
+            continue;
+        }
+
+        if(cotizacion.seguro < cotizacion.costoEnvio) {
+            notificacionPorGuia(row, "El valor del recaudo no debe ser menor al costo del envío.", "exclamation-triangle", "text-danger")
+            continue;
+        }
+
+        guia.costo_envio = cotizacion.costoEnvio;
+        guia.detalles = cotizacion.getDetails;
+        guia.seguro = cotizacion.seguro;
+        guia.valor = cotizacion.valor;
+        guia.peso = peso;
+        guia.alto = pedido.alto * pedido.cantidad;
+        guia.ancho = pedido.ancho * pedido.cantidad;
+        guia.largo = pedido.largo * pedido.cantidad;
+        guia.id_user = localStorage.user_id;
+        guia.recoleccion_esporadica = 1;
+        guia.id_pedido = pedido.id;
+
+        guia.debe = guia.type === "CONVENCIONAL" ? false : -guia.costo_envio;
+
+        console.log(guia);
+
+        const respuesta = await enviar_firestore(guia);
+        let icon, color;
+        if(respuesta.icon === "success") {
+            icon = "clipboard-check";
+            color = "text-success"
+        } else {
+            icon = "exclamation-circle";
+            color = "text-danger";
+        }
+        notificacionPorGuia(row, respuesta.mensajeCorto, icon, color)
         
     }
     
+    function notificacionPorGuia(row, mensaje, icon, colorText) {
+        $(row).after(`<tr><td colspan='10' class='${colorText}'><i class='fa fa-${icon} mr-2'></i>${mensaje}</td></tr>`)
+    }
+    
+    $(node).text(btnInitialText);
+    $(node).prop("disabled", false);
 
-    console.log(selectedRows.nodes());
+    Toast.fire({
+        icon: "success",
+        title: "¡Proceso terminado!"
+    })
 }
+
