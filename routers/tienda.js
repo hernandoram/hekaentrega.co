@@ -120,12 +120,23 @@ Handlebars.registerHelper("categorias", (context, options) => {
     //Me devuelve un html de opciones del total de característica de productos existente en la tienda
    let res = "";
    let categorias = new Array();
+   let cantidades = new Object();
+   let items = new Array();
    context.forEach(item => {
+       const categoria = item.categoria;
+       cantidades[categoria] = cantidades[categoria] ? cantidades[categoria]+=1 : 1;
+
        if(!categorias.includes(item.categoria) && item.categoria) {
            categorias.push(item.categoria);
-           res += options.fn(item);
+           items.push(item);
        } 
+   });
+
+   items.forEach(item => {
+    item.cantidadCategorias = cantidades[item.categoria];
+    res += options.fn(item);
    })
+
 
    return res;
 });

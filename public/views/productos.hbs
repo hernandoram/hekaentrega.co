@@ -32,23 +32,25 @@
     </div> <!-- end col-->
 </div>
 
-<div class="swiper">
-    <div class="swiper-wrapper" id="categoria-select">
-        <figure class="text-center category-filter swiper-slide"
-            data-category="" style="width: 60px;">
-                <img alt="Todos" class="rounded-circle avatar-lg" src="/img/heka entrega.png"
-                style="object-fit:cover">
-                <h6 class="text-truncate">Todos</h6>
-            </figure>
-        {{#categorias productos}}
-            <figure class="text-center category-filter swiper-slide"
-            data-category="{{this.categoria}}" style="width: 60px;">
-                <img alt="{{this.categoria}}" class="rounded-circle avatar-lg" src="{{this.showImg}}"
-                style="object-fit:cover">
-                <h6 class="text-truncate">{{this.categoria}}</h6>
-            </figure>
-        {{/categorias}}
+<div class="row justify-content-center">
+    <div class="col-12">
+        <div class="navbar-nav-scroll mb-2 swiper">
+            <ul class="navbar-nav bd-navbar-nav flex-row swiper-wrapper"
+            id="categoria-select">
+                <li class="nav-item swiper-slide category-filter"
+                data-category="">
+                    <a class="btn btn-white btn-rounded waves-effect waves-light mx-1 bg-white d-flex justify-content-center align-items-center flex-wrap " href="javascript:void(0)"> Todas<span class="badge bg-primary text-white mx-1 " >{{productos.length}}</span></a> 
+                </li>
+                {{#categorias productos}}
+                    <li class="nav-item swiper-slide category-filter"
+                    data-category="{{this.categoria}}">
+                        <a class="btn btn-white btn-rounded waves-effect waves-light mx-1 bg-white d-flex justify-content-center align-items-center flex-wrap " href="javascript:void(0)"> {{this.categoria}}<span class="badge bg-info text-white mx-1 " >{{this.cantidadCategorias}}</span></a> 
+                    </li>
+                {{/categorias}}
+            </ul>
+        </div>
     </div>
+
 </div>
 
 <div class="row">
