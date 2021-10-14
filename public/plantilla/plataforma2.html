@@ -286,27 +286,42 @@
             </div>
 
             <div class="mt-2">
-              <nav>
-                <div class="nav nav-tabs" id="nav-tab" role="tablist">
-                  <a class="nav-link active" id="nav-tienda-home-tab" data-toggle="tab" href="#nav-tienda-home" role="tab" aria-controls="nav-tienda-home" aria-selected="true">Tienda</a>
-                  <a class="nav-link" id="nav-tienda-productos-tab" data-toggle="tab" href="#nav-tienda-productos" role="tab" aria-controls="nav-tienda-productos" aria-selected="false">Productos</a>
-                  <a class="nav-link" id="nav-tienda-pedidos-tab" data-toggle="tab" href="#nav-tienda-pedidos" role="tab" aria-controls="nav-tienda-pedidos" aria-selected="false">Pedidos</a>
-                </div>
+              <nav class="nav nav-tabs" id="nav-tab" role="tablist">
+                <a class="nav-link active" id="nav-tienda-home-tab" data-toggle="tab" href="#nav-tienda-home" role="tab" aria-controls="nav-tienda-home" aria-selected="true">Tienda</a>
+                <a class="nav-link" id="nav-tienda-productos-tab" data-toggle="tab" href="#nav-tienda-productos" role="tab" aria-controls="nav-tienda-productos" aria-selected="false">Productos</a>
+                <a class="nav-link" id="nav-tienda-pedidos-tab" data-toggle="tab" href="#nav-tienda-pedidos" role="tab" aria-controls="nav-tienda-pedidos" aria-selected="false">Pedidos</a>
               </nav>
               <div class="tab-content" id="nav-tienda-tabContent">
                 <!-- Información de la tienda -->
                 <div class="tab-pane fade show active" id="nav-tienda-home" role="tabpanel" aria-labelledby="nav-tienda-home-tab">
+                  <div class="logo-portada" 
+                  style="display: none;"
+                  id="logo-portada-tienda">
+                    <figure id="portada-tienda" class="mt-4 mb-0"
+                    style="width: 100%; height: 35vh;
+                    background-image: url('img/undraw_posting_photo.svg');
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    background-size: cover;">
+                    </figure>
+  
+                    <figure id="contenedor-logo-tienda"
+                    class="mt-n5 ml-3 d-flex flex-wrap align-items-center align-items-center">
+                      <img src="img\unnamed.png" id="img-logo-tienda" alt="logo" class="img-fluid rounded-circle"
+                      style="height:120px; width: 120px;">
+
+                      <div id="actualizar-logo-portada" style="display: none;" >
+                        <div class="ml-3 text-nowrap d-flex flex-sm-row flex-column">
+                          <button class="btn btn-primary m-1" id="subir-logo-tienda"><i class="fa fa-pencil-alt d-sm-none mr-2"></i><span class="d-none d-sm-inline">Editar</span> Logo</button>
+                          <button class="btn btn-info m-1" id="subir-portada-tienda"><i class="fa fa-pencil-alt d-sm-none mr-2"></i><span class="d-none d-sm-inline">Editar</span> Portada</button>
+                        </div>
+                      </div>
+                      <input type="file" name="logo" id="logo-tienda" accept="image/*" class="d-none">
+                    </figure>
+                  </div>
+                  
                   <div id="link-tienda"></div>
                   
-                  <figure id="contenedor-logo-tienda" style="max-width: 150px;"
-                  class="float-sm-left m-sm-0 mx-sm-3 d-flex flex-column align-items-center">
-                    <img src="img\unnamed.png" id="img-logo-tienda" alt="logo" class="img-fluid my-2 rounded-circle"
-                    style="max-height:100px; max-width: 100px;">
-
-                    <button class="btn btn-primary" id="subir-logo-tienda">subir logo</button>
-                    <input type="file" name="logo" id="logo-tienda" class="d-none">
-                  </figure>
-
                   <form id="form-tienda" class="mt-4">
                     <div class="row">
                       <div class="form-group col-md">
