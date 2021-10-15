@@ -210,7 +210,7 @@ async function realizarCompra() {
         Swal.fire({
             icon: "success",
             title: "¡Pedido realizado exitosamente!",
-            text: "Se recomienda confirmar su pedido a través de WhatsApp, por medio de la siguiente ventana emergente."
+            text: "Se recomienda confirmar su pedido a continuación por medio de WhatsApp."
         }).then(() =>{
             enviarWhatsappRemitente(guias);
             location.reload();
@@ -375,6 +375,7 @@ async function crearPedido(item) {
     item.dice_contener = item.nombre; 
     item.identificacionR = storeInfo.numero_documento;
     item.celularR = storeInfo.celular;
+    item.id_user = storeInfo.id_user
     item.id_producto = item.id_producto;
     item.timeline = new Date().getTime();
     console.log(item);
@@ -412,7 +413,7 @@ function enviarNotificacion(arrData) {
     let fecha = new Date(),
         year = fecha.getFullYear(),
         mes = estandarizar(parseInt(fecha.getMonth()) + 1),
-        dia = estandarizar(fecha.getDay()),
+        dia = estandarizar(fecha.getDate()),
         hora = estandarizar(fecha.getHours()),
         minutos = estandarizar(fecha.getMinutes());
 
@@ -426,9 +427,9 @@ function enviarNotificacion(arrData) {
     let guiasPlural = arrData.length > 1 ? "las guías: " : "la guía: ";
     let mensaje = arrData.reduce((a,b,i) => {
         let divisor = i == arrData.length - 1 ? "." : ", ";
-        detalles.push(b.id_heka);
-        return a + b.id_heka + divisor;
-    }, "Ha sido generado un pedido desde latienda con " + guiasPlural);
+        detalles.push(b.id);
+        return a + b.id + divisor;
+    }, "Ha sido generado un pedido desde latienda con los identificadores nº" + guiasPlural);
 
     let dataToSend = {
         icon: ["store", "primary"],

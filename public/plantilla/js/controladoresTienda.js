@@ -27,10 +27,8 @@ export async function getCarrito(tienda) {
 
 export function llenarNotificacionCarrito(carrito) {
     let notificacion = document.getElementById("carrito-noti");
-    let menu = document.getElementById("carrito-side-menu");
 
     notificacion.innerHTML = "";
-    menu.innerHTML = "";
     console.log(carrito);
     carrito.forEach(item => {
         let atributos = "";
@@ -46,12 +44,6 @@ export function llenarNotificacionCarrito(carrito) {
                 <small>${atributos}</small>
             </p>
         </a>`;
-
-        menu.innerHTML += `<li>
-            <a href="${item.tienda}/producto/${item.id_producto}">
-                <span> ${item.nombre} <small>(${item.detalles.cod})</small> </span>
-            </a>
-        </li>`;
     });
 
     $(".counter-carrito").text(carrito.length)
@@ -93,10 +85,19 @@ export async function getStoreInfo(tienda) {
     $("[data-store_info]").each((i,e) => {
         let campo = e.getAttribute("data-store_info");
         $(e).text(info[campo]);
+
+        if(e.getAttribute("data-link")) {
+            $(e).parents("a").attr("href", "https://wa.me/57" + info[campo])
+            $(e).parents("a").attr("target", "_blank")
+        }
     });
 
     if(info.logoUrl) {
         $("img[alt='Logo tienda']").attr("src", info.logoUrl);
+    }
+
+    if(info.portadaUrl) {
+        $("#portada-tienda").css("background-image", "url("+info.portadaUrl+")")
     }
 
     //Retorna la información de la tienda y también me llena la variable global donde que hace refencia a la misma

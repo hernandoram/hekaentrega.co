@@ -1,12 +1,12 @@
 import * as controllers from "./controladoresTienda.js"
 
 $("#agregar-al-carrito").click(agregarAlCarrito);
-$("#inp-search-product").on("input", filtrarProductoPorNombre);
+$(".top-search").on("input", filtrarProductoPorNombre);
 $("#categoria-select > .category-filter").click(filtrarProductoPorCategoria);
 $("#sort-select").change(organizarProductos);
 $(".price-changer").change(modifyPricesAndLimitsPerProduct);
 $(".vaciar-carrito").click(() => controllers.vaciarCarrito(tienda));
-
+$("#ver-info-tienda").click(verInfoTienda)
 
 let storeInfo;
 console.log(location)
@@ -228,16 +228,24 @@ function modifyPricesAndLimitsPerProduct() {
 
 }
 
-// function currency(val) {
-//     val = parseInt(val);
-//     const res = val.toLocaleString("es-CO", {
-//         style: "currency", 
-//         currency: "COP",
-//         minimumFractionDigits: 0
-//     });
+function verInfoTienda() {
+    const id = this.getAttribute("data-toggle");
+    console.log("toggleando " + id);
 
-//     return res;
-// }
+    $("i", this).addClass("rotateIn animated")
+    $("i", this).toggleClass("fa-chevron-down fa-chevron-up")
+    setTimeout(() => $("i", this).removeClass("rotateIn animated"), 500)
+    $(id).toggle("fast");
+}
+
+function recalcImgsSize() {
+    $(".contenedor-img").each((i,e) => {
+        const img = $(e).children("img");
+        let w = img.css("width");
+        console.log(w);
+        img.css("height", w);
+    });
+}
 
 $(document).ready(function() {
     //solicitamos la info de la tienda
@@ -249,9 +257,6 @@ $(document).ready(function() {
     });
     
     //Modifico el tamaño de las imagenes para que sean cuadradas
-    $(".contenedor-img").each((i,e) => {
-        let w = $(e).css("width");
-        console.log(w);
-        $(e).css("height", w);
-    });
+    recalcImgsSize();
+    window.addEventListener("resize", recalcImgsSize);
 });

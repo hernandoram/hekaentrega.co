@@ -775,6 +775,7 @@ class VentanaCrearProducto {
 
     //me habilita todas las funciones necesarias que va armando el modal
     showModal() {
+        console.log(this.modal)
         this.modal.modal("show");
         this.appendBasicInfo();
         this.appendAttributes();
@@ -1089,12 +1090,6 @@ function fillPedidos() {
                 "emptyTable": "Aún no tienes guías saldadas."
             },
             columns: [
-                {
-                    "className": 'details-control text-center',
-                    "orderable": false,
-                    "data": null,
-                    "defaultContent": "<button class='btn btn-success btn-circle btn-sm'><i class='fa fa-plus'></i></button>"
-                },
                 {data: "id", title: "id", className: "identificador"},
                 {
                     data: null,
@@ -1153,19 +1148,21 @@ function fillPedidos() {
                         return res;
                     }
                 },
+                {data: "detalles.cod", title:"Código"},
+                {data: "peso", title:"Peso"}
             ],
             dom: 'B<"clear">lfrtip',
             buttons: [{
                 text: "Generar Guías",
                 className: "btn btn-primary",
-                colTr: 2,
-                colTp: 3,
+                colTr: 1,
+                colTp: 2,
                 action: crearGuiasDesdePedido
             }, {
                 text: "Cotizar",
                 className: "btn btn-secondary",
-                colPc: 4,
-                colC: 5,
+                colPc: 3,
+                colC: 4,
                 action: calcularCostoEnvioPedidos
             }],
             initComplete: agregarFuncionalidadesTablaPedidos
