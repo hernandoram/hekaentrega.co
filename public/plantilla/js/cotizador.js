@@ -1050,7 +1050,10 @@ class CalcularCostoDeEnvio {
         +6635+ "/"
         +dane_ciudadR+"/"
         +dane_ciudadD+"/"+this.kgTomado+"/"+this.seguro+"/1/" + genFecha("LR"))
-        .then(data => data.json());
+        .then(data => data.json())
+        .catch(err => err);
+
+        if(res.message || res.Message) return 0;
 
         console.log(res);
         let mensajeria = res.filter(d => d.IdServicio === 3);
@@ -1552,7 +1555,7 @@ function observacionesServientrega(result_cotizacion) {
         "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero o la oficina donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
         `Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span>`,
         `Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`,
-        `En caso de devolución pagas solo el envío ida: $${convertirMiles(result_cotizacion.costoEnvio - result_cotizacion.sobreflete_heka)} (Aplica solo para envíos en pago contra entrega)`
+        `En caso de devolución pagas solo el envío ida completo: $${convertirMiles(result_cotizacion.costoEnvio)} (Aplica solo para envíos en pago contra entrega)`
     ]
 
     let ul = document.createElement("ul");
@@ -1578,7 +1581,7 @@ function observacionesInteRapidisimo(result_cotizacion) {
         "Las recolecciones deberán ser solicitadas el día anterior o el mismo antes de las 9:00 am para que pasen el mismo día.",
         "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
         "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
-        "En caso de devolución pagas solo el envío ida + seguro: $"+ convertirMiles(result_cotizacion.flete + result_cotizacion.seguroMercancia) +" (Aplica solo para envíos en pago contra entrega)",
+        "En caso de devolución pagas solo el envío ida + seguro + 600: $"+ convertirMiles(result_cotizacion.flete + result_cotizacion.seguroMercancia + 600) +" (Aplica solo para envíos en pago contra entrega)",
     ]
 
     let ul = document.createElement("ul");

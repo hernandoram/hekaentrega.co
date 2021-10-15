@@ -1106,6 +1106,59 @@
     </div>
   </div>
 </div>  
+
+<div class="modal fade" id="modal-notificacion" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="titulo-gestionarNovedad"><b>¿Qué hay de nuevo?</b></h4>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid" id="contenedor-gestionarNovedad">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              <h4 class="mb-1 text-primary text-capitalize">Transportadoras</h4>
+              Los pagos con <b>INTERRAPIDÍSIMO</b> a partir de la próxima semana serán semanales, los días miércoles, sin embargo Heka intentará pagar antes de los cortes.
+            </li>
+
+            <li class="list-group-item">
+              <!-- <h4 class="mb-1 text-primary text-capitalize">envía</h4> -->
+              Actualmente estamos integrando la transportadora <b>ENVÍA</b>, esperamos traer la integración lo más pronto posible.
+            </li>
+            
+            <li class="list-group-item">
+              <h4 class="mb-1 text-primary text-capitalize">pagos diarios</h4>
+              Heka está implemetando pruebas piloto para <b>PAGOS DIARIOS</b> el cual tendrá una comisión adicional de 1.89% sobre el valor a reembolsar.
+            </li>
+            
+            <li class="list-group-item">
+              <h4 class="mb-1 text-primary text-capitalize">Mejoras y actualizaciones</h4>
+              Se está implementando <b>GUÍAS AUTOMÁTICAS</b> con algunos de nuestros usuarios, pronto quedará activado para todos.
+            </li>
+            
+            <li class="list-group-item">
+              <!-- <h4 class="mb-1 text-primary text-capitalize">Puntos de entrega propios</h4> -->
+              Heka está trabajando para habilitar <b>PUNTOS DE ENTREGA PROPIOS</b>, los cuales tendrían precios de envío más económicos y tiempos de reembolso mucho más rápidos. 
+            </li>
+
+            <li class="list-group-item">
+              <!-- <h4 class="mb-1 text-primary text-capitalize">catálogo y links de pago</h4> -->
+              Heka está trabajando en la implementación de <b>CATÁLAGO DE PRODUCTOS</b> y <b>LINKS DE PAGO</b>, los cuales estarán conectados con las transportadoras.
+            </li>
+
+          </ul>
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>  
     
     
     <!-- FIREBASE -->
@@ -1129,6 +1182,9 @@
     
     <!-- Core plugin JavaScript-->
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script type="text/javascript">
+      $('#modal-notificacion').modal('show')
+    </script>
     <!-- main.js -->
     <!-- <script src="js/main.js"></script> -->
     <!-- Custom scripts for all pages-->
@@ -1145,6 +1201,7 @@
     <!-- para controlar el acceso -->
     <script>
       let administracion = false;
+
     </script>
     
     <script src="js/render.js"></script>
@@ -1153,6 +1210,7 @@
     <script src="js/cotizador.js"></script>
     <script src="js/manejadorGuias.js"></script>
     <script src="js/gestionarTienda.js" type="module"></script>
+
   </body>
   
 </html>
