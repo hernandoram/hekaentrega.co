@@ -1051,7 +1051,10 @@ class CalcularCostoDeEnvio {
         +6635+ "/"
         +dane_ciudadR+"/"
         +dane_ciudadD+"/"+this.kgTomado+"/"+this.seguro+"/1/" + genFecha("LR"))
-        .then(data => data.json());
+        .then(data => data.json())
+        .catch(err => err);
+
+        if(res.message || res.Message) return 0;
 
         console.log(res);
         let mensajeria = res.filter(d => d.IdServicio === 3);
