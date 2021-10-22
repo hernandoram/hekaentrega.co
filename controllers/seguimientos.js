@@ -34,7 +34,14 @@ const interrapidisimoCtrl = require("./inter");
 //      firebase.firestore().collection("reporte").add(detalles);
 //      process.exit();
 // });
-async function actualizarMovimientosGuias(d, general) {
+async function actualizarMovimientosGuias(d, general, prueba) {
+    if(!prueba) {
+        firebase.firestore().collection("reporte").add({
+            mensaje: "Comenzó el actualizador de guías",
+            fecha: d
+        });
+    }
+
     let inicio_func = new Date().getTime();
     let referencePpal = firebase.firestore().collectionGroup("guias")
 
@@ -51,7 +58,7 @@ async function actualizarMovimientosGuias(d, general) {
         // .where("transportadora", "==", "INTERRAPIDISIMO")
         // .where("centro_de_costo", "==", 'SellerNatalia')
         // .where("numeroGuia", "in", [240000075671, 240000075829, 240000075846, "240000003998"])
-        // .limit(500)
+        // .limit(10)
     }
         
     try {

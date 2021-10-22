@@ -1,41 +1,49 @@
+<!-- Portada y logo-->
 <div class="row">
     <div class="logo-portada col-12" 
     id="logo-portada-tienda">
-        <figure id="portada-tienda" class="mb-0"
-        style="width: 100%; height: 35vh;
-        background-image: url('/img/undraw_posting_photo.svg');
+        <figure id="portada-tienda"
+        style="width: 100%; height: 20vh;
+        background-image: url('{{#unless tienda.portadaUrl}}/img/undraw_posting_photo.svg{{/unless}} {{tienda.portadaUrl}}');
         background-repeat: no-repeat;
         background-position: center;
-        background-size: cover;">
+        background-size: cover;
+        margin-bottom: 0">
         </figure>
 
         <figure id="contenedor-logo-tienda"
-        class="mt-n4 my-0 ml-md-4 d-flex align-items-center align-items-center">
-            <img src="/img/unnamed.png" id="img-logo-tienda" alt="Logo tienda" class="img-fluid rounded-circle"
-            style="height:120px; width: 120px;">
-            <div class="mt-3 ml-3">
-                <h2 class="text-dark font-weight-normal text-wrap d-none d-sm-block"
-                data-store_info="nombre_tienda">Nombre tienda</h2>
-                <h5 class="text-dark font-weight-normal text-wrap d-sm-none"
-                data-store_info="nombre_tienda">Nombre tienda</h5>
-                <a href="javascript:void(0)" class="btn btn-white btn-rounded"><i class="fab fa-whatsapp" style="color: #25D366"></i><span class="ml-2 d-none d-sm-inline" data-link="true" data-store_info="celular"></span></a>
+        class="mt-n4 ml-md-4 ml-1 d-flex align-items-center">
+            <img src="{{#unless tienda.logoUrl}}/img/unnamed.png{{/unless}}{{tienda.logoUrl}}" id="img-logo-tienda" alt="Logo tienda" 
+            class="img-fluid rounded-circle"
+            style="height:100px; width: 100px;">
+            <div class="mt-4 ml-3">
+                <h2 class="text-dark font-weight-bold text-wrap d-none d-sm-block"
+                data-store_info="nombre_tienda">{{tienda.nombre_tienda}}</h2>
+                <h3 class="text-dark font-weight-bold text-wrap d-sm-none"
+                data-store_info="nombre_tienda">{{tienda.nombre_tienda}}</h3>
+                <a href="https://wa.me/57{{tienda.celular}}" class="btn btn-white btn-rounded"><i class="fab fa-whatsapp" style="color: #25D366"></i><span class="ml-2" data-link="true" data-store_info="celular">{{tienda.celular}}</span></a>
             </div>
-            <a href="javascript:void(0)" id="ver-info-tienda" 
-            data-toggle="#informacion-tienda" 
-            class="ml-2 mt-3 font-weight-normal text-dark font-20"><i class="fa fa-chevron-down"></i></a>
+           
         </figure>
     </div>
 </div>
 
-<div class="row" id="informacion-tienda" style="display: none;">
-    <div class="offset-1 col mb-3">
+<!--Información de la tienda-->
+<div class="row mb-2" id="informacion-tienda">
+    {{!-- <div class="offset-1 col mb-3">
         <h5><i class="fa fa-user"></i><spam class="ml-2" data-store_info="nombre"></spam></h5>
         <h5><i class="fa fa-mobile-alt"></i><spam class="ml-2" data-store_info="celular"></spam></h5>
         <h5><i class="fa fa-envelope"></i><spam class="ml-2" data-store_info="correo"></spam></h5>
-    </div>
+    </div> --}}
 
-    <div class="col-12 col-lg-6">
-        <p data-store_info="descripcion"></p>
+    <div class="col-12" data-store_info="descripcion">
+        {{!-- Recordar que esta información viene en formato de html --}}
+        <div class="card">
+            <div class="card-body">
+                {{{tienda.descripcion}}}
+
+            </div>
+        </div>
     </div>
 </div>
 
@@ -60,19 +68,40 @@
     </div> <!-- end col-->
 </div> --}}
 
-<div class="row justify-content-center mt-3">
+{{#if tienda.mostrar_transportadoras}}
+    <div class="card m-2">
+        <div class="card-body">
+            <div class="row align-items-end">
+                <div class="col-12 text-center">
+                    <h3>Logística</h3>
+                </div>
+                <div class="col-6">
+                    <img src="/img/logo-inter2.png" alt="" class="w-100">
+                </div>
+                <div class="col-6">
+                    <img src="/img/servientrega-logotipo.png" alt="" class="w-100">
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+{{/if}}
+
+<!-- filtro y clasificación -->
+<div class="row justify-content-center">
     <div class="col-12">
         <div class="navbar-nav-scroll mb-2 swiper">
-            <ul class="navbar-nav bd-navbar-nav flex-row swiper-wrapper"
+            <ul class="navbar-nav bd-navbar-nav flex-row swiper-wrapper align-items-center"
             id="categoria-select">
                 <li class="nav-item swiper-slide category-filter"
                 data-category="">
-                    <a class="btn btn-white btn-rounded waves-effect waves-light d-flex justify-content-center align-items-center flex-wrap " href="javascript:void(0)"> Todas<span class="badge bg-primary text-white mx-1 " >{{productos.length}}</span></a> 
+                    <a class="btn btn-white btn-rounded waves-effect waves-light d-flex justify-content-center align-items-baseline flex-wrap " href="javascript:void(0)"> Todas<span class="badge bg-primary text-white mx-1 " >{{productos.length}}</span></a> 
                 </li>
                 {{#categorias productos}}
                     <li class="nav-item swiper-slide category-filter"
                     data-category="{{this.categoria}}">
-                        <a class="btn btn-white btn-rounded waves-effect waves-light d-flex justify-content-center align-items-center flex-wrap " href="javascript:void(0)"> {{this.categoria}}<span class="badge bg-info text-white mx-1 " >{{this.cantidadCategorias}}</span></a> 
+                        <a class="btn btn-white btn-rounded waves-effect waves-light d-flex justify-content-center align-items-baseline flex-wrap " href="javascript:void(0)"> {{this.categoria}}<span class="badge bg-info text-white mx-1 " >{{this.cantidadCategorias}}</span></a> 
                     </li>
                 {{/categorias}}
             </ul>
@@ -81,9 +110,10 @@
 
 </div>
 
-<div class="row">
+<!-- Productos disponibles en la tienda -->
+<div class="row p-2">
     {{#each productos}}
-    <div class="col-6 col-sm-4 producto ver mt-3" data-filter-categoria="{{this.categoria}}"
+    <div class="col-6 col-sm-4 producto ver" data-filter-categoria="{{this.categoria}}"
         data-filter-name="{{this.nombre}}" data-sort-precio="{{this.precio}}">
         <div class="card-box p-1 pb-2 product-box shadow border" style="border-radius: 20px;">
 
@@ -93,36 +123,40 @@
 
             <a href="/{{this.nombre_tienda}}/producto/{{this.id}}" 
             class="bg-light contenedor-img">
-                <img src="{{this.showImg}}" alt="product-pic" class="img-fluid" width="100%" height="100%"
+                <img src="{{this.showImg}}" alt="{{this.nombre}}" title="Ver {{this.nombre}}" class="img-fluid" width="100%" height="100%"
                 style="border-radius: 20px"/>
             </a>
 
             <div class="product-info pt-1 pt-sm-3">
                 <div class="row align-items-center">
                     <div class="col-12 col-sm">
-                        <h4 class="mt-0 sp-line-1">
-                            <a href="/{{this.nombre_tienda}}/producto/{{this.id}}" 
-                            class="text-dark" >{{this.nombre}}</a>
-                        </h4>
-                        <div class="text-warning mb-2 font-13 d-none d-md-block text-truncate">
-                            {{this.categoria}}{{#unless this.categoria}}Sin categoría{{/unless}}
+                        <div class="px-1">
+                            <h4 class="my-0 text-truncate font-weight-bold">
+                                <a href="/{{this.nombre_tienda}}/producto/{{this.id}}" 
+                                title="{{this.nombre}}"
+                                >{{this.nombre}}</a>
+                            </h4>
+                            <div class="text-info mb-1 font-13 d-none d-md-block text-truncate">
+                                {{this.categoria}}{{#unless this.categoria}}Sin categoría{{/unless}}
+                            </div>
+                            <h6 class="m-0 d-none d-md-block"> <span class="text-muted text-nowrap"> Stocks : {{this.showStock.detalles.cantidad}} pcs</span></h6>
                         </div>
-                        <h6 class="m-0 d-none d-md-block"> <span class="text-muted text-nowrap"> Stocks : {{this.showStock.detalles.cantidad}} pcs</span></h6>
                     </div>
                     <div class="col-12 col-sm-auto">
                         <div class="product-price-tag d-none d-md-block">
                             {{getCurrency this.precio}}
                         </div>
-                        <small class="badge float-right p-1 badge-outline-secondary d-md-none">
+                        <h5 class="p-1 text-info my-0 d-md-none">
                             {{getCurrency this.precio}}
-                        </small>
+                        </h5>
                     </div>
-                    <div class="col-12 d-md-none">
+                    <div class="col-12 d-md-none text-center">
                         <a href="/{{this.nombre_tienda}}/producto/{{this.id}}" 
-                        class="btn btn-primary btn-rounded waves-effect waves-light text-truncate btn-sm mt-2 btn-block"><i class="mdi mdi-eye"></i> Ver producto</a>
+                        class="btn btn-primary btn-rounded waves-effect waves-light text-truncate btn-sm mt-2"><i class="mdi mdi-eye"></i> Ver producto</a>
                     </div>
                 </div> <!-- end row -->
             </div> <!-- end product info-->
+
         </div> <!-- end card-box-->
     </div> <!-- end col-->
     {{/each}}

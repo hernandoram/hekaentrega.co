@@ -6,9 +6,10 @@ $("#categoria-select > .category-filter").click(filtrarProductoPorCategoria);
 $("#sort-select").change(organizarProductos);
 $(".price-changer").change(modifyPricesAndLimitsPerProduct);
 $(".vaciar-carrito").click(() => controllers.vaciarCarrito(tienda));
-$("#ver-info-tienda").click(verInfoTienda)
 
-let storeInfo;
+globalThis.p = (theme) => document.documentElement.className = theme;
+
+// let storeInfo;
 console.log(location)
 let tienda = location.pathname.split("/")[1];
 const Toast = controllers.Toast
@@ -228,16 +229,6 @@ function modifyPricesAndLimitsPerProduct() {
 
 }
 
-function verInfoTienda() {
-    const id = this.getAttribute("data-toggle");
-    console.log("toggleando " + id);
-
-    $("i", this).addClass("rotateIn animated")
-    $("i", this).toggleClass("fa-chevron-down fa-chevron-up")
-    setTimeout(() => $("i", this).removeClass("rotateIn animated"), 500)
-    $(id).toggle("fast");
-}
-
 function recalcImgsSize() {
     $(".contenedor-img").each((i,e) => {
         const img = $(e).children("img");
@@ -249,11 +240,12 @@ function recalcImgsSize() {
 
 $(document).ready(function() {
     //solicitamos la info de la tienda
-    storeInfo = controllers.getStoreInfo(tienda);
+    // storeInfo = controllers.getStoreInfo(tienda);
     fetch("/"+tienda+"/carrito?json=true")
     .then(res => {
         console.log(res);
         res.json().then(d => controllers.llenarNotificacionCarrito(d));
+        return res
     });
     
     //Modifico el tamaño de las imagenes para que sean cuadradas

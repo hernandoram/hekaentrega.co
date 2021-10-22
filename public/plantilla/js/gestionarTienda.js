@@ -21,6 +21,10 @@ $("#btn-buscar-pedidos").click(fillPedidos);
 $("#logo-portada-tienda").on("mouseenter", () => $("#actualizar-logo-portada").show("fast"))
 $("#logo-portada-tienda").on("mouseleave", () => $("#actualizar-logo-portada").hide("fast"))
 
+$(".icon-selector").click(selectIcon)
+$("#colorP-tienda,#colorI-tienda").change(selectorColor)
+
+
 if(location.hash === "#tienda") {
     $(document).ready(cargarInfoTienda);
 }
@@ -37,6 +41,26 @@ Dropzone.options.imagenesProducto = {
     acceptedFiles: "image/*",
     dictRemoveFile: "<button class='btn btn-danger badge'>Eliminar</button>"
 };
+const summernoteOptions = {
+    fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', "Times New Roman", "Helvetica", "Impact"],
+    styleTags: [
+        'p',
+        // {title: 'pequeña', tag: 'h6', value: 'h6'},
+        {title: 'Título', tag: 'h4', value: 'h4'},
+        {title: 'Sub-título', tag: 'h5', value: 'h5'},
+    ],
+    toolbar: [
+        ['style', ['style']],
+        ['config', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript']],
+        ['font', ['fontsize', 'fontname']],
+        ['color', ['color']],
+        ['paragraph', ['ul', 'ol', 'paragraph', 'height', 'fullscreen']],
+    ],
+    lang: "es-ES",
+    callbacks: {
+        onChange: limitarCaracteres
+    }
+}
 
 const db = firebase.firestore()
 let tiendaDoc = db.collection("tiendas").doc(user_id);
@@ -595,6 +619,8 @@ class VentanaCrearProducto {
             sumar_envio.click();
         }
 
+        this.modal.find(".note-editable").html(data.descripcion_detallada);
+
         //Llenos laimagenes de ladata, para mostrarle también al usuario las imágenes que tiene el producto actualmente
         this.imagesUrl = data.imagesUrl;
         this.fillImagesPreloaded(data.imagesUrl);
@@ -684,6 +710,15 @@ class VentanaCrearProducto {
     //me habilita algunas funciones necesarias como la de crear producto
     activatefunctions() {
         let btn_continue = this.modal.find("#btn-continuar-modal-creado");
+        const options = Object.assign({} ,summernoteOptions);
+        options.toolbar = [
+            ['style', ['style']],
+            ['config', ['bold', 'italic', 'underline']],
+            ['paragraph', ['ul', 'ol']],
+            ['font', ['fontsize', 'fontname', 'color']],
+        ];
+        options.height = "100px"
+        const summernote = $("#descripcion-completa-producto").summernote(options);
         btn_continue.text("Crear Producto");
         btn_continue.click(() => {
             btn_continue.html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...')
@@ -878,11 +913,15 @@ async function fillProducts() {
 }
 
 async function cargarInfoTienda() {
-    console.count("Cargando info tienda")
+    console.count("Cargando info tienda");
+    
     // return
     let info = await firebase.firestore().collection("tiendas")
     .doc(user_id).get().then(doc => doc.data());
+    
+    $('#descripcion-tienda').summernote(summernoteOptions);
 
+    
     //intenta llenarme toda la info de la tienda, esté activa o no
     obtenerLinkTienda(info);
     if(!info) {
@@ -911,6 +950,22 @@ async function cargarInfoTienda() {
         mostrarPortada(info.portadaUrl);
     }
 
+    if(info.descripcion) {
+        $("#form-tienda").find(".note-editable").html(info.descripcion)
+        // $('#descripcion-tienda').summernote('pasteHTML', info.descripcion);
+    }
+
+    if(info.colores) {
+        $("#colorP-tienda").val(info.colores.primary)
+        $("#colorI-tienda").val(info.colores.info)
+    }
+    
+    if(typeof info.mostrar_transportadoras === "boolean") {
+        $("#mostrar-transp-tienda").prop("checked", info.mostrar_transportadoras);
+    }
+
+    $("#colorI-tienda").change();
+    $("#colorP-tienda").change();
     muestraDelLinkTienda.call($("#url-tienda")[0]);
     return info
 };
@@ -972,7 +1027,12 @@ async function actualizarTienda() {
     let data = new Object();
     let ciudad = document.getElementById("ciudad-tienda").dataset
     let invalid = new Array();
-    const logo = document.getElementById("logo-tienda");
+    const colores = {
+        primary: $("#colorP-tienda").val(),
+        info: $("#colorI-tienda").val()
+    };
+    const mostrar_transportadoras = $("#mostrar-transp-tienda").prop("checked");
+    const set = this.textContent === "Activar";
 
     //revisa que los inputs necesarios estén llenos
     $("#form-tienda [name]").each((i, e) => {
@@ -1015,6 +1075,8 @@ async function actualizarTienda() {
     data.ciudadT = ciudad;
     data.centro_de_costo = datos_usuario.centro_de_costo;
     data.id_user = user_id;
+    data.colores = colores;
+    data.mostrar_transportadoras = mostrar_transportadoras;
 
     console.log(data);
     swal.fire({
@@ -1029,8 +1091,15 @@ async function actualizarTienda() {
         allowEscapeKey: true
     });
 
-    firebase.firestore().collection("tiendas").doc(user_id)
-    .set(data).then(() => {
+    let reference = firebase.firestore().collection("tiendas").doc(user_id)
+
+    if(set) {
+        reference = reference.set(data);
+    } else {
+        reference = reference.update(data);
+    }
+
+    reference.then(() => {
         Swal.fire({
             icon: "success",
             text: "Tienda actualizada exitósamente"
@@ -1151,6 +1220,7 @@ function fillPedidos() {
                 {data: "detalles.cod", title:"Código"},
                 {data: "peso", title:"Peso"}
             ],
+            order: [[0, 'des']],
             dom: 'B<"clear">lfrtip',
             buttons: [{
                 text: "Generar Guías",
@@ -1561,4 +1631,33 @@ function buscarMasEconomicoEnPedido() {
         }
 
     })
+}
+
+function limitarCaracteres(cont, editable) {
+    const prevText = this.value;
+    let limiter = cont.replace(/<[^<]+>/gi, "");
+    limiter = limiter.replace(/&\w+;$/gi, "");
+    const limit = 165;
+    if(limiter.length > limit) {
+        editable.html(prevText)
+        Toast.fire({
+            icon: "warning",
+            text: "Puedes ingresar como máximo " + limit + " carácteres"
+        })
+    }
+
+}
+
+function selectIcon() {
+    $("#form-tienda").find(".note-editable").html((i,html) => {
+        return html += this.textContent
+    });
+}
+
+function selectorColor() {
+    const color = this.value;
+    const identificador = this.getAttribute("id");
+
+    $("[for='"+identificador+"']").css("color", color)
+    $("#mostrador-color-bg").css("background-color", color)
 }

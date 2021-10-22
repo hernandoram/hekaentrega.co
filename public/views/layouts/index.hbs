@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="{{#if tienda.colores}}personalizado{{/if}}">
 <head>
     <meta charset="utf-8" />
     <title>Tiendas - Heka entrega</title>
@@ -11,7 +11,7 @@
     <link rel="shortcut icon" href="/img/heka entrega.png">
 
     <!-- App css -->
-    <link href="/assets/css/bootstrap-modern.min.css" rel="stylesheet" type="text/css" id="bs-default-stylesheet" />
+    <link href="/assets/css/bootstrap-modern.css" rel="stylesheet" type="text/css" id="bs-default-stylesheet" />
     <link href="/assets/css/app-modern.min.css" rel="stylesheet" type="text/css" id="app-default-stylesheet" />
 
     <link href="/assets/css/bootstrap-modern-dark.min.css" rel="stylesheet" type="text/css" id="bs-dark-stylesheet" />
@@ -37,8 +37,16 @@
 
     <link href="/assets/libs/animate.css/animate.min.css" rel="stylesheet" type="text/css">
 
+    <style>
+        :root.personalizado {
+            --primary: {{tienda.colores.primary}};
+            --info: {{tienda.colores.info}}
+        }
+    </style>
+    
+
 </head>
-  <body class="loading" data-layout-mode="detached" data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "sidebar": { "color": "light", "size": "default", "showuser": false}, "topbar": {"color": "light"}, "showRightSidebarOnPageLoad": true}'>
+  <body class="loading" data-layout-mode="detached" data-layout='{"mode": "light", "width": "fluid", "menuPosition": "fixed", "topbar": {"color": "light"}, "sidebar": { "color": "light", "size": "default", "showuser": false}, "showRightSidebarOnPageLoad": true}'>
     <div id="wrapper">
 
       <!-- Topbar Start -->
@@ -104,33 +112,19 @@
                       </div>
 
                       <!-- All-->
-                      <a href="/{{tienda}}/carrito" class="dropdown-item text-center text-primary notify-item notify-all">
+                      <a href="/{{tienda.tienda}}/carrito" class="dropdown-item text-center text-primary notify-item notify-all">
                           Ver carrito
                           <i class="fe-arrow-right"></i>
                       </a>
 
                   </div>
                 </li>
-
-                <li class="ml-1">
-                    <div class="custom-control custom-switch mt-1">
-                        <input type="radio" class="custom-control-input" name="color-scheme-mode" value="light"
-                            id="light-mode-check" checked />
-                        <label class="custom-control-label" for="light-mode-check">Light Mode</label>
-                    </div>
-
-                    <div class="custom-control custom-switch mt-1">
-                        <input type="radio" class="custom-control-input" name="color-scheme-mode" value="dark"
-                            id="dark-mode-check" />
-                        <label class="custom-control-label" for="dark-mode-check">Dark Mode</label>
-                    </div>
-                </li>
               </ul>
 
               <!-- LOGO -->
               <div class="logo-box">
                   <a href="/" class="logo text-center">
-                    <img src="/img/heka entrega.png" class="rounded-circle" alt="Logo tienda" height="40">
+                    <img src="{{#unless tienda.logoUrl}}/img/heka entrega.png{{/unless}}{{tienda.logoUrl}}" class="rounded-circle" alt="Logo tienda" height="40">
                   </a>
               </div>
 
@@ -244,13 +238,16 @@
       </div> --}}
       <!-- Left Sidebar End -->
 
-      <div class="content-page ml-0">
-        <div class="content">
+      <div class="content-page mx-0 p-0">
+          <div style="max-width: 750px;" class="m-auto">
+            {{{body}}}
+
+          </div>
+        {{!-- <div class="content">
           <div class="container-fluid" style="max-width: 800px;">
             <div class="card-box shadow mt-2 mt-md-3">
-            {{{body}}}
             </div>
-          </div>
+          </div> --}}
         </div>
 
 

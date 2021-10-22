@@ -19,6 +19,10 @@
   <script type="text/javascript" src="https://www.aveonline.co/app/modulos/utilidades/jquery.autocomplete.min.js"></script>
   <!-- Custom fonts for this template-->
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  
+  <!-- Librería para un textarea más dinámico-->
+  <link href="./assets/libs/summernote/summernote-bs4.min.css" rel="stylesheet">
+
   <link
     href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
     rel="stylesheet">
@@ -44,6 +48,7 @@
 
   <!-- Librería para crear pdfs a partir de html -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
 
 </head>
 
@@ -373,9 +378,34 @@
                       </div>
                     </div>
                     <div class="row">
-                      <div class="form-group col-12">
+                      <div class="col-6">
+                        <label for="colorP-tienda" class="w-100 text-truncate m-0">Color primario</label>
+                        <input type="color" class="form-control" name="color-primary" id="colorP-tienda" value="#5671f0">
+                      </div>
+                      <div class="col-6">
+                        <label for="colorI-tienda" class="w-100 text-truncate m-0">Color complementario</label>
+                        <input type="color" class="form-control" name="color-info" id="colorI-tienda" value="#43bfe5">
+                      </div>
+                      <div class="col-12 text-center">
+                        <span id="mostrador-color-bg" class="text-light px-2 badge" style="background-color: #5671f0;">Procure seleccionar colores que contrasten</span>
+                      </div>
+                      <div class="col-12 text-center mt-3">
+                        <input type="checkbox" id="mostrar-transp-tienda" checked>
+                        <label for="mostrar-transp-tienda">Mostrar información recomendada</label>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="form-group col-12 mt-4">
                         <label for="descripcion-tienda">Descripción</label>
-                        <textarea class="form-control" name="descripcion" id="descripcion-tienda" rows="5"></textarea>
+                        <div class="icon">
+                          <b class="icon-selector">📍</b>
+                          <b class="icon-selector">📌</b>
+                          <b class="icon-selector">📲</b>
+                          <b class="icon-selector">📱</b>
+                          <b class="icon-selector">🔥</b>
+                          <b class="icon-selector">💖</b>
+                        </div>
+                        <textarea class="form-control summernote" name="descripcion" id="descripcion-tienda"></textarea>
                       </div>
                     </div>
 
@@ -1185,6 +1215,11 @@
     <script type="text/javascript">
       $('#modal-notificacion').modal('show')
     </script>
+
+  <script src="./assets/libs/summernote/summernote-bs4.min.js"></script>
+  <script src="assets/libs/summernote/lang/summernote-es-ES.min.js"></script>
+
+
     <!-- main.js -->
     <!-- <script src="js/main.js"></script> -->
     <!-- Custom scripts for all pages-->

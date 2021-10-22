@@ -84,7 +84,7 @@ export async function getStoreInfo(tienda) {
 
     $("[data-store_info]").each((i,e) => {
         let campo = e.getAttribute("data-store_info");
-        $(e).text(info[campo]);
+        $(e).html(info[campo]);
 
         if(e.getAttribute("data-link")) {
             $(e).parents("a").attr("href", "https://wa.me/57" + info[campo])
@@ -100,9 +100,18 @@ export async function getStoreInfo(tienda) {
         $("#portada-tienda").css("background-image", "url("+info.portadaUrl+")")
     }
 
+    if(info.colores) {
+        setColors(info.colores);
+    }
+
     //Retorna la información de la tienda y también me llena la variable global donde que hace refencia a la misma
     return info;
 };
+
+function setColors(colores) {
+    document.documentElement.style.setProperty("--primary", colores.primary)
+    document.documentElement.style.setProperty("--info", colores.info)
+}
 
 export function calcItem(calcItem) {
     throw new Error("Function not implemented.");

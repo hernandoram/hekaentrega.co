@@ -48,7 +48,11 @@ function retornarDetalles(idTablaPanel) {
 async function scrapEstados(numeroGuia, tipoconsulta) {
     const url = "http://reportes.interrapidisimo.com/Reportes/ExploradorEnvios/ExploradorEnvios.aspx?keyInter=1)";
 
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({
+        headless: true,
+        args: ["--no-sandbox", "--disabled-setuid-sandbox"]
+    });
+
     try {
         const page = await browser.newPage();
         console.log("accediendo a la página");
@@ -103,8 +107,7 @@ async function scrapEstados(numeroGuia, tipoconsulta) {
 
         await browser.close();
         return false;
-    }
-    
+    }  
 }
 
 const actualizarMovimientos = async function(doc) {

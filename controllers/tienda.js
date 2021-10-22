@@ -10,19 +10,23 @@ exports.buscarTienda = async (req, res, next) => {
     console.log("está buscando tienda")
     console.log(req.params)
     console.log("tienda => ", tienda);
-    let id = await db.collection("tiendas").where("tienda", "==", tienda)
+    let storeInfo = await db.collection("tiendas").where("tienda", "==", tienda)
     .get().then(querySnapshot => {
         let identificador;
         querySnapshot.forEach(doc => {
-            identificador = doc.id;
+            let data = doc.data();
+            data.id = doc.id
+            identificador = data;
         })
 
         return identificador;
     });
-
+    const id = storeInfo.id
+    console.log(storeInfo);
     //Realizo la busqueda de la tienda especificada en host par obtener su id
     //Luego utilizo esa información y lo paso como parámetro al siguiente middleware
     req.params.tiendaId = id;
+    req.params.storeInfo = storeInfo
     // if (!req.session.tienda) req.session.tienda = req.params.tienda;
     if(!id) return res.status(404).render("404", {url: req.hostname})
 
@@ -39,7 +43,6 @@ exports.obtenerProductos = async (req, res) => {
             //Tales como la primera imagen a mostrar, el primer item del stock, el identificador del producto, 
             // y el nombre de la tienda que lo contiene.
             let editProducto = producto.data();
-            console.log(producto.data())
             editProducto.showImg = editProducto.imagesUrl[0] ? editProducto.imagesUrl[0].url : "/img/heka entrega.png";
             editProducto.showStock = editProducto.stock[0];
             editProducto.id = producto.id;
@@ -52,8 +55,7 @@ exports.obtenerProductos = async (req, res) => {
     // if (!req.session.tienda) req.session.tienda = req.params.tienda;
     //Se revisan los parámetro para ver si se devuelve un json o si renderiza a la página correspondiente
     if(req.query.json) return res.json(productos);
-    console.log(req.session)
-    res.render("productos", {productos, tienda: req.params.tienda});
+    res.render("productos", {productos, tienda: req.params.storeInfo});
 };
 
 exports.obtenerProducto = async (req, res) => {
@@ -76,7 +78,7 @@ exports.obtenerProducto = async (req, res) => {
     console.log(producto);
     if(!producto) return res.status(404).render("404", {url: req.url})
 
-    res.render("producto", {producto, tienda: req.params.tienda});
+    res.render("producto", {producto, tienda: req.params.storeInfo});
 };
 
 exports.carritoDeCompra = (req, res) => {
