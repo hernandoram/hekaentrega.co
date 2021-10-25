@@ -882,9 +882,32 @@ function subirDocumentos(){
             let numero_guias = parent.getAttribute("data-guias").split(",");
             let nombre_usuario = parent.getAttribute("data-nombre");
             let nombre_documento = numero_guias[0] + ((numero_guias.length > 1) ?
-                "_"+numero_guias[numero_guias.length - 1] : "");
+            "_"+numero_guias[numero_guias.length - 1] : "");
             let nombre_guias = "Guias" + nombre_documento;
             let nombre_relacion = "Relacion" + nombre_documento;
+
+            const hasDocument = await firebase.firestore().collection("documentos")
+            .doc(id_doc).get().then(doc => doc.data().nombre_relacion || doc.data().nombre_guias);
+
+            let continuar = true;
+            if(hasDocument) {
+                await Swal.fire({
+                    icon: "warning",
+                    title: "¿Este documento ya tiene archivos cargados!",
+                    text: "Se ha detectado archivos en este documentos, recuerde que al subir un documento, sutituirá el anterior del mismo. ¿Desea continuar?",
+                    showCancelButton: true,
+                    cancelButtonText: "¡No!, perdón",
+                    confirmButtonText: "Si, sustituir 😎"
+                }).then(response => {
+                    if(!response.isConfirmed) {
+                        continuar = false;
+                    }
+                });
+            }
+
+            if(!continuar) {
+                return enviar.disabled = false;
+            }
             
             console.log(relacion_envio.files[0]);
             console.log(guias.files[0]);

@@ -1228,14 +1228,19 @@ async function enviar_firestore(datos){
     let firestore = firebase.firestore();
     const datos_heka = await firestore.collection("usuarios").doc(localStorage.user_id)
     .collection("informacion").doc("heka").get().then(doc => doc.data());
-    if(!datos_heka) {
-        return {
-            mensaje: "Lo sentimos, no pudimos carga su información de pago, por favor intente nuevamente.",
-            mensajeCorto: "No se pudo cargar su información de pago",
-            icon: "error",
-            title: "Sin procesar"
-        }
-    }
+
+    //Estas líneas será utilizadas para cuando todos los nuevos usuarios por defecto
+    //no tengan habilitadas las transportadoras, para que administración se las tenga que habilitar
+    // if(!datos_heka) {
+    //     return {
+    //         mensaje: "Lo sentimos, no pudimos carga su información de pago, por favor intente nuevamente.",
+    //         mensajeCorto: "No se pudo cargar su información de pago",
+    //         icon: "error",
+    //         title: "Sin procesar"
+    //     }
+    // }
+
+    // FIN DEL BLOQUE
 
     console.log(datos.debe);
     if(!datos.debe && !datos_personalizados.actv_credit &&
