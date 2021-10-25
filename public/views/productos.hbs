@@ -29,7 +29,7 @@
 </div>
 
 <!--Información de la tienda-->
-<div class="row mb-2" id="informacion-tienda">
+<div class="row my-1" id="informacion-tienda">
     {{!-- <div class="offset-1 col mb-3">
         <h5><i class="fa fa-user"></i><spam class="ml-2" data-store_info="nombre"></spam></h5>
         <h5><i class="fa fa-mobile-alt"></i><spam class="ml-2" data-store_info="celular"></spam></h5>
@@ -41,7 +41,27 @@
         <div class="card">
             <div class="card-body">
                 {{{tienda.descripcion}}}
+                {{#if tienda.mostrar_transportadoras}}
+                    <div class="row align-items-center justify-content-around">
+                        <div class="col-12 text-center">
+                            <h3>Logística</h3>
+                        </div>
+                        <div class="col-6 text-center d-md-none">
+                            <img src="/img/logo-inter2.png" alt="" style="height: 28px; max-width: 95%">
+                        </div>
+                        <div class="col-6 text-center d-none d-md-block">
+                            <img src="/img/logo-inter2.png" alt="" style="max-height: 50px; max-width: 95%">
+                        </div>
 
+                        <div class="col-6 text-center d-md-none">
+                            <img src="/img/logo-servi2.svg" alt="" style="height: 28px; max-width: 95%;">
+                        </div>
+                        <div class="col-6 text-center d-none d-md-block">
+                            <img src="/img/logo-servi2.svg" alt="" style="max-height: 50px; max-width: 95%;">
+                        </div>
+
+                    </div>
+                {{/if}}
             </div>
         </div>
     </div>
@@ -67,26 +87,6 @@
         </div> <!-- end card-box -->
     </div> <!-- end col-->
 </div> --}}
-
-{{#if tienda.mostrar_transportadoras}}
-    <div class="card m-2">
-        <div class="card-body">
-            <div class="row align-items-end">
-                <div class="col-12 text-center">
-                    <h3>Logística</h3>
-                </div>
-                <div class="col-6">
-                    <img src="/img/logo-inter2.png" alt="" class="w-100">
-                </div>
-                <div class="col-6">
-                    <img src="/img/servientrega-logotipo.png" alt="" class="w-100">
-                </div>
-
-            </div>
-
-        </div>
-    </div>
-{{/if}}
 
 <!-- filtro y clasificación -->
 <div class="row justify-content-center">

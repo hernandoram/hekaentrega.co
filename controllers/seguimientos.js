@@ -95,7 +95,8 @@ async function actualizarMovimientosGuias(d, general, prueba) {
                 let guia;
                 if(doc.data().transportadora && doc.data().transportadora === "INTERRAPIDISIMO") {
                     consulta.interrapidisimo ++;
-                    guia = await interrapidisimoCtrl.actualizarMovimientos(doc);
+                    continue;
+                    // guia = await interrapidisimoCtrl.actualizarMovimientos(doc);
                 } else {
                     consulta.servientrega ++
                     guia = await servientregaCtrl.actualizarMovimientos(doc);

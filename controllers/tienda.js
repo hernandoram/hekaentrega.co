@@ -96,7 +96,7 @@ exports.carritoDeCompra = (req, res) => {
     if(req.query.json) return res.json(carrito || [])
     res.render("carrito", {
         carrito: carrito || [],
-        tienda: req.params.tienda || "no"
+        tienda: req.params.tienda
     });
 }
 

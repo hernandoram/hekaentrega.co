@@ -399,7 +399,7 @@ async function crearPedido(item) {
 function enviarWhatsappRemitente(arrData) {
     let mensaje = "Hola, vengo de la tienda en Heka Entrega %0A"
     mensaje+= "*Mi nombre es:* " + arrData[0].nombreD + "%0A";
-    mensaje+= "*Ciudad y departamento:* " + arrData[0].ciudadD + ", " + arrData[0].departamentoD + "%0A";
+    mensaje+= "*Ciudad y departamento:* " + arrData[0].ciudad.ciudad + ", " + arrData[0].ciudad.departamento + "%0A";
     mensaje+= "*Dirección:* " + arrData[0].direccionD + "%0A";
     mensaje+= "*Números de contacto:* ";
     mensaje += arrData[0].telefonoD == arrData[0].celularD ?
