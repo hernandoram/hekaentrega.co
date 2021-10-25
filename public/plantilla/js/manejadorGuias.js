@@ -297,8 +297,9 @@ async function crearManifiestoServientrega(arrGuias, vinculo) {
             icon: "error",
             text: "Hubo un error al crear los documentos: " + error.message
         });
-        firebase.firestore().collection("documentos").doc(vinculo.id_doc).delete();
+
         document.getElementById("enviar-documentos").removeAttribute("disabled");
+        return "error";
     });
     
     let numero_guias = arrGuias.map(d => d.numeroGuia).sort();
@@ -313,6 +314,10 @@ async function crearManifiestoServientrega(arrGuias, vinculo) {
         if(arrGuias.length !== 0) {
             ul.innerHTML += `Por razones desconocidas, no se pudo crear el manifiesto, el problema ha sido transferido a asesoría logística,
             trataremos de corregirlo en la brevedad posible.`;
+        }
+
+        if(base64 === "error") {
+            firebase.firestore().collection("documentos").doc(vinculo.id_doc).delete();
         }
     };
 
@@ -376,7 +381,6 @@ function cargarDocumentos(filter) {
 
     docFiltrado.get().then((querySnapshot) => {
         documentos.innerHTML = "";
-        console.log(querySnapshot.size);
         let users = new Array();
         let counter_guias = 0;
         let counter_convencional = 0, counter_pagoContraentrega = 0;
@@ -583,7 +587,7 @@ function showStatistics(query, arr, insertAfter) {
 
     new Splide("#statistics" + complement, {
         perPage: 4,
-        gap: 4,
+        gap: 5,
         easing: "ease",
         classes: {
             prev: "splide__arrow--prev ml-n3 bg-transparent",
@@ -1246,11 +1250,34 @@ function actualizarEstado(){
     })
 }
 
+//guardará un arreglo y funcionará cun un listener
+class ArregloInteractivo {
+    constructor() {
+        this.guias = new Array();
+    }
+
+    set push(val) {
+        if(!this.guias.includes(val)) {
+            this.guias.push(val);
+        }
+    }
+
+    set quit(val) {
+        const index = this.guias.indexOf(val);
+        this.guias.splice(index, 1);
+    }
+
+    init() {
+        console.log("se Inició la función con =>", this.guias);
+    }
+}
+
 function revisarNotificaciones(){
     let notificador = document.getElementById("notificaciones"); 
     let audio = document.createElement("audio");
     audio.innerHTML = `<source type="audio/mpeg" src="./recursos/notificacion.mp3">`;
     let busqueda = localStorage.user_id, operador = "==", buscador = "user_id", novedades;
+    let guiasNovedad;
 
     if(administracion) {
         busqueda = 0;
@@ -1261,6 +1288,12 @@ function revisarNotificaciones(){
             let badge = novedades.querySelector("span");
             badge.textContent = 0;
             badge.classList.add("d-none");
+        });
+
+        guiasNovedad = new ArregloInteractivo();
+        document.querySelector("#ver-novedades").addEventListener("click", () => {
+            location.href = "#novedades"
+            revisarMovimientosGuias(true, null, null, guiasNovedad.guias);
         })
     }
     notificador.addEventListener("click", e => {
@@ -1286,6 +1319,7 @@ function revisarNotificaciones(){
                         contador.classList.remove("d-none");
                         contador.innerHTML = parseInt(contador.textContent) + 1;
                         mostrador = document.getElementById("mostrador-info-novedades");
+                        guiasNovedad.push =  notification.guia
                     } else {
                         contador = notificador.querySelector("span");
                         contador.classList.remove("d-none");
@@ -1302,6 +1336,7 @@ function revisarNotificaciones(){
                         if(notification.type == "novedad") {
                             contador = novedades.querySelector("span");
                             contador.innerHTML = parseInt(contador.textContent) <= 0 ? 0 : parseInt(contador.textContent) - 1;
+                            guiasNovedad.quit = notification.guia
                         } else {
                             contador = notificador.querySelector("span");
                             contador.innerHTML = parseInt(contador.textContent) <= 0 ? 0 : parseInt(contador.textContent) - 1;
@@ -1313,7 +1348,9 @@ function revisarNotificaciones(){
                 $(".notificacion-"+identificador).remove();
             }
         });
-    })
+    });
+
+    
     
 }
 
@@ -1321,12 +1358,10 @@ function eliminarNotificaciones(){
     let visible = administracion ? "visible_admin" : "visible_user";
     firebase.firestore().collection("notificaciones").where(visible, "==", true).get()
     .then(querySnapshot => {
-        console.log("aver")
         querySnapshot.forEach(doc => {
             let notificacion = firebase.firestore()
             .collection("notificaciones").doc(doc.id)
-
-            if((administracion && doc.data().type == "documeto") || 
+            if((administracion && doc.data().type == "documento") || 
             (doc.data().user_id == user_id)) {
                 notificacion.delete();
             }

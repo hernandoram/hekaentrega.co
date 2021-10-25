@@ -5,7 +5,8 @@ var firebaseConfig = {
     projectId: "hekaapp-23c89",
     storageBucket: "hekaapp-23c89.appspot.com",
     messagingSenderId: "539740310887",
-    appId: "1:539740310887:web:66f9ab535d18addeb173c2"
+    appId: "1:539740310887:web:66f9ab535d18addeb173c2",
+    measurementId: "G-9VP01NDSXJ"
 };
 
 // Initialize Firebase
@@ -268,7 +269,7 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                     data-user="${data.id_user}" data-funcion="descargar-docs" 
                     id="descargar-docs${id}"></i>
 
-                    <small class="badge badge-primary badge-counter float-right">${data.guias.length}</small>
+                    <span class="badge-pill badge-primary float-right">${data.guias.length}</span>
                 </div>
             </div>
             <div class="row" data-guias="${data.guias}" data-type="${data.type}"
@@ -474,7 +475,33 @@ function activarBotonesDeGuias(id, data, activate_once){
         })
         usuarioDoc.collection("guias").doc(id)
         .get().then(doc => {
-            enviar_firestore(doc.data());
+            enviar_firestore(doc.data()).then(res => {
+                if(res.icon === "success") {
+                    Swal.fire({
+                        icon: "success",
+                        title: res.title,
+                        text: res.mensaje,
+                        timer: 6000,
+                        showCancelButton: true,
+                        confirmButtonText: "Si, ir al cotizador.",
+                        cancelButtonText: "No, ver el historial."
+            
+                    }).then((res) => {
+                        if(res.isConfirmed) {
+                            location.href = "plataforma2.html";
+                        } else {
+                            location.href = "#historial_guias";
+                            cambiarFecha();
+                        }
+                    })
+                } else {
+                    Swal.fire({
+                        icon: res.icon,
+                        title: res.title,
+                        html: res.mensaje
+                    })
+                }
+            });
         })
         })
 
@@ -782,7 +809,7 @@ function mostrarNotificacion(data, type, id){
                     notificacion.setAttribute("data-target", "#modal-detallesNotificacion");
                     modalNotificacion(data.detalles)
                     $("#revisar-detallesNotificacion").click(() => {
-                        location.href = "#"+data.href || "#documentos";
+                        location.href = "#" + (data.href || "documentos");
                         if(data.href == "deudas") {
                             revisarDeudas();
                         } else {
@@ -935,7 +962,6 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
 
     const tiempo_en_novedad = diferenciaDeTiempo(momento_novedad[mov.fechaMov] || new Date(), new Date());
     
-    console.log(tiempo_en_novedad)
     if(tiempo_en_novedad > 3 && data.transportadora == "INTERRAPIDISIMO" && !administracion) return;
     
     let btnGestionar, btn_solucionar = ""

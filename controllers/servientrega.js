@@ -135,6 +135,7 @@ exports.generarManifiesto = async (req, res) => {
     if(!base64) {
       campos_actualizados.descargar_relacion_envio = false;
       campos_actualizados.important = true;
+      campos_actualizados.href = "documentos";
     };
   
     res.send(base64);
@@ -171,8 +172,6 @@ exports.generarManifiesto = async (req, res) => {
         console.log("Hubo un error para configurar el documento");
         console.log(error)
         console.log(JSON.stringify(error))
-        console.log(error.error)
-        console.log(error.toString())
         console.log(error.message)
   
       });

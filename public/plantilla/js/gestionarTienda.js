@@ -24,6 +24,7 @@ $("#logo-portada-tienda").on("mouseleave", () => $("#actualizar-logo-portada").h
 $(".icon-selector").click(selectIcon)
 $("#colorP-tienda,#colorI-tienda").change(selectorColor)
 
+const analytics = firebase.analytics();
 
 if(location.hash === "#tienda") {
     $(document).ready(cargarInfoTienda);
@@ -41,6 +42,7 @@ Dropzone.options.imagenesProducto = {
     acceptedFiles: "image/*",
     dictRemoveFile: "<button class='btn btn-danger badge'>Eliminar</button>"
 };
+
 const summernoteOptions = {
     fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', "Times New Roman", "Helvetica", "Impact"],
     styleTags: [
@@ -60,7 +62,7 @@ const summernoteOptions = {
     callbacks: {
         onChange: limitarCaracteres
     }
-}
+};
 
 const db = firebase.firestore()
 let tiendaDoc = db.collection("tiendas").doc(user_id);
@@ -717,7 +719,7 @@ class VentanaCrearProducto {
             ['paragraph', ['ul', 'ol']],
             ['font', ['fontsize', 'fontname', 'color']],
         ];
-        options.height = "100px"
+        options.height = "120px"
         const summernote = $("#descripcion-completa-producto").summernote(options);
         btn_continue.text("Crear Producto");
         btn_continue.click(() => {
@@ -1218,19 +1220,24 @@ function fillPedidos() {
                     }
                 },
                 {data: "detalles.cod", title:"Código"},
-                {data: "peso", title:"Peso"}
+                {data: "cantidad", title:"Cantidad"},
+                {data: "precio", title: "Precio Unit."},
+                {data: "nombre", title:"Producto", defaultContent: "Error"},
+                {data: "detalles.cod", title: "Cod", className: "text-nowrap"},
+                {data: "ciudad.ciudad", title:"Ciudad destino", defaultContent: "Error"},
+                {data: "nombreD", title:"Cliente", defaultContent: ""},
+                {data: "telefonoD", title:"Contacto", defaultContent: ""},
             ],
             order: [[0, 'des']],
             dom: 'B<"clear">lfrtip',
             buttons: [{
                 text: "Generar Guías",
-                className: "btn btn-primary",
+                className: "btn btn-success",
                 colTr: 1,
                 colTp: 2,
                 action: crearGuiasDesdePedido
             }, {
                 text: "Cotizar",
-                className: "btn btn-secondary",
                 colPc: 3,
                 colC: 4,
                 action: calcularCostoEnvioPedidos
@@ -1425,6 +1432,14 @@ async function calcularCostoEnvioPedidos(e, dt, node, config) {
         precios: datos_personalizados,
         ciudadR: storeInfo.ciudadT,
     };
+
+    if(!datas.length) {
+        Toast.fire({
+            icon: "warning",
+            text: "No has seleccionado el pedido que deseas generar."
+        })
+    }
+
     for (let i = 0; i < datas.length; i++) {
         const row = api.rows(i).nodes()[0];
 
@@ -1450,7 +1465,7 @@ async function calcularCostoEnvioPedidos(e, dt, node, config) {
                 dane_ciudadD: pedido.ciudad.dane_ciudad,
             });
 
-            const pc = config.colPc, c = config.colC
+            const pc = config.colPc, c = config.colC;
         
             const cellPc = $("td", row).eq(pc);
             const cellC = $("td", row).eq(c);
@@ -1458,7 +1473,6 @@ async function calcularCostoEnvioPedidos(e, dt, node, config) {
             if(!cotizacionPC.empty) {
                 if(pedido.sumar_envio) cotizacionPC.sumarCostoDeEnvio = cotizacionPC.valor
                 // console.log("Pago contraentrega", cotizacionPC)
-
                 const mostrador = cellPc.find("[data-transp='"+transp+"']")
                 mostrador.text(cotizacionPC.costoEnvio)
                 console.log(cotizacionPC);

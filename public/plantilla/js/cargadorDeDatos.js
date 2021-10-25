@@ -9,6 +9,14 @@ if(localStorage.getItem("acceso_admin")){
   location.href = "iniciarSesion2.html"
 }
 
+window.addEventListener("storage", (e) => {
+  const {key, newValue} = e;
+
+  if(!key || (key === "user_id" && newValue && newValue !== user_id)) {
+    location.reload();
+  }
+});
+
 
 //Administradara datos basicos del usuario que ingresa
 let datos_usuario = {},

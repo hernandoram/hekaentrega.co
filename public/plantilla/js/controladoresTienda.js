@@ -36,7 +36,7 @@ export function llenarNotificacionCarrito(carrito) {
             atributos += `<small class="mr-2"><b>${attr}:</b> ${item.atributos[attr]} </small>`; 
         }
 
-        notificacion.innerHTML += `<a href="${item.tienda}/producto/${item.id_producto}" class="dropdown-item notify-item">
+        notificacion.innerHTML += `<a href="/${item.tienda}/producto/${item.id_producto}" class="dropdown-item notify-item">
             <div class="notify-icon">
                 <img src="${item.imagesUrl ? item.imagesUrl.url : "/img/heka entrega.png"}" class="img-fluid rounded-circle" alt="" /> </div>
             <p class="notify-details">${item.nombre}</p>
@@ -113,6 +113,7 @@ function setColors(colores) {
     document.documentElement.style.setProperty("--info", colores.info)
 }
 
-export function calcItem(calcItem) {
-    throw new Error("Function not implemented.");
-}
+//function que me transforma todos los número que posean la clase currency en dígito numérico
+$(".currency").text((i,text) => {
+    return currency(text);
+});

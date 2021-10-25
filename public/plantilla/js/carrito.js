@@ -4,10 +4,18 @@ import * as Ctrl from "./controladoresTienda.js"
 $("#comprar").click(realizarCompra);
 $("[data-function='adicionar']").change(calcItem);
 $("[data-function='quitar']").click(quitarDelCarrito);
-
+$("#ciudadD").change(calcularCostoEnvio);
 let tienda = location.pathname.split("/")[1];
 
 const Toast = Ctrl.Toast;
+let storeInfo;
+
+cargarInfoTienda()
+async function cargarInfoTienda() {
+    const info = await Ctrl.getStoreInfo(tienda);
+    storeInfo = info;
+    return info
+}
 
 let precios = {
     costo_zonal1: 7550,
@@ -53,7 +61,7 @@ function calcItem() {
     //si la cantidad de productos solicitado es reducido a cero, se llama la función que elimina el item del carrito
     if(cant <= 0) return quitarDelCarrito.call(this);
 
-    // modificarItemCarrito(this);
+    modificarItemCarrito(this);
 }
 
 function calcTotal() {
@@ -63,7 +71,7 @@ function calcTotal() {
         subTotal += parseInt($(item).text())
     })
 
-    $("#sub-total").html(subTotal);
+    $("#sub-total").html(Ctrl.currency(subTotal));
     return subTotal;
 };
 
@@ -100,12 +108,15 @@ function modificarItemCarrito(input) {
 async function calcularCostoEnvio() {
     //Comienzo de la función que utiliza el cotizador que utiliza la plataforma principal para calcular el costo del envío
     let carrito = await Ctrl.getCarrito(tienda);
+    if(!storeInfo) await cargarInfoTienda()
+
     if(!carrito.length) {
         return Toast.fire({
             icon: "error",
             text: "El carrito está vacío."
         })
     }
+
     // let recaudo = parseInt($("#sub-total").text().replace(/\D/, ""));
     //Objeto necesario en el que salen los precios de cotización, la ciudad del remitente y del destinatario para proseguir
     let datos_de_cotizacion = {
@@ -113,7 +124,6 @@ async function calcularCostoEnvio() {
         ciudadD: document.getElementById("ciudadD").dataset
     };
     let costo_envio = 0;
-    let guias = new Array();
 
     //comienza la revisión de cada item del carrito
     for await (let item of carrito) {
@@ -122,7 +132,7 @@ async function calcularCostoEnvio() {
         let peso = item.peso * item.cantidad;
         let recaudo = item.precio * item.cantidad
 
-        datos_de_cotizacion.ciudadR = await Ctrl.getStoreInfo(item.tienda)
+        datos_de_cotizacion.ciudadR = storeInfo.ciudadT;
         console.log(item);
 
         //revisa si hay que sumarle el envío o no para utilar la funciones obtenidas desde el "cotizador.js"
@@ -139,13 +149,13 @@ async function calcularCostoEnvio() {
     };
 
     console.log("El costo de envío",costo_envio);
-    let total = costo_envio + calcTotal();
+    let total = Ctrl.currency(costo_envio + calcTotal());
     if(!costo_envio) {
         total = "No disponible";
         $("#total").addClass("text-danger");
     };
 
-    $("#costo-envio").text(costo_envio);
+    $("#costo-envio").text(Ctrl.currency(costo_envio));
     $("#total").text(total);
     $(this).html('<i class="mdi mdi-truck-fast mr-1"></i> Comprar');
     $(this).removeAttr("disabled");

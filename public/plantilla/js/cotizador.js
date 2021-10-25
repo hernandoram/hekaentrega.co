@@ -741,8 +741,8 @@ function finalizarCotizacion(datos) {
             </form>
         </div>
         `),
-        boton_crear = crearNodo(`<input type="button" id="boton_final_cotizador" 
-            class="btn btn-success btn-block mt-5" value="Crear Guía" onclick="crearGuia()"/>`);
+        boton_crear = crearNodo(`<button type="button" id="boton_final_cotizador" 
+            class="btn btn-success btn-block mt-5" title="Crear guía" onclick="crearGuia()">Crear guía</button>`);
 
     div_principal.append(boton_regresar, detalles, input_producto, datos_remitente, datos_destinatario, boton_crear);
     creador.innerHTML = "";
@@ -1043,8 +1043,6 @@ class CalcularCostoDeEnvio {
         console.log("cotizando Interrapidisimo");
         let url = "https://www3.interrapidisimo.com/ApiServInter/api/Cotizadorcliente/ResultadoListaCotizar/";
         
-        console.log(this.seguro);
-        console.log(this.kgTomado);
 
         let res = await fetch(url+"/"
         +6635+ "/"
@@ -1067,6 +1065,13 @@ class CalcularCostoDeEnvio {
 
 // Para enviar la guia generada a firestore
 function crearGuia() {
+    let boton_final_cotizador = document.getElementById("boton_final_cotizador");
+    boton_final_cotizador.innerHTML = "<span class='spinner-border spinner-border-sm'></span> Cargando...";
+
+    const textoBtn = boton_final_cotizador.textContent;
+    boton_final_cotizador.setAttribute("disabled", true);
+
+
     if(value("nombreD") != "" && value("direccionD") != "" && value("barrioD") != "" && 
     value("telefonoD") != ""){
         let recoleccion = 0
@@ -1124,17 +1129,8 @@ function crearGuia() {
             datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`;
             datos_a_enviar.timeline = new Date().getTime();
             datos_a_enviar.id_user = user_id;
-            
 
-            boton_final_cotizador = document.getElementById("boton_final_cotizador")
-            boton_final_cotizador.classList.add("disabled");
-
-            let cargador = document.createElement("div");
-            cargador.classList.add("d-flex", "justify-content-center");
-            cargador.innerHTML = "<div class='lds-ellipsis'><div></div><div></div><div></div><div></div></div>";
-            cargador.setAttribute("id", "respuesta-crear_guia");
-            boton_final_cotizador.parentNode.insertBefore(cargador, boton_final_cotizador);
-            boton_final_cotizador.remove()
+            // boton_final_cotizador.remove()
 
             enviar_firestore(datos_a_enviar).then(res => {
                 if(res.icon === "success") {
@@ -1162,11 +1158,20 @@ function crearGuia() {
                         html: res.mensaje
                     })
                 }
+
+                boton_final_cotizador.removeAttribute("disabled");
+
+                boton_final_cotizador.textContent = textoBtn;
+
             })
         }
     } else {
         alert("Por favor, verifique que los campos escenciales no estén vacíos");
         verificador(["producto", "nombreD", "direccionD", "barrioD", "telefonoD"]);
+        boton_final_cotizador.removeAttribute("disabled");
+
+        boton_final_cotizador.textContent = textoBtn;
+
     }
 };
 
@@ -1371,7 +1376,7 @@ function notificarExcesoDeGasto() {
         href: "deudas"
     })
 };
-
+let x;
 //función que utiliza el webservice para crear las guías de manera automática
 async function generarGuiaServientrega(datos) {
     let res = await fetch("/servientrega/crearGuia", {
@@ -1423,7 +1428,8 @@ async function generarGuiaServientrega(datos) {
         return retorno;
     })
     .catch(err => {
-        console.log("Hubo un error: ", err)
+        console.log("Hubo un error: ", err);
+        x = err;
         return err;
     });
 
