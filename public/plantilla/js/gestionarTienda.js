@@ -25,6 +25,7 @@ $(".icon-selector").click(selectIcon)
 $("#colorP-tienda,#colorI-tienda").change(selectorColor)
 
 const analytics = firebase.analytics();
+analytics.logEvent("page_view");
 
 if(location.hash === "#tienda") {
     $(document).ready(cargarInfoTienda);

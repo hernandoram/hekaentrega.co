@@ -1,4 +1,6 @@
 <div class="card-box shadow mt-2 mt-md-3">
+<a href="/{{producto.nombre_tienda}}/prodcutos" class="btn btn-secondary">
+<i class="mdi mdi-arrow-left"></i> Regresar </a>
     <div class="row">
         <div class="col-12">
             <div class="page-title-box">
@@ -81,21 +83,10 @@
                 {{/listar_atributos}}
 
                 <div>
-                    <div class="row mt-4">
-                        <div class="col-6">
-                            <a href="/{{producto.nombre_tienda}}/productos" class="btn btn-secondary">
-                                <i class="mdi mdi-arrow-left"></i> Regresar </a>
-                        </div> <!-- end col -->
-                        <div class="col-6">
-                            <div class="text-sm-right">
-                                <button type="button" id="agregar-al-carrito" data-tienda="{{producto.nombre_tienda}}" data-storeId="{{producto.storeId}}" data-id="{{producto.id}}" class="btn btn-success waves-effect waves-light text-truncate w-100">
-                                    <span class="btn-label"><i class="mdi mdi-cart"></i></span>Añadir al carrito
-                                </button>
-                            </div>
-                        </div> <!-- end col -->
-                    </div> <!-- end row -->
                     {{!-- <button type="button" class="btn btn-danger mr-2"><i class="mdi mdi-heart-outline"></i></button> --}}
-                    
+                    <button type="button" id="agregar-al-carrito" data-tienda="{{producto.nombre_tienda}}" data-storeId="{{producto.storeId}}" data-id="{{producto.id}}" class="btn btn-success waves-effect waves-light">
+                        <span class="btn-label"><i class="mdi mdi-cart"></i></span>Añadir al carrito
+                    </button>
                 </div>
             </div>
         </div> <!-- end col -->

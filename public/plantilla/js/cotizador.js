@@ -1381,7 +1381,7 @@ function notificarExcesoDeGasto() {
         href: "deudas"
     })
 };
-let x;
+
 //función que utiliza el webservice para crear las guías de manera automática
 async function generarGuiaServientrega(datos) {
     let res = await fetch("/servientrega/crearGuia", {
@@ -1434,7 +1434,6 @@ async function generarGuiaServientrega(datos) {
     })
     .catch(err => {
         console.log("Hubo un error: ", err);
-        x = err;
         return err;
     });
 
@@ -1482,8 +1481,8 @@ async function generarGuiaInterrapidisimo(datos) {
     .catch(error => {error});
 
     respuesta = JSON.parse(respuesta);
-    if(respuesta.error) return {numeroGuia: 0, error: respuesta.error};
     if(respuesta.Message) return {numeroGuia: 0, error: respuesta.Message};
+    if(respuesta.error) return {numeroGuia: 0, error: respuesta.error};
 
     respuesta.numeroGuia = respuesta.numeroPreenvio;
     respuesta.id_heka = datos.id_heka;

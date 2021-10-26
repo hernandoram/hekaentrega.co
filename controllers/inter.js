@@ -102,8 +102,8 @@ async function scrapEstados(numeroGuia, tipoconsulta) {
         return respuesta;
     } catch (e) {
         console.log("Hubo un error con puppeteer")
-        console.log(e);
         console.log(numeroGuia)
+        console.log(e);
 
         await browser.close();
         return false;

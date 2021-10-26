@@ -111,11 +111,11 @@
 </div>
 
 <!-- Productos disponibles en la tienda -->
-<div class="row p-2">
+<div class="row m-1">
     {{#each productos}}
-    <div class="col-6 col-sm-4 producto ver" data-filter-categoria="{{this.categoria}}"
+    <div class="col-6 col-sm-4 producto ver my-1 p-0 h-100" data-filter-categoria="{{this.categoria}}"
         data-filter-name="{{this.nombre}}" data-sort-precio="{{this.precio}}">
-        <div class="card-box p-1 pb-2 product-box shadow border" style="border-radius: 20px;">
+        <div class="card-box p-1 product-box shadow border mb-0" style="border-radius: 5px;">
 
             <div class="product-action">
                 <a href="/{{this.nombre_tienda}}/producto/{{this.id}}" class="btn btn-success btn-xs waves-effect waves-light"><i class="mdi mdi-eye"></i> Ver producto</a>
@@ -124,37 +124,55 @@
             <a href="/{{this.nombre_tienda}}/producto/{{this.id}}" 
             class="bg-light contenedor-img">
                 <img src="{{this.showImg}}" alt="{{this.nombre}}" title="Ver {{this.nombre}}" class="img-fluid" width="100%" height="100%"
-                style="border-radius: 20px"/>
+                style="border-radius: 5px"/>
             </a>
 
-            <div class="product-info pt-1 pt-sm-3">
+            <div class="product-info pt-1 pt-sm-3 d-none d-sm-block">
                 <div class="row align-items-center">
-                    <div class="col-12 col-sm">
-                        <div class="px-1">
-                            <h4 class="my-0 text-truncate font-weight-bold">
-                                <a href="/{{this.nombre_tienda}}/producto/{{this.id}}" 
-                                title="{{this.nombre}}"
-                                >{{this.nombre}}</a>
-                            </h4>
-                            <div class="text-info mb-1 font-13 d-none d-md-block text-truncate">
+                    <div class="col-12">
+                        <h5 class="my-0 font-weight-bold">
+                            <a href="/{{this.nombre_tienda}}/producto/{{this.id}}" 
+                            title="{{this.nombre}}"
+                            >{{this.nombre}}</a>
+                        </h5>
+                    </div>
+                    <div class="col mt-1">
+                        <div class="pl-1">
+                            <div class="text-info mb-1">
                                 {{this.categoria}}{{#unless this.categoria}}Sin categoría{{/unless}}
                             </div>
-                            <h6 class="m-0 d-none d-md-block"> <span class="text-muted text-nowrap"> Stocks : {{this.showStock.detalles.cantidad}} pcs</span></h6>
+                            <h6 class="m-0"> <span class="text-muted text-nowrap"> Stock : {{this.showStock.detalles.cantidad}} Unds.</span></h6>
                         </div>
                     </div>
-                    <div class="col-12 col-sm-auto">
+                    <div class="col-auto">
                         <div class="product-price-tag d-none d-md-block">
                             {{getCurrency this.precio}}
                         </div>
-                        <h5 class="p-1 text-info my-0 d-md-none">
+                        <span class="bg-light d-md-none p-1 font-12">
                             {{getCurrency this.precio}}
-                        </h5>
+                        </span>
                     </div>
-                    <div class="col-12 d-md-none text-center">
+                    {{!-- <div class="col-12 text-center">
                         <a href="/{{this.nombre_tienda}}/producto/{{this.id}}" 
                         class="btn btn-primary btn-rounded waves-effect waves-light text-truncate btn-sm mt-2"><i class="mdi mdi-eye"></i> Ver producto</a>
-                    </div>
+                    </div> --}}
                 </div> <!-- end row -->
+            </div> <!-- end product info-->
+
+            <!-- Para realizar el apartado de información del diseño movil-->
+            <div class="product-info mx-1 pt-1 pt-sm-3 d-sm-none">
+                <h4 class="d-md-none mb-0">
+                    {{getCurrency this.precio}}
+                </h4>
+                <small class="text-info mb-1">
+                    {{this.categoria}}{{#unless this.categoria}}Sin categoría{{/unless}}
+                </small>
+                <p class="my-1">
+                    <a href="/{{this.nombre_tienda}}/producto/{{this.id}}" 
+                    title="{{this.nombre}}"
+                    class="text-muted"
+                    >{{this.nombre}}</a>
+                </p>
             </div> <!-- end product info-->
 
         </div> <!-- end card-box-->

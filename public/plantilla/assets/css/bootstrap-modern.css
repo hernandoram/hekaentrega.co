@@ -8,6 +8,10 @@ Contact: support@coderthemes.com
 File: Custom Bootstrap Css File
 */
 @import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap");
+@font-face {
+  font-family: Nova;
+  src: url("../fonts/ProximaNova-Regular.otf");
+}
 /*!
  * Bootstrap v4.5.0 (https://getbootstrap.com/)
  * Copyright 2011-2020 The Bootstrap Authors
@@ -41,7 +45,7 @@ File: Custom Bootstrap Css File
   --breakpoint-md: 768px;
   --breakpoint-lg: 992px;
   --breakpoint-xl: 1367px;
-  --font-family-sans-serif: "Ubuntu", "sans-serif";
+  --font-family-sans-serif: "Nova", "sans-serif";
   --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
 
 *,
