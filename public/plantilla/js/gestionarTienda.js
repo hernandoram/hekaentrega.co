@@ -916,11 +916,11 @@ async function fillProducts() {
 }
 
 async function cargarInfoTienda() {
-    console.count("Cargando info tienda");
-    
-    // return
+    $("#cargador-info-tienda").removeClass("d-none")
     let info = await firebase.firestore().collection("tiendas")
     .doc(user_id).get().then(doc => doc.data());
+
+    $("#cargador-info-tienda").addClass("d-none")
     
     $('#descripcion-tienda').summernote(summernoteOptions);
 

@@ -647,6 +647,7 @@ function filtrarDocsPorUsuarioAdmin(usuarios) {
 }
 
 function habilitarOtrosFiltrosDeDocumentosAdmin() {
+    const todas = $("#statistics-mostrador-documentos .tarjeta:nth-child(2)");
     const pagoContraentregaCard = $("#statistics-mostrador-documentos .tarjeta:nth-child(3)");
     const pagoConvencionalCard = $("#statistics-mostrador-documentos .tarjeta:nth-child(4)");
     const interCard = $("#statistics-mostrador-documentos .tarjeta:nth-child(5)");
@@ -656,6 +657,7 @@ function habilitarOtrosFiltrosDeDocumentosAdmin() {
     pagoConvencionalCard.click(() => filtrar("CONVENCIONAL", "type"));
     interCard.click(() => filtrar("INTERRAPIDISIMO", "transportadora"));
     serviCard.click(() => filtrar("SERVIENTREGA", "transportadora"));
+    todas.click(() => {$(".document-filter").show("slow")})
     
     function filtrar(valor, param) {
         const filtrador = valor
@@ -890,6 +892,7 @@ function subirDocumentos(){
             .doc(id_doc).get().then(doc => doc.data().nombre_relacion || doc.data().nombre_guias);
 
             let continuar = true;
+            
             if(hasDocument) {
                 await Swal.fire({
                     icon: "warning",
@@ -940,8 +943,28 @@ function subirDocumentos(){
 
             
             if(guias_enviadas || relacion_enviada) {
-                avisar("Documentos cargados con éxito", nombre_usuario + " ya puede descargar sus documentos");
+                Swal.fire({
+                    icon:"success",
+                    title: "Documento cargado con éxito",
+                    text: "¿Deseas eliminar la notificación?",
+                    showCancelButton: true,
+                    cancelButtonText: "no, gracias",
+                    confirmButtonText: "si, por favor"
+                }).then(response => {
+                    if(response.isConfirmed) {
+                       db.collection("notificaciones")
+                       .where("guias", "array-contains", numero_guias[0])
+                       .get().then(querySnapshot => {
+                           querySnapshot.forEach(doc => {
+                               if (doc.data().visible_admin) {
+                                doc.ref.delete();
+                               }
+                           })
+                       })
+                    }
+                });
                 
+                // apartado que será utilizado para cuando todos los usuarios tengan guías automáticas
                 // firebase.firestore().collection("notificaciones").add({
                 //     mensaje: `Se ha cargado un documento con las guias: ${numero_guias} a su cuenta.`,
                 //     fecha: genFecha(),
@@ -954,6 +977,7 @@ function subirDocumentos(){
                 // })
             }
 
+            
             enviar.disabled = false;
 
         })

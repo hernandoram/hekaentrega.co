@@ -101,11 +101,12 @@ async function scrapEstados(numeroGuia, tipoconsulta) {
 
         return respuesta;
     } catch (e) {
+        await browser.close();
+        
         console.log("Hubo un error con puppeteer")
         console.log(numeroGuia)
         console.log(e);
 
-        await browser.close();
         return false;
     }  
 }
@@ -134,7 +135,7 @@ const actualizarMovimientos = async function(doc) {
         let finalizar_seguimiento = doc.data().prueba ? true : false
 
         updte_estados = await extsFunc.actualizarEstado(doc, {
-            estado: consulta.estado['Ultimo Estado'],
+            estado: consulta.estado["Gestion del Envio"] || consulta.estado['Ultimo Estado'],
             ultima_actualizacion: new Date(),
             seguimiento_finalizado: estados_finalizacion.some(v => consulta.estado["Gestion del Envio"] === v)
                 || finalizar_seguimiento

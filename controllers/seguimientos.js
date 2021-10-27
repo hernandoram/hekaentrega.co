@@ -34,14 +34,7 @@ const interrapidisimoCtrl = require("./inter");
 //      firebase.firestore().collection("reporte").add(detalles);
 //      process.exit();
 // });
-async function actualizarMovimientosGuias(d, general, prueba) {
-    if(!prueba) {
-        firebase.firestore().collection("reporte").add({
-            mensaje: "Comenzó el actualizador de guías",
-            fecha: d
-        });
-    }
-
+async function actualizarMovimientosGuias(d, general) {
     let inicio_func = new Date().getTime();
     let referencePpal = firebase.firestore().collectionGroup("guias")
 
