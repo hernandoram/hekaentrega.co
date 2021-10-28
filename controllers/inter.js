@@ -56,8 +56,12 @@ async function scrapEstados(numeroGuia, tipoconsulta) {
     try {
         const page = await browser.newPage();
         console.log("accediendo a la página");
-        await page.goto(url);
+        await page.goto(url, {
+            waitUntil: "load"
+        });
 
+        await page.waitForSelector("#tbxNumeroGuia");
+        
         console.log("Escribiendo el numero de guia");
         await page.type("#tbxNumeroGuia", numeroGuia.toString());
         console.log("presionando el botón de buscar");

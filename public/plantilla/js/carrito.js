@@ -4,7 +4,7 @@ import * as Ctrl from "./controladoresTienda.js"
 $("#comprar").click(realizarCompra);
 $("[data-function='adicionar']").change(calcItem);
 $("[data-function='quitar']").click(quitarDelCarrito);
-$("#ciudadD").change(calcularCostoEnvio);
+// $("#ciudadD").change(calcularCostoEnvio);
 let tienda = location.pathname.split("/")[1];
 
 const Toast = Ctrl.Toast;
@@ -95,7 +95,7 @@ function modificarItemCarrito(input) {
     };
 
     //Empieza a utilizar el cotizador
-    calcularCostoEnvio();
+    // calcularCostoEnvio();
 
     //Solo me cambia la cantidad de item en el carrito, para cuando se recargue la página, se guarde la información del cambio
     fetch("/tienda/modificarItemCarrito/"+identificador, {

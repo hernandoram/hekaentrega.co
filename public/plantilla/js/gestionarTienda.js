@@ -1583,14 +1583,14 @@ async function crearGuiasDesdePedido(e, dt, node, config) {
         guia.detalles = cotizacion.getDetails;
         guia.seguro = cotizacion.seguro;
         guia.valor = cotizacion.valor;
-        guia.peso = peso;
+        guia.peso = cotizacion.kgTomado;
         guia.alto = pedido.alto * pedido.cantidad;
         guia.ancho = pedido.ancho * pedido.cantidad;
         guia.largo = pedido.largo * pedido.cantidad;
         guia.id_user = localStorage.user_id;
         guia.recoleccion_esporadica = 1;
         guia.id_pedido = pedido.id;
-        // guia.prueba = estado_prueba;
+        guia.prueba = estado_prueba;
 
         guia.debe = guia.type === "CONVENCIONAL" ? false : -guia.costo_envio;
 
