@@ -50,7 +50,7 @@ async function actualizarMovimientosGuias(d, general) {
         // .where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"])
         // .where("transportadora", "==", "INTERRAPIDISIMO")
         // .where("centro_de_costo", "==", 'SellerNatalia')
-        // .where("numeroGuia", "in", [240000075671, 240000075829, 240000075846, "240000003998"])
+        // .where("numeroGuia", "in", ["230009839876"])
         // .limit(10)
     }
         
@@ -88,7 +88,7 @@ async function actualizarMovimientosGuias(d, general) {
                 let guia;
                 if(doc.data().transportadora && doc.data().transportadora === "INTERRAPIDISIMO") {
                     consulta.interrapidisimo ++;
-                    continue;
+                    // continue;
                     guia = await interrapidisimoCtrl.actualizarMovimientos(doc);
                 } else {
                     consulta.servientrega ++
@@ -142,6 +142,8 @@ async function actualizarMovimientosGuias(d, general) {
         Tiempo de ejecución: ${consulta.tiempo_ejecucion}`;
         
         // console.log("246",consulta);
+        delete consulta.guias_est_actualizado
+        delete consulta.guias_mov_actualizado
         
         return consulta;
     } catch (error) {

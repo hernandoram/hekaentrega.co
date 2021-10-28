@@ -1134,7 +1134,7 @@ function traducirMovimientoGuia(transportadora) {
             return {
                 novedad: "Motivo",
                 fechaMov: "Fecha Cambio Estado",
-                observacion: "Observacion",
+                observacion: "Motivo",
                 descripcionMov: "Descripcion Estado",
                 ubicacion: "Ciudad"
             }

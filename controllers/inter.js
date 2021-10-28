@@ -1,10 +1,12 @@
 const request = require("request");
+const requestP = require("request-promise")
 const extsFunc = require("../extends/funciones");
 const puppeteer = require("puppeteer");
 const {Credenciales, UsuarioPrueba} = require("../keys/interCredentials");
-
+const urlEstados = "https://www3.interrapidisimo.com/ApiservInter/api/Mensajeria/ObtenerRastreoGuias?guias="
 
 //FUNCIONES REGULARES
+// Estas funciones actualmente no están siendo utilizadas
 function retornarEstado() {
     let info = new Object();
     const tds = document.querySelectorAll("#TabContainer2_TabPanel8 table table td");
@@ -115,7 +117,7 @@ async function scrapEstados(numeroGuia, tipoconsulta) {
     }  
 }
 
-const actualizarMovimientos = async function(doc) {
+const actualizarMovimientosScrapp = async function(doc) {
     console.log("consultando inter")
     const consulta = await scrapEstados(doc.data().numeroGuia);
     let updte_estados, updte_movs;
@@ -154,6 +156,75 @@ const actualizarMovimientos = async function(doc) {
             guia: doc.id + " / " + doc.data().numeroGuia + e
           }]
     }
+}
+// Fin de las funciones inutilizadas
+
+const actualizarMovimientos = async function(doc) {
+    const respuesta = await requestP.get(urlEstados + doc.data().numeroGuia)
+    .then(res => JSON.parse(res))
+    .catch(err => {
+        console.log(err.body);
+        return 0
+    });
+
+    if(!respuesta) {
+        const finalizar_seguimiento = doc.data().prueba ? true : false;
+        if(finalizar_seguimiento) {
+            await extsFunc.actualizarEstado(doc, {
+                estado: "Finalizado",
+                ultima_actualizacion: new Date(),
+                seguimiento_finalizado: finalizar_seguimiento
+            });
+        }
+        
+        return [{
+            estado: "Error",
+            guia: "Hubo un error desconocido."
+        }]
+    }
+
+    const estados_finalizacion = ["Documento Anulado", "Entrega Exitosa", "Devuelto al Remitente"];
+    
+    const movimientos = respuesta[0].EstadosGuia.map(estado => {
+        const est = estado.EstadoGuia;
+        const movimiento = {
+            Ciudad: est.Ciudad,
+            "Descripcion Estado": est.DescripcionEstadoGuia,
+            "Fecha Cambio Estado": est.FechaGrabacion,
+            "Motivo": estado.Motivo.Descripcion || "",
+        }
+        
+        return movimiento;
+    });
+    
+    const ultimo_estado = movimientos[movimientos.length - 1];
+    let finalizar_seguimiento = doc.data().prueba ? true : false
+
+
+    const estado = {
+        numeroGuia: respuesta[0].Guia.NumeroGuia.toString(), //guia devuelta por la transportadora
+        fechaEnvio: respuesta[0].TrazaGuia["FechaAdmisionGuia"], 
+        ciudadD: doc.data().ciudadD,
+        nombreD: doc.data().nombreD,
+        direccionD:  respuesta[0].Guia.DireccionDestinatario,
+        estadoActual: respuesta[0].TrazaGuia['DescripcionEstadoGuia'],
+        fecha: ultimo_estado["Fecha Cambio Estado"], //fecha del estado
+        id_heka: doc.id,
+        movimientos
+    };
+    
+    
+    updte_estados = await extsFunc.actualizarEstado(doc, {
+        estado: estado.estadoActual,
+        ultima_actualizacion: new Date(),
+        seguimiento_finalizado: estados_finalizacion.some(v => estado.estadoActual === v)
+            || finalizar_seguimiento
+    });
+
+    updte_movs = await extsFunc.actualizarMovimientos(doc, estado);
+
+    return [updte_estados, updte_movs]
+    
 }
 
 // FUNCIONES A EXPORTAR 
