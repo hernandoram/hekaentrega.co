@@ -160,6 +160,7 @@ const actualizarMovimientosScrapp = async function(doc) {
 // Fin de las funciones inutilizadas
 
 const actualizarMovimientos = async function(doc) {
+    console.log(doc.data().numeroGuia);
     const respuesta = await requestP.get(urlEstados + doc.data().numeroGuia)
     .then(res => JSON.parse(res))
     .catch(err => {
@@ -179,7 +180,7 @@ const actualizarMovimientos = async function(doc) {
         
         return [{
             estado: "Error",
-            guia: "Hubo un error desconocido."
+            guia: doc.id + " / " + doc.data().numeroGuia + " Hubo un error desconocido."
         }]
     }
 

@@ -63,8 +63,8 @@ exports.actualizarMovimientos = async (doc, toUpdate) => {
   });
 }
 
-exports.estandarizarFecha = (string, specialFormat, parseHour) => {
-  const fecha = new Date(string);
+exports.estandarizarFecha = (date, specialFormat, parseHour) => {
+  const fecha = new Date(date || new Date().getTime());
   const norm = n => n < 10 ? "0" + n : n;
   const format = {
     D: fecha.getDate(),
@@ -98,7 +98,7 @@ exports.estandarizarFecha = (string, specialFormat, parseHour) => {
 
     str.forEach((v,i) => {
       res += format[v];
-      if(sign[i]) {
+      if(sign && sign[i]) {
         res += sign[i];
       }
     });
