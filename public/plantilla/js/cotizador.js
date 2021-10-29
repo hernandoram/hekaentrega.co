@@ -1477,7 +1477,10 @@ async function generarGuiaInterrapidisimo(datos) {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(datos)
-    }).then(d => d.json())
+    }).then(d => {
+        if(d.status === 500) return '{"Message": "Ocurrió un error interno con la transportadora, por favor intente nuevamente."}'
+        return d.json()
+    })
     .catch(error => {error});
 
     respuesta = JSON.parse(respuesta);
