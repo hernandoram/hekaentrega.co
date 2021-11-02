@@ -18,28 +18,35 @@ exports.auth = async (req, res, next) => {
 }
 
 exports.cotizar = async (req, res) => {
-    let idasumecosto = 0, contraentrega = 1
+    let idasumecosto = 1, contraentrega = 0
+    
     if(req.params.type === "CONVENCIONAL") {
-        contraentrega = 0
-    } else if (req.params.type === "PAGO CONTRAENTREGA") {
-        idasumecosto = 1
+        idasumecosto = 0
+        req.params.recaudo = 0;
+    } else if (req.params.type === "SUMAR ENVIO") {
+        contraentrega = 1;
     }
 
-    const cotizacion = await rq.post(Cr.endpoint + "/nal/v1.0/generarGuiaTransporteNacional.php", {
-        headers: {"Content-type": "Application/json"},
-        body: JSON.stringify({
-            "tipo":"cotizar",
-            "token": req.params.token,
-            "idempresa": Cr.idEmpresa,
-            "unidades": 1,
-            idasumecosto, contraentrega,
-            "origen": req.params.origen,
-            "destino": req.params.destino,
-            "kilos": req.params.peso,
-            "valorrecaudo": req.params.recaudo,
-            "valordeclarado": req.params.valorDeclarado,
-        })
-    }).then(res => JSON.parse(res));
+    try {
+        const cotizacion = await rq.post(Cr.endpoint + "/nal/v1.0/generarGuiaTransporteNacional.php", {
+            headers: {"Content-type": "Application/json"},
+            body: JSON.stringify({
+                "tipo":"cotizar",
+                "token": req.params.token,
+                "idempresa": Cr.idEmpresa,
+                "unidades": 1,
+                idasumecosto, contraentrega,
+                "origen": req.params.origen,
+                "destino": req.params.destino,
+                "kilos": req.params.peso,
+                "valorrecaudo": req.params.recaudo,
+                "valordeclarado": req.params.valorDeclarado,
+            })
+        }).then(res => JSON.parse(res));
+        res.json(cotizacion)
+    } catch {
+        res.json({status:"error", message:"Cotizaciones no encontradas.", cotizaciones:[]})
+    }
 
-    res.json(cotizacion)
+    // console.log(res);
 }

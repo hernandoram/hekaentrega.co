@@ -50,7 +50,41 @@ let transportadoras = {
         habilitada: () => {
             return datos_personalizados.habilitar_interrapidisimo
         },
-    }
+    },
+    "ENVIA_AVE": {
+        nombre: "Envía",
+        observaciones: observacionesInteRapidisimo,
+        logoPath: "img/logo-inter.png",
+        color: "danger",
+        limitesPeso: [0.1,5],
+        limitesLongitud: [1,150],
+        limitesRecaudo: [10000, 3000000],
+        limitesValorDeclarado: (valor) => {
+            if(valor <= 2) return [12500, 30000000]
+            if(valor <= 5) return [27500, 30000000]
+            return [37500, 30000000]
+        },
+        habilitada: () => {
+            return true
+        },
+    },
+    "TCC_AVE": {
+        nombre: "TCC",
+        observaciones: observacionesInteRapidisimo,
+        logoPath: "img/logo-inter.png",
+        color: "warning",
+        limitesPeso: [0.1,5],
+        limitesLongitud: [1,150],
+        limitesRecaudo: [10000, 3000000],
+        limitesValorDeclarado: (valor) => {
+            if(valor <= 2) return [12500, 30000000]
+            if(valor <= 5) return [27500, 30000000]
+            return [37500, 30000000]
+        },
+        habilitada: () => {
+            return true
+        },
+    },
 };
 
 console.log(transportadoras);
@@ -100,6 +134,8 @@ async function cotizador(){
         ciudadD: value("ciudadD"),
         dane_ciudadR: ciudadR.dataset.dane_ciudad,
         dane_ciudadD: ciudadD.dataset.dane_ciudad,
+        ave_ciudadR: ciudadR.dataset.nombre_aveo,
+        ave_ciudadD: ciudadD.dataset.nombre_aveo,
         peso: value("Kilos"),
         seguro: value("seguro-mercancia"), 
         recaudo: 0, 
@@ -395,6 +431,12 @@ async function detallesTransportadoras(data) {
     let encabezados = "", detalles = "";
     console.log(data);
     let corredor = 0;
+    
+    const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
+    const cotizacionAveo = await cotizarAveonline(data.ave_ciudadR,data.ave_ciudadR,
+        data.peso, data.valor, data.seguro, typeToAve);
+
+    if(cotizacionAveo) modificarDatosDeTransportadorasAveo(cotizacionAveo);
 
     //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
     for(let transp in transportadoras) {
@@ -405,6 +447,7 @@ async function detallesTransportadoras(data) {
         .putTransp(transp, {
             dane_ciudadR: data.dane_ciudadR,
             dane_ciudadD: data.dane_ciudadD,
+            cotizacionAveo
         });
 
         console.log(cotizacion);
@@ -438,7 +481,7 @@ async function detallesTransportadoras(data) {
                 class="col" style="max-height:120px; max-width:fit-content"
                 alt="logo-${transportadora.nombre}">
                 <div class="col-12 col-sm-6 mt-3 mt-sm-0 order-1 order-sm-0">
-                    <h5>${transportadora.nombre}</h5>
+                    <h5>${transportadora.nombre} <span class="badge badge-${transportadora.color} p-2">${(transp === "ENVIA_AVE" || transp === "TCC_AVE") ? 'Próximamente' : ""}</span></h5>
                     <h6>tiempo de entrega: ${cotizacion.tiempo || datos_de_cotizacion.tiempo} Días</h6>
                     <h6 class="${data.type == "CONVENCIONAL" ? "d-none" : "mb-1"}">
                     El Valor consignado a tu cuenta será: <b>$${convertirMiles(cotizacion.valor - cotizacion.costoEnvio)}</b></h6>
@@ -828,7 +871,6 @@ class CalcularCostoDeEnvio {
         this.seguroMercancia = 0;
         this.kg_min = 3;
         this.codTransp = "SERVIENTREGA";
-        
     }
 
     //Devuelve el paso generado del volumen, debido al factor dec conversión
@@ -910,6 +952,7 @@ class CalcularCostoDeEnvio {
 
     set sumarCostoDeEnvio(val) {
         let counter = 0
+        if(this.aveo) return;
         /* Mientras que el valor ingresado se mayor al valor devuelto por el contructor
         menos el costo del envío ingresa al bucle que le suma al valor ingresado el costo 
         del envío impuesto por el viejo contructor, para así sustituir el constructor*/
@@ -938,6 +981,7 @@ class CalcularCostoDeEnvio {
             constante_heka = this.precios.constante_convencional;
         }
         if(this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
+        if(this.aveo) this.intoAveo(this.precio);
         
         this.sobreflete_heka = Math.ceil(valor * ( comision_heka ) / 100) + constante_heka;
         
@@ -1004,7 +1048,30 @@ class CalcularCostoDeEnvio {
                 this.tiempo = respuestaCotizacion.TiempoEntrega;
                 console.log("PRECIO", this.precio);
                 this.intoInter(this.precio)
+                
 
+                break;
+
+            case "ENVIA_AVE": case "TCC_AVE":
+                const cotizaciones = dataObj.cotizacionAveo;
+                if(!cotizaciones) {
+                    this.empty = true;
+                    break;
+                }
+                const cotizacion = cotizaciones[transportadora];
+                if(!cotizacion) {
+                    this.empty = true;
+                    break;
+                }
+                
+                this.precio = cotizacion;
+                this.aveo = true;
+                this.sumarCostoDeEnvio = false;
+                this.kg_min = 1;
+                this.factor_de_conversion = 0;
+                this.sobreflete_min = 0;
+                
+                this.intoAveo(cotizacion);
                 break;
         
             default:
@@ -1033,10 +1100,10 @@ class CalcularCostoDeEnvio {
         }
 
         this.comision_transp = 2;
-        this.sobreflete_min = 0
+        this.sobreflete_min = 0;
         this.fletePrev = precio.Valor + precio.Valor * 0.17
         this.descuento = true;
-        this.flete = precio.Valor;   
+        this.flete = precio.Valor;        
     }
 
     async cotizarInter(dane_ciudadR, dane_ciudadD) {
@@ -1061,6 +1128,41 @@ class CalcularCostoDeEnvio {
         // console.log(res);
         return mensajeria[0];
     }
+
+    intoAveo(cotizacion) {
+        this.kg = cotizacion.kilos;
+        this.total_flete = cotizacion.fletetotal;
+        this.sobreflete = cotizacion.costoManejo;
+        this.seguroMercancia = parseInt(cotizacion.valorOtrosRecaudos);
+        this.tiempo = cotizacion.diasentrega;
+    }
+}
+
+async function cotizarAveonline(origen,destino,peso,recaudo,valorD,type) {
+    const url = "/aveo/cotizar";
+    const codEnvia = "29";
+    const codTcc = "1010";
+    const cotizacion = await fetch(`${url}/${origen}/${destino}/${peso}/${recaudo}/${valorD}/${type}`)
+    .then(d => d.json());
+    console.log("UDR => ", `${url}/${origen}/${destino}/${peso}/${recaudo}/${valorD}/${type}`);
+    console.log(cotizacion);
+
+    if(!cotizacion.cotizaciones.length) return 0;
+
+    const envia = cotizacion.cotizaciones.filter(data => data.codTransportadora == codEnvia)[0];
+    const tcc = cotizacion.cotizaciones.filter(data => data.codTransportadora == codTcc)[0];
+
+    return {
+        "ENVIA_AVE": envia,
+        "TCC_AVE": tcc,
+    }
+}
+
+function modificarDatosDeTransportadorasAveo(res) {
+    const transp = ["ENVIA_AVE", "TCC_AVE"];
+    transp.forEach(t => {
+        transportadoras[t].logoPath = res[t].logoTransportadora;
+    })
 }
 
 // Para enviar la guia generada a firestore
@@ -1223,6 +1325,8 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
 //función que envía los datos tomados a servientrega
 async function enviar_firestore(datos){
     //tome los últimos 4 digitos del documento para crear el id
+    console.log(datos)
+    return;
     let id_heka = datos_usuario.numero_documento.slice(-4);
     id_heka = id_heka.replace(/^0/, 1);
     let firestore = firebase.firestore();

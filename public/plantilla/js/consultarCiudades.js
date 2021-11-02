@@ -31,7 +31,8 @@ function autocomplete(inp, arr) {
               "' data-id='" + arr[i].id + "' data-tipo_trayecto='" + arr[i].tipo_trayecto + 
               "' data-ciudad='"+ arr[i].ciudad +"' data-departamento='" + arr[i].departamento +
               "' data-frecuencia='" + arr[i].frecuencia +"' data-tipo_distribucion='" + arr[i].tipo_distribucion + 
-              "' data-dane_ciudad='" + arr[i].dane_ciudad + "'/>";
+              "' data-dane_ciudad='" + arr[i].dane_ciudad + 
+              "' data-nombre_aveo='" + arr[i].nombreAveo + "'/>";
           b.addEventListener("click", function(e) {
             const selected = this.getElementsByTagName("input")[0]
             inp.value = selected.value;
