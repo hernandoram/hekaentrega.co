@@ -19,21 +19,6 @@ let transportadoras = {
             return datos_personalizados.habilitar_servientrega
         },
     },
-    "ENVIA": {
-        nombre: "Envía",
-        observaciones: observacionesServientrega,
-        logoPath: "img/2001.png",
-        color: "success",
-        limitesPeso: [3,15],
-        limitesLongitud: [1,150],
-        limitesRecaudo: [5000, 2000000],
-        limitesValorDeclarado: (valor) => {
-            return [5000,300000000]
-        },
-        habilitada: () => {
-            return datos_personalizados.habilitar_envia
-        },
-    },
     "INTERRAPIDISIMO": {
         nombre: "Inter Rapidísimo",
         observaciones: observacionesInteRapidisimo,
@@ -51,7 +36,7 @@ let transportadoras = {
             return datos_personalizados.habilitar_interrapidisimo
         },
     },
-    "ENVIA_AVE": {
+    "ENVIA": {
         nombre: "Envía",
         observaciones: observacionesInteRapidisimo,
         logoPath: "img/logo-inter.png",
@@ -68,7 +53,7 @@ let transportadoras = {
             return true
         },
     },
-    "TCC_AVE": {
+    "TCC": {
         nombre: "TCC",
         observaciones: observacionesInteRapidisimo,
         logoPath: "img/logo-inter.png",
@@ -200,7 +185,10 @@ async function cotizador(){
             let mostrador = document.getElementById("result_cotizacion");
             mostrador.style.display = "block"
             let respuesta = await response(datos_de_cotizacion);
-            mostrador.innerHTML = respuesta;
+            // mostrador.innerHTML  = '<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>';
+            mostrador.innerHTML += respuesta;
+            // detallesTransportadoras(datos_de_cotizacion);
+
             
             if(datos_de_cotizacion.recaudo < datos_de_cotizacion.precio) {
                 alert("El costo del envío excede el valor declarado, para continuar, debe incrementar el valor declarado");
@@ -372,8 +360,6 @@ async function response(datos) {
         datos_a_enviar.debe = false;
     }
 
-    $("#result_cotizacion").html('<div class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
-
     //Lleno algunos campos de los datos de cotizacióm
     datos_de_cotizacion.peso = (result_cotizacion.kg);
     datos_de_cotizacion.costo_envio = result_cotizacion.costoEnvio;
@@ -383,7 +369,7 @@ async function response(datos) {
     datos_de_cotizacion.debe = result_cotizacion.debe;
     datos_de_cotizacion.type = type;
 
-    let htmlTransportadoras = await detallesTransportadoras(datos_de_cotizacion)
+    let htmlTransportadoras = await detallesTransportadoras(datos_de_cotizacion);
 
     //Creo un html con los detalles de la consulta y las transportadoras involucradas
     let div_principal = document.createElement("DIV"),
@@ -422,6 +408,7 @@ async function response(datos) {
        boton_continuar.firstChild.style.display = "none";
        console.log("EStoy en el index");
     }
+    // mostrador.innerHTML = div_principal.innerHTML;
     
     return  div_principal.innerHTML
 };
@@ -429,18 +416,23 @@ async function response(datos) {
 //Para llenar los diversos precios de las transportadoras que funcionarán con el cotizador
 async function detallesTransportadoras(data) {
     let encabezados = "", detalles = "";
-    console.log(data);
     let corredor = 0;
-    
-    const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
-    const cotizacionAveo = await cotizarAveonline(data.ave_ciudadR,data.ave_ciudadR,
-        data.peso, data.valor, data.seguro, typeToAve);
+    const mostradorTransp = $("#list-transportadoras");
+    const detallesTransp = $("#nav-contentTransportadoras");
 
-    if(cotizacionAveo) modificarDatosDeTransportadorasAveo(cotizacionAveo);
+    const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
+    let cotizacionAveo;
 
     //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
-    for(let transp in transportadoras) {
-        if(transp === "ENVIA") continue;
+    for (let transp in transportadoras) {
+        if(!cotizacionAveo) {
+            cotizacionAveo = await cotizarAveonline(data.ave_ciudadR,data.ave_ciudadR,
+                data.peso, data.valor, data.seguro, typeToAve);
+        
+            if(!cotizacionAveo.error) modificarDatosDeTransportadorasAveo(cotizacionAveo);
+        }
+        console.log(cotizacionAveo);
+
         let transportadora = transportadoras[transp];
         let valor = Math.max(data.seguro, transportadora.limitesValorDeclarado(data.peso)[0]);
         let cotizacion = await new CalcularCostoDeEnvio(valor, data.type)
@@ -468,7 +460,7 @@ async function detallesTransportadoras(data) {
             descuento = percent + " %"
         }
 
-        encabezados += `<a class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
+        const encabezado = `<a class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
         id="list-transportadora-${transp}-list" 
         role="tab"
         data-toggle="list"
@@ -481,7 +473,7 @@ async function detallesTransportadoras(data) {
                 class="col" style="max-height:120px; max-width:fit-content"
                 alt="logo-${transportadora.nombre}">
                 <div class="col-12 col-sm-6 mt-3 mt-sm-0 order-1 order-sm-0">
-                    <h5>${transportadora.nombre} <span class="badge badge-${transportadora.color} p-2">${(transp === "ENVIA_AVE" || transp === "TCC_AVE") ? 'Próximamente' : ""}</span></h5>
+                    <h5>${transportadora.nombre} <span class="badge badge-${transportadora.color} p-2">${(transp === "ENVIA" || transp === "TCC") ? 'Próximamente' : ""}</span></h5>
                     <h6>tiempo de entrega: ${cotizacion.tiempo || datos_de_cotizacion.tiempo} Días</h6>
                     <h6 class="${data.type == "CONVENCIONAL" ? "d-none" : "mb-1"}">
                     El Valor consignado a tu cuenta será: <b>$${convertirMiles(cotizacion.valor - cotizacion.costoEnvio)}</b></h6>
@@ -496,7 +488,7 @@ async function detallesTransportadoras(data) {
             <p class="text-center mb-0 mt-2">Costo de envío para ${data.type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"}: <b>$${convertirMiles(cotizacion.seguro)}</b></p>
         </a>`;
 
-        detalles += `<div class="tab-pane fade 
+        const detalle = `<div class="tab-pane fade 
         ${!corredor ? "show active" : ""}" 
         id="list-transportadora-${transp}" role="tabpanel" aria-labelledby="list-transportadora-${transp}-list">
             <div class="card">
@@ -536,8 +528,24 @@ async function detallesTransportadoras(data) {
             </div>
         </div>`;
 
+        encabezados += encabezado;
+        detalles += detalle;
+        mostradorTransp.html((i, html) => html + encabezado);
+        detallesTransp.html((i, html) => html + detalle);
+
+        $(`#list-transportadoras-${transp}-list .detalles`).click(function(e){
+            const info = $("#nav-contentTransportadoras").parent()
+            info.removeClass("d-none");
+            $(this).parents("a").tab("show");
+            info[0].scrollIntoView({behavior: "smooth"})
+        });
+        $(`#list-transportadora-${transp}-list`).click(seleccionarTransportadora);
+
+
         corredor ++
     }
+
+    $("#cargador_cotizacion").remove();
 
     /* Devuelve el html en dos manera, con la lista, y con los detalles particulares */
     return [encabezados, detalles];
@@ -601,6 +609,11 @@ function seleccionarTransportadora(e) {
             datos_a_enviar.dane_ciudadR = datos_de_cotizacion.dane_ciudadR;
             datos_a_enviar.dane_ciudadD = datos_de_cotizacion.dane_ciudadD;
             datos_a_enviar.transportadora = transp;
+
+            if(transp === "ENVIA" || transp === "TCC") {
+                datos_a_enviar.ave_ciudadD = datos_de_cotizacion.ave_ciudadD
+                datos_a_enviar.ave_ciudadR = datos_de_cotizacion.ave_ciudadR
+            }
 
             cambiarTransportadora(transp);
         
@@ -1052,7 +1065,7 @@ class CalcularCostoDeEnvio {
 
                 break;
 
-            case "ENVIA_AVE": case "TCC_AVE":
+            case "ENVIA": case "TCC":
                 const cotizaciones = dataObj.cotizacionAveo;
                 if(!cotizaciones) {
                     this.empty = true;
@@ -1147,19 +1160,19 @@ async function cotizarAveonline(origen,destino,peso,recaudo,valorD,type) {
     console.log("UDR => ", `${url}/${origen}/${destino}/${peso}/${recaudo}/${valorD}/${type}`);
     console.log(cotizacion);
 
-    if(!cotizacion.cotizaciones.length) return 0;
+    if(!cotizacion.cotizaciones.length) return {error: true};
 
     const envia = cotizacion.cotizaciones.filter(data => data.codTransportadora == codEnvia)[0];
     const tcc = cotizacion.cotizaciones.filter(data => data.codTransportadora == codTcc)[0];
 
     return {
-        "ENVIA_AVE": envia,
-        "TCC_AVE": tcc,
+        "ENVIA": envia,
+        "TCC": tcc,
     }
 }
 
 function modificarDatosDeTransportadorasAveo(res) {
-    const transp = ["ENVIA_AVE", "TCC_AVE"];
+    const transp = ["ENVIA", "TCC"];
     transp.forEach(t => {
         transportadoras[t].logoPath = res[t].logoTransportadora;
     })
@@ -1168,9 +1181,9 @@ function modificarDatosDeTransportadorasAveo(res) {
 // Para enviar la guia generada a firestore
 function crearGuia() {
     let boton_final_cotizador = document.getElementById("boton_final_cotizador");
+    const textoBtn = boton_final_cotizador.textContent;
     boton_final_cotizador.innerHTML = "<span class='spinner-border spinner-border-sm'></span> Cargando...";
 
-    const textoBtn = boton_final_cotizador.textContent;
     boton_final_cotizador.setAttribute("disabled", true);
 
 
@@ -1285,6 +1298,8 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
         generarGuia = generarGuiaServientrega(datos);
     } else if(datos.transportadora === "INTERRAPIDISIMO") {
         generarGuia = generarGuiaInterrapidisimo(datos);
+    } else if(datos.transportadora === "ENVIA" || datos.transportadora === "TCC") {
+        generarGuia = generarGuiaAveonline(datos)
     } else {
         return new Error("Lo sentimos, ésta transportadora no está optimizada para generar guías de manera automática.");
     }
@@ -1326,7 +1341,7 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
 async function enviar_firestore(datos){
     //tome los últimos 4 digitos del documento para crear el id
     console.log(datos)
-    return;
+    // return;
     let id_heka = datos_usuario.numero_documento.slice(-4);
     id_heka = id_heka.replace(/^0/, 1);
     let firestore = firebase.firestore();
@@ -1601,6 +1616,7 @@ async function generarGuiaInterrapidisimo(datos) {
     return respuesta;
 };
 
+
 async function generarStickerGuiaInterrapidisimo(data) {
     const maxPorSegmento = 500000;
     let url = "/inter/crearStickerGuia/" + data.numeroGuia + "?segmentar=" + maxPorSegmento;
@@ -1618,6 +1634,32 @@ async function generarStickerGuiaInterrapidisimo(data) {
     // return await guardarBase64ToStorage(base64Guia, user_id + "/guias/" + data.id_heka + ".pdf")
 };
 
+async function generarGuiaAveonline(datos) {
+    let respuesta = await fetch("/aveo/crearGuia", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(datos)
+    }).then(d => {
+        if(d.status === 500) return '{"Message": "Ocurrió un error interno con la transportadora, por favor intente nuevamente."}'
+        return d.json()
+    })
+    .catch(error => {error});
+
+    console.log(respuesta);
+    // return {numeroGuia: 0, error: "Error demostrativo"};
+    // respuesta = JSON.parse(respuesta);
+    // if(respuesta.Message) return {numeroGuia: 0, error: respuesta.Message};
+    if(respuesta.error) return {numeroGuia: 0, error: respuesta.error};
+
+    respuesta.numeroGuia = respuesta.resultado.guia.numguia;
+    respuesta.id_heka = datos.id_heka;
+    respuesta.prueba = datos.prueba;
+    respuesta.has_sticker = false;
+
+    console.log("Aveonline => ",respuesta);
+
+    return respuesta;
+};
 // esta función me toma un arreglo de strings, junto con la refenrecia de FB, y lo guarda en una collectio indexada
 async function guardarDocumentoSegmentado(base64Segmentada, referencia) {
     if(typeof base64Segmentada !== "object") return false;
