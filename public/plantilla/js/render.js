@@ -1735,3 +1735,141 @@ function convertirMoneda(number, locales = "es-Co", currency = "COP", minimumFra
       }).format(number)
 }
   
+class DetectorErroresInput {
+    constructor (...selectors) {
+        this.selectors = selectors;
+        this.booleans = new Array();
+        this.config = new Object();
+        this.message = "Valor inválido"
+    }
+
+    init(type = "input") {
+        this.selectors.forEach(selector => {
+            $(selector).on(type, (e) => {
+                this.value = e.target.value;
+
+                const index = this.booleans.findIndex(bool => this.comprobateBoolean(selector, bool));
+                const bool = index != -1;
+    
+                const boolTaken = this.booleans[index];
+                let message;
+                if(boolTaken) {
+                    const sustitute = boolTaken.sustitute;
+                    const forbid = boolTaken.forbid;
+                    const type = typeof forbid;
+                    message = boolTaken.message;
+                    const character = type === "string" ? forbid : this.value.match(forbid)[0]
+    
+                    if(sustitute || sustitute === "") e.target.value = e.target.value.replace(forbid, sustitute);
+
+                    if(message) {
+                        message = message
+                        .replace("{forbidden}", character)
+                        .replace("{sustitute}", sustitute);
+                    }
+                }
+
+                message = message ? message : this.message;
+                this.showHideErr(e.target, bool, message);
+            });
+        })
+
+        return this;
+    }
+
+    comprobateBoolean(selector, boolConfig) {
+        const caso = this.viewCase(boolConfig.case);
+        const operator = boolConfig.operator;
+        const valor = boolConfig.forbid;
+        if((boolConfig.selector && selector !== boolConfig.selector ) 
+        || (boolConfig.selectors && !boolConfig.selectors.contains(selector))) return false;
+        let bool = false;
+
+        if(!this.value) return false;
+
+        switch (operator) {
+            case ">":
+                bool = caso > valor
+                break;
+            case "<":
+                bool = caso < valor
+                break;
+            case ">=":
+                bool = caso >= valor
+                break;
+            case "<=":
+                bool = caso <= valor
+                break;
+            case "==":
+                bool = caso == valor
+                break;
+            case "!=":
+                bool = caso != valor
+                break;
+            case "contains":
+                bool = valor.split("|").some(v => caso.includes(v));
+                break;
+            case "regExp":
+                bool = valor.test(caso)
+                break;
+        }
+
+        return bool;
+    }
+
+    viewCase(caso) {
+        let respuesta;
+        switch (caso) {
+            case "length":
+                respuesta = this.value.length
+                break;
+            case "number":
+                respuesta = parseInt(this.value)
+                break
+            default:
+                respuesta = this.value
+        }
+        return respuesta || this.value
+    }
+
+    set setDefaultMessage(message) {
+        this.message = message
+    }
+
+    set insertBoolean(boolean) {
+        this.booleans.push(boolean);
+    }
+
+    set setBooleans(booleans) {
+        this.booleans = booleans;
+    }
+
+    set setConfig(config) {
+        this.config = config
+    }
+    
+    showHideErr(id, hasErr, message) {
+        if(hasErr) {
+            if($(id).parent().children(".mensaje-error").length) {
+                $(id).parent().children(".mensaje-error").text(message)
+            } else {
+                $(id).parent().append(`<p class="mensaje-error mt-2 text-center ${this.config.className || "text-danger"}">${message}</p>`);
+            }
+        } else {
+            if($(id).parent().children(".mensaje-error")) {
+                $(id).parent().children(".mensaje-error").remove();
+            }
+        }
+    }
+}
+
+
+const medidasCtrl = new DetectorErroresInput(".only-integers").init("input");
+medidasCtrl.setBooleans = [
+    {
+        operator: "regExp",
+        message: 'Debe ser un número entero, caracter "{forbidden}" eliminado',
+        forbid: /[^\d]/g,
+        sustitute: ""
+    }
+];

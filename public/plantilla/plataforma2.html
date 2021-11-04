@@ -264,12 +264,12 @@
                 <div class="form-group row align-items-end mb-3">
                   <div class="col-sm-6 mb-3 mb-sm-3">
                     <h6>KILOS</h6>
-                    <input type="number" class="form-control form-control-user" step="any" name="kilos" id="Kilos" min="1" max="25" required>  
+                    <input type="number" class="form-control form-control-user only-integers" step="any" name="kilos" id="Kilos" min="1" max="25" required>  
                   </div>      
                   <div class="col mb-3 mb-sm-3">
                     <h6>Valor Declarado</h6>
                     <input type="number" onchange="this.classList.add('is-invalid')"
-                    class="form-control form-control-user" id="seguro-mercancia" value="12500" step="1000" name="recaudo" min="5000" max="2000000" >
+                    class="form-control form-control-user only-integers" id="seguro-mercancia" value="12500" step="1000" name="recaudo" min="5000" max="2000000" >
                     <div class="invalid-feedback">
                       Incrementar el valor asegurado también incrementará el costo del envío.
                     </div>
@@ -282,15 +282,15 @@
                     <div class="row">
                       <div class="col-sm-4 d-flex align-items-center mb-2">
                         <label for="dimension-ancho">Ancho:  </label>
-                        <input type="number" class="form-control form-control-user ml-2" id="dimension-ancho" name="dimension-ancho" min="1" max="150" >
+                        <input type="number" class="form-control form-control-user ml-2 only-integers" id="dimension-ancho" name="dimension-ancho" min="1" max="150" >
                       </div>
                       <div class="col-sm-4 d-flex align-items-center mb-2">
                         <label for="dimension-largo">Largo:  </label>
-                        <input type="number" class="form-control form-control-user ml-2" id="dimension-largo" name="dimension-Largo" min="1" max="150" >
+                        <input type="number" class="form-control form-control-user ml-2 only-integers" id="dimension-largo" name="dimension-Largo" min="1" max="150" >
                       </div>
                       <div class="col-sm-4 d-flex align-items-center mb-2">
                         <label for="dimension-alto">Alto:  </label>
-                        <input type="number" class="form-control form-control-user ml-2" id="dimension-alto" name="dimension-alto" min="1" max="150" >
+                        <input type="number" class="form-control form-control-user ml-2 only-integers" id="dimension-alto" name="dimension-alto" min="1" max="150" >
                       </div>
                     </div>
                   </div>

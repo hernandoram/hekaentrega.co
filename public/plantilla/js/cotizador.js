@@ -2,6 +2,7 @@ let datos_de_cotizacion,
     datos_a_enviar = new Object({}),
     codTransp = "SERVIENTREGA"
 
+
 // Objeto principal en que se basa la transportadora a ser utilizada
 let transportadoras = {
     "SERVIENTREGA": {
@@ -654,7 +655,7 @@ function finalizarCotizacion(datos) {
             </a>`),
         input_producto = crearNodo(`<div class="col mb-3 mb-sm-0">
             <h6>producto <span>(Lo que se va a enviar)</span></h6>
-            <input id="producto" class="form-control form-control-user" 
+            <input id="producto" class="form-control form-control-user detect-errors" 
             name="producto" type="text" maxlength="40"
             placeholder="Introduce el contenido de tu envío">
             <p id="aviso-producto" class="text-danger d-none m-2"></p>
@@ -689,13 +690,13 @@ function finalizarCotizacion(datos) {
                 <div class="card-body row">
                     <div class="col-lg-6 mb-3 mb-2">
                         <h5>Nombre del Destinatario</h5>
-                        <input type="text" name="nombreD" id="nombreD" class="form-control form-control-user" value="" placeholder="Nombre" required="">
+                        <input type="text" name="nombreD" id="nombreD" class="form-control form-control-user detect-errors" value="" placeholder="Nombre" required="">
                     </div>
                     <div class="col-lg-6 mb-3 mb-2">
                         <div class="row align-items-center">
                             <div class="col-sm-8 mb-2">
                                 <label for="identificacionD">Documento de identificación</label>
-                                <input type="number" id="identificacionD" class="form-control form-control-user" value="" placeholder="ej. 123456789" required="">
+                                <input type="number" id="identificacionD" class="form-control form-control-user detect-errors" value="" placeholder="ej. 123456789" required="">
                             </div>
                             <div class="col mb-2">
                                 <label for="tipo-doc-dest" class="col-form-label">Tipo De Documento</label>
@@ -714,24 +715,24 @@ function finalizarCotizacion(datos) {
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Barrio del Destinatario</h5>
-                        <input type="text" id="barrioD" class="form-control form-control-user" value="" placeholder="Barrio" required="">
+                        <input type="text" id="barrioD" class="form-control form-control-user detect-errors" value="" placeholder="Barrio" required="">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Celular del Destinatario</h5>
-                        <input type="number" id="telefonoD" class="form-control form-control-user" 
+                        <input type="number" id="telefonoD" class="form-control form-control-user detect-errors" 
                         value="" placeholder="Celular" required="" maxlengt="10">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Otro celular del Destinatario</h5>
-                        <input type="number" id="celularD" class="form-control form-control-user" value="" placeholder="celular">
+                        <input type="number" id="celularD" class="form-control form-control-user detect-errors" value="" placeholder="celular">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Email</h5>
-                        <input type="email" id="correoD" class="form-control form-control-user" value="" placeholder="nombre@ejemplo.com">
+                        <input type="email" id="correoD" class="form-control form-control-user detect-errors" value="" placeholder="nombre@ejemplo.com">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Observaciones Adicionales</h5>
-                        <input type="text" id="observaciones" class="form-control form-control-user" value="" placeholder="Observaciones Adicionales">
+                        <input type="text" id="observaciones" class="form-control form-control-user detect-errors" value="" placeholder="Observaciones Adicionales">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2 form-check">
                         <input type="checkbox" id="recoleccion" class="form-check-input">
@@ -750,6 +751,7 @@ function finalizarCotizacion(datos) {
     location.href = "#crear_guia";
     scrollTo(0, 0);
 
+    restringirCaracteresEspecialesEnInput()
     let informacion = document.getElementById("informacion-personal");
     document.getElementById("producto").addEventListener("blur", () => {
         let normalmente_envia = false;
@@ -766,7 +768,33 @@ function finalizarCotizacion(datos) {
         }else {
             aviso.classList.add("d-none")
         }
-    })
+    });
+}
+
+function restringirCaracteresEspecialesEnInput() {
+    const detector = new DetectorErroresInput(".detect-errors", "#direccionD").init("input");
+    detector.setBooleans = [
+        {
+            operator: "contains",
+            message: 'Se cambiará el carácter ingresado "{forbidden}" por "{sustitute}"',
+            selector: "#direccionD",
+            forbid: "#",
+            sustitute: "Nro "
+        },
+        {
+            operator: "contains",
+            message: 'Se cambiará el carácter ingresado "{forbidden}" por "{sustitute}".',
+            selector: "#direccionD",
+            forbid: "-",
+            sustitute: " "
+        },
+        {
+            operator: "regExp",
+            message: 'El caracter "{forbidden}" no está permitido',
+            forbid: /[^\wñÑ\s]/g,
+            sustitute: "",
+        }
+    ]
 }
 
 function regresar() {
@@ -1424,12 +1452,14 @@ async function generarGuiaServientrega(datos) {
             }
         } else {
             //En caso contrario retorna el error devuelto por el webservice
+            const contenedorErrores = data.querySelector("arrayGuias");
+            console.log(contenedorErrores);
+            console.log(data.querySelector("arrayGuias"));
             retorno = {
                 numeroGuia: 0,
-                error: data.querySelector("arrayGuias").children[0].textContent + "\""
+                error: contenedorErrores.textContent
             }
         }
-        console.log(data.querySelector("arrayGuias").children);
         return retorno;
     })
     .catch(err => {
