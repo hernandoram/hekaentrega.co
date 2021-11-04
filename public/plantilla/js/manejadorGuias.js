@@ -218,7 +218,7 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
             return true
         } else if (generacion_automatizada && v.has_sticker !== "true") {
             let guias = arr.filter(t => {
-                return t.has_sticker === "true";
+                return t.has_sticker !== "true";
             }).map(v => v.id_heka);
             
             const cantidad = guias.length;
