@@ -229,6 +229,11 @@ function mostrarUsuarios(data, id){
                 <button class="btn btn-primary" data-funcion="ver-eliminar" value="">Ver Usuario</button>
                 <button class="btn btn-info" data-funcion="movimientos" value="">Ver Movimientos</button>
             </div>
+            <div class="custom-control custom-switch text-center mt-1">
+                <input type="checkbox" class="custom-control-input activador_automaticas" data-id="${id}"
+                id="switch-guias_automaticas_${id}" ${data.generacion_automatizada && "checked"}>
+                <label class="custom-control-label" for="switch-guias_automaticas_${id}">Usuario automatizado</label>
+            </div>
         </div>
     </div>
   </div>`

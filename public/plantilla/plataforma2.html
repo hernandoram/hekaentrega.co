@@ -241,6 +241,7 @@
         <div id="content">     
           <!-- Begin Page Content -->
           <div class="container-fluid" id="cotizar_envio">
+            
 
             <!-- Page Heading -->
             <div style="display: block;" id="cotizador">
@@ -295,6 +296,12 @@
                     </div>
                   </div>
                 </div>
+
+                <!-- para activar o desactivar las guias automáticas -->
+              <div class="custom-control custom-switch text-center m-2">
+                <input type="checkbox" class="custom-control-input" id="switch-guias_automaticas">
+                <label class="custom-control-label" for="switch-guias_automaticas">Sistema automatizado para generar guías desactivado.</label>
+              </div>
 
               </form>
               <button id="boton_cotizar"  onclick="cotizador()" 
@@ -690,11 +697,7 @@
               <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
             </div>  
 
-            <!-- para activar o desactivar las guias automáticas, por ahora quedará inhabilitado -->
-            <!-- <div class="custom-control custom-switch text-center m-2">
-              <input type="checkbox" class="custom-control-input" id="switch-guias_automaticas">
-              <label class="custom-control-label" for="switch-guias_automaticas">Sistema automatizado para generar guías (versión prueba) desactivado.</label>
-            </div> -->
+            
           </form>
           <!--Desactivado este boton por ahora-->
           <!-- <button onclick="actualizarCuenta()" class="btn btn-primary btn-user btn-block">
