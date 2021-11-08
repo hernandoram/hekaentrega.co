@@ -2,6 +2,8 @@ let datos_de_cotizacion,
     datos_a_enviar = new Object({}),
     codTransp = "SERVIENTREGA"
 
+const textToNode = str => new DOMParser().parseFromString(str, "text/html");
+
 // Objeto principal en que se basa la transportadora a ser utilizada
 let transportadoras = {
     "SERVIENTREGA": {
@@ -186,8 +188,8 @@ async function cotizador(){
             mostrador.style.display = "block"
             let respuesta = await response(datos_de_cotizacion);
             // mostrador.innerHTML  = '<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>';
-            mostrador.innerHTML += respuesta;
-            // detallesTransportadoras(datos_de_cotizacion);
+            mostrador.innerHTML = respuesta;
+            detallesTransportadoras(datos_de_cotizacion);
 
             
             if(datos_de_cotizacion.recaudo < datos_de_cotizacion.precio) {
@@ -369,7 +371,7 @@ async function response(datos) {
     datos_de_cotizacion.debe = result_cotizacion.debe;
     datos_de_cotizacion.type = type;
 
-    let htmlTransportadoras = await detallesTransportadoras(datos_de_cotizacion);
+    // let htmlTransportadoras = await detallesTransportadoras(datos_de_cotizacion);
 
     //Creo un html con los detalles de la consulta y las transportadoras involucradas
     let div_principal = document.createElement("DIV"),
@@ -382,12 +384,10 @@ async function response(datos) {
         transportadoras = crearNodo(`<div class="row">
             <div class="col">
                 <div class="list-group" id="list-transportadoras" role="tablist">
-                    ${htmlTransportadoras[0]}
                 </div>
             </div>
             <div class="col-12 col-md-5 mt-4 mt-md-0 d-none d-md-block">
                 <div class="tab-content" id="nav-contentTransportadoras">
-                    ${htmlTransportadoras[1]}
                 </div>
             </div>
         </div>`),
@@ -419,13 +419,17 @@ async function detallesTransportadoras(data) {
     let corredor = 0;
     const mostradorTransp = $("#list-transportadoras");
     const detallesTransp = $("#nav-contentTransportadoras");
+    $("#result_cotizacion").after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
 
     const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
     let cotizacionAveo;
+    const p = new P();
 
     //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
     for (let transp in transportadoras) {
-        if(!cotizacionAveo) {
+        if(!cotizacionAveo && (transp === "ENVIA" || transp === "TCC")) {
+            p.r("Cotizando con: " + transp);
+
             cotizacionAveo = await cotizarAveonline(data.ave_ciudadR,data.ave_ciudadR,
                 data.peso, data.valor, data.seguro, typeToAve);
         
@@ -435,12 +439,16 @@ async function detallesTransportadoras(data) {
 
         let transportadora = transportadoras[transp];
         let valor = Math.max(data.seguro, transportadora.limitesValorDeclarado(data.peso)[0]);
+
         let cotizacion = await new CalcularCostoDeEnvio(valor, data.type)
         .putTransp(transp, {
             dane_ciudadR: data.dane_ciudadR,
             dane_ciudadD: data.dane_ciudadD,
             cotizacionAveo
         });
+
+        p.r("finalizando cotización con: " + transp);
+
 
         console.log(cotizacion);
 
@@ -530,8 +538,8 @@ async function detallesTransportadoras(data) {
 
         encabezados += encabezado;
         detalles += detalle;
-        mostradorTransp.html((i, html) => html + encabezado);
-        detallesTransp.html((i, html) => html + detalle);
+        mostradorTransp.append(encabezado);
+        detallesTransp.append(detalle);
 
         $(`#list-transportadoras-${transp}-list .detalles`).click(function(e){
             const info = $("#nav-contentTransportadoras").parent()
@@ -540,7 +548,15 @@ async function detallesTransportadoras(data) {
             info[0].scrollIntoView({behavior: "smooth"})
         });
         $(`#list-transportadora-${transp}-list`).click(seleccionarTransportadora);
+        $(`#list-transportadoras-${transp}-list`).on('shown.bs.tab', function (event) {
+            // console.log(event.relatedTarget);
+            event.target.classList.remove("active");
+        });
 
+        p.r("Se imprimió con: " + transp);
+        // await new Promise((res, rej) => {
+        //     setTimeout(() => res("listo"), 5000)
+        // })
 
         corredor ++
     }
@@ -549,6 +565,19 @@ async function detallesTransportadoras(data) {
 
     /* Devuelve el html en dos manera, con la lista, y con los detalles particulares */
     return [encabezados, detalles];
+}
+
+class P {
+    constructor( ){
+        this.initial = new Date().getTime();
+        this.act = new Date().getTime();
+    }
+
+    r(t) {
+        const x = new Date().getTime();
+        console.log(t, x-this.act, x-this.initial);
+        this.act = x;
+    }
 }
 
 //Selecciona la transportadora a utilizar

@@ -1734,4 +1734,3 @@ function convertirMoneda(number, locales = "es-Co", currency = "COP", minimumFra
         minimumFractionDigits
       }).format(number)
 }
-  
