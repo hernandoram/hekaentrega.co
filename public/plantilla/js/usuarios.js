@@ -438,24 +438,25 @@ async function buscarUsuarios(){
             const centro_de_costo = doc.data().centro_de_costo || "SCC";
             const direccion = doc.data().direccion || "SD"
             
+            const toDom = str => new DOMParser().parseFromString(str, "text/html").body.firstChild;
 
             //Primer filtro para buscar por nombre de usuario
             if(nombreInp){
                 if (centro_de_costo.toLowerCase().includes(nombreInp) 
                 || nombre.includes(nombreInp) || apellido.includes(nombreInp)
                 || nombre_completo.includes(nombreInp) || nombre_apellido.includes(nombreInp)){
-                    document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
+                    document.getElementById("mostrador-usuarios").appendChild(toDom(mostrarUsuarios(doc.data(), doc.id)));
                 }
             }
 
             if(dirInp) {
                 if(direccion.toLowerCase().indexOf(dirInp) != -1 ) {
-                    document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
+                    document.getElementById("mostrador-usuarios").appendChild(toDom(mostrarUsuarios(doc.data(), doc.id)));
                 }
             }
 
             if(!dirInp && !nombreInp){
-                document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
+                document.getElementById("mostrador-usuarios").appendChild(toDom(mostrarUsuarios(doc.data(), doc.id)));
             }
             
             

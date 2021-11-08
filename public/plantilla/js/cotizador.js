@@ -690,7 +690,7 @@ function finalizarCotizacion(datos) {
                 <div class="card-body row">
                     <div class="col-lg-6 mb-3 mb-2">
                         <h5>Nombre del Destinatario</h5>
-                        <input type="text" name="nombreD" id="nombreD" class="form-control form-control-user detect-errors" value="" placeholder="Nombre" required="">
+                        <input type="text" name="nombreD" id="nombreD" class="form-control form-control-user" value="" placeholder="Nombre" required="">
                     </div>
                     <div class="col-lg-6 mb-3 mb-2">
                         <div class="row align-items-center">
@@ -793,8 +793,18 @@ function restringirCaracteresEspecialesEnInput() {
             message: 'El caracter "{forbidden}" no está permitido',
             forbid: /[^\wñÑ\s]/g,
             sustitute: "",
-        }
+        },
     ]
+
+    const nombreD = new DetectorErroresInput("#nombreD").init("input");
+    nombreD.insertBoolean = 
+    {
+        operator: "regExp",
+        message: 'El caracter "{forbidden}" no está permitido',
+        selector: "#nombreD",
+        forbid: /[^\wñÑ\s-]/g,
+        sustitute: ""
+    }
 }
 
 function regresar() {
