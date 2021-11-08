@@ -217,8 +217,8 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
         } else if (v.transportadora != arr[i? i - 1 :i].transportadora) {
             mensaje = "Las transportadoras seleccionadas no coinciden."
             return true
-        } else if (generacion_automatizada && !v.numeroGuia) {
-            mensaje = "Para el modo automático de guías, es necesario que todas las seleccionadas, contengan el número de guía de la transportadora";
+        } else if (generacion_automatizada && v.numeroGuia == "undefined") {
+            mensaje = "Para el modo automático de guías, es necesario que todas las seleccionadas contengan el número de guía de la transportadora. <br/> Se recomienda desactivar el sistema automatizado para generar guias (que se encuentra en el cotizador), de esta forma, se le será permitido crear el documento con la guía nro. " + v.id_heka ;
             
             return true;
         } else if (generacion_automatizada && v.has_sticker !== "true") {
