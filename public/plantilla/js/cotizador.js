@@ -554,9 +554,6 @@ async function detallesTransportadoras(data) {
         });
 
         p.r("Se imprimió con: " + transp);
-        // await new Promise((res, rej) => {
-        //     setTimeout(() => res("listo"), 5000)
-        // })
 
         corredor ++
     }
@@ -1683,12 +1680,30 @@ async function generarGuiaAveonline(datos) {
     respuesta.numeroGuia = respuesta.resultado.guia.numguia;
     respuesta.id_heka = datos.id_heka;
     respuesta.prueba = datos.prueba;
-    respuesta.has_sticker = false;
+    respuesta.has_sticker = generarGuiaAveonline(respuesta.resultado);
 
     console.log("Aveonline => ",respuesta);
 
     return respuesta;
 };
+
+async function generarStickerGuiaAveonline(data) {
+    const maxPorSegmento = 500000;
+    let url = "/inter/crearStickerGuia/" + data.numeroGuia + "?segmentar=" + maxPorSegmento;
+    if(data.prueba) {
+        url += "&prueba=" + data.prueba;
+    }
+    
+    let base64GuiaSegmentada = await fetch(url)
+    .then(data => data.json())
+    .catch(error => console.log("Hubo un error al consultar el base64 de INTERRAPÍDISIMO => ", error));
+
+    const referenciaSegmentar = firebase.firestore().collection("base64StickerGuias")
+    .doc(data.id_heka).collection("guiaSegmentada");
+    return await guardarDocumentoSegmentado(base64GuiaSegmentada, referenciaSegmentar);
+    // return await guardarBase64ToStorage(base64Guia, user_id + "/guias/" + data.id_heka + ".pdf")
+};
+
 // esta función me toma un arreglo de strings, junto con la refenrecia de FB, y lo guarda en una collectio indexada
 async function guardarDocumentoSegmentado(base64Segmentada, referencia) {
     if(typeof base64Segmentada !== "object") return false;

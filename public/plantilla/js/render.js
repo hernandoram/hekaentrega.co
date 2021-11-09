@@ -1734,3 +1734,23 @@ function convertirMoneda(number, locales = "es-Co", currency = "COP", minimumFra
         minimumFractionDigits
       }).format(number)
 }
+
+const segmentarString = (str, longitud) => {
+    let nuevoArr = []; //array donde se guardara el resultado
+    let nueva = ""; //me sirve para ir inyectando de aun item
+    let cont = 1; //contador que lo uso en mi ciclo para indicar cuando es tiempo de guardar un item en mi array
+    for (let i = 0; i <= str.length; i++) {
+        //for para desestructurar el string y volverlo a armar pero como array
+        let nuevo = str.charAt(i); //con .charAt() solo obtengo un valor de mi str y lo guardo en una variable local
+        nueva = nueva + nuevo; //nueva es la variable global en la que armo el item
+        if (cont === longitud || i === str.length) {
+        //cuando el contador llega a la longitud deseada
+        nuevoArr.push(nueva); // le inyecto ese item previamente guardado en nueva
+        nueva = ""; //limpio nueva para armar el siguiente item
+        cont = 0; //reinicio el contador para que vuelva a llegar a la longitud deseada
+        }
+        cont++; //incremento el contador
+    }
+    
+    return nuevoArr; //al finalizar retorno mi nuevo arreglo
+};
