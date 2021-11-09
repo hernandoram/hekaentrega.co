@@ -728,7 +728,7 @@ function finalizarCotizacion(datos) {
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Email</h5>
-                        <input type="email" id="correoD" class="form-control form-control-user detect-errors" value="" placeholder="nombre@ejemplo.com">
+                        <input type="email" id="correoD" class="form-control form-control-user" value="" placeholder="nombre@ejemplo.com">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Observaciones Adicionales</h5>
@@ -1104,9 +1104,10 @@ class CalcularCostoDeEnvio {
 // Para enviar la guia generada a firestore
 function crearGuia() {
     let boton_final_cotizador = document.getElementById("boton_final_cotizador");
+    const textoBtn = boton_final_cotizador.textContent;
+    
     boton_final_cotizador.innerHTML = "<span class='spinner-border spinner-border-sm'></span> Cargando...";
 
-    const textoBtn = boton_final_cotizador.textContent;
     boton_final_cotizador.setAttribute("disabled", true);
 
 
@@ -1118,19 +1119,23 @@ function crearGuia() {
         }
 
         if(value("producto") == ""){
+            renovarSubmit(boton_final_cotizador, textoBtn)
             alert("Recuerde llenar también lo que contine su envío");
             scrollTo({
                 top: document.getElementById("producto").parentNode.offsetTop - 60,
                 left: document.getElementById("producto").parentNode.offsetLeft,
                 behavior: "smooth"
             })
-        } else if (!/(.)*@(.)*\.(.)/.test(value("correoD")) && value("correoD")){
+        } else if (!validar_email(value("correoD")) && value("correoD")){
             //Recordar que existe una funcion llamada "validar_email(email)" que es mas especifica.
             alert("Lo sentimos, verifique por favor que la dirección de correo sea valida")
+            renovarSubmit(boton_final_cotizador, textoBtn)
         } else if (value("telefonoD").length != 10) {
             alert("Por favor verifique que el celular esta escrito correctamente (debe contener 10 digitos)")
+            renovarSubmit(boton_final_cotizador, textoBtn)
         } else if(!datos_usuario.centro_de_costo) {
             avisar("¡Error al generar Guía!", "Por favor, recargue la página, e intente nuevamente, si su problema persiste, póngase en Contacto con nosotros para asignarle un centro de costo", "advertencia");
+            renovarSubmit(boton_final_cotizador, textoBtn)
         } else {
             Swal.fire({
                 title: "Creando Guía",
@@ -1206,10 +1211,15 @@ function crearGuia() {
     } else {
         alert("Por favor, verifique que los campos escenciales no estén vacíos");
         verificador(["producto", "nombreD", "direccionD", "barrioD", "telefonoD"]);
-        boton_final_cotizador.removeAttribute("disabled");
-
+        
         boton_final_cotizador.textContent = textoBtn;
-
+        boton_final_cotizador.removeAttribute("disabled");
+        
+    }
+    
+    function renovarSubmit(boton_final_cotizador, textoBtn) {
+        boton_final_cotizador.textContent = textoBtn;
+        boton_final_cotizador.removeAttribute("disabled");
     }
 };
 
