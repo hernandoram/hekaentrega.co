@@ -1,20 +1,5 @@
 let user_id = localStorage.user_id, usuarioDoc;
-class VelocityTester {
-  constructor() {
-    this.initial = new Date().getTime()
-    this.ant = this.initial;
-  }
 
-  test(message) {
-    const act = new Date().getTime();
-    console.group(message)
-    console.log("Desde el anterio => ", act - this.ant);
-    console.log("Desde el inicio => ", act - this.initial);
-    console.groupEnd();
-
-    this.ant = act;
-  }
-}
 if(localStorage.getItem("acceso_admin")){
   revisarNotificaciones();
 } else if(localStorage.user_id){
@@ -63,9 +48,6 @@ let estado_prueba, generacion_automatizada;
 
 //funcion principal del Script que carga todos los datos del usuario
 async function cargarDatosUsuario(){
-  const p = new VelocityTester();
-  p.test("iniciando el cargador de datos");
-  // const procesos = 100;
   let proceso = 0;
   const percentage = () => {
     proceso += Math.min(Math.round(Math.random() * 40), 95);
@@ -77,38 +59,22 @@ async function cargarDatosUsuario(){
   })
   const contentSwal = Cargador.getHtmlContainer();
   
-  await consultarDatosBasicosUsuario()
-  
-  p.test("Se cargó información relevante del usuario");
-  contentSwal.innerHTML = "Cargando datos " + percentage()
-
-  //Carga la informacion personal en un objeto
+  //Carga la informacion personal en un objeto y se llena el html de los datos del usuario
   await consultarInformacionPersonalUsuario()
+  contentSwal.innerHTML = "Cargando datos " + percentage()
   
-
-  p.test("Se cargaron los datos del usuario");
-
-  
-
+  //SE cargan datos como el centro de costo
+  await consultarDatosBasicosUsuario()
   contentSwal.innerHTML = "Cargando datos " + percentage();
-  // muestra informacion bancaria
   
-  p.test("Se cargó la información bancaria");
-
-  contentSwal.innerHTML = "Cargando datos " + percentage();
-
   //Modifica los costos de envio si el usuario tiene costos personalizados
   consultarInformacioHeka();
-  p.test("Se cargo la información heka");
+  contentSwal.innerHTML = "Cargando datos " + percentage();
 
   Cargador.close();
-
 }
 
 async function consultarDatosBasicosUsuario() {
-  const datosBanc = $("#mostrar-ocultar-registro-bancario");
-  datosBanc.before('<div class="text-center" id="cargador-datos-bancarios"><h2>Cargando Datos bancarios </h2><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
-
   await firebase.firestore().collection("usuarios").doc(user_id).get()
   .then((doc) => {
     if(doc.exists){
@@ -130,7 +96,6 @@ async function consultarDatosBasicosUsuario() {
     }
   })
 
-  $("#cargador-datos-bancarios").remove();
 }
 
 async function consultarInformacionPersonalUsuario() {
@@ -230,7 +195,13 @@ function consultarInformacioHeka() {
   })
 }
 
+/* Función que me carga los datos bancarios del usuario en el perfil.
+la idea es que se cargue automáticamente cuando esté viendo en su perfil,
+o cuando se presione una sola vez el botón que lleva al perfil del usuario */
 function consultarInformacionBancariaUsuario() {
+  const datosBanc = $("#mostrar-ocultar-registro-bancario");
+  datosBanc.before('<div class="text-center" id="cargador-datos-bancarios"><h2>Cargando Datos bancarios </h2><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
+
   const informacion = firebase.firestore().collection('usuarios').doc(user_id).collection("informacion");
 
   informacion.doc("bancaria").get().then((doc) => {
@@ -263,6 +234,9 @@ function consultarInformacionBancariaUsuario() {
       }
     }
   });
+
+  $("#cargador-datos-bancarios").remove();
+
 }
 
 
