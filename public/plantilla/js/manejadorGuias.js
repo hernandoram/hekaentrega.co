@@ -54,7 +54,7 @@ $(document).ready(() => {
         }
     });
 
-    revisarNotificaciones();
+    // revisarNotificaciones();
 
 })
 
@@ -1651,7 +1651,7 @@ function consultarGuia(numGuia, usuario = "Consulta Personalizada", contador, to
     })
 };
 
-actualizarMovimientoGuia();
+// actualizarMovimientoGuia();
 function actualizarMovimientoGuia() {
     if(!administracion)
     usuarioDoc.collection("guias").where("seguimiento_finalizado", "==", false)

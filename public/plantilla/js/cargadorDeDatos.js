@@ -1,9 +1,30 @@
 let user_id = localStorage.user_id, usuarioDoc;
-if(localStorage.getItem("acceso_admin")){
+class VelocityTester {
+  constructor() {
+    this.initial = new Date().getTime()
+    this.ant = this.initial;
+  }
 
+  test(message) {
+    const act = new Date().getTime();
+    console.group(message)
+    console.log("Desde el anterio => ", act - this.ant);
+    console.log("Desde el inicio => ", act - this.initial);
+    console.groupEnd();
+
+    this.ant = act;
+  }
+}
+if(localStorage.getItem("acceso_admin")){
+  revisarNotificaciones();
 } else if(localStorage.user_id){
-  cargarDatosUsuario();
-  usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
+  window.onload = () => {
+    cargarDatosUsuario().then(() => {
+      revisarNotificaciones();
+    });
+    usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
+    $("[href='#perfil']").one("click", () => consultarInformacionBancariaUsuario());
+  }
 } else {
   alert("La sesión ha expirado, por favor inicia sesión nuevamente");
   location.href = "iniciarSesion2.html"
@@ -41,153 +62,209 @@ datos_personalizados = {
 let estado_prueba, generacion_automatizada;
 
 //funcion principal del Script que carga todos los datos del usuario
-function cargarDatosUsuario(){
-        var informacion = firebase.firestore().collection('usuarios').doc(user_id).collection("informacion");
-        
-        
-        //Carga la informacion personal en un objeto
-        informacion.doc("personal").get().then((doc) => {
-          if(doc.exists){
-            let datos = doc.data();
-            datos_usuario = {
-              nombre_completo: datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0],
-              direccion: datos.direccion + " " + datos.barrio,
-              celular: datos.celular,
-              correo: datos.correo,
-              numero_documento: datos.numero_documento
-            }
+async function cargarDatosUsuario(){
+  const p = new VelocityTester();
+  p.test("iniciando el cargador de datos");
+  // const procesos = 100;
+  let proceso = 0;
+  const percentage = () => {
+    proceso += Math.min(Math.round(Math.random() * 40), 95);
+    return proceso + "%";
+  };
+  
+  Cargador.fire({
+    text: "Cargando datos " + percentage()
+  })
+  const contentSwal = Cargador.getHtmlContainer();
+  
+  await consultarDatosBasicosUsuario()
+  
+  p.test("Se cargó información relevante del usuario");
+  contentSwal.innerHTML = "Cargando datos " + percentage()
 
-            // A partir de aqui, verificara que los elementos existan para mostrar datos
-            if(document.getElementById('usuario')){
-            document.getElementById('usuario').innerText = datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0];                
-            }       
-            if(document.getElementById('CPNnombres')){
-              document.getElementById('CPNnombres').value=datos.nombres;
-              document.getElementById('usuario').innerText = datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0];
-            }
-            if(document.getElementById('CPNapellidos')){
-              document.getElementById('CPNapellidos').value=datos.apellidos;
-            }
-            if(document.getElementById('CPNtipo_documento')){
-              document.getElementById('CPNtipo_documento').value=datos.tipo_documento;
-            }
-            if(document.getElementById('CPNnumero_documento')){
-              document.getElementById('CPNnumero_documento').value=datos.numero_documento;
-            }
-            if(document.getElementById('CPNtelefono')){
-              document.getElementById('CPNtelefono').value=datos.celular;
-            }
-            if(document.getElementById('CPNcelular')){
-              document.getElementById('CPNcelular').value=datos.celular2;
-            }
-            if(document.getElementById('CPNciudad')){
-              document.getElementById('CPNciudad').value=datos.ciudad;
-            }
-            if(document.getElementById('CPNdireccion')){
-              document.getElementById('CPNdireccion').value=datos.direccion;
-            }
-            if(document.getElementById('CPNbarrio')){
-              document.getElementById('CPNbarrio').value=datos.barrio;
-            }
-            if(document.getElementById('CPNnombre_empresa')){
-              document.getElementById('CPNnombre_empresa').value=datos.nombre;
-            }
-            if(document.getElementById('CPNcorreo')){
-              document.getElementById('CPNcorreo').value=datos.correo;
-            }
+  //Carga la informacion personal en un objeto
+  await consultarInformacionPersonalUsuario()
+  
 
-            if(document.getElementById('CPNobjetos_envio')){
-              document.getElementById('CPNobjetos_envio').value=datos.objetos_envio.join(", ");
-            }
+  p.test("Se cargaron los datos del usuario");
 
-            ///desactivar texto "cargando datos"
-            if(document.getElementById('texto-cargar-datos')){
-              document.getElementById('texto-cargar-datos').innerHTML=``;
-            }
-            ////activar panel de datos de usuario
-            if(document.getElementById('contenedor-datos-actualizar')){
-              document.getElementById('contenedor-datos-actualizar').style.display='block';
-            }
-          }
-           
-        }).then(() => {
-          //Carga Aspectos específicos de la información personal
-          firebase.firestore().collection("usuarios").doc(user_id).get()
-          .then((doc) => {
-            if(doc.exists){
-              datos_usuario.centro_de_costo = doc.data().centro_de_costo;
-              datos_usuario.objetos_envio = doc.data().objetos_envio;
-              estado_prueba = doc.data().centro_de_costo == "SellerNuevo" ? true : false;
-              generacion_automatizada = doc.data().generacion_automatizada || false;
+  
 
-              if(doc.data().generacion_automatizada) {
-                generacion_automatizada = doc.data().generacion_automatizada;
-                $("#switch-guias_automaticas").prop("checked",true);
-                $("#switch-guias_automaticas").parent().children("label")
-                .text((index, text) => {
-                  return text.replace("desactivado", "activado");
-                });
+  contentSwal.innerHTML = "Cargando datos " + percentage();
+  // muestra informacion bancaria
+  
+  p.test("Se cargó la información bancaria");
 
+  contentSwal.innerHTML = "Cargando datos " + percentage();
 
-              }
-            }
-          })
-        });
+  //Modifica los costos de envio si el usuario tiene costos personalizados
+  consultarInformacioHeka();
+  p.test("Se cargo la información heka");
 
-        // muestra informacion bancaria
-        informacion.doc("bancaria").get().then((doc) => {
-          if(doc.exists) {
-            let datos = doc.data();
-            ////datos bancarios
-            if(document.getElementById('CPNbanco') && datos.banco!=""){
-              document.getElementById('CPNbanco').value = datos.banco;
-            }
-            if(document.getElementById('CPNnombre_representante') && datos.nombre_banco!=""){
-              document.getElementById('CPNnombre_representante').value=datos.nombre_banco;
-            }
-            if(document.getElementById('CPNtipo_de_cuenta') && datos.tipo_de_cuenta!=""){
-              document.getElementById('CPNtipo_de_cuenta').value=datos.tipo_de_cuenta;
-            }
-            if(document.getElementById('CPNnumero_cuenta') && datos.numero_cuenta!=""){
-              document.getElementById('CPNnumero_cuenta').value=datos.numero_cuenta;
-            }
-            if(document.getElementById('CPNconfirmar_numero_cuenta') && datos.numero_cuenta!=""){
-              document.getElementById('CPNconfirmar_numero_cuenta').value=datos.numero_cuenta;
-            }
-            if(document.getElementById('CPNtipo_documento_banco') && datos.tipo_documento_banco!=""){
-              document.getElementById('CPNtipo_documento_banco').value=datos.tipo_documento_banco;
-            }
-            if(document.getElementById('CPNnumero_identificacion_banco') && datos.numero_iden_banco!=""){
-              document.getElementById('CPNnumero_identificacion_banco').value=datos.numero_iden_banco;
-            }
-            if(document.getElementById('CPNconfirmar_numero_identificacion_banco') && datos.numero_iden_banco!=""){
-              document.getElementById('CPNconfirmar_numero_identificacion_banco').value=datos.numero_iden_banco;
-            }
-          }
-        });
+  Cargador.close();
 
-        //Modifica los costos de envio si el usuario tiene costos personalizados
-        informacion.doc("heka").onSnapshot(doc => {
-          if(doc.exists){
-            for(let precio in doc.data()){
-              const value = doc.data()[precio];
-              if(value === "") continue;
-              if(!/[^\d+.]/.test(value.toString())) {
-                datos_personalizados[precio] = parseFloat(value);
-              } else {
-                datos_personalizados[precio] = value;
-              }
-            }
-
-            console.log(datos_personalizados);
-
-            $("#saldo").html("$" + convertirMiles(doc.data().saldo));
-
-            // datos_personalizados.saldo = parseInt(doc.data().saldo);
-            // $("#saldo").html("$" + convertirMiles(datos_personalizados.saldo));
-          }
-        })
 }
+
+async function consultarDatosBasicosUsuario() {
+  const datosBanc = $("#mostrar-ocultar-registro-bancario");
+  datosBanc.before('<div class="text-center" id="cargador-datos-bancarios"><h2>Cargando Datos bancarios </h2><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
+
+  await firebase.firestore().collection("usuarios").doc(user_id).get()
+  .then((doc) => {
+    if(doc.exists){
+      datos_usuario.centro_de_costo = doc.data().centro_de_costo;
+      datos_usuario.objetos_envio = doc.data().objetos_envio;
+      estado_prueba = doc.data().centro_de_costo == "SellerNuevo" ? true : false;
+      generacion_automatizada = doc.data().generacion_automatizada || false;
+
+      if(doc.data().generacion_automatizada) {
+        generacion_automatizada = doc.data().generacion_automatizada;
+        $("#switch-guias_automaticas").prop("checked",true);
+        $("#switch-guias_automaticas").parent().children("label")
+        .text((index, text) => {
+          return text.replace("desactivado", "activado");
+        });
+
+
+      }
+    }
+  })
+
+  $("#cargador-datos-bancarios").remove();
+}
+
+async function consultarInformacionPersonalUsuario() {
+  const informacion = firebase.firestore().collection('usuarios').doc(user_id).collection("informacion");
+
+  await informacion.doc("personal").get().then((doc) => {
+    if(doc.exists){
+      let datos = doc.data();
+      datos_usuario = {
+        nombre_completo: datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0],
+        direccion: datos.direccion + " " + datos.barrio,
+        celular: datos.celular,
+        correo: datos.correo,
+        numero_documento: datos.numero_documento
+      }
+
+      // A partir de aqui, verificara que los elementos existan para mostrar datos
+      if(document.getElementById('usuario')){
+      document.getElementById('usuario').innerText = datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0];                
+      }       
+      if(document.getElementById('CPNnombres')){
+        document.getElementById('CPNnombres').value=datos.nombres;
+        document.getElementById('usuario').innerText = datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0];
+      }
+      if(document.getElementById('CPNapellidos')){
+        document.getElementById('CPNapellidos').value=datos.apellidos;
+      }
+      if(document.getElementById('CPNtipo_documento')){
+        document.getElementById('CPNtipo_documento').value=datos.tipo_documento;
+      }
+      if(document.getElementById('CPNnumero_documento')){
+        document.getElementById('CPNnumero_documento').value=datos.numero_documento;
+      }
+      if(document.getElementById('CPNtelefono')){
+        document.getElementById('CPNtelefono').value=datos.celular;
+      }
+      if(document.getElementById('CPNcelular')){
+        document.getElementById('CPNcelular').value=datos.celular2;
+      }
+      if(document.getElementById('CPNciudad')){
+        document.getElementById('CPNciudad').value=datos.ciudad;
+      }
+      if(document.getElementById('CPNdireccion')){
+        document.getElementById('CPNdireccion').value=datos.direccion;
+      }
+      if(document.getElementById('CPNbarrio')){
+        document.getElementById('CPNbarrio').value=datos.barrio;
+      }
+      if(document.getElementById('CPNnombre_empresa')){
+        document.getElementById('CPNnombre_empresa').value=datos.nombre;
+      }
+      if(document.getElementById('CPNcorreo')){
+        document.getElementById('CPNcorreo').value=datos.correo;
+      }
+
+      if(document.getElementById('CPNobjetos_envio')){
+        document.getElementById('CPNobjetos_envio').value=datos.objetos_envio.join(", ");
+      }
+
+      ///desactivar texto "cargando datos"
+      if(document.getElementById('texto-cargar-datos')){
+        document.getElementById('texto-cargar-datos').innerHTML=``;
+      }
+      ////activar panel de datos de usuario
+      if(document.getElementById('contenedor-datos-actualizar')){
+        document.getElementById('contenedor-datos-actualizar').style.display='block';
+      }
+    }
+      
+  });
+
+  if(location.hash === "#perfil") consultarInformacionBancariaUsuario();
+}
+
+function consultarInformacioHeka() {
+  const informacion = firebase.firestore().collection('usuarios').doc(user_id).collection("informacion");
+
+  informacion.doc("heka").onSnapshot(doc => {
+    if(doc.exists){
+      for(let precio in doc.data()){
+        const value = doc.data()[precio];
+        if(value === "") continue;
+        if(!/[^\d+.]/.test(value.toString())) {
+          datos_personalizados[precio] = parseFloat(value);
+        } else {
+          datos_personalizados[precio] = value;
+        }
+      }
+
+      console.log(datos_personalizados);
+
+      $("#saldo").html("$" + convertirMiles(doc.data().saldo));
+
+      // datos_personalizados.saldo = parseInt(doc.data().saldo);
+      // $("#saldo").html("$" + convertirMiles(datos_personalizados.saldo));
+    }
+  })
+}
+
+function consultarInformacionBancariaUsuario() {
+  const informacion = firebase.firestore().collection('usuarios').doc(user_id).collection("informacion");
+
+  informacion.doc("bancaria").get().then((doc) => {
+    if(doc.exists) {
+      let datos = doc.data();
+      ////datos bancarios
+      if(document.getElementById('CPNbanco') && datos.banco!=""){
+        document.getElementById('CPNbanco').value = datos.banco;
+      }
+      if(document.getElementById('CPNnombre_representante') && datos.nombre_banco!=""){
+        document.getElementById('CPNnombre_representante').value=datos.nombre_banco;
+      }
+      if(document.getElementById('CPNtipo_de_cuenta') && datos.tipo_de_cuenta!=""){
+        document.getElementById('CPNtipo_de_cuenta').value=datos.tipo_de_cuenta;
+      }
+      if(document.getElementById('CPNnumero_cuenta') && datos.numero_cuenta!=""){
+        document.getElementById('CPNnumero_cuenta').value=datos.numero_cuenta;
+      }
+      if(document.getElementById('CPNconfirmar_numero_cuenta') && datos.numero_cuenta!=""){
+        document.getElementById('CPNconfirmar_numero_cuenta').value=datos.numero_cuenta;
+      }
+      if(document.getElementById('CPNtipo_documento_banco') && datos.tipo_documento_banco!=""){
+        document.getElementById('CPNtipo_documento_banco').value=datos.tipo_documento_banco;
+      }
+      if(document.getElementById('CPNnumero_identificacion_banco') && datos.numero_iden_banco!=""){
+        document.getElementById('CPNnumero_identificacion_banco').value=datos.numero_iden_banco;
+      }
+      if(document.getElementById('CPNconfirmar_numero_identificacion_banco') && datos.numero_iden_banco!=""){
+        document.getElementById('CPNconfirmar_numero_identificacion_banco').value=datos.numero_iden_banco;
+      }
+    }
+  });
+}
+
 
 //invocada por el boton para buscar guias
 function cambiarFecha(){
