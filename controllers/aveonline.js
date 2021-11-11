@@ -1,6 +1,9 @@
 const rq = require("request-promise");
 const Cr = require("../keys/aveo");
 
+const firebase = require("../keys/firebase");
+const db = firebase.firestore();
+
 // console.log(Cr);
 
 exports.auth = async (req, res, next) => {
@@ -103,33 +106,79 @@ exports.crearGuia = async (req, res) => {
         res.json(respuesta);
     } catch (e){
         console.log(e.message);
-        res.json({message: "No se que decir"})
+        res.json({message: "Error al conectar con la transportadora."})
     }
 }
 
 exports.generarRelacion = async (req, res) => {
-    console.log("TOKEN", req.params.token);
-    const respuesta = await rq.get("https://aveonline.co/api/nal/v1.0/generarGuiaTransporteNacional.php", {
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
+    const guias = req.body.arrGuias;
+    const numerosGuias = guias.map(v => parseInt(v.numeroGuia)).join();
+    const identificadores = guias.map(v => v.id_heka).sort();
 
-            "tipo": "relacionEnvios",
+    try {
+        const respuesta = await rq.get("https://aveonline.co/api/nal/v1.0/generarGuiaTransporteNacional.php", {
+            headers: { "content-type": "application/json" },
+            body: JSON.stringify({
+                "tipo": "relacionEnvios",
+                "token": req.params.token,
+                "idempresa": Cr.idEmpresa,
+                "transportadora": Cr.codEnvia,
+                "guias": numerosGuias
+            })
+        }).then(res => {
+            console.log(res);
+            return JSON.parse(res);
+        });
 
-            "token": req.params.token,
+        let campos_actualizados = {
+            guias: identificadores
+        }
+    
+        if(!respuesta.relacionenvio) {
+            campos_actualizados.descargar_relacion_envio = false;
+            campos_actualizados.important = true;
+            campos_actualizados.href = "documentos";
+        } else {
+            campos_actualizados.nro_manifiesto = respuesta.relacionenvio
+        }
 
-            "idempresa": Cr.idEmpresa,
-
-            "transportadora": Cr.codEnvia,
-
-            "guias": "024017713145"
+        await db.collection("documentos").doc(vinculo.id_doc).update(campos_actualizados)
+        .then(() => {
+        console.log("Ya se configuró el documento correctamente")
+        for (let guia of guias) {
+          console.log("Actualizando estado =>", guia.id_heka);
+          db.collection("usuarios").doc(vinculo.id_user)
+          .collection("guias").doc(guia.id_heka)
+          .update({
+            enviado: true,
+            estado: "Enviado"
+          }).catch((error) => {
+            console.log("hubo un error Al actualizar el estado de la guia a \"Enviado\" => ", error)
+          });
+        }
+        console.log("Se están actualizando todos los estados");
+      })
+      .catch(error => {
+        console.log("Hubo un error para configurar el documento");
+  
+      });
         
-        })
-    }).then(res => {
-        console.log(res);
-        return JSON.parse(res);
-    });
+        res.json(respuesta);
+    } catch {
+        console.log("Hubo un error Al generar la relación de aveonline");
+    }
+}
 
-    res.json(respuesta);
+exports.consultarRelacion = async (req, res) => {
+    const html = rq.get("https://aveonline.co/app/modulos/relacion_envios/imprimir.codigobarras.php?dsconsec=&idagente=&idexp=11635&codagente=&idcliente=&idremitente=&idempresa=&idproveedoroc=&dscofigo=11635101020211103162336&id=")
+    .then(data => {
+        recibed = data.replace("AVE GROUP ", "");
+        recibed = recibed.replace("aveonline", "Heka entrega");
+        recibed = recibed.replace(/\.\.\/\.\./g, "https://aveonline.co/app");
+        recibed = recibed.replace(/\.\.\//g, "https://aveonline.co/app/modulos/");
+
+        res.send(recibed);
+    })
 }
 
 function revisarTipoEnvio(type,recaudo) {

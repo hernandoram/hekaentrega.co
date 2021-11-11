@@ -1127,6 +1127,8 @@ function descargarManifiesto(doc) {
             icon: "info",
             text: "Para descargar los manifiestos de inter rapidísimo, debe ingresar a \"Manifiesto inter\", buscar filtrando por fecha y seleccionar las guías que desea gestionar para crearlo."
         });
+    } else if (doc.data().nro_manifiesto) {
+        window.open("/aveo/imprimirManifiesto/"+doc.data().nro_manifiesto, "_blank")
     } else {
         doc.ref.collection("manifiestoSegmentado")
         .get().then(querySnapshot => {

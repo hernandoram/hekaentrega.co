@@ -9,6 +9,7 @@ aveoCtrl.auth,
 aveoCtrl.cotizar);
 
 router.post("/crearGuia", aveoCtrl.auth, aveoCtrl.crearGuia);
-router.get("/crearRelacion", aveoCtrl.auth, aveoCtrl.generarRelacion);
+router.get("/crearManifiesto", aveoCtrl.auth, aveoCtrl.generarRelacion);
+router.get("/imprimirManifiesto/:nro", aveoCtrl.consultarRelacion);
 
 module.exports = router;
