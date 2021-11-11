@@ -1,7 +1,7 @@
 let user_id = localStorage.user_id, usuarioDoc;
 
 if(localStorage.getItem("acceso_admin")){
-  revisarNotificaciones();
+  window.onload = () => revisarNotificaciones();
 } else if(localStorage.user_id){
   window.onload = () => {
     cargarDatosUsuario().then(() => {
