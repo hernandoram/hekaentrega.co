@@ -948,6 +948,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         <th class="${classHead}">Destino</th>
         <th class="${classHead}">Movimiento</th>
         <th class="${classHead}">Gestión</th>
+        <th class="${classHead}">Fech. Ult. Gestión</th>
         
     </tr>`
     
@@ -1036,6 +1037,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         <td style="min-width:250px; max-width:300px">
             ${ultimo_seguimiento.gestion || "No aplica"}
         </td>
+        <td>${ultimo_seguimiento.fecha ? genFecha(ultimo_seguimiento.fecha.toMillis()) + " " + ultimo_seguimiento.fecha.toDate().toString().match(/\d\d:\d\d/)[0] : "No aplica"}</td>
         
     `;
 
