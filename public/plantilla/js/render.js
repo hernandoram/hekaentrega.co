@@ -6,12 +6,14 @@ var firebaseConfig = {
     storageBucket: "hekaapp-23c89.appspot.com",
     messagingSenderId: "539740310887",
     appId: "1:539740310887:web:66f9ab535d18addeb173c2",
-    measurementId: "G-9VP01NDSXJ"
+    measurementId: "G-47CYMPHNRM"
 };
+
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+const analytics = firebase.analytics();
 
 function escucha(id, e, funcion) {
     document.getElementById(id).addEventListener(e, funcion)

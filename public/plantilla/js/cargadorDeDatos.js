@@ -187,7 +187,7 @@ function consultarInformacioHeka() {
 
       console.log(datos_personalizados);
 
-      $("#saldo").html("$" + convertirMiles(doc.data().saldo));
+      $("#saldo").html("$" + convertirMiles(datos_personalizados.saldo));
 
       // datos_personalizados.saldo = parseInt(doc.data().saldo);
       // $("#saldo").html("$" + convertirMiles(datos_personalizados.saldo));

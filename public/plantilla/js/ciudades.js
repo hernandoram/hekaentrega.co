@@ -6844,7 +6844,7 @@ export default [
         "id": 734,
         "ciudad": "SAN ANTONIO DE PRADO",
         "departamento": "ANTIOQUIA",
-        "dane_ciudad": 5001002,
+        "dane_ciudad": "05001002",
         "frecuencia": "LUN, MAR, MIE, JUE, VIE, SAB",
         "modo_transporte": "TERRESTRE",
         "tipo_trayecto": "NACIONAL",

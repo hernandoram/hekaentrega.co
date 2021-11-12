@@ -514,11 +514,8 @@ function seleccionarTransportadora(e) {
         icon: "error",
         html: texto_tranp_no_disponible
     };
-    if(transp != "INTERRAPIDISIMO") {
-        if(transportadoras[transp].habilitada() === false) {
-            return Swal.fire(swal_error);
-        }
-    } else if(!transportadoras[transp].habilitada()) {
+    
+    if(!transportadoras[transp].habilitada()) {
         return Swal.fire(swal_error);
     }
 
@@ -1254,7 +1251,7 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
             console.log(guia);
             return guia;
         } else {
-            return {numeroGuia: 0, error: resGuia.error}
+            return {numeroGuia: 0, error: resGuia.error || resGuia.message}
         }
         //Procuro devolver un objeto con el número de guía y el respectivo mensaje de erro si lo tiene
     })
@@ -1438,10 +1435,10 @@ async function generarGuiaServientrega(datos) {
         body: JSON.stringify(datos)
     })
     .then(res => res.json())
-    .then(data => {
+    .then(xml => {
         //Devuelve un xml en string, que necestito convetir al formato correspondiente
         let parser = new DOMParser();
-        data = parser.parseFromString(data, "application/xml");
+        data = parser.parseFromString(xml, "application/xml");
         console.log(data);
         console.log("se recibió respuesta");
         let retorno = new Object({});
@@ -1480,11 +1477,19 @@ async function generarGuiaServientrega(datos) {
                 error: contenedorErrores.textContent
             }
         }
+
+        if(!retorno.numeroGuia) {
+            analytics.logEvent("Error al crear guía servientrega", {res: xml, centro_de_costo: datos_usuario.centro_de_costo || "SCC"});
+        }
+
         return retorno;
     })
     .catch(err => {
         console.log("Hubo un error: ", err);
-        return err;
+        analytics.logEvent("Error al crear guía servientrega", {catch: err, centro_de_costo: datos_usuario.centro_de_costo || "SCC"});
+        return {
+            message: "Hubo un error al conectar con " + codTransp + ", por favor, intente nuevamente más tarde."
+        };
     });
 
     if(res.numeroGuia) {
@@ -1528,14 +1533,29 @@ async function generarGuiaInterrapidisimo(datos) {
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(datos)
     }).then(d => {
-        if(d.status === 500) return '{"Message": "Ocurrió un error interno con la transportadora, por favor intente nuevamente."}'
+        if(d.status === 500) return {message: "Ocurrió un error interno con la transportadora, por favor intente nuevamente."};
+
         return d.json()
     })
-    .catch(error => {error});
+    .catch(err => {
+        console.log(err);
+        analytics.logEvent("Error al crear guía interrapidísimo", {catch: err, centro_de_costo: datos_usuario.centro_de_costo || "SCC"});
+        return {
+            message: "Hubo un error al conectar con " + codTransp + ", por favor, intente nuevamente más tarde."
+        };
+    });
 
-    respuesta = JSON.parse(respuesta);
-    if(respuesta.Message) return {numeroGuia: 0, error: respuesta.Message};
-    if(respuesta.error) return {numeroGuia: 0, error: respuesta.error};
+    // console.log(respuesta);
+    respuesta = typeof respuesta === "object" ? respuesta : JSON.parse(respuesta);
+    if(respuesta.Message || respuesta.message) {
+        respuesta.centro_de_costo = datos_usuario.centro_de_costo || "SCC";
+        analytics.logEvent("Error al crear guía interrapidisimo", respuesta);
+
+        return {
+            numeroGuia: 0,
+            message: respuesta.Message || respuesta.message
+        }
+    }
 
     respuesta.numeroGuia = respuesta.numeroPreenvio;
     respuesta.id_heka = datos.id_heka;
@@ -1560,7 +1580,9 @@ async function generarStickerGuiaInterrapidisimo(data) {
 
     const referenciaSegmentar = firebase.firestore().collection("base64StickerGuias")
     .doc(data.id_heka).collection("guiaSegmentada");
-    return await guardarDocumentoSegmentado(base64GuiaSegmentada, referenciaSegmentar);
+    if(base64GuiaSegmentada) return await guardarDocumentoSegmentado(base64GuiaSegmentada, referenciaSegmentar);
+
+    return false
     // return await guardarBase64ToStorage(base64Guia, user_id + "/guias/" + data.id_heka + ".pdf")
 };
 

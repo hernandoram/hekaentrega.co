@@ -558,7 +558,7 @@ function seleccionarUsuario(id){
                 // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
                 //Hasta que todos los usuario futuramente tengan el doc "heka"
                 limpiarFormulario("#informacion-heka", "input")
-                $("#habilitar_servientrega").prop("checked", true);
+                // $("#habilitar_servientrega").prop("checked", true);
                 console.log("No such document!");
             }
         }).catch((error) => {
