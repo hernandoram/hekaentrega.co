@@ -21,25 +21,37 @@ exports.auth = async (req, res, next) => {
 }
 
 exports.cotizar = async (req, res) => {
-    const {idasumecosto, contraentrega, recaudo} = revisarTipoEnvio(req.params.type, req.params.recaudo)
-    req.params.recaudo = recaudo;
-    
+    const token = req.params.token
+    const body = req.body;
+    const {idasumecosto, contraentrega, recaudo} = revisarTipoEnvio(req.params.type, body.valorRecaudo)
+    body.valorRecaudo = recaudo;
+    const data = {
+        "tipo": "cotizar2",
+        token,
+        "idempresa": Cr.idEmpresa,
+        "origen": body.origen,
+        "destino": body.destino,
+        "valorrecaudo": recaudo,
+        "productos": [
+          {
+            "alto": body.alto,
+            "largo": body.largo,
+            "ancho": body.ancho,
+            "peso": body.peso,
+            "unidades": 1,
+            "nombre": "Nombre producto",
+            "valorDeclarado": body.valorDeclarado
+          }
+        ],
+        // "valorMinimo": 0,
+        idasumecosto,
+        contraentrega
+    }
 
     try {
         const cotizacion = await rq.post(Cr.endpoint + "/nal/v1.0/generarGuiaTransporteNacional.php", {
             headers: {"Content-type": "Application/json"},
-            body: JSON.stringify({
-                "tipo":"cotizar",
-                "token": req.params.token,
-                "idempresa": Cr.idEmpresa,
-                "unidades": 1,
-                idasumecosto, contraentrega,
-                "origen": req.params.origen,
-                "destino": req.params.destino,
-                "kilos": req.params.peso,
-                "valorrecaudo": req.params.recaudo,
-                "valordeclarado": req.params.valorDeclarado,
-            })
+            body: JSON.stringify(data)
         }).then(res => JSON.parse(res));
         res.json(cotizacion)
     } catch {

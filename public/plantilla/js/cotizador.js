@@ -51,7 +51,7 @@ let transportadoras = {
             return [37500, 30000000]
         },
         habilitada: () => {
-            return true
+            return false
         },
     },
     "TCC": {
@@ -68,7 +68,7 @@ let transportadoras = {
             return [37500, 30000000]
         },
         habilitada: () => {
-            return true
+            return false
         },
     },
 };
@@ -365,7 +365,7 @@ async function response(datos) {
     datos_de_cotizacion.peso = (result_cotizacion.kg);
     datos_de_cotizacion.costo_envio = result_cotizacion.costoEnvio;
     datos_de_cotizacion.valor = result_cotizacion.valor;
-    datos_de_cotizacion.seguro = result_cotizacion.seguro;
+    // datos_de_cotizacion.seguro = result_cotizacion.seguro;
     datos_de_cotizacion.sumar_envio = result_cotizacion.sumar_envio;
     datos_de_cotizacion.debe = result_cotizacion.debe;
     datos_de_cotizacion.type = type;
@@ -382,8 +382,8 @@ async function response(datos) {
         info_principal = detalles_cotizacion(datos_de_cotizacion),
         transportadoras = crearNodo(`<div class="row">
             <div class="col">
-                <div class="list-group" id="list-transportadoras" role="tablist">
-                </div>
+                <ul class="list-group" id="list-transportadoras">
+                </ul>
             </div>
             <div class="col-12 col-md-5 mt-4 mt-md-0 d-none d-md-block">
                 <div class="tab-content" id="nav-contentTransportadoras">
@@ -426,18 +426,31 @@ async function detallesTransportadoras(data) {
 
     //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
     for (let transp in transportadoras) {
+        let seguro = data.seguro, recaudo = data.valor;
         if(!cotizacionAveo && (transp === "ENVIA" || transp === "TCC")) {
             p.r("Cotizando con: " + transp);
 
-            cotizacionAveo = await cotizarAveonline(data.ave_ciudadR,data.ave_ciudadR,
-                data.peso, data.valor, data.seguro, typeToAve);
+            cotizacionAveo = await cotizarAveonline(typeToAve, {
+                    "origen": data.ave_ciudadR,
+                    "destino": data.ave_ciudadD,
+                    "valorRecaudo": recaudo,
+                    "alto": data.alto,
+                    "largo": data.largo,
+                    "ancho": data.ancho,
+                    "peso": value("Kilos"),
+                    "valorDeclarado": seguro,
+                });
         
             if(!cotizacionAveo.error) modificarDatosDeTransportadorasAveo(cotizacionAveo);
+        }
+
+        if(transp === "SERVIENTREGA" || transp === "INTERRAPIDISIMO") {
+            seguro = recaudo ? recaudo : seguro;
         }
         console.log(cotizacionAveo);
 
         let transportadora = transportadoras[transp];
-        let valor = Math.max(data.seguro, transportadora.limitesValorDeclarado(data.peso)[0]);
+        let valor = Math.max(seguro, transportadora.limitesValorDeclarado(data.peso)[0]);
 
         let cotizacion = await new CalcularCostoDeEnvio(valor, data.type)
         .putTransp(transp, {
@@ -467,13 +480,10 @@ async function detallesTransportadoras(data) {
             descuento = percent + " %"
         }
 
-        const encabezado = `<a class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
+        const encabezado = `<li class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
         id="list-transportadora-${transp}-list" 
-        role="tab"
-        data-toggle="list"
         data-transp="${transp}"
-        href="#list-transportadora-${transp}" 
-        aria-controls="transportadora-${transp}"
+        aria-controls="list-transportadora-${transp}"
         >
             <div class="row">
                 <img src="${transportadora.logoPath}" 
@@ -486,18 +496,18 @@ async function detallesTransportadoras(data) {
                     El Valor consignado a tu cuenta será: <b>$${convertirMiles(cotizacion.valor - cotizacion.costoEnvio)}</b></h6>
                 </div>
                 <div class="col d-flex flex-column justify-content-around">
-                    <small class="detalles btn btn-outline-primary badge badge-pill">
+                    <small id="ver-detalles-${transp}" class="detalles btn btn-outline-primary badge badge-pill">
                     Detalles</small>
                     <span class="badge text-danger mt-1 ml-2 p-1 ${!descuento && "d-none"}">Descuento del ${descuento}</span>
                     <h5><b>$${convertirMiles(cotizacion.costoEnvio)} </b></h5>
                 </div>
             </div>
-            <p class="text-center mb-0 mt-2">Costo de envío para ${data.type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"}: <b>$${convertirMiles(cotizacion.seguro)}</b></p>
-        </a>`;
+            <p class="text-center mb-0 mt-2">Costo de envío para ${data.type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"}: <b>$${convertirMiles(data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor)}</b></p>
+        </li>`;
 
         const detalle = `<div class="tab-pane fade 
         ${!corredor ? "show active" : ""}" 
-        id="list-transportadora-${transp}" role="tabpanel" aria-labelledby="list-transportadora-${transp}-list">
+        id="list-transportadora-${transp}" aria-labelledby="list-transportadora-${transp}-list">
             <div class="card">
                 <div class="card-header bg-${transportadora.color} text-light">
                     ${transportadora.nombre}
@@ -540,17 +550,17 @@ async function detallesTransportadoras(data) {
         mostradorTransp.append(encabezado);
         detallesTransp.append(detalle);
 
-        $(`#list-transportadoras-${transp}-list .detalles`).click(function(e){
-            const info = $("#nav-contentTransportadoras").parent()
+        $(`#ver-detalles-${transp}`).click(function(e){
+            const info = detallesTransp.parent();
+            const selector = $(this).parents("li").attr("aria-controls");
+
             info.removeClass("d-none");
-            $(this).parents("a").tab("show");
+            detallesTransp.children().removeClass("active show");
+            $("#"+selector).addClass("show active")
+
             info[0].scrollIntoView({behavior: "smooth"})
         });
         $(`#list-transportadora-${transp}-list`).click(seleccionarTransportadora);
-        $(`#list-transportadoras-${transp}-list`).on('shown.bs.tab', function (event) {
-            // console.log(event.relatedTarget);
-            event.target.classList.remove("active");
-        });
 
         p.r("Se imprimió con: " + transp);
 
@@ -596,7 +606,7 @@ function seleccionarTransportadora(e) {
 
     if (result_cotizacion.debe) datos_a_enviar.debe = -result_cotizacion.costoEnvio
 
-    if (result_cotizacion.seguro < result_cotizacion.costoEnvio) {
+    if (result_cotizacion.valor < result_cotizacion.costoEnvio && result_cotizacion.type !== "CONVENCIONAL") {
         return Toast.fire({
             icon: "error",
             text: "El valor del recaudo no debe ser menor al costo del envío."
@@ -1142,6 +1152,7 @@ class CalcularCostoDeEnvio {
                 this.kg_min = 1;
                 this.factor_de_conversion = 0;
                 this.sobreflete_min = 0;
+                this.valor = parseInt(cotizaciones.recaudo);
                 
                 this.intoAveo(cotizacion);
                 break;
@@ -1210,21 +1221,25 @@ class CalcularCostoDeEnvio {
     }
 }
 
-async function cotizarAveonline(origen,destino,peso,recaudo,valorD,type) {
+async function cotizarAveonline(type, params) {
     const url = "/aveo/cotizar";
     const codEnvia = "29";
     const codTcc = "1010";
-    const cotizacion = await fetch(`${url}/${origen}/${destino}/${peso}/${recaudo}/${valorD}/${type}`)
+    const cotizacion = await fetch(`${url}/${type}`, {
+        method: "POST",
+        headers: {"Content-type": "application/json"},
+        body: JSON.stringify(params)
+    })
     .then(d => d.json());
-    console.log("UDR => ", `${url}/${origen}/${destino}/${peso}/${recaudo}/${valorD}/${type}`);
     console.log(cotizacion);
-
-    if(!cotizacion.cotizaciones.length) return {error: true};
+    console.log("Sending => ", params)
+    if(cotizacion.status === "error") return {error: true};
 
     const envia = cotizacion.cotizaciones.filter(data => data.codTransportadora == codEnvia)[0];
     const tcc = cotizacion.cotizaciones.filter(data => data.codTransportadora == codTcc)[0];
 
     return {
+        recaudo: params.valorRecaudo,
         "ENVIA": envia,
         "TCC": tcc,
     }
@@ -1749,7 +1764,7 @@ async function generarGuiaAveonline(datos) {
     respuesta.numeroGuia = respuesta.resultado.guia.numguia;
     respuesta.id_heka = datos.id_heka;
     respuesta.prueba = datos.prueba;
-    respuesta.has_sticker = generarGuiaAveonline(respuesta.resultado);
+    respuesta.has_sticker = false;
 
     console.log("Aveonline => ",respuesta);
 
@@ -1868,13 +1883,3 @@ function observacionesInteRapidisimo(result_cotizacion) {
 
     return ul;
 }
-
-// fetch("/inter/crearGuia", {
-//     method: "POST",
-//     headers: {"Content-Type": "application/json"},
-//     body: JSON.stringify(
-//         )
-// }).then(res => {
-//     console.log(res);
-//     res.json().then(d => console.log(d));
-// })
