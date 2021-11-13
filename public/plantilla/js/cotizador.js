@@ -2,7 +2,6 @@ let datos_de_cotizacion,
     datos_a_enviar = new Object({}),
     codTransp = "SERVIENTREGA"
 
-const textToNode = str => new DOMParser().parseFromString(str, "text/html");
 
 // Objeto principal en que se basa la transportadora a ser utilizada
 let transportadoras = {
@@ -590,11 +589,8 @@ function seleccionarTransportadora(e) {
         icon: "error",
         html: texto_tranp_no_disponible
     };
-    if(transp != "INTERRAPIDISIMO") {
-        if(transportadoras[transp].habilitada() === false) {
-            return Swal.fire(swal_error);
-        }
-    } else if(!transportadoras[transp].habilitada()) {
+    
+    if(!transportadoras[transp].habilitada()) {
         return Swal.fire(swal_error);
     }
 
@@ -736,7 +732,7 @@ function finalizarCotizacion(datos) {
             </a>`),
         input_producto = crearNodo(`<div class="col mb-3 mb-sm-0">
             <h6>producto <span>(Lo que se va a enviar)</span></h6>
-            <input id="producto" class="form-control form-control-user" 
+            <input id="producto" class="form-control form-control-user detect-errors" 
             name="producto" type="text" maxlength="40"
             placeholder="Introduce el contenido de tu envío">
             <p id="aviso-producto" class="text-danger d-none m-2"></p>
@@ -777,7 +773,7 @@ function finalizarCotizacion(datos) {
                         <div class="row align-items-center">
                             <div class="col-sm-8 mb-2">
                                 <label for="identificacionD">Documento de identificación</label>
-                                <input type="number" id="identificacionD" class="form-control form-control-user" value="" placeholder="ej. 123456789" required="">
+                                <input type="number" id="identificacionD" class="form-control form-control-user detect-errors" value="" placeholder="ej. 123456789" required="">
                             </div>
                             <div class="col mb-2">
                                 <label for="tipo-doc-dest" class="col-form-label">Tipo De Documento</label>
@@ -796,16 +792,16 @@ function finalizarCotizacion(datos) {
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Barrio del Destinatario</h5>
-                        <input type="text" id="barrioD" class="form-control form-control-user" value="" placeholder="Barrio" required="">
+                        <input type="text" id="barrioD" class="form-control form-control-user detect-errors" value="" placeholder="Barrio" required="">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Celular del Destinatario</h5>
-                        <input type="number" id="telefonoD" class="form-control form-control-user" 
+                        <input type="number" id="telefonoD" class="form-control form-control-user detect-errors" 
                         value="" placeholder="Celular" required="" maxlengt="10">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Otro celular del Destinatario</h5>
-                        <input type="number" id="celularD" class="form-control form-control-user" value="" placeholder="celular">
+                        <input type="number" id="celularD" class="form-control form-control-user detect-errors" value="" placeholder="celular">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Email</h5>
@@ -813,7 +809,7 @@ function finalizarCotizacion(datos) {
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Observaciones Adicionales</h5>
-                        <input type="text" id="observaciones" class="form-control form-control-user" value="" placeholder="Observaciones Adicionales">
+                        <input type="text" id="observaciones" class="form-control form-control-user detect-errors" value="" placeholder="Observaciones Adicionales">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2 form-check">
                         <input type="checkbox" id="recoleccion" class="form-check-input">
@@ -832,6 +828,7 @@ function finalizarCotizacion(datos) {
     location.href = "#crear_guia";
     scrollTo(0, 0);
 
+    restringirCaracteresEspecialesEnInput()
     let informacion = document.getElementById("informacion-personal");
     document.getElementById("producto").addEventListener("blur", () => {
         let normalmente_envia = false;
@@ -848,7 +845,43 @@ function finalizarCotizacion(datos) {
         }else {
             aviso.classList.add("d-none")
         }
-    })
+    });
+}
+
+function restringirCaracteresEspecialesEnInput() {
+    const detector = new DetectorErroresInput(".detect-errors", "#direccionD").init("input");
+    detector.setBooleans = [
+        {
+            operator: "contains",
+            message: 'Se cambiará el carácter ingresado "{forbidden}" por "{sustitute}"',
+            selector: "#direccionD",
+            forbid: "#",
+            sustitute: "Nro "
+        },
+        {
+            operator: "contains",
+            message: 'Se cambiará el carácter ingresado "{forbidden}" por "{sustitute}".',
+            selector: "#direccionD",
+            forbid: "-",
+            sustitute: " "
+        },
+        {
+            operator: "regExp",
+            message: 'El caracter "{forbidden}" no está permitido',
+            forbid: /[^\wñÑ\s]/g,
+            sustitute: "",
+        },
+    ]
+
+    const nombreD = new DetectorErroresInput("#nombreD").init("input");
+    nombreD.insertBoolean = 
+    {
+        operator: "regExp",
+        message: 'El caracter "{forbidden}" no está permitido',
+        selector: "#nombreD",
+        forbid: /[^\wñÑ\s-]/g,
+        sustitute: ""
+    }
 }
 
 function regresar() {
@@ -1221,19 +1254,23 @@ function crearGuia() {
         }
 
         if(value("producto") == ""){
+            renovarSubmit(boton_final_cotizador, textoBtn)
             alert("Recuerde llenar también lo que contine su envío");
             scrollTo({
                 top: document.getElementById("producto").parentNode.offsetTop - 60,
                 left: document.getElementById("producto").parentNode.offsetLeft,
                 behavior: "smooth"
             })
-        } else if (!/(.)*@(.)*\.(.)/.test(value("correoD")) && value("correoD")){
+        } else if (!validar_email(value("correoD")) && value("correoD")){
             //Recordar que existe una funcion llamada "validar_email(email)" que es mas especifica.
             alert("Lo sentimos, verifique por favor que la dirección de correo sea valida")
+            renovarSubmit(boton_final_cotizador, textoBtn)
         } else if (value("telefonoD").length != 10) {
             alert("Por favor verifique que el celular esta escrito correctamente (debe contener 10 digitos)")
+            renovarSubmit(boton_final_cotizador, textoBtn)
         } else if(!datos_usuario.centro_de_costo) {
             avisar("¡Error al generar Guía!", "Por favor, recargue la página, e intente nuevamente, si su problema persiste, póngase en Contacto con nosotros para asignarle un centro de costo", "advertencia");
+            renovarSubmit(boton_final_cotizador, textoBtn)
         } else {
             Swal.fire({
                 title: "Creando Guía",
@@ -1309,10 +1346,15 @@ function crearGuia() {
     } else {
         alert("Por favor, verifique que los campos escenciales no estén vacíos");
         verificador(["producto", "nombreD", "direccionD", "barrioD", "telefonoD"]);
-        boton_final_cotizador.removeAttribute("disabled");
-
+        
         boton_final_cotizador.textContent = textoBtn;
-
+        boton_final_cotizador.removeAttribute("disabled");
+        
+    }
+    
+    function renovarSubmit(boton_final_cotizador, textoBtn) {
+        boton_final_cotizador.textContent = textoBtn;
+        boton_final_cotizador.removeAttribute("disabled");
     }
 };
 
@@ -1349,7 +1391,7 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
             console.log(guia);
             return guia;
         } else {
-            return {numeroGuia: 0, error: resGuia.error}
+            return {numeroGuia: 0, error: resGuia.error || resGuia.message}
         }
         //Procuro devolver un objeto con el número de guía y el respectivo mensaje de erro si lo tiene
     })
@@ -1535,10 +1577,10 @@ async function generarGuiaServientrega(datos) {
         body: JSON.stringify(datos)
     })
     .then(res => res.json())
-    .then(data => {
+    .then(xml => {
         //Devuelve un xml en string, que necestito convetir al formato correspondiente
         let parser = new DOMParser();
-        data = parser.parseFromString(data, "application/xml");
+        data = parser.parseFromString(xml, "application/xml");
         console.log(data);
         console.log("se recibió respuesta");
         let retorno = new Object({});
@@ -1569,17 +1611,27 @@ async function generarGuiaServientrega(datos) {
             }
         } else {
             //En caso contrario retorna el error devuelto por el webservice
+            const contenedorErrores = data.querySelector("arrayGuias");
+            console.log(contenedorErrores);
+            console.log(data.querySelector("arrayGuias"));
             retorno = {
                 numeroGuia: 0,
-                error: data.querySelector("arrayGuias").children[0].textContent + "\""
+                error: contenedorErrores.textContent
             }
         }
-        console.log(data.querySelector("arrayGuias").children);
+
+        if(!retorno.numeroGuia) {
+            analytics.logEvent("Error al crear guía servientrega", {res: xml, centro_de_costo: datos_usuario.centro_de_costo || "SCC"});
+        }
+
         return retorno;
     })
     .catch(err => {
         console.log("Hubo un error: ", err);
-        return err;
+        analytics.logEvent("Error al crear guía servientrega", {catch: err, centro_de_costo: datos_usuario.centro_de_costo || "SCC"});
+        return {
+            message: "Hubo un error al conectar con " + codTransp + ", por favor, intente nuevamente más tarde."
+        };
     });
 
     if(res.numeroGuia) {
@@ -1623,14 +1675,29 @@ async function generarGuiaInterrapidisimo(datos) {
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(datos)
     }).then(d => {
-        if(d.status === 500) return '{"Message": "Ocurrió un error interno con la transportadora, por favor intente nuevamente."}'
+        if(d.status === 500) return {message: "Ocurrió un error interno con la transportadora, por favor intente nuevamente."};
+
         return d.json()
     })
-    .catch(error => {error});
+    .catch(err => {
+        console.log(err);
+        analytics.logEvent("Error al crear guía interrapidísimo", {catch: err, centro_de_costo: datos_usuario.centro_de_costo || "SCC"});
+        return {
+            message: "Hubo un error al conectar con " + codTransp + ", por favor, intente nuevamente más tarde."
+        };
+    });
 
-    respuesta = JSON.parse(respuesta);
-    if(respuesta.Message) return {numeroGuia: 0, error: respuesta.Message};
-    if(respuesta.error) return {numeroGuia: 0, error: respuesta.error};
+    // console.log(respuesta);
+    respuesta = typeof respuesta === "object" ? respuesta : JSON.parse(respuesta);
+    if(respuesta.Message || respuesta.message) {
+        respuesta.centro_de_costo = datos_usuario.centro_de_costo || "SCC";
+        analytics.logEvent("Error al crear guía interrapidisimo", respuesta);
+
+        return {
+            numeroGuia: 0,
+            message: respuesta.Message || respuesta.message
+        }
+    }
 
     respuesta.numeroGuia = respuesta.numeroPreenvio;
     respuesta.id_heka = datos.id_heka;
@@ -1656,7 +1723,9 @@ async function generarStickerGuiaInterrapidisimo(data) {
 
     const referenciaSegmentar = firebase.firestore().collection("base64StickerGuias")
     .doc(data.id_heka).collection("guiaSegmentada");
-    return await guardarDocumentoSegmentado(base64GuiaSegmentada, referenciaSegmentar);
+    if(base64GuiaSegmentada) return await guardarDocumentoSegmentado(base64GuiaSegmentada, referenciaSegmentar);
+
+    return false
     // return await guardarBase64ToStorage(base64Guia, user_id + "/guias/" + data.id_heka + ".pdf")
 };
 

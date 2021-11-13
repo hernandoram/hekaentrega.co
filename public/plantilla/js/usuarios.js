@@ -438,24 +438,25 @@ async function buscarUsuarios(){
             const centro_de_costo = doc.data().centro_de_costo || "SCC";
             const direccion = doc.data().direccion || "SD"
             
+            const toDom = str => new DOMParser().parseFromString(str, "text/html").body.firstChild;
 
             //Primer filtro para buscar por nombre de usuario
             if(nombreInp){
                 if (centro_de_costo.toLowerCase().includes(nombreInp) 
                 || nombre.includes(nombreInp) || apellido.includes(nombreInp)
                 || nombre_completo.includes(nombreInp) || nombre_apellido.includes(nombreInp)){
-                    document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
+                    document.getElementById("mostrador-usuarios").appendChild(toDom(mostrarUsuarios(doc.data(), doc.id)));
                 }
             }
 
             if(dirInp) {
                 if(direccion.toLowerCase().indexOf(dirInp) != -1 ) {
-                    document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
+                    document.getElementById("mostrador-usuarios").appendChild(toDom(mostrarUsuarios(doc.data(), doc.id)));
                 }
             }
 
             if(!dirInp && !nombreInp){
-                document.getElementById("mostrador-usuarios").innerHTML += mostrarUsuarios(doc.data(), doc.id);
+                document.getElementById("mostrador-usuarios").appendChild(toDom(mostrarUsuarios(doc.data(), doc.id)));
             }
             
             
@@ -467,6 +468,7 @@ async function buscarUsuarios(){
             let botones_ver = document.querySelectorAll('[data-funcion="ver-eliminar"]');
             let botones_movimientos = document.querySelectorAll('[data-funcion="movimientos"]');
             let boton_filtrador_movs = document.getElementById("filtrador-movimientos");
+            const activador_automaticas = document.querySelectorAll(".activador_automaticas")
             for(let boton of botones_ver){
                 boton.addEventListener("click", (e) => {
                     let identificador = e.target.parentNode.getAttribute("data-buscador");
@@ -500,6 +502,8 @@ async function buscarUsuarios(){
                 fechaF = new Date(document.getElementById("movs-fecha-final").value).getTime()
                 verMovimientos(identificador, fechaI, fechaF + 8.64e+7);
             })
+
+            activador_automaticas.forEach(activadorGuiasAutomaticasDesdeAdmin)
         }
         document.getElementById("cargador-usuarios").classList.add("d-none");
 
@@ -508,6 +512,20 @@ async function buscarUsuarios(){
     
     
 };
+
+function activadorGuiasAutomaticasDesdeAdmin(el) {
+    const id = el.getAttribute("data-id");
+
+    el.addEventListener("click", () => {
+        console.log("actualizando para => ", id, el.checked);
+        db.collection("usuarios").doc(id).update({
+            generacion_automatizada: el.checked
+        }).then(Toast.fire({
+            icon: "success",
+            text: "Usuario actualizado"
+        }));
+    })
+}
 
 //Funcion que filtrará a los usuarios luego de realizar que el dom esté lleno
 function filtrarBusquedaUsuarios(e) {
@@ -540,7 +558,7 @@ function seleccionarUsuario(id){
                 // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
                 //Hasta que todos los usuario futuramente tengan el doc "heka"
                 limpiarFormulario("#informacion-heka", "input")
-                $("#habilitar_servientrega").prop("checked", true);
+                // $("#habilitar_servientrega").prop("checked", true);
                 console.log("No such document!");
             }
         }).catch((error) => {

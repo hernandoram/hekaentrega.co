@@ -28,11 +28,11 @@
     rel="stylesheet">
 
   <!-- Google Tag Manager -->
-  <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+  <!-- <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
-  })(window,document,'script','dataLayer','GTM-PPT7BHD');</script>
+  })(window,document,'script','dataLayer','GTM-PPT7BHD');</script> -->
   <!-- End Google Tag Manager -->
 
   <!-- Custom styles for this template-->
@@ -56,22 +56,12 @@
 
   <!-- Librería para crear pdfs a partir de html -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9VP01NDSXJ"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){window.dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-9VP01NDSXJ');
-  </script>
 </head>
 
 <body class="bg-gradient-primary">
   <!-- Google Tag Manager (noscript) -->
-  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PPT7BHD"
-  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PPT7BHD"
+  height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript> -->
   <!-- End Google Tag Manager (noscript) -->
     
   <!--Verificar usuario comun-->
@@ -222,7 +212,7 @@
                 
                 <!-- Dropdown - User Information -->
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                  <a class="dropdown-item" href="#perfil" onclick="mostrar('perfil')" >
+                  <a class="dropdown-item" href="#perfil">
                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                     Perfil de usuario
                   </a>
@@ -241,6 +231,7 @@
         <div id="content">     
           <!-- Begin Page Content -->
           <div class="container-fluid" id="cotizar_envio">
+            
 
             <!-- Page Heading -->
             <div style="display: block;" id="cotizador">
@@ -264,12 +255,12 @@
                 <div class="form-group row align-items-end mb-3">
                   <div class="col-sm-6 mb-3 mb-sm-3">
                     <h6>KILOS</h6>
-                    <input type="number" class="form-control form-control-user" step="any" name="kilos" id="Kilos" min="1" max="25" required>  
+                    <input type="number" class="form-control form-control-user only-integers" step="any" name="kilos" id="Kilos" min="1" max="25" required>  
                   </div>      
                   <div class="col mb-3 mb-sm-3">
                     <h6>Valor Declarado</h6>
                     <input type="number" onchange="this.classList.add('is-invalid')"
-                    class="form-control form-control-user" id="seguro-mercancia" value="12500" step="1000" name="recaudo" min="5000" max="2000000" >
+                    class="form-control form-control-user only-integers" id="seguro-mercancia" value="12500" step="1000" name="recaudo" min="5000" max="2000000" >
                     <div class="invalid-feedback">
                       Incrementar el valor asegurado también incrementará el costo del envío.
                     </div>
@@ -282,19 +273,25 @@
                     <div class="row">
                       <div class="col-sm-4 d-flex align-items-center mb-2">
                         <label for="dimension-ancho">Ancho:  </label>
-                        <input type="number" class="form-control form-control-user ml-2" id="dimension-ancho" name="dimension-ancho" min="1" max="150" >
+                        <input type="number" class="form-control form-control-user ml-2 only-integers" id="dimension-ancho" name="dimension-ancho" min="1" max="150" >
                       </div>
                       <div class="col-sm-4 d-flex align-items-center mb-2">
                         <label for="dimension-largo">Largo:  </label>
-                        <input type="number" class="form-control form-control-user ml-2" id="dimension-largo" name="dimension-Largo" min="1" max="150" >
+                        <input type="number" class="form-control form-control-user ml-2 only-integers" id="dimension-largo" name="dimension-Largo" min="1" max="150" >
                       </div>
                       <div class="col-sm-4 d-flex align-items-center mb-2">
                         <label for="dimension-alto">Alto:  </label>
-                        <input type="number" class="form-control form-control-user ml-2" id="dimension-alto" name="dimension-alto" min="1" max="150" >
+                        <input type="number" class="form-control form-control-user ml-2 only-integers" id="dimension-alto" name="dimension-alto" min="1" max="150" >
                       </div>
                     </div>
                   </div>
                 </div>
+
+                <!-- para activar o desactivar las guias automáticas -->
+              <div class="custom-control custom-switch text-center m-2">
+                <input type="checkbox" class="custom-control-input" id="switch-guias_automaticas">
+                <label class="custom-control-label" for="switch-guias_automaticas">Sistema automatizado para generar guías desactivado.</label>
+              </div>
 
               </form>
               <button id="boton_cotizar"  onclick="cotizador()" 
@@ -607,10 +604,10 @@
                 </br> 
                 </br>
                 
-                  <input type="checkbox"  name="" id="checkbox-banco" onchange="pruebacheck()"> Mostrar Datos Bancarios
+                  <!-- <input type="checkbox"  name="" id="checkbox-banco" onchange="pruebacheck()"> Mostrar Datos Bancarios -->
                   </div>
 
-                <div id="mostrar-ocultar-registro-bancario" style="display: none;">
+                <div id="mostrar-ocultar-registro-bancario">
                   <h6 class="text-danger">DATOS BANCARIOS</h6>
                 </br>
                   <div class="form-group row">
@@ -690,22 +687,18 @@
               <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
             </div>  
 
-            <!-- para activar o desactivar las guias automáticas, por ahora quedará inhabilitado -->
-            <!-- <div class="custom-control custom-switch text-center m-2">
-              <input type="checkbox" class="custom-control-input" id="switch-guias_automaticas">
-              <label class="custom-control-label" for="switch-guias_automaticas">Sistema automatizado para generar guías (versión prueba) desactivado.</label>
-            </div> -->
+            
           </form>
           <!--Desactivado este boton por ahora-->
           <!-- <button onclick="actualizarCuenta()" class="btn btn-primary btn-user btn-block">
             Actualizar datos
           </button> -->
-        </div>
-        
-        <hr>
-        <div id="error_crear_cuenta"></div>
-         <hr>
-        </div>
+              </div>
+              
+              <hr>
+              <div id="error_crear_cuenta"></div>
+              <hr>
+            </div>
           </div>
 
           <div class="container-fluid" id="historial_guias" style="display: none;">
@@ -1168,7 +1161,7 @@
   <div class="modal-dialog modal-xl">
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title" id="titulo-gestionarNovedad"><b>¿Qué hay de nuevo?</b></h4>
+        <h4 class="modal-title" id="titulo-gestionarNovedad"><b>Actualización de tarifas Servientrega - 04/11/2021</b></h4>
         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -1177,35 +1170,14 @@
         <div class="container-fluid" id="contenedor-gestionarNovedad">
           <ul class="list-group list-group-flush">
             <li class="list-group-item">
-              <h4 class="mb-1 text-primary text-capitalize">Transportadoras</h4>
-              Los pagos con <b>INTERRAPIDÍSIMO</b> a partir de la próxima semana serán semanales, los días miércoles, sin embargo Heka intentará pagar antes de los cortes.
-            </li>
-
-            <li class="list-group-item">
-              <!-- <h4 class="mb-1 text-primary text-capitalize">envía</h4> -->
-              Actualmente estamos integrando la transportadora <b>ENVÍA</b>, esperamos traer la integración lo más pronto posible.
+              <h4 class="mb-1 text-primary text-capitalize">tarifas servientrega</h4>
+              La transportadora <b>SERVIENTREGA</b> ha actualizado su tarifa como lo hace anualmente, por lo tanto, encontrarás un nuevo costo aplicado desde el <b>4 de Noviembre del 2021.</b>
             </li>
             
             <li class="list-group-item">
-              <h4 class="mb-1 text-primary text-capitalize">pagos diarios</h4>
-              Heka está implemetando pruebas piloto para <b>PAGOS DIARIOS</b> el cual tendrá una comisión adicional de 1.89% sobre el valor a reembolsar.
+              <h4 class="mb-1 text-primary text-capitalize">interrapidisimo</h4>
+              Actualmente estamos en negociaciones con <b>INTERRAPIDISIMO</b> para la implementación de un ejecutivo interno dedicado el cual nos ayudaría a agilizar todos los procesos de la transportadora.
             </li>
-            
-            <li class="list-group-item">
-              <h4 class="mb-1 text-primary text-capitalize">Mejoras y actualizaciones</h4>
-              Se está implementando <b>GUÍAS AUTOMÁTICAS</b> con algunos de nuestros usuarios, pronto quedará activado para todos.
-            </li>
-            
-            <li class="list-group-item">
-              <!-- <h4 class="mb-1 text-primary text-capitalize">Puntos de entrega propios</h4> -->
-              Heka está trabajando para habilitar <b>PUNTOS DE ENTREGA PROPIOS</b>, los cuales tendrían precios de envío más económicos y tiempos de reembolso mucho más rápidos. 
-            </li>
-
-            <li class="list-group-item">
-              <!-- <h4 class="mb-1 text-primary text-capitalize">catálogo y links de pago</h4> -->
-              Heka está trabajando en la implementación de <b>CATÁLAGO DE PRODUCTOS</b> y <b>LINKS DE PAGO</b>, los cuales estarán conectados con las transportadoras.
-            </li>
-
           </ul>
 
         </div>

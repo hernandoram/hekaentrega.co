@@ -54,10 +54,11 @@ $(document).ready(() => {
         }
     });
 
-    revisarNotificaciones();
+    // revisarNotificaciones();
 
 })
 
+const toHtmlNode = str => new DOMParser().parseFromString(str, "text/html").body.firstChild;
 
 //función utilizada por el usuario para crear lo documentos
 function crearDocumentos() {
@@ -216,9 +217,13 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
         } else if (v.transportadora != arr[i? i - 1 :i].transportadora) {
             mensaje = "Las transportadoras seleccionadas no coinciden."
             return true
+        } else if (generacion_automatizada && v.numeroGuia == "undefined") {
+            mensaje = "Para el modo automático de guías, es necesario que todas las seleccionadas contengan el número de guía de la transportadora. <br/> Se recomienda desactivar el sistema automatizado para generar guias (que se encuentra en el cotizador), de esta forma, se le será permitido crear el documento con la guía nro. " + v.id_heka ;
+            
+            return true;
         } else if (generacion_automatizada && v.has_sticker !== "true") {
             let guias = arr.filter(t => {
-                return t.has_sticker === "true";
+                return t.has_sticker !== "true";
             }).map(v => v.id_heka);
             
             const cantidad = guias.length;
@@ -227,10 +232,6 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
             + "presione <i class='fa fa-stamp rounded'></i> o intente clonar la guía para generarle el documento correctamente.";
             let match = cantidad > 1 ? /\(|\)/g : /\(\w+\)/g;
             mensaje = mensaje.replace(match, "");
-            return true;
-        } else if (generacion_automatizada && !v.numeroGuia) {
-            mensaje = "Para el modo automático de guías, es necesario que todas las seleccionadas, contengan el número de guía de la transportadora";
-            
             return true;
         }
 
@@ -396,7 +397,7 @@ function cargarDocumentos(filter) {
             
             if(doc.data().descargar_relacion_envio || doc.data().descargar_guias){
                 //si tiene la informacion completa cambia el modo es que se ve la tarjeta y habilita mas funciones
-                documentos.innerHTML += mostrarDocumentos(doc.id, doc.data(), "warning");
+                documentos.appendChild(toHtmlNode(mostrarDocumentos(doc.id, doc.data(), "warning")));
                 let descargador_completo = document.getElementById("descargar-docs"+doc.id);
                 descargador_completo.classList.remove("fa", "fa-file");
                 descargador_completo.classList.add("fas", "fa-file-alt");
@@ -412,7 +413,7 @@ function cargarDocumentos(filter) {
                 }
                 
             } else {
-                documentos.innerHTML += mostrarDocumentos(doc.id, doc.data());
+                documentos.appendChild(toHtmlNode(mostrarDocumentos(doc.id, doc.data())));
             }
 
             switch(doc.data().transportadora) {
@@ -1652,7 +1653,7 @@ function consultarGuia(numGuia, usuario = "Consulta Personalizada", contador, to
     })
 };
 
-actualizarMovimientoGuia();
+// actualizarMovimientoGuia();
 function actualizarMovimientoGuia() {
     if(!administracion)
     usuarioDoc.collection("guias").where("seguimiento_finalizado", "==", false)
