@@ -422,13 +422,11 @@ async function detallesTransportadoras(data) {
 
     const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
     let cotizacionAveo;
-    const p = new P();
 
     //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
     for (let transp in transportadoras) {
         let seguro = data.seguro, recaudo = data.valor;
         if(!cotizacionAveo && (transp === "ENVIA" || transp === "TCC")) {
-            p.r("Cotizando con: " + transp);
 
             cotizacionAveo = await cotizarAveonline(typeToAve, {
                     "origen": data.ave_ciudadR,
@@ -459,7 +457,6 @@ async function detallesTransportadoras(data) {
             cotizacionAveo
         });
 
-        p.r("finalizando cotización con: " + transp);
 
 
         console.log(cotizacion);
@@ -562,7 +559,6 @@ async function detallesTransportadoras(data) {
         });
         $(`#list-transportadora-${transp}-list`).click(seleccionarTransportadora);
 
-        p.r("Se imprimió con: " + transp);
 
         corredor ++
     }
@@ -573,18 +569,6 @@ async function detallesTransportadoras(data) {
     return [encabezados, detalles];
 }
 
-class P {
-    constructor( ){
-        this.initial = new Date().getTime();
-        this.act = new Date().getTime();
-    }
-
-    r(t) {
-        const x = new Date().getTime();
-        console.log(t, x-this.act, x-this.initial);
-        this.act = x;
-    }
-}
 
 //Selecciona la transportadora a utilizar
 function seleccionarTransportadora(e) {

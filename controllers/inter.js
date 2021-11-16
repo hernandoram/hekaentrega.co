@@ -250,8 +250,8 @@ exports.crearGuia = (req, res) => {
         "Destinatario":{
             "tipoDocumento": guia.tipo_doc_dest === 1 ? "NIT" : "CC",
             "numeroDocumento": guia.identificacionD,
-            "nombre": guia.nombreD.split(" ")[0],
-            "primerApellido":  guia.nombreD.split(" ")[1] ||  guia.nombreD.split(" ")[0], //Si se debe enviar si es un cliente persona natural, es obligatorio
+            "nombre": guia.nombreD,
+            "primerApellido":  "| Heka", //Si se debe enviar si es un cliente persona natural, es obligatorio
             "segundoApellido":null,
             "telefono": guia.telefonoD,
             "direccion": guia.direccionD,
