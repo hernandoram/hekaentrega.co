@@ -1198,9 +1198,9 @@ class CalcularCostoDeEnvio {
 
     intoAveo(cotizacion) {
         this.kg = cotizacion.kilos;
-        this.total_flete = cotizacion.fletetotal;
-        this.sobreflete = cotizacion.costoManejo;
-        this.seguroMercancia = parseInt(cotizacion.valorOtrosRecaudos);
+        this.total_flete = cotizacion.fletetotal + 1000;
+        this.sobreflete = parseInt(cotizacion.valorOtrosRecaudos);
+        this.seguroMercancia = cotizacion.costoManejo;
         this.tiempo = cotizacion.diasentrega;
     }
 }
