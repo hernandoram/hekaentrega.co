@@ -1245,7 +1245,7 @@ function crearGuia() {
     boton_final_cotizador.setAttribute("disabled", true);
 
 
-    if(value("nombreD") != "" && value("direccionD") != "" && value("barrioD") != "" && 
+    if(value("nombreD") != "" && value("direccionD") != "" &&
     value("telefonoD") != ""){
         let recoleccion = 0
         if(document.getElementById("recoleccion").checked){
@@ -1344,7 +1344,7 @@ function crearGuia() {
         }
     } else {
         alert("Por favor, verifique que los campos escenciales no estén vacíos");
-        verificador(["producto", "nombreD", "direccionD", "barrioD", "telefonoD"]);
+        verificador(["producto", "nombreD", "direccionD", "telefonoD"]);
         
         boton_final_cotizador.textContent = textoBtn;
         boton_final_cotizador.removeAttribute("disabled");
