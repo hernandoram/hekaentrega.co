@@ -1232,7 +1232,9 @@ async function cotizarAveonline(type, params) {
 function modificarDatosDeTransportadorasAveo(res) {
     const transp = ["ENVIA", "TCC"];
     transp.forEach(t => {
-        transportadoras[t].logoPath = res[t].logoTransportadora;
+        if(res[t]) {
+            transportadoras[t].logoPath = res[t].logoTransportadora;
+        }
     })
 }
 
