@@ -9,5 +9,7 @@ router.post("/crearGuia", interRouter.crearGuia);
 
 router.get("/crearStickerGuia/:id", interRouter.crearStickerGuia);
 
+router.get("/imprimirManifiesto/:guias", interRouter.imprimirManifiesto);
+
 
 module.exports = router

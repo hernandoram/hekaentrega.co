@@ -2,8 +2,9 @@ const request = require("request");
 const requestP = require("request-promise")
 const extsFunc = require("../extends/funciones");
 const puppeteer = require("puppeteer");
+// const Handlebars = require("express-handlebars");
 const {Credenciales, UsuarioPrueba} = require("../keys/interCredentials");
-const urlEstados = "https://www3.interrapidisimo.com/ApiservInter/api/Mensajeria/ObtenerRastreoGuias?guias="
+const urlEstados = "https://www3.interrapidisimo.com/ApiservInter/api/Mensajeria/ObtenerRastreoGuias?guias=";
 
 //FUNCIONES REGULARES
 // Estas funciones actualmente no están siendo utilizadas
@@ -314,6 +315,30 @@ exports.consultarGuia = async (req, res) => {
     
     res.json(respuesta);
 
+}
+
+exports.imprimirManifiesto = (req, res) => {
+    const guiasPerPage = 20;
+    const guias = req.params.guias.split(",");
+    for(let i = 0; i < 149; i++) {
+        guias.push(parseInt(guias[i]) + 1);
+    }
+    const numberOfPages = Math.ceil(guias.length / guiasPerPage);
+
+    
+    let organizatorGuias = new Array();
+    let pageNumber = 1;
+
+    while(pageNumber <= numberOfPages) {
+        const guiaInicial = (pageNumber - 1) * guiasPerPage;
+        const guiaFinal = pageNumber * guiasPerPage;
+        const page = guias.slice(guiaInicial, guiaFinal);
+        organizatorGuias.push(page);
+
+        pageNumber++
+    }
+
+    res.render("printManifiestoInter", {organizatorGuias, layout:"printer"});
 }
 
 exports.actualizarMovimientos = actualizarMovimientos;

@@ -2278,7 +2278,7 @@ function incializarTablaTablaGuiasInter() {
     } );
 
     btn_crear_manifiesto.click(() => {
-        crearManifiestoInter(guiasSeleccionadas());
+        imprimirManifiestoInter(guiasSeleccionadas());
     })
 
     function guiasSeleccionadas() {
@@ -2292,141 +2292,11 @@ function incializarTablaTablaGuiasInter() {
 
 }
 
-function crearManifiestoInter(numeroGuias) {
+function imprimirManifiestoInter(numeroGuias) {
     if(!numeroGuias || !numeroGuias.length) return new Toast({
         icon: "error",
         title: "Debes seleccionar las guías antes de crear la relación"
     });
-    
-    const guiasPerPage = 26; // Para utilizar la librería de pdf en su tamaño por defecto, la cant. optimo es de 16
-    let div = "";
-    const numberOfPages = Math.ceil(numeroGuias.length / guiasPerPage);
-    let pageNumber = 1;
 
-    const organizarTablaGuias = (numeroGuias) => {
-        let tabla = "";
-        numeroGuias.forEach(guia => {
-            tabla += `<tr><td>${guia}</td></tr>`;
-        })
-        return tabla
-    }
-    const page = (listaGuias) => `
-    
-    <div class="page">
-
-            <div class="row">
-              <h2 class="text-center col-12 mt-4">CONSOLIDADO DE ENVÍOS</h2>
-            </div>
-            <div class="row">
-              <div class="col m-3 p-2 d-flex justify-content-center align-items-center border"><img height="70px" src="./img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg" alt="log de heka"></div>
-              <div class="col m-3 p-2 d-flex justify-content-center align-items-center border"><img height="70px" src="./img/logo-inter2.png" alt="logo inter"></div>
-            </div>
-
-            <div class="row">
-              <div class="col-4">
-                <table class="table table-bordered text-gray-900">
-                  <tr><th class="text-center">Número de guía</th></tr>
-                  
-                  ${listaGuias}
-                  
-                </table>
-              </div>
-              <div class="col-8">
-                <div class="h-100 d-flex flex-column justify-content-around">
-                  <div class="my-3">
-                    <div class="card">
-                      <div class="card-header text-center"><h4>Datos transportadora / oficina</h4></div>
-                      <div class="card-body">
-                        <div class="d-flex flex-column justify-content-between" style="height: 250px;">
-                          <div>
-                            <p class="w-100 d-flex"><b>Nombre funcionario: </b> <span class="col ml-2" style="border-bottom: solid 1px #3a3b45;"></span></p>
-                            <p class="w-100 d-flex"><b>Fecha: </b> <span class="col ml-2" style="border-bottom: solid 1px #3a3b45;"></span></p>
-                          </div>
-                          <div>
-                            <p class="w-100 d-flex mt-6"><b>Firma y/o sello: </b> <span class="col ml-2" style="border-bottom: solid 1px #3a3b45;"></span></p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div class="my-3">
-                    <div class="card">
-                      <div class="card-header text-center"><h4>Datos transportadora / oficina</h4></div>
-                      <div class="card-body">
-                        <div class="d-flex flex-column justify-content-between" style="height: 250px;">
-                          <div>
-                            <p class="w-100 d-flex"><b>Nombre funcionario: </b> <span class="col ml-2" style="border-bottom: solid 1px #3a3b45;"></span></p>
-                            <p class="w-100 d-flex"><b>Fecha: </b> <span class="col ml-2" style="border-bottom: solid 1px #3a3b45;"></span></p>
-                          </div>
-                          <div>
-                            <p class="w-100 d-flex mt-6"><b>Firma y/o sello: </b> <span class="col ml-2" style="border-bottom: solid 1px #3a3b45;"></span></p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          
-          </div>`;
-
-    const inicio = `<!DOCTYPE html>
-    <html lang="es">
-        <head>
-            <meta charset="utf-8">
-            <meta http-equiv="X-UA-Compatible" content="IE=edge">
-            <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-
-            <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
-
-            <link href="css/sb-admin-2.min.css" rel="stylesheet">
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-            
-            <title>Rótulo Heka</title>
-        </head>
-        <body><div class="container">
-        <div class="container-fluid text-gray-900 m-3">`;
-
-    const final = "</div></div></body></html>";
-
-    while(pageNumber <= numberOfPages) {
-        const guiaInicial = pageNumber - 1 * guiasPerPage;
-        const guiaFinal = pageNumber * guiasPerPage;
-        const guias = numeroGuias.splice(guiaInicial, guiaFinal);
-        div += page(organizarTablaGuias(guias));
-
-        pageNumber++
-    }
-
-    w = window.open();
-    w.document.write(inicio);
-    w.document.write(div);
-    w.document.write(final);
-    w.document.close();
-    w.focus();
-    
-    
-    setTimeout(() => {
-        
-        var element = w.document.querySelector(".container > .container-fluid");
-        var opt = {
-            margin:       0,
-            filename:     'myfile.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            pagebreak: {mode: "css", after: ".page"},
-            // jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
-        
-        // New Promise-based usage:
-        // html2pdf().set(opt).from(element).outputPdf().then(d => {
-        //     // openPdfFromBase64(w.btoa(d));
-        // });
-        w.print();
-        w.close();
-    }, 100)
-  
+    open("/inter/imprimirManifiesto/" + numeroGuias, "_blank");  
 }
