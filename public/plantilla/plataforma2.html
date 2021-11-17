@@ -228,7 +228,17 @@
         <!-- End of Topbar -->
 
         <!-- Main Content -->
-        <div id="content">     
+        <div id="cargador-content" class="h-100">
+          <div class="h-100 d-flex align-items-center justify-content-center">
+            <div class="row">
+              <div class="col-12 d-flex justify-content-center align-items-center">
+                <h2>Cargando <span id="porcentaje-cargador-inicial"></span> datos</h2><div class="lds-ellipsis ml-2"><div></div><div></div><div></div><div></div></div>
+              </div>
+              <p class="col-12 text-center">Por favor espere</p>
+            </div>
+          </div>
+        </div>
+        <div id="content" style="display: none;">     
           <!-- Begin Page Content -->
           <div class="container-fluid" id="cotizar_envio">
             
@@ -866,7 +876,7 @@
 
           <div class="container-fluid" id="guias_inter" style="display: none;">
             <h3 class="m-0 font-weight-bold text-primary">Crear manifiesto de inter rapidísimo</h3>
-            <p class="border-left-primary pl-2">Aquí podrás crear la relación de envíos para tus guías de interrapidísimo <strong>te recomendamos imprimirlo desde un computador</strong></p>
+            <p class="border-left-primary pl-2">Aquí podrás crear la relación de envíos para tus guías de interrapidísimo.</p>
             <!--Formulario de busqueda guias-->
             <div class="card card-shadow mb-4">
               <div class="card-body">

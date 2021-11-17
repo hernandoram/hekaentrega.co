@@ -2158,11 +2158,11 @@ async function generarRotulo(id_guias) {
     </head><body>`);
     w.document.write(div.innerHTML);
     w.document.write("</body></html>");
-    w.document.close();
+    // w.document.close();
     w.focus();
     setTimeout(() => {
         w.print();
-        w.close();
+        // w.close();
     }, 500)
 };
 

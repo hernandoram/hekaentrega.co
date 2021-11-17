@@ -49,29 +49,30 @@ let estado_prueba, generacion_automatizada;
 //funcion principal del Script que carga todos los datos del usuario
 async function cargarDatosUsuario(){
   let proceso = 0;
+  const contentCharger = $("#cargador-content");
+  const content = $("#content");
   const percentage = () => {
     proceso += Math.min(Math.round(Math.random() * 40), 95);
     return proceso + "%";
   };
   
-  Cargador.fire({
-    text: "Cargando datos " + percentage()
-  })
-  const contentSwal = Cargador.getHtmlContainer();
+  const showPercentage = $("#porcentaje-cargador-inicial")
   
   //Carga la informacion personal en un objeto y se llena el html de los datos del usuario
   await consultarInformacionPersonalUsuario()
-  contentSwal.innerHTML = "Cargando datos " + percentage()
+  showPercentage.text(percentage());
   
   //SE cargan datos como el centro de costo
   await consultarDatosBasicosUsuario()
-  contentSwal.innerHTML = "Cargando datos " + percentage();
+  showPercentage.text(percentage());
   
   //Modifica los costos de envio si el usuario tiene costos personalizados
-  consultarInformacioHeka();
-  contentSwal.innerHTML = "Cargando datos " + percentage();
+  await consultarInformacioHeka();
+  showPercentage.text(percentage());
 
-  Cargador.close();
+  contentCharger.hide();
+  content.show("fast");
+  
 }
 
 async function consultarDatosBasicosUsuario() {
@@ -170,29 +171,40 @@ async function consultarInformacionPersonalUsuario() {
   if(location.hash === "#perfil") consultarInformacionBancariaUsuario();
 }
 
-function consultarInformacioHeka() {
+async function consultarInformacioHeka() {
   const informacion = firebase.firestore().collection('usuarios').doc(user_id).collection("informacion");
+  const updateData = () => {
+    for(let precio in doc.data()){
+      const value = doc.data()[precio];
+      if(value === "") continue;
+      if(!/[^\d+.]/.test(value.toString())) {
+        datos_personalizados[precio] = parseFloat(value);
+      } else {
+        datos_personalizados[precio] = value;
+      }
+    }
+
+    console.log(datos_personalizados);
+
+    $("#saldo").html("$" + convertirMiles(datos_personalizados.saldo));
+  };
 
   informacion.doc("heka").onSnapshot(doc => {
     if(doc.exists){
-      for(let precio in doc.data()){
-        const value = doc.data()[precio];
-        if(value === "") continue;
-        if(!/[^\d+.]/.test(value.toString())) {
-          datos_personalizados[precio] = parseFloat(value);
-        } else {
-          datos_personalizados[precio] = value;
-        }
-      }
-
-      console.log(datos_personalizados);
-
-      $("#saldo").html("$" + convertirMiles(datos_personalizados.saldo));
+      updateData();
 
       // datos_personalizados.saldo = parseInt(doc.data().saldo);
       // $("#saldo").html("$" + convertirMiles(datos_personalizados.saldo));
     }
   })
+
+  //Si la traida de datos en tiempo real me falla,
+  //voy a descomentar, para traerlo también a la primera carga
+  // await informacion.doc("heka").get(doc => {
+  //   if(doc.exists) {
+  //     updateData();
+  //   }
+  // });
 }
 
 /* Función que me carga los datos bancarios del usuario en el perfil.

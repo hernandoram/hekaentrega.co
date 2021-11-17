@@ -320,9 +320,7 @@ exports.consultarGuia = async (req, res) => {
 exports.imprimirManifiesto = (req, res) => {
     const guiasPerPage = 20;
     const guias = req.params.guias.split(",");
-    for(let i = 0; i < 149; i++) {
-        guias.push(parseInt(guias[i]) + 1);
-    }
+    
     const numberOfPages = Math.ceil(guias.length / guiasPerPage);
 
     
