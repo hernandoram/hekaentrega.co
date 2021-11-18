@@ -28,13 +28,13 @@ let transportadoras = {
         limitesPeso: [0.1,5],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
-        limitesValorDeclarado: (valor) => {
-            if(valor <= 2) return [12500, 30000000]
-            if(valor <= 5) return [27500, 30000000]
+        limitesValorDeclarado: (peso) => {
+            if(peso <= 2) return [15000, 30000000]
+            if(peso <= 5) return [30000, 30000000]
             return [37500, 30000000]
         },
         habilitada: () => {
-            return datos_personalizados.habilitar_interrapidisimo
+            return true
         },
     },
     "ENVIA": {
@@ -186,9 +186,8 @@ async function cotizador(){
             let mostrador = document.getElementById("result_cotizacion");
             mostrador.style.display = "block"
             let respuesta = await response(datos_de_cotizacion);
-            // mostrador.innerHTML  = '<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>';
             mostrador.innerHTML = respuesta;
-            detallesTransportadoras(datos_de_cotizacion);
+            if(respuesta) detallesTransportadoras(datos_de_cotizacion);
 
             
             if(datos_de_cotizacion.recaudo < datos_de_cotizacion.precio) {
@@ -220,20 +219,7 @@ async function cotizador(){
 
             if(estado_prueba) datos_a_enviar.prueba = true;
 
-    
-            $("#list-transportadoras .detalles").click(function(e){
-                const info = $("#nav-contentTransportadoras").parent()
-                info.removeClass("d-none");
-                $(this).parents("a").tab("show");
-                info[0].scrollIntoView({behavior: "smooth"})
-            });
-
-            $('a[data-toggle="list"]').on('shown.bs.tab', function (event) {
-                // console.log(event.relatedTarget);
-                event.target.classList.remove("active");
-            })
-
-            $("#list-transportadoras a").click(seleccionarTransportadora);
+            // $("#list-transportadoras a").click(seleccionarTransportadora);
 
             $("#boton_continuar").click(seleccionarTransportadora)
 
@@ -418,7 +404,10 @@ async function detallesTransportadoras(data) {
     let corredor = 0;
     const mostradorTransp = $("#list-transportadoras");
     const detallesTransp = $("#nav-contentTransportadoras");
-    $("#result_cotizacion").after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
+    const result = $("#result_cotizacion");
+    const button = $("#boton_cotizar");
+    button.addClass("disabled");
+    result.after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
 
     const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
     let cotizacionAveo;
@@ -456,10 +445,6 @@ async function detallesTransportadoras(data) {
             dane_ciudadD: data.dane_ciudadD,
             cotizacionAveo
         });
-
-
-
-        console.log(cotizacion);
 
         if(data.sumar_envio) {
             cotizacion.sumarCostoDeEnvio = cotizacion.valor;
@@ -561,6 +546,15 @@ async function detallesTransportadoras(data) {
 
 
         corredor ++
+    }
+
+    button.removeClass("disabled");
+
+    if (!corredor) {
+        result.html(`<div class="text-center"><li class="fa fa-frown m-1 fa-6x"></li><br>
+            <h3>Lo sentimos, sin cobertura con ninguna transportadora</h3>
+            </div>
+        `)
     }
 
     $("#cargador_cotizacion").remove();
@@ -1377,7 +1371,7 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
         //le midifico los datos de respuesta al que será enviado a firebase
         datos.numeroGuia = resGuia.numeroGuia;
         datos.id_archivoCargar = resGuia.id_archivoCargar || "";
-        datos.has_sticker = resGuia.has_sticker;
+        datos.has_sticker = resGuia.has_sticker || false;
         //y creo el documento de firebase
         if(resGuia.numeroGuia) {
             datos.numeroGuia = datos.numeroGuia.toString();
@@ -1670,7 +1664,20 @@ async function guardarStickerGuiaServientrega(data) {
 
 //función para consultar la api en el back para crear guiade inter rapidisimo.
 async function generarGuiaInterrapidisimo(datos) {
-    datos.codigo_sucursal = datos_personalizados.codigo_sucursal_inter
+    let codigo_sucursal = datos_personalizados.codigo_sucursal_inter;
+
+    if(!codigo_sucursal) {
+        codigo_sucursal = await usuarioDoc.collection("informacion").doc("heka")
+        .get().then(d => {
+            console.log("ingresó porque no se consiguió código sucursal")
+            if (d.exists) return d.data().codigo_sucursal_inter
+
+            return "SCS"
+        });
+
+        firebase.firestore().collection("errores").add(datos_personalizados);
+    }
+    datos.codigo_sucursal = codigo_sucursal
     let respuesta = await fetch("/inter/crearGuia", {
         method: "POST",
         headers: {"Content-Type": "application/json"},

@@ -173,38 +173,29 @@ async function consultarInformacionPersonalUsuario() {
 
 async function consultarInformacioHeka() {
   const informacion = firebase.firestore().collection('usuarios').doc(user_id).collection("informacion");
-  const updateData = () => {
-    for(let precio in doc.data()){
-      const value = doc.data()[precio];
-      if(value === "") continue;
-      if(!/[^\d+.]/.test(value.toString())) {
-        datos_personalizados[precio] = parseFloat(value);
-      } else {
-        datos_personalizados[precio] = value;
+  const updateData = (doc) => {
+    if(doc.exists) {
+      for(let precio in doc.data()){
+        const value = doc.data()[precio];
+        if(value === "") continue;
+        if(!/[^\d+.]/.test(value.toString())) {
+          datos_personalizados[precio] = parseFloat(value);
+        } else {
+          datos_personalizados[precio] = value;
+        }
       }
+  
+      console.log(datos_personalizados);
+  
+      $("#saldo").html("$" + convertirMiles(datos_personalizados.saldo));
     }
-
-    console.log(datos_personalizados);
-
-    $("#saldo").html("$" + convertirMiles(datos_personalizados.saldo));
   };
 
-  informacion.doc("heka").onSnapshot(doc => {
-    if(doc.exists){
-      updateData();
-
-      // datos_personalizados.saldo = parseInt(doc.data().saldo);
-      // $("#saldo").html("$" + convertirMiles(datos_personalizados.saldo));
-    }
-  })
+  informacion.doc("heka").onSnapshot(updateData)
 
   //Si la traida de datos en tiempo real me falla,
   //voy a descomentar, para traerlo también a la primera carga
-  // await informacion.doc("heka").get(doc => {
-  //   if(doc.exists) {
-  //     updateData();
-  //   }
-  // });
+  // await informacion.doc("heka").get(updateData);
 }
 
 /* Función que me carga los datos bancarios del usuario en el perfil.
@@ -324,14 +315,14 @@ function historialGuias(){
         if(!data.debe) {
           pagadas ++
           filter = "pagada"
-          console.log(doc.data())
         }
 
         data.filtrar = filter;
 
         const row = tablaDeGuias(doc.id, data);
 
-        printHTML('tabla-guias', row);
+        $("#tabla-guias").html();
+        $('#tabla-guias').append(row);
 
         contarExistencia ++;
         let activar_botones = true;
