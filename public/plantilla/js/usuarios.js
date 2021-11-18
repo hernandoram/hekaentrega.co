@@ -550,6 +550,8 @@ function seleccionarUsuario(id){
     let type = ["personal", "bancaria", "heka"], n = 0;
 
     while(n < 3){
+        limpiarFormulario("#informacion-" + type[n], "input")
+
         firebase.firestore().collection("usuarios").doc(id).collection("informacion").doc(type[n]).get()
         .then((doc) => {
             if (doc.exists) {
@@ -557,7 +559,6 @@ function seleccionarUsuario(id){
             } else {
                 // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
                 //Hasta que todos los usuario futuramente tengan el doc "heka"
-                limpiarFormulario("#informacion-heka", "input")
                 // $("#habilitar_servientrega").prop("checked", true);
                 console.log("No such document!");
             }
@@ -588,7 +589,7 @@ function mostrarDatosPersonales(data, info) {
             const id = $(el).attr("id");
             $(el).prop("checked", data[id]);
         });
-        mostrador_saldo.textContent = "$" + convertirMiles(data.saldo) || 0;
+        mostrador_saldo.textContent = "$" + convertirMiles(data.saldo || 0);
         mostrador_saldo.setAttribute("data-saldo", data.saldo || 0);
         mostrador_saldo.setAttribute("data-saldo_anterior", data.saldo || 0);
         document.getElementById("actv_credit").checked = data.actv_credit;
@@ -628,7 +629,6 @@ function mostrarDatosPersonales(data, info) {
 }
 
 function asignarValores(data, query) {
-    console.log(data);
     for(let value in data) {
         const input = $(query).find(`[name="${value}"]`);
         input.val(data[value]);
