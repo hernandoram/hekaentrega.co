@@ -1078,6 +1078,31 @@
               </div>
             </div>
           </div>
+
+          <div class="container-fluid" id="utilidades">
+            <div class="card mt-5">
+              <div class="card-body">
+                <form enctype="multipart/form-data" id="form-utilidades">
+                  <div class="form-group">
+                    <div class="custom-file mt-2">
+                      <input type="file" class="custom-file-input" id="cargar_utilidades" accept=".xlsx" name="documento" lang="es">
+                      <label class="custom-file-label" for="cargar_utilidades">Seleccionar Archivo</label>
+                    </div>
+
+                    <input type="submit" id="btn_actualizador_utilidades" 
+                    value="Actualizar" class="btn btn-primary mt-4 col-12">
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="text-center mt-4 d-none" id="cargador-utilidades">
+              <h5>Cargando <span class="text-primary"></span> registros</h5>
+              <div class="lds-ellipsis"><div></div>
+              <div></div><div></div><div></div></div>
+            </div>
+
+            <ul id="resultado-utilidades" class="mt-2"></ul>
+          </div>
   
         </div>   
         <!-- Footer -->

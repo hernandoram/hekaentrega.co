@@ -11,5 +11,7 @@ router.get("/crearStickerGuia/:id", interRouter.crearStickerGuia);
 
 router.get("/imprimirManifiesto/:guias", interRouter.imprimirManifiesto);
 
+router.get("/utilidades/:numeroGuia", interRouter.utilidades)
+
 
 module.exports = router

@@ -17,6 +17,8 @@ if(administracion){
             actualizarEstado();
         });
 
+        $("#btn_actualizador_utilidades").click(executeUtils);
+
         document.getElementById("btn-cargar_pagos").addEventListener("click", (e) => {
             e.preventDefault();
             cargarPagos();
@@ -1298,6 +1300,65 @@ function actualizarEstado(){
         avisar("Algo salió mal", err, "advertencia")
         document.querySelector("#cargador-actualizador").classList.add("d-none");
     })
+}
+
+async function executeUtils(e) {
+    e.preventDefault()
+    document.querySelector("#cargador-utilidades").classList.remove("d-none");
+    const resultado = $("#resultado-utilidades");
+    resultado.html();
+    let data = new FormData(document.getElementById("form-utilidades"));
+    console.log(data);
+    console.log(data.get("documento"));
+    const arrData = await fetch("/excel_to_json", {
+        method: "POST",
+        body: data
+    }).then((res) => res.json()).catch((err) => {
+        avisar("Algo salió mal", err, "advertencia")
+        document.querySelector("#cargador-utilidades").classList.add("d-none");
+    });
+
+    let regresiveCounter = arrData.length
+
+    for await (let data of arrData) {
+        const res = await fetch("/inter/utilidades/" + data.numeroGuia)
+        .then(res => res.json());
+
+        
+        if(res.ok) {
+            let respuesta;
+            const querySnapshot = await firebase.firestore().collectionGroup("guias")
+            .where("id_heka", "==", res.id_heka).get().then(q => q);
+            
+            querySnapshot.forEach(async doc => {
+                console.log(doc.data());
+                try {
+                    await doc.ref.update({numeroGuia: res.numeroGuia});
+    
+                    respuesta = `<li>Se ha actualizado el número de guía ${res.numeroGuia}
+                    en la guia ${doc.id} del usuario con centro de costo ${doc.data().centro_de_costo}</li>`;
+                } catch (e) {
+                    respuesta = `<li class="text-danger">Hubo un error (${e.message}) al actualizar 
+                    el número de guía ${res.numeroGuia} con id ${doc.id}</li>`;
+                }
+                resultado.append(respuesta);
+            });
+
+            if(!respuesta) {
+                respuesta = `<li class="text-danger">No se consiguió el id ${res.id} 
+                de la guía ${res.numeroGuia}</li>`;
+                resultado.append(respuesta);
+            }
+        } else {
+            respuesta = `<li class="text-danger">Erorr en el servidor: ${res.message}</li>`;
+            resultado.append(respuesta);
+        }
+
+        regresiveCounter --
+        $("#cargador-utilidades").find("span").text(regresiveCounter);
+    }
+
+    document.querySelector("#cargador-utilidades").classList.add("d-none");
 }
 
 //guardará un arreglo y funcionará cun un listener
