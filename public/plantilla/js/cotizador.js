@@ -34,7 +34,7 @@ let transportadoras = {
             return [37500, 30000000]
         },
         habilitada: () => {
-            return true
+            return datos_personalizados.habilitar_interrapidisimo
         },
     },
     "ENVIA": {
