@@ -1167,7 +1167,7 @@ async function descargarStickerGuias(doc) {
         for await (let guia of guias) {
             console.log(guia);
             await firebase.firestore().collection("base64StickerGuias").doc(guia)
-            .collection("guiaSegmentada").get().then(async querySnapshot => {
+            .collection("guiaSegmentada").orderBy("index").get().then(async querySnapshot => {
                 let base64 = "";
                 console.log(querySnapshot.size);
                 querySnapshot.forEach(doc => {

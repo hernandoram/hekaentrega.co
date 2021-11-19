@@ -1,10 +1,13 @@
 const rq = require("request-promise");
+const fetch = require("node-fetch");
 const Cr = require("../keys/aveo");
 
 const firebase = require("../keys/firebase");
 const db = firebase.firestore();
 
-// console.log(Cr);
+const funct = require("../extends/funciones");
+const guiasPorCrear = new Array();
+const referenceListado = db.collection("listaGuiasAveo")
 
 exports.auth = async (req, res, next) => {
     const authentication = await rq.post(Cr.endpoint + "/comunes/v1.0/autenticarusuario.php", {
@@ -63,63 +66,8 @@ exports.cotizar = async (req, res) => {
 
 exports.crearGuia = async (req, res) => {
     const guia = req.body;
-    const codTransp = req.body.transportadora === "TCC" ? Cr.codTcc : Cr.codEnvia;
-    const {idasumecosto, contraentrega, recaudo} = revisarTipoEnvio(guia.type, guia.valor);
-
-    let data = {
-        "tipo":"generarGuia",
-        "token": req.params.token,
-        "idempresa": Cr.idEmpresa,
-        "origen": guia.ave_ciudadR,
-        "dsdirre": guia.direccionR,
-        "dsbarrioo":"",
-        "destino": guia.ave_ciudadD,
-        "dsdir": guia.direccionD,
-        "dsbarrio":"",
-        "dsnitre": 1072497419-8,
-        "dstelre": guia.celularR,
-        "dscelularre": guia.celularR,
-        "dscorreopre":"",
-        "dsnit": guia.identificacionD,
-        "dsnombre": guia.nombreR,
-        "dsnombrecompleto": guia.nombreD,
-        "dscorreop": guia.correoD,
-        "dstel": guia.telefonoD,
-        "dscelular": guia.celularD,
-        "idtransportador": codTransp,
-        "idalto": guia.alto,
-        "idancho": guia.ancho,
-        "idlargo":guia.largo,
-        "unidades": 1,
-        "kilos": guia.peso,
-        "valordeclarado": guia.valor,
-        "dscontenido": guia.dice_contener,
-        "dscom": guia.detalles,
-        "idasumecosto": idasumecosto,
-        "contraentrega": contraentrega,
-        "valorrecaudo": recaudo,
-        "idagente":Cr.idAgente,
-        "dsreferencia":"",
-        "dsordendecompra":"",
-        "bloquegenerarguia": 1,
-        "relacion_envios": 0,
-        "enviarcorreos": 1,
-        "guiahija":"",
-        "accesoila":"",
-        "cartaporte":""  
-    }
-
-    try {
-        const respuesta = await rq.post(Cr.endpoint + "/nal/v1.0/generarGuiaTransporteNacional.php", {
-            headers: {"Content-Type": "Application/json"},
-            body: JSON.stringify(data)
-        }).then(res => JSON.parse(res));
-    
-        res.json(respuesta);
-    } catch (e){
-        console.log(e.message);
-        res.json({message: "Error al conectar con la transportadora."})
-    }
+    await referenceListado.doc(guia.id_heka).set(guia);
+    res.send("Se guardó tu registro");
 }
 
 exports.generarRelacion = async (req, res) => {
@@ -169,11 +117,11 @@ exports.generarRelacion = async (req, res) => {
           });
         }
         console.log("Se están actualizando todos los estados");
-      })
-      .catch(error => {
-        console.log("Hubo un error para configurar el documento");
-  
-      });
+        })
+        .catch(error => {
+            console.log("Hubo un error para configurar el documento");
+    
+        });
         
         res.json(respuesta);
     } catch {
@@ -191,6 +139,160 @@ exports.consultarRelacion = async (req, res) => {
 
         res.send(recibed);
     })
+}
+
+
+async function internalAuth() {
+    const authentication = await rq.post(Cr.endpoint + "/comunes/v1.0/autenticarusuario.php", {
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            tipo: "auth",
+            usuario: Cr.usuario,
+            clave: Cr.clave
+        })
+    }).then(res => JSON.parse(res));
+
+    return authentication.token;
+}
+
+fillGuiasPorCrear();
+function fillGuiasPorCrear() {
+    referenceListado.orderBy("timeline")
+    .onSnapshot(querySnapShot => {
+        querySnapShot.docChanges().forEach(change => {
+            if(change.type === "added") {
+                const preFilled = guiasPorCrear.length;
+                guiasPorCrear.push(change.doc.data());
+                if(!preFilled) inspectGuiasPorCrear();
+            }
+        })
+    })
+}
+
+async function inspectGuiasPorCrear() {
+    console.log(guiasPorCrear);
+    if(!guiasPorCrear.length) return;
+    const guia = guiasPorCrear.shift();
+
+    const codTransp = guia.transportadora === "TCC" ? Cr.codTcc : Cr.codEnvia;
+    const {idasumecosto, contraentrega, recaudo} = revisarTipoEnvio(guia.type, guia.valor);
+    const refGuia = db.collection("usuarios").doc(guia.id_user)
+    .collection("guias").doc(guia.id_heka);
+    
+    try {
+        const token = await internalAuth();
+    
+        let data = {
+            "tipo":"generarGuia",
+            "token": token,
+            "idempresa": Cr.idEmpresa,
+            "origen": guia.ave_ciudadR,
+            "dsdirre": guia.direccionR,
+            "dsbarrioo":"",
+            "destino": guia.ave_ciudadD,
+            "dsdir": guia.direccionD,
+            "dsbarrio":"",
+            "dsnitre": 1072497419-8,
+            "dstelre": guia.celularR,
+            "dscelularre": guia.celularR,
+            "dscorreopre":"",
+            "dsnit": guia.identificacionD,
+            "dsnombre": guia.nombreR,
+            "dsnombrecompleto": guia.nombreD,
+            "dscorreop": guia.correoD,
+            "dstel": guia.telefonoD,
+            "dscelular": guia.celularD,
+            "idtransportador": codTransp,
+            "idalto": guia.alto,
+            "idancho": guia.ancho,
+            "idlargo":guia.largo,
+            "unidades": 1,
+            "kilos": guia.peso,
+            "valordeclarado": guia.valor,
+            "dscontenido": guia.dice_contener,
+            "dscom": guia.detalles,
+            "idasumecosto": idasumecosto,
+            "contraentrega": contraentrega,
+            "valorrecaudo": recaudo,
+            "idagente":Cr.idAgente,
+            "dsreferencia":"",
+            "dsordendecompra":"",
+            "bloquegenerarguia": 1,
+            "relacion_envios": 0,
+            "enviarcorreos": 1,
+            "guiahija":"",
+            "accesoila":"",
+            "cartaporte":""  
+        }
+
+        console.log(token);
+
+        const response = await rq.post(Cr.endpoint + "/nal/v1.0/generarGuiaTransporteNacional.php", {
+            headers: {"Content-Type": "Application/json"},
+            body: JSON.stringify(data)
+        }).then(res => JSON.parse(res));
+
+        if(response.status === "error") throw new Error(response.message);
+        const resultado = response.resultado.guia
+        console.log(resultado);
+        const numeroGuia = resultado.numguia.toString() || "Error";
+        const urlGuia = resultado.rutaguia || false;
+        const estado = "recibido";
+        const has_sticker = await saveBase64Guia(guia.id_heka, urlGuia);
+
+        refGuia.update({numeroGuia, urlGuia, has_sticker, estado});
+        referenceListado.doc(guia.id_heka).delete();
+    } catch (e){
+        console.log(e.message);
+        refGuia.update({estado: e.message})
+    }
+
+    inspectGuiasPorCrear();
+}
+
+async function saveBase64Guia(id, url) {
+    const base64 = await urlToPdfBase64(url);
+    const base64Segmented = funct.segmentarString(base64, 500000);
+    const refToSave = db.collection("base64StickerGuias")
+    .doc(id).collection("guiaSegmentada");
+
+    if(typeof base64Segmented !== "object") return false;
+
+    if(!base64Segmented.length) return false;
+
+    let guardado = true;
+    for (let i = 0; i < base64Segmented.length; i++) {
+        const res = await refToSave.doc(i.toString()).set({
+            index: i, segmento: base64Segmented[i]
+        })
+        .then(() => true)
+        .catch((error) => {
+            console.log("hubo un error al guardar una parte del documento segmentado => ", error)
+            guardado = false;
+            return false;
+        });
+        
+        if(!res) break;
+    };
+
+    return guardado;
+
+}
+
+// urlToPdfBase64("https://aveonline.co/app/modulos/coretransporte/pdf/guias/imprimir.recaudos.php?pkid=2242711&idagente=6911&idexp=20283&codagente=&idcliente=119839&idremitente=0&imprimir=1&veces=2&idempresa=20283");
+async function urlToPdfBase64(url) {
+    const res = await fetch(url).then(r => {
+        // console.log(r)
+        // console.log(r.arrayBuffer())
+        return r.arrayBuffer();
+    }).catch(e => console.log(e));
+
+    // console.log(res);
+    const buff = Buffer.from(res, "utf8");
+    const base64 = buff.toString("base64");
+    console.log(base64);
+    return base64;
+    
 }
 
 function revisarTipoEnvio(type,recaudo) {
