@@ -229,6 +229,14 @@ const actualizarMovimientos = async function(doc) {
     
 }
 
+const encontrarId_heka = async function(numeroGuia) {
+    const respuesta = await requestP.get(urlEstados + numeroGuia)
+    .then(res => JSON.parse(res));
+    const id_heka = respuesta[0].Guia.Observaciones
+    console.log(respuesta[0].Guia.Observaciones);
+    return id_heka.toString().trim();
+}
+
 // FUNCIONES A EXPORTAR 
 exports.crearGuia = (req, res) => {
     const guia = req.body;
@@ -337,6 +345,26 @@ exports.imprimirManifiesto = (req, res) => {
     }
 
     res.render("printManifiestoInter", {organizatorGuias, layout:"printer"});
+}
+
+exports.utilidades = async (req, res) => {
+    const numeroGuia = req.params.numeroGuia.toString();
+    try {
+        const id_heka = await encontrarId_heka(numeroGuia);
+    
+        res.json({
+            ok: true,
+            message: "Proceso finalizado",
+            id_heka,
+            numeroGuia
+        })
+    } catch (e) {
+        res.json({
+            ok: false,
+            message: e.message,
+            numeroGuia
+        })
+    }
 }
 
 exports.actualizarMovimientos = actualizarMovimientos;
