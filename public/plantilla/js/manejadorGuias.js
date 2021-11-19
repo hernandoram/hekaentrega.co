@@ -147,7 +147,13 @@ function crearDocumentos() {
             /* Si tiene inhabilitado la creción de guías automáticas 
             solo actualizará las guías que pasaron el filtro anterior y enviará una 
             notificación a administración, es caso contrario utilizará el web service */
-            if(generacion_automatizada) {
+            if (["ENVIA", "TCC"].includes(transportadora)) {
+                crearManifiestoAveonline(arrGuias, {
+                    id_user, 
+                    prueba: estado_prueba,
+                    id_doc: docRef.id
+                })
+            }else if(generacion_automatizada) {
                 if(transportadora === "INTERRAPIDISIMO") {
                   // Con esta transportadora no creamos manifiestos de esta forma,
                   //ya que el usuario los crea por su cuenta  
@@ -328,6 +334,64 @@ async function crearManifiestoServientrega(arrGuias, vinculo) {
         await firebase.firestore().collection("documentos").doc(vinculo.id_doc)
         .update({nombre_relacion});
     };
+
+    if(ul.innerHTML) {
+        mensaje.appendChild(ul);
+        Swal.fire({
+            icon: "warning",
+            title: "Obeservaciones",
+            html: mensaje
+        });
+    } else {
+        Toast.fire({
+            icon: "success",
+            html: "¡Documento creado exitósamente!"
+        });
+    }
+    
+    actualizarHistorialDeDocumentos();
+    location.href = "#documentos"
+    document.getElementById("enviar-documentos").removeAttribute("disabled");
+
+}
+
+async function crearManifiestoAveonline(arrGuias, vinculo) {
+    let mensaje = document.createElement("div");
+    let ul = document.createElement("ul");
+
+    sin_stiker = 0;
+    arrGuias = arrGuias.filter(v => {
+        if(!v.has_sticker) sin_stiker ++;
+        return v.has_sticker
+    });
+
+    if(sin_stiker) {
+        ul.innerHTML += `<li>${sin_stiker} guias no pudieron ser procesadas por no contar con el sticker de la guía. \n"
+        Le recomendamos clonar la(s) guía(s) involucrada, y eliminar la defectuosa</li>`;
+    }
+
+    let res = await fetch("/aveo/generarManifiesto", {
+        method: "POST",
+        headers: {"Content-type": "application/json"},
+        body: JSON.stringify({arrGuias, vinculo})
+    }).then(data => data.json())
+    .catch(error => {
+        console.log(error);
+        Swal.fire({
+            icon: "error",
+            text: "Hubo un error al crear los documentos: " + error.message
+        });
+
+        document.getElementById("enviar-documentos").removeAttribute("disabled");
+        return "error";
+    });
+    
+    if(res.status === "error") {
+        if(arrGuias.length !== 0) {
+            ul.innerHTML += `Por razones desconocidas, no se pudo crear el manifiesto, el problema ha sido transferido a asesoría logística,
+            trataremos de corregirlo en la brevedad posible.`;
+        }
+    }
 
     if(ul.innerHTML) {
         mensaje.appendChild(ul);
@@ -1131,7 +1195,8 @@ function descargarManifiesto(doc) {
             text: "Para descargar los manifiestos de inter rapidísimo, debe ingresar a \"Manifiesto inter\", buscar filtrando por fecha y seleccionar las guías que desea gestionar para crearlo."
         });
     } else if (doc.data().nro_manifiesto) {
-        window.open("/aveo/imprimirManifiesto/"+doc.data().nro_manifiesto, "_blank")
+        const idEmpresa = doc.data().idEmpresa || 0;
+        window.open("/aveo/imprimirManifiesto/"+doc.data().nro_manifiesto+"?idEmpresa="+idEmpresa, "_blank")
     } else {
         doc.ref.collection("manifiestoSegmentado")
         .get().then(querySnapshot => {

@@ -72,6 +72,7 @@ exports.crearGuia = async (req, res) => {
 
 exports.generarRelacion = async (req, res) => {
     const guias = req.body.arrGuias;
+    const vinculo = req.body.vinculo;
     const numerosGuias = guias.map(v => parseInt(v.numeroGuia)).join();
     const identificadores = guias.map(v => v.id_heka).sort();
 
@@ -82,7 +83,7 @@ exports.generarRelacion = async (req, res) => {
                 "tipo": "relacionEnvios",
                 "token": req.params.token,
                 "idempresa": Cr.idEmpresa,
-                "transportadora": Cr.codEnvia,
+                "transportadora": guias[0].transportadora === "ENVIA" ? Cr.codEnvia : Cr.codTcc,
                 "guias": numerosGuias
             })
         }).then(res => {
@@ -95,28 +96,41 @@ exports.generarRelacion = async (req, res) => {
         }
     
         if(!respuesta.relacionenvio) {
+            if(guias.length) {
+                db.collection("notificaciones").add({
+                  fecha: fecha.getDate() +"/"+ (fecha.getMonth() + 1) + "/" + fecha.getFullYear() + " - " + fecha.getHours() + ":" + fecha.getMinutes(),
+                  visible_admin: true,
+                  mensaje: "Hubo un problema para crear el manifiesto de las guías " + guias.map(v => v.id_heka).join(", "),
+                  guias: guias.map(v => v.id_heka),
+                  timeline: new Date().getTime(),
+                  detalles: [respuesta.message]
+                }).catch((err) => {
+                    console.log(err);
+                });
+            }
             campos_actualizados.descargar_relacion_envio = false;
             campos_actualizados.important = true;
             campos_actualizados.href = "documentos";
         } else {
-            campos_actualizados.nro_manifiesto = respuesta.relacionenvio
+            campos_actualizados.nro_manifiesto = respuesta.relacionenvio;
+            campos_actualizados.idEmpresa = Cr.idEmpresa;
         }
 
         await db.collection("documentos").doc(vinculo.id_doc).update(campos_actualizados)
         .then(() => {
-        console.log("Ya se configuró el documento correctamente")
-        for (let guia of guias) {
-          console.log("Actualizando estado =>", guia.id_heka);
-          db.collection("usuarios").doc(vinculo.id_user)
-          .collection("guias").doc(guia.id_heka)
-          .update({
-            enviado: true,
-            estado: "Enviado"
-          }).catch((error) => {
-            console.log("hubo un error Al actualizar el estado de la guia a \"Enviado\" => ", error)
-          });
-        }
-        console.log("Se están actualizando todos los estados");
+            console.log("Ya se configuró el documento correctamente")
+            for (let guia of guias) {
+                console.log("Actualizando estado =>", guia.id_heka);
+                db.collection("usuarios").doc(vinculo.id_user)
+                .collection("guias").doc(guia.id_heka)
+                .update({
+                    enviado: true,
+                    estado: "Enviado"
+                }).catch((error) => {
+                    console.log("hubo un error Al actualizar el estado de la guia a \"Enviado\" => ", error)
+                });
+            }
+            console.log("Se están actualizando todos los estados");
         })
         .catch(error => {
             console.log("Hubo un error para configurar el documento");
@@ -126,11 +140,17 @@ exports.generarRelacion = async (req, res) => {
         res.json(respuesta);
     } catch {
         console.log("Hubo un error Al generar la relación de aveonline");
+        res.json({
+            status: "error",
+            message: "Error al crear el manifiesto"
+        })
     }
 }
 
 exports.consultarRelacion = async (req, res) => {
-    const html = rq.get("https://aveonline.co/app/modulos/relacion_envios/imprimir.codigobarras.php?dsconsec=&idagente=&idexp=11635&codagente=&idcliente=&idremitente=&idempresa=&idproveedoroc=&dscofigo=11635101020211103162336&id=")
+    const idExp = parseInt(req.query.idEmpresa) || Cr.idEmpresa;
+    const dscofigo = req.params.nro_manifiesto;
+    const html = rq.get("https://aveonline.co/app/modulos/relacion_envios/imprimir.codigobarras.php?dsconsec=&idagente=&idexp="+idExp+"&codagente=&idcliente=&idremitente=&idempresa=&idproveedoroc=&dscofigo="+dscofigo+"&id=")
     .then(data => {
         recibed = data.replace("AVE GROUP ", "");
         recibed = recibed.replace("aveonline", "Heka entrega");
