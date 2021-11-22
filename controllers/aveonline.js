@@ -161,6 +161,12 @@ exports.consultarRelacion = async (req, res) => {
     })
 }
 
+exports.obtenerStickerGuia = async (req, res) => {
+    console.log(" Query => ",req.query);
+    const base64 = await urlToPdfBase64(req.query.urlGuia);
+    const base64Segmented = funct.segmentarString(base64, 500000);
+    res.json(base64Segmented);
+}
 
 async function internalAuth() {
     const authentication = await rq.post(Cr.endpoint + "/comunes/v1.0/autenticarusuario.php", {
@@ -201,11 +207,14 @@ async function inspectGuiasPorCrear() {
     
     try {
         const token = await internalAuth();
-    
+
+
         let data = {
-            "tipo":"generarGuia",
+            "tipo": "generarGuia2",
             "token": token,
             "idempresa": Cr.idEmpresa,
+            "codigo": Cr.usuario,
+            "dsclavex": Cr.clave,
             "origen": guia.ave_ciudadR,
             "dsdirre": guia.direccionR,
             "dsbarrioo":"",
@@ -215,7 +224,7 @@ async function inspectGuiasPorCrear() {
             "dsnitre": 1072497419-8,
             "dstelre": guia.celularR,
             "dscelularre": guia.celularR,
-            "dscorreopre":"",
+            "dscorreopre": guia.correoR,
             "dsnit": guia.identificacionD,
             "dsnombre": guia.nombreR,
             "dsnombrecompleto": guia.nombreD,
@@ -227,31 +236,41 @@ async function inspectGuiasPorCrear() {
             "idancho": guia.ancho,
             "idlargo":guia.largo,
             "unidades": 1,
-            "kilos": guia.peso,
-            "valordeclarado": guia.valor,
+            "productos": [
+              {
+                "alto": guia.alto,
+                "ancho": guia.ancho,
+                "largo":guia.largo,
+                "peso": guia.peso,
+                "unidades": 1,
+                "nombre": "Heka",
+                "ref": guia.id_heka,
+                "valorDeclarado": guia.valor
+              }
+            ],
             "dscontenido": guia.dice_contener,
-            "dscom": guia.detalles,
+            "dscom": guia.observaciones,
             "idasumecosto": idasumecosto,
             "contraentrega": contraentrega,
             "valorrecaudo": recaudo,
-            "idagente":Cr.idAgente,
-            "dsreferencia":"",
-            "dsordendecompra":"",
-            "bloquegenerarguia": 1,
-            "relacion_envios": 0,
-            "enviarcorreos": 1,
-            "guiahija":"",
-            "accesoila":"",
-            "cartaporte":""  
-        }
+            "idagente": Cr.idAgente,
+            "dsreferencia": "",
+            "dsordendecompra": "",
+            "bloquegenerarguia": "1",
+            "relacion_envios": "1",
+            "enviarcorreos": "1",
+            "cartaporte": "",
+            "valorMinimo": 0
+          }
 
-        console.log(token);
+        console.log(data);
 
         const response = await rq.post(Cr.endpoint + "/nal/v1.0/generarGuiaTransporteNacional.php", {
             headers: {"Content-Type": "Application/json"},
             body: JSON.stringify(data)
         }).then(res => JSON.parse(res));
 
+        console.log(response);
         if(response.status === "error") throw new Error(response.message);
         const resultado = response.resultado.guia
         console.log(resultado);

@@ -570,15 +570,18 @@ function crearStickerParticular() {
                 numeroGuia: data.numeroGuia,
                 id_heka: data.id_heka,
                 id_archivoCargar: data.id_archivoCargar, // paraservientrega (no es tan necesario)
-                prueba: data.prueba
+                prueba: data.prueba,
+                url: data.urlGuia
             }
     
             let has_sticker;
     
             if(data.transportadora === "INTERRAPIDISIMO") {
                 has_sticker = await generarStickerGuiaInterrapidisimo(para_crear);
-            } else {
+            } else if (data.transportadora === "SERVIENTREGA") {
                 has_sticker = await guardarStickerGuiaServientrega(para_crear);
+            } else {
+                has_sticker = await guardarStickerGuiaAveo(para_crear);
             }
     
             try {

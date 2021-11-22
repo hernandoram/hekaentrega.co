@@ -1752,16 +1752,12 @@ async function generarGuiaAveonline(datos) {
     }
 };
 
-async function generarStickerGuiaAveonline(data) {
-    const maxPorSegmento = 500000;
-    let url = "/inter/crearStickerGuia/" + data.numeroGuia + "?segmentar=" + maxPorSegmento;
-    if(data.prueba) {
-        url += "&prueba=" + data.prueba;
-    }
+async function guardarStickerGuiaAveo(data) {
+    let url = "/aveo/obtenerStickerGuia?urlGuia=" + data.url;
     
     let base64GuiaSegmentada = await fetch(url)
     .then(data => data.json())
-    .catch(error => console.log("Hubo un error al consultar el base64 de INTERRAPÍDISIMO => ", error));
+    .catch(error => console.log("Hubo un error al consultar el base64 de Aveonline => ", error));
 
     const referenciaSegmentar = firebase.firestore().collection("base64StickerGuias")
     .doc(data.id_heka).collection("guiaSegmentada");
