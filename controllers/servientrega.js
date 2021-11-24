@@ -515,6 +515,7 @@ function generarGuia(datos) {
                 <Des_UnidadPeso>kg</Des_UnidadPeso>
                 <Num_ValorDeclaradoSobreTotal>0</Num_ValorDeclaradoSobreTotal>
                 <Num_Factura>0</Num_Factura>
+                <Recoleccion_Esporadica>${datos.recoleccion_esporadica}</Recoleccion_Esporadica>
                 <Des_CorreoElectronico>${datos.correoD}</Des_CorreoElectronico>
                 <Num_Recaudo>${datos.prueba ? "0" : datos.valor}</Num_Recaudo>
               </EnviosExterno>

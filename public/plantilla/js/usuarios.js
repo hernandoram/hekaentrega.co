@@ -748,7 +748,7 @@ async function actualizarInformacionHeka() {
         }
         if(doc.exists) {
             exists = true;
-            let s = parseInt(doc.data().saldo);
+            let s = parseInt(doc.data().saldo || 0);
             const afirmar_saldo_anterior = detalles.saldo_anterior;
             detalles.saldo_anterior = s;
             detalles.saldo = s + detalles.diferencia;

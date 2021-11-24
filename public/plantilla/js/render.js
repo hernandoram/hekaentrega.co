@@ -140,9 +140,9 @@ function tablaDeGuias(id, datos){
         <td>${datos.type || "Pago Contraentrega"}</td>
         <td>${datos.fecha}</td>
         <td>${datos.ciudadD}</td>
-        <td>${convertirMoneda(datos.seguro || datos.valor)}</td>
-        <td>${convertirMoneda(datos.valor)}</td>
-        <td>${convertirMoneda(datos.costo_envio)}</td>
+        <td>${datos.seguro || datos.valor}</td>
+        <td>${datos.valor}</td>
+        <td>${datos.costo_envio}</td>
 
     </tr>`
 }
