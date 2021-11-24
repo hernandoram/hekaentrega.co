@@ -396,21 +396,18 @@ function activarBotonesDeGuias(id, data, activate_once){
       
       
       if(activate_once) {
-        let row = document.getElementById("historial-guias-row" + id);
-        let dataset = row.dataset;
-        let boton_eliminar_guia = document.getElementById("eliminar_guia"+id);
-        boton_eliminar_guia.addEventListener("click", function(e) {
+        $("#eliminar_guia"+id).on("click", function(e) {
             let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
-            if(confirmacion && boton_eliminar_guia.getAttribute("data-enviado") != "true"){
+            if(confirmacion && this.getAttribute("data-enviado") != "true"){
                 $("#enviar-documentos").prop("disabled", true)
-                boton_eliminar_guia.disabled = true;
-                boton_eliminar_guia.display = "none";
+                this.disabled = true;
+                this.display = "none";
                 firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
                 .doc(id).delete().then((res) => {
                     console.log(res);
                     console.log("Document successfully deleted!");
                     avisar("Guia Eliminada", "La guia Número " + id + " Ha sido eliminada", "alerta");
-                    row.remove();
+                    // row.remove();
                 }).then(() => {
                     firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("informacion")
                     .doc("heka").get().then((doc) => {
@@ -419,7 +416,7 @@ function activarBotonesDeGuias(id, data, activate_once){
                             let saldo = parseInt(doc.data().saldo);
                             
                             let saldo_detallado = {
-                                saldo: saldo + parseInt(boton_eliminar_guia.getAttribute("data-costo_envio")),
+                                saldo: saldo + parseInt(this.getAttribute("data-costo_envio")),
                                 saldo_anterior: saldo,
                                 actv_credit: doc.data().actv_credit || false,
                                 fecha: genFecha(),
@@ -431,7 +428,7 @@ function activarBotonesDeGuias(id, data, activate_once){
                                 medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id
                             }
                             
-                            if(dataset.debe == "false"){
+                            if(!data.debe){
                                 saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
                                 console.log(saldo_detallado);
                                 console.log(saldo);
@@ -439,7 +436,7 @@ function activarBotonesDeGuias(id, data, activate_once){
                             }
                             
                         }
-                        historialGuias();
+                        // historialGuias();
                     });
                     $("#enviar-documentos").prop("disabled", false);
                 }).catch((error) => {
@@ -468,7 +465,7 @@ function activarBotonesDeGuias(id, data, activate_once){
         })
         });
 
-        document.getElementById("clonar_guia"+id).addEventListener("click", () => {
+        $("#clonar_guia"+id).on("click", () => {
         Swal.fire({
             title: "Clonando",
             html: "Por favor espere mientra generamos el nuevo número de guía.",
@@ -512,7 +509,7 @@ function activarBotonesDeGuias(id, data, activate_once){
         })
         })
 
-        document.getElementById("descargar_documento"+id).addEventListener("click", e => {
+        $("#descargar_documento"+id).on("click", e => {
             firebase.firestore().collection("documentos").where("guias", "array-contains", id).get()
             .then(querySnapshot => {
                 if (!querySnapshot.size) {
@@ -1581,8 +1578,8 @@ function verDetallesGuia() {
     .get().then(doc => {
         let data = doc.data();
         let html = "<table class='table table-bordered'>"
-        let mostrador = [["id_heka", "numeroGuia", "estado", "type", "fecha", "nombreD", "direccionD", "ciudadD", "departamentoD", "seguro", "valor", "alto", "largo", "ancho", "peso", "costo_envio", "telefonoD"],
-        ["Identificador Guía", "Número de Guía", "Estado", "Tipo de envío", "Fecha de creación", "Nombre del Destinatario", "Dirección", "Ciudad", "Departamento", "Valor Declarado", "Recaudo", "Alto", "Largo", "Ancho", "Peso", "Costo del envío", "Celular"]]
+        let mostrador = [["id_heka", "numeroGuia", "estado", "type", "fecha", "nombreD", "direccionD", "ciudadD", "departamentoD", "seguro", "valor", "alto", "largo", "ancho", "peso", "dice_contener", "costo_envio", "telefonoD"],
+        ["Identificador Guía", "Número de Guía", "Estado", "Tipo de envío", "Fecha de creación", "Nombre del Destinatario", "Dirección", "Ciudad", "Departamento", "Valor Declarado", "Recaudo", "Alto", "Largo", "Ancho", "Peso", "Contenido", "Costo del envío", "Celular"]]
 
         mostrador[0].forEach((v, n) => {
             let info = data[v] || "No registra";

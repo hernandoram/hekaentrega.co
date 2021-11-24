@@ -259,148 +259,148 @@ function cambiarFecha(){
         }
        
     
-  historialGuias();
+  // historialGuias();
 }
 
 //Muestra el historial de guias en rango de fecha seleccionado
-function historialGuias(){
-  $('#dataTable').DataTable().destroy();
-  $("#btn-buscar-guias").html(`
-    <span class="spinner-border 
-    spinner-border-sm" role="status" aria-hidden="true"></span>
-    Cargando...
-  `)
-  document.getElementById("cargador-guias").classList.remove("d-none");
-  if(user_id){     
-    var fecha_inicio = Date.parse($("#fecha_inicio").val().replace(/\-/g, "/"));
-    fecha_final = Date.parse($("#fecha_final").val().replace(/\-/g, "/")) + 8.64e7;
-    console.log("Fecha de inicio =>", fecha_inicio)
-    console.log("Fecha de final =>", fecha_final)
-    var reference = firebase.firestore().collection("usuarios")
-    .doc(user_id).collection("guias");
-    let referencefilter = reference.orderBy("timeline")
-    .startAt(fecha_inicio).endAt(fecha_final);
+// function historialGuias(){
+//   $('#dataTable').DataTable().destroy();
+//   $("#btn-buscar-guias").html(`
+//     <span class="spinner-border 
+//     spinner-border-sm" role="status" aria-hidden="true"></span>
+//     Cargando...
+//   `)
+//   document.getElementById("cargador-guias").classList.remove("d-none");
+//   if(user_id){     
+//     var fecha_inicio = Date.parse($("#fecha_inicio").val().replace(/\-/g, "/"));
+//     fecha_final = Date.parse($("#fecha_final").val().replace(/\-/g, "/")) + 8.64e7;
+//     console.log("Fecha de inicio =>", fecha_inicio)
+//     console.log("Fecha de final =>", fecha_final)
+//     var reference = firebase.firestore().collection("usuarios")
+//     .doc(user_id).collection("guias");
+//     let referencefilter = reference.orderBy("timeline")
+//     .startAt(fecha_inicio).endAt(fecha_final);
 
-    if($("#numeroGuia-historial_guias").val()) {
-      referencefilter = reference.where("numeroGuia", "==", $("#numeroGuia-historial_guias").val());
-    }
+//     if($("#numeroGuia-historial_guias").val()) {
+//       referencefilter = reference.where("numeroGuia", "==", $("#numeroGuia-historial_guias").val());
+//     }
 
-    referencefilter.get().then((querySnapshot) => {
-      if(document.getElementById('tabla-guias')){
-        inHTML("tabla-guias", "");
-      }  
+//     referencefilter.get().then((querySnapshot) => {
+//       if(document.getElementById('tabla-guias')){
+//         inHTML("tabla-guias", "");
+//       }  
 
-      let [generadas, finalizadas, anuladas, enProceso, contarExistencia, pagadas] = [0,0,0,0,0,0]
+//       let [generadas, finalizadas, anuladas, enProceso, contarExistencia, pagadas] = [0,0,0,0,0,0]
      
-      const estGeneradas = ["Envío Admitido", "RECIBIDO DEL CLIENTE", "Enviado", "", undefined];
-      const estAnuladas = ["Documento Anulado"];
+//       const estGeneradas = ["Envío Admitido", "RECIBIDO DEL CLIENTE", "Enviado", "", undefined];
+//       const estAnuladas = ["Documento Anulado"];
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        let filter = ""
-        if(estGeneradas.some(v => data.estado === v)) {
-          generadas ++
-          filter = "generada";
-        } else if (data.seguimiento_finalizado) {
-          finalizadas ++
-          filter = "finalizada";
-        } else if (estAnuladas[0] === data.estado) {
-          anuladas ++
-          filter = "anulada";
-        } else {
-          enProceso ++
-          filter = "en proceso";
-        }
+//       querySnapshot.forEach((doc) => {
+//         const data = doc.data();
+//         let filter = ""
+//         if(estGeneradas.some(v => data.estado === v)) {
+//           generadas ++
+//           filter = "generada";
+//         } else if (data.seguimiento_finalizado) {
+//           finalizadas ++
+//           filter = "finalizada";
+//         } else if (estAnuladas[0] === data.estado) {
+//           anuladas ++
+//           filter = "anulada";
+//         } else {
+//           enProceso ++
+//           filter = "en proceso";
+//         }
 
-        if(!data.debe) {
-          pagadas ++
-          filter = "pagada"
-        }
+//         if(!data.debe) {
+//           pagadas ++
+//           filter = "pagada"
+//         }
 
-        data.filtrar = filter;
+//         data.filtrar = filter;
 
-        const row = tablaDeGuias(doc.id, data);
+//         const row = tablaDeGuias(doc.id, data);
 
-        $("#tabla-guias").html();
-        $('#tabla-guias').append(row);
+//         $("#tabla-guias").html();
+//         $('#tabla-guias').append(row);
 
-        contarExistencia ++;
-        let activar_botones = true;
-        //Habilita y deshabilita los checks de la tabla de guias
-        reference.doc(doc.id).onSnapshot((row) => {
-          if(row.exists) {
-            activarBotonesDeGuias(row.id, row.data(), activar_botones);
+//         contarExistencia ++;
+//         let activar_botones = true;
+//         //Habilita y deshabilita los checks de la tabla de guias
+//         reference.doc(doc.id).onSnapshot((row) => {
+//           if(row.exists) {
+//             activarBotonesDeGuias(row.id, row.data(), activar_botones);
             
-            document.getElementById("historial-guias-row" + row.id).children[3].textContent = row.data().numeroGuia || "";
-            document.getElementById("historial-guias-row" + row.id).children[4].textContent = row.data().estado;
-            activar_botones = false;
-          }
-        });
-      });
+//             document.getElementById("historial-guias-row" + row.id).children[3].textContent = row.data().numeroGuia || "";
+//             document.getElementById("historial-guias-row" + row.id).children[4].textContent = row.data().estado;
+//             activar_botones = false;
+//           }
+//         });
+//       });
 
-      $(".generadas > span").text(generadas);
-      $(".en-proceso > span").text(enProceso);
-      $(".finalizadas > span").text(finalizadas);
-      $(".anuladas > span").text(anuladas);
-      $(".pagadas > span").text(pagadas);
-      $(".todas > span").text(contarExistencia);
+//       $(".generadas > span").text(generadas);
+//       $(".en-proceso > span").text(enProceso);
+//       $(".finalizadas > span").text(finalizadas);
+//       $(".anuladas > span").text(anuladas);
+//       $(".pagadas > span").text(pagadas);
+//       $(".todas > span").text(contarExistencia);
 
-      const btnsFilter = $(".hist-guias-filter");
+//       const btnsFilter = $(".hist-guias-filter");
 
-      btnsFilter.addClass("btn-secondary");
-      $(".todas").removeClass("btn-secondary")
-      btnsFilter.removeClass("btn-primary");
-      $(".todas").addClass("btn-primary")
+//       btnsFilter.addClass("btn-secondary");
+//       $(".todas").removeClass("btn-secondary")
+//       btnsFilter.removeClass("btn-primary");
+//       $(".todas").addClass("btn-primary")
 
-      //si no encuentra guias...
-      if(contarExistencia==0){
+//       //si no encuentra guias...
+//       if(contarExistencia==0){
         
-        if(document.getElementById('tabla-historial-guias')){
-          document.getElementById('tabla-historial-guias').style.display='none';
-        }
-        if(document.getElementById('nohaydatosHistorialGuias')){
-          document.getElementById('nohaydatosHistorialGuias').style.display='block';
-          location.href='#nohaydatosHistorialGuias';
-        }
-      }else{
-        if(document.getElementById('tabla-historial-guias')){
-          document.getElementById('tabla-historial-guias').style.display='block';
-          location.href = "#tabla-historial-guias";
-        }
-        if(document.getElementById('nohaydatosHistorialGuias')){
-          document.getElementById('nohaydatosHistorialGuias').style.display='none';
-        }
-        $(document).ready( function () {
-          console.log("El data table se ejecuta")
-          $('#dataTable').DataTable( {
-            language: {
-              url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
-            },
-            dom: 'Bfrtip',
-            buttons: [{
-                extend: "excel",
-                text: "Descargar Guias",
-                filename: "Historial Guías",
-                exportOptions: {
-                  columns: [0,2,3,4,5,6,7,8,9,10,11,12,13]
-                }
-            }],
-            scrollY: '50vh',
-            scrollX: true,
-            scrollCollapse: true,
-            paging: false,
-            lengthMenu: [ [-1, 10, 25, 50, 100], ["Todos", 10, 25, 50, 100] ],
-            initComplete: clasificarGuias
-          });
-        });
-      }
-    }).then(() => {
-      document.getElementById("cargador-guias").classList.add("d-none");
-      $("#btn-buscar-guias").html("Buscar")
-      limitarSeleccionGuias();
-    });
-  } 
-}
+//         if(document.getElementById('tabla-historial-guias')){
+//           document.getElementById('tabla-historial-guias').style.display='none';
+//         }
+//         if(document.getElementById('nohaydatosHistorialGuias')){
+//           document.getElementById('nohaydatosHistorialGuias').style.display='block';
+//           location.href='#nohaydatosHistorialGuias';
+//         }
+//       }else{
+//         if(document.getElementById('tabla-historial-guias')){
+//           document.getElementById('tabla-historial-guias').style.display='block';
+//           location.href = "#tabla-historial-guias";
+//         }
+//         if(document.getElementById('nohaydatosHistorialGuias')){
+//           document.getElementById('nohaydatosHistorialGuias').style.display='none';
+//         }
+//         $(document).ready( function () {
+//           console.log("El data table se ejecuta")
+//           $('#dataTable').DataTable( {
+//             language: {
+//               url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+//             },
+//             dom: 'Bfrtip',
+//             buttons: [{
+//                 extend: "excel",
+//                 text: "Descargar Guias",
+//                 filename: "Historial Guías",
+//                 exportOptions: {
+//                   columns: [0,2,3,4,5,6,7,8,9,10,11,12,13]
+//                 }
+//             }],
+//             scrollY: '50vh',
+//             scrollX: true,
+//             scrollCollapse: true,
+//             paging: false,
+//             lengthMenu: [ [-1, 10, 25, 50, 100], ["Todos", 10, 25, 50, 100] ],
+//             initComplete: clasificarGuias
+//           });
+//         });
+//       }
+//     }).then(() => {
+//       document.getElementById("cargador-guias").classList.add("d-none");
+//       $("#btn-buscar-guias").html("Buscar")
+//       limitarSeleccionGuias();
+//     });
+//   } 
+// }
 
 function limitarSeleccionGuias(limit = 50) {
   $("#tabla-guias").find(".check-guias").change(e => {

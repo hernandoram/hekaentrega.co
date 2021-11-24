@@ -56,35 +56,448 @@ $(document).ready(() => {
         }
     });
 
+    $("#btn-buscar-guias").click(historialGuias)
     // revisarNotificaciones();
 
 })
 
 const toHtmlNode = str => new DOMParser().parseFromString(str, "text/html").body.firstChild;
 
+let snapshotHistorialGuias;
+async function historialGuias(){
+    // $('#dataTable').DataTable().destroy();
+    if (snapshotHistorialGuias) {
+        snapshotHistorialGuias();
+    }
+
+    const contentTabla = $("#tabla-historial-guias");
+    const contentEmpty = $("#nohaydatosHistorialGuias");
+    const btnBuscador = $("#btn-buscar-guias");
+    const originalTextBuscador = btnBuscador.text();
+
+    btnBuscador.html(`
+      <span class="spinner-border 
+      spinner-border-sm" role="status" aria-hidden="true"></span>
+      Cargando...
+    `)
+
+    const table = $('#dataTable').DataTable( {
+        destroy: true,
+        data: null,
+        rowId: "row_id",
+        columns: [
+            {data: null, title: "Acciones", render: (datos,type,row) => {
+                if(type === "display" || type === "filter") {
+                    const id = datos.id_heka;
+                    let buttons = `
+                    <div class="d-flex justify-content-around flex-wrap">
+                        <button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+                        id="ver_detalles${id}" data-toggle="modal" data-target="#modal-detallesGuias"
+                        title="Detalles">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+            
+                        <button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+                        id="descargar_documento${id}" title="Descargar Documentos">
+                            <i class="fas fa-file-download"></i>
+                        </button>
+            
+                        <button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+                        data-funcion="activar-desactivar" data-activate="after"
+                        id="generar_rotulo${id}" title="Generar Rótulo">
+                            <i class="fas fa-ticket-alt"></i>
+                        </button>
+                    `;
+
+                    if (datos.numeroGuia) {
+                        buttons += `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+                        id="ver_movimientos${id}" data-toggle="modal" data-target="#modal-gestionarNovedad"
+                        title="Revisar movimientos">
+                            <i class="fas fa-truck"></i>
+                        </button>`
+                    }
+
+                    if(datos.numeroGuia && !datos.has_sticker && generacion_automatizada) {
+                        buttons += `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+                        data-funcion="activar-desactivar"
+                        id="crear_sticker${id}" title="Crear Sticker de la guía">
+                            <i class="fas fa-stamp"></i>
+                        </button>`;
+                    }
+
+                    if(!datos.enviado) {
+                        buttons += `<button class="btn btn-success btn-circle btn-sm mt-2 action" data-id="${id}" 
+                        id="clonar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}" disabled
+                        title="Clonar Guía">
+                            <i class="fas fa-clone"></i>
+                        </button>
+            
+                        <button class="btn btn-danger btn-circle btn-sm mt-2 action" data-id="${id}" 
+                        id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}" disabled
+                        title="Eliminar Guía">
+                            <i class="fas fa-trash"></i>
+                        </button>`;
+                    }
+
+                    buttons += "</div>";
+                    return buttons
+                }
+                return datos;
+            }},
+            {data: "id_heka", title: "Id", defaultContent: ""},
+            {data: "numeroGuia", title: "Guía transportadora", defaultContent: ""},
+            {data: "estado", title: "Estado", defaultContent: ""},
+            {data: "transportadora", title: "Transportadora", defaultContent: ""},
+            {data: "type", title: "Tipo", defaultContent: ""},
+            {data: "nombreD", title: "Destinatario", defaultContent: ""},
+            {
+                data: "telefonoD", title: "Telefonos",
+                defaultContent: "", render: (valor,type,row) => {
+                    if(type === "display" || type === "filter") {
+                        return `
+                            <a class="btn btn-light d-flex align-items-baseline mb-1 action" href="https://api.whatsapp.com/send?phone=57${valor.toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i>${valor}</a>
+                            <a class="btn btn-light d-flex align-items-baseline action" href="https://api.whatsapp.com/send?phone=57${row["celularD"].toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i>${row["celularD"]}</a>
+                        `;
+                    }
+
+                    return valor;
+                }
+            },
+            {data: "celularD", title: "", defaultContent: "", visible: false},
+            {data: "ciudadD", title: "Ciudad", defaultContent: ""},
+            {data: "fecha", title: "Fecha", defaultContent: ""},
+            {
+                data: "seguro", title: "Seguro", 
+                defaultContent: "", render: (value, type) => {
+                    if(type === "display" || type === "filter") {
+                        return convertirMoneda(value || row["valor"]);
+                    }
+
+                    return value;
+                }
+            },
+            {
+                data: "valor", title: "Recaudo", 
+                defaultContent: "", render: (value, type) => {
+                    if(type === "display" || type === "filter") {
+                        return convertirMoneda(value)
+                    }
+
+                    return value;
+                }
+            },
+            {
+                data: "costo_envio", title: "Costo de envío", 
+                defaultContent: "", render: (value, type) => {
+                    if(type === "display" || type === "filter") {
+                        return convertirMoneda(value)
+                    }
+
+                    return value;
+                }
+            },
+        ],
+        language: {
+          url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+        },
+        dom: 'Bfrtip',
+        buttons: [{
+            extend: "excel",
+            text: "Descargar Guias",
+            filename: "Historial Guías",
+            exportOptions: {
+              columns: [0,2,3,4,5,6,7,8,9,10,11,12,13]
+            }
+        }, {
+            text: "Crear Documentos",
+            className: "btn btn-success",
+            action: crearDocumentos
+        }],
+        scrollY: '50vh',
+        scrollX: true,
+        scrollCollapse: true,
+        paging: false,
+        lengthMenu: [ [-1, 10, 25, 50, 100], ["Todos", 10, 25, 50, 100] ],
+        initComplete: funcionalidadesHistorialGuias
+    });
+    
+    document.getElementById("cargador-guias").classList.remove("d-none");
+    if(user_id){     
+      var fecha_inicio = Date.parse($("#fecha_inicio").val().replace(/\-/g, "/"));
+      fecha_final = Date.parse($("#fecha_final").val().replace(/\-/g, "/")) + 8.64e7;
+      console.log("Fecha de inicio =>", fecha_inicio)
+      console.log("Fecha de final =>", fecha_final)
+      var reference = firebase.firestore().collection("usuarios")
+      .doc(user_id).collection("guias");
+      let referencefilter = reference.orderBy("timeline")
+      .startAt(fecha_inicio).endAt(fecha_final);
+  
+      if($("#numeroGuia-historial_guias").val()) {
+        referencefilter = reference.where("numeroGuia", "==", $("#numeroGuia-historial_guias").val());
+      }
+  
+      table.clear().draw();
+      snapshotHistorialGuias = referencefilter.onSnapshot(snapshot => {
+        if(snapshot.empty) {
+            contentTabla.hide();
+            contentEmpty.show();
+        } else {
+            contentTabla.show();
+            contentEmpty.hide();
+        }
+
+        snapshot.docChanges().forEach(change => {
+            let data = change.doc.data();
+            const id = change.doc.id;
+            data.row_id = "historial-guias-row" + id;
+            const newIdRow = data.row_id;
+            const rowFinded = table.row("#"+newIdRow);
+            console.log(change);
+
+            if(change.type === "added" || change.type === "modified") {
+                if(rowFinded.length) {
+                    table.row("#"+newIdRow).data(data);
+                } else {
+                    table.row.add(data).draw();
+                    activarBotonesDeGuias(id, data, true);
+                }
+            } else if (change.type === "removed"){
+                if(rowFinded.length) {
+                    table.row("#"+newIdRow).remove().draw();
+                }
+            }
+        });
+
+        btnBuscador.text(originalTextBuscador);
+        document.getElementById("cargador-guias").classList.add("d-none");
+      });
+      
+      return;
+      referencefilter.get().then((querySnapshot) => {
+        if(document.getElementById('tabla-guias')){
+          inHTML("tabla-guias", "");
+        }  
+  
+        let [generadas, finalizadas, anuladas, enProceso, contarExistencia, pagadas] = [0,0,0,0,0,0]
+       
+        const estGeneradas = ["Envío Admitido", "RECIBIDO DEL CLIENTE", "Enviado", "", undefined];
+        const estAnuladas = ["Documento Anulado"];
+  
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          let filter = ""
+          if(estGeneradas.some(v => data.estado === v)) {
+            generadas ++
+            filter = "generada";
+          } else if (data.seguimiento_finalizado) {
+            finalizadas ++
+            filter = "finalizada";
+          } else if (estAnuladas[0] === data.estado) {
+            anuladas ++
+            filter = "anulada";
+          } else {
+            enProceso ++
+            filter = "en proceso";
+          }
+  
+          if(!data.debe) {
+            pagadas ++
+            filter = "pagada"
+          }
+  
+          data.filtrar = filter;
+  
+          const row = tablaDeGuias(doc.id, data);
+  
+          $("#tabla-guias").html();
+          $('#tabla-guias').append(row);
+  
+          contarExistencia ++;
+          let activar_botones = true;
+          //Habilita y deshabilita los checks de la tabla de guias
+          reference.doc(doc.id).onSnapshot((row) => {
+            if(row.exists) {
+              activarBotonesDeGuias(row.id, row.data(), activar_botones);
+              
+              document.getElementById("historial-guias-row" + row.id).children[3].textContent = row.data().numeroGuia || "";
+              document.getElementById("historial-guias-row" + row.id).children[4].textContent = row.data().estado;
+              activar_botones = false;
+            }
+          });
+        });
+  
+        $(".generadas > span").text(generadas);
+        $(".en-proceso > span").text(enProceso);
+        $(".finalizadas > span").text(finalizadas);
+        $(".anuladas > span").text(anuladas);
+        $(".pagadas > span").text(pagadas);
+        $(".todas > span").text(contarExistencia);
+  
+        const btnsFilter = $(".hist-guias-filter");
+  
+        btnsFilter.addClass("btn-secondary");
+        $(".todas").removeClass("btn-secondary")
+        btnsFilter.removeClass("btn-primary");
+        $(".todas").addClass("btn-primary")
+  
+        //si no encuentra guias...
+        if(contarExistencia==0){
+          
+          if(document.getElementById('tabla-historial-guias')){
+            document.getElementById('tabla-historial-guias').style.display='none';
+          }
+          if(document.getElementById('nohaydatosHistorialGuias')){
+            document.getElementById('nohaydatosHistorialGuias').style.display='block';
+            location.href='#nohaydatosHistorialGuias';
+          }
+        }else{
+          if(document.getElementById('tabla-historial-guias')){
+            document.getElementById('tabla-historial-guias').style.display='block';
+            location.href = "#tabla-historial-guias";
+          }
+          if(document.getElementById('nohaydatosHistorialGuias')){
+            document.getElementById('nohaydatosHistorialGuias').style.display='none';
+          }
+          $(document).ready( function () {
+            console.log("El data table se ejecuta")
+            $('#dataTable').DataTable( {
+              language: {
+                url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+              },
+              dom: 'Bfrtip',
+              buttons: [{
+                  extend: "excel",
+                  text: "Descargar Guias",
+                  filename: "Historial Guías",
+                  exportOptions: {
+                    columns: [0,2,3,4,5,6,7,8,9,10,11,12,13]
+                  }
+              }],
+              scrollY: '50vh',
+              scrollX: true,
+              scrollCollapse: true,
+              paging: false,
+              lengthMenu: [ [-1, 10, 25, 50, 100], ["Todos", 10, 25, 50, 100] ],
+              initComplete: clasificarGuias
+            });
+          });
+        }
+      }).then(() => {
+        document.getElementById("cargador-guias").classList.add("d-none");
+        $("#btn-buscar-guias").html("Buscar")
+        limitarSeleccionGuias();
+      });
+    } 
+  }
+
+function funcionalidadesHistorialGuias(settings, json) {
+    const table = $(this).DataTable();
+    this.parent().parent().before(`
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="select-all-orders">
+            <label class="form-check-label" for="select-all-orders">Seleccionar Todas</label>
+        </div>
+    `);
+
+    $("#select-all-orders").change((e) => {
+        if(e.target.checked) {
+            let counter = 0;
+            const limit = 50;
+            const row = $("tr:gt(0)", this).each((i,row) => {
+                const data = table.row(row).data();
+                if(!data.enviado && counter < limit)
+                $(row).addClass("selected bg-gray-300");
+            })
+
+        } else {
+            $("tr:gt(0)", this).removeClass("selected bg-gray-300");
+        }
+    });
+
+    if (this[0].getAttribute("data-table_initialized")) {
+        $('tbody', this).off( 'click', 'tr', seleccionarFilaHistorialGuias);    
+    } else {
+        this[0].setAttribute("data-table_initialized", true);
+    }
+
+    $('tbody', this).on( 'click', 'tr', seleccionarFilaHistorialGuias);
+}
+
+function seleccionarFilaHistorialGuias(e) {
+    if(e.target.classList.contains("action") || e.target.nodeName === "I") return;
+    const table = $("#dataTable").DataTable();
+
+    const row_id = this.getAttribute("id");
+    const row = table.row("#"+row_id);
+    const data = row.data();
+    
+    if(!data.enviado) {
+        $(this).toggleClass('selected bg-gray-300');
+    } else {
+        Toast.fire({
+            icon: "error",
+            text: "Esta guía ya ha sido enviada"
+        })
+    }
+
+}
+
 //función utilizada por el usuario para crear lo documentos
-function crearDocumentos() {
+function crearDocumentos(e, dt, node, config) {
+    const api = dt;
+    const selectedRows = api.rows(".selected");
+    const datas = selectedRows.data();
+    const nodos = selectedRows.nodes();
+
+    
     let checks = document.getElementById("tabla-guias").querySelectorAll("input");
     let guias = [], id_user = localStorage.user_id, arrGuias = new Array();
-    //Primero revisa todos los checks de las guias
-    for(let check of checks){
-        //toma todo check activo y que no esté desactivado
-        if(check.checked && !check.disabled){
-            guias.push(check.getAttribute("data-id"));
-
-            //Luego llena el arreglo de guias que serán creadas
-            arrGuias.push({
-                numeroGuia: check.getAttribute("data-numeroGuia"),
-                id_heka:  check.getAttribute("data-id"),
-                id_archivoCargar: check.getAttribute("data-id_archivoCargar"),
-                prueba:  check.getAttribute("data-prueba") == "true" ? true : false,
-                type: check.getAttribute("data-type"),
-                transportadora: check.getAttribute("data-transportadora"),
-                has_sticker: check.getAttribute("data-has_sticker")
-            });
-
-        }
+    
+    if(!nodos.length) {
+        return Toast.fire({
+            icon: "error",
+            text: "No hay guías seleccionadas"
+        })
     }
+
+    nodos.each((nodo, i) => {
+        const data = datas[i];
+
+        const {
+            numeroGuia, id_heka, id_archivoCargar, prueba,
+            type, transportadora, has_sticker
+        } = data;
+
+        arrGuias.push({
+            numeroGuia, id_heka, id_archivoCargar, prueba,
+            type, transportadora, has_sticker
+        });
+
+        data.enviado = true;
+        api.row("#"+id_heka).data(data);
+        console.log(nodo)
+        $(nodo).removeClass("selected bg-gray-300");
+    });
+
+    // //Primero revisa todos los checks de las guias
+    // for(let check of checks){
+    //     //toma todo check activo y que no esté desactivado
+    //     if(check.checked && !check.disabled){
+    //         guias.push(check.getAttribute("data-id"));
+
+    //         //Luego llena el arreglo de guias que serán creadas
+    //         arrGuias.push({
+    //             numeroGuia: check.getAttribute("data-numeroGuia"),
+    //             id_heka:  check.getAttribute("data-id"),
+    //             id_archivoCargar: check.getAttribute("data-id_archivoCargar"),
+    //             prueba:  check.getAttribute("data-prueba") == "true" ? true : false,
+    //             type: check.getAttribute("data-type"),
+    //             transportadora: check.getAttribute("data-transportadora"),
+    //             has_sticker: check.getAttribute("data-has_sticker")
+    //         });
+
+    //     }
+    // }
     
     //Verifica que todas las guias crrespondan al mismo tipo
     let tipos_diferentes = revisarCompatibilidadGuiasSeleccionadas(arrGuias);
@@ -99,17 +512,19 @@ function crearDocumentos() {
     }
 
     //Luego deshabilita todos los check y los deselecciona, al igual que todos los botones que estan dentro
-    checks.forEach((check, i) => {
-        if(check.checked && !check.disabled){
-            check.checked = false;
-            check.disabled = true;
-            $(check).parents("tr").find('button').prop("disabled", true);
-        }
-    })
+    // checks.forEach((check, i) => {
+    //     if(check.checked && !check.disabled){
+    //         check.checked = false;
+    //         check.disabled = true;
+    //         $(check).parents("tr").find('button').prop("disabled", true);
+    //     }
+    // })
 
-    console.log(guias);
+    console.log(arrGuias);
+    return
+
     // Add a new document with a generated id.
-    if(guias.length == 0){
+    if(arrGuias.length == 0){
         avisar("No se Pudo enviar su documento", "Asegurece de haber seleccionado al menos una guía", "aviso");
     } else {
         swal.fire({
@@ -225,11 +640,11 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
         } else if (v.transportadora != arr[i? i - 1 :i].transportadora) {
             mensaje = "Las transportadoras seleccionadas no coinciden."
             return true
-        } else if (generacion_automatizada && v.numeroGuia == "undefined") {
+        } else if (generacion_automatizada && !v.numeroGuia) {
             mensaje = "Para el modo automático de guías, es necesario que todas las seleccionadas contengan el número de guía de la transportadora. <br/> Se recomienda desactivar el sistema automatizado para generar guias (que se encuentra en el cotizador), de esta forma, se le será permitido crear el documento con la guía nro. " + v.id_heka ;
             
             return true;
-        } else if (generacion_automatizada && v.has_sticker !== "true") {
+        } else if (generacion_automatizada && !v.has_sticker) {
             let guias = arr.filter(t => {
                 return t.has_sticker !== "true";
             }).map(v => v.id_heka);
