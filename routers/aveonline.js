@@ -7,7 +7,8 @@ router.get("/auth", aveoCtrl.auth);
 router.post("/cotizar/:type", aveoCtrl.auth, aveoCtrl.cotizar);
 
 router.post("/crearGuia", aveoCtrl.auth, aveoCtrl.crearGuia);
-router.get("/crearManifiesto", aveoCtrl.auth, aveoCtrl.generarRelacion);
-router.get("/imprimirManifiesto/:nro", aveoCtrl.consultarRelacion);
+router.post("/generarManifiesto", aveoCtrl.auth, aveoCtrl.generarRelacion);
+router.get("/imprimirManifiesto/:nro_manifiesto", aveoCtrl.consultarRelacion);
+router.get("/obtenerStickerGuia", aveoCtrl.obtenerStickerGuia);
 
 module.exports = router;

@@ -730,7 +730,7 @@
                 <input type="text" class="form-control form-control-user"  id="numeroGuia-historial_guias">
               </div>
             </div>
-            <button  onclick="cambiarFecha()" id="btn-buscar-guias"
+            <button id="btn-buscar-guias"
             class="btn btn-primary btn-user btn-block">
               Buscar
             </button>
@@ -741,10 +741,14 @@
             <div class="card-body" style="display: none;" id="nohaydatosHistorialGuias">
               <h6 class="text-danger">SIN DATOS EXISTENTES PARA TU BÚSQUEDA</h6>
             </div>
-            <div class="card card-shadow mb-4" style="display: none;" id="tabla-historial-guias">
+            <div class="card card-shadow mb-4" style="display: none;" id="contenedor-tabla-historial-guias">
               <div class="card-body">
-                <h6>Seleccionar las guías para crear los Documentos</h6>
-                <button class="btn btn-success mb-3" id="enviar-documentos" onclick="crearDocumentos()">Crear Documentos</button>
+                <p class="border-left-primary pl-2">
+                  Seleccione las guías con las que desea generar sus documentos haciendo click sobre cada fila.
+                  <br>
+                  <small>Recuerde que hasta no <strong>"crear documentos"</strong>, no podrá proseguir con el proceso de descarga y/o impresión de los mismos</small>
+                </p>
+
                 <div id="historial-guias-filters" class="d-flex justify-content-md-around overflow-auto">
                   <button data-filtrar="generada" class="btn btn-secondary m-2 hist-guias-filter text-nowrap generadas"
                   title="Guías que han sido generadas, pero no están aún en movimiento">
@@ -772,50 +776,12 @@
                   </button>
                 </div>
                 <div class="table-responsive">
-                  <table  class="display table table-bordered" id="dataTable" width="100%" cellspacing="0">  
+                  <table  class="display table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">  
                     <thead class="text-truncate">
-                      <tr>
-                        <th class="text-center"> 
-                          Check
-                          <input type="checkbox" name="check-select-all-guias" 
-                          id="check-select-all-guias" autocomplete="off">
-                        </th>
-                        <th>Acciones</th>
-                        <th># Guía Heka</th>
-                        <th># Guía transportadora</th>
-                        <th>Estado</th>
-                        <th>Nombre dest.</th>
-                        <th>Telefonos</th>
-                        <th>Transportadora</th>
-                        <th>Tipo</th>
-                        <th>Fecha generación</th>
-                        <th>Ciudad dest.</th>
-                        <th>Seguro</th>
-                        <th>Recaudo</th>
-                        <th>Costo envío</th>
-                      </tr>
                     </thead>
                     <tbody id="tabla-guias">
                       
                     </tbody>
-                    <tfoot>
-                      <tr>
-                        <th>Check</th>
-                        <th>Acciones</th>
-                        <th># Guía Heka</th>
-                        <th># Guía transportadora</th>
-                        <th>Estado</th>
-                        <th>Nombre dest.</th>
-                        <th>Telefonos</th>
-                        <th>Transportadora</th>
-                        <th>Tipo</th>
-                        <th>Fecha generación</th>
-                        <th>Ciudad dest.</th>
-                        <th>Seguro</th>
-                        <th>Recaudo</th>
-                        <th>Costo envío</th>
-                      </tr>
-                    </tfoot>
                   </table>
                 </div>
               </div>

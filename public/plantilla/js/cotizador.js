@@ -1738,42 +1738,26 @@ async function generarStickerGuiaInterrapidisimo(data) {
 };
 
 async function generarGuiaAveonline(datos) {
-    let respuesta = await fetch("/aveo/crearGuia", {
+    fetch("/aveo/crearGuia", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(datos)
-    }).then(d => {
-        if(d.status === 500) return '{"Message": "Ocurrió un error interno con la transportadora, por favor intente nuevamente."}'
-        return d.json()
-    })
-    .catch(error => {error});
+    });
 
-    console.log(respuesta);
-    // return {numeroGuia: 0, error: "Error demostrativo"};
-    // respuesta = JSON.parse(respuesta);
-    // if(respuesta.Message) return {numeroGuia: 0, error: respuesta.Message};
-    if(respuesta.error) return {numeroGuia: 0, error: respuesta.error};
-
-    respuesta.numeroGuia = respuesta.resultado.guia.numguia;
-    respuesta.id_heka = datos.id_heka;
-    respuesta.prueba = datos.prueba;
-    respuesta.has_sticker = false;
-
-    console.log("Aveonline => ",respuesta);
-
-    return respuesta;
+    return {
+        numeroGuia: "Generando...",
+        id_heka: datos.id_heka,
+        prueba: datos.prueba,
+        has_sticker: false,
+    }
 };
 
-async function generarStickerGuiaAveonline(data) {
-    const maxPorSegmento = 500000;
-    let url = "/inter/crearStickerGuia/" + data.numeroGuia + "?segmentar=" + maxPorSegmento;
-    if(data.prueba) {
-        url += "&prueba=" + data.prueba;
-    }
+async function guardarStickerGuiaAveo(data) {
+    let url = "/aveo/obtenerStickerGuia?urlGuia=" + data.url;
     
     let base64GuiaSegmentada = await fetch(url)
     .then(data => data.json())
-    .catch(error => console.log("Hubo un error al consultar el base64 de INTERRAPÍDISIMO => ", error));
+    .catch(error => console.log("Hubo un error al consultar el base64 de Aveonline => ", error));
 
     const referenciaSegmentar = firebase.firestore().collection("base64StickerGuias")
     .doc(data.id_heka).collection("guiaSegmentada");
