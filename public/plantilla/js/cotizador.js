@@ -1753,9 +1753,13 @@ async function generarGuiaAveonline(datos) {
 };
 
 async function guardarStickerGuiaAveo(data) {
-    let url = "/aveo/obtenerStickerGuia?urlGuia=" + data.url;
+    let url = "/aveo/obtenerStickerGuia?urlGuia";
     
-    let base64GuiaSegmentada = await fetch(url)
+    let base64GuiaSegmentada = await fetch(url, {
+        method: "POST",
+        headers: {"content-Type": "application/json"},
+        body: JSON.stringify(data)
+    })
     .then(data => data.json())
     .catch(error => console.log("Hubo un error al consultar el base64 de Aveonline => ", error));
 
