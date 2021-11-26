@@ -1651,7 +1651,6 @@ const Cargador = Swal.mixin({
 async function guardarBase64ToStorage(base64, path) {
     return await firebase.storage().ref().child(path)
     .putString(base64, "base64").then(snapshot => {
-        console.log(snapshot);
         console.log("Documento subido con exito");
         return true
     }).catch(error => {

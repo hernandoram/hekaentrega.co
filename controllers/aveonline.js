@@ -270,14 +270,18 @@ async function inspectGuiasPorCrear() {
             body: JSON.stringify(data)
         }).then(res => JSON.parse(res));
 
-        console.log(response);
         if(response.status === "error") throw new Error(response.message);
         const resultado = response.resultado.guia
         console.log(resultado);
+
+        const isBase64 = resultado.archivoguia.length > 100;
+
         const numeroGuia = resultado.numguia.toString() || "Error";
         const urlGuia = resultado.rutaguia || false;
-        const estado = "recibido";
-        const has_sticker = await saveBase64Guia(guia.id_heka, urlGuia);
+        const estado = "Recibido";
+
+        const toSave = isBase64 ? resultado.archivoguia : urlGuia;
+        const has_sticker = await saveBase64Guia(guia.id_heka, toSave, isBase64);
 
         refGuia.update({numeroGuia, urlGuia, has_sticker, estado});
         referenceListado.doc(guia.id_heka).delete();
@@ -289,11 +293,17 @@ async function inspectGuiasPorCrear() {
     inspectGuiasPorCrear();
 }
 
-async function saveBase64Guia(id, url) {
-    const base64 = await urlToPdfBase64(url);
+async function saveBase64Guia(id, toSave, isBase64) {
+    if(!toSave) return false;
+    const base64 = isBase64 ? toSave : await urlToPdfBase64(toSave.split("&")[0]);
     const base64Segmented = funct.segmentarString(base64, 500000);
+    const comprobadorPdf = "JVBERi0xLjQKJ";
     const refToSave = db.collection("base64StickerGuias")
     .doc(id).collection("guiaSegmentada");
+
+    console.log("base64 => ", base64);
+
+    if(!base64.includes(comprobadorPdf)) return false;
 
     if(typeof base64Segmented !== "object") return false;
 
@@ -320,6 +330,7 @@ async function saveBase64Guia(id, url) {
 
 // urlToPdfBase64("https://aveonline.co/app/modulos/coretransporte/pdf/guias/imprimir.recaudos.php?pkid=2242711&idagente=6911&idexp=20283&codagente=&idcliente=119839&idremitente=0&imprimir=1&veces=2&idempresa=20283");
 async function urlToPdfBase64(url) {
+    console.log("Url =>", url);
     const res = await fetch(url).then(r => {
         // console.log(r)
         // console.log(r.arrayBuffer())
@@ -329,9 +340,8 @@ async function urlToPdfBase64(url) {
     // console.log(res);
     const buff = Buffer.from(res, "utf8");
     const base64 = buff.toString("base64");
-    console.log(base64);
-    return base64;
-    
+    console.log("base64 => ", base64);
+    return base64; 
 }
 
 function revisarTipoEnvio(type,recaudo) {
