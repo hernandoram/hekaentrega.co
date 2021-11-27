@@ -550,7 +550,7 @@ function seleccionarUsuario(id){
     let type = ["personal", "bancaria", "heka"], n = 0;
 
     while(n < 3){
-        limpiarFormulario("#informacion-" + type[n], "input")
+        limpiarFormulario("#informacion-" + type[n], "input,select")
 
         firebase.firestore().collection("usuarios").doc(id).collection("informacion").doc(type[n]).get()
         .then((doc) => {
@@ -631,17 +631,20 @@ function mostrarDatosPersonales(data, info) {
 function asignarValores(data, query) {
     for(let value in data) {
         const input = $(query).find(`[name="${value}"]`);
+        if(input.hasClass("no-updte")) continue;
         input.val(data[value]);
     }
 }
 
 function limpiarFormulario(parent, query) {
-    $(parent).find(query).each((i, e) => {
-        if($(e).attr("type") === "checkbox") {
-            return $(e).prop("checked", false);
+    $(parent).find(query).each((i, el) => {
+        if(el.classList.contains("no-updte")) return;
+        console.log(el);
+        if($(el).attr("type") === "checkbox") {
+            return $(el).prop("checked", false);
         }
 
-        $(e).val("")
+        $(el).val("")
     })
 }
 

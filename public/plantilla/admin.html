@@ -377,7 +377,7 @@
                             name="objetos_envio" id="actualizar_objetos_envio" placeholder="objeto1,objeto2,etc..."  required>
                           </div>
                         </div>
-                        <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4"
+                        <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4 no-updte"
                         onclick="actualizarInformacionPersonal()" value="Actualizar Datos Personales">
                       </form>
 
@@ -486,7 +486,7 @@
                             name="numero_iden_banco" id="actualizar_confirmar_numero_identificacion_banco"  required>
                           </div>
                         </div>
-                        <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4"
+                        <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4 no-updte"
                         onclick="actualizarInformacionBancaria()" value="Actualizar Datos Bancarios">
                         
                       </form>
@@ -603,17 +603,43 @@
                         </div>
 
                         <div class="form-group row">
-                          <div class="col-sm-4 text-sm-center">
-                            <input type="checkbox" id="habilitar_servientrega">
-                            <label for="habilitar_servientrega">Habilitar servientrega</label>
+                          <div class="col-12">
+                            <h5>Configurar uso transportadoras</h5>
                           </div>
-                          <div class="col-sm-4 text-sm-center">
-                            <input type="checkbox" id="habilitar_interrapidisimo">
-                            <label for="habilitar_interrapidisimo">Habilitar inter rapidísimo</label>
+                          <div class="col-sm-3 mt-2 text-sm-center">
+                            <label for="sistema_servientrega">Servientrega</label>
+                            <select class="form-control" id="sistema_servientrega" name="sistema_servientrega">
+                              <option value="">Defecto</option>
+                              <option value="automatico">Automática</option>
+                              <option value="manual">Manual</option>
+                              <option value="inhabilitado">Inhabilitar</option>
+                            </select>
                           </div>
-                          <div class="col-sm-4 text-sm-center">
-                            <input type="checkbox" id="habilitar_envia">
-                            <label for="habilitar_envia">Habilitar envía</label>
+                          <div class="col-sm-3 mt-2 text-sm-center">
+                            <label for="sistema_interrapidisimo">Interrapidísimo</label>
+                            <select class="form-control" id="sistema_interrapidisimo" name="sistema_interrapidisimo">
+                              <option value="">Defecto</option>
+                              <option value="automatico">Automática</option>
+                              <option value="manual">Manual</option>
+                              <option value="inhabilitado">Inhabilitar</option>
+                            </select>
+                          </div>
+                          <div class="col-sm-3 mt-2 text-sm-center">
+                            <label for="sistema_envia">Envía</label>
+                            <select class="form-control" id="sistema_envia" name="sistema_envia">
+                              <option value="">Defecto</option>
+                              <option value="automatico">Automática</option>
+                              <option value="inhabilitado">Inhabilitar</option>
+                            </select>
+                          </div>
+                          
+                          <div class="col-sm-3 mt-2 text-sm-center">
+                            <label for="sistema_tcc">TCC</label>
+                            <select class="form-control" id="sistema_tcc" name="sistema_tcc">
+                              <option value="">Defecto</option>
+                              <option value="automatico">Automática</option>
+                              <option value="inhabilitado">Inhabilitar</option>
+                            </select>
                           </div>
                         </div>
 
@@ -630,8 +656,8 @@
                           </div>
                         </div>
 
-                        <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4"
-                        onclick="actualizarInformacionHeka()" value="Actualizar Costos de Envío">
+                        <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4 no-updte"
+                        onclick="actualizarInformacionHeka()" value="Actualizar info heka" />
                       </form>
 
                     </div>

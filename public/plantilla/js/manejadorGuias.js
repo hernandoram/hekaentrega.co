@@ -89,6 +89,7 @@ async function historialGuias(){
             {data: null, title: "Acciones", render: (datos,type,row) => {
                 if(type === "display" || type === "filter") {
                     const id = datos.id_heka;
+                    const generacion_automatizada = transportadoras[datos.transportadora].sistema() === "automatico";
                     let buttons = `
                     <div data-search="${datos.filter}"
                     class="d-flex justify-content-around flex-wrap">
@@ -496,6 +497,7 @@ function crearDocumentos(e, dt, node, config) {
     })
     .then(async (docRef) => {
         const transportadora = arrGuias[0].transportadora;
+        const generacion_automatizada = transportadoras[transportadora].sistema() === "automatico";
         arrGuias.sort((a,b) => {
             return a.numeroGuia > b.numeroGuia ? 1 : -1
         });
@@ -542,12 +544,8 @@ function crearDocumentos(e, dt, node, config) {
                     text: "Las Guías " + guias + " Serán procesadas por un asesor, y en apróximadamente 10 minutos los documentos serán subidos."
                 });
             })
-        }
-        
-        node.prop("disabled", false);
-    }).then(() => {
-        if(!generacion_automatizada) {
-            firebase.firestore().collection("notificaciones").add({
+            
+            await firebase.firestore().collection("notificaciones").add({
                 mensaje: `${datos_usuario.nombre_completo} ha creado un Documento con las Guías: ${guias.join(", ")}`,
                 fecha: genFecha(),
                 guias: guias,
@@ -558,9 +556,10 @@ function crearDocumentos(e, dt, node, config) {
             }).then(() => {
                 actualizarHistorialDeDocumentos();
                 location.href = "#documentos"
-            })
+            });
         }
-
+        
+        node.prop("disabled", false);
     })
     .catch((error) => {
         console.error("Error adding document: ", error);
@@ -575,6 +574,7 @@ y me devuelve el mensaje con el error*/
 function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
     let mensaje
     const diferentes = arrGuias.some((v, i, arr) => {
+        const generacion_automatizada = transportadoras[v.transportadora].sistema() === "automatico";
         if(v.type != arr[i? i - 1 :i].type) {
             mensaje = "Los tipos de guías seleccionadas no coinciden.";
             return true
