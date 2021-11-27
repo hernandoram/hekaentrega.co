@@ -44,7 +44,7 @@ datos_personalizados = {
   saldo: 0
 };
 
-let estado_prueba, generacion_automatizada;
+let estado_prueba;
 
 //funcion principal del Script que carga todos los datos del usuario
 async function cargarDatosUsuario(){
@@ -82,18 +82,6 @@ async function consultarDatosBasicosUsuario() {
       datos_usuario.centro_de_costo = doc.data().centro_de_costo;
       datos_usuario.objetos_envio = doc.data().objetos_envio;
       estado_prueba = doc.data().centro_de_costo == "SellerNuevo" ? true : false;
-      generacion_automatizada = doc.data().generacion_automatizada || false;
-
-      if(doc.data().generacion_automatizada) {
-        generacion_automatizada = doc.data().generacion_automatizada;
-        $("#switch-guias_automaticas").prop("checked",true);
-        $("#switch-guias_automaticas").parent().children("label")
-        .text((index, text) => {
-          return text.replace("desactivado", "activado");
-        });
-
-
-      }
     }
   })
 
@@ -837,19 +825,6 @@ function mostrarPagosUsuario(data) {
   }
   })
 }
-
-//Una función para que la generación de guías sea a través del webservice
-$("#switch-guias_automaticas").click(function() {
-  let check = $(this).prop("checked")
-  usuarioDoc.update({
-    generacion_automatizada: check
-  }).then(() => {
-    $(this).parent().children("label").text((i, text) => {
-      return check ? text.replace("desactivado", "activado") : text.replace("activado", "desactivado");
-    });
-    generacion_automatizada = check;
-  })
-})
 
 function cerrarSession() {
   localStorage.clear()

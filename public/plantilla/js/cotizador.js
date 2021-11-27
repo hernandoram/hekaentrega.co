@@ -17,8 +17,13 @@ let transportadoras = {
             return [5000,300000000]
         },
         habilitada: () => {
-            return datos_personalizados.habilitar_servientrega
+            const sist = datos_personalizados.sistema_servientrega;
+            return sist && sist !== "inhabilitado";
         },
+        sistema: () => {
+            const sist = datos_personalizados.sistema_servientrega;
+            return sist;
+        }
     },
     "INTERRAPIDISIMO": {
         nombre: "Inter Rapidísimo",
@@ -34,8 +39,13 @@ let transportadoras = {
             return [37500, 30000000]
         },
         habilitada: () => {
-            return datos_personalizados.habilitar_interrapidisimo
+            const sist = datos_personalizados.sistema_interrapidisimo;
+            return sist && sist !== "inhabilitado";
         },
+        sistema: () => {
+            const sist = datos_personalizados.sistema_interrapidisimo;
+            return sist;
+        }
     },
     "ENVIA": {
         nombre: "Envía",
@@ -51,8 +61,13 @@ let transportadoras = {
             return [37500, 30000000]
         },
         habilitada: () => {
-            return false
+            const sist = datos_personalizados.sistema_envia;
+            return sist && sist !== "inhabilitado";
         },
+        sistema: () => {
+            const sist = datos_personalizados.sistema_envia;
+            return sist;
+        }
     },
     "TCC": {
         nombre: "TCC",
@@ -68,8 +83,13 @@ let transportadoras = {
             return [37500, 30000000]
         },
         habilitada: () => {
-            return false
+            const sist = datos_personalizados.sistema_tcc;
+            return sist && sist !== "inhabilitado";
         },
+        sistema: () => {
+            const sist = datos_personalizados.sistema_tcc;
+            return sist;
+        }
     },
 };
 
@@ -1468,7 +1488,7 @@ async function enviar_firestore(datos){
             
             firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
 
-            if(generacion_automatizada) {
+            if(transportadoras[datos.transportadora].sistema() === "automatico") {
                 //Para cuando el usuario tenga activa la creación deguías automáticas.
                 return await crearGuiaTransportadora(datos, referenciaNuevaGuia);
                  
