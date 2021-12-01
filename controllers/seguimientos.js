@@ -4,6 +4,7 @@ const cron = require("node-cron");
 
 const servientregaCtrl = require("./servientrega");
 const interrapidisimoCtrl = require("./inter");
+const aveoCtrl = require("./aveonline");
 
 
 // cron.schedule("00 */6 * * *", () => {
@@ -31,8 +32,7 @@ const interrapidisimoCtrl = require("./inter");
 
 // actualizarMovimientosGuias(new Date()).then((detalles) => {
 //     console.log("DETALLES DE ACTUALIZACIÓN: ", detalles);
-//      firebase.firestore().collection("reporte").add(detalles);
-//      process.exit();
+//     process.exit();
 // });
 async function actualizarMovimientosGuias(d, general) {
     let inicio_func = new Date().getTime();
@@ -50,7 +50,7 @@ async function actualizarMovimientosGuias(d, general) {
         // .where("estado", "not-in", ["ENTREGADO", "ENTREGADO A REMITENTE"])
         // .where("transportadora", "==", "INTERRAPIDISIMO")
         // .where("centro_de_costo", "==", 'SellerNatalia')
-        // .where("numeroGuia", "in", ["230009839876"])
+        // .where("numeroGuia", "in", ["532956261"])
         // .limit(10)
     }
         
@@ -71,7 +71,8 @@ async function actualizarMovimientosGuias(d, general) {
             total_consulta: resultado.size,
             fecha: d,
             servientrega: 0,
-            interrapidisimo: 0
+            interrapidisimo: 0,
+            aveonline: 0
         }
         
         //Aquí se alamcenarán la respuesta obtenida de cada proceso de actualización
@@ -86,10 +87,13 @@ async function actualizarMovimientosGuias(d, general) {
                 }
                 
                 let guia;
-                if(doc.data().transportadora && doc.data().transportadora === "INTERRAPIDISIMO") {
+                if(doc.data().transportadora === "INTERRAPIDISIMO") {
                     consulta.interrapidisimo ++;
                     // continue;
                     guia = await interrapidisimoCtrl.actualizarMovimientos(doc);
+                } else if(doc.data().transportadora === "ENVIA" || doc.data().transportadora === "TCC") {
+                    consulta.aveonline ++;
+                    guias = await aveoCtrl.actualizarMovimientos(doc);
                 } else {
                     consulta.servientrega ++
                     // continue
@@ -111,7 +115,7 @@ async function actualizarMovimientosGuias(d, general) {
             console.log(faltantes);
         }
         
-        console.log(resultado_guias)
+        console.log("Resultado actualización => ",resultado_guias)
         let guias_procesadas = resultado_guias;
         for(let guia of guias_procesadas) {
             if(guia.length == 1) {
