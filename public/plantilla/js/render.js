@@ -1891,6 +1891,25 @@ class DetectorErroresInput {
     }
 }
 
+class changeElementContenWhileLoading {
+    constructor(e) {
+        this.el = $(e);
+        this.initVal = $(e).html();
+        this.charger = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Cargando...`
+    }
+
+    init() {
+        this.el.prop("disabled", true);
+        this.el.html(this.charger);
+        console.log(this.initVal);
+    }
+
+    end() {
+        this.el.prop("disabled", false);
+        this.el.html(this.initVal);
+    }
+}
 
 const medidasCtrl = new DetectorErroresInput(".only-integers").init("input");
 medidasCtrl.setBooleans = [

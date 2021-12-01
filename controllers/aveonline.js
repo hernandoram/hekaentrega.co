@@ -168,6 +168,54 @@ exports.obtenerStickerGuia = async (req, res) => {
     res.json(base64Segmented);
 }
 
+exports.crearAgente = async (req,res) => {
+    const datos = req.query;
+    const newAgent = {
+        "tipo": "crearAgente",
+        "token": req.params.token,
+        "nombre": datos.nombres + " " + datos.apellidos,
+        "idnit": datos.numero_documento,
+        "identificacion": Cr.idEmpresa,
+        "telefono": datos.celular,
+        "direccion": datos.direccion + " " + datos.barrio,
+        "nombreContacto": datos.nombres + " " + datos.apellidos,
+        "correo": datos.correo,
+        "idvalorminimo": 2,
+        "ciudad": datos.ciudad,
+        "comentarios": "",
+        "email1": datos.correo,
+        "email2": datos.correo,
+        // "email3": "alangarcia@aveonline.co",
+        // "email4": "alangarcia@aveonline.co",
+        "verRecaudos": 1,
+        "rutaimgalterna": "https://www.aveonline.co/principales/img/logo.png",
+        "agentePrincipal": 2
+    }
+
+    const respuesta = await rq.post("https://aveonline.co/api/comunes/v1.0/agentes.php", {
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(newAgent)
+    });
+
+    console.log(respuesta);
+    res.json(JSON.parse(respuesta));
+}
+
+exports.listarAgentes = async (req, res) => {
+    const data = {
+        "tipo": "listarAgentesPorEmpresaAuth",
+        "token": req.params.token,
+        "idempresa": Cr.idEmpresa
+    }
+    const respuesta = await rq.post("https://aveonline.co/api/comunes/v1.0/agentes.php", {
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+
+
+    res.json(JSON.parse(respuesta));
+}
+
 async function internalAuth() {
     const authentication = await rq.post(Cr.endpoint + "/comunes/v1.0/autenticarusuario.php", {
         headers: {"Content-Type": "application/json"},

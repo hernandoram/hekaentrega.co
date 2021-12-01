@@ -583,6 +583,7 @@ function mostrarDatosPersonales(data, info) {
     if(info == "personal"){
         // Datos personales
         inHTML("nombre-usuario", data.nombres.split(" ")[0] + " " + data.apellidos.split(" ")[0]);
+
     } else if(info == "heka") {
         $("#aumentar_saldo").val("");
         $("#informacion-heka").find("[type=checkbox]").each((i, el) => {
@@ -639,7 +640,6 @@ function asignarValores(data, query) {
 function limpiarFormulario(parent, query) {
     $(parent).find(query).each((i, el) => {
         if(el.classList.contains("no-updte")) return;
-        console.log(el);
         if($(el).attr("type") === "checkbox") {
             return $(el).prop("checked", false);
         }
@@ -802,6 +802,43 @@ async function actualizarInformacionHeka() {
     })
 
 
+}
+
+$("#crear_agente_aveo").click(crearAgenteAveonline)
+async function crearAgenteAveonline() {
+    const emiter = new changeElementContenWhileLoading(this);
+    emiter.init();
+    
+    const res = await fetch("/aveo/crearAgente?" + $("#informacion-personal form").serialize()).then(d => d.json());
+    console.log(res);
+    Toast.fire({
+        icon: res.status === "error" ? "error" : "success",
+        title: res.status,
+        text: res.message
+    })
+    emiter.end();
+}
+
+async function consultarAgentesAveonline() {
+    const res = await fetch("/aveo/listarAgentes").then(d => d.json());
+    
+    return res;
+}
+
+$("#listar_agentes_aveo").click(listarAgentesAveonline);
+async function listarAgentesAveonline(e) {
+    const emiter = new changeElementContenWhileLoading(this);
+    emiter.init();
+    const consulta = await consultarAgentesAveonline();
+    const agentes = consulta.agentes;
+    const lister = "#" + e.target.getAttribute("data-list");
+
+    $(lister).html("");
+
+    agentes.forEach(agente => {
+        $(lister).append(`<option value="${agente.id}">${agente.id} - ${agente.nombre}</option>`);
+    });
+    emiter.end();
 }
 
 
