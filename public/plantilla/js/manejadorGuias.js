@@ -2496,15 +2496,19 @@ async function historialGuiasAdmin() {
             { data: "numeroGuia", title: "# Guía Servientrega", defaultContent: ""},
             { data: "estado", title: "Estado", defaultContent: ""},
             { data: "centro_de_costo", title: "Centro de Costo" },
-            { data: "transportadora", title: "Transportadora", defaultContent: "Servientrega", visible: false},
-            { data: "type", title: "Tipo", defaultContent: "Pago contraentrega", visible: false},
+            { data: "transportadora", title: "Transportadora", defaultContent: "Servientrega"},
+            { data: "type", title: "Tipo", defaultContent: "Pago contraentrega"},
+            {data: "alto", title: "Alto"},
+            {data: "ancho", title: "Ancho"},
+            {data: "largo", title: "Largo"},
+            {data: "peso", title: "peso"},
             { data: "detalles.comision_heka", title: "Comisión Heka"},
             { data: "detalles.comision_trasportadora", title: "Comisión Transportadora"},
             { data: "detalles.flete", title: "Flete"},
             { data: "detalles.recaudo", title: "Recaudo"},
             { data: "detalles.total", title: "Total"},
             { data: "fecha", title: "Fecha"},
-            { data: "debe", title: "deuda", visible:false, defaultContent: "no aplica", render: function(content, display, data) {
+            { data: "debe", title: "deuda", defaultContent: "no aplica", render: function(content, display, data) {
                 console.log(content, display, data)
                 if(data.debe && data.seguimiento_finalizado
                     && data.type!=="CONVENCIONAL") return (-content) + '<span class="sr-only"> Por pagar</span>'
