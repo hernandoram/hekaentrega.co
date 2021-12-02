@@ -378,7 +378,7 @@ async function inspectGuiasPorCrear() {
             "idasumecosto": idasumecosto,
             "contraentrega": contraentrega,
             "valorrecaudo": recaudo,
-            "idagente": Cr.idAgente,
+            "idagente": guia.idAgente,
             "dsreferencia": "",
             "dsordendecompra": "",
             "bloquegenerarguia": "1",
@@ -465,7 +465,7 @@ async function urlToPdfBase64(url) {
     // console.log(res);
     const buff = Buffer.from(res, "utf8");
     const base64 = buff.toString("base64");
-    console.log("base64 => ", base64);
+    // console.log("base64 => ", base64);
     return base64; 
 }
 

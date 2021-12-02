@@ -1758,6 +1758,11 @@ async function generarStickerGuiaInterrapidisimo(data) {
 };
 
 async function generarGuiaAveonline(datos) {
+    const idAgente = datos_personalizados.id_agente_aveo;
+
+    if(!idAgente) throw new Error("No se registra el agente.");
+    
+    datos.idAgente = idAgente;
     fetch("/aveo/crearGuia", {
         method: "POST",
         headers: {"Content-Type": "application/json"},

@@ -233,7 +233,7 @@ function consultarInformacionBancariaUsuario() {
 
 //invocada por el boton para buscar guias
 function cambiarFecha(){  
-  if($("contenedor-tabla-historial-guias").css("display") === "none") {
+  if($("#contenedor-tabla-historial-guias").css("display") === "none") {
     historialGuias();
   }
 }

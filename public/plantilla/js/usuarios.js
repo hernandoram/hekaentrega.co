@@ -704,6 +704,30 @@ function actualizarInformacionBancaria() {
 }
 
 async function actualizarInformacionHeka() {
+    const inpIdAgente = $("#id_agente_aveo").val();
+    const inpCodSucursal = $("#actualizar_codigo_sucursal_inter").val();
+    const activadorEnvia = $("#sistema_envia").val();
+    const activadorTcc = $("#sitema_tcc").val();
+    const activadorInter = $("#sistema_interrapidisimo").val();
+    const actEnvia = activadorEnvia === "automatico";
+    const actTcc = activadorTcc === "automatico";
+    const actInter = activadorInter && activadorInter !== "inhabilitado";
+
+    let mensajeCuidado;
+    if((actEnvia || actTcc) && !inpIdAgente)
+        mensajeCuidado = "Recuerda agregar un id cliente antes de activar envía o tcc";
+
+
+    if(actInter && !inpCodSucursal) 
+        mensajeCuidado = "Recuerda agregar un código sucursal antes de activar a interrapidísimo.";
+
+    if(mensajeCuidado) {
+        return Toast.fire({
+            icon: "error",
+            title: "Algo Falta 😓",
+            text: mensajeCuidado
+        });
+    }
     // Datos contabilidad
     document.querySelector('[onclick="actualizarInformacionHeka()"]').value = "cargando";
 
