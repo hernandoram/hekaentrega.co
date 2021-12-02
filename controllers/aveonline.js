@@ -306,7 +306,6 @@ async function internalAuth() {
 
 fillGuiasPorCrear();
 function fillGuiasPorCrear() {
-    console.count("Inicializando función")
     referenceListado.orderBy("timeline")
     .onSnapshot(querySnapShot => {
         querySnapShot.docChanges().forEach(change => {
