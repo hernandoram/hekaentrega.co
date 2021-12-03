@@ -839,7 +839,9 @@ async function crearAgenteAveonline() {
         icon: res.status === "error" ? "error" : "success",
         title: res.status,
         text: res.message
-    })
+    });
+
+    $("#listar_agentes_aveo").click();
     emiter.end();
 }
 

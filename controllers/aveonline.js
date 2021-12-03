@@ -164,6 +164,9 @@ exports.consultarRelacion = async (req, res) => {
 exports.obtenerStickerGuia = async (req, res) => {
     console.log(" body => ",req.body);
     const base64 = await urlToPdfBase64(req.body.url);
+
+    if(!base64.includes("JVBERi0xLjQKJ")) return res.json([]);
+
     const base64Segmented = funct.segmentarString(base64, 500000);
     res.json(base64Segmented);
 }
@@ -369,7 +372,7 @@ async function inspectGuiasPorCrear() {
                 "unidades": 1,
                 "nombre": "Heka",
                 "ref": guia.id_heka,
-                "valorDeclarado": guia.valor
+                "valorDeclarado": guia.seguro
               }
             ],
             "dscontenido": guia.dice_contener,
@@ -398,14 +401,17 @@ async function inspectGuiasPorCrear() {
         const resultado = response.resultado.guia
         console.log(resultado);
 
-        const isBase64 = resultado.archivoguia.length > 100;
+        const base64 = resultado.archivoguia;
+        const isBase64 = base64.length > 100 && guia.type === "CONVENCIONAL" && guia.transportadora === "ENVIA";
 
         const numeroGuia = resultado.numguia.toString() || "Error";
         const estado = "Recibido";
         let urlGuia = resultado.rutaguia;
-        urlGuia = urlGuia ? urlGuia.replace(/amp;/g, "") : false
+        urlGuia = urlGuia ? urlGuia.replace(/amp;/g, "") : false;
 
-        const has_sticker = await saveBase64GuiaFromUrl(guia.id_heka, urlGuia);
+        const toSave = isBase64 ? base64.replace(/\s/g, "") : urlGuia;
+
+        const has_sticker = await saveBase64Guia(guia.id_heka, toSave, isBase64);
 
         refGuia.update({numeroGuia, urlGuia, has_sticker, estado});
         referenceListado.doc(guia.id_heka).delete();
@@ -417,9 +423,9 @@ async function inspectGuiasPorCrear() {
     inspectGuiasPorCrear();
 }
 
-async function saveBase64GuiaFromUrl(id, url) {
-    if(!url) return false;
-    const base64 = await urlToPdfBase64(url);
+async function saveBase64Guia(id, toSave, isBase64) {
+    if(!toSave) return false;
+    const base64 = isBase64 ? toSave : await urlToPdfBase64(toSave);
     const base64Segmented = funct.segmentarString(base64, 500000);
     const comprobadorPdf = "JVBERi0xLjQKJ";
     const refToSave = db.collection("base64StickerGuias")
@@ -452,7 +458,7 @@ async function saveBase64GuiaFromUrl(id, url) {
 
 }
 
-// urlToPdfBase64("https://aveonline.co/app/modulos/coretransporte/pdf/guias/imprimir.recaudos.php?pkid=2242711&idagente=6911&idexp=20283&codagente=&idcliente=119839&idremitente=0&imprimir=1&veces=2&idempresa=20283");
+// urlToPdfBase64("https://aveonline.co/app/modulos/paqueteo/imprimir.guia.envia.php?pkid=2293858&idagente=6911&idexp=20283&codagente=&idcliente=119839&idremitente=0&imprimir=1&veces=2&idempresa=20283");
 async function urlToPdfBase64(url) {
     console.log("Url =>", url);
     const res = await fetch(url).then(r => {
@@ -464,17 +470,19 @@ async function urlToPdfBase64(url) {
     // console.log(res);
     const buff = Buffer.from(res, "utf8");
     const base64 = buff.toString("base64");
+    const comprobadorPdf = "JVBERi0xLjQKJ";
+
     // console.log("base64 => ", base64);
     return base64; 
 }
 
 function revisarTipoEnvio(type,recaudo) {
-    let idasumecosto = 1, contraentrega = 0
+    let idasumecosto = 0, contraentrega = 0
 
     if(type === "CONVENCIONAL") {
-        idasumecosto = 0
         recaudo = 0;
     } else if (type === "SUMAR ENVIO") {
+        idasumecosto = 1;
         contraentrega = 1;
     }
 
