@@ -1349,7 +1349,16 @@ function crearGuia() {
                         icon: res.icon,
                         title: res.title,
                         html: res.mensaje
-                    })
+                    });
+
+                    console.log(datos_a_enviar);
+                    firebase.firestore().collection("errores").add({
+                        datos_personalizados, datos_a_enviar,
+                        datos_usuario,
+                        momento: new Date().getTime(),
+                        fecha: new Date(),
+                        respuesta: res
+                    });
                 }
 
                 boton_final_cotizador.removeAttribute("disabled");
@@ -1389,7 +1398,7 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
     
     const respuesta = await generarGuia.then(async (resGuia) => {
         //le midifico los datos de respuesta al que será enviado a firebase
-        datos.numeroGuia = resGuia.numeroGuia;
+        datos.numeroGuia = resGuia.numeroGuia || 0;
         datos.id_archivoCargar = resGuia.id_archivoCargar || "";
         datos.has_sticker = resGuia.has_sticker || false;
         //y creo el documento de firebase
@@ -1636,16 +1645,16 @@ async function generarGuiaServientrega(datos) {
         }
 
         if(!retorno.numeroGuia) {
-            analytics.logEvent("Error al crear guía servientrega", {res: xml, centro_de_costo: datos_usuario.centro_de_costo || "SCC"});
+            // analytics.logEvent("Error al crear guía servientrega", {res: xml, centro_de_costo: datos_usuario.centro_de_costo || "SCC"});
         }
 
         return retorno;
     })
     .catch(err => {
         console.log("Hubo un error: ", err);
-        analytics.logEvent("Error al crear guía servientrega", {catch: err, centro_de_costo: datos_usuario.centro_de_costo || "SCC"});
+        // analytics.logEvent("Error al crear guía servientrega", {catch: err, centro_de_costo: datos_usuario.centro_de_costo || "SCC"});
         return {
-            message: "Hubo un error al conectar con " + codTransp + ", por favor, intente nuevamente más tarde."
+            message: "Hubo un error al conectar con " + codTransp + ", por favor, intente nuevamente más tarde.",
         };
     });
 
@@ -1695,7 +1704,6 @@ async function generarGuiaInterrapidisimo(datos) {
             return "SCS"
         });
 
-        firebase.firestore().collection("errores").add(datos_personalizados);
     }
     datos.codigo_sucursal = codigo_sucursal
     let respuesta = await fetch("/inter/crearGuia", {
@@ -1719,7 +1727,7 @@ async function generarGuiaInterrapidisimo(datos) {
     respuesta = typeof respuesta === "object" ? respuesta : JSON.parse(respuesta);
     if(respuesta.Message || respuesta.message) {
         respuesta.centro_de_costo = datos_usuario.centro_de_costo || "SCC";
-        analytics.logEvent("Error al crear guía interrapidisimo", respuesta);
+        // analytics.logEvent("Error al crear guía interrapidisimo", respuesta);
 
         return {
             numeroGuia: 0,
