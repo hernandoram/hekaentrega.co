@@ -115,8 +115,10 @@ exports.estandarizarFecha = (date, specialFormat, parseHour) => {
 /** FUNCIONES */
 function revisarNovedad(mov, transp) {
   if(transp === "INTERRAPIDISIMO") {
-      return mov.Motivo;
+    return mov.Motivo;
+  } else if (transp === "ENVIA" || transp === "TCC") {
+    return mov.novedad
   } else {
-      return mov.TipoMov === "1";
+    return mov.TipoMov === "1";
   }
 }

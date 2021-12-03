@@ -1139,6 +1139,14 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
 function traducirMovimientoGuia(transportadora) {
     let traductor = new Object();
     switch (transportadora) {
+        case "ENVIA": case "TCC":
+            return {
+                novedad: "aclaracion",
+                fechaMov: "fechamostrar",
+                observacion: "descripcion",
+                descripcionMov: "descipcion",
+                ubicacion: "ciudad"
+            }
         case "INTERRAPIDISIMO":
             return {
                 novedad: "Motivo",
@@ -1147,7 +1155,6 @@ function traducirMovimientoGuia(transportadora) {
                 descripcionMov: "Descripcion Estado",
                 ubicacion: "Ciudad"
             }
-            break;
         default:
             return {
                 novedad: "NomConc",
@@ -1302,7 +1309,7 @@ function gestionarNovedadModal(dataN, dataG) {
             <p class="mb-1">
                 <b>${mov[movTrad.observacion]}</b>
             </p>
-            <p class="mb-1"><i class="fa fa-map-marker-alt mr-2 text-primary"></i>${mov[movTrad.ubicacion]}</p>
+            <p class="mb-1"><i class="fa fa-map-marker-alt mr-2 text-primary"></i>${mov[movTrad.ubicacion] || "No registra."}</p>
             <p>
                 <span class="text-danger">${mov[movTrad.novedad]}</span>
             </p>
@@ -1891,6 +1898,25 @@ class DetectorErroresInput {
     }
 }
 
+class changeElementContenWhileLoading {
+    constructor(e) {
+        this.el = $(e);
+        this.initVal = $(e).html();
+        this.charger = `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Cargando...`
+    }
+
+    init() {
+        this.el.prop("disabled", true);
+        this.el.html(this.charger);
+        console.log(this.initVal);
+    }
+
+    end() {
+        this.el.prop("disabled", false);
+        this.el.html(this.initVal);
+    }
+}
 
 const medidasCtrl = new DetectorErroresInput(".only-integers").init("input");
 medidasCtrl.setBooleans = [

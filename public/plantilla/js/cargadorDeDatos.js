@@ -46,6 +46,7 @@ datos_personalizados = {
 
 let estado_prueba;
 
+
 //funcion principal del Script que carga todos los datos del usuario
 async function cargarDatosUsuario(){
   let proceso = 0;
@@ -56,15 +57,35 @@ async function cargarDatosUsuario(){
     return proceso + "%";
   };
   
-  const showPercentage = $("#porcentaje-cargador-inicial")
+  const showPercentage = $("#porcentaje-cargador-inicial");
+  const dataUserInLocal = JSON.parse(localStorage.getItem("datos_usuario"));
+  const otherdataUser = JSON.parse(localStorage.getItem("datos_personalizados"));
+
+  console.log(dataUserInLocal);
   
+  if(otherdataUser) Object.assign(datos_personalizados, otherdataUser);
+
   //Carga la informacion personal en un objeto y se llena el html de los datos del usuario
-  await consultarInformacionPersonalUsuario()
+  if(!dataUserInLocal) {
+    console.log("ingresó");
+    const newData = await consultarInformacionPersonalUsuario();
+    console.log("New data", newData);
+    Object.assign(datos_usuario, newData);
+  } else {
+    consultarInformacionPersonalUsuario();
+  }
   showPercentage.text(percentage());
   
   //SE cargan datos como el centro de costo
-  await consultarDatosBasicosUsuario()
+  if(!dataUserInLocal) await consultarDatosBasicosUsuario();
   showPercentage.text(percentage());
+
+  console.log(datos_usuario);
+  if(!dataUserInLocal) {
+    localStorage.setItem("datos_usuario", JSON.stringify(datos_usuario));
+  } else {
+    datos_usuario = dataUserInLocal;
+  }
   
   //Modifica los costos de envio si el usuario tiene costos personalizados
   await consultarInformacioHeka();
@@ -90,10 +111,10 @@ async function consultarDatosBasicosUsuario() {
 async function consultarInformacionPersonalUsuario() {
   const informacion = firebase.firestore().collection('usuarios').doc(user_id).collection("informacion");
 
-  await informacion.doc("personal").get().then((doc) => {
+  const data = await informacion.doc("personal").get().then((doc) => {
     if(doc.exists){
       let datos = doc.data();
-      datos_usuario = {
+      const dataUser = {
         nombre_completo: datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0],
         direccion: datos.direccion + " " + datos.barrio,
         celular: datos.celular,
@@ -152,11 +173,15 @@ async function consultarInformacionPersonalUsuario() {
       if(document.getElementById('contenedor-datos-actualizar')){
         document.getElementById('contenedor-datos-actualizar').style.display='block';
       }
+
+      return dataUser;
     }
       
   });
-
+  
   if(location.hash === "#perfil") consultarInformacionBancariaUsuario();
+
+  return data;
 }
 
 async function consultarInformacioHeka() {
@@ -174,6 +199,10 @@ async function consultarInformacioHeka() {
       }
   
       console.log(datos_personalizados);
+      const importants = ["id_agente_aveo", "codigo_sucursal_inter"];
+      const importantData = new Object();
+      importants.forEach(val => importantData[val] = datos_personalizados[val]);
+      localStorage.setItem("datos_personalizados", JSON.stringify(importantData));
   
       $("#saldo").html("$" + convertirMiles(datos_personalizados.saldo));
     }
@@ -233,7 +262,7 @@ function consultarInformacionBancariaUsuario() {
 
 //invocada por el boton para buscar guias
 function cambiarFecha(){  
-  if($("contenedor-tabla-historial-guias").css("display") === "none") {
+  if($("#contenedor-tabla-historial-guias").css("display") === "none") {
     historialGuias();
   }
 }

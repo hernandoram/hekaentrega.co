@@ -168,6 +168,129 @@ exports.obtenerStickerGuia = async (req, res) => {
     res.json(base64Segmented);
 }
 
+exports.crearAgente = async (req,res) => {
+    const datos = req.query;
+    const newAgent = {
+        "tipo": "crearAgente",
+        "token": req.params.token,
+        "nombre": datos.nombres + " " + datos.apellidos,
+        "idnit": datos.numero_documento,
+        "identificacion": Cr.idEmpresa,
+        "telefono": datos.celular,
+        "direccion": datos.direccion + " " + datos.barrio,
+        "nombreContacto": datos.nombres + " " + datos.apellidos,
+        "correo": datos.correo,
+        "idvalorminimo": 2,
+        "ciudad": datos.ciudad,
+        "comentarios": "",
+        "email1": datos.correo,
+        "email2": datos.correo,
+        // "email3": "alangarcia@aveonline.co",
+        // "email4": "alangarcia@aveonline.co",
+        "verRecaudos": 1,
+        "rutaimgalterna": "https://www.aveonline.co/principales/img/logo.png",
+        "agentePrincipal": 2
+    }
+
+    const respuesta = await rq.post("https://aveonline.co/api/comunes/v1.0/agentes.php", {
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(newAgent)
+    });
+
+    console.log(respuesta);
+    res.json(JSON.parse(respuesta));
+}
+
+exports.listarAgentes = async (req, res) => {
+    const data = {
+        "tipo": "listarAgentesPorEmpresaAuth",
+        "token": req.params.token,
+        "idempresa": Cr.idEmpresa
+    }
+    const respuesta = await rq.post("https://aveonline.co/api/comunes/v1.0/agentes.php", {
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+    });
+
+
+    res.json(JSON.parse(respuesta));
+}
+
+exports.actualizarMovimientos = async (doc) => {
+    const auth = await internalAuth();
+    const respuesta = await rq.post("https://aveonline.co/api/nal/v1.0/guia.php", {
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({
+            "tipo":"obtenerEstadoAuth",
+            "token": auth.token,
+            "id": Cr.idEmpresa,
+            "guia": doc.data().numeroGuia
+        })
+    })
+    .then(res => JSON.parse(res))
+    .catch(err => {
+        return {
+            status: "error",
+            message: err.message
+        }
+    });
+
+    if(respuesta.status === "error") {
+        const finalizar_seguimiento = doc.data().prueba ? true : false;
+        if(finalizar_seguimiento) {
+            await funct.actualizarEstado(doc, {
+                estado: "Finalizado",
+                ultima_actualizacion: new Date(),
+                seguimiento_finalizado: finalizar_seguimiento
+            });
+        }
+
+        return [{
+            estado: "Error",
+            guia: doc.id + " / " + doc.data().numeroGuia + " " + respuesta.message
+        }]
+    }
+
+    const estados_finalizacion = ["Documento Anulado", "Entrega Exitosa", "Devuelto al Remitente"];
+    
+    const detallesGuia = respuesta.guias[0];
+    const movimientos = detallesGuia.historicos;
+    
+    const ultimo_estado = movimientos[movimientos.length - 1];
+    let finalizar_seguimiento = doc.data().prueba ? true : false
+
+
+    const estado = {
+        numeroGuia: detallesGuia.dsconsec, //guia devuelta por la transportadora
+        fechaEnvio: detallesGuia.dsfecha,
+        ciudadD: detallesGuia.origen,
+        nombreD: detallesGuia.destino,
+        direccionD:  detallesGuia.direccion,
+        estadoActual: detallesGuia.estado,
+        fecha: ultimo_estado ? ultimo_estado.fechamostrar : detallesGuia.dsfecha, //fecha del estado
+        id_heka: doc.id,
+        movimientos
+    };
+    
+    
+    updte_estados = await funct.actualizarEstado(doc, {
+        estado: detallesGuia.estado,
+        ultima_actualizacion: new Date(),
+        seguimiento_finalizado: estados_finalizacion.some(v => detallesGuia.estado === v)
+            || finalizar_seguimiento
+    });
+
+    updte_movs = {
+        estado: "Mov.N.A",
+        guia: doc.id + " / " + doc.data().numeroGuia + " No contiene movimientos aún."
+    }
+
+    if(movimientos.length) {
+        updte_movs = await funct.actualizarMovimientos(doc, estado);
+    }
+    return [updte_estados, updte_movs]
+}
+
 async function internalAuth() {
     const authentication = await rq.post(Cr.endpoint + "/comunes/v1.0/autenticarusuario.php", {
         headers: {"Content-Type": "application/json"},
@@ -178,7 +301,7 @@ async function internalAuth() {
         })
     }).then(res => JSON.parse(res));
 
-    return authentication.token;
+    return authentication;
 }
 
 fillGuiasPorCrear();
@@ -206,7 +329,8 @@ async function inspectGuiasPorCrear() {
     .collection("guias").doc(guia.id_heka);
     
     try {
-        const token = await internalAuth();
+        const auth = await internalAuth();
+        const token = auth.token;
 
 
         let data = {
@@ -253,7 +377,7 @@ async function inspectGuiasPorCrear() {
             "idasumecosto": idasumecosto,
             "contraentrega": contraentrega,
             "valorrecaudo": recaudo,
-            "idagente": Cr.idAgente,
+            "idagente": guia.idAgente,
             "dsreferencia": "",
             "dsordendecompra": "",
             "bloquegenerarguia": "1",
@@ -340,7 +464,7 @@ async function urlToPdfBase64(url) {
     // console.log(res);
     const buff = Buffer.from(res, "utf8");
     const base64 = buff.toString("base64");
-    console.log("base64 => ", base64);
+    // console.log("base64 => ", base64);
     return base64; 
 }
 
