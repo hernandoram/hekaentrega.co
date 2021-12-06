@@ -438,15 +438,16 @@ async function detallesTransportadoras(data) {
         if(!cotizacionAveo && (transp === "ENVIA" || transp === "TCC")) {
 
             cotizacionAveo = await cotizarAveonline(typeToAve, {
-                    "origen": data.ave_ciudadR,
-                    "destino": data.ave_ciudadD,
-                    "valorRecaudo": recaudo,
-                    "alto": data.alto,
-                    "largo": data.largo,
-                    "ancho": data.ancho,
-                    "peso": value("Kilos"),
-                    "valorDeclarado": seguro,
-                });
+                "origen": data.ave_ciudadR,
+                "destino": data.ave_ciudadD,
+                "valorRecaudo": recaudo,
+                "alto": data.alto,
+                "largo": data.largo,
+                "ancho": data.ancho,
+                "peso": value("Kilos"),
+                "valorDeclarado": seguro,
+                type: typeToAve
+            });
         
             if(!cotizacionAveo.error) modificarDatosDeTransportadorasAveo(cotizacionAveo);
         }
@@ -1009,7 +1010,8 @@ class CalcularCostoDeEnvio {
         console.log("Flete => ", this.flete);
         console.log("Costo de envío =>", this.costoEnvio);
         console.groupEnd();
-        return {
+
+        const details = {
             peso_real: this.kg,
             flete: this.flete,
             comision_heka: this.sobreflete_heka,
@@ -1020,6 +1022,12 @@ class CalcularCostoDeEnvio {
             recaudo: this.valor,
             seguro: this.seguro
         };
+
+        if(this.aveo) {
+            details.seguro_mercancia = this.precio.costoManejo;
+        }
+
+        return details
     }
 
     get empty() {
@@ -1032,13 +1040,13 @@ class CalcularCostoDeEnvio {
 
     set sumarCostoDeEnvio(val) {
         let counter = 0
-        if(this.aveo) return;
+        // if(this.aveo) return;
         /* Mientras que el valor ingresado se mayor al valor devuelto por el contructor
         menos el costo del envío ingresa al bucle que le suma al valor ingresado el costo 
         del envío impuesto por el viejo contructor, para así sustituir el constructor*/
         while(val > this.valor - this.costoEnvio) {
             this.valor = val + this.costoEnvio;
-            this.seguro = this.valor;
+            this.seguro = this.aveo ? this.seguro : this.valor;
             counter ++;
             console.log("\n *** Estamos en bucle fase " + counter)
             this.getDetails;
