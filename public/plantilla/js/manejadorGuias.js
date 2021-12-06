@@ -145,6 +145,8 @@ async function historialGuias(){
                         </button>`;
                     }
 
+                    buttons += "<a href='javascript:void(0)' class='action text-trucate'>Ver más</a>"
+
                     buttons += "</div>";
                     return buttons
                 }
@@ -160,10 +162,9 @@ async function historialGuias(){
                 data: "telefonoD", title: "Telefonos",
                 defaultContent: "", render: (valor,type,row) => {
                     if(type === "display" || type === "filter") {
-                        return `
-                            <a class="btn btn-light d-flex align-items-baseline mb-1 action" href="https://api.whatsapp.com/send?phone=57${valor.toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i>${valor}</a>
-                            <a class="btn btn-light d-flex align-items-baseline action" href="https://api.whatsapp.com/send?phone=57${row["celularD"].toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i>${row["celularD"]}</a>
-                        `;
+                        const aCelular1 = `<a class="btn btn-light d-flex align-items-baseline mb-1 action" href="https://api.whatsapp.com/send?phone=57${valor.toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i>${valor}</a>`;
+                        const aCelular2 = `<a class="btn btn-light d-flex align-items-baseline action" href="https://api.whatsapp.com/send?phone=57${row["celularD"].toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i>${row["celularD"]}</a>`;
+                        return aCelular1;
                     }
 
                     return valor;
@@ -378,6 +379,22 @@ function renderizadoDeTablaHistorialGuias(config) {
     $(".anuladas > span").text(counter.anulada);
     $(".pagadas > span").text(counter.pagada);
     $(".todas > span").text(data.length);
+
+    api.column(0).nodes().to$().each((i, el) => {
+        const buttonsToHide = $(el).children().children("button:gt(1)");
+        const verMas = $(el).children().children("a");
+
+        verMas.click(() => {
+            if(buttonsToHide.css("display") === "none") {
+                buttonsToHide.show();
+                verMas.text("Ver menos");
+            } else {
+                buttonsToHide.hide();
+                verMas.text("Ver más");
+            }
+        })
+        buttonsToHide.css("display", "none");
+    })
 }
 
 function clasificarHistorialGuias(data) {

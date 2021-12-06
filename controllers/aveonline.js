@@ -26,7 +26,7 @@ exports.auth = async (req, res, next) => {
 exports.cotizar = async (req, res) => {
     const token = req.params.token
     const body = req.body;
-    const {idasumecosto, contraentrega, recaudo} = revisarTipoEnvio(req.params.type, body.valorRecaudo)
+    const {idasumecosto, contraentrega, recaudo} = revisarTipoEnvio(body);
     body.valorRecaudo = recaudo;
     const data = {
         "tipo": "cotizar2",
@@ -325,9 +325,10 @@ async function inspectGuiasPorCrear() {
     console.log(guiasPorCrear);
     if(!guiasPorCrear.length) return;
     const guia = guiasPorCrear.shift();
+    guia.valor = guia.valorRecaudo;
 
     const codTransp = guia.transportadora === "TCC" ? Cr.codTcc : Cr.codEnvia;
-    const {idasumecosto, contraentrega, recaudo} = revisarTipoEnvio(guia.type, guia.valor);
+    const {idasumecosto, contraentrega, recaudo} = revisarTipoEnvio(guia, "crear");
     const refGuia = db.collection("usuarios").doc(guia.id_user)
     .collection("guias").doc(guia.id_heka);
     
@@ -431,8 +432,6 @@ async function saveBase64Guia(id, toSave, isBase64) {
     const refToSave = db.collection("base64StickerGuias")
     .doc(id).collection("guiaSegmentada");
 
-    console.log("base64 => ", base64);
-
     if(!base64.includes(comprobadorPdf)) return false;
 
     if(typeof base64Segmented !== "object") return false;
@@ -476,15 +475,24 @@ async function urlToPdfBase64(url) {
     return base64; 
 }
 
-function revisarTipoEnvio(type,recaudo) {
+function revisarTipoEnvio(guia, from) {
     let idasumecosto = 0, contraentrega = 0
-
+    const type = guia.type;
+    const detalles = guia.detalles
+    let recaudo = detalles ? detalles.recaudo : guia.valorRecaudo;
+    console.log(detalles);
     if(type === "CONVENCIONAL") {
         recaudo = 0;
-    } else if (type === "SUMAR ENVIO") {
-        idasumecosto = 1;
+    } else if (type === "PAGO CONTRAENTREGA") {
         contraentrega = 1;
+        if(from === "crear") {
+            recaudo = recaudo - (detalles.flete + detalles.seguro_mercancia);
+        } else {
+            recaudo = guia.valorRecaudo
+        }
     }
+
+    console.log(recaudo);
 
     return {idasumecosto, contraentrega, recaudo}
 }

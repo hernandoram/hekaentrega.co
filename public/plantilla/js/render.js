@@ -332,37 +332,52 @@ function mostrarDocumentosUsuario(id, data){
     return `<div class="col-sm-6 col-lg-4 mb-4">
     <div class="card border-bottom-info shadow h-100 py-2" id="${id}">
         <div class="card-body">
-            <div class="row no-gutters align-items-center">
-                <div class="col mr-2">
-                    <div class="h4 font-weight-bold text-info text-uppercase mb-2">${data.nombre_usuario}</div>
-                    <div class="row no-gutters align-items-center">
-                        <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800 w-100">
-                            <p style="cursor: zoom-in;"
-                            class="text-truncate"
-                            data-mostrar="texto">Id Guias Generadas: <br><small class="text-break">${data.guias}</small></p>
-                            <p>Fecha: <small>${data.fecha}</small></p>
-                        </div>
+        <h5 class="card-title font-weight-bold text-info text-uppercase mb-2">${data.nombre_usuario}</h5>
+        <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+                <div class="row no-gutters align-items-center">
+                    <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800 w-100">
+                        <p class="text-truncate"
+                        style="cursor: zoom-in"
+                        data-mostrar="texto">Id Guias Generadas: <br><small class="text-break">${data.guias}</small> </p>
+                        <p>Tipo: <small class="text-break">${data.type || "PAGO CONTRAENTREGA"}</span></p>
+                        <p>Fecha: <small>${data.fecha}</small></p>
                     </div>
                 </div>
-                <div class="col-auto">
-                    <i class="fa fa-file fa-2x text-gray-300" data-id_guia="${id}" 
-                    data-guias="${data.guias.toString()}" data-nombre_guias="${data.nombre_guias}"
-                    data-nombre_relacion="${data.nombre_relacion}"
-                    data-user="${data.id_user}" data-funcion="descargar-docs" 
-                    id="descargar-docs${id}"></i>
-                </div>
             </div>
+            <div class="col-auto">
+                <i class="fa fa-file fa-2x text-gray-300" data-id_guia="${id}" 
+                data-guias="${data.guias}" data-nombre_guias="${data.nombre_guias}"
+                data-nombre_relacion="${data.nombre_relacion}"
+                data-user="${data.id_user}" data-funcion="descargar-docs" 
+                id="descargar-docs${id}"></i>
+
+                <span class="badge-pill badge-primary float-right">${data.guias.length}</span>
+            </div>
+        </div>
             <div class="row" data-guias="${data.guias.toString()}" data-id_guia="${id}" data-user="${data.id_user}" data-nombre="${data.nombre_usuario}">
-                <button class="col-12 btn btn-info mb-2" 
-                type="button" id="boton-descargar-guias${id}" disabled>
-                    Descargar Guías
-                </button>
-                <button class="col btn btn-info mb-2" 
-                type="button" id="boton-descargar-relacion_envio${id}" disabled>
-                    Descargar Manifiesto
-                </button>
-                <button class="col-12 btn btn-info mb-2" 
-                type="button" id="boton-generar-rotulo${id}">Genera Rótulo</button>
+                <div class="d-none">
+                    <button class="col-12 btn btn-info mb-2" 
+                    type="button" id="boton-descargar-guias${id}" disabled>
+                        Descargar Guías
+                    </button>
+                    <button class="col btn btn-info mb-2" 
+                    type="button" id="boton-descargar-relacion_envio${id}" disabled>
+                        Descargar Manifiesto
+                    </button>
+                    <button class="col-12 btn btn-info mb-2" 
+                    type="button" id="boton-generar-rotulo${id}">Genera Rótulo</button>
+                </div>
+                <div class="col-12 dropdown">
+                    <button class="col-12 btn btn-info dropdown-toggle text-truncate" title="Subir documentos" type="button" id="acciones-documento${id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Descargar
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
+                        <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-guias${id}">Guías</label>
+                        <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-relacion_envio${id}">Manifiesto</label>
+                        <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-generar-rotulo${id}">Rótulos</label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -436,7 +451,7 @@ function activarBotonesDeGuias(id, data, activate_once){
                             }
                             
                         }
-                        // historialGuias();
+                        historialGuias();
                     });
                     $("#enviar-documentos").prop("disabled", false);
                 }).catch((error) => {
