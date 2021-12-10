@@ -40,6 +40,8 @@ exports.actualizarMovimientos = async (doc, toUpdate) => {
 
   toUpdate.transportadora = doc.data().transportadora || "SERVIENTREGA";
   toUpdate.centro_de_costo = doc.data().centro_de_costo;
+  toUpdate.daneOrigen = doc.data().dane_ciudadR || "NA";
+  toUpdate.daneDestino = doc.data().dane_ciudadD || "NA";
   toUpdate.id_heka = doc.id;
 
   toUpdate.mostrar_usuario = Boolean(revisarNovedad(ultimo_mov, doc.data().transportadora));

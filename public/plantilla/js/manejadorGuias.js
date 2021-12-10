@@ -89,7 +89,7 @@ async function historialGuias(){
             {data: null, title: "Acciones", render: (datos,type,row) => {
                 if(type === "display" || type === "filter") {
                     const id = datos.id_heka;
-                    const generacion_automatizada = transportadoras[datos.transportadora].sistema() === "automatico";
+                    const generacion_automatizada = transportadoras[datos.transportadora || "SERVIENTREGA"].sistema() === "automatico";
                     let buttons = `
                     <div data-search="${datos.filter}"
                     class="d-flex justify-content-around flex-wrap">
@@ -155,7 +155,8 @@ async function historialGuias(){
             {data: "id_heka", title: "Id", defaultContent: ""},
             {data: "numeroGuia", title: "Guía transportadora", defaultContent: ""},
             {data: "estado", title: "Estado", defaultContent: ""},
-            {data: "transportadora", title: "Transportadora", defaultContent: ""},
+            {data: "transportadora", orderable: false,
+            title: "Transportadora", defaultContent: ""},
             {data: "type", title: "Tipo", defaultContent: ""},
             {data: "nombreD", title: "Destinatario", defaultContent: ""},
             {
@@ -317,9 +318,9 @@ function funcionalidadesHistorialGuias(settings, json) {
     btnsFilter.addClass("btn-secondary");
     $(".todas").removeClass("btn-secondary")
     btnsFilter.removeClass("btn-primary");
-    $(".todas").addClass("btn-primary")
+    $(".todas").addClass("btn-primary");
 
-   
+    setTimeout(() => filtrarHistorialGuiasPorColumna(api.column(4)), 1000);
 }
 
 function seleccionarFilaHistorialGuias(e) {
@@ -394,7 +395,29 @@ function renderizadoDeTablaHistorialGuias(config) {
             }
         })
         buttonsToHide.css("display", "none");
-    })
+        verMas.text("Ver más");
+    });
+
+}
+
+function filtrarHistorialGuiasPorColumna(column) {
+    const header = column.header();
+    const select = $("<select class='custom-select form-control-sm' style='min-width:120px'><option value=''>"+header.textContent+"</option></select>")
+        .appendTo($(header).empty())
+        .on("change", function(e) {
+            console.log($(this).val());
+            const val = $.fn.dataTable.util.escapeRegex($(this).val());
+
+            column.search(val ? "^"+val+"$": "", true, false)
+            .draw();
+        })
+
+
+    column.data().unique().sort().each((value, i) => {
+        select.append("<option value='"+value+"'>"+value+"</option>");
+    });
+
+    column.draw();
 }
 
 function clasificarHistorialGuias(data) {
@@ -2761,6 +2784,7 @@ function incializarTablaTablaGuiasInter() {
         ],
         scrollY: "50vh",
         scrollX: true,
+        initComplete: funcionalidadesTablaHistorialGuiasInter
     });
 
     const btn_crear_manifiesto = $("#crear-manifiesto-guias_inter");
@@ -2770,8 +2794,11 @@ function incializarTablaTablaGuiasInter() {
         if(e.target.parentNode.nodeName !== "TR") return;
         
         $(this).toggleClass('selected bg-gray-300');
+        const seleccionadas = guiasSeleccionadas();
+        const cant = seleccionadas.length;
         
-        mostrador_guias_seleccionadas.val(guiasSeleccionadas());
+        mostrador_guias_seleccionadas.val(seleccionadas);
+        $("#counter-selector-guias-inter").text(cant ? "("+cant+")" : "");
     } );
 
     btn_crear_manifiesto.click(() => {
@@ -2785,8 +2812,36 @@ function incializarTablaTablaGuiasInter() {
         });
         return guias;
     }
-    console.log(tabla);
 
+}
+
+function funcionalidadesTablaHistorialGuiasInter() {
+    const api = this.api();
+    this.parent().parent().before(`
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="select-all-guias-inter">
+            <label class="form-check-label" for="select-all-guias-inter">Seleccionar Todas las visibles <span id="counter-selector-guias-inter"></span></label>
+        </div>
+    `);
+
+    $("#select-all-guias-inter").change((e) => {
+        if(e.target.checked) {
+            let counter = 0;
+            const limit = 50;
+            const row = $("tr:gt(0)", this).each((i,row) => {
+                const data = api.row(row).data();
+                if(counter < limit) {
+                    $(row).addClass("selected bg-gray-300");
+                    counter ++;
+                }
+            })
+        } else {
+            $("tr:gt(0)", this).removeClass("selected bg-gray-300");
+        }
+
+        const cant = $("tr.selected", this).length;
+        $("#counter-selector-guias-inter").text(cant ? "("+cant+")" : "");
+    });
 }
 
 function imprimirManifiestoInter(numeroGuias) {
