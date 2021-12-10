@@ -1507,7 +1507,7 @@ function actualizarHistorialDeDocumentos(timeline){
             });
 
             document.getElementById("boton-generar-rotulo" + doc.id).addEventListener("click", function() {
-                generarRotulo(this.parentNode.getAttribute("data-guias").split(","))
+                generarRotulo(this.parentNode.parentNode.getAttribute("data-guias").split(","))
             })
               
         });

@@ -426,6 +426,7 @@ async function detallesTransportadoras(data) {
     const detallesTransp = $("#nav-contentTransportadoras");
     const result = $("#result_cotizacion");
     const button = $("#boton_cotizar");
+    const factor_conversor = 1000;
     button.addClass("disabled");
     result.after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
 
@@ -472,7 +473,6 @@ async function detallesTransportadoras(data) {
         }
 
         cotizacion.debe = data.debe;
-        transportadora.cotizacion = cotizacion;
         
         if(!cotizacion.flete || cotizacion.empty) continue;
         
@@ -482,6 +482,16 @@ async function detallesTransportadoras(data) {
             console.log("tiene un descuento de: " + percent +"%");
             descuento = percent + " %"
         }
+
+        let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
+        let fleteConvertido = cotizacion.flete
+        if(transp !== "SERVIENTREGA") {
+            sobreFleteHekaEdit -= factor_conversor;
+            fleteConvertido += factor_conversor;
+        }
+
+        transportadora.cotizacion = cotizacion;
+
 
         const encabezado = `<li class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
         id="list-transportadora-${transp}-list" 
@@ -519,7 +529,7 @@ async function detallesTransportadoras(data) {
                     <div class="card my-3 shadow-sm">
                         <div class="card-body">
                             <h5 class="card-title">Costo Transportadora</h5>
-                            <p class="card-text d-flex justify-content-between">Valor flete <b>$${convertirMiles(cotizacion.flete)}</b></p>
+                            <p class="card-text d-flex justify-content-between">Valor flete <b>$${convertirMiles(fleteConvertido)}</b></p>
                             <p class="card-text d-flex justify-content-between">Comisión transportadora <b>$${convertirMiles(cotizacion.sobreflete)}</b></p>
                             <p class="card-text d-flex justify-content-between">Seguro mercancía <b>$${convertirMiles(cotizacion.seguroMercancia)}</b></p>
                         </div>
@@ -527,7 +537,7 @@ async function detallesTransportadoras(data) {
                     <div class="card my-3 shadow-sm">
                         <div class="card-body">
                             <h5 class="card-title">Costo Heka entrega</h5>
-                            <p class="card-text d-flex justify-content-between">Comisión heka <b>$${convertirMiles(cotizacion.sobreflete_heka)}</b></p>
+                            <p class="card-text d-flex justify-content-between">Comisión heka <b>$${convertirMiles(sobreFleteHekaEdit)}</b></p>
                         </div>
                     </div>
                     <div class="card my-3 shadow-sm border-${transportadora.color}">
@@ -1072,7 +1082,8 @@ class CalcularCostoDeEnvio {
         if(this.aveo) this.intoAveo(this.precio);
         
         this.sobreflete_heka = Math.ceil(valor * ( comision_heka ) / 100) + constante_heka;
-        
+
+        if(this.codTransp !== "SERVIENTREGA") this.sobreflete_heka += 1000;
         const respuesta = this.sobreflete + this.seguroMercancia + this.sobreflete_heka;
         return respuesta;
     }
@@ -1133,7 +1144,7 @@ class CalcularCostoDeEnvio {
                 };
 
                 this.precio = respuestaCotizacion.Precio
-                this.precio.Valor += 1000;
+                // this.precio.Valor += 1000;
                 this.tiempo = respuestaCotizacion.TiempoEntrega;
                 console.log("PRECIO", this.precio);
                 this.intoInter(this.precio)
@@ -1221,7 +1232,7 @@ class CalcularCostoDeEnvio {
 
     intoAveo(cotizacion) {
         this.kg = cotizacion.kilos;
-        this.total_flete = cotizacion.fletetotal + 1000;
+        this.total_flete = cotizacion.fletetotal;
         this.sobreflete = parseInt(cotizacion.valorOtrosRecaudos);
         this.seguroMercancia = cotizacion.costoManejo;
         this.tiempo = cotizacion.diasentrega;
