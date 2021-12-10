@@ -307,7 +307,7 @@ async function internalAuth() {
     return authentication;
 }
 
-// fillGuiasPorCrear();
+fillGuiasPorCrear();
 function fillGuiasPorCrear() {
     referenceListado.orderBy("timeline")
     .onSnapshot(querySnapShot => {
