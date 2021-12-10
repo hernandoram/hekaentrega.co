@@ -483,13 +483,6 @@ function revisarTipoEnvio(guia, from) {
     console.log(detalles);
     if(type === "CONVENCIONAL") {
         recaudo = 0;
-    } else if (type === "PAGO CONTRAENTREGA") {
-        contraentrega = 1;
-        if(from === "crear") {
-            recaudo = recaudo - (detalles.flete + detalles.seguro_mercancia);
-        } else {
-            recaudo = guia.valorRecaudo
-        }
     }
 
     console.log(recaudo);
