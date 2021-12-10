@@ -1133,6 +1133,7 @@ class CalcularCostoDeEnvio {
                 };
 
                 this.precio = respuestaCotizacion.Precio
+                this.precio.Valor += 1000;
                 this.tiempo = respuestaCotizacion.TiempoEntrega;
                 console.log("PRECIO", this.precio);
                 this.intoInter(this.precio)
@@ -1192,7 +1193,7 @@ class CalcularCostoDeEnvio {
         this.sobreflete_min = 0;
         this.fletePrev = precio.Valor + precio.Valor * 0.17
         this.descuento = true;
-        this.flete = precio.Valor;        
+        this.flete = precio.Valor;
     }
 
     async cotizarInter(dane_ciudadR, dane_ciudadD) {
