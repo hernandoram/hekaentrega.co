@@ -1791,12 +1791,18 @@ async function generarGuiaAveonline(datos) {
     if(!idAgente) throw new Error("No se registra el agente.");
     
     datos.idAgente = idAgente;
-    fetch("/aveo/crearGuia", {
+    const res = await fetch("/aveo/crearGuia", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify(datos)
-    });
+    }).then(d => d.json());
 
+    if(res.error) {
+        return {
+            numeroGuia: 0,
+            message: res.message
+        }
+    }
     return {
         numeroGuia: "Generando...",
         id_heka: datos.id_heka,

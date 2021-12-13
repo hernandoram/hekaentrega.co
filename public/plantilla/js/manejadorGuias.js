@@ -90,9 +90,55 @@ async function historialGuias(){
                 if(type === "display" || type === "filter") {
                     const id = datos.id_heka;
                     const generacion_automatizada = transportadoras[datos.transportadora || "SERVIENTREGA"].sistema() === "automatico";
+                    const showCloneAndDelete = datos.enviado ? "d-none" : "";
+                    const showDownloadAndRotulo = !datos.enviado ? "d-none" : "";
+                    const showMovements = datos.numeroGuia && datos.estado ? "" : "d-none";
                     let buttons = `
                     <div data-search="${datos.filter}"
                     class="d-flex justify-content-around flex-wrap">
+                    `;
+
+                    const btnCrearSticker = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+                    data-funcion="activar-desactivar"
+                    id="crear_sticker${id}" title="Crear Sticker de la guía">
+                        <i class="fas fa-stamp"></i>
+                    </button>`
+
+                    const btnMovimientos = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+                    id="ver_movimientos${id}" data-toggle="modal" data-target="#modal-gestionarNovedad"
+                    title="Revisar movimientos">
+                        <i class="fas fa-truck"></i>
+                    </button>`
+
+                    const btnDownloadDocs =  `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+                    id="descargar_documento${id}" title="Descargar Documentos">
+                        <i class="fas fa-file-download"></i>
+                    </button>`;
+
+                    const btnRotulo = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+                    data-funcion="activar-desactivar" data-activate="after"
+                    id="generar_rotulo${id}" title="Generar Rótulo">
+                        <i class="fas fa-ticket-alt"></i>
+                    </button>`
+
+                    const btnClone = `<button class="btn btn-success btn-circle btn-sm mt-2 action ${showCloneAndDelete}" data-id="${id}" 
+                    id="clonar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
+                    title="Clonar Guía">
+                        <i class="fas fa-clone"></i>
+                    </button>`;
+
+                    const btnDelete = `<button class="btn btn-danger btn-circle btn-sm mt-2 action ${showCloneAndDelete}" data-id="${id}" 
+                    id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
+                    title="Eliminar Guía">
+                        <i class="fas fa-trash"></i>
+                    </button>`;
+                    
+                    //Bottón para re crear el sticker de guía.
+                    if(datos.numeroGuia && !datos.has_sticker && generacion_automatizada) {
+                        buttons += btnCrearSticker;
+                    }
+
+                    buttons += `
                         <button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
                         id="ver_detalles${id}" data-toggle="modal" data-target="#modal-detallesGuias"
                         title="Detalles">
@@ -102,48 +148,17 @@ async function historialGuias(){
 
                     //Botón para ver movimientos
                     if (datos.numeroGuia && datos.estado) {
-                        buttons += `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
-                        id="ver_movimientos${id}" data-toggle="modal" data-target="#modal-gestionarNovedad"
-                        title="Revisar movimientos">
-                            <i class="fas fa-truck"></i>
-                        </button>`
-                    }
-
-                    //Bottón para re crear el sticker de guía.
-                    if(datos.numeroGuia && !datos.has_sticker && generacion_automatizada) {
-                        buttons += `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
-                        data-funcion="activar-desactivar"
-                        id="crear_sticker${id}" title="Crear Sticker de la guía">
-                            <i class="fas fa-stamp"></i>
-                        </button>`;
+                        buttons += btnMovimientos;
                     }
 
                     //Botones para descargar documentosy rótulos cuando accede a la condición
                     //botones para clonar y eliminar guía cuando rechaza la condición.
                     if(datos.enviado) {
-                        buttons += `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
-                        id="descargar_documento${id}" title="Descargar Documentos">
-                            <i class="fas fa-file-download"></i>
-                        </button>
-            
-                        <button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
-                        data-funcion="activar-desactivar" data-activate="after"
-                        id="generar_rotulo${id}" title="Generar Rótulo">
-                            <i class="fas fa-ticket-alt"></i>
-                        </button>`;
+                        buttons += btnDownloadDocs + btnRotulo;
                     } else {
-                        buttons += `<button class="btn btn-success btn-circle btn-sm mt-2 action" data-id="${id}" 
-                        id="clonar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}" disabled
-                        title="Clonar Guía">
-                            <i class="fas fa-clone"></i>
-                        </button>
-            
-                        <button class="btn btn-danger btn-circle btn-sm mt-2 action" data-id="${id}" 
-                        id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}" disabled
-                        title="Eliminar Guía">
-                            <i class="fas fa-trash"></i>
-                        </button>`;
                     }
+                    
+                    buttons += btnClone + btnDelete;
 
                     buttons += "<a href='javascript:void(0)' class='action text-trucate'>Ver más</a>"
 
@@ -254,10 +269,12 @@ async function historialGuias(){
 
           if(change.type === "added" || change.type === "modified") {
               if(rowFinded.length) {
-                  table.row("#"+newIdRow).data(data);
+                const row = table.row("#"+newIdRow)
+                row.data(data);
+                activarBotonesDeGuias(id, data, true);
               } else {
-                  redraw = true;
-                  table.row.add(data);
+                redraw = true;
+                table.row.add(data);
               }
           } else if (change.type === "removed"){
               if(rowFinded.length) {
@@ -320,7 +337,10 @@ function funcionalidadesHistorialGuias(settings, json) {
     btnsFilter.removeClass("btn-primary");
     $(".todas").addClass("btn-primary");
 
-    setTimeout(() => filtrarHistorialGuiasPorColumna(api.column(4)), 1000);
+    setTimeout(() => {
+        filtrarHistorialGuiasPorColumna(api.column(4)) 
+        filtrarHistorialGuiasPorColumna(api.column(5))
+    }, 1000);
 }
 
 function seleccionarFilaHistorialGuias(e) {
@@ -348,11 +368,10 @@ function seleccionarFilaHistorialGuias(e) {
             title: "Esta guía ya ha sido enviada"
         })
     }
-
-
 }
 
 function renderizadoDeTablaHistorialGuias(config) {
+    console.count("renderizando tabla");
     const api = this.api();
     const data = this.api().data();
 
@@ -383,7 +402,7 @@ function renderizadoDeTablaHistorialGuias(config) {
 
     api.column(0).nodes().to$().each((i, el) => {
         const buttonsToHide = $(el).children().children("button:gt(1)");
-        const verMas = $(el).children().children("a");
+        const verMas = $(el).children().children("a:not(.activated)");
 
         verMas.click(() => {
             if(buttonsToHide.css("display") === "none") {
@@ -393,9 +412,10 @@ function renderizadoDeTablaHistorialGuias(config) {
                 buttonsToHide.hide();
                 verMas.text("Ver más");
             }
-        })
+        });
         buttonsToHide.css("display", "none");
         verMas.text("Ver más");
+        verMas.addClass("activated");
     });
 
 }
@@ -426,18 +446,16 @@ function clasificarHistorialGuias(data) {
 
     let filter;
 
-    if(estGeneradas.some(v => data.estado === v)) {
-        filter = "generada";
+    if (estAnuladas[0] === data.estado) {
+        filter = "anulada";
+    } else if(!data.debe && data.type !== "CONVENCIONAL") {
+        filter = "pagada"
     } else if (data.seguimiento_finalizado) {
         filter = "finalizada";
-    } else if (estAnuladas[0] === data.estado) {
-        filter = "anulada";
+    } else if(estGeneradas.some(v => data.estado === v)) {
+        filter = "generada";
     } else {
         filter = "en proceso";
-    }
-
-    if(!data.debe) {
-        filter = "pagada"
     }
 
     return filter;
@@ -627,7 +645,7 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
             return true;
         } else if (generacion_automatizada && !v.has_sticker) {
             let guias = arr.filter(t => {
-                return t.has_sticker !== "true";
+                return !t.has_sticker;
             }).map(v => v.id_heka);
             
             const cantidad = guias.length;

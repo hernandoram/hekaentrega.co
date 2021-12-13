@@ -589,7 +589,8 @@ function cargarPagos(){
 $("#btn-revisar_pagos").click(async(e) => {
   console.log(e.target);
   document.querySelector("#cargador-pagos").classList.remove("d-none");
-  let fechaI, fechaF, buscador="REMITENTE", busqueda = "", guia, tipo = "!="
+  let fechaI = 0, fechaF = new Date().getTime(), 
+  buscador="REMITENTE", busqueda = "", guia, tipo = "!="
   
   if(!administracion){
     tipo = "=="
@@ -628,7 +629,10 @@ $("#btn-revisar_pagos").click(async(e) => {
   let response = []
   let consulta = 0
   for await(let busqueda_trans of transportadoras) {
-    await firebase.firestore().collection("pagos").doc(busqueda_trans).collection("pagos").where(buscador, tipo, busqueda).get()
+    await firebase.firestore().collection("pagos").doc(busqueda_trans)
+    .collection("pagos")
+    .where(buscador, tipo, busqueda)
+    .get()
     .then((querySnapshot) => {
       consulta += querySnapshot.size;
       querySnapshot.forEach((doc) => {
@@ -689,7 +693,8 @@ function totalizador(guia, remitente) {
 
 //Muestra la situación de los pagos a consultar, recibe un arreglo de datos y los organiza por seller automáticamente
 function mostrarPagos(datos) {
-  document.getElementById("visor_pagos").innerHTML = "";
+  const visor_pagos = document.getElementById("visor_pagos");
+  visor_pagos.innerHTML = "";
   let centros_costo = [];
   datos.forEach((D, i) => {
     
@@ -732,6 +737,19 @@ function mostrarPagos(datos) {
       return b;
   }, {REMITENTE: ""});
 
+  
+  const dowloader = document.createElement("button");
+  dowloader.classList.add("btn", "btn-outline-dark", "btn-block", "my-2");
+  dowloader.setAttribute("id", "descargar-pagos")
+  dowloader.innerText = "Descargar visibles";
+  visor_pagos.appendChild(dowloader);
+
+  const toDownload = datos.map(data => {
+    const down = Object.assign({}, data);
+    delete down.momento
+    return down;
+  });
+
   for(let user of centros_costo) {
     let filtrado = datos.filter((d) => d.REMITENTE == user);
     tablaPagos(filtrado, "visor_pagos");
@@ -746,6 +764,10 @@ function mostrarPagos(datos) {
   document.getElementById("visor_pagos").innerHTML += `
     <h2 class="text-right mt-4" id="total_pagos" data-total="0">Total:  $${convertirMiles(0)}</h2>
   `;
+
+  visor_pagos.querySelector("#descargar-pagos").addEventListener("click", () => {
+    crearExcel(toDownload, "Historial de pagos")
+  });
 }
 
 function mostrarPagosUsuario(data) {
@@ -853,6 +875,11 @@ function mostrarPagosUsuario(data) {
       $("#visor-pagos_info").addClass("text-center");
   }
   })
+}
+
+function descargarExcelPagosAdmin(datos) {
+  console.log(datos);
+  console.log("Funciona?")
 }
 
 function cerrarSession() {

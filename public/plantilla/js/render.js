@@ -408,8 +408,7 @@ function activarBotonesDeGuias(id, data, activate_once){
         }
 
       }
-      
-      
+
       if(activate_once) {
         $("#eliminar_guia"+id).on("click", function(e) {
             let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
@@ -697,7 +696,7 @@ function tablaPagos(arrData, id) {
         btn_pagar = document.createElement("button"),
         totalizador = 0;
 
-    card.classList.add("card", "mt-5");
+    card.classList.add("card", "mt-4");
 
     encabezado.setAttribute("class","card-header d-flex justify-content-between");
     encabezado.setAttribute("data-toggle", "collapse");
@@ -834,6 +833,9 @@ function mostrarNotificacion(data, type, id){
                         location.href = "#" + (data.href || "documentos");
                         if(data.href == "deudas") {
                             revisarDeudas();
+                        } else if (data.href === "usuarios") {
+                            if(data.id_user)
+                                seleccionarUsuario(data.id_user);
                         } else {
                             cargarDocumentos(data.guias.slice(0,5));
                         }
@@ -1599,18 +1601,35 @@ function verDetallesGuia() {
     usuarioDoc.collection("guias").doc(id)
     .get().then(doc => {
         let data = doc.data();
-        let html = "<table class='table table-bordered'>"
-        let mostrador = [["id_heka", "numeroGuia", "estado", "type", "fecha", "nombreD", "direccionD", "ciudadD", "departamentoD", "seguro", "valor", "alto", "largo", "ancho", "peso", "dice_contener", "costo_envio", "telefonoD"],
-        ["Identificador Guía", "Número de Guía", "Estado", "Tipo de envío", "Fecha de creación", "Nombre del Destinatario", "Dirección", "Ciudad", "Departamento", "Valor Declarado", "Recaudo", "Alto", "Largo", "Ancho", "Peso", "Contenido", "Costo del envío", "Celular"]]
+        let html = "<div>"
+        let mostrador = [["id_heka", "numeroGuia", "estado", "transportadora", "type", "fecha", "nombreD", "direccionD", "ciudadD", "departamentoD", "seguro", "valor", "alto", "largo", "ancho", "peso", "dice_contener", "costo_envio", "telefonoD", "celularD"],
+        ["Identificador Guía", "Número de Guía", "Estado", "Transportadora", "Tipo de envío", "Fecha de creación", "Nombre del Destinatario", "Dirección", "Ciudad", "Departamento", "Valor Declarado", "Recaudo", "Alto", "Largo", "Ancho", "Peso", "Contenido", "Costo del envío", "Celular", "Celular 2"]]
 
+        let informacionGuia = "<div class='card my-2'>";
+        informacionGuia += "<h3 class='card-header'>Datos de guía</h3><div class='card-body row m-0'>";
+        let informacionDestinatario = "<div class='card my-2'>";
+        informacionDestinatario += "<h3 class='card-header'>Datos del destinatario</h3><div class='card-body row m-0'>";
         mostrador[0].forEach((v, n) => {
-            let info = data[v] || "No registra";
-            html += "<tr><td class='text-left'>" + mostrador[1][n] + "</td> <td><b>" + info + "</b></td></tr>";
-        })
-        html += "</table>";
+            const info = data[v] || "No registra";
+            const titulo = mostrador[1][n];
+            
+            
+            const element = "<p class='col-12 col-sm-6 text-left'>" + titulo + ": <b>" + info + "</b></p>";
+            switch(v[v.length - 1]) {
+                case "D": informacionDestinatario += element;
+                    break;
+                default: informacionGuia += element;
+
+            }
+        });
+        informacionGuia += "</div></div>";
+        informacionDestinatario += "</div></div>";
+        html += informacionDestinatario + informacionGuia;
+        html += "</div>";
         Swal.fire({
             title: "Detalles de Guía",
-            html
+            html,
+            width: "80%"
         });
     })
 }

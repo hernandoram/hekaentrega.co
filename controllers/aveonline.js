@@ -6,8 +6,9 @@ const firebase = require("../keys/firebase");
 const db = firebase.firestore();
 
 const funct = require("../extends/funciones");
+const { doesNotReject } = require("assert");
 const guiasPorCrear = new Array();
-const referenceListado = db.collection("listaGuiasAveo")
+const referenceListado = db.collection("listaGuiasAveo");
 
 exports.auth = async (req, res, next) => {
     const authentication = await rq.post(Cr.endpoint + "/comunes/v1.0/autenticarusuario.php", {
@@ -66,8 +67,11 @@ exports.cotizar = async (req, res) => {
 
 exports.crearGuia = async (req, res) => {
     const guia = req.body;
-    await referenceListado.doc(guia.id_heka).set(guia);
-    res.send("Se guardó tu registro");
+    await referenceListado.doc(guia.id_heka).set(guia).then(() => {
+        res.json({status: "ok", message: "Se guardó tu registro"});
+    }).catch(() => {
+        res.json({status: "error", error: true, message: "hubo un error al guardar la guía, por favor intente nuevamente."});
+    })
 }
 
 exports.generarRelacion = async (req, res) => {
@@ -389,7 +393,7 @@ async function inspectGuiasPorCrear() {
             "enviarcorreos": "1",
             "cartaporte": "",
             "valorMinimo": 0
-          }
+        }
 
         console.log(data);
 

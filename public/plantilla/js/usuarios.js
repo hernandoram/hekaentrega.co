@@ -409,11 +409,6 @@ async function buscarUsuarios(){
         if(doc.exists) {
             seleccionarUsuario(nombreInp);
 
-            let contenedor = document.getElementById("usuario-seleccionado");
-            let mostrador = document.getElementById("mostrador-usuarios");
-            contenedor.setAttribute("data-id", nombreInp);
-            contenedor.classList.remove("d-none");
-            mostrador.classList.add("d-none");
             document.getElementById("cargador-usuarios").classList.add("d-none");
 
 
@@ -423,11 +418,13 @@ async function buscarUsuarios(){
     });
 
     if(especifico) return
+    const mostradorUsuarios = document.getElementById("mostrador-usuarios")
 
     reference.get()
     .then((querySnapshot) => {
         inHTML("mostrador-usuarios", "");
         console.log(querySnapshot.size);
+        const size = querySnapshot.size;
         querySnapshot.forEach((doc) => {
             //Luego de la consulta se realizan tres filtros
 
@@ -445,22 +442,26 @@ async function buscarUsuarios(){
                 if (centro_de_costo.toLowerCase().includes(nombreInp) 
                 || nombre.includes(nombreInp) || apellido.includes(nombreInp)
                 || nombre_completo.includes(nombreInp) || nombre_apellido.includes(nombreInp)){
-                    document.getElementById("mostrador-usuarios").appendChild(toDom(mostrarUsuarios(doc.data(), doc.id)));
+                    mostradorUsuarios.appendChild(toDom(mostrarUsuarios(doc.data(), doc.id)));
                 }
             }
 
             if(dirInp) {
                 if(direccion.toLowerCase().indexOf(dirInp) != -1 ) {
-                    document.getElementById("mostrador-usuarios").appendChild(toDom(mostrarUsuarios(doc.data(), doc.id)));
+                    mostradorUsuarios.appendChild(toDom(mostrarUsuarios(doc.data(), doc.id)));
                 }
             }
 
             if(!dirInp && !nombreInp){
-                document.getElementById("mostrador-usuarios").appendChild(toDom(mostrarUsuarios(doc.data(), doc.id)));
+                mostradorUsuarios.appendChild(toDom(mostrarUsuarios(doc.data(), doc.id)));
             }
             
-            
         })
+        
+        const uniqueChild = mostradorUsuarios.children[0].children[0]
+        if(mostradorUsuarios.children.length === 1) {
+            seleccionarUsuario(uniqueChild.getAttribute("id"));
+        }
     }).then(() => {
         if(document.getElementById("mostrador-usuarios").innerHTML == ""){
             inHTML("mostrador-usuarios", "<div class='card text-danger'><h5 class='m-3'>Lo sentimos, Sin resultados para tu búsqueda</h5></div>")
@@ -474,11 +475,7 @@ async function buscarUsuarios(){
                     let identificador = e.target.parentNode.getAttribute("data-buscador");
                     seleccionarUsuario(identificador);
                     
-                    let contenedor = document.getElementById("usuario-seleccionado");
-                    let mostrador = document.getElementById("mostrador-usuarios");
-                    contenedor.setAttribute("data-id", identificador);
-                    contenedor.classList.remove("d-none");
-                    mostrador.classList.add("d-none");
+                    
                 })
             }
 
@@ -547,6 +544,12 @@ $("#buscador_usuarios-nombre, #buscador_usuarios-direccion").keyup(e => {
 
 // esta funcion me busca el usuario seleccionado con informacion un poco mas detallada
 function seleccionarUsuario(id){
+    let contenedor = document.getElementById("usuario-seleccionado");
+    let mostrador = document.getElementById("mostrador-usuarios");
+    contenedor.setAttribute("data-id", id);
+    contenedor.classList.remove("d-none");
+    mostrador.classList.add("d-none");
+
     let type = ["personal", "bancaria", "heka"], n = 0;
 
     while(n < 3){
