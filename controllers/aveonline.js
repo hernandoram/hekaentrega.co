@@ -313,6 +313,8 @@ async function internalAuth() {
 
 fillGuiasPorCrear();
 function fillGuiasPorCrear() {
+    if(process.env.DEVELOPMENT) return;
+
     referenceListado.orderBy("timeline")
     .onSnapshot(querySnapShot => {
         querySnapShot.docChanges().forEach(change => {
