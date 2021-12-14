@@ -290,7 +290,7 @@ exports.crearGuia = (req, res) => {
         body: JSON.stringify(data)
     }, (error, response, body) => {
         if(error) res.send("Hubo un error => "+error);
-
+        console.log(body);
         res.json(body);
     })
 };

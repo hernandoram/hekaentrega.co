@@ -220,6 +220,10 @@ async function historialGuias(){
               columns: [1,2,3,4,5,6,7,9,10,11,12,13]
             }
         }, {
+            text: "Descargar guías",
+            className: "btn btn-primary",
+            action: descargarGuiasParticulares
+        }, {
             text: "Crear Documentos",
             className: "btn btn-success",
             action: crearDocumentos
@@ -475,6 +479,23 @@ function filtradorEspecialHistorialGuias() {
     api.search(filtrador).draw();
 }
 
+function descargarGuiasParticulares(e, dt, node, config) {
+    const charger = new ChangeElementContenWhileLoading(node)
+    charger.init();
+
+    const api = dt;
+    const selectedRows = api.rows(".selected");
+    const datas = selectedRows.data();
+
+    const ids = new Array();
+    datas.each(r => ids.push(r.id_heka));
+    console.log(ids);
+
+    buscarGuiasParaDescargarStickers(ids).then(() => {
+        charger.end();
+    })
+}
+
 //función utilizada por el usuario para crear lo documentos
 function crearDocumentos(e, dt, node, config) {
     const api = dt;
@@ -483,7 +504,7 @@ function crearDocumentos(e, dt, node, config) {
     const nodos = selectedRows.nodes();
     node.prop("disabled", true);
     
-    let guias = [], id_user = localStorage.user_id, arrGuias = new Array();
+    let id_user = localStorage.user_id, arrGuias = new Array();
     
     if(!nodos.length) {
         node.prop("disabled", false);
@@ -559,7 +580,9 @@ function crearDocumentos(e, dt, node, config) {
         arrGuias.sort((a,b) => {
             return a.numeroGuia > b.numeroGuia ? 1 : -1
         });
-
+        
+        const guias = arrGuias.map(v => v.id_heka).sort();
+        
         /* Si tiene inhabilitado la creción de guías automáticas 
         solo actualizará las guías que pasaron el filtro anterior y enviará una 
         notificación a administración, es caso contrario utilizará el web service */
@@ -1639,28 +1662,8 @@ async function descargarStickerGuias(doc) {
         openPdfFromBase64(base64);
     } else {
         const guias = doc.data().guias;
-        const pdfDoc = await PDFLib.PDFDocument.create();
-
-        for await (let guia of guias) {
-            await firebase.firestore().collection("base64StickerGuias").doc(guia)
-            .collection("guiaSegmentada").orderBy("index").get().then(async querySnapshot => {
-                let base64 = "";
-                console.log(querySnapshot.size);
-                querySnapshot.forEach(doc => {
-                    base64 += doc.data().segmento;
-                });
-                const page = await PDFLib.PDFDocument.load(base64);
-                const cantPages = page.getPages().length;
-
-                for(let i = 0; i < cantPages; i++) {
-                    const [existingPage] = await pdfDoc.copyPages(page, [i])
-                    await pdfDoc.addPage(existingPage);
-                }
-            });
-        };
-
-        const pdfBase64 = await pdfDoc.saveAsBase64();
-        openPdfFromBase64(pdfBase64);
+        
+        const pdfBase64 = await buscarGuiasParaDescargarStickers(guias);
 
         nombre_guias = "Guias " + indexarGuias(guias);
 
@@ -1672,6 +1675,33 @@ async function descargarStickerGuias(doc) {
         }
     }
 };
+
+async function buscarGuiasParaDescargarStickers(guias) {
+    const pdfDoc = await PDFLib.PDFDocument.create();
+
+    for await (let guia of guias) {
+        await firebase.firestore().collection("base64StickerGuias").doc(guia)
+        .collection("guiaSegmentada").orderBy("index").get().then(async querySnapshot => {
+            let base64 = "";
+            console.log(querySnapshot.size);
+            querySnapshot.forEach(doc => {
+                base64 += doc.data().segmento;
+            });
+            const page = await PDFLib.PDFDocument.load(base64);
+            const cantPages = page.getPages().length;
+
+            const [existingPage] = await pdfDoc.copyPages(page, [0])
+            await pdfDoc.addPage(existingPage);
+        }).catch(() => {
+            console.log("la guías numero " + guia + " no fue encontrada");
+        });
+    };
+
+    const pdfBase64 = await pdfDoc.saveAsBase64();
+    openPdfFromBase64(pdfBase64);
+
+    return pdfBase64
+}
 
 function actualizarEstado(){
     document.querySelector("#cargador-actualizador").classList.remove("d-none");

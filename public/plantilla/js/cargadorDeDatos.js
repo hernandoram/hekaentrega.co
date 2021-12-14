@@ -86,6 +86,9 @@ async function cargarDatosUsuario(){
   } else {
     datos_usuario = dataUserInLocal;
   }
+
+  estado_prueba = datos_usuario.centro_de_costo == "SellerNuevo" ? true : false;
+
   
   //Modifica los costos de envio si el usuario tiene costos personalizados
   await consultarInformacioHeka();

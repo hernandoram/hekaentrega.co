@@ -833,7 +833,7 @@ async function actualizarInformacionHeka() {
 
 $("#crear_agente_aveo").click(crearAgenteAveonline)
 async function crearAgenteAveonline() {
-    const emiter = new changeElementContenWhileLoading(this);
+    const emiter = new ChangeElementContenWhileLoading(this);
     emiter.init();
     
     const res = await fetch("/aveo/crearAgente?" + $("#informacion-personal form").serialize()).then(d => d.json());
@@ -856,7 +856,7 @@ async function consultarAgentesAveonline() {
 
 $("#listar_agentes_aveo").click(listarAgentesAveonline);
 async function listarAgentesAveonline(e) {
-    const emiter = new changeElementContenWhileLoading(this);
+    const emiter = new ChangeElementContenWhileLoading(this);
     emiter.init();
     const consulta = await consultarAgentesAveonline();
     const agentes = consulta.agentes;

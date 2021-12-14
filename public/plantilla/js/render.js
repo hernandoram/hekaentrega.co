@@ -331,6 +331,8 @@ function genFecha(direccion, milliseconds){
 function mostrarDocumentosUsuario(id, data){
     return `<div class="col-sm-6 col-lg-4 mb-4">
     <div class="card border-bottom-info shadow h-100 py-2" id="${id}">
+        <h6 class='text-center card-header'>${data.transportadora || "Servientrega"}</h6>
+
         <div class="card-body">
         <h5 class="card-title font-weight-bold text-info text-uppercase mb-2">${data.nombre_usuario}</h5>
         <div class="row no-gutters align-items-center">
@@ -1932,7 +1934,7 @@ class DetectorErroresInput {
     }
 }
 
-class changeElementContenWhileLoading {
+class ChangeElementContenWhileLoading {
     constructor(e) {
         this.el = $(e);
         this.initVal = $(e).html();

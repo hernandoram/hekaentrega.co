@@ -93,8 +93,6 @@ let transportadoras = {
     },
 };
 
-console.log(transportadoras);
-
 function gestionarTransportadora() {
     let html = "";
     for (let transp in transportadoras) {
@@ -1515,7 +1513,7 @@ async function enviar_firestore(datos){
             let referenciaNuevaGuia = firestore.collection("usuarios").doc(localStorage.user_id)
             .collection("guias").doc(id_heka);
             
-            firestore.collection("infoHeka").doc("heka_id").update({id: doc.data().id + 1});
+            firestore.collection("infoHeka").doc("heka_id").update({id: firebase.firestore.FieldValue.increment(1)});
 
             if(transportadoras[datos.transportadora].sistema() === "automatico") {
                 //Para cuando el usuario tenga activa la creación deguías automáticas.
