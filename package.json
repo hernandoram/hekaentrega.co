@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "watch": "nodemon index.js",
-    "start": "cross-env DEVELOPMENT=true nodemon index.js",
+    "watch": "cross-env DEVELOPMENT=true nodemon index.js",
+    "start": "cross-env DEVELOPMENT=true node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
