@@ -158,7 +158,7 @@ async function consultarInformacionPersonalUsuario() {
         document.getElementById('CPNbarrio').value=datos.barrio;
       }
       if(document.getElementById('CPNnombre_empresa')){
-        document.getElementById('CPNnombre_empresa').value=datos.nombre;
+        document.getElementById('CPNnombre_empresa').value=datos.nombre_empresa || datos.nombre;
       }
       if(document.getElementById('CPNcorreo')){
         document.getElementById('CPNcorreo').value=datos.correo;
