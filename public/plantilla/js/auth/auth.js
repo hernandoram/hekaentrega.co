@@ -235,17 +235,17 @@ function habilitarComprobacionesDeInputs() {
 
 const registerStep = new Stepper("#register-form");
 registerStep.init();
-// registerStep.findErrorsBeforeNext = (active) => {
-//     const inputs = active.find("input");
-//     const ids = new Array();
-//     inputs.each((i, input) => ids.push(input.getAttribute("id")));
+registerStep.findErrorsBeforeNext = (active) => {
+    const inputs = active.find("input");
+    const ids = new Array();
+    inputs.each((i, input) => ids.push(input.getAttribute("id")));
 
-//     if(revisarErroresParticularesRegistro()) return true;
+    if(revisarErroresParticularesRegistro()) return true;
 
-//     if(verificador(ids, null, "Este campo es obligatorio.")) {
-//         return true;
-//     };
-// }
+    if(verificador(ids, null, "Este campo es obligatorio.")) {
+        return true;
+    };
+}
 
 function revisarErroresParticularesRegistro() {
     const [comprobador_particular] = comprobacionesRegistro;
