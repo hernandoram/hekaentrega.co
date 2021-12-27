@@ -152,8 +152,9 @@ function pruebacheck(){
  
 
 
-//Para crear nueva cuenta
-function nuevaCuenta(){
+// Luego de la implementación del nuevo registro esta quedará OBSOLETA
+// NO FUNCIONAL
+function nuevaCuentaNoFuncional(){
 
     //datos de registro
     let datos_personales = {
@@ -404,13 +405,12 @@ async function buscarUsuarios(){
     const dirInp = value("buscador_usuarios-direccion").toLowerCase();
     const reference = firebase.firestore().collection("usuarios")
 
-    const especifico = nombreInp && await reference.doc(nombreInp).collection("informacion").doc("personal")
+    const especifico = nombreInp && await reference.doc(nombreInp)
     .get().then((doc) => {
         if(doc.exists) {
             seleccionarUsuario(nombreInp);
 
             document.getElementById("cargador-usuarios").classList.add("d-none");
-
 
             return true;
         }
@@ -550,30 +550,33 @@ function seleccionarUsuario(id){
     contenedor.classList.remove("d-none");
     mostrador.classList.add("d-none");
 
-    let type = ["personal", "bancaria", "heka"], n = 0;
+    firebase.firestore().collection("usuarios").doc(id).get()
+    .then((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+            const datos_bancarios = data.datos_bancarios;
+            const datos_personalizados = data.datos_personalizados;
+            mostrarDatosPersonales(doc.data(), "personal");
 
-    while(n < 3){
-        limpiarFormulario("#informacion-" + type[n], "input,select")
-
-        firebase.firestore().collection("usuarios").doc(id).collection("informacion").doc(type[n]).get()
-        .then((doc) => {
-            if (doc.exists) {
-                mostrarDatosPersonales(doc.data(), doc.id);
-            } else {
-                // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
-                //Hasta que todos los usuario futuramente tengan el doc "heka"
-                // $("#habilitar_servientrega").prop("checked", true);
-                console.log("No such document!");
-            }
-        }).catch((error) => {
-            console.log("Error getting document:", error);
-        });
-        n++;
-    }
+            mostrarDatosPersonales(datos_bancarios, "bancaria");
+            mostrarDatosPersonales(datos_personalizados, "heka");
+        } else {
+            // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
+            //Hasta que todos los usuario futuramente tengan el doc "heka"
+            // $("#habilitar_servientrega").prop("checked", true);
+            console.log("No such document!");
+        }
+    }).catch((error) => {
+        console.log("Error getting document:", error);
+    });
 }
 
 // esta funcion solo llena los datos solicitados en los inputs
 function mostrarDatosPersonales(data, info) {
+    limpiarFormulario("#informacion-" + info, "input,select");
+    console.log(data);
+
+    if(!data) return;
 
     $("#aumentar_saldo").val("");
     asignarValores(data, "#usuario-seleccionado");
@@ -670,17 +673,8 @@ function actualizarInformacionPersonal() {
     };
     let id_usuario = document.getElementById("usuario-seleccionado").getAttribute("data-id");
 
-    firebase.firestore().collection("usuarios").doc(id_usuario).collection("informacion").doc("personal").set(datos)
+    firebase.firestore().collection("usuarios").doc(id_usuario).update(datos)
     .then(() => {
-        firebase.firestore().collection("usuarios").doc(id_usuario).update({
-            apellidos: datos.apellidos,
-            contacto: datos.celular,
-            direccion: datos.direccion + " " + datos.barrio + " " + datos.ciudad,
-            nombres: datos.nombres,
-            objetos_envio: datos.objetos_envio,
-            centro_de_costo: datos.centro_de_costo
-        })
-    }).then(() => {
         avisar("Actualización de Datos exitosa", 
         "Se han registrado cambios en información personal para: " + datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0]);
     })
@@ -699,7 +693,7 @@ function actualizarInformacionBancaria() {
   
     let id_usuario = document.getElementById("usuario-seleccionado").getAttribute("data-id");
 
-    firebase.firestore().collection("usuarios").doc(id_usuario).collection("informacion").doc("bancaria").set(datos)
+    firebase.firestore().collection("usuarios").doc(id_usuario).update({datos_bancarios: datos})
     .then(() => {
         avisar("Actualización de Datos exitosa", 
         "Se han registrado cambios en información Bancaria para id: " + value("actualizar_numero_documento"));
@@ -756,8 +750,7 @@ async function actualizarInformacionHeka() {
     let momento = new Date().getTime();
     let id_usuario = document.getElementById("usuario-seleccionado").getAttribute("data-id");
     
-    let reference = firebase.firestore().collection("usuarios").doc(id_usuario)
-    .collection("informacion").doc("heka");
+    let reference = firebase.firestore().collection("usuarios").doc(id_usuario);
 
     let mensaje = "";
 
@@ -776,9 +769,10 @@ async function actualizarInformacionHeka() {
             user_id: id_usuario,
             medio: "Administrador: " + localStorage.user_id
         }
-        if(doc.exists) {
+        if(doc.exists && doc.data().datos_personalizados) {
+            const datos = doc.data().datos_personalizados;
             exists = true;
-            let s = parseInt(doc.data().saldo || 0);
+            let s = parseInt(datos.saldo || 0);
             const afirmar_saldo_anterior = detalles.saldo_anterior;
             detalles.saldo_anterior = s;
             detalles.saldo = s + detalles.diferencia;
@@ -804,7 +798,7 @@ async function actualizarInformacionHeka() {
     };
     // return console.log(datos, saldo)
 
-    reference.set(datos).then(() => {
+    reference.update({datos_personalizados: datos}).then(() => {
         if(saldo.saldo_anterior === saldo.saldo) return;
         firebase.firestore().collection("prueba").add(saldo)
         .then((docRef1)=> {
@@ -948,12 +942,12 @@ async function verMovimientos(usuario, fechaI, fechaF){
                 + " Y debió haber sido de: $" + convertirMiles(saldo_momento_legal))
                 tablaMovimientos(data2);
                 firebase.firestore().collection('usuarios').doc(usuario)
-                .collection("informacion").doc("heka")
                 .get().then((doc) => {
-                    if(doc.exists){
-                        lista_detalles.push("El saldo Actual del cliente es: $" + convertirMiles(doc.data().saldo)
+                    if(doc.exists && doc.data().datos_personalizados){
+                        const datos = doc.data().datos_personalizados
+                        lista_detalles.push("El saldo Actual del cliente es: $" + convertirMiles(datos.saldo)
                         + " Y debería ser de: $" + convertirMiles(saldo_legal));
-                        console.log("Saldos coinciden? => ", parseInt(doc.data().saldo) == saldo_legal);
+                        console.log("Saldos coinciden? => ", parseInt(datos.saldo) == saldo_legal);
                     }
                 }).then(() => {
                     for(let d of lista_detalles) {

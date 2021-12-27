@@ -4,11 +4,10 @@ if(localStorage.getItem("acceso_admin")){
   window.onload = () => revisarNotificaciones();
 } else if(localStorage.user_id){
   window.onload = () => {
+    usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
     cargarDatosUsuario().then(() => {
       revisarNotificaciones();
     });
-    usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
-    $("[href='#perfil']").one("click", () => consultarInformacionBancariaUsuario());
   }
 } else {
   alert("La sesión ha expirado, por favor inicia sesión nuevamente");
@@ -56,47 +55,79 @@ async function cargarDatosUsuario(){
     proceso += Math.min(Math.round(Math.random() * 40), 95);
     return proceso + "%";
   };
+
+  const buttonMostrarFormDatosBancarios = $("#mostrar-registro-datos-bancarios");
+  buttonMostrarFormDatosBancarios.click(activarFormularioCrearDatosBancarios);
+
+  datos_usuario = await consultarDatosDeUsuario()
   
   const showPercentage = $("#porcentaje-cargador-inicial");
-  const dataUserInLocal = JSON.parse(localStorage.getItem("datos_usuario"));
-  const otherdataUser = JSON.parse(localStorage.getItem("datos_personalizados"));
 
-  console.log(dataUserInLocal);
   
-  if(otherdataUser) Object.assign(datos_personalizados, otherdataUser);
 
   //Carga la informacion personal en un objeto y se llena el html de los datos del usuario
-  if(!dataUserInLocal) {
-    console.log("ingresó");
-    const newData = await consultarInformacionPersonalUsuario();
-    console.log("New data", newData);
-    Object.assign(datos_usuario, newData);
-  } else {
-    consultarInformacionPersonalUsuario();
-  }
+  
   showPercentage.text(percentage());
   
   //SE cargan datos como el centro de costo
-  if(!dataUserInLocal) await consultarDatosBasicosUsuario();
   showPercentage.text(percentage());
 
-  console.log(datos_usuario);
-  if(!dataUserInLocal) {
-    localStorage.setItem("datos_usuario", JSON.stringify(datos_usuario));
-  } else {
-    datos_usuario = dataUserInLocal;
-  }
 
   estado_prueba = datos_usuario.centro_de_costo == "SellerNuevo" ? true : false;
 
   
   //Modifica los costos de envio si el usuario tiene costos personalizados
-  await consultarInformacioHeka();
   showPercentage.text(percentage());
 
   contentCharger.hide();
   content.show("fast");
   
+}
+
+async function consultarDatosDeUsuario() {
+  const actualizador = doc => {
+    if(doc.exists) {
+      const datos = doc.data();
+      const datos_bancarios = datos.datos_bancarios;
+      const datos_personalizados = datos.datos_personalizados;
+
+      datos_usuario = {
+        nombre_completo: datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0],
+        direccion: datos.direccion + " " + datos.barrio,
+        celular: datos.celular,
+        correo: datos.correo,
+        numero_documento: datos.numero_documento,
+        centro_de_costo: datos.centro_de_costo,
+        objetos_envio: datos.objetos_envio,
+        tipo_documento: datos.tipo_documento
+      }
+
+      datos.nombre_completo = datos_usuario.nombre_completo;
+      mostrarDatosUsuario(datos);
+      mostrarDatosPersonalizados(datos_personalizados);
+      mostrarDatosBancarios(datos_bancarios);
+
+      estado_prueba = datos.centro_de_costo == "SellerNuevo" ? true : false;
+      return datos_usuario;
+    }
+  }
+
+  usuarioDoc.onSnapshot(actualizador);
+  return await usuarioDoc.get().then(actualizador);
+}
+
+function mostrarDatosUsuario(datos) {
+  const mostradores = [".mostrar-nombre_completo", ".mostrar-nombre_empresa", ".mostrar-numero_documento", ".mostrar-tipo_documento"];
+  mostradores.forEach(mostrador => {
+    const campo = mostrador.replace(".mostrar-", "");
+    $(mostrador).text(datos[campo]);
+  });
+
+  const formularioUser = $("#form-datos-usuario");
+  $("[name]", formularioUser).each((i,el) => {
+    const campo = el.getAttribute("name");
+    $(el).val(datos[campo]);
+  })
 }
 
 async function consultarDatosBasicosUsuario() {
@@ -111,112 +142,90 @@ async function consultarDatosBasicosUsuario() {
 
 }
 
-async function consultarInformacionPersonalUsuario() {
-  const informacion = firebase.firestore().collection('usuarios').doc(user_id).collection("informacion");
-
-  const data = await informacion.doc("personal").get().then((doc) => {
-    if(doc.exists){
-      let datos = doc.data();
-      const dataUser = {
-        nombre_completo: datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0],
-        direccion: datos.direccion + " " + datos.barrio,
-        celular: datos.celular,
-        correo: datos.correo,
-        numero_documento: datos.numero_documento
-      }
-
-      // A partir de aqui, verificara que los elementos existan para mostrar datos
-      if(document.getElementById('usuario')){
-      document.getElementById('usuario').innerText = datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0];                
-      }       
-      if(document.getElementById('CPNnombres')){
-        document.getElementById('CPNnombres').value=datos.nombres;
-        document.getElementById('usuario').innerText = datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0];
-      }
-      if(document.getElementById('CPNapellidos')){
-        document.getElementById('CPNapellidos').value=datos.apellidos;
-      }
-      if(document.getElementById('CPNtipo_documento')){
-        document.getElementById('CPNtipo_documento').value=datos.tipo_documento;
-      }
-      if(document.getElementById('CPNnumero_documento')){
-        document.getElementById('CPNnumero_documento').value=datos.numero_documento;
-      }
-      if(document.getElementById('CPNtelefono')){
-        document.getElementById('CPNtelefono').value=datos.celular;
-      }
-      if(document.getElementById('CPNcelular')){
-        document.getElementById('CPNcelular').value=datos.celular2;
-      }
-      if(document.getElementById('CPNciudad')){
-        document.getElementById('CPNciudad').value=datos.ciudad;
-      }
-      if(document.getElementById('CPNdireccion')){
-        document.getElementById('CPNdireccion').value=datos.direccion;
-      }
-      if(document.getElementById('CPNbarrio')){
-        document.getElementById('CPNbarrio').value=datos.barrio;
-      }
-      if(document.getElementById('CPNnombre_empresa')){
-        document.getElementById('CPNnombre_empresa').value=datos.nombre_empresa || datos.nombre;
-      }
-      if(document.getElementById('CPNcorreo')){
-        document.getElementById('CPNcorreo').value=datos.correo;
-      }
-
-      if(document.getElementById('CPNobjetos_envio')){
-        document.getElementById('CPNobjetos_envio').value=datos.objetos_envio.join(", ");
-      }
-
-      ///desactivar texto "cargando datos"
-      if(document.getElementById('texto-cargar-datos')){
-        document.getElementById('texto-cargar-datos').innerHTML=``;
-      }
-      ////activar panel de datos de usuario
-      if(document.getElementById('contenedor-datos-actualizar')){
-        document.getElementById('contenedor-datos-actualizar').style.display='block';
-      }
-
-      return dataUser;
+async function mostrarDatosPersonalizados(datos) {
+  if(!datos) return;
+  for(let precio in datos){
+    const value = datos[precio];
+    if(value === "") continue;
+    if(!/[^\d+.]/.test(value.toString())) {
+      datos_personalizados[precio] = parseFloat(value);
+    } else {
+      datos_personalizados[precio] = value;
     }
-      
-  });
-  
-  if(location.hash === "#perfil") consultarInformacionBancariaUsuario();
+  }
 
-  return data;
-}
+  console.log(datos_personalizados);
+  // const importants = ["id_agente_aveo", "codigo_sucursal_inter"];
+  // const importantData = new Object();
+  // importants.forEach(val => importantData[val] = datos_personalizados[val]);
+  // localStorage.setItem("datos_personalizados", JSON.stringify(importantData));
 
-async function consultarInformacioHeka() {
-  const informacion = firebase.firestore().collection('usuarios').doc(user_id).collection("informacion");
-  const updateData = (doc) => {
-    if(doc.exists) {
-      for(let precio in doc.data()){
-        const value = doc.data()[precio];
-        if(value === "") continue;
-        if(!/[^\d+.]/.test(value.toString())) {
-          datos_personalizados[precio] = parseFloat(value);
-        } else {
-          datos_personalizados[precio] = value;
-        }
-      }
-  
-      console.log(datos_personalizados);
-      const importants = ["id_agente_aveo", "codigo_sucursal_inter"];
-      const importantData = new Object();
-      importants.forEach(val => importantData[val] = datos_personalizados[val]);
-      localStorage.setItem("datos_personalizados", JSON.stringify(importantData));
-  
-      $("#saldo").html("$" + convertirMiles(datos_personalizados.saldo));
-    }
-  };
-
-  informacion.doc("heka").onSnapshot(updateData)
+  $(".mostrar-saldo").html("$" + convertirMiles(datos_personalizados.saldo));
 
   //Si la traida de datos en tiempo real me falla,
   //voy a descomentar, para traerlo también a la primera carga
   // await informacion.doc("heka").get(updateData);
 }
+
+function mostrarDatosBancarios(datos) {
+  const visorDatos = $("#visor-datos-bancarios");
+  const sinDatos = $("#sin-datos-bancarios");
+  const formDatosBancarios = $("#form-datos-bancarios");
+  const buttonAgregarDatosBancarios = document.createElement("button");
+  buttonAgregarDatosBancarios.setAttribute("class", "btn btn-block btn-primary");
+  buttonAgregarDatosBancarios.setAttribute("type", "submit");
+  buttonAgregarDatosBancarios.textContent = "Agregar datos bancarios";
+    
+  
+
+  if(!datos) {
+    visorDatos.addClass("d-none");
+    sinDatos.removeClass("d-none");
+    if(!formDatosBancarios.find("[type='submit']").length) {
+      formDatosBancarios.append(buttonAgregarDatosBancarios);
+      buttonAgregarDatosBancarios.onclick = (e) => {
+        e.preventDefault();
+        agregarDatosBancarios(new FormData(formDatosBancarios[0]));
+      }
+    }
+
+    return;
+  } else {
+    formDatosBancarios.remove();
+    visorDatos.removeClass("d-none");
+    sinDatos.addClass("d-none");
+  }
+
+  const mostradores = [".mostrar-banco", ".mostrar-tipo_de_cuenta", ".mostrar-numero_cuenta", ".mostrar-nombre_banco", ".mostrar-tipo_documento_banco", ".mostrar-numero_iden_banco"];
+  mostradores.forEach(mostrador => {
+    const campo = mostrador.replace(".mostrar-", "");
+    $(mostrador).text(datos[campo]);
+  });
+}
+
+function activarFormularioCrearDatosBancarios() {
+  $("#form-datos-bancarios").show("fast");
+}
+
+function agregarDatosBancarios(informacion) {
+  const datos_bancarios = new Object();
+
+  for(let data of informacion) {
+    datos_bancarios[data[0]] = data[1].trim();
+  }
+
+  datos_bancarios.fecha_agregado = new Date();
+
+  console.log(datos_bancarios);
+  usuarioDoc.update({datos_bancarios}).then(() => {
+    Toast.fire({
+      icon: "success",
+      title: "Datos bancarios agregados correctamente."
+    })
+  });
+}
+
+
 
 /* Función que me carga los datos bancarios del usuario en el perfil.
 la idea es que se cargue automáticamente cuando esté viendo en su perfil,
@@ -497,33 +506,29 @@ function cargarPagos(){
           firebase.firestore().collection("usuarios").where("centro_de_costo", "==", remitente)
           .get().then(querySnapshot => {
             querySnapshot.forEach(doc => {
+              const docBank = doc.data().datos_bancarios;
               if(doc.data().usuario_corporativo){  
                 tipo_usuario.textContent = "Usuario Corporativo";
               } else {
                 tipo_usuario.textContent = "Usuario no Corporativo";
               }
 
-              doc.ref.collection("informacion").doc("bancaria")
-              .get().then(docBank => {
-                if(docBank.exists) {
-                  docBank = docBank.data()
-                  bank_info.innerHTML = `<div class="dropdown">
-                    <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdown-${doc.data().centro_de_costo}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                      Información Bancaria
-                    </button>
-                    <div class="dropdown-menu" aria-labelledby="dropdown-${doc.data().centro_de_costo}">
-                      <h6 class="dropdown-item">${docBank.banco}</h6>
-                      <h6 class="dropdown-item">Representante: ${docBank.nombre_banco}</h6>
-                      <h6 class="dropdown-item">${docBank.tipo_de_cuenta}: ${docBank.numero_cuenta}</h6>
-                        <h6 class="dropdown-item">${docBank.tipo_documento_banco} - ${docBank.numero_iden_banco}</h6>
-                  </div>`;
-                  console.log(doc.data());
-                }
-              })
+              if(docBank) {
+                bank_info.innerHTML = `<div class="dropdown">
+                  <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdown-${doc.data().centro_de_costo}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Información Bancaria
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdown-${doc.data().centro_de_costo}">
+                    <h6 class="dropdown-item">${docBank.banco}</h6>
+                    <h6 class="dropdown-item">Representante: ${docBank.nombre_banco}</h6>
+                    <h6 class="dropdown-item">${docBank.tipo_de_cuenta}: ${docBank.numero_cuenta}</h6>
+                      <h6 class="dropdown-item">${docBank.tipo_documento_banco} - ${docBank.numero_iden_banco}</h6>
+                </div>`;
+                usuario.insertBefore(bank_info, usuario.firstChild);
+                usuario.parentNode.insertBefore(tipo_usuario, usuario);
+              }
             })
           })
-          usuario.insertBefore(bank_info, usuario.firstChild);
-          usuario.parentNode.insertBefore(tipo_usuario, usuario);
         })
 
         

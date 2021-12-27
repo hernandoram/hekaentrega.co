@@ -425,16 +425,17 @@ function activarBotonesDeGuias(id, data, activate_once){
                     avisar("Guia Eliminada", "La guia Número " + id + " Ha sido eliminada", "alerta");
                     // row.remove();
                 }).then(() => {
-                    firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("informacion")
-                    .doc("heka").get().then((doc) => {
-                        if(doc.exists){
+                    firebase.firestore().collection("usuarios").doc(localStorage.user_id)
+                    .get().then((doc) => {
+                        if(doc.exists && doc.data().datos_personalizados){
+                            const datos = doc.data().datos_personalizados;
                             let momento = new Date().getTime();
-                            let saldo = parseInt(doc.data().saldo);
+                            let saldo = parseInt(datos.saldo);
                             
                             let saldo_detallado = {
                                 saldo: saldo + parseInt(this.getAttribute("data-costo_envio")),
                                 saldo_anterior: saldo,
-                                actv_credit: doc.data().actv_credit || false,
+                                actv_credit: datos.actv_credit || false,
                                 fecha: genFecha(),
                                 momento: momento,
                                 diferencia: 0,
@@ -1573,8 +1574,8 @@ async function actualizarSaldo(data) {
     }
 
     return await firebase.firestore().collection("usuarios").doc(data.user_id)
-    .collection("informacion").doc("heka").update({
-        saldo: data.saldo
+    .update({
+        "datos_personalizados.saldo": data.saldo
     }).then(() => {
         firebase.firestore().collection("prueba").add(data)
         .then((docRef1)=> {

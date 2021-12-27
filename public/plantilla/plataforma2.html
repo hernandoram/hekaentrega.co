@@ -164,7 +164,7 @@
         <div class="row">
           <div  class="text-center bg-dark text-white col-sm">Area logística <a class="text-white" href="mailto:hekaentregaco@gmail.com">hekaentregaco@gmail.com</a></div>
           <div  class="text-center bg-dark text-white col-sm">Area comercial +57 <a class="text-white" href="https://wa.link/jwryoa">312 463 8608</a></div>
-          <div class="text-center text-white bg-info col-sm">Saldo: <span class="text-white" id="saldo"></span></div>
+          <div class="text-center text-white bg-info col-sm">Saldo: <span class="text-white mostrar-saldo" id="saldo" class="mostrar-saldo"></span></div>
         </div>
         <!-- Topbar -->
         <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
@@ -206,7 +206,7 @@
               <li class="nav-item dropdown no-arrow">
                 <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
                   aria-haspopup="true" aria-expanded="false">
-                  <span id="usuario" class="mr-2 d-lg-inline text-gray-600 small" ></span>
+                  <span id="usuario" class="mr-2 d-lg-inline text-gray-600 small mostrar-nombre_completo" ></span>
                   <img class="img-profile rounded-circle" src="img/unnamed.png">
                 </a>
                 
@@ -216,9 +216,13 @@
                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                     Perfil de usuario
                   </a>
+                  <a class="dropdown-item" href="#datos_bancarios">
+                    <i class="fas fa-money-check-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                    Datos bancarios
+                  </a>
                  
                   <a class="dropdown-item " href="#" data-toggle="modal" data-target="#cerrarSesionModal">
-                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                    <i class="fas fa-power-off fa-sm fa-fw mr-2 text-gray-400"></i>
                     Salir
                   </a>
                 </div>
@@ -508,207 +512,180 @@
             </div>
           </div>
 
-          <div class="container-fluid p-5" id="perfil" style="display: none;">
-            <div class="card p-5"> 
-              <div class="text-center" >
-                <img src="img/heka entrega.png" alt="logo-heka" width="200px">
-                <h1 id="texto-cargar-datos" class="h4 text-gray-900 mb-4">Cargando datos....</h1>
-                <div class="text-center text-danger" style="display: none;">
-                  <a class="small text-secondary" >PERSONA NATURAL |</a>
-                  <a class="small text-danger" href="javascript:mostrarEmpresa()"> EMPRESA</a>
-                  <script>
-                    function mostrarEmpresa(){
-                      document.getElementById('persona-natural').style.display="none";
-                      document.getElementById('empresa').style.display="block";
-                    }
-                  </script>
+          <div class="container-fluid" id="perfil" style="display: none;">
+            <div class="d-flex">
+              <div class="text-center card shadow-sm m-auto">
+                <div class="card-body">
+                  <img src="img/heka entrega.png" alt="logo-heka" width="100px">
+                  <h4 id="texto-cargar-datos" class="text-gray-900">Información de perfil</h4>
+                  <h5 class="mostrar-nombre_completo"></h5>
+                  <h5><b class="mostrar-tipo_documento"></b>: <span class="mostrar-numero_documento"></span></h5>
+                  <h5 class="nombre-empresa"></h5>
+                  <h5><b>Saldo: </b> <span class="mostrar-saldo"></span></h5>
                 </div>
-              </br>
               </div>
-              <div id="contenedor-datos-actualizar" style="display: none;">
-                <h1 class="h4 text-gray-900 mb-4">Datos de usuario</h1>
-              <form  class="user">
+            </div>
+            
+            <hr>
+            <form  class="user" id="form-datos-usuario">
+              <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                  <h6>Nombres*</h6>
+                  <input type="text" name="nombres" class="form-control form-control-user" id="CPNnombres"  required>
+                </div>
+                <div class="col-sm-6">
+                  <h6>Apellidos*</h6>
+                  <input type="text" name="apellidos" class="form-control form-control-user" id="CPNapellidos"  required>
+                </div>
+              </div>
+
+              <div class="form-group row">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                  <h6>Celular*</h6>
+                  <input type="number" name="celular" class="form-control form-control-user" id="CPNtelefono"  required>
+                </div>
+                <div class="col-sm-6">
+                  <h6>Celular #2</h6>
+                  <input type="number" name="celular2" class="form-control form-control-user" id="CPNcelular">
+                </div>
+                
+              </div>
+
+              <div class="form-group row align-items-end">
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                  <h6>Ciudad*</h6>
+                  <h6>**Digitar ciudad y luego elegir ciudad del menú desplegable**</h6>
+                  
+                  <!--
+                  <input type="text" list="ciudades" class="form-control form-control-user" id="CPNciudad"  required>
+                  -->
+                  <input name="ciudad"  class="form-control form-control-user" id="CPNciudad" size="1" autocomplete="off"></input>
+                  
+                </div>
+                
+
+                <div class="col-sm-6 mb-3 mb-sm-0">
+                  <h6>Barrio*</h6>
+                  <input type="text" name="barrio" class="form-control form-control-user" id="CPNbarrio"  required>
+                </div> 
+                
+              </div>
+
+              <div class="form-group row">
+                <div class="col-12">
+                  <h6>Dirección de recogida*</h6>
+                  <input type="text" name="direccion" class="form-control form-control-user" id="CPNdireccion"  required>
+                </div>               
+              </div>
+
+              <div class="form-group row">
+                <div class="col">
+                  <h6>Cosas que envía</h6>
+                  <input type="text" name="objetos_envio" class="form-control form-control-user" id="CPNobjetos_envio" placeholder="objeto1,objeto2,etc..."  required>
+                </div>
+              </div> 
+          
+            </form>
+            <div id="error_crear_cuenta"></div>
+            <hr>
+          </div>
+
+          <div class="container-fluid" id="datos_bancarios" style="display: none;">
+              <div class="text-center card shadow-sm m-md-5">
+                <div class="card-body">
+                  <img src="img/heka entrega.png" alt="logo-heka" width="100px">
+                  <h4 id="texto-cargar-datos" class="text-gray-900">Información bancaria</h4>
+                  <h5 class="mostrar-nombre_completo"></h5>
+                  <div class="row mt-2" id="visor-datos-bancarios">
+                    <h6 class="col-12 col-sm-6 text-left"><b>Banco: </b><span class="mostrar-banco"></span></h6>
+                    <h6 class="col-12 col-sm-6 text-left"><b>Tipo de cuenta: </b><span class="mostrar-tipo_de_cuenta"></span></h6>
+                    <h6 class="col-12 col-sm-6 text-left"><b>Nombre representante: </b><span class="mostrar-nombre_banco"></span></h6>
+                    <h6 class="col-12 col-sm-6 text-left"><b>Número de cuenta: </b><span class="mostrar-numero_cuenta"></span></h6>
+                    <h6 class="col-12 col-sm-6 text-left"><b>Tipo de documento: </b><span class="mostrar-tipo_documento_banco"></span></h6>
+                    <h6 class="col-12 col-sm-6 text-left"><b>Número de identificación: </b><span class="mostrar-numero_iden_banco"></span></h6>
+                  </div>
+
+                  <div class="row d-none" id="sin-datos-bancarios">
+                    <p class="text-center col-12"><i class="fa fa-money-check fa-5x"></i></p>
+                    <p class="text-center col-12">Hemos detectado que aún no has registrado una cuenta bancaria, puedes registrar una.</p>
+                    <div class="col-12">
+                      <button class="btn btn-info btn-block" id="mostrar-registro-datos-bancarios">Registrar datos bancarios</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <hr>
+              <form  class="user" id="form-datos-bancarios" style="display: none;">
+  
                 <div class="form-group row">
+                  
                   <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h6>Nombres*</h6>
-                    <input type="text" class="form-control form-control-user" id="CPNnombres"  required>
+                    <h6>Banco*</6>
+                      <select  class="form-control form-control" name="banco" id="CPNbanco">
+                        <option value="Bancolombia(Desembolso: $0)">Bancolombia(Desembolso: $0)</option> 
+                        <option value="Nequi(desembolso: $0)">Nequi(desembolso: $0)</option>
+                        <option value="Banco de bogotá(Desembolso: $7.500)">Banco de bogotá(Desembolso: $7.500)</option>
+                        <option value="Banco popular(Desembolso: $7.500)">Banco popular(Desembolso: $7.500)</option>
+                        <option value="Itaú(Desembolso: $7.500)">Itaú(Desembolso: $7.500)</option>
+                        <option value="Citibank(Desembolso: $7.500)">Citibank(Desembolso: $7.500)</option>
+                        <option value="BBVA(Desembolso: $7.500)">BBVA(Desembolso: $7.500)</option>
+                        <option value="Colpatria(Desembolso: $7.500)">Colpatria(Desembolso: $7.500)</option>
+                        <option value="Banco de occidente(Desembolso: $7.500)">Banco de occidente(Desembolso: $7.500)</option>
+                        <option value="Banco caja social(Desembolso: $7.500)">Banco caja social(Desembolso: $7.500)</option>
+                        <option value="Banco Agrario(Desembolso: $7.500)">Banco Agrario(Desembolso: $7.500)</option>
+                        <option value="Banco davivienda(Desembolso: $7.500)">Banco davivienda(Desembolso: $7.500)</option>
+                        <option value="Banco Av Villas (Desembolso: $7.500)">Banco Av Villas (Desembolso: $7.500)</option>
+                        <option value="Banco Pichincha(Desembolso: $7.500)">Banco Pichincha(Desembolso: $7.500)</option>
+                        <option value="Bancoomeva(Desembolso: $7.500)">Bancoomeva(Desembolso: $7.500)</option>
+                        <option value="Banco Falabella (Desembolso: $7.500)">Banco Falabella (Desembolso: $7.500)</option>
+                        <option value="Daviplata (Desembolso: $7.500)">Daviplata (Desembolso: $7.500)</option>
+                      </select>
                   </div>
                   <div class="col-sm-6">
-                    <h6>Apellidos*</h6>
-                    <input type="text" class="form-control form-control-user" id="CPNapellidos"  required>
+                    <h6>Nombre representante*</h6>
+                    <input type="text" name="nombre_banco" class="form-control form-control-user" id="CPNnombre_representante"  required>
                   </div>
                 </div>
+
                 <div class="form-group row">
+                  <div class="col-sm-6 mb-3 mb-sm-0">
+                    <h6>Tipo de cuenta*</6>
+                    <h6></h6>
+                    
+                    <select  class="form-control form-control" name="tipo_de_cuenta" id="CPNtipo_de_cuenta">
+                      <option value="Ahorros">Ahorros</option> 
+                      <option value="Corriente">Corriente</option>
+                      
+                    </select>
+                  </div>
+
+
+                  <div class="col-sm-6">
+                    <h6>Número de cuenta*</h6>
+                    <input type="number" name="numero_cuenta" class="form-control form-control-user" id="CPNnumero_cuenta"  required>
+                  </div>
+                  
                   <div class="col-sm-6 mb-3 mb-sm-0">
                     <h6>Tipo documento*</6>
                     <h6></h6>
                     
-                    <select  class="form-control form-control" id="CPNtipo_documento">
+                    <select  class="form-control form-control" name="tipo_documento_banco" id="CPNtipo_documento_banco">
                       <option value="CC">CC</option> 
-                      <option value="PASAPORTE">PASAPORTE</option>
-                      <option value="NIT(RUT)">NIT (RUT)</option>
+                      <option value="NIT">NIT</option>
+                      <option value="Cédula extranjería">Cédula extranjería</option>
+                      
                     </select>
                   </div>
                   <div class="col-sm-6">
-                    <h6>Número identificación*</h6>
-                    <input type="number" class="form-control form-control-user" id="CPNnumero_documento"  required>
+                    <h6>número de identificación*</h6>
+                    <input type="number" class="form-control form-control-user" name="numero_iden_banco" id="CPNnumero_identificacion_banco"  required>
                   </div>
-                </div>
-
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h6>Celular*</h6>
-                    <input type="number" class="form-control form-control-user" id="CPNtelefono"  required>
-                  </div>
-                  <div class="col-sm-6">
-                    <h6>Celular #2</h6>
-                    <input type="number" class="form-control form-control-user" id="CPNcelular">
-                  </div>
-                  
-                </div>
-
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h6>Ciudad*</h6>
-                    <h6>**Digitar ciudad y luego elegir ciudad del menú desplegable**</h6>
-                    
-                    <!--
-                    <input type="text" list="ciudades" class="form-control form-control-user" id="CPNciudad"  required>
-                    -->
-                    <input name=""  class="form-control form-control-user" id="CPNciudad" size="1" autocomplete="off"></input>
-                    
-                  </div>
-                  <div class="col-sm-6">
-                    <h6>Dirección de recogida*</h6>
-                  </br>
-                    <input type="text" class="form-control form-control-user" id="CPNdireccion"  required>
-                  </div>
-                  
-                </div>
-
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h6>Barrio*</h6>
-                    <input type="text" class="form-control form-control-user" id="CPNbarrio"  required>
-                  </div>
-                  <div class="col-sm-6">
-                    <h6>Nombre de la empresa*</h6>
-                    <input readonly="readonly" type="text" class="form-control form-control-user" id="CPNnombre_empresa"  required>
-                  </div>
-                  
-                </div>
-
-                <div class="form-group row">
-                  <div class="col-md-6">
-                    <h6>Correo electrónico*</h6>
-                    <input readonly="readonly" type="email"  class="form-control form-control-user" id="CPNcorreo"
-                      aria-describedby="emailHelp"  required>
-                  </div>
-                  <div class="col">
-                    <h6>Cosas que envía</h6>
-                    <input type="text" class="form-control form-control-user" id="CPNobjetos_envio" placeholder="objeto1,objeto2,etc..."  required>
-                  </div>
-                </div>
-              
-                <div class="form-group">
-                </br> 
-                </br>
-                
-                  <!-- <input type="checkbox"  name="" id="checkbox-banco" onchange="pruebacheck()"> Mostrar Datos Bancarios -->
-                  </div>
-
-                <div id="mostrar-ocultar-registro-bancario">
-                  <h6 class="text-danger">DATOS BANCARIOS</h6>
-                </br>
-                  <div class="form-group row">
-                    
-                    <div class="col-sm-6 mb-3 mb-sm-0">
-                      <h6>Banco*</6>
-                        <input type="text" class="form-control form-control-user" id="CPNbanco"  required>
-                    </div>
-                    <div class="col-sm-6">
-                      <h6>Nombre representante*</h6>
-                      <input type="text" class="form-control form-control-user" id="CPNnombre_representante"  required>
-                    </div>
-                  </div>
-
-                  <div class="form-group row">
-                    <div class="col-sm-6 mb-3 mb-sm-0">
-                      <h6>Tipo de cuenta*</6>
-                      <h6></h6>
-                      
-                      <select  class="form-control form-control" id="CPNtipo_de_cuenta">
-                        <option value="Ahorros">Ahorros</option> 
-                        <option value="Corriente">Corriente</option>
-                        
-                      </select>
-                    </div>
-
-
-                    <div class="col-sm-6">
-                      <h6>Número de cuenta*</h6>
-                      <input type="number" class="form-control form-control-user" id="CPNnumero_cuenta"  required>
-                    </div>
-                    
-                  </div>
-
-                  <div class="form-group row">
-                    <div class="col-sm-6">
-                      <h6>Confirmar número de cuenta*</h6>
-                      <input type="number" class="form-control form-control-user" id="CPNconfirmar_numero_cuenta"  required>
-                    </div>
-
-
-                    <div class="col-sm-6 mb-3 mb-sm-0">
-                      <h6>Tipo documento*</6>
-                      <h6></h6>
-                      
-                      <select  class="form-control form-control" id="CPNtipo_documento_banco">
-                        <option value="CC">CC</option> 
-                        <option value="NIT">NIT</option>
-                        <option value="Cédula extranjería">Cédula extranjería</option>
-                        
-                      </select>
-                    </div>
-                    
-                  </div>
-
-                  <div class="form-group row">
-                    <div class="col-sm-6">
-                      <h6>número de identificación*</h6>
-                      <input type="number" class="form-control form-control-user" id="CPNnumero_identificacion_banco"  required>
-                    </div>
-
-
-                    <div class="col-sm-6">
-                      <h6>Confirmar número de identificación*</h6>
-                      <input type="number" class="form-control form-control-user" id="CPNconfirmar_numero_identificacion_banco"  required>
-                    </div>
-                    
-                  </div>
-                  
-                </div>
-
-                <div class="form-group">
-                </br> 
-              </br>
-                
-              <input type="checkbox" id="CPNcheck_terminos_condiciones" onchange="checkTerminosCondiciones()"> <a href="terminos.html">Acepto términos y condiciones</a>
-              <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
-            </div>  
-
+                </div>  
             
-          </form>
-          <!--Desactivado este boton por ahora-->
-          <!-- <button onclick="actualizarCuenta()" class="btn btn-primary btn-user btn-block">
-            Actualizar datos
-          </button> -->
-              </div>
-              
+              </form>
               <hr>
-              <div id="error_crear_cuenta"></div>
-              <hr>
-            </div>
+
           </div>
 
           <div class="container-fluid" id="historial_guias" style="display: none;">

@@ -2294,10 +2294,9 @@ function revisarDeudas() {
             let reference = firebase.firestore().collection("usuarios")
     
             let saldo = await reference.doc(id_user)
-            .collection("informacion").doc("heka")
             .get().then(doc => {
-                if(doc.exists){
-                    return doc.data().saldo
+                if(doc.exists && doc.data().datos_personalizados){
+                    return doc.data().datos_personalizados.saldo
                 }
                 return "saldo no encontrado"
             });
@@ -2333,11 +2332,11 @@ function consolidadorTotales(query, saldo) {
         ["Deuda sumada", "", "dollar-sign"]
     ];
     firebase.firestore().collection("usuarios")
-    .doc(query.replace("#deudas-", "")).collection("informacion")
-    .doc("heka").onSnapshot(doc=> {
-        if(doc.exists) {
-            saldo = doc.data().saldo;
-            mostrador[0][1] = "$" + convertirMiles(doc.data().saldo);   
+    .doc(query.replace("#deudas-", ""))
+    .onSnapshot(doc=> {
+        if(doc.exists && doc.data().datos_personalizados) {
+            saldo = doc.data().datos_personalizados.saldo;
+            mostrador[0][1] = "$" + convertirMiles(saldo);   
         }
     })
     

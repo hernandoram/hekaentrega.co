@@ -69,13 +69,13 @@ function toggleSigninWidthCode(e) {
 
     if(onlyCode) {
         animate().text(alternText)
-        widthCode.show("fast");
         widthPassword.hide();
+        widthCode.show("fast");
         form.prop("action", "signinWidthCode");
     } else {
         animate().text(initialText);
-        widthPassword.show("fast");
         widthCode.hide();
+        widthPassword.show("fast");
         form.prop("action", "signinWidthEmailAndPassword");
     }
 }
@@ -308,6 +308,7 @@ async function registrarNuevoUsuario(formData) {
     
     toSend.centro_de_costo = "Seller" + empresa;
     toSend.cod_empresa = empresa.toLowerCase();
+    toSend.fecha_creacion = new Date();
     
     const {correo, con, nombre_empresa} = toSend;
     const existe_empresa = await verificarExistencia(toSend.cod_empresa);

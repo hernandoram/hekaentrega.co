@@ -1455,8 +1455,8 @@ async function enviar_firestore(datos){
     let id_heka = datos_usuario.numero_documento.slice(-4);
     id_heka = id_heka.replace(/^0/, 1);
     let firestore = firebase.firestore();
-    const datos_heka = await firestore.collection("usuarios").doc(localStorage.user_id)
-    .collection("informacion").doc("heka").get().then(doc => doc.data());
+    const datos_heka = datos_personalizados || await firestore.collection("usuarios").doc(localStorage.user_id)
+    .get().then(doc => doc.data().datos_personalizados);
 
     //Estas líneas será utilizadas para cuando todos los nuevos usuarios por defecto
     //no tengan habilitadas las transportadoras, para que administración se las tenga que habilitar
