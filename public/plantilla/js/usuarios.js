@@ -154,7 +154,7 @@ function pruebacheck(){
 
 // Luego de la implementación del nuevo registro esta quedará OBSOLETA
 // NO FUNCIONAL
-function nuevaCuentaNoFuncional(){
+function nuevaCuenta(){
 
     //datos de registro
     let datos_personales = {
@@ -401,21 +401,33 @@ async function buscarUsuarios(){
     // if(value("buscador_usuarios-id")){
     //     busqueda = ["==", value("buscador_usuarios-id")];
     // }
+    const nombreInpOriginal = value("buscador_usuarios-nombre");
     const nombreInp = value("buscador_usuarios-nombre").toLowerCase();
     const dirInp = value("buscador_usuarios-direccion").toLowerCase();
-    const reference = firebase.firestore().collection("usuarios")
+    const reference = firebase.firestore().collection("usuarios");
+    const casesToSearch = ["centro_de_costo", "numero_documento"];
+    let especifico;
 
-    const especifico = nombreInp && await reference.doc(nombreInp)
-    .get().then((doc) => {
-        if(doc.exists) {
-            seleccionarUsuario(nombreInp);
+    for (let i = 0; i < casesToSearch.length; i++) {
+        especifico = nombreInpOriginal && await reference.where(casesToSearch[i], "==", nombreInpOriginal)
+        .get().then((querySnapshot) => {
+            let bool;
+            if(!querySnapshot.size) return false;
+            querySnapshot.forEach(doc => {
+                if(doc.exists) {
+                    seleccionarUsuario(doc.id);
+        
+                    document.getElementById("cargador-usuarios").classList.add("d-none");
+        
+                    bool = true;
+                }
+            })
+            return bool;
+        });
 
-            document.getElementById("cargador-usuarios").classList.add("d-none");
+        if(especifico) break;
+    }
 
-            return true;
-        }
-        return false;
-    });
 
     if(especifico) return
     const mostradorUsuarios = document.getElementById("mostrador-usuarios")
@@ -433,7 +445,7 @@ async function buscarUsuarios(){
             const nombre_completo = nombre + " " + apellido;
             const nombre_apellido = nombre.split(" ")[0] + " " + apellido.split(" ")[0];
             const centro_de_costo = doc.data().centro_de_costo || "SCC";
-            const direccion = doc.data().direccion || "SD"
+            const direccion = doc.data().direccion_completa || "SD"
             
             const toDom = str => new DOMParser().parseFromString(str, "text/html").body.firstChild;
 
@@ -458,7 +470,7 @@ async function buscarUsuarios(){
             
         })
         
-        const uniqueChild = mostradorUsuarios.children[0].children[0]
+        const uniqueChild = mostradorUsuarios.children[0]
         if(mostradorUsuarios.children.length === 1) {
             seleccionarUsuario(uniqueChild.getAttribute("id"));
         }

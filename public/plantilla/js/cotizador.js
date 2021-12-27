@@ -1714,15 +1714,15 @@ async function generarGuiaInterrapidisimo(datos) {
     let codigo_sucursal = datos_personalizados.codigo_sucursal_inter;
 
     if(!codigo_sucursal) {
-        codigo_sucursal = await usuarioDoc.collection("informacion").doc("heka")
+        codigo_sucursal = await usuarioDoc
         .get().then(d => {
             console.log("ingresó porque no se consiguió código sucursal")
-            if (d.exists) return d.data().codigo_sucursal_inter
+            if (d.exists && d.data().datos_personalizados) return d.data().datos_personalizados.codigo_sucursal_inter
 
             return "SCS"
         });
-
     }
+
     datos.codigo_sucursal = codigo_sucursal
     let respuesta = await fetch("/inter/crearGuia", {
         method: "POST",

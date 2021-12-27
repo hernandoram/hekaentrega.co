@@ -1664,6 +1664,7 @@ async function descargarStickerGuias(doc) {
         const guias = doc.data().guias;
         
         const pdfBase64 = await buscarGuiasParaDescargarStickers(guias);
+        if(!pdfBase64) return;
 
         nombre_guias = "Guias " + indexarGuias(guias);
 
