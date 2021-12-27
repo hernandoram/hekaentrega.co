@@ -56,6 +56,9 @@
 
   <!-- Librería para crear pdfs a partir de html -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Contanido Css del swipper-->
+  <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
 </head>
 
 <body class="bg-gradient-primary">
@@ -1004,7 +1007,163 @@
             </table>
           </div>
 
-          <div class="container-fluid" id="home"></div>
+          <div class="container-fluid" id="home" style="display: none;">
+            <link rel="stylesheet" href="./css/homeVIew/main.css">
+            <div class="row">
+              <div class="col-12 mb-3">
+                <div class="alert alert-success" role="alert">
+                  <h4 class="text-primary">Guías Automáticas</h4>
+                  Desde el día 17 de Noviembre del 2021, las guías automáticas quedarán activas, en caso de que las quieras tener manuales, puedes comunicarte con asesoría logística.
+                </div>
+              </div>              
+            </div>
+
+            <div class="row estadisticas">
+              <div class="col-12 col-md-5">
+                <div class="card m-2">
+                  <div class="card-body row" id="Usuario">
+                    <div class="col-7" >
+                      <h5 class="card-title" >Hola, <span class="mostrar-nombre_completo"></span></h5>
+                    </div>
+                    <div class="col-5 imagen-estadisticas">
+                      <img src="recursos/pagos.png" class="pr-1" alt="">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-7">
+                <div class="card m-2">
+                  <div class="card-body row">
+                    <div class="col-7">
+                      <h5 class="card-title">Total en la billetera</h5>
+                      <p class="card-text mostrar-saldo"></p>
+                    </div>
+                    <div class="col-5 imagen-estadisticas">
+                      <img src="recursos/pagos.png" alt="">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="cuerpo_carousel my-5">
+              <h3 class="text-center mb-3">Video Tutoriales</h3>
+              <div class="swiper mySwiper">
+                <div class="swiper-wrapper">
+                  
+                  <div class="swiper-slide video" id="registroHeka"><div class="mt-2"><img src="img/heka entrega.png" alt=""></div> <h6 class="text-center text-truncate px-1">Registro</h6></div>
+                  <div class="swiper-slide video" id="novedadesEnvios"><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">¿Como saber las novedades de tus envíos?</h6></div>
+                  <div class="swiper-slide video" id="pagosHeka"><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Tiempo de Pago en Heka Entrega</h6></div>
+                  <div class="swiper-slide video" id="empaqueEmbalaje"><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Empaque y embalaje de Mercancía</h6></div>
+                  <div class="swiper-slide video" id="cotizacionGuias"><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Cotización, creación de guías y descarga de documentos</h6></div>
+                  <!-- data relleno -->
+                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div> <h6 class="text-center text-truncate px-1">Relleno</h6></div>
+                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Relleno</h6></div>
+                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Relleno</h6></div>
+                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Relleno</h6></div>
+                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Relleno</h6></div>
+                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div> <h6 class="text-center text-truncate px-1">Relleno</h6></div>
+                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Relleno</h6></div>
+                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Relleno</h6></div>
+                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Relleno</h6></div>
+                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Relleno</h6></div>
+                </div>
+
+                <div class="swiper-pagination"></div>
+              </div>
+            </div>
+
+            <div class="col-12 my-3">
+              <h3 class="text-center">Preguntas Frecuentes</h3>
+              <div class="accordion" id="accordionExample">
+                <div class="card">
+                  <div class="card-header" id="pregunta1">
+                    <h2 class="mb-0">
+                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
+                        Pregunta #1
+                      </a>
+                    </h2>
+                  </div>              
+                  <div id="collapse1" class="collapse" aria-labelledby="pregunta1" data-parent="#accordionExample">
+                    <div class="card-body">
+                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header" id="pregunta2">
+                    <h2 class="mb-0">
+                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse2" aria-expanded="true" aria-controls="collapse2">
+                        Pregunta #2
+                      </a>
+                    </h2>
+                  </div>               
+                  <div id="collapse2" class="collapse" aria-labelledby="pregunta2" data-parent="#accordionExample">
+                    <div class="card-body">
+                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header" id="pregunta#3">
+                    <h2 class="mb-0">
+                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse3" aria-expanded="true" aria-controls="collapse3">
+                        Pregunta #3
+                      </a>
+                    </h2>
+                  </div>           
+                  <div id="collapse3" class="collapse" aria-labelledby="pregunta#3" data-parent="#accordionExample">
+                    <div class="card-body">
+                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header" id="pregunta#4">
+                    <h2 class="mb-0">
+                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse4" aria-expanded="true" aria-controls="collapse4">
+                        Pregunta #4
+                      </a>
+                    </h2>
+                  </div>
+                  <div id="collapse4" class="collapse" aria-labelledby="pregunta#4" data-parent="#accordionExample">
+                    <div class="card-body">
+                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header" id="pregunta5">
+                    <h2 class="mb-0">
+                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse5" aria-expanded="true" aria-controls="collapse5">
+                        Pregunta #5
+                      </a>
+                    </h2>
+                  </div>
+                  <div id="collapse5" class="collapse" aria-labelledby="pregunta5" data-parent="#accordionExample">
+                    <div class="card-body">
+                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header" id="pregunta6">
+                    <h2 class="mb-0">
+                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse6" aria-expanded="true" aria-controls="collapse6">
+                        Pregunta #6
+                      </a>
+                    </h2>
+                  </div>
+                  <div id="collapse6" class="collapse" aria-labelledby="pregunta6" data-parent="#accordionExample">
+                    <div class="card-body">
+                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
         </div>   
         <!-- Footer -->
@@ -1112,34 +1271,6 @@
   </div>
 </div>  
 
-<div class="modal fade" id="modal-notificacion" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h4 class="modal-title" id="titulo-gestionarNovedad">✨✨ <b>Nueva actualización</b> ✨✨</h4>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="container-fluid" id="contenedor-gestionarNovedad">
-          <ul class="list-group list-group-flush">
-
-            <li class="list-group-item">
-              <h4 class="mb-1 text-primary text-capitalize">Guías automáticas</h4>
-              Desde el día 17 de Noviembre del 2021, las guías automáticas quedarán activas, en caso de que las quieras tener manuales, puedes comunicarte con asesoría logística.
-            </li>
-          </ul>
-
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-      </div>
-    </div>
-  </div>
-</div>  
-    
     
     <!-- FIREBASE -->
     <!-- The core Firebase JS SDK is always required and must be listed first -->
@@ -1163,9 +1294,6 @@
     
     <!-- Core plugin JavaScript-->
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-    <script type="text/javascript">
-      $('#modal-notificacion').modal('show')
-    </script>
 
   <script src="./assets/libs/summernote/summernote-bs4.min.js"></script>
   <script src="assets/libs/summernote/lang/summernote-es-ES.min.js"></script>
@@ -1197,8 +1325,6 @@
     <script src="js/manejadorGuias.js"></script>
     <script src="js/gestionarTienda.js" type="module"></script>
 
-    <script src="https://unpkg.com/react@17/umd/react.development.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js" crossorigin></script>
     <script src="js/userPlatform.js" type="module"></script>
 
   </body>

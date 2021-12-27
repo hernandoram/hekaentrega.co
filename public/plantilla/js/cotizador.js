@@ -310,7 +310,7 @@ async function pagoContraentrega() {
                     `¡Recuerde ingresar un valor!`
                 )
             } else if (value("valor-recaudo") < 5000 || value("valor-recaudo") > 2000000) {
-                Swal.showValidationMessage("El valor no puede ser menor a $5.000 ni menor a $2.000.000")
+                Swal.showValidationMessage("El valor no puede ser menor a $5.000 ni mayor a $2.000.000")
             } 
             // else if (cotizacion.seguro < cotizacion.costoEnvio) {
             //     Swal.showValidationMessage("El valor del recaudo no debe ser menor al costo del envío ($" + convertirMiles(cotizacion.costoEnvio) +")");
