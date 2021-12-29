@@ -53,7 +53,6 @@ const CarrucelVideos = () => {
 const datosModal = (video, link, titulo) => { 
   const modal = createModal(); 
   modal[0].querySelector(".modal-dialog").classList.add("modal-xl");
-  console.log(video.querySelector("img"))
   const videoId = link.match(/(\/)([^#&\/]+)(\?)/)[2] || link;
 
 //   video.querySelector("img").setAttribute("src", `http://img.youtube.com/vi/${videoId}/0.jpg`);

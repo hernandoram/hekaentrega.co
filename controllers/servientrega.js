@@ -481,6 +481,7 @@ function generarGuia(datos) {
                 <Num_Precinto>0</Num_Precinto>
                 <Des_TipoDuracionTrayecto>1</Des_TipoDuracionTrayecto>
                 <Des_Telefono>${datos.telefonoD}</Des_Telefono>
+                <Num_Celular>${datos.celularD}</Num_Celular>
                 <Des_Ciudad>${datos.dane_ciudadD}</Des_Ciudad><!--o codigo dane para ciudad destino-->
                 <Des_Direccion>${datos.direccionD}</Des_Direccion>
                 <Nom_Contacto>${datos.nombreD}</Nom_Contacto>
@@ -517,6 +518,7 @@ function generarGuia(datos) {
                 <Num_Factura>0</Num_Factura>
                 <Recoleccion_Esporadica>${datos.recoleccion_esporadica}</Recoleccion_Esporadica>
                 <Des_CorreoElectronico>${datos.correoD}</Des_CorreoElectronico>
+                <correo_remitente>${datos.correoR}</correo_remitente>
                 <Num_Recaudo>${datos.prueba ? "0" : datos.valor}</Num_Recaudo>
               </EnviosExterno>
             </objEnvios>
