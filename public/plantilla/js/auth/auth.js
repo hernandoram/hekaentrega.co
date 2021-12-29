@@ -10,6 +10,7 @@ $("#register-form").on("submit", revisarErroresAntesDeRegistrarNuevoUsuario);
 $("#checkbox-signin").change(toggleSigninWidthCode);
 $("#restablecerCon-form").on("submit", restorePassword);
 $("#register-add-objetos_envio").click(agregarObjetoDeEnvio);
+$("#register-objetos_envio").on("keypress", agregarObjetoDeEnvio)
 
 const comprobacionesRegistro = habilitarComprobacionesDeInputs();
 window.onload = () => {
@@ -236,7 +237,7 @@ function habilitarComprobacionesDeInputs() {
 const registerStep = new Stepper("#register-form");
 registerStep.init();
 registerStep.findErrorsBeforeNext = (active) => {
-    const inputs = active.find("input");
+    const inputs = active.find("input:required");
     const ids = new Array();
     inputs.each((i, input) => ids.push(input.getAttribute("id")));
 
@@ -370,10 +371,10 @@ async function sendPasswordResetEmail(email) {
 }
 
 function agregarObjetoDeEnvio(e) {
+    if (e.target.nodeName === "INPUT" && e.keyCode !== 13) return;
     const input = $("#register-objetos_envio")
     const val = input.val().trim();
     const valores = $("[data-objeto_envio]").map((i,it) => it.getAttribute("data-objeto_envio")).get();
-    console.log(valores);
 
     if(!val) return;
 

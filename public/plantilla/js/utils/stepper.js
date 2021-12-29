@@ -23,15 +23,27 @@ export default class Stepper {
             overflow: "hidden"
         });
         this.steps.css({width: "100%", transition: "transform .3s"});
+        $(".step-controller", this.form).appendTo(this.steps[this.step]);
+
 
         this.buttonNext.click(() => this.next());
         this.buttonPrev.click(() => this.prev());
-        this.form.click(() => this.awaitToNormalize(1000))
+        this.form.click(() => this.awaitToNormalize(1000));
+        this.form.on("keypress", e => {
+            if(e.target.nodeName === "INPUT" 
+            && e.keyCode === 13 
+            && this.step !== this.steps.length - 1) 
+            e.preventDefault();
+        });
+        $(".next,.prev,.submit",this.form).on("keydown", e => {
+            if(e.key === "Tab" && !e.shiftKey) {
+                e.preventDefault();
+            }
+        })
     }
 
     next() {
         const active = this.steps.filter(".active");
-        const nextStep = active.next(".step");
 
         if(this.findErrorsBeforeNext(active)) {
             // this.normalize();
@@ -60,6 +72,8 @@ export default class Stepper {
 
         this.steps[step].classList.add("active");
         // callBack();
+
+        $(".step-controller", this.form).appendTo(this.steps[step]);
         this.normalize()
     }
 
@@ -141,5 +155,6 @@ export default class Stepper {
     findErrorsBeforeNext(active) {
         return false
     }
+
 
 }
