@@ -30,7 +30,7 @@ export function verificador(arr, scroll, mensaje) {
     */
     let inputs = document.querySelectorAll("input");
     let mensajes_error = document.querySelectorAll(".mensaje-error");
-    let primerInput;
+    let error = [], primerInput;
 
     mensajes_error.forEach(err => {
         err.remove()
@@ -47,7 +47,6 @@ export function verificador(arr, scroll, mensaje) {
                 return true;
             }
         } else {
-            let error = [];
             for(let id of arr){
                 let inp = document.getElementById(id)
                 if(addId(id)){
@@ -66,15 +65,14 @@ export function verificador(arr, scroll, mensaje) {
                     primerInput = document.getElementById(error[0]).parentNode;
                 }
             }
-            return error.length
         }
 
         // Toma el primer input que arroja la excepción para mostrarlo en la ventana por scroll
         if(primerInput) {
             primerInput.querySelector("input").focus()
-            primerInput.scrollIntoView({
-                behavior: "smooth"
-            });
+            // primerInput.scrollIntoView({
+            //     behavior: "smooth"
+            // });
         }
     }
     
@@ -91,6 +89,8 @@ export function verificador(arr, scroll, mensaje) {
             return false
         }
     }
+
+    return error
 
 }
 

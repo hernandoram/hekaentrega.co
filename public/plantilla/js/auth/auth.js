@@ -236,47 +236,48 @@ function habilitarComprobacionesDeInputs() {
 
 const registerStep = new Stepper("#register-form");
 registerStep.init();
-registerStep.findErrorsBeforeNext = (active) => {
-    const inputs = active.find("input:required");
+registerStep.findErrorsBeforeNext = revisarErroresParticularesRegistro;
+
+function revisarErroresParticularesRegistro(container) {
     const ids = new Array();
+    const inputs = $(container).find("input:required");
     inputs.each((i, input) => ids.push(input.getAttribute("id")));
 
-    if(revisarErroresParticularesRegistro()) return true;
-
-    if(verificador(ids, null, "Este campo es obligatorio.")) {
-        return true;
-    };
-}
-
-function revisarErroresParticularesRegistro() {
     const [comprobador_particular] = comprobacionesRegistro;
-
+    
+    let hasError = false;
+    let firstError;
+    
     if(comprobador_particular.hasError()) {
         const firstSelector = comprobador_particular.errores[0];
-        const firstError = $(firstSelector);
-        const step = firstError.parents(".step");
-        const index = step.index();
-        registerStep.moveTo(step);
-        return true;
+        firstError = $(firstSelector);
+        hasError = true;
+    } 
+    
+    if(!hasError) {
+        const inner_comprobator = verificador(ids, null, "Este campo es obligatorio.");
+        if(inner_comprobator.length) {
+            const firstSelector = inner_comprobator[0];
+            firstError = $("#"+firstSelector);
+            hasError = true;
+        }
     }
+    
+    if(hasError) {
+        const step = firstError.parents(".step");
+        registerStep.moveTo(step);
+    }
+
+    return hasError;
 }
 
 async function revisarErroresAntesDeRegistrarNuevoUsuario(e) {
     e.preventDefault();
     const form = e.target;
     const formData = new FormData(form);
-    const inputs = $(form).find("input:required");
     const loader = new ChangeElementContenWhileLoading("#registrar-nuevo-usuario");
     
-    if(revisarErroresParticularesRegistro()) return;
-
-    const ids = new Array();
-    inputs.each((i, input) => ids.push(input.getAttribute("id")));
-
-
-    if(verificador(ids, null, "Este campo es obligatorio.")) {
-        return true;
-    };
+    if(revisarErroresParticularesRegistro(form)) return;    
 
     if(!$("#register-terms").prop("checked")) {
         verificador(["register-terms"], true, "Debe aceptar términos y condiciones.")

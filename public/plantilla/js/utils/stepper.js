@@ -11,19 +11,20 @@ export default class Stepper {
         this.buttonSubmit = $(".submit", this.form);
         this.steperView = $(".step-view", this.form);
         const cantSteps = this.steps.length;
-        const widthViewerStep = cantSteps * 100;
-        $(this.steps).filter(":not(.active)").css({transform: "scale(0.5)"});
+        const widthViewerStep = 200;
+        const noActive = this.steps.filter(":not(.active)")
+        noActive.css({transform: "scale(0.5)", display: "none"});
 
         this.form.css({overflow: "hidden"});
         this.steperView.css({
             display: "flex",
             width: widthViewerStep + "%",
-            transition: "margin-left ease-in .3s",
+            // transition: "margin-left ease-in .3s",
             alignItems: "start",
             overflow: "hidden"
         });
-        this.steps.css({width: "100%", transition: "transform .3s"});
-        $(".step-controller", this.form).appendTo(this.steps[this.step]);
+        this.steps.css({width: "50%", transition: "transform .3s"});
+        // $(".step-controller", this.form).appendTo(this.steps[this.step]);
 
 
         this.buttonNext.click(() => this.next());
@@ -37,7 +38,7 @@ export default class Stepper {
         });
         $(".next,.prev,.submit",this.form).on("keydown", e => {
             if(e.key === "Tab" && !e.shiftKey) {
-                e.preventDefault();
+                // e.preventDefault();
             }
         })
     }
@@ -63,17 +64,29 @@ export default class Stepper {
 
     moveTo(step, callBack) {
         if(typeof step !== "number") step = step.index();
+        const direction = step > this.step ? -1 : 0
+        if(step === this.step) return;
         this.step = step;
-        const marginL = (-100 * step) + "%";
+        const marginL = (direction * 100) + "%";
+
+        const toActive = this.steps[step];
 
         this.steps.removeClass("active");
-        $(this.steps[step]).css({transform: "scale(1)"});
-        this.steperView.css({marginLeft: marginL});
+        toActive.classList.add("active");
 
-        this.steps[step].classList.add("active");
+        if(!direction) this.steperView.css({marginLeft: "-100%"});
+
+        $(toActive).css({transform: "scale(1)", display: "block"});
+        this.steperView.animate({marginLeft: marginL}, 400, () => {
+            this.steps.filter(":not(.active)").css({display: "none"});
+            this.steperView.css({marginLeft: 0});
+        });
+
+        toActive.querySelector("input").focus({preventScroll: true});
+
         // callBack();
 
-        $(".step-controller", this.form).appendTo(this.steps[step]);
+        // $(".step-controller", this.form).appendTo(this.steps[step]);
         this.normalize()
     }
 
@@ -93,17 +106,17 @@ export default class Stepper {
         const index = this.steps.index(active);
 
         if(!index) {
-            this.buttonPrev.addClass("d-none");
-            this.buttonSubmit.addClass("d-none");
-            this.buttonNext.removeClass("d-none");
+            this.buttonPrev.hide();
+            this.buttonSubmit.hide();
+            this.buttonNext.show("fast");
         } else if (index === steps - 1) {
-            this.buttonNext.addClass("d-none");
-            this.buttonSubmit.removeClass("d-none");
-            this.buttonPrev.removeClass("d-none");
+            this.buttonNext.hide();
+            this.buttonSubmit.show("fast");
+            this.buttonPrev.show("fast");
         } else {
-            this.buttonNext.removeClass("d-none");
-            this.buttonSubmit.addClass("d-none");
-            this.buttonPrev.removeClass("d-none");
+            this.buttonNext.show("fast");
+            this.buttonSubmit.hide();
+            this.buttonPrev.show("fast");
         }
 
         setTimeout(() => this.steperView.animate({height: heightStep}), 600);
