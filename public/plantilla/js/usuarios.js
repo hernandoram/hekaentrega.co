@@ -470,7 +470,7 @@ async function buscarUsuarios(){
             
         })
         
-        const uniqueChild = mostradorUsuarios.children[0]
+        const uniqueChild = mostradorUsuarios.children[0].children[0];
         if(mostradorUsuarios.children.length === 1) {
             seleccionarUsuario(uniqueChild.getAttribute("id"));
         }
@@ -918,7 +918,6 @@ async function verMovimientos(usuario, fechaI, fechaF){
         }
 
         let data1, data2
-        console.log(buscador)
         miradorUsuario(usuario).then(data => {
             data2 = data;
             miradorPrueba(usuario).then(d2 => data1 = d2)

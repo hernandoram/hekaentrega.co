@@ -11,7 +11,7 @@ if(localStorage.getItem("acceso_admin")){
   }
 } else {
   alert("La sesión ha expirado, por favor inicia sesión nuevamente");
-  location.href = "iniciarSesion2.html"
+  location.href = "ingreso.html"
 }
 
 window.addEventListener("storage", (e) => {

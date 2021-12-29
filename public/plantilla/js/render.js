@@ -208,7 +208,7 @@ function avisar(title, content, type, redirigir, tiempo = 5000){
 function mostrarUsuarios(data, id){
     return `<div class="col-md-4 mb-4" 
     data-filter-nombres="${data.nombres}" data-filter-apellidos="${data.apellidos}"
-    data-filter-centro_de_costo="${data.centro_de_costo}" data-filter-direccion="${data.direccion}">
+    data-filter-centro_de_costo="${data.centro_de_costo}" data-filter-direccion="${data.direccion_completa}">
     <div class="card border-bottom-info" id="${id}" shadow="h-100 py-2">
         <div class="card-body">
             <div class="row no-gutters align-items-center">
@@ -216,9 +216,9 @@ function mostrarUsuarios(data, id){
                     <div class="h4 font-weight-bold text-info text-uppercase mb-2">${data.nombres.split(" ")[0]} ${data.apellidos.split(" ")[0]}</div>
                     <div class="row no-gutters align-items-center">
                         <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800">
-                            <p>Nro. de Documento: <small>${data.ingreso}</small></p>
-                            <p>Contacto: <small>${data.contacto}</small></p>
-                            <p>Direccion: <small>${data.direccion}</small></p>
+                            <p>Nro. de Documento: <small>${data.numero_documento}</small></p>
+                            <p>Contacto: <small>${data.celular}</small></p>
+                            <p>Direccion: <small>${data.direccion_completa}</small></p>
                         </div>
                     </div>
                 </div>

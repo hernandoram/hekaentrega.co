@@ -39,7 +39,7 @@ async function iniciarSesion(e) {
         if(errorAuth) {
             response.text(auth.message);
         } else {
-            await findUser(auth.uid);
+            user = await findUser(auth.uid);
         }
     } else {
         const cod_ingreso = form.get("ingreso");
