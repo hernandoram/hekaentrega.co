@@ -30,7 +30,7 @@ let transportadoras = {
         observaciones: observacionesInteRapidisimo,
         logoPath: "img/logo-inter.png",
         color: "dark",
-        limitesPeso: [0.1,5],
+        limitesPeso: [0.1, 5],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
         limitesValorDeclarado: (peso) => {
@@ -52,7 +52,7 @@ let transportadoras = {
         observaciones: observacionesInteRapidisimo,
         logoPath: "img/logo-inter.png",
         color: "danger",
-        limitesPeso: [0.1,5],
+        limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
         limitesValorDeclarado: (valor) => {
@@ -74,7 +74,7 @@ let transportadoras = {
         observaciones: observacionesInteRapidisimo,
         logoPath: "img/logo-inter.png",
         color: "warning",
-        limitesPeso: [0.1,5],
+        limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
         limitesValorDeclarado: (valor) => {
@@ -166,13 +166,6 @@ async function cotizador(){
             || !/^.+\(.+\)$/.test(ciudadR.value) || !/^.+\(.+\)$/.test(ciudadD.value)) {
             alert("Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable");
             verificador(["ciudadR", "ciudadD"], true); 
-        } else if(value("Kilos") <= 0 
-        || value("Kilos") > transportadoras[codTransp].limitesPeso[1] ) {
-            // Si la cantidad de kilos excede el limite permitido
-            alert("Lo sentimos, la cantidad de kilos ingresada para la transportadora: "
-            + codTransp + " no está permitida, procure ingresar un valor mayor a 0 y menor o igual a " 
-            +transportadoras[codTransp].limitesPeso[1])
-            verificador("Kilos", true);
         } else if(value("seguro-mercancia") < transportadoras[codTransp].limitesValorDeclarado(value("Kilos"))[0] 
         || value("seguro-mercancia") > transportadoras[codTransp].limitesValorDeclarado(value("Kilos"))[1]) {
             // Si el valor del recaudo excede el limite permitido
@@ -193,8 +186,7 @@ async function cotizador(){
             verificador(["dimension-alto", "dimension-largo", "dimension-ancho"], true)
         } else {
             //Si todo esta Correcto...
-            verificador()
-
+            verificador();
             
             if(new CalcularCostoDeEnvio().revisarTrayecto() == "Urbano") {
                 datos_de_cotizacion.tiempo = "1-2"
@@ -374,6 +366,8 @@ async function response(datos) {
     datos_de_cotizacion.debe = result_cotizacion.debe;
     datos_de_cotizacion.type = type;
 
+    const notas = agregarNotasDeExepcionAlCotizador();
+
     // let htmlTransportadoras = await detallesTransportadoras(datos_de_cotizacion);
 
     //Creo un html con los detalles de la consulta y las transportadoras involucradas
@@ -398,7 +392,8 @@ async function response(datos) {
         boton_continuar = crearNodo(`<div class="d-flex justify-content-end mt-2"><input type="button" 
             data-transp="${codTransp}" id="boton_continuar" 
             class="btn btn-success mt-3" value="Continuar" ${!act_btn_continuar ? "disabled=true" : ""}></div>`);
-        
+      
+    if (notas) head.innerHTML += "<small><b>Nota: </b> " +notas+ "</small>"
 
     div_principal.append(
         // boton_regresar, 
@@ -415,6 +410,19 @@ async function response(datos) {
     
     return  div_principal.innerHTML
 };
+
+function agregarNotasDeExepcionAlCotizador() {
+    let mensaje = "";
+    if(value("Kilos") <= 0 
+    || value("Kilos") > transportadoras[codTransp].limitesPeso[1] ) {
+        // Si la cantidad de kilos excede el limite permitido
+        mensaje += "El rango de kilos para la transportadora " + codTransp
+            + " debería ser entre " +transportadoras [codTransp].limitesPeso[0]
+            + " y " + transportadoras[codTransp].limitesPeso[1];
+    }
+
+    return mensaje;
+}
 
 //Para llenar los diversos precios de las transportadoras que funcionarán con el cotizador
 async function detallesTransportadoras(data) {
@@ -454,9 +462,11 @@ async function detallesTransportadoras(data) {
         if(transp === "SERVIENTREGA" || transp === "INTERRAPIDISIMO") {
             seguro = recaudo ? recaudo : seguro;
         }
-        console.log(cotizacionAveo);
 
+        console.log(cotizacionAveo);
+        
         let transportadora = transportadoras[transp];
+        if(data.peso > transportadora.limitesPeso[1]) continue;
         let valor = Math.max(seguro, transportadora.limitesValorDeclarado(data.peso)[0]);
 
         let cotizacion = await new CalcularCostoDeEnvio(valor, data.type)
@@ -1210,7 +1220,7 @@ class CalcularCostoDeEnvio {
         let url = "https://www3.interrapidisimo.com/ApiServInter/api/Cotizadorcliente/ResultadoListaCotizar/";
         
 
-        let res = await fetch(url+"/"
+        let res = await fetch(url
         +6635+ "/"
         +dane_ciudadR+"/"
         +dane_ciudadD+"/"+this.kgTomado+"/"+this.seguro+"/1/" + genFecha("LR"))
@@ -1220,7 +1230,7 @@ class CalcularCostoDeEnvio {
         if(res.message || res.Message) return 0;
 
         console.log(res);
-        let mensajeria = res.filter(d => d.IdServicio === 3);
+        let mensajeria = res.filter(d => d.IdServicio === 3 || d.IdServicio === 6);
 
         if(!mensajeria.length) return 0;
 

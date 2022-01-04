@@ -262,6 +262,7 @@ exports.actualizarMovimientos = async (doc) => {
     
     const detallesGuia = respuesta.guias[0];
     const movimientos = detallesGuia.historicos;
+    movimientos.sort((a,b) => a.id - b.id);
     
     const ultimo_estado = movimientos[movimientos.length - 1];
     let finalizar_seguimiento = doc.data().prueba ? true : false

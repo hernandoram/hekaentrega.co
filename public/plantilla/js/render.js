@@ -1110,7 +1110,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
             boton_solucion.html(html_btn);
         } else if (text) {
             const solucion = {
-                gestion: "<b>Asistencia Logística dice:</b> " + text.trim(),
+                gestion: "<b>La transportadora \"" +data.transportadora+ "\" reponde lo siguiente:</b> " + text.trim(),
                 fecha: new Date()
             }
             avisar("Se enviará mensaje al usuario", text);
@@ -1121,7 +1121,8 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
             }
 
             console.log(extraData)
-            // return
+            console.log(solucion)
+            return
 
             referenciaGuia.update({
                 seguimiento: extraData.seguimiento,
@@ -1164,7 +1165,7 @@ function traducirMovimientoGuia(transportadora) {
                 novedad: "aclaracion",
                 fechaMov: "fechamostrar",
                 observacion: "descripcion",
-                descripcionMov: "descipcion",
+                descripcionMov: "estado",
                 ubicacion: "ciudad"
             }
         case "INTERRAPIDISIMO":
@@ -1311,10 +1312,11 @@ function gestionarNovedadModal(dataN, dataG) {
         `, "text/html").body.firstChild;
     
     const movTrad = traducirMovimientoGuia(dataN.transportadora);
-
+    
     if(dataN.movimientos) {
         for(let i = dataN.movimientos.length - 1; i >= 0; i--){
             let mov = dataN.movimientos[i];
+            console.log(mov[movTrad.fechaMov]);
             let li = document.createElement("li");
             let enNovedad = revisarNovedad(mov, dataN.transportadora);
         

@@ -240,20 +240,24 @@ const encontrarId_heka = async function(numeroGuia) {
 // FUNCIONES A EXPORTAR 
 exports.crearGuia = (req, res) => {
     const guia = req.body;
-    const url =  guia.prueba ? UsuarioPrueba.endpoint : Credenciales.endpoint
+    const url =  guia.prueba ? UsuarioPrueba.endpoint : Credenciales.endpoint;
+    const nombreTipoEnvio = guia.peso < 3 ? "PAQUETE PEQUEÑO" : "PAQUETE";
+    const idTipoEnvio = guia.peso < 3 ? 3 : 9;
+    const idServicio = guia.peso < 6 ? 3 : 6
+
     let data = {
         "IdClienteCredito": guia.prueba ? UsuarioPrueba.idCliente : Credenciales.idCliente, //Codigo cliente
         "CodigoConvenioRemitente": guia.codigo_sucursal, //Codigo sucursal
         "IdTipoEntrega":"1",
         "AplicaContrapago": guia.type !== "CONVENCIONAL",
-        "IdServicio":3, 
+        "IdServicio": idServicio, 
         "Peso": guia.peso, //En kilogramos
         "Largo":guia.largo, //En centimetros
         "Ancho":guia.ancho,
         "Alto":guia.alto, 
         "DiceContener": guia.dice_contener,
         "ValorDeclarado": guia.seguro,
-        "IdTipoEnvio":1,
+        "IdTipoEnvio": idTipoEnvio,
         "IdFormaPago":2,
         "NumeroPieza":1,
         "Destinatario":{
@@ -261,7 +265,7 @@ exports.crearGuia = (req, res) => {
             "numeroDocumento": guia.identificacionD,
             "nombre": guia.nombreD,
             "primerApellido":  "| Heka", //Si se debe enviar si es un cliente persona natural, es obligatorio
-            "segundoApellido":null,
+            "segundoApellido": "Sucursal: " + guia.codigo_sucursal,
             "telefono": guia.telefonoD,
             "direccion": guia.direccionD,
             "idDestinatario":0, "idRemitente":0, //Campos opcionales. Dejarlos en 0
@@ -271,7 +275,7 @@ exports.crearGuia = (req, res) => {
             "correo": guia.correoD //Obligatorio si es cliente convenio
         },
         "DescripcionTipoEntrega":"",
-        "NombreTipoEnvio":"PAQUETE PEQUEÑO",
+        "NombreTipoEnvio": nombreTipoEnvio,
         "CodigoConvenio":0, //Enviar valor 0 si no es cliente convenio
         "IdSucursal":0, //Enviar valor 0 si no es cliente convenio
         "IdCliente":0, //Enviar valor 0 si no es cliente convenio

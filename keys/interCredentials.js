@@ -1,7 +1,7 @@
 exports.UsuarioPrueba = {
     idCliente: 4276,
     x_app_signature: "userHernandoStg",
-    x_app_security_token: "Bearer bd50xQS4eKLa20KiR0fXEMwPjcZQIIze44u9NYaXWaTzHYly0cdwx6tdVT1fA-hbrXRP7gYrSOCgdEgtlP3dmZomBEzG-ONW9Mx0UXCVRd48sVQp45yuzmwwa5IxzAg5e0pqUK83e9MxODrFH9M1FZWI0kr7syv8d61tBP49u7AWZOnXlvJkud371yeH-lPk6kOY09CUyuED3P6P7ECIyPrCBP5cHXl-B-Q2RvjM5tVeC3vMvY-Y0yIb-uAQOFzR",
+    x_app_security_token: "Bearer PnaahxNm_Eb0FN19mbudCRcUulKTOfiuxAuHFKhoQGfTs7z_BFDNAI51vkvpNd9piXdxIWxZh4gnBd1xMuRyovxv8rstRp8tvh-ncuSa188E1hAvwgmgwe9agkpR-qmzFtMH8tQztech3o-NPxXMvhDZUP1JGGqtEo5rjy5GexfgqV1n_Bj8jdsdng-fklEq7cq1OXrehLe9nlbm-ipX9E4KQpdRDiVxM4rmT9f7iQ8FZKasqAeQGnYVZa8SOyPe",
     usuario: "userHernandoStg",
     clave: "Hernando19082021",
     endpoint: "https://stgwww3.interrapidisimo.com/ApiVentaCreditoStg/api/Admision"

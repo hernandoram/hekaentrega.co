@@ -5,7 +5,8 @@ import llenarCiudades from "../consultarCiudades.js"
 import { ChangeElementContenWhileLoading, verificador, DetectorErroresInput } from "../utils/functions.js";
 import Stepper from "../utils/stepper.js";
 
-$("#signin-form").on("submit", iniciarSesion);
+$("#signinWidthEmailAndPassword").on("submit", iniciarSesion);
+$("#signinWidthCode").on("submit", iniciarSesion);
 $("#register-form").on("submit", revisarErroresAntesDeRegistrarNuevoUsuario);
 $("#checkbox-signin").change(toggleSigninWidthCode);
 $("#restablecerCon-form").on("submit", restorePassword);
@@ -22,8 +23,9 @@ async function iniciarSesion(e) {
     e.preventDefault();
     const form = new FormData(this);
     const response = $(".response", this);
-    const charge = new ChangeElementContenWhileLoading("#signin");
-    const signinType = this.getAttribute("action");
+    const submBtn = $("[type='submit']", this);
+    const charge = new ChangeElementContenWhileLoading(submBtn);
+    const signinType = this.getAttribute("id");
     const firebaseAuth = signinType === "signinWidthEmailAndPassword";
 
     response.text("");
