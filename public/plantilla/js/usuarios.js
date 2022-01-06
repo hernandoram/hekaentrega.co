@@ -670,19 +670,17 @@ function actualizarInformacionPersonal() {
     let datos = {
         nombres: value("actualizar_nombres"), 
         apellidos: value("actualizar_apellidos"),
-        tipo_documento: value("actualizar_tipo_documento"),
-        numero_documento: value("actualizar_numero_documento"),
         celular: value("actualizar_telefono"),
         celular2: value("actualizar_celular"),
         ciudad: value("actualizar_ciudad"),
         direccion: value("actualizar_direccion"),
         barrio: value("actualizar_barrio"),
-        nombre: value("actualizar_nombre_empresa"),
-        centro_de_costo: value("actualizar_centro_costo"),
+        nombre_empresa: value("actualizar_nombre_empresa"),
         correo: value("actualizar_correo"),
-        con: value("actualizar_contraseña"),
         objetos_envio: value("actualizar_objetos_envio").split(",")
     };
+
+    datos.direccion_completa = datos.direccion + ", " + datos.barrio + ", " + datos.ciudad
     let id_usuario = document.getElementById("usuario-seleccionado").getAttribute("data-id");
 
     firebase.firestore().collection("usuarios").doc(id_usuario).update(datos)

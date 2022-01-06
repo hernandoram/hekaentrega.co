@@ -401,7 +401,7 @@ function renderizadoDeTablaHistorialGuias(config) {
     $(".en-proceso > span").text(counter["en proceso"]);
     $(".finalizadas > span").text(counter.finalizada);
     $(".anuladas > span").text(counter.anulada);
-    $(".pagadas > span").text(counter.pagada);
+    // $(".pagadas > span").text(counter.pagada);
     $(".todas > span").text(data.length);
 
     api.column(0).nodes().to$().each((i, el) => {
@@ -446,13 +446,13 @@ function filtrarHistorialGuiasPorColumna(column) {
 
 function clasificarHistorialGuias(data) {
     const estGeneradas = ["Envío Admitido", "RECIBIDO DEL CLIENTE", "Enviado", "", undefined];
-    const estAnuladas = ["Documento Anulado"];
+    const estAnuladas = ["Documento Anulado", "Anulada"];
 
     let filter;
 
-    if (estAnuladas[0] === data.estado) {
+    if (estAnuladas.some(v => data.estado === v)) {
         filter = "anulada";
-    } else if(!data.debe && data.type !== "CONVENCIONAL") {
+    } else if(!data.debe && data.type !== "CONVENCIONAL" && false) {
         filter = "pagada"
     } else if (data.seguimiento_finalizado) {
         filter = "finalizada";

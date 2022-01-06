@@ -8,7 +8,6 @@ import Stepper from "../utils/stepper.js";
 $("#signinWidthEmailAndPassword").on("submit", iniciarSesion);
 $("#signinWidthCode").on("submit", iniciarSesion);
 $("#register-form").on("submit", revisarErroresAntesDeRegistrarNuevoUsuario);
-$("#checkbox-signin").change(toggleSigninWidthCode);
 $("#restablecerCon-form").on("submit", restorePassword);
 $("#register-add-objetos_envio").click(agregarObjetoDeEnvio);
 $("#register-objetos_envio").on("keypress", agregarObjetoDeEnvio)
@@ -54,35 +53,6 @@ async function iniciarSesion(e) {
 
     charge.end();
 }
-
-function toggleSigninWidthCode(e) {
-    const form = $("#signin-form");
-    const onlyCode = $(this).prop("checked");
-    const widthPassword = $("#signinWidthEmailAndPassword");
-    const widthCode = $("#signinWidthCode");
-    const instructions = $("#signin-instruction");
-    const initialText = "Ingrese su correo electrónico y contraseña para ingresar a la plataforma.";
-    const alternText = "Ingresa la contraseña que utilizaste al momento de registrarte.";
-    const animate = () => {
-        return instructions
-        .text("")
-        .hide("fast")
-        .show("fast")
-    }
-
-    if(onlyCode) {
-        animate().text(alternText)
-        widthPassword.hide();
-        widthCode.show("fast");
-        form.prop("action", "signinWidthCode");
-    } else {
-        animate().text(initialText);
-        widthCode.hide();
-        widthPassword.show("fast");
-        form.prop("action", "signinWidthEmailAndPassword");
-    }
-}
-
 
 async function signInWithEmailAndPassword(email, password) {
     const user = await auth.signInWithEmailAndPassword(email, password)
@@ -307,6 +277,15 @@ async function registrarNuevoUsuario(formData) {
 
     toSend.objetos_envio = $("[data-objeto_envio]").map((i,it) => it.getAttribute("data-objeto_envio")).get();
     toSend.direccion_completa = toSend.direccion + ", " + toSend.barrio + ", " + toSend.ciudad;
+
+    if(!toSend.objetos_envio.length) {
+        const inpObjetos = $("#register-objetos_envio");
+        const step = inpObjetos.parents(".step");
+        inpObjetos.addClass("border-danger");
+        registerStep.moveTo(step);
+
+        throw new Error("Recuerde agregar la(s) cosas que normalmente envía.")
+    }
 
     const empresa = toSend.nombre_empresa.replace(/\s/g, "");
     
