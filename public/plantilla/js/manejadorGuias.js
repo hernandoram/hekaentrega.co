@@ -520,12 +520,12 @@ function crearDocumentos(e, dt, node, config) {
 
         const {
             numeroGuia, id_heka, id_archivoCargar, prueba,
-            type, transportadora, has_sticker
+            type, transportadora, has_sticker, telefonoD
         } = data;
 
         arrGuias.push({
             numeroGuia, id_heka, id_archivoCargar, prueba,
-            type, transportadora, has_sticker
+            type, transportadora, has_sticker, telefonoD
         });
 
         $(nodo).removeClass("selected bg-gray-300");
@@ -693,6 +693,11 @@ async function actualizarEstadoGuiasDocCreado(arrGuias) {
         .update({
             enviado: true,
             estado: "Enviado"
+        })
+        .then(() => {
+            const link = "https://www.interrapidisimo.com/sigue-tu-envio/";
+            const mensaje = "Te informamos que se ha generado un envío con la transportadora "+guia.transportadora+" bajo el número de guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link
+            fetch("/mensajeria/sendMessage?number=57"+guia.telefonoD+"&message="+mensaje);     
         });
     }
 }

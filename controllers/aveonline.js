@@ -6,7 +6,7 @@ const firebase = require("../keys/firebase");
 const db = firebase.firestore();
 
 const funct = require("../extends/funciones");
-const { doesNotReject } = require("assert");
+const { singleMessage } = require("../controllers/cellVoz");
 const guiasPorCrear = new Array();
 const referenceListado = db.collection("listaGuiasAveo");
 
@@ -133,6 +133,8 @@ exports.generarRelacion = async (req, res) => {
                 }).catch((error) => {
                     console.log("hubo un error Al actualizar el estado de la guia a \"Enviado\" => ", error)
                 });
+                const link = guia.transportadora === "ENVIA" ? "https://envia.co/" : "https://www.tcc.com.co/"
+                singleMessage("57"+guia.telefonoD, "Te informamos que se ha generado un envío con la transportadora "+guia.transportadora+" bajo el número de guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link);
             }
             console.log("Se están actualizando todos los estados");
         })
