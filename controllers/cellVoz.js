@@ -33,11 +33,12 @@ async function singleMessage(number, message, type = 1) {
         return e.error;
     })
 
+    console.log(res);
     return JSON.parse(res);
 }
 
 async function sendMessage(req, res) {
-    console.log("enviando mensaje")
+    console.log("enviando mensaje");
     const {number, message, type} = req.query;
     try {
         const response = await singleMessage(number, message || "mensaje de prueba", type);

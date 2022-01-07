@@ -697,7 +697,9 @@ function tablaPagos(arrData, id) {
         usuario = document.createElement("h3"),
         total = document.createElement("h4"),
         btn_pagar = document.createElement("button"),
-        totalizador = 0;
+        inpAddComprobante = document.createElement("input"),
+        totalizador = 0,
+        idRemitente = arrData[0].REMITENTE.replace(" ", "");
 
     card.classList.add("card", "mt-4");
 
@@ -711,7 +713,11 @@ function tablaPagos(arrData, id) {
     btn_pagar.setAttribute("id", "pagar"+arrData[0].REMITENTE.replace(" ", ""));
     btn_pagar.setAttribute("data-funcion", "pagar");
     
-
+    inpAddComprobante.setAttribute("class", "form-control my-3");
+    inpAddComprobante.setAttribute("type", "text");
+    inpAddComprobante.setAttribute("placeholder", "Si deseas agregar comprobante bancario");
+    inpAddComprobante.setAttribute("id", "comprobante_bancario"+idRemitente);
+    
     table.classList.add("table", "table-bordered");
     thead.classList.add("thead-light");
     thead.innerHTML = `<tr>
@@ -770,6 +776,7 @@ function tablaPagos(arrData, id) {
     // btn_pagar.textContent = "Pagar $" + convertirMiles(totalizador);
     btn_pagar.textContent = "Pagar $" + convertirMiles(0);
     cuerpo.appendChild(table);
+    cuerpo.appendChild(inpAddComprobante);
     cuerpo.appendChild(btn_pagar);
     card.append(encabezado, cuerpo);
     document.getElementById(id).appendChild(card);
@@ -832,7 +839,7 @@ function mostrarNotificacion(data, type, id){
                     notificacion.setAttribute("data-toggle", "modal");
                     notificacion.setAttribute("data-target", "#modal-detallesNotificacion");
                     modalNotificacion(data.detalles)
-                    $("#revisar-detallesNotificacion").click(() => {
+                    $("#revisar-detallesNotificacion").one("click", () => {
                         location.href = "#" + (data.href || "documentos");
                         if(data.href == "deudas") {
                             revisarDeudas();

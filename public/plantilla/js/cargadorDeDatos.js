@@ -384,33 +384,61 @@ function cargarPagos(){
 
         //Habilita un evento excucha para cado botón de pagar, que manda toda la info a firebase.collection("pagos")
         botones_pago.forEach((btn) => {
-          btn.addEventListener("click", e => {
+          btn.addEventListener("click", async e => {
+            const cargador = new ChangeElementContenWhileLoading(e.target);
+            cargador.init();
             let guia = e.target.parentNode.querySelectorAll("tr[id]");
-            guia.forEach(g => {
+            const numero = e.target.parentNode.getAttribute("data-numero");
+            const remitente = e.target.parentNode.getAttribute("data-usuario");
+            const comprobante_bancario = $("#comprobante_bancario"+remitente).val();
+            let pagado = 0;
+            for await (let g of guia) {
               let celda = g.querySelectorAll("td");
               let identificador = g.getAttribute("id");
-              firebase.firestore().collection("pagos").doc(celda[1].textContent.toLowerCase())
+              await firebase.firestore().collection("pagos").doc(celda[1].textContent.toLowerCase())
               .collection("pagos").doc(identificador).set({
                 REMITENTE: celda[0].textContent,
                 TRANSPORTADORA: celda[1].textContent,
-                GUIA: celda[1].textContent,
                 GUIA: celda[2].textContent,
                 RECAUDO: celda[3].textContent,
                 "ENVÍO TOTAL": celda[4].textContent,
                 "TOTAL A PAGAR": celda[5].textContent,
-                FECHA: celda[6].textContent
+                FECHA: celda[6].textContent,
+                comprobante_bancario: comprobante_bancario || "SCB"
               }).then(() => {
                 firebase.firestore().collectionGroup("guias").where("numeroGuia", "==", identificador)
                 .get().then((querySnapshot) => {
                   querySnapshot.forEach(doc => {
                     doc.ref.update({debe: 0})
-                  })
-                }).then(() => g.classList.add("text-success"))
+                    .then(() => g.classList.add("text-success"))
+                  });
+                });
                 
+                pagado += parseInt(celda[5].textContent);
+              });
+            }
+
+            let mensaje = 'Te informamos que se ha realizado una consignación a su cuenta bancaria registrada en Heka entrega por un monto de: ' + convertirMoneda(pagado)
+            if(comprobante_bancario) mensaje += " bajo el comprobante Nro.: " + comprobante_bancario;
+
+            const respuestaMensaje = await fetch("/mensajeria/sendMessage?number=57"+numero+"&message="+mensaje)
+            .then(d => d.json());
+
+            if(respuestaMensaje.success) {
+              Swal.fire({
+                icon: "success",
+                text: 'Se ha enviado el siguiente mensaje al usuario: "' + mensaje + '"'
+              });
+            } else {
+              Swal.fire({
+                icon: "warning",
+                text: "No se ha podido enviar el siguiente mensaje al usuario: " + mensaje + " - Razón: " + respuestaMensaje.message
               })
-            })
-          })
-        })
+            }
+
+            cargador.end();
+          });
+        });
 
         // me revisa todas las guías mostradas, para verificar que no están registrada en firebase
         row_guias.forEach(async (guia) => {
@@ -527,6 +555,8 @@ function cargarPagos(){
                 usuario.insertBefore(bank_info, usuario.firstChild);
                 usuario.parentNode.insertBefore(tipo_usuario, usuario);
               }
+
+              usuario.setAttribute("data-numero", doc.data().celular);
             })
           })
         })
