@@ -67,7 +67,7 @@ function reSendMessages() {
 }
 
 if(!process.env.DEVELOPMENT) {
-    cron.schedule('0 8 * * *',() => {
+    cron.schedule('0 9 * * *',() => {
         reSendMessages();
     });
 }
