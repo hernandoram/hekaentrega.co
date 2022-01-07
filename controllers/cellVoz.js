@@ -1,5 +1,7 @@
 const rp = require("request-promise");
+const cron = require("node-cron");
 const Cr = require("../keys/cellVoz");
+const db = require("../keys/firebase").firestore();
 
 async function authenticate() {
    const auth = await rp(Cr.endpoint + "auth/login", {
@@ -19,6 +21,7 @@ async function authenticate() {
 async function singleMessage(number, message, type = 1) {
     if (!message) throw new Error("Recuerda agregar el mensaje a enviar.")
     if (message.length > 466) throw new Error("El texto del mensaje a enviar no debe superar los 466 caracteres");
+
     const {token} = await authenticate();
     const res = await rp(Cr.endpoint + "sms/single", {
         "headers": {
@@ -30,6 +33,10 @@ async function singleMessage(number, message, type = 1) {
         "body": JSON.stringify({number, message, type})
     })
     .catch(e => {
+        db.collection("mensajesPendientes").set({
+            number, message, type,
+            reason: e.error
+        })
         return e.error;
     })
 
@@ -46,6 +53,23 @@ async function sendMessage(req, res) {
     } catch (e) {
         res.status(400).json({success: false, message: e.message});
     }
+}
+
+function reSendMessages() {
+    db.collection("mensajesPendientes").get()
+    .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+            const {number, message} = doc.data();
+            singleMessage(number, message);
+            doc.ref.delete();
+        })
+    })
+}
+
+if(!process.env.DEVELOPMENT) {
+    cron.schedule('0 8 * * *',() => {
+        reSendMessages();
+    });
 }
 
 module.exports = {singleMessage, sendMessage}
