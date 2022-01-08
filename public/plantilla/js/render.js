@@ -1129,7 +1129,6 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
 
             console.log(extraData)
             console.log(solucion)
-            return
 
             referenciaGuia.update({
                 seguimiento: extraData.seguimiento,
