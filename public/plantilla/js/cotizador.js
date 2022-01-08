@@ -10,7 +10,7 @@ let transportadoras = {
         observaciones: observacionesServientrega,
         logoPath: "img/logoServi.png",
         color: "success",
-        limitesPeso: [3,25],
+        limitesPeso: [3,80],
         limitesLongitud: [1,150],
         limitesRecaudo: [5000, 2000000],
         limitesValorDeclarado: (valor) => {
