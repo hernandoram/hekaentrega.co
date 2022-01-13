@@ -1612,14 +1612,20 @@ function verDetallesGuia() {
     usuarioDoc.collection("guias").doc(id)
     .get().then(doc => {
         let data = doc.data();
+        const oficina = data.datos_oficina;
+        const mostrar_oficina = oficina ? "" : "d-none"
         let html = "<div>"
-        let mostrador = [["id_heka", "numeroGuia", "estado", "transportadora", "type", "fecha", "nombreD", "direccionD", "ciudadD", "departamentoD", "seguro", "valor", "alto", "largo", "ancho", "peso", "dice_contener", "costo_envio", "telefonoD", "celularD"],
-        ["Identificador Guía", "Número de Guía", "Estado", "Transportadora", "Tipo de envío", "Fecha de creación", "Nombre del Destinatario", "Dirección", "Ciudad", "Departamento", "Valor Declarado", "Recaudo", "Alto", "Largo", "Ancho", "Peso", "Contenido", "Costo del envío", "Celular", "Celular 2"]]
+        let mostrador = [
+            ["id_heka", "numeroGuia", "estado", "transportadora", "type", "fecha", "nombreD", "direccionD", "ciudadD", "departamentoD", "seguro", "valor", "alto", "largo", "ancho", "peso", "dice_contener", "costo_envio", "telefonoD", "celularD"],
+            ["Identificador Guía", "Número de Guía", "Estado", "Transportadora", "Tipo de envío", "Fecha de creación", "Nombre del Destinatario", "Dirección", "Ciudad", "Departamento", "Valor Declarado", "Recaudo", "Alto", "Largo", "Ancho", "Peso", "Contenido", "Costo del envío", "Celular", "Celular 2"]
+        ];
 
         let informacionGuia = "<div class='card my-2'>";
         informacionGuia += "<h3 class='card-header'>Datos de guía</h3><div class='card-body row m-0'>";
+        
         let informacionDestinatario = "<div class='card my-2'>";
         informacionDestinatario += "<h3 class='card-header'>Datos del destinatario</h3><div class='card-body row m-0'>";
+        
         mostrador[0].forEach((v, n) => {
             const info = data[v] || "No registra";
             const titulo = mostrador[1][n];
@@ -1633,9 +1639,32 @@ function verDetallesGuia() {
 
             }
         });
+
+        
         informacionGuia += "</div></div>";
         informacionDestinatario += "</div></div>";
         html += informacionDestinatario + informacionGuia;
+        
+        if (oficina) {
+            let informacionOficina = "<div class='card my-2'>";
+            informacionOficina += "<h3 class='card-header'>Datos de la oficina</h3><div class='card-body row m-0'>";
+            const datos_oficina = [
+                ["Nombre representante", "Direccion", "Barrio", "Ciudad", "Celular", "Correo"],
+                [oficina.nombre_completo, oficina.direccion, oficina.barrio, oficina.ciudad, oficina.celular, oficina.correo]
+            ]
+
+            datos_oficina[0].forEach((titulo, i) => {
+                const info = datos_oficina[1][i] || "No registra";                
+                
+                const element = "<p class='col-12 col-sm-6 text-left'>" + titulo + ": <b>" + info + "</b></p>";
+                informacionOficina += element;
+            });
+
+            informacionOficina += "</div></div>";
+
+            html += informacionOficina;
+        }
+        
         html += "</div>";
         Swal.fire({
             title: "Detalles de Guía",

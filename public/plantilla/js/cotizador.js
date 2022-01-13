@@ -1,4 +1,4 @@
-let datos_de_cotizacion,
+let datos_de_cotizacion, oficinas,
     datos_a_enviar = new Object({}),
     codTransp = "SERVIENTREGA"
 
@@ -131,6 +131,7 @@ async function cotizador(){
     let ciudadR = document.getElementById("ciudadR"),
     ciudadD = document.getElementById("ciudadD");
     let info_precio = new CalcularCostoDeEnvio();
+    datos_a_enviar = new Object();
 
     console.log(info_precio);
     datos_de_cotizacion = {
@@ -378,7 +379,22 @@ async function response(datos) {
             </a>`),
         head = crearNodo(`<h4 class="text-center mb-3">Seleccione transportadora</h4>`),
         info_principal = detalles_cotizacion(datos_de_cotizacion),
+        oficinas = crearNodo(`
+
+        `),
         transportadoras = crearNodo(`<div class="row">
+            <div class="col-12">
+                <div id="mostrador-oficinas" class="swiper my-2">
+                    <div class="swiper-wrapper"></div>
+
+                    <!-- If we need pagination -->
+                    <div class="swiper-pagination"></div>
+
+                    <!-- If we need navigation buttons -->
+                    <div class="swiper-button-prev d-none"></div>
+                    <div class="swiper-button-next d-none"></div>
+                </div>
+            </div>
             <div class="col">
                 <ul class="list-group" id="list-transportadoras">
                 </ul>
@@ -435,6 +451,11 @@ async function detallesTransportadoras(data) {
     const factor_conversor = 1000;
     button.addClass("disabled");
     result.after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
+
+    const oficina = true;
+    detallesTransp.append(observadorDetallesOficinas());
+    cargarPreciosTransportadorasOficinas(data);
+
 
     const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
     let cotizacionAveo;
@@ -498,12 +519,15 @@ async function detallesTransportadoras(data) {
             fleteConvertido += factor_conversor;
         }
 
-        transportadora.cotizacion = cotizacion;
+        if(!transportadora.cotizacion) 
+            transportadora.cotizacion = new Object();
+        transportadora.cotizacion[data.type] = cotizacion;
 
 
         const encabezado = `<li class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
         id="list-transportadora-${transp}-list" 
         data-transp="${transp}"
+        data-type="${data.type}"
         aria-controls="list-transportadora-${transp}"
         >
             <div class="row">
@@ -513,7 +537,7 @@ async function detallesTransportadoras(data) {
                 <div class="col-12 col-sm-6 mt-3 mt-sm-0 order-1 order-sm-0">
                     <h5>${transportadora.nombre} <span class="badge badge-${transportadora.color} p-2">${(transp === "ENVIA" || transp === "TCC") ? 'Próximamente' : ""}</span></h5>
                     <h6>tiempo de entrega: ${cotizacion.tiempo || datos_de_cotizacion.tiempo} Días</h6>
-                    <h6 class="${data.type == "CONVENCIONAL" ? "d-none" : "mb-1"}">
+                    <h6 class="d-none ${data.type == "CONVENCIONAL" ? "" : "mb-1 d-sm-block"}">
                     El Valor consignado a tu cuenta será: <b>$${convertirMiles(cotizacion.valor - cotizacion.costoEnvio)}</b></h6>
                 </div>
                 <div class="col d-flex flex-column justify-content-around">
@@ -523,11 +547,12 @@ async function detallesTransportadoras(data) {
                     <h5><b>$${convertirMiles(cotizacion.costoEnvio)} </b></h5>
                 </div>
             </div>
-            <p class="text-center mb-0 mt-2">Costo de envío para ${data.type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"}: <b>$${convertirMiles(data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor)}</b></p>
+            <p class="text-center mb-0 mt-2 d-none d-sm-block">Costo de envío para ${data.type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"}: <b>$${convertirMiles(data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor)}</b></p>
+            <p class="mb-0 d-sm-none">${data.type == "CONVENCIONAL" ? "Valor declarado" : "Recaudo"}: <b>$${convertirMiles(data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor)}</b></p>
         </li>`;
 
         const detalle = `<div class="tab-pane fade 
-        ${!corredor ? "show active" : ""}" 
+        ${!corredor && !oficina ? "show active" : ""}" 
         id="list-transportadora-${transp}" aria-labelledby="list-transportadora-${transp}-list">
             <div class="card">
                 <div class="card-header bg-${transportadora.color} text-light">
@@ -571,16 +596,7 @@ async function detallesTransportadoras(data) {
         mostradorTransp.append(encabezado);
         detallesTransp.append(detalle);
 
-        $(`#ver-detalles-${transp}`).click(function(e){
-            const info = detallesTransp.parent();
-            const selector = $(this).parents("li").attr("aria-controls");
-
-            info.removeClass("d-none");
-            detallesTransp.children().removeClass("active show");
-            $("#"+selector).addClass("show active")
-
-            info[0].scrollIntoView({behavior: "smooth"})
-        });
+        $(`#ver-detalles-${transp}`).click(verDetallesTransportadora);
         $(`#list-transportadora-${transp}-list`).click(seleccionarTransportadora);
 
 
@@ -602,12 +618,357 @@ async function detallesTransportadoras(data) {
     return [encabezados, detalles];
 }
 
+function verDetallesTransportadora(e) {
+    const detallesTransp = $("#nav-contentTransportadoras");
+    const info = detallesTransp.parent();
+    const selector = $(this).parents("[aria-controls]").attr("aria-controls");
+
+    info.removeClass("d-none");
+    detallesTransp.children().removeClass("active show");
+    $("#"+selector).addClass("show active")
+    info[0].scrollIntoView({behavior: "smooth"})
+}
+
+//*** FUNCIONES PARA OFICINAS ***
+async function detallesOficinas(destino) {
+    return [{
+        nombre_empresa: "Oficina 1",
+        id_oficina: 1,
+        correo: "correo@dominio.com",
+        ciudad: "CALI(VALLE DEL CAUCA)",
+        barrio: "los bellos",
+        direccion: "Kra 23 #40-40",
+        celular: "3102584568",
+        numero_documento: "1234567989",
+        tipo_documento: "CC",
+        nombres: "NombreO",
+        apellidos: "ApellidoO",
+        direccion_completa: "Kra 23 #40-40, los bellos, CALI (VALLE DEL CAUCA)",
+        precios: {
+            porcentaje_comsion: 10
+        }
+    }, {
+        nombre_empresa: "Oficina 1",
+        id_oficina: 2,
+        correo: "correo@dominio.com",
+        ciudad: "CALI(VALLE DEL CAUCA)",
+        barrio: "los bellos",
+        direccion: "Kra 23 #40-40",
+        celular: "3102584568",
+        numero_documento: "1234567989",
+        tipo_documento: "CC",
+        nombres: "NombreO",
+        apellidos: "ApellidoO",
+        direccion_completa: "Kra 23 #40-40, los bellos, CALI (VALLE DEL CAUCA)",
+        precios: {
+            porcentaje_comsion: 5
+        }
+    }]
+
+    const oficinas = await firebase.firestore().collection("usuarios")
+    .where("ciudad", "==", destino).get()
+    .then(querySnapshot => {
+        let oficinas = new Array();
+        querySnapshot.forEach(doc => oficinas.puhs(doc.data()));
+        return oficinas;
+    });
+}
+
+function mostrarOficinas(oficinas) {
+    const mostradorOffi = $("#mostrador-oficinas");
+    const wrapper = mostradorOffi.children(".swiper-wrapper");
+
+    oficinas.forEach((oficina, i) => {
+        const visualizador = new DOMParser().parseFromString(`
+        <div class="border border-primary p-2 swiper-slide" 
+        id="list-office-list-${i}"
+        data-id="${i}"
+        data-office="${oficina.nombre_empresa}"
+        data-type="OFICINA"
+        aria-controls="list-offices"
+        >
+            <div class="row">
+                <img src="./img/flexii.jpeg" 
+                class="col" style="max-height:120px; max-width:fit-content"
+                alt="logo-OFFY">
+                <div class="col-12 col-sm-6 mt-3 mt-sm-0 order-1 order-sm-0">
+                    <h5>Flexii <span class="badge badge-primary p-2" data-change="nombre_ofi">${oficina.nombre_empresa}</span></h5>
+                    <h6>Transportadora: <b data-change="transportadora">transportadora</b></h6>
+                    <h6>Tiempo de entrega: <b data-change="tiempoEntrega"></b> Días</h6>
+                    <h6 class="mb-1 d-none d-sm-block ver-pagoContraentrega">
+                    El Valor consignado a tu cuenta será: <b data-change="valorConsignar"></b></h6>
+                </div>
+                <div class="col d-flex flex-column justify-content-around">
+                    <select name="" data-id="${i}" class="form-control detalles ver-detalles-office">
+                      
+                    </select>
+                    
+                    <h5><b data-change="costoEnvio"></b></h5>
+                </div>
+            </div>
+            <p class="text-center d-none d-sm-block m-0 ver-pagoContraentrega">Costo de envío para recaudo: <b data-change="valor_recaudo"></b></p>
+            <p class="d-sm-none m-0 ver-pagoContraentrega">Recaudo: <b data-change="valor_recaudo"></b></p>
+
+            <p class="text-center d-none d-sm-block m-0 ver-convencional">Costo de envío para valor declarado: <b data-change="valor_declarado"></b></p>
+            <p class="d-sm-none m-0 ver-convencional">Valor declarado: <b data-change="valor_declarado"></b></p>
+
+            <p class="text-center">Dirección de la oficina: <b data-change="direccion_ofi">${oficina.direccion_completa}</b></p>
+        </div>
+        `, "text/html").body.firstChild;
+        
+        wrapper.append(visualizador)
+    });
+
+    $(".swiper-slide").click(seleccionarTransportadora);
+
+    const swiper = new Swiper("#mostrador-oficinas", {
+        spaceBetween: 10,
+        slidesPerView: 1,
+        centeredSlides: true,
+        // navigation: {
+        //     nextEl: ".swiper-button-next",
+        //     prevEl: ".swiper-button-prev",
+        // },
+        pagination: {
+            el: ".swiper-pagination",
+            clickable: true,
+            type: "bullets",
+        },
+    })
+
+    return mostradorOffi;
+}
+
+async function cargarPreciosTransportadorasOficinas(data) {
+    const fillTransportadoras = new Object();
+    oficinas = await detallesOficinas(data.ciudadD);
+    const mostradorOfi = mostrarOficinas(oficinas);
+    let cotizacionAveo, corredor = 0;
+    const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : "CONVENCIONAL";
+    const observadorTransp = $(".ver-detalles-office");
+
+    if(data.type === "CONVENCIONAL") {
+        mostradorOfi.find(".ver-pagoContraentrega").remove();
+    } else {
+        mostradorOfi.find(".ver-convencional").remove();
+    }
+
+    //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
+    for (let transp in transportadoras) {
+        let seguro = data.seguro, recaudo = data.valor;
+        
+        if(!cotizacionAveo && (transp === "ENVIA" || transp === "TCC")) {
+
+            cotizacionAveo = await cotizarAveonline(typeToAve, {
+                "origen": data.ave_ciudadR,
+                "destino": data.ave_ciudadD,
+                "valorRecaudo": recaudo,
+                "alto": data.alto,
+                "largo": data.largo,
+                "ancho": data.ancho,
+                "peso": value("Kilos"),
+                "valorDeclarado": seguro,
+                type: typeToAve
+            });
+        
+            if(!cotizacionAveo.error) modificarDatosDeTransportadorasAveo(cotizacionAveo);
+        }
+
+        let transportadora = transportadoras[transp];
+        if(data.peso > transportadora.limitesPeso[1]) continue;
+        let valorSeguro = Math.max(seguro, transportadora.limitesValorDeclarado(data.peso)[0]);
+        let valorRecaudo = Math.max(recaudo, transportadora.limitesRecaudo[0]);
+
+        let cotizacion = await new CalcularCostoDeEnvio(valorSeguro, "CONVENCIONAL")
+        .putTransp(transp, {
+            dane_ciudadR: data.dane_ciudadR,
+            dane_ciudadD: data.dane_ciudadD,
+            cotizacionAveo
+        });
+
+        if(data.type === "PAGO CONTRAENTREGA") {
+            const comision_heka = cotizacion.precios.comision_heka;
+            const constante_heka = cotizacion.precios.constante_pagoContraentrega
+            cotizacion.set_sobreflete_heka = Math.ceil(valorRecaudo * ( comision_heka ) / 100) + constante_heka
+        }
+
+        cotizacion.valor = valorRecaudo;
+
+        if(data.sumar_envio) {
+            cotizacion.sumarCostoDeEnvio = cotizacion.valor;
+        }
+
+        cotizacion.debe = data.debe;
+        
+        if(!cotizacion.flete || cotizacion.empty) continue;
+        
+        if(!transportadora.cotizacion) 
+            transportadora.cotizacion = new Object();
+        transportadora.cotizacion["OFICINA"] = cotizacion;
+        
+        observadorTransp.append(`<option value="${transp}">${transp}</option>`);
+        
+        if(!corredor) {
+            for (let i = observadorTransp.length - 1; i >= 0; i--) {
+                const el = observadorTransp[i];
+                console.log(i);
+                cambiarPreciosOficinasPorTransportadora(el, cotizacion, oficinas);
+            }
+        }
+        corredor ++
+    } 
+
+    observadorTransp.on("change", e => {
+        const transp = e.target.value;
+        const cotizacion = transportadoras[transp].cotizacion["OFICINA"];
+        const verDetalles = verDetallesTransportadora.bind(e.target);
+        
+        cambiarPreciosOficinasPorTransportadora(e.target, cotizacion, oficinas);
+        verDetalles();
+    });
+}
+
+function cambiarPreciosOficinasPorTransportadora(target, cotizacion, oficinas) {
+    if(!cotizacion) return;
+    
+    const factor_conversor = 1000;
+    const transp = cotizacion.codTransp;
+    const nOficina = $(target).attr("data-id");
+    
+    const oficina = oficinas[nOficina];
+    cotizacion.sobreflete_oficina = cotizacion.flete * oficina.precios.porcentaje_comsion / 100;
+
+    const costoEnvio = cotizacion.costoEnvio;
+    
+    let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
+    let fleteConvertido = cotizacion.flete
+    if(transp !== "SERVIENTREGA") {
+        sobreFleteHekaEdit -= factor_conversor;
+        fleteConvertido += factor_conversor;
+    }
+
+
+    let descuento;
+    if(cotizacion.descuento) {
+        const percent = Math.round((cotizacion.costoEnvioPrev - cotizacion.costoEnvio) * 100 / cotizacion.costoEnvioPrev)
+        console.log("tiene un descuento de: " + percent +"%");
+        descuento = percent + " %"
+    }
+
+    const contenedor = $(target).parents("[data-office]");
+    const detalles = $("#list-offices");
+
+    const find = type => `[data-change="${type}"]`;
+    contenedor.find(find("transportadora")).text(transp)
+    contenedor.find(find("tiempoEntrega")).text(cotizacion.tiempo || datos_de_cotizacion.tiempo);
+    contenedor.find(find("valorConsignar")).text("$"+convertirMiles(cotizacion.valor - costoEnvio));
+    contenedor.find(find("costoEnvio")).text("$"+convertirMiles(costoEnvio));
+    contenedor.find(find("valor_recaudo")).text("$"+convertirMiles(cotizacion.valor));    
+    contenedor.find(find("valor_declarado")).text("$"+convertirMiles(cotizacion.seguro));    
+    contenedor.attr("data-transp", transp);
+
+    detalles.find(find("transportadora")).text(transp)
+    detalles.find(find("nombre_empresa")).text(oficina.nombre_empresa);
+    detalles.find(find("fleteConvertido")).text("$"+convertirMiles(fleteConvertido));    
+    detalles.find(find("sobreflete")).text("$"+convertirMiles(cotizacion.sobreflete));    
+    detalles.find(find("seguroMercancia")).text("$"+convertirMiles(cotizacion.seguroMercancia));    
+    detalles.find(find("sobreFleteHekaEdit")).text("$"+convertirMiles(sobreFleteHekaEdit));    
+    detalles.find(find("sobreFleteOficina")).text("$"+convertirMiles(cotizacion.sobreflete_oficina));    
+    detalles.find(find("costoEnvio")).text("$"+convertirMiles(costoEnvio));    
+    detalles.find(find("costoEnvioPrev")).text("$"+convertirMiles(cotizacion.costoEnvioPrev));  
+
+    if(!descuento) {
+        $("#mostrador-descuento-office").addClass("d-none");
+    } else {
+        $("#mostrador-descuento-office").removeClass("d-none");
+    }
+}
+
+function observadorDetallesOficinas() {
+    
+    return `
+    <div class="tab-pane fade show active" 
+        id="list-offices" aria-labelledby="list-office-list">
+            <div class="card">
+                <div class="card-header bg-primary text-light">
+                    <span data-change="nombre_empresa"></span> - <span data-change="transportadora">Transportadora</span>
+                </div>
+                <div class="card-body">
+                    <div class="card my-3 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Costo Transportadora</h5>
+                            <p class="card-text d-flex justify-content-between">Valor flete <b data-change="fleteConvertido"></b></p>
+                            <p class="card-text d-flex justify-content-between">Comisión transportadora <b data-change="sobreflete"></b></p>
+                            <p class="card-text d-flex justify-content-between">Seguro mercancía <b data-change="seguroMercancia"></b></p>
+                        </div>
+                    </div>
+                    <div class="card my-3 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Costo Heka entrega</h5>
+                            <p class="card-text d-flex justify-content-between">Comisión heka <b data-change="sobreFleteHekaEdit"></b></p>
+                        </div>
+                    </div>
+                    <div class="card my-3 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">Costo Oficina</h5>
+                            <p class="card-text d-flex justify-content-between">Comisión oficina <b data-change="sobreFleteOficina"></b></p>
+                        </div>
+                    </div>
+                    <div class="card my-3 shadow-sm border-primary">
+                        <div class="card-body">
+                            <h3 class="card-text d-flex justify-content-between">Total: 
+                                <small id="mostrador-descuento-office" class="text-danger">
+                                    <del data-change="costoEnvioPrev"></del>
+                                    <h6><small>Precio al público</small></h6>
+                                </small> 
+                                <b>
+                                    <strong data-change="costoEnvio"></strong>
+                                    <h6><small>Con nosotros</small></h6>
+                                </b>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `
+}
+
+// retorna un objeto
+function tomarDetallesImportantesOficina(oficina) {
+    const arr = [
+        "id_oficina", "ciudad", "barrio", "direccion", "celular",
+        "numero_documento", "tipo_documento",
+        "nombres", "apellidos", "correo"
+    ];
+
+    const datos_obtenidos = new Object();
+    arr.forEach(v => {
+        datos_obtenidos[v] = oficina[v]
+    });
+
+    datos_obtenidos.nombre_completo = datos_obtenidos.nombres + " " + datos_obtenidos.apellidos;
+
+    return datos_obtenidos
+}
+//*** FUNCIONES PARA OFICINAS ***
 
 //Selecciona la transportadora a utilizar
 function seleccionarTransportadora(e) {
     if (e.target.classList.contains("detalles")) return
-    let transp = this.getAttribute("data-transp");
-    let result_cotizacion = transportadoras[transp].cotizacion;
+    const transp = this.getAttribute("data-transp");
+    const type = this.getAttribute("data-type");
+    const nOffice = this.getAttribute("data-id");
+    const isOficina = type === "OFICINA";
+    const oficina = oficinas[nOffice];
+
+    delete datos_a_enviar.oficina
+    delete datos_a_enviar.datos_oficina
+    delete datos_a_enviar.id_oficina
+
+    let result_cotizacion = transportadoras[transp].cotizacion[type];
+    if(isOficina) 
+        result_cotizacion.sobreflete_oficina = result_cotizacion.flete * oficina.precios.porcentaje_comsion / 100;
 
     const texto_tranp_no_disponible = `Actualmente no tienes habilitada esta transportadora, 
     si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/j8l2ku">321 336 1911</a>`;
@@ -623,7 +984,7 @@ function seleccionarTransportadora(e) {
 
     if (result_cotizacion.debe) datos_a_enviar.debe = -result_cotizacion.costoEnvio
 
-    if (result_cotizacion.valor < result_cotizacion.costoEnvio && result_cotizacion.type !== "CONVENCIONAL") {
+    if ((result_cotizacion.valor < result_cotizacion.costoEnvio && result_cotizacion.type !== "CONVENCIONAL")) {
         return Toast.fire({
             icon: "error",
             text: "El valor del recaudo no debe ser menor al costo del envío."
@@ -690,6 +1051,12 @@ function seleccionarTransportadora(e) {
 
     //Detalles del costo de Envío
     datos_a_enviar.detalles = result_cotizacion.getDetails;
+
+    if(isOficina) {
+        datos_a_enviar.oficina = true,
+        datos_a_enviar.datos_oficina = tomarDetallesImportantesOficina(oficinas[nOffice]);
+        datos_a_enviar.id_oficina = datos_a_enviar.datos_oficina.id_oficina;
+    }
     console.log(datos_a_enviar);
 };
 
@@ -753,6 +1120,13 @@ function finalizarCotizacion(datos) {
     let creador = document.getElementById("crear_guia");
     const readonly = datos.transportadora == "INTERRAPIDISIMO";
 
+    const {
+        direccion, barrio, correo, celular, numero_documento,
+        tipo_documento
+    } = datos.datos_oficina || {};
+
+    const num_tipo_doc = tipo_documento === "NIT" ? 1 : 2;
+
     let detalles = detalles_cotizacion(datos),
         boton_regresar = crearNodo(`<a class="btn btn-outline-primary btn-block mb-3" href="#cotizar_envio" onclick="regresar()">
             Regresar
@@ -785,6 +1159,13 @@ function finalizarCotizacion(datos) {
             </div>
         </div>
         `),
+        notas_oficina= datos.oficina ? `
+            <div class="text-muted border-left-primary m-2">
+                <h6 class="ml-2">
+                    <span><b>Nota:</b> Estás intentando hacer un envío a través de una oficina, por referencia, se autocompletó la información de la oficina a la cual realizarás el envío, cuya información puedes sustituir si deseas para mantener tu propia referencia.</span>
+                </h6>
+            </div>
+        `:"",
         datos_destinatario = crearNodo(`
         <div class="card card-shadow m-6 mt-5">
             <div class="card-header py-3">
@@ -792,6 +1173,7 @@ function finalizarCotizacion(datos) {
             </div>
             <form id="datos-destinatario">
                 <div class="card-body row">
+                    ${notas_oficina}
                     <div class="col-lg-6 mb-3 mb-2">
                         <h5>Nombre del Destinatario</h5>
                         <input type="text" name="nombreD" id="nombreD" class="form-control form-control-user" value="" placeholder="Nombre" required="">
@@ -800,12 +1182,12 @@ function finalizarCotizacion(datos) {
                         <div class="row align-items-center">
                             <div class="col-sm-8 mb-2">
                                 <label for="identificacionD">Documento de identificación</label>
-                                <input type="number" id="identificacionD" class="form-control form-control-user detect-errors" value="" placeholder="ej. 123456789" required="">
+                                <input type="number" id="identificacionD" class="form-control form-control-user detect-errors" value="${numero_documento || ""}" placeholder="ej. 123456789" required="">
                             </div>
                             <div class="col mb-2">
                                 <label for="tipo-doc-dest" class="col-form-label">Tipo De Documento</label>
                                 <select class="custom-select" form="datos-destinatario" id="tipo-doc-dest">
-                                    <option value="2">Seleccione</option>
+                                    <option value="${num_tipo_doc}">${tipo_documento || "Seleccione"}</option>
                                     <option value="1">NIT</option>
                                     <option value="2">CC</option>
                                 </select>
@@ -815,11 +1197,11 @@ function finalizarCotizacion(datos) {
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Dirección del Destinatario</h5>
-                        <input type="text" id="direccionD" class="form-control form-control-user" value="" placeholder="Dirección-Conjunto-Apartemento" required="">
+                        <input type="text" id="direccionD" class="form-control form-control-user" value="${direccion || ""}" placeholder="Dirección-Conjunto-Apartemento" required="">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Barrio del Destinatario</h5>
-                        <input type="text" id="barrioD" class="form-control form-control-user detect-errors" value="" placeholder="Barrio" required="">
+                        <input type="text" id="barrioD" class="form-control form-control-user detect-errors" value="${barrio || ""}" placeholder="Barrio" required="">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Celular del Destinatario</h5>
@@ -828,11 +1210,11 @@ function finalizarCotizacion(datos) {
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Otro celular del Destinatario</h5>
-                        <input type="number" id="celularD" class="form-control form-control-user detect-errors" value="" placeholder="celular">
+                        <input type="number" id="celularD" class="form-control form-control-user detect-errors" value="${celular || ""}" placeholder="celular">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Email</h5>
-                        <input type="email" id="correoD" class="form-control form-control-user" value="" placeholder="nombre@ejemplo.com">
+                        <input type="email" id="correoD" class="form-control form-control-user" value="${correo || ""}" placeholder="nombre@ejemplo.com">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Observaciones Adicionales</h5>
@@ -970,6 +1352,7 @@ class CalcularCostoDeEnvio {
         this.seguroMercancia = 0;
         this.kg_min = 3;
         this.codTransp = "SERVIENTREGA";
+        this.sobreflete_oficina = 0;
     }
 
     //Devuelve el paso generado del volumen, debido al factor dec conversión
@@ -1025,6 +1408,7 @@ class CalcularCostoDeEnvio {
         console.log("comision transportadora => ", this.sobreflete);
         console.log("Seguro mercancia => ", this.seguroMercancia);
         console.log("Comision heka => ", this.sobreflete_heka);
+        console.log("Comisión Oficina =>", this.sobreflete_oficina);
         console.log("Flete => ", this.flete);
         console.log("Costo de envío =>", this.costoEnvio);
         console.groupEnd();
@@ -1044,6 +1428,8 @@ class CalcularCostoDeEnvio {
         if(this.aveo) {
             details.seguro_mercancia = this.precio.costoManejo;
         }
+
+        if(this.sobreflete_oficina) details.sobreflete_oficina = this.sobreflete_oficina;
 
         return details
     }
@@ -1089,10 +1475,11 @@ class CalcularCostoDeEnvio {
         if(this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
         if(this.aveo) this.intoAveo(this.precio);
         
-        this.sobreflete_heka = Math.ceil(valor * ( comision_heka ) / 100) + constante_heka;
+        console.log(this.codTransp, this.sobreflete_heka);
+        this.sobreflete_heka = this.set_sobreflete_heka || Math.ceil(valor * ( comision_heka ) / 100) + constante_heka;
 
         if(this.codTransp !== "SERVIENTREGA") this.sobreflete_heka += 1000;
-        const respuesta = this.sobreflete + this.seguroMercancia + this.sobreflete_heka;
+        const respuesta = this.sobreflete + this.seguroMercancia + this.sobreflete_heka + this.sobreflete_oficina;
         return respuesta;
     }
 
