@@ -243,13 +243,15 @@ exports.crearGuia = (req, res) => {
     const url =  guia.prueba ? UsuarioPrueba.endpoint : Credenciales.endpoint;
     const nombreTipoEnvio = guia.peso < 3 ? "PAQUETE PEQUEÑO" : "PAQUETE";
     const idTipoEnvio = guia.peso < 3 ? 3 : 9;
-    const idServicio = guia.peso < 6 ? 3 : 6
+    const idServicio = guia.peso < 6 ? 3 : 6;
+
+    const dest = extsFunc.transformarDatosDestinatario(guia);
 
     let data = {
         "IdClienteCredito": guia.prueba ? UsuarioPrueba.idCliente : Credenciales.idCliente, //Codigo cliente
         "CodigoConvenioRemitente": guia.codigo_sucursal, //Codigo sucursal
         "IdTipoEntrega":"1",
-        "AplicaContrapago": guia.type !== "CONVENCIONAL",
+        "AplicaContrapago": dest.type !== "CONVENCIONAL",
         "IdServicio": idServicio, 
         "Peso": guia.peso, //En kilogramos
         "Largo":guia.largo, //En centimetros
@@ -261,18 +263,18 @@ exports.crearGuia = (req, res) => {
         "IdFormaPago":2,
         "NumeroPieza":1,
         "Destinatario":{
-            "tipoDocumento": guia.tipo_doc_dest === 1 ? "NIT" : "CC",
-            "numeroDocumento": guia.identificacionD,
-            "nombre": guia.nombreD,
+            "tipoDocumento": dest.tipo_documento === 1 ? "NIT" : "CC",
+            "numeroDocumento": dest.numero_documento,
+            "nombre": dest.nombre,
             "primerApellido":  "| Heka", //Si se debe enviar si es un cliente persona natural, es obligatorio
             "segundoApellido": "Sucursal: " + guia.codigo_sucursal,
-            "telefono": guia.telefonoD,
-            "direccion": guia.direccionD,
+            "telefono": dest.celular,
+            "direccion": dest.direccion,
             "idDestinatario":0, "idRemitente":0, //Campos opcionales. Dejarlos en 0
             "idLocalidad": guia.dane_ciudadD, //Codigo DANE ciudad destinatario
             "CodigoConvenio":0, //Enviar valor 0 si no es cliente convenio
             "ConvenioDestinatario":0, //Enviar valor 0 si no es cliente convenio
-            "correo": guia.correoD //Obligatorio si es cliente convenio
+            "correo": dest.correo //Obligatorio si es cliente convenio
         },
         "DescripcionTipoEntrega":"",
         "NombreTipoEnvio": nombreTipoEnvio,

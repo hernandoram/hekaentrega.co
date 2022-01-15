@@ -445,8 +445,9 @@ async function actualizarMovimientos(doc) {
 
 function generarGuia(datos) {
   let auth_header;
+  const dest = extsFunc.transformarDatosDestinatario(datos);
 
-  if(datos.type == "CONVENCIONAL") {
+  if(dest.type == "CONVENCIONAL") {
     auth_header = auth_header_convencional;
   } else {
     auth_header = auth_header_pagoContraentrega
@@ -454,7 +455,6 @@ function generarGuia(datos) {
 
   if(datos.prueba) auth_header = auth_header_prueba;
   
-  console.log(auth_header);
 
   let consulta = `<?xml version="1.0" encoding="UTF-8"?>
   <env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope" xmlns:tem="http://tempuri.org/">
@@ -475,9 +475,9 @@ function generarGuia(datos) {
                 <Des_TipoTrayecto>1</Des_TipoTrayecto>
                 <Ide_Producto>2</Ide_Producto><!--ENVÍO CON MERCACÍA PREMIER-->
                 <Des_FormaPago>2</Des_FormaPago>
-                <Ide_Num_Identific_Dest>${datos.identificacionD}</Ide_Num_Identific_Dest>
+                <Ide_Num_Identific_Dest>${dest.numero_documento}</Ide_Num_Identific_Dest>
                 <CentroCosto>${datos.prueba ? "" : datos.centro_de_costo}</CentroCosto>
-                <Tipo_Doc_Destinatario>${datos.tipo_doc_Dest == "1" ? "NIT" : "CC"}</Tipo_Doc_Destinatario>
+                <Tipo_Doc_Destinatario>${dest.tipo_documento == "1" ? "NIT" : "CC"}</Tipo_Doc_Destinatario>
                 <Des_MedioTransporte>1</Des_MedioTransporte>
                 <Num_PesoTotal>${datos.peso}</Num_PesoTotal>
                 <Num_ValorDeclaradoTotal>${datos.seguro}</Num_ValorDeclaradoTotal>
@@ -485,11 +485,11 @@ function generarGuia(datos) {
                 <Num_BolsaSeguridad>0</Num_BolsaSeguridad>
                 <Num_Precinto>0</Num_Precinto>
                 <Des_TipoDuracionTrayecto>1</Des_TipoDuracionTrayecto>
-                <Des_Telefono>${datos.telefonoD}</Des_Telefono>
+                <Des_Telefono>${dest.celular}</Des_Telefono>
                 <Num_Celular>${datos.celularD}</Num_Celular>
                 <Des_Ciudad>${datos.dane_ciudadD}</Des_Ciudad><!--o codigo dane para ciudad destino-->
-                <Des_Direccion>${datos.direccionD}</Des_Direccion>
-                <Nom_Contacto>${datos.nombreD}</Nom_Contacto>
+                <Des_Direccion>${dest.direccion}</Des_Direccion>
+                <Nom_Contacto>${dest.nombre}</Nom_Contacto>
                 <Des_VlrCampoPersonalizado1>${datos.id_heka}</Des_VlrCampoPersonalizado1>
                 
                 <Num_ValorLiquidado>0</Num_ValorLiquidado>
@@ -522,9 +522,9 @@ function generarGuia(datos) {
                 <Num_ValorDeclaradoSobreTotal>0</Num_ValorDeclaradoSobreTotal>
                 <Num_Factura>0</Num_Factura>
                 <Recoleccion_Esporadica>${datos.recoleccion_esporadica}</Recoleccion_Esporadica>
-                <Des_CorreoElectronico>${datos.correoD}</Des_CorreoElectronico>
+                <Des_CorreoElectronico>${dest.correo}</Des_CorreoElectronico>
                 <correo_remitente>${datos.correoR}</correo_remitente>
-                <Num_Recaudo>${datos.prueba ? "0" : datos.valor}</Num_Recaudo>
+                <Num_Recaudo>${datos.prueba || dest.type == "CONVENCIONAL" ? "0" : datos.valor}</Num_Recaudo>
               </EnviosExterno>
             </objEnvios>
           </CargueMasivoExternoDTO>

@@ -114,6 +114,49 @@ exports.estandarizarFecha = (date, specialFormat, parseHour) => {
   return res;
 }
 
+exports.transformarDatosDestinatario = data => {
+  if (data.oficina) {
+    let tipoDocument;
+    switch (data.datos_oficina.tipo_documento) {
+      case "CC":
+        tipoDocument = 2;
+        break;
+      case "NIT":
+        tipoDocument = 1;
+        break;
+      default:
+        tipoDocument = null;
+        break;
+    }
+    
+    const datos_oficina = {
+      nombre: `${data.datos_oficina.nombres} ${data.datos_oficina.apellidos}`,
+      ciudad: data.datos_oficina.ciudad,
+      direccion: `${data.datos_oficina.direccion}, ${data.datos_oficina.barrio}`,
+      tipo_documento: tipoDocument,
+      numero_documento: data.datos_oficina.numero_documento,
+      celular: data.datos_oficina.celular,
+      telefono: data.telefonoD,
+      correo: data.datos_oficina.correo,
+      type: "CONVENCIONAL"
+    };
+    return datos_oficina;
+  } else {
+    const datos_destinatario = {
+      nombre: data.nombreD,
+      tipo_documento: data.tipo_doc_dest,
+      numero_documento: data.identificacionD,
+      direccion: data.direccionD,
+      ciudad: data.ciudadD,
+      telefono: data.telefonoD,
+      celular: data.celularD,
+      correo: data.correoD,
+      type: data.type
+    };
+    return datos_destinatario;
+  }
+};
+
 /** FUNCIONES */
 function revisarNovedad(mov, transp) {
   if(transp === "INTERRAPIDISIMO") {

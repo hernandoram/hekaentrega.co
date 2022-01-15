@@ -452,10 +452,7 @@ async function detallesTransportadoras(data) {
     button.addClass("disabled");
     result.after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
 
-    const oficina = true;
-    detallesTransp.append(observadorDetallesOficinas());
-    cargarPreciosTransportadorasOficinas(data);
-
+    const oficina = cargarPreciosTransportadorasOficinas(data);
 
     const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
     let cotizacionAveo;
@@ -684,7 +681,6 @@ function mostrarOficinas(oficinas) {
         id="list-office-list-${i}"
         data-id="${i}"
         data-office="${oficina.nombre_empresa}"
-        data-type="OFICINA"
         aria-controls="list-offices"
         >
             <div class="row">
@@ -740,12 +736,18 @@ function mostrarOficinas(oficinas) {
 }
 
 async function cargarPreciosTransportadorasOficinas(data) {
-    const fillTransportadoras = new Object();
     oficinas = await detallesOficinas(data.ciudadD);
+    if(!oficinas.length) return false;
+    
     const mostradorOfi = mostrarOficinas(oficinas);
+    const detallesTransp = $("#nav-contentTransportadoras");
+    detallesTransp.append(observadorDetallesOficinas());
+
     let cotizacionAveo, corredor = 0;
     const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : "CONVENCIONAL";
     const observadorTransp = $(".ver-detalles-office");
+
+    mostradorOfi.find(".swiper-slide").attr("data-type", data.type);
 
     if(data.type === "CONVENCIONAL") {
         mostradorOfi.find(".ver-pagoContraentrega").remove();
@@ -790,12 +792,13 @@ async function cargarPreciosTransportadorasOficinas(data) {
             const comision_heka = cotizacion.precios.comision_heka;
             const constante_heka = cotizacion.precios.constante_pagoContraentrega
             cotizacion.set_sobreflete_heka = Math.ceil(valorRecaudo * ( comision_heka ) / 100) + constante_heka
+            cotizacion.valor = valorRecaudo;
         }
 
-        cotizacion.valor = valorRecaudo;
 
         if(data.sumar_envio) {
             cotizacion.sumarCostoDeEnvio = cotizacion.valor;
+            cotizacion.seguro = valorSeguro;
         }
 
         cotizacion.debe = data.debe;
@@ -811,7 +814,6 @@ async function cargarPreciosTransportadorasOficinas(data) {
         if(!corredor) {
             for (let i = observadorTransp.length - 1; i >= 0; i--) {
                 const el = observadorTransp[i];
-                console.log(i);
                 cambiarPreciosOficinasPorTransportadora(el, cotizacion, oficinas);
             }
         }
@@ -826,6 +828,8 @@ async function cargarPreciosTransportadorasOficinas(data) {
         cambiarPreciosOficinasPorTransportadora(e.target, cotizacion, oficinas);
         verDetalles();
     });
+
+    return oficinas;
 }
 
 function cambiarPreciosOficinasPorTransportadora(target, cotizacion, oficinas) {
@@ -958,15 +962,16 @@ function seleccionarTransportadora(e) {
     if (e.target.classList.contains("detalles")) return
     const transp = this.getAttribute("data-transp");
     const type = this.getAttribute("data-type");
+    const isOficina = !!this.getAttribute("data-office");
     const nOffice = this.getAttribute("data-id");
-    const isOficina = type === "OFICINA";
     const oficina = oficinas[nOffice];
+    const seleccionado = isOficina ? "OFICINA" : type;
 
     delete datos_a_enviar.oficina
     delete datos_a_enviar.datos_oficina
     delete datos_a_enviar.id_oficina
 
-    let result_cotizacion = transportadoras[transp].cotizacion[type];
+    let result_cotizacion = transportadoras[transp].cotizacion[seleccionado];
     if(isOficina) 
         result_cotizacion.sobreflete_oficina = result_cotizacion.flete * oficina.precios.porcentaje_comsion / 100;
 
@@ -1015,7 +1020,7 @@ function seleccionarTransportadora(e) {
             datos_a_enviar.costo_envio = result_cotizacion.costoEnvio;
             datos_a_enviar.valor = result_cotizacion.valor;
             datos_a_enviar.seguro = result_cotizacion.seguro;
-            datos_a_enviar.type = result_cotizacion.type;
+            datos_a_enviar.type = type;
             datos_a_enviar.dane_ciudadR = datos_de_cotizacion.dane_ciudadR;
             datos_a_enviar.dane_ciudadD = datos_de_cotizacion.dane_ciudadD;
             datos_a_enviar.transportadora = transp;

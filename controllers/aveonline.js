@@ -334,6 +334,9 @@ async function inspectGuiasPorCrear() {
     console.log(guiasPorCrear);
     if(!guiasPorCrear.length) return;
     const guia = guiasPorCrear.shift();
+    const dest = funct.transformarDatosDestinatario(guia);
+
+    guia.type = dest.type;
     guia.valor = guia.valorRecaudo;
 
     const codTransp = guia.transportadora === "TCC" ? Cr.codTcc : Cr.codEnvia;
@@ -356,17 +359,17 @@ async function inspectGuiasPorCrear() {
             "dsdirre": guia.direccionR,
             "dsbarrioo":"",
             "destino": guia.ave_ciudadD,
-            "dsdir": guia.direccionD,
+            "dsdir": dest.direccion,
             "dsbarrio":"",
             "dsnitre": 1072497419-8,
             "dstelre": guia.celularR,
             "dscelularre": guia.celularR,
             "dscorreopre": guia.correoR,
-            "dsnit": guia.identificacionD,
+            "dsnit": dest.numero_documento,
             "dsnombre": guia.nombreR,
-            "dsnombrecompleto": guia.nombreD,
-            "dscorreop": guia.correoD,
-            "dstel": guia.telefonoD,
+            "dsnombrecompleto": dest.nombre,
+            "dscorreop": dest.correo,
+            "dstel": dest.celular,
             "dscelular": guia.celularD,
             "idtransportador": codTransp,
             "idalto": guia.alto,
