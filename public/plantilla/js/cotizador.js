@@ -49,7 +49,7 @@ let transportadoras = {
     },
     "ENVIA": {
         nombre: "Envía",
-        observaciones: observacionesInteRapidisimo,
+        observaciones: observacionesEnvia,
         logoPath: "img/logo-inter.png",
         color: "danger",
         limitesPeso: [0.1,100],
@@ -610,7 +610,7 @@ function seleccionarTransportadora(e) {
     let result_cotizacion = transportadoras[transp].cotizacion;
 
     const texto_tranp_no_disponible = `Actualmente no tienes habilitada esta transportadora, 
-    si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/j8l2ku">321 336 1911</a>`;
+    si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/8m9ovw">312 463 8608</a>`;
 
     const swal_error = {
         icon: "error",
@@ -753,6 +753,23 @@ function finalizarCotizacion(datos) {
     let creador = document.getElementById("crear_guia");
     const readonly = datos.transportadora == "INTERRAPIDISIMO";
 
+    let solicitud_recoleccion = `
+        <div class="col-sm-6 mb-2 form-check">
+            <input type="checkbox" id="recoleccion" class="form-check-input">
+            <label for="recoleccion" class="form-check-label" checked>Solicitud de Recolección</label>
+        </div>
+    `;
+
+    if(datos.transportadora !== "SERVIENTREGA") {
+        solicitud_recoleccion = `
+        <div class="col mb-2K">
+            <div class="border-left-secondary">
+                <h6 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, enviar la solicitud al correo <a href="mailto:hekanovedades@gmail.com">hekanovedades@gmail.com</a>.</small></h6>
+            </div>
+        </div>
+        `;
+    }
+
     let detalles = detalles_cotizacion(datos),
         boton_regresar = crearNodo(`<a class="btn btn-outline-primary btn-block mb-3" href="#cotizar_envio" onclick="regresar()">
             Regresar
@@ -838,10 +855,7 @@ function finalizarCotizacion(datos) {
                         <h5>Observaciones Adicionales</h5>
                         <input type="text" id="observaciones" class="form-control form-control-user detect-errors" value="" placeholder="Observaciones Adicionales">
                     </div>
-                    <div class="col-sm-6 mb-3 mb-2 form-check">
-                        <input type="checkbox" id="recoleccion" class="form-check-input">
-                        <label for="recoleccion" class="form-check-label" checked>Solicitud de Recolección</label>
-                    </div>
+                    ${solicitud_recoleccion}
                 </div>
             </form>
         </div>
@@ -1292,7 +1306,7 @@ function crearGuia() {
     if(value("nombreD") != "" && value("direccionD") != "" &&
     value("telefonoD") != ""){
         let recoleccion = 0
-        if(document.getElementById("recoleccion").checked){
+        if(document.getElementById("recoleccion") && document.getElementById("recoleccion").checked){
             recoleccion = 1;
         }
 
@@ -1890,7 +1904,7 @@ function observacionesServientrega(result_cotizacion) {
         "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero o la oficina donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
         `Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span>`,
         `Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`,
-        `En caso de devolución pagas solo el envío ida completo: $${convertirMiles(result_cotizacion.costoEnvio)} (Aplica solo para envíos en pago contra entrega)`
+        `En caso de devolución pagarías: $${convertirMiles(result_cotizacion.costoEnvio)} (Aplica solo para envíos en pago contra entrega)`
     ]
 
     let ul = document.createElement("ul");
@@ -1916,7 +1930,33 @@ function observacionesInteRapidisimo(result_cotizacion) {
         "Las recolecciones deberán ser solicitadas el día anterior o el mismo antes de las 9:00 am para que pasen el mismo día.",
         "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
         "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
-        "En caso de devolución pagas solo el envío ida + seguro + 600: $"+ convertirMiles(result_cotizacion.flete + result_cotizacion.seguroMercancia + 600) +" (Aplica solo para envíos en pago contra entrega)",
+        "En caso de devolución pagarías: $"+ convertirMiles(result_cotizacion.flete + result_cotizacion.seguroMercancia + result_cotizacion.sobreflete + 1000) +" (Aplica solo para envíos en pago contra entrega)",
+    ]
+
+    let ul = document.createElement("ul");
+    ul.classList.add("text-left")
+
+    for(let list of lists) {
+        let li = document.createElement("li");
+        li.classList.add("my-3")
+        li.innerHTML = list;
+        ul.append(li);
+    }
+
+    return ul;
+}
+
+function observacionesEnvia(result_cotizacion) {
+    let lists = [
+        "Los tiempos de entrega son aproximados, no son exactos, ya que pueden suceder problemas operativos.",
+        "El paquete deberá estar correctamente embalado, de lo contrario la transportadora no responderá por averías.",
+        "En algunos municipios, si la entrega es en dirección y está fuera de la cobertura de la oficina el cliente deberá reclamar su paquete en la oficina.",
+        "En caso de novedad la transportadora llama a destinatario y/o remitente para solucionar.",
+        "En caso de devolución la transportadora cobrará el valor del flete ida + seguro de mercancía, no se cobra comisión de recaudo, ni flete de vuelta.",
+        "Las recolecciones deberán ser solicitadas el día anterior o el mismo antes de las 9:00 am para que pasen el mismo día.",
+        "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
+        "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
+        `En caso de devolución pagarías: $${convertirMiles((result_cotizacion.flete + result_cotizacion.seguroMercancia + 1000) * 2)} (Aplica solo para envíos en pago contra entrega)`
     ]
 
     let ul = document.createElement("ul");
