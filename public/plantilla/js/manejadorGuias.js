@@ -401,7 +401,7 @@ function renderizadoDeTablaHistorialGuias(config) {
     $(".en-proceso > span").text(counter["en proceso"]);
     $(".finalizadas > span").text(counter.finalizada);
     $(".anuladas > span").text(counter.anulada);
-    // $(".pagadas > span").text(counter.pagada);
+    $(".pagadas > span").text(counter.pagada);
     $(".todas > span").text(data.length);
 
     api.column(0).nodes().to$().each((i, el) => {
@@ -452,7 +452,7 @@ function clasificarHistorialGuias(data) {
 
     if (estAnuladas.some(v => data.estado === v)) {
         filter = "anulada";
-    } else if(!data.debe && data.type !== "CONVENCIONAL" && false) {
+    } else if(!data.debe && data.type !== "CONVENCIONAL") {
         filter = "pagada"
     } else if (data.seguimiento_finalizado) {
         filter = "finalizada";
