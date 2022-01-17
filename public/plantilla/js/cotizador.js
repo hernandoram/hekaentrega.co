@@ -955,6 +955,29 @@ function tomarDetallesImportantesOficina(oficina) {
 
     return datos_obtenidos
 }
+
+function verificarAntesSeleccionarOficina(oficina, cotizacion) {
+    //Le idea es utilizar la variable oficina, para obtener valores restrictivos particulares de cada oficina
+
+    const maxKilos = 5, maxRec = 300000;
+
+    console.log(datos_a_enviar);
+    if(cotizacion.kgTomado > maxKilos) {
+        Toast.fire({
+            icon: "error",
+            text: "La cantidad de kilos para las oficinas no debe ser mayor a " + maxKilos
+        });
+        return true;
+    }
+    
+    if(cotizacion.valor > maxRec) {
+        Toast.fire({
+            icon: "error",
+            text: "El valor de recaudo para las oficinas no debe ser mayor a " + maxRec
+        });
+        return true;
+    }
+}
 //*** FUNCIONES PARA OFICINAS ***
 
 //Selecciona la transportadora a utilizar
@@ -972,8 +995,10 @@ function seleccionarTransportadora(e) {
     delete datos_a_enviar.id_oficina
 
     let result_cotizacion = transportadoras[transp].cotizacion[seleccionado];
-    if(isOficina) 
+    if(isOficina) {
+        if(verificarAntesSeleccionarOficina(oficina, result_cotizacion)) return;
         result_cotizacion.sobreflete_oficina = result_cotizacion.flete * oficina.precios.porcentaje_comsion / 100;
+    }
 
     const texto_tranp_no_disponible = `Actualmente no tienes habilitada esta transportadora, 
     si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/j8l2ku">321 336 1911</a>`;
@@ -1480,7 +1505,6 @@ class CalcularCostoDeEnvio {
         if(this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
         if(this.aveo) this.intoAveo(this.precio);
         
-        console.log(this.codTransp, this.sobreflete_heka);
         this.sobreflete_heka = this.set_sobreflete_heka || Math.ceil(valor * ( comision_heka ) / 100) + constante_heka;
 
         if(this.codTransp !== "SERVIENTREGA") this.sobreflete_heka += 1000;
@@ -1537,7 +1561,6 @@ class CalcularCostoDeEnvio {
                 this.kg_min = 0.1;
                 let respuestaCotizacion = await this.cotizarInter(dataObj.dane_ciudadR, dataObj.dane_ciudadD);
 
-                console.log(respuestaCotizacion);
                 if(!respuestaCotizacion) {
                     this.empty = true;
                     break;
@@ -1621,7 +1644,6 @@ class CalcularCostoDeEnvio {
 
         if(res.message || res.Message) return 0;
 
-        console.log(res);
         let mensajeria = res.filter(d => d.IdServicio === 3 || d.IdServicio === 6);
 
         if(!mensajeria.length) return 0;
@@ -1649,8 +1671,6 @@ async function cotizarAveonline(type, params) {
         body: JSON.stringify(params)
     })
     .then(d => d.json());
-    console.log(cotizacion);
-    console.log("Sending => ", params)
     if(cotizacion.status === "error") return {error: true};
 
     const envia = cotizacion.cotizaciones.filter(data => data.codTransportadora == codEnvia)[0];
