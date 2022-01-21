@@ -1479,14 +1479,19 @@ $("#switch-habilitar-filtrado-pagos").change((e) => {
 function enviarNotificacion(options) {
     //Este es el patrón utilizado para el objeto que se ingresa en las notificaciones
     let example_data = {
-        visible_user: true,
+        visible_user: false,
         visible_admin: false,
+        visible_office: true,
         icon: ["exclamation", "danger"],
         detalles: "arrErroresUsuario", //mostrar una lista de posibles causas
         user_id: "vinculo.id_user",
+        office_id: "identificador de una oficina",
         mensaje: "Mensaje a mostrar en la notificación",
-        href: "id destino"
+        href: "id destino",
+        fecha: "dd/mm/aaaa",
+        timeline: "new Date().getTime()" // ej. 125645584895
     }
+
     let fecha = genFecha("ltr").replace(/\-/g, "/");
     let hora = new Date().getHours();
     let minutos = new Date().getMinutes();    

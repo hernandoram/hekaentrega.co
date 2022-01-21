@@ -481,7 +481,6 @@ async function detallesTransportadoras(data) {
             seguro = recaudo ? recaudo : seguro;
         }
 
-        console.log(cotizacionAveo);
         
         let transportadora = transportadoras[transp];
         if(data.peso > transportadora.limitesPeso[1]) continue;
@@ -497,7 +496,7 @@ async function detallesTransportadoras(data) {
         if(data.sumar_envio) {
             cotizacion.sumarCostoDeEnvio = cotizacion.valor;
         }
-
+        
         cotizacion.debe = data.debe;
         
         if(!cotizacion.flete || cotizacion.empty) continue;
@@ -505,7 +504,6 @@ async function detallesTransportadoras(data) {
         let descuento;
         if(cotizacion.descuento) {
             const percent = Math.round((cotizacion.costoEnvioPrev - cotizacion.costoEnvio) * 100 / cotizacion.costoEnvioPrev)
-            console.log("tiene un descuento de: " + percent +"%");
             descuento = percent + " %"
         }
 
@@ -1267,7 +1265,7 @@ function finalizarCotizacion(datos) {
     location.href = "#crear_guia";
     scrollTo(0, 0);
 
-    restringirCaracteresEspecialesEnInput()
+    restringirCaracteresEspecialesEnInput();
     let informacion = document.getElementById("informacion-personal");
     document.getElementById("producto").addEventListener("blur", () => {
         let normalmente_envia = false;
@@ -1502,10 +1500,10 @@ class CalcularCostoDeEnvio {
             comision_heka = 1;
             constante_heka = this.precios.constante_convencional;
         }
+        this.sobreflete_heka = this.set_sobreflete_heka || Math.ceil(valor * ( comision_heka ) / 100) + constante_heka;
         if(this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
         if(this.aveo) this.intoAveo(this.precio);
         
-        this.sobreflete_heka = this.set_sobreflete_heka || Math.ceil(valor * ( comision_heka ) / 100) + constante_heka;
 
         if(this.codTransp !== "SERVIENTREGA") this.sobreflete_heka += 1000;
         const respuesta = this.sobreflete + this.seguroMercancia + this.sobreflete_heka + this.sobreflete_oficina;
@@ -1589,7 +1587,7 @@ class CalcularCostoDeEnvio {
                 
                 this.precio = cotizacion;
                 this.aveo = true;
-                this.sumarCostoDeEnvio = false;
+                // this.sumarCostoDeEnvio = false;
                 this.kg_min = 1;
                 this.factor_de_conversion = 0;
                 this.sobreflete_min = 0;
