@@ -21,80 +21,6 @@ export class ChangeElementContenWhileLoading {
     }
 }
 
-// función utilizada principalmente para tomar los inputs y verificar que no estén vacíos
-export function verificador(arr, scroll, mensaje) {
-    /*
-        arr: Recibe un arreglo de ids de inputs a analizar, también recibe un string,
-        scroll: si se desea hacer un croll al elemento coincidente
-        mensaje: El mensaje que se desea agregar debajo del o los inputs agregado(s) en arr
-    */
-    let inputs = document.querySelectorAll("input");
-    let mensajes_error = document.querySelectorAll(".mensaje-error");
-    let error = [], primerInput;
-
-    mensajes_error.forEach(err => {
-        err.remove()
-    });
-
-    for(let i = 0; i < inputs.length; i++){
-        inputs[i].classList.remove("border-danger");
-    }
-
-    if(arr){
-        if(typeof arr == "string") {
-            if(addId(arr)) {
-                primerInput = document.getElementById(arr).parentNode;
-                return true;
-            }
-        } else {
-            for(let id of arr){
-                let inp = document.getElementById(id)
-                if(addId(id)){
-                    error.push(id);
-                    if(mensaje) {
-                        if(inp.parentNode.querySelector(".mensaje-error")) {
-                            inp.parentNode.querySelector(".mensaje-error").innerText = mensaje;
-                        } else {
-                            let p = document.createElement("p");
-                            p.innerHTML = mensaje;
-                            p.setAttribute("class", "mensaje-error text-danger text-center mt-1")
-                            inp.parentNode.appendChild(p);
-                        }
-                    }
-                    // console.log(inp);
-                    primerInput = document.getElementById(error[0]).parentNode;
-                }
-            }
-        }
-
-        // Toma el primer input que arroja la excepción para mostrarlo en la ventana por scroll
-        if(primerInput) {
-            primerInput.querySelector("input").focus()
-            // primerInput.scrollIntoView({
-            //     behavior: "smooth"
-            // });
-        }
-    }
-    
-    function addId(id){
-        let elemento = document.getElementById(id);
-        if(!elemento.value){
-            elemento.classList.add("border-danger");
-            return true
-        } else if(scroll) {
-            elemento.classList.add("border-danger");
-            return scroll == "no-scroll" ? false : true
-        } else {
-            elemento.classList.remove("border-danger");
-            return false
-        }
-    }
-
-    return error
-
-}
-
-
 //Utilizada para comprobar errores de cada input conforme el tipo de listener ingresado
 export class DetectorErroresInput {
     // Recibe los selectores que contarán con las mismas características
@@ -278,3 +204,107 @@ export class DetectorErroresInput {
         }
     }
 }
+
+// función utilizada principalmente para tomar los inputs y verificar que no estén vacíos
+export function verificador(arr, scroll, mensaje) {
+    /*
+        arr: Recibe un arreglo de ids de inputs a analizar, también recibe un string,
+        scroll: si se desea hacer un croll al elemento coincidente
+        mensaje: El mensaje que se desea agregar debajo del o los inputs agregado(s) en arr
+    */
+    let inputs = document.querySelectorAll("input");
+    let mensajes_error = document.querySelectorAll(".mensaje-error");
+    let error = [], primerInput;
+
+    mensajes_error.forEach(err => {
+        err.remove()
+    });
+
+    for(let i = 0; i < inputs.length; i++){
+        inputs[i].classList.remove("border-danger");
+    }
+
+    if(arr){
+        if(typeof arr == "string") {
+            if(addId(arr)) {
+                primerInput = document.getElementById(arr).parentNode;
+                return true;
+            }
+        } else {
+            for(let id of arr){
+                let inp = document.getElementById(id)
+                if(addId(id)){
+                    error.push(id);
+                    if(mensaje) {
+                        if(inp.parentNode.querySelector(".mensaje-error")) {
+                            inp.parentNode.querySelector(".mensaje-error").innerText = mensaje;
+                        } else {
+                            let p = document.createElement("p");
+                            p.innerHTML = mensaje;
+                            p.setAttribute("class", "mensaje-error text-danger text-center mt-1")
+                            inp.parentNode.appendChild(p);
+                        }
+                    }
+                    // console.log(inp);
+                    primerInput = document.getElementById(error[0]).parentNode;
+                }
+            }
+        }
+
+        // Toma el primer input que arroja la excepción para mostrarlo en la ventana por scroll
+        if(primerInput) {
+            primerInput.querySelector("input").focus()
+            // primerInput.scrollIntoView({
+            //     behavior: "smooth"
+            // });
+        }
+    }
+    
+    function addId(id){
+        let elemento = document.getElementById(id);
+        if(!elemento.value){
+            elemento.classList.add("border-danger");
+            return true
+        } else if(scroll) {
+            elemento.classList.add("border-danger");
+            return scroll == "no-scroll" ? false : true
+        } else {
+            elemento.classList.remove("border-danger");
+            return false
+        }
+    }
+
+    return error
+
+}
+
+export async function enviarNotificacion(options) {
+    //Este es el patrón utilizado para el objeto que se ingresa en las notificaciones
+    let example_data = {
+        visible_user: true,
+        visible_admin: false,
+        icon: ["exclamation", "danger"],
+        detalles: "arrErroresUsuario", //mostrar una lista de posibles causas
+        user_id: "vinculo.id_user",
+        mensaje: "Mensaje a mostrar en la notificación",
+        href: "id destino"
+    }
+    let fecha = genFecha("ltr").replace(/\-/g, "/");
+    let hora = new Date().getHours();
+    let minutos = new Date().getMinutes();    
+    if(hora <= 9) hora = "0" + hora;
+    if(minutos <= 9) minutos = "0" + minutos;
+    fecha += ` - ${hora}:${minutos}`;;
+    let notificacion = {
+        fecha,
+        timeline: new Date().getTime()
+    };
+
+    for(let option in options) {
+        notificacion[option] = options[option];
+    }
+
+    console.log(notificacion);
+
+    return await firebase.firestore().collection("notificaciones").add(notificacion)
+};
