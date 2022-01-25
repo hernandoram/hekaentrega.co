@@ -59,11 +59,10 @@ async function cargarDatosUsuario(){
   const buttonMostrarFormDatosBancarios = $("#mostrar-registro-datos-bancarios");
   buttonMostrarFormDatosBancarios.click(activarFormularioCrearDatosBancarios);
 
-  datos_usuario = await consultarDatosDeUsuario()
+  datos_usuario = await consultarDatosDeUsuario();
+  finalizarCotizacion(objeto_ejemplo);
   
   const showPercentage = $("#porcentaje-cargador-inicial");
-
-  
 
   //Carga la informacion personal en un objeto y se llena el html de los datos del usuario
   
@@ -72,10 +71,8 @@ async function cargarDatosUsuario(){
   //SE cargan datos como el centro de costo
   showPercentage.text(percentage());
 
-
   estado_prueba = datos_usuario.centro_de_costo == "SellerNuevo" ? true : false;
 
-  
   //Modifica los costos de envio si el usuario tiene costos personalizados
   showPercentage.text(percentage());
 
@@ -99,7 +96,8 @@ async function consultarDatosDeUsuario() {
         numero_documento: datos.numero_documento,
         centro_de_costo: datos.centro_de_costo,
         objetos_envio: datos.objetos_envio,
-        tipo_documento: datos.tipo_documento
+        tipo_documento: datos.tipo_documento,
+        bodegas: datos.bodegas
       }
 
       datos.nombre_completo = datos_usuario.nombre_completo;
