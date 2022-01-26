@@ -759,15 +759,24 @@ function finalizarCotizacion(datos) {
             <label for="recoleccion" class="form-check-label" checked>Solicitud de Recolección</label>
         </div>
     `;
+    let entrega_en_oficina = "";
 
     if(datos.transportadora !== "SERVIENTREGA") {
         solicitud_recoleccion = `
-        <div class="col mb-2K">
+        <div class="col mb-2">
             <div class="border-left-secondary">
                 <h6 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, enviar la solicitud al correo <a href="mailto:hekanovedades@gmail.com">hekanovedades@gmail.com</a>.</small></h6>
             </div>
         </div>
         `;
+    }
+
+    if(datos.transportadora === "INTERRAPIDISIMO") {
+        entrega_en_oficina = `
+        <div class="form-check">
+            <input type="checkbox" id="entrega_en_oficina" class="form-check-input">
+            <label for="entrega_en_oficina" class="form-check-label" checked>Entrega en oficina</label>
+        </div>`;
     }
 
     let detalles = detalles_cotizacion(datos),
@@ -831,6 +840,7 @@ function finalizarCotizacion(datos) {
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Dirección del Destinatario</h5>
                         <input type="text" id="direccionD" class="form-control form-control-user" value="" placeholder="Dirección-Conjunto-Apartemento" required="">
+                        ${entrega_en_oficina}
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Barrio del Destinatario</h5>
@@ -1363,12 +1373,15 @@ function crearGuia() {
 
     boton_final_cotizador.setAttribute("disabled", true);
 
-
     if(value("nombreD") != "" && value("direccionD") != "" &&
     value("telefonoD") != ""){
-        let recoleccion = 0
+        let recoleccion = 0, id_tipo_entrega;
         if(document.getElementById("recoleccion") && document.getElementById("recoleccion").checked){
             recoleccion = 1;
+        }
+        
+        if(document.getElementById("entrega_en_oficina") && document.getElementById("entrega_en_oficina").checked){
+            id_tipo_entrega = 2;
         }
 
         if(value("producto") == ""){
@@ -1425,6 +1438,8 @@ function crearGuia() {
             datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`;
             datos_a_enviar.timeline = new Date().getTime();
             datos_a_enviar.id_user = user_id;
+
+            if(id_tipo_entrega) datos_a_enviar.id_tipo_entrega = id_tipo_entrega;
 
             // boton_final_cotizador.remove()
 
