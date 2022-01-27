@@ -72,6 +72,8 @@ async function agregarNuevaBodega(form) {
         newcity[entrie[0]] = entrie[1];
     }
 
+    newcity.direccion_completa = newcity.direccion + ", " + newcity.barrio + ", " + newcity.ciudad;
+
     if(newcity.nombre) {
         const existeNombre = bodegas.some(b => {
             return b.nombre.toLowerCase() === newcity.nombre.toLowerCase();
@@ -80,12 +82,20 @@ async function agregarNuevaBodega(form) {
         if(existeNombre) {
             return verificador([idInpNombre], true, "Este nombre de empresa ya existe");
         }
-
     }
 
     if(!/^.+\(.+\)$/.test(newcity.ciudad)) {
         return verificador([idInpCiudad], true, "Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable");
     }
+
+    const id = bodegas.reduce((a,b) => {
+        if(a.id < b.id) return b.id;
+
+        return a
+    }, 0) + 1;
+
+    newcity.id = id;
+    newcity.fecha_creacion = new Date();
 
     trigger.init();
     datos_usuario.bodegas.push(newcity);

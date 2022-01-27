@@ -430,7 +430,7 @@ async function buscarUsuarios(){
 
 
     if(especifico) return
-    const mostradorUsuarios = document.getElementById("mostrador-usuarios")
+    const mostradorUsuarios = document.getElementById("mostrador-usuarios");
 
     reference.get()
     .then((querySnapshot) => {
@@ -470,8 +470,8 @@ async function buscarUsuarios(){
             
         })
         
-        const uniqueChild = mostradorUsuarios.children[0].children[0];
         if(mostradorUsuarios.children.length === 1) {
+            const uniqueChild = mostradorUsuarios.children[0].children[0];
             seleccionarUsuario(uniqueChild.getAttribute("id"));
         }
     }).then(() => {
@@ -568,10 +568,12 @@ function seleccionarUsuario(id){
             const data = doc.data();
             const datos_bancarios = data.datos_bancarios;
             const datos_personalizados = data.datos_personalizados;
+            const bodegas = data.bodegas;
             mostrarDatosPersonales(doc.data(), "personal");
 
             mostrarDatosPersonales(datos_bancarios, "bancaria");
             mostrarDatosPersonales(datos_personalizados, "heka");
+            mostrarBodegasUsuarioAdm(bodegas);
         } else {
             // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
             //Hasta que todos los usuario futuramente tengan el doc "heka"
@@ -645,6 +647,96 @@ function mostrarDatosPersonales(data, info) {
         } 
     }
     
+}
+
+function mostrarBodegasUsuarioAdm(bodegas) {
+    const table = $('#tabla-bodegas').DataTable( {
+        destroy: true,
+        data: bodegas,
+        columns: [
+            {data: "id", title: "Nº", defaultContent: ""},
+            {data: "nombre", title: "Nombre", defaultContent: ""},
+            {data: "ciudad", title: "Ciudad", defaultContent: ""},
+            {data: "barrio", title: "Barrio", defaultContent: ""},
+            {data: "direccion", title: "Dirección", defaultContent: ""},
+        ],
+        language: {
+          url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+        },
+        scrollX: true,
+        scrollCollapse: true,
+        lengthMenu: [ [5, 10, 25, 30], [5, 10, 25, 30] ],
+    });
+
+    if(!bodegas || !bodegas.length) table.clear();
+}
+
+$("#tabla-bodegas").on("click", "tbody tr", editarBodegaUsuarioAdm);
+$("#actualizar-bodegas").click(actualizarBodegasAdm)
+
+function editarBodegaUsuarioAdm(e) {
+    console.log(e);
+    console.log(e.timeStamp);
+    console.log(this);
+    const id = $(this).parents("table").attr("id");
+    const api = $("#"+id).DataTable();
+    const row = api.row(this);
+    const data = row.data();
+
+    if(!data) return;
+    const html = `
+    <form action="#" id="editar-bodega-${data.id}" class="m-2 text-left">
+        <div class="form-group">
+        <label for="barrio-bodega">Barrio de la bodega</label>
+        <input type="text" value="${data.barrio}" class="form-control" id="barrio-bodega" name="barrio">
+        </div>
+    
+        <div class="form-group">
+        <label for="direccion-bodega">Dirección de la bodega</label>
+        <input type="text" value="${data.direccion}" class="form-control" id="direccion-bodega" name="direccion">
+        </div>
+        
+        <div class="form-group">
+        <label for="cod_suc_inter-bodega">Código sucursal para inter</label>
+        <input type="text" value="${data.codigo_sucursal_inter || ""}" class="form-control" id="cod_suc_inter-bodega" name="codigo_sucursal_inter">
+        </div>
+
+        <small>${data.direccion_completa}</small>
+    </form>
+    `;
+
+    Swal.fire({
+        titleText: data.nombre + " - " + data.ciudad,
+        html,
+        showCancelButton: true,
+    }).then(res => {
+        if(res.isConfirmed) {
+            const form = document.getElementById("editar-bodega-" + data.id);
+            const formData = new FormData(form);
+
+            for (let entrie of formData) {
+                data[entrie[0]] = entrie[1].trim();
+            }
+
+            data.direccion_completa = data.direccion + ", " + data.barrio + ", " + data.ciudad;
+        }
+    });
+
+    consultarCiudades(document.getElementById("actualizar_ciudad"))
+}
+
+function actualizarBodegasAdm() {
+    let id_usuario = document.getElementById("usuario-seleccionado").getAttribute("data-id");
+    const bodegas = $('#tabla-bodegas').DataTable().data().toArray();
+    
+    firebase.firestore().collection("usuarios").doc(id_usuario)
+    .update({bodegas}).then(() => {
+        mostrarBodegasUsuarioAdm(bodegas);
+        Toast.fire({
+            icon: "success",
+            text: "Bodegas actualizadas correctamente."
+        });
+    });
 }
 
 function asignarValores(data, query) {

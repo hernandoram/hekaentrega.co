@@ -206,6 +206,9 @@ function avisar(title, content, type, redirigir, tiempo = 5000){
 
 //// Esta funcion me retorna un card con informacion del usuario, sera invocada por otra funcion
 function mostrarUsuarios(data, id){
+    let bodega = data.bodegas ? data.bodegas.filter(b => b.principal)[0] : false
+    if(!bodega && data.bodegas) bodega = data.bodegas[0];
+
     return `<div class="col-md-4 mb-4" 
     data-filter-nombres="${data.nombres}" data-filter-apellidos="${data.apellidos}"
     data-filter-centro_de_costo="${data.centro_de_costo}" data-filter-direccion="${data.direccion_completa}">
@@ -218,7 +221,7 @@ function mostrarUsuarios(data, id){
                         <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800">
                             <p>Nro. de Documento: <small>${data.numero_documento}</small></p>
                             <p>Contacto: <small>${data.celular}</small></p>
-                            <p>Direccion: <small>${data.direccion_completa}</small></p>
+                            <p>Bodega principal: <small>${bodega ? bodega.direccion_completa : "No cuenta con bodega activa."}</small></p>
                         </div>
                     </div>
                 </div>
