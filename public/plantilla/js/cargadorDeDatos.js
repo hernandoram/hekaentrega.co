@@ -235,7 +235,7 @@ function mostrarTranspEnBodega(bodega) {
     const transp = transportadoras[t];
     const habilitada = transp.habilitada();
     const exeption = "INTERRAPIDISIMO";
-    const disponible = t === exeption && bodega.cogido_sucursal_inter || t !== exeption;
+    const disponible = t === exeption && bodega.codigo_sucursal_inter || t !== exeption;
 
     if(habilitada && disponible) res += '<img src="'+transp.logoPath+'" alt="Logo Servientrega" width="25px">';
   });

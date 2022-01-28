@@ -703,7 +703,7 @@ function editarBodegaUsuarioAdm(e) {
     `;
 
     Swal.fire({
-        titleText: data.nombre + " - " + data.ciudad,
+        titleText: data.nombre + " - " + data.ciudad.toLowerCase(),
         html,
         showCancelButton: true,
     }).then(res => {
@@ -716,6 +716,7 @@ function editarBodegaUsuarioAdm(e) {
             }
 
             data.direccion_completa = data.direccion + ", " + data.barrio + ", " + data.ciudad;
+            data.ult_edicion = new Date();
         }
     });
 
@@ -761,15 +762,11 @@ function actualizarInformacionPersonal() {
         apellidos: value("actualizar_apellidos"),
         celular: value("actualizar_telefono"),
         celular2: value("actualizar_celular"),
-        ciudad: value("actualizar_ciudad"),
-        direccion: value("actualizar_direccion"),
-        barrio: value("actualizar_barrio"),
         nombre_empresa: value("actualizar_nombre_empresa"),
         correo: value("actualizar_correo"),
         objetos_envio: value("actualizar_objetos_envio").split(",")
     };
 
-    datos.direccion_completa = datos.direccion + ", " + datos.barrio + ", " + datos.ciudad
     let id_usuario = document.getElementById("usuario-seleccionado").getAttribute("data-id");
 
     firebase.firestore().collection("usuarios").doc(id_usuario).update(datos)
