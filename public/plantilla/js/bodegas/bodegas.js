@@ -105,7 +105,7 @@ async function agregarNuevaBodega(form) {
     const ready = await usuarioDoc.update({bodegas})
     .then(async () => {
         // datos_usuario.bodegas = bodegas;
-        // await notificarNuevaCiudad(newcity);
+        await notificarNuevaCiudad(newcity);
         return {
             icon: "success",
             text: "Se ha agregado una nueva bodega."
