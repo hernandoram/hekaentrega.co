@@ -493,7 +493,7 @@ async function detallesTransportadoras(data) {
 
         let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
         let fleteConvertido = cotizacion.flete
-        if(transp !== "SERVIENTREGA") {
+        if(transp !== "SERVIENTREGA" && data.type === "PAGO CONTRAENTREGA") {
             sobreFleteHekaEdit -= factor_conversor;
             fleteConvertido += factor_conversor;
         }
