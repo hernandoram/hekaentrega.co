@@ -276,7 +276,6 @@ async function registrarNuevoUsuario(formData) {
     }
 
     toSend.objetos_envio = $("[data-objeto_envio]").map((i,it) => it.getAttribute("data-objeto_envio")).get();
-    toSend.direccion_completa = toSend.direccion + ", " + toSend.barrio + ", " + toSend.ciudad;
 
     if(!toSend.objetos_envio.length) {
         const inpObjetos = $("#register-objetos_envio");

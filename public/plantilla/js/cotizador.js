@@ -1,4 +1,4 @@
-let datos_de_cotizacion,
+let datos_de_cotizacion, bodega,
     datos_a_enviar = new Object({}),
     codTransp = "SERVIENTREGA"
 
@@ -50,7 +50,7 @@ let transportadoras = {
     "ENVIA": {
         nombre: "Envía",
         observaciones: observacionesEnvia,
-        logoPath: "img/logo-inter.png",
+        logoPath: "img/2001.png",
         color: "danger",
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
@@ -72,7 +72,7 @@ let transportadoras = {
     "TCC": {
         nombre: "TCC",
         observaciones: observacionesInteRapidisimo,
-        logoPath: "img/logo-inter.png",
+        logoPath: "img/logo-tcc.png",
         color: "warning",
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
@@ -790,9 +790,10 @@ function finalizarCotizacion(datos) {
             placeholder="Introduce el contenido de tu envío">
             <p id="aviso-producto" class="text-danger d-none m-2"></p>
         </div>`),
+        directionNode = mostrarDirecciones(datos),
         datos_remitente = crearNodo(`
         <div class="card card-shadow m-6 mt-5" id="informacion-personal">
-            <div class="card-header py-3">
+            <div class="card-header">
                 <h4 class="m-0 font-weight-bold text-primary text-center">Datos de ${datos_usuario.nombre_completo}</h4>
             </div>
             <div class="card-body row">
@@ -801,13 +802,10 @@ function finalizarCotizacion(datos) {
                     <input id="actualizar_nombreR" type="text" class="form-control form-control-user" value="${datos_usuario.nombre_completo}" ${readonly && "readonly"} required="">  
                 </div>
                 <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h5>Dirección del Remitente</h5>
-                    <input id="actualizar_direccionR" type="text" class="form-control form-control-user" value="${datos_usuario.direccion}" ${readonly && "readonly"} required="">  
-                </div>
-                <div class="col-sm-6 mb-3 mb-sm-0">
                     <h5>Celular del remitente</h5>
                     <input id="actualizar_celularR"  type="text" class="form-control form-control-user" value="${datos_usuario.celular}" ${readonly && "readonly"} required="">  
                 </div>
+                ${directionNode}
             </div>
         </div>
         `),
@@ -873,11 +871,16 @@ function finalizarCotizacion(datos) {
         boton_crear = crearNodo(`<button type="button" id="boton_final_cotizador" 
             class="btn btn-success btn-block mt-5" title="Crear guía" onclick="crearGuia()">Crear guía</button>`);
 
+    if(!directionNode) return;
     div_principal.append(boton_regresar, detalles, input_producto, datos_remitente, datos_destinatario, boton_crear);
     creador.innerHTML = "";
     creador.innerHTML = div_principal.innerHTML;
     location.href = "#crear_guia";
     scrollTo(0, 0);
+
+    const cambiadorDeDireccion = $("#moderador_direccionR");
+    cambiadorDeDireccion.on("change", cambiarDirecion);
+    cambiarDirecion.bind(cambiadorDeDireccion[0])();
 
     restringirCaracteresEspecialesEnInput()
     let informacion = document.getElementById("informacion-personal");
@@ -897,6 +900,86 @@ function finalizarCotizacion(datos) {
             aviso.classList.add("d-none")
         }
     });
+}
+
+// function que devuelve un input group con las direcciones disponibles
+function mostrarDirecciones(datos) {
+    const transp = datos.transportadora;
+    const bodegas = datos_usuario.bodegas;
+    const ciudad = datos.ciudadR + "(" +datos.departamentoR+")";
+    const avisoError = {
+        icon: "warning",
+        text: "No existe una bodega habilitada para esta transportadora con la ciudad de remitente ingresada.",
+        showCancelButton: true,
+        cancelButtonText: "Cerrar",
+        confirmButtonText: "Ver bodegas"
+    };
+
+    if(!bodegas) {
+        Swal.fire(avisoError).then(res => {
+            if(res.isConfirmed) location.href = "#bodegas";
+        })
+        return false;
+    }
+    
+    const respuesta = document.createElement("div");
+    const inpGroup = document.createElement("div");
+    const groupAppend = document.createElement("div");
+    const input = document.createElement("input");
+    const select = document.createElement("select");
+    const small = document.createElement("small");
+    const aggDireccion = document.createElement("p");
+    
+    let direcciones = 0;
+
+    respuesta.setAttribute("class", "col-12 mt-2");
+    inpGroup.classList.add("input-group");
+    groupAppend.classList.add("input-group-append");
+    input.classList.add("form-control");
+    input.setAttribute("type", "text");
+    input.setAttribute("id", "actualizar_direccionR");
+    input.setAttribute("readonly", true);
+    select.classList.add("custom-select");
+    select.setAttribute("id", "moderador_direccionR");
+    select.setAttribute("data-moderate", "#actualizar_direccionR");
+    small.setAttribute("class", "text-muted ver-direccion");
+    aggDireccion.setAttribute("class", "text-muted");
+    aggDireccion.innerHTML = "<small>¿no está la bodega que necesitas? puedes agregarla <a href='#bodegas'>aquí</a></small>"
+
+    respuesta.innerHTML = "<label for='#actualizar_direccionR'>Dirección del Remitente</label>";
+        
+    bodegas.forEach((bodega, i) => {
+        if(bodega.ciudad !== ciudad) return;
+        if(transp === "INTERRAPIDISIMO" && !bodega.codigo_sucursal_inter) return;
+
+        select.innerHTML += `<option value="${i}">${bodega.nombre}</option>`;
+
+        direcciones ++;
+    });
+
+    groupAppend.appendChild(select);
+    inpGroup.append(input, groupAppend);
+    respuesta.append(inpGroup, small, aggDireccion);
+
+    if(!direcciones) {
+        Swal.fire(avisoError).then(res => {
+            if(res.isConfirmed) location.href = "#bodegas";
+        })
+        return false;
+    }
+
+    return respuesta.outerHTML;
+}
+
+function cambiarDirecion(e) {
+    const n = this.value;
+    const toModerate = this.getAttribute("data-moderate");
+    const inp = $(toModerate);
+    
+    bodega = datos_usuario.bodegas[n];
+    
+    inp.val(bodega.direccion +", "+ bodega.barrio);
+    $(".ver-direccion").text(bodega.direccion +", "+ bodega.barrio + " / " + bodega.ciudad);
 }
 
 function restringirCaracteresEspecialesEnInput() {
@@ -1750,7 +1833,7 @@ async function guardarStickerGuiaServientrega(data) {
 
 //función para consultar la api en el back para crear guiade inter rapidisimo.
 async function generarGuiaInterrapidisimo(datos) {
-    let codigo_sucursal = datos_personalizados.codigo_sucursal_inter;
+    let codigo_sucursal = bodega.codigo_sucursal_inter;
 
     if(!codigo_sucursal) {
         codigo_sucursal = await usuarioDoc

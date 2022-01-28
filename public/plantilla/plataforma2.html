@@ -223,6 +223,10 @@
                     <i class="fas fa-money-check-alt fa-sm fa-fw mr-2 text-gray-400"></i>
                     Datos bancarios
                   </a>
+                  <a class="dropdown-item" href="#bodegas">
+                    <i class="fas fa-warehouse fa-sm fa-fw mr-2 text-gray-400"></i>
+                    Bodegas
+                  </a>
                  
                   <a class="dropdown-item " href="#" data-toggle="modal" data-target="#cerrarSesionModal">
                     <i class="fas fa-power-off fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -702,6 +706,52 @@
               </form>
               <hr>
 
+          </div>
+
+          <div class="container-fluid" id="bodegas" style="display: none;">
+            <h2>Bodegas registradas</h2>
+            <div class="row">
+              <div class="col-12">
+                <div class="alert alert-primary">
+                  <div class="d-flex">
+                    <img src="img/logo-inter.png" alt="logo inter" height="50px" class="mr-2">
+                    Para la transportadora interrapidísimo, la creación de bodegas puede demorar de 15 a 20 días en efectuarse para poder realizar envíos.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-6 col-sm-3 col-xl-2 p-2" id="bcl_bodegas">
+                <div class="card shadow-sm h-100">
+                  <div class="card-body">
+                    <h4 class="text-gray-900" data-bcl_content="nombre">Nombre</h4>
+                    <h6><b>Barrio</b>: <span data-bcl_content="barrio"></span></h6>
+                    <h6><b>Dirección</b>: <span data-bcl_content="direccion"></span></h6>
+                    <h6><b>Ciudad</b>: <span data-bcl_content="ciudad"></span></h6>
+                    <div class="d-flex flex-wrap justify-content-around mostrador-transp">
+                      <img src="img/logoServi.png" alt="Logo Servientrega" width="25px" class="bodega-servientrega">
+                      <img src="img/logo-inter.png" alt="Logo Interrapidísimo" width="25px" class="bodega-interrapidisimo">
+                      <img src="img/2001.png" alt="Logo envía" width="25px" class="bodega-envia">
+                      <img src="img/logo-tcc.png" alt="Logo TCC" width="25px" class="bodega-tcc">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- Agregar Nueva bodega -->
+              <div class="col align-self-center" id="agregar-bodega">
+                <button class="btn btn-outline-info btn-block agregar-bodega">
+                  <div class="text-center">
+                    <div class="d-flex justify-content-center">
+                      <i class="fa fa-map-marker-alt fa-4x"></i>
+                      <i class="fa fa-plus fa-2x d-flex aling-self-start"></i>
+                    </div>
+                    <h4 class="text-gray-900 mt-2">Agrega bodega</h4>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <a href="#" class="d-none agregar-bodega" id="link-agregar-bodega">Agregar bodega</a>
           </div>
 
           <div class="container-fluid" id="historial_guias" style="display: none;">
