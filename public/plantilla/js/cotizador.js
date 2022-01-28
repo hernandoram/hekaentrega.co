@@ -50,7 +50,7 @@ let transportadoras = {
     "ENVIA": {
         nombre: "Envía",
         observaciones: observacionesEnvia,
-        logoPath: "img/logo-inter.png",
+        logoPath: "img/2001.png",
         color: "danger",
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
@@ -72,7 +72,7 @@ let transportadoras = {
     "TCC": {
         nombre: "TCC",
         observaciones: observacionesInteRapidisimo,
-        logoPath: "img/logo-inter.png",
+        logoPath: "img/logo-tcc.png",
         color: "warning",
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
@@ -907,6 +907,20 @@ function mostrarDirecciones(datos) {
     const transp = datos.transportadora;
     const bodegas = datos_usuario.bodegas;
     const ciudad = datos.ciudadR + "(" +datos.departamentoR+")";
+    const avisoError = {
+        icon: "warning",
+        text: "No existe una bodega habilitada para esta transportadora con la ciudad de remitente ingresada.",
+        showCancelButton: true,
+        cancelButtonText: "Cerrar",
+        confirmButtonText: "Ver bodegas"
+    };
+
+    if(!bodegas) {
+        Swal.fire(avisoError).then(res => {
+            if(res.isConfirmed) location.href = "#bodegas";
+        })
+        return false;
+    }
     
     const respuesta = document.createElement("div");
     const inpGroup = document.createElement("div");
@@ -914,6 +928,7 @@ function mostrarDirecciones(datos) {
     const input = document.createElement("input");
     const select = document.createElement("select");
     const small = document.createElement("small");
+    const aggDireccion = document.createElement("p");
     
     let direcciones = 0;
 
@@ -928,6 +943,8 @@ function mostrarDirecciones(datos) {
     select.setAttribute("id", "moderador_direccionR");
     select.setAttribute("data-moderate", "#actualizar_direccionR");
     small.setAttribute("class", "text-muted ver-direccion");
+    aggDireccion.setAttribute("class", "text-muted");
+    aggDireccion.innerHTML = "<small>¿no está la bodega que necesitas? puedes agregarla <a href='#bodegas'>aquí</a></small>"
 
     respuesta.innerHTML = "<label for='#actualizar_direccionR'>Dirección del Remitente</label>";
         
@@ -942,9 +959,14 @@ function mostrarDirecciones(datos) {
 
     groupAppend.appendChild(select);
     inpGroup.append(input, groupAppend);
-    respuesta.append(inpGroup, small);
+    respuesta.append(inpGroup, small, aggDireccion);
 
-    if(!direcciones) return false;
+    if(!direcciones) {
+        Swal.fire(avisoError).then(res => {
+            if(res.isConfirmed) location.href = "#bodegas";
+        })
+        return false;
+    }
 
     return respuesta.outerHTML;
 }
@@ -2047,36 +2069,3 @@ function observacionesEnvia(result_cotizacion) {
 
     return ul;
 }
-
-const objeto_ejemplo = {
-    "ciudadR": "CALI",
-    "ciudadD": "CABRERA",
-    "departamentoD": "CUNDINAMARCA",
-    "departamentoR": "VALLE",
-    "alto": "1",
-    "ancho": "1",
-    "largo": "1",
-    "correoR": "SellerNuevo2@gmail.com",
-    "centro_de_costo": "SellerNuevo2",
-    "debe": -13250,
-    "detalles": {
-        "peso_real": 3,
-        "flete": 8250,
-        "comision_heka": 2000,
-        "comision_trasportadora": 3000,
-        "peso_liquidar": 3,
-        "peso_con_volumen": 0,
-        "total": 13250,
-        "recaudo": 50000,
-        "seguro": 50000
-    },
-    "peso": 3,
-    "costo_envio": 13250,
-    "valor": 50000,
-    "seguro": 50000,
-    "type": "PAGO CONTRAENTREGA",
-    "dane_ciudadR": "25120000",
-    "dane_ciudadD": "25120000",
-    "transportadora": "INTERRAPIDISIMO"
-}
-

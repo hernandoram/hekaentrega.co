@@ -445,7 +445,7 @@ async function buscarUsuarios(){
             const nombre_completo = nombre + " " + apellido;
             const nombre_apellido = nombre.split(" ")[0] + " " + apellido.split(" ")[0];
             const centro_de_costo = doc.data().centro_de_costo || "SCC";
-            const direccion = doc.data().direccion_completa || "SD"
+            const direcciones = doc.data().bodegas || []
             
             const toDom = str => new DOMParser().parseFromString(str, "text/html").body.firstChild;
 
@@ -459,7 +459,7 @@ async function buscarUsuarios(){
             }
 
             if(dirInp) {
-                if(direccion.toLowerCase().indexOf(dirInp) != -1 ) {
+                if(direcciones.some(dir => dir.direccion_completa.includes(dirInp))) {
                     mostradorUsuarios.appendChild(toDom(mostrarUsuarios(doc.data(), doc.id)));
                 }
             }
@@ -516,10 +516,7 @@ async function buscarUsuarios(){
         }
         document.getElementById("cargador-usuarios").classList.add("d-none");
 
-    })
-
-    
-    
+    })    
 };
 
 function activadorGuiasAutomaticasDesdeAdmin(el) {
@@ -545,7 +542,7 @@ function filtrarBusquedaUsuarios(e) {
         let filt = data.some((value) => value.toLowerCase().includes(input));
 
         filt ? $(child).removeClass("d-none") : $(child).addClass("d-none");
-    })
+    });
 }
 
 $("#buscador_usuarios-nombre, #buscador_usuarios-direccion").keyup(e => {

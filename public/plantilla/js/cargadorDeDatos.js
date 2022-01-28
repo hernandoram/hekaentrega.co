@@ -60,8 +60,7 @@ async function cargarDatosUsuario(){
   buttonMostrarFormDatosBancarios.click(activarFormularioCrearDatosBancarios);
 
   datos_usuario = await consultarDatosDeUsuario();
-  finalizarCotizacion(objeto_ejemplo);
-  
+
   const showPercentage = $("#porcentaje-cargador-inicial");
 
   //Carga la informacion personal en un objeto y se llena el html de los datos del usuario
@@ -87,6 +86,7 @@ async function consultarDatosDeUsuario() {
       const datos = doc.data();
       const datos_bancarios = datos.datos_bancarios;
       const datos_personalizados = datos.datos_personalizados;
+      const bodegas = datos.bodegas;
 
       datos_usuario = {
         nombre_completo: datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0],
@@ -104,6 +104,7 @@ async function consultarDatosDeUsuario() {
       mostrarDatosUsuario(datos);
       mostrarDatosPersonalizados(datos_personalizados);
       mostrarDatosBancarios(datos_bancarios);
+      mostrarBodegas(bodegas);
 
       estado_prueba = datos.centro_de_costo == "SellerNuevo" ? true : false;
       return datos_usuario;
@@ -173,9 +174,7 @@ function mostrarDatosBancarios(datos) {
   buttonAgregarDatosBancarios.setAttribute("class", "btn btn-block btn-primary");
   buttonAgregarDatosBancarios.setAttribute("type", "submit");
   buttonAgregarDatosBancarios.textContent = "Agregar datos bancarios";
-    
   
-
   if(!datos) {
     visorDatos.addClass("d-none");
     sinDatos.removeClass("d-none");
@@ -199,6 +198,49 @@ function mostrarDatosBancarios(datos) {
     const campo = mostrador.replace(".mostrar-", "");
     $(mostrador).text(datos[campo]);
   });
+}
+
+function mostrarBodegas(bodegas) {
+  const template = $("#bcl_bodegas");
+
+  // se clona con el booleano true para que el no perder el data ni eventemitter del mismo;
+  const crearBodega = $("#agregar-bodega").clone(true);
+  const parent = template.parent();
+  parent.empty();
+
+  if (bodegas) {
+    bodegas.forEach((bodega, i) => {
+      const newEl = template.clone();
+      const text = newEl.find("[data-bcl_content]");
+      text.each((i,el) => {
+        const name = $(el).attr("data-bcl_content");
+        $(el).text(bodega[name]);
+      });
+      newEl.removeAttr("id");
+      newEl.removeClass("d-none");
+      newEl.find(".mostrador-transp").html(mostrarTranspEnBodega(bodega));
+      parent.append(newEl);
+    });
+  }
+
+  template.addClass("d-none");
+  parent.append(template, crearBodega);
+}
+
+function mostrarTranspEnBodega(bodega) {
+  const revisarTranps = ["SERVIENTREGA", "INTERRAPIDISIMO", "ENVIA", "TCC"];
+  let res = "";
+  
+  revisarTranps.forEach((t, i) => {
+    const transp = transportadoras[t];
+    const habilitada = transp.habilitada();
+    const exeption = "INTERRAPIDISIMO";
+    const disponible = t === exeption && bodega.cogido_sucursal_inter || t !== exeption;
+
+    if(habilitada && disponible) res += '<img src="'+transp.logoPath+'" alt="Logo Servientrega" width="25px">';
+  });
+
+  return res;
 }
 
 function activarFormularioCrearDatosBancarios() {

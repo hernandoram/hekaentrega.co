@@ -51,8 +51,6 @@ function agregarBodega() {
     });
 }
 
-
-
 async function agregarNuevaBodega(form) {
     const formData = new FormData(form);
     const newcity = new Object();
@@ -60,7 +58,7 @@ async function agregarNuevaBodega(form) {
     const idInpNombre = nombreBodega.getAttribute("id");
     const ciudadBodega = form.ciudad;
     const idInpCiudad = ciudadBodega.getAttribute("id");
-    const bodegas = datos_usuario.bodegas;
+    let bodegas = datos_usuario.bodegas;
     const btnContinue = modalNuevaBodega.btnContinue;
 
     const trigger = new ChangeElementContenWhileLoading(btnContinue);
@@ -69,12 +67,12 @@ async function agregarNuevaBodega(form) {
     verificador([idInpNombre, idInpCiudad], null);
 
     for (let entrie of formData) {
-        newcity[entrie[0]] = entrie[1];
+        newcity[entrie[0]] = entrie[1].trim();
     }
 
     newcity.direccion_completa = newcity.direccion + ", " + newcity.barrio + ", " + newcity.ciudad;
 
-    if(newcity.nombre) {
+    if(newcity.nombre && bodega) {
         const existeNombre = bodegas.some(b => {
             return b.nombre.toLowerCase() === newcity.nombre.toLowerCase();
         });
@@ -88,19 +86,25 @@ async function agregarNuevaBodega(form) {
         return verificador([idInpCiudad], true, "Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable");
     }
 
-    const id = bodegas.reduce((a,b) => {
-        if(a.id < b.id) return b.id;
+    const id = bodegas ? bodegas.reduce((a,b) => {
+        if(a < b.id) return b.id;
 
         return a
-    }, 0) + 1;
+    }, 0) + 1 : 1;
 
     newcity.id = id;
     newcity.fecha_creacion = new Date();
 
+    if(!newcity.nombre) newcity.nombre = "Bodega-"+id;
+
     trigger.init();
-    datos_usuario.bodegas.push(newcity);
-    const ready = await usuarioDoc.update({bodegas: datos_usuario.bodegas})
+
+    bodegas ? bodegas.push(newcity) 
+    : bodegas = new Array(newcity);
+
+    const ready = await usuarioDoc.update({bodegas})
     .then(async () => {
+        // datos_usuario.bodegas = bodegas;
         // await notificarNuevaCiudad(newcity);
         return {
             icon: "success",
