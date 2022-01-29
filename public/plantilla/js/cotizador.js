@@ -1198,7 +1198,7 @@ class CalcularCostoDeEnvio {
         
         this.sobreflete_heka = Math.ceil(valor * ( comision_heka ) / 100) + constante_heka;
 
-        if(this.codTransp !== "SERVIENTREGA") this.sobreflete_heka += 1000;
+        if(this.codTransp !== "SERVIENTREGA" && !this.convencional) this.sobreflete_heka += 1000;
         const respuesta = this.sobreflete + this.seguroMercancia + this.sobreflete_heka;
         return respuesta;
     }

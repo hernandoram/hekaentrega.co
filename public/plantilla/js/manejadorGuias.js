@@ -696,7 +696,8 @@ async function actualizarEstadoGuiasDocCreado(arrGuias) {
         })
         .then(() => {
             const link = "https://www.interrapidisimo.com/sigue-tu-envio/";
-            const mensaje = "Te informamos que se ha generado un envío con la transportadora "+guia.transportadora+" bajo el número de guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link
+            singleMessage("57"+guia.telefonoD, "Se ha generado un envío con "+guia.transportadora+" con la guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link);
+            const mensaje = "Se ha generado un envío con "+guia.transportadora+" con la guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link
             fetch("/mensajeria/sendMessage?number=57"+guia.telefonoD+"&message="+mensaje);     
         });
     }

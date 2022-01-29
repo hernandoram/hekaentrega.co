@@ -38,7 +38,7 @@ datos_personalizados = {
   costo_especial3: 6300,
   comision_servi: 3.1,
   comision_heka: 1,
-  constante_convencional: 600,
+  constante_convencional: 800,
   constante_pagoContraentrega: 1500,
   saldo: 0
 };
