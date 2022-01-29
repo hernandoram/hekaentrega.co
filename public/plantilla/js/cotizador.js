@@ -763,10 +763,8 @@ function finalizarCotizacion(datos) {
 
     if(datos.transportadora !== "SERVIENTREGA") {
         solicitud_recoleccion = `
-        <div class="col mb-2">
-            <div class="border-left-secondary">
-                <h6 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, enviar la solicitud al correo <a href="mailto:hekanovedades@gmail.com">hekanovedades@gmail.com</a>.</small></h6>
-            </div>
+        <div class="alert alert-danger">
+            <h3 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, enviar la solicitud al correo <a href="mailto:hekanovedades@gmail.com">hekanovedades@gmail.com</a>.</small></h3>
         </div>
         `;
     }

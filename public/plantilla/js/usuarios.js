@@ -810,10 +810,6 @@ async function actualizarInformacionHeka() {
     if((actEnvia || actTcc) && !inpIdAgente)
         mensajeCuidado = "Recuerda agregar un id cliente antes de activar envía o tcc";
 
-
-    if(actInter && !inpCodSucursal) 
-        mensajeCuidado = "Recuerda agregar un código sucursal antes de activar a interrapidísimo.";
-
     if(mensajeCuidado) {
         return Toast.fire({
             icon: "error",
@@ -924,9 +920,41 @@ async function actualizarInformacionHeka() {
 $("#crear_agente_aveo").click(crearAgenteAveonline)
 async function crearAgenteAveonline() {
     const emiter = new ChangeElementContenWhileLoading(this);
+    const bodegas = $("#tabla-bodegas").DataTable().data().toArray();
+    const inputOptions = new Object();
     emiter.init();
+
+    if(!bodegas.length) {
+        emiter.end();
+        return Toast.fire({
+            icon: "warning",
+            title: "No permitido",
+            text: "el usuario no tiene bodega para crear el agente de aveonline"
+        });
+    }
+
+    bodegas.forEach(b => {
+        inputOptions[b.id] = b.nombre;
+    });
+
+    const {value: idSeleccionada} = await Swal.fire({
+        title: "Seleccione ciudad",
+        input: "select",
+        inputOptions,
+        showCancelButton: true,
+        confirmButtonText: "Crear agente"
+    });
+
+    if(!idSeleccionada) return emiter.end();
+
+    const {direccion, barrio, ciudad} = bodegas.filter(b => b.id == idSeleccionada)[0];
+
+    console.log(direccion, barrio, ciudad)
+    let queries = $("#informacion-personal form").serialize();
+    // Se codifica para que no se pierdan algunos valores como carácteres especiales
+    queries += `&barrio=${encodeURIComponent(barrio)}&ciudad=${encodeURIComponent(ciudad)}&direccion=${encodeURIComponent(direccion)}`;
     
-    const res = await fetch("/aveo/crearAgente?" + $("#informacion-personal form").serialize()).then(d => d.json());
+    const res = await fetch("/aveo/crearAgente?" + queries).then(d => d.json());
     console.log(res);
     Toast.fire({
         icon: res.status === "error" ? "error" : "success",
