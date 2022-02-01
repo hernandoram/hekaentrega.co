@@ -117,8 +117,8 @@ function autocomplete(inp, arr) {
 }
 
 
-globalThis.consultarCiudades = (inp, ciudades) => {
-  autocomplete(inp, ciudades)
+globalThis.consultarCiudades = (inp, cities = ciudades) => {
+  autocomplete(inp, cities)
 }
 autocomplete(document.getElementById("ciudadR"), ciudades);
 autocomplete(document.getElementById("ciudadD"), ciudades);

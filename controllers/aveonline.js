@@ -134,7 +134,7 @@ exports.generarRelacion = async (req, res) => {
                     console.log("hubo un error Al actualizar el estado de la guia a \"Enviado\" => ", error)
                 });
                 const link = guia.transportadora === "ENVIA" ? "https://envia.co/" : "https://www.tcc.com.co/"
-                singleMessage("57"+guia.telefonoD, "Te informamos que se ha generado un envío con la transportadora "+guia.transportadora+" bajo el número de guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link);
+                singleMessage("57"+guia.telefonoD, "Se ha generado un envío con "+guia.transportadora+" con la guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link);
             }
             console.log("Se están actualizando todos los estados");
         })
@@ -183,17 +183,17 @@ exports.crearAgente = async (req,res) => {
         "tipo": "crearAgente",
         "token": req.params.token,
         "nombre": datos.nombres + " " + datos.apellidos,
-        "idnit": datos.numero_documento,
+        "idnit": 1072497419,
         "identificacion": Cr.idEmpresa,
-        "telefono": datos.celular,
+        "telefono": "3213361911",
         "direccion": datos.direccion + " " + datos.barrio,
-        "nombreContacto": datos.nombres + " " + datos.apellidos,
-        "correo": datos.correo,
+        "nombreContacto": datos.centro_de_costo,
+        "correo": "hekaentregaco@gmail.com",
         "idvalorminimo": 2,
         "ciudad": datos.ciudad,
         "comentarios": "",
-        "email1": datos.correo,
-        "email2": datos.correo,
+        "email1": "hekaentregaco@gmail.com",
+        "email2": "hekaentregaco@gmail.com",
         // "email3": "alangarcia@aveonline.co",
         // "email4": "alangarcia@aveonline.co",
         "verRecaudos": 1,
@@ -362,15 +362,15 @@ async function inspectGuiasPorCrear() {
             "dsdir": dest.direccion,
             "dsbarrio":"",
             "dsnitre": 1072497419-8,
-            "dstelre": guia.celularR,
-            "dscelularre": guia.celularR,
-            "dscorreopre": guia.correoR,
-            "dsnit": dest.numero_documento,
+            "dstelre": "3213361911",
+            "dscelularre": "3213361911",
+            "dscorreopre": "hekaentregaco@gmail.com",
+            "dsnit": guia.identificacionD,
             "dsnombre": guia.nombreR,
-            "dsnombrecompleto": dest.nombre,
-            "dscorreop": dest.correo,
-            "dstel": dest.celular,
-            "dscelular": guia.celularD,
+            "dsnombrecompleto": guia.nombreD,
+            "dscorreop": guia.correoD,
+            "dstel": "-/"+guia.telefonoD,
+            "dscelular": "-/"+guia.celularD,
             "idtransportador": codTransp,
             "idalto": guia.alto,
             "idancho": guia.ancho,

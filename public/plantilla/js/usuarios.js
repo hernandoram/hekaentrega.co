@@ -430,7 +430,7 @@ async function buscarUsuarios(){
 
 
     if(especifico) return
-    const mostradorUsuarios = document.getElementById("mostrador-usuarios")
+    const mostradorUsuarios = document.getElementById("mostrador-usuarios");
 
     reference.get()
     .then((querySnapshot) => {
@@ -445,7 +445,7 @@ async function buscarUsuarios(){
             const nombre_completo = nombre + " " + apellido;
             const nombre_apellido = nombre.split(" ")[0] + " " + apellido.split(" ")[0];
             const centro_de_costo = doc.data().centro_de_costo || "SCC";
-            const direccion = doc.data().direccion_completa || "SD"
+            const direcciones = doc.data().bodegas || []
             
             const toDom = str => new DOMParser().parseFromString(str, "text/html").body.firstChild;
 
@@ -459,7 +459,7 @@ async function buscarUsuarios(){
             }
 
             if(dirInp) {
-                if(direccion.toLowerCase().indexOf(dirInp) != -1 ) {
+                if(direcciones.some(dir => dir.direccion_completa.includes(dirInp))) {
                     mostradorUsuarios.appendChild(toDom(mostrarUsuarios(doc.data(), doc.id)));
                 }
             }
@@ -470,8 +470,8 @@ async function buscarUsuarios(){
             
         })
         
-        const uniqueChild = mostradorUsuarios.children[0].children[0];
         if(mostradorUsuarios.children.length === 1) {
+            const uniqueChild = mostradorUsuarios.children[0].children[0];
             seleccionarUsuario(uniqueChild.getAttribute("id"));
         }
     }).then(() => {
@@ -516,10 +516,7 @@ async function buscarUsuarios(){
         }
         document.getElementById("cargador-usuarios").classList.add("d-none");
 
-    })
-
-    
-    
+    })    
 };
 
 function activadorGuiasAutomaticasDesdeAdmin(el) {
@@ -545,7 +542,7 @@ function filtrarBusquedaUsuarios(e) {
         let filt = data.some((value) => value.toLowerCase().includes(input));
 
         filt ? $(child).removeClass("d-none") : $(child).addClass("d-none");
-    })
+    });
 }
 
 $("#buscador_usuarios-nombre, #buscador_usuarios-direccion").keyup(e => {
@@ -568,10 +565,12 @@ function seleccionarUsuario(id){
             const data = doc.data();
             const datos_bancarios = data.datos_bancarios;
             const datos_personalizados = data.datos_personalizados;
+            const bodegas = data.bodegas;
             mostrarDatosPersonales(doc.data(), "personal");
 
             mostrarDatosPersonales(datos_bancarios, "bancaria");
             mostrarDatosPersonales(datos_personalizados, "heka");
+            mostrarBodegasUsuarioAdm(bodegas);
         } else {
             // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
             //Hasta que todos los usuario futuramente tengan el doc "heka"
@@ -647,6 +646,97 @@ function mostrarDatosPersonales(data, info) {
     
 }
 
+function mostrarBodegasUsuarioAdm(bodegas) {
+    const table = $('#tabla-bodegas').DataTable( {
+        destroy: true,
+        data: bodegas,
+        columns: [
+            {data: "id", title: "Nº", defaultContent: ""},
+            {data: "nombre", title: "Nombre", defaultContent: ""},
+            {data: "ciudad", title: "Ciudad", defaultContent: ""},
+            {data: "barrio", title: "Barrio", defaultContent: ""},
+            {data: "direccion", title: "Dirección", defaultContent: ""},
+        ],
+        language: {
+          url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+        },
+        scrollX: true,
+        scrollCollapse: true,
+        lengthMenu: [ [5, 10, 25, 30], [5, 10, 25, 30] ],
+    });
+
+    if(!bodegas || !bodegas.length) table.clear();
+}
+
+$("#tabla-bodegas").on("click", "tbody tr", editarBodegaUsuarioAdm);
+$("#actualizar-bodegas").click(actualizarBodegasAdm)
+
+function editarBodegaUsuarioAdm(e) {
+    console.log(e);
+    console.log(e.timeStamp);
+    console.log(this);
+    const id = $(this).parents("table").attr("id");
+    const api = $("#"+id).DataTable();
+    const row = api.row(this);
+    const data = row.data();
+
+    if(!data) return;
+    const html = `
+    <form action="#" id="editar-bodega-${data.id}" class="m-2 text-left">
+        <div class="form-group">
+        <label for="barrio-bodega">Barrio de la bodega</label>
+        <input type="text" value="${data.barrio}" class="form-control" id="barrio-bodega" name="barrio">
+        </div>
+    
+        <div class="form-group">
+        <label for="direccion-bodega">Dirección de la bodega</label>
+        <input type="text" value="${data.direccion}" class="form-control" id="direccion-bodega" name="direccion">
+        </div>
+        
+        <div class="form-group">
+        <label for="cod_suc_inter-bodega">Código sucursal para inter</label>
+        <input type="text" value="${data.codigo_sucursal_inter || ""}" class="form-control" id="cod_suc_inter-bodega" name="codigo_sucursal_inter">
+        </div>
+
+        <small>${data.direccion_completa}</small>
+    </form>
+    `;
+
+    Swal.fire({
+        titleText: data.nombre + " - " + data.ciudad.toLowerCase(),
+        html,
+        showCancelButton: true,
+    }).then(res => {
+        if(res.isConfirmed) {
+            const form = document.getElementById("editar-bodega-" + data.id);
+            const formData = new FormData(form);
+
+            for (let entrie of formData) {
+                data[entrie[0]] = entrie[1].trim();
+            }
+
+            data.direccion_completa = data.direccion + ", " + data.barrio + ", " + data.ciudad;
+            data.ult_edicion = new Date();
+        }
+    });
+
+    consultarCiudades(document.getElementById("actualizar_ciudad"))
+}
+
+function actualizarBodegasAdm() {
+    let id_usuario = document.getElementById("usuario-seleccionado").getAttribute("data-id");
+    const bodegas = $('#tabla-bodegas').DataTable().data().toArray();
+    
+    firebase.firestore().collection("usuarios").doc(id_usuario)
+    .update({bodegas}).then(() => {
+        mostrarBodegasUsuarioAdm(bodegas);
+        Toast.fire({
+            icon: "success",
+            text: "Bodegas actualizadas correctamente."
+        });
+    });
+}
+
 function asignarValores(data, query) {
     for(let value in data) {
         const input = $(query).find(`[name="${value}"]`);
@@ -672,15 +762,11 @@ function actualizarInformacionPersonal() {
         apellidos: value("actualizar_apellidos"),
         celular: value("actualizar_telefono"),
         celular2: value("actualizar_celular"),
-        ciudad: value("actualizar_ciudad"),
-        direccion: value("actualizar_direccion"),
-        barrio: value("actualizar_barrio"),
         nombre_empresa: value("actualizar_nombre_empresa"),
         correo: value("actualizar_correo"),
         objetos_envio: value("actualizar_objetos_envio").split(",")
     };
 
-    datos.direccion_completa = datos.direccion + ", " + datos.barrio + ", " + datos.ciudad
     let id_usuario = document.getElementById("usuario-seleccionado").getAttribute("data-id");
 
     firebase.firestore().collection("usuarios").doc(id_usuario).update(datos)
@@ -723,10 +809,6 @@ async function actualizarInformacionHeka() {
     let mensajeCuidado;
     if((actEnvia || actTcc) && !inpIdAgente)
         mensajeCuidado = "Recuerda agregar un id cliente antes de activar envía o tcc";
-
-
-    if(actInter && !inpCodSucursal) 
-        mensajeCuidado = "Recuerda agregar un código sucursal antes de activar a interrapidísimo.";
 
     if(mensajeCuidado) {
         return Toast.fire({
@@ -838,9 +920,41 @@ async function actualizarInformacionHeka() {
 $("#crear_agente_aveo").click(crearAgenteAveonline)
 async function crearAgenteAveonline() {
     const emiter = new ChangeElementContenWhileLoading(this);
+    const bodegas = $("#tabla-bodegas").DataTable().data().toArray();
+    const inputOptions = new Object();
     emiter.init();
+
+    if(!bodegas.length) {
+        emiter.end();
+        return Toast.fire({
+            icon: "warning",
+            title: "No permitido",
+            text: "el usuario no tiene bodega para crear el agente de aveonline"
+        });
+    }
+
+    bodegas.forEach(b => {
+        inputOptions[b.id] = b.nombre;
+    });
+
+    const {value: idSeleccionada} = await Swal.fire({
+        title: "Seleccione ciudad",
+        input: "select",
+        inputOptions,
+        showCancelButton: true,
+        confirmButtonText: "Crear agente"
+    });
+
+    if(!idSeleccionada) return emiter.end();
+
+    const {direccion, barrio, ciudad} = bodegas.filter(b => b.id == idSeleccionada)[0];
+
+    console.log(direccion, barrio, ciudad)
+    let queries = $("#informacion-personal form").serialize();
+    // Se codifica para que no se pierdan algunos valores como carácteres especiales
+    queries += `&barrio=${encodeURIComponent(barrio)}&ciudad=${encodeURIComponent(ciudad)}&direccion=${encodeURIComponent(direccion)}`;
     
-    const res = await fetch("/aveo/crearAgente?" + $("#informacion-personal form").serialize()).then(d => d.json());
+    const res = await fetch("/aveo/crearAgente?" + queries).then(d => d.json());
     console.log(res);
     Toast.fire({
         icon: res.status === "error" ? "error" : "success",

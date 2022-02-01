@@ -1,5 +1,6 @@
 
 import "https://unpkg.com/swiper@7/swiper-bundle.min.js";
+import CreateModal from "../utils/modal.js";
 const inicio = () => CarrucelVideos();
 
 const CarrucelVideos = () => {
@@ -51,22 +52,20 @@ const CarrucelVideos = () => {
 }
 
 const datosModal = (video, link, titulo) => { 
-  const modal = createModal(); 
-  modal[0].querySelector(".modal-dialog").classList.add("modal-xl");
+  const modal = new CreateModal({
+    title: "<h4>"+titulo+"</h4>",
+    modalSize: "modal-xl",
+  }); 
   const videoId = link.match(/(\/)([^#&\/]+)(\?)/)[2] || link;
 
 //   video.querySelector("img").setAttribute("src", `http://img.youtube.com/vi/${videoId}/0.jpg`);
   video.addEventListener("click", (e) => {
     e.preventDefault();
-    modal[0].querySelector("#titulo-modal-creado").innerHTML = `
-      <h4>${titulo}</h4>
-    `;
-    modal[0].querySelector(".modal-body").innerHTML = `
+    modal.init = `
       <div class="d-flex justify-content-center">
       <iframe class="videoYoutube w-100" src=${link} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
     `;
-    modal.modal("show");
   })
 }
 export default inicio;

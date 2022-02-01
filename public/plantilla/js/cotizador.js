@@ -1,4 +1,4 @@
-let datos_de_cotizacion, oficinas,
+let datos_de_cotizacion, oficinas, bodega,
     datos_a_enviar = new Object({}),
     codTransp = "SERVIENTREGA"
 
@@ -49,8 +49,8 @@ let transportadoras = {
     },
     "ENVIA": {
         nombre: "Envía",
-        observaciones: observacionesInteRapidisimo,
-        logoPath: "img/logo-inter.png",
+        observaciones: observacionesEnvia,
+        logoPath: "img/2001.png",
         color: "danger",
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
@@ -72,7 +72,7 @@ let transportadoras = {
     "TCC": {
         nombre: "TCC",
         observaciones: observacionesInteRapidisimo,
-        logoPath: "img/logo-inter.png",
+        logoPath: "img/logo-tcc.png",
         color: "warning",
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
@@ -509,7 +509,7 @@ async function detallesTransportadoras(data) {
 
         let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
         let fleteConvertido = cotizacion.flete
-        if(transp !== "SERVIENTREGA") {
+        if(transp !== "SERVIENTREGA" && data.type === "PAGO CONTRAENTREGA") {
             sobreFleteHekaEdit -= factor_conversor;
             fleteConvertido += factor_conversor;
         }
@@ -999,7 +999,7 @@ function seleccionarTransportadora(e) {
     }
 
     const texto_tranp_no_disponible = `Actualmente no tienes habilitada esta transportadora, 
-    si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/j8l2ku">321 336 1911</a>`;
+    si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/8m9ovw">312 463 8608</a>`;
 
     const swal_error = {
         icon: "error",
@@ -1154,6 +1154,29 @@ function finalizarCotizacion(datos) {
     } = datos.datos_oficina || {};
 
     const num_tipo_doc = tipo_documento === "NIT" ? 1 : 2;
+    let solicitud_recoleccion = `
+        <div class="col-sm-6 mb-2 form-check">
+            <input type="checkbox" id="recoleccion" class="form-check-input">
+            <label for="recoleccion" class="form-check-label" checked>Solicitud de Recolección</label>
+        </div>
+    `;
+    let entrega_en_oficina = "";
+
+    if(datos.transportadora !== "SERVIENTREGA") {
+        solicitud_recoleccion = `
+        <div class="alert alert-danger">
+            <h3 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, enviar la solicitud al correo <a href="mailto:hekanovedades@gmail.com">hekanovedades@gmail.com</a>.</small></h3>
+        </div>
+        `;
+    }
+
+    if(datos.transportadora === "INTERRAPIDISIMO") {
+        entrega_en_oficina = `
+        <div class="form-check">
+            <input type="checkbox" id="entrega_en_oficina" class="form-check-input">
+            <label for="entrega_en_oficina" class="form-check-label" checked>Entrega en oficina</label>
+        </div>`;
+    }
 
     let detalles = detalles_cotizacion(datos),
         boton_regresar = crearNodo(`<a class="btn btn-outline-primary btn-block mb-3" href="#cotizar_envio" onclick="regresar()">
@@ -1166,9 +1189,10 @@ function finalizarCotizacion(datos) {
             placeholder="Introduce el contenido de tu envío">
             <p id="aviso-producto" class="text-danger d-none m-2"></p>
         </div>`),
+        directionNode = mostrarDirecciones(datos),
         datos_remitente = crearNodo(`
         <div class="card card-shadow m-6 mt-5" id="informacion-personal">
-            <div class="card-header py-3">
+            <div class="card-header">
                 <h4 class="m-0 font-weight-bold text-primary text-center">Datos de ${datos_usuario.nombre_completo}</h4>
             </div>
             <div class="card-body row">
@@ -1177,13 +1201,10 @@ function finalizarCotizacion(datos) {
                     <input id="actualizar_nombreR" type="text" class="form-control form-control-user" value="${datos_usuario.nombre_completo}" ${readonly && "readonly"} required="">  
                 </div>
                 <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h5>Dirección del Remitente</h5>
-                    <input id="actualizar_direccionR" type="text" class="form-control form-control-user" value="${datos_usuario.direccion}" ${readonly && "readonly"} required="">  
-                </div>
-                <div class="col-sm-6 mb-3 mb-sm-0">
                     <h5>Celular del remitente</h5>
                     <input id="actualizar_celularR"  type="text" class="form-control form-control-user" value="${datos_usuario.celular}" ${readonly && "readonly"} required="">  
                 </div>
+                ${directionNode}
             </div>
         </div>
         `),
@@ -1226,6 +1247,7 @@ function finalizarCotizacion(datos) {
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Dirección del Destinatario</h5>
                         <input type="text" id="direccionD" class="form-control form-control-user" value="${direccion || ""}" placeholder="Dirección-Conjunto-Apartemento" required="">
+                        ${entrega_en_oficina}
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Barrio del Destinatario</h5>
@@ -1248,10 +1270,7 @@ function finalizarCotizacion(datos) {
                         <h5>Observaciones Adicionales</h5>
                         <input type="text" id="observaciones" class="form-control form-control-user detect-errors" value="" placeholder="Observaciones Adicionales">
                     </div>
-                    <div class="col-sm-6 mb-3 mb-2 form-check">
-                        <input type="checkbox" id="recoleccion" class="form-check-input">
-                        <label for="recoleccion" class="form-check-label" checked>Solicitud de Recolección</label>
-                    </div>
+                    ${solicitud_recoleccion}
                 </div>
             </form>
         </div>
@@ -1259,13 +1278,18 @@ function finalizarCotizacion(datos) {
         boton_crear = crearNodo(`<button type="button" id="boton_final_cotizador" 
             class="btn btn-success btn-block mt-5" title="Crear guía" onclick="crearGuia()">Crear guía</button>`);
 
+    if(!directionNode) return;
     div_principal.append(boton_regresar, detalles, input_producto, datos_remitente, datos_destinatario, boton_crear);
     creador.innerHTML = "";
     creador.innerHTML = div_principal.innerHTML;
     location.href = "#crear_guia";
     scrollTo(0, 0);
 
-    restringirCaracteresEspecialesEnInput();
+    const cambiadorDeDireccion = $("#moderador_direccionR");
+    cambiadorDeDireccion.on("change", cambiarDirecion);
+    cambiarDirecion.bind(cambiadorDeDireccion[0])();
+
+    restringirCaracteresEspecialesEnInput()
     let informacion = document.getElementById("informacion-personal");
     document.getElementById("producto").addEventListener("blur", () => {
         let normalmente_envia = false;
@@ -1283,6 +1307,86 @@ function finalizarCotizacion(datos) {
             aviso.classList.add("d-none")
         }
     });
+}
+
+// function que devuelve un input group con las direcciones disponibles
+function mostrarDirecciones(datos) {
+    const transp = datos.transportadora;
+    const bodegas = datos_usuario.bodegas;
+    const ciudad = datos.ciudadR + "(" +datos.departamentoR+")";
+    const avisoError = {
+        icon: "warning",
+        text: "No existe una bodega habilitada para esta transportadora con la ciudad de remitente ingresada.",
+        showCancelButton: true,
+        cancelButtonText: "Cerrar",
+        confirmButtonText: "Ver bodegas"
+    };
+
+    if(!bodegas) {
+        Swal.fire(avisoError).then(res => {
+            if(res.isConfirmed) location.href = "#bodegas";
+        })
+        return false;
+    }
+    
+    const respuesta = document.createElement("div");
+    const inpGroup = document.createElement("div");
+    const groupAppend = document.createElement("div");
+    const input = document.createElement("input");
+    const select = document.createElement("select");
+    const small = document.createElement("small");
+    const aggDireccion = document.createElement("p");
+    
+    let direcciones = 0;
+
+    respuesta.setAttribute("class", "col-12 mt-2");
+    inpGroup.classList.add("input-group");
+    groupAppend.classList.add("input-group-append");
+    input.classList.add("form-control");
+    input.setAttribute("type", "text");
+    input.setAttribute("id", "actualizar_direccionR");
+    input.setAttribute("readonly", true);
+    select.classList.add("custom-select");
+    select.setAttribute("id", "moderador_direccionR");
+    select.setAttribute("data-moderate", "#actualizar_direccionR");
+    small.setAttribute("class", "text-muted ver-direccion");
+    aggDireccion.setAttribute("class", "text-muted");
+    aggDireccion.innerHTML = "<small>¿no está la bodega que necesitas? puedes agregarla <a href='#bodegas'>aquí</a></small>"
+
+    respuesta.innerHTML = "<label for='#actualizar_direccionR'>Dirección del Remitente</label>";
+        
+    bodegas.forEach((bodega, i) => {
+        if(bodega.ciudad !== ciudad) return;
+        if(transp === "INTERRAPIDISIMO" && !bodega.codigo_sucursal_inter) return;
+
+        select.innerHTML += `<option value="${i}">${bodega.nombre}</option>`;
+
+        direcciones ++;
+    });
+
+    groupAppend.appendChild(select);
+    inpGroup.append(input, groupAppend);
+    respuesta.append(inpGroup, small, aggDireccion);
+
+    if(!direcciones) {
+        Swal.fire(avisoError).then(res => {
+            if(res.isConfirmed) location.href = "#bodegas";
+        })
+        return false;
+    }
+
+    return respuesta.outerHTML;
+}
+
+function cambiarDirecion(e) {
+    const n = this.value;
+    const toModerate = this.getAttribute("data-moderate");
+    const inp = $(toModerate);
+    
+    bodega = datos_usuario.bodegas[n];
+    
+    inp.val(bodega.direccion +", "+ bodega.barrio);
+    $(".ver-direccion").text(bodega.direccion +", "+ bodega.barrio + " / " + bodega.ciudad);
 }
 
 function restringirCaracteresEspecialesEnInput() {
@@ -1505,7 +1609,7 @@ class CalcularCostoDeEnvio {
         if(this.aveo) this.intoAveo(this.precio);
         
 
-        if(this.codTransp !== "SERVIENTREGA") this.sobreflete_heka += 1000;
+        if(this.codTransp !== "SERVIENTREGA"  && !this.convencional) this.sobreflete_heka += 1000;
         const respuesta = this.sobreflete + this.seguroMercancia + this.sobreflete_heka + this.sobreflete_oficina;
         return respuesta;
     }
@@ -1698,12 +1802,15 @@ function crearGuia() {
 
     boton_final_cotizador.setAttribute("disabled", true);
 
-
     if(value("nombreD") != "" && value("direccionD") != "" &&
     value("telefonoD") != ""){
-        let recoleccion = 0
-        if(document.getElementById("recoleccion").checked){
+        let recoleccion = 0, id_tipo_entrega;
+        if(document.getElementById("recoleccion") && document.getElementById("recoleccion").checked){
             recoleccion = 1;
+        }
+        
+        if(document.getElementById("entrega_en_oficina") && document.getElementById("entrega_en_oficina").checked){
+            id_tipo_entrega = 2;
         }
 
         if(value("producto") == ""){
@@ -1760,6 +1867,8 @@ function crearGuia() {
             datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`;
             datos_a_enviar.timeline = new Date().getTime();
             datos_a_enviar.id_user = user_id;
+
+            if(id_tipo_entrega) datos_a_enviar.id_tipo_entrega = id_tipo_entrega;
 
             // boton_final_cotizador.remove()
 
@@ -2131,7 +2240,7 @@ async function guardarStickerGuiaServientrega(data) {
 
 //función para consultar la api en el back para crear guiade inter rapidisimo.
 async function generarGuiaInterrapidisimo(datos) {
-    let codigo_sucursal = datos_personalizados.codigo_sucursal_inter;
+    let codigo_sucursal = bodega.codigo_sucursal_inter;
 
     if(!codigo_sucursal) {
         codigo_sucursal = await usuarioDoc
@@ -2300,7 +2409,7 @@ function observacionesServientrega(result_cotizacion) {
         "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero o la oficina donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
         `Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span>`,
         `Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`,
-        `En caso de devolución pagas solo el envío ida completo: $${convertirMiles(result_cotizacion.costoEnvio)} (Aplica solo para envíos en pago contra entrega)`
+        `En caso de devolución pagarías: $${convertirMiles(result_cotizacion.costoEnvio)} (Aplica solo para envíos en pago contra entrega)`
     ]
 
     let ul = document.createElement("ul");
@@ -2326,7 +2435,33 @@ function observacionesInteRapidisimo(result_cotizacion) {
         "Las recolecciones deberán ser solicitadas el día anterior o el mismo antes de las 9:00 am para que pasen el mismo día.",
         "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
         "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
-        "En caso de devolución pagas solo el envío ida + seguro + 600: $"+ convertirMiles(result_cotizacion.flete + result_cotizacion.seguroMercancia + 600) +" (Aplica solo para envíos en pago contra entrega)",
+        "En caso de devolución pagarías: $"+ convertirMiles(result_cotizacion.flete + result_cotizacion.seguroMercancia + result_cotizacion.sobreflete + 1000) +" (Aplica solo para envíos en pago contra entrega)",
+    ]
+
+    let ul = document.createElement("ul");
+    ul.classList.add("text-left")
+
+    for(let list of lists) {
+        let li = document.createElement("li");
+        li.classList.add("my-3")
+        li.innerHTML = list;
+        ul.append(li);
+    }
+
+    return ul;
+}
+
+function observacionesEnvia(result_cotizacion) {
+    let lists = [
+        "Los tiempos de entrega son aproximados, no son exactos, ya que pueden suceder problemas operativos.",
+        "El paquete deberá estar correctamente embalado, de lo contrario la transportadora no responderá por averías.",
+        "En algunos municipios, si la entrega es en dirección y está fuera de la cobertura de la oficina el cliente deberá reclamar su paquete en la oficina.",
+        "En caso de novedad la transportadora llama a destinatario y/o remitente para solucionar.",
+        "En caso de devolución la transportadora cobrará el valor del flete ida + seguro de mercancía, no se cobra comisión de recaudo, ni flete de vuelta.",
+        "Las recolecciones deberán ser solicitadas el día anterior o el mismo antes de las 9:00 am para que pasen el mismo día.",
+        "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
+        "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
+        `En caso de devolución pagarías: $${convertirMiles((result_cotizacion.flete + result_cotizacion.seguroMercancia + 1000) * 2)} (Aplica solo para envíos en pago contra entrega)`
     ]
 
     let ul = document.createElement("ul");
