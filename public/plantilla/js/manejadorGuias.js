@@ -520,12 +520,12 @@ function crearDocumentos(e, dt, node, config) {
 
         const {
             numeroGuia, id_heka, id_archivoCargar, prueba,
-            type, transportadora, has_sticker, telefonoD
+            type, transportadora, has_sticker, telefonoD, id_oficina
         } = data;
 
         arrGuias.push({
             numeroGuia, id_heka, id_archivoCargar, prueba,
-            type, transportadora, has_sticker, telefonoD
+            type, transportadora, has_sticker, telefonoD, id_oficina
         });
 
         $(nodo).removeClass("selected bg-gray-300");
@@ -698,7 +698,14 @@ async function actualizarEstadoGuiasDocCreado(arrGuias) {
             const link = "https://www.interrapidisimo.com/sigue-tu-envio/";
             singleMessage("57"+guia.telefonoD, "Se ha generado un envío con "+guia.transportadora+" con la guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link);
             const mensaje = "Se ha generado un envío con "+guia.transportadora+" con la guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link
-            fetch("/mensajeria/sendMessage?number=57"+guia.telefonoD+"&message="+mensaje);     
+            fetch("/mensajeria/sendMessage?number=57"+guia.telefonoD+"&message="+mensaje);  
+            enviarNotificacion({
+                visible_office: true,
+                user_id,
+                office_id: guia.id_oficina,
+                id_heka: guia.id_heka,
+                mensaje: "Se ha creado una nueva guía que se dirige a tu oficina.",
+            });
         });
     }
 }

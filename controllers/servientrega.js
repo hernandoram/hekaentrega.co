@@ -9,6 +9,7 @@ const db = firebase.firestore();
 
 const extsFunc = require("../extends/funciones");
 const { singleMessage } = require("../controllers/cellVoz");
+const {notificarGuiaOficina} = require("../extends/notificaciones")
 
 const {UsuarioPrueba, Credenciales} = require("../keys/serviCredentials")
 
@@ -167,6 +168,11 @@ exports.generarManifiesto = async (req, res) => {
           .then(() => {
             const link = 'https://www.servientrega.com/';
             singleMessage("57"+guia.telefonoD, "Se ha generado un envío con "+guia.transportadora+" con la guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link);
+            notificarGuiaOficina({
+              user_id: vinculo.id_user,
+              id_heka: guia.id_heka,
+              office_id: guia.id_oficina
+            });
           }).catch((error) => {
             console.log("hubo un error Al actualizar el estado de la guia a \"Enviado\" => ", error)
           });

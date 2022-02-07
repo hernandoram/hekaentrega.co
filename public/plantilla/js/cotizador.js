@@ -626,7 +626,7 @@ function verDetallesTransportadora(e) {
 
 //*** FUNCIONES PARA OFICINAS ***
 async function detallesOficinas(destino) {
-    return [{
+    const p = [{
         nombre_empresa: "Oficina 1",
         id_oficina: 1,
         correo: "correo@dominio.com",
@@ -659,12 +659,23 @@ async function detallesOficinas(destino) {
             porcentaje_comsion: 5
         }
     }]
-
-    const oficinas = await firebase.firestore().collection("usuarios")
+    return await firebase.firestore().collection("oficinas")
     .where("ciudad", "==", destino).get()
     .then(querySnapshot => {
-        let oficinas = new Array();
-        querySnapshot.forEach(doc => oficinas.puhs(doc.data()));
+        const oficinas = new Array();
+        
+        querySnapshot.forEach(doc => {
+            const data = doc.data();
+            
+            data.id_oficina = doc.id;
+            if(!data.precios) {
+                data.precios = {
+                    porcentaje_comsion: 10
+                }
+            }
+            
+            oficinas.push(data)
+        });
         return oficinas;
     });
 }
@@ -838,7 +849,8 @@ function cambiarPreciosOficinasPorTransportadora(target, cotizacion, oficinas) {
     const nOficina = $(target).attr("data-id");
     
     const oficina = oficinas[nOficina];
-    cotizacion.sobreflete_oficina = cotizacion.flete * oficina.precios.porcentaje_comsion / 100;
+    const porcentaje_oficina = oficina.precios ? oficina.precios.porcentaje_comsion : 10
+    cotizacion.sobreflete_oficina = cotizacion.flete * porcentaje_oficina / 100;
 
     const costoEnvio = cotizacion.costoEnvio;
     
@@ -963,7 +975,7 @@ function verificarAntesSeleccionarOficina(oficina, cotizacion) {
     if(cotizacion.kgTomado > maxKilos) {
         Toast.fire({
             icon: "error",
-            text: "La cantidad de kilos para las oficinas no debe ser mayor a " + maxKilos
+            title: "La cantidad de kilos para las oficinas no debe ser mayor a " + maxKilos
         });
         return true;
     }
@@ -971,7 +983,7 @@ function verificarAntesSeleccionarOficina(oficina, cotizacion) {
     if(cotizacion.valor > maxRec) {
         Toast.fire({
             icon: "error",
-            text: "El valor de recaudo para las oficinas no debe ser mayor a " + maxRec
+            title: "El valor de recaudo para las oficinas no debe ser mayor a " + maxRec
         });
         return true;
     }

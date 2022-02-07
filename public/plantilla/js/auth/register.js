@@ -87,18 +87,25 @@ function revisarErroresParticularesRegistro(container) {
 async function registrarNuevoUsuario(toSend, data) {
     const {correo, con, nombre_empresa} = data;
     const existe_empresa = await verificarExistencia(toSend, data.cod_empresa);
+    console.log(toSend, data.cod_empresa);
+
     if(existe_empresa) throw new Error('¡El nombre de empresa "' +nombre_empresa+ '" ya existe!');
 
     const newUser = await createUserWithEmailAndPassword(correo, con);
 
     if(newUser.error) throw new Error(newUser.message);
 
-    data.ingreso = newUser.uid;
-
-    console.log(data);
-    await db.collection(toSend).add(data);
     await auth.currentUser.sendEmailVerification();
-    await findUser(data.ingreso);
+
+    if(toSend === "oficinas") {
+        await db.collection(toSend).doc(newUser.uid).set(data);
+        location.href = "#";
+    } else {
+        data.ingreso = newUser.uid;
+        await db.collection(toSend).add(data);
+        await findUser(newUser.uid);
+    }
+    
 }
 
 async function createUserWithEmailAndPassword(email, password) {
@@ -123,7 +130,6 @@ function datosRegistroUsuario(formData) {
     }
 
     toSend.objetos_envio = $("[data-objeto_envio]").map((i,it) => it.getAttribute("data-objeto_envio")).get();
-    toSend.direccion_completa = toSend.direccion + ", " + toSend.barrio + ", " + toSend.ciudad;
 
     if(!toSend.objetos_envio.length) {
         const inpObjetos = $("#register-objetos_envio");
@@ -153,7 +159,7 @@ function datosRegistroOficina(formData) {
 
     const empresa = toSend.nombre_empresa.replace(/\s/g, "");
     
-    toSend.centro_de_costo = "Offi" + empresa;
+    toSend.centro_de_costo = "Flexii" + empresa;
     toSend.cod_empresa = empresa.toLowerCase();
     toSend.fecha_creacion = new Date();
 

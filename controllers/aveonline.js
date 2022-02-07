@@ -9,6 +9,7 @@ const funct = require("../extends/funciones");
 const { singleMessage } = require("../controllers/cellVoz");
 const guiasPorCrear = new Array();
 const referenceListado = db.collection("listaGuiasAveo");
+const {notificarGuiaOficina} = require("../extends/notificaciones");
 
 exports.auth = async (req, res, next) => {
     const authentication = await rq.post(Cr.endpoint + "/comunes/v1.0/autenticarusuario.php", {
@@ -135,6 +136,11 @@ exports.generarRelacion = async (req, res) => {
                 });
                 const link = guia.transportadora === "ENVIA" ? "https://envia.co/" : "https://www.tcc.com.co/"
                 singleMessage("57"+guia.telefonoD, "Se ha generado un envío con "+guia.transportadora+" con la guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link);
+                notificarGuiaOficina({
+                    user_id: vinculo.id_user,
+                    id_heka: guia.id_heka,
+                    office_id: guia.id_oficina
+                });
             }
             console.log("Se están actualizando todos los estados");
         })
