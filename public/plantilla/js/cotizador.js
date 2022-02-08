@@ -228,7 +228,7 @@ async function cotizador(){
             // datos_a_enviar.peso = datos_de_cotizacion.peso;
             // datos_a_enviar.costo_envio = datos_de_cotizacion.precio;
 
-            if(estado_prueba) datos_a_enviar.prueba = true;
+            // if(estado_prueba) datos_a_enviar.prueba = true;
 
             // $("#list-transportadoras a").click(seleccionarTransportadora);
 
@@ -452,7 +452,7 @@ async function detallesTransportadoras(data) {
     button.addClass("disabled");
     result.after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
 
-    const oficina = cargarPreciosTransportadorasOficinas(data);
+    const oficina = await cargarPreciosTransportadorasOficinas(data);
 
     const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
     let cotizacionAveo;
@@ -659,6 +659,9 @@ async function detallesOficinas(destino) {
             porcentaje_comsion: 5
         }
     }]
+    
+    if(!estado_prueba) return [];
+
     return await firebase.firestore().collection("oficinas")
     .where("ciudad", "==", destino).get()
     .then(querySnapshot => {

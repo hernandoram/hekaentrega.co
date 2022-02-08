@@ -43,8 +43,18 @@ datos_personalizados = {
   saldo: 0
 };
 
-let estado_prueba;
+function revisarModoPrueba() {
+  const paramFinded = new URLSearchParams(location.search.split("?")[1]).has("modoPrueba");
+  console.log(paramFinded);
+  if(paramFinded) localStorage.estado_prueba = paramFinded;
 
+  if(localStorage.estado_prueba) {
+    $("#cargador-content").before("<p class='alert alert-danger mx-4 text-center text-danger'>Actualmente estás en modo prueba, para salir de este modo, debes cerrar sesion y volver a iniciar</p>")
+  }
+  return localStorage.estado_prueba;
+}
+
+let estado_prueba = revisarModoPrueba();
 
 //funcion principal del Script que carga todos los datos del usuario
 async function cargarDatosUsuario(){
@@ -70,7 +80,6 @@ async function cargarDatosUsuario(){
   //SE cargan datos como el centro de costo
   showPercentage.text(percentage());
 
-  estado_prueba = datos_usuario.centro_de_costo == "SellerNuevo" ? true : false;
 
   //Modifica los costos de envio si el usuario tiene costos personalizados
   showPercentage.text(percentage());
@@ -106,7 +115,6 @@ async function consultarDatosDeUsuario() {
       mostrarDatosBancarios(datos_bancarios);
       mostrarBodegas(bodegas);
 
-      estado_prueba = datos.centro_de_costo == "SellerNuevo" ? true : false;
       return datos_usuario;
     }
   }
@@ -135,7 +143,6 @@ async function consultarDatosBasicosUsuario() {
     if(doc.exists){
       datos_usuario.centro_de_costo = doc.data().centro_de_costo;
       datos_usuario.objetos_envio = doc.data().objetos_envio;
-      estado_prueba = doc.data().centro_de_costo == "SellerNuevo" ? true : false;
     }
   })
 
