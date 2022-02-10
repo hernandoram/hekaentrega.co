@@ -128,3 +128,30 @@ autocomplete(document.getElementById("CEdireccion"), ciudades);
 autocomplete(document.getElementById("ciudad-tienda"), ciudades);
 
 export default autocomplete
+
+function medidorDeBytesFirebase(entry) {
+  let size = 0;
+  if(!entry) return 0;
+  if(entry === null) return 1
+  switch(typeof entry) {
+      case "string":
+          return entry.length + 1
+      case "boolean":
+          return 1;
+      case "number":
+          return 8;
+      default:
+          if(entry.toDate instanceof Function) {
+              return 8
+          }
+
+          for(let c in entry) {
+              size += medidorDeBytesFirebase(entry[c]);
+              if(typeof c === "string") size += medidorDeBytesFirebase(c);
+          }
+          break;
+  }
+
+  console.log(entry, size);
+  return size;
+}

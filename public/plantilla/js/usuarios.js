@@ -684,6 +684,11 @@ function editarBodegaUsuarioAdm(e) {
     const html = `
     <form action="#" id="editar-bodega-${data.id}" class="m-2 text-left">
         <div class="form-group">
+        <label for="ciudad-bodega">Ciudad</label>
+        <input type="text" value="${data.ciudad}" class="form-control" id="ciudad-bodega" name="ciudad">
+        </div>
+        
+        <div class="form-group">
         <label for="barrio-bodega">Barrio de la bodega</label>
         <input type="text" value="${data.barrio}" class="form-control" id="barrio-bodega" name="barrio">
         </div>
@@ -720,7 +725,7 @@ function editarBodegaUsuarioAdm(e) {
         }
     });
 
-    consultarCiudades(document.getElementById("actualizar_ciudad"))
+    consultarCiudades(document.getElementById("ciudad-bodega"));
 }
 
 function actualizarBodegasAdm() {

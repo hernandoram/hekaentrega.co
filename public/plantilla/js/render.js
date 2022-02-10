@@ -1233,6 +1233,19 @@ function gestionarNovedadModal(dataN, dataG) {
     console.log(dataN);
     console.log(dataG)
     const ultimo_mov = dataN.movimientos[dataN.movimientos.length - 1]
+    const mostrador_gestionar = `
+        <p>Escribe aquí tu solución a la novedad</p>
+        <textarea type="text" class="form-control" name="solucion-novedad" id="solucion-novedad-${dataN.numeroGuia}"></textarea>
+        <button class="btn btn-success m-2" id="solucionar-novedad-${dataN.numeroGuia}">Enviar Solución</button>
+    `;
+
+    if(dataG.transportadora === "INTERRAPIDISIMO") {
+        mostrador_gestionar = `<p>La transportadora Interrapidisimo llamará a destinatario y/o remitente para gestionar las novedades de tus envíos</p>`;
+    }else if(dataG.oficina && !dataG.recibidoEnPunto) {
+        mostrador_gestionar = `<p>Las guías que se dirigen hacia las oficinas flexii, no pueden ser gestionadas por este medio.</p>`;
+    }
+
+
     //Acá estableceré la información general de la guía
     let info_gen = document.createElement("div"),
         info_guia = `
@@ -1290,13 +1303,7 @@ function gestionarNovedadModal(dataN, dataG) {
         `,
         gestionar = `
             <div class="col mb-3">
-            ${ dataG.transportadora === "INTERRAPIDISIMO" ? 
-                `<p>La transportadora Interrapidisimo llamará a destinatario y/o remitente para gestionar las novedades de tus envíos</p>` 
-                : `
-                    <p>Escribe aquí tu solución a la novedad</p>
-                    <textarea type="text" class="form-control" name="solucion-novedad" id="solucion-novedad-${dataN.numeroGuia}"></textarea>
-                    <button class="btn btn-success m-2" id="solucionar-novedad-${dataN.numeroGuia}">Enviar Solución</button>
-                `}
+            ${mostrador_gestionar}
             </div>
         `;
 

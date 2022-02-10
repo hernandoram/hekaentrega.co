@@ -170,7 +170,8 @@ async function historialGuias(){
             {data: "id_heka", title: "Id", defaultContent: ""},
             {data: "numeroGuia", title: "Guía transportadora", defaultContent: ""},
             {data: "estado", title: "Estado", defaultContent: ""},
-            {data: "transportadora", orderable: false,
+            {data: "mostrar_transp", 
+            orderable: false,
             title: "Transportadora", defaultContent: ""},
             {data: "type", title: "Tipo", defaultContent: ""},
             {data: "nombreD", title: "Destinatario", defaultContent: ""},
@@ -270,6 +271,9 @@ async function historialGuias(){
           const rowFinded = table.row("#"+newIdRow);
 
           data.filter = clasificarHistorialGuias(data);
+          data.mostrar_transp = data.oficina 
+            ? data.transportadora + "-Flexii"
+            : data.transportadora
 
           if(change.type === "added" || change.type === "modified") {
               if(rowFinded.length) {
@@ -696,7 +700,6 @@ async function actualizarEstadoGuiasDocCreado(arrGuias) {
         })
         .then(() => {
             const link = "https://www.interrapidisimo.com/sigue-tu-envio/";
-            singleMessage("57"+guia.telefonoD, "Se ha generado un envío con "+guia.transportadora+" con la guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link);
             const mensaje = "Se ha generado un envío con "+guia.transportadora+" con la guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link
             fetch("/mensajeria/sendMessage?number=57"+guia.telefonoD+"&message="+mensaje);  
             if(guia.id_oficina) {
