@@ -1,3 +1,6 @@
+const {agregarEstadistica} = require("./estadisticas");
+const {revisarNovedad, revisarEstadoFinalizado} = require("./manejadorMovimientosGuia");
+
 exports.segmentarString = (base64, limite = 1000) => {
   if (!base64) return new Array(0);
   let initial = 0;
@@ -52,6 +55,9 @@ exports.actualizarMovimientos = async (doc, toUpdate) => {
   .set(toUpdate)
   .then(() => {
     // console.log(doc.data());
+    if(revisarEstadoFinalizado(toUpdate.estadoActual)) {
+      agregarEstadistica(doc, toUpdate);
+    }
     return {
       estado: "Mov.A",
       guia: doc.id + " / " + doc.data().numeroGuia
@@ -156,14 +162,3 @@ exports.transformarDatosDestinatario = data => {
     return datos_destinatario;
   }
 };
-
-/** FUNCIONES */
-function revisarNovedad(mov, transp) {
-  if(transp === "INTERRAPIDISIMO") {
-    return mov.Motivo;
-  } else if (transp === "ENVIA" || transp === "TCC") {
-    return mov.novedad
-  } else {
-    return mov.TipoMov === "1";
-  }
-}
