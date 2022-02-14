@@ -1,4 +1,4 @@
-let datos_de_cotizacion, oficinas, bodega,
+let datos_de_cotizacion, oficinas = [], bodega,
     datos_a_enviar = new Object({}),
     codTransp = "SERVIENTREGA"
 
@@ -452,7 +452,8 @@ async function detallesTransportadoras(data) {
     button.addClass("disabled");
     result.after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
 
-    const oficina = await cargarPreciosTransportadorasOficinas(data);
+    oficinas = await detallesOficinas(data.ciudadD);
+    cargarPreciosTransportadorasOficinas(data);
 
     const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
     let cotizacionAveo;
@@ -551,7 +552,7 @@ async function detallesTransportadoras(data) {
         </li>`;
 
         const detalle = `<div class="tab-pane fade 
-        ${!corredor && !oficina ? "show active" : ""}" 
+        ${!corredor && !oficinas.length ? "show active" : ""}" 
         id="list-transportadora-${transp}" aria-labelledby="list-transportadora-${transp}-list">
             <div class="card">
                 <div class="card-header bg-${transportadora.color} text-light">
@@ -862,7 +863,6 @@ function mostrarOficinas(oficinas) {
 }
 
 async function cargarPreciosTransportadorasOficinas(data) {
-    oficinas = await detallesOficinas(data.ciudadD);
     if(!oficinas.length) return false;
     
     const mostradorOfi = mostrarOficinas(oficinas);
@@ -1105,7 +1105,7 @@ function verificarAntesSeleccionarOficina(oficina, cotizacion) {
         return true;
     }
 }
-//*** FUNCIONES PARA OFICINAS ***
+//*** FIN FUNCIONES PARA OFICINAS ***
 
 //Selecciona la transportadora a utilizar
 function seleccionarTransportadora(e) {
@@ -1277,12 +1277,6 @@ function finalizarCotizacion(datos) {
     let creador = document.getElementById("crear_guia");
     const readonly = datos.transportadora == "INTERRAPIDISIMO";
 
-    const {
-        direccion, barrio, correo, celular, numero_documento,
-        tipo_documento
-    } = datos.datos_oficina || {};
-
-    const num_tipo_doc = tipo_documento === "NIT" ? 1 : 2;
     let solicitud_recoleccion = `
         <div class="col-sm-6 mb-2 form-check">
             <input type="checkbox" id="recoleccion" class="form-check-input">
@@ -1340,7 +1334,7 @@ function finalizarCotizacion(datos) {
         notas_oficina= datos.oficina ? `
             <div class="text-muted border-left-primary m-2">
                 <h6 class="ml-2">
-                    <span><b>Nota:</b> Estás intentando hacer un envío a través de una oficina, por referencia, se autocompletó la información de la oficina a la cual realizarás el envío, cuya información puedes sustituir si deseas para mantener tu propia referencia.</span>
+                    <span><b>Nota:</b> Por ahora FLEXII solo cuenta con entregas en oficina. !Esperamos incluir pronto las entregas a oficinas!</span>
                 </h6>
             </div>
         `:"",
@@ -1360,12 +1354,12 @@ function finalizarCotizacion(datos) {
                         <div class="row align-items-center">
                             <div class="col-sm-8 mb-2">
                                 <label for="identificacionD">Documento de identificación</label>
-                                <input type="number" id="identificacionD" class="form-control form-control-user detect-errors" value="${numero_documento || ""}" placeholder="ej. 123456789" required="">
+                                <input type="number" id="identificacionD" class="form-control form-control-user detect-errors" value="" placeholder="ej. 123456789" required="">
                             </div>
                             <div class="col mb-2">
                                 <label for="tipo-doc-dest" class="col-form-label">Tipo De Documento</label>
                                 <select class="custom-select" form="datos-destinatario" id="tipo-doc-dest">
-                                    <option value="${num_tipo_doc}">${tipo_documento || "Seleccione"}</option>
+                                    <option value="2">Seleccione</option>
                                     <option value="1">NIT</option>
                                     <option value="2">CC</option>
                                 </select>
@@ -1375,12 +1369,12 @@ function finalizarCotizacion(datos) {
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Dirección del Destinatario</h5>
-                        <input type="text" id="direccionD" class="form-control form-control-user" value="${direccion || ""}" placeholder="Dirección-Conjunto-Apartemento" required="">
+                        <input type="text" id="direccionD" class="form-control form-control-user" value="" placeholder="Dirección-Conjunto-Apartemento" required="">
                         ${entrega_en_oficina}
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Barrio del Destinatario</h5>
-                        <input type="text" id="barrioD" class="form-control form-control-user detect-errors" value="${barrio || ""}" placeholder="Barrio" required="">
+                        <input type="text" id="barrioD" class="form-control form-control-user detect-errors" value="" placeholder="Barrio" required="">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Celular del Destinatario</h5>
@@ -1389,11 +1383,11 @@ function finalizarCotizacion(datos) {
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Otro celular del Destinatario</h5>
-                        <input type="number" id="celularD" class="form-control form-control-user detect-errors" value="${celular || ""}" placeholder="celular">
+                        <input type="number" id="celularD" class="form-control form-control-user detect-errors" value="" placeholder="celular">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Email</h5>
-                        <input type="email" id="correoD" class="form-control form-control-user" value="${correo || ""}" placeholder="nombre@ejemplo.com">
+                        <input type="email" id="correoD" class="form-control form-control-user" value="" placeholder="nombre@ejemplo.com">
                     </div>
                     <div class="col-sm-6 mb-3 mb-2">
                         <h5>Observaciones Adicionales</h5>
@@ -2243,7 +2237,7 @@ async function enviar_firestore(datos){
         return {
             icon: "error",
             title: "¡Lo sentimos! Error inesperado",
-            mensaje: "Hemos detectado el siguiente error: \"" + err.message + "\". Si desconoce la posible causa, por favor comuniquese con asesoría logistica (<a href='https://wa.me/573213361911' target='_blank'>+57 321 3361911</a>) enviando un capture o detallando el mensaje expuesto. \nmuchas gracias por su colaboración y discupe las molestias causadas.",
+            mensaje: "No se ha podido concretar la creación de guía, por favor intente nuevamente más tarde. \"" + err.message + "\"",
             mensajeCorto: err.message
         }
         Swal.fire({
