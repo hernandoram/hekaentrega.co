@@ -8,22 +8,41 @@ async function buscarGuiasParaActualizarEstadisticas() {
     const querySnapshot = await db.collectionGroup("guias")
     .where("seguimiento_finalizado", "==", true)
     // .where("ciudadD", "==", "CALI")
-    .limit(1)
+    .limit(20)
     .get()
 
+    const novedades = {
+        SERVIENTREGA: [], INTERRAPIDISIMO: [],
+        ENVIA: [], TCC: []
+    }
 
-    querySnapshot.forEach(async doc => {
-        const guia = doc.data();
-        if(guia.capturadaEstadisticaEntrega) return;
+    try {
+        let size = querySnapshot.size;
+        for await (let doc of querySnapshot.docs) {
+            const guia = doc.data();
+            size--;
+            if(guia.capturadaEstadisticaEntrega) return;
+            
+            const referenciaCiudad = await encontrarDaneCiudad(guia);
+            const estadoGuia = await encontrarMovimientos(doc);
+            const estadisticas = formatoEstadistica(estadoGuia);
+            const {posiblesNovedades} = definirEstadisticas(estadoGuia);
+            
+            posiblesNovedades.forEach(n => {
+                if (!novedades[estadoGuia.transportadora].includes(n))
+                    novedades[estadoGuia.transportadora].push(n)
+            })
         
-        const referenciaCiudad = await encontrarDaneCiudad(guia);
-        const estadoGuia = await encontrarMovimientos(doc);
-        const estadisticas = formatoEstadistica(estadoGuia);
+            console.log(doc.data().id_user, doc.id, "Faltan: "+size);
+            await referenciaCiudad.set(estadisticas, {merge: true});
+            // doc.ref.update({capturadaEstadisticaEntrega: true});
+        }
 
-        console.log(doc.data().id_user, doc.id)
-        await referenciaCiudad.set(estadisticas, {merge: true});
-        // doc.ref.update({capturadaEstadisticaEntrega: true});
-    }); 
+        console.log(novedades);
+    } catch(e) {
+        console.error(e);
+        console.log(novedades);
+    }
 }
 // buscarGuiasParaActualizarEstadisticas();
 
@@ -38,6 +57,9 @@ async function agregarEstadistica(doc, estadoGuia) {
     
     const referenciaCiudad = await encontrarDaneCiudad(guia);
     const estadisticas = formatoEstadistica(estadoGuia);
+
+    estadisticas.transportadora = guia.transportadora;
+    estadisticas.nombreCiudad = guia.ciudadD +"("+ guia.departamentoD+")";
 
     await referenciaCiudad.set(estadisticas, {merge: true});
     doc.ref.update({capturadaEstadisticaEntrega: true});

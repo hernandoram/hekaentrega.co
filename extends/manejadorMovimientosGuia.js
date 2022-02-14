@@ -3,7 +3,7 @@ exports.revisarTipoEstado = (est, transp) => {
     const devoluciones = ["ENTREGADO A REMITENTE", "Devuelto al Remitente"];
     const anulados = ["Documento Anulado"];
   
-    if(entregadas.includes(est)) return "entregadas";
+    if(entregadas.includes(est)) return "entregas";
     if(devoluciones.includes(est)) return "devoluciones";
     return "";
 }

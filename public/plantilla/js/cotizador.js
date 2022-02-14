@@ -544,6 +544,10 @@ async function detallesTransportadoras(data) {
             </div>
             <p class="text-center mb-0 mt-2 d-none d-sm-block">Costo de envío para ${data.type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"}: <b>$${convertirMiles(data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor)}</b></p>
             <p class="mb-0 d-sm-none">${data.type == "CONVENCIONAL" ? "Valor declarado" : "Recaudo"}: <b>$${convertirMiles(data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor)}</b></p>
+            <p class="mb-0 text-center">
+                <span class="estadisticas position-relative"></span>
+            </p>
+
         </li>`;
 
         const detalle = `<div class="tab-pane fade 
@@ -593,7 +597,7 @@ async function detallesTransportadoras(data) {
 
         $(`#ver-detalles-${transp}`).click(verDetallesTransportadora);
         $(`#list-transportadora-${transp}-list`).click(seleccionarTransportadora);
-
+        // mostrarEstadisticas(data.dane_ciudadD, transp);
 
         corredor ++
     }
@@ -612,6 +616,116 @@ async function detallesTransportadoras(data) {
     /* Devuelve el html en dos manera, con la lista, y con los detalles particulares */
     return [encabezados, detalles];
 }
+
+
+// ESTADÍSTICAS
+
+// funcion que consulta la ciudad y transportadora para revisar estadísticas de entrega
+async function mostrarEstadisticas(dane_ciudad, transportadora) {
+    const estadistica = await db.collection("ciudades")
+    .doc(dane_ciudad)
+    .collection("estadisticasEntrega")
+    .doc(transportadora)
+    .get().then(d => d.data());
+
+    if(!estadistica) return;
+
+    //Tomamos el contenedor en donde se va a llenar la info de cas transportadora
+    const contenedor = $(`#list-transportadora-${transportadora}-list`).find(".estadisticas");
+    
+    // El porcentaje lo calculamos con la cantidad de entregas exitósas
+    const porcentaje = estadistica.entregadas / estadistica.envios * 100;
+
+    //mostramos la cantidad de estrellas correspondientes al porcentaje
+    contenedor.html(llenarEstrellas(porcentaje));
+    contenedor.append("<small>("+estadistica.envios+" envíos)</small>");
+    contenedor.append(`<span 
+        class='detalles rounded bg-light w-100 position-absolute' 
+        style='
+            cursor:pointer; opacity:0; top:0; left: 0;
+        ' 
+        onmouseenter='(() => $(this).animate({opacity: 0.7}))()' 
+        onmouseleave='(() => this.style.opacity=0)()'
+    >
+        Ver referencia
+    </span>`);
+
+    // habilitamos la función para ver los detalles de las estadísticas
+    contenedor.click(() => detallesEstadisticas(estadistica));
+}
+
+// función que me devuelve una sweet alert con las características introducidas
+function detallesEstadisticas(estadisticas) {
+    console.log(estadisticas);
+    const posiblesNovedades = estadisticas.posiblesNovedades;
+    const mostrarNovedades = posiblesNovedades ? `
+        <h4>Posibles novedades</h4>
+        <ul>
+            ${estadisticas.posiblesNovedades.reduce((a,b) => {
+                if(b) a+= "<li>"+b+"</li>"
+                return a
+            },"")}
+        </ul>
+    ` : "";
+
+    const html = `
+        <div class="text-left row m-0">
+            <div class="col-12 mb-2">
+                <b>Cantidad de Envíos</b>: ${estadisticas.envios}
+            </div>
+
+            <div class="col-12 col-sm">
+                <b>Entregas exitosas</b>: ${estadisticas.entregas || 0}
+            </div>
+            <div class="col-12 col-sm">
+                <b>Devoluciones</b>: ${estadisticas.devoluciones || 0}
+            </div>
+
+            <div class="col-12 mt-3">
+                ${mostrarNovedades}
+            </div>
+        </div>
+    `;
+    Swal.fire({
+        title: "Referencia envíos",
+        html
+    })
+}
+
+// funcion que recibe un número del uno al cien y devuelve un string con cinco estrellas
+function llenarEstrellas(porcentaje) {
+    // porcentaje:número;
+
+    let llenas = 0;
+    //Arreglo que corresponde a la cantidad de estrellas que se van a devolver
+    const clasesEstrellas = [null,null,null,null,null];
+    const claseDefecto = "fa-star text-gray-400";
+
+    // iteramos desde el diez hasta el valor introducido sumando de diez en diez
+    for(let i = 10; i <= porcentaje; i+=10) {
+
+        if((i / 2) % 2) {
+            // si la división del valor actual entre deo es impar, se llena la mitad de la estrella
+            clasesEstrellas[llenas] = "fa-star-half-alt text-warning"
+        } else {
+            //caso contrario se llena la estrella completa y se va a la siguiente estrella
+            clasesEstrellas[llenas] = "fa-star text-warning"
+            llenas++;
+        }
+    }
+
+    let respuesta = "";
+
+    // intero entre las clases, y aquellas que sigan siendo nulas serán escritas con la clase por defecto
+    clasesEstrellas.forEach(clase => {
+        respuesta+= `
+            <i class="fa ${clase || claseDefecto}"></i>
+        `;
+    });
+
+    return respuesta
+}
+// FIN ESTADÍSTICAS
 
 function verDetallesTransportadora(e) {
     const detallesTransp = $("#nav-contentTransportadoras");
