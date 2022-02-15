@@ -95,10 +95,13 @@ exports.crearGuia = (req, res) => {
 };
 
 exports.generarGuiaSticker = (req, res) => {
+  const data = req.body;
+  const type = data.oficina ? "CONVENCIONAL" : data.type;
+  console.log(data);
     request.post({
       headers: {"Content-Type": "text/xml"},
       url: req.body.prueba ? genGuiasPrueba : generacionGuias,
-      body: crearGuiaSticker(req.body.numeroGuia, req.body.id_archivoCargar, req.body.type, req.body.prueba)
+      body: crearGuiaSticker(data.numeroGuia, data.id_archivoCargar, type, data.prueba)
     }, (err, response, body) => {
       if(err) return console.error(err);
   
@@ -545,6 +548,7 @@ function generarGuia(datos) {
 }
 
 function crearGuiaSticker(numeroGuia, id_archivoCargar, type, prueba) {
+  console.log(numeroGuia, id_archivoCargar, type, prueba);
   let auth_header, ide_codFacturacion;
 
   if(type == "CONVENCIONAL") {

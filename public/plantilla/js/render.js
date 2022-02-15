@@ -594,7 +594,9 @@ function crearStickerParticular() {
                 id_heka: data.id_heka,
                 id_archivoCargar: data.id_archivoCargar, // paraservientrega (no es tan necesario)
                 prueba: data.prueba,
-                url: data.urlGuia
+                url: data.urlGuia, 
+                oficina: data.oficina,
+                type: data.type
             }
     
             let has_sticker;

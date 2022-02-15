@@ -2574,7 +2574,10 @@ async function historialGuiasAdmin() {
         let res = new Array()
         console.log(querySnapshot.size);
         querySnapshot.forEach(doc => {
-            res.push(doc.data());
+            const data = doc.data();
+            data.transpToShow = doc.data().oficina ? data.transportadora + "-Flexii" : data.transportadora;
+
+            res.push(data);
         })
         return res;
     });
@@ -2602,7 +2605,7 @@ async function historialGuiasAdmin() {
             { data: "numeroGuia", title: "# Guía Servientrega", defaultContent: ""},
             { data: "estado", title: "Estado", defaultContent: ""},
             { data: "centro_de_costo", title: "Centro de Costo" },
-            { data: "transportadora", title: "Transportadora", defaultContent: "Servientrega"},
+            { data: "transpToShow", title: "Transportadora", defaultContent: "Servientrega"},
             { data: "type", title: "Tipo", defaultContent: "Pago contraentrega"},
             {data: "alto", title: "Alto"},
             {data: "ancho", title: "Ancho"},

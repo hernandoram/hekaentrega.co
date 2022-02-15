@@ -2330,6 +2330,7 @@ async function generarGuiaServientrega(datos) {
 
     if(res.numeroGuia) {
         res.type = datos.type;
+        res.oficina = datos.oficina
 
         res.has_sticker = await guardarStickerGuiaServientrega(res);
     }
