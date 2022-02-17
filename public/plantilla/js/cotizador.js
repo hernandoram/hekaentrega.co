@@ -452,8 +452,10 @@ async function detallesTransportadoras(data) {
     button.addClass("disabled");
     result.after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
 
-    oficinas = await detallesOficinas(data.ciudadD);
-    cargarPreciosTransportadorasOficinas(data);
+    if(estado_prueba) {
+        oficinas = await detallesOficinas(data.ciudadD);
+        cargarPreciosTransportadorasOficinas(data);
+    }
 
     const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
     let cotizacionAveo;
@@ -917,7 +919,9 @@ async function cargarPreciosTransportadorasOficinas(data) {
         if(data.type === "PAGO CONTRAENTREGA") {
             const comision_heka = cotizacion.precios.comision_heka;
             const constante_heka = cotizacion.precios.constante_pagoContraentrega
-            cotizacion.set_sobreflete_heka = Math.ceil(valorRecaudo * ( comision_heka ) / 100) + constante_heka
+            let variacion_comision_heka = 0;
+            if(transp !== "SERVIENTREGA") variacion_comision_heka = 1000
+            cotizacion.set_sobreflete_heka = Math.ceil(valorRecaudo * ( comision_heka ) / 100) + constante_heka + variacion_comision_heka
             cotizacion.valor = valorRecaudo;
         }
 
