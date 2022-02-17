@@ -452,8 +452,10 @@ async function detallesTransportadoras(data) {
     button.addClass("disabled");
     result.after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
 
-    oficinas = await detallesOficinas(data.ciudadD);
-    cargarPreciosTransportadorasOficinas(data);
+    if(estado_prueba) {
+        oficinas = await detallesOficinas(data.ciudadD);
+        cargarPreciosTransportadorasOficinas(data);
+    }
 
     const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
     let cotizacionAveo;
@@ -917,7 +919,9 @@ async function cargarPreciosTransportadorasOficinas(data) {
         if(data.type === "PAGO CONTRAENTREGA") {
             const comision_heka = cotizacion.precios.comision_heka;
             const constante_heka = cotizacion.precios.constante_pagoContraentrega
-            cotizacion.set_sobreflete_heka = Math.ceil(valorRecaudo * ( comision_heka ) / 100) + constante_heka
+            let variacion_comision_heka = 0;
+            if(transp !== "SERVIENTREGA") variacion_comision_heka = 1000
+            cotizacion.set_sobreflete_heka = Math.ceil(valorRecaudo * ( comision_heka ) / 100) + constante_heka + variacion_comision_heka
             cotizacion.valor = valorRecaudo;
         }
 
@@ -1570,25 +1574,6 @@ function revisarTrayecto(){
     }
 };
 
-//Algoritmo que suma el costo del envío al recaudo, para que el envío sea cubierto por el usuario final
-function sumarCostoDeEnvio(valor, type, kg, volumen, extraData) {
-    //Inicializo la clase que me devuelve un constructor
-    let constructor = new CalcularCostoDeEnvio(valor, type, kg, volumen, extraData);
-    let counter = 0
-    /* Mientras que el valor ingresado se mayor al valor devuelto por el contructor
-    menos el costo del envío ingresa al bucle que le suma al valor ingresado el costo 
-    del envío impuesto por el viejo contructor, para así sustituir el constructor*/
-    while(valor > constructor.valor - constructor.costoEnvio) {
-        counter ++;
-        console.log("\n *** Estamos en bucle fase " + counter)
-        constructor.getDetails;
-        constructor = new CalcularCostoDeEnvio(valor + constructor.costoEnvio, type, kg, volumen, extraData);
-    }
-
-    //cuando finaliza el bucle, me devuelve el contructor final de la iteración
-    return constructor
-};
-
 // Realiza el calculo del envio y me devuelve sus detalles
 class CalcularCostoDeEnvio {
     constructor(valor, type, kilos, vol, extraData){
@@ -1703,12 +1688,13 @@ class CalcularCostoDeEnvio {
         /* Mientras que el valor ingresado se mayor al valor devuelto por el contructor
         menos el costo del envío ingresa al bucle que le suma al valor ingresado el costo 
         del envío impuesto por el viejo contructor, para así sustituir el constructor*/
-        while(val > this.valor - this.costoEnvio) {
-            this.valor = val + this.costoEnvio;
+        while(val > Math.round(this.valor - this.costoEnvio) && counter < 10) {
+            this.valor = Math.round(val + this.costoEnvio);
             this.seguro = this.aveo ? this.seguro : this.valor;
             counter ++;
             console.log("\n *** Estamos en bucle fase " + counter)
-            this.getDetails;
+            console.log(this.codTransp);
+            // this.getDetails;
         }
     }
 
