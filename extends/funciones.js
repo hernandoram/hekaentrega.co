@@ -141,8 +141,8 @@ exports.transformarDatosDestinatario = data => {
       direccion: `${data.datos_oficina.direccion}, ${data.datos_oficina.barrio}`,
       tipo_documento: tipoDocument,
       numero_documento: data.datos_oficina.numero_documento,
-      celular: data.datos_oficina.celular,
-      telefono: data.telefonoD,
+      celular: data.datos_oficina.celular2 || data.datos_oficina.celular,
+      telefono: data.datos_oficina.celular,
       correo: data.datos_oficina.correo,
       type: "CONVENCIONAL"
     };

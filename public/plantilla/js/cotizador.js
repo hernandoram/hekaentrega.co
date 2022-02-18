@@ -637,7 +637,7 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
     const contenedor = $(`#list-transportadora-${transportadora}-list`).find(".estadisticas");
     
     // El porcentaje lo calculamos con la cantidad de entregas exitósas
-    const porcentaje = estadistica.entregadas / estadistica.envios * 100;
+    const porcentaje = estadistica.entregas / estadistica.envios * 100;
 
     //mostramos la cantidad de estrellas correspondientes al porcentaje
     contenedor.html(llenarEstrellas(porcentaje));
