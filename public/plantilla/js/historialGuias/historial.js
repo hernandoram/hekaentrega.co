@@ -1,3 +1,12 @@
+import {title, table as htmlTable, filters, filter} from "./views.js";
+
+
+const container = $("#historial_guias2");
+
+container.append(title);
+container.append(filters);
+container.append(htmlTable);
+
 const table = $("#tabla-historial-guias").DataTable({
     destroy: true,
     data: null,
@@ -124,10 +133,18 @@ export default class SetHistorial {
         this.filtrador = filt;
         this.filtradas = this.guias.filter(g => this.defineFilter(g.transportadora) === filt);
         this.render(true);
+
+        table.buttons().remove();
+        table.button().add(0, {
+            action: () => console.log("Funciona menol"),
+            text: filt
+        });
+
         return this.filtradas;
     }
 
     render(clear) {
+        this.counterFilter();
         if(!this.renderTable && !clear) return;
         
         if(clear) {
@@ -140,4 +157,61 @@ export default class SetHistorial {
 
         this.renderTable = false;
     }
+
+    counterFilter() {
+        if(!this.nodeFilters) return;
+        this.nodeFilters.each((i,node) => {
+            const filt = node.getAttribute("data-filter");
+            const cant = this.guias.filter(g => this.defineFilter(g.transportadora) === filt).length;
+            $(node).find(".counter").text(cant);
+        })
+    }
+
+    includeFilters() {
+        const container = $("#filtros-historial-guias");
+        const filters = [
+            {
+                name: "Pedidos",
+                dataFilter: "SERVIENTREGA"
+            },
+            {
+                name: "Listado",
+                dataFilter: "INTERRAPIDISIMO"
+            },
+            {
+                name: "En Proceso",
+                dataFilter: "ENVIA"
+            },
+            {
+                name: "Finalizadas",
+                dataFilter: "TCC"
+            },
+            {
+                name: "otro",
+                dataFilter: "nuevo"
+            }
+        ];
+    
+        filters.forEach(filt => {
+            container.append(filter(filt));
+        });
+    
+        const nodeFilters = container.children(".filtro");
+        nodeFilters.css({width: 100 / nodeFilters.length + "%"});
+        nodeFilters.filter((i, node) => node.getAttribute("data-filter") === this.filtrador)
+        .addClass("active")
+
+        const filtrar = this.filter.bind(this);
+        
+        nodeFilters.click(function() {
+            nodeFilters.removeClass("active");
+            this.classList.add("active");
+            filtrar(this.getAttribute("data-filter"));
+        });
+
+        this.nodeFilters = nodeFilters;
+
+        return filters;
+    }
 }
+

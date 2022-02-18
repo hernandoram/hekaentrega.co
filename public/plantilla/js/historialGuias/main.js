@@ -1,6 +1,9 @@
-import "./views.js";
 import { firestore as db } from "../config/firebase.js";
 import SetHistorial from "./historial.js";
+import {title, table as htmlTable, filters, filter} from "./views.js";
+
+
+
 
 const id_user = localStorage.user_id;
 const guiasRef = db.collection("usuarios").doc(id_user)
@@ -11,6 +14,8 @@ async function historial() {
     const fecha_final = new Date().getTime();
     const fecha_inicio = fecha_final - 2.628e+9;
     const historial = new SetHistorial();
+    historial.includeFilters();
+
 
     guiasRef
     .orderBy("timeline", "desc")
