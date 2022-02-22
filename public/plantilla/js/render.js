@@ -432,39 +432,8 @@ function activarBotonesDeGuias(id, data, activate_once){
                     console.log(res);
                     console.log("Document successfully deleted!");
                     avisar("Guia Eliminada", "La guia Número " + id + " Ha sido eliminada", "alerta");
-                    // row.remove();
-                }).then(() => {
-                    firebase.firestore().collection("usuarios").doc(localStorage.user_id)
-                    .get().then((doc) => {
-                        if(doc.exists && doc.data().datos_personalizados){
-                            const datos = doc.data().datos_personalizados;
-                            let momento = new Date().getTime();
-                            let saldo = parseInt(datos.saldo);
-                            
-                            let saldo_detallado = {
-                                saldo: saldo + parseInt(this.getAttribute("data-costo_envio")),
-                                saldo_anterior: saldo,
-                                actv_credit: datos.actv_credit || false,
-                                fecha: genFecha(),
-                                momento: momento,
-                                diferencia: 0,
-                                mensaje: "Guía " + id + " eliminada exitósamente",
-                                user_id: localStorage.user_id,
-                                guia: id,
-                                medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id
-                            }
-                            
-                            if(!data.debe){
-                                saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
-                                console.log(saldo_detallado);
-                                console.log(saldo);
-                                actualizarSaldo(saldo_detallado);
-                            }
-                            
-                        }
-                        historialGuias();
-                    });
                     $("#enviar-documentos").prop("disabled", false);
+                    // row.remove();
                 }).catch((error) => {
                     console.error("Error removing document: ", error);
                     $("#enviar-documentos").prop("disabled", false);
