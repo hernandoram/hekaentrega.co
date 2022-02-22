@@ -2698,6 +2698,10 @@ async function generarRotulo(id_guias) {
 
         if(data.transportadora === "INTERRAPIDISIMO") {
             src_logo_transp = "img/logo-inter.png";
+        } else if (data.transportadora === "ENVIA") {
+            src_logo_transp = "img/2001.png";
+        } else if (data.transportadora === "TCC") {
+            src_logo_transp = "img/logo-tcc.png";
         }
 
         let imgs = `<td><div class="align-items-center d-flex flex-column">
@@ -2706,6 +2710,7 @@ async function generarRotulo(id_guias) {
         </div></td>`;
         let infoRem = `<td>
         <h2>Datos Del Remitente</h2>
+        <h5 class="text-dark">ID: <strong>${data.id_heka}</strong></h5>
         <h5 class="text-dark">Nombre: <strong>${data.nombreR}</strong></h5>
         <h5 class="text-dark">Dirección: <strong>${data.direccionR}</strong></h5>
         <h5 class="text-dark">Ciudad:  <strong>${data.ciudadR}(${data.departamentoR})</strong>  </h5>
@@ -2714,11 +2719,14 @@ async function generarRotulo(id_guias) {
 
         let infoDest = `<td>
         <h2>Datos Del Destinatario</h2>
+        <h5 class="text-dark">Nñumero de Guía: <strong>${data.numeroGuia}</strong></h5>
         <h5 class="text-dark">Nombre: <strong>${data.nombreD}</strong></h5>
         <h5 class="text-dark">Dirección: <strong>${data.direccionD}</strong></h5>
         <h5 class="text-dark">Ciudad:  <strong>${data.ciudadD}(${data.departamentoD})</strong>  </h5>
         <h5 class="text-dark">Celular:  <strong>${data.celularD != data.telefonoD ? data.celularD +" - "+ data.telefonoD : data.telefonoD}</strong></h5>          
         </td>`;
+
+
 
         tr.innerHTML = imgs + infoRem + infoDest
         tbody.appendChild(tr);

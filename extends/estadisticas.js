@@ -1,50 +1,99 @@
+const { Console } = require("console");
 const ciudades = require("../data/ciudades");
 const firebase = require("../keys/firebase");
 const db = firebase.firestore();
 const {revisarTipoEstado, revisarNovedad, traducirMovimientoGuia} = require("./manejadorMovimientosGuia");
 
+// FUNCIONES SOLO PARA USO EN DESARROLLO 
+
+// buscarGuiasParaActualizarEstadisticas();
 // funcion para actualizar estadisticas tomando todos los datos posibles
-async function buscarGuiasParaActualizarEstadisticas() {
-    const querySnapshot = await db.collectionGroup("guias")
+async function buscarGuiasParaActualizarEstadisticas(ref) {
+    const querySnapshot = await ref
     .where("seguimiento_finalizado", "==", true)
+    // db.collection("usuarios")
+    // .doc("1122131320").collection("guias")
+    // .where("id_heka", "==", "132039567")
     // .where("ciudadD", "==", "CALI")
-    .limit(20)
+    // .limit(4)
     .get()
 
     const novedades = {
         SERVIENTREGA: [], INTERRAPIDISIMO: [],
-        ENVIA: [], TCC: []
+        ENVIA: [], TCC: [], DESCONOCIDO: []
     }
 
     try {
         let size = querySnapshot.size;
+        console.log("cantidad de guias del usuario => ", size)
         for await (let doc of querySnapshot.docs) {
             const guia = doc.data();
             size--;
-            if(guia.capturadaEstadisticaEntrega) return;
+            if(guia.capturadaEstadisticaEntrega || guia.prueba) continue;
             
             const referenciaCiudad = await encontrarDaneCiudad(guia);
             const estadoGuia = await encontrarMovimientos(doc);
             const estadisticas = formatoEstadistica(estadoGuia);
             const {posiblesNovedades} = definirEstadisticas(estadoGuia);
-            
             posiblesNovedades.forEach(n => {
-                if (!novedades[estadoGuia.transportadora].includes(n))
-                    novedades[estadoGuia.transportadora].push(n)
-            })
+                const t = estadoGuia.transportadora || "DESCONOCIDO";
+                if (!novedades[t].includes(n))
+                    novedades[t].push(n)
+            });
         
-            console.log(doc.data().id_user, doc.id, "Faltan: "+size);
-            await referenciaCiudad.set(estadisticas, {merge: true});
-            // doc.ref.update({capturadaEstadisticaEntrega: true});
+            console.log(doc.data().id_user, doc.id, guia.id_heka, "guias Faltantes: "+size);
+            if(estadisticas) await referenciaCiudad.set(estadisticas, {merge: true}).then(() => console.log("Actualizado en estadísticas"));
+            doc.ref.update({capturadaEstadisticaEntrega: true});
         }
 
-        console.log(novedades);
+        return novedades;
     } catch(e) {
         console.error(e);
         console.log(novedades);
     }
 }
-// buscarGuiasParaActualizarEstadisticas();
+
+// buscarUsuariosParaActualizarEstadisticas();
+//funcion que utilizo para buscar los usuarios uno por uno, para luego actualizar las estadísticas de sus guías
+async function buscarUsuariosParaActualizarEstadisticas() {
+    const querySnapshot = await db.collection("usuarios")
+    .orderBy("centro_de_costo")
+    .where("centro_de_costo", ">=", "SellerOptipick")
+    // .where("ciudadD", "==", "CALI")
+    // .limit(5)
+    .get()
+
+    const novedades = {
+        SERVIENTREGA: [], INTERRAPIDISIMO: [],
+        ENVIA: [], TCC: [], DESCONOCIDO: []
+    }
+
+    try {
+        let size = querySnapshot.size;
+        console.log("Usuarios consultados =>", size);
+        for await (let doc of querySnapshot.docs) {
+            size--
+            const novedadesGuias = await buscarGuiasParaActualizarEstadisticas(doc.ref.collection("guias"))
+        
+            console.log(doc.data().centro_de_costo, doc.id, "usuarios faltantes: "+size);
+            if(!novedadesGuias) throw new Error("me quedé con el usuario => "+ doc.data().centro_de_costo)
+            console.log(novedadesGuias);
+            for(let t in novedadesGuias) {
+                novedadesGuias[t].forEach(n => {
+                    if (!novedades[t].includes(n))
+                        novedades[t].push(n)
+                })
+            }
+        }
+
+        console.log("Todas las novedades => ", novedades);
+    } catch(e) {
+        console.error(e);
+        console.error(e.message);
+        console.log(novedades);
+    }
+}
+//FIN DE FUNCIONES PARA USO EN SOLO DESARROLLO
 
 //funcion para agregar estadistica en la ciudad contenida en "doc.data()"
 async function agregarEstadistica(doc, estadoGuia) {
@@ -58,11 +107,13 @@ async function agregarEstadistica(doc, estadoGuia) {
     const referenciaCiudad = await encontrarDaneCiudad(guia);
     const estadisticas = formatoEstadistica(estadoGuia);
 
-    estadisticas.transportadora = guia.transportadora;
-    estadisticas.nombreCiudad = guia.ciudadD +"("+ guia.departamentoD+")";
-
-    await referenciaCiudad.set(estadisticas, {merge: true});
-    doc.ref.update({capturadaEstadisticaEntrega: true});
+    
+    if(estadisticas) {
+        estadisticas.transportadora = guia.transportadora;
+        estadisticas.nombreCiudad = guia.ciudadD +"("+ guia.departamentoD+")";
+        await referenciaCiudad.set(estadisticas, {merge: true});
+        doc.ref.update({capturadaEstadisticaEntrega: true});
+    }
 }
 
 //aqui se encontrará la ciudad que corresponde a la guía
@@ -87,6 +138,7 @@ async function encontrarDaneCiudad(guia) {
 
 //devuelve un objeto que será enviado directo a las estadisticas de firebase
 function formatoEstadistica(movimientos) {
+    if(!movimientos) return;
     const {data:seguimiento, cantNovedades, posiblesNovedades} = definirEstadisticas(movimientos);
     const estadisticas = {};
     const tipoEntrega = revisarTipoEstado(seguimiento.estadoActual);
@@ -124,9 +176,11 @@ async function encontrarMovimientos(doc) {
 }
 
 function definirEstadisticas(data) {
+    const posiblesNovedades = [];
+    if(!data) return {posiblesNovedades};
+
     const movimientos = data.movimientos;
     const ultMov = movimientos[movimientos.length - 1];
-    const posiblesNovedades = [];
     const cantNovedades = movimientos.reduce((a,b)  => {
         const novedad = revisarNovedad(b, data.transportadora);
         if(novedad) {

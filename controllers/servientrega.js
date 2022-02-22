@@ -496,8 +496,8 @@ function generarGuia(datos) {
                 <Num_BolsaSeguridad>0</Num_BolsaSeguridad>
                 <Num_Precinto>0</Num_Precinto>
                 <Des_TipoDuracionTrayecto>1</Des_TipoDuracionTrayecto>
-                <Des_Telefono>${dest.celular}</Des_Telefono>
-                <Num_Celular>${datos.celularD}</Num_Celular>
+                <Des_Telefono>${dest.telefono}</Des_Telefono>
+                <Num_Celular>${dest.celular}</Num_Celular>
                 <Des_Ciudad>${datos.dane_ciudadD}</Des_Ciudad><!--o codigo dane para ciudad destino-->
                 <Des_Direccion>${dest.direccion}</Des_Direccion>
                 <Nom_Contacto>${dest.nombre}</Nom_Contacto>

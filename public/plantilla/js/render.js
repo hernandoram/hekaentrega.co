@@ -1235,7 +1235,7 @@ function gestionarNovedadModal(dataN, dataG) {
     console.log(dataN);
     console.log(dataG)
     const ultimo_mov = dataN.movimientos[dataN.movimientos.length - 1]
-    const mostrador_gestionar = `
+    let mostrador_gestionar = `
         <p>Escribe aquí tu solución a la novedad</p>
         <textarea type="text" class="form-control" name="solucion-novedad" id="solucion-novedad-${dataN.numeroGuia}"></textarea>
         <button class="btn btn-success m-2" id="solucionar-novedad-${dataN.numeroGuia}">Enviar Solución</button>
@@ -1340,7 +1340,6 @@ function gestionarNovedadModal(dataN, dataG) {
     if(dataN.movimientos) {
         for(let i = dataN.movimientos.length - 1; i >= 0; i--){
             let mov = dataN.movimientos[i];
-            console.log(mov[movTrad.fechaMov]);
             let li = document.createElement("li");
             let enNovedad = revisarNovedad(mov, dataN.transportadora);
         
