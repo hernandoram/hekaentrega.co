@@ -87,12 +87,12 @@
         <hr class="sidebar-divider my-0">
 
         <!-- Nav Item - Cotizar envio -->
-        <li class="nav-item">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Acá podras cotizar tus envios">
           <a class="nav-link" href="#cotizar_envio">
             <i class="fas fa-fw fa-balance-scale"></i>
             <span>Cotizar envío</span></a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Acá podras acceder a tu propia tienda. (Espacio aun no finalizado)">
           <a class="nav-link" href="#tienda">
             <span class="badge badge-danger badge-counter" style="font-size: medium;">Beta</span>
             <i class="fas fa-fw fa-store"></i>
@@ -108,26 +108,26 @@
         </div>
 
         <!-- Nav Item - Pages Collapse Menu -->
-        <li class="nav-item">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Espacio para obtener acceso al historial de guías">
           <a class="nav-link" href="#historial_guias" onclick="mostrar('historial_guias')">
             <i class="fas fa-fw fa-cog"></i>
             <span>Guías</span>
           </a>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Acá podras tener acceso a todos tus documentos">
           <a class="nav-link" href="#documentos" onclick="mostrar('documentos')">
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Documentos</span></a>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Acá podras tener acceso al manifiesto de inter">
           <a class="nav-link" href="#guias_inter" title="Crear manifiesto para inter rapidísimo">
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Manifiesto Inter</span></a>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Espacio para cosultar tus novedades">
           <a class="nav-link" href="#novedades" onclick="revisarMovimientosGuias(false, 'once')">
             <span class="badge badge-counter icon-notificacion-novedad d-none">
               <i class="fa fa-exclamation-circle"></i>
@@ -139,7 +139,7 @@
 
         <!-- Divider -->
         <hr class="sidebar-divider">
-        <li class="nav-item">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Acá podras estar atento a los diversos tipos de pagos">
           <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
             <i class="fas fa-fw fa-dollar-sign"></i>
             <span>Pagos</span>
@@ -288,11 +288,11 @@
 
                 <div class="form-group row align-items-end mb-3">
                   <div class="col-sm-6 mb-3 mb-sm-3">
-                    <h6>KILOS</h6>
+                    <h6>KILOS <small class="popover-peso"></small></h6>
                     <input type="number" class="form-control form-control-user only-integers" step="any" name="kilos" id="Kilos" min="1" max="25" required>  
                   </div>      
                   <div class="col mb-3 mb-sm-3">
-                    <h6>Valor Declarado</h6>
+                    <h6>Valor Declarado <small class="popover-declarado"></small></h6>
                     <input type="number" onchange="this.classList.add('is-invalid')"
                     class="form-control form-control-user only-integers" id="seguro-mercancia" value="15000" step="1000" name="recaudo" min="5000" max="2000000" >
                     <div class="invalid-feedback">
@@ -303,7 +303,7 @@
 
                 <div class="form-group row align-items-end">
                   <div class="col">
-                    <h6 class="mb-2 text-center">Dimensiones <span>(Expresadas en Centímetros)</span></h6>
+                    <h6 class="mb-2 text-center">Dimensiones <span>(Expresadas en Centímetros)</span> <small class="popover-dimensiones"></small></h6>
                     <div class="row">
                       <div class="col-sm-4 d-flex align-items-center mb-2">
                         <label for="dimension-ancho">Ancho:  </label>
@@ -1351,7 +1351,13 @@
     <!-- para controlar el acceso -->
     <script>
       let administracion = false;
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      });
 
+      $(function () {
+        $('[data-toggle="popover"]').popover()
+      });
     </script>
 
     <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>

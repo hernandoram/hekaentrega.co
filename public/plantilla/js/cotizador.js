@@ -2019,6 +2019,9 @@ function crearGuia() {
             datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`;
             datos_a_enviar.timeline = new Date().getTime();
             datos_a_enviar.id_user = user_id;
+            
+            datos_a_enviar.cuenta_responsable = transportadoras[datos_a_enviar.transportadora]
+            .sistema() === "automaticoEmp" ? "EMPRESA" : "PERSONAL";
 
             if(id_tipo_entrega) datos_a_enviar.id_tipo_entrega = id_tipo_entrega;
 
@@ -2632,3 +2635,63 @@ function observacionesEnvia(result_cotizacion) {
 
     return ul;
 }
+
+
+// ESPACIO PARA ALIMENTAR LOS POPOVERS
+let popoverDimensiones = document.querySelector(".popover-dimensiones");
+let popoverPeso = document.querySelector(".popover-peso");
+let popoverDeclarado = document.querySelector(".popover-declarado");
+let pesoValorDeclarado = document.querySelector("#Kilos");
+
+pesoValorDeclarado.addEventListener('change', (event) => {
+    let peso = null;
+    peso = event.target.value
+    algo(peso)
+});
+
+const algo = (peso) => {
+    let valorSer = transportadoras.SERVIENTREGA.limitesValorDeclarado(peso)
+    let valorInter = transportadoras.INTERRAPIDISIMO.limitesValorDeclarado(peso)
+    let valorEnv = transportadoras.ENVIA.limitesValorDeclarado(peso)
+    let valorTCC = transportadoras.TCC.limitesValorDeclarado(peso)
+
+    let popoverDeclarado = document.querySelector(".popover-declarado");
+        popoverDeclarado.innerHTML = `
+        <span class="d-inline-block" data-toggle="popover" id="popover-valor-declarado" data-html="true" title="Límites por transportadora" data-content='          
+            SERVIENTREGA: ${valorSer[0]} - ${valorSer[1]} 
+            INTERRAPIDISIMO: ${valorInter[0]} - ${valorInter[1]} <br>
+            ENVIA: ${valorEnv[0]} - ${valorEnv[1]} <br>
+            TCC: ${valorTCC[0]} - ${valorTCC[1]}'>
+            <i class="fa fa-question-circle" style="pointer-events: none;" type="button" disabled ></i> 
+        </span>
+    `
+    $(function () {
+        $("#popover-valor-declarado").popover()
+    })
+}
+popoverDeclarado.innerHTML = `
+<span class="d-inline-block" data-toggle="popover" data-html="true" title="Límites por transportadora" data-content='          
+    <h6>Para ver los valores, debes agregar el peso primero y oprimir la tecla enter</h6>'>
+    <i class="fa fa-question-circle " style="pointer-events: none;" type="button" disabled ></i> 
+</span>
+`
+popoverPeso.innerHTML = `
+    <span class="d-inline-block" data-toggle="popover" data-html="true" title="Límites por transportadora" data-content='          
+        SERVIENTREGA: ${transportadoras.SERVIENTREGA.limitesPeso[0]} - ${transportadoras.SERVIENTREGA.limitesPeso[1]} 
+        INTERRAPIDISIMO: ${transportadoras.INTERRAPIDISIMO.limitesPeso[0]} - ${transportadoras.INTERRAPIDISIMO.limitesPeso[1]} <br>
+        ENVIA: ${transportadoras.ENVIA.limitesPeso[0]} - ${transportadoras.ENVIA.limitesPeso[1]}  <br>
+        TCC: ${transportadoras.TCC.limitesPeso[0]} - ${transportadoras.TCC.limitesPeso[1]}
+        '>
+        <i class="fa fa-question-circle " style="pointer-events: none;" type="button" disabled ></i> 
+    </span>
+`
+popoverDimensiones.innerHTML = `
+    <span class="d-inline-block" data-toggle="popover" data-html="true" title="Límites por transportadora" data-content='          
+        SERVIENTREGA: ${transportadoras.SERVIENTREGA.limitesLongitud[0]} - ${transportadoras.SERVIENTREGA.limitesLongitud[1]} 
+        INTERRAPIDISIMO: ${transportadoras.INTERRAPIDISIMO.limitesLongitud[0]} - ${transportadoras.INTERRAPIDISIMO.limitesLongitud[1]} <br>
+        ENVIA: ${transportadoras.ENVIA.limitesLongitud[0]} - ${transportadoras.ENVIA.limitesLongitud[1]}  <br>
+        TCC: ${transportadoras.TCC.limitesLongitud[0]} - ${transportadoras.TCC.limitesLongitud[1]}
+        '>
+        <i class="fa fa-question-circle" style="pointer-events: none;" type="button" disabled ></i> 
+    </span>
+`

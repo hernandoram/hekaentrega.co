@@ -3,7 +3,7 @@ const requestP = require("request-promise")
 const extsFunc = require("../extends/funciones");
 const puppeteer = require("puppeteer");
 // const Handlebars = require("express-handlebars");
-const {Credenciales, UsuarioPrueba} = require("../keys/interCredentials");
+const {Credenciales, UsuarioPrueba, CredencialesEmpresa} = require("../keys/interCredentials");
 const urlEstados = "https://www3.interrapidisimo.com/ApiservInter/api/Mensajeria/ObtenerRastreoGuias?guias=";
 
 //FUNCIONES REGULARES
@@ -237,10 +237,22 @@ const encontrarId_heka = async function(numeroGuia) {
     return id_heka.toString().trim();
 }
 
+function getCredentials(cuenta_responsable, prueba) {
+    if(prueba) return UsuarioPrueba;
+
+    switch(cuenta_responsable) {
+        case "EMPRESA":
+            return CredencialesEmpresa;
+        default:
+            return Credenciales;
+    }
+}
+
 // FUNCIONES A EXPORTAR 
 exports.crearGuia = (req, res) => {
     const guia = req.body;
-    const url =  guia.prueba ? UsuarioPrueba.endpoint : Credenciales.endpoint;
+    const credentials = getCredentials(guia.cuenta_responsable, guia.prueba);
+    const url =  credentials.endpoint;
     const nombreTipoEnvio = guia.peso < 3 ? "PAQUETE PEQUEÑO" : "PAQUETE";
     const idTipoEnvio = guia.peso < 3 ? 3 : 9;
     const idServicio = guia.peso < 6 ? 3 : 6;
@@ -248,7 +260,7 @@ exports.crearGuia = (req, res) => {
     const dest = extsFunc.transformarDatosDestinatario(guia);
 
     let data = {
-        "IdClienteCredito": guia.prueba ? UsuarioPrueba.idCliente : Credenciales.idCliente, //Codigo cliente
+        "IdClienteCredito": credentials.idCliente, //Codigo cliente
         "CodigoConvenioRemitente": guia.codigo_sucursal, //Codigo sucursal
         "IdTipoEntrega": guia.id_tipo_entrega || 1,
         "AplicaContrapago": dest.type !== "CONVENCIONAL",
@@ -289,8 +301,8 @@ exports.crearGuia = (req, res) => {
 
     request.post(url + "/InsertarAdmision", {
         headers: {
-            "x-app-signature": guia.prueba ? UsuarioPrueba.x_app_signature : Credenciales.x_app_signature,
-            "x-app-security_token":  guia.prueba ? UsuarioPrueba.x_app_security_token : Credenciales.x_app_security_token,
+            "x-app-signature": credentials.x_app_signature,
+            "x-app-security_token":  credentials.x_app_security_token,
             "Content-type": "application/json"
         },
         body: JSON.stringify(data)
@@ -303,11 +315,13 @@ exports.crearGuia = (req, res) => {
 
 exports.crearStickerGuia = (req, res) => {
     const prueba = req.query.prueba;
-    const url = prueba ? UsuarioPrueba.endpoint : Credenciales.endpoint;
+    const cuenta_responsable = req.query.cuenta_responsable;
+    const credentials = getCredentials(cuenta_responsable, prueba);
+    const url = credentials.endpoint;
     request.get(url + "/ObtenerBase64PdfPreGuia/" + req.params.id, {
         headers: {
-            "x-app-signature": prueba ? UsuarioPrueba.x_app_signature : Credenciales.x_app_signature,
-            "x-app-security_token": prueba ? UsuarioPrueba.x_app_security_token : Credenciales.x_app_security_token
+            "x-app-signature": credentials.x_app_signature,
+            "x-app-security_token": credentials.x_app_security_token
         }
     }, (error, response, body) => {
         if(error) res.send("Hubo un error => "+error);
