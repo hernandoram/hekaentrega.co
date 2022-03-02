@@ -2199,7 +2199,7 @@ async function enviar_firestore(datos){
             
             firestore.collection("infoHeka").doc("heka_id").update({id: firebase.firestore.FieldValue.increment(1)});
 
-            if(transportadoras[datos.transportadora].sistema() === "automatico") {
+            if(transportadoras[datos.transportadora].sistema() === "automatico" || transportadoras[datos.transportadora].sistema() === "automaticoEmp") {
                 //Para cuando el usuario tenga activa la creación deguías automáticas.
                 return await crearGuiaTransportadora(datos, referenciaNuevaGuia);
                  

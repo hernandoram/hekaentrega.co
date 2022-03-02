@@ -2623,6 +2623,7 @@ async function historialGuiasAdmin() {
                     && data.type!=="CONVENCIONAL") return (-content) + '<span class="sr-only"> Por pagar</span>'
                 return -content
             }},
+            {data: "cuenta_responsable", title: "Cuenta responsable", defaultContent: "Personal"},
         ],
         dom: 'Bfrtip',
         buttons: [{
