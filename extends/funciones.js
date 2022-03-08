@@ -47,7 +47,13 @@ exports.actualizarMovimientos = async (doc, toUpdate) => {
   toUpdate.daneDestino = doc.data().dane_ciudadD || "NA";
   toUpdate.id_heka = doc.id;
 
-  toUpdate.mostrar_usuario = Boolean(revisarNovedad(ultimo_mov, doc.data().transportadora));
+  const novedad = await revisarNovedad(ultimo_mov, doc.data().transportadora);
+
+  toUpdate.mostrar_usuario = Boolean(novedad);
+  toUpdate.enNovedad = Boolean(novedad);
+
+  if(novedad) doc.ref.update({enNovedad: Boolean(novedad)});
+
 
   return await doc.ref.parent.parent.collection("estadoGuias")
   .doc(doc.id)

@@ -1218,6 +1218,7 @@ function gestionarNovedadModal(dataN, dataG) {
 
 
     //Acá estableceré la información general de la guía
+    const ultimoMovConNovedad = revisarNovedad(ultimo_mov, dataN.transportadora) || dataN.enNovedad
     let info_gen = document.createElement("div"),
         info_guia = `
             <div class="col-12 col-sm-6 col-md-4 col-lg mb-3">
@@ -1228,8 +1229,8 @@ function gestionarNovedadModal(dataN, dataG) {
             <div class="card-body">
                 <p>Número de guía: <span>${dataN.numeroGuia}</span></p>
                 <p>Fecha de envío: <span>${dataN.fechaEnvio}</span></p>
-                <p>Estado: <span class="${revisarNovedad(ultimo_mov, dataN.transportadora) ? "text-danger" : "text-primary"}">
-                  ${revisarNovedad(ultimo_mov, dataN.transportadora) ? "En novedad" : dataN.estadoActual}
+                <p>Estado: <span class="${ultimoMovConNovedad ? "text-danger" : "text-primary"}">
+                  ${ultimoMovConNovedad ? "En novedad" : dataN.estadoActual}
                 </span></p>
                 <p>Peso: <span>${dataG.detalles.peso_liquidar} Kg</span></p>
                 <p>Dice contener: <span>${dataG.dice_contener}</p>
@@ -1305,29 +1306,34 @@ function gestionarNovedadModal(dataN, dataG) {
         `, "text/html").body.firstChild;
     
     const movTrad = traducirMovimientoGuia(dataN.transportadora);
+    const guardarComoNovedad = dataG.transportadora === "SERVIENTREGA" && administracion
     
     if(dataN.movimientos) {
         for(let i = dataN.movimientos.length - 1; i >= 0; i--){
             let mov = dataN.movimientos[i];
             let li = document.createElement("li");
             let enNovedad = revisarNovedad(mov, dataN.transportadora);
+            const btnGuardarComoNovedad = guardarComoNovedad && mov[movTrad.novedad]
+            ? `<button class='btn btn-sm ml-2 btn-outline-danger registrar-novedad' data-novedad='${mov[movTrad.novedad]}'>Registrar novedad</button>`
+            : ""
         
             li.innerHTML = `
-            <span class="badge badge-primary badge-pill mr-2 d-flex align-self-start">${i+1}</span>
-            <div class="d-flexd-flex flex-column w-100">
-            <small class="d-flex justify-content-between">
-                <h6 class="text-danger">${enNovedad ? "<i class='fa fa-exclamation-triangle mr-2'></i>En novedad" : ""}</h6>
-                <h6>${mov[movTrad.fechaMov]}</h6>
-            </small>
-            <h4>${mov[movTrad.descripcionMov]}</h4>
-            <p class="mb-1">
-                <b>${mov[movTrad.observacion]}</b>
-            </p>
-            <p class="mb-1"><i class="fa fa-map-marker-alt mr-2 text-primary"></i>${mov[movTrad.ubicacion] || "No registra."}</p>
-            <p>
-                <span class="text-danger">${mov[movTrad.novedad]}</span>
-            </p>
-            </div>
+                <span class="badge badge-primary badge-pill mr-2 d-flex align-self-start">${i+1}</span>
+                <div class="d-flexd-flex flex-column w-100">
+                <small class="d-flex justify-content-between">
+                    <h6 class="text-danger">${enNovedad ? "<i class='fa fa-exclamation-triangle mr-2'></i>En novedad" : ""}</h6>
+                    <h6>${mov[movTrad.fechaMov]}</h6>
+                </small>
+                <h4>${mov[movTrad.descripcionMov]}</h4>
+                <p class="mb-1">
+                    <b>${mov[movTrad.observacion]}</b>
+                </p>
+                <p class="mb-1"><i class="fa fa-map-marker-alt mr-2 text-primary"></i>${mov[movTrad.ubicacion] || "No registra."}</p>
+                <p>
+                    <span class="text-danger">${mov[movTrad.novedad]}</span>
+                    ${btnGuardarComoNovedad}
+                </p>
+                </div>
             `
             li.setAttribute("class", "list-group-item d-flex");
             historial_estado.children[0].appendChild(li);
@@ -1433,7 +1439,25 @@ function gestionarNovedadModal(dataN, dataG) {
                 })
             }
         })
+    } else {
+        $(".registrar-novedad").click(registrarNovedad);
     }
+}
+
+function registrarNovedad() {
+    const novedad = this.getAttribute("data-novedad");
+    if (!novedad) return;
+    console.log(novedad);
+
+    db.collection("infoHeka").doc("novedadesRegistradas")
+    .update({
+        "SERVIENTREGA": firebase.firestore.FieldValue.arrayUnion(novedad)
+    }).then(() => {
+        Toast.fire({
+            icon: "success",
+            title: "Novedad registrada"
+        });
+    });
 }
 
 function modalNotificacion(list) {

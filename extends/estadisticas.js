@@ -105,8 +105,7 @@ async function agregarEstadistica(doc, estadoGuia) {
     if(guia.capturadaEstadisticaEntrega) return;
     
     const referenciaCiudad = await encontrarDaneCiudad(guia);
-    const estadisticas = formatoEstadistica(estadoGuia);
-
+    const estadisticas = await formatoEstadistica(estadoGuia);
     
     if(estadisticas) {
         estadisticas.transportadora = guia.transportadora;
@@ -137,9 +136,9 @@ async function encontrarDaneCiudad(guia) {
 }
 
 //devuelve un objeto que será enviado directo a las estadisticas de firebase
-function formatoEstadistica(movimientos) {
+async function formatoEstadistica(movimientos) {
     if(!movimientos) return;
-    const {data:seguimiento, cantNovedades, posiblesNovedades} = definirEstadisticas(movimientos);
+    const {data:seguimiento, cantNovedades, posiblesNovedades} = await definirEstadisticas(movimientos);
     const estadisticas = {};
     const tipoEntrega = revisarTipoEstado(seguimiento.estadoActual);
 
@@ -175,14 +174,14 @@ async function encontrarMovimientos(doc) {
 
 }
 
-function definirEstadisticas(data) {
+async function definirEstadisticas(data) {
     const posiblesNovedades = [];
     if(!data) return {posiblesNovedades};
 
     const movimientos = data.movimientos;
     const ultMov = movimientos[movimientos.length - 1];
-    const cantNovedades = movimientos.reduce((a,b)  => {
-        const novedad = revisarNovedad(b, data.transportadora);
+    const cantNovedades = await movimientos.reduce(async (a,b)  => {
+        const novedad = await revisarNovedad(b, data.transportadora);
         if(novedad) {
             const campoNovedad = traducirMovimientoGuia(data.transportadora).novedad
             posiblesNovedades.push(b[campoNovedad]);
@@ -190,6 +189,8 @@ function definirEstadisticas(data) {
         }
         return a
     }, 0);
+
+    console.log(cantNovedades);
 
     return {data, movimientos, ultMov, cantNovedades, posiblesNovedades};
 }

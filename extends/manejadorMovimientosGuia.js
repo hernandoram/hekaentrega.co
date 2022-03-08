@@ -1,3 +1,5 @@
+const db = require("../keys/firebase").firestore();
+
 exports.revisarTipoEstado = (est, transp) => {
     const entregadas = ["ENTREGADO", "Entrega Exitosa"];
     const devoluciones = ["ENTREGADO A REMITENTE", "Devuelto al Remitente"];
@@ -37,12 +39,19 @@ exports.traducirMovimientoGuia = (transportadora) => {
     }
 }
 
-exports.revisarNovedad = (mov, transp) => {
+exports.revisarNovedad = async (mov, transp) => {
     if(transp === "INTERRAPIDISIMO") {
         return mov.Motivo;
     } else if (transp === "ENVIA" || transp === "TCC") {
         return mov.novedad
     } else {
+        const novedades = await db.collection("infoHeka")
+        .doc("novedadesRegistradas").get();
+
+        if(novedades.data()) {
+            return novedades.data().SERVIENTREGA.includes(mov.NomConc)
+        }
+
         return mov.TipoMov === "1";
     }
 }
