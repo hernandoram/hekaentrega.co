@@ -1210,9 +1210,7 @@ function gestionarNovedadModal(dataN, dataG) {
         <button class="btn btn-success m-2" id="solucionar-novedad-${dataN.numeroGuia}">Enviar Solución</button>
     `;
 
-    if(dataG.transportadora === "INTERRAPIDISIMO") {
-        mostrador_gestionar = `<p>La transportadora Interrapidisimo llamará a destinatario y/o remitente para gestionar las novedades de tus envíos</p>`;
-    }else if(dataG.oficina && !dataG.recibidoEnPunto) {
+    if(dataG.oficina && !dataG.recibidoEnPunto) {
         mostrador_gestionar = `<p>Las guías que se dirigen hacia las oficinas flexii, no pueden ser gestionadas por este medio.</p>`;
     }
 
