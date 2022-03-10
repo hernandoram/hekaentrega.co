@@ -1890,7 +1890,7 @@ class CalcularCostoDeEnvio {
         
 
         let res = await fetch(url
-        +6635+ "/"
+        +7986+ "/"
         +dane_ciudadR+"/"
         +dane_ciudadD+"/"+this.kgTomado+"/"+this.seguro+"/1/" + genFecha("LR"))
         .then(data => data.json())
