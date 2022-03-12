@@ -89,7 +89,7 @@ async function historialGuias(){
             {data: null, title: "Acciones", render: (datos,type,row) => {
                 if(type === "display" || type === "filter") {
                     const id = datos.id_heka;
-                    const generacion_automatizada = transportadoras[datos.transportadora || "SERVIENTREGA"].sistema() === "automatico";
+                    const generacion_automatizada = ["automatico", "automaticoEmp"].includes(transportadoras[datos.transportadora || "SERVIENTREGA"].sistema());
                     const showCloneAndDelete = datos.enviado ? "d-none" : "";
                     const showDownloadAndRotulo = !datos.enviado ? "d-none" : "";
                     const showMovements = datos.numeroGuia && datos.estado ? "" : "d-none";
@@ -580,7 +580,7 @@ function crearDocumentos(e, dt, node, config) {
     })
     .then(async (docRef) => {
         const transportadora = arrGuias[0].transportadora;
-        const generacion_automatizada = transportadoras[transportadora].sistema() === "automatico";
+        const generacion_automatizada = ["automatico", "automaticoEmp"].includes(transportadoras[transportadora].sistema());
         arrGuias.sort((a,b) => {
             return a.numeroGuia > b.numeroGuia ? 1 : -1
         });
@@ -659,7 +659,7 @@ y me devuelve el mensaje con el error*/
 function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
     let mensaje
     const diferentes = arrGuias.some((v, i, arr) => {
-        const generacion_automatizada = transportadoras[v.transportadora].sistema() === "automatico";
+        const generacion_automatizada = ["automatico", "automaticoEmp"].includes(transportadoras[v.transportadora].sistema());
         if(v.type != arr[i? i - 1 :i].type) {
             mensaje = "Los tipos de guías seleccionadas no coinciden.";
             return true
