@@ -91,6 +91,26 @@ let transportadoras = {
             return sist;
         }
     },
+    "TEMPO": {
+        nombre: "Tempo express",
+        observaciones: observacionesInteRapidisimo,
+        logoPath: "img/logo-tempo.png",
+        color: "primary",
+        limitesPeso: [1,5],
+        limitesLongitud: [1,28],
+        limitesRecaudo: [10000, 1000000],
+        limitesValorDeclarado: () => {
+            return [10000, 1000000]
+        },
+        habilitada: () => {
+            const sist = datos_personalizados.sistema_tcc;
+            return sist && sist !== "inhabilitado";
+        },
+        sistema: () => {
+            const sist = datos_personalizados.sistema_tcc;
+            return sist;
+        }
+    },
 };
 
 function gestionarTransportadora() {
@@ -481,7 +501,8 @@ async function detallesTransportadoras(data) {
             if(!cotizacionAveo.error) modificarDatosDeTransportadorasAveo(cotizacionAveo);
         }
 
-        if(transp === "SERVIENTREGA" || transp === "INTERRAPIDISIMO") {
+        if(transp === "SERVIENTREGA" || transp === "INTERRAPIDISIMO"
+        || transp === "TEMPO") {
             seguro = recaudo ? recaudo : seguro;
         }
 
@@ -511,7 +532,9 @@ async function detallesTransportadoras(data) {
             descuento = percent + " %"
         }
 
+
         let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
+        console.log("SOBREFLETE EXTERNO " + transp, cotizacion.sobreflete_heka);
         let fleteConvertido = cotizacion.flete
         if(transp !== "SERVIENTREGA" && data.type === "PAGO CONTRAENTREGA") {
             sobreFleteHekaEdit -= factor_conversor;
@@ -521,7 +544,6 @@ async function detallesTransportadoras(data) {
         if(!transportadora.cotizacion) 
             transportadora.cotizacion = new Object();
         transportadora.cotizacion[data.type] = cotizacion;
-
 
         const encabezado = `<li class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
         id="list-transportadora-${transp}-list" 
@@ -1757,7 +1779,9 @@ class CalcularCostoDeEnvio {
             constante_heka = this.precios.constante_convencional;
         }
         this.sobreflete_heka = this.set_sobreflete_heka || Math.ceil(valor * ( comision_heka ) / 100) + constante_heka;
+        console.log("SOBREFLETE INTERNO " + this.codTransp, this.sobreflete_heka)
         if(this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
+        if(this.codTransp === "TEMPO") this.intoTempo(this.precio);
         if(this.aveo) this.intoAveo(this.precio);
         
 
@@ -1823,10 +1847,21 @@ class CalcularCostoDeEnvio {
                 this.precio = respuestaCotizacion.Precio
                 // this.precio.Valor += 1000;
                 this.tiempo = respuestaCotizacion.TiempoEntrega;
-                console.log("PRECIO", this.precio);
-                this.intoInter(this.precio)
-                
+                this.intoInter(this.precio);
+                break;
+            case "TEMPO":
+                this.factor_de_conversion = 0.000222;
+                this.kg_min = 1;
+                let contizacionTempo = await this.cotizarTempo(dataObj.dane_ciudadR, dataObj.dane_ciudadD);
 
+                if(!contizacionTempo) {
+                    this.empty = true;
+                    break;
+                };
+
+                this.precio = contizacionTempo
+                this.tiempo = contizacionTempo.tiempoEntrega;
+                this.sobreFletes(this.valor);
                 break;
 
             case "ENVIA": case "TCC":
@@ -1849,7 +1884,7 @@ class CalcularCostoDeEnvio {
                 this.sobreflete_min = 0;
                 this.valor = parseInt(cotizaciones.recaudo);
                 
-                this.intoAveo(cotizacion);
+                this.sobreFletes(this.valor);
                 break;
         
             default:
@@ -1912,6 +1947,30 @@ class CalcularCostoDeEnvio {
         this.sobreflete = parseInt(cotizacion.valorOtrosRecaudos);
         this.seguroMercancia = cotizacion.costoManejo;
         this.tiempo = cotizacion.diasentrega;
+    }
+
+    intoTempo(cotizacion) {
+        // this.kg = cotizacion.peso;
+        this.flete = cotizacion.flete;
+        this.sobreflete = parseInt(cotizacion.sobreflete);
+        this.seguroMercancia = cotizacion.seguro_mercancia;
+    }
+
+    async cotizarTempo(dane_ciudadR, dane_ciudadD) {
+        let url = "/tempo/cotizar/"+this.type;
+        const res = await fetch(url
+            +"?dane_ciudadR="+ dane_ciudadR
+            +"&dane_ciudadD="+ dane_ciudadD
+            +"&peso="+ this.kgTomado
+            +"&recaudo="+ this.valor
+            +"&valorDeclarado="+ this.seguro
+        )
+        .then(data => data.json())
+        .catch(err => err);
+
+        if(!res.ok || res.message) return 0;
+
+        return res;
     }
 }
 
