@@ -79,18 +79,19 @@ const table = $("#tabla-historial-guias").DataTable({
     scrollCollapse: true,
     paging: false,
     lengthMenu: [ [-1, 10, 25, 50, 100], ["Todos", 10, 25, 50, 100] ],
+    initComplete: agregarFuncionalidadesTablaPedidos
 });
 
 export default class SetHistorial {
     constructor() {
         this.guias = [];
         this.filtradas = [];
-        this.filtrador = "SERVIENTREGA";
+        this.filtrador = "pedido";
         this.renderTable = true;
     }
 
     add(guia) {
-        const filtro = this.defineFilter(guia.transportadora) === this.filtrador;
+        const filtro = this.defineFilter(guia) === this.filtrador;
         const gIdx = this.guias.findIndex(g => g.id_heka === guia.id_heka);
         const lIdx = this.filtradas.findIndex(g => g.id_heka === guia.id_heka);
 
@@ -125,20 +126,48 @@ export default class SetHistorial {
         if(index !== -1) this.guias.splice(index,1);
     }
 
-    defineFilter(t) {
-        return t;
+    defineFilter(data) {
+        const estGeneradas = ["Envío Admitido", "RECIBIDO DEL CLIENTE", "Enviado", "", undefined];
+        const estAnuladas = ["Documento Anulado", "Anulada"];
+
+        let filter;
+
+        if (data.staging) {
+            filter = "pedido";
+        } else if(!data.debe && data.type !== "CONVENCIONAL") {
+            filter = "pagada"
+        } else if (data.seguimiento_finalizado) {
+            filter = "finalizada";
+        } else if(!data.estado) {
+            filter = "generada";
+        } else {
+            filter = "en proceso";
+        }
+
+        return filter;
+    }
+
+    defineButtons(filt) {
+        table.buttons().remove();
+
+        if(filt === "pedido") {
+            table.button().add(0, {
+                action: aceptarPedido,
+                text: "Acceptar pedido"
+            });
+        } else {
+            table.button().add(0, {
+                action: () => console.log("funciona con " + filt),
+                text: filt
+            });
+        }
     }
 
     filter(filt) {
         this.filtrador = filt;
-        this.filtradas = this.guias.filter(g => this.defineFilter(g.transportadora) === filt);
+        this.filtradas = this.guias.filter(g => this.defineFilter(g) === filt);
         this.render(true);
 
-        table.buttons().remove();
-        table.button().add(0, {
-            action: () => console.log("Funciona menol"),
-            text: filt
-        });
 
         return this.filtradas;
     }
@@ -147,8 +176,10 @@ export default class SetHistorial {
         this.counterFilter();
         if(!this.renderTable && !clear) return;
         
+        this.defineButtons(this.filtrador)
         if(clear) {
             table.clear()
+
             this.filtradas.forEach(guia => {
                 table.row.add(guia);
             });
@@ -162,7 +193,7 @@ export default class SetHistorial {
         if(!this.nodeFilters) return;
         this.nodeFilters.each((i,node) => {
             const filt = node.getAttribute("data-filter");
-            const cant = this.guias.filter(g => this.defineFilter(g.transportadora) === filt).length;
+            const cant = this.guias.filter(g => this.defineFilter(g) === filt).length;
             $(node).find(".counter").text(cant);
         })
     }
@@ -172,19 +203,19 @@ export default class SetHistorial {
         const filters = [
             {
                 name: "Pedidos",
-                dataFilter: "SERVIENTREGA"
+                dataFilter: "pedido"
             },
             {
                 name: "Listado",
-                dataFilter: "INTERRAPIDISIMO"
+                dataFilter: "generada"
             },
             {
                 name: "En Proceso",
-                dataFilter: "ENVIA"
+                dataFilter: "en proceso"
             },
             {
                 name: "Finalizadas",
-                dataFilter: "TCC"
+                dataFilter: "finalizada"
             },
             {
                 name: "otro",
@@ -215,3 +246,74 @@ export default class SetHistorial {
     }
 }
 
+function agregarFuncionalidadesTablaPedidos() {
+    $("#select-all-orders").change((e) => {
+        if(e.target.checked) {
+            $("tr:gt(0)", this).addClass("selected bg-gray-300");
+        } else {
+            $("tr:gt(0)", this).removeClass("selected bg-gray-300");
+        }
+    });
+
+
+    // if (this[0].getAttribute("data-table_initialized")) {
+    //     return;
+    // } else {
+    //     this[0].setAttribute("data-table_initialized", true);
+    // }
+
+
+    $('tbody', this).on( 'click', 'tr', function (e) {
+        if(!e.target.classList.contains("selector") && e.target.nodeName !== "IMG")
+        $(this).toggleClass('selected bg-gray-300');
+    } );
+}
+
+
+async function aceptarPedido(e, dt, node, config) {
+    let api = dt;
+    const btnInitialText = $(node).text();
+    // $(node).prop("disabled", true);
+    $(node).html(`
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+        Generando guías
+    `);
+
+    // Cargador.fire("Creando guías", "Estamos generando las guías solicitadas, esto podría demorar unos minutos, por favor espere.")
+
+    const selectedRows = api.rows(".selected");
+    let datas = selectedRows.data();
+    const nodos = selectedRows.nodes();
+    console.log(datas);
+    console.log(nodos);
+    // return;
+
+
+    for ( let i = 0; i < nodos.length; i++) {
+        const guia = datas[i];
+        const respuesta = await crearGuiaTransportadora(guia);
+        const row = nodos[i];
+        let icon, color;
+        if(!respuesta.error) {
+            icon = "clipboard-check";
+            color = "text-success"
+            row.classList.remove("selected", "bg-gray-300")
+        } else {
+            icon = "exclamation-circle";
+            color = "text-danger";
+        }
+        notificacionPorGuia(row, respuesta.message, icon, color)    
+    }
+    
+    function notificacionPorGuia(row, mensaje, icon, colorText) {
+        $(row).after(`<tr><td colspan='10' class='${colorText}'><i class='fa fa-${icon} mr-2'></i>${mensaje}</td></tr>`)
+    }
+    
+    $(node).text(btnInitialText);
+    $(node).prop("disabled", false);
+
+    Toast.fire({
+        icon: "success",
+        title: "¡Proceso terminado!"
+    })
+}

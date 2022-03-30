@@ -1976,6 +1976,7 @@ function crearGuia() {
             datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`;
             datos_a_enviar.timeline = new Date().getTime();
             datos_a_enviar.id_user = user_id;
+            datos_a_enviar.staging = true;
 
             if(id_tipo_entrega) datos_a_enviar.id_tipo_entrega = id_tipo_entrega;
 
@@ -2041,6 +2042,8 @@ function crearGuia() {
 async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
     //Primero consulto la respuesta del web service
     let generarGuia;
+    referenciaNuevaGuia = referenciaNuevaGuia || usuarioDoc
+    .collection("guias").doc(datos.id_heka);
 
     if(datos.transportadora === "SERVIENTREGA") {
         generarGuia = generarGuiaServientrega(datos);
@@ -2055,32 +2058,40 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
     const respuesta = await generarGuia.then(async (resGuia) => {
         //le midifico los datos de respuesta al que será enviado a firebase
         datos.numeroGuia = resGuia.numeroGuia || 0;
-        datos.id_archivoCargar = resGuia.id_archivoCargar || "";
         datos.has_sticker = resGuia.has_sticker || false;
         //y creo el documento de firebase
         if(resGuia.numeroGuia) {
+            datos.staging = typeof resGuia.staging === "boolean"
+            ? resGuia.staging : datos.staging;
             datos.numeroGuia = datos.numeroGuia.toString();
-            let guia = await referenciaNuevaGuia.set(datos)
+            let guia = await referenciaNuevaGuia.update(datos)
             .then(doc => {
                 return resGuia;
             })
             .catch(err => {
                 console.log("Hubo un error al crear la guía con firebase => ", err);
-                return {numeroGuia: 0, error: "Lo sentimos, hubo un problema con conexión con nuestra base de datos, le recomendamos recargar la página."}
+                return {error: true, numeroGuia: 0, message: "Lo sentimos, hubo un problema con conexión con nuestra base de datos, le recomendamos recargar la página."}
             })
             console.log(guia);
             return guia;
         } else {
-            return {numeroGuia: 0, error: resGuia.error || resGuia.message}
+            return {
+                error: true,
+                message: resGuia.error || resGuia.message
+            }
         }
         //Procuro devolver un objeto con el número de guía y el respectivo mensaje de erro si lo tiene
     })
     console.log(respuesta);
 
-    if(respuesta.numeroGuia) {
-        return datos.id_heka;
+    if(!respuesta.error) {
+        return {
+            icon: "success",
+            title: "¡Guía creada con éxito!",
+            message: "¡Guía con id: " +datos.id_heka+ " creada con éxito!"
+        }
     } else {
-        throw new Error(respuesta.error);
+        throw new Error(respuesta.message);
     }
 }
 
@@ -2153,23 +2164,19 @@ async function enviar_firestore(datos){
             
             firestore.collection("infoHeka").doc("heka_id").update({id: firebase.firestore.FieldValue.increment(1)});
 
-            if(transportadoras[datos.transportadora].sistema() === "automatico") {
+            if(false && transportadoras[datos.transportadora].sistema() === "automatico") {
                 //Para cuando el usuario tenga activa la creación deguías automáticas.
                 return await crearGuiaTransportadora(datos, referenciaNuevaGuia);
                  
-            } else {
-                //Para cuendo el usurio tenga la opcion de creacion de guias automática desactivada.
-
-                //Creo la guía para que administracion le cree los documentos al usuario
-                let id = await referenciaNuevaGuia.set(datos).then(() => {
-                    return id_heka;
-                })
-                .catch(() => {
-                    throw new Error("no pudimos guardar la información de su guía, por falla en la conexión, por favor intente nuevamente");
-                })
-
-                return id;
             }
+            let id = await referenciaNuevaGuia.set(datos).then(() => {
+                return id_heka;
+            })
+            .catch(() => {
+                throw new Error("no pudimos guardar la información de su guía, por falla en la conexión, por favor intente nuevamente");
+            })
+
+            return id;
         }
     })
     .then(async (id) => {
@@ -2287,7 +2294,8 @@ async function generarGuiaServientrega(datos) {
                 nombreD: data.querySelector("Nom_Contacto").textContent,
                 ciudadD: data.querySelector("Des_Ciudad").textContent,
                 id_archivoCargar: data.querySelector("Id_ArchivoCargar").textContent,
-                prueba: datos.centro_de_costo == "SellerNuevo" ? true : false
+                prueba: datos.centro_de_costo == "SellerNuevo" ? true : false,
+                staging: false,
             }
         } else {
             //En caso contrario retorna el error devuelto por el webservice
@@ -2395,6 +2403,7 @@ async function generarGuiaInterrapidisimo(datos) {
     respuesta.numeroGuia = respuesta.numeroPreenvio;
     respuesta.id_heka = datos.id_heka;
     respuesta.prueba = datos.prueba;
+    respuesta.staging = false;
     respuesta.has_sticker = await generarStickerGuiaInterrapidisimo(respuesta);
 
     console.log("interrapidísimo => ",respuesta);
