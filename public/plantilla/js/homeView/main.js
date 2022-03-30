@@ -51,7 +51,7 @@ const CarrucelVideos = () => {
   });
 }
 
-const datosModal = (video, link, titulo, decripcion) => { 
+const datosModal = (video, link, titulo, descripcion) => { 
   const modal = new CreateModal({
     title: "<h4>"+titulo+"</h4>",
     modalSize: "modal-xl",
@@ -62,6 +62,7 @@ const datosModal = (video, link, titulo, decripcion) => {
   video.addEventListener("click", (e) => {
     e.preventDefault();
     modal.init = `
+      <h5>${descripcion}</h5>
       <div class="d-flex justify-content-center">
       <iframe class="videoYoutube w-100" src=${link} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
