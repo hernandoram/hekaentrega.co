@@ -1,331 +1,750 @@
 <!DOCTYPE html>
-<html lang="es">
-
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<meta charset="utf-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta http-equiv="X-UA-Compatible" content="ie=edge">
-	<link rel="stylesheet" type="text/css" href="css/estilos.css">
-	<link rel="shortcut icon" type="image/x-icon" href="recursos/mensajero.png">
-	<link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <!-- App favicon -->
+    <link rel="shortcut icon" href="img/logo-heka.png">
 
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="css/index/bootstrap.min.css" type="text/css">
 
+    <!--Material Icon -->
+    <link rel="stylesheet" type="text/css" href="css/materialdesignicons.min.css" />
+    <link rel="stylesheet" href="assets/css/icons.min.css">
 
-	<title>Heka entrega</title>
-	<!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
-	<!-- Custom styles for this template-->
+    <!-- Custom  sCss -->
+    <link rel="stylesheet" type="text/css" href="css/index/style.css" />
+
 	<link href="css/sb-admin-2.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/animate.css">;
   	<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <title>Heka entrega</title>
 </head>
-
 <body>
-	<header>
 
-		<nav>
-			<a href="ingreso.html">Iniciar Sesión</a>
-			<a href="ingreso.html#registrar">Registrarse</a>
-			
-			<a href="#contenedor_sobre-nosotros">Servicios</a>
-			
-			<a href="#contenedor-costoenvio">Costos de envío</a>
-			
-			<a href="#contenedo_sobre-nosotros">Pagos</a>
-			<a href="#Clientes_contenedor">Comentarios</a>
-			<a href="#contenedor-footer">Contacto</a>
-			<a href="iniciarSesion.html">Plataforma Proveedores</a>
+    <!--Navbar Start-->
+    <nav class="navbar-expand-lg fixed-top navbar-custom sticky py-1 px-4">
+        <div class="d-flex flex-wrap justify-content-around m-auto">
+            <!-- LOGO -->
+            <a class="logo text-uppercase mr-2" href="#">
+                <h3 class="logo-dark"> <img src="img/logo-heka-dark.png" alt="heka" style="max-height: 100px;"></h3>
+                <h3 class="logo-light"><img src="img/logo-heka-light.png" alt="heka" style="width: 50px;"></h3>
+                <!-- <img src="images/e-flex-logo.jpeg" alt="" class="logo-light" height="40" />
+                <img src="images/e-flex-logo.jpeg" alt="" class="logo-dark" height="40" /> -->
+            </a>
+            <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                <i class="mdi mdi-menu"></i>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarCollapse">
+                <ul class="navbar-nav mx-auto navbar-center" id="mySidenav">
+                    <li class="nav-item">
+                        <h5><a href="#home" class="nav-link">Inicio</a></h5>
+                    </li>
+                    <li class="nav-item">
+                        <h5><a href="#ventajas" class="nav-link">Ventajas</a></h5>
+                    </li>
+                    <li class="nav-item">
+                        <h5><a href="#cotizar" class="nav-link">Cotizar Envio</a></h5>
+                    </li>
+                    <li class="nav-item">
+                        <h5><a href="#clientes" class="nav-link">Comentarios</a></h5>
+                    </li>
+                    <li class="nav-item">
+                        <h5><a href="#contacto" class="nav-link">Contacto</a></h5>
+                    </li>
+                </ul>
+            </div>
+            <div class="d-flex align-items-center">
+                <a href="ingreso.html" class="btn btn-warning navbar-btn">Ingresar</a>
+                <a href="ingreso.html#registrar" class="btn btn-outline-warning navbar-btn ml-2">Registrarse</a>
+            </div>
+        </div>
+    </nav> 
+    <!-- Navbar End -->
 
-		</nav>
-		<section class="textos-header">
+    <!-- home start -->
+        <section class="bg-home" id="home">
+            <div class="home-center">
+                <div class="home-desc-center">
+                    <div class="container-fluid">
+                        <div class="row align-items-center">
+                            <div class="col-lg-6">
+                                <div class="home-title mo-mb-20 animated">
+                                    <h1 class="escritor mb-4 text-dark">¿Quieres <span class="escribiendo"></span><span class="barra"></span>?</h1>
+                                    <p class=" home-desc mb-5">Somos la <strong class="text-warning mx-1">solución E-commerce</strong> para ti, te ofrecemos distintos aliados logísticos para que puedas realizar tus envíos y incrementar tu porcentaje de ventas, contamos con cobertura en el 99% del territorio Nacional.</p>
+                                </div>
+                            </div>
+                            <div class="col-xl-4 offset-xl-2 col-lg-5 offset-lg-1 col-md-7">
+                                <div class="home-img position-relative">
+                                    <img src="img/ilustraciones/Delivery address-pana.png" alt="" class="home-first-img">
+                                    <img src="img/ilustraciones/Delivery address-pana.png" alt="" class="home-second-img mx-auto d-block">
+                                    <img src="img/ilustraciones/Delivery address-pana.png" alt="" class="home-third-img">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- end row -->
+                    </div>
+                    <!-- end container-fluid -->
+                </div>
+            </div>
+        </section>
+        <!-- home end -->
 
-			<h1>¿Compras o vendes productos?</h1>
-			<!--
-			<h2>¿Quieres pago contra entrega?</h2>
-			-->
-			<h2>Somos la solución para tí</h2>
-		
+        <!-- clients start -->
+        <section class="section">
+            <div class="container-fluid">
+                <div class="clients p-3 bg-white shadow-lg" data-animate="zoomIn">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <div class="title text-center mb-3">
+                                <h3>Nuestros aliados logísticos</h3>
+                                <!-- <p class="text-muted">At solmen va esser necessi far uniform grammatica.</p> -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row align-items-center justify-content-around">
+                        <div class="col">
+                            <div class="client-images">
+                                <img height="150px" width="150px" src="img/logoServi.png" alt="logo-img" class="mx-auto img-fluid d-block">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="client-images">
+                                <img height="150px" width="150px" src="img/logo-inter.png" alt="logo-img" class="mx-auto img-fluid d-block">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="client-images">
+                                <img height="150px" width="150px" src="img/2001.png" alt="logo-img" class="mx-auto img-fluid d-block">
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="client-images ">
+                             
+                                <img height="150px" width="150px" src="img/logo-tcc.png" alt="logo-img" class="mx-auto img-fluid d-block">
+                       
+                            </div>
+                        </div>
+                    </div> <!-- end row -->
+                </div>
+            </div> <!-- end container-fluid -->
+        </section>
+        <!-- clients end -->
+
+
+        <!-- Ventajas start -->
+        <section class="section" id="ventajas">
+            <div class="container-fluid">
+
+                <div class="row justify-content-center mb-5" data-animate="fadeIn">
+                    <div class="col-12">
+                        <h1 class="text-center">Ventajas</h1>
+                        <ul class="list-group text-muted">
+                            <li class="list-group-item"><strong class="text-warning mr-2"><i class="mdi mdi-checkbox-marked-circle-outline mdi-24px"></i></strong> Aumenta tu estatus en ventas y genera <b class="text-warning mx-1"> confianza </b> en tus clientes</li>
+                            <li class="list-group-item"><strong class="text-warning mr-2"><i class="mdi mdi-checkbox-marked-circle-outline mdi-24px"></i></strong> Ofrecerás distintas modalidades de envío como lo son <b class="text-warning mx-1">CONVENCIONAL,</b> <b class="text-warning mx-1">CONTRA ENTREGA</b> Y <b class="text-warning mx-1">PAGO CONTRA ENTREGA</b></li>
+                            <li class="list-group-item"><strong class="text-warning mr-2"><i class="mdi mdi-checkbox-marked-circle-outline mdi-24px"></i></strong> Heka no te exige facturación mínima</li>
+                            <li class="list-group-item"><strong class="text-warning mr-2"><i class="mdi mdi-checkbox-marked-circle-outline mdi-24px"></i></strong> Heka no te exige ningún tipo de permanencia</li>
+                        </ul>
+                    </div>
+                </div>
+                <!-- end row -->
+
+                <div class="row align-items-center bg-soft-yellow rounded">
+                    <div class="offset-sm-1 col-12 col-sm-6" data-animate="fadeInLeft">
+                        <div class="p-5 features-content">
+                            <div class="features-icon mb-4">
+                                <i class="mdi mdi-auto-fix h4 text-white text-center"></i>
+                            </div>
+                            <h3 class="mb-3">Seguimiento de tus envíos</h3>
+                            <p class="text-muted mb-4">
+                                Te generamos un reporte de todas las novedades, para que puedas solucionarlas a tiempo, de la misma manera contarás con módulos para revisar el estado de tus envíos.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-5" data-animate="fadeInRight">
+                        <div class="feature-img">
+                            <img src="img/ilustraciones/Developer activity-amico.png" alt="" class="img-fluid mx-auto d-block">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row align-items-center">
+                    <div class="col-12 col-sm-6 order-sm-1" data-animate="fadeInRight">
+                        <div class="p-5 features-content">
+                            <div class="features-icon mb-4">
+                                <i class="mdi mdi-chart-bar h4 text-white text-center"></i>
+                            </div>
+                            <h3 class="mb-3">Cobertura Nacional</h3>
+                            <p class="text-muted mb-4">
+                                Heka Entrega te brinda cobertura en el 99% del territorio Nacional, permitiéndote despachar hacia distintos municipios y ciudades de Colombia. 
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-5" data-animate="fadeInLeft">
+                        <div class="feature-img">
+                            <img src="img/ilustraciones/Online world-cuate.png" alt="" class="img-fluid mx-auto d-block">
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+
+                <div class="row align-items-center bg-soft-yellow rounded">
+                    <div class="offset-sm-1 col-12 col-sm-6" data-animate="fadeInLeft">
+                        <div class="p-5 features-content">
+                            <div class="features-icon mb-4">
+                                <i class="mdi mdi-auto-fix h4 text-white text-center"></i>
+                            </div>
+                            <h3 class="mb-3">Servicio de pago contraentrega</h3>
+                            <p class="text-muted mb-4">
+                                Crea confianza con tus clientes, permitiendole pagar sus productos al momento de recibir.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-5" data-animate="fadeInRight">
+                        <div class="feature-img">
+                            <img src="img/ilustraciones/Resume-amico.png" alt="" class="img-fluid mx-auto d-block">
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+
+                <div class="row align-items-center">
+                    <div class="col-12 col-sm-6 order-sm-1" data-animate="fadeInRight">
+                        <div class="p-5 features-content">
+                            <div class="features-icon mb-4">
+                                <i class="mdi mdi-currency-usd h4 text-white text-center"></i>
+                            </div>
+                            <h3 class="mb-3">Tiempos de pago</h3>
+                            <p class="text-muted mb-4">
+                                El dinero recaudado de los envíos entregados entre los días lunes a viernes al medio día y cuenten con comprobante de entrega, serán liquidados el miércoles de siguiente semana.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-5" data-animate="fadeInLeft">
+                        <div class="feature-img">
+                            <img src="img/ilustraciones/Manage money-amico.png" alt="" class="img-fluid mx-auto d-block">
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+
+                <div class="row align-items-center bg-soft-yellow rounded">
+                    <div class="offset-sm-1 col-12 col-sm-6" data-animate="fadeInLeft">
+                        <div class="p-5 features-content">
+                            <div class="features-icon mb-4">
+                                <i class="mdi mdi-auto-fix h4 text-white text-center"></i>
+                            </div>
+                            <h3 class="mb-3">Efectividad de entrega</h3>
+                            <p class="text-muted mb-4">
+                                Al realizar tus cotizaciones podrás encontrar un porcentaje de efectividad de entregas en el destino seleccionado con cada uno de nuestros aliados, lo que te ayudara a seleccionar la mejor opción para una entrega más efectiva.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-5" data-animate="fadeInRight">
+                        <div class="feature-img">
+                            <img src="img/ilustraciones/Growth analytics-amico.png" alt="" class="img-fluid mx-auto d-block">
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+            </div>
+            <!-- end container-fluid -->
+        </section>
+        <!-- Ventajas end -->
+
+        <!-- start cotizador -->
+        <section class="contenedor-costoenvio section bg-gris pb-0" id="contenedor-costoenvio">
+            <div class="container-fluid">
+                <div class="row justify-content-center" id="cotizar">
+                    <div class="col-12 col-sm-6">
+                        <div class="text-center mb-5">
+                            <h3>Costos de envío</h3>
+                        </div>
+                    </div>
+                </div>
+                    <div class="contenido-textos">
+    
+                        <div data-index="true" id="cotizar_envio">
+                            <!-- Page Heading -->
+                            <div style="display: block;" class="p-5 " id="cotizador">
+                                <!-- <h3 class="mb-4"><span>1</span>Costo de envío</h3> -->
+                              <h1 class="h3 mb-4 text-gray-800 ">Cotizar envío</h1>
+                              <hr class="sidebar-divider"></hr>
+                              <form class="user" name="cotizacionEnvio" id="cotizar-envio">
+                                <div class="form-group row">
+                                  <div class="col-sm-6">
+                                    <h6>CIUDAD REMITENTE</h6>
+                                    <h6>**Escribir ciudad y luego elegir del menú desplegable**</h6>
+                                    <input   name="ciudadR" type="text" class="form-control form-control-user" id="ciudadR"  autocomplete="off" required>
+                                  </div>
+                
+                                  <div class="col-sm-6">
+                                    <h6>CIUDAD DESTINO</h6>
+                                    <h6>**Escribir ciudad y luego elegir del menú desplegable**</h6>
+                                    <input type="text"  name="ciudadD" class="form-control form-control-user" id="ciudadD" autocomplete="off"  required>
+                                  </div>
+                                </div>
+                
+                                <div class="form-group row align-items-end mb-3">
+                                  <div class="col-sm-6 mb-3 mb-sm-2">
+                                    <h6>KILOS <span>(El peso mínimo es de 3kg)</span></h6>
+                                    <input type="number" class="form-control form-control-user" step="any" name="kilos" id="Kilos" min="3" max="25" autocomplete="off" required>  
+                                  </div>      
+                                  <div class="col mb-3 mb-sm-2">
+                                    <h6>Valor Declarado</h6>
+                                    <input type="number" class="form-control form-control-user" id="seguro-mercancia" step="1000" name="seguro" autocomplete="off" min="5000" max="300000000" >
+                                  </div>      
+                                </div>
+                
+                                <div class="form-group row align-items-end">
+                                  <div class="col">
+                                    <h6 class="mb-2 text-center ">Dimensiones <span>(Expresadas en Centímetros)</span></h6>
+                                    <div class="row">
+                                      <div class="col-sm-4 d-flex align-items-center mb-2">
+                                        <label for="dimension-ancho ">Ancho:  </label>
+                                        <input type="number" class="form-control form-control-user ml-2" id="dimension-ancho" name="dimension-ancho" autocomplete="off" min="1" max="150" >
+                                      </div>
+                                      <div class="col-sm-4 d-flex align-items-center mb-2">
+                                        <label for="dimension-largo">Largo:  </label>
+                                        <input type="number" class="form-control form-control-user ml-2" id="dimension-largo" name="dimension-Largo" autocomplete="off" min="1" max="150" >
+                                      </div>
+                                      <div class="col-sm-4 d-flex align-items-center mb-2">
+                                        <label for="dimension-alto">Alto:  </label>
+                                        <input type="number" class="form-control form-control-user ml-2" id="dimension-alto" name="dimension-alto" autocomplete="off" min="1" max="150" >
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                
+                                <hr class="sidebar-divider"></hr>
+                              </form>
+                  
+                              <div id="texto_envio"></div>
+                              <button style="display: block;" id="boton_cotizar"  onclick="cotizador()" class="btn btn-warning btn-user">
+                                Cotizar envío
+                              </button>
+                              <!-- End of Main Content -->
+                            </div> <!-- End of Main Content -->
+                            <div id="result_cotizacion" class="m-5"></div>
+                        </div>
+                          <br>
+                        <!-- <p>Para visualizar costos de envío dar clic en el siguiente enlace <a href="index_cotizar_envio.html">cotizador</a></p> -->
+                    </div>
+            </div>
 		</section>
-		<!-- Generated by https://smooth.ie/blogs/news/svg-wavey-transitions-between-sections -->
+        <!-- cotizador end -->
 
-		<div class="wave" style="height: 150px; overflow: hidden;"><svg viewBox="0 0 500 150" preserveAspectRatio="none"
-				style="height: 100%; width: 100%;">
-				<path d="M0.00,49.98 C99.03,184.03 349.20,-49.98 543.16,137.66 L500.00,150.00 L-3.10,155.42 Z"
-					style="stroke: none; fill: #fff;"></path>
-			</svg></div>
+        <!-- precios start -->
+        <!-- <section class="section pb-0    " id="precios">
+            <div class="bg-shape">
+                <img src="images/bg-shape.png" alt="" class="img-fluid mx-auto d-block">
+            </div>
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-12 col-sm-6">
+                        <div class="text-center mb-4">
+                            <h3 class="text-white">Mira lo que te ofrecemos</h3>
+                            <p class="text-white-50">Pagas solo por los que vendes.</p>
+                        </div>
+                    </div>
+                </div> -->
+                <!-- end row -->
 
+                <!-- <div class="row justify-content-center">
+                    <div class="col-xl-10">
+                        <div class="row align-items-center">
+                            <div class="col-12">
+                                <div class="pricing-plan active p-4 mt-4">
+                                    <span class="lable">Popular</span>
+                                    <div class="pricing-header text-white text-center">
+                                        <h5 class="plan-title text-white text-uppercase mb-4">Costos</h5>
+                                        <h1 class=" text-white">3<sup><small>%</small></sup></h1>
+                                        <div class="plan-duration">Por venta efectiva</div>
+                                    </div>
+                                    <ul class="list-unstyled text-white pricing-list mt-4">
+                                        <li>
+                                            <i class="mdi mdi-album"></i>
+                                            <p>Productos ilimitados</p>
+                                        </li>
+                                        <li>
+                                            <i class="mdi mdi-lifebuoy"></i>
+                                            <p>Soporte técnico<p>
+                                        </li>
+                                        <li>
+                                            <i class="mdi mdi-update"></i>
+                                            <p>Asesoría</p>
+                                        </li>
+                                        <li>
+                                            <i class="mdi mdi-earth"></i>
+                                            <p>Tu Propio Link<p>
+                                        </li>
+                                        <li>
+                                            <i class="mdi mdi-history"></i>
+                                            <p>Actualizaciones costantes</p>
+                                        </li>
+                                        <li>
+                                            <i class="mdi mdi-alarm-check"></i>
+                                            <p>soporte técnico de lunes a viernes</p>
+                                        </li>
+                                        <li>
+                                            <i class="mdi mdi-earth"></i>
+                                            <p>Plataforma conectada a transportadoras<p>
+                                        </li>
+                                        <li>
+                                            <i class="mdi mdi-coin"></i>
+                                            <p>Pago contraentrega<p>
+                                        </li>
+                                    </ul>
+                                    <div class="text-center mt-5">
+                                        <a href="#" class="btn shadow btn-info">Suscríbete ahora</a>
+                                    </div>
+                                </div>
+                            </div>  -->
+                            <!-- end col -->
+                        <!-- </div> -->
+                        <!-- end row -->
+                    <!-- </div> -->
+                     <!-- end col-xl-10 -->
 
-	</header>
+                <!-- </div> -->
+                <!-- end row -->
+            <!-- </div> -->
+            <!-- end container-fluid -->
+        <!-- </section> -->
+        <!-- precios end -->
 
-	<main>
-		<section id="contenedor_sobre-nosotros" class="contenedor sobre-nosotros">
-			<h1 class="text-center mb-5">Para más información comunicate a nuestro número de 
-				<a href="https://api.whatsapp.com/send/?phone=573124638608" class="btn btn-success" target="_blank">
-					<h3>WhatsApp  <i class="bi bi-whatsapp"></i></h3>
-				</a> 
-			</h1>
-			<h2 class="titulo">PAGO CONTRAENTREGA PARA TU NEGOCIO</h2>
-			<div class="contenedor-sobre-nosotros">
-				<img src="recursos/check.png" class="imagen-about-us">
-				<div class="contenido-textos">
+        <!-- Preguntas frecuentes start -->
+        <section class="section" id="preguntas">
+            <div class="container-fluid">
 
-					<h3><span>1</span>Generación de guías para las ventas generadas</h3>
-					<p>Módulos para la cotización de envíos y estados de envío.</p>
+                <div class="row justify-content-center">
+                    <div class="col-lg-6">
+                        <div class="text-center mb-5">
+                            <h3>Preguntas frecuentes</h3>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
 
-					<h3><span>2</span>Reporte de Novedades</h3>
-					<p>Generamos un reporte de todas tus novedades para que puedas solucionarlas en el momento indicado.</p>
+                <div class="row">
+                    <div class="col-lg-5 offset-lg-1">
+                        <!-- Question/Answer -->
+                        <div>
+                            <div class="faq-question-q-box">Q.</div>
+                            <h4 class="faq-question">¿Las devoluciones tienen algún costo?</h4>
+                            <p class="faq-answer mb-4 pb-1 text-muted">Si, será cobrado el valor del envío, estos costos son determinados por la transportadora.</p>
+                        </div>
 
+                    </div>
+                    <!--/col-lg-5 -->
 
-					<h3><span>3</span>No permanencia</h3>
-					<p>En HEKA no tienes ningún tipo de permanencia</p>
-				</div>
+                    <div class="col-lg-5">
+                        <!-- Question/Answer -->
+                        <div>
+                            <div class="faq-question-q-box">Q.</div>
+                            <h4 class="faq-question">¿El registro tiene un costo adicional?</h4>
+                            <p class="faq-answer mb-4 pb-1 text-muted">La inscripción es completamente <strong>gratuita</strong>.</b></p>
+                        </div>
 
-			</div>
-			<!--
-			<h2 class="titulo">Próximas actualizaciones</h2>
-			<div class="contenedor-sobre-nosotros">
-				<div class="contenido-textos">
-					<h3><span>1</span>Generación de guías en automático</h3>
-					<p>En la próxima actualización no tendrás que llenar guías, la generación de guías se harán en automático junto a tus clientes. </p>
-				
-					<h3><span>2</span>Pagos más rapidos</h3>
-					<p>Tendrás la posibilidad de retirar tu dinero hasta dos días después de entrega al destinatario. </p>
-				
-				
-				</div>
+                    </div>
+                    <!--/col-lg-5-->
+                </div>
+                <!-- end row -->
 
-			</div>
-			-->
-		</section>
+            </div> <!-- end container-fluid -->
+        </section>
+        <!-- Preguntas frecuentes end -->
 
-		<section id="contenedo_sobre-nosotros" class="contenedor sobre-nosotros">
-			<h2 class="titulo">Pagos</h2>
-			<div class="contenedor-sobre-nosotros">
-				<img src="recursos/pagos.png" class="imagen-about-us">
-				<div class="contenido-textos">
+        <!-- clientes start -->
+        <section class="section bg-gris" id="clientes">
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-lg-6">
+                        <div class="text-center mb-4">
+                            <h3>¿Qué dicen  nuestros clientes?</h3>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="testi-box mt-4">
+                            <div class="testi-desc bg-white p-4">
+                                <p class="text-muted mb-0">"Gracias a Heka Entrega mi negocio ha crecido, las entregas son rápidas, la gestión y el acompañamiento también es muy bueno. Además con los pagos rápidos tengo mas movimiento de mi capital y he podido incrementar mi inversión. Los recomiendo 100%"</p>
+                            </div>
+                            <div class="p-4">
+                                <div class="testi-img float-left mr-2">
+                                    <img src="recursos/testi/j&j.jpeg" alt="" class="rounded-circle">
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">Juleidis Buelvas</h5>
+                                    <p class="text-muted m-0"><small>- J&Jdistribuidores</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end col -->
+                    <div class="col-lg-4">
+                        <div class="testi-box mt-4">
+                            <div class="testi-desc bg-white p-4">
+                                <p class="text-muted mb-0">"Heka para mi ha significado la expansion por todo el territorio nacional de mi empresa, Calzado RK gracias a Heka Entrega ha podido llegar a muchas ciudades, facilitando a las personas la adquisicion y pago de los productos con el servicio Paga en Casa, algo que ha elevado las ventas a un nivel que nunca llegue a imaginar, Gracias Heka Entrega, Excelente Servicio, lo recomiendo demasiado!!"</p>
+                            </div>
+                            <div class="p-4">
+                                <div class="testi-img float-left mr-2">
+                                    <img src="recursos/testi/RK.jpeg" alt="" class="rounded-circle">
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">Kenny Valladares</h5>
+                                    <p class="text-muted m-0"><small>- Calzado RK</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end col -->
+                    <div class="col-lg-4">
+                        <div class="testi-box mt-4">
+                            <div class="testi-desc bg-white p-4">
+                                <p class="text-muted mb-0">"Hola, mi nombre es Blas Mele, desde hace aproximadamente 14 meses vengo trabajando con HEKA ENTREGA, me brindan el servicio de poder ofrecer mis productos en este caso Alisantes Originales Colombianos, a mis clientes y pagar al recibir, ya que es el servicio mas solicitado. Mis ventas han aumentado y he contado con el apoyo y pago puntual de esta plataforma, así como la asesoría cuando lo necesito de todo el grupo de trabajo."</p>
+                            </div>
+                            <div class="p-4">
+                                <div class="testi-img float-left mr-2">
+                                    <img src="recursos/testi/blasM.jpeg" alt="" class="rounded-circle">
+                                </div>
+                                <div>
+                                    <h5 class="mb-0">Blas Mele</h5>
+                                    <p class="text-muted m-0"><small>- Maxlizocol By Blas Mele</small></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end col -->
+                </div> 
+                <!-- end row -->
+            </div> 
+            <!-- end container-fluid -->
+        </section>
+        <!-- clientes end -->
 
-					<h3><span>1</span>Tiempos</h3>
-					<p>El dinero recaudo de los envíos entregados entre sábado y viernes antes del medio día serán pagados hasta el miércoles siguiente</p>
+        <!-- contacto start -->
+        <section class="section pb-0" id="contacto">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="title text-center mb-4">
+                            <h3>¿Tienes alguna pregunta?</h3>
+                            <p>Puedes comunicarte con nosotros por los siguientes medios y en breve atenderemos sus inquietudes.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+                <div class="row pb-4">
+                    <div class="col-lg-6">
+                        <a href="mailto:Hekaentregaco@gmail.com" class="contact-content text-center mt-4">
+                            <div class="contact-icon mb-2">
+                                <i class="mdi mdi-email-outline text-warning h2"></i>
+                            </div>
+                            <div class="contact-details ">
+                                <h5>E-mail</h5>
+                               <p>Hekaentregaco@gmail.com</p>
+                            </div>
+                        </div>
+                    </a>
+                    <!-- end col -->
+                    <div class="col-lg-6">
+                        <a href="https://wa.link/8m9ovw" class="contact-content text-center mt-4">
+                            <div class="contact-icon mb-2">
+                                <i class="mdi mdi-cellphone-iphone text-warning h2"></i>
+                            </div>
+                            <div class="contact-details">
+                                <h5>Teléfono</h5>
+                                <p>312 463 8608</p>
+                            </div>
+                        </a>
+                    </div>
+                    <!-- end col -->
+                </div>
+                <!-- end row -->
 
-					
+                <!-- <div class="row justify-content-center">
+                    <div class="col-lg-10">
 
+                        <div class="custom-form p-5 bg-white">
+                            <h4 id="message" style="display: none;"
+                            class="text-success text-center mb-3">Hemos enviado su mensaje, en breve responderemos su inquietud.</h4>
+                            <form method="post" action="php/contact.php" name="contact-form" id="contact-form">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="name">Nombre</label>
+                                            <input name="name" id="name" type="text" class="form-control" placeholder="Ingresa tu nombre...">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <div class="form-group">
+                                            <label for="email">Correo electrónico</label>
+                                            <input name="email" id="email" type="email" class="form-control" placeholder="Ingresa tu email...">
+                                        </div>
+                                    </div>
+                                </div> -->
+                                <!-- end row -->
 
+                                <!-- <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <label for="subject">Asunto</label>
+                                            <input name="subject" id="subject" type="text" class="form-control" placeholder="Ingresar asunto...">
+                                        </div>
+                                    </div>
+                                </div> -->
+                                <!-- end row -->
 
+                                <!-- <div class="row">
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
+                                            <label for="comments">Mensaje</label>
+                                            <textarea name="comments" id="comments" rows="4" class="form-control" placeholder="Ingresa tu mensaje..."></textarea>
+                                        </div>
+                                    </div>
+                                </div> -->
+                                <!-- end row -->
 
-				</div>
+                                <!-- <div class="row">
+                                    <div class="col-lg-12 text-right">
+                                        <input type="submit" id="submit" name="send" class="submitBnt btn btn-warning" value="Enviar mensaje">
+                                        <div id="simple-msg"></div>
+                                    </div>
+                                </div> -->
+                                <!-- end row -->
+                            <!-- </form> -->
+                        <!-- </div> -->
+                        <!-- end custom-form -->
+                    <!-- </div> -->
+                    <!-- end col -->
+                <!-- </div> -->
+                <!-- end row -->
+            </div>
+            <!-- end container-fluid -->
+        </section>
+        <!-- contacto end -->
 
-			</div>
+        <!-- clientes start -->
+        <section class="section bg-gris">
+            <div class="container-fluid">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <div class="text-center mb-4">
+                            <h3>Tutorial de registro.</h3>
+                            <p>En este vídeo te enseñamos a como realizar el registro en nuestra plataforma de Heka Entrega.</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
+                <div class="row">
+                    <div class="col-12" style="min-height: 250px;">
+                        <iframe class="w-100 h-100" src="https://www.youtube.com/embed/dLCJCvS7uWg" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <!-- end col -->
+                </div> 
+                <!-- end row -->
+            </div> 
+            <!-- end container-fluid -->
+        </section>
+        <!-- clientes end -->
 
-			
+        <!-- footer start -->
+        <footer class=" footer">
+            <div class="container-fluid">
+                <div class="row mb-5">
+                    <div class="col-lg-4 mb-3 mb-lg-0">
+                        <div class="pr-lg-4">
+                            <div class="mb-4">
+                                <h3 class="text-light">Heka Entrega</h3>
+                            </div>
+                            <p class="text-white-50">¿Compras o vendes productos?</p>
+                            <p class="text-white-50">Somos la solución eComerece para ti, crea tu catálogo para WhatsApp, crea tu propia tienda y vende a todo el país con una conexión logística con las dos mejores transportadoras del país.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3col-6 col-lg-2">
+                        <div class="footer-list">
+                            <p class="text-white mb-2 footer-list-title">Heka Entrega</p>
+                            <ul class="list-unstyled">
+                                <li><a href="#home"><i class="mdi mdi-chevron-right mr-2"></i>Inicio</a></li>
+                                <li><a href="#ventajas"><i class="mdi mdi-chevron-right mr-2"></i>Ventajas</a></li>
+                                <li><a href="#cotizar"><i class="mdi mdi-chevron-right mr-2"></i>Cotizar</a></li>
+                            </ul>
+                        </div>
+                    </div>
 
-		</section>
+                    <div class="mb-3col-6 col-lg-2">
+                        <div class="footer-list">
+                            <p class="text-white mb-2 footer-list-title">Redes Sociales</p>
+                            <ul class="list-unstyled">
+                                <li><a href="#"><i class="mdi mdi-chevron-right mr-2"></i>Facebook </a></li>
+                                <li><a href="https://wa.link/8m9ovw" target="_blank"><i class="mdi mdi-chevron-right mr-2"></i>WhatsApp</a></li>
+                                <li><a href="https://instagram.com/heka_entrega?utm_medium=copy_link" target="_blank"><i class="mdi mdi-chevron-right mr-2"></i>Instagram</a></li>
+                            </ul>
+                        </div>
+                    </div>
 
+                    <div class="col col-lg-2">
+                        <div class="footer-list">
+                            <p class="text-white mb-2 footer-list-title">Soporte</p>
+                            <ul class="list-unstyled">
+                                <li><a href="#"><i class="mdi mdi-chevron-right mr-2"></i>Ayuda y soporte</a></li>
+                                <li><a href="#"><i class="mdi mdi-chevron-right mr-2"></i>Políticas de privacidad</a></li>
+                                <li><a href="#"><i class="mdi mdi-chevron-right mr-2"></i>Términos y condiciones</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    
+                    <div class="col col-lg-2">
+                        <div class="footer-list">
+                            <p class="text-white mb-2 footer-list-title">Más información</p>
+                            <ul class="list-unstyled">
+                                <li><a href="#clientes"><i class="mdi mdi-chevron-right mr-2"></i>Nuestro clientes</a></li>
+                                <li><a href="#contacto"><i class="mdi mdi-chevron-right mr-2"></i>Contáctanos</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <!-- end row -->
 
-		<section id="contenedor-costoenvio" class="contenedor-costoenvio">
-			<h2 class="titulo">Costos de envío</h2>
-			
-				
-				<div class="contenido-textos">
-
-					<div data-index="true" id="cotizar_envio">
-						<!-- Page Heading -->
-						<div style="display: block;" class="p-5" id="cotizador">
-							<h3 class="mb-4"><span>1</span>Costo de envío</h3>
-						  <h1 class="h3 mb-4 text-gray-800">Cotizar envío</h1>
-						  <hr class="sidebar-divider"></hr>
-						  <form class="user" name="cotizacionEnvio" id="cotizar-envio">
-							<div class="form-group row">
-							  <div class="col-sm-6">
-								<h6>CIUDAD REMITENTE</h6>
-								<h6>**Escribir ciudad y luego elegir del menú desplegable**</h6>
-								<input   name="ciudadR" type="text" class="form-control form-control-user" id="ciudadR"  autocomplete="off" required>
-							  </div>
-			
-							  <div class="col-sm-6">
-								<h6>CIUDAD DESTINO</h6>
-								<h6>**Escribir ciudad y luego elegir del menú desplegable**</h6>
-								<input type="text"  name="ciudadD" class="form-control form-control-user" id="ciudadD" autocomplete="off"  required>
-							  </div>
-							</div>
-			
-							<div class="form-group row align-items-end mb-3">
-							  <div class="col-sm-6 mb-3 mb-sm-2">
-								<h6>KILOS <span>(El peso mínimo es de 3kg)</span></h6>
-								<input type="number" class="form-control form-control-user" step="any" name="kilos" id="Kilos" min="3" max="25" autocomplete="off" required>  
-							  </div>      
-							  <div class="col mb-3 mb-sm-2">
-								<h6>Valor Declarado</h6>
-								<input type="number" class="form-control form-control-user" id="seguro-mercancia" step="1000" name="seguro" autocomplete="off" min="5000" max="300000000" >
-							  </div>      
-							</div>
-			
-							<div class="form-group row align-items-end">
-							  <div class="col">
-								<h6 class="mb-2 text-center">Dimensiones <span>(Expresadas en Centímetros)</span></h6>
-								<div class="row">
-								  <div class="col-sm-4 d-flex align-items-center mb-2">
-									<label for="dimension-ancho">Ancho:  </label>
-									<input type="number" class="form-control form-control-user ml-2" id="dimension-ancho" name="dimension-ancho" autocomplete="off" min="1" max="150" >
-								  </div>
-								  <div class="col-sm-4 d-flex align-items-center mb-2">
-									<label for="dimension-largo">Largo:  </label>
-									<input type="number" class="form-control form-control-user ml-2" id="dimension-largo" name="dimension-Largo" autocomplete="off" min="1" max="150" >
-								  </div>
-								  <div class="col-sm-4 d-flex align-items-center mb-2">
-									<label for="dimension-alto">Alto:  </label>
-									<input type="number" class="form-control form-control-user ml-2" id="dimension-alto" name="dimension-alto" autocomplete="off" min="1" max="150" >
-								  </div>
-								</div>
-							  </div>
-							</div>
-			
-							<hr class="sidebar-divider"></hr>
-						  </form>
-			  
-						  <div id="texto_envio"></div>
-						  <button style="display: block;" id="boton_cotizar"  onclick="cotizador()" class="btn btn-primary btn-user">
-							Cotizar envío
-						  </button>
-						  <!-- End of Main Content -->
-						</div> <!-- End of Main Content -->
-						<div id="result_cotizacion" class="m-5"></div>
-					</div>
-					  <br>
-					<!-- <p>Para visualizar costos de envío dar clic en el siguiente enlace <a href="index_cotizar_envio.html">cotizador</a></p> -->
-				</div>
-		</section>
-
-	
-
-	<!--	<section class="portafolio">
-			<div class="contenedor">
-				<h2 class="titulo">Portafolio</h2>
-				<div class="galeria-port">
-
-					<div class="imagen-port">
-						<img src="recursos/work.jpg">
-						<div class="hover-galeria">
-							<img src="recursos/pointer.png">
-							<p>Nuestro trabajo</p>
-						</div>
-					</div>
-
-					<div class="imagen-port">
-						<img src="recursos/work.jpg">
-						<div class="hover-galeria">
-							<img src="recursos/pointer.png">
-							<p>Nuestro trabajo</p>
-						</div>
-					</div>
-
-					<div class="imagen-port">
-						<img src="recursos/work.jpg">
-						<div class="hover-galeria">
-							<img src="recursos/pointer.png">
-							<p>Nuestro trabajo</p>
-						</div>
-					</div>
-
-					<div class="imagen-port">
-						<img src="recursos/work.jpg">
-						<div class="hover-galeria">
-							<img src="recursos/pointer.png">
-							<p>Nuestro trabajo</p>
-						</div>
-					</div>
-
-					
-
-					
-
-				</div>
-			</div>
-
-
-
-		</section>
-		-->
-
-		<section id="Clientes_contenedor" class="Clientes contenedor">
-		<h2 class="titulo">Qué dicen nuestros clientes</h2>
-		<div class="cards">
-
-			<div class="card">
-				
-				<div class="contenido-texto-card">
-					<p>Nathaly Alvarez de LA BOUTIQUE DE SOFIA "La Boutique De Sofia está muy satisfecha con todos 
-						los envíos que se han realizado, muy recomendados" <a href="#">Facebook</a></p>
-				</div>
-			</div>
-
-			<div class="card">
-				
-				<div class="contenido-texto-card">
-					<p>Jhonathan beltran de H&K "Gracias a HEKA Entrega ha cambiado mucho la forma de 
-						vender para nuestra tienda, envíos rapidos, pagos seguros, buena atención al 
-						cliente" <a href="#">Instagram</a></p>
-				</div>
-			</div>
-
-		</div>
-
-		</section>
-
-		<section class="about-services">
-			<div class="contenedor">
-				<h2 class="titulo">Ventajas</h2>
-				<div class="servicio-cont">
-
-					<div class="servicio-ind">
-						<img src="recursos/enviosrapidos.png">
-						<h3>ENVÍOS RAPIDOS</h3>
-						
-					</div>
-
-					<div class="servicio-ind">
-						<img src="recursos/cobertura.png">
-						<h3>COBERTURA EN CASI TODO EL TERRITORIO NACIONAL</h3>
-						
-					</div>
-
-					<div class="servicio-ind">
-						<img src="recursos/PAGOSSEGUROS.png">
-						<h3>PAGOS SEGUROS</h3>
-						
-					</div>
-
-
-				</div>
-			</div>
-		</section>
-
-
-
-
-	</main>
-
-	<footer>
-		<div id="contenedor-footer" class="contenedor-footer">
-
-			
-
-			<div class="content-foo">
-				<h4>Email</h4>
-				<p>hekaentregaco@gmail.com</p>
-			</div>
-
-			<div class="content-foo">
-				<h4>Whatsapp</h4>
-				<p>+57 3124638608</p>
-			</div>
-
-		</div>
-		<h2 class="titulo-final">&copy; Heka entrega | R4M</h2>
-	</footer>
-
-
-	<!--Funciones escenciales-->
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="float-left pull-none">
+                            <p class="text-white-50">2015 - 2022 © Heka</p>
+                        </div>
+                        <div class="float-right pull-none">
+                            <ul class="list-inline social-links">
+                                <li class="list-inline-item text-white-50">
+                                    Social :
+                                </li>
+                                <li class="list-inline-item"><a href="#"><i class="mdi mdi-facebook"></i></a></li>
+                                <li class="list-inline-item"><a href="https://wa.link/8m9ovw"><i class="mdi mdi-whatsapp"></i></a></li>
+                                <li class="list-inline-item"><a href="https://instagram.com/heka_entrega?utm_medium=copy_link" target="_blank"><i class="mdi mdi-instagram"></i></a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- end col -->
+                </div>
+                <!-- end row -->
+            </div>
+            <!-- container-fluid -->
+        </footer>
+        <!-- footer end -->
+        
+        <!-- Back to top -->    
+        <a href="#" class="back-to-top" id="back-to-top"> <i class="mdi mdi-chevron-up"> </i> </a>
+        <!--Funciones escenciales-->
 	<script>
 		function genFecha(direccion, milliseconds){
 			// Genera un formato de fecha AAAA-MM-DD
@@ -346,7 +765,8 @@
 			return document.getElementById(request).value;
 		}
 
-		let estado_prueba = false;
+        let estado_prueba = false;
+
 		var datos_usuario = {
             nombre_completo: "Nombre Apellido",
             direccion: "direccion",
@@ -366,7 +786,7 @@
 			costo_especial3: 6300,
 			comision_servi: 3.1,
 			comision_heka: 1,
-			constante_convencional: 800,
+			constante_convencional: 600,
 			constante_pagoContraentrega: 1500,
 			saldo: 0
 		};
@@ -416,12 +836,37 @@
 		}
 	</script>
 
-    <!-- Bootstrap core JavaScript-->
-    <script src="vendor/jquery/jquery.min.js"></script>
-    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <script src="js/index/jquery.min.js"></script>
+        <script src="js/index/bootstrap.bundle.min.js"></script>
+        <script src="js/index/jquery.easing.min.js"></script>
+        <script src="js/index/scrollspy.min.js"></script>
 
-	<script type="module" src="js/consultarCiudades.js"></script>
-	<script src="js/cotizador.js"></script>
+        <!-- custom js -->
+        <script src="js/index/app.js"></script>
+        
+    
+
+        <script>
+            $("#submit").click(e => {
+                e.preventDefault();
+                $(e.target).val("Cargando...")
+                $(e.target).prop("disabled", true)
+                
+                setTimeout(() => {
+                    $(e.target).val("Enviar Mensaje")
+                    $(e.target).prop("disabled", false);
+                    $("#message").show("fast");
+                }, 2000)
+                
+                setTimeout(() => {
+                    $("#message").hide("slow");
+                }, 6000)
+            })
+        </script>
+
+        <script src="/js/consultarCiudades.js" type="module"></script>
+	    <script src="/js/cotizador.js"></script>
+
+        <script src="js/index/animate.js"></script>
 </body>
-
 </html>

@@ -451,6 +451,7 @@ async function detallesTransportadoras(data) {
     const factor_conversor = 1000;
     button.addClass("disabled");
     result.after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
+    const isIndex = document.getElementById("cotizar_envio").getAttribute("data-index");
 
     if(estado_prueba) {
         oficinas = await detallesOficinas(data.ciudadD);
@@ -600,7 +601,7 @@ async function detallesTransportadoras(data) {
 
         $(`#ver-detalles-${transp}`).click(verDetallesTransportadora);
         $(`#list-transportadora-${transp}-list`).click(seleccionarTransportadora);
-        // mostrarEstadisticas(data.dane_ciudadD, transp);
+        if(!isIndex) mostrarEstadisticas(data.dane_ciudadD, transp);
 
         corredor ++
     }
@@ -634,33 +635,51 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
     if(!estadistica) return;
 
     //Tomamos el contenedor en donde se va a llenar la info de cas transportadora
-    const contenedor = $(`#list-transportadora-${transportadora}-list`).find(".estadisticas");
+    const visorAll = $("#list-transportadoras");
+    const visorTransp = $(`#list-transportadora-${transportadora}-list`); 
+    const contenedor = visorTransp.find(".estadisticas");
     
     // El porcentaje lo calculamos con la cantidad de entregas exitósas
-    const porcentaje = estadistica.entregadas / estadistica.envios * 100;
+    const porcentaje = Math.round(estadistica.entregas / estadistica.envios * 100);
 
     //mostramos la cantidad de estrellas correspondientes al porcentaje
     contenedor.html(llenarEstrellas(porcentaje));
-    contenedor.append("<small>("+estadistica.envios+" envíos)</small>");
+    contenedor.append("<small>("+porcentaje+"% de efectividad)</small>");
     contenedor.append(`<span 
         class='detalles rounded bg-light w-100 position-absolute' 
         style='
             cursor:pointer; opacity:0; top:0; left: 0;
+            transition: opacity 300ms
         ' 
-        onmouseenter='(() => $(this).animate({opacity: 0.7}))()' 
+        onmouseenter='(() => this.style.opacity=0.7)()' 
         onmouseleave='(() => this.style.opacity=0)()'
     >
         Ver referencia
     </span>`);
 
+    //PRAR REORGANIZAR LAS TRANSPORTADORAS DESDE LA MEJOR
+
+    //agregamos la efectividad a la transportadora actual
+    visorTransp.attr("data-efectivity", porcentaje);
+
+    // lo reorganizamos con la mejor efectividad
+    const organizado = visorAll.children("li").sort((a, b) => b.getAttribute("data-efectivity") - a.getAttribute("data-efectivity"));
+
+    // renderizamos esa parte del dom para pintarlas ya organizadas
+    visorAll.append(organizado);
+
+    //Para mostrar detalles de la mejor
+    const primeraTransp = organizado[0].getAttribute("data-transp");
+    $("#ver-detalles-" + primeraTransp).click();
+    
     // habilitamos la función para ver los detalles de las estadísticas
     contenedor.click(() => detallesEstadisticas(estadistica));
 }
 
 // función que me devuelve una sweet alert con las características introducidas
 function detallesEstadisticas(estadisticas) {
-    console.log(estadisticas);
-    const posiblesNovedades = estadisticas.posiblesNovedades;
+    const {envios, posiblesNovedades, devoluciones, entregas, presentaronNovedad} = estadisticas;
+    const percentage = (val) => Math.round(val * 100 / envios)
     const mostrarNovedades = posiblesNovedades ? `
         <h4>Posibles novedades</h4>
         <ul>
@@ -674,14 +693,7 @@ function detallesEstadisticas(estadisticas) {
     const html = `
         <div class="text-left row m-0">
             <div class="col-12 mb-2">
-                <b>Cantidad de Envíos</b>: ${estadisticas.envios}
-            </div>
-
-            <div class="col-12 col-sm">
-                <b>Entregas exitosas</b>: ${estadisticas.entregas || 0}
-            </div>
-            <div class="col-12 col-sm">
-                <b>Devoluciones</b>: ${estadisticas.devoluciones || 0}
+                <canvas id="estadisticasEntrega"></canvas>
             </div>
 
             <div class="col-12 mt-3">
@@ -690,8 +702,33 @@ function detallesEstadisticas(estadisticas) {
         </div>
     `;
     Swal.fire({
-        title: "Referencia envíos",
+        title: "Referencias de efectividad",
         html
+    });
+
+    new Chart(document.getElementById("estadisticasEntrega"), {
+        type: "pie",
+        data: {
+            labels: ["Entregas", "Devoluciones", "Novedades"],
+            datasets: [{
+                data: [percentage(entregas),percentage(devoluciones),percentage(presentaronNovedad)],
+                backgroundColor: ["#36b9cc", "#e74a3b", "#f6c23e"]
+            }]
+        },
+        
+        options: {
+            responsive: true,
+            tooltips: {
+                callbacks: {
+                    label: function(tooltip, chart) {
+                        const i = tooltip.index;
+                        const label = chart.labels[i]
+                        const value = chart.datasets[0].data[i]
+                        return `${value}% en porcentaje de ${label}`;
+                    }
+                },
+            }
+        }
     })
 }
 
@@ -1120,12 +1157,18 @@ function seleccionarTransportadora(e) {
     const nOffice = this.getAttribute("data-id");
     const oficina = oficinas[nOffice];
     const seleccionado = isOficina ? "OFICINA" : type;
+    const isIndex = document.getElementById("cotizar_envio").getAttribute("data-index");
 
     delete datos_a_enviar.oficina
     delete datos_a_enviar.datos_oficina
     delete datos_a_enviar.id_oficina
 
     let result_cotizacion = transportadoras[transp].cotizacion[seleccionado];
+
+    if(isIndex){
+        location.href = "ingreso.html";
+    };
+
     if(isOficina) {
         if(verificarAntesSeleccionarOficina(oficina, result_cotizacion)) return;
         result_cotizacion.sobreflete_oficina = result_cotizacion.flete * oficina.precios.porcentaje_comsion / 100;
@@ -1188,8 +1231,8 @@ function seleccionarTransportadora(e) {
 
             cambiarTransportadora(transp);
         
-            if(document.getElementById("cotizar_envio").getAttribute("data-index")){
-                location.href = "iniciarSesion2.html";
+            if(isIndex){
+                location.href = "ingreso.html";
             }else if(!datos_a_enviar.debe && !datos_personalizados.actv_credit &&
                 datos_a_enviar.costo_envio > datos_personalizados.saldo) {
                 /* Si el usuario no tiene el crédito activo, la guía que quiere crear
@@ -1847,7 +1890,7 @@ class CalcularCostoDeEnvio {
         
 
         let res = await fetch(url
-        +6635+ "/"
+        +7986+ "/"
         +dane_ciudadR+"/"
         +dane_ciudadD+"/"+this.kgTomado+"/"+this.seguro+"/1/" + genFecha("LR"))
         .then(data => data.json())
@@ -1977,6 +2020,9 @@ function crearGuia() {
             datos_a_enviar.timeline = new Date().getTime();
             datos_a_enviar.id_user = user_id;
             datos_a_enviar.staging = true;
+            
+            datos_a_enviar.cuenta_responsable = transportadoras[datos_a_enviar.transportadora]
+            .sistema() === "automaticoEmp" ? "EMPRESA" : "PERSONAL";
 
             if(id_tipo_entrega) datos_a_enviar.id_tipo_entrega = id_tipo_entrega;
 
@@ -2164,7 +2210,7 @@ async function enviar_firestore(datos){
             
             firestore.collection("infoHeka").doc("heka_id").update({id: firebase.firestore.FieldValue.increment(1)});
 
-            if(false && transportadoras[datos.transportadora].sistema() === "automatico") {
+            if(false && transportadoras[datos.transportadora].sistema() === "automatico" || transportadoras[datos.transportadora].sistema() === "automaticoEmp") {
                 //Para cuando el usuario tenga activa la creación deguías automáticas.
                 return await crearGuiaTransportadora(datos, referenciaNuevaGuia);
                  
@@ -2528,7 +2574,8 @@ function observacionesServientrega(result_cotizacion) {
         "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero o la oficina donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
         `Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span>`,
         `Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`,
-        `En caso de devolución pagarías: $${convertirMiles(result_cotizacion.costoEnvio)} (Aplica solo para envíos en pago contra entrega)`
+        `En caso de devolución pagarías: $${convertirMiles(result_cotizacion.costoEnvio)} (Aplica solo para envíos en pago contra entrega)`,
+        "Las devoluciones con flexii se debe pagar envío ida y vuelta"
     ]
 
     let ul = document.createElement("ul");
@@ -2555,6 +2602,7 @@ function observacionesInteRapidisimo(result_cotizacion) {
         "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
         "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
         "En caso de devolución pagarías: $"+ convertirMiles(result_cotizacion.flete + result_cotizacion.seguroMercancia + result_cotizacion.sobreflete + 1000) +" (Aplica solo para envíos en pago contra entrega)",
+        "Las devoluciones con flexii se debe pagar envío ida y vuelta"
     ]
 
     let ul = document.createElement("ul");
@@ -2580,7 +2628,8 @@ function observacionesEnvia(result_cotizacion) {
         "Las recolecciones deberán ser solicitadas el día anterior o el mismo antes de las 9:00 am para que pasen el mismo día.",
         "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
         "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
-        `En caso de devolución pagarías: $${convertirMiles((result_cotizacion.flete + result_cotizacion.seguroMercancia + 1000) * 2)} (Aplica solo para envíos en pago contra entrega)`
+        `En caso de devolución pagarías: $${convertirMiles((result_cotizacion.flete + result_cotizacion.seguroMercancia + 1000) * 2)} (Aplica solo para envíos en pago contra entrega)`,
+        "Las devoluciones con flexii se debe pagar envío ida y vuelta"
     ]
 
     let ul = document.createElement("ul");
@@ -2595,3 +2644,64 @@ function observacionesEnvia(result_cotizacion) {
 
     return ul;
 }
+
+
+// ESPACIO PARA ALIMENTAR LOS POPOVERS DEL COTIZADOR
+const popoverDimensiones = document.querySelector(".popover-dimensiones");
+const popoverPeso = document.querySelector(".popover-peso");
+const popoverDeclarado = document.querySelector(".popover-declarado");
+const pesoValorDeclarado = document.querySelector("#Kilos");
+
+pesoValorDeclarado.addEventListener('change', (event) => {
+    let peso = null;
+    peso = event.target.value
+    renderValorDeclaradoEnPopover(peso)
+});
+
+const renderValorDeclaradoEnPopover = (peso) => {
+    let valorSer = transportadoras.SERVIENTREGA.limitesValorDeclarado(peso)
+    let valorInter = transportadoras.INTERRAPIDISIMO.limitesValorDeclarado(peso)
+    let valorEnv = transportadoras.ENVIA.limitesValorDeclarado(peso)
+    let valorTCC = transportadoras.TCC.limitesValorDeclarado(peso)
+
+    if (popoverDeclarado !== null) popoverDeclarado.firstElementChild.setAttribute("data-content",`          
+        SERVIENTREGA: ${valorSer[0]} - ${valorSer[1]} 
+        INTERRAPIDISIMO: ${valorInter[0]} - ${valorInter[1]} <br>
+        ENVIA: ${valorEnv[0]} - ${valorEnv[1]} <br>
+        TCC: ${valorTCC[0]} - ${valorTCC[1]}
+    `);
+
+    popoverDeclarado.firstElementChild.click();
+    popoverDeclarado.firstElementChild.click();
+
+    $(function () {
+        $("#popover-valor-declarado").popover()
+    })
+}
+
+if (popoverDeclarado !== null) popoverDeclarado.innerHTML = `
+<span class="d-inline-block" data-toggle="popover" data-html="true" title="Límites por transportadora" data-content='          
+    <h6>Para ver los valores, debes agregar el peso primero y oprimir la tecla enter</h6>'>
+    <i class="fa fa-question-circle " style="pointer-events: none;" type="button" disabled ></i> 
+</span>
+`
+if (popoverPeso !== null) popoverPeso.innerHTML = `
+    <span class="d-inline-block" data-toggle="popover" data-html="true" title="Límites por transportadora" data-content='          
+        SERVIENTREGA: ${transportadoras.SERVIENTREGA.limitesPeso[0]} - ${transportadoras.SERVIENTREGA.limitesPeso[1]} 
+        INTERRAPIDISIMO: ${transportadoras.INTERRAPIDISIMO.limitesPeso[0]} - ${transportadoras.INTERRAPIDISIMO.limitesPeso[1]} <br>
+        ENVIA: ${transportadoras.ENVIA.limitesPeso[0]} - ${transportadoras.ENVIA.limitesPeso[1]}  <br>
+        TCC: ${transportadoras.TCC.limitesPeso[0]} - ${transportadoras.TCC.limitesPeso[1]}
+        '>
+        <i class="fa fa-question-circle " style="pointer-events: none;" type="button" disabled ></i> 
+    </span>
+`
+if (popoverDimensiones !== null) popoverDimensiones.innerHTML = `
+    <span class="d-inline-block" data-toggle="popover" data-html="true" title="Límites por transportadora" data-content='          
+        SERVIENTREGA: ${transportadoras.SERVIENTREGA.limitesLongitud[0]} - ${transportadoras.SERVIENTREGA.limitesLongitud[1]} 
+        INTERRAPIDISIMO: ${transportadoras.INTERRAPIDISIMO.limitesLongitud[0]} - ${transportadoras.INTERRAPIDISIMO.limitesLongitud[1]} <br>
+        ENVIA: ${transportadoras.ENVIA.limitesLongitud[0]} - ${transportadoras.ENVIA.limitesLongitud[1]}  <br>
+        TCC: ${transportadoras.TCC.limitesLongitud[0]} - ${transportadoras.TCC.limitesLongitud[1]}
+        '>
+        <i class="fa fa-question-circle" style="pointer-events: none;" type="button" disabled ></i> 
+    </span>
+`

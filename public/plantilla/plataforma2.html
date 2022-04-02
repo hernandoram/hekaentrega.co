@@ -88,12 +88,17 @@
         <hr class="sidebar-divider my-0">
 
         <!-- Nav Item - Cotizar envio -->
-        <li class="nav-item">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Notificaciones generales, avances, videos tutoriales, entre otros...">
+          <a class="nav-link" href="#home">
+            <i class="fas fa-fw fa-home"></i>
+            <span>Inico</span></a>
+        </li>
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Acá podras cotizar tus envios">
           <a class="nav-link" href="#cotizar_envio">
             <i class="fas fa-fw fa-balance-scale"></i>
             <span>Cotizar envío</span></a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Acá podras acceder a tu propia tienda. (Espacio aun no finalizado)">
           <a class="nav-link" href="#tienda">
             <span class="badge badge-danger badge-counter" style="font-size: medium;">Beta</span>
             <i class="fas fa-fw fa-store"></i>
@@ -109,26 +114,26 @@
         </div>
 
         <!-- Nav Item - Pages Collapse Menu -->
-        <li class="nav-item">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Espacio para obtener acceso al historial de guías">
           <a class="nav-link" href="#historial_guias" onclick="mostrar('historial_guias')">
             <i class="fas fa-fw fa-cog"></i>
             <span>Guías</span>
           </a>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Acá podras tener acceso a todos tus documentos">
           <a class="nav-link" href="#documentos" onclick="mostrar('documentos')">
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Documentos</span></a>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Acá podras tener acceso al manifiesto de inter">
           <a class="nav-link" href="#guias_inter" title="Crear manifiesto para inter rapidísimo">
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Manifiesto Inter</span></a>
         </li>
 
-        <li class="nav-item">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Espacio para cosultar tus novedades">
           <a class="nav-link" href="#novedades" onclick="revisarMovimientosGuias(false, 'once')">
             <span class="badge badge-counter icon-notificacion-novedad d-none">
               <i class="fa fa-exclamation-circle"></i>
@@ -140,7 +145,7 @@
 
         <!-- Divider -->
         <hr class="sidebar-divider">
-        <li class="nav-item">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Acá podras estar atento a los diversos tipos de pagos">
           <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
             <i class="fas fa-fw fa-dollar-sign"></i>
             <span>Pagos</span>
@@ -252,7 +257,160 @@
         
         <div id="content" style="display: none;">     
           <!-- Begin Page Content -->
-          <div class="container-fluid" id="cotizar_envio">
+          <div class="container-fluid" id="home">
+            <link rel="stylesheet" href="./css/homeVIew/main.css">
+            <div class="row">
+              <div class="col-12 mb-3">
+                <div class="alert alert-danger" role="alert">
+                  <h4 class="text-danger">¡¡¡URGENTE!!!</h4>
+                  <ul>
+                    <li>Recuerda que debes tomar las medidas de tu producto después de que hagas todo el proceso de empaque y embalaje.</li>
+                    <li>Recuerda ingresar medidas y pesos exactos, en caso de no hacerlo, la transportadora realizará cobro de costos adicionales o bloqueo de la sucursal de despacho.</li>
+                    <li>Evita ingresar medidas y pesos aleatorios, esto generará cambios de guías en centros de distribución, lo cual incrementa tiempos de entrega y costos de envío.</li>
+                  </ul>
+
+                  A partir del 1 de enero de 2022 las transportadoras realizarán reliquidación de precios de los paquetes que tengan mayores pesos y medidas a los indicados en la guía.
+                </div>
+              </div>                
+            </div>
+
+            <div class="row estadisticas">
+              <div class="col-12 col-md-5">
+                <div class="card m-2">
+                  <div class="card-body row" id="Usuario">
+                    <div class="col-7" >
+                      <h5 class="card-title" >Hola, <span class="mostrar-nombre_completo"></span></h5>
+                    </div>
+                    <div class="col-5 imagen-estadisticas">
+                      <img src="recursos/pagos.png" class="pr-1" alt="">
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-md-7">
+                <div class="card m-2">
+                  <div class="card-body row">
+                    <div class="col-7">
+                      <h5 class="card-title">Total en la billetera</h5>
+                      <p class="card-text mostrar-saldo"></p>
+                    </div>
+                    <div class="col-5 imagen-estadisticas">
+                      <img src="recursos/pagos.png" alt="">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="cuerpo_carousel my-3">
+              <h3 class="text-center mb-3">Video Tutoriales</h3>
+              <div class="swiper mySwiper">
+                <div class="swiper-wrapper">
+                  
+                  <div class="swiper-slide video" id="registroHeka"><div class="mt-2"><img src="img/logo-heka.png" alt=""></div> <h6 class="text-center text-truncate px-1">Registro</h6></div>
+                  <div class="swiper-slide video" id="novedadesEnvios"><div class="mt-2"><img src="img/logo-heka.png" alt=""></div><h6 class="text-center text-truncate px-1">¿Como saber las novedades de tus envíos?</h6></div>
+                  <div class="swiper-slide video" id="registrarCuentaBancaria"><div class="mt-2"><img src="img/logo-heka.png" alt=""></div><h6 class="text-center text-truncate px-1">Registro de cuenta bancaria</h6></div>
+                  <div class="swiper-slide video" id="cotizacionGuias"><div class="mt-2"><img src="img/logo-heka.png" alt=""></div><h6 class="text-center text-truncate px-1">Cotización y creación de guías.</h6></div>
+                  <div class="swiper-slide video" id="creacionDeBodegas"><div class="mt-2"><img src="img/logo-heka.png" alt=""></div><h6 class="text-center text-truncate px-1">Creación de bodegas</h6></div>
+                </div>
+
+                <div class="swiper-pagination"></div>
+              </div>
+            </div>
+
+            <div class="col-12 my-3 d-none">
+              <h3 class="text-center">Preguntas Frecuentes</h3>
+              <div class="accordion" id="accordionExample">
+                <div class="card">
+                  <div class="card-header" id="pregunta1">
+                    <h2 class="mb-0">
+                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
+                        Pregunta #1
+                      </a>
+                    </h2>
+                  </div>              
+                  <div id="collapse1" class="collapse" aria-labelledby="pregunta1" data-parent="#accordionExample">
+                    <div class="card-body">
+                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header" id="pregunta2">
+                    <h2 class="mb-0">
+                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse2" aria-expanded="true" aria-controls="collapse2">
+                        Pregunta #2
+                      </a>
+                    </h2>
+                  </div>               
+                  <div id="collapse2" class="collapse" aria-labelledby="pregunta2" data-parent="#accordionExample">
+                    <div class="card-body">
+                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header" id="pregunta#3">
+                    <h2 class="mb-0">
+                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse3" aria-expanded="true" aria-controls="collapse3">
+                        Pregunta #3
+                      </a>
+                    </h2>
+                  </div>           
+                  <div id="collapse3" class="collapse" aria-labelledby="pregunta#3" data-parent="#accordionExample">
+                    <div class="card-body">
+                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header" id="pregunta#4">
+                    <h2 class="mb-0">
+                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse4" aria-expanded="true" aria-controls="collapse4">
+                        Pregunta #4
+                      </a>
+                    </h2>
+                  </div>
+                  <div id="collapse4" class="collapse" aria-labelledby="pregunta#4" data-parent="#accordionExample">
+                    <div class="card-body">
+                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header" id="pregunta5">
+                    <h2 class="mb-0">
+                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse5" aria-expanded="true" aria-controls="collapse5">
+                        Pregunta #5
+                      </a>
+                    </h2>
+                  </div>
+                  <div id="collapse5" class="collapse" aria-labelledby="pregunta5" data-parent="#accordionExample">
+                    <div class="card-body">
+                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
+                    </div>
+                  </div>
+                </div>
+                <div class="card">
+                  <div class="card-header" id="pregunta6">
+                    <h2 class="mb-0">
+                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse6" aria-expanded="true" aria-controls="collapse6">
+                        Pregunta #6
+                      </a>
+                    </h2>
+                  </div>
+                  <div id="collapse6" class="collapse" aria-labelledby="pregunta6" data-parent="#accordionExample">
+                    <div class="card-body">
+                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="container-fluid" id="cotizar_envio" style="display: none;">
             <div class="row">
               <div class="col-12 mb-3">
                 <div class="alert alert-danger" role="alert">
@@ -289,11 +447,11 @@
 
                 <div class="form-group row align-items-end mb-3">
                   <div class="col-sm-6 mb-3 mb-sm-3">
-                    <h6>KILOS</h6>
+                    <h6>KILOS <small class="popover-peso"></small></h6>
                     <input type="number" class="form-control form-control-user only-integers" step="any" name="kilos" id="Kilos" min="1" max="25" required>  
                   </div>      
                   <div class="col mb-3 mb-sm-3">
-                    <h6>Valor Declarado</h6>
+                    <h6>Valor Declarado <small class="popover-declarado"></small></h6>
                     <input type="number" onchange="this.classList.add('is-invalid')"
                     class="form-control form-control-user only-integers" id="seguro-mercancia" value="15000" step="1000" name="recaudo" min="5000" max="2000000" >
                     <div class="invalid-feedback">
@@ -304,7 +462,7 @@
 
                 <div class="form-group row align-items-end">
                   <div class="col">
-                    <h6 class="mb-2 text-center">Dimensiones <span>(Expresadas en Centímetros)</span></h6>
+                    <h6 class="mb-2 text-center">Dimensiones <span>(Expresadas en Centímetros)</span> <small class="popover-dimensiones"></small></h6>
                     <div class="row">
                       <div class="col-sm-4 d-flex align-items-center mb-2">
                         <label for="dimension-ancho">Ancho:  </label>
@@ -339,7 +497,7 @@
             <div id="result_cotizacion" class="mt-5"></div>
           </div>
 
-          <div class="container-fluid" id="tienda">
+          <div class="container-fluid" id="tienda" style="display: none;">
             <div class="d-flex justify-content-end">
               <button class="btn btn-primary agg-producto" id="agregar-producto-tienda">Agregar Producto</button>
             </div>
@@ -1048,163 +1206,7 @@
             </table>
           </div>
 
-          <div class="container-fluid" id="home" style="display: none;">
-            <link rel="stylesheet" href="./css/homeView/main.css">
-            <div class="row">
-              <div class="col-12 mb-3">
-                <div class="alert alert-success" role="alert">
-                  <h4 class="text-primary">Guías Automáticas</h4>
-                  Desde el día 17 de Noviembre del 2021, las guías automáticas quedarán activas, en caso de que las quieras tener manuales, puedes comunicarte con asesoría logística.
-                </div>
-              </div>              
-            </div>
-
-            <div class="row estadisticas">
-              <div class="col-12 col-md-5">
-                <div class="card m-2">
-                  <div class="card-body row" id="Usuario">
-                    <div class="col-7" >
-                      <h5 class="card-title" >Hola, <span class="mostrar-nombre_completo"></span></h5>
-                    </div>
-                    <div class="col-5 imagen-estadisticas">
-                      <img src="recursos/pagos.png" class="pr-1" alt="">
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-12 col-md-7">
-                <div class="card m-2">
-                  <div class="card-body row">
-                    <div class="col-7">
-                      <h5 class="card-title">Total en la billetera</h5>
-                      <p class="card-text mostrar-saldo"></p>
-                    </div>
-                    <div class="col-5 imagen-estadisticas">
-                      <img src="recursos/pagos.png" alt="">
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-            </div>
-
-            <div class="cuerpo_carousel my-5">
-              <h3 class="text-center mb-3">Video Tutoriales</h3>
-              <div class="swiper mySwiper">
-                <div class="swiper-wrapper">
-                  
-                  <div class="swiper-slide video" id="registroHeka"><div class="mt-2"><img src="img/heka entrega.png" alt=""></div> <h6 class="text-center text-truncate px-1">Registro</h6></div>
-                  <div class="swiper-slide video" id="novedadesEnvios"><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">¿Como saber las novedades de tus envíos?</h6></div>
-                  <div class="swiper-slide video" id="pagosHeka"><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Tiempo de Pago en Heka Entrega</h6></div>
-                  <div class="swiper-slide video" id="empaqueEmbalaje"><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Empaque y embalaje de Mercancía</h6></div>
-                  <div class="swiper-slide video" id="cotizacionGuias"><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Cotización, creación de guías y descarga de documentos</h6></div>
-                  <!-- data relleno -->
-                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div> <h6 class="text-center text-truncate px-1">Relleno</h6></div>
-                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Relleno</h6></div>
-                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Relleno</h6></div>
-                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Relleno</h6></div>
-                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Relleno</h6></div>
-                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div> <h6 class="text-center text-truncate px-1">Relleno</h6></div>
-                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Relleno</h6></div>
-                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Relleno</h6></div>
-                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Relleno</h6></div>
-                  <div class="swiper-slide video" ><div class="mt-2"><img src="img/heka entrega.png" alt=""></div><h6 class="text-center text-truncate px-1">Relleno</h6></div>
-                </div>
-
-                <div class="swiper-pagination"></div>
-              </div>
-            </div>
-
-            <div class="col-12 my-3">
-              <h3 class="text-center">Preguntas Frecuentes</h3>
-              <div class="accordion" id="accordionExample">
-                <div class="card">
-                  <div class="card-header" id="pregunta1">
-                    <h2 class="mb-0">
-                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse1" aria-expanded="true" aria-controls="collapse1">
-                        Pregunta #1
-                      </a>
-                    </h2>
-                  </div>              
-                  <div id="collapse1" class="collapse" aria-labelledby="pregunta1" data-parent="#accordionExample">
-                    <div class="card-body">
-                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
-                    </div>
-                  </div>
-                </div>
-                <div class="card">
-                  <div class="card-header" id="pregunta2">
-                    <h2 class="mb-0">
-                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse2" aria-expanded="true" aria-controls="collapse2">
-                        Pregunta #2
-                      </a>
-                    </h2>
-                  </div>               
-                  <div id="collapse2" class="collapse" aria-labelledby="pregunta2" data-parent="#accordionExample">
-                    <div class="card-body">
-                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
-                    </div>
-                  </div>
-                </div>
-                <div class="card">
-                  <div class="card-header" id="pregunta#3">
-                    <h2 class="mb-0">
-                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse3" aria-expanded="true" aria-controls="collapse3">
-                        Pregunta #3
-                      </a>
-                    </h2>
-                  </div>           
-                  <div id="collapse3" class="collapse" aria-labelledby="pregunta#3" data-parent="#accordionExample">
-                    <div class="card-body">
-                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
-                    </div>
-                  </div>
-                </div>
-                <div class="card">
-                  <div class="card-header" id="pregunta#4">
-                    <h2 class="mb-0">
-                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse4" aria-expanded="true" aria-controls="collapse4">
-                        Pregunta #4
-                      </a>
-                    </h2>
-                  </div>
-                  <div id="collapse4" class="collapse" aria-labelledby="pregunta#4" data-parent="#accordionExample">
-                    <div class="card-body">
-                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
-                    </div>
-                  </div>
-                </div>
-                <div class="card">
-                  <div class="card-header" id="pregunta5">
-                    <h2 class="mb-0">
-                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse5" aria-expanded="true" aria-controls="collapse5">
-                        Pregunta #5
-                      </a>
-                    </h2>
-                  </div>
-                  <div id="collapse5" class="collapse" aria-labelledby="pregunta5" data-parent="#accordionExample">
-                    <div class="card-body">
-                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
-                    </div>
-                  </div>
-                </div>
-                <div class="card">
-                  <div class="card-header" id="pregunta6">
-                    <h2 class="mb-0">
-                      <a class="btn  btn-block text-left" type="button" data-toggle="collapse" data-target="#collapse6" aria-expanded="true" aria-controls="collapse6">
-                        Pregunta #6
-                      </a>
-                    </h2>
-                  </div>
-                  <div id="collapse6" class="collapse" aria-labelledby="pregunta6" data-parent="#accordionExample">
-                    <div class="card-body">
-                      Lorem ipsum dolor sit amet consectetur, adipisicing elit. Laudantium, pariatur corrupti? Doloremque quos atque, vero eveniet molestias modi cupiditate sed debitis enim saepe accusamus reiciendis aut ut animi nam aliquid.
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          
 
         </div>   
         <!-- Footer -->
@@ -1356,10 +1358,17 @@
     <!-- para controlar el acceso -->
     <script>
       let administracion = false;
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      });
 
+      $(function () {
+        $('[data-toggle="popover"]').popover()
+      });
     </script>
 
     <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
+    <script src="vendor/chart.js/Chart.min.js"></script>
     
     <script src="js/render.js"></script>
     <script type="module" src="js/consultarCiudades.js"></script>

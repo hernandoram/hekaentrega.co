@@ -89,7 +89,7 @@ async function historialGuias(){
             {data: null, title: "Acciones", render: (datos,type,row) => {
                 if(type === "display" || type === "filter") {
                     const id = datos.id_heka;
-                    const generacion_automatizada = transportadoras[datos.transportadora || "SERVIENTREGA"].sistema() === "automatico";
+                    const generacion_automatizada = ["automatico", "automaticoEmp"].includes(transportadoras[datos.transportadora || "SERVIENTREGA"].sistema());
                     const showCloneAndDelete = datos.enviado ? "d-none" : "";
                     const showDownloadAndRotulo = !datos.enviado ? "d-none" : "";
                     const showMovements = datos.numeroGuia && datos.estado ? "" : "d-none";
@@ -580,7 +580,7 @@ function crearDocumentos(e, dt, node, config) {
     })
     .then(async (docRef) => {
         const transportadora = arrGuias[0].transportadora;
-        const generacion_automatizada = transportadoras[transportadora].sistema() === "automatico";
+        const generacion_automatizada = ["automatico", "automaticoEmp"].includes(transportadoras[transportadora].sistema());
         arrGuias.sort((a,b) => {
             return a.numeroGuia > b.numeroGuia ? 1 : -1
         });
@@ -659,7 +659,7 @@ y me devuelve el mensaje con el error*/
 function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
     let mensaje
     const diferentes = arrGuias.some((v, i, arr) => {
-        const generacion_automatizada = transportadoras[v.transportadora].sistema() === "automatico";
+        const generacion_automatizada = ["automatico", "automaticoEmp"].includes(transportadoras[v.transportadora].sistema());
         if(v.type != arr[i? i - 1 :i].type) {
             mensaje = "Los tipos de guías seleccionadas no coinciden.";
             return true
@@ -2623,6 +2623,7 @@ async function historialGuiasAdmin() {
                     && data.type!=="CONVENCIONAL") return (-content) + '<span class="sr-only"> Por pagar</span>'
                 return -content
             }},
+            {data: "cuenta_responsable", title: "Cuenta responsable", defaultContent: "Personal"},
         ],
         dom: 'Bfrtip',
         buttons: [{
@@ -2698,6 +2699,10 @@ async function generarRotulo(id_guias) {
 
         if(data.transportadora === "INTERRAPIDISIMO") {
             src_logo_transp = "img/logo-inter.png";
+        } else if (data.transportadora === "ENVIA") {
+            src_logo_transp = "img/2001.png";
+        } else if (data.transportadora === "TCC") {
+            src_logo_transp = "img/logo-tcc.png";
         }
 
         let imgs = `<td><div class="align-items-center d-flex flex-column">
@@ -2706,6 +2711,7 @@ async function generarRotulo(id_guias) {
         </div></td>`;
         let infoRem = `<td>
         <h2>Datos Del Remitente</h2>
+        <h5 class="text-dark">ID: <strong>${data.id_heka}</strong></h5>
         <h5 class="text-dark">Nombre: <strong>${data.nombreR}</strong></h5>
         <h5 class="text-dark">Dirección: <strong>${data.direccionR}</strong></h5>
         <h5 class="text-dark">Ciudad:  <strong>${data.ciudadR}(${data.departamentoR})</strong>  </h5>
@@ -2714,11 +2720,14 @@ async function generarRotulo(id_guias) {
 
         let infoDest = `<td>
         <h2>Datos Del Destinatario</h2>
+        <h5 class="text-dark">Nñumero de Guía: <strong>${data.numeroGuia}</strong></h5>
         <h5 class="text-dark">Nombre: <strong>${data.nombreD}</strong></h5>
         <h5 class="text-dark">Dirección: <strong>${data.direccionD}</strong></h5>
         <h5 class="text-dark">Ciudad:  <strong>${data.ciudadD}(${data.departamentoD})</strong>  </h5>
         <h5 class="text-dark">Celular:  <strong>${data.celularD != data.telefonoD ? data.celularD +" - "+ data.telefonoD : data.telefonoD}</strong></h5>          
         </td>`;
+
+
 
         tr.innerHTML = imgs + infoRem + infoDest
         tbody.appendChild(tr);

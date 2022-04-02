@@ -7,6 +7,16 @@ exports.UsuarioPrueba = {
     endpoint: "https://stgwww3.interrapidisimo.com/ApiVentaCreditoStg/api/Admision"
 }
 
+exports.CredencialesEmpresa = {
+    idCliente: 7986,
+    x_app_signature: "userOffyPrd",
+    x_app_security_token: "bearer kn3ynCtIGeg2Wvp-NLswbThmKq9ePFryMsXvU1-IX6HnN9hhR-BFvsy2I2Jbu5_niVjXV20KdjH7o_sDWYOf5PpmIzj6JNHRSatmXI0cVBc64FWoXzmpLCOsAD29MBTcZeFQ5Huy95T1XXyPyb1tnLmmS8M2ya_MsTvputwDwkAbdHZGtZ9qH3dNnq0-opxA3AebltIZkyKWLeb7nPt6weNYX-VOOOkJ4Ql8PmblpXvGXIOd2vcWqH9lOcFNbmD-",
+    usuario: "cliente.cetina19",
+    clave: "10724974190",
+    endpoint: "http://www3.interrapidisimo.com/ApiVentaCredito/api/Admision"
+}
+//código sucursa prueba para cuenta empresa 48838
+
 exports.Credenciales = {
     idCliente: 6635,
     x_app_signature: "userHekaentregaPrd",

@@ -432,39 +432,8 @@ function activarBotonesDeGuias(id, data, activate_once){
                     console.log(res);
                     console.log("Document successfully deleted!");
                     avisar("Guia Eliminada", "La guia Número " + id + " Ha sido eliminada", "alerta");
-                    // row.remove();
-                }).then(() => {
-                    firebase.firestore().collection("usuarios").doc(localStorage.user_id)
-                    .get().then((doc) => {
-                        if(doc.exists && doc.data().datos_personalizados){
-                            const datos = doc.data().datos_personalizados;
-                            let momento = new Date().getTime();
-                            let saldo = parseInt(datos.saldo);
-                            
-                            let saldo_detallado = {
-                                saldo: saldo + parseInt(this.getAttribute("data-costo_envio")),
-                                saldo_anterior: saldo,
-                                actv_credit: datos.actv_credit || false,
-                                fecha: genFecha(),
-                                momento: momento,
-                                diferencia: 0,
-                                mensaje: "Guía " + id + " eliminada exitósamente",
-                                user_id: localStorage.user_id,
-                                guia: id,
-                                medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id
-                            }
-                            
-                            if(!data.debe){
-                                saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
-                                console.log(saldo_detallado);
-                                console.log(saldo);
-                                actualizarSaldo(saldo_detallado);
-                            }
-                            
-                        }
-                        historialGuias();
-                    });
                     $("#enviar-documentos").prop("disabled", false);
+                    // row.remove();
                 }).catch((error) => {
                     console.error("Error removing document: ", error);
                     $("#enviar-documentos").prop("disabled", false);
@@ -1235,20 +1204,19 @@ function gestionarNovedadModal(dataN, dataG) {
     console.log(dataN);
     console.log(dataG)
     const ultimo_mov = dataN.movimientos[dataN.movimientos.length - 1]
-    const mostrador_gestionar = `
+    let mostrador_gestionar = `
         <p>Escribe aquí tu solución a la novedad</p>
         <textarea type="text" class="form-control" name="solucion-novedad" id="solucion-novedad-${dataN.numeroGuia}"></textarea>
         <button class="btn btn-success m-2" id="solucionar-novedad-${dataN.numeroGuia}">Enviar Solución</button>
     `;
 
-    if(dataG.transportadora === "INTERRAPIDISIMO") {
-        mostrador_gestionar = `<p>La transportadora Interrapidisimo llamará a destinatario y/o remitente para gestionar las novedades de tus envíos</p>`;
-    }else if(dataG.oficina && !dataG.recibidoEnPunto) {
+    if(dataG.oficina && !dataG.recibidoEnPunto) {
         mostrador_gestionar = `<p>Las guías que se dirigen hacia las oficinas flexii, no pueden ser gestionadas por este medio.</p>`;
     }
 
 
     //Acá estableceré la información general de la guía
+    const ultimoMovConNovedad = revisarNovedad(ultimo_mov, dataN.transportadora) || dataN.enNovedad
     let info_gen = document.createElement("div"),
         info_guia = `
             <div class="col-12 col-sm-6 col-md-4 col-lg mb-3">
@@ -1259,8 +1227,8 @@ function gestionarNovedadModal(dataN, dataG) {
             <div class="card-body">
                 <p>Número de guía: <span>${dataN.numeroGuia}</span></p>
                 <p>Fecha de envío: <span>${dataN.fechaEnvio}</span></p>
-                <p>Estado: <span class="${revisarNovedad(ultimo_mov, dataN.transportadora) ? "text-danger" : "text-primary"}">
-                  ${revisarNovedad(ultimo_mov, dataN.transportadora) ? "En novedad" : dataN.estadoActual}
+                <p>Estado: <span class="${ultimoMovConNovedad ? "text-danger" : "text-primary"}">
+                  ${ultimoMovConNovedad ? "En novedad" : dataN.estadoActual}
                 </span></p>
                 <p>Peso: <span>${dataG.detalles.peso_liquidar} Kg</span></p>
                 <p>Dice contener: <span>${dataG.dice_contener}</p>
@@ -1336,30 +1304,34 @@ function gestionarNovedadModal(dataN, dataG) {
         `, "text/html").body.firstChild;
     
     const movTrad = traducirMovimientoGuia(dataN.transportadora);
+    const guardarComoNovedad = dataG.transportadora === "SERVIENTREGA" && administracion
     
     if(dataN.movimientos) {
         for(let i = dataN.movimientos.length - 1; i >= 0; i--){
             let mov = dataN.movimientos[i];
-            console.log(mov[movTrad.fechaMov]);
             let li = document.createElement("li");
             let enNovedad = revisarNovedad(mov, dataN.transportadora);
+            const btnGuardarComoNovedad = guardarComoNovedad && mov[movTrad.novedad]
+            ? `<button class='btn btn-sm ml-2 btn-outline-danger registrar-novedad' data-novedad='${mov[movTrad.novedad]}'>Registrar novedad</button>`
+            : ""
         
             li.innerHTML = `
-            <span class="badge badge-primary badge-pill mr-2 d-flex align-self-start">${i+1}</span>
-            <div class="d-flexd-flex flex-column w-100">
-            <small class="d-flex justify-content-between">
-                <h6 class="text-danger">${enNovedad ? "<i class='fa fa-exclamation-triangle mr-2'></i>En novedad" : ""}</h6>
-                <h6>${mov[movTrad.fechaMov]}</h6>
-            </small>
-            <h4>${mov[movTrad.descripcionMov]}</h4>
-            <p class="mb-1">
-                <b>${mov[movTrad.observacion]}</b>
-            </p>
-            <p class="mb-1"><i class="fa fa-map-marker-alt mr-2 text-primary"></i>${mov[movTrad.ubicacion] || "No registra."}</p>
-            <p>
-                <span class="text-danger">${mov[movTrad.novedad]}</span>
-            </p>
-            </div>
+                <span class="badge badge-primary badge-pill mr-2 d-flex align-self-start">${i+1}</span>
+                <div class="d-flexd-flex flex-column w-100">
+                <small class="d-flex justify-content-between">
+                    <h6 class="text-danger">${enNovedad ? "<i class='fa fa-exclamation-triangle mr-2'></i>En novedad" : ""}</h6>
+                    <h6>${mov[movTrad.fechaMov]}</h6>
+                </small>
+                <h4>${mov[movTrad.descripcionMov]}</h4>
+                <p class="mb-1">
+                    <b>${mov[movTrad.observacion]}</b>
+                </p>
+                <p class="mb-1"><i class="fa fa-map-marker-alt mr-2 text-primary"></i>${mov[movTrad.ubicacion] || "No registra."}</p>
+                <p>
+                    <span class="text-danger">${mov[movTrad.novedad]}</span>
+                    ${btnGuardarComoNovedad}
+                </p>
+                </div>
             `
             li.setAttribute("class", "list-group-item d-flex");
             historial_estado.children[0].appendChild(li);
@@ -1465,7 +1437,25 @@ function gestionarNovedadModal(dataN, dataG) {
                 })
             }
         })
+    } else {
+        $(".registrar-novedad").click(registrarNovedad);
     }
+}
+
+function registrarNovedad() {
+    const novedad = this.getAttribute("data-novedad");
+    if (!novedad) return;
+    console.log(novedad);
+
+    db.collection("infoHeka").doc("novedadesRegistradas")
+    .update({
+        "SERVIENTREGA": firebase.firestore.FieldValue.arrayUnion(novedad)
+    }).then(() => {
+        Toast.fire({
+            icon: "success",
+            title: "Novedad registrada"
+        });
+    });
 }
 
 function modalNotificacion(list) {

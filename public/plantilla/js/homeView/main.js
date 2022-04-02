@@ -6,15 +6,15 @@ const inicio = () => CarrucelVideos();
 const CarrucelVideos = () => {
   const registroHeka = document.querySelector("#registroHeka")
   const novedadesEnvios = document.querySelector("#novedadesEnvios")
-  const pagosHeka = document.querySelector("#pagosHeka")
-  const empaqueEmbalaje = document.querySelector("#empaqueEmbalaje")
+  const cuentaBancaria = document.querySelector("#registrarCuentaBancaria")
   const cotizacionGuias = document.querySelector("#cotizacionGuias")
+  const crearBodegas = document.querySelector("#creacionDeBodegas")
 
-  datosModal(registroHeka, "https://www.youtube.com/embed/PZkQsL-XfL8?&autoplay=1", "Registro - Heka Entrega")
-  datosModal(novedadesEnvios, "https://www.youtube.com/embed/ojf486HjICs?&autoplay=1", "¿Como saber las novedades de tus envíos?")
-  datosModal(pagosHeka, "https://www.youtube.com/embed/ia8jx5DXKmE?&autoplay=1", "Tiempo de Pago en Heka Entrega")
-  datosModal(empaqueEmbalaje, "https://www.youtube.com/embed/RHmt7uQ1gCc?&autoplay=1", "Empaque y embalaje de Mercancía")
-  datosModal(cotizacionGuias, "https://www.youtube.com/embed/76x2qj-l5-Y?&autoplay=1", "Cotización, creación de guías y descarga de documentos")
+  datosModal(registroHeka, "https://www.youtube.com/embed/dLCJCvS7uWg?&autoplay=1", "Registro - Heka Entrega", "En este vídeo te enseñamos a como realizar el registro en nuestra plataforma de Heka Entrega.");
+  datosModal(novedadesEnvios, "https://www.youtube.com/embed/n6RpNdMThic?&autoplay=1", "¿Como saber las novedades de tus envíos?", "En este vídeo te enseñamos a gestionar tus novedades en nuestra plataforma de Heka Entrega.");
+  datosModal(cuentaBancaria, "https://www.youtube.com/embed/518tJQRPlXI?&autoplay=1", "Registro de cuenta bancaria", "En este vídeo te enseñamos a como registrar tu cuenta bancaria en nuestra plataforma de Heka Entrega.");
+  datosModal(cotizacionGuias, "https://www.youtube.com/embed/5tNUhNONIG4?&autoplay=1", "Cotización y creación de guías", "En este vídeo te enseñamos a generar tus guias en nuestra plataforma de Heka Entrega.");
+  datosModal(crearBodegas, "https://www.youtube.com/embed/ht54UmniYk0?&autoplay=1", "Registrar una bodega.", "En este vídeo te enseñamos a como registrar una bodega en nuestra plataforma de Heka Entrega.");
   
   new Swiper(".mySwiper", {
     slidesPerView: 2,
@@ -51,7 +51,7 @@ const CarrucelVideos = () => {
   });
 }
 
-const datosModal = (video, link, titulo) => { 
+const datosModal = (video, link, titulo, descripcion) => { 
   const modal = new CreateModal({
     title: "<h4>"+titulo+"</h4>",
     modalSize: "modal-xl",
@@ -62,6 +62,7 @@ const datosModal = (video, link, titulo) => {
   video.addEventListener("click", (e) => {
     e.preventDefault();
     modal.init = `
+      <h5>${descripcion}</h5>
       <div class="d-flex justify-content-center">
       <iframe class="videoYoutube w-100" src=${link} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
