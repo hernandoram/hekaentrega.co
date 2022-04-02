@@ -104,3 +104,38 @@ function($) {
     "use strict";
     $.Ubold.init();
 }(window.jQuery);
+
+
+//  ESCRITOR
+(() => {
+    const escritos = ["aumentar tus ventas", "hacer crecer tu negocio"];
+    const escribiendo = $(".escribiendo");
+    const timeWriting = 200;
+    const timeWatching = 1000;
+    
+    incrementer();
+    
+    function incrementer(i= 0, n = 0, direction = 1) {
+        const escrito = escritos[n];
+        const l = escrito.length;
+        const trozo = escrito.slice(0, i);
+        
+        escribiendo.text(trozo);
+
+        i += direction;
+
+        if(i <= -1) {
+            if (n === escritos.length - 1) {
+                n = 0;
+            } else {
+                n++;
+            }
+
+            setTimeout(() => incrementer(0, n, 1), timeWatching);
+        } else if(i > l) {
+            setTimeout(() => incrementer(i, n, -1), timeWatching);
+        } else {
+            setTimeout(() => incrementer(i + direction, n, direction), timeWriting);
+        }
+    }
+})()
