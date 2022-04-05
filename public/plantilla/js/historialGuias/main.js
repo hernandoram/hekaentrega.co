@@ -9,15 +9,24 @@ const id_user = localStorage.user_id;
 const guiasRef = db.collection("usuarios").doc(id_user)
 .collection("guias");
 
-historial();
-async function historial() {
+
+const historial = new SetHistorial();
+historial.includeFilters();
+globalThis.h = historial;
+
+
+let historialConsultado;
+
+acivarHistorial();
+acivarHistorial();
+async function acivarHistorial() {
     const fecha_final = new Date().getTime();
     const fecha_inicio = fecha_final - 2.628e+9;
-    const historial = new SetHistorial();
-    historial.includeFilters();
+    historial.clean();
 
+    if(historialConsultado) historialConsultado();
 
-    guiasRef
+    historialConsultado = guiasRef
     .orderBy("timeline", "desc")
     .startAt(fecha_final).endAt(fecha_inicio)
     .onSnapshot(snapshot => {
@@ -46,8 +55,5 @@ async function historial() {
         });
         historial.render();
     });
-    globalThis.h = historial;
-
-
-    
+  
 }

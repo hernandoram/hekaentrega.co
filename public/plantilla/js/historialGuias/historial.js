@@ -3,7 +3,6 @@ import {title, table as htmlTable, filters, filter} from "./views.js";
 
 const container = $("#historial_guias2");
 
-container.append(title);
 container.append(filters);
 container.append(htmlTable);
 
@@ -243,6 +242,13 @@ export default class SetHistorial {
         this.nodeFilters = nodeFilters;
 
         return filters;
+    }
+
+    clean() {
+        this.filtradas = [];
+        this.guias = [];
+
+        this.render(true);
     }
 }
 
