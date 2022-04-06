@@ -83,8 +83,8 @@ exports.estandarizarFecha = (date, specialFormat, parseHour) => {
   const format = {
     D: fecha.getDate(),
     DD: norm(fecha.getDate()),
-    M: fecha.getMonth(),
-    MM: norm(fecha.getMonth()),
+    M: fecha.getMonth() + 1,
+    MM: norm(fecha.getMonth() + 1),
     YY: fecha.getFullYear().toString().slice(-2),
     YYYY: fecha.getFullYear(),
     H: fecha.getHours(),

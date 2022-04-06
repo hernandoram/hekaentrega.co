@@ -511,6 +511,9 @@ async function detallesTransportadoras(data) {
             descuento = percent + " %"
         }
 
+        //Para cargar el sobreflete heka antes;
+        cotizacion.costoEnvio;
+
         let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
         let fleteConvertido = cotizacion.flete
         if(transp !== "SERVIENTREGA" && data.type === "PAGO CONTRAENTREGA") {
