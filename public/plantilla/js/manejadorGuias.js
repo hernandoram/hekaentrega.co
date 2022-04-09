@@ -2582,7 +2582,6 @@ async function historialGuiasAdmin() {
         return res;
     });
 
-    console.log(data);
     let nombre = "Historial Guias" + fechaI + "_" + fechaF;
     let encabezado;
     if(fechaI == fechaF) {
@@ -2618,7 +2617,6 @@ async function historialGuiasAdmin() {
             { data: "detalles.total", title: "Total"},
             { data: "fecha", title: "Fecha"},
             { data: "debe", title: "deuda", defaultContent: "no aplica", render: function(content, display, data) {
-                console.log(content, display, data)
                 if(data.debe && data.seguimiento_finalizado
                     && data.type!=="CONVENCIONAL") return (-content) + '<span class="sr-only"> Por pagar</span>'
                 return -content
@@ -2634,6 +2632,33 @@ async function historialGuiasAdmin() {
             exportOptions: {
                 columns: ":visible"
             }
+        }, {
+            extend: 'collection',
+            text: 'Filtro pagos',
+            buttons: [
+                { text: 'Lunes', filtrado: [
+                    "SellerCABAR-DUBAI",
+                    "SellerCabar-0",
+                    "SellerCABAR-THOMAS",
+                    "SellerCABAR-CASA",
+                    "SellerCabar",
+                    "SellerNatalia",
+                    "SellerCalzadoRK"
+                ], action: filtrarPorpagosHistGuiasAdm },
+                { text: 'Martes', filtrado: [
+                    "SellerCANDELARIA",
+                    "SellerFAJASDEYESODJ",
+                    "SellerMotorepiestosytallerelmoyeeo"
+                ], action: filtrarPorpagosHistGuiasAdm },
+                { text: 'Diarios', filtrado: [
+                    "SellerAgroBull",
+                    "SellerCamiseriaDluchy",
+                    "SellerJJdistribuidores",
+                    "SellerTopTrends"
+                ], action: filtrarPorpagosHistGuiasAdm },
+                { text: 'Reset', action: filtrarPorpagosHistGuiasAdm },
+            ],
+            fade: true
         }],
         initComplete: function() {
             const api = this.api();
@@ -2675,6 +2700,20 @@ async function historialGuiasAdmin() {
     } );
 
     $("#historial_guias .cargador").addClass("d-none");
+}
+
+function filtrarPorpagosHistGuiasAdm(e, editor, button, config) {
+    const {filtrado} = config;
+    
+    if(filtrado) {
+        const filtrar = filtrado.join("|");
+        console.log(filtrar);
+        editor.column(3).search(filtrar, true, false);
+    } else {
+        editor.column(3).search("");
+    }
+
+    editor.draw();
 }
 
 async function generarRotulo(id_guias) {
