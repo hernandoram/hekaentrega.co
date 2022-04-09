@@ -451,7 +451,8 @@ function cargarPagos(){
                 "ENVÍO TOTAL": celda[4].textContent,
                 "TOTAL A PAGAR": celda[5].textContent,
                 FECHA: celda[6].textContent,
-                comprobante_bancario: comprobante_bancario || "SCB"
+                comprobante_bancario: comprobante_bancario || "SCB",
+                cuenta_responsable: celda[8] || "SCR"
               }).then(() => {
                 firebase.firestore().collectionGroup("guias").where("numeroGuia", "==", identificador)
                 .get().then((querySnapshot) => {
@@ -507,7 +508,7 @@ function cargarPagos(){
             row_guia_actual.textContent = " La guía no se encuentra en la base de datos"
             querySnapshot.forEach(doc => {
               datos = doc.data();
-            })
+            });
             return datos;
           })
 
@@ -549,6 +550,9 @@ function cargarPagos(){
             }
       
             if(datos_guia) {
+              // Para mostrar el tipo cuenta_responsable es de empresa o personal y guardarlo
+              guia.children[8].textContent = datos_guia.cuenta_responsable || "Personal";
+
               let row_guia_actual = guia.children[7];
               row_guia_actual.textContent = datos_guia.type || "PAGO CONTRAENTREGA";
               if(datos_guia.centro_de_costo != remitente) {
@@ -563,8 +567,6 @@ function cargarPagos(){
               }
             }
 
-
-            
             totalizador(guia, remitente);
 
           })

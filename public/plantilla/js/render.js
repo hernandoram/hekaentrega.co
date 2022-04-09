@@ -709,6 +709,8 @@ function tablaPagos(arrData, id) {
         <th>Total a Pagar</th>
         <th data-id="${arrData[0].REMITENTE.replace(" ", "")}">Fecha</th>
         <th>Estado</th>
+        <th>Cuenta responsable</th>
+
     </tr>`
     
     encabezado.setAttribute("href", "#" + arrData[0].REMITENTE.replace(" ", ""));  
@@ -729,6 +731,7 @@ function tablaPagos(arrData, id) {
             <td>${data["TOTAL A PAGAR"]}</td>
             <td data-id="${data.REMITENTE}" data-fecha="${data.FECHA}" data-funcion="cambiar_fecha">${data.FECHA}</td>
             <td>${data.estado}</td>
+            <td>${data.cuenta_responsable || "No registró"}</td>
         `;
         if(!data.FECHA){
             btn_pagar.setAttribute("disabled", "");
