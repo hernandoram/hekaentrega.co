@@ -452,7 +452,7 @@ function cargarPagos(){
                 "TOTAL A PAGAR": celda[5].textContent,
                 FECHA: celda[6].textContent,
                 comprobante_bancario: comprobante_bancario || "SCB",
-                cuenta_responsable: celda[8] || "SCR"
+                cuenta_responsable: celda[8].textContent || "SCR"
               }).then(() => {
                 firebase.firestore().collectionGroup("guias").where("numeroGuia", "==", identificador)
                 .get().then((querySnapshot) => {
