@@ -1859,6 +1859,17 @@ const segmentarString = (str, longitud) => {
     
     return nuevoArr; //al finalizar retorno mi nuevo arreglo
 };
+
+const segmentarArreglo = (arr, rango) => {
+    const res = [];
+    
+    for (let i = 0; i < arr.length; i += rango) {
+        const last = Math.min(i + rango, arr.length)
+        res.push(arr.slice(i, last))
+    }
+
+    return res;
+}
   
 class DetectorErroresInput {
     constructor (...selectors) {

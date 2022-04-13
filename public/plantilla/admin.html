@@ -900,13 +900,22 @@
             <h2>Historial De Guías</h2>
             <div class="row">
               <div class="form-group row mb-3">
-                <div class="col-sm-6 mb-3 mb-sm-0">
+                <div class="col-sm-4 mb-3 mb-sm-0">
                   <label for="fechaI-hist-guias">Fecha inicio</label>
                   <input type="date" class="form-control form-control-user"  id="fechaI-hist-guias">
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-4">
                   <label for="fechaF-hist-guias">Fecha final</label>
                   <input type="date" class="form-control form-control-user"  id="fechaF-hist-guias">
+                </div>
+                <div class="col-sm-4">
+                  <label for="fechaF-hist-guias">Filtro pagos</label>
+                  <select id="filtro_pagos-hist-guias" class="form-control">
+                    <option value="">Seleccione pagos</option>
+                    <option value="lunes">Lunes</option>
+                    <option value="martes">Martes</option>
+                    <option value="diarios">Diarios</option>
+                  </select>
                 </div>
               </div>
               <button id="buscador-hist-guias" onclick="historialGuiasAdmin()" class="mb-4 btn btn-primary btn-user btn-block">

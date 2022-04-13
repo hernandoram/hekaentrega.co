@@ -2566,21 +2566,56 @@ function revisarGuiasSaldas() {
 async function historialGuiasAdmin() {
     let fechaI = document.querySelector("#fechaI-hist-guias").value;
     let fechaF = document.querySelector("#fechaF-hist-guias").value;
+    const filtroCentroDeCosto = $("#filtro_pagos-hist-guias").val();
     $("#historial_guias .cargador").removeClass("d-none");
 
-    let data = await firebase.firestore().collectionGroup("guias").orderBy("timeline")
-    .startAt(new Date(fechaI).getTime()).endAt(new Date(fechaF).getTime() + 8.64e+7)
-    .get().then(querySnapshot => {
-        let res = new Array()
+    const filtroPagos = {
+        lunes: [
+            "SellerCABAR-DUBAI",
+            "SellerCabar-0",
+            "SellerCABAR-THOMAS",
+            "SellerCABAR-CASA",
+            "SellerCabar",
+            "SellerNatalia",
+            "SellerCalzadoRK"
+        ],
+        martes: [
+            "SellerCANDELARIA",
+            "SellerFAJASDEYESODJ",
+            "SellerMotorepiestosytallerelmoyeeo"
+        ],
+        diarios: [
+            "SellerAgroBull",
+            "SellerCamiseriaDluchy",
+            "SellerJJdistribuidores",
+            "SellerTopTrends"
+        ]
+    }
+
+    let data = [];
+    const manejarInformacion = querySnapshot => {
         console.log(querySnapshot.size);
         querySnapshot.forEach(doc => {
-            const data = doc.data();
-            data.transpToShow = doc.data().oficina ? data.transportadora + "-Flexii" : data.transportadora;
+            const guia = doc.data();
+            guia.transpToShow = doc.data().oficina ? guia.transportadora + "-Flexii" : guia.transportadora;
 
-            res.push(data);
-        })
-        return res;
-    });
+            data.push(guia);
+        });
+    }
+    const reference = firebase.firestore().collectionGroup("guias").orderBy("timeline")
+    .startAt(new Date(fechaI).getTime()).endAt(new Date(fechaF).getTime() + 8.64e+7)
+
+    const filtroPagoSeleccionado = filtroPagos[filtroCentroDeCosto];
+
+    if(filtroPagoSeleccionado) {
+        const segementado = segmentarArreglo(filtroPagoSeleccionado, 10);
+        for await (const paquete of segementado) {
+            await reference.where("centro_de_costo", "in", paquete)
+            .get().then(manejarInformacion);
+        }
+    } else {
+        await reference.get().then(manejarInformacion);
+    }
 
     let nombre = "Historial Guias" + fechaI + "_" + fechaF;
     let encabezado;
@@ -2632,33 +2667,6 @@ async function historialGuiasAdmin() {
             exportOptions: {
                 columns: ":visible"
             }
-        }, {
-            extend: 'collection',
-            text: 'Filtro pagos',
-            buttons: [
-                { text: 'Lunes', filtrado: [
-                    "SellerCABAR-DUBAI",
-                    "SellerCabar-0",
-                    "SellerCABAR-THOMAS",
-                    "SellerCABAR-CASA",
-                    "SellerCabar",
-                    "SellerNatalia",
-                    "SellerCalzadoRK"
-                ], action: filtrarPorpagosHistGuiasAdm },
-                { text: 'Martes', filtrado: [
-                    "SellerCANDELARIA",
-                    "SellerFAJASDEYESODJ",
-                    "SellerMotorepiestosytallerelmoyeeo"
-                ], action: filtrarPorpagosHistGuiasAdm },
-                { text: 'Diarios', filtrado: [
-                    "SellerAgroBull",
-                    "SellerCamiseriaDluchy",
-                    "SellerJJdistribuidores",
-                    "SellerTopTrends"
-                ], action: filtrarPorpagosHistGuiasAdm },
-                { text: 'Reset', action: filtrarPorpagosHistGuiasAdm },
-            ],
-            fade: true
         }],
         initComplete: function() {
             const api = this.api();
