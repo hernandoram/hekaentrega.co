@@ -441,6 +441,7 @@ function cargarPagos(){
             let pagado = 0;
             for await (let g of guia) {
               let celda = g.querySelectorAll("td");
+              const FECHA = celda[6].textContent;
               let identificador = g.getAttribute("id");
               await firebase.firestore().collection("pagos").doc(celda[1].textContent.toLowerCase())
               .collection("pagos").doc(identificador).set({
@@ -450,7 +451,9 @@ function cargarPagos(){
                 RECAUDO: celda[3].textContent,
                 "ENVÍO TOTAL": celda[4].textContent,
                 "TOTAL A PAGAR": celda[5].textContent,
-                FECHA: celda[6].textContent,
+                FECHA,
+
+                timeline: new Date().getTime(),
                 comprobante_bancario: comprobante_bancario || "SCB",
                 cuenta_responsable: celda[8].textContent || "SCR"
               }).then(() => {
@@ -691,7 +694,13 @@ $("#btn-revisar_pagos").click(async(e) => {
   
   if($("#filtro-pago-usuario").val()){
     busqueda = $("#filtro-pago-usuario").val();
-    tipo = "=="
+    tipo = "==";
+  }
+
+  if($("#filtro-cuenta_responsable").val()) {
+    buscador = "cuenta_responsable";
+    busqueda = $("#filtro-cuenta_responsable").val();
+    tipo = "==";
   }
 
   if($("#filtro-pago-guia").val()){

@@ -1021,7 +1021,15 @@
                         <h6>Por Guía</h6>
                         <input type="text" name="filtro-pago-guia" class="form-control" id="filtro-pago-guia">
                       </div>
-                      <div class="col d-flex justify-content-around flex-wrap align-items-end m-2">
+                      <div class="col mt-2">
+                        <h6>Por cuenta responsable</h6>
+                        <select id="filtro-cuenta_responsable" class="form-control form-select">
+                          <option value="">Seleccione</option>
+                          <option value="EMPRESA">Empresa</option>
+                          <option value="PERSONAL">Personal</option>
+                        </select>
+                      </div>
+                      <div class="col-12 d-flex justify-content-around flex-wrap align-items-end m-2">
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
                           <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1" name="filtro-trasnportadoras" value="Servientrega">
                           <label class="form-check-label" for="filtro-trasnportadora1">Servientrega</label>
