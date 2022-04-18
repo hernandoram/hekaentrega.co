@@ -58,7 +58,7 @@ const datosModal = (video, link, titulo, descripcion) => {
   }); 
   const videoId = link.match(/(\/)([^#&\/]+)(\?)/)[2] || link;
 
-//   video.querySelector("img").setAttribute("src", `http://img.youtube.com/vi/${videoId}/0.jpg`);
+  video.querySelector("img").setAttribute("src", `http://img.youtube.com/vi/${videoId}/0.jpg`);
   video.addEventListener("click", (e) => {
     e.preventDefault();
     modal.init = `
