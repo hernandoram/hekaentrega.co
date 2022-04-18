@@ -434,7 +434,7 @@ async function inspectGuiasPorCrear() {
 
         const has_sticker = await saveBase64Guia(guia.id_heka, toSave, isBase64);
 
-        refGuia.update({numeroGuia, urlGuia, has_sticker, estado});
+        refGuia.update({numeroGuia, urlGuia, has_sticker, estado, staging: false});
         referenceListado.doc(guia.id_heka).delete();
     } catch (e){
         console.log(e.message);

@@ -1,0 +1,12 @@
+.filtro:hover {
+    background-color: #fff;    
+}
+
+.filtro{
+    cursor: pointer;
+}
+
+.filtro.active {
+    background-color: var(--primary);
+    color: #fff;
+}

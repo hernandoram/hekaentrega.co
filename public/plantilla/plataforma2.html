@@ -59,6 +59,7 @@
 
   <!-- Contanido Css del swipper-->
   <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+  <link rel="stylesheet" href="./css/userPlatform.css">
 </head>
 
 <body class="bg-gradient-primary">
@@ -242,7 +243,6 @@
             </ul>
         </nav>
         <!-- End of Topbar -->
-
         <!-- Main Content -->
         <div id="cargador-content" class="h-100">
           <div class="h-100 d-flex align-items-center justify-content-center">
@@ -254,6 +254,7 @@
             </div>
           </div>
         </div>
+        
         <div id="content" style="display: none;">     
           <!-- Begin Page Content -->
           <div class="container-fluid" id="home">
@@ -962,6 +963,28 @@
             </div>
             
           </div>
+
+          <div class="container-fluid" id="historial_guias2" style="display: none;">
+            <h3>Nuevo historial de guías</h3>
+            <div class="form-group row">
+              <div class="col-sm-4 mb-3">
+                <h6>Fecha inicio</h6>
+                <input type="date" class="form-control form-control-user"  id="fecha_inicio" required>
+              </div>
+              <div class="col-sm-4 mb-3">
+                <h6>Fecha final</h6>
+                <input type="date" class="form-control form-control-user"  id="fecha_final" required>
+              </div>
+              <div class="col-sm-4">
+                <h6>Número de Guía</h6>
+                <input type="text" class="form-control form-control-user"  id="numeroGuia-historial_guias">
+              </div>
+              <button id="btn-buscar-guias_hist"
+              class="col-12 btn btn-primary btn-user btn-block">
+                Buscar
+              </button>
+            </div>
+          </div>
           
           <div class="container-fluid" id="buscar_guia" style="display: none;">
             <h1 class="h3 mb-4 text-gray-800">BUSCAR GUÍA</h1>
@@ -1374,7 +1397,7 @@
 
     <script src="js/userPlatform.js" type="module"></script>
 
-  </body>
+</body>
   
 </html>
 
