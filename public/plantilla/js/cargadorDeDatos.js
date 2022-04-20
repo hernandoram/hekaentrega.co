@@ -2,6 +2,7 @@ let user_id = localStorage.user_id, usuarioDoc;
 
 if(localStorage.getItem("acceso_admin")){
   window.onload = () => revisarNotificaciones();
+  $("#descargar-informe-usuarios").click(descargarInformeUsuariosAdm)
 } else if(localStorage.user_id){
   window.onload = () => {
     usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
@@ -45,7 +46,6 @@ datos_personalizados = {
 
 function revisarModoPrueba() {
   const paramFinded = new URLSearchParams(location.search.split("?")[1]).has("modoPrueba");
-  console.log(paramFinded);
   if(paramFinded) localStorage.estado_prueba = paramFinded;
 
   if(localStorage.estado_prueba) {
@@ -318,6 +318,71 @@ function consultarInformacionBancariaUsuario() {
 
 }
 
+
+function descargarInformeUsuariosAdm(e) {
+  const datosDescarga = {
+    nombres: "Nombres",
+    apellidos: "Apellidos",
+    tipo_documento: "Tipo de documento",
+    numero_documento: "Número documento",
+    contacto: "Celular 1",
+    celular2: "Celular 2",
+    centro_de_costo: "Centro de costo",
+    correo: "Correo",
+    nombre_empresa: "Nombre de la empresa",
+    "datos_bancarios.banco": "Banco",
+    "datos_bancarios.nombre_banco": "Representante banco",
+    "datos_bancarios.tipo_de_cuenta": "Tipo de cuenta bancaria",
+    "datos_bancarios.numero_cuenta": "Número de cuenta",
+    "datos_bancarios.tipo_documento_banco": "Tipo documento bancario",
+    "datos_bancarios.numero_iden_banco": "Número identificación banco",
+    "datos_personalizados.sistema_interrapidisimo": "Sistema inter",
+    "datos_personalizados.sistema_servientrega": "Sistema servi",
+    "datos_personalizados.sistema_servientrega": "Sistema servi",
+    "datos_personalizados.sistema_envia": "Sistema envia",
+    "datos_personalizados.sistema_tcc": "Sistema tcc",
+  }
+
+  const normalizeObject = (campo, obj) => {
+    if(!obj) return "No aplica";
+    return obj[campo];
+  }
+
+  const transformDatos = (obj) => {
+    const res = {};
+    for(let campo in datosDescarga) {
+      const resumen = campo.split(".")
+      if(resumen.length > 1) {
+        let resultante = obj;
+        resumen.forEach(r => {
+          resultante = normalizeObject(r, resultante)
+        });
+        res[datosDescarga[campo]] = resultante
+
+      } else {
+        res[datosDescarga[campo]] = obj[campo];
+      }
+    }
+
+    if(obj.objetos_envio)
+    res["Cosas que envía"] = obj.objetos_envio.join();
+
+    return res;
+  }
+
+  const loader = new ChangeElementContenWhileLoading(e.target);
+  loader.init();
+
+  db.collection("usuarios")
+  .get().then(querySnapshot => {
+    const data = [];
+    querySnapshot.forEach(doc => {
+      data.push(transformDatos(doc.data()));
+    })
+    crearExcel(data, "informe Usuarios");
+    loader.end();
+  })
+}
 
 //invocada por el boton para buscar guias
 function cambiarFecha(){  
