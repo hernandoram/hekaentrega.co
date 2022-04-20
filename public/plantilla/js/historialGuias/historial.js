@@ -12,6 +12,7 @@ const table = $("#tabla-historial-guias").DataTable({
     rowId: "row_id",
     order: [[1, "desc"]],
     columns: [
+        {data: null, title: "Acción", render: accionesDeFila},
         {data: "id_heka", title: "Id", defaultContent: ""},
         {data: "numeroGuia", title: "Guía transportadora", defaultContent: ""},
         {data: "estado", title: "Estado", defaultContent: ""},
@@ -156,8 +157,8 @@ export default class SetHistorial {
             });
         } else {
             table.button().add(0, {
-                action: () => console.log("funciona con " + filt),
-                text: filt
+                action: descargarGuiasParticulares,
+                text: "Descargar Pdf"
             });
         }
     }
@@ -275,7 +276,6 @@ function agregarFuncionalidadesTablaPedidos() {
     } );
 }
 
-
 async function aceptarPedido(e, dt, node, config) {
     let api = dt;
     const btnInitialText = $(node).text();
@@ -322,4 +322,8 @@ async function aceptarPedido(e, dt, node, config) {
         icon: "success",
         title: "¡Proceso terminado!"
     })
+}
+
+function accionesDeFila(valor, type, row) {
+
 }
