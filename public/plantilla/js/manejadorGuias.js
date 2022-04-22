@@ -2089,7 +2089,7 @@ function cargarNovedades(){
 
 //función que me revisa los movimientos de las guías
 function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
-    let filtro = "", toggle = "!=", buscador = "centro_de_costo"
+    let filtro = true, toggle = "==", buscador = "enNovedad"
     const cargadorClass = document.getElementById("cargador-novedades").classList
     cargadorClass.remove("d-none");
     
@@ -2123,12 +2123,14 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
         if($("#filtrado-novedades-usuario").val()){
             filtro = $("#filtrado-novedades-usuario").val();
             toggle = "==";
+            buscador = "centro_de_costo";
         }
     
         firebase.firestore().collectionGroup("estadoGuias").where(buscador, toggle, filtro).get()
         .then(querySnapshot => {
             let contador = 0;
             let size = querySnapshot.size;
+            console.log(size)
             querySnapshot.forEach(doc => {
                 let path = doc.ref.path.split("/")
                 let dato = doc.data();
