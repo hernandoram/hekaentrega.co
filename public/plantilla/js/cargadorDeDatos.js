@@ -784,12 +784,12 @@ $("#btn-revisar_pagos").click(async(e) => {
   }
 
   if (transportadoras.length == 0){
-    transportadoras = ["servientrega", "envía", "tcc", "interrapidisimo"]; 
+    transportadoras = ["servientrega", "envía", "tcc", "interrapidisimo"];
   }
 
   let response = []
   let consulta = 0
-  for await(let busqueda_trans of transportadoras) {
+  for await (let busqueda_trans of transportadoras) {
     await firebase.firestore().collection("pagos").doc(busqueda_trans)
     .collection("pagos")
     .where(buscador, tipo, busqueda)

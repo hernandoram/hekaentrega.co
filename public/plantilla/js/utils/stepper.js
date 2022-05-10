@@ -82,6 +82,7 @@ export default class Stepper {
             this.steperView.css({marginLeft: 0});
         });
 
+        if(toActive.querySelector("input"))
         toActive.querySelector("input").focus({preventScroll: true});
 
         // callBack();
