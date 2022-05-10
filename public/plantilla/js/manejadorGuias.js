@@ -2565,33 +2565,19 @@ function revisarGuiasSaldas() {
     })
 }
 
+let filtroPagos;
 async function historialGuiasAdmin() {
     let fechaI = document.querySelector("#fechaI-hist-guias").value;
     let fechaF = document.querySelector("#fechaF-hist-guias").value;
     const filtroCentroDeCosto = $("#filtro_pagos-hist-guias").val();
     $("#historial_guias .cargador").removeClass("d-none");
+    let filtroPagoSeleccionado;
 
-    const filtroPagos = {
-        lunes: [
-            "SellerCABAR-DUBAI",
-            "SellerCabar-0",
-            "SellerCABAR-THOMAS",
-            "SellerCABAR-CASA",
-            "SellerCabar",
-            "SellerNatalia",
-            "SellerCalzadoRK"
-        ],
-        martes: [
-            "SellerCANDELARIA",
-            "SellerFAJASDEYESODJ",
-            "SellerMotorepiestosytallerelmoyeeo"
-        ],
-        diarios: [
-            "SellerAgroBull",
-            "SellerCamiseriaDluchy",
-            "SellerJJdistribuidores",
-            "SellerTopTrends"
-        ]
+    if(filtroCentroDeCosto && !filtroPagos) {
+        filtroPagos = await db.collection("infoHeka").doc("usuariosPorDiaDePago")
+        .get().then(d => d.data());
+
+        filtroPagoSeleccionado = filtroPagos[filtroCentroDeCosto];
     }
 
     let data = [];
@@ -2607,7 +2593,6 @@ async function historialGuiasAdmin() {
     const reference = firebase.firestore().collectionGroup("guias").orderBy("timeline")
     .startAt(new Date(fechaI).getTime()).endAt(new Date(fechaF).getTime() + 8.64e+7)
 
-    const filtroPagoSeleccionado = filtroPagos[filtroCentroDeCosto];
 
     if(filtroPagoSeleccionado) {
         const segementado = segmentarArreglo(filtroPagoSeleccionado, 10);

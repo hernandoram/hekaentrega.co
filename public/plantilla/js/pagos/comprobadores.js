@@ -15,7 +15,7 @@ export async function comprobarGuiaPagada(objToSend) {
 export async function guiaExiste(guia) {
     const numeroGuia = guia["GUIA"];
     return await firebase.firestore().collectionGroup("guias")
-    .where("numeroGuia", "==", numeroGuia).limit(1).get()
+    .where("numeroGuia", "==", numeroGuia.toString()).limit(1).get()
     .then(querySnapshot => {
         let guia;
         querySnapshot.forEach(doc => guia = doc.data());

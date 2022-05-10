@@ -3,28 +3,49 @@ import AnotacionesPagos from "./AnotacionesPagos.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 
 const db = firebase.firestore();
-const formularioPrincipal = $("#form-pagos2");
-const errorContainer = $("#errores-pagos2");
-const btnCargarPagos = $("#btn-cargar_pagos2");
+const formularioPrincipal = $("#form-cargador_pagos");
+const errorContainer = $("#errores-cargador_pagos");
+const btnCargarPagos = $("#btn-cargar_cargador_pagos");
+const cargador = $("#cargador-cargador_pagos");
 
 btnCargarPagos.click(cargarPagosPendientes);
 
 async function cargarPagosPendientes(e) {
   const loader = new ChangeElementContenWhileLoading(e.target);
   loader.init();
-  const data = new FormData(document.getElementById("form-pagos2"));
-  console.log(data.get("documento"));
-  const datosDePago = await fetch("/excel_to_json", {
-      method: "POST",
-      body: data
-  }).then(res => res.json());
 
-  console.log(datosDePago);
+  cargador.removeClass("d-none");
+  const counterEl = $(".counter", cargador);
+  const fEl = $(".f", cargador);
+  fEl.text("excel");
+  
+  let i = 1;
+  let agregados = 0;
 
   const anotaciones = new AnotacionesPagos(errorContainer);
   anotaciones.init();
 
-  for await (const guia of datosDePago.slice(0, 10)) {
+  const finalizarProceso = (e) => {
+    anotaciones.addError(e.message, {color: e.color || "danger"});
+    cargador.addClass("d-none");
+    loader.end();
+  }
+
+  const data = new FormData(document.getElementById("form-cargador_pagos"));
+  console.log(data.get("documento"));
+  const datosDePago = await fetch("/excel_to_json", {
+      method: "POST",
+      body: data
+  }).then(res => res.json())
+  .catch(finalizarProceso)
+
+  console.log(datosDePago);
+
+  fEl.text(datosDePago.length);
+
+  for await (const guia of datosDePago) {
+    counterEl.text(i);
+
     const numeroGuia = guia["GUIA"].toString();
     const reference = db.collection("pendientePorPagar").doc(numeroGuia);
     
@@ -38,12 +59,15 @@ async function cargarPagosPendientes(e) {
     } else if(erroresSubida) {
       anotaciones.addError(erroresSubida);
     } else {
-      reference.set(guia)
+      await reference.set(guia)
+      .then(() => agregados ++)
       .catch(e => anotaciones.addError(e.message));
     }
+
+    i++;
   }
 
-  loader.end();
+  finalizarProceso({message: "Se han agregado " + agregados + " cargues correctamente", color: "success"});
 }
 
 function filtradoVisual(datos) {
@@ -65,7 +89,7 @@ function filtradoVisual(datos) {
           permitir_transportadora = true;
         }
       
-        if($("#filtro-guia-pagos2").val()){
+        if($("#filtro-guia-cargador_pagos").val()){
           guia = $("#filtro-guia-pagos2").val();
           return permitir_transportadora && data.GUIA == guia;
         } else {

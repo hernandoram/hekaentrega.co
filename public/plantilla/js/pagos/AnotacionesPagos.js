@@ -12,11 +12,13 @@ export default class {
         this.setContent();
     }
 
-    addError(error, btnConfig) {
+    addError(error, config = {}, btnConfig) {
         const li = document.createElement("li");
-        li.setAttribute("class", "list-group-item list-group-item-danger d-flex align-items-center justify-content-between");
+        const {color} = config;
+        li.setAttribute("class", `list-group-item list-group-item-${color || "danger"} d-flex align-items-center justify-content-between`);
 
         li.innerHTML = error;
+        this.anotaciones.push(error);
         this.content.appendChild(li);
         
         if(btnConfig) {
@@ -26,12 +28,14 @@ export default class {
             button.onclick = btnConfig.onClick;
             li.appendChild(button);
         }
+
+        $(".anotaciones>.counter").text("("+this.anotaciones.length+")")
     }
 
     setTitle() {
         const header = document.createElement("h3");
-        header.innerHTML = this.opts.title || "Anotaciones";
-        header.classList.add("text-center");
+        header.innerHTML = (this.opts.title || "Anotaciones") + " <span class='ml-2 counter'></span>";
+        header.classList.add("text-center", "anotaciones");
 
         this.container.append(header);
     }

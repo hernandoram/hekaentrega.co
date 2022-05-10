@@ -1,13 +1,11 @@
 import { ChangeElementContenWhileLoading, segmentarArreglo } from "../utils/functions.js";
 import Stepper from "../utils/stepper.js";
-import { inpFiltCuentaResp, inpFiltUsuario, nameCollectionDb, visor } from "./config.js";
+import { inpFiltCuentaResp, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor } from "./config.js";
 import { comprobarGuiaPagada, guiaExiste } from './comprobadores.js';
 
 const db = firebase.firestore();
-const formularioPrincipal = $("#form-pagos2");
-const errorContainer = $("#errores-pagos2");
 
-const btnGestionar = $("#btn-gestionar_pagos2");
+const btnGestionar = $("#btn-gestionar_pagos");
 
 btnGestionar.click(consultarPendientes);
 
@@ -163,6 +161,8 @@ class Empaquetado {
             const guiaPaga = await comprobarGuiaPagada(guia);
             const existente = await guiaExiste(guia);
             loader.html("cargando " + (i+1) + " de " + f + "...");
+
+            console.log(existente);
             
             if(existente) {
                 guia.cuenta_responsable = existente.cuenta_responsable;
@@ -258,12 +258,12 @@ class Empaquetado {
             try {
                 let batch = db.batch();
                 //Se debe pagar
-                const pagoRef = db.collection("pagos").doc(transp)
-                .collection("pagos").doc(numeroGuia);
-                batch.set(pagoRef, guia);
+                // const pagoRef = db.collection("pagos").doc(transp)
+                // .collection("pagos").doc(numeroGuia);
+                // batch.set(pagoRef, guia);
 
                 //Actualizar la guía como paga
-                if(id_heka && id_user) {
+                if(false && id_heka && id_user) {
                     const guiaRef = collection("usuario").doc(id_user.toString())
                     .collection("guias").doc(id_heka.toString());
                     batch.update(guiaRef, {debe: 0});
@@ -307,13 +307,23 @@ async function consultarPendientes(e) {
     // *** Fin segemento preparado ***
 
     let reference = db.collection(nameCollectionDb)
-    .orderBy("timeline")
+    // .orderBy("timeline")
 
     const loader = new ChangeElementContenWhileLoading(e.target);
     loader.init();
 
     const paquete = new Empaquetado();
     let respuesta = [];
+
+    if(selFiltDiaPago.val()) {
+        const data = await db.collection("infoHeka").doc("usuariosPorDiaDePago")
+        .get().then(d => d.data());
+
+        const usuarios = data[selFiltDiaPago.val()];
+
+        if(usuarios)
+        inpFiltUsuario.val(usuarios.join())
+    }
 
     if(inpFiltUsuario.val()) {
         const filt = inpFiltUsuario.val().split(",");
@@ -326,8 +336,11 @@ async function consultarPendientes(e) {
             respuesta = respuesta.concat(data);
         }
     } else if(inpFiltCuentaResp.val()) {
+        const data = await reference.where("CUENTA RESPONSABLE", "==", inpFiltCuentaResp.val())
+        .get().then(handlerInformation);
 
-    } else {
+        respuesta = respuesta.concat(data);
+    }  else {
         const data = await reference.get().then(handlerInformation);
 
         respuesta = data;
