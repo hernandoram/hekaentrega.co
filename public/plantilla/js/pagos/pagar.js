@@ -27,9 +27,9 @@ class Empaquetado {
                 id: this.id,
                 usuario
             }
+            this.id++;
         }
 
-        this.id++;
     }
 
     init() {
@@ -46,7 +46,8 @@ class Empaquetado {
     }
 
     setPages() {
-        this.usuarios.forEach((usuario, i) => {
+        this.usuarios
+        .forEach((usuario, i) => {
             const element = `
                 <div class="step ${i ? "" : "active"}">
                     <div class="card mt-3" id="pagos-usuario-${usuario}">
@@ -92,6 +93,10 @@ class Empaquetado {
     cargarInformacion(usuario) {
         let btnDisabled = false;
         let total = 0;
+        console.log($("#pagos-usuario-"+usuario + " tbody", visor));
+        $("#pagos-usuario-"+usuario + " tbody", visor).html("");
+        $("#btn-pagar-"+usuario).remove();
+
         this.pagosPorUsuario[usuario].guias.forEach(guia => {
             if(guia.guiaPaga) {
                 btnDisabled = true;
@@ -151,19 +156,20 @@ class Empaquetado {
         const guias = paq.guias;
         const parent = $("#pagos-usuario-"+usuario);
         const loader = $(".loader", parent);
+        const prevNext = $(".prev,.next");
         if(paq.analizado) return;
 
         let i = 0;
         const f = guias.length;
 
         loader.removeClass("d-none");
+        prevNext.attr("disabled", true);
+
         guias.map(async guia => {
             const guiaPaga = await comprobarGuiaPagada(guia);
             const existente = await guiaExiste(guia);
             loader.html("cargando " + (i+1) + " de " + f + "...");
 
-            console.log(existente);
-            
             if(existente) {
                 guia.cuenta_responsable = existente.cuenta_responsable;
                 guia.estado = existente.type;
@@ -187,6 +193,8 @@ class Empaquetado {
             if(i === f) {
                 this.cargarInformacion(usuario);
                 loader.addClass("d-none");
+                prevNext.attr("disabled", false);
+
             }
             return guia;
         });
@@ -353,9 +361,12 @@ async function consultarPendientes(e) {
     stepper.init();
     stepper.findErrorsBeforeNext = () => {
         const paq = paquete.usuarios[paquete.actual];
+        console.log(paquete.pagosPorUsuario[paq]);
         if(paq)
         paquete.analizarGuias(paq);
     }
+
+    console.log(paquete);
 
     loader.end();
 }
