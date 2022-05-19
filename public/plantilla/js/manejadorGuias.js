@@ -276,7 +276,12 @@ async function historialGuias(){
             : data.transportadora
 
           if(change.type === "added" || change.type === "modified") {
-              if(rowFinded.length) {
+              if(data.deleted) {
+                if(rowFinded.length) {
+                    redraw = true;
+                    table.row("#"+newIdRow).remove();
+                }
+              } else if(rowFinded.length) {
                 const row = table.row("#"+newIdRow)
                 row.data(data);
                 activarBotonesDeGuias(id, data, true);

@@ -428,7 +428,7 @@ function activarBotonesDeGuias(id, data, activate_once){
                 this.disabled = true;
                 this.display = "none";
                 firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
-                .doc(id).delete().then((res) => {
+                .doc(id).update({deleted: true, fecha_eliminada: new Date()}).then((res) => {
                     console.log(res);
                     console.log("Document successfully deleted!");
                     avisar("Guia Eliminada", "La guia Número " + id + " Ha sido eliminada", "alerta");
