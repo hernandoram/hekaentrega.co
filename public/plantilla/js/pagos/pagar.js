@@ -1,6 +1,6 @@
 import { ChangeElementContenWhileLoading, segmentarArreglo } from "../utils/functions.js";
 import Stepper from "../utils/stepper.js";
-import { inpFiltCuentaResp, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor } from "./config.js";
+import { formularioPrincipal, inpFiltCuentaResp, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor } from "./config.js";
 import { comprobarGuiaPagada, guiaExiste } from './comprobadores.js';
 
 const db = firebase.firestore();
@@ -15,6 +15,7 @@ class Empaquetado {
         this.id = 1;
         this.actual = 0;
         this.usuarioActivo = "";
+        this.totalAPagar = 0;
     }
 
     addPago(guia) {
@@ -33,7 +34,14 @@ class Empaquetado {
     }
 
     init() {
-        visor.html('<div class="step-view"></div>');
+        const valoresHtml = `
+            <div class="d-flex justify-content-between m-3 align-items-center">
+                <p>Has pagado: <span id="pagado-gestionar_pagos">$${convertirMiles(0)}</span></p>
+                <p>Por pagar: <span id="pendiente-gestionar_pagos">$${convertirMiles(this.totalAPagar - this.pagado)}</span></p>
+                <p>Total Procesado: <span id="total-gestionar_pagos">$${convertirMiles(this.totalAPagar)}</span></p>
+            </div>
+        `;
+        visor.html('<div class="step-view"></div>' + valoresHtml);
         this.usuarios = Object.keys(this.pagosPorUsuario);
         if(this.usuarios.length > 1) {
             visor.append(`<button class="btn btn-secondary prev mt-2" style="display: none;">anterior</button>
@@ -62,23 +70,25 @@ class Empaquetado {
                                 </div>
                             </h5>
                             <div class="loader text-center d-none"></div>
-                            <table class="table table-borderless table-responsive">
-                                <thead>
-                                    <tr>
-                                        <th>Centro de Costo</th>
-                                        <th>Transportadora</th>
-                                        <th>Guía</th>
-                                        <th>Recaudo</th>
-                                        <th>Envío Total</th>
-                                        <th>Total a Pagar</th>
-                                        <th>Fecha</th>
-                                        <th>Cuenta responsable</th>
-                                        <th>Estado</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                </tbody>
-                            </table>
+                            <div class="table-responsive">
+                                <table class="table table-borderless">
+                                    <thead>
+                                        <tr>
+                                            <th>Centro de Costo</th>
+                                            <th>Transportadora</th>
+                                            <th>Guía</th>
+                                            <th>Recaudo</th>
+                                            <th>Envío Total</th>
+                                            <th>Total a Pagar</th>
+                                            <th>Fecha</th>
+                                            <th>Cuenta responsable</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>  
                 </div>      
@@ -146,6 +156,9 @@ class Empaquetado {
         $("#pagos-usuario-"+usuario +" [data-toggle='popover']").popover();
         visor.find("#pagos-usuario-"+usuario + ">.card-body").append(button);
         $(".deleter", visor).click(eliminarGuiaStagging);
+
+        this.totalAPagar += total;
+        this.renderTotales;
 
         this.pagosPorUsuario[usuario].analizado = true;
         this.actual++
@@ -251,8 +264,11 @@ class Empaquetado {
         const loader = new ChangeElementContenWhileLoading("#btn-pagar-"+usuario);
         loader.init();
         buttons.attr("disabled", true);
+        const timeline = new Date().getTime();
+
+        let pagado = 0;
         for await(let guia of guias) {
-            guia.timeline = new Date().getTime();
+            guia.timeline = timeline;
 
             const transp = guia["TRANSPORTADORA"].toLowerCase();
             const numeroGuia = guia["GUIA"].toString();
@@ -284,6 +300,7 @@ class Empaquetado {
                 await batch.commit();
 
                 fila.addClass("table-success");
+                pagado += guia["TOTAL A PAGAR"];
 
             } catch(e) {
                 console.log(e);
@@ -295,10 +312,28 @@ class Empaquetado {
         loader.end();
         buttons.attr("disabled", false);
 
+        this.pagosPorUsuario[usuario].pagoConcreto = pagado;
+        this.renderTotales;
+
         console.log(usuario, guias);
     }
 
+    get renderTotales() {
+        let pagado = 0;
+        for(const usuario in this.pagosPorUsuario) {
+            const pago = this.pagosPorUsuario[usuario].pagoConcreto;
 
+            if(pago) pagado += pago;
+        }
+        const pag = $("#pagado-gestionar_pagos", visor);
+        const pend = $("#pendiente-gestionar_pagos", visor);
+        const total = $("#total-gestionar_pagos", visor);
+        const saldoPendiente = this.totalAPagar - pagado;
+
+        pag.text("$"+convertirMiles(pagado));
+        pend.text("$"+convertirMiles(saldoPendiente));
+        total.text("$"+convertirMiles(this.totalAPagar));
+    }
 }
 
 async function consultarPendientes(e) {
@@ -314,7 +349,10 @@ async function consultarPendientes(e) {
     }
     // *** Fin segemento preparado ***
 
-    let reference = db.collection(nameCollectionDb)
+    const formData = new FormData(formularioPrincipal[0]);
+    const transpSelected = formData.getAll("filtro-transportadoras");
+
+    let reference = db.collection(nameCollectionDb);
     // .orderBy("timeline")
 
     const loader = new ChangeElementContenWhileLoading(e.target);
@@ -348,7 +386,12 @@ async function consultarPendientes(e) {
         .get().then(handlerInformation);
 
         respuesta = respuesta.concat(data);
-    }  else {
+    } else if(transpSelected.length) {
+        const data = await reference.where("TRANSPORTADORA", "in", transpSelected)
+        .get().then(handlerInformation);
+
+        respuesta = respuesta.concat(data);
+    } else {
         const data = await reference.get().then(handlerInformation);
 
         respuesta = data;
