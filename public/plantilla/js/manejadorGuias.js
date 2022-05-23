@@ -155,10 +155,11 @@ async function historialGuias(){
                     //botones para clonar y eliminar guía cuando rechaza la condición.
                     if(datos.enviado) {
                         buttons += btnDownloadDocs + btnRotulo;
-                    } else {
                     }
-                    
+
+                    if(!datos.estado)
                     buttons += btnClone + btnDelete;
+                    
 
                     buttons += "<a href='javascript:void(0)' class='action text-trucate'>Ver más</a>"
 

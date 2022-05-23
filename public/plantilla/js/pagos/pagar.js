@@ -4,6 +4,7 @@ import { formularioPrincipal, inpFiltCuentaResp, inpFiltUsuario, nameCollectionD
 import { comprobarGuiaPagada, guiaExiste } from './comprobadores.js';
 
 const db = firebase.firestore();
+const storage = firebase.storage();
 
 const btnGestionar = $("#btn-gestionar_pagos");
 
@@ -89,6 +90,10 @@ class Empaquetado {
                                     </tbody>
                                 </table>
                             </div>
+                            <div class="custom-file mt-2 mb-4">
+                                <input type="file" class="custom-file-input" id="comprobante_pago-${usuario}" accept=".pdf" name="comprobante_bancario" lang="es">
+                                <label class="custom-file-label" data-browse="Elegir" for="comprobante_pago-${usuario}">Cargar comprobante ${usuario}</label>
+                            </div>
                         </div>
                     </div>  
                 </div>      
@@ -98,6 +103,10 @@ class Empaquetado {
         });
 
         $(".set-info-bank").click(e => this.cargarInformacionBancaria(e));
+
+        // importante para cambiar el label del selector de archivos cuando cambia
+        bsCustomFileInput.init();
+
     }
 
     cargarInformacion(usuario) {
@@ -106,8 +115,9 @@ class Empaquetado {
         console.log($("#pagos-usuario-"+usuario + " tbody", visor));
         $("#pagos-usuario-"+usuario + " tbody", visor).html("");
         $("#btn-pagar-"+usuario).remove();
+        const userRef = this.pagosPorUsuario[usuario];
 
-        this.pagosPorUsuario[usuario].guias.forEach(guia => {
+        userRef.guias.forEach(guia => {
             if(guia.guiaPaga) {
                 btnDisabled = true;
             } else {
@@ -160,7 +170,8 @@ class Empaquetado {
         this.totalAPagar += total;
         this.renderTotales;
 
-        this.pagosPorUsuario[usuario].analizado = true;
+        userRef.analizado = true;
+        userRef.pagoPendiente = total;
         this.actual++
     }
 
@@ -259,16 +270,61 @@ class Empaquetado {
     }
 
     async pagar(usuario) {
-        const guias = this.pagosPorUsuario[usuario].guias;
+        const timeline = new Date().getTime();
+        const storageRef = storage.ref("comprobantes_bancarios").child(usuario).child(timeline + ".pdf");
+
+        const file = $("#comprobante_pago-"+usuario)[0].files[0];
+
+        const pagoUser = this.pagosPorUsuario[usuario];
+        const guias = pagoUser.guias;
         const buttons = $(".next,.prev");
         const loader = new ChangeElementContenWhileLoading("#btn-pagar-"+usuario);
         loader.init();
         buttons.attr("disabled", true);
-        const timeline = new Date().getTime();
+
+        const terminar = () => {
+            loader.end();
+            buttons.attr("disabled", false);
+
+            this.renderTotales;
+
+            console.log(usuario, guias);
+        }
+
+        let comprobante_bacario = null;
+        const swalObj = {
+            title: 'Continuar...',
+            text: "Estás a punto de efectuar un pago de $" + convertirMiles(pagoUser.pagoPendiente) + " al usuario " + usuario + " ¿Deseas continuar?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '¡Sin miedo al éxito! 😎',
+            cancelButtonText: "¡pera reviso!"
+        }
+
+        if(file) {
+            const comprobar = await Swal.fire(swalObj);
+
+            if(!comprobar.isConfirmed) return terminar();
+
+            const uploadTask = storageRef.put(file);
+
+            await uploadTask;
+            comprobante_bacario = await uploadTask.snapshot.ref.getDownloadURL();
+        } else {
+            swalObj.title = "¡Falta el comprobante!";
+            swalObj.confirmButtonText = '¡Sé lo que hago! 😠';
+            swalObj.cancelButtonText = "no, perate! 😱";
+            swalObj.icon= 'warning';
+
+            const comprobar = await Swal.fire(swalObj);
+
+            if(!comprobar.isConfirmed) return terminar();
+        }
 
         let pagado = 0;
         for await(let guia of guias) {
             guia.timeline = timeline;
+            guia.comprobante_bacario = comprobante_bacario;
 
             const transp = guia["TRANSPORTADORA"].toLowerCase();
             const numeroGuia = guia["GUIA"].toString();
@@ -288,7 +344,7 @@ class Empaquetado {
 
                 //Actualizar la guía como paga
                 if(false && id_heka && id_user) {
-                    const guiaRef = collection("usuario").doc(id_user.toString())
+                    const guiaRef = db.collection("usuarios").doc(id_user.toString())
                     .collection("guias").doc(id_heka.toString());
                     batch.update(guiaRef, {debe: 0});
                 }
@@ -309,13 +365,9 @@ class Empaquetado {
             }
         }
 
-        loader.end();
-        buttons.attr("disabled", false);
-
         this.pagosPorUsuario[usuario].pagoConcreto = pagado;
-        this.renderTotales;
 
-        console.log(usuario, guias);
+        terminar();
     }
 
     get renderTotales() {
