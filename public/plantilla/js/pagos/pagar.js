@@ -388,23 +388,24 @@ class Empaquetado {
 }
 
 async function consultarPendientes(e) {
-    // *** Segmento preparado *** para cuando se vayan a filtrar solo los pagos desde el último viernes
-    const diaSemana = new Date().getDay();
-    const diaEnMilli = 8.64e+7;
-    let fechaFinal;
-    if(diaSemana <= 5 ) {
-        const retrasoInicial = 2 + diaSemana;
-        const diasMilisegundos = retrasoInicial * diaEnMilli;
-        const milisegundosRetraso = new Date().getTime() - diasMilisegundos;
-        fechaFinal = genFecha(null, milisegundosRetraso);
-    }
-    // *** Fin segemento preparado ***
+    const selectorFecha = $("#fecha-gestionar_pagos");
+    const fechaI = $("#filtro-fechaI-gestionar_pagos");
+    const fechaF = $("#filtro-fechaF-gestionar_pagos");
+
+    const startAtMilli = new Date(fechaI.val()).getTime();
+    const endAtMilli = new Date(fechaF.val()).getTime() + 8.64e+7;
 
     const formData = new FormData(formularioPrincipal[0]);
     const transpSelected = formData.getAll("filtro-transportadoras");
 
-    let reference = db.collection(nameCollectionDb);
-    // .orderBy("timeline")
+    let reference = db.collection(nameCollectionDb)
+    .orderBy("timeline")
+
+    if(selectorFecha.css("display") != "none") {
+        console.log("fecha inicial => ", new Date(startAtMilli))
+        console.log("fecha final => ", new Date(endAtMilli))
+        reference = reference.startAt(startAtMilli).endAt(endAtMilli);
+    }
 
     const loader = new ChangeElementContenWhileLoading(e.target);
     loader.init();
@@ -432,6 +433,11 @@ async function consultarPendientes(e) {
 
             respuesta = respuesta.concat(data);
         }
+
+        if(inpFiltCuentaResp.val()) {
+            respuesta = respuesta.filter(guia => guia["CUENTA RESPONSABLE"] === inpFiltCuentaResp.val());
+        }
+
     } else if(inpFiltCuentaResp.val()) {
         const data = await reference.where("CUENTA RESPONSABLE", "==", inpFiltCuentaResp.val())
         .get().then(handlerInformation);
