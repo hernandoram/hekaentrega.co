@@ -74,19 +74,21 @@ async function cargarDatosUsuario(){
   const showPercentage = $("#porcentaje-cargador-inicial");
 
   //Carga la informacion personal en un objeto y se llena el html de los datos del usuario
-  
   showPercentage.text(percentage());
   
   //SE cargan datos como el centro de costo
   showPercentage.text(percentage());
 
-
   //Modifica los costos de envio si el usuario tiene costos personalizados
   showPercentage.text(percentage());
 
+  // console.log(location);
+  if(location.hash === ""){
+    pagosPendientesParaUsuario();
+  }
+
   contentCharger.hide();
-  content.show("fast");
-  
+  content.show("fast");  
 }
 
 async function consultarDatosDeUsuario() {
@@ -1036,6 +1038,56 @@ function mostrarPagosUsuario(data) {
       $("#visor-pagos_info").addClass("text-center");
   }
   })
+}
+
+$("#calcular-pagos_pendientes").click(pagosPendientesParaUsuario);
+$(".mostrar-saldo_pendiente + i").click(() => $("#detalles_pagos-home").toggleClass("d-none"));
+async function pagosPendientesParaUsuario() {
+  const viewer = $(".mostrar-saldo_pendiente");
+  const details = $("#detalles_pagos-home");
+  viewer.text("Calculando...");
+  let saldo_pendiente = 0;
+
+  // Cómputo para calcular hasta el último viernes
+  const fecha = new Date();
+  const diaSemana = fecha.getDay();
+  const mes = fecha.getMonth(); 
+  const year = fecha.getFullYear();
+  const diaEnMilli = 8.64e+7;
+
+  let dia = fecha.getDate();
+  const diasARestar = 1;
+  if(diaSemana <= 5) {
+    dia -= diaSemana + diasARestar;
+  } 
+  
+  const endAtMilli = Date.UTC(year, mes, dia, 0, 0, 0);
+  const fechaFinal = genFecha("LR", endAtMilli - diaEnMilli);
+  // Fin de cómputo
+
+  console.log(new Date(endAtMilli))
+
+  $("#infoExtra-usuario").text("Pagos pendientes hasta el " + fechaFinal);
+  $("#infoExtra-usuario").attr("title", "Se han cargado los pagos que corresponden a la fecha del " + fechaFinal);
+
+  await firebase.firestore().collection("pendientePorPagar") 
+  .where("REMITENTE", "==", datos_usuario.centro_de_costo)
+  .orderBy("timeline")
+  .endAt(endAtMilli)
+  .get()
+  .then(querySnapshot => {
+    details.html("");
+    querySnapshot.forEach(doc => {
+      const data = doc.data();
+      const saldo = data["TOTAL A PAGAR"];
+      
+      saldo_pendiente += saldo;
+      details.append(`<li class="list-group-item">${data.GUIA} ---> ${convertirMoneda(saldo)}</li>`);
+    });
+  });
+
+  viewer.text(convertirMoneda(saldo_pendiente));
+
 }
 
 function descargarExcelPagosAdmin(datos) {

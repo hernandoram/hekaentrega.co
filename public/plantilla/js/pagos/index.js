@@ -124,12 +124,14 @@ function datosImportantesIncompletos(objToSend, completeData) {
       return "Sin número de guía para subir: " + objToSend.GUIA;
     } else if (!objToSend.REMITENTE) {
       return "Recuerde el usuario al que pertenece la guía " + objToSend.GUIA
-    } else if (!objToSend.TRANSPORTADORA){
+    } else if (!objToSend.TRANSPORTADORA) {
       return "Lo siento, no se a que transportadora subir la guía: " + objToSend.GUIA;
+    } else if (!objToSend["CUENTA RESPONSABLE"]) {
+      return "Recuerda por favor agregar una la cuenta responsable de la guia " + objToSend.GUIA;
     } else if (objToSend.TRANSPORTADORA.toLowerCase() !== "servientrega" 
     && objToSend.TRANSPORTADORA.toLowerCase() != "envía" 
     && objToSend.TRANSPORTADORA.toLowerCase() != "tcc"
-    && objToSend.TRANSPORTADORA.toLowerCase() != "interrapidisimo"){
+    && objToSend.TRANSPORTADORA.toLowerCase() != "interrapidisimo") {
       return "Por favor, Asegurate que la factura de la guía: " + objToSend.GUIA + " le pertenezca a <b>Envía, TCC, Servientrega o Interrapidisimo</b>"
     }
 }

@@ -338,18 +338,18 @@ class Empaquetado {
             try {
                 let batch = db.batch();
                 //Se debe pagar
-                // const pagoRef = db.collection("pagos").doc(transp)
-                // .collection("pagos").doc(numeroGuia);
-                // batch.set(pagoRef, guia);
+                const pagoRef = db.collection("pagos").doc(transp)
+                .collection("pagos").doc(numeroGuia);
+                batch.set(pagoRef, guia);
 
                 //Actualizar la guía como paga
-                if(false && id_heka && id_user) {
+                if(id_heka && id_user) {
                     const guiaRef = db.collection("usuarios").doc(id_user.toString())
                     .collection("guias").doc(id_heka.toString());
                     batch.update(guiaRef, {debe: 0});
                 }
 
-                // y finalmente eliminar la guía que ya fue paga
+                // y finalmente eliminar la guía  en cargue que ya fue paga
                 const registroRef = db.collection(nameCollectionDb).doc(numeroGuia);
                 batch.delete(registroRef);
 
@@ -360,8 +360,7 @@ class Empaquetado {
 
             } catch(e) {
                 console.log(e);
-                fila.addClass("table-danger");
-                
+                fila.addClass("table-danger");                
             }
         }
 
@@ -493,7 +492,7 @@ function eliminarGuiaStagging(e) {
             $("#" + "btn-pagar-"+usuario).attr("disabled", true);
             await db.collection(nameCollectionDb).doc(numeroGuia.toString()).delete();
         
-            Toast.fire("success","¡Guía " + numeroGuia + " Eliminada!");
+            Toast.fire("", "¡Guía " + numeroGuia + " Eliminada!", "success");
         }
     });
 }
