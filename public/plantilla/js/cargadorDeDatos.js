@@ -1041,7 +1041,7 @@ function mostrarPagosUsuario(data) {
 }
 
 $("#calcular-pagos_pendientes").click(pagosPendientesParaUsuario);
-$(".mostrar-saldo_pendiente + i").click(() => $("#detalles_pagos-home").toggleClass("d-none"));
+$(".mostrar-saldo_pendiente + i").click(showHidePagosPendientesUsuario);
 async function pagosPendientesParaUsuario() {
   const viewer = $(".mostrar-saldo_pendiente");
   const details = $("#detalles_pagos-home");
@@ -1089,6 +1089,12 @@ async function pagosPendientesParaUsuario() {
 
   viewer.text(convertirMoneda(saldo_pendiente));
 
+}
+
+function showHidePagosPendientesUsuario(e) {
+  $(e.target).toggleClass("fa-caret-down");
+  $(e.target).toggleClass("fa-caret-up");
+  $("#detalles_pagos-home").toggleClass("d-none");
 }
 
 function descargarExcelPagosAdmin(datos) {
