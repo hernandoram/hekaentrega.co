@@ -290,7 +290,17 @@
                 <div class="card m-2">
                   <div class="card-body row">
                     <div class="col-7">
-                      <h5 class="card-title">Total en la billetera <span id="calcular-pagos_pendientes" class="badge badge-info" data-toggle="tooltip" title="Calcular pagos pendientes"><i class="fa fa-calculator rounded"></i></span></h5>
+                      <h5 class="card-title">
+                        Total en la billetera 
+                        <input type="date" id="fecha_cargue-pagos_pendientes" class="form-control form-control-sm w-50 d-none">
+                        <label for="fecha_cargue-pagos_pendientes" class="badge text-info" ta-toggle="tooltip" title="Cambiar fecha de cargue">
+                          <i class="fa fa-calendar"></i> 
+                        </label>
+
+                        <span id="calcular-pagos_pendientes" class="badge badge-info" data-toggle="tooltip" title="Calcular pagos pendientes">
+                          <i class="fa fa-calculator rounded"></i>
+                        </span>
+                      </h5>
                       <span id="infoExtra-usuario"></span>
                       <p class="card-text"><span class="mostrar-saldo_pendiente">Sin información</span> <i class="fa fa-sort-down"></i></p>
                       

@@ -1486,6 +1486,12 @@ $("#activador_filtro_fecha").change((e) => {
 $("#activador_filtro_fecha-gestionar_pagos").change((e) => {
     e.target.checked ? $("#fecha-gestionar_pagos").show("fast") : $("#fecha-gestionar_pagos").hide("fast")
 });
+
+$("[for='fecha_cargue-pagos_pendientes']").click((e) => {
+    $("#fecha_cargue-pagos_pendientes").toggleClass("d-none");
+    $("#fecha_cargue-pagos_pendientes").toggleClass("d-inline");
+});
+
 $("#switch-habilitar-filtrado-pagos").change((e) => {
     $("#filtrador-pagos").toggleClass("d-none")
     e.target.checked ? $("#filtrador-pagos").show("fast") : $("#filtrador-pagos").hide("fast")

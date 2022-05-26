@@ -1045,20 +1045,21 @@ $(".mostrar-saldo_pendiente + i").click(() => $("#detalles_pagos-home").toggleCl
 async function pagosPendientesParaUsuario() {
   const viewer = $(".mostrar-saldo_pendiente");
   const details = $("#detalles_pagos-home");
+  const filtroFecha = $("#fecha_cargue-pagos_pendientes");
   viewer.text("Calculando...");
   let saldo_pendiente = 0;
 
   // Cómputo para calcular hasta el último viernes
-  const fecha = new Date();
+  const fecha = new Date(filtroFecha.val());
   const diaSemana = fecha.getDay();
   const mes = fecha.getMonth(); 
   const year = fecha.getFullYear();
   const diaEnMilli = 8.64e+7;
 
-  let dia = fecha.getDate();
-  const diasARestar = 1;
-  if(diaSemana <= 5) {
-    dia -= diaSemana + diasARestar;
+  let dia = fecha.getDate() + 1;
+  // const diasARestar = 1;
+  if(diaSemana <= 5 && false) {
+    dia -= diaSemana;
   } 
   
   const endAtMilli = Date.UTC(year, mes, dia, 0, 0, 0);
