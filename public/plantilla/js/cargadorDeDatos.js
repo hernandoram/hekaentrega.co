@@ -1063,7 +1063,7 @@ async function pagosPendientesParaUsuario() {
   } 
   
   const endAtMilli = Date.parse(year + "/" + mes + "/" + dia);
-  const fechaFinal = genFecha("LR", endAtMilli - diaEnMilli);
+  const fechaFinal = genFecha("LR", endAtMilli);
   // Fin de cómputo
 
   console.log(new Date(endAtMilli))
