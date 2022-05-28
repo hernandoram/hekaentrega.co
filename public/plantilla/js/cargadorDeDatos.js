@@ -1052,7 +1052,7 @@ async function pagosPendientesParaUsuario() {
   // Cómputo para calcular hasta el último viernes
   const fecha = new Date(filtroFecha.val());
   const diaSemana = fecha.getDay();
-  const mes = fecha.getMonth(); 
+  const mes = fecha.getMonth() + 1;
   const year = fecha.getFullYear();
   const diaEnMilli = 8.64e+7;
 
@@ -1062,13 +1062,13 @@ async function pagosPendientesParaUsuario() {
     dia -= diaSemana;
   } 
   
-  const endAtMilli = Date.UTC(year, mes, dia, 0, 0, 0);
+  const endAtMilli = Date.parse(year + "/" + mes + "/" + dia);
   const fechaFinal = genFecha("LR", endAtMilli - diaEnMilli);
   // Fin de cómputo
 
   console.log(new Date(endAtMilli))
 
-  $("#infoExtra-usuario").text("Pagos pendientes hasta el " + fechaFinal);
+  $("#infoExtra-usuario").text("Guías entregadas hasta el " + fechaFinal);
   $("#infoExtra-usuario").attr("title", "Se han cargado los pagos que corresponden a la fecha del " + fechaFinal);
 
   await firebase.firestore().collection("pendientePorPagar") 
