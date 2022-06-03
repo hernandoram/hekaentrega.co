@@ -30,13 +30,13 @@ let transportadoras = {
         observaciones: observacionesInteRapidisimo,
         logoPath: "img/logo-inter.png",
         color: "dark",
-        limitesPeso: [0.1, 5],
+        limitesPeso: [0.1, 80],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
         limitesValorDeclarado: (peso) => {
             if(peso <= 2) return [15000, 30000000]
             if(peso <= 5) return [30000, 30000000]
-            return [37500, 30000000]
+            return [40000, 4540000]
         },
         habilitada: () => {
             const sist = datos_personalizados.sistema_interrapidisimo;
