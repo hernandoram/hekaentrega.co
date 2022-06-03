@@ -1966,7 +1966,7 @@ function revisarNotificaciones(){
                         guiasNovedad.push =  notification.guia;
                         notificacionNormal = true;
                     } else if(notification.type === "estatica") {
-                        mostrarNotificacionesEstaticasUsuario(notification);
+                        mostrarNotificacionEstaticaUsuario(notification, identificador);
                     } else if(!notification.type) {
                         contador = notificador.querySelector("span");
                         contador.classList.remove("d-none");
@@ -2000,6 +2000,21 @@ function revisarNotificaciones(){
             }
         });
     });
+
+    if(!administracion) {
+        db.collection("notificaciones")
+        .orderBy("startDate")
+        .endAt(new Date().getTime())
+        .where("isGlobal", "==", true)
+        .get().then(querySnapshot => {
+            querySnapshot.forEach(doc => {
+                const data = doc.data();
+                if(data.type === "estatica") {
+                    mostrarNotificacionEstaticaUsuario(data, doc.id);
+                }
+            })
+        })
+    }
 
     
     

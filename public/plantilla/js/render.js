@@ -853,14 +853,12 @@ function mostrarNotificacion(data, type, id){
     return notificacion;
 }
 
-function mostrarNotificacionesEstaticasUsuario(noti, id) {
+function mostrarNotificacionEstaticaUsuario(noti, id) {
     if(noti.startDate > new Date().getTime()) return;
     
     if(noti.endDate < new Date().getTime()) {
-        console.log("eliminar notificación");
+        eliminarNotificacion(id);
     }
-
-    console.log("hola")
 
     const mostrador = $("#notificaciones-estaticas");
     const alerta = document.createElement("div");
@@ -875,12 +873,15 @@ function mostrarNotificacionesEstaticasUsuario(noti, id) {
     buttonCloseAlert.setAttribute("data-dismiss", "alert");
     buttonCloseAlert.setAttribute("data-notification", id);
     buttonCloseAlert.setAttribute("aria-label", "close");
-    buttonCloseAlert.addEventListener("click", () => console.log("Se ha clickeado para eliminar"));
+    buttonCloseAlert.addEventListener("click", () => eliminarNotificacion(id));
+    
+    mostrador.append(alerta);
 
     if(noti.allowDelete) alerta.appendChild(buttonCloseAlert);
-    alerta.innerHTML += noti.mensaje;
-
-    mostrador.append(alerta);
+    $(alerta).append(noti.mensaje);
+    
+    
+    // buttonCloseAlert.onclick = () => eliminarNotificacion(id);
 }
 
 async function mostrarNotificacionAlertaUsuario(noti, id) {
@@ -909,6 +910,12 @@ async function mostrarNotificacionAlertaUsuario(noti, id) {
         }
     })
 }
+
+function eliminarNotificacion(id) {
+    db.collection("notificaciones").doc(id).delete();
+}
+
+
 
 function userClickNotification(data) {
     let href;
@@ -1574,7 +1581,8 @@ function enviarNotificacion(options) {
         startDate: "fecha desde que se quiere mostrar",
         endDate: "hasta cuando se va a mostrar",
         allowDelete: "bool: para permitirle al usuario eliminarla o no",
-        afterWatch: "boll para que se auto elimine luego que el usuario la observe"
+        deleteAfterWatch: "boll para que se auto elimine luego que el usuario la observe",
+        isGlobal: "Bool: para indicar si es una notificación global"
     }
 
     let fecha = genFecha("ltr").replace(/\-/g, "/");
