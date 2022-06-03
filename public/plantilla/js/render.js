@@ -853,6 +853,70 @@ function mostrarNotificacion(data, type, id){
     return notificacion;
 }
 
+mostrarNotificacionAlertaUsuario({
+    icon: ["", "danger"],
+    startDate: new Date().getTime() - 50000,
+    allowDelete: true,
+    mensaje: "mi alerta",
+    deleteAfterWatch: true
+}, 123)
+function mostrarNotificacionesEstaticasUsuario(noti, id) {
+    if(noti.startDate > new Date().getTime()) return;
+    
+    if(noti.endDate < new Date().getTime()) {
+        console.log("eliminar notificación");
+    }
+
+    console.log("hola")
+
+    const mostrador = $("#notificaciones-estaticas");
+    const alerta = document.createElement("div");
+    const buttonCloseAlert = document.createElement("button");
+
+    alerta.setAttribute("class", `alert alert-${noti.icon[1]}`);
+    alerta.setAttribute("role", "alert");
+
+    buttonCloseAlert.innerHTML = '<span aria-hidden="true">&times;</span>';
+    buttonCloseAlert.classList.add("close");
+    buttonCloseAlert.setAttribute("type", "button");
+    buttonCloseAlert.setAttribute("data-dismiss", "alert");
+    buttonCloseAlert.setAttribute("data-notification", id);
+    buttonCloseAlert.setAttribute("aria-label", "close");
+    buttonCloseAlert.addEventListener("click", () => console.log("Se ha clickeado para eliminar"));
+
+    if(noti.allowDelete) alerta.appendChild(buttonCloseAlert);
+    alerta.innerHTML += noti.mensaje;
+
+    mostrador.append(alerta);
+}
+
+async function mostrarNotificacionAlertaUsuario(noti, id) {
+    if(noti.startDate > new Date().getTime()) return;
+    
+    if(noti.endDate < new Date().getTime()) {
+        console.log("eliminar notificación");
+    }
+
+    const opciones = {
+        icon: noti.icon[0], 
+        text: noti.mensaje,
+    }
+
+    if(noti.allowDelete) {
+        opciones.showCancelButton = true;
+        opciones.cancelButtonText = "No volver a ver";
+    }
+
+    Swal.fire(opciones)
+    .then(r => {
+        if(noti.deleteAfterWatch) {
+            console.log("Eliminar después de ver");
+        } else if (r.dismiss === Swal.DismissReason.cancel) {
+            console.log("Eliminado por decisión del usuario")
+        }
+    })
+}
+
 function userClickNotification(data) {
     let href;
     if(data.href === "novedades") {
@@ -1510,7 +1574,14 @@ function enviarNotificacion(options) {
         mensaje: "Mensaje a mostrar en la notificación",
         href: "id destino",
         fecha: "dd/mm/aaaa",
-        timeline: "new Date().getTime()" // ej. 125645584895
+        timeline: "new Date().getTime()", // ej. 125645584895
+        type: "tipo de noticiación",
+
+        //Para notificaciones dinamicas
+        startDate: "fecha desde que se quiere mostrar",
+        endDate: "hasta cuando se va a mostrar",
+        allowDelete: "bool: para permitirle al usuario eliminarla o no",
+        afterWatch: "boll para que se auto elimine luego que el usuario la observe"
     }
 
     let fecha = genFecha("ltr").replace(/\-/g, "/");

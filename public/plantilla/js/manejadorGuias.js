@@ -1957,23 +1957,31 @@ function revisarNotificaciones(){
             administracion && notification.visible_admin) {
                 if(change.type == "added" || change.type == "modified") {
                     audio.play();
+                    let notificacionNormal = false;
                     if(notification.type == "novedad") {
                         contador = novedades.querySelector("span");
                         contador.classList.remove("d-none");
                         contador.innerHTML = parseInt(contador.textContent) + 1;
                         mostrador = document.getElementById("mostrador-info-novedades");
-                        guiasNovedad.push =  notification.guia
-                    } else {
+                        guiasNovedad.push =  notification.guia;
+                        notificacionNormal = true;
+                    } else if(notification.type === "estatica") {
+                        mostrarNotificacionesEstaticasUsuario(notification);
+                    } else if(!notification.type) {
                         contador = notificador.querySelector("span");
                         contador.classList.remove("d-none");
                         contador.innerHTML = parseInt(contador.textContent) + 1;
                         mostrador = document.getElementById("mostrador-notificaciones");
+                        notificacionNormal = true;
                     }
+
                     if(parseInt(contador.textContent) > 9) {
                         contador.innerHTML = 9 + "+".sup()
                     }
+
+                    if(notificacionNormal)
                     mostrador.insertBefore(mostrarNotificacion(notification, notification.type, identificador), mostrador.firstChild);
-                    // mostrador.append(mostrarNotificacion(notification, notification.type, identificador));
+
                 } else if (change.type == "removed") {
                     if(document.querySelector("#notificacion-"+identificador)){
                         if(notification.type == "novedad") {
