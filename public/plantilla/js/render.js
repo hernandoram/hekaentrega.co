@@ -853,13 +853,6 @@ function mostrarNotificacion(data, type, id){
     return notificacion;
 }
 
-mostrarNotificacionAlertaUsuario({
-    icon: ["", "danger"],
-    startDate: new Date().getTime() - 50000,
-    allowDelete: true,
-    mensaje: "mi alerta",
-    deleteAfterWatch: true
-}, 123)
 function mostrarNotificacionesEstaticasUsuario(noti, id) {
     if(noti.startDate > new Date().getTime()) return;
     
