@@ -162,6 +162,7 @@ function datosRegistroOficina(formData) {
     toSend.centro_de_costo = "Flexii" + empresa;
     toSend.cod_empresa = empresa.toLowerCase();
     toSend.fecha_creacion = new Date();
+    toSend.visible = true;
 
     return toSend;
 }

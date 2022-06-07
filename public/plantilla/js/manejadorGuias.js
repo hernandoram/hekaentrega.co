@@ -155,10 +155,11 @@ async function historialGuias(){
                     //botones para clonar y eliminar guía cuando rechaza la condición.
                     if(datos.enviado) {
                         buttons += btnDownloadDocs + btnRotulo;
-                    } else {
                     }
-                    
+
+                    if(!datos.estado)
                     buttons += btnClone + btnDelete;
+                    
 
                     buttons += "<a href='javascript:void(0)' class='action text-trucate'>Ver más</a>"
 
@@ -276,7 +277,12 @@ async function historialGuias(){
             : data.transportadora
 
           if(change.type === "added" || change.type === "modified") {
-              if(rowFinded.length) {
+              if(data.deleted) {
+                if(rowFinded.length) {
+                    redraw = true;
+                    table.row("#"+newIdRow).remove();
+                }
+              } else if(rowFinded.length) {
                 const row = table.row("#"+newIdRow)
                 row.data(data);
                 activarBotonesDeGuias(id, data, true);
@@ -1951,23 +1957,31 @@ function revisarNotificaciones(){
             administracion && notification.visible_admin) {
                 if(change.type == "added" || change.type == "modified") {
                     audio.play();
+                    let notificacionNormal = false;
                     if(notification.type == "novedad") {
                         contador = novedades.querySelector("span");
                         contador.classList.remove("d-none");
                         contador.innerHTML = parseInt(contador.textContent) + 1;
                         mostrador = document.getElementById("mostrador-info-novedades");
-                        guiasNovedad.push =  notification.guia
-                    } else {
+                        guiasNovedad.push =  notification.guia;
+                        notificacionNormal = true;
+                    } else if(notification.type === "estatica") {
+                        mostrarNotificacionEstaticaUsuario(notification, identificador);
+                    } else if(!notification.type) {
                         contador = notificador.querySelector("span");
                         contador.classList.remove("d-none");
                         contador.innerHTML = parseInt(contador.textContent) + 1;
                         mostrador = document.getElementById("mostrador-notificaciones");
+                        notificacionNormal = true;
                     }
+
                     if(parseInt(contador.textContent) > 9) {
                         contador.innerHTML = 9 + "+".sup()
                     }
+
+                    if(notificacionNormal)
                     mostrador.insertBefore(mostrarNotificacion(notification, notification.type, identificador), mostrador.firstChild);
-                    // mostrador.append(mostrarNotificacion(notification, notification.type, identificador));
+
                 } else if (change.type == "removed") {
                     if(document.querySelector("#notificacion-"+identificador)){
                         if(notification.type == "novedad") {
@@ -1986,6 +2000,21 @@ function revisarNotificaciones(){
             }
         });
     });
+
+    if(!administracion) {
+        db.collection("notificaciones")
+        .orderBy("startDate")
+        .endAt(new Date().getTime())
+        .where("isGlobal", "==", true)
+        .get().then(querySnapshot => {
+            querySnapshot.forEach(doc => {
+                const data = doc.data();
+                if(data.type === "estatica") {
+                    mostrarNotificacionEstaticaUsuario(data, doc.id);
+                }
+            })
+        })
+    }
 
     
     
@@ -2089,7 +2118,7 @@ function cargarNovedades(){
 
 //función que me revisa los movimientos de las guías
 function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
-    let filtro = "", toggle = "!=", buscador = "centro_de_costo"
+    let filtro = true, toggle = "==", buscador = "enNovedad"
     const cargadorClass = document.getElementById("cargador-novedades").classList
     cargadorClass.remove("d-none");
     
@@ -2123,12 +2152,14 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
         if($("#filtrado-novedades-usuario").val()){
             filtro = $("#filtrado-novedades-usuario").val();
             toggle = "==";
+            buscador = "centro_de_costo";
         }
     
         firebase.firestore().collectionGroup("estadoGuias").where(buscador, toggle, filtro).get()
         .then(querySnapshot => {
             let contador = 0;
             let size = querySnapshot.size;
+            console.log(size)
             querySnapshot.forEach(doc => {
                 let path = doc.ref.path.split("/")
                 let dato = doc.data();
@@ -2563,33 +2594,19 @@ function revisarGuiasSaldas() {
     })
 }
 
+let filtroPagos;
 async function historialGuiasAdmin() {
     let fechaI = document.querySelector("#fechaI-hist-guias").value;
     let fechaF = document.querySelector("#fechaF-hist-guias").value;
     const filtroCentroDeCosto = $("#filtro_pagos-hist-guias").val();
     $("#historial_guias .cargador").removeClass("d-none");
+    let filtroPagoSeleccionado;
 
-    const filtroPagos = {
-        lunes: [
-            "SellerCABAR-DUBAI",
-            "SellerCabar-0",
-            "SellerCABAR-THOMAS",
-            "SellerCABAR-CASA",
-            "SellerCabar",
-            "SellerNatalia",
-            "SellerCalzadoRK"
-        ],
-        martes: [
-            "SellerCANDELARIA",
-            "SellerFAJASDEYESODJ",
-            "SellerMotorepiestosytallerelmoyeeo"
-        ],
-        diarios: [
-            "SellerAgroBull",
-            "SellerCamiseriaDluchy",
-            "SellerJJdistribuidores",
-            "SellerTopTrends"
-        ]
+    if(filtroCentroDeCosto && !filtroPagos) {
+        filtroPagos = await db.collection("infoHeka").doc("usuariosPorDiaDePago")
+        .get().then(d => d.data());
+
+        filtroPagoSeleccionado = filtroPagos[filtroCentroDeCosto];
     }
 
     let data = [];
@@ -2605,7 +2622,6 @@ async function historialGuiasAdmin() {
     const reference = firebase.firestore().collectionGroup("guias").orderBy("timeline")
     .startAt(new Date(fechaI).getTime()).endAt(new Date(fechaF).getTime() + 8.64e+7)
 
-    const filtroPagoSeleccionado = filtroPagos[filtroCentroDeCosto];
 
     if(filtroPagoSeleccionado) {
         const segementado = segmentarArreglo(filtroPagoSeleccionado, 10);

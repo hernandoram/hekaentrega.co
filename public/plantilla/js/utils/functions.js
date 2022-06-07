@@ -308,3 +308,14 @@ export async function enviarNotificacion(options) {
 
     return await firebase.firestore().collection("notificaciones").add(notificacion)
 };
+
+export const segmentarArreglo = (arr, rango) => {
+    const res = [];
+    
+    for (let i = 0; i < arr.length; i += rango) {
+        const last = Math.min(i + rango, arr.length)
+        res.push(arr.slice(i, last))
+    }
+
+    return res;
+}

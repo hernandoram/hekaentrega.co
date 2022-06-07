@@ -2,6 +2,7 @@ let user_id = localStorage.user_id, usuarioDoc;
 
 if(localStorage.getItem("acceso_admin")){
   window.onload = () => revisarNotificaciones();
+  $("#descargar-informe-usuarios").click(descargarInformeUsuariosAdm)
 } else if(localStorage.user_id){
   window.onload = () => {
     usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
@@ -45,7 +46,6 @@ datos_personalizados = {
 
 function revisarModoPrueba() {
   const paramFinded = new URLSearchParams(location.search.split("?")[1]).has("modoPrueba");
-  console.log(paramFinded);
   if(paramFinded) localStorage.estado_prueba = paramFinded;
 
   if(localStorage.estado_prueba) {
@@ -74,19 +74,21 @@ async function cargarDatosUsuario(){
   const showPercentage = $("#porcentaje-cargador-inicial");
 
   //Carga la informacion personal en un objeto y se llena el html de los datos del usuario
-  
   showPercentage.text(percentage());
   
   //SE cargan datos como el centro de costo
   showPercentage.text(percentage());
 
-
   //Modifica los costos de envio si el usuario tiene costos personalizados
   showPercentage.text(percentage());
 
+  // console.log(location);
+  if(location.hash === ""){
+    pagosPendientesParaUsuario();
+  }
+
   contentCharger.hide();
-  content.show("fast");
-  
+  content.show("fast");  
 }
 
 async function consultarDatosDeUsuario() {
@@ -318,6 +320,71 @@ function consultarInformacionBancariaUsuario() {
 
 }
 
+
+function descargarInformeUsuariosAdm(e) {
+  const datosDescarga = {
+    nombres: "Nombres",
+    apellidos: "Apellidos",
+    tipo_documento: "Tipo de documento",
+    numero_documento: "Número documento",
+    contacto: "Celular 1",
+    celular2: "Celular 2",
+    centro_de_costo: "Centro de costo",
+    correo: "Correo",
+    nombre_empresa: "Nombre de la empresa",
+    "datos_bancarios.banco": "Banco",
+    "datos_bancarios.nombre_banco": "Representante banco",
+    "datos_bancarios.tipo_de_cuenta": "Tipo de cuenta bancaria",
+    "datos_bancarios.numero_cuenta": "Número de cuenta",
+    "datos_bancarios.tipo_documento_banco": "Tipo documento bancario",
+    "datos_bancarios.numero_iden_banco": "Número identificación banco",
+    "datos_personalizados.sistema_interrapidisimo": "Sistema inter",
+    "datos_personalizados.sistema_servientrega": "Sistema servi",
+    "datos_personalizados.sistema_servientrega": "Sistema servi",
+    "datos_personalizados.sistema_envia": "Sistema envia",
+    "datos_personalizados.sistema_tcc": "Sistema tcc",
+  }
+
+  const normalizeObject = (campo, obj) => {
+    if(!obj) return "No aplica";
+    return obj[campo];
+  }
+
+  const transformDatos = (obj) => {
+    const res = {};
+    for(let campo in datosDescarga) {
+      const resumen = campo.split(".")
+      if(resumen.length > 1) {
+        let resultante = obj;
+        resumen.forEach(r => {
+          resultante = normalizeObject(r, resultante)
+        });
+        res[datosDescarga[campo]] = resultante
+
+      } else {
+        res[datosDescarga[campo]] = obj[campo];
+      }
+    }
+
+    if(obj.objetos_envio)
+    res["Cosas que envía"] = obj.objetos_envio.join();
+
+    return res;
+  }
+
+  const loader = new ChangeElementContenWhileLoading(e.target);
+  loader.init();
+
+  db.collection("usuarios")
+  .get().then(querySnapshot => {
+    const data = [];
+    querySnapshot.forEach(doc => {
+      data.push(transformDatos(doc.data()));
+    })
+    crearExcel(data, "informe Usuarios");
+    loader.end();
+  })
+}
 
 //invocada por el boton para buscar guias
 function cambiarFecha(){  
@@ -719,12 +786,12 @@ $("#btn-revisar_pagos").click(async(e) => {
   }
 
   if (transportadoras.length == 0){
-    transportadoras = ["servientrega", "envía", "tcc", "interrapidisimo"]; 
+    transportadoras = ["servientrega", "envía", "tcc", "interrapidisimo"];
   }
 
   let response = []
   let consulta = 0
-  for await(let busqueda_trans of transportadoras) {
+  for await (let busqueda_trans of transportadoras) {
     await firebase.firestore().collection("pagos").doc(busqueda_trans)
     .collection("pagos")
     .where(buscador, tipo, busqueda)
@@ -971,6 +1038,64 @@ function mostrarPagosUsuario(data) {
       $("#visor-pagos_info").addClass("text-center");
   }
   })
+}
+
+$("#calcular-pagos_pendientes").click(pagosPendientesParaUsuario);
+$(".mostrar-saldo_pendiente + i").click(showHidePagosPendientesUsuario);
+async function pagosPendientesParaUsuario() {
+  const viewer = $(".mostrar-saldo_pendiente");
+  const details = $("#detalles_pagos-home");
+  const filtroFecha = $("#fecha_cargue-pagos_pendientes");
+  viewer.text("Calculando...");
+  let saldo_pendiente = 0;
+
+  // Cómputo para calcular hasta el último viernes
+  const fecha = new Date(filtroFecha.val());
+  const diaSemana = fecha.getDay();
+  const mes = fecha.getMonth() + 1;
+  const year = fecha.getFullYear();
+  const diaEnMilli = 8.64e+7;
+
+  let dia = fecha.getDate() + 1;
+  // const diasARestar = 1;
+  if(diaSemana <= 5 && false) {
+    dia -= diaSemana;
+  } 
+  
+  const fechaMostrarMilli = Date.parse(year + "/" + mes + "/" + dia);
+  const fechaFinal = genFecha("LR", fechaMostrarMilli);
+  const endAtMilli = fechaMostrarMilli + diaEnMilli;
+  // Fin de cómputo
+
+  console.log(new Date(endAtMilli))
+
+  $("#infoExtra-usuario").text("Guías entregadas hasta el " + fechaFinal);
+  $("#infoExtra-usuario").attr("title", "Se han cargado los pagos que corresponden a la fecha del " + fechaFinal);
+
+  await firebase.firestore().collection("pendientePorPagar") 
+  .where("REMITENTE", "==", datos_usuario.centro_de_costo)
+  .orderBy("timeline")
+  .endAt(endAtMilli)
+  .get()
+  .then(querySnapshot => {
+    details.html("");
+    querySnapshot.forEach(doc => {
+      const data = doc.data();
+      const saldo = data["TOTAL A PAGAR"];
+      
+      saldo_pendiente += saldo;
+      details.append(`<li class="list-group-item">${data.GUIA} ---> ${convertirMoneda(saldo)}</li>`);
+    });
+  });
+
+  viewer.text(convertirMoneda(saldo_pendiente));
+
+}
+
+function showHidePagosPendientesUsuario(e) {
+  $(e.target).toggleClass("fa-caret-down");
+  $(e.target).toggleClass("fa-caret-up");
+  $("#detalles_pagos-home").toggleClass("d-none");
 }
 
 function descargarExcelPagosAdmin(datos) {

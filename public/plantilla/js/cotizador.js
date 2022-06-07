@@ -30,13 +30,13 @@ let transportadoras = {
         observaciones: observacionesInteRapidisimo,
         logoPath: "img/logo-inter.png",
         color: "dark",
-        limitesPeso: [0.1, 5],
+        limitesPeso: [0.1, 80],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
         limitesValorDeclarado: (peso) => {
             if(peso <= 2) return [15000, 30000000]
             if(peso <= 5) return [30000, 30000000]
-            return [37500, 30000000]
+            return [40000, 4540000]
         },
         habilitada: () => {
             const sist = datos_personalizados.sistema_interrapidisimo;
@@ -453,10 +453,8 @@ async function detallesTransportadoras(data) {
     result.after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
     const isIndex = document.getElementById("cotizar_envio").getAttribute("data-index");
 
-    if(estado_prueba) {
-        oficinas = await detallesOficinas(data.ciudadD);
-        cargarPreciosTransportadorasOficinas(data);
-    }
+    oficinas = await detallesOficinas(data.ciudadD);
+    cargarPreciosTransportadorasOficinas(data);
 
     const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
     let cotizacionAveo;
@@ -817,7 +815,7 @@ async function detallesOficinas(destino) {
         }
     }]
     
-    if(!estado_prueba) return [];
+    // if(!estado_prueba) return [];
 
     return await firebase.firestore().collection("oficinas")
     .where("ciudad", "==", destino).get()
@@ -834,6 +832,7 @@ async function detallesOficinas(destino) {
                 }
             }
             
+            if(data.visible !== false)
             oficinas.push(data)
         });
         return oficinas;

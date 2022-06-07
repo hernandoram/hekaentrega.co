@@ -428,7 +428,7 @@ function activarBotonesDeGuias(id, data, activate_once){
                 this.disabled = true;
                 this.display = "none";
                 firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
-                .doc(id).delete().then((res) => {
+                .doc(id).update({deleted: true, fecha_eliminada: new Date()}).then((res) => {
                     console.log(res);
                     console.log("Document successfully deleted!");
                     avisar("Guia Eliminada", "La guia Número " + id + " Ha sido eliminada", "alerta");
@@ -852,6 +852,70 @@ function mostrarNotificacion(data, type, id){
     notificacion.append(div_icon, div_info, button_close);
     return notificacion;
 }
+
+function mostrarNotificacionEstaticaUsuario(noti, id) {
+    if(noti.startDate > new Date().getTime()) return;
+    
+    if(noti.endDate < new Date().getTime()) {
+        eliminarNotificacion(id);
+    }
+
+    const mostrador = $("#notificaciones-estaticas");
+    const alerta = document.createElement("div");
+    const buttonCloseAlert = document.createElement("button");
+
+    alerta.setAttribute("class", `alert alert-${noti.icon[1]}`);
+    alerta.setAttribute("role", "alert");
+
+    buttonCloseAlert.innerHTML = '<span aria-hidden="true">&times;</span>';
+    buttonCloseAlert.classList.add("close");
+    buttonCloseAlert.setAttribute("type", "button");
+    buttonCloseAlert.setAttribute("data-dismiss", "alert");
+    buttonCloseAlert.setAttribute("data-notification", id);
+    buttonCloseAlert.setAttribute("aria-label", "close");
+    buttonCloseAlert.addEventListener("click", () => eliminarNotificacion(id));
+    
+    mostrador.append(alerta);
+
+    if(noti.allowDelete) alerta.appendChild(buttonCloseAlert);
+    $(alerta).append(noti.mensaje);
+    
+    
+    // buttonCloseAlert.onclick = () => eliminarNotificacion(id);
+}
+
+async function mostrarNotificacionAlertaUsuario(noti, id) {
+    if(noti.startDate > new Date().getTime()) return;
+    
+    if(noti.endDate < new Date().getTime()) {
+        console.log("eliminar notificación");
+    }
+
+    const opciones = {
+        icon: noti.icon[0], 
+        text: noti.mensaje,
+    }
+
+    if(noti.allowDelete) {
+        opciones.showCancelButton = true;
+        opciones.cancelButtonText = "No volver a ver";
+    }
+
+    Swal.fire(opciones)
+    .then(r => {
+        if(noti.deleteAfterWatch) {
+            console.log("Eliminar después de ver");
+        } else if (r.dismiss === Swal.DismissReason.cancel) {
+            console.log("Eliminado por decisión del usuario")
+        }
+    })
+}
+
+function eliminarNotificacion(id) {
+    db.collection("notificaciones").doc(id).delete();
+}
+
+
 
 function userClickNotification(data) {
     let href;
@@ -1482,6 +1546,16 @@ function modalNotificacion(list) {
 $("#activador_filtro_fecha").change((e) => {
     e.target.checked ? $("#fecha-pagos").show("fast") : $("#fecha-pagos").hide("fast")
 });
+
+$("#activador_filtro_fecha-gestionar_pagos").change((e) => {
+    e.target.checked ? $("#fecha-gestionar_pagos").show("fast") : $("#fecha-gestionar_pagos").hide("fast")
+});
+
+$("[for='fecha_cargue-pagos_pendientes']").click((e) => {
+    $("#fecha_cargue-pagos_pendientes").toggleClass("d-none");
+    $("#fecha_cargue-pagos_pendientes").toggleClass("d-inline");
+});
+
 $("#switch-habilitar-filtrado-pagos").change((e) => {
     $("#filtrador-pagos").toggleClass("d-none")
     e.target.checked ? $("#filtrador-pagos").show("fast") : $("#filtrador-pagos").hide("fast")
@@ -1500,7 +1574,15 @@ function enviarNotificacion(options) {
         mensaje: "Mensaje a mostrar en la notificación",
         href: "id destino",
         fecha: "dd/mm/aaaa",
-        timeline: "new Date().getTime()" // ej. 125645584895
+        timeline: "new Date().getTime()", // ej. 125645584895
+        type: "tipo de noticiación",
+
+        //Para notificaciones dinamicas
+        startDate: "fecha desde que se quiere mostrar",
+        endDate: "hasta cuando se va a mostrar",
+        allowDelete: "bool: para permitirle al usuario eliminarla o no",
+        deleteAfterWatch: "boll para que se auto elimine luego que el usuario la observe",
+        isGlobal: "Bool: para indicar si es una notificación global"
     }
 
     let fecha = genFecha("ltr").replace(/\-/g, "/");

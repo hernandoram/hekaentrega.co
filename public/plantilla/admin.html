@@ -124,6 +124,8 @@
             <div class="bg-white py-2 collapse-inner rounded">
               <h6 class="collapse-header">Gestor De Pagos:</h6>
               <a class="collapse-item" href="#pagos">Pagos</a>
+              <a class="collapse-item" href="#cargador_pagos">Cargador</a>
+              <a class="collapse-item" href="#gestionar_pagos">Gestionar</a>
               <a class="collapse-item" href="#deudas" onclick="revisarDeudas()">Deudas</a>
             </div>
           </div>
@@ -224,6 +226,9 @@
         <div id="content">     
           <!-- Begin Page Content -->
           <div class="container-fluid" id="usuarios" style="display: none;">
+            <button class="btn btn-primary float-right" id="descargar-informe-usuarios">
+              Descargar informe
+            </button>
             <div class="row">
               <div class="col-md-3"></div>
               <form class="input-group mb-3 col-md-6">
@@ -289,6 +294,7 @@
                             <option value="CC" selected>CC</option> 
                             <option value="PASAPORTE">PASAPORTE</option>
                             <option value="NIT(RUT)">NIT (RUT)</option>
+                            <option value="CE">Cédula extranjería</option>
                           </select>
                         </div>
                         <div class="col-sm-6">
@@ -592,6 +598,7 @@
                           <label for="sistema_envia">Envía</label>
                           <select class="form-control" id="sistema_envia" name="sistema_envia">
                             <option value="">Defecto</option>
+                            <option value="automaticoEmp">Automática (empresa)</option>
                             <option value="automatico">Automática</option>
                             <option value="inhabilitado">Inhabilitar</option>
                           </select>
@@ -601,6 +608,7 @@
                           <label for="sistema_tcc">TCC</label>
                           <select class="form-control" id="sistema_tcc" name="sistema_tcc">
                             <option value="">Defecto</option>
+                            <option value="automaticoEmp">Automática (empresa)</option>
                             <option value="automatico">Automática</option>
                             <option value="inhabilitado">Inhabilitar</option>
                           </select>
@@ -1065,6 +1073,125 @@
             </div>
             <div id="visor_pagos"></div>
           </div>
+          
+          <div class="container-fluid" id="gestionar_pagos" style="display: none;">
+            <div class="card mt-3">
+              <div class="card-body">
+                <form enctype="multipart/form-data" id="form-gestionar_pagos">
+                  <div class="form-group">
+
+                    <h2>Filtrado</h2>
+                    <div class="col-md-6 mt-2">
+                      <input type="checkbox" name="activador_filtro_fecha-gestionar_pagos" id="activador_filtro_fecha-gestionar_pagos">
+                      <label for="activador_filtro_fecha-gestionar_pagos">Activar Filtrado por fecha</label>
+                    </div>
+                      
+                    <div class="row">
+                      <div id="fecha-gestionar_pagos" class="col-md-6 mt-2" style="display: none;">
+                        <div class="form-group row mb-3">
+                          <div class="col-sm-6 mb-3 mb-sm-0">
+                            <h6>Fecha inicio</h6>
+                            <input id="filtro-fechaI-gestionar_pagos" type="date" class="form-control form-control-user">
+                          </div>
+                          <div class="col-sm-6">
+                            <h6>Fecha final</h6>
+                            <input id="filtro-fechaF-gestionar_pagos" type="date" class="form-control form-control-user">
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-6 col-md-3 mt-2">
+                        <h6>Por Usuario</h6>
+                        <input type="text" name="centro_de_costo" class="form-control" id="filtro-usuario-gestionar_pagos">
+                      </div>
+
+                      <div class="col mt-2">
+                        <h6>Por cuenta responsable</h6>
+                        <select id="filtro-cuenta_responsable-gestionar_pagos" class="form-control form-select">
+                          <option value="">Seleccione</option>
+                          <option value="EMPRESA">Empresa</option>
+                          <option value="PERSONAL">Personal</option>
+                        </select>
+                      </div>
+                      
+                      <div class="col mt-2">
+                        <h6>Por fecha de pago</h6>
+                        <select id="filtro_tipo_pagos-gestionar_pagos" class="form-control">
+                          <option value="">Seleccione pagos</option>
+                          <option value="lunes">Lunes</option>
+                          <option value="martes">Martes</option>
+                          <option value="diarios">Diarios</option>
+                        </select>
+                      </div>
+
+                      <div class="col-12 d-flex justify-content-around flex-wrap align-items-end m-2">
+                        <div class="d-flex justify-content-center m-2 form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1-gestionar_pagos" name="filtro-transportadoras" value="Servientrega">
+                          <label class="form-check-label" for="filtro-trasnportadora1-gestionar_pagos">Servientrega</label>
+                        </div>
+                        <div class="d-flex justify-content-center m-2 form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2-gestionar_pagos" name="filtro-transportadoras" value="Envía">
+                          <label class="form-check-label" for="filtro-trasnportadora2-gestionar_pagos">Envía</label>
+                        </div>
+                        <div class="d-flex justify-content-center m-2 form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora3-gestionar_pagos" name="filtro-transportadoras" value="TCC">
+                          <label class="form-check-label" for="filtro-trasnportadora3-gestionar_pagos">TCC</label>
+                        </div>
+                        <div class="d-flex justify-content-center m-2 form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora4-gestionar_pagos" name="filtro-transportadoras" value="Interrapidisimo">
+                          <label class="form-check-label" for="filtro-trasnportadora4-gestionar_pagos">Inter Rapidísimo</label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="btn-group col-12">
+                      <button type="button" id="btn-gestionar_pagos" 
+                      value="Pagar" class="btn btn-outline-secondary mt-4 text-truncate">Gestionar pagos</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="d-flex justify-content-center">
+              <div class="lds-ellipsis mt-4 d-none" id="cargador-gestionar_pagos"><div></div>
+              <div></div><div></div><div></div></div>
+            </div>
+            <div id="visor_gestionar_pagos">
+              
+            </div>
+            <div class="mt-3" id="errores-gestionar_pagos">
+            </div>
+          </div>
+
+          <div class="container-fluid" id="cargador_pagos" style="display: none;">
+            <div class="card mt-3">
+              <div class="card-body">
+                <form enctype="multipart/form-data" id="form-cargador_pagos">
+                  <div class="form-group">
+                    <div class="custom-file mt-2 mb-4">
+                      <input type="file" class="custom-file-input" id="cargar_cargador_pagos" accept=".xlsx" name="documento" lang="es">
+                      <label class="custom-file-label" for="cargar_cargador_pagos">Seleccionar Archivo</label>
+                    </div>
+
+                    <div class="btn-group col-12">
+                      <button type="button" id="btn-cargar_cargador_pagos" 
+                      value="Cargar" class="btn btn-outline-secondary mt-4 text-truncate">Cargar</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="justify-content-center align-items-center d-none" style="display: flex;" id="cargador-cargador_pagos">
+              <h5>Cargando <span class="counter"></span> de <span class="f"></span></h5>
+              <div class="lds-ellipsis"><div></div>
+              <div></div><div></div><div></div></div>
+            </div>
+            <div id="visor_cargador_pagos">
+              
+            </div>
+            <div class="mt-3" id="errores-cargador_pagos">
+            </div>
+          </div>
 
           <div class="container-fluid" id="deudas" style="display: none;">
             <input id="filter-user-deudas" class="form-control" type="text" placeholder="seller1, seller2, etc...">
@@ -1279,6 +1406,7 @@
     
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jq-3.3.1/jszip-2.5.0/dt-1.10.25/b-1.7.1/b-colvis-1.7.1/b-html5-1.7.1/datatables.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
     
@@ -1295,7 +1423,6 @@
     <!-- Page level plugins -->
     <!-- <script src="vendor/datatables/jquery.dataTables.min.js"></script>
     <script src="vendor/datatables/dataTables.bootstrap4.min.js"></script> -->
-    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jq-3.3.1/jszip-2.5.0/dt-1.10.25/b-1.7.1/b-colvis-1.7.1/b-html5-1.7.1/datatables.min.js"></script>
 
     <!-- Page level custom scripts -->
     <!-- <script src="js/demo/datatables-demo.js"></script> -->
@@ -1307,7 +1434,7 @@
       //Permite el funcionamiento del complemento extra de bootstrap para inputs
       //que se encuantra ubicado en "core bootstrap javascipt"
       $(document).ready(function () {
-        bsCustomFileInput.init()
+        bsCustomFileInput.init();
       });
 
       function convertirMiles(n){
@@ -1332,6 +1459,7 @@
     <script src="js/consultarCiudades.js" type="module"></script>
     <script src="js/usuarios.js"></script>
     <script src="js/manejadorGuias.js"></script>
+    <script src="js/adminPlatform.js" type="module"></script>
 
   </body>
   
