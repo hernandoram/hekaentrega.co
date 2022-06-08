@@ -453,8 +453,10 @@ async function detallesTransportadoras(data) {
     result.after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
     const isIndex = document.getElementById("cotizar_envio").getAttribute("data-index");
 
-    oficinas = await detallesOficinas(data.ciudadD);
-    cargarPreciosTransportadorasOficinas(data);
+    if(!isIndex) {
+        oficinas = await detallesOficinas(data.ciudadD);
+        cargarPreciosTransportadorasOficinas(data);
+    }
 
     const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
     let cotizacionAveo;
