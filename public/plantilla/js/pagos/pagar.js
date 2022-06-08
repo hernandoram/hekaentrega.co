@@ -159,6 +159,7 @@ class Empaquetado {
         button.setAttribute("class", "btn btn-success");
         button.setAttribute("id", "btn-pagar-"+usuario);
 
+        if(total <= 0) btnDisabled = true;
         if(btnDisabled) button.setAttribute("disabled", btnDisabled);
         button.innerHTML = "Pagar $" + convertirMiles(total);
         button.addEventListener("click", () => this.pagar(usuario));
@@ -195,7 +196,7 @@ class Empaquetado {
             loader.html("cargando " + (i+1) + " de " + f + "...");
 
             if(existente) {
-                guia.cuenta_responsable = existente.cuenta_responsable;
+                guia.cuenta_responsable = existente.cuenta_responsable || "SCR";
                 guia.estado = existente.type;
                 guia.id_heka = existente.id_heka;
                 guia.id_user = existente.id_user
@@ -211,7 +212,7 @@ class Empaquetado {
                 guia.estado = "PAGADA";
             }
 
-            if(!guia.FECHA) guia.FECHA = genFecha();
+            if(!guia.FECHA) guia.FECHA = genFecha("LR");
 
             i++;
             if(i === f) {
