@@ -360,7 +360,7 @@ class Empaquetado {
 
             } catch(e) {
                 console.log(e);
-                fila.addClass("table-danger");                
+                fila.addClass("table-danger");        
             }
         }
 

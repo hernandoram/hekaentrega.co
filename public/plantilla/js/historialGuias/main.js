@@ -3,7 +3,13 @@ import SetHistorial from "./historial.js";
 import {title, table as htmlTable, filters, filter} from "./views.js";
 
 
-
+const btnActvSearch = $("#btn_actv_search-guias_hist");
+const btnSearch = $("#btn_buscar-guias_hist");
+const inpFechaInicio = $("#fecha_inicio-guias_hist");
+const inpFechaFinal = $("#fecha_final-guias_hist");
+const inpNumeroGuia = $("#numeroGuia-guias_hist");
+btnActvSearch.click(toggleBuscador);
+btnSearch.click(consultarHistorialGuias);
 
 const id_user = localStorage.user_id;
 const guiasRef = db.collection("usuarios").doc(id_user)
@@ -17,18 +23,25 @@ globalThis.h = historial;
 
 let historialConsultado;
 
-acivarHistorial();
-acivarHistorial();
-async function acivarHistorial() {
-    const fecha_final = new Date().getTime();
-    const fecha_inicio = fecha_final - 2.628e+9;
+// consultarHistorialGuias();
+async function consultarHistorialGuias() {    
+    const fecha_inicio = Date.parse(inpFechaInicio.val().replace(/\-/g, "/"));
+    const fecha_final = Date.parse(inpFechaFinal.val().replace(/\-/g, "/")) + 8.64e7;
     historial.clean();
 
     if(historialConsultado) historialConsultado();
 
-    historialConsultado = guiasRef
-    .orderBy("timeline", "desc")
-    .startAt(fecha_final).endAt(fecha_inicio)
+    let reference = guiasRef;
+    if(inpNumeroGuia.val()) {
+        reference = reference
+        .where("numeroGuia", "==", inpNumeroGuia.val());
+    } else {
+        reference = reference
+        .orderBy("timeline", "desc")
+        .startAt(fecha_final).endAt(fecha_inicio)
+    }
+
+    historialConsultado = reference
     .onSnapshot(snapshot => {
         
         snapshot.docChanges().forEach(change => {
@@ -37,23 +50,15 @@ async function acivarHistorial() {
               data.row_id = "historial-guias-row" + id;
 
             if(change.type === "added" || change.type === "modified") {
-                // if(rowFinded.length) {
-                //   const row = table.row("#"+data.row_id)
-                //   row.data(data);
-                //   activarBotonesDeGuias(id, data, true);
-                // } else {
-                //   redraw = true;
-                //   table.row.add(data);
-                // }
                 historial.add(data);
-            } else if (change.type === "removed"){
-                // if(rowFinded.length) {
-                //     redraw = true;
-                //     table.row("#"+data.row_id).remove();
-                // }
             }
         });
         historial.render();
     });
   
+}
+
+function toggleBuscador() {
+    const cont = $("#filtrado-guias_hist");
+    cont.toggle("fast");
 }
