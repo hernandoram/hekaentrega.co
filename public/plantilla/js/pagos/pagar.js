@@ -134,7 +134,7 @@ class Empaquetado {
                 ` 
                 : "";
             const fila = `
-                <tr class="${clase}" id="row-${usuario + guia.GUIA}">
+                <tr class="${clase}" id="row-${usuario + guia.GUIA}" title="" data-delay='${JSON.stringify({show: 500, hide: 100})}'>
                     <td class="show-error">${guia.REMITENTE}</td>
                     <td>${guia.TRANSPORTADORA}</td>
                     <td>${guia.GUIA}</td>
@@ -165,6 +165,7 @@ class Empaquetado {
         button.addEventListener("click", () => this.pagar(usuario));
         
         $("#pagos-usuario-"+usuario +" [data-toggle='popover']").popover();
+
         visor.find("#pagos-usuario-"+usuario + ">.card-body").append(button);
         $(".deleter", visor).click(eliminarGuiaStagging);
 
@@ -281,7 +282,7 @@ class Empaquetado {
         const buttons = $(".next,.prev");
         const loader = new ChangeElementContenWhileLoading("#btn-pagar-"+usuario);
         loader.init();
-        buttons.attr("disabled", true);
+        // buttons.attr("disabled", true);
 
         const terminar = () => {
             loader.end();
@@ -353,7 +354,7 @@ class Empaquetado {
                 // y finalmente eliminar la guía  en cargue que ya fue paga
                 const registroRef = db.collection(nameCollectionDb).doc(numeroGuia);
                 batch.delete(registroRef);
-
+                
                 await batch.commit();
 
                 fila.addClass("table-success");
@@ -361,9 +362,15 @@ class Empaquetado {
 
             } catch(e) {
                 console.log(e);
-                fila.addClass("table-danger");                
+                fila.addClass("table-danger");
+                fila.attr({
+                    "title": e.message
+                });
+                fila.tooltip();
             }
         }
+
+        // $("#pagos-usuario-"+usuario +" tr").tooltip();
 
         this.pagosPorUsuario[usuario].pagoConcreto = pagado;
 

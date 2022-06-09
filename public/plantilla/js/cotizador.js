@@ -126,9 +126,10 @@ function ocultarCotizador() {
     }
 }
 
+let  ciudadD;
 // Esta funcion verifica que los campos en el form esten llenados correctamente
 async function cotizador(){
-    let ciudadR = document.getElementById("ciudadR"),
+    let ciudadR = document.getElementById("ciudadR");
     ciudadD = document.getElementById("ciudadD");
     let info_precio = new CalcularCostoDeEnvio();
     datos_a_enviar = new Object();
@@ -1344,11 +1345,16 @@ function finalizarCotizacion(datos) {
         `;
     }
 
-    if(datos.transportadora === "INTERRAPIDISIMO") {
+    if(datos.transportadora === "INTERRAPIDISIMO" || datos.transportadora === "SERVIENTREGA") {
         entrega_en_oficina = `
-        <div class="form-check">
-            <input type="checkbox" id="entrega_en_oficina" class="form-check-input">
-            <label for="entrega_en_oficina" class="form-check-label" checked>Entrega en oficina</label>
+        <div class="col-sm-2">
+            <h5>Tipo de entrega</h5>
+
+            <select class="custom-select" id="entrega_en_oficina" name="entrega_en_oficina">
+                <option value="">Seleccione</option>
+                <option value="1">Entrega en dirección</option>
+                <option value="2">Entrega en oficina</option>
+            </select>
         </div>`;
     }
 
@@ -1385,7 +1391,7 @@ function finalizarCotizacion(datos) {
         notas_oficina= datos.oficina ? `
             <div class="text-muted border-left-primary m-2">
                 <h6 class="ml-2">
-                    <span><b>Nota:</b> Por ahora FLEXII solo cuenta con entregas en oficina. !Esperamos incluir pronto las entregas a oficinas!</span>
+                    <span><b>Nota:</b> Por ahora FLEXII solo cuenta con entregas en oficina. !Esperamos incluir pronto las entregas a domicilio!</span>
                 </h6>
             </div>
         `:"",
@@ -1418,12 +1424,12 @@ function finalizarCotizacion(datos) {
                         
                         </div>
                     </div>
-                    <div class="col-sm-6 mb-3 mb-2">
+                    ${entrega_en_oficina}
+                    <div class="col-sm-${entrega_en_oficina ? "5" : "6"} mb-3 mb-2">
                         <h5>Dirección del Destinatario</h5>
                         <input type="text" id="direccionD" class="form-control form-control-user" value="" placeholder="Dirección-Conjunto-Apartemento" required="">
-                        ${entrega_en_oficina}
                     </div>
-                    <div class="col-sm-6 mb-3 mb-2">
+                    <div class="col-sm-${entrega_en_oficina ? "5" : "6"} mb-3 mb-2">
                         <h5>Barrio del Destinatario</h5>
                         <input type="text" id="barrioD" class="form-control form-control-user detect-errors" value="" placeholder="Barrio" required="">
                     </div>
@@ -1462,6 +1468,8 @@ function finalizarCotizacion(datos) {
     const cambiadorDeDireccion = $("#moderador_direccionR");
     cambiadorDeDireccion.on("change", cambiarDirecion);
     cambiarDirecion.bind(cambiadorDeDireccion[0])();
+
+    $("#entrega_en_oficina").on("change", verificarSelectorEntregaOficina);
 
     restringirCaracteresEspecialesEnInput()
     let informacion = document.getElementById("informacion-personal");
@@ -1561,6 +1569,26 @@ function cambiarDirecion(e) {
     
     inp.val(bodega.direccion +", "+ bodega.barrio);
     $(".ver-direccion").text(bodega.direccion +", "+ bodega.barrio + " / " + bodega.ciudad);
+}
+
+function verificarSelectorEntregaOficina(e) {
+    const select = e.target;
+    const tipo_distribucion = ciudadD.dataset.tipo_distribucion;
+
+    if(codTransp !== "SERVIENTREGA") return;
+
+    if(tipo_distribucion === "ENTREGA EN OFICINA" && select.value == "1") {
+        swal.fire({
+            icon: "warning",
+            text: "Es probable que la ciudad a la que deseas realizar tu envío solo cuente con "+tipo_distribucion+"."
+        });
+    } else if (tipo_distribucion === "ENTREGA A DOMICILIO" && select.value == "2") {
+        swal.fire({
+            icon: "warning",
+            text: "Es probable que la ciudad a la que deseas realizar tu envío solo cuente con "+tipo_distribucion+"."
+        });
+    }
+    
 }
 
 function restringirCaracteresEspecialesEnInput() {
@@ -1959,7 +1987,7 @@ function crearGuia() {
     boton_final_cotizador.setAttribute("disabled", true);
 
     if(value("nombreD") != "" && value("direccionD") != "" &&
-    value("telefonoD") != ""){
+    value("telefonoD") != "" && value("entrega_en_oficina") != ""){
         let recoleccion = 0, id_tipo_entrega;
         if(document.getElementById("recoleccion") && document.getElementById("recoleccion").checked){
             recoleccion = 1;
@@ -2075,7 +2103,7 @@ function crearGuia() {
         }
     } else {
         alert("Por favor, verifique que los campos escenciales no estén vacíos");
-        verificador(["producto", "nombreD", "direccionD", "telefonoD"]);
+        verificador(["producto", "nombreD", "direccionD", "telefonoD", "entrega_en_oficina"]);
         
         boton_final_cotizador.textContent = textoBtn;
         boton_final_cotizador.removeAttribute("disabled");
