@@ -11,7 +11,8 @@ const extsFunc = require("../extends/funciones");
 const { singleMessage } = require("../controllers/cellVoz");
 const {notificarGuiaOficina} = require("../extends/notificaciones")
 
-const {UsuarioPrueba, Credenciales} = require("../keys/serviCredentials")
+const {UsuarioPrueba, Credenciales} = require("../keys/serviCredentials");
+const { revisarNovedad } = require("../extends/manejadorMovimientosGuia");
 
 // const storage = firebase.storage();
 
@@ -383,20 +384,10 @@ async function actualizarMovimientos(doc) {
             throw " Esta guía no manifiesta movimientos.";
           }
           let movimientos = data.Mov[0].InformacionMov;
-          // console.log(data);
-          let finalizar_seguimiento = doc.data().prueba ? true : false
-          /*Respuesta a la actualización de los estados,
-          ésta me actualiza el estado actual que manifiesta la guía, si el seguimiento
-          fue finalizado, y la fecha de actualización*/
-          const movimiento_culminado = ["ENTREGADO", "ENTREGADO A REMITENTE"];
-          let upte_estado = await extsFunc.actualizarEstado(doc, {
-            estado: data.EstAct[0],
-            ultima_actualizacion: new Date(),
-            seguimiento_finalizado: movimiento_culminado.some(v => v === data.EstAct[0])
-            || finalizar_seguimiento
-          })
 
-          let upte_movs;
+          const guia = doc.data();
+          const ultimaNovedadRegistrada = guia.ultima_novedad;
+          let upte_movs, ultima_novedad, fecha_ult_novedad;
           //Confirmo si hay movimientos para actualizarlos
           if (movimientos) {
             for (let movimiento of movimientos) {
@@ -417,7 +408,18 @@ async function actualizarMovimientos(doc) {
               movimientos // movimientos registrados por la transportadora
             };
 
-            // console.log(data_to_fb);
+            // Enviar mensaje cuando se detecte cierta novedad y asignar la última novedad encontrada a la guía
+            for await (const mov of movimientos.reverse()) {
+              const revision = await revisarNovedad(mov, "SERVIENTREGA");
+              if(revision) {
+                ultima_novedad = mov.NomConc;
+                fecha_ult_novedad = mov.FecMov;
+                if(ultima_novedad !== ultimaNovedadRegistrada) {
+                  notificarNovedadPorMensaje(guia, ultima_novedad);
+                }
+                break;
+              }
+            }
 
             /*Respuesta ante la actualización de movimientos.
             se actulizan aquellos estados que sean diferentes y que estén registrados en este objeto*/
@@ -428,6 +430,24 @@ async function actualizarMovimientos(doc) {
               guia: doc.id + " / " + doc.data().numeroGuia
             };
           }
+
+          let finalizar_seguimiento = doc.data().prueba ? true : false
+          /*Respuesta a la actualización de los estados,
+          ésta me actualiza el estado actual que manifiesta la guía, si el seguimiento
+          fue finalizado, y la fecha de actualización*/
+          const movimiento_culminado = ["ENTREGADO", "ENTREGADO A REMITENTE"];
+
+          
+          const actualizaciones = {
+            estado: data.EstAct[0],
+            ultima_actualizacion: new Date(),
+            seguimiento_finalizado: movimiento_culminado.some(v => v === data.EstAct[0])
+            || finalizar_seguimiento
+          }
+
+          if(fecha_ult_novedad) actualizaciones.fecha_ult_novedad = fecha_ult_novedad;
+          if(ultima_novedad) actualizaciones.ultima_novedad = ultima_novedad;
+          let upte_estado = await extsFunc.actualizarEstado(doc, actualizaciones);
 
           resolve([upte_estado, upte_movs]);
         } catch (e) {
@@ -745,4 +765,8 @@ async function generarStickerManifiesto(arrGuias, prueba) {
     return 0;
   }
 
+}
+
+function notificarNovedadPorMensaje(guia, ultima_novedad) {
+  console.log("tengo que enviar un mensaje al usuario " + guia.nombreD + " por " + ultima_novedad);
 }

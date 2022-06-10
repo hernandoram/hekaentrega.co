@@ -23,7 +23,9 @@ let transportadoras = {
         sistema: () => {
             const sist = datos_personalizados.sistema_servientrega;
             return sist;
-        }
+        },
+        getCuentaResponsable: () => /Emp$/.test(datos_personalizados.sistema_servientrega) ? "EMPRESA": "PERSONAL",
+        sistemaAutomatizado: () => /^automatico/.test(datos_personalizados.sistema_servientrega),
     },
     "INTERRAPIDISIMO": {
         nombre: "Inter Rapidísimo",
@@ -45,7 +47,9 @@ let transportadoras = {
         sistema: () => {
             const sist = datos_personalizados.sistema_interrapidisimo;
             return sist;
-        }
+        },
+        getCuentaResponsable: () => /Emp$/.test(datos_personalizados.sistema_interrapidisimo) ? "EMPRESA": "PERSONAL",
+        sistemaAutomatizado: () => /^automatico/.test(datos_personalizados.sistema_interrapidisimo),
     },
     "ENVIA": {
         nombre: "Envía",
@@ -67,7 +71,9 @@ let transportadoras = {
         sistema: () => {
             const sist = datos_personalizados.sistema_envia;
             return sist;
-        }
+        },
+        getCuentaResponsable: () => /Emp$/.test(datos_personalizados.sistema_envia) ? "EMPRESA": "PERSONAL",
+        sistemaAutomatizado: () => /^automatico/.test(datos_personalizados.sistema_envia),
     },
     "TCC": {
         nombre: "TCC",
@@ -89,7 +95,9 @@ let transportadoras = {
         sistema: () => {
             const sist = datos_personalizados.sistema_tcc;
             return sist;
-        }
+        },
+        getCuentaResponsable: () => /Emp$/.test(datos_personalizados.sistema_tcc) ? "EMPRESA": "PERSONAL",
+        sistemaAutomatizado: () => /^automatico/.test(datos_personalizados.sistema_tcc),
     },
 };
 
@@ -2053,7 +2061,7 @@ function crearGuia() {
             datos_a_enviar.id_user = user_id;
             
             datos_a_enviar.cuenta_responsable = transportadoras[datos_a_enviar.transportadora]
-            .sistema() === "automaticoEmp" ? "EMPRESA" : "PERSONAL";
+            .getCuentaResponsable();
 
             if(id_tipo_entrega) datos_a_enviar.id_tipo_entrega = id_tipo_entrega;
 

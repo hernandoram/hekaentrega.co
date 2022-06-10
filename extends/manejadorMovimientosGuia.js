@@ -39,17 +39,18 @@ exports.traducirMovimientoGuia = (transportadora) => {
     }
 }
 
+let listaNovedadesServientrega;
 exports.revisarNovedad = async (mov, transp) => {
     if(transp === "INTERRAPIDISIMO") {
         return mov.Motivo;
     } else if (transp === "ENVIA" || transp === "TCC") {
         return mov.novedad
     } else {
-        const novedades = await db.collection("infoHeka")
-        .doc("novedadesRegistradas").get();
+        listaNovedadesServientrega = listaNovedadesServientrega || await db.collection("infoHeka")
+        .doc("novedadesRegistradas").get().then(d => d.data());
 
-        if(novedades.data()) {
-            return novedades.data().SERVIENTREGA.includes(mov.NomConc)
+        if(listaNovedadesServientrega) {
+            return listaNovedadesServientrega.SERVIENTREGA.includes(mov.NomConc)
         }
 
         return mov.TipoMov === "1";

@@ -161,21 +161,4 @@ async function actualizarMovimientosGuias(d, general) {
     }
 }
 
-db.collection("infoHeka").doc("novedadesRegistradas")
-.update({SERVIENTREGA: firebase.firestore.FieldValue.arrayUnion(
-    'DESTINATARIO NO CANCELA C.O.D. LOGISTICA',
-    'NO RECLAMO EN OFICINA',
-    'M/CIA NO SOLICITADA / PEDIDO REPETIDO',
-    'NO LO CONOCEN',
-    'DIRECCION ERRADA',
-    'SE NEGO A RECIBIR',
-    'NO LO CONOCEN',
-    'DATOS ADICIONALES A LA DIRECCION',
-    'SOLICITAR CITA PREVIA',
-    'CERRADO SEGUNDA VEZ',
-    'POR SOLICITUD DEL CLIENTE',
-    'NO PRESTAMOS SERVICIO',
-    'SE TRASLADO'
-  )})
-
 module.exports = actualizarMovimientosGuias;

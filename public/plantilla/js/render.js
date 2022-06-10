@@ -640,11 +640,13 @@ function verificador(arr, scroll, mensaje) {
             }
         }
         if(primerInput) {
-            primerInput.querySelector("input").focus()
+            const input = primerInput.querySelector("input")
+            if(!input) return;
+
+            input.focus()
             primerInput.scrollIntoView({
                 behavior: "smooth"
             });
-            console.log(primerInput)
         }
     }
     
