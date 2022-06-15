@@ -23,7 +23,7 @@ globalThis.h = historial;
 
 let historialConsultado;
 
-// consultarHistorialGuias();
+consultarHistorialGuias();
 async function consultarHistorialGuias() {    
     const fecha_inicio = Date.parse(inpFechaInicio.val().replace(/\-/g, "/"));
     const fecha_final = Date.parse(inpFechaFinal.val().replace(/\-/g, "/")) + 8.64e7;

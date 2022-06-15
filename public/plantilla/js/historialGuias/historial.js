@@ -79,7 +79,8 @@ const table = $("#tabla-historial-guias").DataTable({
     scrollCollapse: true,
     paging: false,
     lengthMenu: [ [-1, 10, 25, 50, 100], ["Todos", 10, 25, 50, 100] ],
-    initComplete: agregarFuncionalidadesTablaPedidos
+    initComplete: agregarFuncionalidadesTablaPedidos,
+    drawCallback: renderizadoDeTablaHistorialGuias
 });
 
 export default class SetHistorial {
@@ -91,7 +92,7 @@ export default class SetHistorial {
     }
 
     add(guia) {
-        const filtro = this.defineFilter(guia) === this.filtrador;
+        const filtro = defineFilter(guia) === this.filtrador;
         const gIdx = this.guias.findIndex(g => g.id_heka === guia.id_heka);
         const lIdx = this.filtradas.findIndex(g => g.id_heka === guia.id_heka);
 
@@ -126,27 +127,7 @@ export default class SetHistorial {
         if(index !== -1) this.guias.splice(index,1);
     }
 
-    defineFilter(data) {
-        const estGeneradas = ["Envío Admitido", "RECIBIDO DEL CLIENTE", "Enviado", "", undefined];
-        const estAnuladas = ["Documento Anulado", "Anulada"];
-
-        let filter;
-
-        if (data.staging) {
-            filter = "pedido";
-        } else if(!data.debe && data.type !== "CONVENCIONAL") {
-            filter = "pagada"
-        } else if (data.seguimiento_finalizado) {
-            filter = "finalizada";
-        } else if(!data.estado) {
-            filter = "generada";
-        } else {
-            filter = "en proceso";
-        }
-
-        return filter;
-    }
-
+    //Según el tipo de filtrado muestra los botones necesarios
     defineButtons(filt) {
         table.buttons().remove();
 
@@ -165,7 +146,7 @@ export default class SetHistorial {
 
     filter(filt) {
         this.filtrador = filt;
-        this.filtradas = this.guias.filter(g => this.defineFilter(g) === filt);
+        this.filtradas = this.guias.filter(g => defineFilter(g) === filt);
         this.render(true);
 
 
@@ -193,7 +174,7 @@ export default class SetHistorial {
         if(!this.nodeFilters) return;
         this.nodeFilters.each((i,node) => {
             const filt = node.getAttribute("data-filter");
-            const cant = this.guias.filter(g => this.defineFilter(g) === filt).length;
+            const cant = this.guias.filter(g => defineFilter(g) === filt).length;
             $(node).find(".counter").text(cant);
         })
     }
@@ -253,6 +234,28 @@ export default class SetHistorial {
     }
 }
 
+//Devuelve un string con el tipo de filtrado según la guía
+function defineFilter(data) {
+    const estGeneradas = ["Envío Admitido", "RECIBIDO DEL CLIENTE", "Enviado", "", undefined];
+    const estAnuladas = ["Documento Anulado", "Anulada"];
+
+    let filter;
+
+    if (data.staging) {
+        filter = "pedido";
+    } else if(!data.debe && data.type !== "CONVENCIONAL") {
+        filter = "pagada"
+    } else if (data.seguimiento_finalizado) {
+        filter = "finalizada";
+    } else if(!data.estado) {
+        filter = "generada";
+    } else {
+        filter = "en proceso";
+    }
+
+    return filter;
+}
+
 function agregarFuncionalidadesTablaPedidos() {
     $("#select-all-orders").change((e) => {
         if(e.target.checked) {
@@ -276,6 +279,7 @@ function agregarFuncionalidadesTablaPedidos() {
     } );
 }
 
+//Para cuando los pedidos están en staggin, permiter proceder con la creación de la guía
 async function aceptarPedido(e, dt, node, config) {
     let api = dt;
     const btnInitialText = $(node).text();
@@ -324,6 +328,86 @@ async function aceptarPedido(e, dt, node, config) {
     })
 }
 
-function accionesDeFila(valor, type, row) {
+function accionesDeFila(datos, type, row) {
+    if(type === "display" || type === "filter") {
+        const filtrado = defineFilter(row);
+        const id = datos.id_heka;
+        const generacion_automatizada = ["automatico", "automaticoEmp"].includes(transportadoras[datos.transportadora || "SERVIENTREGA"].sistema());
+        const showCloneAndDelete = datos.enviado ? "d-none" : "";
+        const showDownloadAndRotulo = !datos.enviado ? "d-none" : "";
+        const showMovements = datos.numeroGuia && datos.estado ? "" : "d-none";
+        let buttons = `
+        <div data-search="${datos.filter}"
+        class="d-flex justify-content-around flex-wrap">
+        `;
 
+        const btnCrearSticker = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+        data-funcion="activar-desactivar"
+        id="crear_sticker${id}" title="Crear Sticker de la guía">
+            <i class="fas fa-stamp"></i>
+        </button>`
+
+        const btnMovimientos = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+        id="ver_movimientos${id}" data-toggle="modal" data-target="#modal-gestionarNovedad"
+        title="Revisar movimientos">
+            <i class="fas fa-truck"></i>
+        </button>`
+
+        const btnDownloadDocs =  `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+        id="descargar_documento${id}" title="Descargar Documentos">
+            <i class="fas fa-file-download"></i>
+        </button>`;
+
+        const btnRotulo = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+        data-funcion="activar-desactivar" data-activate="after"
+        id="generar_rotulo${id}" title="Generar Rótulo">
+            <i class="fas fa-ticket-alt"></i>
+        </button>`
+
+        const btnClone = `<button class="btn btn-success btn-circle btn-sm mt-2 action ${showCloneAndDelete}" data-id="${id}" 
+        id="clonar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
+        title="Clonar Guía">
+            <i class="fas fa-clone"></i>
+        </button>`;
+
+        const btnDelete = `<button class="btn btn-danger btn-circle btn-sm mt-2 action ${showCloneAndDelete}" data-id="${id}" 
+        id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
+        title="Eliminar Guía">
+            <i class="fas fa-trash"></i>
+        </button>`;
+        
+        //Bottón para re crear el sticker de guía.
+        if(datos.numeroGuia && !datos.has_sticker && generacion_automatizada) {
+            buttons += btnCrearSticker;
+        }
+
+        buttons += `
+            <button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+            id="ver_detalles${id}" data-toggle="modal" data-target="#modal-detallesGuias"
+            title="Detalles">
+                <i class="fas fa-search-plus"></i>
+            </button>
+        `;
+
+        //Botón para ver movimientos
+        if (datos.numeroGuia && datos.estado) {
+            buttons += btnMovimientos;
+        }
+
+        //Botones para descargar documentosy rótulos cuando accede a la condición
+        //botones para clonar y eliminar guía cuando rechaza la condición.
+        if(datos.enviado) {
+            buttons += btnDownloadDocs + btnRotulo;
+        }
+
+        if(!datos.estado)
+        buttons += btnClone + btnDelete;
+        
+
+        buttons += "<a href='javascript:void(0)' class='action text-trucate'>Ver más</a>"
+
+        buttons += "</div>";
+        return buttons
+    }
+    return datos;
 }
