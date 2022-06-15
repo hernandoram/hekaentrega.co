@@ -1994,16 +1994,14 @@ function crearGuia() {
 
     boton_final_cotizador.setAttribute("disabled", true);
 
-    if(value("nombreD") != "" && value("direccionD") != "" &&
-    value("telefonoD") != "" && value("entrega_en_oficina") != ""){
-        let recoleccion = 0, id_tipo_entrega;
+    if(value("nombreD") != "" && value("direccionD") != "" && value("telefonoD") != ""){
+        let recoleccion = 0;
         if(document.getElementById("recoleccion") && document.getElementById("recoleccion").checked){
             recoleccion = 1;
         }
         
-        if(document.getElementById("entrega_en_oficina") && document.getElementById("entrega_en_oficina").checked){
-            id_tipo_entrega = 2;
-        }
+        const inpTipo_entrega = document.getElementById("entrega_en_oficina");
+        
 
         if(value("producto") == ""){
             renovarSubmit(boton_final_cotizador, textoBtn)
@@ -2022,6 +2020,10 @@ function crearGuia() {
             renovarSubmit(boton_final_cotizador, textoBtn)
         } else if(!datos_usuario.centro_de_costo) {
             avisar("¡Error al generar Guía!", "Por favor, recargue la página, e intente nuevamente, si su problema persiste, póngase en Contacto con nosotros para asignarle un centro de costo", "advertencia");
+            renovarSubmit(boton_final_cotizador, textoBtn)
+        } else if(inpTipo_entrega && !inpTipo_entrega.value){
+            swal.fire("Es necesario seleccionar el tipo de envío", "", "warning");
+            verificador("entrega_en_oficina")
             renovarSubmit(boton_final_cotizador, textoBtn)
         } else {
             Swal.fire({
@@ -2042,7 +2044,7 @@ function crearGuia() {
             if(mes < 10) {
                 mes = "0" + mes;
             }
-            
+
             datos_a_enviar.nombreR = value("actualizar_nombreR")
             datos_a_enviar.direccionR = value("actualizar_direccionR")
             datos_a_enviar.celularR = value("actualizar_celularR")
@@ -2063,7 +2065,7 @@ function crearGuia() {
             datos_a_enviar.cuenta_responsable = transportadoras[datos_a_enviar.transportadora]
             .getCuentaResponsable();
 
-            if(id_tipo_entrega) datos_a_enviar.id_tipo_entrega = id_tipo_entrega;
+            if(inpTipo_entrega) datos_a_enviar.id_tipo_entrega = parseInt(inpTipo_entrega.value);
 
             // boton_final_cotizador.remove()
 
@@ -2111,7 +2113,7 @@ function crearGuia() {
         }
     } else {
         alert("Por favor, verifique que los campos escenciales no estén vacíos");
-        verificador(["producto", "nombreD", "direccionD", "telefonoD", "entrega_en_oficina"]);
+        verificador(["producto", "nombreD", "direccionD", "telefonoD"]);
         
         boton_final_cotizador.textContent = textoBtn;
         boton_final_cotizador.removeAttribute("disabled");
