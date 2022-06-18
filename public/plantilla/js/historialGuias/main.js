@@ -55,6 +55,8 @@ async function consultarHistorialGuias() {
         });
         historial.render();
     });
+
+    historial.filter("pedido");
   
 }
 
@@ -62,3 +64,5 @@ function toggleBuscador() {
     const cont = $("#filtrado-guias_hist");
     cont.toggle("fast");
 }
+
+globalThis.historialGuias = consultarHistorialGuias;

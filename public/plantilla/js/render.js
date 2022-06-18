@@ -534,7 +534,9 @@ function activarBotonesDeGuias(id, data, activate_once){
             })
         })
 
-        $("#crear_sticker" + id).click(crearStickerParticular)
+        $("#crear_sticker" + id).click(crearStickerParticular);
+
+        $("#editar_guia" + id).click(editarGuiaCreada);
       }
 
 }
@@ -598,6 +600,61 @@ function crearStickerParticular() {
             }
         }
     })
+}
+
+function editarGuiaCreada() {
+    const formEditarGuia = `
+    <form action="#" id="editar_guia" class="row">
+        <div class="col-sm-4">
+            <div class="form-group">
+                <label for="nombre-editar_guia">Nombre destinatario</label>
+                <input type="text" class="form-control" id="nombre-editar_guia" name="nombreD" maxlength="15">
+            </div>
+        </div>
+
+        <div class="col-sm-4 mb-2">
+            <label for="identificacionD-editar_guia">Documento de identificación</label>
+            <input type="number" id="identificacionD-editar_guia" name="identificacionD" class="form-control form-control-user" value="" placeholder="ej. 123456789" required="">
+        </div>
+        <div class="col-sm-4 mb-2">
+            <label for="tipo-doc-dest-editar_guia" class="col-form-label">Tipo De Documento</label>
+            <select class="custom-select" form="datos-destinatario" id="tipo-doc-dest-editar_guia" name="tipo_doc_dest">
+                <option value="2">Seleccione</option>
+                <option value="1">NIT</option>
+                <option value="2">CC</option>
+            </select>
+        </div>
+
+        <div class="form-group col-12 mb-2">
+            <label for="direccion-editar_guia">Dirección completa destinatario</label>
+            <input type="text" class="form-control" id="direccion-editar_guia" name="direccionD" required>
+        </div>
+        
+        <div class="col-12 mb-3 mb-2">
+            <h5>Email</h5>
+            <input type="email" id="correoD-editar_guia" name="correoD" class="form-control form-control-user" value="" placeholder="nombre@ejemplo.com">
+        </div>
+
+        <div class="col-sm-6 mb-3 mb-2">
+            <h5>Celular del Destinatario</h5>
+            <input type="number" id="telefonoD-editar_guia" name="telefonoD" class="form-control form-control-user detect-errors" 
+            value="" placeholder="Celular" required="" maxlengt="10">
+        </div>
+        <div class="col-sm-6 mb-3 mb-2">
+            <h5>Otro celular del Destinatario</h5>
+            <input type="number" id="celularD-editar_guia" name="celularD" class="form-control form-control-user detect-errors" value="" placeholder="celular">
+        </div>
+        
+    </form>
+    `;
+
+    const m = createModal();
+    
+    $(".modal-body", m).append(formEditarGuia);
+
+    m.modal();
+
+    
 }
 
 

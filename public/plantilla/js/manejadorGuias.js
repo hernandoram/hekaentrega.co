@@ -64,7 +64,7 @@ $(document).ready(() => {
 const toHtmlNode = str => new DOMParser().parseFromString(str, "text/html").body.firstChild;
 
 let snapshotHistorialGuias;
-async function historialGuias(){
+async function historialGuiasAntiguo(){
     if (snapshotHistorialGuias) {
         snapshotHistorialGuias();
     }

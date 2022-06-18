@@ -19,7 +19,7 @@ const filter = (opts) => `
     class="filtro d-flex justify-content-between border align-items-center p-2">
         <p class="text-truncate m-0">${opts.name}</p> 
         <div class="d-flex align-items-center">
-            <span class="badge badge-light mx-2 counter">5</span>
+            <span class="badge badge-light mx-2 counter">0</span>
             <i class="fa fa-2x fa-angle-right"></i>
         </div>
     </div>

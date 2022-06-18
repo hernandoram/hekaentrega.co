@@ -1,7 +1,7 @@
 import {title, table as htmlTable, filters, filter} from "./views.js";
 
 
-const container = $("#historial_guias2");
+const container = $("#historial_guias");
 
 container.append(filters);
 container.append(htmlTable);
@@ -74,7 +74,7 @@ const table = $("#tabla-historial-guias").DataTable({
         className: "btn btn-success",
         action: crearDocumentos
     }],
-    scrollY: '50vh',
+    scrollY: '60vh',
     scrollX: true,
     scrollCollapse: true,
     paging: false,
@@ -144,11 +144,36 @@ export default class SetHistorial {
         }
     }
 
+    defineColumns() {
+        // No está funcionando como debería (error desconocido)
+        let columnas;
+        switch(this.filtrador) {
+            case "pedido":
+                columnas = [0,1,4,5,6,7,8,9,10,11,12];
+                break;
+    
+            default:
+                columnas = [0,1,2,3,4,5,6,7,8,9,10,11,12];
+                break
+        }
+    
+        table.columns().every(nCol => {
+            const col = table.column(nCol);
+            
+            const ver = columnas.includes(nCol);
+            const visibilidadPrev = col.visible();
+            
+            if(visibilidadPrev != ver) {
+                col.visible(ver);
+            }
+            console.log(nCol);
+        });
+    }
+
     filter(filt) {
         this.filtrador = filt;
         this.filtradas = this.guias.filter(g => defineFilter(g) === filt);
         this.render(true);
-
 
         return this.filtradas;
     }
@@ -157,7 +182,7 @@ export default class SetHistorial {
         this.counterFilter();
         if(!this.renderTable && !clear) return;
         
-        this.defineButtons(this.filtrador)
+        this.defineButtons(this.filtrador);
         if(clear) {
             table.clear()
 
@@ -256,6 +281,8 @@ function defineFilter(data) {
     return filter;
 }
 
+
+
 function agregarFuncionalidadesTablaPedidos() {
     $("#select-all-orders").change((e) => {
         if(e.target.checked) {
@@ -274,9 +301,48 @@ function agregarFuncionalidadesTablaPedidos() {
 
 
     $('tbody', this).on( 'click', 'tr', function (e) {
-        if(!e.target.classList.contains("selector") && e.target.nodeName !== "IMG")
+        console.log(!e.target.classList.contains("action"), e.target.tagName !== "I")
+        if(!e.target.classList.contains("action") && e.target.tagName !== "I")
         $(this).toggleClass('selected bg-gray-300');
     } );
+}
+
+function renderizadoDeTablaHistorialGuias(config) {
+    console.count("renderizando tabla");
+    const api = this.api();
+    const data = this.api().data();
+
+    data.each((data, i) => {
+        const row = api.row(i).node();
+        const buttonsActivated = row.getAttribute("data-active");
+        
+        if(!buttonsActivated) {
+            activarBotonesDeGuias(data.id_heka, data, true);
+        }
+
+        row.setAttribute("data-active", true);
+    });
+
+    return;
+
+    api.column(0).nodes().to$().each((i, el) => {
+        const buttonsToHide = $(el).children().children("button:gt(1)");
+        const verMas = $(el).children().children("a:not(.activated)");
+
+        verMas.click(() => {
+            if(buttonsToHide.css("display") === "none") {
+                buttonsToHide.show();
+                verMas.text("Ver menos");
+            } else {
+                buttonsToHide.hide();
+                verMas.text("Ver más");
+            }
+        });
+        buttonsToHide.css("display", "none");
+        verMas.text("Ver más");
+        verMas.addClass("activated");
+    });
+
 }
 
 //Para cuando los pedidos están en staggin, permiter proceder con la creación de la guía
@@ -346,6 +412,12 @@ function accionesDeFila(datos, type, row) {
         id="crear_sticker${id}" title="Crear Sticker de la guía">
             <i class="fas fa-stamp"></i>
         </button>`
+        
+        const btnEdit = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+        data-funcion="activar-desactivar"
+        id="editar_guia${id}" title="Editar guía">
+            <i class="fas fa-edit"></i>
+        </button>`
 
         const btnMovimientos = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
         id="ver_movimientos${id}" data-toggle="modal" data-target="#modal-gestionarNovedad"
@@ -404,8 +476,8 @@ function accionesDeFila(datos, type, row) {
         buttons += btnClone + btnDelete;
         
 
-        buttons += "<a href='javascript:void(0)' class='action text-trucate'>Ver más</a>"
-
+        // buttons += "<a href='javascript:void(0)' class='action text-trucate'>Ver más</a>"
+        // buttons += btnEdit;
         buttons += "</div>";
         return buttons
     }
