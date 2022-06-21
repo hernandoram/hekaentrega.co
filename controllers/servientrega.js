@@ -409,7 +409,8 @@ async function actualizarMovimientos(doc) {
             };
 
             // Enviar mensaje cuando se detecte cierta novedad y asignar la última novedad encontrada a la guía
-            for await (const mov of movimientos.reverse()) {
+            movimientos.reverse();
+            for await (const mov of movimientos) {
               const revision = await revisarNovedad(mov, "SERVIENTREGA");
               if(revision) {
                 ultima_novedad = mov.NomConc;
@@ -420,6 +421,7 @@ async function actualizarMovimientos(doc) {
                 break;
               }
             }
+            movimientos.reverse();
 
             /*Respuesta ante la actualización de movimientos.
             se actulizan aquellos estados que sean diferentes y que estén registrados en este objeto*/
