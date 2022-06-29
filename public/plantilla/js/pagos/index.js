@@ -47,6 +47,8 @@ async function cargarPagosPendientes(e) {
     counterEl.text(i);
 
     const numeroGuia = guia["GUIA"].toString();
+    guia["GUIA"] = numeroGuia;
+    
     const reference = db.collection("pendientePorPagar").doc(numeroGuia);
     
     const revisarEnPagos = await comprobarGuiaPagada(guia);
