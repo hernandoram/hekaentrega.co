@@ -34,8 +34,8 @@ async function cargarPagosPendientes(e) {
   const data = new FormData(document.getElementById("form-cargador_pagos"));
   console.log(data.get("documento"));
   const datosDePago = await fetch("/excel_to_json", {
-      method: "POST",
-      body: data
+    method: "POST",
+    body: data
   }).then(res => res.json())
   .catch(finalizarProceso)
 

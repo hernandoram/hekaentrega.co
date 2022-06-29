@@ -197,7 +197,8 @@ class Empaquetado {
             loader.html("cargando " + (i+1) + " de " + f + "...");
 
             if(existente) {
-                guia.cuenta_responsable = existente.cuenta_responsable || "SCR";
+                console.log(guia)
+                guia.cuenta_responsable = existente.cuenta_responsable || guia["CUENTA RESPONSABLE"] || "SCR";
                 guia.estado = existente.type;
                 guia.id_heka = existente.id_heka;
                 guia.id_user = existente.id_user
@@ -212,6 +213,8 @@ class Empaquetado {
                 guia.mensaje = "¡Esta guía ya se encuentra pagada!";
                 guia.estado = "PAGADA";
             }
+
+            if(!guia.estado) guia.estado = "No registra";
 
             if(!guia.FECHA) guia.FECHA = genFecha("LR");
 
@@ -447,6 +450,9 @@ async function consultarPendientes(e) {
         }
 
     } else if(inpFiltCuentaResp.val()) {
+        if(transpSelected.length) {
+            reference = reference.where("TRANSPORTADORA", "in", transpSelected)
+        }
         const data = await reference.where("CUENTA RESPONSABLE", "==", inpFiltCuentaResp.val())
         .get().then(handlerInformation);
 
@@ -462,7 +468,9 @@ async function consultarPendientes(e) {
         respuesta = data;
     }
 
-    respuesta.forEach(d => paquete.addPago(d));
+    respuesta
+    .sort((a,b) => a["REMITENTE"].localeCompare(b["REMITENTE"]))
+    .forEach(d => paquete.addPago(d));
     paquete.init();
 
     const stepper = new Stepper(visor);
