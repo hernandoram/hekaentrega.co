@@ -1,12 +1,58 @@
 .filtro:hover {
-    background-color: #fff;    
+    background-color: #f8f9fc;
 }
 
 .filtro{
     cursor: pointer;
+    background-color: lightgray;
+}
+
+.filtro:first-child {
+    border-radius: 4px 0 0 4px;
 }
 
 .filtro.active {
     background-color: var(--primary);
     color: #fff;
+}
+
+.active .filter-arrow-start {
+    border-left-color: var(--primary);
+}
+
+.filtro:hover:not(.active) .filter-arrow-start {
+    border-left-color: #f8f9fc;
+}
+
+.filter-arrow-start {
+    position: absolute;
+    top: 0;
+    right: -24px;
+    border-top: 20px solid transparent;
+    border-left: 8px solid lightgray;
+    border-right: 16px solid transparent;
+    border-bottom: 20px solid transparent;
+}
+
+.active .filter-arrow-end {
+    border-top-color: var(--primary);
+    border-bottom-color: var(--primary);
+}
+
+.filtro:hover:not(.active) .filter-arrow-end {
+    border-top-color: #f8f9fc;
+    border-bottom-color: #f8f9fc;
+}
+
+.filter-arrow-end {
+    position: absolute;
+    top: 0;
+    left: -8px;
+    border-top: 20px solid lightgray;
+    border-left: 8px solid transparent;
+    border-right: 16px solid transparent;
+    border-bottom: 20px solid lightgray;
+}
+.m-12 {
+    margin-left: 12px;
 }

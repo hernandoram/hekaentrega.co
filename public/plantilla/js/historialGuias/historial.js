@@ -136,6 +136,14 @@ export default class SetHistorial {
                 action: aceptarPedido,
                 text: "Acceptar pedido"
             });
+        } else if (filt === "generada"){
+            table.button().add(0, {
+                action: descargarGuiasParticulares,
+                text: "Descargar Pdf"
+            }, {
+                action: crearDocumentos,
+                text: "Empacar"
+            });
         } else {
             table.button().add(0, {
                 action: descargarGuiasParticulares,
@@ -229,8 +237,8 @@ export default class SetHistorial {
             }
         ];
     
-        filters.forEach(filt => {
-            container.append(filter(filt));
+        filters.forEach((filt, i) => {
+            container.append(filter(filt, i, filters.length));
         });
     
         const nodeFilters = container.children(".filtro");
