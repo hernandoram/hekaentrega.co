@@ -437,10 +437,10 @@ async function inspectGuiasPorCrear() {
         refGuia.update({numeroGuia, urlGuia, has_sticker, estado});
         referenceListado.doc(guia.id_heka).delete();
     } catch (e){
-        console.log(e.message);
-        refGuia.update({estado: e.message})
+        refGuia.update({estado: e.message});
     }
-
+    
+    referenceListado.doc(guia.id_heka).delete();
     inspectGuiasPorCrear();
 }
 

@@ -405,11 +405,11 @@ async function buscarUsuarios(){
     const nombreInp = value("buscador_usuarios-nombre").toLowerCase();
     const dirInp = value("buscador_usuarios-direccion").toLowerCase();
     const reference = firebase.firestore().collection("usuarios");
-    const casesToSearch = ["centro_de_costo", "numero_documento"];
+    const casesToSearch = ["centro_de_costo", "numero_documento", "celular", "celular2"];
     let especifico;
 
-    for (let i = 0; i < casesToSearch.length; i++) {
-        especifico = nombreInpOriginal && await reference.where(casesToSearch[i], "==", nombreInpOriginal)
+    for await (let caso of casesToSearch) {
+        especifico = nombreInpOriginal && await reference.where(caso, "==", nombreInpOriginal)
         .get().then((querySnapshot) => {
             let bool;
             if(!querySnapshot.size) return false;

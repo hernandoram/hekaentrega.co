@@ -218,6 +218,8 @@ class Empaquetado {
 
             if(!guia.FECHA) guia.FECHA = genFecha("LR");
 
+            if(!guia.cuenta_responsable) guia.cuenta_responsable = guia["CUENTA RESPONSABLE"] || "SCR";
+
             i++;
             if(i === f) {
                 this.cargarInformacion(usuario);

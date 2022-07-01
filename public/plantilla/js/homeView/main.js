@@ -8,13 +8,15 @@ const CarrucelVideos = () => {
   const novedadesEnvios = document.querySelector("#novedadesEnvios")
   const cuentaBancaria = document.querySelector("#registrarCuentaBancaria")
   const cotizacionGuias = document.querySelector("#cotizacionGuias")
-  const crearBodegas = document.querySelector("#creacionDeBodegas")
+  const crearBodegas = document.querySelector("#creacionDeBodegas");
+  const revisarPagos = document.querySelector("#revisarPagos");
 
   datosModal(registroHeka, "https://www.youtube.com/embed/dLCJCvS7uWg?&autoplay=1", "Registro - Heka Entrega", "En este vídeo te enseñamos a como realizar el registro en nuestra plataforma de Heka Entrega.");
   datosModal(novedadesEnvios, "https://www.youtube.com/embed/n6RpNdMThic?&autoplay=1", "¿Como saber las novedades de tus envíos?", "En este vídeo te enseñamos a gestionar tus novedades en nuestra plataforma de Heka Entrega.");
   datosModal(cuentaBancaria, "https://www.youtube.com/embed/518tJQRPlXI?&autoplay=1", "Registro de cuenta bancaria", "En este vídeo te enseñamos a como registrar tu cuenta bancaria en nuestra plataforma de Heka Entrega.");
   datosModal(cotizacionGuias, "https://www.youtube.com/embed/5tNUhNONIG4?&autoplay=1", "Cotización y creación de guías", "En este vídeo te enseñamos a generar tus guias en nuestra plataforma de Heka Entrega.");
   datosModal(crearBodegas, "https://www.youtube.com/embed/ht54UmniYk0?&autoplay=1", "Registrar una bodega.", "En este vídeo te enseñamos a como registrar una bodega en nuestra plataforma de Heka Entrega.");
+  datosModal(revisarPagos, "https://www.youtube.com/embed/ACorbrGDJZo?&autoplay=1", "Revisar pagos.", "En este vídeo te enseñamos a cómo realizar la revisión de tus pagos en la plataforma de Heka entrega.");
   
   new Swiper(".mySwiper", {
     slidesPerView: 2,

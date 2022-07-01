@@ -1967,7 +1967,7 @@ function revisarNotificaciones(){
                         notificacionNormal = true;
                     } else if(notification.type === "estatica") {
                         mostrarNotificacionEstaticaUsuario(notification, identificador);
-                    } else if(!notification.type) {
+                    } else if(!notification.type || notification.type === "documento") {
                         contador = notificador.querySelector("span");
                         contador.classList.remove("d-none");
                         contador.innerHTML = parseInt(contador.textContent) + 1;
