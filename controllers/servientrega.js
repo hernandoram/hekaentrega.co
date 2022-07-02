@@ -99,6 +99,12 @@ exports.generarGuiaSticker = (req, res) => {
   const data = req.body;
   const type = data.oficina ? "CONVENCIONAL" : data.type;
   console.log(data);
+  console.log("REQUEST => ",{
+    headers: {"Content-Type": "text/xml"},
+    url: req.body.prueba ? genGuiasPrueba : generacionGuias,
+    body: crearGuiaSticker(data.numeroGuia, data.id_archivoCargar, type, data.prueba)
+  })
+  try {
     request.post({
       headers: {"Content-Type": "text/xml"},
       url: req.body.prueba ? genGuiasPrueba : generacionGuias,
@@ -107,23 +113,26 @@ exports.generarGuiaSticker = (req, res) => {
       if(err) return console.error(err);
   
       console.log("Se está creando una guía");
-      console.log(body);
+      console.log("RESPONSE => ", body);
       let base64 = ""
-
+  
       let xmlResponse = new DOMParser().parseFromString(body, "text/xml");
-
-      if(xmlResponse.documentElement.getElementsByTagName("GenerarGuiaStickerResult")[0].textContent === "true") {
+      const result = xmlResponse.documentElement.getElementsByTagName("GenerarGuiaStickerResult")[0];
+      if(result && result.textContent === "true") {
         base64 = xmlResponse.documentElement.getElementsByTagName("bytesReport")[0].textContent;
       }
-
+  
       let segmentar = parseInt(req.query.segmentar);
       if(segmentar) {
         const segmentado = Math.min(segmentar, 1000000);
         res.json(extsFunc.segmentarString(base64, segmentado));
       } else {
-          res.send(base64);
+        res.send(base64);
       }
     })
+  } catch(e) {
+    res.send("");
+  }
 };
 
 exports.generarManifiesto = async (req, res) => {

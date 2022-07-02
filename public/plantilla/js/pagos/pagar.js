@@ -81,6 +81,7 @@ class Empaquetado {
                                             <th>Recaudo</th>
                                             <th>Envío Total</th>
                                             <th>Total a Pagar</th>
+                                            <th>Comisión heka</th>
                                             <th>Fecha</th>
                                             <th>Cuenta responsable</th>
                                             <th>Estado</th>
@@ -141,6 +142,7 @@ class Empaquetado {
                     <td>${guia.RECAUDO}</td>
                     <td>${guia["ENVÍO TOTAL"]}</td>
                     <td>${guia["TOTAL A PAGAR"]}</td>
+                    <td>${guia["COMISION HEKA"] || 0}</td>
                     <td>${guia.FECHA || genFecha()}</td>
                     <td>${guia.cuenta_responsable || "No registró"}</td>
                     <td>

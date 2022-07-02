@@ -130,6 +130,8 @@ function datosImportantesIncompletos(objToSend, completeData) {
       return "Lo siento, no se a que transportadora subir la guía: " + objToSend.GUIA;
     } else if (!objToSend["CUENTA RESPONSABLE"]) {
       return "Recuerda por favor agregar una la cuenta responsable de la guia " + objToSend.GUIA;
+    } else if (!objToSend["COMISION HEKA"]) {
+      return "Falta el campo \"COMISION HEKA\" de la guia " + objToSend.GUIA;
     } else if (objToSend.TRANSPORTADORA.toLowerCase() !== "servientrega" 
     && objToSend.TRANSPORTADORA.toLowerCase() != "envía" 
     && objToSend.TRANSPORTADORA.toLowerCase() != "tcc"
