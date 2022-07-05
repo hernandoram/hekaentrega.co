@@ -58,22 +58,7 @@ const table = $("#tabla-historial-guias").DataTable({
       url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
     },
     dom: 'Bfrtip',
-    buttons: [{
-        extend: "excel",
-        text: "Descargar excel",
-        filename: "Historial Guías",
-        exportOptions: {
-          columns: [1,2,3,4,5,6,7,9,10,11,12,13]
-        }
-    }, {
-        text: "Descargar guías",
-        className: "btn btn-primary",
-        action: descargarGuiasParticulares
-    }, {
-        text: "Crear Documentos",
-        className: "btn btn-success",
-        action: crearDocumentos
-    }],
+    buttons: [],
     scrollY: '60vh',
     scrollX: true,
     scrollCollapse: true,
@@ -140,7 +125,8 @@ export default class SetHistorial {
             table.button().add(0, {
                 action: descargarGuiasParticulares,
                 text: "Descargar Pdf"
-            }, {
+            });
+            table.button().add(1, {
                 action: crearDocumentos,
                 text: "Empacar"
             });
@@ -154,28 +140,33 @@ export default class SetHistorial {
 
     defineColumns() {
         // No está funcionando como debería (error desconocido)
+        
         let columnas;
         switch(this.filtrador) {
             case "pedido":
                 columnas = [0,1,4,5,6,7,8,9,10,11,12];
                 break;
-    
+            case "generada": 
+                columnas = [0,1,2,4,5,6,7,8,9,10,11,12];
+            break;
             default:
                 columnas = [0,1,2,3,4,5,6,7,8,9,10,11,12];
                 break
         }
+
+        setTimeout(() => {
+            table.columns().every(nCol => {
+                const col = table.column(nCol);
+                
+                const ver = columnas.includes(nCol);
+                const visibilidadPrev = col.visible();
+                
+                if(visibilidadPrev != ver) {
+                    col.visible(ver);
+                }
+            });
+        }, 500)
     
-        table.columns().every(nCol => {
-            const col = table.column(nCol);
-            
-            const ver = columnas.includes(nCol);
-            const visibilidadPrev = col.visible();
-            
-            if(visibilidadPrev != ver) {
-                col.visible(ver);
-            }
-            console.log(nCol);
-        });
     }
 
     filter(filt) {
@@ -197,6 +188,8 @@ export default class SetHistorial {
             this.filtradas.forEach(guia => {
                 table.row.add(guia);
             });
+
+            this.defineColumns();
         }
         table.draw();
 

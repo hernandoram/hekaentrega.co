@@ -53,10 +53,10 @@ async function consultarHistorialGuias() {
                 historial.add(data);
             }
         });
-        historial.render();
+        historial.filter(historial.filtrador);
+        // historial.render();
     });
 
-    historial.filter("pedido");
   
 }
 
