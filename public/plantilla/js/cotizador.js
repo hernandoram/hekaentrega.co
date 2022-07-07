@@ -1598,7 +1598,7 @@ function verificarSelectorEntregaOficina(e) {
         
     } else if(codTransp === "INTERRAPIDISIMO") {
         const inpDir = $("#direccionD")
-        if(select.value == "1") {
+        if(select.value == "2") {
             inpDir.prop("disabled", true)
             .val("Oficina principal interrapidisimo")
         } else {
