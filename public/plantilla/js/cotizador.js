@@ -1583,19 +1583,29 @@ function verificarSelectorEntregaOficina(e) {
     const select = e.target;
     const tipo_distribucion = ciudadD.dataset.tipo_distribucion;
 
-    if(codTransp !== "SERVIENTREGA") return;
-
-    if(tipo_distribucion === "ENTREGA EN OFICINA" && select.value == "1") {
-        swal.fire({
-            icon: "warning",
-            text: "Es probable que la ciudad a la que deseas realizar tu envío solo cuente con "+tipo_distribucion+"."
-        });
-    } else if (tipo_distribucion === "ENTREGA A DOMICILIO" && select.value == "2") {
-        swal.fire({
-            icon: "warning",
-            text: "Es probable que la ciudad a la que deseas realizar tu envío solo cuente con "+tipo_distribucion+"."
-        });
+    if(codTransp === "SERVIENTREGA") {
+        if(tipo_distribucion === "ENTREGA EN OFICINA" && select.value == "1") {
+            swal.fire({
+                icon: "warning",
+                text: "Es probable que la ciudad a la que deseas realizar tu envío solo cuente con "+tipo_distribucion+"."
+            });
+        } else if (tipo_distribucion === "ENTREGA A DOMICILIO" && select.value == "2") {
+            swal.fire({
+                icon: "warning",
+                text: "Es probable que la ciudad a la que deseas realizar tu envío solo cuente con "+tipo_distribucion+"."
+            });
+        }
+        
+    } else if(codTransp === "INTERRAPIDISIMO") {
+        const inpDir = $("#direccionD")
+        if(select.value == "1") {
+            inpDir.prop("disabled", true)
+            .val("Oficina principal interrapidisimo")
+        } else {
+            inpDir.prop("disabled", false).val("");
+        }
     }
+
     
 }
 
