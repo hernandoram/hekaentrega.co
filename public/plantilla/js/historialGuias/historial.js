@@ -1,9 +1,11 @@
-import {title, table as htmlTable, filters, filter} from "./views.js";
+import {title, table as htmlTable, filtersHtml, filterHtml} from "./views.js";
+import { filters, defFiltrado } from "./config.js";
 
+const {novedad, proceso, pedido, pagada, finalizada, generada} = defFiltrado;
 
 const container = $("#historial_guias");
 
-container.append(filters);
+container.append(filtersHtml);
 container.append(htmlTable);
 
 const table = $("#tabla-historial-guias").DataTable({
@@ -13,6 +15,7 @@ const table = $("#tabla-historial-guias").DataTable({
     order: [[1, "desc"]],
     columns: [
         {data: null, title: "Acción", render: accionesDeFila},
+        {data: null, title: "Empaque", render: accionEmpaque},
         {data: "id_heka", title: "Id", defaultContent: ""},
         {data: "numeroGuia", title: "Guía transportadora", defaultContent: ""},
         {data: "estado", title: "Estado", defaultContent: ""},
@@ -72,7 +75,7 @@ export default class SetHistorial {
     constructor() {
         this.guias = [];
         this.filtradas = [];
-        this.filtrador = "pedido";
+        this.filtrador = pedido;
         this.renderTable = true;
     }
 
@@ -107,21 +110,24 @@ export default class SetHistorial {
     }
 
     delete(id_heka) {
-        const index = this.guias.indexOf(g => g.id_heka === id_heka);
+        const index = this.guias.findIndex(g => g.id_heka === id_heka);
 
-        if(index !== -1) this.guias.splice(index,1);
+        if(index !== -1) {
+            this.guias.splice(index,1);
+            this.renderTable = true;
+        };
     }
 
     //Según el tipo de filtrado muestra los botones necesarios
     defineButtons(filt) {
         table.buttons().remove();
 
-        if(filt === "pedido") {
+        if(filt === pedido) {
             table.button().add(0, {
                 action: aceptarPedido,
                 text: "Acceptar pedido"
             });
-        } else if (filt === "generada"){
+        } else if (filt === generada){
             table.button().add(0, {
                 action: descargarGuiasParticulares,
                 text: "Descargar Pdf"
@@ -130,10 +136,18 @@ export default class SetHistorial {
                 action: crearDocumentos,
                 text: "Empacar"
             });
-        } else {
+        } else if (filt === proceso || filt === finalizada){
             table.button().add(0, {
                 action: descargarGuiasParticulares,
                 text: "Descargar Pdf"
+            });
+            table.button().add(1, {
+                extend: "excel",
+                text: "Descargar excel",
+                filename: "Historial Guías",
+                exportOptions: {
+                  columns: [1,2,3,4,5,6,7,9,10,11,12,13]
+                }
             });
         }
     }
@@ -143,10 +157,10 @@ export default class SetHistorial {
         
         let columnas;
         switch(this.filtrador) {
-            case "pedido":
+            case pedido:
                 columnas = [0,1,4,5,6,7,8,9,10,11,12];
                 break;
-            case "generada": 
+            case generada: 
                 columnas = [0,1,2,4,5,6,7,8,9,10,11,12];
             break;
             default:
@@ -154,7 +168,7 @@ export default class SetHistorial {
                 break
         }
 
-        setTimeout(() => {
+        const renderizar = () => {
             table.columns().every(nCol => {
                 const col = table.column(nCol);
                 
@@ -165,7 +179,16 @@ export default class SetHistorial {
                     col.visible(ver);
                 }
             });
-        }, 500)
+        }
+
+        try {
+            renderizar();
+        } catch {
+            setTimeout(() => {
+               renderizar(); 
+            }, 500)
+            
+        } 
     
     }
 
@@ -207,31 +230,9 @@ export default class SetHistorial {
 
     includeFilters() {
         const container = $("#filtros-historial-guias");
-        const filters = [
-            {
-                name: "Pedidos",
-                dataFilter: "pedido"
-            },
-            {
-                name: "Listado",
-                dataFilter: "generada"
-            },
-            {
-                name: "En Proceso",
-                dataFilter: "en proceso"
-            },
-            {
-                name: "Finalizadas",
-                dataFilter: "finalizada"
-            },
-            {
-                name: "otro",
-                dataFilter: "nuevo"
-            }
-        ];
     
         filters.forEach((filt, i) => {
-            container.append(filter(filt, i, filters.length));
+            container.append(filterHtml(filt, i, filters.length));
         });
     
         const nodeFilters = container.children(".filtro");
@@ -252,9 +253,10 @@ export default class SetHistorial {
         return filters;
     }
 
-    clean() {
+    clean(avoid) {
+        const respaldo = this.guias.filter(g => defineFilter(g) === avoid);
         this.filtradas = [];
-        this.guias = [];
+        this.guias = respaldo;
 
         this.render(true);
     }
@@ -267,16 +269,18 @@ function defineFilter(data) {
 
     let filter;
 
-    if (data.staging) {
-        filter = "pedido";
+    if (data.en_novedad) {
+        filter = novedad;
+    } else if (data.staging) {
+        filter = pedido;
     } else if(!data.debe && data.type !== "CONVENCIONAL") {
-        filter = "pagada"
+        filter = pagada
     } else if (data.seguimiento_finalizado) {
-        filter = "finalizada";
+        filter = finalizada;
     } else if(!data.estado) {
-        filter = "generada";
+        filter = generada;
     } else {
-        filter = "en proceso";
+        filter = proceso;
     }
 
     return filter;
@@ -373,8 +377,9 @@ async function aceptarPedido(e, dt, node, config) {
         let icon, color;
         if(!respuesta.error) {
             icon = "clipboard-check";
-            color = "text-success"
-            row.classList.remove("selected", "bg-gray-300")
+            color = "text-success";
+            row.classList.remove("selected", "bg-gray-300");
+            await descontarSaldo(guia);
         } else {
             icon = "exclamation-circle";
             color = "text-danger";
@@ -393,6 +398,84 @@ async function aceptarPedido(e, dt, node, config) {
         icon: "success",
         title: "¡Proceso terminado!"
     })
+}
+
+async function descontarSaldo(datos) {
+    const datos_heka = datos_personalizados || await db.collection("usuarios").doc(localStorage.user_id)
+    .get().then(doc => doc.data().datos_personalizados);
+
+    //Estas líneas será utilizadas para cuando todos los nuevos usuarios por defecto
+    //no tengan habilitadas las transportadoras, para que administración se las tenga que habilitar
+    // if(!datos_heka) {
+    //     return {
+    //         mensaje: "Lo sentimos, no pudimos carga su información de pago, por favor intente nuevamente.",
+    //         mensajeCorto: "No se pudo cargar su información de pago",
+    //         icon: "error",
+    //         title: "Sin procesar"
+    //     }
+    // }
+
+    // FIN DEL BLOQUE
+
+    const id = datos.id_heka;
+    console.log(datos.debe);
+    if(!datos.debe && !datos_personalizados.actv_credit &&
+        datos.costo_envio > datos_personalizados.saldo) {
+        return {
+            mensaje: `Lo sentimos, en este momento, el costo de envío excede el saldo
+            que tienes actualmente, por lo tanto este metodo de envío no estará 
+            permitido hasta que recargues tu saldo. Puedes comunicarte con la asesoría logística para conocer los pasos
+            a seguir para recargar tu saldo.`,
+            mensajeCorto: "El costo de envío excede el saldo que tienes actualmente",
+            icon: "error",
+            title: "¡No permitido!"
+        }
+    };
+
+    let user_debe;
+    datos_personalizados.saldo <= 0 ? user_debe = datos.costo_envio
+    : user_debe = - datos_personalizados.saldo + datos.costo_envio;
+
+    if(user_debe > 0 && !datos.debe) datos.user_debe = user_debe;
+
+
+
+    if(!datos_heka) return id;
+
+    let momento = new Date().getTime();
+    let saldo = datos_heka.saldo;
+    let saldo_detallado = {
+        saldo: saldo,
+        saldo_anterior: saldo,
+        limit_credit: datos_heka.limit_credit || 0,
+        actv_credit: datos_heka.actv_credit || false,
+        fecha: genFecha(),
+        diferencia: 0,
+        mensaje: "Guía " + id + " creada exitósamente",
+        momento: momento,
+        user_id: localStorage.user_id,
+        guia: id,
+        medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id
+    };
+
+    //***si se descuenta del saldo***
+    if(!datos.debe){
+        saldo_detallado.saldo = saldo - datos.costo_envio;
+        saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
+        
+        let factor_diferencial = parseInt(datos_heka.limit_credit) + parseInt(saldo);
+        console.log(saldo_detallado);
+        
+        /* creo un factor diferencial que sume el limite de credito del usuario
+        (si posee alguno) más el saldo actual para asegurarme que 
+        este por encima de cero y por debajo del costo de envío, 
+        en caso de que no se cumpla, se envía una notificación a administración del exceso de gastos*/
+        if(factor_diferencial <= datos.costo_envio && factor_diferencial > 0) {
+            notificarExcesoDeGasto();
+        }
+        await actualizarSaldo(saldo_detallado);
+    }
+    return id;
 }
 
 function accionesDeFila(datos, type, row) {
@@ -473,8 +556,12 @@ function accionesDeFila(datos, type, row) {
             buttons += btnDownloadDocs + btnRotulo;
         }
 
+        if(filtrado === pedido) {
+            buttons += btnClone;
+        }
+
         if(!datos.estado)
-        buttons += btnClone + btnDelete;
+        buttons += btnDelete;
         
 
         // buttons += "<a href='javascript:void(0)' class='action text-trucate'>Ver más</a>"
@@ -482,5 +569,25 @@ function accionesDeFila(datos, type, row) {
         buttons += "</div>";
         return buttons
     }
+    return datos;
+}
+
+function accionEmpaque(datos, type, row) {
+    if(type === "display" || type === "filter") {
+        const filtrado = defineFilter(row);
+        const {empacada, id_heka} = row;
+        if (filtrado !== generada) return "";
+
+        const res = `
+        <div class="custom-control custom-switch action">
+            <input type="checkbox" class="custom-control-input" id="empacar-${id_heka}" ${empacada ? "checked" : ""}
+            data-id="${id_heka}"
+            data-funcion="activar-desactivar">
+            <label class="custom-control-label" for="empacar-${id_heka}">${empacada ? "Empacada" : "No empacada"}</label>
+        </div>
+        `;
+
+        return res;
+    } 
     return datos;
 }

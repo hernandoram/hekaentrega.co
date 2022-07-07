@@ -537,6 +537,8 @@ function activarBotonesDeGuias(id, data, activate_once){
         $("#crear_sticker" + id).click(crearStickerParticular);
 
         $("#editar_guia" + id).click(editarGuiaCreada);
+
+        $("#empacar-" + id).on("change", empacarGuia);
       }
 
 }
@@ -655,6 +657,12 @@ function editarGuiaCreada() {
     m.modal();
 
     
+}
+
+function empacarGuia() {
+    const id_heka = this.getAttribute("data-id");
+    const empacada = this.checked;
+    usuarioDoc.collection("guias").doc(id_heka).update({empacada});
 }
 
 

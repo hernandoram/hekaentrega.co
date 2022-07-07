@@ -2139,7 +2139,12 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
             message: "¡Guía con id: " +datos.id_heka+ " creada con éxito!"
         }
     } else {
-        throw new Error(respuesta.message);
+        return {
+            error: true,
+            icon: "error",
+            title: "¡Error con guía!",
+            message: respuesta.message
+        }
     }
 }
 
@@ -2152,41 +2157,6 @@ async function enviar_firestore(datos){
     let id_heka = datos_usuario.numero_documento.slice(-4);
     id_heka = id_heka.replace(/^0/, 1);
     let firestore = firebase.firestore();
-    const datos_heka = datos_personalizados || await firestore.collection("usuarios").doc(localStorage.user_id)
-    .get().then(doc => doc.data().datos_personalizados);
-
-    //Estas líneas será utilizadas para cuando todos los nuevos usuarios por defecto
-    //no tengan habilitadas las transportadoras, para que administración se las tenga que habilitar
-    // if(!datos_heka) {
-    //     return {
-    //         mensaje: "Lo sentimos, no pudimos carga su información de pago, por favor intente nuevamente.",
-    //         mensajeCorto: "No se pudo cargar su información de pago",
-    //         icon: "error",
-    //         title: "Sin procesar"
-    //     }
-    // }
-
-    // FIN DEL BLOQUE
-
-    console.log(datos.debe);
-    if(!datos.debe && !datos_personalizados.actv_credit &&
-        datos.costo_envio > datos_personalizados.saldo) {
-        return {
-            mensaje: `Lo sentimos, en este momento, el costo de envío excede el saldo
-            que tienes actualmente, por lo tanto este metodo de envío no estará 
-            permitido hasta que recargues tu saldo. Puedes comunicarte con la asesoría logística para conocer los pasos
-            a seguir para recargar tu saldo.`,
-            mensajeCorto: "El costo de envío excede el saldo que tienes actualmente",
-            icon: "error",
-            title: "¡No permitido!"
-        }
-    };
-
-    let user_debe;
-    datos_personalizados.saldo <= 0 ? user_debe = datos.costo_envio
-    : user_debe = - datos_personalizados.saldo + datos.costo_envio;
-
-    if(user_debe > 0 && !datos.debe) datos.user_debe = user_debe;
 
     datos.seguimiento_finalizado = false;
     datos.fecha = genFecha();
@@ -2226,44 +2196,6 @@ async function enviar_firestore(datos){
 
             return id;
         }
-    })
-    .then(async (id) => {
-        if(!datos_heka) return id;
-
-        let momento = new Date().getTime();
-        let saldo = datos_heka.saldo;
-        let saldo_detallado = {
-            saldo: saldo,
-            saldo_anterior: saldo,
-            limit_credit: datos_heka.limit_credit || 0,
-            actv_credit: datos_heka.actv_credit || false,
-            fecha: genFecha(),
-            diferencia: 0,
-            mensaje: "Guía " + id + " creada exitósamente",
-            momento: momento,
-            user_id: localStorage.user_id,
-            guia: id,
-            medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id
-        };
-
-        //***si se descuenta del saldo***
-        if(!datos.debe){
-            saldo_detallado.saldo = saldo - datos.costo_envio;
-            saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
-            
-            let factor_diferencial = parseInt(datos_heka.limit_credit) + parseInt(saldo);
-            console.log(saldo_detallado);
-            
-            /* creo un factor diferencial que sume el limite de credito del usuario
-            (si posee alguno) más el saldo actual para asegurarme que 
-            este por encima de cero y por debajo del costo de envío, 
-            en caso de que no se cumpla, se envía una notificación a administración del exceso de gastos*/
-            if(factor_diferencial <= datos.costo_envio && factor_diferencial > 0) {
-                notificarExcesoDeGasto();
-            }
-            await actualizarSaldo(saldo_detallado);
-        }
-        return id;
     })
     .then((id) => {
         return {

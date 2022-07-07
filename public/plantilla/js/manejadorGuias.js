@@ -509,8 +509,15 @@ function descargarGuiasParticulares(e, dt, node, config) {
 //función utilizada por el usuario para crear lo documentos
 function crearDocumentos(e, dt, node, config) {
     const api = dt;
-    const selectedRows = api.rows(".selected");
-    const datas = selectedRows.data();
+    // Para cuando se use el selector
+    // const selectedRows = api.rows(".selected");
+    // const datas = selectedRows.data();
+
+    // Para utilizar el método de empaque
+    const selectedRows = api.rows();
+    const datas = selectedRows.data().filter(d => d.empacada);
+
+
     const nodos = selectedRows.nodes();
     node.prop("disabled", true);
     
@@ -525,8 +532,8 @@ function crearDocumentos(e, dt, node, config) {
         })
     }
 
-    nodos.each((nodo, i) => {
-        const data = datas[i];
+    datas.each((data, i) => {
+        // const data = datas[i];
 
         const {
             numeroGuia, id_heka, id_archivoCargar, prueba,
@@ -538,7 +545,7 @@ function crearDocumentos(e, dt, node, config) {
             type, transportadora, has_sticker, telefonoD, id_oficina
         });
 
-        $(nodo).removeClass("selected bg-gray-300");
+        // $(nodo).removeClass("selected bg-gray-300");
     });
 
     
@@ -557,7 +564,6 @@ function crearDocumentos(e, dt, node, config) {
     }
 
     console.log(arrGuias);
-
 
     // Add a new document with a generated id.
     swal.fire({

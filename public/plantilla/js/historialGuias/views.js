@@ -11,9 +11,9 @@ const table = `
 
 const title = "<h3>Nuevo historial de guías</h3>";
 
-const filters = '<div id="filtros-historial-guias" class="d-flex overflow-auto my-3 px-3"></div>';
+const filtersHtml = '<div id="filtros-historial-guias" class="d-flex overflow-auto my-3 px-3"></div>';
 
-const filter = (opts, i, length) => `
+const filterHtml = (opts, i, length) => `
     <div style="min-width: 180px" 
     data-filter="${opts.dataFilter}"
     class="filtro d-flex justify-content-between align-items-center p-2 position-relative ${i ? "m-12" : ""}">
@@ -24,4 +24,4 @@ const filter = (opts, i, length) => `
     </div>
 `;
 
-export {table, title, filters, filter}
+export {table, title, filtersHtml, filterHtml}

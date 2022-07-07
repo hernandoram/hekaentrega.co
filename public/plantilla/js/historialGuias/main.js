@@ -1,7 +1,8 @@
-import { firestore as db } from "../config/firebase.js";
+// import { firestore as db } from "../config/firebase.js";
 import SetHistorial from "./historial.js";
-import {title, table as htmlTable, filters, filter} from "./views.js";
+import { defFiltrado } from "./config.js";
 
+const db = firebase.firestore();
 
 const btnActvSearch = $("#btn_actv_search-guias_hist");
 const btnSearch = $("#btn_buscar-guias_hist");
@@ -24,10 +25,10 @@ globalThis.h = historial;
 let historialConsultado;
 
 consultarHistorialGuias();
-async function consultarHistorialGuias() {    
+async function consultarHistorialGuias() {
     const fecha_inicio = Date.parse(inpFechaInicio.val().replace(/\-/g, "/"));
     const fecha_final = Date.parse(inpFechaFinal.val().replace(/\-/g, "/")) + 8.64e7;
-    historial.clean();
+    historial.clean(defFiltrado.novedad);
 
     if(historialConsultado) historialConsultado();
 
@@ -46,18 +47,40 @@ async function consultarHistorialGuias() {
         
         snapshot.docChanges().forEach(change => {
             const data = change.doc.data();
+
             const id = data.id_heka;
               data.row_id = "historial-guias-row" + id;
 
             if(change.type === "added" || change.type === "modified") {
-                historial.add(data);
+                data.deleted ? historial.delete(id) : historial.add(data);
             }
         });
-        historial.filter(historial.filtrador);
+    console.log(historial.filtrador);
+    historial.filter(historial.filtrador);
         // historial.render();
     });
 
   
+}
+
+cargarNovedades();
+async function cargarNovedades() {
+    const novedades = await guiasRef.where("enNovedad", "==", true)
+    .get().then(querySnapshot => {
+        console.log(querySnapshot.size);
+        querySnapshot.forEach(doc => {
+            const data = doc.data();
+            console.log(data);
+
+            const id = data.id_heka;
+            data.row_id = "historial-guias-row" + id;
+
+            data.deleted ? historial.delete(id) : historial.add(data);
+        })
+    });
+
+    historial.filter(historial.filtrador);
+    
 }
 
 function toggleBuscador() {
