@@ -169,7 +169,7 @@ const actualizarMovimientos = async function(doc) {
         return 0
     });
 
-    if(!respuesta) {
+    if(!respuesta || !respuesta.length) {
         const finalizar_seguimiento = doc.data().prueba ? true : false;
         if(finalizar_seguimiento) {
             await extsFunc.actualizarEstado(doc, {

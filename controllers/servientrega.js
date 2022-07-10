@@ -393,6 +393,7 @@ async function actualizarMovimientos(doc) {
             throw " Esta guía no manifiesta movimientos.";
           }
           let movimientos = data.Mov[0].InformacionMov;
+          console.log("MOVIMIENTOS =>", movimientos)
 
           const guia = doc.data();
           const ultimaNovedadRegistrada = guia.ultima_novedad;
