@@ -1677,7 +1677,7 @@ class CalcularCostoDeEnvio {
         this.seguro = parseInt(valor);
         this.kg = kilos || parseInt(value("Kilos"));
         this.volumen = vol || value("dimension-ancho") * value("dimension-alto") * value("dimension-largo");
-        this.factor_de_conversion = 222 / 10^6;
+        this.factor_de_conversion = 222 / 1e6;
         this.data = extraData || new Object();
         this.precios = extraData ? extraData.precios : datos_personalizados;
         this.comision_transp = this.precios.comision_servi;
