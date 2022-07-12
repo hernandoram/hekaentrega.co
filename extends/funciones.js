@@ -52,9 +52,6 @@ exports.actualizarMovimientos = async (doc, toUpdate) => {
   toUpdate.mostrar_usuario = Boolean(novedad);
   toUpdate.enNovedad = Boolean(novedad);
 
-  if(novedad) doc.ref.update({enNovedad: Boolean(novedad)});
-
-
   return await doc.ref.parent.parent.collection("estadoGuias")
   .doc(doc.id)
   // .get()
@@ -64,9 +61,11 @@ exports.actualizarMovimientos = async (doc, toUpdate) => {
     if(revisarEstadoFinalizado(toUpdate.estadoActual)) {
       agregarEstadistica(doc, toUpdate);
     }
+
     return {
       estado: "Mov.A",
-      guia: doc.id + " / " + doc.data().numeroGuia
+      guia: doc.id + " / " + doc.data().numeroGuia,
+      guardado: toUpdate
     };
 
   }).catch(err => {

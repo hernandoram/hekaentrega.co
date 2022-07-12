@@ -215,17 +215,23 @@ const actualizarMovimientos = async function(doc) {
         movimientos
     };
     
-    
-    updte_estados = await extsFunc.actualizarEstado(doc, {
+    updte_movs = await extsFunc.actualizarMovimientos(doc, estado);
+
+    const actualizaciones = {
         estado: estado.estadoActual,
         ultima_actualizacion: new Date(),
         seguimiento_finalizado: estados_finalizacion.some(v => estado.estadoActual === v)
-            || finalizar_seguimiento
-    });
+        || finalizar_seguimiento
+    };
 
-    updte_movs = await extsFunc.actualizarMovimientos(doc, estado);
+    if (updte_movs.estado === "Mov.A" && updte_movs.guardado) {
+        const {enNovedad} = updte_movs.guardado
+        actualizaciones.enNovedad = enNovedad || false;
+    }
+    
+    updte_estados = await extsFunc.actualizarEstado(doc, actualizaciones);
 
-    return [updte_estados, updte_movs]
+    return [updte_estados, updte_movs];
     
 }
 

@@ -457,6 +457,11 @@ async function actualizarMovimientos(doc) {
             || finalizar_seguimiento
           }
 
+          if (upte_movs.estado === "Mov.A" && upte_movs.guardado) {
+            const {enNovedad} = upte_movs.guardado
+            actualizaciones.enNovedad = enNovedad || false;
+          }
+
           if(fecha_ult_novedad) actualizaciones.fecha_ult_novedad = fecha_ult_novedad;
           if(ultima_novedad) actualizaciones.ultima_novedad = ultima_novedad;
           let upte_estado = await extsFunc.actualizarEstado(doc, actualizaciones);
