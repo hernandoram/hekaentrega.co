@@ -2189,11 +2189,30 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
     
                     consultarGuiaFb(user_id, doc.id, dato, "Posibles Novedades", contador, size);
                 })
-            })
+            });
+
+            actualizarEstadosEnNovedad();
         } else {
             cargadorClass.add("d-none");
         }
     }
+}
+
+function actualizarEstadosEnNovedad() {
+    const lastUpdt = localStorage.last_update_novedad
+    const actual = new Date();
+    const maxTime = 3 * 36e5;
+    if(lastUpdt && new Date(lastUpdt).getTime() - actual.getTime() < maxTime) return;
+
+    console.log("Actualizando novedades");
+
+    fetch("/procesos/actualizarEstados/novedad", {
+        method: "POST",
+        headers: {"Content-Type": "Application/json"},
+        body: JSON.stringify({user_id})
+    });
+
+    localStorage.last_update_novedad = actual;
 }
 
 function revisarGuiaUser(id_heka) {

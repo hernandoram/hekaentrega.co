@@ -90,8 +90,8 @@ async function actualizarMovimientosGuiasAntiguo(d, general) {
             console.log(faltantes);
         }
         
-        console.log("Resultado actualización => ",resultado_guias)
-        let guias_procesadas = resultado_guias;
+        let guias_procesadas = Promise.all(resultado_guias);
+        console.log("Resultado actualización => ", guias_procesadas)
         for(let guia of guias_procesadas) {
             if(guia.length == 1) {
                 consulta.guias_con_errores.push(guia[0].guia);
@@ -346,4 +346,16 @@ async function actualizarMovimientosPorUsuario(user_id, type) {
     return normalizarReporte(historia);
 }
 
-module.exports = {actualizarMovimientos, actualizarMovimientosSemanales, actualizarMovimientosPorUsuario}
+const actualizarMovimientoCtrl = (req, res) => {
+    const {user_id} = req.body;
+    const {type} = req.params;
+
+    try {
+        actualizarMovimientosPorUsuario(user_id, type);
+        res.send("Actualizando");
+    } catch(e) {
+        res.statusCode(400).send("Error al actualizar")
+    }
+}
+
+module.exports = {actualizarMovimientos, actualizarMovimientosSemanales, actualizarMovimientoCtrl}
