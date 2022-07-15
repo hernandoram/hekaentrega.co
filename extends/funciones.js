@@ -1,5 +1,5 @@
 const {agregarEstadistica} = require("./estadisticas");
-const {revisarNovedad, revisarEstadoFinalizado} = require("./manejadorMovimientosGuia");
+const {revisarNovedadAsync, revisarEstadoFinalizado, guiaEnNovedad} = require("./manejadorMovimientosGuia");
 
 exports.segmentarString = (base64, limite = 1000) => {
   if (!base64) return new Array(0);
@@ -46,10 +46,11 @@ exports.actualizarMovimientos = async (doc, toUpdate) => {
   toUpdate.daneOrigen = doc.data().dane_ciudadR || "NA";
   toUpdate.daneDestino = doc.data().dane_ciudadD || "NA";
   toUpdate.id_heka = doc.id;
+  toUpdate.fechaUltimaActualizacion = new Date();
 
-  const novedad = await revisarNovedad(ultimo_mov, doc.data().transportadora);
+  const novedad = guiaEnNovedad(toUpdate.movimientos, doc.data().transportadora);
 
-  toUpdate.mostrar_usuario = Boolean(novedad);
+  toUpdate.mostrar_usuario = novedad && !revisarEstadoFinalizado(toUpdate.estadoActual);
   toUpdate.enNovedad = Boolean(novedad);
 
   return await doc.ref.parent.parent.collection("estadoGuias")

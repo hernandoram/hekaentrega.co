@@ -40,7 +40,7 @@ exports.traducirMovimientoGuia = (transportadora) => {
 }
 
 let listaNovedadesServientrega;
-exports.revisarNovedad = async (mov, transp) => {
+exports.revisarNovedadAsync = async (mov, transp) => {
     if(transp === "INTERRAPIDISIMO") {
         return mov.Motivo;
     } else if (transp === "ENVIA" || transp === "TCC") {
@@ -55,6 +55,57 @@ exports.revisarNovedad = async (mov, transp) => {
 
         return mov.TipoMov === "1";
     }
+}
+
+exports.revisarNovedad = (mov, transp) => {
+    if(transp === "INTERRAPIDISIMO") {
+        return !!mov.Motivo;
+    } else if (transp === "ENVIA" || transp === "TCC") {
+        return !!mov.novedad
+    } else {
+        if(listaNovedadesServientrega) {
+            return listaNovedadesServientrega.SERVIENTREGA.includes(mov.NomConc)
+        }
+
+        return mov.TipoMov === "1";
+    }
+}
+
+exports.guiaEnNovedad = (movimientos, transp) => {
+    movimientos.reverse();
+    const lastMov = movimientos[0];
+    const fechaActual = new Date().getTime();
+    const maxHors = 48 * 3.6e6;
+
+    let enNovedad = false;
+
+    switch(transp) {
+        case "INTERRAPIDISIMO":
+            for (const mov of movimientos) {
+                const tradFecha = this.traducirMovimientoGuia(transp)["fechaMov"];
+                const fechaMov = mov[tradFecha];
+                const [soloFech, soloHr] = fechaMov.split(" ");
+                const soleFechFormat = soloFech.split("/").reverse().join("-");
+
+                const fechaMovMill = new Date(soleFechFormat + " " + soloHr).getTime();
+                const diferencia = fechaActual - fechaMovMill ;
+                const novedadEncontrada = this.revisarNovedad(mov, transp);
+
+                if(novedadEncontrada) {
+                    enNovedad = diferencia <= maxHors;
+                    break;
+                }
+            }
+            break;
+
+        default: 
+            enNovedad = this.revisarNovedad(lastMov, transp);
+            break;
+    }
+
+    movimientos.reverse();
+
+    return enNovedad;
 }
 
 exports.revisarEstadoFinalizado = (estado) => {

@@ -1260,7 +1260,7 @@ function buscarMomentoNovedad(movimientos, transp) {
     return movimiento;
 }
 
-function revisarNovedad(mov, transp) {
+function revisarNovedadAsync(mov, transp) {
     if(transp === "INTERRAPIDISIMO") {
         return mov.Motivo;
     } else {
@@ -1285,7 +1285,7 @@ function gestionarNovedadModal(dataN, dataG) {
 
 
     //Acá estableceré la información general de la guía
-    const ultimoMovConNovedad = revisarNovedad(ultimo_mov, dataN.transportadora) || dataN.enNovedad
+    const ultimoMovConNovedad = revisarNovedadAsync(ultimo_mov, dataN.transportadora) || dataN.enNovedad
     let info_gen = document.createElement("div"),
         info_guia = `
             <div class="col-12 col-sm-6 col-md-4 col-lg mb-3">
@@ -1379,7 +1379,7 @@ function gestionarNovedadModal(dataN, dataG) {
         for(let i = dataN.movimientos.length - 1; i >= 0; i--){
             let mov = dataN.movimientos[i];
             let li = document.createElement("li");
-            let enNovedad = revisarNovedad(mov, dataN.transportadora);
+            let enNovedad = revisarNovedadAsync(mov, dataN.transportadora);
             const btnGuardarComoNovedad = guardarComoNovedad && mov[movTrad.novedad]
             ? `<button class='btn btn-sm ml-2 btn-outline-danger registrar-novedad' data-novedad='${mov[movTrad.novedad]}'>Registrar novedad</button>`
             : ""

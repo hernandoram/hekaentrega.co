@@ -2,7 +2,7 @@ const { Console } = require("console");
 const ciudades = require("../data/ciudades");
 const firebase = require("../keys/firebase");
 const db = firebase.firestore();
-const {revisarTipoEstado, revisarNovedad, traducirMovimientoGuia} = require("./manejadorMovimientosGuia");
+const {revisarTipoEstado, revisarNovedadAsync, traducirMovimientoGuia} = require("./manejadorMovimientosGuia");
 
 // FUNCIONES SOLO PARA USO EN DESARROLLO 
 
@@ -181,7 +181,7 @@ async function definirEstadisticas(data) {
     const movimientos = data.movimientos;
     const ultMov = movimientos[movimientos.length - 1];
     const cantNovedades = await movimientos.reduce(async (a,b)  => {
-        const novedad = await revisarNovedad(b, data.transportadora);
+        const novedad = await revisarNovedadAsync(b, data.transportadora);
         if(novedad) {
             const campoNovedad = traducirMovimientoGuia(data.transportadora).novedad
             posiblesNovedades.push(b[campoNovedad]);

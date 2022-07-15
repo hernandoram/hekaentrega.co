@@ -351,7 +351,11 @@ const actualizarMovimientoCtrl = (req, res) => {
     const {type} = req.params;
 
     try {
-        actualizarMovimientosPorUsuario(user_id, type);
+        actualizarMovimientosPorUsuario(user_id, type)
+        .then(respuesta => {
+            respuesta.mensaje = "Controlado por el usuario";
+            db.collection("reporte").add(respuesta)
+        });
         res.send("Actualizando");
     } catch(e) {
         res.statusCode(400).send("Error al actualizar")

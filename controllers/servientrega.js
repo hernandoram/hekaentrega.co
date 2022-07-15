@@ -12,7 +12,7 @@ const { singleMessage } = require("../controllers/cellVoz");
 const {notificarGuiaOficina} = require("../extends/notificaciones")
 
 const {UsuarioPrueba, Credenciales} = require("../keys/serviCredentials");
-const { revisarNovedad } = require("../extends/manejadorMovimientosGuia");
+const { revisarNovedadAsync } = require("../extends/manejadorMovimientosGuia");
 
 // const storage = firebase.storage();
 
@@ -393,7 +393,6 @@ async function actualizarMovimientos(doc) {
             throw " Esta guía no manifiesta movimientos.";
           }
           let movimientos = data.Mov[0].InformacionMov;
-          console.log("MOVIMIENTOS =>", movimientos)
 
           const guia = doc.data();
           const ultimaNovedadRegistrada = guia.ultima_novedad;
@@ -421,7 +420,7 @@ async function actualizarMovimientos(doc) {
             // Enviar mensaje cuando se detecte cierta novedad y asignar la última novedad encontrada a la guía
             movimientos.reverse();
             for await (const mov of movimientos) {
-              const revision = await revisarNovedad(mov, "SERVIENTREGA");
+              const revision = await revisarNovedadAsync(mov, "SERVIENTREGA");
               if(revision) {
                 ultima_novedad = mov.NomConc;
                 fecha_ult_novedad = mov.FecMov;
