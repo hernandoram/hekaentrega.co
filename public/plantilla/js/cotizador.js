@@ -843,7 +843,8 @@ async function detallesOficinas(destino) {
                 }
             }
             
-            if(data.visible !== false)
+            if(!data.visible || data.eliminado || data.bloqueado) return;
+            
             oficinas.push(data)
         });
         return oficinas;

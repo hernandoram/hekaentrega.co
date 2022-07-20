@@ -362,4 +362,13 @@ const actualizarMovimientoCtrl = (req, res) => {
     }
 }
 
-module.exports = {actualizarMovimientos, actualizarMovimientosSemanales, actualizarMovimientoCtrl}
+const ocultarOficinas = () => {
+    db.collection("oficinas").get()
+    .then(querySnapshot => {
+        querySnapshot.forEach(doc => {
+            doc.ref.update({visible: false});
+        });
+    })
+}
+
+module.exports = {actualizarMovimientos, actualizarMovimientosSemanales, actualizarMovimientoCtrl, ocultarOficinas}
