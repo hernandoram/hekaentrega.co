@@ -163,6 +163,7 @@ async function actualizarMovimientosGuias(querySnapshot) {
         let resultado_guias = new Array();
         
         //Itero entre todos los registros de guías encontrados
+        console.log("ejecutando procesos");
         for (let doc of querySnapshot.docs) {
             //Verifico que exista un número de guía
             if (doc.data().numeroGuia) {
@@ -196,11 +197,10 @@ async function actualizarMovimientosGuias(querySnapshot) {
             }
 
             faltantes--;
-            console.log(faltantes);
         }
         
-        console.log("Resultado actualización => ",resultado_guias)
         let guias_procesadas = await Promise.all(resultado_guias);
+        console.log("Finalizó la ejecución de procesos");
         for(let guia of guias_procesadas) {
             if(guia.length == 1) {
                 consulta.guias_con_errores ++
@@ -248,7 +248,7 @@ async function busquedaPaginada(ref, next, segmento = 0) {
         let analisis = await actualizarMovimientosGuias(q);
 
         let historia = [analisis];
-        if(t) {
+        if(t === maxPagination) {
             const siguiente = q.docs[t - 1];
             const interno = await busquedaPaginada(ref, siguiente, segmento);
             historia = historia.concat(interno);

@@ -1260,10 +1260,16 @@ function descargarExcelInter(JSONData, ReportTitle, type) {
     
     //un arreglo cuyo cada elemento contiene un arreglo: ["titulo de la columna", "la información a inrertar en dicha columna"]
     //Está ordenado, como saldrá en el excel
-    let encabezado = [["NUMERO GUIA", ""], ["ID DESTINATARIO", "_idDestinatario"], ["NOMBRE DESTINATARIO", "nombreD"], ["APELLIDO1 DESTINATARIO", ""], ["APELLIDO2 DESTINATARIO", ""], ["TELEFONO DESTINATARIO", "telefonoD"],	["DIRECCION DESTINATARIO", "direccionD"], ["CODIGO CIUDAD DESTINO", "dane_ciudadD"], ["CIUDAD DESTINO", "_ciudad"], ["DICE CONTENER", "dice_contener"], ["OBSERVACIONES", "id_heka"],	["BOLSA DE SEGURIDAD", ""], ["PESO", "peso"], ["VALOR COMERCIAL", "valor"], ["NO PEDIDO", ""], ["DIRECCION AGENCIA DESTINO", ""]]
+    let encabezado = [["NUMERO GUIA", ""], ["ID DESTINATARIO", "_idDestinatario"], ["NOMBRE DESTINATARIO", "_nombreD"], ["APELLIDO1 DESTINATARIO", "_apellidoD"], ["APELLIDO2 DESTINATARIO", ""], ["TELEFONO DESTINATARIO", "telefonoD"],	["DIRECCION DESTINATARIO", "direccionD"], ["CODIGO CIUDAD DESTINO", "dane_ciudadD"], ["CIUDAD DESTINO", "_ciudad"], ["DICE CONTENER", "dice_contener"], ["OBSERVACIONES", "id_heka"],	["BOLSA DE SEGURIDAD", ""], ["PESO", "peso"], ["VALOR COMERCIAL", "valor"], ["NO PEDIDO", ""], ["DIRECCION AGENCIA DESTINO", ""]]
 
     let newDoc = arrData.map((dat, i) => {
         let d = new Object();
+        const nombre_completo = dat.nombreD.trim().split(" ").filter(t => t);
+        const lNombres = nombre_completo.length;
+        const divider = Math.floor(lNombres / 2);
+        const nombresD = lNombres > 1 ? nombre_completo.slice(0, divider).join(" ") : dat.nombreD.trim()
+        let apellidosD = lNombres > 1 ? nombre_completo.slice(divider).join(" ") : nombresD;
+
         encabezado.forEach(([headExcel, fromData]) => {
             if(fromData === "_idDestinatario") {
                 fromData = i + 1;
@@ -1271,6 +1277,14 @@ function descargarExcelInter(JSONData, ReportTitle, type) {
 
             if(fromData === "_ciudad") {
                 fromData = dat.ciudadD + "/" + dat.departamentoD;
+            }
+
+            if(fromData === "_nombreD") {
+                fromData = nombresD;
+            }
+            
+            if(fromData === "_apellidoD") {
+                fromData = apellidosD;
             }
 
             if(dat.type === "CONVENCIONAL" && fromData === "valor") {
@@ -1284,7 +1298,6 @@ function descargarExcelInter(JSONData, ReportTitle, type) {
     });
 
     crearExcel(newDoc, ReportTitle);
-    return;
 
 };
 
@@ -2779,13 +2792,22 @@ async function generarRotulo(id_guias) {
 
         let src_logo_transp = "img/logoServi.png";
 
-        if(data.transportadora === "INTERRAPIDISIMO") {
+        if(data.oficina) {
+            src_logo_transp = "img/flexii.jpeg";
+        } else if(data.transportadora === "INTERRAPIDISIMO") {
             src_logo_transp = "img/logo-inter.png";
         } else if (data.transportadora === "ENVIA") {
             src_logo_transp = "img/2001.png";
         } else if (data.transportadora === "TCC") {
             src_logo_transp = "img/logo-tcc.png";
         }
+
+        const celularD = data.celularD != data.telefonoD ? data.celularD +" - "+ data.telefonoD : data.telefonoD;
+
+        const nombres = data.oficina ? data.datos_oficina.nombre_completo : data.nombreD;
+        const direccion = data.oficina ? data.datos_oficina.direccion : data.direccionD;
+        const ciudad = data.oficina ? data.datos_oficina.ciudad : `${data.ciudadD}(${data.departamentoD})`;
+        const celular = data.oficina ? data.datos_oficina.celular : celularD;
 
         let imgs = `<td><div class="align-items-center d-flex flex-column">
             <img src="img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg" width="100px">
@@ -2801,12 +2823,12 @@ async function generarRotulo(id_guias) {
         </td>`;
 
         let infoDest = `<td>
-        <h2>Datos Del Destinatario</h2>
-        <h5 class="text-dark">Nñumero de Guía: <strong>${data.numeroGuia}</strong></h5>
-        <h5 class="text-dark">Nombre: <strong>${data.nombreD}</strong></h5>
-        <h5 class="text-dark">Dirección: <strong>${data.direccionD}</strong></h5>
-        <h5 class="text-dark">Ciudad:  <strong>${data.ciudadD}(${data.departamentoD})</strong>  </h5>
-        <h5 class="text-dark">Celular:  <strong>${data.celularD != data.telefonoD ? data.celularD +" - "+ data.telefonoD : data.telefonoD}</strong></h5>          
+            <h2>Datos Del Destinatario</h2>
+            <h5 class="text-dark">Número de Guía: <strong>${data.numeroGuia}</strong></h5>
+            <h5 class="text-dark">Nombre: <strong>${nombres}</strong></h5>
+            <h5 class="text-dark">Dirección: <strong>${direccion}</strong></h5>
+            <h5 class="text-dark">Ciudad:  <strong>${ciudad}</strong>  </h5>
+            <h5 class="text-dark">Celular:  <strong>${celular}</strong></h5>
         </td>`;
 
 

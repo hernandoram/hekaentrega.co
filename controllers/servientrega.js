@@ -375,7 +375,6 @@ async function actualizarMovimientos(doc) {
     json: true
   })
   .then(async (body) => {
-    console.log("inicio =>", new Date().getTime())
     // console.log(body)
     //Aquí comienza el proceso interno de actualización
     let respuesta = await new Promise((resolve, reject) => {
@@ -395,6 +394,8 @@ async function actualizarMovimientos(doc) {
           let movimientos = data.Mov[0].InformacionMov;
 
           const guia = doc.data();
+          console.log(guia.numeroGuia);
+          console.log("Timeline => ", guia.timeline);
           const ultimaNovedadRegistrada = guia.ultima_novedad;
           let upte_movs, ultima_novedad, fecha_ult_novedad;
           //Confirmo si hay movimientos para actualizarlos
@@ -478,7 +479,6 @@ async function actualizarMovimientos(doc) {
       });
     });
 
-    console.log("final =>", new Date().getTime())
     return respuesta;
   })
   .catch(err => {
