@@ -192,7 +192,7 @@ const actualizarMovimientos = async function(doc) {
         const movimiento = {
             Ciudad: est.Ciudad,
             "Descripcion Estado": est.DescripcionEstadoGuia,
-            "Fecha Cambio Estado": extsFunc.estandarizarFecha(est.FechaGrabacion, "DD/MM/YYYY HH:mm:ss"),
+            "Fecha Cambio Estado": extsFunc.estandarizarFecha(est.FechaGrabacion, "MM/DD/YYYY HH:mm:ss"),
             "Motivo": estado.Motivo.Descripcion || "",
         }
         
@@ -205,12 +205,12 @@ const actualizarMovimientos = async function(doc) {
 
     const estado = {
         numeroGuia: respuesta[0].Guia.NumeroGuia.toString(), //guia devuelta por la transportadora
-        fechaEnvio: extsFunc.estandarizarFecha(respuesta[0].TrazaGuia["FechaAdmisionGuia"], "DD/MM/YYYY HH:mm:ss"), 
+        fechaEnvio: extsFunc.estandarizarFecha(respuesta[0].TrazaGuia["FechaAdmisionGuia"], "MM/DD/YYYY HH:mm:ss"), 
         ciudadD: doc.data().ciudadD,
         nombreD: doc.data().nombreD,
         direccionD:  respuesta[0].Guia.DireccionDestinatario,
         estadoActual: respuesta[0].TrazaGuia['DescripcionEstadoGuia'],
-        fecha: extsFunc.estandarizarFecha(ultimo_estado["Fecha Cambio Estado"], "DD/MM/YYYY HH:mm:ss"), //fecha del estado
+        fecha: extsFunc.estandarizarFecha(ultimo_estado["Fecha Cambio Estado"], "MM/DD/YYYY HH:mm:ss"), //fecha del estado
         id_heka: doc.id,
         movimientos
     };

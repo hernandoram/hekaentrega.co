@@ -75,7 +75,7 @@ exports.guiaEnNovedad = (movimientos, transp) => {
     movimientos.reverse();
     const lastMov = movimientos[0];
     const fechaActual = new Date().getTime();
-    const maxHors = 48 * 3.6e6;
+    const maxHors = 72 * 3.6e6;
 
     let enNovedad = false;
 
@@ -84,11 +84,12 @@ exports.guiaEnNovedad = (movimientos, transp) => {
             for (const mov of movimientos) {
                 const tradFecha = this.traducirMovimientoGuia(transp)["fechaMov"];
                 const fechaMov = mov[tradFecha];
-                const [soloFech, soloHr] = fechaMov.split(" ");
-                const soleFechFormat = soloFech.split("/").reverse().join("-");
+                // const [soloFech, soloHr] = fechaMov.split(" ");
+                // const soleFechFormat = soloFech.split("/").reverse().join("-");
 
-                const fechaMovMill = new Date(soleFechFormat + " " + soloHr).getTime();
-                const diferencia = fechaActual - fechaMovMill ;
+                // const fechaMovMill = new Date(soleFechFormat + " " + soloHr).getTime();
+                const fechaMovMill = new Date(fechaMov).getTime();
+                const diferencia = fechaActual - fechaMovMill;
                 const novedadEncontrada = this.revisarNovedad(mov, transp);
 
                 if(novedadEncontrada) {

@@ -55,6 +55,7 @@ function revisarModoPrueba() {
 }
 
 let estado_prueba = revisarModoPrueba();
+let listaNovedadesServientrega;
 
 //funcion principal del Script que carga todos los datos del usuario
 async function cargarDatosUsuario(){
@@ -69,15 +70,23 @@ async function cargarDatosUsuario(){
   const buttonMostrarFormDatosBancarios = $("#mostrar-registro-datos-bancarios");
   buttonMostrarFormDatosBancarios.click(activarFormularioCrearDatosBancarios);
 
-  datos_usuario = await consultarDatosDeUsuario();
-
   const showPercentage = $("#porcentaje-cargador-inicial");
-
   //Carga la informacion personal en un objeto y se llena el html de los datos del usuario
   showPercentage.text(percentage());
   
+  datos_usuario = await consultarDatosDeUsuario();
+  
+  
   //SE cargan datos como el centro de costo
   showPercentage.text(percentage());
+  listaNovedadesServientrega = await db.collection("infoHeka").doc("novedadesRegistradas")
+  .get().then(d => {
+    if(d.exists) {
+      return d.data().SERVIENTREGA;
+    }
+
+    return [];
+  })
 
   //Modifica los costos de envio si el usuario tiene costos personalizados
   showPercentage.text(percentage());
@@ -86,6 +95,8 @@ async function cargarDatosUsuario(){
   if(location.hash === ""){
     pagosPendientesParaUsuario();
   }
+
+ 
 
   contentCharger.hide();
   content.show("fast");  

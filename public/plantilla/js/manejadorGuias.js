@@ -2196,26 +2196,43 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
                     return cargadorClass.add("d-none");
                 }
                 $("#visor_novedades").html("");
+                const guias_actualizadas = revisarTiempoGuiasActualizadas();
                 querySnapshot.forEach(doc => {
                     let dato = doc.data();
                     contador++
     
                     consultarGuiaFb(user_id, doc.id, dato, "Posibles Novedades", contador, size);
+                    if(!guias_actualizadas) actualizarEstadoGuia(dato.numeroGuia);
                 })
+                
+                actualizarEstadosEnNovedad();
             });
 
-            actualizarEstadosEnNovedad();
         } else {
             cargadorClass.add("d-none");
         }
     }
 }
 
-function actualizarEstadosEnNovedad() {
+function actualizarEstadoGuia(numeroGuia) {
+    fetch("/procesos/actualizarEstados/numeroGuia", {
+        method: "POST",
+        headers: {"Content-Type": "Application/json"},
+        body: JSON.stringify({user_id, argumento: numeroGuia})
+    });
+}
+
+function revisarTiempoGuiasActualizadas() {
     const lastUpdt = localStorage.last_update_novedad
     const actual = new Date();
+    // const maxTime = 2 * 60000;
     const maxTime = 3 * 36e5;
-    if(lastUpdt && new Date(lastUpdt).getTime() - actual.getTime() < maxTime) return;
+    return lastUpdt && actual.getTime() - new Date(lastUpdt).getTime() < maxTime;
+}
+
+function actualizarEstadosEnNovedad() {
+    const actual = new Date();
+    if(revisarTiempoGuiasActualizadas()) return;
 
     console.log("Actualizando novedades");
 

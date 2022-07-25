@@ -79,6 +79,9 @@ exports.actualizarMovimientos = async (doc, toUpdate) => {
 
 exports.estandarizarFecha = (date, specialFormat, parseHour) => {
   const fecha = new Date(date || new Date().getTime());
+  
+  if(isNaN(fecha.getTime())) return date;
+  
   const norm = n => n < 10 ? "0" + n : n;
   const format = {
     D: fecha.getDate(),

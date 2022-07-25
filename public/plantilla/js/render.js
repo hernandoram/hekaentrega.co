@@ -1244,26 +1244,25 @@ function traducirMovimientoGuia(transportadora) {
 
 function buscarMomentoNovedad(movimientos, transp) {
     const last = movimientos.length - 1;
-    let movimiento = new Object();
     for(let i = last; i >= 0; i--) {
-        if(transp === "INTERRAPIDISIMO") {
-
-        } else {
-            if(movimientos[i].TipoMov === "1") {
-                movimiento = movimientos[i];
-            } else {
-                break;
-            }
+        const mov = movimientos[i];
+        if(revisarNovedad(mov,transp)) {
+            return mov;
         }
     }
-
-    return movimiento;
 }
 
-function revisarNovedadAsync(mov, transp) {
+
+function revisarNovedad(mov, transp) {
     if(transp === "INTERRAPIDISIMO") {
-        return mov.Motivo;
+        return !!mov.Motivo;
+    } else if (transp === "ENVIA" || transp === "TCC") {
+        return !!mov.novedad
     } else {
+        if(listaNovedadesServientrega.length) {
+            return listaNovedadesServientrega.includes(mov.NomConc)
+        }
+
         return mov.TipoMov === "1";
     }
 }
@@ -1285,7 +1284,7 @@ function gestionarNovedadModal(dataN, dataG) {
 
 
     //Acá estableceré la información general de la guía
-    const ultimoMovConNovedad = revisarNovedadAsync(ultimo_mov, dataN.transportadora) || dataN.enNovedad
+    const ultimoMovConNovedad = revisarNovedad(ultimo_mov, dataN.transportadora) || dataN.enNovedad
     let info_gen = document.createElement("div"),
         info_guia = `
             <div class="col-12 col-sm-6 col-md-4 col-lg mb-3">
@@ -1379,7 +1378,7 @@ function gestionarNovedadModal(dataN, dataG) {
         for(let i = dataN.movimientos.length - 1; i >= 0; i--){
             let mov = dataN.movimientos[i];
             let li = document.createElement("li");
-            let enNovedad = revisarNovedadAsync(mov, dataN.transportadora);
+            let enNovedad = revisarNovedad(mov, dataN.transportadora);
             const btnGuardarComoNovedad = guardarComoNovedad && mov[movTrad.novedad]
             ? `<button class='btn btn-sm ml-2 btn-outline-danger registrar-novedad' data-novedad='${mov[movTrad.novedad]}'>Registrar novedad</button>`
             : ""

@@ -310,7 +310,7 @@ async function actualizarMovimientosSemanales() {
     return normalizarReporte(historia);
 }
 
-// actualizarMovimientosPorComparador("centro_de_costo", 'in', ["SellerZonacero", "SellersublimacionesestampadocalzadoyalgomasVRRAMOS", 'SellerNICE', 'SellerSYEMAYORISTASSHOP', 'SellerSuperleyenda', 'SellerCalzadoValerystore', 'SellerNUTRICOLMARKETING', 'SellerSaniSport', 'SellerMultivariedadesColombia'])
+// actualizarMovimientosPorComparador("numeroGuia", 'in', ["240000273766"])
 // .then(resultado => {
 //     console.log(resultado);
 //     process.exit();
@@ -326,7 +326,7 @@ async function actualizarMovimientosPorComparador(comparador, comparando, campo)
     return normalizarReporte(historia);
 }
 
-async function actualizarMovimientosPorUsuario(user_id, type) {
+async function actualizarMovimientosPorUsuario(user_id, type, argumento) {
     const referencePpal = db.collection("usuarios")
     .doc(user_id).collection("guias");
 
@@ -339,6 +339,10 @@ async function actualizarMovimientosPorUsuario(user_id, type) {
         case "seguimiento":
             referencia = referencePpal.where("seguimiento_finalizado", "!=", true);
             break;
+
+        default:
+            referencia = referencePpal.where(type, "==", argumento);
+            break;
     }
 
     const historia = await busquedaPaginada(referencia);
@@ -347,15 +351,15 @@ async function actualizarMovimientosPorUsuario(user_id, type) {
 }
 
 const actualizarMovimientoCtrl = (req, res) => {
-    const {user_id} = req.body;
+    const {user_id, argumento} = req.body;
     const {type} = req.params;
 
     try {
-        actualizarMovimientosPorUsuario(user_id, type)
-        .then(respuesta => {
-            respuesta.mensaje = "Controlado por el usuario";
-            db.collection("reporte").add(respuesta)
-        });
+        actualizarMovimientosPorUsuario(user_id, type, argumento)
+        // .then(respuesta => {
+        //     respuesta.mensaje = "Controlado por el usuario";
+        //     db.collection("reporte").add(respuesta)
+        // });
         res.send("Actualizando");
     } catch(e) {
         res.statusCode(400).send("Error al actualizar")
