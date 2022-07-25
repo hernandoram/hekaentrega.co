@@ -1250,6 +1250,8 @@ function buscarMomentoNovedad(movimientos, transp) {
             return mov;
         }
     }
+
+    return {}
 }
 
 
