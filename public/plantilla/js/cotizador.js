@@ -1362,7 +1362,11 @@ function finalizarCotizacion(datos) {
             <select class="custom-select" id="entrega_en_oficina" name="entrega_en_oficina">
                 <option value="">Seleccione</option>
                 <option value="1">Entrega en dirección</option>
-                <option value="2">Entrega en oficina</option>
+                <option value="2" 
+                    class='${ciudadD.dataset.dane_ciudad == "19780000" && datos.transportadora === "INTERRAPIDISIMO" ? "d-none" : ""}'
+                >
+                    Entrega en oficina
+                </option>
             </select>
         </div>`;
     }
@@ -2056,17 +2060,17 @@ function crearGuia() {
                 mes = "0" + mes;
             }
 
-            datos_a_enviar.nombreR = value("actualizar_nombreR")
-            datos_a_enviar.direccionR = value("actualizar_direccionR")
-            datos_a_enviar.celularR = value("actualizar_celularR")
-            datos_a_enviar.nombreD = value("nombreD");
+            datos_a_enviar.nombreR = value("actualizar_nombreR").trim();
+            datos_a_enviar.direccionR = value("actualizar_direccionR").trim();
+            datos_a_enviar.celularR = value("actualizar_celularR").trim();
+            datos_a_enviar.nombreD = value("nombreD").trim();
             datos_a_enviar.identificacionD = value("identificacionD") || 123;
-            datos_a_enviar.direccionD = value("direccionD") + " " + value("barrioD") + " " + value("observaciones");
+            datos_a_enviar.direccionD = value("direccionD").trim() + " " + value("barrioD").trim() + " " + value("observaciones");
             datos_a_enviar.telefonoD = value("telefonoD");
             datos_a_enviar.celularD = value("celularD") || value("telefonoD");
-            datos_a_enviar.correoD = value("correoD") || "notiene@gmail.com";
+            datos_a_enviar.correoD = value("correoD").trim() || "notiene@gmail.com";
             datos_a_enviar.tipo_doc_dest = value("tipo-doc-dest");
-            datos_a_enviar.dice_contener = value("producto");
+            datos_a_enviar.dice_contener = value("producto").trim();
             datos_a_enviar.observaciones = value("observaciones");
             datos_a_enviar.recoleccion_esporadica = recoleccion;
             datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`;
@@ -2136,6 +2140,22 @@ function crearGuia() {
         boton_final_cotizador.removeAttribute("disabled");
     }
 };
+
+//Un emulador rápido de pruebas para usar desde la consola y ver las respuesta de la misma;
+async function pruebaGeneracionGuias(idGuiaError) {
+    const guia = await db.collection("errores").doc(idGuiaError)
+    .get().then(d => d.data());
+    if(!guia) {
+        console.error("No se encontró alguna guía allí");
+        return;
+    }
+
+    const datos = guia.datos_a_enviar;
+
+    const referencia = db.collection("pruebaDirigidaGuias").doc(datos.id_heka);
+
+    crearGuiaTransportadora(datos, referencia);
+}
 
 async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
     //Primero consulto la respuesta del web service
