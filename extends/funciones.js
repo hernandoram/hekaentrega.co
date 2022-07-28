@@ -171,3 +171,11 @@ exports.transformarDatosDestinatario = data => {
     return datos_destinatario;
   }
 };
+
+exports.notificarEntregaEnOficina = (guia) => {
+  const mensaje = "Tu envío "+guia.transportadora+" con número "+guia.numeroGuia+" se encuentra en la oficina principal de tu ciudad, para que sea reclamado máximo en 6 días hábiles.";
+  console.log(mensaje);
+
+  // return;
+  singleMessage("57"+guia.telefonoD, mensaje);
+}

@@ -185,7 +185,10 @@ const actualizarMovimientos = async function(doc) {
         }]
     }
 
+    const guia = doc.data();
+
     const estados_finalizacion = ["Documento Anulado", "Entrega Exitosa", "Devuelto al Remitente"];
+    let entrega_oficina_notificada = false;
     
     const movimientos = respuesta[0].EstadosGuia.map(estado => {
         const est = estado.EstadoGuia;
@@ -194,6 +197,12 @@ const actualizarMovimientos = async function(doc) {
             "Descripcion Estado": est.DescripcionEstadoGuia,
             "Fecha Cambio Estado": extsFunc.estandarizarFecha(est.FechaGrabacion, "MM/DD/YYYY HH:mm:ss"),
             "Motivo": estado.Motivo.Descripcion || "",
+        }
+
+        console.log(est.DescripcionEstadoGuia);
+        if(est.DescripcionEstadoGuia == "Para Reclamar en Oficina" && !entrega_oficina_notificada) {
+            extsFunc.notificarEntregaEnOficina(guia);
+            entrega_oficina_notificada = true;
         }
         
         return movimiento;
@@ -204,6 +213,7 @@ const actualizarMovimientos = async function(doc) {
 
 
     const estado = {
+        entrega_oficina_notificada,
         numeroGuia: respuesta[0].Guia.NumeroGuia.toString(), //guia devuelta por la transportadora
         fechaEnvio: extsFunc.estandarizarFecha(respuesta[0].TrazaGuia["FechaAdmisionGuia"], "MM/DD/YYYY HH:mm:ss"), 
         ciudadD: doc.data().ciudadD,

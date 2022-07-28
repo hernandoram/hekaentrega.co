@@ -397,12 +397,19 @@ async function actualizarMovimientos(doc) {
           console.log(guia.numeroGuia);
           console.log("Timeline => ", guia.timeline);
           const ultimaNovedadRegistrada = guia.ultima_novedad;
+          
+          let entrega_oficina_notificada = guia.entrega_oficina_notificada;
           let upte_movs, ultima_novedad, fecha_ult_novedad;
           //Confirmo si hay movimientos para actualizarlos
           if (movimientos) {
             for (let movimiento of movimientos) {
               for (let x in movimiento) {
                 movimiento[x] = movimiento[x][0];
+              }
+
+              if(movimiento.NomConc == "EMPRESARIO SATELITE C.O.D. Y/O LPC" && !entrega_oficina_notificada) {
+                extsFunc.notificarEntregaEnOficina(guia);
+                entrega_oficina_notificada = true;
               }
             }
 
@@ -418,20 +425,23 @@ async function actualizarMovimientos(doc) {
               movimientos // movimientos registrados por la transportadora
             };
 
-            // Enviar mensaje cuando se detecte cierta novedad y asignar la última novedad encontrada a la guía
-            movimientos.reverse();
-            for await (const mov of movimientos) {
-              const revision = await revisarNovedadAsync(mov, "SERVIENTREGA");
-              if(revision) {
-                ultima_novedad = mov.NomConc;
-                fecha_ult_novedad = mov.FecMov;
-                if(ultima_novedad !== ultimaNovedadRegistrada) {
-                  notificarNovedadPorMensaje(guia, ultima_novedad);
-                }
-                break;
-              }
-            }
-            movimientos.reverse();
+            
+            //#region Enviar mensaje cuando se detecte cierta novedad y asignar la última novedad encontrada a la guía
+            // movimientos.reverse();
+            // for await (const mov of movimientos) {
+            //   // const revision = await revisarNovedadAsync(mov, "SERVIENTREGA");
+            //   if(false) {
+            //     ultima_novedad = mov.NomConc;
+            //     fecha_ult_novedad = mov.FecMov;
+            //     if(ultima_novedad !== ultimaNovedadRegistrada) {
+            //       notificarNovedadPorMensaje(guia, ultima_novedad);
+            //     }
+            //     break;
+            //   }
+      
+            // }
+            // movimientos.reverse();
+            //#endregion
 
             /*Respuesta ante la actualización de movimientos.
             se actulizan aquellos estados que sean diferentes y que estén registrados en este objeto*/
@@ -464,6 +474,7 @@ async function actualizarMovimientos(doc) {
 
           if(fecha_ult_novedad) actualizaciones.fecha_ult_novedad = fecha_ult_novedad;
           if(ultima_novedad) actualizaciones.ultima_novedad = ultima_novedad;
+          if(entrega_oficina_notificada) actualizaciones.entrega_oficina_notificada = entrega_oficina_notificada;
           let upte_estado = await extsFunc.actualizarEstado(doc, actualizaciones);
 
           resolve([upte_estado, upte_movs]);
@@ -785,4 +796,8 @@ async function generarStickerManifiesto(arrGuias, prueba) {
 
 function notificarNovedadPorMensaje(guia, ultima_novedad) {
   console.log("tengo que enviar un mensaje al usuario " + guia.nombreD + " por " + ultima_novedad);
+}
+
+function notificarEntregaEnOficina(guia) {
+  return "Tu envío SERVIENTREGA con número "+guia.numeroGuia+" se encuentra en la oficina principal de tu ciudad, para que sea reclamado máximo en 6 días hábiles."
 }
