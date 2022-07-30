@@ -413,8 +413,8 @@ async function inspectGuiasPorCrear() {
                 "valorDeclarado": guia.seguro
               }
             ],
-            "dscontenido": guia.dice_contener,
-            "dscom": guia.observaciones,
+            "dscontenido": guia.dice_contener + " - " + guia.id_heka,
+            "dscom": guia.observaciones + " - " + guia.id_heka,
             "idasumecosto": idasumecosto,
             "contraentrega": contraentrega,
             "valorrecaudo": recaudo,

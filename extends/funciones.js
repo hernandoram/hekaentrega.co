@@ -1,4 +1,6 @@
 const {agregarEstadistica} = require("./estadisticas");
+const { singleMessage } = require("../controllers/cellVoz");
+
 const {revisarNovedadAsync, revisarEstadoFinalizado, guiaEnNovedad} = require("./manejadorMovimientosGuia");
 
 exports.segmentarString = (base64, limite = 1000) => {
