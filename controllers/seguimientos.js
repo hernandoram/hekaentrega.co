@@ -178,7 +178,8 @@ async function actualizarMovimientosGuias(querySnapshot) {
                     guia = interrapidisimoCtrl.actualizarMovimientos(doc);
                 } else if(doc.data().transportadora === "ENVIA" || doc.data().transportadora === "TCC") {
                     consulta.aveonline ++;
-                    guia = aveoCtrl.actualizarMovimientos(doc);
+                    continue;
+                    // guia = aveoCtrl.actualizarMovimientos(doc);
                 } else {
                     consulta.servientrega ++
                     // continue
