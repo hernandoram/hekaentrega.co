@@ -1974,21 +1974,25 @@ async function cotizarAveonline(type, params) {
     const url = "/aveo/cotizar";
     const codEnvia = "29";
     const codTcc = "1010";
-    const cotizacion = await fetch(`${url}/${type}`, {
-        method: "POST",
-        headers: {"Content-type": "application/json"},
-        body: JSON.stringify(params)
-    })
-    .then(d => d.json());
-    if(cotizacion.status === "error") return {error: true};
-
-    const envia = cotizacion.cotizaciones.filter(data => data.codTransportadora == codEnvia)[0];
-    const tcc = cotizacion.cotizaciones.filter(data => data.codTransportadora == codTcc)[0];
-
-    return {
-        recaudo: params.valorRecaudo,
-        "ENVIA": envia,
-        "TCC": tcc,
+    try {
+        const cotizacion = await fetch(`${url}/${type}`, {
+            method: "POST",
+            headers: {"Content-type": "application/json"},
+            body: JSON.stringify(params)
+        })
+        .then(d => d.json());
+        if(cotizacion.status === "error") return {error: true};
+    
+        const envia = cotizacion.cotizaciones.filter(data => data.codTransportadora == codEnvia)[0];
+        const tcc = cotizacion.cotizaciones.filter(data => data.codTransportadora == codTcc)[0];
+    
+        return {
+            recaudo: params.valorRecaudo,
+            "ENVIA": envia,
+            "TCC": tcc,
+        }
+    } catch {
+        return {error: true};
     }
 }
 
