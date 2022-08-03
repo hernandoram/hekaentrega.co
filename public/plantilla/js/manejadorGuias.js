@@ -707,7 +707,10 @@ async function actualizarEstadoGuiasDocCreado(arrGuias) {
         .then(() => {
             const link = "https://www.interrapidisimo.com/sigue-tu-envio/";
             const mensaje = "Se ha generado un envío con "+guia.transportadora+" con la guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link
-            fetch("/mensajeria/sendMessage?number=57"+guia.telefonoD+"&message="+mensaje);  
+            if(guia.numeroGuia) {
+                fetch("/mensajeria/sendMessage?number=57"+guia.telefonoD+"&message="+mensaje);  
+            }
+            
             if(guia.id_oficina) {
                 enviarNotificacion({
                     visible_office: true,
