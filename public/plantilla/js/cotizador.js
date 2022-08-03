@@ -1991,7 +1991,8 @@ async function cotizarAveonline(type, params) {
             "ENVIA": envia,
             "TCC": tcc,
         }
-    } catch {
+    } catch (e) {
+        console.log(e);
         return {error: true};
     }
 }
