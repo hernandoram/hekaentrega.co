@@ -938,7 +938,7 @@ async function cargarPreciosTransportadorasOficinas(data) {
     for (let transp in transportadoras) {
         let seguro = data.seguro, recaudo = data.valor;
         
-        if(!cotizacionAveo && (transp === "ENVIA" || transp === "TCC")) {
+        if(false && !cotizacionAveo && (transp === "ENVIA" || transp === "TCC")) {
 
             cotizacionAveo = await cotizarAveonline(typeToAve, {
                 "origen": data.ave_ciudadR,
@@ -990,16 +990,21 @@ async function cargarPreciosTransportadorasOficinas(data) {
             transportadora.cotizacion = new Object();
         transportadora.cotizacion["OFICINA"] = cotizacion;
         
-        observadorTransp.append(`<option value="${transp}">${transp}</option>`);
+        let first = false;
+        if(transp === "INTERRAPIDISIMO") {
+            first = true;
+            observadorTransp.prepend(`<option value="${transp}" selected>${transp}</option>`);
+        } else {
+            observadorTransp.append(`<option value="${transp}">${transp}</option>`);
+        }
         
-        if(!corredor) {
-            for (let i = observadorTransp.length - 1; i >= 0; i--) {
-                const el = observadorTransp[i];
-                cambiarPreciosOficinasPorTransportadora(el, cotizacion, oficinas);
-            }
+        if(first) {
+            const el = observadorTransp[0];
+            cambiarPreciosOficinasPorTransportadora(el, cotizacion, oficinas);
         }
         corredor ++
     } 
+
 
     observadorTransp.on("change", e => {
         const transp = e.target.value;
