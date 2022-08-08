@@ -55,10 +55,10 @@ exports.crearGuia = async (req, res) => {
     console.log(guia);
     
     const data = {
-        "ciudad_origen": "1",
-        "ciudad_destino": "1",
+        "ciudad_origen": guia.dane_ciudadR,
+        "ciudad_destino": guia.dane_ciudadD,
         "cod_formapago": 4,
-        "cod_servicio": guia.peso > 9 ? 3 : 12,
+        "cod_servicio": guia.peso >= 9 ? 3 : 12,
         "info_cubicacion": [{
             "cantidad": 1,
             "largo": guia.largo,
@@ -67,11 +67,11 @@ exports.crearGuia = async (req, res) => {
             "peso": guia.peso,
             "declarado": guia.seguro
         }],
-        "mca_nosabado": 1, //Indica si el sabado el destinatario podrá recibir el pedido
+        "mca_nosabado": 0, //Indica si el sabado el destinatario podrá recibir el pedido
         "mca_docinternacional": 0, //Para exterior
         "cod_regional_cta": 1, 
         "cod_oficina_cta": 1,
-        "cod_cuenta": guia.type === "CONVENCIONAL" ? credentials.cod_cuenta : credentials.cod_cuenta,
+        "cod_cuenta": guia.type === "CONVENCIONAL" ? credentials.cod_cuenta : credentials.cod_cuenta_rec,
         "con_cartaporte": 0,
         "info_origen": {
             "nom_remitente": guia.nombreR,
@@ -90,10 +90,11 @@ exports.crearGuia = async (req, res) => {
             "texto_guia": "",
             "accion_notaguia": "",
             "num_documentos": "12345-67890",
-            "centrocosto": ""
+            "centrocosto": "",
+            valorproducto: guia.type === "CONVENCIONAL" ? 0 : guia.valor
         },
         "numero_guia": "",
-        "generar_os": "N" // Para solicitar recolección S/N => Si/No
+        "generar_os": guia.recoleccion_esporadica ? "S" : "N" // Para solicitar recolección S/N => Si/No
     }
 
     const response = await fetch(credentials.endpoint + "/Generacion", {
