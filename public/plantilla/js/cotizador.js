@@ -2015,21 +2015,24 @@ class CalcularCostoDeEnvio {
     }
 
     async cotizarEnvia(origen, destino) {
-        console.log("Cotizando envía");
+        console.group("Cotizando envía");
+        const data = {
+            "ciudad_origen": origen,
+            "ciudad_destino": destino,
+            "largo": this.largo,
+            "ancho": this.ancho,
+            "alto": this.alto,
+            "peso": this.kg,
+            "declarado": this.seguro,
+            "valorproducto": this.valor // si aplica pago contraentrega, aquí va
+        }
+
+        console.log("enviando: ", data)
+        
         const response = await fetch("envia/cotizar/" + this.type, {
             method: "Post",
             headers: {"Content-Type": "Application/json"},
-            body: JSON.stringify({
-                "ciudad_origen": origen,
-                "ciudad_destino": destino,
-                "largo": this.largo,
-                "ancho": this.ancho,
-                "alto": this.alto,
-                "peso": this.kg,
-                "declarado": this.seguro,
-                "valorproducto": this.valor // si aplica pago contraentrega, aquí va
-                
-            })
+            body: JSON.stringify(data)
         }).then(d => d.json())
         
         console.log(response);
@@ -2042,6 +2045,7 @@ class CalcularCostoDeEnvio {
         this.envia = true;
 
         this.intoEnvia(response);
+        console.groupEnd();
         return true;        
     }
 
