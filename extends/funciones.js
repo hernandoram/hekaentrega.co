@@ -1,5 +1,6 @@
 const {agregarEstadistica} = require("./estadisticas");
 const { singleMessage } = require("../controllers/cellVoz");
+const fetch = require("node-fetch");
 
 const {revisarNovedadAsync, revisarEstadoFinalizado, guiaEnNovedad} = require("./manejadorMovimientosGuia");
 
@@ -180,4 +181,16 @@ exports.notificarEntregaEnOficina = (guia) => {
 
   // return;
   singleMessage("57"+guia.telefonoD, mensaje);
+}
+
+exports.urlToPdfBase64 = async (url) => {
+  const res = await fetch(url).then(r => {
+      return r.arrayBuffer();
+  }).catch(e => console.log(e));
+
+  const buff = Buffer.from(res, "utf8");
+  const base64 = buff.toString("base64");
+
+  // console.log("base64 => ", base64);
+  return base64; 
 }

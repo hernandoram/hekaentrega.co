@@ -13,6 +13,8 @@ let transportadoras = {
         limitesPeso: [3,80],
         limitesLongitud: [1,150],
         limitesRecaudo: [5000, 2000000],
+        bloqueada: false,
+        bloqueadaOfi: false,
         limitesValorDeclarado: (valor) => {
             return [5000,300000000]
         },
@@ -35,6 +37,8 @@ let transportadoras = {
         limitesPeso: [0.1, 80],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
+        bloqueada: false,
+        bloqueadaOfi: false,
         limitesValorDeclarado: (peso) => {
             if(peso <= 2) return [15000, 30000000]
             if(peso <= 5) return [30000, 30000000]
@@ -59,6 +63,8 @@ let transportadoras = {
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
+        bloqueada: true,
+        bloqueadaOfi: true,
         limitesValorDeclarado: (valor) => {
             if(valor <= 2) return [12500, 30000000]
             if(valor <= 5) return [27500, 30000000]
@@ -83,6 +89,8 @@ let transportadoras = {
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
+        bloqueada: false,
+        bloqueadaOfi: true,
         limitesValorDeclarado: (valor) => {
             if(valor <= 2) return [12500, 30000000]
             if(valor <= 5) return [27500, 30000000]
@@ -473,7 +481,10 @@ async function detallesTransportadoras(data) {
     //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
     for (let transp in transportadoras) {
         let seguro = data.seguro, recaudo = data.valor;
-        if(!cotizacionAveo && (transp === "ENVIA" || transp === "TCC")) {
+        let transportadora = transportadoras[transp];
+        if(transportadora.bloqueada && !estado_prueba) continue;
+
+        if(!cotizacionAveo && (transp === "TCC")) {
 
             cotizacionAveo = await cotizarAveonline(typeToAve, {
                 "origen": data.ave_ciudadR,
@@ -493,13 +504,17 @@ async function detallesTransportadoras(data) {
         if(transp === "SERVIENTREGA" || transp === "INTERRAPIDISIMO") {
             seguro = recaudo ? recaudo : seguro;
         }
-
         
-        let transportadora = transportadoras[transp];
         if(data.peso > transportadora.limitesPeso[1]) continue;
         let valor = Math.max(seguro, transportadora.limitesValorDeclarado(data.peso)[0]);
 
-        let cotizacion = await new CalcularCostoDeEnvio(valor, data.type)
+        let cotizador = new CalcularCostoDeEnvio(valor, data.type)
+
+        if(transp === "ENVIA") cotizador.valor = recaudo;
+
+        cotizador.kg_min = transportadora.limitesPeso[0];
+
+        const cotizacion = await cotizador
         .putTransp(transp, {
             dane_ciudadR: data.dane_ciudadR,
             dane_ciudadD: data.dane_ciudadD,
@@ -937,6 +952,10 @@ async function cargarPreciosTransportadorasOficinas(data) {
     //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
     for (let transp in transportadoras) {
         let seguro = data.seguro, recaudo = data.valor;
+        let transportadora = transportadoras[transp];
+
+        if(transportadora.bloqueadaOfi && !estado_prueba) continue;
+        if(data.peso > transportadora.limitesPeso[1]) continue;
         
         if(false && !cotizacionAveo && (transp === "ENVIA" || transp === "TCC")) {
 
@@ -955,13 +974,16 @@ async function cargarPreciosTransportadorasOficinas(data) {
             if(!cotizacionAveo.error) modificarDatosDeTransportadorasAveo(cotizacionAveo);
         }
 
-        let transportadora = transportadoras[transp];
-        if(data.peso > transportadora.limitesPeso[1]) continue;
         let valorSeguro = Math.max(seguro, transportadora.limitesValorDeclarado(data.peso)[0]);
         let valorRecaudo = Math.max(recaudo, transportadora.limitesRecaudo[0]);
 
-        let cotizacion = await new CalcularCostoDeEnvio(valorSeguro, "CONVENCIONAL")
-        .putTransp(transp, {
+        let cotizador = new CalcularCostoDeEnvio(valorSeguro, "CONVENCIONAL")
+        
+        if(transp === "ENVIA") cotizador.valor = recaudo;
+        
+        cotizador.kg_min = transportadora.limitesPeso[0];
+        
+        const cotizacion = await cotizador.putTransp(transp, {
             dane_ciudadR: data.dane_ciudadR,
             dane_ciudadD: data.dane_ciudadD,
             cotizacionAveo
@@ -1696,7 +1718,18 @@ class CalcularCostoDeEnvio {
         this.kg_min = 3;
         this.codTransp = "SERVIENTREGA";
         this.sobreflete_oficina = 0;
+
+        this._alto = 0; this._ancho = 0; this._largo = 0;
     }
+
+    set alto(number) {this._alto = number}
+    get alto() {return this._alto}
+
+    set ancho(number) {this._alto = number}
+    get ancho() {return this._alto}
+
+    set largo(number) {this._alto = number}
+    get largo() {return this._alto}
 
     //Devuelve el paso generado del volumen, debido al factor dec conversión
     get pesoVolumen(){
@@ -1819,6 +1852,7 @@ class CalcularCostoDeEnvio {
         this.sobreflete_heka = this.set_sobreflete_heka || Math.ceil(valor * ( comision_heka ) / 100) + constante_heka;
         if(this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
         if(this.aveo) this.intoAveo(this.precio);
+        if(this.envia) this.intoEnvia(this.precio);
         
 
         if(this.codTransp !== "SERVIENTREGA"  && !this.convencional) this.sobreflete_heka += 1000;
@@ -1889,7 +1923,12 @@ class CalcularCostoDeEnvio {
 
                 break;
 
-            case "ENVIA": case "TCC":
+            case "ENVIA": 
+                const respCotizacionEnvia = await this.cotizarEnvia(dataObj.dane_ciudadR, dataObj.dane_ciudadD);
+                break;
+            break;
+
+            case "TCC":
                 const cotizaciones = dataObj.cotizacionAveo;
                 if(!cotizaciones) {
                     this.empty = true;
@@ -1966,6 +2005,46 @@ class CalcularCostoDeEnvio {
         return mensajeria[0];
     }
 
+    intoEnvia(cotizacion) {
+        if(!cotizacion) cotizacion = this.precio;
+        this.kg = cotizacion.k_cobrados;
+        this.total_flete = cotizacion.valor_flete;
+        this.sobreflete = cotizacion.valor_otros;
+        this.seguroMercancia = cotizacion.valor_costom;
+        this.tiempo = cotizacion.dias_entrega;
+    }
+
+    async cotizarEnvia(origen, destino) {
+        console.log("Cotizando envía");
+        const response = await fetch("envia/cotizar/" + this.type, {
+            method: "Post",
+            headers: {"Content-Type": "Application/json"},
+            body: JSON.stringify({
+                "ciudad_origen": origen,
+                "ciudad_destino": destino,
+                "largo": this.largo,
+                "ancho": this.ancho,
+                "alto": this.alto,
+                "peso": this.kg,
+                "declarado": this.seguro,
+                "valorproducto": this.valor // si aplica pago contraentrega, aquí va
+                
+            })
+        }).then(d => d.json())
+        
+        console.log(response);
+        if(response.respuesta) {
+            this.empty = true;
+            return false;
+        }
+
+        this.precio = response;
+        this.envia = true;
+
+        this.intoEnvia(response);
+        return true;        
+    }
+
     intoAveo(cotizacion) {
         this.kg = cotizacion.kilos;
         this.total_flete = cotizacion.fletetotal;
@@ -1973,6 +2052,20 @@ class CalcularCostoDeEnvio {
         this.seguroMercancia = cotizacion.costoManejo;
         this.tiempo = cotizacion.diasentrega;
     }
+}
+
+function contizarEnviaPrueba() {
+    fetch("envia/cotizar/CONVENCIONAL", {
+        method: "Post"
+    }).then(d => d.json())
+    .then(d => console.log(d))
+}
+
+function crearGuiaEnviaPrueba() {
+    fetch("envia/crearGuia", {
+        method: "Post"
+    }).then(d => d.json())
+    .then(d => console.log(d))
 }
 
 async function cotizarAveonline(type, params) {
@@ -2175,7 +2268,9 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
         generarGuia = generarGuiaServientrega(datos);
     } else if(datos.transportadora === "INTERRAPIDISIMO") {
         generarGuia = generarGuiaInterrapidisimo(datos);
-    } else if(datos.transportadora === "ENVIA" || datos.transportadora === "TCC") {
+    } else if(datos.transportadora === "ENVIA") {
+        generarGuia = generarGuiaEnvia(datos)
+    } else if(datos.transportadora === "TCC") {
         generarGuia = generarGuiaAveonline(datos)
     } else {
         return new Error("Lo sentimos, ésta transportadora no está optimizada para generar guías de manera automática.");
@@ -2590,6 +2685,54 @@ async function guardarStickerGuiaAveo(data) {
 
     const referenciaSegmentar = firebase.firestore().collection("base64StickerGuias")
     .doc(data.id_heka).collection("guiaSegmentada");
+    return await guardarDocumentoSegmentado(base64GuiaSegmentada, referenciaSegmentar);
+    // return await guardarBase64ToStorage(base64Guia, user_id + "/guias/" + data.id_heka + ".pdf")
+};
+
+async function generarGuiaEnvia(datos) {
+    const response = await fetch("/envia/crearGuia", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(datos)
+    }).then(d => d.json());
+
+    if(response.respuesta) {
+        return {
+            numeroGuia: 0,
+            message: response.respuesta
+        }
+    }
+
+    res = {
+        numeroGuia: response.guia,
+        id_heka: datos.id_heka,
+        has_sticker: false,
+    }
+       
+    res.has_sticker = await guardarStickerGuiaEnvia({url: response.urlguia, id_heka: datos.id_heka});
+    return res
+};
+
+/**
+ * Recibe una ruta completa o un numero de guía
+ * @param {string} ruta
+ * @param {string} id_heka
+ * @returns {Promise<boolean>}
+ */
+async function guardarStickerGuiaEnvia({url, numeroGuia, id_heka}) {
+
+    let path = "/envia/obtenerStickerGuia";
+
+    let base64GuiaSegmentada = await fetch(path, {
+        method: "POST",
+        headers: {"Content-Type": "Application/json"},
+        body: JSON.stringify({url,numeroGuia})
+    })
+    .then(data => data.json())
+    .catch(error => console.log("Hubo un error al consultar el base64 de Aveonline => ", error));
+
+    const referenciaSegmentar = firebase.firestore().collection("base64StickerGuias")
+    .doc(id_heka).collection("guiaSegmentada");
     return await guardarDocumentoSegmentado(base64GuiaSegmentada, referenciaSegmentar);
     // return await guardarBase64ToStorage(base64Guia, user_id + "/guias/" + data.id_heka + ".pdf")
 };
