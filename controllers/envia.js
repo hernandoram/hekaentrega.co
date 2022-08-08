@@ -12,10 +12,10 @@ exports.cotizar = async (req, res) => {
         "ciudad_origen": body.ciudad_origen,
         "ciudad_destino": body.ciudad_destino,
         "cod_formapago": 4, // crédito = 4, contraentrega = 7
-        "cod_servicio": body.peso > 9 ? 3 : 12, // 3 (mercacía terrestre) si supera los 9 kilos, 12 (paquete terrestre) si el peso 1-8kg
+        "cod_servicio": body.peso >= 9 ? 3 : 12, // 3 (mercacía terrestre) si supera los 9 kilos, 12 (paquete terrestre) si el peso 1-8kg
         "cod_regional_cta": 1,
         "cod_oficina_cta": 1,
-        "cod_cuenta": type === "CONVENCIONAL" ? credentials.cod_cuenta : credentials.cod_cuenta,
+        "cod_cuenta": type === "CONVENCIONAL" ? credentials.cod_cuenta : credentials.cod_cuenta_rec,
         "info_cubicacion": [
             {
                 "cantidad": 1,
@@ -30,7 +30,7 @@ exports.cotizar = async (req, res) => {
         "con_cartaporte": "0",
         "info_contenido": {
             // "num_documentos": "12345-67890",
-            "valorproducto": body.valorproducto // si aplica pago contraentrega, aquí va
+            "valorproducto": type === "CONVENCIONAL" ? 0 : body.valorproducto // si aplica pago contraentrega, aquí va
         }
     }
 
