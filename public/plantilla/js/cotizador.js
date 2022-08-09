@@ -63,7 +63,7 @@ let transportadoras = {
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
-        bloqueada: true,
+        bloqueada: false,
         bloqueadaOfi: true,
         limitesValorDeclarado: (valor) => {
             return [10000, 30000000]
