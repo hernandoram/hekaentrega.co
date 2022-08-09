@@ -66,9 +66,7 @@ let transportadoras = {
         bloqueada: true,
         bloqueadaOfi: true,
         limitesValorDeclarado: (valor) => {
-            if(valor <= 2) return [12500, 30000000]
-            if(valor <= 5) return [27500, 30000000]
-            return [37500, 30000000]
+            return [10000, 30000000]
         },
         habilitada: () => {
             const sist = datos_personalizados.sistema_envia;

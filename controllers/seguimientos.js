@@ -5,6 +5,7 @@ const cron = require("node-cron");
 const servientregaCtrl = require("./servientrega");
 const interrapidisimoCtrl = require("./inter");
 const aveoCtrl = require("./aveonline");
+const enviaCtrl = require("./envia");
 
 const referenciaGuias = db.collectionGroup("guias");
 const maxPagination = 5e3;
@@ -146,7 +147,8 @@ async function actualizarMovimientosGuias(querySnapshot) {
         total_consulta: querySnapshot.size,
         servientrega: 0,
         interrapidisimo: 0,
-        aveonline: 0
+        aveonline: 0,
+        envia: 0
     }
 
     try { 
@@ -176,7 +178,11 @@ async function actualizarMovimientosGuias(querySnapshot) {
                     consulta.interrapidisimo ++;
                     // continue;
                     guia = interrapidisimoCtrl.actualizarMovimientos(doc);
-                } else if(doc.data().transportadora === "ENVIA" || doc.data().transportadora === "TCC") {
+                } else if (doc.data().transportadora === "ENVIA") {
+                    continue;
+                    consulta.envia++
+                    guia = enviaCtrl.actualizarMovimientos(doc);
+                } else if(doc.data().transportadora === "TCC") {
                     continue;
                     consulta.aveonline ++;
                     // guia = aveoCtrl.actualizarMovimientos(doc);

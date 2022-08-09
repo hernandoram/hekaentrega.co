@@ -125,3 +125,135 @@ exports.obtenerStickerGuia = async (req, res) => {
     const base64Segmented = segmentarString(base64, 500000);
     res.json(base64Segmented);
 }
+
+
+exports.actualizarMovimientos = async (doc) => {
+    const numeroGuia = doc.data().numeroGuia;
+    const numeroGuiaConsult = numeroGuia.length < 12 ? "0"+numeroGuia : numeroGuia;
+    try {
+        const respuesta = await fetch(credentials.consultEndpoint + "ConsultaGuia/" + numeroGuiaConsult)
+        .then(res => {
+            return res.json()
+        })
+        .catch(err => {
+            return {
+                status: "error",
+                message: err.message
+            }
+        });
+        
+        
+        desglozarMovimientos(respuesta);
+        return;
+
+        if(respuesta.status === "Falla") {
+            const finalizar_seguimiento = doc.data().prueba ? true : false;
+            if(finalizar_seguimiento) {
+                await funct.actualizarEstado(doc, {
+                    estado: "Finalizado",
+                    ultima_actualizacion: new Date(),
+                    seguimiento_finalizado: finalizar_seguimiento
+                });
+            }
+    
+            return [{
+                estado: "Error",
+                guia: doc.id + " / " + doc.data().numeroGuia + " " + respuesta.message
+            }]
+        }
+    
+        const estados_finalizacion = ["Documento Anulado", "Entrega Exitosa", "Devuelto al Remitente"];
+        
+        const movimientos = respuesta.historicos;
+        movimientos.sort((a,b) => a.id - b.id);
+        
+        const ultimo_estado = movimientos[movimientos.length - 1];
+        let finalizar_seguimiento = doc.data().prueba ? true : false
+    
+    
+        const estado = {
+            numeroGuia: respuesta.dsconsec, //guia devuelta por la transportadora
+            fechaEnvio: respuesta.dsfecha,
+            ciudadD: respuesta.origen,
+            nombreD: respuesta.destino,
+            direccionD:  respuesta.direccion,
+            estadoActual: respuesta.estado,
+            fecha: ultimo_estado ? ultimo_estado.fechamostrar : respuesta.dsfecha, //fecha del estado
+            id_heka: doc.id,
+            movimientos
+        };
+        
+        
+        updte_movs = {
+            estado: "Mov.N.A",
+            guia: doc.id + " / " + doc.data().numeroGuia + " No contiene movimientos aún."
+        }
+    
+        if(movimientos.length) {
+            updte_movs = await funct.actualizarMovimientos(doc, estado);
+        }
+    
+        let enNovedad = false;
+        if (updte_movs.estado === "Mov.A" && updte_movs.guardado) {
+            enNovedad = updte_movs.guardado.enNovedad || false;
+        }
+    
+        updte_estados = await funct.actualizarEstado(doc, {
+            estado: respuesta.estado,
+            ultima_actualizacion: new Date(),
+            enNovedad,
+            seguimiento_finalizado: estados_finalizacion.some(v => respuesta.estado === v)
+                || finalizar_seguimiento
+        });
+    
+        return [updte_estados, updte_movs]
+    } catch(error) {
+        return [{
+            estado: "Error",
+            guia: doc.id + " / " + doc.data().numeroGuia + " " + error.message
+        }]
+    }
+   
+}
+
+function desglozarMovimientos(respuesta) {
+    // console.log(respuesta);
+    const estadosArmado = {
+        'fec_recoleccion': "Recogida",
+        'fec_despacho': "En despacho",
+        'fec_bodegadestino': "En bodega",
+        'fec_reparto': "En reparto",
+        fecha_entrega: "Entregado"
+    }
+
+
+    const titulos = Object.keys(respuesta)
+    .filter(r => /^fec/.test(r))
+
+    console.log("Fechas => ", titulos);
+
+    const movida = titulos
+    .map(t => {
+        const jsonArmado = {
+            estado: estadosArmado[t],
+            fecha_mov: respuesta[t]
+        };
+
+        if(t === "fecha_entrega") {
+            jsonArmado.fecha_mov = respuesta[t] + " " + respuesta.hora;
+        }
+
+
+        return jsonArmado;
+    })
+    .filter(t => t.estado && t.fecha_mov)
+    .sort((a,b) => {
+        if(!a.fecha_mov) return -1;
+        const i = new Date(a.fecha_mov).getTime()
+        const f = new Date(b.fecha_mov).getTime()
+        
+        return f > i ? -1 : 1;
+    });
+
+    console.log("Simulacro de movimientos", movida);
+}
