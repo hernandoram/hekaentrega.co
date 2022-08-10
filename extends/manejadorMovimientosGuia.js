@@ -12,7 +12,15 @@ exports.revisarTipoEstado = (est, transp) => {
 
 exports.traducirMovimientoGuia = (transportadora) => {
     switch (transportadora) {
-        case "ENVIA": case "TCC":
+        case "ENVIA":
+            return {
+                novedad: "novedad",
+                fechaMov: "fechaMov",
+                observacion: "observacion",
+                descripcionMov: "estado",
+                ubicacion: "ciudad"
+            }
+        case "TCC":
             return {
                 novedad: "aclaracion",
                 fechaMov: "fechamostrar",

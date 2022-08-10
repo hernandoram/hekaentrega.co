@@ -1217,7 +1217,15 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
 function traducirMovimientoGuia(transportadora) {
     let traductor = new Object();
     switch (transportadora) {
-        case "ENVIA": case "TCC":
+        case "ENVIA":
+            return {
+                novedad: "novedad",
+                fechaMov: "fechaMov",
+                observacion: "observacion",
+                descripcionMov: "estado",
+                ubicacion: "ciudad"
+            }
+        case "TCC":
             return {
                 novedad: "aclaracion",
                 fechaMov: "fechamostrar",

@@ -1,6 +1,6 @@
 
 const fetch = require("node-fetch");
-const { urlToPdfBase64, segmentarString } = require("../extends/funciones");
+const { urlToPdfBase64, segmentarString, estandarizarFecha, actualizarMovimientos, actualizarEstado } = require("../extends/funciones");
 const credentials = require("../keys/envia");
 
 exports.cotizar = async (req, res) => {
@@ -142,11 +142,9 @@ exports.actualizarMovimientos = async (doc) => {
             }
         });
         
-        
-        desglozarMovimientos(respuesta);
-        return;
 
         if(respuesta.status === "Falla") {
+
             const finalizar_seguimiento = doc.data().prueba ? true : false;
             if(finalizar_seguimiento) {
                 await funct.actualizarEstado(doc, {
@@ -161,36 +159,36 @@ exports.actualizarMovimientos = async (doc) => {
                 guia: doc.id + " / " + doc.data().numeroGuia + " " + respuesta.message
             }]
         }
-    
+
+        
+        
         const estados_finalizacion = ["Documento Anulado", "Entrega Exitosa", "Devuelto al Remitente"];
         
-        const movimientos = respuesta.historicos;
-        movimientos.sort((a,b) => a.id - b.id);
-        
+        const movimientos = desglozarMovimientos(respuesta);
         const ultimo_estado = movimientos[movimientos.length - 1];
         let finalizar_seguimiento = doc.data().prueba ? true : false
-    
+        console.log(respuesta);
     
         const estado = {
-            numeroGuia: respuesta.dsconsec, //guia devuelta por la transportadora
-            fechaEnvio: respuesta.dsfecha,
-            ciudadD: respuesta.origen,
-            nombreD: respuesta.destino,
-            direccionD:  respuesta.direccion,
+            numeroGuia: respuesta.guia, //guia devuelta por la transportadora
+            fechaEnvio: respuesta.fec_despacho,
+            ciudadD: respuesta.ciudad_destino,
+            nombreD: respuesta.nombre_destinatario,
+            direccionD:  respuesta.direccion_destinatario,
             estadoActual: respuesta.estado,
-            fecha: ultimo_estado ? ultimo_estado.fechamostrar : respuesta.dsfecha, //fecha del estado
+            fecha: ultimo_estado ? ultimo_estado.fechaMov : estandarizarFecha(new Date(), "DD/MM/YYYY HH:mm"), //fecha del estado
             id_heka: doc.id,
             movimientos
-        };
-        
-        
+        };   
+
         updte_movs = {
             estado: "Mov.N.A",
             guia: doc.id + " / " + doc.data().numeroGuia + " No contiene movimientos aún."
         }
+
     
         if(movimientos.length) {
-            updte_movs = await funct.actualizarMovimientos(doc, estado);
+            updte_movs = await actualizarMovimientos(doc, estado);
         }
     
         let enNovedad = false;
@@ -198,7 +196,7 @@ exports.actualizarMovimientos = async (doc) => {
             enNovedad = updte_movs.guardado.enNovedad || false;
         }
     
-        updte_estados = await funct.actualizarEstado(doc, {
+        updte_estados = await actualizarEstado(doc, {
             estado: respuesta.estado,
             ultima_actualizacion: new Date(),
             enNovedad,
@@ -223,37 +221,50 @@ function desglozarMovimientos(respuesta) {
         'fec_despacho': "En despacho",
         'fec_bodegadestino': "En bodega",
         'fec_reparto': "En reparto",
-        fecha_entrega: "Entregado"
+        fecha_entrega: "Entregado",
+        fecha_produccion: "Generada"
     }
 
+    const novedades = respuesta.novedad ? respuesta.novedad : [];
+
+    novedades.map(n =>{
+        n.estado = n.novedad;
+        n.novedad = n.aclaracion;
+        n.observacion = n.comentario;
+        n.fechaMov = n.fec_novedad.split("/").reverse().join("/");
+        return n;
+    });
 
     const titulos = Object.keys(respuesta)
     .filter(r => /^fec/.test(r))
 
     console.log("Fechas => ", titulos);
 
-    const movida = titulos
+    const movimientos = titulos
     .map(t => {
         const jsonArmado = {
             estado: estadosArmado[t],
-            fecha_mov: respuesta[t]
+            fechaMov: respuesta[t],
+            observacion: "",
+            novedad: ""
         };
 
         if(t === "fecha_entrega") {
-            jsonArmado.fecha_mov = respuesta[t] + " " + respuesta.hora;
+            jsonArmado.fechaMov = respuesta[t] + " " + respuesta.hora;
         }
 
 
         return jsonArmado;
     })
-    .filter(t => t.estado && t.fecha_mov)
+    .concat(novedades)
+    .filter(t => t.estado && t.fechaMov)
     .sort((a,b) => {
-        if(!a.fecha_mov) return -1;
-        const i = new Date(a.fecha_mov).getTime()
-        const f = new Date(b.fecha_mov).getTime()
+        if(!a.fechaMov) return -1;
+        const i = new Date(a.fechaMov).getTime()
+        const f = new Date(b.fechaMov).getTime()
         
         return f > i ? -1 : 1;
     });
 
-    console.log("Simulacro de movimientos", movida);
+    return movimientos
 }

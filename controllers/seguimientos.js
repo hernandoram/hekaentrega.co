@@ -179,7 +179,7 @@ async function actualizarMovimientosGuias(querySnapshot) {
                     // continue;
                     guia = interrapidisimoCtrl.actualizarMovimientos(doc);
                 } else if (doc.data().transportadora === "ENVIA") {
-                    continue;
+                    // continue;
                     consulta.envia++
                     guia = enviaCtrl.actualizarMovimientos(doc);
                 } else if(doc.data().transportadora === "TCC") {
