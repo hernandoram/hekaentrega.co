@@ -33,10 +33,10 @@ async function singleMessage(number, message, type = 1) {
         "body": JSON.stringify({number, message, type})
     })
     .catch(e => {
-        db.collection("mensajesPendientes").add({
-            number, message, type,
-            reason: e.error
-        })
+        // db.collection("mensajesPendientes").add({
+        //     number, message, type,
+        //     reason: e.error
+        // })
         return e.error;
     })
 

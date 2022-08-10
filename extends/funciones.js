@@ -180,7 +180,11 @@ exports.notificarEntregaEnOficina = (guia) => {
   console.log(mensaje);
 
   // return;
-  singleMessage("57"+guia.telefonoD, mensaje);
+  try {
+    singleMessage("57"+guia.telefonoD, mensaje);
+  } catch {
+    console.log("Error enviando mensaje");
+  }
 }
 
 exports.urlToPdfBase64 = async (url) => {
