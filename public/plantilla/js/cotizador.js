@@ -87,7 +87,7 @@ let transportadoras = {
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
-        bloqueada: false,
+        bloqueada: true,
         bloqueadaOfi: true,
         limitesValorDeclarado: (valor) => {
             if(valor <= 2) return [12500, 30000000]

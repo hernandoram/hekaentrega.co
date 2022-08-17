@@ -62,7 +62,17 @@
     <body class="loading authentication-bg authentication-bg-pattern">
 
         <div class="account-pages mt-5 mb-5">
-            <div class="container">
+            <div id="cargador" style="top: 0;" 
+            class="h-100 w-100 position-absolute d-flex flex-column justify-content-center align-items-center">
+                <div class="spinner-border" style="border-width: 0.5em;
+                height: 100px;
+                width: 100px;
+                color: white;"  role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <h2 class="text-light">Cargando ... </h2>
+            </div>
+            <div class="container d-none" id="contenedor">
                 <div class="row justify-content-center" id="viewer">
                     <!--INICIO DE SESIÓN-->
                     <div class="view col-md-8 col-lg-6 col-xl-5" id="login">

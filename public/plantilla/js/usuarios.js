@@ -812,8 +812,8 @@ async function actualizarInformacionHeka() {
     const actInter = activadorInter && activadorInter !== "inhabilitado";
 
     let mensajeCuidado;
-    if((actEnvia || actTcc) && !inpIdAgente)
-        mensajeCuidado = "Recuerda agregar un id cliente antes de activar envía o tcc";
+    if(actTcc && !inpIdAgente)
+        mensajeCuidado = "Recuerda agregar un id cliente antes de activar TCC";
 
     if(mensajeCuidado) {
         return Toast.fire({

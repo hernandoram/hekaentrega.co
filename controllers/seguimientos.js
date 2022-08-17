@@ -269,7 +269,7 @@ function normalizarReporte(reporte) {
     return reporte.reduce((a, b) => {
         let contadores = [
             "guias_est_actualizado", "guias_mov_actualizado", "guias_sin_mov", "guias_con_errores", 
-            "total_consulta", "servientrega", "interrapidisimo", "aveonline", "tiempo_ejecucion"
+            "total_consulta", "servientrega", "interrapidisimo", "aveonline", "envia", "tiempo_ejecucion"
         ];
 
         const contar = param => (a[param] || 0) + b[param]
@@ -317,14 +317,14 @@ async function actualizarMovimientosSemanales() {
     return normalizarReporte(historia);
 }
 
-// actualizarMovimientosPorComparador("numeroGuia", 'in', ["2152119135"])
+// actualizarMovimientosPorComparador("numeroGuia", 'in', ["094020617255"])
 // .then(resultado => {
 //     console.log(resultado);
 //     process.exit();
 // });
 async function actualizarMovimientosPorComparador(comparador, comparando, campo) {
     const referencia = referenciaGuias
-    .where("seguimiento_finalizado", "!=", true)
+    // .where("seguimiento_finalizado", "!=", true)
     .where(comparador, comparando, campo)
     .limit(maxPagination);
 
