@@ -559,7 +559,7 @@ async function detallesTransportadoras(data) {
                 class="col" style="max-height:120px; max-width:fit-content"
                 alt="logo-${transportadora.nombre}">
                 <div class="col-12 col-sm-6 mt-3 mt-sm-0 order-1 order-sm-0">
-                    <h5>${transportadora.nombre} <span class="badge badge-${transportadora.color} p-2">${(transp === "ENVIA" || transp === "TCC") ? 'Próximamente' : ""}</span></h5>
+                    <h5>${transportadora.nombre} <span class="badge badge-${transportadora.color} p-2">${(transp === "TCC") ? 'Próximamente' : ""}</span></h5>
                     <h6>tiempo de entrega: ${cotizacion.tiempo || datos_de_cotizacion.tiempo} Días</h6>
                     <h6 class="d-none ${data.type == "CONVENCIONAL" ? "" : "mb-1 d-sm-block"}">
                     El Valor consignado a tu cuenta será: <b>$${convertirMiles(cotizacion.valor - cotizacion.costoEnvio)}</b></h6>
