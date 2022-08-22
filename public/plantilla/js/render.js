@@ -1154,19 +1154,26 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
 
         const referenciaGuia = firebase.firestore().collection("usuarios").doc(id_user).collection("guias").doc(id_heka)
         
-        const { value: text } = await Swal.fire({
-            input: 'textarea',
-            inputLabel: 'Respuesta',
+        let { value: text } = await Swal.fire({
+            title: 'Respuesta',
+            html: `
+                <textarea placeholder="Escribe tu mensaje" id="respuesta-novedad" class="form-control"></textarea>
+                <div id="posibles-respuestas"></div>
+            `,
             inputPlaceholder: 'Escribe tu mensaje',
             inputAttributes: {
                 'aria-label': 'Escribe tu respuesta'
             },
+            didOpen: respondiendoNovedad,
+            preConfirm: () => document.getElementById("respuesta-novedad").value,
             showCancelButton: true
-        })
-
+        });
+        
         if (text == undefined) {
             boton_solucion.html(html_btn);
         } else if (text) {
+            text = text.trim();
+
             const solucion = {
                 gestion: "<b>La transportadora \"" +data.transportadora+ "\" reponde lo siguiente:</b> " + text.trim(),
                 fecha: new Date()
@@ -1178,8 +1185,22 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
                 extraData.seguimiento = new Array(solucion)
             }
 
-            console.log(extraData)
-            console.log(solucion)
+            console.log(extraData);
+            console.log(solucion);
+
+            const mensajePreguardado = listaRespuestasNovedad.findIndex(l => l.mensaje.toLowerCase() == text.toLowerCase());
+
+            if(mensajePreguardado == -1) {
+                listaRespuestasNovedad.push({
+                    cantidad: 1,
+                    mensaje: text
+                });
+            } else {
+                listaRespuestasNovedad[mensajePreguardado].cantidad++
+            }
+
+            // Para guardar una nueva estructura de mensaje
+            db.collection("infoHeka").doc("respuestasNovedad").update({respuestas: listaRespuestasNovedad});
 
             referenciaGuia.update({
                 seguimiento: extraData.seguimiento,
@@ -1212,6 +1233,67 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
 
 
     })
+}
+
+function respondiendoNovedad(swalDom) {
+    console.log(swalDom);
+    const textarea = swalDom.querySelector("#respuesta-novedad");
+    const posiblesRespuestas = swalDom.querySelector("#posibles-respuestas");
+    mostrarPosiblesRespuestasNovedad(posiblesRespuestas, textarea);
+
+
+    textarea.addEventListener("keyup", e => {
+        const val = e.target.value;
+        const lista = mostrarPosiblesRespuestasNovedad(posiblesRespuestas, textarea, val.trim());
+
+        if(e.keyCode === 13 && lista) {
+            e.target.value = lista[0].mensaje;
+        }
+    });
+
+    
+
+
+}
+
+function mostrarPosiblesRespuestasNovedad(domResp, textarea, mensaje = "") {
+    if(!listaRespuestasNovedad) return;
+
+    let lista = listaRespuestasNovedad.sort((a,b) => b.cantidad - a.cantidad);
+
+    if(mensaje) {
+        lista = lista.filter(l => l.mensaje.toLowerCase().includes(mensaje.toLowerCase()));
+    }
+
+    lista = lista.slice(0, 3);
+
+    const titulo = "<h6 class='mt-3'>Posibles respuestas</h6>";
+    domResp.innerHTML = "";
+
+    if(!lista.length) return;
+
+    const listHtml = lista.map((l, i) => {
+        const position = l.mensaje.toUpperCase().indexOf(mensaje.toUpperCase());
+        const longitud = mensaje.length + position;
+        const slc = (i,f) => l.mensaje.slice(i,f);
+        return `<a href="javascript:void(0)" class="lista list-group-item list-group-item-action d-flex justify-content-between" data-id="${i}" title="seleccionar">
+            <span>${mensaje ? slc(0, position) + "<b>" + slc(position, longitud) + "</b>" + slc(longitud) : l.mensaje}</span>
+        </a>`;
+    });
+
+    domResp.innerHTML += titulo + `<div class="list-group">${listHtml.join("")}</div>`;
+
+    $(".lista", domResp).click(function() {
+        const id = this.target.getAttribute("data-id");
+
+        const seleccionado = lista[id];
+
+        if(seleccionado) {
+            textarea.value = seleccionado.mensaje;
+        }
+    });
+
+    return lista;
 }
 
 function traducirMovimientoGuia(transportadora) {

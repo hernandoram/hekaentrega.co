@@ -3,6 +3,7 @@ let user_id = localStorage.user_id, usuarioDoc;
 if(localStorage.getItem("acceso_admin")){
   window.onload = () => revisarNotificaciones();
   listarNovedadesServientrega();
+  listarSugerenciaMensajesNovedad();
   $("#descargar-informe-usuarios").click(descargarInformeUsuariosAdm)
 } else if(localStorage.user_id){
   window.onload = () => {
@@ -104,6 +105,19 @@ async function listarNovedadesServientrega() {
     }
 
     return [];
+  })
+}
+
+let listaRespuestasNovedad;
+
+function listarSugerenciaMensajesNovedad() {
+  const refRespuestasNovedad = db.collection("infoHeka").doc("respuestasNovedad");
+
+  refRespuestasNovedad
+  .get().then(d => {
+    if(d.exists) {
+      listaRespuestasNovedad = d.data().respuestas;
+    }
   })
 }
 
