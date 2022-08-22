@@ -1284,7 +1284,7 @@ function mostrarPosiblesRespuestasNovedad(domResp, textarea, mensaje = "") {
     domResp.innerHTML += titulo + `<div class="list-group">${listHtml.join("")}</div>`;
 
     $(".lista", domResp).click(function() {
-        const id = this.target.getAttribute("data-id");
+        const id = this.getAttribute("data-id");
 
         const seleccionado = lista[id];
 
