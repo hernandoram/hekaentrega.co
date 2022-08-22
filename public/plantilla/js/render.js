@@ -1175,7 +1175,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
             text = text.trim();
 
             const solucion = {
-                gestion: "<b>La transportadora \"" +data.transportadora+ "\" reponde lo siguiente:</b> " + text.trim(),
+                gestion: "<b>La transportadora \"" +data.transportadora+ "\" responde lo siguiente:</b> " + text.trim(),
                 fecha: new Date()
             }
             avisar("Se enviará mensaje al usuario", text);
