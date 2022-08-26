@@ -146,10 +146,10 @@
             <span>Documentos</span></a>
         </li>
 
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Acá podras tener acceso al manifiesto de inter">
-          <a class="nav-link" href="#guias_inter" title="Crear manifiesto para inter rapidísimo">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Descargar manifiestos para envía o interrapidísimo">
+          <a class="nav-link" href="#manifiestos">
             <i class="fas fa-fw fa-file-alt"></i>
-            <span>Manifiesto Inter</span></a>
+            <span>Manifiestos</span></a>
         </li>
 
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Espacio para cosultar tus novedades">
@@ -1044,23 +1044,36 @@
             
           </div>
 
-          <div class="container-fluid" id="guias_inter" style="display: none;">
-            <h3 class="m-0 font-weight-bold text-primary">Crear manifiesto de inter rapidísimo</h3>
-            <p class="border-left-primary pl-2">Aquí podrás crear la relación de envíos para tus guías de interrapidísimo.</p>
+          <div class="container-fluid" id="manifiestos" style="display: none;">
+            <h3 class="m-0 font-weight-bold text-primary">Crear manifiesto de inter rapidísimo o envía</h3>
+            <p class="border-left-primary pl-2">Aquí podrás crear la relación de envíos para tus guías de interrapidísimo o envía.</p>
             <!--Formulario de busqueda guias-->
             <div class="card card-shadow mb-4">
               <div class="card-body">
                 <div class="form-group row d-flex align-items-end">
-                  <div class="form-group col-sm-4 mb-3">
-                    <label for="fecha_inicio-guias_inter">Fecha inicio</label>
-                    <input type="date" class="form-control form-control-user"  id="fecha_inicio-guias_inter" required>
+                  <div class="form-group col-sm-3 mb-3">
+                    <label for="fecha_inicio-manifiestos">Fecha inicio</label>
+                    <input type="date" class="form-control form-control-user"  id="fecha_inicio-manifiestos" required>
                   </div>
-                  <div class="form-group col-sm-4 mb-3">
-                    <label for="fecha_final-guias_inter">Fecha final</label>
-                    <input type="date" class="form-control form-control-user"  id="fecha_final-guias_inter" required>
+                  <div class="form-group col-sm-3 mb-3">
+                    <label for="fecha_final-manifiestos">Fecha final</label>
+                    <input type="date" class="form-control form-control-user"  id="fecha_final-manifiestos" required>
                   </div>
-                  <div class="col-sm-4 mb-3">
-                    <button id="buscar-guias_inter"
+                  
+                  <div class="col-sm-3">
+                    <div class="form-check">
+                      <input type="radio" class="form-check-input transp_man" value="INTERRAPIDISIMO" checked name="transportadora_manifiesto" id="transp_manifiesto-1" required>
+                      <label for="transp_manifiesto-1" class="form-check-label">Interrapidísimo</label>
+                    </div>
+                    <div class="form-check">
+                      <input type="radio" class="form-check-input transp_man" value="ENVIA" name="transportadora_manifiesto" id="transp_manifiesto-2" required>
+                      <label for="transp_manifiesto-2" class="form-check-label">Envía</label>
+                    </div>
+
+                  </div>
+                  
+                  <div class="col-sm-3 mb-3">
+                    <button id="buscar-manifiestos"
                     class="btn btn-primary btn-user btn-block">
                       Buscar
                     </button>
@@ -1070,22 +1083,22 @@
             </div>
 
             <div class="d-flex justify-content-center">
-              <div id="cargador-guias_inter" class="lds-ellipsis d-none"><div></div><div></div><div></div><div></div></div>
+              <div id="cargador-manifiestos" class="lds-ellipsis d-none"><div></div><div></div><div></div><div></div></div>
             </div>
-            <div class="border border-danger rounded text-center p-3" style="display: none;" id="sin-guias_inter">
+            <div class="border border-danger rounded text-center p-3" style="display: none;" id="sin-manifiestos">
               <h6 class="text-danger m-0">SIN DATOS EXISTENTES PARA TU BÚSQUEDA</h6>
             </div>
 
-            <div class="card card-shadow"  style="display: none;" id="mostrador-guias_inter">
+            <div class="card card-shadow"  style="display: none;" id="mostrador-manifiestos">
               <div class="card-body">
                 <div class="input-group mb-3">
                   <div class="input-group-prepend">
-                    <button class="btn btn-outline-primary" type="button" id="crear-manifiesto-guias_inter">Crear manifiesto:</button>
+                    <button class="btn btn-outline-primary" type="button" id="crear-manifiesto-manifiestos">Crear manifiesto:</button>
                   </div>
-                  <input type="text" class="form-control" placeholder="Seleccione las guías" aria-label="Guías a seleccionar" aria-describedby="crear-manifiesto-guias_inter" readonly>
+                  <input type="text" class="form-control" placeholder="Seleccione las guías" aria-label="Guías a seleccionar" aria-describedby="crear-manifiesto-manifiestos" readonly>
                 </div>
                 <div class="table-responsive">
-                  <table  class="display table table-hover text-truncate" id="tabla-guias_inter" width="100%" cellspacing="0">  
+                  <table  class="display table table-hover text-truncate" id="tabla-manifiestos" width="100%" cellspacing="0">  
                     <thead>
                     </thead>
                     <tbody>

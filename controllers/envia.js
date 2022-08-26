@@ -218,6 +218,43 @@ exports.actualizarMovimientos = async (doc) => {
    
 }
 
+exports.imprimirMaifiesto = (req, res) => {
+    const guiasPerPage = 12;
+    const guias = req.body;
+
+    if(!guias) return res.send("No se recibieron las guías");
+
+    
+    const numberOfPages = Math.ceil(guias.length / guiasPerPage);
+  
+    let organizatorGuias = new Array();
+    let pageNumber = 1;
+
+    while(pageNumber <= numberOfPages) {
+        const guiaInicial = (pageNumber - 1) * guiasPerPage;
+        const guiaFinal = pageNumber * guiasPerPage;
+        const page = guias.slice(guiaInicial, guiaFinal);
+        page.forEach((guia, i) => {
+            guia.vol = guia.alto * guia.ancho * guia.largo;
+        });
+
+        console.log(page);
+        const totales = {
+            unidades: page.length,
+            peso: page.reduce((a,b) => a + b.peso, 0),
+            vol: page.reduce((a,b) => a + b.vol, 0),
+            declarado: page.reduce((a,b) => a + b.seguro, 0),
+            flete: page.reduce((a,b) => a + b.costo_envio, 0)
+        }
+
+        organizatorGuias.push({page, info: page[0], totales});
+
+        pageNumber++
+    }
+
+    res.render("printManifiesto", {organizatorGuias, layout:"printer"});
+}
+
 function desglozarMovimientos(respuesta) {
     // console.log(respuesta);
     const estadosArmado = {

@@ -1,0 +1,82 @@
+{{#each organizatorGuias}}
+<div class="cont p-3 page" style="page-break-after: always;">
+    <table class="table table-bordered">
+        <tr>
+            <td colspan="13"><h4 class="text-center">RELACIÓN DE DESPACHOS</h4></td>
+        </tr>
+        
+        <tr>
+            <td colspan="3">
+                <p><b>CIUDAD:</b> {{this.info.ciudadR}}</p>
+                <p><b>REMITENTE:</b> {{this.info.nombreR}}</p>
+            </td>
+            <td colspan="3">
+                <p><b>DIR:</b> {{this.info.direccionR}}</p>
+            </td>
+            
+            <td colspan="4">
+                <p><b>CÓDIGO CLIENTE:</b> Todas las cuentas</p>
+                <p><b>TEL:</b> {{this.info.celularR}}</p>
+            </td>
+
+            <td colspan="3">
+                <p><b>CC/NIT:</b> {{this.info.identificacionR}}</p>
+                <p><b>FECHA:</b> {{this.info.fecha}}</p>
+            </td>
+            
+        </tr>
+
+        <tr>
+            <th>#</th>
+            <th>DESTINATARIO</th>
+            <th>CIUDAD</th>
+            <th>DIRECCIÓN</th>
+            <th>CONTENIDO</th>
+            <th>DOCUMENTO</th>
+            <th>UND</th>
+            <th>PESO</th>
+            <th>VOL</th>
+            <th>DECL</th>
+            <th>FLETE</th>
+            <th>GUIA</th>
+            <th></th>
+        </tr>
+
+        {{!-- Repetitivo --}}
+        {{#each this.page}}
+        <tr>
+            <td>{{index @index}}</td>
+            <td>{{this.nombreD}}</td>
+            <td>{{this.ciudadD}}</td>
+            <td>{{this.direccionD}}</td>
+            <td>{{this.dice_contener}}</td>
+            <td></td>
+            <td>1</td>
+            <td>{{this.peso}}</td>
+            <td>{{this.vol}}</td>
+            <td>{{getCurrency this.seguro}}</td>
+            <td>{{getCurrency this.costo_envio}}</td>
+            <td>{{this.numeroGuia}}</td>
+            <td>
+                <img alt='Código de barras'
+                src='https://barcode.tec-it.com/barcode.ashx?data={{this.numeroGuia}}&code=Code25IL'/>
+            </td>
+        </tr>
+        {{/each}}
+
+        <tr>
+            <td colspan="6" class="text-right">TOTALES</td>
+            <td>{{this.totales.unidades}}</td>
+            <td>{{this.totales.peso}}</td>
+            <td>{{this.totales.vol}}</td>
+            <td>{{getCurrency this.totales.declarado}}</td>
+            <td>{{getCurrency this.totales.flete}}</td>
+            <td>{{this.totales.unidades}}</td>
+            <td></td>
+        </tr>
+
+
+    </table>
+
+</div>
+{{/each}}

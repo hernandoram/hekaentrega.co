@@ -1662,10 +1662,10 @@ function descargarManifiesto(doc) {
     } else if(doc.data().base64Manifiesto) {
         let base64 = doc.data().base64Manifiesto;
         openPdfFromBase64(base64);
-    } else if (doc.data().transportadora === "INTERRAPIDISIMO") {
+    } else if (["INTERRAPIDISIMO", "ENVIA"].includes(doc.data().transportadora)) {
         Swal.fire({
             icon: "info",
-            text: "Para descargar los manifiestos de inter rapidísimo, debe ingresar a \"Manifiesto inter\", buscar filtrando por fecha y seleccionar las guías que desea gestionar para crearlo."
+            text: "Para descargar los manifiestos de inter rapidísimo o envía, debe ingresar a \"Manifiestos\", buscar filtrando por fecha, seleccionar la transportadora y las guías que desea gestionar para crearlo."
         });
     } else if (doc.data().nro_manifiesto) {
         const idEmpresa = doc.data().idEmpresa || 0;
@@ -2892,31 +2892,37 @@ async function generarRotulo(id_guias) {
     }, 500)
 };
 
-$("#buscar-guias_inter").click(buscarGuiasInter);
-function buscarGuiasInter() {
-    $("#cargador-guias_inter").removeClass("d-none")
-    const [fechaI, fechaF] = getDateRangeMs("fecha_inicio-guias_inter", "fecha_final-guias_inter");
+$("#buscar-manifiestos").click(buscarGuiasManifiesto);
+function buscarGuiasManifiesto() {
+    $("#cargador-manifiestos").removeClass("d-none")
+    const inpTransp = $(".transp_man:checked");
+    const transp = inpTransp.val();
+
+    const [fechaI, fechaF] = getDateRangeMs("fecha_inicio-manifiestos", "fecha_final-manifiestos");
 
     const reference = usuarioDoc.collection("guias").orderBy("timeline", "desc").
     startAt(fechaF).endAt(fechaI)
-    .where("transportadora", "==", "INTERRAPIDISIMO")
+    .where("transportadora", "==", transp)
     // .limit(10)
 
     if(!this.getAttribute("data-table_initialized")) {
         incializarTablaTablaGuiasInter();
         this.setAttribute("data-table_initialized", true);
     }
+
+    const mostrador_guias_seleccionadas = $('[aria-describedby="crear-manifiesto-manifiestos"]');
+    mostrador_guias_seleccionadas.val("");
     
-    const tabla = $("#tabla-guias_inter").DataTable();
+    const tabla = $("#tabla-manifiestos").DataTable();
     // return;
     reference.get().then(querySnapshot => {
         const size = querySnapshot.size;
         if(size) {
-            $("#mostrador-guias_inter").show("fast");
-            $("#sin-guias_inter").hide("slow");
+            $("#mostrador-manifiestos").show("fast");
+            $("#sin-manifiestos").hide("slow");
         } else {
-            $("#mostrador-guias_inter").hide("slow");
-            $("#sin-guias_inter").show("fast");
+            $("#mostrador-manifiestos").hide("slow");
+            $("#sin-manifiestos").show("fast");
         }
 
         tabla.clear();
@@ -2931,12 +2937,12 @@ function buscarGuiasInter() {
         
 
         
-        $("#cargador-guias_inter").addClass("d-none")
+        $("#cargador-manifiestos").addClass("d-none")
     })
 }
 
 function agregarFilaGuiasInter() {
-    $("#tabla-guias_inter").DataTable().rows.add([{
+    $("#tabla-manifiestos").DataTable().rows.add([{
         "id_heka": "# Guía Heka",
         "transportadora": "Fecha creación",
         "fecha": "Fecha Saldada" ,
@@ -2946,7 +2952,7 @@ function agregarFilaGuiasInter() {
 }
 
 function incializarTablaTablaGuiasInter() {
-    const tabla = $("#tabla-guias_inter").DataTable({
+    const tabla = $("#tabla-manifiestos").DataTable({
         destroy: true,
         language: {
             url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
@@ -2972,13 +2978,12 @@ function incializarTablaTablaGuiasInter() {
                     return result;
                 },
                 targets: 5
-            }
-            
+            }          
         ],
         columns: [
             { data: "id_heka", title: "# Guía Heka"},
             { data: "numeroGuia", title: "# Guía transportadora"},
-            { data: "estado", title: "Estado" },
+            { data: "estado", title: "Estado", defaultContent: "" },
             { data: "type", title: "Tipo"},
             { data: "nombreD", title: "Nombre" },
             { data: "telefonoD", title: "Telefonos"},
@@ -2993,14 +2998,14 @@ function incializarTablaTablaGuiasInter() {
         initComplete: funcionalidadesTablaHistorialGuiasInter
     });
 
-    const btn_crear_manifiesto = $("#crear-manifiesto-guias_inter");
-    const mostrador_guias_seleccionadas = $('[aria-describedby="crear-manifiesto-guias_inter"]')
+    const btn_crear_manifiesto = $("#crear-manifiesto-manifiestos");
+    const mostrador_guias_seleccionadas = $('[aria-describedby="crear-manifiesto-manifiestos"]');
 
     tabla.on( 'click', 'tr', function (e) {
         if(e.target.parentNode.nodeName !== "TR") return;
         
         $(this).toggleClass('selected bg-gray-300');
-        const seleccionadas = guiasSeleccionadas();
+        const seleccionadas = guiasSeleccionadas().map(g => g.numeroGuia);
         const cant = seleccionadas.length;
         
         mostrador_guias_seleccionadas.val(seleccionadas);
@@ -3008,13 +3013,19 @@ function incializarTablaTablaGuiasInter() {
     } );
 
     btn_crear_manifiesto.click(() => {
-        imprimirManifiestoInter(guiasSeleccionadas());
+        const guias = guiasSeleccionadas();
+
+        if(guias[0].transportadora === "INTERRAPIDISIMO") {
+            imprimirManifiestoInter(guias.map(g => g.numeroGuia));
+        } else {
+            imprimirManifiestoEnvia(guias);
+        }
     })
 
     function guiasSeleccionadas() {
         let guias = new Array();
         tabla.rows(".selected").data().each((d, o) => {
-            guias.push(d.numeroGuia)
+            guias.push(d);
         });
         return guias;
     }
@@ -3047,6 +3058,24 @@ function funcionalidadesTablaHistorialGuiasInter() {
 
         const cant = $("tr.selected", this).length;
         $("#counter-selector-guias-inter").text(cant ? "("+cant+")" : "");
+    });
+}
+
+function imprimirManifiestoEnvia(guias) {
+    if(!guias || !guias.length) return new Toast({
+        icon: "error",
+        title: "Debes seleccionar las guías antes de crear la relación"
+    });
+
+    fetch("/envia/imprimirManifiesto/", {
+        method: "POST",
+        headers: {"Content-Type": "Application/json"},
+        body: JSON.stringify(guias)
+    })
+    .then(d => d.text())
+    .then(d => {
+        w = window.open();
+        w.document.write(d);
     });
 }
 
