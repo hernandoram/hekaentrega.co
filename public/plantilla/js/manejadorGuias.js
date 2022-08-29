@@ -2928,14 +2928,12 @@ function buscarGuiasManifiesto() {
         tabla.clear();
 
         querySnapshot.forEach(doc => {
-            if(doc.data().numeroGuia) {
+            if(doc.data().numeroGuia && !doc.data().deleted) {
                 tabla.rows.add([doc.data()]);
             }
         })
 
         tabla.draw();
-        
-
         
         $("#cargador-manifiestos").addClass("d-none")
     })
