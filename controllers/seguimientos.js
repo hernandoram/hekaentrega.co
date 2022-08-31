@@ -317,7 +317,7 @@ async function actualizarMovimientosSemanales() {
     return normalizarReporte(historia);
 }
 
-// actualizarMovimientosPorComparador("numeroGuia", 'in', ["094020617255"])
+// actualizarMovimientosPorComparador("transportadora", 'in', ["ENVIA"])
 // .then(resultado => {
 //     console.log(resultado);
 //     process.exit();

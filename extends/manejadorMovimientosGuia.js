@@ -121,6 +121,6 @@ exports.revisarEstadoFinalizado = (estado) => {
     return [
         "ENTREGADO", "Entrega Exitosa", 
         "ENTREGADO A REMITENTE", "Devuelto al Remitente", 
-        "Documento Anulado"
+        "Documento Anulado", "Entregado"
     ].includes(estado)
 }

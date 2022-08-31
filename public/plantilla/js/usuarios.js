@@ -459,7 +459,10 @@ async function buscarUsuarios(){
             }
 
             if(dirInp) {
-                if(direcciones.some(dir => dir.direccion_completa.includes(dirInp))) {
+                if(
+                    direcciones.some(dir => dir.direccion_completa.includes(dirInp))
+                    || direcciones.some(dir => dir.codigo_sucursal_inter == dirInp.trim())
+                ) {
                     mostradorUsuarios.appendChild(toDom(mostrarUsuarios(doc.data(), doc.id)));
                 }
             }

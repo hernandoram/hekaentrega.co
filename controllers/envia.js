@@ -161,16 +161,15 @@ exports.actualizarMovimientos = async (doc) => {
         }
 
         
-        
         const estados_finalizacion = ["Entregado"];
         
         const movimientos = desglozarMovimientos(respuesta);
         const ultimo_estado = movimientos[movimientos.length - 1];
         let finalizar_seguimiento = doc.data().prueba ? true : false
-        console.log(respuesta);
+
         let estadoActual;
         if(ultimo_estado && ultimo_estado.estado) {
-            estadoActual= estados_finalizacion.includes(ultimo_estado.estado) ? ultimo_estado.estado : respuesta.estado;
+            estadoActual = estados_finalizacion.includes(ultimo_estado.estado) ? ultimo_estado.estado : respuesta.estado;
         }
     
         const estado = {
@@ -179,7 +178,7 @@ exports.actualizarMovimientos = async (doc) => {
             ciudadD: respuesta.ciudad_destino,
             nombreD: respuesta.nombre_destinatario,
             direccionD:  respuesta.direccion_destinatario,
-            estadoActual,
+            estadoActual: respuesta.estado,
             fecha: ultimo_estado ? ultimo_estado.fechaMov : estandarizarFecha(new Date(), "DD/MM/YYYY HH:mm"), //fecha del estado
             id_heka: doc.id,
             movimientos
@@ -201,7 +200,7 @@ exports.actualizarMovimientos = async (doc) => {
         }
     
         updte_estados = await actualizarEstado(doc, {
-            estado: respuesta.estado,
+            estado: estadoActual,
             ultima_actualizacion: new Date(),
             enNovedad,
             seguimiento_finalizado: estados_finalizacion.some(v => respuesta.estado === v)

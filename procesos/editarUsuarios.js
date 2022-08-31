@@ -12,12 +12,13 @@ function editarUsuarios() {
     const centrosDeCosto = usuarios.map(u => u.SELLER);
     let cantidad = usuarios.length;
     usuarios.map(u => {
+        console.log(u);
         db.collection("usuarios").where("centro_de_costo", "==", u.SELLER.trim())
         .get().then(q => {
             q.forEach(d => {
                 // console.log(d.data());
 
-                return;
+                // return;
                 d.ref.update({
                     nombres: u.NOMBRE.trim(),
                     apellidos: u.APELLIDO.trim(),
