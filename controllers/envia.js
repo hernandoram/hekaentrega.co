@@ -141,7 +141,6 @@ exports.actualizarMovimientos = async (doc) => {
                 message: err.message
             }
         });
-        
 
         if(respuesta.status === "Falla") {
 
@@ -159,7 +158,6 @@ exports.actualizarMovimientos = async (doc) => {
                 guia: doc.id + " / " + doc.data().numeroGuia + " " + respuesta.message
             }]
         }
-
         
         const estados_finalizacion = ["Entregado"];
         
@@ -223,7 +221,23 @@ exports.imprimirMaifiesto = (req, res) => {
 
     if(!guias) return res.send("No se recibieron las guías");
 
+    // const insertarImagen = guias.map(async g => {
+    //     const imagen = await fetch(`https://barcode.tec-it.com/barcode.ashx?data=${g.numeroGuia}&code=Code25IL`)
+    //     .then(d => {
+    //         console.log(d);
+            
+    //         return d.arrayBuffer();
+    //     });
     
+    //     const buff = Buffer.from(imagen, "utf8");
+    //     const base64 = buff.toString("base64");
+        
+    //     g.codBarra = "data:image/jpeg;charset=utf-8;base64," + base64;
+    //     g;
+    // });
+
+    // await Promise.all(insertarImagen);
+
     const numberOfPages = Math.ceil(guias.length / guiasPerPage);
   
     let organizatorGuias = new Array();

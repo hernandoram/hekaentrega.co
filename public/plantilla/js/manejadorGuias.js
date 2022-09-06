@@ -3010,13 +3010,15 @@ function incializarTablaTablaGuiasInter() {
         $("#counter-selector-guias-inter").text(cant ? "("+cant+")" : "");
     } );
 
-    btn_crear_manifiesto.click(() => {
+    btn_crear_manifiesto.click(async () => {
         const guias = guiasSeleccionadas();
+        btn_crear_manifiesto.text("Cargando ...");
 
         if(guias[0].transportadora === "INTERRAPIDISIMO") {
             imprimirManifiestoInter(guias.map(g => g.numeroGuia));
         } else {
-            imprimirManifiestoEnvia(guias);
+            await imprimirManifiestoEnvia(guias);
+            btn_crear_manifiesto.text("Crear manifiesto");
         }
     })
 
@@ -3059,13 +3061,13 @@ function funcionalidadesTablaHistorialGuiasInter() {
     });
 }
 
-function imprimirManifiestoEnvia(guias) {
+async function imprimirManifiestoEnvia(guias) {
     if(!guias || !guias.length) return new Toast({
         icon: "error",
         title: "Debes seleccionar las guías antes de crear la relación"
     });
 
-    fetch("/envia/imprimirManifiesto/", {
+    await fetch("/envia/imprimirManifiesto/", {
         method: "POST",
         headers: {"Content-Type": "Application/json"},
         body: JSON.stringify(guias)

@@ -7,14 +7,32 @@ exports.UsuarioPrueba = {
 
 exports.Credenciales = {
     Conv: {
-        login: "1072497419",
+        login: "901521629",
         password: "Tb8Hb+NLWsc=",
-        id_codFacturacion: "SER122989",
+        id_codFacturacion: "SER130111",
     },
     PgCon: {
-        login: "1072497419SUC1",
-        password: "NuBQAVjagIbdvqINzxg5lQ==",
-        id_codFacturacion: "SER122990",
+        login: "901521629SUC1",
+        password: "Tb8Hb+NLWsc=",
+        id_codFacturacion: "SER130112",
     }, 
     url_generar_guias: "http://web.servientrega.com:8081/GeneracionGuias.asmx"
 }
+
+"Tb8Hb+NLWsc= ==> 123456";
+
+
+// hasta el 6 de septiembre del 2022
+// exports.Credenciales = {
+//     Conv: {
+//         login: "1072497419",
+//         password: "Tb8Hb+NLWsc=",
+//         id_codFacturacion: "SER122989",
+//     },
+//     PgCon: {
+//         login: "1072497419SUC1",
+//         password: "NuBQAVjagIbdvqINzxg5lQ==",
+//         id_codFacturacion: "SER122990",
+//     }, 
+//     url_generar_guias: "http://web.servientrega.com:8081/GeneracionGuias.asmx"
+// }

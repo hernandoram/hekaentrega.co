@@ -279,7 +279,7 @@ exports.crearGuia = (req, res) => {
     let data = {
         "IdClienteCredito": credentials.idCliente, //Codigo cliente
         "CodigoConvenioRemitente": guia.codigo_sucursal, //Codigo sucursal
-        "IdTipoEntrega": guia.id_tipo_entrega || 1,
+        "IdTipoEntrega": guia.id_tipo_entrega || 1, // 1 ENTREGA EN DIRECCIÓN; 2: RECLAMO EN OFICINA
         "AplicaContrapago": dest.type !== "CONVENCIONAL",
         "IdServicio": idServicio, 
         "Peso": guia.peso, //En kilogramos

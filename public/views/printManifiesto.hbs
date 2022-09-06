@@ -59,7 +59,9 @@
             <td>{{this.numeroGuia}}</td>
             <td>
                 <img alt='Código de barras'
-                src='https://barcode.tec-it.com/barcode.ashx?data={{this.numeroGuia}}&code=Code25IL'/>
+                src='https://barcode.tec-it.com/barcode.ashx?data={{this.numeroGuia}}&code=Code25IL'
+                {{!-- src='{{this.codBarra}}' --}}
+                />
             </td>
         </tr>
         {{/each}}
