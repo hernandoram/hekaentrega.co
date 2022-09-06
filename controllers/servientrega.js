@@ -512,7 +512,7 @@ function generarGuia(datos) {
   }
 
   if(datos.prueba) auth_header = auth_header_prueba;
-  
+  const centroCosto = `<CentroCosto>${datos.prueba ? "" : datos.centro_de_costo}</CentroCosto>`;
 
   let consulta = `<?xml version="1.0" encoding="UTF-8"?>
   <env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope" xmlns:tem="http://tempuri.org/">
@@ -534,7 +534,7 @@ function generarGuia(datos) {
                 <Ide_Producto>2</Ide_Producto><!--ENVÍO CON MERCACÍA PREMIER-->
                 <Des_FormaPago>2</Des_FormaPago>
                 <Ide_Num_Identific_Dest>${dest.numero_documento}</Ide_Num_Identific_Dest>
-                <CentroCosto>${datos.prueba ? "" : datos.centro_de_costo}</CentroCosto>
+                
                 <Tipo_Doc_Destinatario>${dest.tipo_documento == "1" ? "NIT" : "CC"}</Tipo_Doc_Destinatario>
                 <Des_MedioTransporte>1</Des_MedioTransporte>
                 <Num_PesoTotal>${datos.peso}</Num_PesoTotal>
