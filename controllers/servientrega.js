@@ -511,7 +511,7 @@ function generarGuia(datos) {
     auth_header = auth_header_pagoContraentrega
   }
 
-  if(datos.prueba) auth_header = auth_header_prueba;
+  if(datos.prueba && false) auth_header = auth_header_prueba;
   const centroCosto = `<CentroCosto>${datos.prueba ? "" : datos.centro_de_costo}</CentroCosto>`;
 
   let consulta = `<?xml version="1.0" encoding="UTF-8"?>
@@ -573,7 +573,7 @@ function generarGuia(datos) {
                 <Des_DepartamentoOrigen>${datos.departamentoR}</Des_DepartamentoOrigen>
                 <Gen_Cajaporte>false</Gen_Cajaporte>
                 <Gen_Sobreporte>false</Gen_Sobreporte>
-                <Nom_UnidadEmpaque>GENERICA</Nom_UnidadEmpaque>
+                <Nom_UnidadEmpaque>Generica</Nom_UnidadEmpaque>
                 <Nom_RemitenteCanal />
                 <Des_UnidadLongitud>cm</Des_UnidadLongitud>
                 <Des_UnidadPeso>kg</Des_UnidadPeso>
@@ -600,16 +600,16 @@ function crearGuiaSticker(numeroGuia, id_archivoCargar, type, prueba) {
 
   if(type == "CONVENCIONAL") {
     auth_header = auth_header_convencional;
-    ide_codFacturacion = "SER122989";
+    ide_codFacturacion = Credenciales.Conv.id_codFacturacion
   } else {
     auth_header = auth_header_pagoContraentrega
-    ide_codFacturacion = "SER122990";
+    ide_codFacturacion = Credenciales.PgCon.id_codFacturacion;
   }
 
-  if(prueba) {
+  if(prueba && false) {
     auth_header = auth_header_prueba;
     ide_codFacturacion = UsuarioPrueba.id_codFacturacion
-  } 
+  }
 
   console.log("numero guia =>", numeroGuia);
   let consulta = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
