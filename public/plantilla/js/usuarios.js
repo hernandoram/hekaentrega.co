@@ -659,6 +659,12 @@ function mostrarBodegasUsuarioAdm(bodegas) {
             {data: "ciudad", title: "Ciudad", defaultContent: ""},
             {data: "barrio", title: "Barrio", defaultContent: ""},
             {data: "direccion", title: "Dirección", defaultContent: ""},
+            {data: "inactiva", title: "Estado", defaultContent: "Activa", render: function(content, type, data) {
+                if(type === "display" || type === "filter") {
+                    return content ? "Inactiva" : "Activada";
+                }
+                return content;
+            }}
         ],
         language: {
           url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
@@ -706,6 +712,11 @@ function editarBodegaUsuarioAdm(e) {
         <input type="text" value="${data.codigo_sucursal_inter || ""}" class="form-control" id="cod_suc_inter-bodega" name="codigo_sucursal_inter">
         </div>
 
+        <div class="custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input" id="inactiva-bodega" ${data.inactiva ? "checked" : ""} name="inactiva">
+            <label class="custom-control-label" for="inactiva-bodega">Desactivar bodega.</label>
+        </div>
+
         <small>${data.direccion_completa}</small>
     </form>
     `;
@@ -725,6 +736,8 @@ function editarBodegaUsuarioAdm(e) {
 
             data.direccion_completa = data.direccion + ", " + data.barrio + ", " + data.ciudad;
             data.ult_edicion = new Date();
+            data.inactiva = $("#inactiva-bodega", form).is(":checked");
+            console.log(data);
         }
     });
 

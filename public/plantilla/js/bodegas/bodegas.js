@@ -58,7 +58,7 @@ async function agregarNuevaBodega(form) {
     const idInpNombre = nombreBodega.getAttribute("id");
     const ciudadBodega = form.ciudad;
     const idInpCiudad = ciudadBodega.getAttribute("id");
-    let bodegas = datos_usuario.bodegas;
+    let bodegas = datos_usuario.bodegasCompletas;
     const btnContinue = modalNuevaBodega.btnContinue;
 
     const trigger = new ChangeElementContenWhileLoading(btnContinue);

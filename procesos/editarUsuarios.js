@@ -33,3 +33,33 @@ function editarUsuarios() {
         })
     })
 }
+
+// cambiarSistemaServientrega();
+function cambiarSistemaServientrega() {
+    db.collection("usuarios").where("datos_personalizados.habilitar_servientrega", "==", true)
+    // .limit(5)
+    .get().then(q => {
+        console.log(q.size);
+        let x = q.size;
+        q.forEach(d => {
+            console.log(d.data());
+            const datos_personalizados = d.data().datos_personalizados;
+
+            datos_personalizados.sistema_servientrega = "automaticoEmp";
+
+            d.ref.update({datos_personalizados})
+            .then(() => {
+                x--;
+                console.log("Actualizado => ", d.data().centro_de_costo);
+                console.log("Faltan => ", x);
+
+            })
+            .catch(() => {
+                x--;
+                console.log("NO ACTUALIZADO => ", d.data().centro_de_costo);
+                console.log("Faltan => ", x);
+
+            });
+        })
+    })
+}

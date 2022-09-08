@@ -145,7 +145,7 @@ async function consultarDatosDeUsuario() {
       const datos = doc.data();
       const datos_bancarios = datos.datos_bancarios;
       const datos_personalizados = datos.datos_personalizados;
-      const bodegas = datos.bodegas;
+      const bodegas = datos.bodegas ? datos.bodegas.filter(b => !b.inactiva) : [];
 
       datos_usuario = {
         nombre_completo: datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0],
@@ -156,7 +156,8 @@ async function consultarDatosDeUsuario() {
         centro_de_costo: datos.centro_de_costo,
         objetos_envio: datos.objetos_envio,
         tipo_documento: datos.tipo_documento,
-        bodegas: datos.bodegas
+        bodegasCompletas: datos.bodegas || [],
+        bodegas
       }
 
       datos.nombre_completo = datos_usuario.nombre_completo;

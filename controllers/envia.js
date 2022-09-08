@@ -126,7 +126,6 @@ exports.obtenerStickerGuia = async (req, res) => {
     res.json(base64Segmented);
 }
 
-
 exports.actualizarMovimientos = async (doc) => {
     const numeroGuia = doc.data().numeroGuia;
     const numeroGuiaConsult = numeroGuia.length < 12 ? "0"+numeroGuia : numeroGuia;
@@ -165,9 +164,11 @@ exports.actualizarMovimientos = async (doc) => {
         const ultimo_estado = movimientos[movimientos.length - 1];
         let finalizar_seguimiento = doc.data().prueba ? true : false
 
-        let estadoActual;
-        if(ultimo_estado && ultimo_estado.estado) {
-            estadoActual = estados_finalizacion.includes(ultimo_estado.estado) ? ultimo_estado.estado : respuesta.estado;
+        // let estadoActual = respuesta.estado ? respuesta.estado.replace(/(?:EN\s|DESDE)[\s\w]+/g, "") : "NO APLICA";
+        let estadoActual = respuesta.estado ? respuesta.estado.split(" ").slice(0, -2).join(" ") : "NO APLICA";
+        if(movimientos) {
+            estadoActual = movimientos.some(m => m.estado == "Entregado") 
+                ? "Entregado" : estadoActual;
         }
     
         const estado = {
@@ -185,8 +186,9 @@ exports.actualizarMovimientos = async (doc) => {
         updte_movs = {
             estado: "Mov.N.A",
             guia: doc.id + " / " + doc.data().numeroGuia + " No contiene movimientos aún."
-        }
+        }        
 
+        // return [updte_estados, updte_movs];
     
         if(movimientos.length) {
             updte_movs = await actualizarMovimientos(doc, estado);
@@ -292,8 +294,6 @@ function desglozarMovimientos(respuesta) {
     const titulos = Object.keys(respuesta)
     .filter(r => /^fec/.test(r))
 
-    console.log("Fechas => ", titulos);
-
     const movimientos = titulos
     .map(t => {
         const jsonArmado = {
@@ -311,7 +311,7 @@ function desglozarMovimientos(respuesta) {
         return jsonArmado;
     })
     .concat(novedades)
-    .filter(t => t.estado && t.fechaMov)
+    .filter(t => t.estado && t.fechaMov.trim())
     .sort((a,b) => {
         if(!a.fechaMov) return -1;
         const i = new Date(a.fechaMov).getTime()
@@ -320,5 +320,6 @@ function desglozarMovimientos(respuesta) {
         return f > i ? -1 : 1;
     });
 
-    return movimientos
+    // return movimientos;
+    return [];
 }
