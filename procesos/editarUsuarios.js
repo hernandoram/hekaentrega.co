@@ -34,9 +34,12 @@ function editarUsuarios() {
     })
 }
 
-// cambiarSistemaServientrega();
-function cambiarSistemaServientrega() {
-    db.collection("usuarios").where("datos_personalizados.habilitar_servientrega", "==", true)
+// cambiarSistemaTransportadoraEnUsuario("datos_personalizados.habilitar_servientrega");
+// cambiarSistemaTransportadoraEnUsuario("datos_personalizados.habilitar_envia");
+// cambiarSistemaTransportadoraEnUsuario("datos_personalizados.habilitar_interrapidisimo");
+// cambiarSistemaTransportadoraEnUsuario("datos_personalizados.habilitar_tcc");
+function cambiarSistemaTransportadoraEnUsuario(buscador) {
+    db.collection("usuarios").where(buscador, "==", true)
     // .limit(5)
     .get().then(q => {
         console.log(q.size);
@@ -45,7 +48,7 @@ function cambiarSistemaServientrega() {
             console.log(d.data());
             const datos_personalizados = d.data().datos_personalizados;
 
-            datos_personalizados.sistema_servientrega = "automaticoEmp";
+            datos_personalizados.sistema_servientrega = "automatico";
 
             d.ref.update({datos_personalizados})
             .then(() => {

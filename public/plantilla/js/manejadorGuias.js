@@ -2647,10 +2647,11 @@ function revisarGuiasSaldas() {
 }
 
 let filtroPagos;
-async function historialGuiasAdmin() {
+async function historialGuiasAdmin(e) {
     let fechaI = document.querySelector("#fechaI-hist-guias").value;
     let fechaF = document.querySelector("#fechaF-hist-guias").value;
     const filtroCentroDeCosto = $("#filtro_pagos-hist-guias").val();
+    const descargaDirecta = e.id === "descargar-hist-guias";
     $("#historial_guias .cargador").removeClass("d-none");
     let filtroPagoSeleccionado;
 
@@ -2694,6 +2695,39 @@ async function historialGuiasAdmin() {
     }
     
     // data= [{nombre: "nombre", apellido: "apellido"}]
+    const columnas = [
+        { data: "id_heka", title: "# Guía Heka"},
+        { data: "numeroGuia", title: "# Guía Servientrega", defaultContent: ""},
+        { data: "estado", title: "Estado", defaultContent: ""},
+        { data: "centro_de_costo", title: "Centro de Costo" },
+        { data: "transpToShow", title: "Transportadora", defaultContent: "Servientrega"},
+        { data: "type", title: "Tipo", defaultContent: "Pago contraentrega"},
+        { data: "alto", title: "Alto"},
+        { data: "ancho", title: "Ancho"},
+        { data: "largo", title: "Largo"},
+        { data: "peso", title: "peso"},
+        { data: "detalles.comision_heka", title: "Comisión Heka"},
+        { data: "detalles.comision_trasportadora", title: "Comisión Transportadora"},
+        { data: "detalles.flete", title: "Flete"},
+        { data: "detalles.recaudo", title: "Recaudo"},
+        { data: "detalles.total", title: "Total"},
+        { data: "fecha", title: "Fecha"},
+        { data: "debe", title: "deuda", defaultContent: "no aplica", render: function(content, display, data) {
+            if(data.debe 
+                && data.seguimiento_finalizado
+                && data.type!=="CONVENCIONAL"
+            ) return (-content) + '<span class="sr-only"> Por pagar</span>'
+
+            return -content
+        }},
+        { data: "cuenta_responsable", title: "Cuenta responsable", defaultContent: "Personal"},
+    ];
+
+    if(descargaDirecta) {
+        $("#historial_guias .cargador").addClass("d-none");
+
+        return descargarInformeGuiasAdmin(columnas, data, nombre)
+    }
 
     let tabla = $("#tabla-hist-guias").DataTable({
         data: data,
@@ -2702,30 +2736,7 @@ async function historialGuiasAdmin() {
             url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
             "emptyTable": "Aún no tienes guías saldadas."
         },
-        columns: [
-            { data: "id_heka", title: "# Guía Heka"},
-            { data: "numeroGuia", title: "# Guía Servientrega", defaultContent: ""},
-            { data: "estado", title: "Estado", defaultContent: ""},
-            { data: "centro_de_costo", title: "Centro de Costo" },
-            { data: "transpToShow", title: "Transportadora", defaultContent: "Servientrega"},
-            { data: "type", title: "Tipo", defaultContent: "Pago contraentrega"},
-            {data: "alto", title: "Alto"},
-            {data: "ancho", title: "Ancho"},
-            {data: "largo", title: "Largo"},
-            {data: "peso", title: "peso"},
-            { data: "detalles.comision_heka", title: "Comisión Heka"},
-            { data: "detalles.comision_trasportadora", title: "Comisión Transportadora"},
-            { data: "detalles.flete", title: "Flete"},
-            { data: "detalles.recaudo", title: "Recaudo"},
-            { data: "detalles.total", title: "Total"},
-            { data: "fecha", title: "Fecha"},
-            { data: "debe", title: "deuda", defaultContent: "no aplica", render: function(content, display, data) {
-                if(data.debe && data.seguimiento_finalizado
-                    && data.type!=="CONVENCIONAL") return (-content) + '<span class="sr-only"> Por pagar</span>'
-                return -content
-            }},
-            {data: "cuenta_responsable", title: "Cuenta responsable", defaultContent: "Personal"},
-        ],
+        columns: columnas,
         dom: 'Bfrtip',
         buttons: [{
             extend: "excel",
@@ -2776,6 +2787,29 @@ async function historialGuiasAdmin() {
     } );
 
     $("#historial_guias .cargador").addClass("d-none");
+}
+
+function descargarInformeGuiasAdmin(columnas, guias, nombre) {
+    const columnasParaExcel = {};
+
+    columnas.forEach(col => {
+        columnasParaExcel[col.data] = col.title;
+    });
+
+    guias = guias.map(g => {
+        let deuda = g.debe ? -g.debe : 0;
+
+        if(g.debe 
+            && g.seguimiento_finalizado
+            && g.type!=="CONVENCIONAL"
+        ) deuda = deuda + ' Por pagar';
+
+        g.debe = deuda;
+        return g;
+    });
+
+    descargarInformeExcel(columnasParaExcel, guias, nombre)
+
 }
 
 function filtrarPorpagosHistGuiasAdm(e, editor, button, config) {
@@ -3086,4 +3120,46 @@ function imprimirManifiestoInter(numeroGuias) {
     });
 
     open("/inter/imprimirManifiesto/" + numeroGuias, "_blank");  
+}
+
+function descargarInformeExcel(datosDescarga, informeJson, title) {
+    const datosDescargaEjemplo = {
+        campo_json: "Titulo a guardar del excel",
+      nombres: "Nombres",
+      apellidos: "Apellidos",
+      centro_de_costo: "Centro de costo",
+      correo: "Correo",
+      nombre_empresa: "Nombre de la empresa",
+      "datos_bancarios.banco": "Banco",
+      "datos_personalizados.sistema_envia": "Sistema envia",
+      "datos_personalizados.sistema_tcc": "Sistema tcc",
+    }
+  
+    const normalizeObject = (campo, obj) => {
+      if(!obj) return "No aplica";
+      return obj[campo];
+    }
+  
+    const transformDatos = (obj) => {
+      const res = {};
+      for(let campo in datosDescarga) {
+        const resumen = campo.split(".")
+        if(resumen.length > 1) {
+          let resultante = obj;
+          resumen.forEach(r => {
+            resultante = normalizeObject(r, resultante)
+          });
+          res[datosDescarga[campo]] = resultante
+  
+        } else {
+          res[datosDescarga[campo]] = obj[campo];
+        }
+      }
+
+      return res;
+    }
+
+    const data = informeJson.map(transformDatos);
+
+    crearExcel(data, title);
 }

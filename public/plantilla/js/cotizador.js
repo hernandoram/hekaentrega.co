@@ -26,7 +26,7 @@ let transportadoras = {
             const sist = datos_personalizados.sistema_servientrega;
             return sist;
         },
-        getCuentaResponsable: () => /Emp$/.test(datos_personalizados.sistema_servientrega) ? "EMPRESA": "PERSONAL",
+        getCuentaResponsable: () => "EMPRESA",
         sistemaAutomatizado: () => /^automatico/.test(datos_personalizados.sistema_servientrega),
     },
     "INTERRAPIDISIMO": {
@@ -52,7 +52,7 @@ let transportadoras = {
             const sist = datos_personalizados.sistema_interrapidisimo;
             return sist;
         },
-        getCuentaResponsable: () => /Emp$/.test(datos_personalizados.sistema_interrapidisimo) ? "EMPRESA": "PERSONAL",
+        getCuentaResponsable: () => "EMPRESA",
         sistemaAutomatizado: () => /^automatico/.test(datos_personalizados.sistema_interrapidisimo),
     },
     "ENVIA": {
@@ -76,7 +76,7 @@ let transportadoras = {
             const sist = datos_personalizados.sistema_envia;
             return sist;
         },
-        getCuentaResponsable: () => /Emp$/.test(datos_personalizados.sistema_envia) ? "EMPRESA": "PERSONAL",
+        getCuentaResponsable: () => "EMPRESA",
         sistemaAutomatizado: () => /^automatico/.test(datos_personalizados.sistema_envia),
     },
     "TCC": {
@@ -102,7 +102,7 @@ let transportadoras = {
             const sist = datos_personalizados.sistema_tcc;
             return sist;
         },
-        getCuentaResponsable: () => /Emp$/.test(datos_personalizados.sistema_tcc) ? "EMPRESA": "PERSONAL",
+        getCuentaResponsable: () => "EMPRESA",
         sistemaAutomatizado: () => /^automatico/.test(datos_personalizados.sistema_tcc),
     },
 };
@@ -2247,8 +2247,58 @@ function crearGuia() {
 };
 
 //Un emulador rápido de pruebas para usar desde la consola y ver las respuesta de la misma;
+const erroresComunes = new Map(); 
+async function buscarGuiasConErrores() {
+    return;
+    const errorEstatus500Inter = '{"StatusCode":500,"Message":"Error desconocido","Description":"Favor contacte a soporte técnico"}';
+    const res = await db.collection("errores")
+    .orderBy("momento")
+    .startAt(new Date().getTime() - (2 * 24 * 36e5))
+    // .limit(10)
+    .get().then(q => {
+        console.log(q.size);
+        return q.docs.map(d => {
+            const g = d.data();
+            g.id = d.id;
+
+            const mensajeError = g.respuesta.mensajeCorto
+
+            if(erroresComunes.has(mensajeError)) {
+                erroresComunes.set(mensajeError, erroresComunes.get(mensajeError) + 1);
+            } else {
+                erroresComunes.set(mensajeError, 1);
+            }
+            
+            return g;
+        });
+    });
+
+
+    if(!res) {
+        console.error("No se encontró alguna guía allí");
+        return;
+    }
+
+    guias = res.filter(g => {
+        return g.datos_a_enviar.transportadora === "INTERRAPIDISIMO" && g.respuesta.mensajeCorto === errorEstatus500Inter;
+    });
+
+    for await (let g of guias) {
+        console.log(g);
+        const creada = await pruebaGeneracionGuias(g.id);
+        console.log(creada);
+        if(!creada) {
+            console.log("ENCONTRAMOS UNA FALLA");
+            break;
+        }
+    }
+
+
+}
+
 async function pruebaGeneracionGuias(idGuiaError) {
-    const guia = await db.collection("errores").doc(idGuiaError)
+    const reference = db.collection("errores").doc(idGuiaError);
+    const guia = await reference
     .get().then(d => d.data());
     if(!guia) {
         console.error("No se encontró alguna guía allí");
@@ -2256,10 +2306,18 @@ async function pruebaGeneracionGuias(idGuiaError) {
     }
 
     const datos = guia.datos_a_enviar;
+    
+    if(datos.transportadora === "INTERRAPIDISIMO") {
+        bodega = guia.datos_usuario.bodegas.find(b => b.codigo_sucursal_inter);
+    }
 
     const referencia = db.collection("pruebaDirigidaGuias").doc(datos.id_heka);
 
-    crearGuiaTransportadora(datos, referencia);
+    const creacion = await crearGuiaTransportadora(datos, referencia);
+
+    reference.delete();
+
+    return creacion;
 }
 
 async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {

@@ -589,10 +589,8 @@
                           <label for="sistema_servientrega">Servientrega</label>
                           <select class="form-control" id="sistema_servientrega" name="sistema_servientrega">
                             <option value="">Defecto</option>
-                            <option value="automaticoEmp">Automática (empresa)</option>
                             <option value="automatico">Automática</option>
                             <option value="manual">Manual</option>
-                            <option value="manualEmp">Manual (empresa)</option>
                             <option value="inhabilitado">Inhabilitar</option>
                           </select>
                         </div>
@@ -600,10 +598,8 @@
                           <label for="sistema_interrapidisimo">Interrapidísimo</label>
                           <select class="form-control" id="sistema_interrapidisimo" name="sistema_interrapidisimo">
                             <option value="">Defecto</option>
-                            <option value="automaticoEmp">Automática (empresa)</option>
                             <option value="automatico">Automática</option>
                             <option value="manual">Manual</option>
-                            <option value="manualEmp">Manual (empresa)</option>
                             <option value="inhabilitado">Inhabilitar</option>
                           </select>
                         </div>
@@ -611,7 +607,6 @@
                           <label for="sistema_envia">Envía</label>
                           <select class="form-control" id="sistema_envia" name="sistema_envia">
                             <option value="">Defecto</option>
-                            <option value="automaticoEmp">Automática (empresa)</option>
                             <option value="automatico">Automática</option>
                             <option value="inhabilitado">Inhabilitar</option>
                           </select>
@@ -621,7 +616,6 @@
                           <label for="sistema_tcc">TCC</label>
                           <select class="form-control" id="sistema_tcc" name="sistema_tcc">
                             <option value="">Defecto</option>
-                            <option value="automaticoEmp">Automática (empresa)</option>
                             <option value="automatico">Automática</option>
                             <option value="inhabilitado">Inhabilitar</option>
                           </select>
@@ -962,9 +956,14 @@
                   </select>
                 </div>
               </div>
-              <button id="buscador-hist-guias" onclick="historialGuiasAdmin()" class="mb-4 btn btn-primary btn-user btn-block">
-                Buscar
-              </button>  
+              <div class="btn-group col-12 mb-3">
+                <button id="buscador-hist-guias" onclick="historialGuiasAdmin(this)" class="btn btn-primary">
+                  Buscar
+                </button>
+                <button id="descargar-hist-guias" onclick="historialGuiasAdmin(this)" class="btn btn-outline-primary">
+                  Descargar Excel
+                </button>
+              </div>
             </div>
             <div class="d-flex justify-content-center">
               <div class="cargador d-none lds-ellipsis"><div></div><div></div><div></div><div></div></div>
