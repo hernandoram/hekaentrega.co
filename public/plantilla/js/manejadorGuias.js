@@ -2655,9 +2655,11 @@ async function historialGuiasAdmin(e) {
     $("#historial_guias .cargador").removeClass("d-none");
     let filtroPagoSeleccionado;
 
-    if(filtroCentroDeCosto && !filtroPagos) {
-        filtroPagos = await db.collection("infoHeka").doc("usuariosPorDiaDePago")
-        .get().then(d => d.data());
+    if(filtroCentroDeCosto) {
+        if(!filtroPagos) {
+            filtroPagos = await db.collection("infoHeka").doc("usuariosPorDiaDePago")
+            .get().then(d => d.data());
+        }
 
         filtroPagoSeleccionado = filtroPagos[filtroCentroDeCosto];
     }
