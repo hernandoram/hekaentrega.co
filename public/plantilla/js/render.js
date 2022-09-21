@@ -217,7 +217,7 @@ function mostrarUsuarios(data, id){
 
     return `<div class="col-md-4 mb-4" 
     data-filter-nombres="${data.nombres}" data-filter-apellidos="${data.apellidos}"
-    data-filter-centro_de_costo="${data.centro_de_costo}" ${bodegasFilter}>
+    data-filter-centro_de_costo="${data.centro_de_costo}" ${bodegasFilter} data-filter-celular="${data.celular + "-" +data.celular2}">
     <div class="card border-bottom-info" id="${id}" shadow="h-100 py-2">
         <div class="card-body">
             <div class="row no-gutters align-items-center">
@@ -578,6 +578,8 @@ function crearStickerParticular() {
                 has_sticker = await generarStickerGuiaInterrapidisimo(para_crear);
             } else if (data.transportadora === "SERVIENTREGA") {
                 has_sticker = await guardarStickerGuiaServientrega(para_crear);
+            } else if(data.transportadora === "ENVIA") {
+                has_sticker = await guardarStickerGuiaEnvia(para_crear);
             } else {
                 has_sticker = await guardarStickerGuiaAveo(para_crear);
             }
@@ -705,11 +707,13 @@ function verificador(arr, scroll, mensaje) {
             }
         }
         if(primerInput) {
-            primerInput.querySelector("input").focus()
+            const input = primerInput.querySelector("input")
+            if(!input) return;
+
+            input.focus()
             primerInput.scrollIntoView({
                 behavior: "smooth"
             });
-            console.log(primerInput)
         }
     }
     
@@ -1215,21 +1219,28 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
 
         const referenciaGuia = firebase.firestore().collection("usuarios").doc(id_user).collection("guias").doc(id_heka)
         
-        const { value: text } = await Swal.fire({
-            input: 'textarea',
-            inputLabel: 'Respuesta',
+        let { value: text } = await Swal.fire({
+            title: 'Respuesta',
+            html: `
+                <textarea placeholder="Escribe tu mensaje" id="respuesta-novedad" class="form-control"></textarea>
+                <div id="posibles-respuestas"></div>
+            `,
             inputPlaceholder: 'Escribe tu mensaje',
             inputAttributes: {
                 'aria-label': 'Escribe tu respuesta'
             },
+            didOpen: respondiendoNovedad,
+            preConfirm: () => document.getElementById("respuesta-novedad").value,
             showCancelButton: true
-        })
-
+        });
+        
         if (text == undefined) {
             boton_solucion.html(html_btn);
         } else if (text) {
+            text = text.trim();
+
             const solucion = {
-                gestion: "<b>La transportadora \"" +data.transportadora+ "\" reponde lo siguiente:</b> " + text.trim(),
+                gestion: "<b>La transportadora \"" +data.transportadora+ "\" responde lo siguiente:</b> " + text.trim(),
                 fecha: new Date()
             }
             avisar("Se enviará mensaje al usuario", text);
@@ -1239,8 +1250,22 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
                 extraData.seguimiento = new Array(solucion)
             }
 
-            console.log(extraData)
-            console.log(solucion)
+            console.log(extraData);
+            console.log(solucion);
+
+            const mensajePreguardado = listaRespuestasNovedad.findIndex(l => l.mensaje.toLowerCase() == text.toLowerCase());
+
+            if(mensajePreguardado == -1) {
+                listaRespuestasNovedad.push({
+                    cantidad: 1,
+                    mensaje: text
+                });
+            } else {
+                listaRespuestasNovedad[mensajePreguardado].cantidad++
+            }
+
+            // Para guardar una nueva estructura de mensaje
+            db.collection("infoHeka").doc("respuestasNovedad").update({respuestas: listaRespuestasNovedad});
 
             referenciaGuia.update({
                 seguimiento: extraData.seguimiento,
@@ -1275,10 +1300,79 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
     })
 }
 
+function respondiendoNovedad(swalDom) {
+    console.log(swalDom);
+    const textarea = swalDom.querySelector("#respuesta-novedad");
+    const posiblesRespuestas = swalDom.querySelector("#posibles-respuestas");
+    mostrarPosiblesRespuestasNovedad(posiblesRespuestas, textarea);
+
+
+    textarea.addEventListener("keyup", e => {
+        const val = e.target.value;
+        const lista = mostrarPosiblesRespuestasNovedad(posiblesRespuestas, textarea, val.trim());
+
+        if(e.keyCode === 13 && lista) {
+            e.target.value = lista[0].mensaje;
+        }
+    });
+
+    
+
+
+}
+
+function mostrarPosiblesRespuestasNovedad(domResp, textarea, mensaje = "") {
+    if(!listaRespuestasNovedad) return;
+
+    let lista = listaRespuestasNovedad.sort((a,b) => b.cantidad - a.cantidad);
+
+    if(mensaje) {
+        lista = lista.filter(l => l.mensaje.toLowerCase().includes(mensaje.toLowerCase()));
+    }
+
+    lista = lista.slice(0, 3);
+
+    const titulo = "<h6 class='mt-3'>Posibles respuestas</h6>";
+    domResp.innerHTML = "";
+
+    if(!lista.length) return;
+
+    const listHtml = lista.map((l, i) => {
+        const position = l.mensaje.toUpperCase().indexOf(mensaje.toUpperCase());
+        const longitud = mensaje.length + position;
+        const slc = (i,f) => l.mensaje.slice(i,f);
+        return `<a href="javascript:void(0)" class="lista list-group-item list-group-item-action d-flex justify-content-between" data-id="${i}" title="seleccionar">
+            <span>${mensaje ? slc(0, position) + "<b>" + slc(position, longitud) + "</b>" + slc(longitud) : l.mensaje}</span>
+        </a>`;
+    });
+
+    domResp.innerHTML += titulo + `<div class="list-group">${listHtml.join("")}</div>`;
+
+    $(".lista", domResp).click(function() {
+        const id = this.getAttribute("data-id");
+
+        const seleccionado = lista[id];
+
+        if(seleccionado) {
+            textarea.value = seleccionado.mensaje;
+        }
+    });
+
+    return lista;
+}
+
 function traducirMovimientoGuia(transportadora) {
     let traductor = new Object();
     switch (transportadora) {
-        case "ENVIA": case "TCC":
+        case "ENVIA":
+            return {
+                novedad: "novedad",
+                fechaMov: "fechaMov",
+                observacion: "observacion",
+                descripcionMov: "estado",
+                ubicacion: "ciudad"
+            }
+        case "TCC":
             return {
                 novedad: "aclaracion",
                 fechaMov: "fechamostrar",
@@ -1307,26 +1401,27 @@ function traducirMovimientoGuia(transportadora) {
 
 function buscarMomentoNovedad(movimientos, transp) {
     const last = movimientos.length - 1;
-    let movimiento = new Object();
     for(let i = last; i >= 0; i--) {
-        if(transp === "INTERRAPIDISIMO") {
-
-        } else {
-            if(movimientos[i].TipoMov === "1") {
-                movimiento = movimientos[i];
-            } else {
-                break;
-            }
+        const mov = movimientos[i];
+        if(revisarNovedad(mov,transp)) {
+            return mov;
         }
     }
 
-    return movimiento;
+    return {}
 }
+
 
 function revisarNovedad(mov, transp) {
     if(transp === "INTERRAPIDISIMO") {
-        return mov.Motivo;
+        return !!mov.Motivo;
+    } else if (transp === "ENVIA" || transp === "TCC") {
+        return !!mov.novedad
     } else {
+        if(listaNovedadesServientrega.length) {
+            return listaNovedadesServientrega.includes(mov.NomConc)
+        }
+
         return mov.TipoMov === "1";
     }
 }

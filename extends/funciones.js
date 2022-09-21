@@ -1,5 +1,8 @@
 const {agregarEstadistica} = require("./estadisticas");
-const {revisarNovedad, revisarEstadoFinalizado} = require("./manejadorMovimientosGuia");
+const { singleMessage } = require("../controllers/cellVoz");
+const fetch = require("node-fetch");
+
+const {revisarNovedadAsync, revisarEstadoFinalizado, guiaEnNovedad} = require("./manejadorMovimientosGuia");
 
 exports.segmentarString = (base64, limite = 1000) => {
   if (!base64) return new Array(0);
@@ -46,14 +49,12 @@ exports.actualizarMovimientos = async (doc, toUpdate) => {
   toUpdate.daneOrigen = doc.data().dane_ciudadR || "NA";
   toUpdate.daneDestino = doc.data().dane_ciudadD || "NA";
   toUpdate.id_heka = doc.id;
+  toUpdate.fechaUltimaActualizacion = new Date();
 
-  const novedad = await revisarNovedad(ultimo_mov, doc.data().transportadora);
+  const novedad = guiaEnNovedad(toUpdate.movimientos, doc.data().transportadora);
 
-  toUpdate.mostrar_usuario = Boolean(novedad);
+  toUpdate.mostrar_usuario = novedad && !revisarEstadoFinalizado(toUpdate.estadoActual);
   toUpdate.enNovedad = Boolean(novedad);
-
-  if(novedad) doc.ref.update({enNovedad: Boolean(novedad)});
-
 
   return await doc.ref.parent.parent.collection("estadoGuias")
   .doc(doc.id)
@@ -64,9 +65,11 @@ exports.actualizarMovimientos = async (doc, toUpdate) => {
     if(revisarEstadoFinalizado(toUpdate.estadoActual)) {
       agregarEstadistica(doc, toUpdate);
     }
+
     return {
       estado: "Mov.A",
-      guia: doc.id + " / " + doc.data().numeroGuia
+      guia: doc.id + " / " + doc.data().numeroGuia,
+      guardado: toUpdate
     };
 
   }).catch(err => {
@@ -79,6 +82,9 @@ exports.actualizarMovimientos = async (doc, toUpdate) => {
 
 exports.estandarizarFecha = (date, specialFormat, parseHour) => {
   const fecha = new Date(date || new Date().getTime());
+  
+  if(isNaN(fecha.getTime())) return date;
+  
   const norm = n => n < 10 ? "0" + n : n;
   const format = {
     D: fecha.getDate(),
@@ -168,3 +174,27 @@ exports.transformarDatosDestinatario = data => {
     return datos_destinatario;
   }
 };
+
+exports.notificarEntregaEnOficina = (guia) => {
+  const mensaje = "Tu envío "+guia.transportadora+" con número "+guia.numeroGuia+" se encuentra en la oficina principal de tu ciudad, para que sea reclamado máximo en 6 días hábiles.";
+  console.log(mensaje);
+
+  // return;
+  try {
+    singleMessage("57"+guia.telefonoD, mensaje);
+  } catch {
+    console.log("Error enviando mensaje");
+  }
+}
+
+exports.urlToPdfBase64 = async (url) => {
+  const res = await fetch(url).then(r => {
+      return r.arrayBuffer();
+  }).catch(e => console.log(e));
+
+  const buff = Buffer.from(res, "utf8");
+  const base64 = buff.toString("base64");
+
+  // console.log("base64 => ", base64);
+  return base64; 
+}

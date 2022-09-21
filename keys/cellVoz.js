@@ -1,6 +1,6 @@
 module.exports = {
-    endpoint: "https://api.cellvoz.co/v2/",
+    endpoint: "https://api.cellvoz.com/v2/",
     account: "00486441598",
     password: "Hernandoram1998",
-    apiKey: "8b018128e3d5cc9e37607ca497af486c12249e8c"
+    apiKey: "d51e86176d3e0a5aa4ef5843a14f1ba371043acc"
 }

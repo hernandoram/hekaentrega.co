@@ -2,7 +2,7 @@ const { Console } = require("console");
 const ciudades = require("../data/ciudades");
 const firebase = require("../keys/firebase");
 const db = firebase.firestore();
-const {revisarTipoEstado, revisarNovedad, traducirMovimientoGuia} = require("./manejadorMovimientosGuia");
+const {revisarTipoEstado, revisarNovedadAsync, traducirMovimientoGuia} = require("./manejadorMovimientosGuia");
 
 // FUNCIONES SOLO PARA USO EN DESARROLLO 
 
@@ -77,7 +77,7 @@ async function buscarUsuariosParaActualizarEstadisticas() {
         
             console.log(doc.data().centro_de_costo, doc.id, "usuarios faltantes: "+size);
             if(!novedadesGuias) throw new Error("me quedé con el usuario => "+ doc.data().centro_de_costo)
-            console.log(novedadesGuias);
+            console.log("Camntidad novedades en estadísticas ", novedadesGuias);
             for(let t in novedadesGuias) {
                 novedadesGuias[t].forEach(n => {
                     if (!novedades[t].includes(n))
@@ -108,7 +108,7 @@ async function agregarEstadistica(doc, estadoGuia) {
     const estadisticas = await formatoEstadistica(estadoGuia);
     
     if(estadisticas) {
-        estadisticas.transportadora = guia.transportadora;
+        estadisticas.transportadora = guia.transportadora || "SERVIENTREGA";
         estadisticas.nombreCiudad = guia.ciudadD +"("+ guia.departamentoD+")";
         await referenciaCiudad.set(estadisticas, {merge: true});
         doc.ref.update({capturadaEstadisticaEntrega: true});
@@ -181,16 +181,20 @@ async function definirEstadisticas(data) {
     const movimientos = data.movimientos;
     const ultMov = movimientos[movimientos.length - 1];
     const cantNovedades = await movimientos.reduce(async (a,b)  => {
-        const novedad = await revisarNovedad(b, data.transportadora);
-        if(novedad) {
-            const campoNovedad = traducirMovimientoGuia(data.transportadora).novedad
-            posiblesNovedades.push(b[campoNovedad]);
-            a++;
+        try {
+            const novedad = await revisarNovedadAsync(b, data.transportadora);
+            if(novedad) {
+                const campoNovedad = traducirMovimientoGuia(data.transportadora).novedad
+                posiblesNovedades.push(b[campoNovedad]);
+                a++;
+            }
+        } catch (e) {
+            console.log("Error con el contador de novedades ", e.message)
         }
         return a
     }, 0);
 
-    console.log(cantNovedades);
+    console.log("Cantidad novedades estadísticas", cantNovedades);
 
     return {data, movimientos, ultMov, cantNovedades, posiblesNovedades};
 }

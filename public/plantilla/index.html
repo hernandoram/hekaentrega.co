@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="facebook-domain-verification" content="hxlvpqoqz56osgzhu0sbw4ikvy5r3k" />
+
 
     <!-- App favicon -->
     <link rel="shortcut icon" href="img/logo-heka.png">
@@ -21,6 +23,24 @@
 	<link href="css/sb-admin-2.min.css" rel="stylesheet">
     <link rel="stylesheet" href="css/animate.css">;
   	<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Meta Pixel Code -->
+    <script>
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '371894638196341');
+        fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+        src="https://www.facebook.com/tr?id=371894638196341&ev=PageView&noscript=1"
+    /></noscript>
+    <!-- End Meta Pixel Code -->
 
     <title>Heka entrega</title>
 </head>
@@ -788,21 +808,21 @@
         }
 
 		datos_personalizados = {
-			costo_zonal1: 8250,
-			costo_zonal2: 12650,
-			costo_zonal3: 2800,
-			costo_nacional1: 10950,
-			costo_nacional2: 19450,
-			costo_nacional3: 3400,
-			costo_especial1: 24450,
-			costo_especial2: 37200,
-			costo_especial3: 6300,
-			comision_servi: 3.1,
-			comision_heka: 1,
-			constante_convencional: 600,
-			constante_pagoContraentrega: 1500,
-			saldo: 0
-		};
+            costo_zonal1: 8650,
+            costo_zonal2: 13300,
+            costo_zonal3: 2800,
+            costo_nacional1: 11500,
+            costo_nacional2: 20400,
+            costo_nacional3: 3400,
+            costo_especial1: 25550,
+            costo_especial2: 39000,
+            costo_especial3: 6300,
+            comision_servi: 3.1,
+            comision_heka: 1,
+            constante_convencional: 800,
+            constante_pagoContraentrega: 1500,
+            saldo: 0
+        };
 
 		//funcion que me devuelve a los inputs que estan escritos incorrectamente o vacios Proviene de render.js
 		function verificador(arr, boolean) {

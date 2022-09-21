@@ -6,6 +6,7 @@ exports.UsuarioPrueba = {
     clave: "Hernando19082021",
     endpoint: "https://stgwww3.interrapidisimo.com/ApiVentaCreditoStg/api/Admision"
 }
+//código sucursa prueba para cuenta normal 27420
 
 exports.CredencialesEmpresa = {
     idCliente: 7986,

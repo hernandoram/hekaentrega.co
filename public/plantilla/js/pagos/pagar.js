@@ -81,6 +81,7 @@ class Empaquetado {
                                             <th>Recaudo</th>
                                             <th>Envío Total</th>
                                             <th>Total a Pagar</th>
+                                            <th>Comisión heka</th>
                                             <th>Fecha</th>
                                             <th>Cuenta responsable</th>
                                             <th>Estado</th>
@@ -134,13 +135,14 @@ class Empaquetado {
                 ` 
                 : "";
             const fila = `
-                <tr class="${clase}" id="row-${usuario + guia.GUIA}">
+                <tr class="${clase}" id="row-${usuario + guia.GUIA}" title="" data-delay='${JSON.stringify({show: 500, hide: 100})}'>
                     <td class="show-error">${guia.REMITENTE}</td>
                     <td>${guia.TRANSPORTADORA}</td>
                     <td>${guia.GUIA}</td>
                     <td>${guia.RECAUDO}</td>
                     <td>${guia["ENVÍO TOTAL"]}</td>
                     <td>${guia["TOTAL A PAGAR"]}</td>
+                    <td>${guia["COMISION HEKA"] || 0}</td>
                     <td>${guia.FECHA || genFecha()}</td>
                     <td>${guia.cuenta_responsable || "No registró"}</td>
                     <td>
@@ -159,11 +161,13 @@ class Empaquetado {
         button.setAttribute("class", "btn btn-success");
         button.setAttribute("id", "btn-pagar-"+usuario);
 
+        if(total <= 0) btnDisabled = true;
         if(btnDisabled) button.setAttribute("disabled", btnDisabled);
         button.innerHTML = "Pagar $" + convertirMiles(total);
         button.addEventListener("click", () => this.pagar(usuario));
         
         $("#pagos-usuario-"+usuario +" [data-toggle='popover']").popover();
+
         visor.find("#pagos-usuario-"+usuario + ">.card-body").append(button);
         $(".deleter", visor).click(eliminarGuiaStagging);
 
@@ -195,7 +199,8 @@ class Empaquetado {
             loader.html("cargando " + (i+1) + " de " + f + "...");
 
             if(existente) {
-                guia.cuenta_responsable = existente.cuenta_responsable;
+                console.log(guia)
+                guia.cuenta_responsable = existente.cuenta_responsable || guia["CUENTA RESPONSABLE"] || "SCR";
                 guia.estado = existente.type;
                 guia.id_heka = existente.id_heka;
                 guia.id_user = existente.id_user
@@ -211,7 +216,11 @@ class Empaquetado {
                 guia.estado = "PAGADA";
             }
 
-            if(!guia.FECHA) guia.FECHA = genFecha();
+            if(!guia.estado) guia.estado = "No registra";
+
+            if(!guia.FECHA) guia.FECHA = genFecha("LR");
+
+            if(!guia.cuenta_responsable) guia.cuenta_responsable = guia["CUENTA RESPONSABLE"] || "SCR";
 
             i++;
             if(i === f) {
@@ -280,7 +289,7 @@ class Empaquetado {
         const buttons = $(".next,.prev");
         const loader = new ChangeElementContenWhileLoading("#btn-pagar-"+usuario);
         loader.init();
-        buttons.attr("disabled", true);
+        // buttons.attr("disabled", true);
 
         const terminar = () => {
             loader.end();
@@ -352,7 +361,7 @@ class Empaquetado {
                 // y finalmente eliminar la guía  en cargue que ya fue paga
                 const registroRef = db.collection(nameCollectionDb).doc(numeroGuia);
                 batch.delete(registroRef);
-
+                
                 await batch.commit();
 
                 fila.addClass("table-success");
@@ -360,9 +369,15 @@ class Empaquetado {
 
             } catch(e) {
                 console.log(e);
-                fila.addClass("table-danger");        
+                fila.addClass("table-danger");
+                fila.attr({
+                    "title": e.message
+                });
+                fila.tooltip();
             }
         }
+
+        // $("#pagos-usuario-"+usuario +" tr").tooltip();
 
         this.pagosPorUsuario[usuario].pagoConcreto = pagado;
 
@@ -439,6 +454,9 @@ async function consultarPendientes(e) {
         }
 
     } else if(inpFiltCuentaResp.val()) {
+        if(transpSelected.length) {
+            reference = reference.where("TRANSPORTADORA", "in", transpSelected)
+        }
         const data = await reference.where("CUENTA RESPONSABLE", "==", inpFiltCuentaResp.val())
         .get().then(handlerInformation);
 
@@ -454,7 +472,9 @@ async function consultarPendientes(e) {
         respuesta = data;
     }
 
-    respuesta.forEach(d => paquete.addPago(d));
+    respuesta
+    .sort((a,b) => a["REMITENTE"].localeCompare(b["REMITENTE"]))
+    .forEach(d => paquete.addPago(d));
     paquete.init();
 
     const stepper = new Stepper(visor);

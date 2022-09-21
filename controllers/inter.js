@@ -169,7 +169,7 @@ const actualizarMovimientos = async function(doc) {
         return 0
     });
 
-    if(!respuesta) {
+    if(!respuesta || !respuesta.length) {
         const finalizar_seguimiento = doc.data().prueba ? true : false;
         if(finalizar_seguimiento) {
             await extsFunc.actualizarEstado(doc, {
@@ -185,15 +185,25 @@ const actualizarMovimientos = async function(doc) {
         }]
     }
 
+    const guia = doc.data();
+
     const estados_finalizacion = ["Documento Anulado", "Entrega Exitosa", "Devuelto al Remitente"];
+    let entrega_oficina_notificada = guia.entrega_oficina_notificada || false;
+
     
     const movimientos = respuesta[0].EstadosGuia.map(estado => {
         const est = estado.EstadoGuia;
         const movimiento = {
             Ciudad: est.Ciudad,
             "Descripcion Estado": est.DescripcionEstadoGuia,
-            "Fecha Cambio Estado": extsFunc.estandarizarFecha(est.FechaGrabacion, "DD/MM/YYYY HH:mm:ss"),
+            "Fecha Cambio Estado": extsFunc.estandarizarFecha(est.FechaGrabacion, "MM/DD/YYYY HH:mm:ss"),
             "Motivo": estado.Motivo.Descripcion || "",
+        }
+
+        console.log(est.DescripcionEstadoGuia);
+        if(est.DescripcionEstadoGuia == "Para Reclamar en Oficina" && !entrega_oficina_notificada) {
+            extsFunc.notificarEntregaEnOficina(guia);
+            entrega_oficina_notificada = true;
         }
         
         return movimiento;
@@ -204,28 +214,35 @@ const actualizarMovimientos = async function(doc) {
 
 
     const estado = {
+        entrega_oficina_notificada,
         numeroGuia: respuesta[0].Guia.NumeroGuia.toString(), //guia devuelta por la transportadora
-        fechaEnvio: extsFunc.estandarizarFecha(respuesta[0].TrazaGuia["FechaAdmisionGuia"], "DD/MM/YYYY HH:mm:ss"), 
+        fechaEnvio: extsFunc.estandarizarFecha(respuesta[0].TrazaGuia["FechaAdmisionGuia"], "MM/DD/YYYY HH:mm:ss"), 
         ciudadD: doc.data().ciudadD,
         nombreD: doc.data().nombreD,
         direccionD:  respuesta[0].Guia.DireccionDestinatario,
         estadoActual: respuesta[0].TrazaGuia['DescripcionEstadoGuia'],
-        fecha: extsFunc.estandarizarFecha(ultimo_estado["Fecha Cambio Estado"], "DD/MM/YYYY HH:mm:ss"), //fecha del estado
+        fecha: extsFunc.estandarizarFecha(ultimo_estado["Fecha Cambio Estado"], "MM/DD/YYYY HH:mm:ss"), //fecha del estado
         id_heka: doc.id,
         movimientos
     };
     
-    
-    updte_estados = await extsFunc.actualizarEstado(doc, {
+    updte_movs = await extsFunc.actualizarMovimientos(doc, estado);
+
+    const actualizaciones = {
         estado: estado.estadoActual,
         ultima_actualizacion: new Date(),
         seguimiento_finalizado: estados_finalizacion.some(v => estado.estadoActual === v)
-            || finalizar_seguimiento
-    });
+        || finalizar_seguimiento
+    };
 
-    updte_movs = await extsFunc.actualizarMovimientos(doc, estado);
+    if (updte_movs.estado === "Mov.A" && updte_movs.guardado) {
+        const {enNovedad} = updte_movs.guardado
+        actualizaciones.enNovedad = enNovedad || false;
+    }
+    
+    updte_estados = await extsFunc.actualizarEstado(doc, actualizaciones);
 
-    return [updte_estados, updte_movs]
+    return [updte_estados, updte_movs];
     
 }
 
@@ -262,7 +279,7 @@ exports.crearGuia = (req, res) => {
     let data = {
         "IdClienteCredito": credentials.idCliente, //Codigo cliente
         "CodigoConvenioRemitente": guia.codigo_sucursal, //Codigo sucursal
-        "IdTipoEntrega": guia.id_tipo_entrega || 1,
+        "IdTipoEntrega": guia.id_tipo_entrega || 1, // 1 ENTREGA EN DIRECCIÓN; 2: RECLAMO EN OFICINA
         "AplicaContrapago": dest.type !== "CONVENCIONAL",
         "IdServicio": idServicio, 
         "Peso": guia.peso, //En kilogramos

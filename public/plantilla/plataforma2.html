@@ -8,8 +8,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="">
+  <meta name="facebook-domain-verification" content="hxlvpqoqz56osgzhu0sbw4ikvy5r3k" />
+
   <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
   <script src="https://unpkg.com/pdf-lib"></script>
+  <!-- Meta Pixel Code -->
+  <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '371894638196341');
+    fbq('track', 'PageView');
+  </script>
+  <noscript><img height="1" width="1" style="display:none"
+  src="https://www.facebook.com/tr?id=371894638196341&ev=PageView&noscript=1"
+  /></noscript>
+  <!-- End Meta Pixel Code -->
+
 
 
   <title>hekaentrega.co</title>
@@ -98,7 +118,7 @@
             <i class="fas fa-fw fa-balance-scale"></i>
             <span>Cotizar envío</span></a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Acá podras acceder a tu propia tienda. (Espacio aun no finalizado)">
+        <li class="nav-item d-none" data-toggle="tooltip" data-placement="right" title="Acá podras acceder a tu propia tienda. (Espacio aun no finalizado)">
           <a class="nav-link" href="#tienda">
             <span class="badge badge-danger badge-counter" style="font-size: medium;">Beta</span>
             <i class="fas fa-fw fa-store"></i>
@@ -127,10 +147,10 @@
             <span>Documentos</span></a>
         </li>
 
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Acá podras tener acceso al manifiesto de inter">
-          <a class="nav-link" href="#guias_inter" title="Crear manifiesto para inter rapidísimo">
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Descargar manifiestos para envía o interrapidísimo">
+          <a class="nav-link" href="#manifiestos">
             <i class="fas fa-fw fa-file-alt"></i>
-            <span>Manifiesto Inter</span></a>
+            <span>Manifiestos</span></a>
         </li>
 
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Espacio para cosultar tus novedades">
@@ -263,16 +283,14 @@
             <link rel="stylesheet" href="./css/homeVIew/main.css">
             <div class="row">
               <div class="col-12 mb-3">
-                <div class="alert alert-danger" role="alert">
-                  <h4 class="text-danger">¡¡¡URGENTE!!!</h4>
+                <div class="alert alert-success" role="alert">
+                  <h4 class="text-success">NOTICIAS</h4>
                   <ul>
-                    <li>Recuerda que debes tomar las medidas de tu producto después de que hagas todo el proceso de empaque y embalaje.</li>
-                    <li>Recuerda ingresar medidas y pesos exactos, en caso de no hacerlo, la transportadora realizará cobro de costos adicionales o bloqueo de la sucursal de despacho.</li>
-                    <li>Evita ingresar medidas y pesos aleatorios, esto generará cambios de guías en centros de distribución, lo cual incrementa tiempos de entrega y costos de envío.</li>
+                    <li><b>Heka enviará mensajes de texto indicando el número de guía de todas las transportadoras disponibles a tu destinatario.</b></li>
+                    <li><b>Heka actualmente está realizando pruebas piloto de llamadas a tu destinatario para solucionar las novedades de tus envíos con la transportadora SERVIENTREGA.</b></li>
+                    <li><b>Antes de enviar con la transportadora Servientrega recuerda revisar el tipo de entrega disponible, ya que no todos los destinos cuentan con entrega en dirección.</b></li>
+                    <li><b>Para las entregas en oficina de la transportadora Interrapidisimo solo se pueden realizar en oficinas principales de la ciudad destino, la transportadora dejará automáticamente en la oficina principal.</b></li>
                   </ul>
-
-                  A partir del 1 de enero de 2022 las transportadoras realizarán reliquidación de precios de los paquetes que tengan mayores pesos y medidas a los indicados en la guía.
-                  
                 </div>
               </div>                
             </div>
@@ -333,6 +351,7 @@
                   <div class="swiper-slide video" id="registrarCuentaBancaria"><div class="mt-2"><img src="img/logo-heka.png" alt=""></div><h6 class="text-center text-truncate px-1">Registro de cuenta bancaria</h6></div>
                   <div class="swiper-slide video" id="cotizacionGuias"><div class="mt-2"><img src="img/logo-heka.png" alt=""></div><h6 class="text-center text-truncate px-1">Cotización y creación de guías.</h6></div>
                   <div class="swiper-slide video" id="creacionDeBodegas"><div class="mt-2"><img src="img/logo-heka.png" alt=""></div><h6 class="text-center text-truncate px-1">Creación de bodegas</h6></div>
+                  <div class="swiper-slide video" id="revisarPagos"><div class="mt-2"><img src="img/logo-heka.png" alt=""></div><h6 class="text-center text-truncate px-1">Revisar pagos</h6></div>
                 </div>
 
                 <div class="swiper-pagination"></div>
@@ -434,14 +453,7 @@
             <div class="row">
               <div class="col-12 mb-3">
                 <div class="alert alert-danger" role="alert">
-                  <h4 class="text-danger">¡¡¡URGENTE!!!</h4>
-                  <ul>
-                    <li>Recuerda que debes tomar las medidas de tu producto después de que hagas todo el proceso de empaque y embalaje.</li>
-                    <li>Recuerda ingresar medidas y pesos exactos, en caso de no hacerlo, la transportadora realizará cobro de costos adicionales o bloqueo de la sucursal de despacho.</li>
-                    <li>Evita ingresar medidas y pesos aleatorios, esto generará cambios de guías en centros de distribución, lo cual incrementa tiempos de entrega y costos de envío.</li>
-                  </ul>
-
-                  A partir del 1 de enero de 2022 las transportadoras realizarán reliquidación de precios de los paquetes que tengan mayores pesos y medidas a los indicados en la guía.
+                  Recuerda tomar las medidas de tu paquete después de embalado antes de ingresar en el cotizador, la transportadora hará reliquidación de costos de envío en caso que las medidas no coincidan con tu paquete.
                 </div>
               </div>              
             </div>
@@ -1057,23 +1069,36 @@
             
           </div>
 
-          <div class="container-fluid" id="guias_inter" style="display: none;">
-            <h3 class="m-0 font-weight-bold text-primary">Crear manifiesto de inter rapidísimo</h3>
-            <p class="border-left-primary pl-2">Aquí podrás crear la relación de envíos para tus guías de interrapidísimo.</p>
+          <div class="container-fluid" id="manifiestos" style="display: none;">
+            <h3 class="m-0 font-weight-bold text-primary">Crear manifiesto de inter rapidísimo o envía</h3>
+            <p class="border-left-primary pl-2">Aquí podrás crear la relación de envíos para tus guías de interrapidísimo o envía.</p>
             <!--Formulario de busqueda guias-->
             <div class="card card-shadow mb-4">
               <div class="card-body">
                 <div class="form-group row d-flex align-items-end">
-                  <div class="form-group col-sm-4 mb-3">
-                    <label for="fecha_inicio-guias_inter">Fecha inicio</label>
-                    <input type="date" class="form-control form-control-user"  id="fecha_inicio-guias_inter" required>
+                  <div class="form-group col-sm-3 mb-3">
+                    <label for="fecha_inicio-manifiestos">Fecha inicio</label>
+                    <input type="date" class="form-control form-control-user"  id="fecha_inicio-manifiestos" required>
                   </div>
-                  <div class="form-group col-sm-4 mb-3">
-                    <label for="fecha_final-guias_inter">Fecha final</label>
-                    <input type="date" class="form-control form-control-user"  id="fecha_final-guias_inter" required>
+                  <div class="form-group col-sm-3 mb-3">
+                    <label for="fecha_final-manifiestos">Fecha final</label>
+                    <input type="date" class="form-control form-control-user"  id="fecha_final-manifiestos" required>
                   </div>
-                  <div class="col-sm-4 mb-3">
-                    <button id="buscar-guias_inter"
+                  
+                  <div class="col-sm-3">
+                    <div class="form-check">
+                      <input type="radio" class="form-check-input transp_man" value="INTERRAPIDISIMO" checked name="transportadora_manifiesto" id="transp_manifiesto-1" required>
+                      <label for="transp_manifiesto-1" class="form-check-label">Interrapidísimo</label>
+                    </div>
+                    <div class="form-check">
+                      <input type="radio" class="form-check-input transp_man" value="ENVIA" name="transportadora_manifiesto" id="transp_manifiesto-2" required>
+                      <label for="transp_manifiesto-2" class="form-check-label">Envía</label>
+                    </div>
+
+                  </div>
+                  
+                  <div class="col-sm-3 mb-3">
+                    <button id="buscar-manifiestos"
                     class="btn btn-primary btn-user btn-block">
                       Buscar
                     </button>
@@ -1083,22 +1108,22 @@
             </div>
 
             <div class="d-flex justify-content-center">
-              <div id="cargador-guias_inter" class="lds-ellipsis d-none"><div></div><div></div><div></div><div></div></div>
+              <div id="cargador-manifiestos" class="lds-ellipsis d-none"><div></div><div></div><div></div><div></div></div>
             </div>
-            <div class="border border-danger rounded text-center p-3" style="display: none;" id="sin-guias_inter">
+            <div class="border border-danger rounded text-center p-3" style="display: none;" id="sin-manifiestos">
               <h6 class="text-danger m-0">SIN DATOS EXISTENTES PARA TU BÚSQUEDA</h6>
             </div>
 
-            <div class="card card-shadow"  style="display: none;" id="mostrador-guias_inter">
+            <div class="card card-shadow"  style="display: none;" id="mostrador-manifiestos">
               <div class="card-body">
                 <div class="input-group mb-3">
                   <div class="input-group-prepend">
-                    <button class="btn btn-outline-primary" type="button" id="crear-manifiesto-guias_inter">Crear manifiesto:</button>
+                    <button class="btn btn-outline-primary" type="button" id="crear-manifiesto-manifiestos">Crear manifiesto:</button>
                   </div>
-                  <input type="text" class="form-control" placeholder="Seleccione las guías" aria-label="Guías a seleccionar" aria-describedby="crear-manifiesto-guias_inter" readonly>
+                  <input type="text" class="form-control" placeholder="Seleccione las guías" aria-label="Guías a seleccionar" aria-describedby="crear-manifiesto-manifiestos" readonly>
                 </div>
                 <div class="table-responsive">
-                  <table  class="display table table-hover text-truncate" id="tabla-guias_inter" width="100%" cellspacing="0">  
+                  <table  class="display table table-hover text-truncate" id="tabla-manifiestos" width="100%" cellspacing="0">  
                     <thead>
                     </thead>
                     <tbody>

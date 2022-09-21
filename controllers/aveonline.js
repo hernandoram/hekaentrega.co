@@ -234,79 +234,96 @@ exports.listarAgentes = async (req, res) => {
 }
 
 exports.actualizarMovimientos = async (doc) => {
-    const auth = await internalAuth();
-    const respuesta = await rq.post("https://aveonline.co/api/nal/v1.0/guia.php", {
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            "tipo":"obtenerEstadoAuth",
-            "token": auth.token,
-            "id": Cr.idEmpresa,
-            "guia": doc.data().numeroGuia
+    try {
+        const auth = await internalAuth();
+        const respuesta = await rq.post("https://aveonline.co/api/nal/v1.0/guia.php", {
+            headers: {"Content-Type": "application/json"},
+            body: JSON.stringify({
+                "tipo":"obtenerEstadoAuth",
+                "token": auth.token,
+                "id": Cr.idEmpresa,
+                "guia": doc.data().numeroGuia
+            })
         })
-    })
-    .then(res => JSON.parse(res))
-    .catch(err => {
-        return {
-            status: "error",
-            message: err.message
+        .then(res => JSON.parse(res))
+        .catch(err => {
+            return {
+                status: "error",
+                message: err.message
+            }
+        });
+    
+        if(respuesta.status === "error") {
+            const finalizar_seguimiento = doc.data().prueba ? true : false;
+            if(finalizar_seguimiento) {
+                await funct.actualizarEstado(doc, {
+                    estado: "Finalizado",
+                    ultima_actualizacion: new Date(),
+                    seguimiento_finalizado: finalizar_seguimiento
+                });
+            }
+    
+            return [{
+                estado: "Error",
+                guia: doc.id + " / " + doc.data().numeroGuia + " " + respuesta.message
+            }]
         }
-    });
-
-    if(respuesta.status === "error") {
-        const finalizar_seguimiento = doc.data().prueba ? true : false;
-        if(finalizar_seguimiento) {
-            await funct.actualizarEstado(doc, {
-                estado: "Finalizado",
-                ultima_actualizacion: new Date(),
-                seguimiento_finalizado: finalizar_seguimiento
-            });
+    
+        const estados_finalizacion = ["Documento Anulado", "Entrega Exitosa", "Devuelto al Remitente"];
+        
+        const detallesGuia = respuesta.guias[0];
+        const movimientos = detallesGuia.historicos;
+        movimientos.sort((a,b) => a.id - b.id);
+        
+        const ultimo_estado = movimientos[movimientos.length - 1];
+        let finalizar_seguimiento = doc.data().prueba ? true : false
+    
+    
+        const estado = {
+            numeroGuia: detallesGuia.dsconsec, //guia devuelta por la transportadora
+            fechaEnvio: detallesGuia.dsfecha,
+            ciudadD: detallesGuia.origen,
+            nombreD: detallesGuia.destino,
+            direccionD:  detallesGuia.direccion,
+            estadoActual: detallesGuia.estado,
+            fecha: ultimo_estado ? ultimo_estado.fechamostrar : detallesGuia.dsfecha, //fecha del estado
+            id_heka: doc.id,
+            movimientos
+        };
+        
+        
+        
+    
+        updte_movs = {
+            estado: "Mov.N.A",
+            guia: doc.id + " / " + doc.data().numeroGuia + " No contiene movimientos aún."
         }
-
+    
+        if(movimientos.length) {
+            updte_movs = await funct.actualizarMovimientos(doc, estado);
+        }
+    
+        let enNovedad = false;
+        if (updte_movs.estado === "Mov.A" && updte_movs.guardado) {
+            enNovedad = updte_movs.guardado.enNovedad || false;
+        }
+    
+        updte_estados = await funct.actualizarEstado(doc, {
+            estado: detallesGuia.estado,
+            ultima_actualizacion: new Date(),
+            enNovedad,
+            seguimiento_finalizado: estados_finalizacion.some(v => detallesGuia.estado === v)
+                || finalizar_seguimiento
+        });
+    
+        return [updte_estados, updte_movs]
+    } catch(error) {
         return [{
             estado: "Error",
-            guia: doc.id + " / " + doc.data().numeroGuia + " " + respuesta.message
+            guia: doc.id + " / " + doc.data().numeroGuia + " " + error.message
         }]
     }
-
-    const estados_finalizacion = ["Documento Anulado", "Entrega Exitosa", "Devuelto al Remitente"];
-    
-    const detallesGuia = respuesta.guias[0];
-    const movimientos = detallesGuia.historicos;
-    movimientos.sort((a,b) => a.id - b.id);
-    
-    const ultimo_estado = movimientos[movimientos.length - 1];
-    let finalizar_seguimiento = doc.data().prueba ? true : false
-
-
-    const estado = {
-        numeroGuia: detallesGuia.dsconsec, //guia devuelta por la transportadora
-        fechaEnvio: detallesGuia.dsfecha,
-        ciudadD: detallesGuia.origen,
-        nombreD: detallesGuia.destino,
-        direccionD:  detallesGuia.direccion,
-        estadoActual: detallesGuia.estado,
-        fecha: ultimo_estado ? ultimo_estado.fechamostrar : detallesGuia.dsfecha, //fecha del estado
-        id_heka: doc.id,
-        movimientos
-    };
-    
-    
-    updte_estados = await funct.actualizarEstado(doc, {
-        estado: detallesGuia.estado,
-        ultima_actualizacion: new Date(),
-        seguimiento_finalizado: estados_finalizacion.some(v => detallesGuia.estado === v)
-            || finalizar_seguimiento
-    });
-
-    updte_movs = {
-        estado: "Mov.N.A",
-        guia: doc.id + " / " + doc.data().numeroGuia + " No contiene movimientos aún."
-    }
-
-    if(movimientos.length) {
-        updte_movs = await funct.actualizarMovimientos(doc, estado);
-    }
-    return [updte_estados, updte_movs]
+   
 }
 
 async function internalAuth() {
@@ -396,8 +413,8 @@ async function inspectGuiasPorCrear() {
                 "valorDeclarado": guia.seguro
               }
             ],
-            "dscontenido": guia.dice_contener,
-            "dscom": guia.observaciones,
+            "dscontenido": guia.dice_contener + " - " + guia.id_heka,
+            "dscom": guia.observaciones + " - " + guia.id_heka,
             "idasumecosto": idasumecosto,
             "contraentrega": contraentrega,
             "valorrecaudo": recaudo,
@@ -437,10 +454,10 @@ async function inspectGuiasPorCrear() {
         refGuia.update({numeroGuia, urlGuia, has_sticker, estado, staging: false});
         referenceListado.doc(guia.id_heka).delete();
     } catch (e){
-        console.log(e.message);
-        refGuia.update({estado: e.message})
+        refGuia.update({estado: e.message});
     }
-
+    
+    referenceListado.doc(guia.id_heka).delete();
     inspectGuiasPorCrear();
 }
 

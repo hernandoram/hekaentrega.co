@@ -405,11 +405,11 @@ async function buscarUsuarios(){
     const nombreInp = value("buscador_usuarios-nombre").toLowerCase();
     const dirInp = value("buscador_usuarios-direccion").toLowerCase();
     const reference = firebase.firestore().collection("usuarios");
-    const casesToSearch = ["centro_de_costo", "numero_documento"];
+    const casesToSearch = ["centro_de_costo", "numero_documento", "celular", "celular2"];
     let especifico;
 
-    for (let i = 0; i < casesToSearch.length; i++) {
-        especifico = nombreInpOriginal && await reference.where(casesToSearch[i], "==", nombreInpOriginal)
+    for await (let caso of casesToSearch) {
+        especifico = nombreInpOriginal && await reference.where(caso, "==", nombreInpOriginal)
         .get().then((querySnapshot) => {
             let bool;
             if(!querySnapshot.size) return false;
@@ -459,7 +459,10 @@ async function buscarUsuarios(){
             }
 
             if(dirInp) {
-                if(direcciones.some(dir => dir.direccion_completa.includes(dirInp))) {
+                if(
+                    direcciones.some(dir => dir.direccion_completa.includes(dirInp))
+                    || direcciones.some(dir => dir.codigo_sucursal_inter == dirInp.trim())
+                ) {
                     mostradorUsuarios.appendChild(toDom(mostrarUsuarios(doc.data(), doc.id)));
                 }
             }
@@ -656,6 +659,12 @@ function mostrarBodegasUsuarioAdm(bodegas) {
             {data: "ciudad", title: "Ciudad", defaultContent: ""},
             {data: "barrio", title: "Barrio", defaultContent: ""},
             {data: "direccion", title: "Dirección", defaultContent: ""},
+            {data: "inactiva", title: "Estado", defaultContent: "Activa", render: function(content, type, data) {
+                if(type === "display" || type === "filter") {
+                    return content ? "Inactiva" : "Activada";
+                }
+                return content;
+            }}
         ],
         language: {
           url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
@@ -703,6 +712,11 @@ function editarBodegaUsuarioAdm(e) {
         <input type="text" value="${data.codigo_sucursal_inter || ""}" class="form-control" id="cod_suc_inter-bodega" name="codigo_sucursal_inter">
         </div>
 
+        <div class="custom-control custom-switch">
+            <input type="checkbox" class="custom-control-input" id="inactiva-bodega" ${data.inactiva ? "checked" : ""} name="inactiva">
+            <label class="custom-control-label" for="inactiva-bodega">Desactivar bodega.</label>
+        </div>
+
         <small>${data.direccion_completa}</small>
     </form>
     `;
@@ -722,6 +736,8 @@ function editarBodegaUsuarioAdm(e) {
 
             data.direccion_completa = data.direccion + ", " + data.barrio + ", " + data.ciudad;
             data.ult_edicion = new Date();
+            data.inactiva = $("#inactiva-bodega", form).is(":checked");
+            console.log(data);
         }
     });
 
@@ -812,8 +828,8 @@ async function actualizarInformacionHeka() {
     const actInter = activadorInter && activadorInter !== "inhabilitado";
 
     let mensajeCuidado;
-    if((actEnvia || actTcc) && !inpIdAgente)
-        mensajeCuidado = "Recuerda agregar un id cliente antes de activar envía o tcc";
+    if(actTcc && !inpIdAgente)
+        mensajeCuidado = "Recuerda agregar un id cliente antes de activar TCC";
 
     if(mensajeCuidado) {
         return Toast.fire({

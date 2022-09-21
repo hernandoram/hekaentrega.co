@@ -72,3 +72,43 @@ function leerCiudadesBaseDeDatos() {
 
     console.log(buscadores);
 }
+
+
+//#region => A eliminar si todo sale bien!!
+function reiniciarSeguimientoGuia() {
+    const i = new Date(2022, 01, 01);
+    const f = new Date(2022, 02, 01);
+    db.collectionGroup("guias")
+    .orderBy("timeline")
+    .startAfter(i.getTime())
+    .endAt(f.getTime())
+    // .limit(1)
+    .get()
+    .then(async q => {
+        const docs = q.docs;
+        let [act, des] = [0,0]
+    
+        for await(let d of docs) {
+            const data = d.data();
+            // console.log(data, data.enNovedad, data.en_novedad);
+    
+            const {ultima_actualizacion} = data;
+            const codicionalUno = ultima_actualizacion && ultima_actualizacion.toDate().getTime() > new Date(2022, 05, 01).getTime();
+            if(data.enNovedad != undefined) {
+                console.count("Actualizados");
+                act++;
+            } else {
+                console.count("No Actualizados");
+                des++
+                await d.ref.update({seguimiento_finalizado: false})
+            }
+        }
+    
+        console.log("Actualizados: " + act, "No Actualizados: " + des);
+        console.log("Finalizado desde " + i + " Hasta " + f);
+        process.exit();
+    })
+}
+//#endregion fi 
+
+

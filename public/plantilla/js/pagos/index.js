@@ -34,8 +34,8 @@ async function cargarPagosPendientes(e) {
   const data = new FormData(document.getElementById("form-cargador_pagos"));
   console.log(data.get("documento"));
   const datosDePago = await fetch("/excel_to_json", {
-      method: "POST",
-      body: data
+    method: "POST",
+    body: data
   }).then(res => res.json())
   .catch(finalizarProceso)
 
@@ -47,6 +47,8 @@ async function cargarPagosPendientes(e) {
     counterEl.text(i);
 
     const numeroGuia = guia["GUIA"].toString();
+    guia["GUIA"] = numeroGuia;
+    
     const reference = db.collection("pendientePorPagar").doc(numeroGuia);
     
     const revisarEnPagos = await comprobarGuiaPagada(guia);
@@ -128,6 +130,8 @@ function datosImportantesIncompletos(objToSend, completeData) {
       return "Lo siento, no se a que transportadora subir la guía: " + objToSend.GUIA;
     } else if (!objToSend["CUENTA RESPONSABLE"]) {
       return "Recuerda por favor agregar una la cuenta responsable de la guia " + objToSend.GUIA;
+    } else if (!objToSend["COMISION HEKA"]) {
+      return "Falta el campo \"COMISION HEKA\" de la guia " + objToSend.GUIA;
     } else if (objToSend.TRANSPORTADORA.toLowerCase() !== "servientrega" 
     && objToSend.TRANSPORTADORA.toLowerCase() != "envía" 
     && objToSend.TRANSPORTADORA.toLowerCase() != "tcc"

@@ -163,6 +163,11 @@ async function calcularCostoEnvio() {
 
 async function realizarCompra() {
     let guias = new Array();
+    return Toast.fire({
+        icon: "error",
+        text: "Tienda temporalmente fuera de servicio."
+    });
+    
     //Lo primero es revisar que todos los campos son válidos, caso contrario, arroja la excepción
     if(revisarCampos()) {
         return Toast.fire({

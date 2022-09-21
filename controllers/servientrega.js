@@ -11,7 +11,8 @@ const extsFunc = require("../extends/funciones");
 const { singleMessage } = require("../controllers/cellVoz");
 const {notificarGuiaOficina} = require("../extends/notificaciones")
 
-const {UsuarioPrueba, Credenciales} = require("../keys/serviCredentials")
+const {UsuarioPrueba, Credenciales} = require("../keys/serviCredentials");
+const { revisarNovedadAsync } = require("../extends/manejadorMovimientosGuia");
 
 // const storage = firebase.storage();
 
@@ -98,6 +99,12 @@ exports.generarGuiaSticker = (req, res) => {
   const data = req.body;
   const type = data.oficina ? "CONVENCIONAL" : data.type;
   console.log(data);
+  console.log("REQUEST => ",{
+    headers: {"Content-Type": "text/xml"},
+    url: req.body.prueba ? genGuiasPrueba : generacionGuias,
+    body: crearGuiaSticker(data.numeroGuia, data.id_archivoCargar, type, data.prueba)
+  })
+  try {
     request.post({
       headers: {"Content-Type": "text/xml"},
       url: req.body.prueba ? genGuiasPrueba : generacionGuias,
@@ -106,23 +113,26 @@ exports.generarGuiaSticker = (req, res) => {
       if(err) return console.error(err);
   
       console.log("Se está creando una guía");
-      console.log(body);
+      console.log("RESPONSE => ", body);
       let base64 = ""
-
+  
       let xmlResponse = new DOMParser().parseFromString(body, "text/xml");
-
-      if(xmlResponse.documentElement.getElementsByTagName("GenerarGuiaStickerResult")[0].textContent === "true") {
+      const result = xmlResponse.documentElement.getElementsByTagName("GenerarGuiaStickerResult")[0];
+      if(result && result.textContent === "true") {
         base64 = xmlResponse.documentElement.getElementsByTagName("bytesReport")[0].textContent;
       }
-
+  
       let segmentar = parseInt(req.query.segmentar);
       if(segmentar) {
         const segmentado = Math.min(segmentar, 1000000);
         res.json(extsFunc.segmentarString(base64, segmentado));
       } else {
-          res.send(base64);
+        res.send(base64);
       }
     })
+  } catch(e) {
+    res.send("");
+  }
 };
 
 exports.generarManifiesto = async (req, res) => {
@@ -365,7 +375,6 @@ async function actualizarMovimientos(doc) {
     json: true
   })
   .then(async (body) => {
-    console.log("inicio =>", new Date().getTime())
     // console.log(body)
     //Aquí comienza el proceso interno de actualización
     let respuesta = await new Promise((resolve, reject) => {
@@ -383,25 +392,24 @@ async function actualizarMovimientos(doc) {
             throw " Esta guía no manifiesta movimientos.";
           }
           let movimientos = data.Mov[0].InformacionMov;
-          // console.log(data);
-          let finalizar_seguimiento = doc.data().prueba ? true : false
-          /*Respuesta a la actualización de los estados,
-          ésta me actualiza el estado actual que manifiesta la guía, si el seguimiento
-          fue finalizado, y la fecha de actualización*/
-          const movimiento_culminado = ["ENTREGADO", "ENTREGADO A REMITENTE"];
-          let upte_estado = await extsFunc.actualizarEstado(doc, {
-            estado: data.EstAct[0],
-            ultima_actualizacion: new Date(),
-            seguimiento_finalizado: movimiento_culminado.some(v => v === data.EstAct[0])
-            || finalizar_seguimiento
-          })
 
-          let upte_movs;
+          const guia = doc.data();
+          console.log(guia.numeroGuia);
+          console.log("Timeline => ", guia.timeline);
+          const ultimaNovedadRegistrada = guia.ultima_novedad;
+          
+          let entrega_oficina_notificada = guia.entrega_oficina_notificada;
+          let upte_movs, ultima_novedad, fecha_ult_novedad;
           //Confirmo si hay movimientos para actualizarlos
           if (movimientos) {
             for (let movimiento of movimientos) {
               for (let x in movimiento) {
                 movimiento[x] = movimiento[x][0];
+              }
+
+              if(movimiento.NomConc == "EMPRESARIO SATELITE C.O.D. Y/O LPC" && !entrega_oficina_notificada) {
+                extsFunc.notificarEntregaEnOficina(guia);
+                entrega_oficina_notificada = true;
               }
             }
 
@@ -417,7 +425,23 @@ async function actualizarMovimientos(doc) {
               movimientos // movimientos registrados por la transportadora
             };
 
-            // console.log(data_to_fb);
+            
+            //#region Enviar mensaje cuando se detecte cierta novedad y asignar la última novedad encontrada a la guía
+            // movimientos.reverse();
+            // for await (const mov of movimientos) {
+            //   // const revision = await revisarNovedadAsync(mov, "SERVIENTREGA");
+            //   if(false) {
+            //     ultima_novedad = mov.NomConc;
+            //     fecha_ult_novedad = mov.FecMov;
+            //     if(ultima_novedad !== ultimaNovedadRegistrada) {
+            //       notificarNovedadPorMensaje(guia, ultima_novedad);
+            //     }
+            //     break;
+            //   }
+      
+            // }
+            // movimientos.reverse();
+            //#endregion
 
             /*Respuesta ante la actualización de movimientos.
             se actulizan aquellos estados que sean diferentes y que estén registrados en este objeto*/
@@ -428,6 +452,30 @@ async function actualizarMovimientos(doc) {
               guia: doc.id + " / " + doc.data().numeroGuia
             };
           }
+
+          let finalizar_seguimiento = doc.data().prueba ? true : false
+          /*Respuesta a la actualización de los estados,
+          ésta me actualiza el estado actual que manifiesta la guía, si el seguimiento
+          fue finalizado, y la fecha de actualización*/
+          const movimiento_culminado = ["ENTREGADO", "ENTREGADO A REMITENTE"];
+
+          
+          const actualizaciones = {
+            estado: data.EstAct[0],
+            ultima_actualizacion: new Date(),
+            seguimiento_finalizado: movimiento_culminado.some(v => v === data.EstAct[0])
+            || finalizar_seguimiento
+          }
+
+          if (upte_movs.estado === "Mov.A" && upte_movs.guardado) {
+            const {enNovedad} = upte_movs.guardado
+            actualizaciones.enNovedad = enNovedad || false;
+          }
+
+          if(fecha_ult_novedad) actualizaciones.fecha_ult_novedad = fecha_ult_novedad;
+          if(ultima_novedad) actualizaciones.ultima_novedad = ultima_novedad;
+          if(entrega_oficina_notificada) actualizaciones.entrega_oficina_notificada = entrega_oficina_notificada;
+          let upte_estado = await extsFunc.actualizarEstado(doc, actualizaciones);
 
           resolve([upte_estado, upte_movs]);
         } catch (e) {
@@ -442,7 +490,6 @@ async function actualizarMovimientos(doc) {
       });
     });
 
-    console.log("final =>", new Date().getTime())
     return respuesta;
   })
   .catch(err => {
@@ -464,8 +511,8 @@ function generarGuia(datos) {
     auth_header = auth_header_pagoContraentrega
   }
 
-  if(datos.prueba) auth_header = auth_header_prueba;
-  
+  if(datos.prueba && false) auth_header = auth_header_prueba;
+  const centroCosto = `<CentroCosto>${datos.prueba ? "" : datos.centro_de_costo}</CentroCosto>`;
 
   let consulta = `<?xml version="1.0" encoding="UTF-8"?>
   <env:Envelope xmlns:env="http://www.w3.org/2003/05/soap-envelope" xmlns:tem="http://tempuri.org/">
@@ -487,7 +534,7 @@ function generarGuia(datos) {
                 <Ide_Producto>2</Ide_Producto><!--ENVÍO CON MERCACÍA PREMIER-->
                 <Des_FormaPago>2</Des_FormaPago>
                 <Ide_Num_Identific_Dest>${dest.numero_documento}</Ide_Num_Identific_Dest>
-                <CentroCosto>${datos.prueba ? "" : datos.centro_de_costo}</CentroCosto>
+                
                 <Tipo_Doc_Destinatario>${dest.tipo_documento == "1" ? "NIT" : "CC"}</Tipo_Doc_Destinatario>
                 <Des_MedioTransporte>1</Des_MedioTransporte>
                 <Num_PesoTotal>${datos.peso}</Num_PesoTotal>
@@ -526,7 +573,7 @@ function generarGuia(datos) {
                 <Des_DepartamentoOrigen>${datos.departamentoR}</Des_DepartamentoOrigen>
                 <Gen_Cajaporte>false</Gen_Cajaporte>
                 <Gen_Sobreporte>false</Gen_Sobreporte>
-                <Nom_UnidadEmpaque>GENERICA</Nom_UnidadEmpaque>
+                <Nom_UnidadEmpaque>Generica</Nom_UnidadEmpaque>
                 <Nom_RemitenteCanal />
                 <Des_UnidadLongitud>cm</Des_UnidadLongitud>
                 <Des_UnidadPeso>kg</Des_UnidadPeso>
@@ -553,16 +600,16 @@ function crearGuiaSticker(numeroGuia, id_archivoCargar, type, prueba) {
 
   if(type == "CONVENCIONAL") {
     auth_header = auth_header_convencional;
-    ide_codFacturacion = "SER122989";
+    ide_codFacturacion = Credenciales.Conv.id_codFacturacion
   } else {
     auth_header = auth_header_pagoContraentrega
-    ide_codFacturacion = "SER122990";
+    ide_codFacturacion = Credenciales.PgCon.id_codFacturacion;
   }
 
-  if(prueba) {
+  if(prueba && false) {
     auth_header = auth_header_prueba;
     ide_codFacturacion = UsuarioPrueba.id_codFacturacion
-  } 
+  }
 
   console.log("numero guia =>", numeroGuia);
   let consulta = `<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/"
@@ -745,4 +792,12 @@ async function generarStickerManifiesto(arrGuias, prueba) {
     return 0;
   }
 
+}
+
+function notificarNovedadPorMensaje(guia, ultima_novedad) {
+  console.log("tengo que enviar un mensaje al usuario " + guia.nombreD + " por " + ultima_novedad);
+}
+
+function notificarEntregaEnOficina(guia) {
+  return "Tu envío SERVIENTREGA con número "+guia.numeroGuia+" se encuentra en la oficina principal de tu ciudad, para que sea reclamado máximo en 6 días hábiles."
 }

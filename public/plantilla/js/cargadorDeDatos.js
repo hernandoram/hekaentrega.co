@@ -2,6 +2,8 @@ let user_id = localStorage.user_id, usuarioDoc;
 
 if(localStorage.getItem("acceso_admin")){
   window.onload = () => revisarNotificaciones();
+  listarNovedadesServientrega();
+  listarSugerenciaMensajesNovedad();
   $("#descargar-informe-usuarios").click(descargarInformeUsuariosAdm)
 } else if(localStorage.user_id){
   window.onload = () => {
@@ -28,14 +30,14 @@ window.addEventListener("storage", (e) => {
 let datos_usuario = {},
 //Almacena los costos de envios (nacional, urbano...) y el porcentaje de comision
 datos_personalizados = {
-  costo_zonal1: 8250,
-  costo_zonal2: 12650,
+  costo_zonal1: 8650,
+  costo_zonal2: 13300,
   costo_zonal3: 2800,
-  costo_nacional1: 10950,
-  costo_nacional2: 19450,
+  costo_nacional1: 11500,
+  costo_nacional2: 20400,
   costo_nacional3: 3400,
-  costo_especial1: 24450,
-  costo_especial2: 37200,
+  costo_especial1: 25550,
+  costo_especial2: 39000,
   costo_especial3: 6300,
   comision_servi: 3.1,
   comision_heka: 1,
@@ -43,6 +45,24 @@ datos_personalizados = {
   constante_pagoContraentrega: 1500,
   saldo: 0
 };
+
+// ANTERIOR HASTA EL 6 de septiebre del 2022
+// datos_personalizados = {
+//   costo_zonal1: 8250,
+//   costo_zonal2: 12650,
+//   costo_zonal3: 2800,
+//   costo_nacional1: 10950,
+//   costo_nacional2: 19450,
+//   costo_nacional3: 3400,
+//   costo_especial1: 24450,
+//   costo_especial2: 37200,
+//   costo_especial3: 6300,
+//   comision_servi: 3.1,
+//   comision_heka: 1,
+//   constante_convencional: 800,
+//   constante_pagoContraentrega: 1500,
+//   saldo: 0
+// };
 
 function revisarModoPrueba() {
   const paramFinded = new URLSearchParams(location.search.split("?")[1]).has("modoPrueba");
@@ -55,6 +75,7 @@ function revisarModoPrueba() {
 }
 
 let estado_prueba = revisarModoPrueba();
+let listaNovedadesServientrega = [];
 
 //funcion principal del Script que carga todos los datos del usuario
 async function cargarDatosUsuario(){
@@ -69,15 +90,16 @@ async function cargarDatosUsuario(){
   const buttonMostrarFormDatosBancarios = $("#mostrar-registro-datos-bancarios");
   buttonMostrarFormDatosBancarios.click(activarFormularioCrearDatosBancarios);
 
-  datos_usuario = await consultarDatosDeUsuario();
-
   const showPercentage = $("#porcentaje-cargador-inicial");
-
   //Carga la informacion personal en un objeto y se llena el html de los datos del usuario
   showPercentage.text(percentage());
   
-  //SE cargan datos como el centro de costo
+  datos_usuario = await consultarDatosDeUsuario();
+  
+  
+  //Se enlistan las novedades de servientrega
   showPercentage.text(percentage());
+  await listarNovedadesServientrega()
 
   //Modifica los costos de envio si el usuario tiene costos personalizados
   showPercentage.text(percentage());
@@ -87,8 +109,34 @@ async function cargarDatosUsuario(){
     pagosPendientesParaUsuario();
   }
 
+ 
+
   contentCharger.hide();
   content.show("fast");  
+}
+
+async function listarNovedadesServientrega() {
+  listaNovedadesServientrega = await db.collection("infoHeka").doc("novedadesRegistradas")
+  .get().then(d => {
+    if(d.exists) {
+      return d.data().SERVIENTREGA;
+    }
+
+    return [];
+  })
+}
+
+let listaRespuestasNovedad;
+
+function listarSugerenciaMensajesNovedad() {
+  const refRespuestasNovedad = db.collection("infoHeka").doc("respuestasNovedad");
+
+  refRespuestasNovedad
+  .get().then(d => {
+    if(d.exists) {
+      listaRespuestasNovedad = d.data().respuestas;
+    }
+  })
 }
 
 async function consultarDatosDeUsuario() {
@@ -97,7 +145,7 @@ async function consultarDatosDeUsuario() {
       const datos = doc.data();
       const datos_bancarios = datos.datos_bancarios;
       const datos_personalizados = datos.datos_personalizados;
-      const bodegas = datos.bodegas;
+      const bodegas = datos.bodegas ? datos.bodegas.filter(b => !b.inactiva) : [];
 
       datos_usuario = {
         nombre_completo: datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0],
@@ -108,7 +156,8 @@ async function consultarDatosDeUsuario() {
         centro_de_costo: datos.centro_de_costo,
         objetos_envio: datos.objetos_envio,
         tipo_documento: datos.tipo_documento,
-        bodegas: datos.bodegas
+        bodegasCompletas: datos.bodegas || [],
+        bodegas
       }
 
       datos.nombre_completo = datos_usuario.nombre_completo;

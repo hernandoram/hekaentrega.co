@@ -713,7 +713,10 @@ async function actualizarEstadoGuiasDocCreado(arrGuias) {
         .then(() => {
             const link = "https://www.interrapidisimo.com/sigue-tu-envio/";
             const mensaje = "Se ha generado un envío con "+guia.transportadora+" con la guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link
-            fetch("/mensajeria/sendMessage?number=57"+guia.telefonoD+"&message="+mensaje);  
+            if(guia.numeroGuia) {
+                fetch("/mensajeria/sendMessage?number=57"+guia.telefonoD+"&message="+mensaje);  
+            }
+            
             if(guia.id_oficina) {
                 enviarNotificacion({
                     visible_office: true,
@@ -1266,10 +1269,16 @@ function descargarExcelInter(JSONData, ReportTitle, type) {
     
     //un arreglo cuyo cada elemento contiene un arreglo: ["titulo de la columna", "la información a inrertar en dicha columna"]
     //Está ordenado, como saldrá en el excel
-    let encabezado = [["NUMERO GUIA", ""], ["ID DESTINATARIO", "_idDestinatario"], ["NOMBRE DESTINATARIO", "nombreD"], ["APELLIDO1 DESTINATARIO", ""], ["APELLIDO2 DESTINATARIO", ""], ["TELEFONO DESTINATARIO", "telefonoD"],	["DIRECCION DESTINATARIO", "direccionD"], ["CODIGO CIUDAD DESTINO", "dane_ciudadD"], ["CIUDAD DESTINO", "_ciudad"], ["DICE CONTENER", "dice_contener"], ["OBSERVACIONES", "id_heka"],	["BOLSA DE SEGURIDAD", ""], ["PESO", "peso"], ["VALOR COMERCIAL", "valor"], ["NO PEDIDO", ""], ["DIRECCION AGENCIA DESTINO", ""]]
+    let encabezado = [["NUMERO GUIA", ""], ["ID DESTINATARIO", "_idDestinatario"], ["NOMBRE DESTINATARIO", "_nombreD"], ["APELLIDO1 DESTINATARIO", "_apellidoD"], ["APELLIDO2 DESTINATARIO", ""], ["TELEFONO DESTINATARIO", "telefonoD"],	["DIRECCION DESTINATARIO", "direccionD"], ["CODIGO CIUDAD DESTINO", "dane_ciudadD"], ["CIUDAD DESTINO", "_ciudad"], ["DICE CONTENER", "dice_contener"], ["OBSERVACIONES", "id_heka"],	["BOLSA DE SEGURIDAD", ""], ["PESO", "peso"], ["VALOR COMERCIAL", "valor"], ["NO PEDIDO", ""], ["DIRECCION AGENCIA DESTINO", ""]]
 
     let newDoc = arrData.map((dat, i) => {
         let d = new Object();
+        const nombre_completo = dat.nombreD.trim().split(" ").filter(t => t);
+        const lNombres = nombre_completo.length;
+        const divider = Math.floor(lNombres / 2);
+        const nombresD = lNombres > 1 ? nombre_completo.slice(0, divider).join(" ") : dat.nombreD.trim()
+        let apellidosD = lNombres > 1 ? nombre_completo.slice(divider).join(" ") : nombresD;
+
         encabezado.forEach(([headExcel, fromData]) => {
             if(fromData === "_idDestinatario") {
                 fromData = i + 1;
@@ -1277,6 +1286,14 @@ function descargarExcelInter(JSONData, ReportTitle, type) {
 
             if(fromData === "_ciudad") {
                 fromData = dat.ciudadD + "/" + dat.departamentoD;
+            }
+
+            if(fromData === "_nombreD") {
+                fromData = nombresD;
+            }
+            
+            if(fromData === "_apellidoD") {
+                fromData = apellidosD;
             }
 
             if(dat.type === "CONVENCIONAL" && fromData === "valor") {
@@ -1290,7 +1307,6 @@ function descargarExcelInter(JSONData, ReportTitle, type) {
     });
 
     crearExcel(newDoc, ReportTitle);
-    return;
 
 };
 
@@ -1652,10 +1668,10 @@ function descargarManifiesto(doc) {
     } else if(doc.data().base64Manifiesto) {
         let base64 = doc.data().base64Manifiesto;
         openPdfFromBase64(base64);
-    } else if (doc.data().transportadora === "INTERRAPIDISIMO") {
+    } else if (["INTERRAPIDISIMO", "ENVIA"].includes(doc.data().transportadora)) {
         Swal.fire({
             icon: "info",
-            text: "Para descargar los manifiestos de inter rapidísimo, debe ingresar a \"Manifiesto inter\", buscar filtrando por fecha y seleccionar las guías que desea gestionar para crearlo."
+            text: "Para descargar los manifiestos de inter rapidísimo o envía, debe ingresar a \"Manifiestos\", buscar filtrando por fecha, seleccionar la transportadora y las guías que desea gestionar para crearlo."
         });
     } else if (doc.data().nro_manifiesto) {
         const idEmpresa = doc.data().idEmpresa || 0;
@@ -1973,7 +1989,7 @@ function revisarNotificaciones(){
                         notificacionNormal = true;
                     } else if(notification.type === "estatica") {
                         mostrarNotificacionEstaticaUsuario(notification, identificador);
-                    } else if(!notification.type) {
+                    } else if(!notification.type || notification.type === "documento") {
                         contador = notificador.querySelector("span");
                         contador.classList.remove("d-none");
                         contador.innerHTML = parseInt(contador.textContent) + 1;
@@ -2189,17 +2205,53 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
                     return cargadorClass.add("d-none");
                 }
                 $("#visor_novedades").html("");
+                const guias_actualizadas = revisarTiempoGuiasActualizadas();
                 querySnapshot.forEach(doc => {
                     let dato = doc.data();
                     contador++
     
                     consultarGuiaFb(user_id, doc.id, dato, "Posibles Novedades", contador, size);
+                    if(!guias_actualizadas) actualizarEstadoGuia(dato.numeroGuia);
                 })
-            })
+                
+                actualizarEstadosEnNovedad();
+            });
+
         } else {
             cargadorClass.add("d-none");
         }
     }
+}
+
+function actualizarEstadoGuia(numeroGuia) {
+    fetch("/procesos/actualizarEstados/numeroGuia", {
+        method: "POST",
+        headers: {"Content-Type": "Application/json"},
+        body: JSON.stringify({user_id, argumento: numeroGuia})
+    });
+}
+
+function revisarTiempoGuiasActualizadas() {
+    const lastUpdt = localStorage.last_update_novedad
+    const actual = new Date();
+    // const maxTime = 2 * 60000;
+    const maxTime = 3 * 36e5;
+    return lastUpdt && actual.getTime() - new Date(lastUpdt).getTime() < maxTime;
+}
+
+function actualizarEstadosEnNovedad() {
+    const actual = new Date();
+    if(revisarTiempoGuiasActualizadas()) return;
+
+    console.log("Actualizando novedades");
+
+    fetch("/procesos/actualizarEstados/novedad", {
+        method: "POST",
+        headers: {"Content-Type": "Application/json"},
+        body: JSON.stringify({user_id})
+    });
+
+    localStorage.last_update_novedad = actual;
 }
 
 function revisarGuiaUser(id_heka) {
@@ -2601,16 +2653,19 @@ function revisarGuiasSaldas() {
 }
 
 let filtroPagos;
-async function historialGuiasAdmin() {
+async function historialGuiasAdmin(e) {
     let fechaI = document.querySelector("#fechaI-hist-guias").value;
     let fechaF = document.querySelector("#fechaF-hist-guias").value;
     const filtroCentroDeCosto = $("#filtro_pagos-hist-guias").val();
+    const descargaDirecta = e.id === "descargar-hist-guias";
     $("#historial_guias .cargador").removeClass("d-none");
     let filtroPagoSeleccionado;
 
-    if(filtroCentroDeCosto && !filtroPagos) {
-        filtroPagos = await db.collection("infoHeka").doc("usuariosPorDiaDePago")
-        .get().then(d => d.data());
+    if(filtroCentroDeCosto) {
+        if(!filtroPagos) {
+            filtroPagos = await db.collection("infoHeka").doc("usuariosPorDiaDePago")
+            .get().then(d => d.data());
+        }
 
         filtroPagoSeleccionado = filtroPagos[filtroCentroDeCosto];
     }
@@ -2648,6 +2703,39 @@ async function historialGuiasAdmin() {
     }
     
     // data= [{nombre: "nombre", apellido: "apellido"}]
+    const columnas = [
+        { data: "id_heka", title: "# Guía Heka"},
+        { data: "numeroGuia", title: "# Guía Servientrega", defaultContent: ""},
+        { data: "estado", title: "Estado", defaultContent: ""},
+        { data: "centro_de_costo", title: "Centro de Costo" },
+        { data: "transpToShow", title: "Transportadora", defaultContent: "Servientrega"},
+        { data: "type", title: "Tipo", defaultContent: "Pago contraentrega"},
+        { data: "alto", title: "Alto"},
+        { data: "ancho", title: "Ancho"},
+        { data: "largo", title: "Largo"},
+        { data: "peso", title: "peso"},
+        { data: "detalles.comision_heka", title: "Comisión Heka"},
+        { data: "detalles.comision_trasportadora", title: "Comisión Transportadora"},
+        { data: "detalles.flete", title: "Flete"},
+        { data: "detalles.recaudo", title: "Recaudo"},
+        { data: "detalles.total", title: "Total"},
+        { data: "fecha", title: "Fecha"},
+        { data: "debe", title: "deuda", defaultContent: "no aplica", render: function(content, display, data) {
+            if(data.debe 
+                && data.seguimiento_finalizado
+                && data.type!=="CONVENCIONAL"
+            ) return (-content) + '<span class="sr-only"> Por pagar</span>'
+
+            return -content
+        }},
+        { data: "cuenta_responsable", title: "Cuenta responsable", defaultContent: "Personal"},
+    ];
+
+    if(descargaDirecta) {
+        $("#historial_guias .cargador").addClass("d-none");
+
+        return descargarInformeGuiasAdmin(columnas, data, nombre)
+    }
 
     let tabla = $("#tabla-hist-guias").DataTable({
         data: data,
@@ -2656,30 +2744,7 @@ async function historialGuiasAdmin() {
             url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
             "emptyTable": "Aún no tienes guías saldadas."
         },
-        columns: [
-            { data: "id_heka", title: "# Guía Heka"},
-            { data: "numeroGuia", title: "# Guía Servientrega", defaultContent: ""},
-            { data: "estado", title: "Estado", defaultContent: ""},
-            { data: "centro_de_costo", title: "Centro de Costo" },
-            { data: "transpToShow", title: "Transportadora", defaultContent: "Servientrega"},
-            { data: "type", title: "Tipo", defaultContent: "Pago contraentrega"},
-            {data: "alto", title: "Alto"},
-            {data: "ancho", title: "Ancho"},
-            {data: "largo", title: "Largo"},
-            {data: "peso", title: "peso"},
-            { data: "detalles.comision_heka", title: "Comisión Heka"},
-            { data: "detalles.comision_trasportadora", title: "Comisión Transportadora"},
-            { data: "detalles.flete", title: "Flete"},
-            { data: "detalles.recaudo", title: "Recaudo"},
-            { data: "detalles.total", title: "Total"},
-            { data: "fecha", title: "Fecha"},
-            { data: "debe", title: "deuda", defaultContent: "no aplica", render: function(content, display, data) {
-                if(data.debe && data.seguimiento_finalizado
-                    && data.type!=="CONVENCIONAL") return (-content) + '<span class="sr-only"> Por pagar</span>'
-                return -content
-            }},
-            {data: "cuenta_responsable", title: "Cuenta responsable", defaultContent: "Personal"},
-        ],
+        columns: columnas,
         dom: 'Bfrtip',
         buttons: [{
             extend: "excel",
@@ -2732,6 +2797,29 @@ async function historialGuiasAdmin() {
     $("#historial_guias .cargador").addClass("d-none");
 }
 
+function descargarInformeGuiasAdmin(columnas, guias, nombre) {
+    const columnasParaExcel = {};
+
+    columnas.forEach(col => {
+        columnasParaExcel[col.data] = col.title;
+    });
+
+    guias = guias.map(g => {
+        let deuda = g.debe ? -g.debe : 0;
+
+        if(g.debe 
+            && g.seguimiento_finalizado
+            && g.type!=="CONVENCIONAL"
+        ) deuda = deuda + ' Por pagar';
+
+        g.debe = deuda;
+        return g;
+    });
+
+    descargarInformeExcel(columnasParaExcel, guias, nombre)
+
+}
+
 function filtrarPorpagosHistGuiasAdm(e, editor, button, config) {
     const {filtrado} = config;
     
@@ -2766,13 +2854,22 @@ async function generarRotulo(id_guias) {
 
         let src_logo_transp = "img/logoServi.png";
 
-        if(data.transportadora === "INTERRAPIDISIMO") {
+        if(data.oficina) {
+            src_logo_transp = "img/flexii.jpeg";
+        } else if(data.transportadora === "INTERRAPIDISIMO") {
             src_logo_transp = "img/logo-inter.png";
         } else if (data.transportadora === "ENVIA") {
             src_logo_transp = "img/2001.png";
         } else if (data.transportadora === "TCC") {
             src_logo_transp = "img/logo-tcc.png";
         }
+
+        const celularD = data.celularD != data.telefonoD ? data.celularD +" - "+ data.telefonoD : data.telefonoD;
+
+        const nombres = data.oficina ? data.datos_oficina.nombre_completo : data.nombreD;
+        const direccion = data.oficina ? data.datos_oficina.direccion : data.direccionD;
+        const ciudad = data.oficina ? data.datos_oficina.ciudad : `${data.ciudadD}(${data.departamentoD})`;
+        const celular = data.oficina ? data.datos_oficina.celular : celularD;
 
         let imgs = `<td><div class="align-items-center d-flex flex-column">
             <img src="img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg" width="100px">
@@ -2788,12 +2885,12 @@ async function generarRotulo(id_guias) {
         </td>`;
 
         let infoDest = `<td>
-        <h2>Datos Del Destinatario</h2>
-        <h5 class="text-dark">Nñumero de Guía: <strong>${data.numeroGuia}</strong></h5>
-        <h5 class="text-dark">Nombre: <strong>${data.nombreD}</strong></h5>
-        <h5 class="text-dark">Dirección: <strong>${data.direccionD}</strong></h5>
-        <h5 class="text-dark">Ciudad:  <strong>${data.ciudadD}(${data.departamentoD})</strong>  </h5>
-        <h5 class="text-dark">Celular:  <strong>${data.celularD != data.telefonoD ? data.celularD +" - "+ data.telefonoD : data.telefonoD}</strong></h5>          
+            <h2>Datos Del Destinatario</h2>
+            <h5 class="text-dark">Número de Guía: <strong>${data.numeroGuia}</strong></h5>
+            <h5 class="text-dark">Nombre: <strong>${nombres}</strong></h5>
+            <h5 class="text-dark">Dirección: <strong>${direccion}</strong></h5>
+            <h5 class="text-dark">Ciudad:  <strong>${ciudad}</strong>  </h5>
+            <h5 class="text-dark">Celular:  <strong>${celular}</strong></h5>
         </td>`;
 
 
@@ -2837,51 +2934,55 @@ async function generarRotulo(id_guias) {
     }, 500)
 };
 
-$("#buscar-guias_inter").click(buscarGuiasInter);
-function buscarGuiasInter() {
-    $("#cargador-guias_inter").removeClass("d-none")
-    const [fechaI, fechaF] = getDateRangeMs("fecha_inicio-guias_inter", "fecha_final-guias_inter");
+$("#buscar-manifiestos").click(buscarGuiasManifiesto);
+function buscarGuiasManifiesto() {
+    $("#cargador-manifiestos").removeClass("d-none")
+    const inpTransp = $(".transp_man:checked");
+    const transp = inpTransp.val();
+
+    const [fechaI, fechaF] = getDateRangeMs("fecha_inicio-manifiestos", "fecha_final-manifiestos");
 
     const reference = usuarioDoc.collection("guias").orderBy("timeline", "desc").
     startAt(fechaF).endAt(fechaI)
-    .where("transportadora", "==", "INTERRAPIDISIMO")
+    .where("transportadora", "==", transp)
     // .limit(10)
 
     if(!this.getAttribute("data-table_initialized")) {
         incializarTablaTablaGuiasInter();
         this.setAttribute("data-table_initialized", true);
     }
+
+    const mostrador_guias_seleccionadas = $('[aria-describedby="crear-manifiesto-manifiestos"]');
+    mostrador_guias_seleccionadas.val("");
     
-    const tabla = $("#tabla-guias_inter").DataTable();
+    const tabla = $("#tabla-manifiestos").DataTable();
     // return;
     reference.get().then(querySnapshot => {
         const size = querySnapshot.size;
         if(size) {
-            $("#mostrador-guias_inter").show("fast");
-            $("#sin-guias_inter").hide("slow");
+            $("#mostrador-manifiestos").show("fast");
+            $("#sin-manifiestos").hide("slow");
         } else {
-            $("#mostrador-guias_inter").hide("slow");
-            $("#sin-guias_inter").show("fast");
+            $("#mostrador-manifiestos").hide("slow");
+            $("#sin-manifiestos").show("fast");
         }
 
         tabla.clear();
 
         querySnapshot.forEach(doc => {
-            if(doc.data().numeroGuia) {
+            if(doc.data().numeroGuia && !doc.data().deleted) {
                 tabla.rows.add([doc.data()]);
             }
         })
 
         tabla.draw();
         
-
-        
-        $("#cargador-guias_inter").addClass("d-none")
+        $("#cargador-manifiestos").addClass("d-none")
     })
 }
 
 function agregarFilaGuiasInter() {
-    $("#tabla-guias_inter").DataTable().rows.add([{
+    $("#tabla-manifiestos").DataTable().rows.add([{
         "id_heka": "# Guía Heka",
         "transportadora": "Fecha creación",
         "fecha": "Fecha Saldada" ,
@@ -2891,7 +2992,7 @@ function agregarFilaGuiasInter() {
 }
 
 function incializarTablaTablaGuiasInter() {
-    const tabla = $("#tabla-guias_inter").DataTable({
+    const tabla = $("#tabla-manifiestos").DataTable({
         destroy: true,
         language: {
             url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
@@ -2917,13 +3018,12 @@ function incializarTablaTablaGuiasInter() {
                     return result;
                 },
                 targets: 5
-            }
-            
+            }          
         ],
         columns: [
             { data: "id_heka", title: "# Guía Heka"},
             { data: "numeroGuia", title: "# Guía transportadora"},
-            { data: "estado", title: "Estado" },
+            { data: "estado", title: "Estado", defaultContent: "" },
             { data: "type", title: "Tipo"},
             { data: "nombreD", title: "Nombre" },
             { data: "telefonoD", title: "Telefonos"},
@@ -2938,28 +3038,36 @@ function incializarTablaTablaGuiasInter() {
         initComplete: funcionalidadesTablaHistorialGuiasInter
     });
 
-    const btn_crear_manifiesto = $("#crear-manifiesto-guias_inter");
-    const mostrador_guias_seleccionadas = $('[aria-describedby="crear-manifiesto-guias_inter"]')
+    const btn_crear_manifiesto = $("#crear-manifiesto-manifiestos");
+    const mostrador_guias_seleccionadas = $('[aria-describedby="crear-manifiesto-manifiestos"]');
 
     tabla.on( 'click', 'tr', function (e) {
         if(e.target.parentNode.nodeName !== "TR") return;
         
         $(this).toggleClass('selected bg-gray-300');
-        const seleccionadas = guiasSeleccionadas();
+        const seleccionadas = guiasSeleccionadas().map(g => g.numeroGuia);
         const cant = seleccionadas.length;
         
         mostrador_guias_seleccionadas.val(seleccionadas);
         $("#counter-selector-guias-inter").text(cant ? "("+cant+")" : "");
     } );
 
-    btn_crear_manifiesto.click(() => {
-        imprimirManifiestoInter(guiasSeleccionadas());
+    btn_crear_manifiesto.click(async () => {
+        const guias = guiasSeleccionadas();
+        btn_crear_manifiesto.text("Cargando ...");
+
+        if(guias[0].transportadora === "INTERRAPIDISIMO") {
+            imprimirManifiestoInter(guias.map(g => g.numeroGuia));
+        } else {
+            await imprimirManifiestoEnvia(guias);
+            btn_crear_manifiesto.text("Crear manifiesto");
+        }
     })
 
     function guiasSeleccionadas() {
         let guias = new Array();
         tabla.rows(".selected").data().each((d, o) => {
-            guias.push(d.numeroGuia)
+            guias.push(d);
         });
         return guias;
     }
@@ -2995,6 +3103,24 @@ function funcionalidadesTablaHistorialGuiasInter() {
     });
 }
 
+async function imprimirManifiestoEnvia(guias) {
+    if(!guias || !guias.length) return new Toast({
+        icon: "error",
+        title: "Debes seleccionar las guías antes de crear la relación"
+    });
+
+    await fetch("/envia/imprimirManifiesto/", {
+        method: "POST",
+        headers: {"Content-Type": "Application/json"},
+        body: JSON.stringify(guias)
+    })
+    .then(d => d.text())
+    .then(d => {
+        w = window.open();
+        w.document.write(d);
+    });
+}
+
 function imprimirManifiestoInter(numeroGuias) {
     if(!numeroGuias || !numeroGuias.length) return new Toast({
         icon: "error",
@@ -3002,4 +3128,46 @@ function imprimirManifiestoInter(numeroGuias) {
     });
 
     open("/inter/imprimirManifiesto/" + numeroGuias, "_blank");  
+}
+
+function descargarInformeExcel(datosDescarga, informeJson, title) {
+    const datosDescargaEjemplo = {
+        campo_json: "Titulo a guardar del excel",
+      nombres: "Nombres",
+      apellidos: "Apellidos",
+      centro_de_costo: "Centro de costo",
+      correo: "Correo",
+      nombre_empresa: "Nombre de la empresa",
+      "datos_bancarios.banco": "Banco",
+      "datos_personalizados.sistema_envia": "Sistema envia",
+      "datos_personalizados.sistema_tcc": "Sistema tcc",
+    }
+  
+    const normalizeObject = (campo, obj) => {
+      if(!obj) return "No aplica";
+      return obj[campo];
+    }
+  
+    const transformDatos = (obj) => {
+      const res = {};
+      for(let campo in datosDescarga) {
+        const resumen = campo.split(".")
+        if(resumen.length > 1) {
+          let resultante = obj;
+          resumen.forEach(r => {
+            resultante = normalizeObject(r, resultante)
+          });
+          res[datosDescarga[campo]] = resultante
+  
+        } else {
+          res[datosDescarga[campo]] = obj[campo];
+        }
+      }
+
+      return res;
+    }
+
+    const data = informeJson.map(transformDatos);
+
+    crearExcel(data, title);
 }

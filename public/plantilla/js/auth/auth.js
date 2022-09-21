@@ -18,6 +18,8 @@ window.onload = () => {
     redirectIfAuthenticated();
     llenarCiudades(document.getElementById("register-ciudad"), ciudades);
     llenarCiudades(document.getElementById("rgOficina-ciudad"), ciudades);
+    $("#contenedor").removeClass("d-none");
+    $("#cargador").addClass("d-none");
 }
 
 async function restorePassword(e) {

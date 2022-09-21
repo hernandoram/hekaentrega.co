@@ -12,7 +12,15 @@ exports.revisarTipoEstado = (est, transp) => {
 
 exports.traducirMovimientoGuia = (transportadora) => {
     switch (transportadora) {
-        case "ENVIA": case "TCC":
+        case "ENVIA":
+            return {
+                novedad: "novedad",
+                fechaMov: "fechaMov",
+                observacion: "observacion",
+                descripcionMov: "estado",
+                ubicacion: "ciudad"
+            }
+        case "TCC":
             return {
                 novedad: "aclaracion",
                 fechaMov: "fechamostrar",
@@ -39,27 +47,80 @@ exports.traducirMovimientoGuia = (transportadora) => {
     }
 }
 
-exports.revisarNovedad = async (mov, transp) => {
+let listaNovedadesServientrega;
+exports.revisarNovedadAsync = async (mov, transp) => {
     if(transp === "INTERRAPIDISIMO") {
         return mov.Motivo;
     } else if (transp === "ENVIA" || transp === "TCC") {
         return mov.novedad
     } else {
-        const novedades = await db.collection("infoHeka")
-        .doc("novedadesRegistradas").get();
+        listaNovedadesServientrega = listaNovedadesServientrega || await db.collection("infoHeka")
+        .doc("novedadesRegistradas").get().then(d => d.data());
 
-        if(novedades.data()) {
-            return novedades.data().SERVIENTREGA.includes(mov.NomConc)
+        if(listaNovedadesServientrega) {
+            return listaNovedadesServientrega.SERVIENTREGA.includes(mov.NomConc)
         }
 
         return mov.TipoMov === "1";
     }
 }
 
+exports.revisarNovedad = (mov, transp) => {
+    if(transp === "INTERRAPIDISIMO") {
+        return !!mov.Motivo;
+    } else if (transp === "ENVIA" || transp === "TCC") {
+        return !!mov.novedad
+    } else {
+        if(listaNovedadesServientrega) {
+            return listaNovedadesServientrega.SERVIENTREGA.includes(mov.NomConc)
+        }
+
+        return mov.TipoMov === "1";
+    }
+}
+
+exports.guiaEnNovedad = (movimientos, transp) => {
+    movimientos.reverse();
+    const lastMov = movimientos[0];
+    const fechaActual = new Date().getTime();
+    const maxHors = 72 * 3.6e6;
+
+    let enNovedad = false;
+
+    switch(transp) {
+        case "INTERRAPIDISIMO":
+            for (const mov of movimientos) {
+                const tradFecha = this.traducirMovimientoGuia(transp)["fechaMov"];
+                const fechaMov = mov[tradFecha];
+                // const [soloFech, soloHr] = fechaMov.split(" ");
+                // const soleFechFormat = soloFech.split("/").reverse().join("-");
+
+                // const fechaMovMill = new Date(soleFechFormat + " " + soloHr).getTime();
+                const fechaMovMill = new Date(fechaMov).getTime();
+                const diferencia = fechaActual - fechaMovMill;
+                const novedadEncontrada = this.revisarNovedad(mov, transp);
+
+                if(novedadEncontrada) {
+                    enNovedad = diferencia <= maxHors;
+                    break;
+                }
+            }
+            break;
+
+        default: 
+            enNovedad = this.revisarNovedad(lastMov, transp);
+            break;
+    }
+
+    movimientos.reverse();
+
+    return enNovedad;
+}
+
 exports.revisarEstadoFinalizado = (estado) => {
     return [
         "ENTREGADO", "Entrega Exitosa", 
         "ENTREGADO A REMITENTE", "Devuelto al Remitente", 
-        "Documento Anulado"
+        "Documento Anulado", "Entregado"
     ].includes(estado)
 }
