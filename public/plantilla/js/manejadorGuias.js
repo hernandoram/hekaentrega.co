@@ -2137,8 +2137,7 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
     let filtro = true, toggle = "==", buscador = "enNovedad"
     const cargadorClass = document.getElementById("cargador-novedades").classList
     cargadorClass.remove("d-none");
-    
-    
+  
     if(($("#filtrado-novedades-guias").val() || guia) && admin){
         let filtrado = guia || $("#filtrado-novedades-guias").val().split(",");
         if(typeof filtrado == "object") {
@@ -2175,7 +2174,6 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
         .then(querySnapshot => {
             let contador = 0;
             let size = querySnapshot.size;
-            console.log(size)
             querySnapshot.forEach(doc => {
                 let path = doc.ref.path.split("/")
                 let dato = doc.data();
@@ -2217,6 +2215,42 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
     }
 }
 
+function revisarNovedades() {
+    const cargadorClass = document.getElementById("cargador-novedades").classList
+    cargadorClass.remove("d-none");
+
+    const usuarios = new Set();
+    firebase.firestore().collectionGroup("estadoGuias")
+    .where("enNovedad", "==", true)
+    .where("transportadora", "==", "INTERRAPIDISIMO")
+    // .limit(10)
+    .get().then(q => {
+        let contador = 0;
+        let size = q.size;
+        console.log(size);
+
+        if(!size) cargadorClass.add("d-none");
+
+        q.forEach(d => {
+            let path = d.ref.path.split("/")
+            let dato = d.data();
+            contador++
+
+            usuarios.add(path[1]);
+
+            consultarGuiaFb(path[1], d.id, dato, dato.centro_de_costo, contador, size);
+        });
+
+        if(revisarTiempoGuiasActualizadas()) return;
+
+        usuarios.forEach(actualizarEstadosEnNovedadUsuario);
+        
+        localStorage.last_update_novedad = new Date();
+        
+    });
+
+}
+
 function actualizarEstadoGuia(numeroGuia) {
     fetch("/procesos/actualizarEstados/numeroGuia", {
         method: "POST",
@@ -2239,13 +2273,17 @@ function actualizarEstadosEnNovedad() {
 
     console.log("Actualizando novedades");
 
+    actualizarEstadosEnNovedadUsuario(user_id);
+
+    localStorage.last_update_novedad = actual;
+}
+
+function actualizarEstadosEnNovedadUsuario(user_id) {
     fetch("/procesos/actualizarEstados/novedad", {
         method: "POST",
         headers: {"Content-Type": "Application/json"},
         body: JSON.stringify({user_id})
     });
-
-    localStorage.last_update_novedad = actual;
 }
 
 function revisarGuiaUser(id_heka) {
@@ -2266,7 +2304,18 @@ function revisarGuiaUser(id_heka) {
 
 document.getElementById("btn-revisar-novedades").addEventListener("click", (e) => {
     e.preventDefault();
-    revisarMovimientosGuias(administracion);
+    if(administracion && $("#activador_busq_novedades").prop("checked")) {
+        console.log("Buscando novedades");
+        revisarNovedades();
+    } else {
+        if(!$("#filtrado-novedades-guias").val() && !$("#filtrado-novedades-usuario").val()) {
+            swal.fire("No permitido", "Recuerda por favor filtrar por guía o por usuario para esta opción", "error");
+            return;
+        }
+        
+        console.log("Busqueda natural");
+        revisarMovimientosGuias(administracion);
+    }
 })
 
 $("#btn-vaciar-consulta").click(() => {
