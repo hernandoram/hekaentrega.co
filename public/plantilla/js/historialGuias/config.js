@@ -25,7 +25,7 @@ export const filters = [
         dataFilter: defFiltrado.finalizada
     },
     {
-        name: "otro",
+        name: "En novedad",
         dataFilter: defFiltrado.novedad
     }
 ];

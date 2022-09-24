@@ -269,7 +269,7 @@ function defineFilter(data) {
 
     let filter;
 
-    if (data.en_novedad) {
+    if (data.enNovedad) {
         filter = novedad;
     } else if (data.staging) {
         filter = pedido;

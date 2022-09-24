@@ -68,6 +68,7 @@ async function cargarNovedades() {
     const novedades = await guiasRef.where("enNovedad", "==", true)
     .get().then(querySnapshot => {
         console.log(querySnapshot.size);
+        $(".mostrar-cantidad_novedades").text(querySnapshot.size);
         querySnapshot.forEach(doc => {
             const data = doc.data();
             console.log(data);
@@ -79,8 +80,7 @@ async function cargarNovedades() {
         })
     });
 
-    historial.filter(historial.filtrador);
-    
+    historial.filter(historial.filtrador);   
 }
 
 function toggleBuscador() {
