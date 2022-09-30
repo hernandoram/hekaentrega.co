@@ -1766,8 +1766,8 @@ function actualizarEstado(){
             let total_datos = datos.length;
             let actualizadas = new Array();
             let regresiveCounter = datos.length
-            console.log($("#cargador-actualizador").find("span"))
-            $("#cargador-actualizador").find("span").text(regresiveCounter)
+            $("#cargador-actualizador").find("span").text(regresiveCounter);
+
             for await(let dato of datos){
                 let x = {
                     numero_guia_servientrega: dato["Número de Guia"],
@@ -1779,13 +1779,12 @@ function actualizarEstado(){
                     valor_flete: dato["Valor Flete"],
                     valor_sobreflete: dato["Valor SobreFlete"],
                     valor_liquidado: dato["Valor Liquidado"],
-                    id_guia: dato["IdCliente"],
+                    id_guia: dato["Campo Personalizado1"] || dato["IdCliente"],
                     estado_envio: dato["Estado Envío"],
                     mensaje_mov: dato["Mensaje Mov"],
                     fecha_ult_mov: dato["Fecha Ult Mov"],
                     nombre_centro_costo: dato["Nombre Centro Costo"]
                 };
-                // console.log(x);
                 if(x.id_guia && x.numero_guia_servientrega){
                     const id = x.id_guia.toString();
                     const numeroGuia = x.numero_guia_servientrega.toString();
@@ -1819,11 +1818,11 @@ function actualizarEstado(){
                     });
                     // console.log(x.id_guia, new Date().getTime())
                 } else {
-                    document.querySelector("#resultado-actualizador").innerHTML += `
+                    $("#resultado-actualizador").append(`
                         <li>
                             No sé a que guía actualizar o no hay un número de guía en la fila ${total_datos - regresiveCounter + 2}
                         </li>
-                    `
+                    `);
                 }
                 regresiveCounter --
                 $("#cargador-actualizador").find("span").text(regresiveCounter);
@@ -1831,6 +1830,7 @@ function actualizarEstado(){
 
             actualizadas = await Promise.all(actualizadas);
             return {total_datos, actualizadas};
+
         }).then((r) => {
             console.log(r)
             if(r == "vacio"){
@@ -1939,9 +1939,9 @@ function revisarNotificaciones(){
     let guiasNovedad;
 
     if(administracion) {
-        busqueda = 0;
-        operador = ">=";
-        buscador = "timeline"
+        busqueda = true;
+        operador = "==";
+        buscador = "visible_admin"
         novedades = document.getElementById("notificaciones-novedades");
         novedades.addEventListener("click", e => {
             let badge = novedades.querySelector("span");
@@ -1972,7 +1972,7 @@ function revisarNotificaciones(){
             if((!administracion && notification.visible_user && notification.user_id == busqueda) || 
             administracion && notification.visible_admin) {
                 if(change.type == "added" || change.type == "modified") {
-                    audio.play();
+                    audio.play().catch(() => {});
                     let notificacionNormal = false;
                     if(notification.type == "novedad") {
                         contador = novedades.querySelector("span");
@@ -2015,6 +2015,7 @@ function revisarNotificaciones(){
                 $(".notificacion-"+identificador).remove();
             }
         });
+
     });
 
     if(!administracion) {
