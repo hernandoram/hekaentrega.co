@@ -2457,6 +2457,7 @@ async function enviar_firestore(datos){
         }
     })
     .then(async (id) => {
+        console.log("PROBANDO DATOS AL ACTUALIZAR PAGOS", datos);
         if(!datos_heka) return id;
 
         let momento = new Date().getTime();
@@ -2472,6 +2473,8 @@ async function enviar_firestore(datos){
             momento: momento,
             user_id: localStorage.user_id,
             guia: id,
+            numeroGuia: datos.numeroGuia || "",
+            transportadora: datos.transportadora || "",
             medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id
         };
 

@@ -2216,14 +2216,14 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
     }
 }
 
-function revisarNovedades() {
+function revisarNovedades(transportadora) {
     const cargadorClass = document.getElementById("cargador-novedades").classList
     cargadorClass.remove("d-none");
 
     const usuarios = new Set();
     firebase.firestore().collectionGroup("estadoGuias")
     .where("enNovedad", "==", true)
-    .where("transportadora", "==", "INTERRAPIDISIMO")
+    .where("transportadora", "==", transportadora)
     // .limit(10)
     .get().then(q => {
         let contador = 0;
@@ -2305,9 +2305,10 @@ function revisarGuiaUser(id_heka) {
 
 document.getElementById("btn-revisar-novedades").addEventListener("click", (e) => {
     e.preventDefault();
-    if(administracion && $("#activador_busq_novedades").prop("checked")) {
+    const novedades_transportadora = $("#activador_busq_novedades").val();
+    if(administracion && novedades_transportadora) {
         console.log("Buscando novedades");
-        revisarNovedades();
+        revisarNovedades(novedades_transportadora);
     } else {
         if(!$("#filtrado-novedades-guias").val() && !$("#filtrado-novedades-usuario").val()) {
             swal.fire("No permitido", "Recuerda por favor filtrar por guía o por usuario para esta opción", "error");
@@ -2700,6 +2701,7 @@ let filtroPagos;
 async function historialGuiasAdmin(e) {
     let fechaI = document.querySelector("#fechaI-hist-guias").value;
     let fechaF = document.querySelector("#fechaF-hist-guias").value;
+    const numeroGuia = document.querySelector("#num_guia-hist_guias").value;
     const filtroCentroDeCosto = $("#filtro_pagos-hist-guias").val();
     const descargaDirecta = e.id === "descargar-hist-guias";
     $("#historial_guias .cargador").removeClass("d-none");
@@ -2726,7 +2728,8 @@ async function historialGuiasAdmin(e) {
     }
     const reference = firebase.firestore().collectionGroup("guias").orderBy("timeline")
     .startAt(new Date(fechaI).getTime()).endAt(new Date(fechaF).getTime() + 8.64e+7)
-
+    
+    const referenceAlt = firebase.firestore().collectionGroup("guias")
 
     if(filtroPagoSeleccionado) {
         const segementado = segmentarArreglo(filtroPagoSeleccionado, 10);
@@ -2734,6 +2737,8 @@ async function historialGuiasAdmin(e) {
             await reference.where("centro_de_costo", "in", paquete)
             .get().then(manejarInformacion);
         }
+    } else if(numeroGuia) {
+        await referenceAlt.where("numeroGuia", "==", numeroGuia.trim()).get().then(manejarInformacion);
     } else {
         await reference.get().then(manejarInformacion);
     }

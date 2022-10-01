@@ -936,6 +936,7 @@ function userClickNotification(data) {
 
 //Muestra los igresos y egresos de los usuarios a medida que van generando guías
 function tablaMovimientos(arrData){
+    
     let tabla = document.createElement("table"),
         t_head = document.createElement("tr"),
         detalles = document.createElement("h3");
@@ -944,6 +945,8 @@ function tablaMovimientos(arrData){
     detalles.setAttribute("class", "text-center mt-3")
 
     t_head.innerHTML = `
+        <th># Guía</th>
+        <th>Transportadora</th>
         <th>Fecha</th>
         <th>Saldo Previo</th>
         <th>Movimiento</th>
@@ -958,6 +961,8 @@ function tablaMovimientos(arrData){
         let row = document.createElement("tr");
 
         row.innerHTML = `
+            <td>${data.numeroGuia || "No aplica"}</td>
+            <td>${data.transportadora || "No aplica"}</td>
             <td>${data.fecha}</td>
             <td class="text-right">$${convertirMiles(data.saldo_anterior)}</td>
             <td class="text-right">$${convertirMiles(data.diferencia)}</td>
@@ -1771,7 +1776,8 @@ async function actualizarSaldo(data) {
         momento: "timeline in semiseconds",
         user_id: "user_id",
         guia: "id guia",
-        medio: "Usuario ó admin realizó X cambio"
+        medio: "Usuario ó admin realizó X cambio",
+        numeroGuia: "numeroGuia transportadora"
     }
 
     return await firebase.firestore().collection("usuarios").doc(data.user_id)
