@@ -187,9 +187,8 @@ const actualizarMovimientos = async function(doc) {
 
     const guia = doc.data();
 
-    const estados_finalizacion = ["Documento Anulado", "Entrega Exitosa", "Devuelto al Remitente"];
+    const estados_finalizacion = ["Documento Anulado", "Entrega Exitosa", "Devuelto al Remitente", "Entregada"];
     let entrega_oficina_notificada = guia.entrega_oficina_notificada || false;
-
     
     const movimientos = respuesta[0].EstadosGuia.map(estado => {
         const est = estado.EstadoGuia;

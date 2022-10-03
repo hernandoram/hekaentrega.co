@@ -2310,7 +2310,7 @@ document.getElementById("btn-revisar-novedades").addEventListener("click", (e) =
         console.log("Buscando novedades");
         revisarNovedades(novedades_transportadora);
     } else {
-        if(!$("#filtrado-novedades-guias").val() && !$("#filtrado-novedades-usuario").val()) {
+        if(administracion && !$("#filtrado-novedades-guias").val() && !$("#filtrado-novedades-usuario").val()) {
             swal.fire("No permitido", "Recuerda por favor filtrar por guía o por usuario para esta opción", "error");
             return;
         }
@@ -2770,7 +2770,7 @@ async function historialGuiasAdmin(e) {
         { data: "detalles.total", title: "Total"},
         { data: "fecha", title: "Fecha"},
         { data: "debe", title: "deuda", defaultContent: "no aplica", render: function(content, display, data) {
-            if(data.debe 
+            if(data.debe
                 && data.seguimiento_finalizado
                 && data.type!=="CONVENCIONAL"
             ) return (-content) + '<span class="sr-only"> Por pagar</span>'
