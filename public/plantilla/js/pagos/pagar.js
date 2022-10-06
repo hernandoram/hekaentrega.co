@@ -1,6 +1,6 @@
 import { ChangeElementContenWhileLoading, segmentarArreglo } from "../utils/functions.js";
 import Stepper from "../utils/stepper.js";
-import { formularioPrincipal, inpFiltCuentaResp, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor } from "./config.js";
+import { camposExcel, formularioPrincipal, inpFiltCuentaResp, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor } from "./config.js";
 import { comprobarGuiaPagada, guiaExiste } from './comprobadores.js';
 
 const db = firebase.firestore();
@@ -26,7 +26,9 @@ class Empaquetado {
         } else {
             this.pagosPorUsuario[usuario] = {
                 guias: [guia],
+                guiasPagadas: [],
                 id: this.id,
+                id_user: "",
                 usuario
             }
             this.id++;
@@ -49,6 +51,7 @@ class Empaquetado {
             <button class="btn btn-primary next mt-2">siguiente</button>`);
         }
 
+        this.usuarioActivo = this.usuarios[this.actual];
         this.setPages();
         const usuariosIniciales = this.usuarios.slice(0, 2);
         usuariosIniciales.forEach(usuario => this.analizarGuias(usuario));
@@ -112,8 +115,8 @@ class Empaquetado {
 
     cargarInformacion(usuario) {
         let btnDisabled = false;
-        let total = 0;
-        console.log($("#pagos-usuario-"+usuario + " tbody", visor));
+        let btnFactDisabled = true;
+        let total = 0, totalFact = 0;
         $("#pagos-usuario-"+usuario + " tbody", visor).html("");
         $("#btn-pagar-"+usuario).remove();
         const userRef = this.pagosPorUsuario[usuario];
@@ -166,9 +169,16 @@ class Empaquetado {
         button.innerHTML = "Pagar $" + convertirMiles(total);
         button.addEventListener("click", () => this.pagar(usuario));
         
+        const buttonFact = document.createElement("button");
+        buttonFact.setAttribute("class", "btn btn-outline-success ml-2 d-none");
+        buttonFact.setAttribute("id", "btn-facturar-"+usuario);
+
+        // if(btnFactDisabled) buttonFact.setAttribute("disabled", btnFactDisabled);
+        buttonFact.addEventListener("click", () => this.facturar());
+        
         $("#pagos-usuario-"+usuario +" [data-toggle='popover']").popover();
 
-        visor.find("#pagos-usuario-"+usuario + ">.card-body").append(button);
+        visor.find("#pagos-usuario-"+usuario + ">.card-body").append(button, buttonFact);
         $(".deleter", visor).click(eliminarGuiaStagging);
 
         this.totalAPagar += total;
@@ -244,37 +254,52 @@ class Empaquetado {
         }
     }
 
-    cargarInformacionBancaria(e) {
+    async cargarInformacionBancaria(e) {
         const target = e.target;
         const usuario = target.getAttribute("data-user");
         const visualizador = $("#info-bank-"+ usuario);
-    
+
         const cargada = visualizador.hasClass("cargado");
         if(cargada) return;
-    
-        db.collection("usuarios").where("centro_de_costo", "==", usuario).limit(1)
+        
+        const infoUser = await this.cargarInfoUsuario();
+        
+        if(infoUser === null) {
+            visualizador.html('<h6 class="dropdown-item">No se encontró el usuario</h6>');
+            return;
+        }
+
+        const {datos_bancarios} = infoUser;
+
+        if(datos_bancarios) {
+            visualizador.html(`
+                <h6 class="dropdown-item">${datos_bancarios.banco}</h6>
+                <h6 class="dropdown-item">Representante: ${datos_bancarios.nombre_banco}</h6>
+                <h6 class="dropdown-item">${datos_bancarios.tipo_de_cuenta}: ${datos_bancarios.numero_cuenta}</h6>
+                <h6 class="dropdown-item">${datos_bancarios.tipo_documento_banco} - ${datos_bancarios.numero_iden_banco}</h6>
+            `);
+            this.pagosPorUsuario[usuario].datos_bancarios = datos_bancarios;
+        } else {
+            visualizador.html('<h6 class="dropdown-item">Sin datos bancarios</h6>');
+        }
+
+        visualizador.addClass("cargado");
+    }
+
+    async cargarInfoUsuario() {
+        const user = this.usuarioActivo;
+
+        return await db.collection("usuarios").where("centro_de_costo", "==", user).limit(1)
         .get().then(q => {
-            if(!q.size) {
-                visualizador.html('<h6 class="dropdown-item">No se encontró el usuario</h6>');
-            }
+
+            let usuario = null;
+            
             q.forEach(doc => {
-                const data = doc.data();
-                const {datos_bancarios} = data;
+                usuario = doc.data();
+                this.pagosPorUsuario[user].id_user = doc.id;
+            });
 
-                if(datos_bancarios) {
-                    visualizador.html(`
-                        <h6 class="dropdown-item">${datos_bancarios.banco}</h6>
-                        <h6 class="dropdown-item">Representante: ${datos_bancarios.nombre_banco}</h6>
-                        <h6 class="dropdown-item">${datos_bancarios.tipo_de_cuenta}: ${datos_bancarios.numero_cuenta}</h6>
-                        <h6 class="dropdown-item">${datos_bancarios.tipo_documento_banco} - ${datos_bancarios.numero_iden_banco}</h6>
-                    `);
-                    this.pagosPorUsuario[usuario].datos_bancarios = datos_bancarios;
-                } else {
-                    visualizador.html('<h6 class="dropdown-item">Sin datos bancarios</h6>');
-                }
-
-                visualizador.addClass("cargado");
-            })
+            return usuario;
         })
     }
 
@@ -285,6 +310,7 @@ class Empaquetado {
         const file = $("#comprobante_pago-"+usuario)[0].files[0];
 
         const pagoUser = this.pagosPorUsuario[usuario];
+        pagoUser.guiasPagadas = [];
         const guias = pagoUser.guias;
         const buttons = $(".next,.prev");
         const loader = new ChangeElementContenWhileLoading("#btn-pagar-"+usuario);
@@ -331,6 +357,7 @@ class Empaquetado {
         }
 
         let pagado = 0;
+        let comision_heka = 0;
         for await(let guia of guias) {
             guia.timeline = timeline;
             guia.comprobante_bacario = comprobante_bacario;
@@ -365,7 +392,13 @@ class Empaquetado {
                 await batch.commit();
 
                 fila.addClass("table-success");
+
+                // Agregar la guía que sea paga.
+                pagoUser.guiasPagadas.push(numeroGuia);
+                
+                // Sumar las comisiones y los totales
                 pagado += guia["TOTAL A PAGAR"];
+                comision_heka += guia[camposExcel.comision_heka];
 
             } catch(e) {
                 console.log(e);
@@ -377,11 +410,119 @@ class Empaquetado {
             }
         }
 
-        // $("#pagos-usuario-"+usuario +" tr").tooltip();
+        if(comision_heka && !pagoUser.facturaGenerada) {
+            const buttonFact = $("#btn-facturar-"+usuario);
+            buttonFact.prop("disabled", false);
+            buttonFact.removeClass("d-none");
+            buttonFact.text("Facturar $" + convertirMiles(comision_heka));
+
+        }
 
         this.pagosPorUsuario[usuario].pagoConcreto = pagado;
+        this.pagosPorUsuario[usuario].comision_heka_total = comision_heka;
 
         terminar();
+    }
+
+    async guardarPaquetePagado(factura) {
+        const userRef = this.pagosPorUsuario[this.usuarioActivo];
+        const {guiasPagadas, pagoConcreto, comision_heka_total} = userRef;
+        const {timeline, comprobante_bacario} = userRef.guias[0];
+
+        const infoToSave = {
+            guiasPagadas,
+            total_pagado: pagoConcreto,
+            comision_heka: comision_heka_total,
+            timeline,
+            fecha: new Date(),
+            comprobante_bacario,
+            id_factura: factura.id,
+            num_factura: factura.number,
+            centro_de_costo: this.usuarioActivo,
+            id_user: userRef.id_user || ""
+        }
+
+        console.log(infoToSave);
+        // return;
+
+        await db.collection("paquetePagos").add(infoToSave)
+
+    }
+
+    async facturar() {
+        const userRef = this.pagosPorUsuario[this.usuarioActivo];
+        const swalObj = {
+            title: 'Continuar...',
+            text: "Estás a punto de generar una factura de $" + convertirMiles(userRef.comision_heka_total) + " al usuario " + this.usuarioActivo + " ¿Deseas continuar?",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: '¡Hágale! 👍',
+            cancelButtonText: "¡No, me equivoqué!"
+        }
+
+        const buttons = $(".next,.prev");
+        const idButtonFacturar = "#btn-facturar-"+this.usuarioActivo;
+        const loader = new ChangeElementContenWhileLoading(idButtonFacturar);
+        loader.init();
+
+        const terminar = (proceso_correcto) => {
+            loader.end();
+
+            if(proceso_correcto) {
+                userRef.facturaGenerada = true;
+                loader.el.prop("disabled", true);
+            }
+
+            buttons.attr("disabled", false);
+        }
+
+        const comprobar = await Swal.fire(swalObj);
+
+        if(!comprobar.isConfirmed) return terminar();
+
+        const comision_heka_total = userRef.comision_heka_total;
+        
+        if(!userRef.numero_documento) {
+            const infoUser = await this.cargarInfoUsuario();
+            userRef.numero_documento = infoUser.numero_documento;
+        }
+
+        const numero_documento = userRef.numero_documento;
+
+        if(!comision_heka_total) {
+            Toast.fire("No hay comisión para facturar", "", "error");
+            terminar();
+            return;
+        }
+
+        try {
+            const resFact = await fetch("/siigo/crearFactura", {
+                method: "POST",
+                headers: {"Content-Type": "Application/json"},
+                body: JSON.stringify({comision_heka: comision_heka_total, numero_documento})
+            })
+            .then(d => d.json())
+            .catch(e => {
+                return {
+                    error: true,
+                    message: "Error al crear la factura con siigo"
+                }
+            });
+
+            if(resFact.error) throw new Error(resFact.message);
+
+            await this.guardarPaquetePagado(resFact);
+
+            terminar(true);
+            
+            Toast.fire("Factura agregada correctamente.", "", "success");
+
+        } catch (e) {
+            Swal.fire("¡ERROR!", e.message, "error");
+            terminar();
+        }
+
+
     }
 
     get renderTotales() {
@@ -479,11 +620,13 @@ async function consultarPendientes(e) {
 
     const stepper = new Stepper(visor);
     stepper.init();
-    stepper.findErrorsBeforeNext = () => {
+    stepper.onAfterChange = step => {
+        paquete.actual = step;
         const paq = paquete.usuarios[paquete.actual];
-        console.log(paquete.pagosPorUsuario[paq]);
-        if(paq)
-        paquete.analizarGuias(paq);
+        paquete.usuarioActivo = paq;
+        console.log(paq, paquete.pagosPorUsuario[paq]);
+
+        if(paq && !paq.analizado) paquete.analizarGuias(paq);
     }
 
     console.log(paquete);

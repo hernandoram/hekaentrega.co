@@ -89,6 +89,7 @@ export default class Stepper {
 
         // $(".step-controller", this.form).appendTo(this.steps[step]);
         this.normalize()
+        this.onAfterChange(step);
     }
 
     awaitToNormalize(delay = 800) {
@@ -168,6 +169,10 @@ export default class Stepper {
 
     findErrorsBeforeNext(active) {
         return false
+    }
+
+    onAfterChange(step) {
+        return (step) => false;
     }
 
 
