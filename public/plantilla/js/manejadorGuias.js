@@ -98,36 +98,36 @@ async function historialGuias(){
                     class="d-flex justify-content-around flex-wrap">
                     `;
 
-                    const btnCrearSticker = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+                    const btnCrearSticker = `<button class="btn btn-primary btn-circle btn-sm action mt-1" data-id="${id}"
                     data-funcion="activar-desactivar"
                     id="crear_sticker${id}" title="Crear Sticker de la guía">
                         <i class="fas fa-stamp"></i>
                     </button>`
 
-                    const btnMovimientos = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+                    const btnMovimientos = `<button class="btn btn-primary btn-circle btn-sm action mt-1" data-id="${id}"
                     id="ver_movimientos${id}" data-toggle="modal" data-target="#modal-gestionarNovedad"
                     title="Revisar movimientos">
                         <i class="fas fa-truck"></i>
                     </button>`
 
-                    const btnDownloadDocs =  `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+                    const btnDownloadDocs =  `<button class="btn btn-primary btn-circle btn-sm action mt-1" data-id="${id}"
                     id="descargar_documento${id}" title="Descargar Documentos">
                         <i class="fas fa-file-download"></i>
                     </button>`;
 
-                    const btnRotulo = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+                    const btnRotulo = `<button class="btn btn-primary btn-circle btn-sm action mt-1" data-id="${id}"
                     data-funcion="activar-desactivar" data-activate="after"
                     id="generar_rotulo${id}" title="Generar Rótulo">
                         <i class="fas fa-ticket-alt"></i>
                     </button>`
 
-                    const btnClone = `<button class="btn btn-success btn-circle btn-sm mt-2 action ${showCloneAndDelete}" data-id="${id}" 
+                    const btnClone = `<button class="btn btn-success btn-circle btn-sm action mt-1 ${showCloneAndDelete}" data-id="${id}" 
                     id="clonar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
                     title="Clonar Guía">
                         <i class="fas fa-clone"></i>
                     </button>`;
 
-                    const btnDelete = `<button class="btn btn-danger btn-circle btn-sm mt-2 action ${showCloneAndDelete}" data-id="${id}" 
+                    const btnDelete = `<button class="btn btn-danger btn-circle btn-sm action mt-1 ${showCloneAndDelete}" data-id="${id}" 
                     id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
                     title="Eliminar Guía">
                         <i class="fas fa-trash"></i>
@@ -139,7 +139,7 @@ async function historialGuias(){
                     }
 
                     buttons += `
-                        <button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+                        <button class="btn btn-primary btn-circle btn-sm action mt-1" data-id="${id}"
                         id="ver_detalles${id}" data-toggle="modal" data-target="#modal-detallesGuias"
                         title="Detalles">
                             <i class="fas fa-search-plus"></i>
@@ -158,9 +158,11 @@ async function historialGuias(){
                     }
 
                     if(!datos.estado)
-                    buttons += btnClone + btnDelete;
-                    
+                    buttons += btnClone;
 
+                    if(!datos.estado && datos.deletable !== false)
+                    buttons += btnDelete
+                    
                     buttons += "<a href='javascript:void(0)' class='action text-trucate'>Ver más</a>"
 
                     buttons += "</div>";
@@ -490,20 +492,33 @@ function filtradorEspecialHistorialGuias() {
 }
 
 function descargarGuiasParticulares(e, dt, node, config) {
-    const charger = new ChangeElementContenWhileLoading(node)
-    charger.init();
+    Swal.fire({
+        title: '¡Atención!',
+        text: "Recuerda que al descargar los documentos, ya no podrás eliminar las guías seleccionadas, ¿Deseas continuar?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '¡Si! continuar 👍',
+        cancelButtonText: "¡No, déjame pensarlo!"
+    }).then((resp) => {
+        if(!resp.isConfirmed) return;
+    
+        const charger = new ChangeElementContenWhileLoading(node)
+        charger.init();
+    
+        const api = dt;
+        const selectedRows = api.rows(".selected");
+        const datas = selectedRows.data();
+    
+        const ids = new Array();
+        datas.each(r => ids.push(r.id_heka));
+        console.log(ids);
+    
+        buscarGuiasParaDescargarStickers(ids).then(() => {
+            charger.end();
+        });
 
-    const api = dt;
-    const selectedRows = api.rows(".selected");
-    const datas = selectedRows.data();
-
-    const ids = new Array();
-    datas.each(r => ids.push(r.id_heka));
-    console.log(ids);
-
-    buscarGuiasParaDescargarStickers(ids).then(() => {
-        charger.end();
     })
+
 }
 
 //función utilizada por el usuario para crear lo documentos
@@ -1721,6 +1736,7 @@ async function buscarGuiasParaDescargarStickers(guias) {
     const pdfDoc = await PDFLib.PDFDocument.create();
 
     for await (let guia of guias) {
+        let deletable = true;
         await firebase.firestore().collection("base64StickerGuias").doc(guia)
         .collection("guiaSegmentada").orderBy("index").get().then(async querySnapshot => {
             let base64 = "";
@@ -1728,14 +1744,22 @@ async function buscarGuiasParaDescargarStickers(guias) {
             querySnapshot.forEach(doc => {
                 base64 += doc.data().segmento;
             });
+
             const page = await PDFLib.PDFDocument.load(base64);
             const cantPages = page.getPages().length;
 
             const [existingPage] = await pdfDoc.copyPages(page, [0])
             await pdfDoc.addPage(existingPage);
+
+            deletable = false;
         }).catch(() => {
             console.log("la guías numero " + guia + " no fue encontrada");
         });
+
+        console.log(deletable);
+        if(deletable === false) {
+            usuarioDoc.collection("guias").doc(guia).update({deletable});
+        }
     };
 
     const pdfBase64 = await pdfDoc.saveAsBase64();
@@ -2252,12 +2276,13 @@ function revisarNovedades(transportadora) {
 
 }
 
-function actualizarEstadoGuia(numeroGuia) {
-    fetch("/procesos/actualizarEstados/numeroGuia", {
+async function actualizarEstadoGuia(numeroGuia, id_user = user_id, wait) {
+    console.log(numeroGuia, id_user);
+    return await fetch("/procesos/actualizarEstados/numeroGuia", {
         method: "POST",
         headers: {"Content-Type": "Application/json"},
-        body: JSON.stringify({user_id, argumento: numeroGuia})
-    });
+        body: JSON.stringify({user_id: id_user, argumento: numeroGuia, wait})
+    }).then(d => d.json());
 }
 
 function revisarTiempoGuiasActualizadas() {

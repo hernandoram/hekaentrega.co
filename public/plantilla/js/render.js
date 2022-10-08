@@ -405,7 +405,8 @@ function activarBotonesDeGuias(id, data, activate_once){
     let activos = document.querySelectorAll('[data-funcion="activar-desactivar"]');
       for (let actv of activos){
         if(id == actv.getAttribute("data-id")){
-            actv.setAttribute("data-enviado", data.enviado)
+            actv.setAttribute("data-enviado", data.enviado);
+            actv.setAttribute("data-deletable", data.deletable);
         }
 
         let revisar = actv.getAttribute("data-enviado");
@@ -421,10 +422,23 @@ function activarBotonesDeGuias(id, data, activate_once){
       }
 
       if(activate_once) {
-        $("#eliminar_guia"+id).on("click", function(e) {
-            let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
-            if(confirmacion && this.getAttribute("data-enviado") != "true"){
-                $("#enviar-documentos").prop("disabled", true)
+        $("#eliminar_guia"+id).on("click", async function(e) {
+            // let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
+            const resp = await Swal.fire({
+                title: '¡AENCIÓN',
+                text: "Estás a punto de eliminar la guía Nro. " + id + ", Si la elimina, no lo va a poder recuperar, ¿Desea continuar?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '¡Si! continuar 👍',
+                cancelButtonText: "¡No, me equivoqué!"
+            });
+
+            const confirmacion = resp.isConfirmed;
+
+            if(confirmacion && 
+                (this.getAttribute("data-enviado") != "true" || this.getAttribute("data-deletable") != "false")
+            ){
+                $("#enviar-documentos").prop("disabled", true);
                 this.disabled = true;
                 this.display = "none";
                 firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
@@ -1070,7 +1084,12 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         || extraData.transportadora === "INTERRAPIDISIMO" ? "Revisar" : "Gestionar";
     }
     tr.innerHTML = `
-        <td>${data.numeroGuia}</td>
+        <td>
+            <div class="d-flex align-items-center">
+                ${data.numeroGuia}
+                <i id="actualizar-guia-${data.numeroGuia}" class="fa fa-sync ml-1 text-primary" title="Actualizar guía ${data.numeroGuia}" style="cursor: pointer"></i>
+            </div>
+        </td>
 
         <td class="row justify-content-center">
             <button class="btn btn-${extraData.novedad_solucionada ? "secondary" : "primary"} m-2 " 
@@ -1149,7 +1168,9 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         gestionarNovedadModal(data, extraData);
     })
     
-    const boton_solucion = $("#solucionar-guia-"+data.numeroGuia)
+    const boton_solucion = $("#solucionar-guia-"+data.numeroGuia);
+
+    const boton_actualizar = $("#actualizar-guia-"+data.numeroGuia);
     boton_solucion.click(async () => {
         const html_btn = boton_solucion.html();
         boton_solucion.html(`
@@ -1237,8 +1258,17 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         }
 
 
-    })
+    });
+
+    boton_actualizar.click(async (e) => {
+        e.target.remove();
+        const resp = await actualizarEstadoGuia(data.numeroGuia, id_user, true);
+
+        revisarMovimientosGuias(true, null, null, data.numeroGuia);
+    });
 }
+
+
 
 function respondiendoNovedad(swalDom) {
     console.log(swalDom);

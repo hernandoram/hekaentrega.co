@@ -15,8 +15,16 @@ function editarUsuarios() {
         console.log(u);
         db.collection("usuarios").where("centro_de_costo", "==", u.SELLER.trim())
         .get().then(q => {
-            q.forEach(d => {
+            q.forEach(async d => {
                 // console.log(d.data());
+
+                const existe = await db.collection("usuarios").where("numero_documento", "==", u["IDENTIFICACIÓN"].toString().trim())
+                .get().then(q => q.size);
+
+                if(existe) {
+                    console.log("Ya existe el usuario con el numero de documento: " + u["IDENTIFICACIÓN"].toString().trim());
+                    return;
+                }
 
                 // return;
                 d.ref.update({
