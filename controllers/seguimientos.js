@@ -317,11 +317,11 @@ async function actualizarMovimientosSemanales() {
     return normalizarReporte(historia);
 }
 
-actualizarMovimientosPorComparador("numeroGuia", 'in', ["114012006574"])
-.then(resultado => {
-    console.log(resultado);
-    process.exit();
-});
+// actualizarMovimientosPorComparador("numeroGuia", 'in', ["114012006574"])
+// .then(resultado => {
+//     console.log(resultado);
+//     process.exit();
+// });
 async function actualizarMovimientosPorComparador(comparador, comparando, campo) {
     const referencia = referenciaGuias
     // .where("seguimiento_finalizado", "!=", true)
