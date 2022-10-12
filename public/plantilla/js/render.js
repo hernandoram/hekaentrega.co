@@ -737,8 +737,8 @@ function tablaPagos(arrData, id) {
     cuerpo.setAttribute("data-usuario", arrData[0].REMITENTE)
         
     for(let data of arrData){
-        const buttonVerComp = administracion && data.comprobante_bacario && data.comprobante_bacario.includes("http") ? `
-            <a class="btn btn-primary btn-sm m-1" href="${data.comprobante_bacario}" target="_blank">Comprobante</a>
+        const buttonVerComp = administracion && data.comprobante_bancario && data.comprobante_bancario.includes("http") ? `
+            <a class="btn btn-primary btn-sm m-1" href="${data.comprobante_bancario}" target="_blank">Comprobante</a>
         ` : "";
 
         const buttonVerFac = administracion ? `
