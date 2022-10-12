@@ -559,7 +559,7 @@ function generarGuia(datos) {
                 <idePaisOrigen>1</idePaisOrigen>
                 <idePaisDestino>1</idePaisDestino>
                 <Des_IdArchivoOrigen></Des_IdArchivoOrigen>
-                <Des_DireccionRemitente>${datos.direccionR}</Des_DireccionRemitente><!--Opcional-->
+                <Des_DireccionRemitente>${datos.direccionR} --- Rte: ${datos.nombreR}</Des_DireccionRemitente><!--Opcional-->
                 <Num_PesoFacturado>0</Num_PesoFacturado>
                 <Est_CanalMayorista>false</Est_CanalMayorista>
                 <Num_IdentiRemitente />

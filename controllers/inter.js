@@ -6,6 +6,9 @@ const puppeteer = require("puppeteer");
 const {Credenciales, UsuarioPrueba, CredencialesEmpresa} = require("../keys/interCredentials");
 const urlEstados = "https://www3.interrapidisimo.com/ApiservInter/api/Mensajeria/ObtenerRastreoGuias?guias=";
 
+const firebase = require("../keys/firebase");
+const db = firebase.firestore();
+
 //FUNCIONES REGULARES
 // Estas funciones actualmente no están siendo utilizadas
 function retornarEstado() {
@@ -294,8 +297,8 @@ exports.crearGuia = (req, res) => {
             "tipoDocumento": dest.tipo_documento === 1 ? "NIT" : "CC",
             "numeroDocumento": dest.numero_documento,
             "nombre": dest.nombre,
-            "primerApellido":  "| Heka", //Si se debe enviar si es un cliente persona natural, es obligatorio
-            "segundoApellido": "Sucursal: " + guia.codigo_sucursal,
+            "primerApellido":  " ", //Si se debe enviar si es un cliente persona natural, es obligatorio
+            "segundoApellido": "",
             "telefono": dest.celular,
             "direccion": dest.direccion,
             "idDestinatario":0, "idRemitente":0, //Campos opcionales. Dejarlos en 0
@@ -324,7 +327,21 @@ exports.crearGuia = (req, res) => {
         body: JSON.stringify(data)
     }, (error, response, body) => {
         if(error) res.send("Hubo un error => "+error);
+
         console.log(body);
+        if(typeof body === "string") {
+            try {
+                const respuesta = JSON.parse(body);
+                if(!respuesta.idPreenvio) {
+                    console.log("error");
+                    db.collection("errores")
+                    .add({type: "INTER", data, respuesta})
+                }
+
+            } catch (e) {
+                console.log("Error al comprobar")
+            }
+        }
         res.json(body);
     })
 };

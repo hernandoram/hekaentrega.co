@@ -326,7 +326,7 @@ class Empaquetado {
             console.log(usuario, guias);
         }
 
-        let comprobante_bacario = null;
+        let comprobante_bancario = null;
         const swalObj = {
             title: 'Continuar...',
             text: "Estás a punto de efectuar un pago de $" + convertirMiles(pagoUser.pagoPendiente) + " al usuario " + usuario + " ¿Deseas continuar?",
@@ -344,7 +344,7 @@ class Empaquetado {
             const uploadTask = storageRef.put(file);
 
             await uploadTask;
-            comprobante_bacario = await uploadTask.snapshot.ref.getDownloadURL();
+            comprobante_bancario = await uploadTask.snapshot.ref.getDownloadURL();
         } else {
             swalObj.title = "¡Falta el comprobante!";
             swalObj.confirmButtonText = '¡Sé lo que hago! 😠';
@@ -360,7 +360,7 @@ class Empaquetado {
         let comision_heka = 0;
         for await(let guia of guias) {
             guia.timeline = timeline;
-            guia.comprobante_bacario = comprobante_bacario;
+            guia.comprobante_bancario = comprobante_bancario;
 
             const transp = guia["TRANSPORTADORA"].toLowerCase();
             const numeroGuia = guia["GUIA"].toString();
@@ -427,7 +427,7 @@ class Empaquetado {
     async guardarPaquetePagado(factura) {
         const userRef = this.pagosPorUsuario[this.usuarioActivo];
         const {guiasPagadas, pagoConcreto, comision_heka_total} = userRef;
-        const {timeline, comprobante_bacario} = userRef.guias[0];
+        const {timeline, comprobante_bancario} = userRef.guias[0];
 
         const infoToSave = {
             guiasPagadas,
@@ -435,7 +435,7 @@ class Empaquetado {
             comision_heka: comision_heka_total,
             timeline,
             fecha: new Date(),
-            comprobante_bacario,
+            comprobante_bancario,
             id_factura: factura.id,
             num_factura: factura.number,
             centro_de_costo: this.usuarioActivo,

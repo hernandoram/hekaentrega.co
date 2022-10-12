@@ -980,6 +980,77 @@ function mostrarPagos(datos) {
   visor_pagos.querySelector("#descargar-pagos").addEventListener("click", () => {
     crearExcel(toDownload, "Historial de pagos")
   });
+
+  activarBotonesVisorPagos();
+}
+
+const paqueteGuiasPagadas = {
+  guias: new Map(),
+  facturas: new Map()
+}
+function activarBotonesVisorPagos() {
+  $("[data-action='ver-factura']").click(async e => {
+    const trget = e.target;
+    const numeroGuia = trget.getAttribute("data-guia");
+    const loader = new ChangeElementContenWhileLoading(trget);
+    loader.init();
+
+    const finalizar = (...args) => {
+      console.log(args);
+      Toast.fire(...args);
+      loader.end();
+    }
+
+    try {
+      if(!paqueteGuiasPagadas.guias.has(numeroGuia)) {
+        const paquete = await db.collection("paquetePagos").where("guiasPagadas", "array-contains", numeroGuia)
+        .get().then(q => {
+          if(q.size) {
+            return q.docs[0].data();
+          }
+    
+          return null
+        });
+    
+        console.log(paquete, numeroGuia);
+    
+        if(!paquete) return finalizar("Esta guía no fue facturada", "", "error");
+        
+        const guiasPagadas = paquete.guiasPagadas;
+        const idFactura = paquete.id_factura;
+        guiasPagadas.forEach(g => {
+          paqueteGuiasPagadas.guias.set(g, idFactura);
+        });
+      }
+
+      const idFactura = paqueteGuiasPagadas.guias.get(numeroGuia);
+      
+      if(!paqueteGuiasPagadas.facturas.has(idFactura)) {
+        const factura = await fetch("/siigo/pdfFactura/" + idFactura)
+        .then(d => d.json());
+    
+        console.log(factura);
+        if(!factura.base64) return finalizar("No se pudo cargar la factura.", "", "error");
+
+        paqueteGuiasPagadas.facturas.set(idFactura, factura.base64);
+    
+      }
+      
+      const base64 = paqueteGuiasPagadas.facturas.get(idFactura)
+  
+      if(base64) {
+        paqueteGuiasPagadas.facturas.set(idFactura, base64);
+        openPdfFromBase64(base64);
+      }
+
+      loader.end();
+    } catch (e){
+      console.log(e);
+      loader.end();
+      finalizar("Error al cargar la información.", "", "error");
+    }
+
+  })
 }
 
 function mostrarPagosUsuario(data) {

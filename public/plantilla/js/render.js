@@ -728,7 +728,7 @@ function tablaPagos(arrData, id) {
         <th data-id="${arrData[0].REMITENTE.replace(" ", "")}">Fecha</th>
         <th>Estado</th>
         <th>Cuenta responsable</th>
-
+        <th>Acciones</th>
     </tr>`
     
     encabezado.setAttribute("href", "#" + arrData[0].REMITENTE.replace(" ", ""));  
@@ -737,6 +737,14 @@ function tablaPagos(arrData, id) {
     cuerpo.setAttribute("data-usuario", arrData[0].REMITENTE)
         
     for(let data of arrData){
+        const buttonVerComp = administracion && data.comprobante_bacario && data.comprobante_bacario.includes("http") ? `
+            <a class="btn btn-primary btn-sm m-1" href="${data.comprobante_bacario}" target="_blank">Comprobante</a>
+        ` : "";
+
+        const buttonVerFac = administracion ? `
+            <button data-action="ver-factura" data-guia="${data.GUIA}" class="btn btn-primary btn-sm m-1">Factura</button>
+        ` : "";
+
         let tr = document.createElement("tr");
         tr.setAttribute("id", data.GUIA);
         tr.setAttribute("data-remitente", data.REMITENTE);
@@ -750,6 +758,12 @@ function tablaPagos(arrData, id) {
             <td data-id="${data.REMITENTE}" data-fecha="${data.FECHA}" data-funcion="cambiar_fecha">${data.FECHA}</td>
             <td>${data.estado}</td>
             <td>${data.cuenta_responsable || "No registró"}</td>
+            <td>
+                <div class="d-flex flex-wrap">
+                    ${buttonVerFac}
+                    ${buttonVerComp}
+                </div>
+            </td>
         `;
         if(!data.FECHA){
             btn_pagar.setAttribute("disabled", "");
