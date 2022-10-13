@@ -299,7 +299,7 @@ exports.crearGuia = (req, res) => {
             "nombre": dest.nombre,
             "primerApellido":  " ", //Si se debe enviar si es un cliente persona natural, es obligatorio
             "segundoApellido": "",
-            "telefono": dest.celular,
+            "telefono": dest.telefono,
             "direccion": dest.direccion,
             "idDestinatario":0, "idRemitente":0, //Campos opcionales. Dejarlos en 0
             "idLocalidad": guia.dane_ciudadD, //Codigo DANE ciudad destinatario
