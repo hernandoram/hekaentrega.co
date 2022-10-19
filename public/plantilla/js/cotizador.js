@@ -334,12 +334,8 @@ async function pagoContraentrega() {
     return recaudo;
 }
 
-// me devuelve el resultado de cada formulario al hacer una cotizacion
-async function response(datos) {
-    let result_cotizacion, act_btn_continuar = true;
-    
-    //Primero le consulta al usuario por el tipo de envío
-    let type = await Swal.fire({
+async function seleccionarTipoEnvio() {
+    return await Swal.fire({
         title: '¿Qué tipo de envío deseas realizar?',
         icon: 'question',
         showCancelButton: true,
@@ -355,6 +351,19 @@ async function response(datos) {
             return ""
         }
     });
+}
+
+// me devuelve el resultado de cada formulario al hacer una cotizacion
+async function response(datos) {
+    let result_cotizacion, act_btn_continuar = true;
+    
+    //Primero le consulta al usuario por el tipo de envío
+    let type;
+    if(datos_usuario.type === "PUNTO") {
+        type = "CONVENCIONAL"
+    } else {
+        type = await seleccionarTipoEnvio();
+    }
 
     //si no selecciona ninguno, no devuelve nada
     if(!type) {
@@ -1408,6 +1417,24 @@ function finalizarCotizacion(datos) {
             <p id="aviso-producto" class="text-danger d-none m-2"></p>
         </div>`),
         directionNode = mostrarDirecciones(datos),
+        input_buscar_usuario = datos_usuario.type === "PUNTO" ? `
+            <div class="col-sm-6 mb-3 mb-sm-0">
+                <h5>Cliente</h5>
+                <div class="input-group mb-3">
+                    <input id="numero_documento_usuario" type="number" class="form-control form-control-user" required="">  
+
+                    <div class="input-group-append">
+                        <button id="buscador_usuario-guia" class="btn btn-outline-primary btn-small"><i class="fa fa-search"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 mb-3 mb-sm-0">
+                <div class="card card-shadow" >
+                    <div class="card-body" id="presentacion-cliente">
+                    </div>
+                </div>
+            </div>
+        ` : "",
         datos_remitente = crearNodo(`
         <div class="card card-shadow m-6 mt-5" id="informacion-personal">
             <div class="card-header">
@@ -1423,6 +1450,7 @@ function finalizarCotizacion(datos) {
                     <input id="actualizar_celularR"  type="text" class="form-control form-control-user" value="${datos_usuario.celular}" ${readonly && "readonly"} required="">  
                 </div>
                 ${directionNode}
+                ${input_buscar_usuario}
             </div>
         </div>
         `),
@@ -1509,6 +1537,8 @@ function finalizarCotizacion(datos) {
 
     $("#entrega_en_oficina").on("change", verificarSelectorEntregaOficina);
 
+    if(datos_usuario.type === "PUNTO") $("#buscador_usuario-guia").click(buscarUsuario)
+
     restringirCaracteresEspecialesEnInput()
     let informacion = document.getElementById("informacion-personal");
     document.getElementById("producto").addEventListener("blur", () => {
@@ -1527,6 +1557,36 @@ function finalizarCotizacion(datos) {
             aviso.classList.add("d-none")
         }
     });
+}
+
+async function buscarUsuario(e) {
+    const inp = $("#numero_documento_usuario");
+    const presentacion = $("#presentacion-cliente");
+    datos_a_enviar.id_user = null;
+
+    presentacion.html("");
+    const usuario = await db.collection("usuarios").where("numero_documento", "==", inp.val())
+    .get().then(q => {
+        if(q.size) {
+            const d = q.docs[0];
+            const data = d.data();
+            data.id = d.id;
+            return data
+        }
+
+        return null;
+    });
+
+    if(!usuario) return presentacion.html("<p>Usuario no encontrado</p>");
+    
+    datos_a_enviar.id_user = usuario.id;
+    presentacion.html(`
+        <h5 class="card-title">Presentación Cliente</h5>
+        <p><b>Nombre: </b> ${usuario.nombres.split(" ")[0] + " " + usuario.apellidos.split(" ")[0]}</p>
+        <p><b>Número documento: </b> ${usuario.numero_documento}</p>
+        <p><b>Número celular: </b> ${usuario.celular}</p>
+    `);
+    console.log(usuario);
 }
 
 // function que devuelve un input group con las direcciones disponibles
@@ -2145,6 +2205,11 @@ function crearGuia() {
             swal.fire("Es necesario seleccionar el tipo de envío", "", "warning");
             verificador("entrega_en_oficina")
             renovarSubmit(boton_final_cotizador, textoBtn)
+        } else if(datos_usuario.type === "PUNTO" && !datos_a_enviar.id_user) {
+            swal.fire("Recuerde seleccionar el cliente", "", "warning");
+            verificador("numero_documento_usuario");
+            renovarSubmit(boton_final_cotizador, textoBtn);
+
         } else {
             Swal.fire({
                 title: "Creando Guía",
@@ -2180,7 +2245,12 @@ function crearGuia() {
             datos_a_enviar.recoleccion_esporadica = recoleccion;
             datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`;
             datos_a_enviar.timeline = new Date().getTime();
+
+            if(datos_usuario.type !== "PUNTO")
             datos_a_enviar.id_user = user_id;
+            
+            if(datos_usuario.type === "PUNTO")
+            datos_a_enviar.id_punto = user_id;
             
             datos_a_enviar.cuenta_responsable = transportadoras[datos_a_enviar.transportadora]
             .getCuentaResponsable();

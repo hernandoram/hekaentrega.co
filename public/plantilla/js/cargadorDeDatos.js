@@ -109,7 +109,9 @@ async function cargarDatosUsuario(){
     pagosPendientesParaUsuario();
   }
 
- 
+  if(estado_prueba) {
+    datos_usuario.type = "PUNTO";
+  }
 
   contentCharger.hide();
   content.show("fast");  
@@ -1071,6 +1073,7 @@ function mostrarPagosUsuario(data) {
         { data: "RECAUDO", title: "Recaudo" },
         { data: "ENVÍO TOTAL", title: "Envío Total" },
         { data: "TOTAL A PAGAR", title: "Total a Pagar"},
+        { data: "COMISION HEKA", title: "Comisión Heka", defaultContent: ""},
         { data: "momento", title: "Momento", visible: false}
     ],
     //Es importante organizarlo por fecha de manera específica, para poder segmentarlo
@@ -1088,7 +1091,7 @@ function mostrarPagosUsuario(data) {
             if ( last !== group ) {
                 $(rows).eq( i ).before(
                   //Ingresa la siguiente fila antes de cada grupo para que el usuario identifique el segmento en el que se encuentra
-                    '<tr class="group text-center"><td colspan="6">Pagos Realizados el '+group+'</td></tr>'
+                    '<tr class="group text-center text-primary"><td colspan="7">Pagos Realizados el '+group+'</td></tr>'
                 );
 
                 last = group;
