@@ -441,7 +441,7 @@ function activarBotonesDeGuias(id, data, activate_once){
                 $("#enviar-documentos").prop("disabled", true);
                 this.disabled = true;
                 this.display = "none";
-                firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
+                usuarioAltDoc(data.id_user).collection("guias")
                 .doc(id).update({deleted: true, fecha_eliminada: new Date()}).then((res) => {
                     console.log(res);
                     console.log("Document successfully deleted!");
@@ -463,7 +463,7 @@ function activarBotonesDeGuias(id, data, activate_once){
         document.getElementById("contenedor-gestionarNovedad").innerHTML = `
             <div class="d-flex justify-content-center align-items-center"><h1 class="text-primary">Cargando   </h1><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>
         `;
-        usuarioDoc.collection("estadoGuias").doc(id)
+        usuarioAltDoc(data.id_user).collection("estadoGuias").doc(id)
         .get().then(doc => {
             console.log(doc.data());
             if(doc.exists) {
@@ -486,7 +486,7 @@ function activarBotonesDeGuias(id, data, activate_once){
             showConfirmButton: false,
             allowEscapeKey: true
         })
-        usuarioDoc.collection("guias").doc(id)
+        usuarioAltDoc(data.id_user).collection("guias").doc(id)
         .get().then(doc => {
             enviar_firestore(doc.data()).then(res => {
                 if(res.icon === "success") {
@@ -567,8 +567,9 @@ function crearStickerParticular() {
         allowEscapeKey: true
     });
     const id_heka = this.getAttribute("data-id");
+    const id_user = this.getAttribute("data-id_user");
     console.log(id_heka)
-    usuarioDoc.collection("guias").doc(id_heka).get()
+    usuarioAltDoc(id_user).collection("guias").doc(id_heka).get()
     .then(async doc => {
         if(doc.exists) {
             const data = doc.data();
@@ -1852,7 +1853,8 @@ async function actualizarSaldo(data) {
 
 function verDetallesGuia() {
     let id = this.getAttribute("data-id");
-    usuarioDoc.collection("guias").doc(id)
+    const id_user = this.getAttribute("data-id_user");
+    usuarioAltDoc(id_user).collection("guias").doc(id)
     .get().then(doc => {
         let data = doc.data();
         const oficina = data.datos_oficina;

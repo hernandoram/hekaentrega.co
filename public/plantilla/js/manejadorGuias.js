@@ -89,6 +89,8 @@ async function historialGuias(){
             {data: null, title: "Acciones", render: (datos,type,row) => {
                 if(type === "display" || type === "filter") {
                     const id = datos.id_heka;
+                    const id_user = datos.id_user;
+                    const dataIdUser = id_user ? `data-id_user="${id_user}"` : "";
                     const generacion_automatizada = ["automatico", "automaticoEmp"].includes(transportadoras[datos.transportadora || "SERVIENTREGA"].sistema());
                     const showCloneAndDelete = datos.enviado ? "d-none" : "";
                     const showDownloadAndRotulo = !datos.enviado ? "d-none" : "";
@@ -99,13 +101,13 @@ async function historialGuias(){
                     `;
 
                     const btnCrearSticker = `<button class="btn btn-primary btn-circle btn-sm action mt-1" data-id="${id}"
-                    data-funcion="activar-desactivar"
+                    data-funcion="activar-desactivar" ${dataIdUser}
                     id="crear_sticker${id}" title="Crear Sticker de la guía">
                         <i class="fas fa-stamp"></i>
                     </button>`
 
                     const btnMovimientos = `<button class="btn btn-primary btn-circle btn-sm action mt-1" data-id="${id}"
-                    id="ver_movimientos${id}" data-toggle="modal" data-target="#modal-gestionarNovedad"
+                    id="ver_movimientos${id}" data-toggle="modal" data-target="#modal-gestionarNovedad" ${dataIdUser}
                     title="Revisar movimientos">
                         <i class="fas fa-truck"></i>
                     </button>`
@@ -141,6 +143,7 @@ async function historialGuias(){
                     buttons += `
                         <button class="btn btn-primary btn-circle btn-sm action mt-1" data-id="${id}"
                         id="ver_detalles${id}" data-toggle="modal" data-target="#modal-detallesGuias"
+                        ${dataIdUser}s
                         title="Detalles">
                             <i class="fas fa-search-plus"></i>
                         </button>
@@ -246,8 +249,13 @@ async function historialGuias(){
 
     var fecha_inicio = Date.parse($("#fecha_inicio").val().replace(/\-/g, "/"));
     fecha_final = Date.parse($("#fecha_final").val().replace(/\-/g, "/")) + 8.64e7;
-    var reference = firebase.firestore().collection("usuarios")
+    
+    var reference = ControlUsuario.esPuntoEnvio
+    ? firebase.firestore().collectionGroup("guias")
+    .where("id_punto", "==", user_id) 
+    : firebase.firestore().collection("usuarios")
     .doc(user_id).collection("guias");
+    
     let referencefilter = reference.orderBy("timeline", "desc")
     .startAt(fecha_final).endAt(fecha_inicio);
 
@@ -529,7 +537,7 @@ function crearDocumentos(e, dt, node, config) {
     const nodos = selectedRows.nodes();
     node.prop("disabled", true);
     
-    let id_user = localStorage.user_id, arrGuias = new Array();
+    let id_user = ControlUsuario.esPuntoEnvio ? datas[0].id_user : localStorage.user_id, arrGuias = new Array();
     
     if(!nodos.length) {
         node.prop("disabled", false);
@@ -545,12 +553,12 @@ function crearDocumentos(e, dt, node, config) {
 
         const {
             numeroGuia, id_heka, id_archivoCargar, prueba,
-            type, transportadora, has_sticker, telefonoD, id_oficina
+            type, transportadora, has_sticker, telefonoD, id_oficina, id_punto, id_user
         } = data;
 
         arrGuias.push({
             numeroGuia, id_heka, id_archivoCargar, prueba,
-            type, transportadora, has_sticker, telefonoD, id_oficina
+            type, transportadora, has_sticker, telefonoD, id_oficina, id_punto, id_user
         });
 
         $(nodo).removeClass("selected bg-gray-300");
@@ -590,6 +598,7 @@ function crearDocumentos(e, dt, node, config) {
     //corresponde al nuevo documento creado
     documentReference.add({
         id_user: id_user,
+        id_punto: arrGuias[0].id_punto || "",
         nombre_usuario: datos_usuario.nombre_completo,
         centro_de_costo: datos_usuario.centro_de_costo || "SCC",
         fecha: genFecha(),
@@ -703,6 +712,9 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
             let match = cantidad > 1 ? /\(|\)/g : /\(\w+\)/g;
             mensaje = mensaje.replace(match, "");
             return true;
+        } else if (ControlUsuario.esPuntoEnvio && (v.id_user != arr[i? i - 1 :i].id_user)) {
+            mensaje = "Los usuarios seleccionadas no coinciden."
+            return true
         }
 
         return false;
@@ -1550,7 +1562,7 @@ function actualizarHistorialDeDocumentos(timeline){
         let fecha_inicio = timeline || Date.parse($("#docs-fecha-inicio").val().replace(/\-/g, "/")),
         fecha_final = timeline || Date.parse($("#docs-fecha-final").val().replace(/\-/g, "/"));
       var reference = firebase.firestore().collection("documentos")
-      .where("id_user", "==", localStorage.user_id)
+      .where(ControlUsuario.esPuntoEnvio ? "id_punto" :"id_user", "==", localStorage.user_id)
       .orderBy("timeline", "desc").startAt(fecha_final + 8.64e7).endAt(fecha_inicio)
       
       reference.get().then((querySnapshot) => {

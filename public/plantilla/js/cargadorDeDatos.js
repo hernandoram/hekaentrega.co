@@ -1,4 +1,5 @@
 let user_id = localStorage.user_id, usuarioDoc;
+const usuarioAltDoc = id => firebase.firestore().collection("usuarios").doc(id || user_id);
 
 if(localStorage.getItem("acceso_admin")){
   window.onload = () => revisarNotificaciones();
@@ -45,6 +46,14 @@ datos_personalizados = {
   constante_pagoContraentrega: 1500,
   saldo: 0
 };
+
+
+class ControlUsuario {
+  static get esPuntoEnvio() {
+    return datos_usuario.type === "PUNTO";
+  }
+}
+const puntoEnvio = () => datos_usuario.type === "PUNTO";
 
 // ANTERIOR HASTA EL 6 de septiebre del 2022
 // datos_personalizados = {

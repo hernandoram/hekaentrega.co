@@ -895,6 +895,13 @@
                     $("#message").hide("slow");
                 }, 6000)
             })
+
+            class ControlUsuario {
+                static get esPuntoEnvio() {
+                    return datos_usuario.type === "PUNTO";
+                }  
+            }
+
         </script>
 
         <script src="/js/consultarCiudades.js" type="module"></script>

@@ -2502,14 +2502,23 @@ async function enviar_firestore(datos){
             console.log(datos);
 
             //Creo la referencia para la nueva guía generada con su respectivo id
-            let referenciaNuevaGuia = firestore.collection("usuarios").doc(localStorage.user_id)
+            let referenciaNuevaGuia = firestore.collection("usuarios").doc(datos.id_user)
             .collection("guias").doc(id_heka);
             
             firestore.collection("infoHeka").doc("heka_id").update({id: firebase.firestore.FieldValue.increment(1)});
 
             if(transportadoras[datos.transportadora].sistema() === "automatico" || transportadoras[datos.transportadora].sistema() === "automaticoEmp") {
                 //Para cuando el usuario tenga activa la creación deguías automáticas.
-                return await crearGuiaTransportadora(datos, referenciaNuevaGuia);
+                const guiaExitosa = await crearGuiaTransportadora(datos, referenciaNuevaGuia);
+                
+                // if(puntoEnvio) {
+                //     const referenciaGuiaPunto = firestore.collection("usuarios").doc(datos.id_punto)
+                //     .collection("guiasPuntoEnvio").doc(id_heka);
+
+                //     await referenciaGuiaPunto.set(datos);
+                // }
+
+                return guiaExitosa;
                  
             } else {
                 //Para cuendo el usurio tenga la opcion de creacion de guias automática desactivada.
