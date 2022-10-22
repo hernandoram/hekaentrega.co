@@ -231,6 +231,7 @@ const actualizarMovimientos = async function(doc) {
     updte_movs = await extsFunc.actualizarMovimientos(doc, estado);
 
     const actualizaciones = {
+        entrega_oficina_notificada,
         estado: estado.estadoActual,
         ultima_actualizacion: new Date(),
         seguimiento_finalizado: estados_finalizacion.some(v => estado.estadoActual === v)

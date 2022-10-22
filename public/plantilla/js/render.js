@@ -981,13 +981,16 @@ function tablaMovimientos(arrData){
         <th>Movimiento</th>
         <th>Saldo Cuenta</th>
         <th>Mensaje</th>
+        <th>Acciones</th>
     `
     tabla.setAttribute("class", "table text-center");
     tabla.appendChild(t_head);
 
     let gastos_usuario = 0
+    let i = 0;
     for(let data of arrData){
         let row = document.createElement("tr");
+        const buttonRest = data.type === "DESCONTADO" || true ? `<button class="btn btn-primary" data-action="restaurar" data-index="${i}">Restaurar</button>`: "";
 
         row.innerHTML = `
             <td>${data.numeroGuia || "No aplica"}</td>
@@ -997,6 +1000,7 @@ function tablaMovimientos(arrData){
             <td class="text-right">$${convertirMiles(data.diferencia)}</td>
             <td class="text-right">$${convertirMiles(data.saldo)}</td>
             <td>${data.mensaje}</td>
+            <td>${buttonRest}</td>
         `
 
         if(parseInt(data.diferencia) < 0){
@@ -1006,6 +1010,7 @@ function tablaMovimientos(arrData){
             gastos_usuario -= parseInt(data.diferencia);
         }
         tabla.appendChild(row);
+        i++;
     }
 
     tabla.innerHTML += `<tr>
@@ -1014,6 +1019,100 @@ function tablaMovimientos(arrData){
     </tr>`
 
     document.getElementById("card-movimientos").append(tabla, detalles);
+    $("[data-action='restaurar']", document.getElementById("card-movimientos"))
+    .click((e) => restaurarSaldoGuia(e.target, arrData))
+
+}
+
+async function restaurarSaldoGuia(trg, data) {
+    const index = trg.getAttribute("data-index");
+    const movimiento = data[index];
+    const id_heka = movimiento.guia;
+    const diferencia = -movimiento.diferencia;
+    const loader = new ChangeElementContenWhileLoading(trg);
+
+    if(!movimiento) return;
+
+    const procesoFinalizado = (bool) => {
+        loader.end();
+
+        if(bool) {
+            $("#filtrador-movimientos").click();
+            Toast.fire("Movimiento restaurado con éxito", "", "success");
+        }
+    }
+
+    const efectuarRestauracion = await Swal.fire({
+        icon: "warning",
+        title: "¡Atención!",
+        text: "Al restaurar va a revertir el movimiento ocasionado, si el movimiento involucra una guía, dicha guía será eliminada del usuario, ¿deseas continuar?",
+        showConfirmButton: true,
+        showCancelButton: true
+    });
+
+    if(!efectuarRestauracion.isConfirmed) return;
+
+    loader.init();
+
+    if(isNaN(diferencia)) {
+        Toast.fire("No hay saldo que retornar.", "", "error");
+        procesoFinalizado();
+        return;
+    }
+
+    const userRef = firebase.firestore().collection("usuarios").doc(movimiento.user_id)
+
+    const datos_saldo_usuario = await userRef
+    .get().then(doc => doc.data().datos_personalizados);
+
+    if(!datos_saldo_usuario) {
+        Toast.fire("No se pudo consultar la información del usuario.", "", "error");
+        procesoFinalizado();
+        return;
+    }
+
+    if(datos_saldo_usuario.saldo < 0) {
+        avisar("No permitido", "Se detecta un saldo negativo, por favor justifica el saldo canjeado en deudas, o contace al desarrollador para agregar una excepción.", "advertencia")
+        procesoFinalizado();
+        return;
+    };
+
+    const detalles_saldo = {
+        saldo: datos_saldo_usuario.saldo + diferencia,
+        saldo_anterior: datos_saldo_usuario.saldo,
+        actv_credit: datos_saldo_usuario.actv_credit || false,
+        fecha: genFecha(),
+        diferencia: diferencia,
+        mensaje: "Se ha restaurado un movimiento anterior.",
+        
+        momento: new Date().getTime(),
+        user_id: movimiento.user_id,
+        guia: movimiento.guia || "",
+        medio: "Administración",
+        numeroGuia: movimiento.numeroGuia || "",
+        
+        type: "RESTAURADO"
+    }
+
+    console.log(detalles_saldo);
+    try {
+        await actualizarSaldo(detalles_saldo);
+    
+        if(id_heka) {
+            await firebase.firestore().collectionGroup("guias").where("id_heka", "==", id_heka)
+            .get().then(q => {
+                q.forEach(d => d.ref.update({deleted: true}))
+            })
+        }
+
+        procesoFinalizado(true);
+
+    } catch (e) {
+        procesoFinalizado();
+        Toast.fire(e.message, "", "error");
+    }
+    
+
 }
 
 //Mustra los movimientos de las guías
@@ -1822,7 +1921,14 @@ async function actualizarSaldo(data) {
         user_id: "user_id",
         guia: "id guia",
         medio: "Usuario ó admin realizó X cambio",
-        numeroGuia: "numeroGuia transportadora"
+        numeroGuia: "numeroGuia transportadora",
+        // Tipo de actualización
+        type: {
+            GENERAL: "Cuando admin configura el saldo del usuario de forma genérica",
+            DESCONTADO: "Cuando se descuenta al usuario (al crear la guía)",
+            RESTAURADO: "Cuando se retorna un saldo descontado de una guía en concreto",
+            CANJEADO: "Cuando admin retorna un saldo deudor"
+        }
     }
 
     return await firebase.firestore().collection("usuarios").doc(data.user_id)

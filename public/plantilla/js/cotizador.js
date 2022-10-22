@@ -2554,7 +2554,8 @@ async function enviar_firestore(datos){
             guia: id,
             numeroGuia: datos.numeroGuia || "",
             transportadora: datos.transportadora || "",
-            medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id
+            medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id,
+            type: "DESCONTADO"
         };
 
         //***si se descuenta del saldo***

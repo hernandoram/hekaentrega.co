@@ -620,14 +620,14 @@ function crearDocumentos(e, dt, node, config) {
         /* Si tiene inhabilitado la creción de guías automáticas 
         solo actualizará las guías que pasaron el filtro anterior y enviará una 
         notificación a administración, es caso contrario utilizará el web service */
-        if (["ENVIA", "TCC"].includes(transportadora)) {
+        if (["TCC"].includes(transportadora)) {
             await crearManifiestoAveonline(arrGuias, {
                 id_user, 
                 prueba: estado_prueba,
                 id_doc: docRef.id
             })
         }else if(generacion_automatizada) {
-            if(transportadora === "INTERRAPIDISIMO") {
+            if(transportadora === "INTERRAPIDISIMO" || transportadora === "ENVIA") {
               // Con esta transportadora no creamos manifiestos de esta forma,
               //ya que el usuario los crea por su cuenta  
                 await actualizarEstadoGuiasDocCreado(arrGuias);
@@ -725,14 +725,15 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
 
 async function actualizarEstadoGuiasDocCreado(arrGuias) {
     for await (let guia of arrGuias) {
-        usuarioDoc
+        usuarioAltDoc(guia.id_user)
         .collection("guias").doc(guia.id_heka)
         .update({
             enviado: true,
             estado: "Enviado"
         })
         .then(() => {
-            const link = "https://www.interrapidisimo.com/sigue-tu-envio/";
+            const link = guia.transportadora === "ENVIA" ? "https://envia.co/" : "https://www.interrapidisimo.com/sigue-tu-envio/"
+
             const mensaje = "Se ha generado un envío con "+guia.transportadora+" con la guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link
             if(guia.numeroGuia) {
                 fetch("/mensajeria/sendMessage?number=57"+guia.telefonoD+"&message="+mensaje);  
@@ -2567,7 +2568,8 @@ function consolidadorTotales(query, saldo) {
             momento: new Date().getTime(),
             user_id: query.replace("#deudas-", ""),
             guia: "",
-            medio: "Administración " + localStorage.user_id
+            medio: "Administración " + localStorage.user_id,
+            type: "CANJEADO"
         };
         
         let btn_saldar = `<button 
@@ -3028,7 +3030,11 @@ function buscarGuiasManifiesto() {
 
     const [fechaI, fechaF] = getDateRangeMs("fecha_inicio-manifiestos", "fecha_final-manifiestos");
 
-    const reference = usuarioDoc.collection("guias").orderBy("timeline", "desc").
+    const coll = ControlUsuario.esPuntoEnvio 
+    ? db.collectionGroup("guias").where("id_punto", "==", user_id)
+    : usuarioDoc.collection("guias");
+    
+    const reference = coll.orderBy("timeline", "desc").
     startAt(fechaF).endAt(fechaI)
     .where("transportadora", "==", transp)
     // .limit(10)
