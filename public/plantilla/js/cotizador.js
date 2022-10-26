@@ -556,6 +556,16 @@ async function detallesTransportadoras(data) {
             transportadora.cotizacion = new Object();
         transportadora.cotizacion[data.type] = cotizacion;
 
+        const precioPuntoEnvio = ControlUsuario.esPuntoEnvio 
+        ? `
+            <div class="card my-3 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Comisión Punto</h5>
+                    <p class="card-text d-flex justify-content-between">Comisión heka <b>$${convertirMiles(cotizacion.comision_punto)}</b></p>
+                </div>
+            </div>
+        `
+        : ""
 
         const encabezado = `<li class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
         id="list-transportadora-${transp}-list" 
@@ -604,12 +614,16 @@ async function detallesTransportadoras(data) {
                             <p class="card-text d-flex justify-content-between">Seguro mercancía <b>$${convertirMiles(cotizacion.seguroMercancia)}</b></p>
                         </div>
                     </div>
+                    
                     <div class="card my-3 shadow-sm">
                         <div class="card-body">
                             <h5 class="card-title">Costo Heka entrega</h5>
                             <p class="card-text d-flex justify-content-between">Comisión heka <b>$${convertirMiles(sobreFleteHekaEdit)}</b></p>
                         </div>
                     </div>
+
+                    ${precioPuntoEnvio}
+
                     <div class="card my-3 shadow-sm border-${transportadora.color}">
                         <div class="card-body">
                             <h3 class="card-text d-flex justify-content-between">Total: 
@@ -1776,6 +1790,7 @@ class CalcularCostoDeEnvio {
         this.kg_min = 3;
         this.codTransp = "SERVIENTREGA";
         this.sobreflete_oficina = 0;
+        this.comision_punto = 0;
 
         this._alto = 0; this._ancho = 0; this._largo = 0;
     }
@@ -1863,6 +1878,8 @@ class CalcularCostoDeEnvio {
             details.seguro_mercancia = this.precio.costoManejo;
         }
 
+        if(ControlUsuario.esPuntoEnvio) details.comision_punto = this.comision_punto;
+
         if(this.sobreflete_oficina) details.sobreflete_oficina = this.sobreflete_oficina;
 
         return details
@@ -1912,9 +1929,11 @@ class CalcularCostoDeEnvio {
         if(this.aveo) this.intoAveo(this.precio);
         if(this.envia) this.intoEnvia(this.precio);
         
-
         if(this.codTransp !== "SERVIENTREGA"  && !this.convencional) this.sobreflete_heka += 1000;
-        const respuesta = this.sobreflete + this.seguroMercancia + this.sobreflete_heka + this.sobreflete_oficina;
+
+        if(ControlUsuario.esPuntoEnvio) this.comision_punto = datos_personalizados.comision_punto;
+
+        const respuesta = this.sobreflete + this.seguroMercancia + this.sobreflete_heka + this.sobreflete_oficina + this.comision_punto;
         return respuesta;
     }
 

@@ -44,6 +44,7 @@ datos_personalizados = {
   comision_heka: 1,
   constante_convencional: 800,
   constante_pagoContraentrega: 1500,
+  comision_punto: 7000,
   saldo: 0
 };
 
@@ -214,7 +215,7 @@ async function mostrarDatosPersonalizados(datos) {
   if(!datos) return;
   for(let precio in datos){
     const value = datos[precio];
-    if(value === "") continue;
+    if(value === "" || value === null) continue;
     if(!/[^\d+.]/.test(value.toString())) {
       datos_personalizados[precio] = parseFloat(value);
     } else {
