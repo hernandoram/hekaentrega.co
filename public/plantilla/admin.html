@@ -946,35 +946,40 @@
             <div>
               <div class="form-group row mb-3">
                 <div class="col-sm-3 mb-3 mb-sm-0">
-                  <label for="fechaI-hist-guias">Fecha inicio</label>
-                  <input type="date" class="form-control form-control-user"  id="fechaI-hist-guias">
+                  <label for="fechaI-hist_guias">Fecha inicio</label>
+                  <input type="date" class="form-control form-control-user"  id="fechaI-hist_guias">
                 </div>
                 <div class="col-sm-3">
-                  <label for="fechaF-hist-guias">Fecha final</label>
-                  <input type="date" class="form-control form-control-user"  id="fechaF-hist-guias">
+                  <label for="fechaF-hist_guias">Fecha final</label>
+                  <input type="date" class="form-control form-control-user"  id="fechaF-hist_guias">
                 </div>
                 
                 <div class="col-sm-3">
-                  <label for="fechaF-hist-guias">Número de guía</label>
+                  <label for="num_guia-hist_guias">Número de guía</label>
                   <input type="text" class="form-control form-control-user" id="num_guia-hist_guias">
                 </div>
                 
                 <div class="col-sm-3">
-                  <label for="fechaF-hist-guias">Filtro pagos</label>
-                  <select id="filtro_pagos-hist-guias" class="form-control">
+                  <label for="fechaF-hist_guias">Filtro pagos</label>
+                  <select id="filtro_pagos-hist_guias" class="form-control">
                     <option value="">Seleccione pagos</option>
                     <option value="lunes">Lunes</option>
                     <option value="martes">Martes</option>
                     <option value="diarios">Diarios</option>
                   </select>
                 </div>
+
+                <div class="col-md-12 mt-2">
+                  <input type="checkbox" name="guias_punto-hist_guias" id="guias_punto-hist_guias">
+                  <label for="guias_punto-hist_guias">Guías de puntos</label>
+                </div>
                 
               </div>
               <div class="btn-group col-12 mb-3">
-                <button id="buscador-hist-guias" onclick="historialGuiasAdmin(this)" class="btn btn-primary">
+                <button id="buscador-hist_guias" onclick="historialGuiasAdmin(this)" class="btn btn-primary">
                   Buscar
                 </button>
-                <button id="descargar-hist-guias" onclick="historialGuiasAdmin(this)" class="btn btn-outline-primary">
+                <button id="descargar-hist_guias" onclick="historialGuiasAdmin(this)" class="btn btn-outline-primary">
                   Descargar Excel
                 </button>
               </div>
@@ -982,7 +987,7 @@
             <div class="d-flex justify-content-center">
               <div class="cargador d-none lds-ellipsis"><div></div><div></div><div></div><div></div></div>
             </div>
-            <table id="tabla-hist-guias" class="table table-responsive" width="100%"></table>
+            <table id="tabla-hist_guias" class="table table-responsive" width="100%"></table>
           </div>
 
           <div class="container-fluid" id="actualizador" style="display: none;">

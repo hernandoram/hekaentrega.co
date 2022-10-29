@@ -2736,14 +2736,27 @@ function revisarGuiasSaldas() {
     })
 }
 
+$("#guias_punto-hist_guias").on("change", (e) => {
+    if(e.target.checked) {
+        $("#filtro_pagos-hist_guias").parent().addClass("d-none");
+    } else {
+        $("#filtro_pagos-hist_guias").parent().removeClass("d-none");
+
+    }
+})
+
 let filtroPagos;
 async function historialGuiasAdmin(e) {
-    let fechaI = document.querySelector("#fechaI-hist-guias").value;
-    let fechaF = document.querySelector("#fechaF-hist-guias").value;
-    const numeroGuia = document.querySelector("#num_guia-hist_guias").value;
-    const filtroCentroDeCosto = $("#filtro_pagos-hist-guias").val();
-    const descargaDirecta = e.id === "descargar-hist-guias";
+    console.log(e.target)
+    const finalId = e.id.split("-")[1];
+    let fechaI = document.querySelector("#fechaI-"+finalId).value + "::";
+    let fechaF = document.querySelector("#fechaF-"+finalId).value + "::";
+    const numeroGuia = document.querySelector("#num_guia-"+finalId).value;
+    const filtroCentroDeCosto = $("#filtro_pagos-"+finalId).val();
+    const descargaDirecta = e.id === "descargar-hist_guias";
     $("#historial_guias .cargador").removeClass("d-none");
+    const guiasPunto = $("#guias_punto-"+finalId).prop("checked");
+
     let filtroPagoSeleccionado;
 
     if(filtroCentroDeCosto) {
@@ -2765,9 +2778,15 @@ async function historialGuiasAdmin(e) {
             data.push(guia);
         });
     }
-    const reference = firebase.firestore().collectionGroup("guias").orderBy("timeline")
+
+    let reference = firebase.firestore().collectionGroup("guias")
+    
+    reference = reference
+    .orderBy("timeline")
     .startAt(new Date(fechaI).getTime()).endAt(new Date(fechaF).getTime() + 8.64e+7)
     
+    if(guiasPunto) reference = reference.where("pertenece_punto", "==", true)
+
     const referenceAlt = firebase.firestore().collectionGroup("guias")
 
     if(filtroPagoSeleccionado) {
@@ -2819,13 +2838,21 @@ async function historialGuiasAdmin(e) {
         { data: "cuenta_responsable", title: "Cuenta responsable", defaultContent: "Personal"},
     ];
 
+    if(guiasPunto) {
+        columnas.push(...[
+            { data: "detalles.comision_punto", title: "Comisión Punto", defaultContent: "No aplica"},
+            { data: "info_user.centro_de_costo", title: "Usuario", defaultContent: "No aplica"},
+            { data: "info_user.celular", title: "Celular Usuario", defaultContent: "No aplica"},
+        ])
+    }
+
     if(descargaDirecta) {
         $("#historial_guias .cargador").addClass("d-none");
 
         return descargarInformeGuiasAdmin(columnas, data, nombre)
     }
 
-    let tabla = $("#tabla-hist-guias").DataTable({
+    let tabla = $("#tabla-"+finalId).DataTable({
         data: data,
         destroy: true,
         language: {

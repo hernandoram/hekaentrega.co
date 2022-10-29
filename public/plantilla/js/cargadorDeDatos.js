@@ -44,7 +44,7 @@ datos_personalizados = {
   comision_heka: 1,
   constante_convencional: 800,
   constante_pagoContraentrega: 1500,
-  comision_punto: 7000,
+  comision_punto: 10,
   saldo: 0
 };
 

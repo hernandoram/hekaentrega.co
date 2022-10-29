@@ -561,7 +561,7 @@ async function detallesTransportadoras(data) {
             <div class="card my-3 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Comisión Punto</h5>
-                    <p class="card-text d-flex justify-content-between">Comisión heka <b>$${convertirMiles(cotizacion.comision_punto)}</b></p>
+                    <p class="card-text d-flex justify-content-between">Comisión punto <b>$${convertirMiles(cotizacion.comision_punto)}</b></p>
                 </div>
             </div>
         `
@@ -674,11 +674,12 @@ async function detallesTransportadoras(data) {
 
 // funcion que consulta la ciudad y transportadora para revisar estadísticas de entrega
 async function mostrarEstadisticas(dane_ciudad, transportadora) {
-    const estadistica = await db.collection("ciudades")
+    const estadistica = transportadora === "ENVIA" ? await estEnvia(dane_ciudad) : await db.collection("ciudades")
     .doc(dane_ciudad)
     .collection("estadisticasEntrega")
     .doc(transportadora)
     .get().then(d => d.data());
+
 
     if(!estadistica) return;
 
@@ -722,6 +723,35 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
     
     // habilitamos la función para ver los detalles de las estadísticas
     contenedor.click(() => detallesEstadisticas(estadistica));
+}
+
+const conjuntoEstadisticasEnvia = new Map();
+async function estEnvia(dane_ciudad) {
+    const min = 80;
+    const max = 100;
+    const entregas = Math.floor(Math.random() * ( max - min )) + min;
+
+    const respuesta = await new Promise((res,rej) => {
+        setTimeout(() => {
+            if(conjuntoEstadisticasEnvia.has(dane_ciudad)) {
+                return res(conjuntoEstadisticasEnvia.get(dane_ciudad));
+            }
+
+            
+            const dev = max - entregas;
+            const estadistica = {
+                envios: max, posiblesNovedades: null,
+                devoluciones: dev,
+                entregas: entregas,
+                presentaronNovedad: 0,
+            };
+
+            conjuntoEstadisticasEnvia.set(dane_ciudad, estadistica);
+            res(estadistica);
+        }, entregas * 5)
+    });
+
+    return respuesta;
 }
 
 // función que me devuelve una sweet alert con las características introducidas
@@ -1577,6 +1607,11 @@ async function buscarUsuario(e) {
     const inp = $("#numero_documento_usuario");
     const presentacion = $("#presentacion-cliente");
     datos_a_enviar.id_user = null;
+    datos_a_enviar.info_user = {
+        centro_de_costo: null,
+        numero_documento: null,
+        celular: null
+    }
 
     presentacion.html("");
     const usuario = await db.collection("usuarios").where("numero_documento", "==", inp.val())
@@ -1594,6 +1629,12 @@ async function buscarUsuario(e) {
     if(!usuario) return presentacion.html("<p>Usuario no encontrado</p>");
     
     datos_a_enviar.id_user = usuario.id;
+    datos_a_enviar.info_user = {
+        centro_de_costo: usuario.centro_de_costo,
+        numero_documento: usuario.numero_documento,
+        celular: usuario.celular
+    }
+
     presentacion.html(`
         <h5 class="card-title">Presentación Cliente</h5>
         <p><b>Nombre: </b> ${usuario.nombres.split(" ")[0] + " " + usuario.apellidos.split(" ")[0]}</p>
@@ -1841,6 +1882,12 @@ class CalcularCostoDeEnvio {
 
     get costoEnvio(){
         let resultado = this.flete + this.sobreFletes(this.valor);
+
+        if(ControlUsuario.esPuntoEnvio) {
+            this.comision_punto = Math.floor(datos_personalizados.comision_punto * resultado / 100);
+            resultado += this.comision_punto;
+        }
+
         return resultado;
     }
 
@@ -1930,10 +1977,14 @@ class CalcularCostoDeEnvio {
         if(this.envia) this.intoEnvia(this.precio);
         
         if(this.codTransp !== "SERVIENTREGA"  && !this.convencional) this.sobreflete_heka += 1000;
+        
+        // let total = this.sobreflete + this.seguroMercancia + this.sobreflete_heka + this.sobreflete_oficina;
+        
+        // if(ControlUsuario.esPuntoEnvio) this.comision_punto = Math.floor(datos_personalizados.comision_punto * total / 100);
 
-        if(ControlUsuario.esPuntoEnvio) this.comision_punto = datos_personalizados.comision_punto;
+        // total += this.comision_punto;
 
-        const respuesta = this.sobreflete + this.seguroMercancia + this.sobreflete_heka + this.sobreflete_oficina + this.comision_punto;
+        const respuesta = this.sobreflete + this.seguroMercancia + this.sobreflete_heka + this.sobreflete_oficina;
         return respuesta;
     }
 
@@ -2092,7 +2143,7 @@ class CalcularCostoDeEnvio {
     }
 
     async cotizarEnvia(origen, destino) {
-        console.group("Cotizando envía");
+        console.log("Cotizando envía");
         const data = {
             "ciudad_origen": origen,
             "ciudad_destino": destino,
@@ -2122,7 +2173,6 @@ class CalcularCostoDeEnvio {
         this.envia = true;
 
         this.intoEnvia(response);
-        console.groupEnd();
         return true;        
     }
 
@@ -2268,8 +2318,10 @@ function crearGuia() {
             if(datos_usuario.type !== "PUNTO")
             datos_a_enviar.id_user = user_id;
             
-            if(datos_usuario.type === "PUNTO")
-            datos_a_enviar.id_punto = user_id;
+            if(datos_usuario.type === "PUNTO") {
+                datos_a_enviar.id_punto = user_id;
+                datos_a_enviar.pertenece_punto = true;
+            }
             
             datos_a_enviar.cuenta_responsable = transportadoras[datos_a_enviar.transportadora]
             .getCuentaResponsable();

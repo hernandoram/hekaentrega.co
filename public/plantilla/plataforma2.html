@@ -1352,6 +1352,26 @@
   </div>
 </div>  
 
+<div class="modal fade" id="modal-imagen-envia" data-keyboard="false" tabindex="-1" aria-labelledby="titulo-imagen-envia" aria-hidden="true">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="titulo-imagen-envia">NOTIFICACIÓN</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center" id="contenedor-imagen-envia">
+          <img src="./img/info-envia.jpeg" alt="" width="45%">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
     
     <!-- FIREBASE -->
     <!-- The core Firebase JS SDK is always required and must be listed first -->
@@ -1403,6 +1423,8 @@
       $(function () {
         $('[data-toggle="popover"]').popover()
       });
+
+      $("#modal-imagen-envia").modal();
     </script>
 
     <script src="https://unpkg.com/swiper@7/swiper-bundle.min.js"></script>
