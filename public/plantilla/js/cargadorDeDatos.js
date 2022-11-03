@@ -1087,7 +1087,7 @@ function mostrarPagosUsuario(data) {
         { data: "momento", title: "Momento", visible: false}
     ],
     //Es importante organizarlo por fecha de manera específica, para poder segmentarlo
-    order: [[6, "asc"]],
+    order: [[7, "desc"]],
     fixedHeader: {footer:true},
     "drawCallback": function ( settings ) {
       //Me realiza una sumatoria de todos los elementos de una columna y los coloca en un footer

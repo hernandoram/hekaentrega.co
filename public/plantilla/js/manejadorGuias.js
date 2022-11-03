@@ -95,6 +95,7 @@ async function historialGuias(){
                     const showCloneAndDelete = datos.enviado ? "d-none" : "";
                     const showDownloadAndRotulo = !datos.enviado ? "d-none" : "";
                     const showMovements = datos.numeroGuia && datos.estado ? "" : "d-none";
+                    const guiaPunto = !!datos.id_punto ? "data-punto='true'" : ""
                     let buttons = `
                     <div data-search="${datos.filter}"
                     class="d-flex justify-content-around flex-wrap">
@@ -118,7 +119,7 @@ async function historialGuias(){
                     </button>`;
 
                     const btnRotulo = `<button class="btn btn-primary btn-circle btn-sm action mt-1" data-id="${id}"
-                    data-funcion="activar-desactivar" data-activate="after"
+                    data-funcion="activar-desactivar" data-activate="after" ${guiaPunto}
                     id="generar_rotulo${id}" title="Generar Rótulo">
                         <i class="fas fa-ticket-alt"></i>
                     </button>`
@@ -3048,6 +3049,15 @@ async function generarRotulo(id_guias) {
         // w.close();
     }, 500)
 };
+
+async function imprimirRotuloPunto(id_heka) {
+    fetch("procesos/rotuloPunto/"+id_heka)
+    .then(d => d.text())
+    .then(d => {
+        w = window.open();
+        w.document.write(d);
+    });
+}
 
 $("#buscar-manifiestos").click(buscarGuiasManifiesto);
 function buscarGuiasManifiesto() {

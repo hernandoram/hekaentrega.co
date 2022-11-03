@@ -206,11 +206,13 @@ function avisar(title, content, type, redirigir, tiempo = 5000){
 
 //// Esta funcion me retorna un card con informacion del usuario, sera invocada por otra funcion
 function mostrarUsuarios(data, id){
-    let bodega = data.bodegas ? data.bodegas.filter(b => b.principal)[0] : false
-    if(!bodega && data.bodegas) bodega = data.bodegas[0];
+    const bodegas = data.bodegas ? data.bodegas : [];
+    // let bodega = data.bodegas ? data.bodegas.filter(b => b.principal)[0] : false
+    let bodega = bodegas.filter(b => !b.inactiva)[0];
+
     let bodegasFilter = "";
-    if(data.bodegas) {
-        data.bodegas.forEach((b,i) => {
+    if(bodegas) {
+        bodegas.forEach((b,i) => {
             bodegasFilter += "data-filter-direccion-"+i+"='"+b.direccion_completa+"'"
         });
     }
@@ -540,12 +542,17 @@ function activarBotonesDeGuias(id, data, activate_once){
 
         $("#generar_rotulo" + id).click(function() {
             let id = this.getAttribute("data-id");
-            firebase.firestore().collection("documentos").where("guias", "array-contains", id)
-            .get().then(querySnapshot => {
-                querySnapshot.forEach(doc => {
-                    generarRotulo(doc.data().guias);
+            const guiaPunto = this.getAttribute("data-punto");
+            if(guiaPunto) {
+                imprimirRotuloPunto(id);
+            } else {
+                firebase.firestore().collection("documentos").where("guias", "array-contains", id)
+                .get().then(querySnapshot => {
+                    querySnapshot.forEach(doc => {
+                        generarRotulo(doc.data().guias);
+                    })
                 })
-            })
+            }
         })
 
         $("#crear_sticker" + id).click(crearStickerParticular)
