@@ -2236,9 +2236,12 @@ class DetectorErroresInput {
                     const forbid = boolTaken.forbid;
                     const type = typeof forbid;
                     message = boolTaken.message;
+
                     const character = type === "string" ? forbid : this.value.match(forbid)[0]
-    
-                    if(sustitute || sustitute === "") e.target.value = e.target.value.replace(forbid, sustitute);
+                    
+                    if(boolTaken.removeAccents) this.value = this.removeAccents(this.value);
+
+                    if(sustitute || sustitute === "") e.target.value = this.value.replace(forbid, sustitute);
 
                     if(message) {
                         message = message
@@ -2255,16 +2258,20 @@ class DetectorErroresInput {
         return this;
     }
 
-    comprobateBoolean(selector, boolConfig) {
+    removeAccents(str) {
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+    
+    comprobateBoolean(selector, boolConfig) {        
         const caso = this.viewCase(boolConfig.case);
         const operator = boolConfig.operator;
         const valor = boolConfig.forbid;
         if((boolConfig.selector && selector !== boolConfig.selector ) 
         || (boolConfig.selectors && !boolConfig.selectors.contains(selector))) return false;
         let bool = false;
-
+        
         if(!this.value) return false;
-
+        
         switch (operator) {
             case ">":
                 bool = caso > valor

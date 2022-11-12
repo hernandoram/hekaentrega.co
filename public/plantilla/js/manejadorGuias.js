@@ -2839,12 +2839,21 @@ async function historialGuiasAdmin(e) {
         { data: "cuenta_responsable", title: "Cuenta responsable", defaultContent: "Personal"},
     ];
 
+    const idTabla = "#tabla-"+finalId
+    const idTablaPunto = idTabla + "-punto";
+
     if(guiasPunto) {
         columnas.push(...[
             { data: "detalles.comision_punto", title: "Comisión Punto", defaultContent: "No aplica"},
             { data: "info_user.centro_de_costo", title: "Usuario", defaultContent: "No aplica"},
             { data: "info_user.celular", title: "Celular Usuario", defaultContent: "No aplica"},
-        ])
+        ]);
+
+        $(idTabla).parent().addClass("d-none");
+        $(idTablaPunto).parent().removeClass("d-none");
+    } else {
+        $(idTablaPunto).parent().addClass("d-none");
+        $(idTabla).parent().removeClass("d-none");
     }
 
     if(descargaDirecta) {
@@ -2853,7 +2862,8 @@ async function historialGuiasAdmin(e) {
         return descargarInformeGuiasAdmin(columnas, data, nombre)
     }
 
-    let tabla = $("#tabla-"+finalId).DataTable({
+
+    let tabla = $(guiasPunto ? idTablaPunto : idTabla).DataTable({
         data: data,
         destroy: true,
         language: {

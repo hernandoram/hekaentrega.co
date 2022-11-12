@@ -358,12 +358,7 @@ async function response(datos) {
     let result_cotizacion, act_btn_continuar = true;
     
     //Primero le consulta al usuario por el tipo de envío
-    let type;
-    if(datos_usuario.type === "PUNTO") {
-        type = "CONVENCIONAL"
-    } else {
-        type = await seleccionarTipoEnvio();
-    }
+    let type = await seleccionarTipoEnvio();
 
     //si no selecciona ninguno, no devuelve nada
     if(!type) {
@@ -1632,7 +1627,8 @@ async function buscarUsuario(e) {
     datos_a_enviar.info_user = {
         centro_de_costo: usuario.centro_de_costo,
         numero_documento: usuario.numero_documento,
-        celular: usuario.celular
+        celular: usuario.celular,
+        nombre_completo: usuario.nombres.split(" ")[0] + " " + usuario.apellidos.split(" ")[0],
     }
 
     presentacion.html(`
@@ -1776,6 +1772,7 @@ function restringirCaracteresEspecialesEnInput() {
             message: 'El caracter "{forbidden}" no está permitido',
             forbid: /[^\wñÑ\s]/g,
             sustitute: "",
+            removeAccents: true
         },
     ]
 
@@ -1786,7 +1783,8 @@ function restringirCaracteresEspecialesEnInput() {
         message: 'El caracter "{forbidden}" no está permitido',
         selector: "#nombreD",
         forbid: /[^\wñÑ\s-]/g,
-        sustitute: ""
+        sustitute: "",
+        removeAccents: true
     }
 }
 
