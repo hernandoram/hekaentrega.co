@@ -2849,7 +2849,7 @@ async function historialGuiasAdmin(e) {
     if(guiasPunto) {
         columnas.push(...[
             { data: "detalles.comision_punto", title: "Comisión Punto", defaultContent: "No aplica"},
-            { data: "info_user.centro_de_costo", title: "Usuario", defaultContent: "No aplica"},
+            { data: "centro_de_costo_punto", title: "Punto", defaultContent: "No aplica"},
             { data: "info_user.celular", title: "Celular Usuario", defaultContent: "No aplica"},
         ]);
 

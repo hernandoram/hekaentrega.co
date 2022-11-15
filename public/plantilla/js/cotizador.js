@@ -239,7 +239,12 @@ async function cotizador(){
             // datos_a_enviar.valor = 0;
             // datos_a_enviar.seguro = value("seguro-mercancia");
             datos_a_enviar.correoR = datos_usuario.correo || "notiene@gmail.com";
-            datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo;
+            
+            if(ControlUsuario.esPuntoEnvio) {
+                datos_a_enviar.centro_de_costo_punto = datos_usuario.centro_de_costo;
+            } else {
+                datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo;
+            }
             // datos_a_enviar.peso = datos_de_cotizacion.peso;
             // datos_a_enviar.costo_envio = datos_de_cotizacion.precio;
 
@@ -1602,6 +1607,7 @@ async function buscarUsuario(e) {
     const inp = $("#numero_documento_usuario");
     const presentacion = $("#presentacion-cliente");
     datos_a_enviar.id_user = null;
+    datos_a_enviar.centro_de_costo = null;
     datos_a_enviar.info_user = {
         centro_de_costo: null,
         numero_documento: null,
@@ -1623,7 +1629,9 @@ async function buscarUsuario(e) {
 
     if(!usuario) return presentacion.html("<p>Usuario no encontrado</p>");
     
+    datos_a_enviar.centro_de_costo = usuario.centro_de_costo;
     datos_a_enviar.id_user = usuario.id;
+
     datos_a_enviar.info_user = {
         centro_de_costo: usuario.centro_de_costo,
         numero_documento: usuario.numero_documento,
