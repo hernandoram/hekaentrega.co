@@ -2740,20 +2740,22 @@ function revisarGuiasSaldas() {
 $("#guias_punto-hist_guias").on("change", (e) => {
     if(e.target.checked) {
         $("#filtro_pagos-hist_guias").parent().addClass("d-none");
+        $("#filtro_transp-hist_guias").parent().addClass("d-none");
     } else {
         $("#filtro_pagos-hist_guias").parent().removeClass("d-none");
+        $("#filtro_transp-hist_guias").parent().removeClass("d-none");
 
     }
 })
 
 let filtroPagos;
 async function historialGuiasAdmin(e) {
-    console.log(e.target)
     const finalId = e.id.split("-")[1];
     let fechaI = document.querySelector("#fechaI-"+finalId).value + "::";
     let fechaF = document.querySelector("#fechaF-"+finalId).value + "::";
     const numeroGuia = document.querySelector("#num_guia-"+finalId).value;
     const filtroCentroDeCosto = $("#filtro_pagos-"+finalId).val();
+    const filtroTransp = $("#filtro_transp-"+finalId).val();
     const descargaDirecta = e.id === "descargar-hist_guias";
     $("#historial_guias .cargador").removeClass("d-none");
     const guiasPunto = $("#guias_punto-"+finalId).prop("checked");
@@ -2790,14 +2792,16 @@ async function historialGuiasAdmin(e) {
 
     const referenceAlt = firebase.firestore().collectionGroup("guias")
 
-    if(filtroPagoSeleccionado) {
+    if(numeroGuia) {
+        await referenceAlt.where("numeroGuia", "==", numeroGuia.trim()).get().then(manejarInformacion);
+    } else if(filtroPagoSeleccionado) {
         const segementado = segmentarArreglo(filtroPagoSeleccionado, 10);
         for await (const paquete of segementado) {
             await reference.where("centro_de_costo", "in", paquete)
             .get().then(manejarInformacion);
         }
-    } else if(numeroGuia) {
-        await referenceAlt.where("numeroGuia", "==", numeroGuia.trim()).get().then(manejarInformacion);
+    } else if(filtroTransp) {
+        await reference.where("transportadora", "==", filtroTransp).get().then(manejarInformacion);
     } else {
         await reference.get().then(manejarInformacion);
     }
