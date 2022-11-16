@@ -132,11 +132,11 @@ function datosImportantesIncompletos(objToSend, completeData) {
       return "Recuerda por favor agregar la cuenta responsable de la guia " + objToSend.GUIA;
     } else if (!objToSend["COMISION HEKA"] && objToSend["COMISION HEKA"] !== 0) {
       return "Falta el campo \"COMISION HEKA\" de la guia " + objToSend.GUIA;
-    } else if (objToSend.TRANSPORTADORA.toLowerCase() !== "servientrega" 
-    && objToSend.TRANSPORTADORA.toLowerCase() != "envía" 
-    && objToSend.TRANSPORTADORA.toLowerCase() != "tcc"
-    && objToSend.TRANSPORTADORA.toLowerCase() != "interrapidisimo") {
-      return "Por favor, Asegurate que la factura de la guía: " + objToSend.GUIA + " le pertenezca a <b>Envía, TCC, Servientrega o Interrapidisimo</b>"
+    } else if (objToSend.TRANSPORTADORA !== "Servientrega" 
+    && objToSend.TRANSPORTADORA != "ENVÍA" 
+    && objToSend.TRANSPORTADORA != "TCC"
+    && objToSend.TRANSPORTADORA != "Interrapidisimo") {
+      return "Por favor, Asegurate que la factura de la guía: " + objToSend.GUIA + " le pertenezca a <b>ENVÍA, TCC, Servientrega o Interrapidisimo</b>"
     }
 }
 
