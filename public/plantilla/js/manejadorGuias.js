@@ -215,6 +215,10 @@ async function historialGuias(){
                 data: "costo_envio", title: "Costo de envío", 
                 defaultContent: "",
             },
+            {
+                data: "detalles.comision_punto", title: "Ganancia", 
+                defaultContent: "No aplica", visible: ControlUsuario.esPuntoEnvio
+            },
         ],
         language: {
           url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
