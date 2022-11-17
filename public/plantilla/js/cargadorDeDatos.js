@@ -169,6 +169,7 @@ async function consultarDatosDeUsuario() {
         objetos_envio: datos.objetos_envio,
         tipo_documento: datos.tipo_documento,
         bodegasCompletas: datos.bodegas || [],
+        type: datos.type || "NATURAL",
         bodegas
       }
 
