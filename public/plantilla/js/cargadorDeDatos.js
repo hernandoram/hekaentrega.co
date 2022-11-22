@@ -48,6 +48,8 @@ datos_personalizados = {
   saldo: 0
 };
 
+const bodegasWtch = new Watcher();
+
 
 class ControlUsuario {
   static get esPuntoEnvio() {
@@ -172,6 +174,8 @@ async function consultarDatosDeUsuario() {
         type: datos.type || "NATURAL",
         bodegas
       }
+
+      bodegasWtch.change(bodegas);
 
       datos.nombre_completo = datos_usuario.nombre_completo;
       mostrarDatosUsuario(datos);

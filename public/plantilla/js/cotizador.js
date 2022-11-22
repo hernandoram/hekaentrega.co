@@ -178,7 +178,7 @@ async function cotizador(){
     value("Kilos") != "" && value("seguro-mercancia") != "" 
     && value("dimension-ancho") != "" && value("dimension-largo") != "" && value("dimension-alto") != ""){
         //Si todos los campos no estan vacios
-        if(!ciudadR.dataset.ciudad || !ciudadD.dataset.ciudad
+        if(!ciudadR.dataset.dane_ciudad || !ciudadD.dataset.dane_ciudad
             || !/^.+\(.+\)$/.test(ciudadR.value) || !/^.+\(.+\)$/.test(ciudadD.value)) {
             alert("Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable");
             verificador(["ciudadR", "ciudadD"], true); 
@@ -254,6 +254,8 @@ async function cotizador(){
 
             $("#boton_continuar").click(seleccionarTransportadora)
 
+            guardarCotizacion();
+
             location.href = "#result_cotizacion"
         }
     }else{
@@ -265,6 +267,52 @@ async function cotizador(){
 
 
 };
+
+const watcherPlantilla = new Watcher(0);
+
+async function guardarCotizacion() {
+    const checkActualizar = $("#actv_editar_plantilla-cotizador");
+    const plantillasEl = $("#list_plantillas-cotizador");
+    const checkCrear = $("#guardar_cotizacion-cotizador");
+    const isEditar = checkActualizar.prop("checked");
+    const idPlantilla = plantillasEl.val();
+
+    if(!isEditar && !checkCrear.prop("checked")) return;
+
+    console.log("intentando crear plantilla")
+    
+    const form = $("#cotizar-envio");
+
+    const values = form.serializeArray();
+    const info = values.reduce((a,b) => {
+        a[b.name] = b.value;
+        return a
+    }, {});
+
+    info.nombre = info.nombre.trim();
+    info.codigo = info.nombre.toLowerCase().replace(/\s/g, "");
+
+    console.log(info);
+
+    if(!info.nombre) return verificador(["nombre_cotizador"], true, "Si desear guardar una plantilla es necesario asignarle un nombre");
+
+    const ref = usuarioDoc.collection("plantillasCotizador");
+
+    if(!isEditar) {
+        const existente = await ref.where("codigo", "==", info.codigo).get().then(q => q.size);
+    
+        if(existente) return verificador(["nombre_cotizador"], true, "El nombre ingresado ya existe entre sus plantillas.");
+    }
+
+    if(isEditar) {
+        await ref.doc(idPlantilla).update(info);
+    } else {
+        await ref.add(info);
+    }
+
+    watcherPlantilla.change(watcherPlantilla.value + 1);
+
+}
 
 async function pagoContraentrega() {
     //le muestra al usuario las opciones del pago contraentrega y 

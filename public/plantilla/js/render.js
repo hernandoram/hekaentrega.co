@@ -2368,6 +2368,40 @@ class ChangeElementContenWhileLoading {
     }
 }
 
+//guardará un arreglo y funcionará cun un listener
+class Watcher {
+    constructor(val) {
+        this.value = val || new Array();
+        this.watchers = new Array();
+    }
+
+    set push(val) {
+        if(!this.value.includes(val)) {
+            this.value.push(val);
+        }
+    }
+
+    set quit(val) {
+        const index = this.value.indexOf(val);
+        this.value.splice(index, 1);
+    }
+
+    change(newInfo) {
+        this.value = newInfo;
+
+        this.watchers.forEach(watch => watch(this.value));
+    }
+
+    watch(fn) {
+        this.watchers.push(fn);
+    }
+
+    init() {
+        console.log("se Inició la función con =>", this.value);
+    }
+}
+
+
 const medidasCtrl = new DetectorErroresInput(".only-integers").init("input");
 medidasCtrl.setBooleans = [
     {

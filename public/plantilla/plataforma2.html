@@ -458,7 +458,50 @@
             <!-- Page Heading -->
             <div style="display: block;" id="cotizador">
               <h1 class="h3 mb-4 text-gray-800">Cotizar envío</h1>
+              <div class="card d-none cotizador-beta" id="opciones-cotizador">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="form-group col-md">
+                      <label for="list_bodegas-cotizador">Bodegas</label>
+                      <select type="text" class="form-control"
+                      id="list_bodegas-cotizador"></select>
+                    </div>
+  
+                    <div class="form-group col-md">
+                      <label for="list_plantillas-cotizador">Plantillas</label>
+                      <i id="boton_eliminar_plant" title="Eliminar plantilla" data-toggle="tooltip"
+                      class="fa fa-trash mx-2 text-danger d-none"></i>
+                      <select type="text" class="form-control"
+                      id="list_plantillas-cotizador"></select>
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <div class="col text-center">
+                      <input type="checkbox" id="actv_ciudad_plantilla-cotizador">
+                      <label for="actv_ciudad_plantilla-cotizador">Tomar ciudad de plantilla guardada</label>
+                    </div>
+                    
+                    <div class="col-sm-6 text-center d-none" id="cont_act_plant-cotizador">
+                      <input type="checkbox" id="actv_editar_plantilla-cotizador">
+                      <label for="actv_editar_plantilla-cotizador">Cambiar datos de la <b>plantilla</b></label>
+                    </div>
+  
+                  </div>
+  
+                  <div class="d-flex justify-content-end">
+                    <div class="d-flex">
+                      <button id="boton_cotizar_2"  onclick="cotizador()" 
+                      class="btn btn-primary btn-sm mx-2">Cotizar envío</button>
+                    </div>
+                  </div>
+
+                </div>
+                
+              </div>
               <hr class="sidebar-divider"></hr>
+
+
               <form class="user" name="cotizacionEnvio" id="cotizar-envio">
                 <div class="form-group row">
                   <div class="col-sm-6 mb-2">
@@ -495,19 +538,33 @@
                     <div class="row">
                       <div class="col-sm-4 d-flex align-items-center mb-2">
                         <label for="dimension-ancho">Ancho:  </label>
-                        <input type="number" class="form-control form-control-user ml-2 only-integers" id="dimension-ancho" name="dimension-ancho" min="1" max="150" >
+                        <input type="number" class="form-control form-control-user ml-2 only-integers" id="dimension-ancho" name="ancho" min="1" max="150" >
                       </div>
                       <div class="col-sm-4 d-flex align-items-center mb-2">
                         <label for="dimension-largo">Largo:  </label>
-                        <input type="number" class="form-control form-control-user ml-2 only-integers" id="dimension-largo" name="dimension-Largo" min="1" max="150" >
+                        <input type="number" class="form-control form-control-user ml-2 only-integers" id="dimension-largo" name="largo" min="1" max="150" >
                       </div>
                       <div class="col-sm-4 d-flex align-items-center mb-2">
                         <label for="dimension-alto">Alto:  </label>
-                        <input type="number" class="form-control form-control-user ml-2 only-integers" id="dimension-alto" name="dimension-alto" min="1" max="150" >
+                        <input type="number" class="form-control form-control-user ml-2 only-integers" id="dimension-alto" name="alto" min="1" max="150" >
                       </div>
                     </div>
                   </div>
+               
                 </div>
+                
+                <div class="form-group row align-items-end cotizador-beta d-none" id="cont_config_save-cotizador">
+                  <div class="col-12 text-center mt-3">
+                    <input type="checkbox" id="guardar_cotizacion-cotizador">
+                    <label for="guardar_cotizacion-cotizador">Crear <b>Plantilla</b> con los datos del cotizador <small class="popover-nombre_prod"></small></label>
+                  </div>
+
+                  <div class="col-12 mb-3 mb-sm-3 d-none" id="cont_nom_plant-cotizador">
+                    <label class="form-label" for="nombre">Nombre plantilla <small class="popover-nombre_prod"></small></label>
+                    <input type="text" class="form-control" name="nombre" id="nombre_cotizador">  
+                  </div>
+                </div>
+
 
                 <!-- para activar o desactivar las guias automáticas -->
               <!-- <div class="custom-control custom-switch text-center m-2">

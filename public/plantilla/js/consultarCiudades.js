@@ -129,6 +129,8 @@ autocomplete(document.getElementById("ciudad-tienda"), ciudades);
 
 export default autocomplete
 
+export {ciudades}
+
 function medidorDeBytesFirebase(entry) {
   let size = 0;
   if(!entry) return 0;
