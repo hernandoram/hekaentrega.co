@@ -764,7 +764,7 @@ function tablaPagos(arrData, id) {
             <td>${data.RECAUDO}</td>
             <td>${data["ENVÍO TOTAL"]}</td>
             <td>${data["TOTAL A PAGAR"]}</td>
-            <td>${data["COMISION HEKA"]}</td>
+            <td>${data["COMISION HEKA"] || ""}</td>
             <td data-id="${data.REMITENTE}" data-fecha="${data.FECHA}" data-funcion="cambiar_fecha">${data.FECHA}</td>
             <td>${data.estado}</td>
             <td>${data.cuenta_responsable || "No registró"}</td>
