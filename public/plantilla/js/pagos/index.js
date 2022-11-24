@@ -1,14 +1,20 @@
 import "./pagar.js";
 import AnotacionesPagos from "./AnotacionesPagos.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
+import { empaquetarGuias } from "./pagar.js";
 
 const db = firebase.firestore();
 const formularioPrincipal = $("#form-cargador_pagos");
 const errorContainer = $("#errores-cargador_pagos");
 const btnCargarPagos = $("#btn-cargar_cargador_pagos");
+const btnCargarPagosHistGuias = $("#pagar-hist_guias");
 const cargador = $("#cargador-cargador_pagos");
 
 btnCargarPagos.click(cargarPagosPendientes);
+btnCargarPagosHistGuias.click(cargarPagosDirectos);
+
+const referencePagos = db.collection("pendientePorPagar");
+const refHistGuias = db.collectionGroup("guias");
 
 async function cargarPagosPendientes(e) {
   const loader = new ChangeElementContenWhileLoading(e.target);
@@ -49,7 +55,7 @@ async function cargarPagosPendientes(e) {
     const numeroGuia = guia["GUIA"].toString();
     guia["GUIA"] = numeroGuia;
     
-    const reference = db.collection("pendientePorPagar").doc(numeroGuia);
+    const reference = referencePagos.doc(numeroGuia);
     
     const revisarEnPagos = await comprobarGuiaPagada(guia);
     const erroresSubida = datosImportantesIncompletos(guia, datosDePago);
@@ -152,4 +158,106 @@ async function comprobarGuiaPagada(objToSend) {
     }
 
     return false;
+}
+
+async function cargarPagosDirectos(e) {
+  const finalId = e.target.id.split("-")[1];
+
+  let fechaI = document.querySelector("#fechaI-"+finalId).value + "::";
+  let fechaF = document.querySelector("#fechaF-"+finalId).value + "::";
+  const filtroCentroDeCosto = $("#filtro_pagos-"+finalId).val();
+  const filtroTransp = $("#filtro_transp-"+finalId).val();
+
+
+  const listaGuias = await refHistGuias
+  .orderBy("timeline")
+  .startAt(new Date(fechaI).getTime()).endAt(new Date(fechaF).getTime() + 8.64e+7)
+  .where("seguimiento_finalizado", "==", true)
+  // .limit(100)
+  .get().then(q => {
+    console.log(q.size);
+    const listaFiltrada = [];
+    q.forEach(d => {
+      const data = d.data();
+      const type = data.type;
+      const deuda = data.debe;
+      
+      // Ignorar aquelas que hayan sido pagadas;
+      if(type === "CONVENCIONAL") return;
+      if(type === "PAGO CONTRAENTREGA" && deuda === 0) return;
+    
+      listaFiltrada.push(transformarGuiaAPago(data));
+    })
+
+    return listaFiltrada;
+  });
+
+  location.href = "#gestionar_pagos";
+  
+  const lista = await filtraPendientes(listaGuias);
+  
+  console.log(lista);
+  empaquetarGuias(lista)
+
+}
+
+function transformarGuiaAPago(guia)  {  
+  return {
+    GUIA: guia.numeroGuia,
+    "REMITENTE": guia.centro_de_costo,
+    TRANSPORTADORA: guia.transportadora,
+    "CUENTA RESPONSABLE": guia.cuenta_responsable,
+    "COMISION HEKA": guia.detalles.comision_heka,
+    RECAUDO: guia.detalles.recaudo,
+    "ENVÍO TOTAL": guia.detalles.total,
+    "TOTAL A PAGAR": guia.detalles.recaudo - guia.detalles.total
+  }
+}
+
+async function filtraPendientes(listaGuias) {
+  const anotaciones = new AnotacionesPagos(errorContainer);
+  anotaciones.init();
+
+  const cargador = $("#cargador-gestionar_pagos");
+
+  cargador.removeClass("d-none");
+  const counterEl = $(".counter", cargador);
+  const fEl = $(".f", cargador);
+  fEl.text("Directo de guías");
+
+  const finalizarProceso = (e) => {
+    anotaciones.addError(e.message, {color: e.color || "danger"});
+    cargador.addClass("d-none");
+    // loader.end();
+  }
+
+  let i = 1;
+  let agregados = 0;
+
+  const respuesta = []
+  for await (let g of listaGuias) {
+    g.timeline = new Date().getTime();
+    counterEl.text(i);
+
+    // const revisarEnPagos = false;
+    const revisarEnPagos = await comprobarGuiaPagada(g);
+    // const erroresSubida = datosImportantesIncompletos(g, listaGuias);
+
+    i++
+    if(revisarEnPagos) {
+      anotaciones.addError("La guía "+numeroGuia+" ya ha sido pagada.");
+    }
+
+    if(revisarEnPagos) continue;
+
+    respuesta.push(g);
+
+    agregados++;
+
+  }
+
+  finalizarProceso({message: "Se han agregado " + agregados + " cargues correctamente", color: "success"});
+
+  return respuesta;
+  
 }

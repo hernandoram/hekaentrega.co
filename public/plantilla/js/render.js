@@ -733,6 +733,7 @@ function tablaPagos(arrData, id) {
         <th>Recaudo</th>
         <th>Envío Total</th>
         <th>Total a Pagar</th>
+        <th>Comisión heka</th>
         <th data-id="${arrData[0].REMITENTE.replace(" ", "")}">Fecha</th>
         <th>Estado</th>
         <th>Cuenta responsable</th>
@@ -763,6 +764,7 @@ function tablaPagos(arrData, id) {
             <td>${data.RECAUDO}</td>
             <td>${data["ENVÍO TOTAL"]}</td>
             <td>${data["TOTAL A PAGAR"]}</td>
+            <td>${data["COMISION HEKA"]}</td>
             <td data-id="${data.REMITENTE}" data-fecha="${data.FECHA}" data-funcion="cambiar_fecha">${data.FECHA}</td>
             <td>${data.estado}</td>
             <td>${data.cuenta_responsable || "No registró"}</td>
@@ -1085,8 +1087,8 @@ async function restaurarSaldoGuia(trg, data) {
     };
 
     const detalles_saldo = {
-        saldo: datos_saldo_usuario.saldo + diferencia,
-        saldo_anterior: datos_saldo_usuario.saldo,
+        saldo: parseInt(datos_saldo_usuario.saldo) + diferencia,
+        saldo_anterior: parseInt(datos_saldo_usuario.saldo),
         actv_credit: datos_saldo_usuario.actv_credit || false,
         fecha: genFecha(),
         diferencia: diferencia,

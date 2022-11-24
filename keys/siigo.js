@@ -5,7 +5,8 @@ const credencialesPrueba = {
     document_id: 24446,
     identificacion: 13832081,
     id_vendedor: 629,
-    id_tipo_pago: 5636
+    id_tipo_pago: 5636,
+    idAutoRetencion: 27481
 };
 
 const credenciales = {
@@ -15,7 +16,8 @@ const credenciales = {
     document_id: 23159,
     identificacion: 1072497419,
     id_vendedor: 596,
-    id_tipo_pago: 5340 // tarjeta débido
+    id_tipo_pago: 5340, // tarjeta débido,
+    idAutoRetencion: 27481
 }
 
 // module.exports = credencialesPrueba;

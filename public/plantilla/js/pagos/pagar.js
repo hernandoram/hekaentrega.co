@@ -209,7 +209,6 @@ class Empaquetado {
             loader.html("cargando " + (i+1) + " de " + f + "...");
 
             if(existente) {
-                console.log(guia)
                 guia.cuenta_responsable = existente.cuenta_responsable || guia["CUENTA RESPONSABLE"] || "SCR";
                 guia.estado = existente.type;
                 guia.id_heka = existente.id_heka;
@@ -566,7 +565,6 @@ async function consultarPendientes(e) {
     const loader = new ChangeElementContenWhileLoading(e.target);
     loader.init();
 
-    const paquete = new Empaquetado();
     let respuesta = [];
 
     if(selFiltDiaPago.val()) {
@@ -612,8 +610,16 @@ async function consultarPendientes(e) {
 
         respuesta = data;
     }
+    
+    empaquetarGuias(respuesta);
 
-    respuesta
+    loader.end();
+}
+
+function empaquetarGuias(arr) {
+    const paquete = new Empaquetado();
+
+    arr
     .sort((a,b) => a["REMITENTE"].localeCompare(b["REMITENTE"]))
     .forEach(d => paquete.addPago(d));
     paquete.init();
@@ -630,8 +636,6 @@ async function consultarPendientes(e) {
     }
 
     console.log(paquete);
-
-    loader.end();
 }
 
 function handlerInformation(querySnapshot) {
@@ -665,3 +669,5 @@ function eliminarGuiaStagging(e) {
         }
     });
 }
+
+export {empaquetarGuias}

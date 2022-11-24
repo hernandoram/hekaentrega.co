@@ -1091,6 +1091,15 @@ function mostrarPagosUsuario(data) {
         { data: "COMISION HEKA", title: "Comisión Heka", defaultContent: ""},
         { data: "momento", title: "Momento", visible: false}
     ],
+    dom: 'Bfrtip',
+    buttons: [{
+      extend: "excel",
+      text: "Descargar",
+      filename: "Repote pagos",
+      exportOptions: {
+        columns: ":visible"
+      }
+    }],
     //Es importante organizarlo por fecha de manera específica, para poder segmentarlo
     order: [[7, "desc"]],
     fixedHeader: {footer:true},

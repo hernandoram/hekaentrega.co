@@ -842,7 +842,7 @@ async function actualizarInformacionHeka() {
     document.querySelector('[onclick="actualizarInformacionHeka()"]').value = "cargando";
 
     let datos = {
-        saldo: $("#actualizar_saldo").attr("data-saldo"),
+        saldo: parseInt($("#actualizar_saldo").attr("data-saldo")),
         fecha: genFecha()
     };
 

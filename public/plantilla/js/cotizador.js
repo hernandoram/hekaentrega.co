@@ -107,6 +107,8 @@ let transportadoras = {
     },
 };
 
+const isIndex = document.getElementById("cotizar_envio").getAttribute("data-index");
+
 function gestionarTransportadora() {
     let html = "";
     for (let transp in transportadoras) {
@@ -254,7 +256,7 @@ async function cotizador(){
 
             $("#boton_continuar").click(seleccionarTransportadora)
 
-            guardarCotizacion();
+            if(!isIndex) guardarCotizacion();
 
             location.href = "#result_cotizacion"
         }
@@ -268,7 +270,7 @@ async function cotizador(){
 
 };
 
-const watcherPlantilla = new Watcher(0);
+const watcherPlantilla = isIndex ? null : new Watcher(0);
 
 async function guardarCotizacion() {
     const checkActualizar = $("#actv_editar_plantilla-cotizador");

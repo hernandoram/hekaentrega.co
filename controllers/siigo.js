@@ -55,7 +55,8 @@ const crearFactura = async (req, res) => {
             value: comision_heka, // comision_heka
             due_date: estandarizarFecha(fecha, "YYYY-MM-DD") // Fecha del pago
           }
-        ]
+        ],
+        retentions: [Cr.idAutoRetencion] // reviso en /taxes el de autoretención
     }
 
     console.log(data);
@@ -133,4 +134,14 @@ const tiposPago = async (req, res) => {
     res.send(respuesta);
 }
 
-module.exports = { auth, crearFactura, tipoDocumentos, usuarios, tiposPago, pdfFacturaVenta }
+const impuestos = async (req, res) => {
+    const path = "/v1/taxes";
+
+    const token = req.access_token;
+
+    const respuesta = await commonGet(path, token);
+
+    res.send(respuesta);
+}
+
+module.exports = { auth, crearFactura, tipoDocumentos, usuarios, tiposPago, pdfFacturaVenta, impuestos }
