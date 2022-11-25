@@ -56,7 +56,7 @@ const crearFactura = async (req, res) => {
             due_date: estandarizarFecha(fecha, "YYYY-MM-DD") // Fecha del pago
           }
         ],
-        // retentions: [Cr.idAutoRetencion] // reviso en /taxes el de autoretención
+        retentions: [{id: Cr.idAutoRetencion}] // reviso en /taxes el de autoretención (pero por ahora queda quemado)
     }
 
     console.log(data);

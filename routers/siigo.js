@@ -8,6 +8,6 @@ router.get("/pdfFactura/:id_factura", auth, pdfFacturaVenta);
 router.get("/tipoDocumentos", auth, tipoDocumentos);
 router.get("/usuarios", auth, usuarios);
 router.get("/tiposPago", auth, tiposPago);
-router.get("/taxes", auth, impuestos);
+router.get("/impuestos", auth, impuestos);
 
 module.exports = router;
