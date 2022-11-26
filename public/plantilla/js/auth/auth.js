@@ -1,7 +1,7 @@
 import "../utils/viewer.js";
 import iniciarSesion from "./login.js";
 import registro from "./register.js";
-import { redirectIfAuthenticated } from "./handlers.js"
+import { handleAuthErrors, redirectIfAuthenticated } from "./handlers.js"
 import { auth } from "../config/firebase.js";
 import ciudades from "../../data/ciudades.js";
 import llenarCiudades from "../consultarCiudades.js"
