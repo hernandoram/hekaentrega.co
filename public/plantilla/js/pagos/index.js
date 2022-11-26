@@ -1,6 +1,6 @@
 import "./pagar.js";
 import AnotacionesPagos from "./AnotacionesPagos.js";
-import { ChangeElementContenWhileLoading } from "../utils/functions.js";
+import { ChangeElementContenWhileLoading, segmentarArreglo } from "../utils/functions.js";
 import { empaquetarGuias } from "./pagar.js";
 
 const db = firebase.firestore();
@@ -162,42 +162,71 @@ async function comprobarGuiaPagada(objToSend) {
 
 async function cargarPagosDirectos(e) {
   const finalId = e.target.id.split("-")[1];
+  const loader = new ChangeElementContenWhileLoading(e.target);
+  loader.init();
 
   let fechaI = document.querySelector("#fechaI-"+finalId).value + "::";
   let fechaF = document.querySelector("#fechaF-"+finalId).value + "::";
   const filtroCentroDeCosto = $("#filtro_pagos-"+finalId).val();
   const filtroTransp = $("#filtro_transp-"+finalId).val();
+  const listaGuias = [];
 
+  const manejarInformacion = querySnapshot => {
+    console.log(querySnapshot.size);
+    querySnapshot.forEach(doc => {
+      const guia = doc.data();
 
-  const listaGuias = await refHistGuias
-  .orderBy("timeline")
-  .startAt(new Date(fechaI).getTime()).endAt(new Date(fechaF).getTime() + 8.64e+7)
-  .where("seguimiento_finalizado", "==", true)
-  // .limit(100)
-  .get().then(q => {
-    console.log(q.size);
-    const listaFiltrada = [];
-    q.forEach(d => {
-      const data = d.data();
-      const type = data.type;
-      const deuda = data.debe;
+      const type = guia.type;
+      const deuda = guia.debe;
       
       // Ignorar aquelas que hayan sido pagadas;
       if(type === "CONVENCIONAL") return;
       if(type === "PAGO CONTRAENTREGA" && deuda === 0) return;
-    
-      listaFiltrada.push(transformarGuiaAPago(data));
-    })
+          
+      listaGuias.push(transformarGuiaAPago(guia));
+    });
+  }
 
-    return listaFiltrada;
-  });
+  let filtroPagoSeleccionado;
 
-  location.href = "#gestionar_pagos";
+  if(filtroCentroDeCosto) {
+    if(!filtroPagos) {
+      filtroPagos = await db.collection("infoHeka").doc("usuariosPorDiaDePago")
+      .get().then(d => d.data());
+    }
+
+    filtroPagoSeleccionado = filtroPagos[filtroCentroDeCosto];
+  }
+
+  const referencia = refHistGuias
+  .orderBy("timeline")
+  .startAt(new Date(fechaI).getTime()).endAt(new Date(fechaF).getTime() + 8.64e+7)
+  .where("seguimiento_finalizado", "==", true)
+
+  if(filtroPagoSeleccionado) {
+    const segementado = segmentarArreglo(filtroPagoSeleccionado, 10);
+    for await (const paquete of segementado) {
+        await referencia.where("centro_de_costo", "in", paquete)
+        .get().then(manejarInformacion);
+    }
+  } else if(filtroTransp) {
+    await referencia.where("transportadora", "==", filtroTransp).get().then(manejarInformacion);
+  } else {
+    await referencia.get().then(manejarInformacion);
+  }
+
+
+  location.href = "#cargador_pagos";
   
   const lista = await filtraPendientes(listaGuias);
+
+  loader.end();
   
   console.log(lista);
-  empaquetarGuias(lista)
+  
+  location.href = "#gestionar_pagos";
+
+  empaquetarGuias(lista);
 
 }
 
@@ -218,12 +247,10 @@ async function filtraPendientes(listaGuias) {
   const anotaciones = new AnotacionesPagos(errorContainer);
   anotaciones.init();
 
-  const cargador = $("#cargador-gestionar_pagos");
-
   cargador.removeClass("d-none");
   const counterEl = $(".counter", cargador);
   const fEl = $(".f", cargador);
-  fEl.text("Directo de guías");
+  fEl.text(listaGuias.length + " guías");
 
   const finalizarProceso = (e) => {
     anotaciones.addError(e.message, {color: e.color || "danger"});
@@ -233,26 +260,23 @@ async function filtraPendientes(listaGuias) {
 
   let i = 1;
   let agregados = 0;
+  let restantes = listaGuias.length;
 
-  const respuesta = []
-  for await (let g of listaGuias) {
-    g.timeline = new Date().getTime();
-    counterEl.text(i);
+  let respuesta = []
+  const listaGuiasSegmentada = segmentarArreglo(listaGuias, 500);
+  for await (let segmento of listaGuiasSegmentada) {
+    restantes-= segmento.length;
+    agregados+=segmento.length;
 
+    counterEl.text(agregados);
+    
     // const revisarEnPagos = false;
-    const revisarEnPagos = await comprobarGuiaPagada(g);
+    const listaAnalizada = await comprobarSegmentoGuias(segmento, anotaciones);
     // const erroresSubida = datosImportantesIncompletos(g, listaGuias);
 
-    i++
-    if(revisarEnPagos) {
-      anotaciones.addError("La guía "+numeroGuia+" ya ha sido pagada.");
-    }
+    i+= segmento.length
 
-    if(revisarEnPagos) continue;
-
-    respuesta.push(g);
-
-    agregados++;
+    respuesta = respuesta.concat(listaAnalizada);
 
   }
 
@@ -260,4 +284,20 @@ async function filtraPendientes(listaGuias) {
 
   return respuesta;
   
+}
+
+async function comprobarSegmentoGuias(segmento, logger) {
+  const listaAsync = segmento.map(comprobarGuiaPagada);
+
+  const lista = await Promise.all(listaAsync);
+
+  return segmento.filter((g, i) => {
+    g.timeline = new Date().getTime();
+
+    const pagada = !lista[i];
+
+    if(pagada) logger.addError("La guia " + g.GUIA + " fue pagada.");
+
+    return pagada;
+  })
 }
