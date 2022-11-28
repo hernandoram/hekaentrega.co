@@ -72,6 +72,7 @@ class Empaquetado {
                                         <li class="dropdown-item">Cargando Información...</li>
                                     </ul>
                                 </div>
+                                <button class="btn btn-light dwload-excel" data-user="${usuario}">Descargar Excel</button>
                             </h5>
                             <div class="loader text-center d-none"></div>
                             <div class="table-responsive">
@@ -107,6 +108,7 @@ class Empaquetado {
         });
 
         $(".set-info-bank").click(e => this.cargarInformacionBancaria(e));
+        $(".dwload-excel").click(e => this.descargarExcelPagosUsuario(e));
 
         // importante para cambiar el label del selector de archivos cuando cambia
         bsCustomFileInput.init();
@@ -283,6 +285,29 @@ class Empaquetado {
         }
 
         visualizador.addClass("cargado");
+    }
+
+    descargarExcelPagosUsuario(e) {
+        const target = e.target;
+        const usuario = target.getAttribute("data-user");
+        const pagos = this.pagosPorUsuario[usuario];
+        const guias = pagos.guias;
+
+        console.log(pagos);
+        const columnas = [
+            {data: "REMITENTE", title: "Centro de costo"},
+            {data: "TRANSPORTADORA", title: "Transportadora"},
+            {data: "GUIA", title: "Guía"},
+            {data: "RECAUDO", title: "Recaudo"},
+            {data: "ENVÍO TOTAL", title: "Envío total"},
+            {data: "TOTAL A PAGAR", title: "Total a pagar"},
+            {data: "COMISION HEKA", title: "Comisión heka"},
+            {data: "FECHA", title: "Fecha"},
+            {data: "cuenta_responsable", title: "Cuenta responsable"},
+            {data: "estado", title: "Estado"},
+        ]
+
+        descargarInformeGuiasAdmin(columnas, guias, "Pagos")
     }
 
     async cargarInfoUsuario() {
