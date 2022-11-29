@@ -499,8 +499,8 @@ async function buscarUsuarios(){
                     let identificador = e.target.parentNode.getAttribute("data-buscador");
                     let fechaI = genFecha().split("-");
                     fechaI[1] -= 1;
-                    fechaI = new Date(fechaI.join("-")).getTime();
-                    let fechaF = new Date(genFecha()).getTime();
+                    fechaI = new Date(fechaI.join("-") + "::").getTime();
+                    let fechaF = new Date(genFecha() + "::").getTime();
                     console.log(fechaI, fechaF)
                     verMovimientos(identificador, fechaI, fechaF + 8.64e+7);
                     boton_filtrador_movs.setAttribute("data-usuario", identificador);
@@ -510,8 +510,8 @@ async function buscarUsuarios(){
             }
             boton_filtrador_movs.addEventListener("click", e => {
                 let identificador = e.target.getAttribute("data-usuario")
-                fechaI = new Date(document.getElementById("movs-fecha-inicio").value).getTime()
-                fechaF = new Date(document.getElementById("movs-fecha-final").value).getTime()
+                fechaI = new Date(document.getElementById("movs-fecha-inicio").value + "::").getTime()
+                fechaF = new Date(document.getElementById("movs-fecha-final").value + "::").getTime()
                 verMovimientos(identificador, fechaI, fechaF + 8.64e+7);
             })
 
@@ -842,7 +842,7 @@ async function actualizarInformacionHeka() {
     document.querySelector('[onclick="actualizarInformacionHeka()"]').value = "cargando";
 
     let datos = {
-        saldo: $("#actualizar_saldo").attr("data-saldo"),
+        saldo: parseInt($("#actualizar_saldo").attr("data-saldo")),
         fecha: genFecha()
     };
 
@@ -880,7 +880,8 @@ async function actualizarInformacionHeka() {
             guia: "",
             momento: momento,
             user_id: id_usuario,
-            medio: "Administrador: " + localStorage.user_id
+            medio: "Administrador: " + localStorage.user_id,
+            type: "GENERAL"
         }
         if(doc.exists && doc.data().datos_personalizados) {
             const datos = doc.data().datos_personalizados;
@@ -1060,6 +1061,8 @@ async function verMovimientos(usuario, fechaI, fechaF){
                 lista_detalles = [];
                 console.log(data2);
                 console.log(data1);
+
+                if(!data2.length) return;
                 let saldo_momento = data2.reduce((a,b) => {
                     return parseInt(a) + parseInt(b.diferencia)
                 }, parseInt(data2[0].saldo_anterior));

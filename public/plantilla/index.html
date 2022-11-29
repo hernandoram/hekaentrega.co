@@ -821,6 +821,7 @@
             comision_heka: 1,
             constante_convencional: 800,
             constante_pagoContraentrega: 1500,
+            comision_punto: 10,
             saldo: 0
         };
 
@@ -895,6 +896,13 @@
                     $("#message").hide("slow");
                 }, 6000)
             })
+
+            class ControlUsuario {
+                static get esPuntoEnvio() {
+                    return datos_usuario.type === "PUNTO";
+                }  
+            }
+
         </script>
 
         <script src="/js/consultarCiudades.js" type="module"></script>

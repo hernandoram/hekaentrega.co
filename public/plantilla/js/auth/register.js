@@ -5,6 +5,9 @@ import { auth, firestore as db } from "../config/firebase.js";
 
 import Stepper from "../utils/stepper.js";
 
+const USUARIO_COLL = "usuarios";
+const OFICINA_COLL = "oficinas";
+
 const registerStep = new Stepper("#register-form");
 const rgOfiForm = new Stepper("#rgOficina-form");
 registerStep.init();
@@ -87,9 +90,12 @@ function revisarErroresParticularesRegistro(container) {
 async function registrarNuevoUsuario(toSend, data) {
     const {correo, con, nombre_empresa} = data;
     const existe_empresa = await verificarExistencia(toSend, data.cod_empresa);
+    const existe_usuario = await numeroDocumentoRepetido(toSend, data.numero_documento);
+    
     console.log(toSend, data.cod_empresa);
 
     if(existe_empresa) throw new Error('¡El nombre de empresa "' +nombre_empresa+ '" ya existe!');
+    if(existe_usuario) throw new Error('¡El número de documento "' +data.numero_documento+ '" ya existe!');
 
     const newUser = await createUserWithEmailAndPassword(correo, con);
 
@@ -118,6 +124,13 @@ async function createUserWithEmailAndPassword(email, password) {
 
 async function verificarExistencia(coll, cod_empresa) {
     return await db.collection(coll).where("cod_empresa", "==", cod_empresa)
+    .get().then(querySnapshot => {
+        return querySnapshot.size;
+    });
+}
+
+async function numeroDocumentoRepetido(coll, cod_empresa) {
+    return await db.collection(coll).where("numero_documento", "==", cod_empresa)
     .get().then(querySnapshot => {
         return querySnapshot.size;
     });
@@ -178,10 +191,11 @@ function checkTerms(checkQuery) {
 
 export default async function registro(e) {
     e.preventDefault();
+    console.log(e);
     const form = e.target;
     const formData = new FormData(form);
     const formName = form.name;
-    const loader = new ChangeElementContenWhileLoading("#registrar-nuevo-usuario");
+    const loader = new ChangeElementContenWhileLoading(e.originalEvent.submitter || "#registrar-nuevo-usuario");
     let data, collName, termsChecked
     
     if(revisarErroresParticularesRegistro(form)) return;

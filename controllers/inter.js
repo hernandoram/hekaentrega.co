@@ -6,6 +6,9 @@ const puppeteer = require("puppeteer");
 const {Credenciales, UsuarioPrueba, CredencialesEmpresa} = require("../keys/interCredentials");
 const urlEstados = "https://www3.interrapidisimo.com/ApiservInter/api/Mensajeria/ObtenerRastreoGuias?guias=";
 
+const firebase = require("../keys/firebase");
+const db = firebase.firestore();
+
 //FUNCIONES REGULARES
 // Estas funciones actualmente no están siendo utilizadas
 function retornarEstado() {
@@ -187,9 +190,8 @@ const actualizarMovimientos = async function(doc) {
 
     const guia = doc.data();
 
-    const estados_finalizacion = ["Documento Anulado", "Entrega Exitosa", "Devuelto al Remitente"];
+    const estados_finalizacion = ["Documento Anulado", "Entrega Exitosa", "Devuelto al Remitente", "Entregada"];
     let entrega_oficina_notificada = guia.entrega_oficina_notificada || false;
-
     
     const movimientos = respuesta[0].EstadosGuia.map(estado => {
         const est = estado.EstadoGuia;
@@ -229,6 +231,7 @@ const actualizarMovimientos = async function(doc) {
     updte_movs = await extsFunc.actualizarMovimientos(doc, estado);
 
     const actualizaciones = {
+        entrega_oficina_notificada,
         estado: estado.estadoActual,
         ultima_actualizacion: new Date(),
         seguimiento_finalizado: estados_finalizacion.some(v => estado.estadoActual === v)
@@ -295,9 +298,9 @@ exports.crearGuia = (req, res) => {
             "tipoDocumento": dest.tipo_documento === 1 ? "NIT" : "CC",
             "numeroDocumento": dest.numero_documento,
             "nombre": dest.nombre,
-            "primerApellido":  "| Heka", //Si se debe enviar si es un cliente persona natural, es obligatorio
-            "segundoApellido": "Sucursal: " + guia.codigo_sucursal,
-            "telefono": dest.celular,
+            "primerApellido":  " ", //Si se debe enviar si es un cliente persona natural, es obligatorio
+            "segundoApellido": "",
+            "telefono": dest.telefono,
             "direccion": dest.direccion,
             "idDestinatario":0, "idRemitente":0, //Campos opcionales. Dejarlos en 0
             "idLocalidad": guia.dane_ciudadD, //Codigo DANE ciudad destinatario
@@ -325,7 +328,21 @@ exports.crearGuia = (req, res) => {
         body: JSON.stringify(data)
     }, (error, response, body) => {
         if(error) res.send("Hubo un error => "+error);
+
         console.log(body);
+        if(typeof body === "string") {
+            try {
+                const respuesta = JSON.parse(body);
+                if(!respuesta.idPreenvio) {
+                    console.log("error");
+                    db.collection("errores")
+                    .add({type: "INTER", data, respuesta})
+                }
+
+            } catch (e) {
+                console.log("Error al comprobar")
+            }
+        }
         res.json(body);
     })
 };

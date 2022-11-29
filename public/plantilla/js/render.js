@@ -206,11 +206,13 @@ function avisar(title, content, type, redirigir, tiempo = 5000){
 
 //// Esta funcion me retorna un card con informacion del usuario, sera invocada por otra funcion
 function mostrarUsuarios(data, id){
-    let bodega = data.bodegas ? data.bodegas.filter(b => b.principal)[0] : false
-    if(!bodega && data.bodegas) bodega = data.bodegas[0];
+    const bodegas = data.bodegas ? data.bodegas : [];
+    // let bodega = data.bodegas ? data.bodegas.filter(b => b.principal)[0] : false
+    let bodega = bodegas.filter(b => !b.inactiva)[0];
+
     let bodegasFilter = "";
-    if(data.bodegas) {
-        data.bodegas.forEach((b,i) => {
+    if(bodegas) {
+        bodegas.forEach((b,i) => {
             bodegasFilter += "data-filter-direccion-"+i+"='"+b.direccion_completa+"'"
         });
     }
@@ -405,7 +407,8 @@ function activarBotonesDeGuias(id, data, activate_once){
     let activos = document.querySelectorAll('[data-funcion="activar-desactivar"]');
       for (let actv of activos){
         if(id == actv.getAttribute("data-id")){
-            actv.setAttribute("data-enviado", data.enviado)
+            actv.setAttribute("data-enviado", data.enviado);
+            actv.setAttribute("data-deletable", data.deletable);
         }
 
         let revisar = actv.getAttribute("data-enviado");
@@ -421,13 +424,26 @@ function activarBotonesDeGuias(id, data, activate_once){
       }
 
       if(activate_once) {
-        $("#eliminar_guia"+id).on("click", function(e) {
-            let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
-            if(confirmacion && this.getAttribute("data-enviado") != "true"){
-                $("#enviar-documentos").prop("disabled", true)
+        $("#eliminar_guia"+id).on("click", async function(e) {
+            // let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
+            const resp = await Swal.fire({
+                title: '¡AENCIÓN',
+                text: "Estás a punto de eliminar la guía Nro. " + id + ", Si la elimina, no lo va a poder recuperar, ¿Desea continuar?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: '¡Si! continuar 👍',
+                cancelButtonText: "¡No, me equivoqué!"
+            });
+
+            const confirmacion = resp.isConfirmed;
+
+            if(confirmacion && 
+                (this.getAttribute("data-enviado") != "true" || this.getAttribute("data-deletable") != "false")
+            ){
+                $("#enviar-documentos").prop("disabled", true);
                 this.disabled = true;
                 this.display = "none";
-                firebase.firestore().collection("usuarios").doc(localStorage.user_id).collection("guias")
+                usuarioAltDoc(data.id_user).collection("guias")
                 .doc(id).update({deleted: true, fecha_eliminada: new Date()}).then((res) => {
                     console.log(res);
                     console.log("Document successfully deleted!");
@@ -449,7 +465,7 @@ function activarBotonesDeGuias(id, data, activate_once){
         document.getElementById("contenedor-gestionarNovedad").innerHTML = `
             <div class="d-flex justify-content-center align-items-center"><h1 class="text-primary">Cargando   </h1><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>
         `;
-        usuarioDoc.collection("estadoGuias").doc(id)
+        usuarioAltDoc(data.id_user).collection("estadoGuias").doc(id)
         .get().then(doc => {
             console.log(doc.data());
             if(doc.exists) {
@@ -472,7 +488,7 @@ function activarBotonesDeGuias(id, data, activate_once){
             showConfirmButton: false,
             allowEscapeKey: true
         })
-        usuarioDoc.collection("guias").doc(id)
+        usuarioAltDoc(data.id_user).collection("guias").doc(id)
         .get().then(doc => {
             enviar_firestore(doc.data()).then(res => {
                 if(res.icon === "success") {
@@ -526,12 +542,17 @@ function activarBotonesDeGuias(id, data, activate_once){
 
         $("#generar_rotulo" + id).click(function() {
             let id = this.getAttribute("data-id");
-            firebase.firestore().collection("documentos").where("guias", "array-contains", id)
-            .get().then(querySnapshot => {
-                querySnapshot.forEach(doc => {
-                    generarRotulo(doc.data().guias);
+            const guiaPunto = this.getAttribute("data-punto");
+            if(guiaPunto) {
+                imprimirRotuloPunto(id);
+            } else {
+                firebase.firestore().collection("documentos").where("guias", "array-contains", id)
+                .get().then(querySnapshot => {
+                    querySnapshot.forEach(doc => {
+                        generarRotulo(doc.data().guias);
+                    })
                 })
-            })
+            }
         })
 
         $("#crear_sticker" + id).click(crearStickerParticular);
@@ -557,8 +578,9 @@ function crearStickerParticular() {
         allowEscapeKey: true
     });
     const id_heka = this.getAttribute("data-id");
+    const id_user = this.getAttribute("data-id_user");
     console.log(id_heka)
-    usuarioDoc.collection("guias").doc(id_heka).get()
+    usuarioAltDoc(id_user).collection("guias").doc(id_heka).get()
     .then(async doc => {
         if(doc.exists) {
             const data = doc.data();
@@ -776,10 +798,11 @@ function tablaPagos(arrData, id) {
         <th>Recaudo</th>
         <th>Envío Total</th>
         <th>Total a Pagar</th>
+        <th>Comisión heka</th>
         <th data-id="${arrData[0].REMITENTE.replace(" ", "")}">Fecha</th>
         <th>Estado</th>
         <th>Cuenta responsable</th>
-
+        <th>Acciones</th>
     </tr>`
     
     encabezado.setAttribute("href", "#" + arrData[0].REMITENTE.replace(" ", ""));  
@@ -788,6 +811,14 @@ function tablaPagos(arrData, id) {
     cuerpo.setAttribute("data-usuario", arrData[0].REMITENTE)
         
     for(let data of arrData){
+        const buttonVerComp = administracion && data.comprobante_bancario && data.comprobante_bancario.includes("http") ? `
+            <a class="btn btn-primary btn-sm m-1" href="${data.comprobante_bancario}" target="_blank">Comprobante</a>
+        ` : "";
+
+        const buttonVerFac = administracion ? `
+            <button data-action="ver-factura" data-guia="${data.GUIA}" class="btn btn-primary btn-sm m-1">Factura</button>
+        ` : "";
+
         let tr = document.createElement("tr");
         tr.setAttribute("id", data.GUIA);
         tr.setAttribute("data-remitente", data.REMITENTE);
@@ -798,9 +829,16 @@ function tablaPagos(arrData, id) {
             <td>${data.RECAUDO}</td>
             <td>${data["ENVÍO TOTAL"]}</td>
             <td>${data["TOTAL A PAGAR"]}</td>
+            <td>${data["COMISION HEKA"] || ""}</td>
             <td data-id="${data.REMITENTE}" data-fecha="${data.FECHA}" data-funcion="cambiar_fecha">${data.FECHA}</td>
             <td>${data.estado}</td>
             <td>${data.cuenta_responsable || "No registró"}</td>
+            <td>
+                <div class="d-flex flex-wrap">
+                    ${buttonVerFac}
+                    ${buttonVerComp}
+                </div>
+            </td>
         `;
         if(!data.FECHA){
             btn_pagar.setAttribute("disabled", "");
@@ -1001,6 +1039,7 @@ function userClickNotification(data) {
 
 //Muestra los igresos y egresos de los usuarios a medida que van generando guías
 function tablaMovimientos(arrData){
+    
     let tabla = document.createElement("table"),
         t_head = document.createElement("tr"),
         detalles = document.createElement("h3");
@@ -1009,25 +1048,33 @@ function tablaMovimientos(arrData){
     detalles.setAttribute("class", "text-center mt-3")
 
     t_head.innerHTML = `
+        <th># Guía</th>
+        <th>Transportadora</th>
         <th>Fecha</th>
         <th>Saldo Previo</th>
         <th>Movimiento</th>
         <th>Saldo Cuenta</th>
         <th>Mensaje</th>
+        <th>Acciones</th>
     `
     tabla.setAttribute("class", "table text-center");
     tabla.appendChild(t_head);
 
     let gastos_usuario = 0
+    let i = 0;
     for(let data of arrData){
         let row = document.createElement("tr");
+        const buttonRest = data.type === "DESCONTADO" || true ? `<button class="btn btn-primary" data-action="restaurar" data-index="${i}">Restaurar</button>`: "";
 
         row.innerHTML = `
+            <td>${data.numeroGuia || "No aplica"}</td>
+            <td>${data.transportadora || "No aplica"}</td>
             <td>${data.fecha}</td>
             <td class="text-right">$${convertirMiles(data.saldo_anterior)}</td>
             <td class="text-right">$${convertirMiles(data.diferencia)}</td>
             <td class="text-right">$${convertirMiles(data.saldo)}</td>
             <td>${data.mensaje}</td>
+            <td>${buttonRest}</td>
         `
 
         if(parseInt(data.diferencia) < 0){
@@ -1037,6 +1084,7 @@ function tablaMovimientos(arrData){
             gastos_usuario -= parseInt(data.diferencia);
         }
         tabla.appendChild(row);
+        i++;
     }
 
     tabla.innerHTML += `<tr>
@@ -1045,6 +1093,100 @@ function tablaMovimientos(arrData){
     </tr>`
 
     document.getElementById("card-movimientos").append(tabla, detalles);
+    $("[data-action='restaurar']", document.getElementById("card-movimientos"))
+    .click((e) => restaurarSaldoGuia(e.target, arrData))
+
+}
+
+async function restaurarSaldoGuia(trg, data) {
+    const index = trg.getAttribute("data-index");
+    const movimiento = data[index];
+    const id_heka = movimiento.guia;
+    const diferencia = -movimiento.diferencia;
+    const loader = new ChangeElementContenWhileLoading(trg);
+
+    if(!movimiento) return;
+
+    const procesoFinalizado = (bool) => {
+        loader.end();
+
+        if(bool) {
+            $("#filtrador-movimientos").click();
+            Toast.fire("Movimiento restaurado con éxito", "", "success");
+        }
+    }
+
+    const efectuarRestauracion = await Swal.fire({
+        icon: "warning",
+        title: "¡Atención!",
+        text: "Al restaurar va a revertir el movimiento ocasionado, si el movimiento involucra una guía, dicha guía será eliminada del usuario, ¿deseas continuar?",
+        showConfirmButton: true,
+        showCancelButton: true
+    });
+
+    if(!efectuarRestauracion.isConfirmed) return;
+
+    loader.init();
+
+    if(isNaN(diferencia)) {
+        Toast.fire("No hay saldo que retornar.", "", "error");
+        procesoFinalizado();
+        return;
+    }
+
+    const userRef = firebase.firestore().collection("usuarios").doc(movimiento.user_id)
+
+    const datos_saldo_usuario = await userRef
+    .get().then(doc => doc.data().datos_personalizados);
+
+    if(!datos_saldo_usuario) {
+        Toast.fire("No se pudo consultar la información del usuario.", "", "error");
+        procesoFinalizado();
+        return;
+    }
+
+    if(datos_saldo_usuario.saldo < 0) {
+        avisar("No permitido", "Se detecta un saldo negativo, por favor justifica el saldo canjeado en deudas, o contace al desarrollador para agregar una excepción.", "advertencia")
+        procesoFinalizado();
+        return;
+    };
+
+    const detalles_saldo = {
+        saldo: parseInt(datos_saldo_usuario.saldo) + diferencia,
+        saldo_anterior: parseInt(datos_saldo_usuario.saldo),
+        actv_credit: datos_saldo_usuario.actv_credit || false,
+        fecha: genFecha(),
+        diferencia: diferencia,
+        mensaje: "Se ha restaurado un movimiento anterior.",
+        
+        momento: new Date().getTime(),
+        user_id: movimiento.user_id,
+        guia: movimiento.guia || "",
+        medio: "Administración",
+        numeroGuia: movimiento.numeroGuia || "",
+        
+        type: "RESTAURADO"
+    }
+
+    console.log(detalles_saldo);
+    try {
+        await actualizarSaldo(detalles_saldo);
+    
+        if(id_heka) {
+            await firebase.firestore().collectionGroup("guias").where("id_heka", "==", id_heka)
+            .get().then(q => {
+                q.forEach(d => d.ref.update({deleted: true}))
+            })
+        }
+
+        procesoFinalizado(true);
+
+    } catch (e) {
+        procesoFinalizado();
+        Toast.fire(e.message, "", "error");
+    }
+    
+
 }
 
 //Mustra los movimientos de las guías
@@ -1130,7 +1272,12 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         || extraData.transportadora === "INTERRAPIDISIMO" ? "Revisar" : "Gestionar";
     }
     tr.innerHTML = `
-        <td>${data.numeroGuia}</td>
+        <td>
+            <div class="d-flex align-items-center">
+                ${data.numeroGuia}
+                <i id="actualizar-guia-${data.numeroGuia}" class="fa fa-sync ml-1 text-primary" title="Actualizar guía ${data.numeroGuia}" style="cursor: pointer"></i>
+            </div>
+        </td>
 
         <td class="row justify-content-center">
             <button class="btn btn-${extraData.novedad_solucionada ? "secondary" : "primary"} m-2 " 
@@ -1209,7 +1356,9 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         gestionarNovedadModal(data, extraData);
     })
     
-    const boton_solucion = $("#solucionar-guia-"+data.numeroGuia)
+    const boton_solucion = $("#solucionar-guia-"+data.numeroGuia);
+
+    const boton_actualizar = $("#actualizar-guia-"+data.numeroGuia);
     boton_solucion.click(async () => {
         const html_btn = boton_solucion.html();
         boton_solucion.html(`
@@ -1297,8 +1446,17 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         }
 
 
-    })
+    });
+
+    boton_actualizar.click(async (e) => {
+        e.target.remove();
+        const resp = await actualizarEstadoGuia(data.numeroGuia, id_user, true);
+
+        revisarMovimientosGuias(true, null, null, data.numeroGuia);
+    });
 }
+
+
 
 function respondiendoNovedad(swalDom) {
     console.log(swalDom);
@@ -1836,7 +1994,15 @@ async function actualizarSaldo(data) {
         momento: "timeline in semiseconds",
         user_id: "user_id",
         guia: "id guia",
-        medio: "Usuario ó admin realizó X cambio"
+        medio: "Usuario ó admin realizó X cambio",
+        numeroGuia: "numeroGuia transportadora",
+        // Tipo de actualización
+        type: {
+            GENERAL: "Cuando admin configura el saldo del usuario de forma genérica",
+            DESCONTADO: "Cuando se descuenta al usuario (al crear la guía)",
+            RESTAURADO: "Cuando se retorna un saldo descontado de una guía en concreto",
+            CANJEADO: "Cuando admin retorna un saldo deudor"
+        }
     }
 
     return await firebase.firestore().collection("usuarios").doc(data.user_id)
@@ -1867,7 +2033,8 @@ async function actualizarSaldo(data) {
 
 function verDetallesGuia() {
     let id = this.getAttribute("data-id");
-    usuarioDoc.collection("guias").doc(id)
+    const id_user = this.getAttribute("data-id_user");
+    usuarioAltDoc(id_user).collection("guias").doc(id)
     .get().then(doc => {
         let data = doc.data();
         const oficina = data.datos_oficina;
@@ -2136,9 +2303,12 @@ class DetectorErroresInput {
                     const forbid = boolTaken.forbid;
                     const type = typeof forbid;
                     message = boolTaken.message;
+
                     const character = type === "string" ? forbid : this.value.match(forbid)[0]
-    
-                    if(sustitute || sustitute === "") e.target.value = e.target.value.replace(forbid, sustitute);
+                    
+                    if(boolTaken.removeAccents) this.value = this.removeAccents(this.value);
+
+                    if(sustitute || sustitute === "") e.target.value = this.value.replace(forbid, sustitute);
 
                     if(message) {
                         message = message
@@ -2155,16 +2325,20 @@ class DetectorErroresInput {
         return this;
     }
 
-    comprobateBoolean(selector, boolConfig) {
+    removeAccents(str) {
+        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
+    
+    comprobateBoolean(selector, boolConfig) {        
         const caso = this.viewCase(boolConfig.case);
         const operator = boolConfig.operator;
         const valor = boolConfig.forbid;
         if((boolConfig.selector && selector !== boolConfig.selector ) 
         || (boolConfig.selectors && !boolConfig.selectors.contains(selector))) return false;
         let bool = false;
-
+        
         if(!this.value) return false;
-
+        
         switch (operator) {
             case ">":
                 bool = caso > valor
@@ -2260,6 +2434,40 @@ class ChangeElementContenWhileLoading {
         this.el.html(this.initVal);
     }
 }
+
+//guardará un arreglo y funcionará cun un listener
+class Watcher {
+    constructor(val) {
+        this.value = val || new Array();
+        this.watchers = new Array();
+    }
+
+    set push(val) {
+        if(!this.value.includes(val)) {
+            this.value.push(val);
+        }
+    }
+
+    set quit(val) {
+        const index = this.value.indexOf(val);
+        this.value.splice(index, 1);
+    }
+
+    change(newInfo) {
+        this.value = newInfo;
+
+        this.watchers.forEach(watch => watch(this.value));
+    }
+
+    watch(fn) {
+        this.watchers.push(fn);
+    }
+
+    init() {
+        console.log("se Inició la función con =>", this.value);
+    }
+}
+
 
 const medidasCtrl = new DetectorErroresInput(".only-integers").init("input");
 medidasCtrl.setBooleans = [

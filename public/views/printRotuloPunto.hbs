@@ -1,0 +1,85 @@
+{{#each guias}}
+<div class="cont p-3 page" style="page-break-after: always;">
+    <div id="visor" style='margin: "10px"'>  
+
+        <table class="table table-bordered w-100">
+            <tbody>
+                <tr>
+                    <td class="text-center">
+                        <img src="\img\logo-flexi.png" alt="" width="40" height="40" />
+                    </td>
+                                    
+                    <td><small class="texto-small"><strong>RECIBE:</strong>  {{this.nombreR}} </small> </td>
+                
+                    <td><small class="texto-small"><strong>Fecha:</strong>  {{this.fecha}}</small> </td>
+                
+                    <td><small class="texto-small"> <strong>Guia: </strong>{{this.numeroGuia}}</small></td>
+                
+                    <td><small class="texto-small"><strong>Transportadora:</strong>   {{this.transportadora}} </small></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p>
+            <cite>
+                El usuario deja constancia expresa de que acepta y tiene conocimiento del contrato publicado en la pagina web Flexii, como remitente declara que este envío no contiene dinero en efectivo, joyas, objetos o fines prohibidos por la ley, y exime a Flexii y la transportadora asignada de toda responsabilidad. 
+            </cite>
+        </p>
+
+        <table class="table table-bordered w-100">
+            <tbody>
+                <tr>
+                    <td>
+                        <small class="texto-small"><strong>DATOS REMITENTE </strong></small> <br />
+                        <small class="texto-small"><strong>Remitente: </strong>{{this.info_user.nombre_completo}}</small> <br />
+                        
+                        <small class="texto-small"><strong>Origen: </strong>{{this.ciudadR}}</small><br />
+                        <small class="texto-small"><strong>Cel/Tel: </strong>{{this.info_user.celular}}</small><br />
+                    </td>
+                    <td >
+                        <small class="texto-small"><strong>DATOS DESTINO </strong></small> <br />
+                        <small class="texto-small"><strong>Destinatario: </strong>{{this.nombreD}}</small> <br />
+                    
+                        <small class="texto-small"><strong>Destino: </strong>{{this.ciudadD}}</small><br />
+                        <small class="texto-small"><strong>Dirección: </strong>{{this.direccionD}}</small> <br />
+                        <small class="texto-small"><strong>Cel/Tel: </strong>{{this.telefonoD}}</small>
+                    </td>
+                    <td>
+                        <h6>Firma quien recibe:</h6>
+                        <div style='borderTop: ".5px solid black", marginTop: "4em"' class="w-75 mx-auto">
+                            <p>CC/NIT:</p>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    
+                    <td>
+                        <small class="texto-small"><strong>Escanear código Whatsapp </strong></small> <br />
+                        <img src="\img\codigo qr wap.PNG" width="160" height="160" class="m-1" alt="" />
+                    </td>
+
+                    <td>
+                        <small class="texto-small"><strong>Peso real:  </strong> {{this.peso}} kg</small> <br />
+                        
+                        <small class="texto-small"><strong>Contenido:  </strong>{{this.dice_contener}}</small> <br />
+                        <small class="texto-small"><strong>Costo envío:  </strong>{{getCurrency this.costo_envio}}</small> <br />
+                    </td>
+                    <td>
+                        <h3 class="text-center"><strong>Valor cobro a destino:</strong> </h3>
+                        
+                        <h5 class="text-center">
+                            
+                            <strong>{{getCurrency this.valor}}
+                            </strong>
+                        </h5>
+                        
+                    
+                    </td>
+                    
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{{/each}}

@@ -111,4 +111,23 @@ function reiniciarSeguimientoGuia() {
 }
 //#endregion fi 
 
+// acomodarPagos();
+function acomodarPagos() {
+    db.collection("pagos").doc("tcc")
+    .collection("pagos").where("comprobante_bacario", "!=", "c")
+    // .limit(1)
+    .get().then(q => {
+        let size = q.size;
+        console.log(q.size);
+        q.forEach(d => {
+            console.log(d.data());
 
+            return;
+            d.ref.update({comprobante_bancario: d.data().comprobante_bacario})
+            .then(() => {
+                size--;
+                console.log("Faltan: ", size);
+            })
+        })
+    });
+}

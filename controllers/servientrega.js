@@ -398,7 +398,7 @@ async function actualizarMovimientos(doc) {
           console.log("Timeline => ", guia.timeline);
           const ultimaNovedadRegistrada = guia.ultima_novedad;
           
-          let entrega_oficina_notificada = guia.entrega_oficina_notificada;
+          let entrega_oficina_notificada = guia.entrega_oficina_notificada || false;
           let upte_movs, ultima_novedad, fecha_ult_novedad;
           //Confirmo si hay movimientos para actualizarlos
           if (movimientos) {
@@ -464,7 +464,7 @@ async function actualizarMovimientos(doc) {
             estado: data.EstAct[0],
             ultima_actualizacion: new Date(),
             seguimiento_finalizado: movimiento_culminado.some(v => v === data.EstAct[0])
-            || finalizar_seguimiento
+            || finalizar_seguimiento,
           }
 
           if (upte_movs.estado === "Mov.A" && upte_movs.guardado) {
@@ -559,7 +559,7 @@ function generarGuia(datos) {
                 <idePaisOrigen>1</idePaisOrigen>
                 <idePaisDestino>1</idePaisDestino>
                 <Des_IdArchivoOrigen></Des_IdArchivoOrigen>
-                <Des_DireccionRemitente>${datos.direccionR}</Des_DireccionRemitente><!--Opcional-->
+                <Des_DireccionRemitente>${datos.direccionR} --- Rte: ${datos.nombreR}</Des_DireccionRemitente><!--Opcional-->
                 <Num_PesoFacturado>0</Num_PesoFacturado>
                 <Est_CanalMayorista>false</Est_CanalMayorista>
                 <Num_IdentiRemitente />

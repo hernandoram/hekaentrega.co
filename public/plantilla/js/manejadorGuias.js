@@ -89,45 +89,48 @@ async function historialGuiasAntiguo(){
             {data: null, title: "Acciones", render: (datos,type,row) => {
                 if(type === "display" || type === "filter") {
                     const id = datos.id_heka;
+                    const id_user = datos.id_user;
+                    const dataIdUser = id_user ? `data-id_user="${id_user}"` : "";
                     const generacion_automatizada = ["automatico", "automaticoEmp"].includes(transportadoras[datos.transportadora || "SERVIENTREGA"].sistema());
                     const showCloneAndDelete = datos.enviado ? "d-none" : "";
                     const showDownloadAndRotulo = !datos.enviado ? "d-none" : "";
                     const showMovements = datos.numeroGuia && datos.estado ? "" : "d-none";
+                    const guiaPunto = !!datos.id_punto ? "data-punto='true'" : ""
                     let buttons = `
                     <div data-search="${datos.filter}"
                     class="d-flex justify-content-around flex-wrap">
                     `;
 
-                    const btnCrearSticker = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
-                    data-funcion="activar-desactivar"
+                    const btnCrearSticker = `<button class="btn btn-primary btn-circle btn-sm action mt-1" data-id="${id}"
+                    data-funcion="activar-desactivar" ${dataIdUser}
                     id="crear_sticker${id}" title="Crear Sticker de la guía">
                         <i class="fas fa-stamp"></i>
                     </button>`
 
-                    const btnMovimientos = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
-                    id="ver_movimientos${id}" data-toggle="modal" data-target="#modal-gestionarNovedad"
+                    const btnMovimientos = `<button class="btn btn-primary btn-circle btn-sm action mt-1" data-id="${id}"
+                    id="ver_movimientos${id}" data-toggle="modal" data-target="#modal-gestionarNovedad" ${dataIdUser}
                     title="Revisar movimientos">
                         <i class="fas fa-truck"></i>
                     </button>`
 
-                    const btnDownloadDocs =  `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+                    const btnDownloadDocs =  `<button class="btn btn-primary btn-circle btn-sm action mt-1" data-id="${id}"
                     id="descargar_documento${id}" title="Descargar Documentos">
                         <i class="fas fa-file-download"></i>
                     </button>`;
 
-                    const btnRotulo = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
-                    data-funcion="activar-desactivar" data-activate="after"
+                    const btnRotulo = `<button class="btn btn-primary btn-circle btn-sm action mt-1" data-id="${id}"
+                    data-funcion="activar-desactivar" data-activate="after" ${guiaPunto}
                     id="generar_rotulo${id}" title="Generar Rótulo">
                         <i class="fas fa-ticket-alt"></i>
                     </button>`
 
-                    const btnClone = `<button class="btn btn-success btn-circle btn-sm mt-2 action ${showCloneAndDelete}" data-id="${id}" 
+                    const btnClone = `<button class="btn btn-success btn-circle btn-sm action mt-1 ${showCloneAndDelete}" data-id="${id}" 
                     id="clonar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
                     title="Clonar Guía">
                         <i class="fas fa-clone"></i>
                     </button>`;
 
-                    const btnDelete = `<button class="btn btn-danger btn-circle btn-sm mt-2 action ${showCloneAndDelete}" data-id="${id}" 
+                    const btnDelete = `<button class="btn btn-danger btn-circle btn-sm action mt-1 ${showCloneAndDelete}" data-id="${id}" 
                     id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
                     title="Eliminar Guía">
                         <i class="fas fa-trash"></i>
@@ -139,8 +142,9 @@ async function historialGuiasAntiguo(){
                     }
 
                     buttons += `
-                        <button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+                        <button class="btn btn-primary btn-circle btn-sm action mt-1" data-id="${id}"
                         id="ver_detalles${id}" data-toggle="modal" data-target="#modal-detallesGuias"
+                        ${dataIdUser}s
                         title="Detalles">
                             <i class="fas fa-search-plus"></i>
                         </button>
@@ -158,9 +162,11 @@ async function historialGuiasAntiguo(){
                     }
 
                     if(!datos.estado)
-                    buttons += btnClone + btnDelete;
-                    
+                    buttons += btnClone;
 
+                    if(!datos.estado && datos.deletable !== false)
+                    buttons += btnDelete
+                    
                     buttons += "<a href='javascript:void(0)' class='action text-trucate'>Ver más</a>"
 
                     buttons += "</div>";
@@ -209,6 +215,10 @@ async function historialGuiasAntiguo(){
                 data: "costo_envio", title: "Costo de envío", 
                 defaultContent: "",
             },
+            {
+                data: "detalles.comision_punto", title: "Ganancia", 
+                defaultContent: "No aplica", visible: ControlUsuario.esPuntoEnvio
+            },
         ],
         language: {
           url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
@@ -244,8 +254,13 @@ async function historialGuiasAntiguo(){
 
     var fecha_inicio = Date.parse($("#fecha_inicio").val().replace(/\-/g, "/"));
     fecha_final = Date.parse($("#fecha_final").val().replace(/\-/g, "/")) + 8.64e7;
-    var reference = firebase.firestore().collection("usuarios")
+    
+    var reference = ControlUsuario.esPuntoEnvio
+    ? firebase.firestore().collectionGroup("guias")
+    .where("id_punto", "==", user_id) 
+    : firebase.firestore().collection("usuarios")
     .doc(user_id).collection("guias");
+    
     let referencefilter = reference.orderBy("timeline", "desc")
     .startAt(fecha_final).endAt(fecha_inicio);
 
@@ -490,20 +505,33 @@ function filtradorEspecialHistorialGuias() {
 }
 
 function descargarGuiasParticulares(e, dt, node, config) {
-    const charger = new ChangeElementContenWhileLoading(node)
-    charger.init();
+    Swal.fire({
+        title: '¡Atención!',
+        text: "Recuerda que al descargar los documentos, ya no podrás eliminar las guías seleccionadas, ¿Deseas continuar?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '¡Si! continuar 👍',
+        cancelButtonText: "¡No, déjame pensarlo!"
+    }).then((resp) => {
+        if(!resp.isConfirmed) return;
+    
+        const charger = new ChangeElementContenWhileLoading(node)
+        charger.init();
+    
+        const api = dt;
+        const selectedRows = api.rows(".selected");
+        const datas = selectedRows.data();
+    
+        const ids = new Array();
+        datas.each(r => ids.push(r.id_heka));
+        console.log(ids);
+    
+        buscarGuiasParaDescargarStickers(ids).then(() => {
+            charger.end();
+        });
 
-    const api = dt;
-    const selectedRows = api.rows(".selected");
-    const datas = selectedRows.data();
-
-    const ids = new Array();
-    datas.each(r => ids.push(r.id_heka));
-    console.log(ids);
-
-    buscarGuiasParaDescargarStickers(ids).then(() => {
-        charger.end();
     })
+
 }
 
 //función utilizada por el usuario para crear lo documentos
@@ -521,7 +549,7 @@ function crearDocumentos(e, dt, node, config) {
     const nodos = selectedRows.nodes();
     node.prop("disabled", true);
     
-    let id_user = localStorage.user_id, arrGuias = new Array();
+    let id_user = ControlUsuario.esPuntoEnvio ? datas[0].id_user : localStorage.user_id, arrGuias = new Array();
     
     if(!nodos.length) {
         node.prop("disabled", false);
@@ -537,12 +565,12 @@ function crearDocumentos(e, dt, node, config) {
 
         const {
             numeroGuia, id_heka, id_archivoCargar, prueba,
-            type, transportadora, has_sticker, telefonoD, id_oficina
+            type, transportadora, has_sticker, telefonoD, id_oficina, id_punto, id_user
         } = data;
 
         arrGuias.push({
             numeroGuia, id_heka, id_archivoCargar, prueba,
-            type, transportadora, has_sticker, telefonoD, id_oficina
+            type, transportadora, has_sticker, telefonoD, id_oficina, id_punto, id_user
         });
 
         // $(nodo).removeClass("selected bg-gray-300");
@@ -581,6 +609,7 @@ function crearDocumentos(e, dt, node, config) {
     //corresponde al nuevo documento creado
     documentReference.add({
         id_user: id_user,
+        id_punto: arrGuias[0].id_punto || "",
         nombre_usuario: datos_usuario.nombre_completo,
         centro_de_costo: datos_usuario.centro_de_costo || "SCC",
         fecha: genFecha(),
@@ -602,14 +631,14 @@ function crearDocumentos(e, dt, node, config) {
         /* Si tiene inhabilitado la creción de guías automáticas 
         solo actualizará las guías que pasaron el filtro anterior y enviará una 
         notificación a administración, es caso contrario utilizará el web service */
-        if (["ENVIA", "TCC"].includes(transportadora)) {
+        if (["TCC"].includes(transportadora)) {
             await crearManifiestoAveonline(arrGuias, {
                 id_user, 
                 prueba: estado_prueba,
                 id_doc: docRef.id
             })
         }else if(generacion_automatizada) {
-            if(transportadora === "INTERRAPIDISIMO") {
+            if(transportadora === "INTERRAPIDISIMO" || transportadora === "ENVIA") {
               // Con esta transportadora no creamos manifiestos de esta forma,
               //ya que el usuario los crea por su cuenta  
                 await actualizarEstadoGuiasDocCreado(arrGuias);
@@ -694,6 +723,9 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
             let match = cantidad > 1 ? /\(|\)/g : /\(\w+\)/g;
             mensaje = mensaje.replace(match, "");
             return true;
+        } else if (ControlUsuario.esPuntoEnvio && (v.id_user != arr[i? i - 1 :i].id_user)) {
+            mensaje = "Los usuarios seleccionadas no coinciden."
+            return true
         }
 
         return false;
@@ -704,14 +736,15 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
 
 async function actualizarEstadoGuiasDocCreado(arrGuias) {
     for await (let guia of arrGuias) {
-        usuarioDoc
+        usuarioAltDoc(guia.id_user)
         .collection("guias").doc(guia.id_heka)
         .update({
             enviado: true,
             estado: "Enviado"
         })
         .then(() => {
-            const link = "https://www.interrapidisimo.com/sigue-tu-envio/";
+            const link = guia.transportadora === "ENVIA" ? "https://envia.co/" : "https://www.interrapidisimo.com/sigue-tu-envio/"
+
             const mensaje = "Se ha generado un envío con "+guia.transportadora+" con la guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link
             if(guia.numeroGuia) {
                 fetch("/mensajeria/sendMessage?number=57"+guia.telefonoD+"&message="+mensaje);  
@@ -1541,7 +1574,7 @@ function actualizarHistorialDeDocumentos(timeline){
         let fecha_inicio = timeline || Date.parse($("#docs-fecha-inicio").val().replace(/\-/g, "/")),
         fecha_final = timeline || Date.parse($("#docs-fecha-final").val().replace(/\-/g, "/"));
       var reference = firebase.firestore().collection("documentos")
-      .where("id_user", "==", localStorage.user_id)
+      .where(ControlUsuario.esPuntoEnvio ? "id_punto" :"id_user", "==", localStorage.user_id)
       .orderBy("timeline", "desc").startAt(fecha_final + 8.64e7).endAt(fecha_inicio)
       
       reference.get().then((querySnapshot) => {
@@ -1727,6 +1760,7 @@ async function buscarGuiasParaDescargarStickers(guias) {
     const pdfDoc = await PDFLib.PDFDocument.create();
 
     for await (let guia of guias) {
+        let deletable = true;
         await firebase.firestore().collection("base64StickerGuias").doc(guia)
         .collection("guiaSegmentada").orderBy("index").get().then(async querySnapshot => {
             let base64 = "";
@@ -1734,14 +1768,22 @@ async function buscarGuiasParaDescargarStickers(guias) {
             querySnapshot.forEach(doc => {
                 base64 += doc.data().segmento;
             });
+
             const page = await PDFLib.PDFDocument.load(base64);
             const cantPages = page.getPages().length;
 
             const [existingPage] = await pdfDoc.copyPages(page, [0])
             await pdfDoc.addPage(existingPage);
+
+            deletable = false;
         }).catch(() => {
             console.log("la guías numero " + guia + " no fue encontrada");
         });
+
+        console.log(deletable);
+        if(deletable === false) {
+            usuarioDoc.collection("guias").doc(guia).update({deletable});
+        }
     };
 
     const pdfBase64 = await pdfDoc.saveAsBase64();
@@ -1772,8 +1814,8 @@ function actualizarEstado(){
             let total_datos = datos.length;
             let actualizadas = new Array();
             let regresiveCounter = datos.length
-            console.log($("#cargador-actualizador").find("span"))
-            $("#cargador-actualizador").find("span").text(regresiveCounter)
+            $("#cargador-actualizador").find("span").text(regresiveCounter);
+
             for await(let dato of datos){
                 let x = {
                     numero_guia_servientrega: dato["Número de Guia"],
@@ -1785,13 +1827,12 @@ function actualizarEstado(){
                     valor_flete: dato["Valor Flete"],
                     valor_sobreflete: dato["Valor SobreFlete"],
                     valor_liquidado: dato["Valor Liquidado"],
-                    id_guia: dato["IdCliente"],
+                    id_guia: dato["Campo Personalizado1"] || dato["IdCliente"],
                     estado_envio: dato["Estado Envío"],
                     mensaje_mov: dato["Mensaje Mov"],
                     fecha_ult_mov: dato["Fecha Ult Mov"],
                     nombre_centro_costo: dato["Nombre Centro Costo"]
                 };
-                // console.log(x);
                 if(x.id_guia && x.numero_guia_servientrega){
                     const id = x.id_guia.toString();
                     const numeroGuia = x.numero_guia_servientrega.toString();
@@ -1825,11 +1866,11 @@ function actualizarEstado(){
                     });
                     // console.log(x.id_guia, new Date().getTime())
                 } else {
-                    document.querySelector("#resultado-actualizador").innerHTML += `
+                    $("#resultado-actualizador").append(`
                         <li>
                             No sé a que guía actualizar o no hay un número de guía en la fila ${total_datos - regresiveCounter + 2}
                         </li>
-                    `
+                    `);
                 }
                 regresiveCounter --
                 $("#cargador-actualizador").find("span").text(regresiveCounter);
@@ -1837,6 +1878,7 @@ function actualizarEstado(){
 
             actualizadas = await Promise.all(actualizadas);
             return {total_datos, actualizadas};
+
         }).then((r) => {
             console.log(r)
             if(r == "vacio"){
@@ -1945,9 +1987,9 @@ function revisarNotificaciones(){
     let guiasNovedad;
 
     if(administracion) {
-        busqueda = 0;
-        operador = ">=";
-        buscador = "timeline"
+        busqueda = true;
+        operador = "==";
+        buscador = "visible_admin"
         novedades = document.getElementById("notificaciones-novedades");
         novedades.addEventListener("click", e => {
             let badge = novedades.querySelector("span");
@@ -1978,7 +2020,7 @@ function revisarNotificaciones(){
             if((!administracion && notification.visible_user && notification.user_id == busqueda) || 
             administracion && notification.visible_admin) {
                 if(change.type == "added" || change.type == "modified") {
-                    audio.play();
+                    audio.play().catch(() => {});
                     let notificacionNormal = false;
                     if(notification.type == "novedad") {
                         contador = novedades.querySelector("span");
@@ -2021,6 +2063,7 @@ function revisarNotificaciones(){
                 $(".notificacion-"+identificador).remove();
             }
         });
+
     });
 
     if(!administracion) {
@@ -2143,8 +2186,7 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
     let filtro = true, toggle = "==", buscador = "enNovedad"
     const cargadorClass = document.getElementById("cargador-novedades").classList
     cargadorClass.remove("d-none");
-    
-    
+  
     if(($("#filtrado-novedades-guias").val() || guia) && admin){
         let filtrado = guia || $("#filtrado-novedades-guias").val().split(",");
         if(typeof filtrado == "object") {
@@ -2181,7 +2223,6 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
         .then(querySnapshot => {
             let contador = 0;
             let size = querySnapshot.size;
-            console.log(size)
             querySnapshot.forEach(doc => {
                 let path = doc.ref.path.split("/")
                 let dato = doc.data();
@@ -2223,12 +2264,49 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia){
     }
 }
 
-function actualizarEstadoGuia(numeroGuia) {
-    fetch("/procesos/actualizarEstados/numeroGuia", {
+function revisarNovedades(transportadora) {
+    const cargadorClass = document.getElementById("cargador-novedades").classList
+    cargadorClass.remove("d-none");
+
+    const usuarios = new Set();
+    firebase.firestore().collectionGroup("estadoGuias")
+    .where("enNovedad", "==", true)
+    .where("transportadora", "==", transportadora)
+    // .limit(10)
+    .get().then(q => {
+        let contador = 0;
+        let size = q.size;
+        console.log(size);
+
+        if(!size) cargadorClass.add("d-none");
+
+        q.forEach(d => {
+            let path = d.ref.path.split("/")
+            let dato = d.data();
+            contador++
+
+            usuarios.add(path[1]);
+
+            consultarGuiaFb(path[1], d.id, dato, dato.centro_de_costo, contador, size);
+        });
+
+        if(revisarTiempoGuiasActualizadas()) return;
+
+        usuarios.forEach(actualizarEstadosEnNovedadUsuario);
+        
+        localStorage.last_update_novedad = new Date();
+        
+    });
+
+}
+
+async function actualizarEstadoGuia(numeroGuia, id_user = user_id, wait) {
+    console.log(numeroGuia, id_user);
+    return await fetch("/procesos/actualizarEstados/numeroGuia", {
         method: "POST",
         headers: {"Content-Type": "Application/json"},
-        body: JSON.stringify({user_id, argumento: numeroGuia})
-    });
+        body: JSON.stringify({user_id: id_user, argumento: numeroGuia, wait})
+    }).then(d => d.json());
 }
 
 function revisarTiempoGuiasActualizadas() {
@@ -2245,13 +2323,17 @@ function actualizarEstadosEnNovedad() {
 
     console.log("Actualizando novedades");
 
+    actualizarEstadosEnNovedadUsuario(user_id);
+
+    localStorage.last_update_novedad = actual;
+}
+
+function actualizarEstadosEnNovedadUsuario(user_id) {
     fetch("/procesos/actualizarEstados/novedad", {
         method: "POST",
         headers: {"Content-Type": "Application/json"},
         body: JSON.stringify({user_id})
     });
-
-    localStorage.last_update_novedad = actual;
 }
 
 function revisarGuiaUser(id_heka) {
@@ -2272,7 +2354,19 @@ function revisarGuiaUser(id_heka) {
 
 document.getElementById("btn-revisar-novedades").addEventListener("click", (e) => {
     e.preventDefault();
-    revisarMovimientosGuias(administracion);
+    const novedades_transportadora = $("#activador_busq_novedades").val();
+    if(administracion && novedades_transportadora) {
+        console.log("Buscando novedades");
+        revisarNovedades(novedades_transportadora);
+    } else {
+        if(administracion && !$("#filtrado-novedades-guias").val() && !$("#filtrado-novedades-usuario").val()) {
+            swal.fire("No permitido", "Recuerda por favor filtrar por guía o por usuario para esta opción", "error");
+            return;
+        }
+        
+        console.log("Busqueda natural");
+        revisarMovimientosGuias(administracion);
+    }
 })
 
 $("#btn-vaciar-consulta").click(() => {
@@ -2485,7 +2579,8 @@ function consolidadorTotales(query, saldo) {
             momento: new Date().getTime(),
             user_id: query.replace("#deudas-", ""),
             guia: "",
-            medio: "Administración " + localStorage.user_id
+            medio: "Administración " + localStorage.user_id,
+            type: "CANJEADO"
         };
         
         let btn_saldar = `<button 
@@ -2652,13 +2747,29 @@ function revisarGuiasSaldas() {
     })
 }
 
+$("#guias_punto-hist_guias").on("change", (e) => {
+    if(e.target.checked) {
+        $("#filtro_pagos-hist_guias").parent().addClass("d-none");
+        $("#filtro_transp-hist_guias").parent().addClass("d-none");
+    } else {
+        $("#filtro_pagos-hist_guias").parent().removeClass("d-none");
+        $("#filtro_transp-hist_guias").parent().removeClass("d-none");
+
+    }
+})
+
 let filtroPagos;
 async function historialGuiasAdmin(e) {
-    let fechaI = document.querySelector("#fechaI-hist-guias").value;
-    let fechaF = document.querySelector("#fechaF-hist-guias").value;
-    const filtroCentroDeCosto = $("#filtro_pagos-hist-guias").val();
-    const descargaDirecta = e.id === "descargar-hist-guias";
+    const finalId = e.id.split("-")[1];
+    let fechaI = document.querySelector("#fechaI-"+finalId).value + "::";
+    let fechaF = document.querySelector("#fechaF-"+finalId).value + "::";
+    const numeroGuia = document.querySelector("#num_guia-"+finalId).value;
+    const filtroCentroDeCosto = $("#filtro_pagos-"+finalId).val();
+    const filtroTransp = $("#filtro_transp-"+finalId).val();
+    const descargaDirecta = e.id === "descargar-hist_guias";
     $("#historial_guias .cargador").removeClass("d-none");
+    const guiasPunto = $("#guias_punto-"+finalId).prop("checked");
+
     let filtroPagoSeleccionado;
 
     if(filtroCentroDeCosto) {
@@ -2680,16 +2791,27 @@ async function historialGuiasAdmin(e) {
             data.push(guia);
         });
     }
-    const reference = firebase.firestore().collectionGroup("guias").orderBy("timeline")
+
+    let reference = firebase.firestore().collectionGroup("guias")
+    
+    reference = reference
+    .orderBy("timeline")
     .startAt(new Date(fechaI).getTime()).endAt(new Date(fechaF).getTime() + 8.64e+7)
+    
+    if(guiasPunto) reference = reference.where("pertenece_punto", "==", true)
 
+    const referenceAlt = firebase.firestore().collectionGroup("guias")
 
-    if(filtroPagoSeleccionado) {
+    if(numeroGuia) {
+        await referenceAlt.where("numeroGuia", "==", numeroGuia.trim()).get().then(manejarInformacion);
+    } else if(filtroPagoSeleccionado) {
         const segementado = segmentarArreglo(filtroPagoSeleccionado, 10);
         for await (const paquete of segementado) {
             await reference.where("centro_de_costo", "in", paquete)
             .get().then(manejarInformacion);
         }
+    } else if(filtroTransp) {
+        await reference.where("transportadora", "==", filtroTransp).get().then(manejarInformacion);
     } else {
         await reference.get().then(manejarInformacion);
     }
@@ -2721,7 +2843,7 @@ async function historialGuiasAdmin(e) {
         { data: "detalles.total", title: "Total"},
         { data: "fecha", title: "Fecha"},
         { data: "debe", title: "deuda", defaultContent: "no aplica", render: function(content, display, data) {
-            if(data.debe 
+            if(data.debe
                 && data.seguimiento_finalizado
                 && data.type!=="CONVENCIONAL"
             ) return (-content) + '<span class="sr-only"> Por pagar</span>'
@@ -2731,13 +2853,31 @@ async function historialGuiasAdmin(e) {
         { data: "cuenta_responsable", title: "Cuenta responsable", defaultContent: "Personal"},
     ];
 
+    const idTabla = "#tabla-"+finalId
+    const idTablaPunto = idTabla + "-punto";
+
+    if(guiasPunto) {
+        columnas.push(...[
+            { data: "detalles.comision_punto", title: "Comisión Punto", defaultContent: "No aplica"},
+            { data: "centro_de_costo_punto", title: "Punto", defaultContent: "No aplica"},
+            { data: "info_user.celular", title: "Celular Usuario", defaultContent: "No aplica"},
+        ]);
+
+        $(idTabla).parent().addClass("d-none");
+        $(idTablaPunto).parent().removeClass("d-none");
+    } else {
+        $(idTablaPunto).parent().addClass("d-none");
+        $(idTabla).parent().removeClass("d-none");
+    }
+
     if(descargaDirecta) {
         $("#historial_guias .cargador").addClass("d-none");
 
         return descargarInformeGuiasAdmin(columnas, data, nombre)
     }
 
-    let tabla = $("#tabla-hist-guias").DataTable({
+
+    let tabla = $(guiasPunto ? idTablaPunto : idTabla).DataTable({
         data: data,
         destroy: true,
         language: {
@@ -2934,6 +3074,15 @@ async function generarRotulo(id_guias) {
     }, 500)
 };
 
+async function imprimirRotuloPunto(id_heka) {
+    fetch("procesos/rotuloPunto/"+id_heka)
+    .then(d => d.text())
+    .then(d => {
+        w = window.open();
+        w.document.write(d);
+    });
+}
+
 $("#buscar-manifiestos").click(buscarGuiasManifiesto);
 function buscarGuiasManifiesto() {
     $("#cargador-manifiestos").removeClass("d-none")
@@ -2942,7 +3091,11 @@ function buscarGuiasManifiesto() {
 
     const [fechaI, fechaF] = getDateRangeMs("fecha_inicio-manifiestos", "fecha_final-manifiestos");
 
-    const reference = usuarioDoc.collection("guias").orderBy("timeline", "desc").
+    const coll = ControlUsuario.esPuntoEnvio 
+    ? db.collectionGroup("guias").where("id_punto", "==", user_id)
+    : usuarioDoc.collection("guias");
+    
+    const reference = coll.orderBy("timeline", "desc").
     startAt(fechaF).endAt(fechaI)
     .where("transportadora", "==", transp)
     // .limit(10)

@@ -166,10 +166,10 @@ exports.actualizarMovimientos = async (doc) => {
 
         // let estadoActual = respuesta.estado ? respuesta.estado.replace(/(?:EN\s|DESDE)[\s\w]+/g, "") : "NO APLICA";
         let estadoActual = respuesta.estado ? respuesta.estado.split(" ").slice(0, -2).join(" ") : "NO APLICA";
-        if(movimientos) {
-            estadoActual = movimientos.some(m => m.estado == "Entregado") 
-                ? "Entregado" : estadoActual;
-        }
+        // if(movimientos) {
+        //     estadoActual = movimientos.some(m => m.estado == "Entregado") 
+        //         ? "Entregado" : estadoActual;
+        // }
     
         const estado = {
             numeroGuia: respuesta.guia, //guia devuelta por la transportadora
@@ -193,7 +193,7 @@ exports.actualizarMovimientos = async (doc) => {
         if(movimientos.length) {
             updte_movs = await actualizarMovimientos(doc, estado);
         }
-    
+
         let enNovedad = false;
         if (updte_movs.estado === "Mov.A" && updte_movs.guardado) {
             enNovedad = updte_movs.guardado.enNovedad || false;
@@ -312,6 +312,7 @@ function desglozarMovimientos(respuesta) {
     })
     .concat(novedades)
     .filter(t => t.estado && t.fechaMov.trim())
+    .filter(t => t.novedad)
     .sort((a,b) => {
         if(!a.fechaMov) return -1;
         const i = new Date(a.fechaMov).getTime()
@@ -320,6 +321,15 @@ function desglozarMovimientos(respuesta) {
         return f > i ? -1 : 1;
     });
 
-    // return movimientos;
-    return [];
+    if(!movimientos.length) {
+        movimientos.push({
+            estado: "SIN NOVEDAD",
+            fechaMov: estandarizarFecha(new Date(), "DD/MM/YYYY HH:mm"),
+            observacion: "",
+            novedad: ""
+        })
+    }
+
+    return movimientos;
+    // return [];
 }

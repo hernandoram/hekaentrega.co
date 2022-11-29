@@ -7,8 +7,9 @@ const ws = XLSX.readFile("../procesos/convertirGuiasEmpresa.xlsx");
 
 const guias =  XLSX.utils.sheet_to_json(ws.Sheets[ws.SheetNames[0]], {header: "A1"});
 console.log(guias);
-cambiarEmpresa();
+// cambiarEmpresa();
 async function cambiarEmpresa() {
+    guias.push(Object.keys(guias[0])[0])
     let cantidadGuias = guias.length
     const reporte = {
         total: guias.length,
@@ -18,7 +19,8 @@ async function cambiarEmpresa() {
     };
 
     for await (let g of guias) {
-        const numeroGuia = g["# Guía Servientrega"];
+        const numeroGuia = Object.values(g)[0];
+        console.log(numeroGuia);
     
         await db.collectionGroup("guias")
         .where("numeroGuia", "==", numeroGuia.toString().trim())
@@ -27,7 +29,8 @@ async function cambiarEmpresa() {
             const doc = q.docs[0];
             if(!doc) return;
     
-            console.log(doc.data());
+            console.log(doc.data().cuenta_responsable);
+            // console.log(doc.data());
             // return;
             await doc.ref.update({ cuenta_responsable: "EMPRESA" })
             .then(() => {

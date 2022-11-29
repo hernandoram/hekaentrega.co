@@ -1,4 +1,5 @@
 let user_id = localStorage.user_id, usuarioDoc;
+const usuarioAltDoc = id => firebase.firestore().collection("usuarios").doc(id || user_id);
 
 if(localStorage.getItem("acceso_admin")){
   window.onload = () => revisarNotificaciones();
@@ -43,8 +44,19 @@ datos_personalizados = {
   comision_heka: 1,
   constante_convencional: 800,
   constante_pagoContraentrega: 1500,
+  comision_punto: 10,
   saldo: 0
 };
+
+const bodegasWtch = new Watcher();
+
+
+class ControlUsuario {
+  static get esPuntoEnvio() {
+    return datos_usuario.type === "PUNTO";
+  }
+}
+const puntoEnvio = () => datos_usuario.type === "PUNTO";
 
 // ANTERIOR HASTA EL 6 de septiebre del 2022
 // datos_personalizados = {
@@ -109,7 +121,9 @@ async function cargarDatosUsuario(){
     pagosPendientesParaUsuario();
   }
 
- 
+  if(estado_prueba) {
+    datos_usuario.type = "PUNTO";
+  }
 
   contentCharger.hide();
   content.show("fast");  
@@ -157,8 +171,11 @@ async function consultarDatosDeUsuario() {
         objetos_envio: datos.objetos_envio,
         tipo_documento: datos.tipo_documento,
         bodegasCompletas: datos.bodegas || [],
+        type: datos.type || "NATURAL",
         bodegas
       }
+
+      bodegasWtch.change(bodegas);
 
       datos.nombre_completo = datos_usuario.nombre_completo;
       mostrarDatosUsuario(datos);
@@ -203,7 +220,7 @@ async function mostrarDatosPersonalizados(datos) {
   if(!datos) return;
   for(let precio in datos){
     const value = datos[precio];
-    if(value === "") continue;
+    if(value === "" || value === null) continue;
     if(!/[^\d+.]/.test(value.toString())) {
       datos_personalizados[precio] = parseFloat(value);
     } else {
@@ -980,6 +997,77 @@ function mostrarPagos(datos) {
   visor_pagos.querySelector("#descargar-pagos").addEventListener("click", () => {
     crearExcel(toDownload, "Historial de pagos")
   });
+
+  activarBotonesVisorPagos();
+}
+
+const paqueteGuiasPagadas = {
+  guias: new Map(),
+  facturas: new Map()
+}
+function activarBotonesVisorPagos() {
+  $("[data-action='ver-factura']").click(async e => {
+    const trget = e.target;
+    const numeroGuia = trget.getAttribute("data-guia");
+    const loader = new ChangeElementContenWhileLoading(trget);
+    loader.init();
+
+    const finalizar = (...args) => {
+      console.log(args);
+      Toast.fire(...args);
+      loader.end();
+    }
+
+    try {
+      if(!paqueteGuiasPagadas.guias.has(numeroGuia)) {
+        const paquete = await db.collection("paquetePagos").where("guiasPagadas", "array-contains", numeroGuia)
+        .get().then(q => {
+          if(q.size) {
+            return q.docs[0].data();
+          }
+    
+          return null
+        });
+    
+        console.log(paquete, numeroGuia);
+    
+        if(!paquete) return finalizar("Esta guía no fue facturada", "", "error");
+        
+        const guiasPagadas = paquete.guiasPagadas;
+        const idFactura = paquete.id_factura;
+        guiasPagadas.forEach(g => {
+          paqueteGuiasPagadas.guias.set(g, idFactura);
+        });
+      }
+
+      const idFactura = paqueteGuiasPagadas.guias.get(numeroGuia);
+      
+      if(!paqueteGuiasPagadas.facturas.has(idFactura)) {
+        const factura = await fetch("/siigo/pdfFactura/" + idFactura)
+        .then(d => d.json());
+    
+        console.log(factura);
+        if(!factura.base64) return finalizar("No se pudo cargar la factura.", "", "error");
+
+        paqueteGuiasPagadas.facturas.set(idFactura, factura.base64);
+    
+      }
+      
+      const base64 = paqueteGuiasPagadas.facturas.get(idFactura)
+  
+      if(base64) {
+        paqueteGuiasPagadas.facturas.set(idFactura, base64);
+        openPdfFromBase64(base64);
+      }
+
+      loader.end();
+    } catch (e){
+      console.log(e);
+      loader.end();
+      finalizar("Error al cargar la información.", "", "error");
+    }
+
+  })
 }
 
 function mostrarPagosUsuario(data) {
@@ -1000,10 +1088,20 @@ function mostrarPagosUsuario(data) {
         { data: "RECAUDO", title: "Recaudo" },
         { data: "ENVÍO TOTAL", title: "Envío Total" },
         { data: "TOTAL A PAGAR", title: "Total a Pagar"},
+        { data: "COMISION HEKA", title: "Comisión Heka", defaultContent: ""},
         { data: "momento", title: "Momento", visible: false}
     ],
+    dom: 'Bfrtip',
+    buttons: [{
+      extend: "excel",
+      text: "Descargar",
+      filename: "Repote pagos",
+      exportOptions: {
+        columns: ":visible"
+      }
+    }],
     //Es importante organizarlo por fecha de manera específica, para poder segmentarlo
-    order: [[6, "asc"]],
+    order: [[7, "desc"]],
     fixedHeader: {footer:true},
     "drawCallback": function ( settings ) {
       //Me realiza una sumatoria de todos los elementos de una columna y los coloca en un footer
@@ -1017,7 +1115,7 @@ function mostrarPagosUsuario(data) {
             if ( last !== group ) {
                 $(rows).eq( i ).before(
                   //Ingresa la siguiente fila antes de cada grupo para que el usuario identifique el segmento en el que se encuentra
-                    '<tr class="group text-center"><td colspan="6">Pagos Realizados el '+group+'</td></tr>'
+                    '<tr class="group text-center text-primary"><td colspan="7">Pagos Realizados el '+group+'</td></tr>'
                 );
 
                 last = group;

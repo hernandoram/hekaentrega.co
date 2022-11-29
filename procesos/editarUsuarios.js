@@ -2,12 +2,12 @@ const XLSX = require("xlsx");
 const path = require("path");
 const db = require("../keys/firebase.js").firestore()
 
-const ws = XLSX.readFile("../corregir usuarios.xlsx");
+const ws = XLSX.readFile("../procesos/corregir usuarios.xlsx");
 
 
 const usuarios =  XLSX.utils.sheet_to_json(ws.Sheets[ws.SheetNames[0]], {header: "A1"});
 
-// editarUsuarios();
+editarUsuarios();
 function editarUsuarios() {
     const centrosDeCosto = usuarios.map(u => u.SELLER);
     let cantidad = usuarios.length;
@@ -15,8 +15,16 @@ function editarUsuarios() {
         console.log(u);
         db.collection("usuarios").where("centro_de_costo", "==", u.SELLER.trim())
         .get().then(q => {
-            q.forEach(d => {
+            q.forEach(async d => {
                 // console.log(d.data());
+
+                const existe = await db.collection("usuarios").where("numero_documento", "==", u["IDENTIFICACIÓN"].toString().trim())
+                .get().then(q => q.size);
+
+                if(existe) {
+                    console.log("Ya existe el usuario con el numero de documento: " + u["IDENTIFICACIÓN"].toString().trim());
+                    return;
+                }
 
                 // return;
                 d.ref.update({

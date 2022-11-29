@@ -317,7 +317,7 @@ async function actualizarMovimientosSemanales() {
     return normalizarReporte(historia);
 }
 
-// actualizarMovimientosPorComparador("transportadora", 'in', ["ENVIA"])
+// actualizarMovimientosPorComparador("numeroGuia", 'in', ["114012006574"])
 // .then(resultado => {
 //     console.log(resultado);
 //     process.exit();
@@ -357,19 +357,26 @@ async function actualizarMovimientosPorUsuario(user_id, type, argumento) {
     return normalizarReporte(historia);
 }
 
-const actualizarMovimientoCtrl = (req, res) => {
-    const {user_id, argumento} = req.body;
+const actualizarMovimientoCtrl = async (req, res) => {
+    const {user_id, argumento, wait} = req.body;
     const {type} = req.params;
 
     try {
-        actualizarMovimientosPorUsuario(user_id, type, argumento)
-        // .then(respuesta => {
-        //     respuesta.mensaje = "Controlado por el usuario";
-        //     db.collection("reporte").add(respuesta)
-        // });
-        res.send("Actualizando");
+        if(wait) {
+            const resp = await actualizarMovimientosPorUsuario(user_id, type, argumento)
+            res.send(resp);
+        } else {
+            actualizarMovimientosPorUsuario(user_id, type, argumento)
+            res.send({
+                error: false,
+                message: "Actualizando..."
+            });   
+        }
     } catch(e) {
-        res.statusCode(400).send("Error al actualizar")
+        res.statusCode(400).send({
+            error: true,
+            message: "Error al actualizar"
+        })
     }
 }
 

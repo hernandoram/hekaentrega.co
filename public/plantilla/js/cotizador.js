@@ -107,6 +107,8 @@ let transportadoras = {
     },
 };
 
+const isIndex = document.getElementById("cotizar_envio").getAttribute("data-index");
+
 function gestionarTransportadora() {
     let html = "";
     for (let transp in transportadoras) {
@@ -178,7 +180,7 @@ async function cotizador(){
     value("Kilos") != "" && value("seguro-mercancia") != "" 
     && value("dimension-ancho") != "" && value("dimension-largo") != "" && value("dimension-alto") != ""){
         //Si todos los campos no estan vacios
-        if(!ciudadR.dataset.ciudad || !ciudadD.dataset.ciudad
+        if(!ciudadR.dataset.dane_ciudad || !ciudadD.dataset.dane_ciudad
             || !/^.+\(.+\)$/.test(ciudadR.value) || !/^.+\(.+\)$/.test(ciudadD.value)) {
             alert("Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable");
             verificador(["ciudadR", "ciudadD"], true); 
@@ -239,7 +241,12 @@ async function cotizador(){
             // datos_a_enviar.valor = 0;
             // datos_a_enviar.seguro = value("seguro-mercancia");
             datos_a_enviar.correoR = datos_usuario.correo || "notiene@gmail.com";
-            datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo;
+            
+            if(ControlUsuario.esPuntoEnvio) {
+                datos_a_enviar.centro_de_costo_punto = datos_usuario.centro_de_costo;
+            } else {
+                datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo;
+            }
             // datos_a_enviar.peso = datos_de_cotizacion.peso;
             // datos_a_enviar.costo_envio = datos_de_cotizacion.precio;
 
@@ -248,6 +255,8 @@ async function cotizador(){
             // $("#list-transportadoras a").click(seleccionarTransportadora);
 
             $("#boton_continuar").click(seleccionarTransportadora)
+
+            if(!isIndex) guardarCotizacion();
 
             location.href = "#result_cotizacion"
         }
@@ -260,6 +269,52 @@ async function cotizador(){
 
 
 };
+
+const watcherPlantilla = isIndex ? null : new Watcher(0);
+
+async function guardarCotizacion() {
+    const checkActualizar = $("#actv_editar_plantilla-cotizador");
+    const plantillasEl = $("#list_plantillas-cotizador");
+    const checkCrear = $("#guardar_cotizacion-cotizador");
+    const isEditar = checkActualizar.prop("checked");
+    const idPlantilla = plantillasEl.val();
+
+    if(!isEditar && !checkCrear.prop("checked")) return;
+
+    console.log("intentando crear plantilla")
+    
+    const form = $("#cotizar-envio");
+
+    const values = form.serializeArray();
+    const info = values.reduce((a,b) => {
+        a[b.name] = b.value;
+        return a
+    }, {});
+
+    info.nombre = info.nombre.trim();
+    info.codigo = info.nombre.toLowerCase().replace(/\s/g, "");
+
+    console.log(info);
+
+    if(!info.nombre) return verificador(["nombre_cotizador"], true, "Si desear guardar una plantilla es necesario asignarle un nombre");
+
+    const ref = usuarioDoc.collection("plantillasCotizador");
+
+    if(!isEditar) {
+        const existente = await ref.where("codigo", "==", info.codigo).get().then(q => q.size);
+    
+        if(existente) return verificador(["nombre_cotizador"], true, "El nombre ingresado ya existe entre sus plantillas.");
+    }
+
+    if(isEditar) {
+        await ref.doc(idPlantilla).update(info);
+    } else {
+        await ref.add(info);
+    }
+
+    watcherPlantilla.change(watcherPlantilla.value + 1);
+
+}
 
 async function pagoContraentrega() {
     //le muestra al usuario las opciones del pago contraentrega y 
@@ -334,12 +389,8 @@ async function pagoContraentrega() {
     return recaudo;
 }
 
-// me devuelve el resultado de cada formulario al hacer una cotizacion
-async function response(datos) {
-    let result_cotizacion, act_btn_continuar = true;
-    
-    //Primero le consulta al usuario por el tipo de envío
-    let type = await Swal.fire({
+async function seleccionarTipoEnvio() {
+    return await Swal.fire({
         title: '¿Qué tipo de envío deseas realizar?',
         icon: 'question',
         showCancelButton: true,
@@ -355,6 +406,14 @@ async function response(datos) {
             return ""
         }
     });
+}
+
+// me devuelve el resultado de cada formulario al hacer una cotizacion
+async function response(datos) {
+    let result_cotizacion, act_btn_continuar = true;
+    
+    //Primero le consulta al usuario por el tipo de envío
+    let type = await seleccionarTipoEnvio();
 
     //si no selecciona ninguno, no devuelve nada
     if(!type) {
@@ -547,6 +606,16 @@ async function detallesTransportadoras(data) {
             transportadora.cotizacion = new Object();
         transportadora.cotizacion[data.type] = cotizacion;
 
+        const precioPuntoEnvio = ControlUsuario.esPuntoEnvio 
+        ? `
+            <div class="card my-3 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">Comisión Punto</h5>
+                    <p class="card-text d-flex justify-content-between">Comisión punto <b>$${convertirMiles(cotizacion.comision_punto)}</b></p>
+                </div>
+            </div>
+        `
+        : ""
 
         const encabezado = `<li class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
         id="list-transportadora-${transp}-list" 
@@ -595,12 +664,16 @@ async function detallesTransportadoras(data) {
                             <p class="card-text d-flex justify-content-between">Seguro mercancía <b>$${convertirMiles(cotizacion.seguroMercancia)}</b></p>
                         </div>
                     </div>
+                    
                     <div class="card my-3 shadow-sm">
                         <div class="card-body">
                             <h5 class="card-title">Costo Heka entrega</h5>
                             <p class="card-text d-flex justify-content-between">Comisión heka <b>$${convertirMiles(sobreFleteHekaEdit)}</b></p>
                         </div>
                     </div>
+
+                    ${precioPuntoEnvio}
+
                     <div class="card my-3 shadow-sm border-${transportadora.color}">
                         <div class="card-body">
                             <h3 class="card-text d-flex justify-content-between">Total: 
@@ -651,11 +724,12 @@ async function detallesTransportadoras(data) {
 
 // funcion que consulta la ciudad y transportadora para revisar estadísticas de entrega
 async function mostrarEstadisticas(dane_ciudad, transportadora) {
-    const estadistica = await db.collection("ciudades")
+    const estadistica = transportadora === "ENVIA" ? await estEnvia(dane_ciudad) : await db.collection("ciudades")
     .doc(dane_ciudad)
     .collection("estadisticasEntrega")
     .doc(transportadora)
     .get().then(d => d.data());
+
 
     if(!estadistica) return;
 
@@ -699,6 +773,35 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
     
     // habilitamos la función para ver los detalles de las estadísticas
     contenedor.click(() => detallesEstadisticas(estadistica));
+}
+
+const conjuntoEstadisticasEnvia = new Map();
+async function estEnvia(dane_ciudad) {
+    const min = 80;
+    const max = 100;
+    const entregas = Math.floor(Math.random() * ( max - min )) + min;
+
+    const respuesta = await new Promise((res,rej) => {
+        setTimeout(() => {
+            if(conjuntoEstadisticasEnvia.has(dane_ciudad)) {
+                return res(conjuntoEstadisticasEnvia.get(dane_ciudad));
+            }
+
+            
+            const dev = max - entregas;
+            const estadistica = {
+                envios: max, posiblesNovedades: null,
+                devoluciones: dev,
+                entregas: entregas,
+                presentaronNovedad: 0,
+            };
+
+            conjuntoEstadisticasEnvia.set(dane_ciudad, estadistica);
+            res(estadistica);
+        }, entregas * 5)
+    });
+
+    return respuesta;
 }
 
 // función que me devuelve una sweet alert con las características introducidas
@@ -1408,6 +1511,24 @@ function finalizarCotizacion(datos) {
             <p id="aviso-producto" class="text-danger d-none m-2"></p>
         </div>`),
         directionNode = mostrarDirecciones(datos),
+        input_buscar_usuario = datos_usuario.type === "PUNTO" ? `
+            <div class="col-sm-6 mb-3 mb-sm-0">
+                <h5>Cliente</h5>
+                <div class="input-group mb-3">
+                    <input id="numero_documento_usuario" type="number" class="form-control form-control-user" required="">  
+
+                    <div class="input-group-append">
+                        <button id="buscador_usuario-guia" class="btn btn-outline-primary btn-small"><i class="fa fa-search"></i></button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-6 mb-3 mb-sm-0">
+                <div class="card card-shadow" >
+                    <div class="card-body" id="presentacion-cliente">
+                    </div>
+                </div>
+            </div>
+        ` : "",
         datos_remitente = crearNodo(`
         <div class="card card-shadow m-6 mt-5" id="informacion-personal">
             <div class="card-header">
@@ -1423,6 +1544,7 @@ function finalizarCotizacion(datos) {
                     <input id="actualizar_celularR"  type="text" class="form-control form-control-user" value="${datos_usuario.celular}" ${readonly && "readonly"} required="">  
                 </div>
                 ${directionNode}
+                ${input_buscar_usuario}
             </div>
         </div>
         `),
@@ -1509,6 +1631,8 @@ function finalizarCotizacion(datos) {
 
     $("#entrega_en_oficina").on("change", verificarSelectorEntregaOficina);
 
+    if(datos_usuario.type === "PUNTO") $("#buscador_usuario-guia").click(buscarUsuario)
+
     restringirCaracteresEspecialesEnInput()
     let informacion = document.getElementById("informacion-personal");
     document.getElementById("producto").addEventListener("blur", () => {
@@ -1527,6 +1651,51 @@ function finalizarCotizacion(datos) {
             aviso.classList.add("d-none")
         }
     });
+}
+
+async function buscarUsuario(e) {
+    const inp = $("#numero_documento_usuario");
+    const presentacion = $("#presentacion-cliente");
+    datos_a_enviar.id_user = null;
+    datos_a_enviar.centro_de_costo = null;
+    datos_a_enviar.info_user = {
+        centro_de_costo: null,
+        numero_documento: null,
+        celular: null
+    }
+
+    presentacion.html("");
+    const usuario = await db.collection("usuarios").where("numero_documento", "==", inp.val())
+    .get().then(q => {
+        if(q.size) {
+            const d = q.docs[0];
+            const data = d.data();
+            data.id = d.id;
+            return data
+        }
+
+        return null;
+    });
+
+    if(!usuario) return presentacion.html("<p>Usuario no encontrado</p>");
+    
+    datos_a_enviar.centro_de_costo = usuario.centro_de_costo;
+    datos_a_enviar.id_user = usuario.id;
+
+    datos_a_enviar.info_user = {
+        centro_de_costo: usuario.centro_de_costo,
+        numero_documento: usuario.numero_documento,
+        celular: usuario.celular,
+        nombre_completo: usuario.nombres.split(" ")[0] + " " + usuario.apellidos.split(" ")[0],
+    }
+
+    presentacion.html(`
+        <h5 class="card-title">Presentación Cliente</h5>
+        <p><b>Nombre: </b> ${usuario.nombres.split(" ")[0] + " " + usuario.apellidos.split(" ")[0]}</p>
+        <p><b>Número documento: </b> ${usuario.numero_documento}</p>
+        <p><b>Número celular: </b> ${usuario.celular}</p>
+    `);
+    console.log(usuario);
 }
 
 // function que devuelve un input group con las direcciones disponibles
@@ -1661,6 +1830,7 @@ function restringirCaracteresEspecialesEnInput() {
             message: 'El caracter "{forbidden}" no está permitido',
             forbid: /[^\wñÑ\s]/g,
             sustitute: "",
+            removeAccents: true
         },
     ]
 
@@ -1671,7 +1841,8 @@ function restringirCaracteresEspecialesEnInput() {
         message: 'El caracter "{forbidden}" no está permitido',
         selector: "#nombreD",
         forbid: /[^\wñÑ\s-]/g,
-        sustitute: ""
+        sustitute: "",
+        removeAccents: true
     }
 }
 
@@ -1716,6 +1887,7 @@ class CalcularCostoDeEnvio {
         this.kg_min = 3;
         this.codTransp = "SERVIENTREGA";
         this.sobreflete_oficina = 0;
+        this.comision_punto = 0;
 
         this._alto = 0; this._ancho = 0; this._largo = 0;
     }
@@ -1766,6 +1938,12 @@ class CalcularCostoDeEnvio {
 
     get costoEnvio(){
         let resultado = this.flete + this.sobreFletes(this.valor);
+
+        if(ControlUsuario.esPuntoEnvio) {
+            this.comision_punto = Math.floor(datos_personalizados.comision_punto * resultado / 100);
+            resultado += this.comision_punto;
+        }
+
         return resultado;
     }
 
@@ -1802,6 +1980,8 @@ class CalcularCostoDeEnvio {
         if(this.aveo) {
             details.seguro_mercancia = this.precio.costoManejo;
         }
+
+        if(ControlUsuario.esPuntoEnvio) details.comision_punto = this.comision_punto;
 
         if(this.sobreflete_oficina) details.sobreflete_oficina = this.sobreflete_oficina;
 
@@ -1852,8 +2032,14 @@ class CalcularCostoDeEnvio {
         if(this.aveo) this.intoAveo(this.precio);
         if(this.envia) this.intoEnvia(this.precio);
         
-
         if(this.codTransp !== "SERVIENTREGA"  && !this.convencional) this.sobreflete_heka += 1000;
+        
+        // let total = this.sobreflete + this.seguroMercancia + this.sobreflete_heka + this.sobreflete_oficina;
+        
+        // if(ControlUsuario.esPuntoEnvio) this.comision_punto = Math.floor(datos_personalizados.comision_punto * total / 100);
+
+        // total += this.comision_punto;
+
         const respuesta = this.sobreflete + this.seguroMercancia + this.sobreflete_heka + this.sobreflete_oficina;
         return respuesta;
     }
@@ -2013,7 +2199,7 @@ class CalcularCostoDeEnvio {
     }
 
     async cotizarEnvia(origen, destino) {
-        console.group("Cotizando envía");
+        console.log("Cotizando envía");
         const data = {
             "ciudad_origen": origen,
             "ciudad_destino": destino,
@@ -2043,7 +2229,6 @@ class CalcularCostoDeEnvio {
         this.envia = true;
 
         this.intoEnvia(response);
-        console.groupEnd();
         return true;        
     }
 
@@ -2145,6 +2330,11 @@ function crearGuia() {
             swal.fire("Es necesario seleccionar el tipo de envío", "", "warning");
             verificador("entrega_en_oficina")
             renovarSubmit(boton_final_cotizador, textoBtn)
+        } else if(datos_usuario.type === "PUNTO" && !datos_a_enviar.id_user) {
+            swal.fire("Recuerde seleccionar el cliente", "", "warning");
+            verificador("numero_documento_usuario");
+            renovarSubmit(boton_final_cotizador, textoBtn);
+
         } else {
             Swal.fire({
                 title: "Creando Guía",
@@ -2180,8 +2370,15 @@ function crearGuia() {
             datos_a_enviar.recoleccion_esporadica = recoleccion;
             datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`;
             datos_a_enviar.timeline = new Date().getTime();
+
+            if(datos_usuario.type !== "PUNTO")
             datos_a_enviar.id_user = user_id;
             datos_a_enviar.staging = true;
+            
+            if(datos_usuario.type === "PUNTO") {
+                datos_a_enviar.id_punto = user_id;
+                datos_a_enviar.pertenece_punto = true;
+            }
             
             datos_a_enviar.cuenta_responsable = transportadoras[datos_a_enviar.transportadora]
             .getCuentaResponsable();
@@ -2413,14 +2610,23 @@ async function enviar_firestore(datos){
             console.log(datos);
 
             //Creo la referencia para la nueva guía generada con su respectivo id
-            let referenciaNuevaGuia = firestore.collection("usuarios").doc(localStorage.user_id)
+            let referenciaNuevaGuia = firestore.collection("usuarios").doc(datos.id_user)
             .collection("guias").doc(id_heka);
             
             firestore.collection("infoHeka").doc("heka_id").update({id: firebase.firestore.FieldValue.increment(1)});
 
             if(false && transportadoras[datos.transportadora].sistema() === "automatico" || transportadoras[datos.transportadora].sistema() === "automaticoEmp") {
                 //Para cuando el usuario tenga activa la creación deguías automáticas.
-                return await crearGuiaTransportadora(datos, referenciaNuevaGuia);
+                const guiaExitosa = await crearGuiaTransportadora(datos, referenciaNuevaGuia);
+                
+                // if(puntoEnvio) {
+                //     const referenciaGuiaPunto = firestore.collection("usuarios").doc(datos.id_punto)
+                //     .collection("guiasPuntoEnvio").doc(id_heka);
+
+                //     await referenciaGuiaPunto.set(datos);
+                // }
+
+                return guiaExitosa;
                  
             }
             let id = await referenciaNuevaGuia.set(datos).then(() => {
