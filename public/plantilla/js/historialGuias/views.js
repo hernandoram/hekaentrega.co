@@ -4,7 +4,7 @@ const table = `
     <div class="table-responsive">
         <table 
             id="${idTable}" 
-            class="display table table-bordered table-hover"
+            class="display table table-bordered table-hover w-100"
         ></table>
     </div>
 `;
