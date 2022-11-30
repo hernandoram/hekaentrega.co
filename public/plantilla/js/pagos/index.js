@@ -154,7 +154,7 @@ async function comprobarGuiaPagada(objToSend) {
     .collection("pagos").doc(numeroGuia.toString()).get();
 
     if(guiaPaga.exists) {
-        return true;
+      return true;
     }
 
     return false;
@@ -294,10 +294,10 @@ async function comprobarSegmentoGuias(segmento, logger) {
   return segmento.filter((g, i) => {
     g.timeline = new Date().getTime();
 
-    const pagada = !lista[i];
+    const pagada = lista[i];
 
     if(pagada) logger.addError("La guia " + g.GUIA + " fue pagada.");
 
-    return pagada;
+    return !pagada;
   })
 }

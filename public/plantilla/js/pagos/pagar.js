@@ -17,6 +17,7 @@ class Empaquetado {
         this.actual = 0;
         this.usuarioActivo = "";
         this.totalAPagar = 0;
+        this.guiasAnalizadas = 0;
     }
 
     addPago(guia) {
@@ -47,14 +48,34 @@ class Empaquetado {
         visor.html('<div class="step-view"></div>' + valoresHtml);
         this.usuarios = Object.keys(this.pagosPorUsuario);
         if(this.usuarios.length > 1) {
-            visor.append(`<button class="btn btn-secondary prev mt-2" style="display: none;">anterior</button>
-            <button class="btn btn-primary next mt-2">siguiente</button>`);
+            visor.append(`
+            <button class="btn btn-secondary prev mt-2" style="display: none;">anterior</button>
+            <button class="btn btn-primary next mt-2">siguiente</button>
+            <button class="btn btn-outline-primary mt-2 ml-3" id="descargador-guias-pagos">Descargar info</button>
+            `);
         }
 
         this.usuarioActivo = this.usuarios[this.actual];
         this.setPages();
-        const usuariosIniciales = this.usuarios.slice(0, 2);
-        usuariosIniciales.forEach(usuario => this.analizarGuias(usuario));
+        const usuariosIniciales = [...this.usuarios];
+        // .slice(0, 2);
+        const descargarExcel = $("#descargador-guias-pagos");
+
+        descargarExcel.click(() => this.descargarExcelPagos());
+
+        (async () => {
+            const loadEx = new ChangeElementContenWhileLoading(descargarExcel);
+
+            loadEx.init();
+            for await (let u of usuariosIniciales.slice(0,2)) {
+                await this.analizarGuias(u);
+            }
+            loadEx.end();
+            $("#total-gestionar_pagos").addClass("text-success");
+
+        })();
+
+        // usuariosIniciales.reduce( async usuario => this.analizarGuias(usuario));
     }
 
     setPages() {
@@ -79,16 +100,7 @@ class Empaquetado {
                                 <table class="table table-borderless">
                                     <thead>
                                         <tr>
-                                            <th>Centro de Costo</th>
-                                            <th>Transportadora</th>
-                                            <th>Guía</th>
-                                            <th>Recaudo</th>
-                                            <th>Envío Total</th>
-                                            <th>Total a Pagar</th>
-                                            <th>Comisión heka</th>
-                                            <th>Fecha</th>
-                                            <th>Cuenta responsable</th>
-                                            <th>Estado</th>
+                                            ${this.columnas.map(c => "<th>" + c.title +"</th>").join("")}
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -205,7 +217,7 @@ class Empaquetado {
         loader.removeClass("d-none");
         prevNext.attr("disabled", true);
 
-        guias.map(async guia => {
+        const guiasRevisadas = guias.map(async guia => {
             const guiaPaga = await comprobarGuiaPagada(guia);
             const existente = await guiaExiste(guia);
             loader.html("cargando " + (i+1) + " de " + f + "...");
@@ -234,14 +246,18 @@ class Empaquetado {
             if(!guia.cuenta_responsable) guia.cuenta_responsable = guia["CUENTA RESPONSABLE"] || "SCR";
 
             i++;
-            if(i === f) {
-                this.cargarInformacion(usuario);
-                loader.addClass("d-none");
-                prevNext.attr("disabled", false);
 
-            }
             return guia;
         });
+
+        await Promise.all(guiasRevisadas);
+
+        this.cargarInformacion(usuario);
+        loader.addClass("d-none");
+        prevNext.attr("disabled", false);
+        
+        this.guiasAnalizadas+=f;
+        
     }
 
     tipoAviso(sentencia) {
@@ -294,20 +310,20 @@ class Empaquetado {
         const guias = pagos.guias;
 
         console.log(pagos);
-        const columnas = [
-            {data: "REMITENTE", title: "Centro de costo"},
-            {data: "TRANSPORTADORA", title: "Transportadora"},
-            {data: "GUIA", title: "Guía"},
-            {data: "RECAUDO", title: "Recaudo"},
-            {data: "ENVÍO TOTAL", title: "Envío total"},
-            {data: "TOTAL A PAGAR", title: "Total a pagar"},
-            {data: "COMISION HEKA", title: "Comisión heka"},
-            {data: "FECHA", title: "Fecha"},
-            {data: "cuenta_responsable", title: "Cuenta responsable"},
-            {data: "estado", title: "Estado"},
-        ]
+        const columnas = this.columnas
 
         descargarInformeGuiasAdmin(columnas, guias, "Pagos")
+    }
+
+    descargarExcelPagos() {
+        const guiasDescarga = this.usuarios.reduce((a,b) => {
+            const pagos = this.pagosPorUsuario[b];
+            const guias = pagos.guias;
+            a = a.concat(guias);
+            return a;
+        }, []);
+
+        descargarInformeGuiasAdmin(this.columnas, guiasDescarga, "Guías a pagar");
     }
 
     async cargarInfoUsuario() {
@@ -565,6 +581,26 @@ class Empaquetado {
         pend.text("$"+convertirMiles(saldoPendiente));
         total.text("$"+convertirMiles(this.totalAPagar));
     }
+
+    get columnas() {
+        return [
+            {data: "REMITENTE", title: "Centro de costo"},
+            {data: "TRANSPORTADORA", title: "Transportadora"},
+            {data: "GUIA", title: "Guía"},
+            {data: "RECAUDO", title: "Recaudo"},
+            {data: "ENVÍO TOTAL", title: "Envío total"},
+            {data: "TOTAL A PAGAR", title: "Total a pagar"},
+            {data: "COMISION HEKA", title: "Comisión heka"},
+            {data: "FECHA", title: "Fecha"},
+            {data: "cuenta_responsable", title: "Cuenta responsable"},
+            {data: "estado", title: "Estado"},
+        ] 
+    }
+
+    get conteoTotalGuias() {
+        const usuarios = Object.keys(this.pagosPorUsuario);
+        return usuarios.reduce((a,b) => a + this.pagosPorUsuario[b].guias.length, 0)
+    }
 }
 
 async function consultarPendientes(e) {
@@ -658,6 +694,12 @@ function empaquetarGuias(arr) {
         console.log(paq, paquete.pagosPorUsuario[paq]);
 
         if(paq && !paq.analizado) paquete.analizarGuias(paq);
+        const buttons = $(".next,.prev", visor);
+        setTimeout(() => {
+            buttons[0].scrollIntoView({
+                behavior: "smooth"
+            });
+        }, 1000)
     }
 
     console.log(paquete);
