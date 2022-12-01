@@ -57,7 +57,7 @@ class Empaquetado {
 
         this.usuarioActivo = this.usuarios[this.actual];
         this.setPages();
-        const usuariosIniciales = [...this.usuarios];
+        const usuariosIniciales = this.usuarios
         // .slice(0, 2);
         const descargarExcel = $("#descargador-guias-pagos");
 
@@ -67,7 +67,7 @@ class Empaquetado {
             const loadEx = new ChangeElementContenWhileLoading(descargarExcel);
 
             loadEx.init();
-            for await (let u of usuariosIniciales.slice(0,2)) {
+            for await (let u of usuariosIniciales) {
                 await this.analizarGuias(u);
             }
             loadEx.end();

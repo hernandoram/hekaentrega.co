@@ -2688,6 +2688,7 @@ async function enviar_firestore(datos){
         //***si se descuenta del saldo***
         if(!datos.debe){
             saldo_detallado.saldo = saldo - datos.costo_envio;
+            if(ControlUsuario.esPuntoEnvio) saldo_detallado.saldo += datos.detalles.comision_punto;
             saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
             
             let factor_diferencial = parseInt(datos_heka.limit_credit) + parseInt(saldo);
