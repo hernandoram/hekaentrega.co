@@ -1,6 +1,7 @@
 // import { firestore as db } from "../config/firebase.js";
 import SetHistorial from "./historial.js";
 import { defFiltrado } from "./config.js";
+import { renderInfoFecha } from "./views.js";
 
 const db = firebase.firestore();
 
@@ -23,16 +24,24 @@ globalThis.h = historial;
 
 
 let historialConsultado;
+const fechas = new Watcher();
+fechas.watch(renderInfoFecha);
 
 consultarHistorialGuias();
 async function consultarHistorialGuias() {
-    const fecha_inicio = Date.parse(inpFechaInicio.val().replace(/\-/g, "/"));
-    const fecha_final = Date.parse(inpFechaFinal.val().replace(/\-/g, "/")) + 8.64e7;
+    const fecha_inicio = Date.parse(inpFechaInicio.val() + "::");
+    const fecha_final = Date.parse(inpFechaFinal.val() + "::") + 8.64e7;
+
+    fechas.change([fecha_inicio, fecha_final, inpNumeroGuia.val()]);
     historial.clean(defFiltrado.novedad);
 
     if(historialConsultado) historialConsultado();
 
-    let reference = guiasRef;
+    let reference = ControlUsuario.esPuntoEnvio
+    ? db.collectionGroup("guias")
+    .where("id_punto", "==", user_id) 
+    : guiasRef;
+
     if(inpNumeroGuia.val()) {
         reference = reference
         .where("numeroGuia", "==", inpNumeroGuia.val());
@@ -55,8 +64,8 @@ async function consultarHistorialGuias() {
                 data.deleted ? historial.delete(id) : historial.add(data);
             }
         });
-    console.log(historial.filtrador);
-    historial.filter(historial.filtrador);
+        console.log(historial.filtrador);
+        historial.filter(historial.filtrador);
         // historial.render();
     });
 

@@ -2545,6 +2545,7 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
             datos.staging = typeof resGuia.staging === "boolean"
             ? resGuia.staging : datos.staging;
             datos.numeroGuia = datos.numeroGuia.toString();
+            datos.fecha_aceptada = genFecha();
             let guia = await referenciaNuevaGuia.update(datos)
             .then(doc => {
                 return resGuia;
@@ -2615,20 +2616,6 @@ async function enviar_firestore(datos){
             
             firestore.collection("infoHeka").doc("heka_id").update({id: firebase.firestore.FieldValue.increment(1)});
 
-            if(false && transportadoras[datos.transportadora].sistema() === "automatico" || transportadoras[datos.transportadora].sistema() === "automaticoEmp") {
-                //Para cuando el usuario tenga activa la creación deguías automáticas.
-                const guiaExitosa = await crearGuiaTransportadora(datos, referenciaNuevaGuia);
-                
-                // if(puntoEnvio) {
-                //     const referenciaGuiaPunto = firestore.collection("usuarios").doc(datos.id_punto)
-                //     .collection("guiasPuntoEnvio").doc(id_heka);
-
-                //     await referenciaGuiaPunto.set(datos);
-                // }
-
-                return guiaExitosa;
-                 
-            }
             let id = await referenciaNuevaGuia.set(datos).then(() => {
                 return id_heka;
             })

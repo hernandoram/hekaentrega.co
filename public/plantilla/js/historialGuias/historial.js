@@ -12,12 +12,12 @@ const table = $("#tabla-historial-guias").DataTable({
     destroy: true,
     data: null,
     rowId: "row_id",
-    order: [[1, "desc"]],
+    order: [[3, "desc"]],
     columns: [
         {data: null, title: "Acción", render: accionesDeFila},
         {data: null, title: "Empaque", render: accionEmpaque},
         {data: "id_heka", title: "Id", defaultContent: ""},
-        {data: "numeroGuia", title: "Guía transportadora", defaultContent: ""},
+        {data: "numeroGuia", title: "# Guía", defaultContent: ""},
         {data: "estado", title: "Estado", defaultContent: ""},
         {data: "transportadora", 
         orderable: false,
@@ -56,6 +56,10 @@ const table = $("#tabla-historial-guias").DataTable({
             data: "costo_envio", title: "Costo de envío", 
             defaultContent: "",
         },
+        {
+            data: "detalles.comision_punto", title: "Ganancia", 
+            defaultContent: "No aplica", visible: ControlUsuario.esPuntoEnvio
+        }
     ],
     language: {
       url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
@@ -66,17 +70,27 @@ const table = $("#tabla-historial-guias").DataTable({
     scrollX: true,
     scrollCollapse: true,
     paging: false,
-    lengthMenu: [ [-1, 10, 25, 50, 100], ["Todos", 10, 25, 50, 100] ],
     initComplete: agregarFuncionalidadesTablaPedidos,
     drawCallback: renderizadoDeTablaHistorialGuias
 });
+
+globalThis.filtrador = new Watcher(pedido);
 
 export default class SetHistorial {
     constructor() {
         this.guias = [];
         this.filtradas = [];
-        this.filtrador = pedido;
+        this._filtrador = pedido;
         this.renderTable = true;
+    }
+
+    get filtrador() {
+        return this._filtrador
+    }
+
+    set filtrador(filt) {
+        this._filtrador = filt;
+        filtrador.change(filt);
     }
 
     add(guia) {
@@ -121,27 +135,36 @@ export default class SetHistorial {
     //Según el tipo de filtrado muestra los botones necesarios
     defineButtons(filt) {
         table.buttons().remove();
+        let indexBtn = 0;
 
         if(filt === pedido) {
-            table.button().add(0, {
+            table.button().add(indexBtn, {
                 action: aceptarPedido,
-                text: "Acceptar pedido"
+                className: "btn-success",
+                text: "Acceptar pedido <i class='fa fa-arrow-right ml-2'></i>",
             });
-        } else if (filt === generada){
-            table.button().add(0, {
+            indexBtn++;
+        } 
+
+        if([proceso, finalizada, generada].includes(filt)) {
+            table.button().add(indexBtn, {
                 action: descargarGuiasParticulares,
                 text: "Descargar Pdf"
             });
-            table.button().add(1, {
+            indexBtn++;
+        }
+
+        if (filt === generada){
+            table.button().add(indexBtn, {
                 action: crearDocumentos,
-                text: "Empacar"
+                className: "btn-success",
+                text: "Empacar <i class='fa fa-arrow-right ml-2'></i>"
             });
-        } else if (filt === proceso || filt === finalizada){
-            table.button().add(0, {
-                action: descargarGuiasParticulares,
-                text: "Descargar Pdf"
-            });
-            table.button().add(1, {
+            indexBtn++;
+        }
+
+        if([proceso, finalizada, pagada].includes(filt)) {
+            table.button().add(indexBtn, {
                 extend: "excel",
                 text: "Descargar excel",
                 filename: "Historial Guías",
@@ -149,7 +172,9 @@ export default class SetHistorial {
                   columns: [1,2,3,4,5,6,7,9,10,11,12,13]
                 }
             });
+            indexBtn++;
         }
+        
     }
 
     defineColumns() {
@@ -158,13 +183,13 @@ export default class SetHistorial {
         let columnas;
         switch(this.filtrador) {
             case pedido:
-                columnas = [0,1,4,5,6,7,8,9,10,11,12];
+                columnas = [0,2,5,6,7,8,9,10,11,12,13];
                 break;
             case generada: 
-                columnas = [0,1,2,4,5,6,7,8,9,10,11,12];
+                columnas = [0,1,2,5,6,7,8,9,10,11,12,13];
             break;
             default:
-                columnas = [0,1,2,3,4,5,6,7,8,9,10,11,12];
+                columnas = [0,2,3,4,5,6,7,8,9,10,11,12,13];
                 break
         }
 
@@ -286,15 +311,66 @@ function defineFilter(data) {
     return filter;
 }
 
-
+function getContadorGuias() {
+    const inpSelectGuias = $("#select-all-guias");
+    const contenedorSelector = inpSelectGuias.parent();
+    const textoSelector = contenedorSelector.find(".texto");
+    const counterSelector = contenedorSelector.find(".counter");
+    return {
+        inpSelectGuias,
+        contenedorSelector,
+        textoSelector,
+        counterSelector
+    }
+}
 
 function agregarFuncionalidadesTablaPedidos() {
-    $("#select-all-orders").change((e) => {
-        if(e.target.checked) {
-            $("tr:gt(0)", this).addClass("selected bg-gray-300");
+    const api = this.api();
+    this.parent().parent().before(`
+        <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="select-all-guias">
+            <label class="form-check-label" for="select-all-guias"><span class='texto'>Seleccionar Todas </span><span class="counter"></span></label>
+        </div>
+    `);
+
+    const {
+        inpSelectGuias,
+        counterSelector
+    } = getContadorGuias();
+
+
+    filtrador.watch(filt => {
+        setTimeout(() => {
+            renderContador(filt, api.data());
+            filtrarHistorialGuiasPorColumna(api.column(5))
+            filtrarHistorialGuiasPorColumna(api.column(6))
+        }, 300);
+    })
+
+    inpSelectGuias.change(async (e) => {
+        const checked = e.target.checked;
+        if(filtrador.value === generada) {
+            const cant = await empacarMasivo(api.data(), checked);
+            counterSelector.text(cant ? "("+cant+")" : "");
+            return
+        } 
+
+        if(checked) {
+            let counter = 0;
+            const limit = 50;
+            const row = $("tr:gt(0)", this).each((i,row) => {
+                const data = api.row(row).data();
+                if(!data.enviado && counter < limit) {
+                    $(row).addClass("selected bg-gray-300");
+                    counter ++;
+                }
+            })
         } else {
             $("tr:gt(0)", this).removeClass("selected bg-gray-300");
         }
+
+        const cant = $("tr.selected", this).length;
+        counterSelector.text(cant ? "("+cant+")" : "");
     });
 
 
@@ -304,12 +380,15 @@ function agregarFuncionalidadesTablaPedidos() {
     //     this[0].setAttribute("data-table_initialized", true);
     // }
 
-
     $('tbody', this).on( 'click', 'tr', function (e) {
         console.log(!e.target.classList.contains("action"), e.target.tagName !== "I")
+        if([novedad].includes(filtrador.value)) return;
         if(!e.target.classList.contains("action") && e.target.tagName !== "I")
         $(this).toggleClass('selected bg-gray-300');
-    } );
+        renderContador(filtrador.value, api.data());
+    });
+
+    
 }
 
 function renderizadoDeTablaHistorialGuias(config) {
@@ -348,6 +427,37 @@ function renderizadoDeTablaHistorialGuias(config) {
         verMas.addClass("activated");
     });
 
+}
+
+function renderContador(filt, data) {
+    const llenarContador = cant => counterSelector.text(cant ? "("+cant+")" : "");
+    const empacadas = () => data.filter(g => g.empacada);
+
+    const {
+        inpSelectGuias,
+        contenedorSelector,
+        textoSelector,
+        counterSelector
+    } = getContadorGuias();
+
+    contenedorSelector.removeClass("d-none");
+
+    if(filt === generada) {
+        const cantidadEmpacadas = empacadas().length;
+        const textoDevuelto = cantidadEmpacadas > 0
+            ? "Empacar todas - cantidad empacadas" 
+            : "Empacar todas";
+
+        if(cantidadEmpacadas >= 50 || cantidadEmpacadas === data.length) inpSelectGuias.prop("checked", true);
+        textoSelector.text(textoDevuelto);
+        llenarContador(empacadas().length);
+    } else if ([pedido, proceso, finalizada, pagada].includes(filt)) {
+        inpSelectGuias.prop("checked", false);
+        textoSelector.text("Seleccionar todas");
+        llenarContador(0);
+    } else {
+        contenedorSelector.addClass("d-none");
+    }
 }
 
 //Para cuando los pedidos están en staggin, permiter proceder con la creación de la guía
@@ -461,6 +571,9 @@ async function descontarSaldo(datos) {
     //***si se descuenta del saldo***
     if(!datos.debe){
         saldo_detallado.saldo = saldo - datos.costo_envio;
+
+        if(ControlUsuario.esPuntoEnvio) saldo_detallado.saldo += datos.detalles.comision_punto;
+
         saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
         
         let factor_diferencial = parseInt(datos_heka.limit_credit) + parseInt(saldo);
@@ -580,14 +693,29 @@ function accionEmpaque(datos, type, row) {
 
         const res = `
         <div class="custom-control custom-switch action">
-            <input type="checkbox" class="custom-control-input" id="empacar-${id_heka}" ${empacada ? "checked" : ""}
+            <input type="checkbox" class="custom-control-input action" id="empacar-${id_heka}" ${empacada ? "checked" : ""}
             data-id="${id_heka}"
             data-funcion="activar-desactivar">
-            <label class="custom-control-label" for="empacar-${id_heka}">${empacada ? "Empacada" : "No empacada"}</label>
+            <label class="custom-control-label action" for="empacar-${id_heka}">${empacada ? "Empacada" : "No empacada"}</label>
         </div>
         `;
 
         return res;
     } 
     return datos;
+}
+
+async function empacarMasivo(data, empacar) {
+    const lista = data.toArray().filter(g => {
+        return g.empacada != empacar;
+    })
+
+    if(empacar) lista.slice(0,51);
+
+    // console.log(lista);
+    // return;
+    const enviado = lista.map(g => usuarioDoc.collection("guias").doc(g.id_heka).update({empacada: empacar}));
+
+    await Promise.all(enviado);
+    return lista.length
 }

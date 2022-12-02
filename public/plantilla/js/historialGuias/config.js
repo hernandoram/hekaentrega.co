@@ -25,7 +25,12 @@ export const filters = [
         dataFilter: defFiltrado.finalizada
     },
     {
+        name: "Pagadas",
+        dataFilter: defFiltrado.pagada
+    },
+    {
         name: "En novedad",
-        dataFilter: defFiltrado.novedad
+        dataFilter: defFiltrado.novedad,
+        classColorBadge: "text-danger"
     }
 ];
