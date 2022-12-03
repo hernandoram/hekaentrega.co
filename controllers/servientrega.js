@@ -12,7 +12,7 @@ const { singleMessage } = require("../controllers/cellVoz");
 const {notificarGuiaOficina} = require("../extends/notificaciones")
 
 const {UsuarioPrueba, Credenciales} = require("../keys/serviCredentials");
-const { revisarNovedadAsync } = require("../extends/manejadorMovimientosGuia");
+const { revisarNovedadAsync, estadosGuia } = require("../extends/manejadorMovimientosGuia");
 
 // const storage = firebase.storage();
 
@@ -176,7 +176,8 @@ exports.generarManifiesto = async (req, res) => {
           .collection("guias").doc(guia.id_heka)
           .update({
             enviado: true,
-            estado: "Enviado"
+            estado: "Enviado",
+            estadoActual: estadosGuia.proceso
           })
           .then(() => {
             const link = 'https://www.servientrega.com/';
@@ -295,7 +296,8 @@ exports.crearDocumentos = async (req, res) => {
             .collection("guias").doc(guia.id_heka)
             .update({
               enviado: true,
-              estado: "Enviado"
+              estado: "Enviado",
+              estadoActual: estadosGuia.proceso
             }).catch((error) => {
               console.log("hubo un error Al actualizar el estado de la guia a \"Enviado\" => ", error)
             });
@@ -458,14 +460,16 @@ async function actualizarMovimientos(doc) {
           ésta me actualiza el estado actual que manifiesta la guía, si el seguimiento
           fue finalizado, y la fecha de actualización*/
           const movimiento_culminado = ["ENTREGADO", "ENTREGADO A REMITENTE"];
-
+          const seguimiento_finalizado = movimiento_culminado.some(v => v === data.EstAct[0])
+          || finalizar_seguimiento
           
           const actualizaciones = {
             estado: data.EstAct[0],
             ultima_actualizacion: new Date(),
-            seguimiento_finalizado: movimiento_culminado.some(v => v === data.EstAct[0])
-            || finalizar_seguimiento,
+            seguimiento_finalizado: seguimiento_finalizado,
           }
+
+          if(seguimiento_finalizado) actualizaciones.estadoActual = estadosGuia.finalizada;
 
           if (upte_movs.estado === "Mov.A" && upte_movs.guardado) {
             const {enNovedad} = upte_movs.guardado

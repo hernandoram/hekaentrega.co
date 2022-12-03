@@ -2,6 +2,7 @@ import { ChangeElementContenWhileLoading, segmentarArreglo } from "../utils/func
 import Stepper from "../utils/stepper.js";
 import { camposExcel, formularioPrincipal, inpFiltCuentaResp, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor } from "./config.js";
 import { comprobarGuiaPagada, guiaExiste } from './comprobadores.js';
+import { defFiltrado as estadosGlobalGuias } from "../historialGuias/config.js";
 
 const db = firebase.firestore();
 const storage = firebase.storage();
@@ -422,7 +423,7 @@ class Empaquetado {
                 if(id_heka && id_user) {
                     const guiaRef = db.collection("usuarios").doc(id_user.toString())
                     .collection("guias").doc(id_heka.toString());
-                    batch.update(guiaRef, {debe: 0});
+                    batch.update(guiaRef, {debe: 0, estadoActual: estadosGlobalGuias.pagada});
                 }
 
                 // y finalmente eliminar la guía  en cargue que ya fue paga

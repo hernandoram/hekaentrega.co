@@ -2335,6 +2335,10 @@ function crearGuia() {
             verificador("numero_documento_usuario");
             renovarSubmit(boton_final_cotizador, textoBtn);
 
+        } else if(datos_a_enviar.transportadora === "INTERRAPIDISIMO" && (!bodega || !bodega.codigo_sucursal_inter)) {
+            swal.fire("Asegurece de seleccionar una bodega válida para interrapidísimo", "", "warning");
+            verificador("actualizar_direccionR", "moderador_direccionR");
+            renovarSubmit(boton_final_cotizador, textoBtn);
         } else {
             Swal.fire({
                 title: "Creando Guía",
@@ -2379,6 +2383,8 @@ function crearGuia() {
                 datos_a_enviar.id_punto = user_id;
                 datos_a_enviar.pertenece_punto = true;
             }
+
+            if(datos_a_enviar.transportadora === "INTERRAPIDISIMO") datos_a_enviar.codigo_sucursal = bodega.codigo_sucursal_inter;
             
             datos_a_enviar.cuenta_responsable = transportadoras[datos_a_enviar.transportadora]
             .getCuentaResponsable();
@@ -2521,7 +2527,7 @@ async function pruebaGeneracionGuias(idGuiaError) {
 async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
     //Primero consulto la respuesta del web service
     let generarGuia;
-    referenciaNuevaGuia = referenciaNuevaGuia || usuarioDoc
+    referenciaNuevaGuia = referenciaNuevaGuia || usuarioAltDoc(datos.id_user)
     .collection("guias").doc(datos.id_heka);
 
     if(datos.transportadora === "SERVIENTREGA") {
@@ -2546,6 +2552,7 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
             ? resGuia.staging : datos.staging;
             datos.numeroGuia = datos.numeroGuia.toString();
             datos.fecha_aceptada = genFecha();
+            datos.estadoActual = estadosGuia.generada;
             let guia = await referenciaNuevaGuia.update(datos)
             .then(doc => {
                 return resGuia;
@@ -2767,19 +2774,6 @@ async function guardarStickerGuiaServientrega(data) {
 
 //función para consultar la api en el back para crear guiade inter rapidisimo.
 async function generarGuiaInterrapidisimo(datos) {
-    let codigo_sucursal = bodega.codigo_sucursal_inter;
-
-    if(!codigo_sucursal) {
-        codigo_sucursal = await usuarioDoc
-        .get().then(d => {
-            console.log("ingresó porque no se consiguió código sucursal")
-            if (d.exists && d.data().datos_personalizados) return d.data().datos_personalizados.codigo_sucursal_inter
-
-            return "SCS"
-        });
-    }
-
-    datos.codigo_sucursal = codigo_sucursal
     let respuesta = await fetch("/inter/crearGuia", {
         method: "POST",
         headers: {"Content-Type": "application/json"},

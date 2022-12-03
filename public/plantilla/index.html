@@ -825,6 +825,16 @@
             saldo: 0
         };
 
+        const estadosGuia = {
+            novedad: "NOVEDAD",
+            pedido: "PEDIDO",
+            pagada: "PAGADA",
+            finalizada: "FINALIZADA",
+            generada: "GENERADA",
+            proceso: "TRANSITO",
+            empacada: "EMPACADA",
+            eliminada: "ELIMINADA"
+        }
 		//funcion que me devuelve a los inputs que estan escritos incorrectamente o vacios Proviene de render.js
 		function verificador(arr, boolean) {
 			let inputs = document.getElementsByTagName("input");

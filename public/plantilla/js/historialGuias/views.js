@@ -22,6 +22,7 @@ const filtersHtml = '<div id="filtros-historial-guias" class="d-flex overflow-au
 const filterHtml = (opts, i, length) => `
     <div style="min-width: 180px" 
     data-filter="${opts.dataFilter}"
+    ${opts.id ? `id="${opts.id}"` : ""}
     class="filtro d-flex justify-content-between align-items-center p-2 position-relative ${i ? "m-12" : ""}">
         ${i + 1 != length ? '<div class="filter-arrow-start"></div>' : ""}
         <p class="text-truncate m-0 ml-2">${opts.name}</p> 

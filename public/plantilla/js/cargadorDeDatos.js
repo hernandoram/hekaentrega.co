@@ -121,10 +121,6 @@ async function cargarDatosUsuario(){
     pagosPendientesParaUsuario();
   }
 
-  if(estado_prueba) {
-    datos_usuario.type = "PUNTO";
-  }
-
   contentCharger.hide();
   content.show("fast");  
 }

@@ -1,11 +1,4 @@
-export const defFiltrado = {
-    novedad: "novedad",
-    pedido: "pedido",
-    pagada: "pagada",
-    finalizada: "finalizada",
-    generada: "generada",
-    proceso: "en proceso"
-}
+export const defFiltrado = estadosGuia;
 
 export const filters = [
     {
@@ -14,11 +7,13 @@ export const filters = [
     },
     {
         name: "Listado",
-        dataFilter: defFiltrado.generada
+        dataFilter: defFiltrado.generada,
+        id: "filter_listado-guias_hist"
     },
     {
         name: "En Proceso",
-        dataFilter: defFiltrado.proceso
+        dataFilter: defFiltrado.proceso,
+        id: "filter_proceso-guias_hist"
     },
     {
         name: "Finalizadas",

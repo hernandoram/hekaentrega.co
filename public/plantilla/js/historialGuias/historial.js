@@ -1,5 +1,6 @@
 import {title, table as htmlTable, filtersHtml, filterHtml} from "./views.js";
 import { filters, defFiltrado } from "./config.js";
+import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 
 const {novedad, proceso, pedido, pagada, finalizada, generada} = defFiltrado;
 
@@ -186,7 +187,7 @@ export default class SetHistorial {
                 columnas = [0,2,5,6,7,8,9,10,11,12,13];
                 break;
             case generada: 
-                columnas = [0,1,2,5,6,7,8,9,10,11,12,13];
+                columnas = [0,1,2,3,5,6,7,8,9,10,11,12,13];
             break;
             default:
                 columnas = [0,2,3,4,5,6,7,8,9,10,11,12,13];
@@ -311,7 +312,7 @@ function defineFilter(data) {
     return filter;
 }
 
-function getContadorGuias() {
+function getContadorGuiasSeleccionadas() {
     const inpSelectGuias = $("#select-all-guias");
     const contenedorSelector = inpSelectGuias.parent();
     const textoSelector = contenedorSelector.find(".texto");
@@ -336,7 +337,7 @@ function agregarFuncionalidadesTablaPedidos() {
     const {
         inpSelectGuias,
         counterSelector
-    } = getContadorGuias();
+    } = getContadorGuiasSeleccionadas();
 
 
     filtrador.watch(filt => {
@@ -430,7 +431,7 @@ function renderizadoDeTablaHistorialGuias(config) {
 }
 
 function renderContador(filt, data) {
-    const llenarContador = cant => counterSelector.text(cant ? "("+cant+")" : "");
+    const llenarContador = cant => counterSelector.text(cant ? " ("+cant+")" : "");
     const empacadas = () => data.filter(g => g.empacada);
 
     const {
@@ -438,7 +439,7 @@ function renderContador(filt, data) {
         contenedorSelector,
         textoSelector,
         counterSelector
-    } = getContadorGuias();
+    } = getContadorGuiasSeleccionadas();
 
     contenedorSelector.removeClass("d-none");
 
@@ -454,7 +455,10 @@ function renderContador(filt, data) {
     } else if ([pedido, proceso, finalizada, pagada].includes(filt)) {
         inpSelectGuias.prop("checked", false);
         textoSelector.text("Seleccionar todas");
-        llenarContador(0);
+        globalThis.d = data;
+        const selectedRows = data.rows(".selected").data().length;
+        
+        llenarContador(selectedRows);
     } else {
         contenedorSelector.addClass("d-none");
     }
@@ -463,27 +467,27 @@ function renderContador(filt, data) {
 //Para cuando los pedidos están en staggin, permiter proceder con la creación de la guía
 async function aceptarPedido(e, dt, node, config) {
     let api = dt;
-    const btnInitialText = $(node).text();
-    // $(node).prop("disabled", true);
-    $(node).html(`
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-        Generando guías
-    `);
+
+    const loader = new ChangeElementContenWhileLoading(node);
+    loader.init();
 
     // Cargador.fire("Creando guías", "Estamos generando las guías solicitadas, esto podría demorar unos minutos, por favor espere.")
 
     const selectedRows = api.rows(".selected");
     let datas = selectedRows.data();
     const nodos = selectedRows.nodes();
-    console.log(datas);
-    console.log(nodos);
+
+    if(!nodos.length) {
+        loader.end();
+        return;
+    }
     // return;
 
-
-    for ( let i = 0; i < nodos.length; i++) {
-        const guia = datas[i];
-        const respuesta = await crearGuiaTransportadora(guia);
+    let errores = [];
+    let i = 0;
+    for await ( let guia of datas.toArray()) {
         const row = nodos[i];
+        const respuesta = await crearGuiaTransportadora(guia);
         let icon, color;
         if(!respuesta.error) {
             icon = "clipboard-check";
@@ -493,16 +497,18 @@ async function aceptarPedido(e, dt, node, config) {
         } else {
             icon = "exclamation-circle";
             color = "text-danger";
+            errores.push([row, respuesta.message, icon, color]);
         }
-        notificacionPorGuia(row, respuesta.message, icon, color)    
+        i++;
     }
     
-    function notificacionPorGuia(row, mensaje, icon, colorText) {
-        $(row).after(`<tr><td colspan='10' class='${colorText}'><i class='fa fa-${icon} mr-2'></i>${mensaje}</td></tr>`)
-    }
+    errores.forEach(([row, mensaje, icon, colorText]) => {
+        $(row).after(`<tr><td colspan='11' class='${colorText} action'><i class='fa fa-${icon} mr-2'></i>${mensaje}</td></tr>`)
+    });
+
+    if(!errores.length) $("#filter_listado-guias_hist").click(); 
     
-    $(node).text(btnInitialText);
-    $(node).prop("disabled", false);
+    loader.end();
 
     Toast.fire({
         icon: "success",

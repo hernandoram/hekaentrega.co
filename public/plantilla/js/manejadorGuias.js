@@ -652,6 +652,7 @@ function crearDocumentos(e, dt, node, config) {
                 });
                 actualizarHistorialDeDocumentos();
                 location.href = "#documentos";
+                $("#filter_proceso-guias_hist").click();
             } else {
                 await crearManifiestoServientrega(arrGuias, {
                     id_user, 
@@ -685,7 +686,8 @@ function crearDocumentos(e, dt, node, config) {
                 visible_admin: true
             }).then(() => {
                 actualizarHistorialDeDocumentos();
-                location.href = "#documentos"
+                location.href = "#documentos";
+                $("#filter_proceso-guias_hist").click();
             });
         }
         
@@ -744,7 +746,8 @@ async function actualizarEstadoGuiasDocCreado(arrGuias) {
         .collection("guias").doc(guia.id_heka)
         .update({
             enviado: true,
-            estado: "Enviado"
+            estado: "Enviado",
+            estadoActual: estadosGuia.empacada
         })
         .then(() => {
             const link = guia.transportadora === "ENVIA" ? "https://envia.co/" : "https://www.interrapidisimo.com/sigue-tu-envio/"
@@ -856,7 +859,8 @@ async function crearManifiestoServientrega(arrGuias, vinculo) {
     }
     
     actualizarHistorialDeDocumentos();
-    location.href = "#documentos"
+    location.href = "#documentos";
+    $("#filter_proceso-guias_hist").click();
 
 }
 
@@ -912,7 +916,8 @@ async function crearManifiestoAveonline(arrGuias, vinculo) {
     }
     
     actualizarHistorialDeDocumentos();
-    location.href = "#documentos"
+    location.href = "#documentos";
+    $("#filter_proceso-guias_hist").click();
 
 }
 

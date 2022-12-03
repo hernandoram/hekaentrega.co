@@ -1,5 +1,16 @@
 const db = require("../keys/firebase").firestore();
 
+exports.estadosGuia = {
+    novedad: "NOVEDAD",
+    pedido: "PEDIDO",
+    pagada: "PAGADA",
+    finalizada: "FINALIZADA",
+    generada: "GENERADA",
+    proceso: "TRANSITO",
+    empacada: "EMPACADA",
+    eliminada: "ELIMINADA"
+}
+
 exports.revisarTipoEstado = (est, transp) => {
     const entregadas = ["ENTREGADO", "Entrega Exitosa"];
     const devoluciones = ["ENTREGADO A REMITENTE", "Devuelto al Remitente"];

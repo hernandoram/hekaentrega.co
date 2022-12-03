@@ -9,6 +9,16 @@ var firebaseConfig = {
     measurementId: "G-47CYMPHNRM"
 };
 
+const estadosGuia = {
+    novedad: "NOVEDAD",
+    pedido: "PEDIDO",
+    pagada: "PAGADA",
+    finalizada: "FINALIZADA",
+    generada: "GENERADA",
+    proceso: "TRANSITO",
+    empacada: "EMPACADA",
+    eliminada: "ELIMINADA"
+}
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -444,7 +454,7 @@ function activarBotonesDeGuias(id, data, activate_once){
                 this.disabled = true;
                 this.display = "none";
                 usuarioAltDoc(data.id_user).collection("guias")
-                .doc(id).update({deleted: true, fecha_eliminada: new Date()}).then((res) => {
+                .doc(id).update({deleted: true, fecha_eliminada: new Date(), estadoActual: estadosGuia.eliminada}).then((res) => {
                     console.log(res);
                     console.log("Document successfully deleted!");
                     avisar("Guia Eliminada", "La guia Número " + id + " Ha sido eliminada", "alerta");
