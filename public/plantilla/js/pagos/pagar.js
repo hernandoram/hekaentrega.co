@@ -178,7 +178,7 @@ class Empaquetado {
         button.setAttribute("class", "btn btn-success");
         button.setAttribute("id", "btn-pagar-"+usuario);
 
-        if(total <= 0) btnDisabled = true;
+        if(total < 0) btnDisabled = true;
         if(btnDisabled) button.setAttribute("disabled", btnDisabled);
         button.innerHTML = "Pagar $" + convertirMiles(total);
         button.addEventListener("click", () => this.pagar(usuario));
