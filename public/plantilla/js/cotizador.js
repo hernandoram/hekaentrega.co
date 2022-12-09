@@ -107,6 +107,10 @@ let transportadoras = {
     },
 };
 
+const CONTRAENTREGA = "PAGO DESTINO";
+const PAGO_CONTRAENTREGA = "PAGO CONTRAENTREGA";
+const CONVENCIONAL = "CONVENCIONAL";
+
 const isIndex = document.getElementById("cotizar_envio").getAttribute("data-index");
 
 function gestionarTransportadora() {
@@ -396,16 +400,40 @@ async function seleccionarTipoEnvio() {
         showCancelButton: true,
         confirmButtonClass: "bg-primary",
         confirmButtonText: 'Pago Contra Entrega',
-        cancelButtonText: "Común"
+        cancelButtonText: "Común",
+        showDenyButton: true,
+        denyButtonText: "Pago a destino",
+        denyButtonClass: "bg-success"
+
     }).then((result) => {
         if(result.isConfirmed) {
             return "PAGO CONTRAENTREGA";
+        } else if(result.isDenied) {
+            return CONTRAENTREGA;
         } else if(result.dismiss === Swal.DismissReason.cancel) {
             return "CONVENCIONAL"
         } else {
             return ""
         }
     });
+}
+
+const pruebaContraentrega = () => {
+    //Antes de continuar, utiliza un validador
+    let cotizacion = new CalcularCostoDeEnvio(1);
+
+    //Si el usuario accede a sumar el envío, se calcula cual debería
+    //ser el valor de recaudo, para que se sume el costo del envío
+    // cotizacion.sumarCostoDeEnvio = 0;
+
+    /*Verifica que haya valor en el recaudo, que no supere los límites ingresados
+    Y que no sea menor al costo del envío*/
+    // else if (cotizacion.seguro < cotizacion.costoEnvio) {
+    //     Swal.showValidationMessage("El valor del recaudo no debe ser menor al costo del envío ($" + convertirMiles(cotizacion.costoEnvio) +")");
+    // };
+
+    //me devuelve la clase del cotizador
+    return cotizacion;
 }
 
 // me devuelve el resultado de cada formulario al hacer una cotizacion
@@ -418,7 +446,9 @@ async function response(datos) {
     //si no selecciona ninguno, no devuelve nada
     if(!type) {
         return ""
-    }if(type == "PAGO CONTRAENTREGA") {
+    } else if(type == "PAGO DESTINO") {
+        result_cotizacion = pruebaContraentrega();
+    } else if(type == "PAGO CONTRAENTREGA") {
         // Para esta selección activa un nuevo modal que me devuleve los datos de cotización
         let resp_usuario = await pagoContraentrega();
         result_cotizacion = resp_usuario.value;
@@ -564,10 +594,14 @@ async function detallesTransportadoras(data) {
         
         if(data.peso > transportadora.limitesPeso[1]) continue;
         let valor = Math.max(seguro, transportadora.limitesValorDeclarado(data.peso)[0]);
-
+        if(data.type === "PAGO DESTINO") valor = 0;
         let cotizador = new CalcularCostoDeEnvio(valor, data.type)
+        
+        if(transp === "ENVIA") {
+            cotizador.valor = recaudo;
+            cotizador.seguro = Math.max(seguro, transportadora.limitesValorDeclarado(data.peso)[0]);
 
-        if(transp === "ENVIA") cotizador.valor = recaudo;
+        }
 
         cotizador.kg_min = transportadora.limitesPeso[0];
 
@@ -578,7 +612,8 @@ async function detallesTransportadoras(data) {
             cotizacionAveo
         });
 
-        if(data.sumar_envio) {
+
+        if(data.sumar_envio  || data.type === "PAGO DESTINO") {
             cotizacion.sumarCostoDeEnvio = cotizacion.valor;
         }
         
@@ -1366,7 +1401,7 @@ function seleccionarTransportadora(e) {
             datos_a_enviar.dane_ciudadD = datos_de_cotizacion.dane_ciudadD;
             datos_a_enviar.transportadora = transp;
 
-            if(transp === "ENVIA" || transp === "TCC") {
+            if(transp === "TCC") {
                 datos_a_enviar.ave_ciudadD = datos_de_cotizacion.ave_ciudadD
                 datos_a_enviar.ave_ciudadR = datos_de_cotizacion.ave_ciudadR
             }
@@ -2004,7 +2039,7 @@ class CalcularCostoDeEnvio {
         del envío impuesto por el viejo contructor, para así sustituir el constructor*/
         while(val > Math.round(this.valor - this.costoEnvio) && counter < 10) {
             this.valor = Math.round(val + this.costoEnvio);
-            this.seguro = this.aveo ? this.seguro : this.valor;
+            this.seguro = this.aveo || this.codTransp === "ENVIA" ? this.seguro : this.valor;
             counter ++;
             console.log("\n *** Estamos en bucle fase " + counter)
             console.log(this.codTransp);
@@ -2228,6 +2263,7 @@ class CalcularCostoDeEnvio {
         this.precio = response;
         this.envia = true;
 
+        if(this.type === CONTRAENTREGA) this.valor = 0;
         this.intoEnvia(response);
         return true;        
     }
@@ -2592,7 +2628,7 @@ async function enviar_firestore(datos){
 
     console.log(datos.debe);
     if(!datos.debe && !datos_personalizados.actv_credit &&
-        datos.costo_envio > datos_personalizados.saldo) {
+        datos.costo_envio > datos_personalizados.saldo && datos.type !== CONTRAENTREGA) {
         return {
             mensaje: `Lo sentimos, en este momento, el costo de envío excede el saldo
             que tienes actualmente, por lo tanto este metodo de envío no estará 
@@ -2608,7 +2644,7 @@ async function enviar_firestore(datos){
     datos_personalizados.saldo <= 0 ? user_debe = datos.costo_envio
     : user_debe = - datos_personalizados.saldo + datos.costo_envio;
 
-    if(user_debe > 0 && !datos.debe) datos.user_debe = user_debe;
+    if(user_debe > 0 && !datos.debe && datos.type !== CONTRAENTREGA) datos.user_debe = user_debe;
 
     datos.seguimiento_finalizado = false;
     datos.fecha = genFecha();
@@ -2686,7 +2722,7 @@ async function enviar_firestore(datos){
         };
 
         //***si se descuenta del saldo***
-        if(!datos.debe){
+        if(!datos.debe && datos.type !== CONTRAENTREGA){
             saldo_detallado.saldo = saldo - datos.costo_envio;
             if(ControlUsuario.esPuntoEnvio) saldo_detallado.saldo += datos.detalles.comision_punto;
             saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;

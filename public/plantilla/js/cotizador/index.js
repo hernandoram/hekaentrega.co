@@ -1,4 +1,3 @@
-import {ciudades} from "../consultarCiudades.js";
 const db = firebase.firestore();
 
 const bodegasEl = $("#list_bodegas-cotizador");
@@ -30,6 +29,7 @@ checkActivarDestinoPlantilla.change(() => plantillasEl.change());
 const charger = new ChangeElementContenWhileLoading(btnCotizar);
 export function iniciarOpcionesCotizador() {
     opcionesEl.removeClass("d-none");
+    $("#cotizador .form-control-user").removeClass("form-control-user");
 }
 
 export function llenarBodegasCotizador() {
@@ -102,10 +102,11 @@ function buscarCiudad(el, ciudad) {
     if(ciudadesTomadas.has(ciudad)) return setearCiudad(el, ciudadesTomadas.get(ciudad));
 
     db.collection("ciudades").where("nombre", "==", ciudad)
-    .limit(1)
+    .limit(3)
     .get().then(q => {
         q.forEach(doc => {
             const data = doc.data();
+            if(data.desactivada) return;
             setearCiudad(el, data);
         })
     })
