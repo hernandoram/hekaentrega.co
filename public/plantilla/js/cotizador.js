@@ -1411,7 +1411,7 @@ function seleccionarTransportadora(e) {
             if(isIndex){
                 location.href = "ingreso.html";
             }else if(!datos_a_enviar.debe && !datos_personalizados.actv_credit &&
-                datos_a_enviar.costo_envio > datos_personalizados.saldo) {
+                datos_a_enviar.costo_envio > datos_personalizados.saldo && datos_a_enviar.type !== CONTRAENTREGA) {
                 /* Si el usuario no tiene el crédito activo, la guía que quiere crear
                 muestra que debe saldo y se verifica que el costo del envío excede el saldo
                 Arroja la excepción*/
