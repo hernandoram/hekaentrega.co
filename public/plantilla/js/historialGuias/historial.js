@@ -536,7 +536,7 @@ async function descontarSaldo(datos) {
     const id = datos.id_heka;
     console.log(datos.debe);
     if(!datos.debe && !datos_personalizados.actv_credit &&
-        datos.costo_envio > datos_personalizados.saldo) {
+        datos.costo_envio > datos_personalizados.saldo && datos.type !== CONTRAENTREGA) {
         return {
             mensaje: `Lo sentimos, en este momento, el costo de envío excede el saldo
             que tienes actualmente, por lo tanto este metodo de envío no estará 
@@ -554,8 +554,6 @@ async function descontarSaldo(datos) {
 
     if(user_debe > 0 && !datos.debe) datos.user_debe = user_debe;
 
-
-
     if(!datos_heka) return id;
 
     let momento = new Date().getTime();
@@ -571,11 +569,14 @@ async function descontarSaldo(datos) {
         momento: momento,
         user_id: localStorage.user_id,
         guia: id,
-        medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id
+        numeroGuia: datos.numeroGuia || "",
+        transportadora: datos.transportadora || "",
+        medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id,
+        type: "DESCONTADO"
     };
 
     //***si se descuenta del saldo***
-    if(!datos.debe){
+    if(!datos.debe && datos.type !== CONTRAENTREGA){
         saldo_detallado.saldo = saldo - datos.costo_envio;
 
         if(ControlUsuario.esPuntoEnvio) saldo_detallado.saldo += datos.detalles.comision_punto;

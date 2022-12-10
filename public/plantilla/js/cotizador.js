@@ -107,6 +107,10 @@ let transportadoras = {
     },
 };
 
+const CONTRAENTREGA = "PAGO DESTINO";
+const PAGO_CONTRAENTREGA = "PAGO CONTRAENTREGA";
+const CONVENCIONAL = "CONVENCIONAL";
+
 const isIndex = document.getElementById("cotizar_envio").getAttribute("data-index");
 
 function gestionarTransportadora() {
@@ -396,10 +400,16 @@ async function seleccionarTipoEnvio() {
         showCancelButton: true,
         confirmButtonClass: "bg-primary",
         confirmButtonText: 'Pago Contra Entrega',
-        cancelButtonText: "Común"
+        cancelButtonText: "Común",
+        showDenyButton: true,
+        denyButtonText: "Pago a destino",
+        denyButtonClass: "bg-success"
+
     }).then((result) => {
         if(result.isConfirmed) {
             return "PAGO CONTRAENTREGA";
+        } else if(result.isDenied) {
+            return CONTRAENTREGA;
         } else if(result.dismiss === Swal.DismissReason.cancel) {
             return "CONVENCIONAL"
         } else {
@@ -418,7 +428,9 @@ async function response(datos) {
     //si no selecciona ninguno, no devuelve nada
     if(!type) {
         return ""
-    }if(type == "PAGO CONTRAENTREGA") {
+    } else if(type == "PAGO DESTINO") {
+        result_cotizacion = new CalcularCostoDeEnvio(1); // si coloco cero no funciona con envía
+    } else if(type == "PAGO CONTRAENTREGA") {
         // Para esta selección activa un nuevo modal que me devuleve los datos de cotización
         let resp_usuario = await pagoContraentrega();
         result_cotizacion = resp_usuario.value;
@@ -564,10 +576,14 @@ async function detallesTransportadoras(data) {
         
         if(data.peso > transportadora.limitesPeso[1]) continue;
         let valor = Math.max(seguro, transportadora.limitesValorDeclarado(data.peso)[0]);
-
+        if(data.type === "PAGO DESTINO") valor = 0;
         let cotizador = new CalcularCostoDeEnvio(valor, data.type)
+        
+        if(transp === "ENVIA") {
+            cotizador.valor = recaudo;
+            cotizador.seguro = Math.max(seguro, transportadora.limitesValorDeclarado(data.peso)[0]);
 
-        if(transp === "ENVIA") cotizador.valor = recaudo;
+        }
 
         cotizador.kg_min = transportadora.limitesPeso[0];
 
@@ -578,7 +594,8 @@ async function detallesTransportadoras(data) {
             cotizacionAveo
         });
 
-        if(data.sumar_envio) {
+
+        if(data.sumar_envio  || data.type === "PAGO DESTINO") {
             cotizacion.sumarCostoDeEnvio = cotizacion.valor;
         }
         
@@ -1366,7 +1383,7 @@ function seleccionarTransportadora(e) {
             datos_a_enviar.dane_ciudadD = datos_de_cotizacion.dane_ciudadD;
             datos_a_enviar.transportadora = transp;
 
-            if(transp === "ENVIA" || transp === "TCC") {
+            if(transp === "TCC") {
                 datos_a_enviar.ave_ciudadD = datos_de_cotizacion.ave_ciudadD
                 datos_a_enviar.ave_ciudadR = datos_de_cotizacion.ave_ciudadR
             }
@@ -1376,7 +1393,7 @@ function seleccionarTransportadora(e) {
             if(isIndex){
                 location.href = "ingreso.html";
             }else if(!datos_a_enviar.debe && !datos_personalizados.actv_credit &&
-                datos_a_enviar.costo_envio > datos_personalizados.saldo) {
+                datos_a_enviar.costo_envio > datos_personalizados.saldo && datos_a_enviar.type !== CONTRAENTREGA) {
                 /* Si el usuario no tiene el crédito activo, la guía que quiere crear
                 muestra que debe saldo y se verifica que el costo del envío excede el saldo
                 Arroja la excepción*/
@@ -2004,7 +2021,7 @@ class CalcularCostoDeEnvio {
         del envío impuesto por el viejo contructor, para así sustituir el constructor*/
         while(val > Math.round(this.valor - this.costoEnvio) && counter < 10) {
             this.valor = Math.round(val + this.costoEnvio);
-            this.seguro = this.aveo ? this.seguro : this.valor;
+            this.seguro = this.aveo || this.codTransp === "ENVIA" ? this.seguro : this.valor;
             counter ++;
             console.log("\n *** Estamos en bucle fase " + counter)
             console.log(this.codTransp);
@@ -2228,6 +2245,7 @@ class CalcularCostoDeEnvio {
         this.precio = response;
         this.envia = true;
 
+        if(this.type === CONTRAENTREGA) this.valor = 0;
         this.intoEnvia(response);
         return true;        
     }
