@@ -5,63 +5,72 @@ import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 const {novedad, proceso, pedido, pagada, finalizada, generada} = defFiltrado;
 
 const container = $("#historial_guias");
+const buscador = $("#filtrado-guias_hist")
 
-container.append(filtersHtml);
+buscador.before(filtersHtml);
 container.append(htmlTable);
+
+const columns = [
+    {data: null, title: "Acción", render: accionesDeFila, types: [novedad, proceso, pedido, pagada, finalizada, generada]},
+    {data: null, title: "Empaque", render: accionEmpaque, types: [generada]},
+    {data: null, title: "Gestionar", render: accionGestNovedad, types: [novedad]},
+    {data: "id_heka", title: "Id", defaultContent: "", types: [novedad, proceso, pedido, pagada, finalizada, generada]},
+    {data: "numeroGuia", title: "# Guía", defaultContent: "", types: [novedad, proceso, pagada, finalizada, generada]},
+    {data: "estado", title: "Estado", defaultContent: "", types: [novedad, proceso, pagada, finalizada]},
+    {data: "transportadora", 
+    orderable: false, 
+    title: "Transportadora", defaultContent: "", types: [novedad, proceso, pedido, pagada, finalizada, generada]},
+    {data: "type", title: "Tipo", defaultContent: "", types: [novedad, proceso, pedido, pagada, finalizada, generada]},
+    {data: "nombreD", title: "Destinatario", defaultContent: "", types: [novedad, proceso, pedido, pagada, finalizada, generada]},
+    {
+        data: "telefonoD", title: "Telefonos",
+        defaultContent: "", render: (valor,type,row) => {
+            if(type === "display" || type === "filter") {
+                const aCelular1 = `<a class="btn btn-light d-flex align-items-baseline mb-1 action" href="https://api.whatsapp.com/send?phone=57${valor.toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i>${valor}</a>`;
+                const aCelular2 = `<a class="btn btn-light d-flex align-items-baseline action" href="https://api.whatsapp.com/send?phone=57${row["celularD"].toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i>${row["celularD"]}</a>`;
+                return aCelular1;
+            }
+
+            return valor;
+        }, 
+        types: [novedad, proceso, pedido, pagada, finalizada, generada]
+    },
+    {data: "ciudadD", title: "Ciudad", defaultContent: "", types: [novedad, proceso, pedido, pagada, finalizada, generada]},
+    {data: "fecha", title: "Fecha", defaultContent: "", types: [novedad, proceso, pedido, pagada, finalizada, generada]},
+    {
+        data: "seguro", title: "Seguro", 
+        defaultContent: "", render: (value, type, row) => {
+            if(type === "display" || type === "filter") {
+                return value || row["valor"];
+            }
+
+            return value;
+        },
+        types: [novedad, proceso, pedido, pagada, finalizada, generada]
+    },
+    {
+        data: "valor", title: "Recaudo", 
+        defaultContent: "",
+        types: [novedad, proceso, pedido, pagada, finalizada, generada]
+    },
+    {
+        data: "costo_envio", title: "Costo de envío", 
+        defaultContent: "",
+        types: [novedad, proceso, pedido, pagada, finalizada, generada]
+    },
+    {
+        data: "detalles.comision_punto", title: "Ganancia", 
+        defaultContent: "No aplica", visible: ControlUsuario.esPuntoEnvio,
+        types: [novedad, proceso, pedido, pagada, finalizada, generada]
+    }
+]
 
 const table = $("#tabla-historial-guias").DataTable({
     destroy: true,
     data: null,
     rowId: "row_id",
     order: [[3, "desc"]],
-    columns: [
-        {data: null, title: "Acción", render: accionesDeFila},
-        {data: null, title: "Empaque", render: accionEmpaque},
-        {data: "id_heka", title: "Id", defaultContent: ""},
-        {data: "numeroGuia", title: "# Guía", defaultContent: ""},
-        {data: "estado", title: "Estado", defaultContent: ""},
-        {data: "transportadora", 
-        orderable: false,
-        title: "Transportadora", defaultContent: ""},
-        {data: "type", title: "Tipo", defaultContent: ""},
-        {data: "nombreD", title: "Destinatario", defaultContent: ""},
-        {
-            data: "telefonoD", title: "Telefonos",
-            defaultContent: "", render: (valor,type,row) => {
-                if(type === "display" || type === "filter") {
-                    const aCelular1 = `<a class="btn btn-light d-flex align-items-baseline mb-1 action" href="https://api.whatsapp.com/send?phone=57${valor.toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i>${valor}</a>`;
-                    const aCelular2 = `<a class="btn btn-light d-flex align-items-baseline action" href="https://api.whatsapp.com/send?phone=57${row["celularD"].toString().replace(/\s/g, "")}" target="_blank"><i class="fab fa-whatsapp mr-1" style="color: #25D366"></i>${row["celularD"]}</a>`;
-                    return aCelular1;
-                }
-
-                return valor;
-            }
-        },
-        {data: "ciudadD", title: "Ciudad", defaultContent: ""},
-        {data: "fecha", title: "Fecha", defaultContent: ""},
-        {
-            data: "seguro", title: "Seguro", 
-            defaultContent: "", render: (value, type, row) => {
-                if(type === "display" || type === "filter") {
-                    return value || row["valor"];
-                }
-
-                return value;
-            }
-        },
-        {
-            data: "valor", title: "Recaudo", 
-            defaultContent: ""
-        },
-        {
-            data: "costo_envio", title: "Costo de envío", 
-            defaultContent: "",
-        },
-        {
-            data: "detalles.comision_punto", title: "Ganancia", 
-            defaultContent: "No aplica", visible: ControlUsuario.esPuntoEnvio
-        }
-    ],
+    columns,
     language: {
       url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
     },
@@ -181,18 +190,8 @@ export default class SetHistorial {
     defineColumns() {
         // No está funcionando como debería (error desconocido)
         
-        let columnas;
-        switch(this.filtrador) {
-            case pedido:
-                columnas = [0,2,5,6,7,8,9,10,11,12,13];
-                break;
-            case generada: 
-                columnas = [0,1,2,3,5,6,7,8,9,10,11,12,13];
-            break;
-            default:
-                columnas = [0,2,3,4,5,6,7,8,9,10,11,12,13];
-                break
-        }
+        let columnas = columns.map((c,i) =>  c.types.includes(this.filtrador) && c.visible !== false ? i : false)
+        .filter(f => f !== false);
 
         const renderizar = () => {
             table.columns().every(nCol => {
@@ -303,7 +302,7 @@ function defineFilter(data) {
         filter = pagada
     } else if (data.seguimiento_finalizado) {
         filter = finalizada;
-    } else if(!data.estado) {
+    } else if(data.estadoActual === generada) {
         filter = generada;
     } else {
         filter = proceso;
@@ -343,8 +342,8 @@ function agregarFuncionalidadesTablaPedidos() {
     filtrador.watch(filt => {
         setTimeout(() => {
             renderContador(filt, api.data());
-            filtrarHistorialGuiasPorColumna(api.column(5))
             filtrarHistorialGuiasPorColumna(api.column(6))
+            filtrarHistorialGuiasPorColumna(api.column(7))
         }, 300);
     })
 
@@ -672,7 +671,7 @@ function accionesDeFila(datos, type, row) {
 
         //Botones para descargar documentosy rótulos cuando accede a la condición
         //botones para clonar y eliminar guía cuando rechaza la condición.
-        if(datos.enviado) {
+        if(datos.enviado && !datos.enNovedad) {
             buttons += btnDownloadDocs + btnRotulo;
         }
 
@@ -704,6 +703,31 @@ function accionEmpaque(datos, type, row) {
             data-id="${id_heka}"
             data-funcion="activar-desactivar">
             <label class="custom-control-label action" for="empacar-${id_heka}">${empacada ? "Empacada" : "No empacada"}</label>
+        </div>
+        `;
+
+        return res;
+    } 
+    return datos;
+}
+
+function accionGestNovedad(datos, type, row) {
+    if(type === "display" || type === "filter") {
+        const filtrado = defineFilter(row);
+        const {numeroGuia, novedad_solucionada, transportadora, id_heka} = row;
+        if (filtrado !== novedad) return "";
+
+        const btnGestionar = novedad_solucionada 
+        || transportadora === "INTERRAPIDISIMO" ? "Revisar" : "Gestionar";
+
+        const res = `
+        <div class="text-center">
+            <button class="btn btn-sm btn-${novedad_solucionada ? "secondary" : "primary"} action" 
+                id="gestionar-novedad-${id_heka}"
+                data-id="${id_heka}"
+                data-toggle="modal" data-target="#modal-gestionarNovedad"}>
+                    ${btnGestionar}
+            </button>
         </div>
         `;
 

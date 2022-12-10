@@ -10,6 +10,7 @@ const btnSearch = $("#btn_buscar-guias_hist");
 const inpFechaInicio = $("#fecha_inicio-guias_hist");
 const inpFechaFinal = $("#fecha_final-guias_hist");
 const inpNumeroGuia = $("#numeroGuia-guias_hist");
+const alerta = $("#alerta_novedad-guias_hist");
 btnActvSearch.click(toggleBuscador);
 btnSearch.click(consultarHistorialGuias);
 
@@ -78,18 +79,43 @@ async function cargarNovedades() {
     .get().then(querySnapshot => {
         console.log(querySnapshot.size);
         $(".mostrar-cantidad_novedades").text(querySnapshot.size);
+        const novedades = [];
         querySnapshot.forEach(doc => {
             const data = doc.data();
-            console.log(data);
 
             const id = data.id_heka;
             data.row_id = "historial-guias-row" + id;
 
             data.deleted ? historial.delete(id) : historial.add(data);
+
+            if(!data.deleted) novedades.push(data);
         })
+
+        listaNovedadesEncontradas = novedades;
+        mostrarAlertaNovedades({
+            contador: novedades.length
+        });
+
     });
 
     historial.filter(historial.filtrador);   
+}
+
+let texto_inicial_alerta = alerta.html();
+function mostrarAlertaNovedades(obj) {
+    if(!obj.contador) return;
+
+    alerta.removeClass("d-none");
+    const exp = /\{(\w+)\}/g;
+    let nuevo_texto = texto_inicial_alerta; 
+
+    let x;
+    while(x = exp.exec(texto_inicial_alerta)) {
+        nuevo_texto = nuevo_texto.replace(x[0], obj[x[1]]);
+    }
+
+    alerta.html(nuevo_texto);
+    $(".ver-novedades").on("click", () => $("#filter_novedad-guias_hist").click());
 }
 
 function toggleBuscador() {

@@ -1056,6 +1056,17 @@
           </div>
 
           <div class="container-fluid" id="historial_guias" style="display: none;">
+            <div class="alert alert-warning alert-dismissible fade show d-none" role="alert" id="alerta_novedad-guias_hist">
+              <p>
+                <i class="fa fa-exclamation-triangle text-warning mr-2"></i>
+                Actualmente cuentas con <strong>{contador}</strong> novedades, por favor gestionalas en el menor tiempo posible para evitar devoluciones
+              </p>
+              <button class="btn btn-warning ver-novedades">Revisar Novedades</button>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            
             <div class="d-flex justify-content-between">
               <h3 class="title" id="titulo-guias_hist">
                 Nuevo historial de guías 
@@ -1063,7 +1074,7 @@
               </h3>
               <small id="motrador_filt-guias_hist"></small>
             </div>
-            <div class="form-group row" id="filtrado-guias_hist" style="display: none;">
+            <div class="form-group row mt-2" id="filtrado-guias_hist" style="display: none;">
               <div class="col-sm-4 mb-3">
                 <h6>Fecha inicio</h6>
                 <input type="date" class="form-control form-control-user"  id="fecha_inicio-guias_hist">

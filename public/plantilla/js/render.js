@@ -570,6 +570,8 @@ function activarBotonesDeGuias(id, data, activate_once){
         $("#editar_guia" + id).click(editarGuiaCreada);
 
         $("#empacar-" + id).on("change", empacarGuia);
+
+        $("#gestionar-novedad-" + id).on("click", gestionarNovedad);
       }
 
 }
@@ -697,6 +699,19 @@ function empacarGuia() {
     const id_heka = this.getAttribute("data-id");
     const empacada = this.checked;
     usuarioDoc.collection("guias").doc(id_heka).update({empacada});
+}
+
+let listaNovedadesEncontradas = [];
+async function gestionarNovedad(e) {
+    const id_heka = this.getAttribute("data-id");
+    const guia = listaNovedadesEncontradas.find(n => n.id_heka === id_heka);
+    if(!guia) return;
+
+    const novedad = await usuarioAltDoc(guia.id_user).collection("estadoGuias")
+    .doc(id_heka).get().then(d => d.exists ? d.data() : {});
+
+    console.log(novedad)
+    gestionarNovedadModal(novedad, guia);
 }
 
 

@@ -454,7 +454,7 @@ function filtrarHistorialGuiasPorColumna(column) {
     
     const title = header.getAttribute("data-title") || header.textContent;
     header.setAttribute("data-title", title);
-    const select = $("<select class='custom-select form-control-sm' style='min-width:120px'><option value=''>"+title+"</option></select>")
+    const select = $("<select class='form-control form-control-sm' style='min-width:120px'><option value=''>"+title+"</option></select>")
         .appendTo($(header).empty())
         .on("change", function(e) {
             console.log($(this).val());
@@ -523,8 +523,7 @@ function descargarGuiasParticulares(e, dt, node, config) {
     
         const api = dt;
         const selectedRows = api.rows(".selected");
-        const datas = selectedRows.data();
-    
+        const datas = selectedRows.data().length > 0 ? selectedRows.data() : api.rows().data();
         const ids = new Array();
         datas.each(r => ids.push(r.id_heka));
         console.log(ids);

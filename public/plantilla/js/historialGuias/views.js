@@ -6,7 +6,7 @@ const table = `
         vertical-align: middle;
     }
     </style>
-    <div class="table-responsive">
+    <div class="table-responsive mt-1">
         <table 
             id="${idTable}" 
             class="table table-bordered table-hover w-100"
@@ -17,7 +17,7 @@ const table = `
 
 const title = "<h3>Nuevo historial de guías</h3>";
 
-const filtersHtml = '<div id="filtros-historial-guias" class="d-flex overflow-auto my-3 px-3"></div>';
+const filtersHtml = '<div id="filtros-historial-guias" class="d-flex overflow-auto px-3"></div>';
 
 const filterHtml = (opts, i, length) => `
     <div style="min-width: 180px" 

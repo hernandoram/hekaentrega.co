@@ -24,6 +24,7 @@ export const filters = [
         dataFilter: defFiltrado.pagada
     },
     {
+        id: "filter_novedad-guias_hist",
         name: "En novedad",
         dataFilter: defFiltrado.novedad,
         classColorBadge: "text-danger"
