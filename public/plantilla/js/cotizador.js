@@ -418,24 +418,6 @@ async function seleccionarTipoEnvio() {
     });
 }
 
-const pruebaContraentrega = () => {
-    //Antes de continuar, utiliza un validador
-    let cotizacion = new CalcularCostoDeEnvio(1);
-
-    //Si el usuario accede a sumar el envío, se calcula cual debería
-    //ser el valor de recaudo, para que se sume el costo del envío
-    // cotizacion.sumarCostoDeEnvio = 0;
-
-    /*Verifica que haya valor en el recaudo, que no supere los límites ingresados
-    Y que no sea menor al costo del envío*/
-    // else if (cotizacion.seguro < cotizacion.costoEnvio) {
-    //     Swal.showValidationMessage("El valor del recaudo no debe ser menor al costo del envío ($" + convertirMiles(cotizacion.costoEnvio) +")");
-    // };
-
-    //me devuelve la clase del cotizador
-    return cotizacion;
-}
-
 // me devuelve el resultado de cada formulario al hacer una cotizacion
 async function response(datos) {
     let result_cotizacion, act_btn_continuar = true;
@@ -447,7 +429,7 @@ async function response(datos) {
     if(!type) {
         return ""
     } else if(type == "PAGO DESTINO") {
-        result_cotizacion = pruebaContraentrega();
+        result_cotizacion = new CalcularCostoDeEnvio(1); // si coloco cero no funciona con envía
     } else if(type == "PAGO CONTRAENTREGA") {
         // Para esta selección activa un nuevo modal que me devuleve los datos de cotización
         let resp_usuario = await pagoContraentrega();
