@@ -430,6 +430,7 @@ async function response(datos) {
         return ""
     } else if(type == "PAGO DESTINO") {
         result_cotizacion = new CalcularCostoDeEnvio(1); // si coloco cero no funciona con envía
+        result_cotizacion.debe = true;
     } else if(type == "PAGO CONTRAENTREGA") {
         // Para esta selección activa un nuevo modal que me devuleve los datos de cotización
         let resp_usuario = await pagoContraentrega();
