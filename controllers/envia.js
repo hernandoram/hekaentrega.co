@@ -43,7 +43,14 @@ exports.cotizar = async (req, res) => {
         },
         body: JSON.stringify(data)
     })
-    .then(d => d.json());
+    .then(d => {
+        console.log("status => ", d.status);
+        if(d.status >= 400) return {respuesta: "Error de servidor"}
+        return d.json();
+    })
+    .catch(e => {
+        console.log(e.message);
+    })
 
     console.log(response);
 

@@ -1907,17 +1907,19 @@ class CalcularCostoDeEnvio {
         this.sobreflete_oficina = 0;
         this.comision_punto = 0;
 
-        this._alto = 0; this._ancho = 0; this._largo = 0;
+        this._alto = parseInt(value("dimension-alto"));
+        this._ancho = parseInt(value("dimension-ancho"));
+        this._largo = parseInt(value("dimension-largo"));
     }
 
     set alto(number) {this._alto = number}
     get alto() {return this._alto}
 
-    set ancho(number) {this._alto = number}
-    get ancho() {return this._alto}
+    set ancho(number) {this._ancho = number}
+    get ancho() {return this._ancho}
 
-    set largo(number) {this._alto = number}
-    get largo() {return this._alto}
+    set largo(number) {this._largo = number}
+    get largo() {return this._largo}
 
     //Devuelve el paso generado del volumen, debido al factor dec conversión
     get pesoVolumen(){
@@ -2236,6 +2238,7 @@ class CalcularCostoDeEnvio {
             headers: {"Content-Type": "Application/json"},
             body: JSON.stringify(data)
         }).then(d => d.json())
+        .catch(d => ({respuesta: "Error del servidor"}))
         
         console.log(response);
         if(response.respuesta) {
