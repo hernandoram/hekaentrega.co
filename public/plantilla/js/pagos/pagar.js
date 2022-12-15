@@ -1,6 +1,6 @@
 import { ChangeElementContenWhileLoading, segmentarArreglo } from "../utils/functions.js";
 import Stepper from "../utils/stepper.js";
-import { camposExcel, formularioPrincipal, inpFiltCuentaResp, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor } from "./config.js";
+import { checkShowNegativos, camposExcel, formularioPrincipal, inpFiltCuentaResp, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor } from "./config.js";
 import { comprobarGuiaPagada, guiaExiste } from './comprobadores.js';
 
 const db = firebase.firestore();
@@ -46,7 +46,25 @@ class Empaquetado {
             </div>
         `;
         visor.html('<div class="step-view"></div>' + valoresHtml);
-        this.usuarios = Object.keys(this.pagosPorUsuario);
+        this.usuarios = Object.keys(this.pagosPorUsuario);        
+
+        // usuariosIniciales.reduce( async usuario => this.analizarGuias(usuario));
+    }
+
+    async chargeAll(condition = "POSITIVO") {
+
+        this.condition = condition;
+
+        for await (let u of this.usuarios) {
+            await this.analizarGuias(u);
+        }
+        $("#total-gestionar_pagos").addClass("text-success");
+
+
+        this.usuarios = Object.keys(this.pagosPorUsuario)
+        .filter(cc => this.pagosPorUsuario[cc].condition === condition);
+        
+        this.usuarioActivo = this.usuarios[this.actual];
         if(this.usuarios.length > 1) {
             visor.append(`
             <button class="btn btn-secondary prev mt-2" style="display: none;">anterior</button>
@@ -55,91 +73,97 @@ class Empaquetado {
             `);
         }
 
-        this.usuarioActivo = this.usuarios[this.actual];
-        this.setPages();
-        const usuariosIniciales = this.usuarios
-        // .slice(0, 2);
         const descargarExcel = $("#descargador-guias-pagos");
 
         descargarExcel.click(() => this.descargarExcelPagos());
 
-        (async () => {
-            const loadEx = new ChangeElementContenWhileLoading(descargarExcel);
+        $(".step-view > .step:first-child", visor).addClass("active");
+        this.activeActionsAfterSetPages();
 
-            loadEx.init();
-            for await (let u of usuariosIniciales) {
-                await this.analizarGuias(u);
-            }
-            loadEx.end();
-            $("#total-gestionar_pagos").addClass("text-success");
-
-        })();
-
-        // usuariosIniciales.reduce( async usuario => this.analizarGuias(usuario));
     }
 
     setPages() {
         this.usuarios
-        .forEach((usuario, i) => {
-            const element = `
-                <div class="step ${i ? "" : "active"}">
-                    <div class="card mt-3" id="pagos-usuario-${usuario}">
-                        <div class="card-body">
-                            <h5 class="card-title">
-                                ${usuario}
-                                <div class="btn-group">
-                                    <button class="btn btn-light dropdown-toggle set-info-bank" data-user="${usuario}" data-toggle="dropdown" aria-expanded="false"></button>
-                                    <ul class="dropdown-menu" id="info-bank-${usuario}">
-                                        <li class="dropdown-item">Cargando Información...</li>
-                                    </ul>
-                                </div>
-                                <button class="btn btn-light dwload-excel" data-user="${usuario}">Descargar Excel</button>
-                            </h5>
-                            <div class="loader text-center d-none"></div>
-                            <div class="table-responsive">
-                                <table class="table table-borderless">
-                                    <thead>
-                                        <tr>
-                                            ${this.columnas.map(c => "<th>" + c.title +"</th>").join("")}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="custom-file mt-2 mb-4">
-                                <input type="file" class="custom-file-input" id="comprobante_pago-${usuario}" accept=".pdf" name="comprobante_bancario" lang="es">
-                                <label class="custom-file-label" data-browse="Elegir" for="comprobante_pago-${usuario}">Cargar comprobante ${usuario}</label>
-                            </div>
-                        </div>
-                    </div>  
-                </div>      
-            `;
-    
-            visor.children(".step-view").append(element);
-        });
+        .forEach(this.setPage);
 
+        this.activeActionsAfterSetPages();
+        
+    }
+    
+    activeActionsAfterSetPages() {
         $(".set-info-bank").click(e => this.cargarInformacionBancaria(e));
         $(".dwload-excel").click(e => this.descargarExcelPagosUsuario(e));
-
+    
         // importante para cambiar el label del selector de archivos cuando cambia
         bsCustomFileInput.init();
+    }
 
+    setPage(usuario, i) {
+        const element = `
+            <div class="step ${i ? "" : "active"}">
+                <div class="card mt-3" id="pagos-usuario-${usuario}">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            ${usuario}
+                            <div class="btn-group">
+                                <button class="btn btn-light dropdown-toggle set-info-bank" data-user="${usuario}" data-toggle="dropdown" aria-expanded="false"></button>
+                                <ul class="dropdown-menu" id="info-bank-${usuario}">
+                                    <li class="dropdown-item">Cargando Información...</li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-light dwload-excel" data-user="${usuario}">Descargar Excel</button>
+                        </h5>
+                        <div class="loader text-center d-none"></div>
+                        <div class="table-responsive">
+                            <table class="table table-borderless">
+                                <thead>
+                                    <tr>
+                                        ${this.columnas.map(c => "<th>" + c.title +"</th>").join("")}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="custom-file mt-2 mb-4">
+                            <input type="file" class="custom-file-input" id="comprobante_pago-${usuario}" accept=".pdf" name="comprobante_bancario" lang="es">
+                            <label class="custom-file-label" data-browse="Elegir" for="comprobante_pago-${usuario}">Cargar comprobante ${usuario}</label>
+                        </div>
+                    </div>
+                </div>  
+            </div>      
+        `;
+
+        visor.children(".step-view").append(element);
     }
 
     cargarInformacion(usuario) {
         let btnDisabled = false;
         let btnFactDisabled = true;
-        let total = 0, totalFact = 0;
+        let totalFact = 0;
         $("#pagos-usuario-"+usuario + " tbody", visor).html("");
         $("#btn-pagar-"+usuario).remove();
         const userRef = this.pagosPorUsuario[usuario];
 
+        const total = userRef.guias.reduce((a,b) => {
+            if(!b.guiaPaga) a += b["TOTAL A PAGAR"];
+            return a;
+        },0);
+
+        if(total < 0) {
+            btnDisabled = true;
+            userRef.condition = "NEGATIVO";
+            // return;
+        } else {
+            userRef.condition = "POSITIVO";
+        }
+        
+        if(userRef.condition === this.condition) this.setPage(usuario, false);
+        else return;
+
         userRef.guias.forEach(guia => {
             if(guia.guiaPaga) {
                 btnDisabled = true;
-            } else {
-                total += guia["TOTAL A PAGAR"];
             }
             const clase = "table-" + this.tipoAviso(guia.estado);
             const helper = (type, mensaje) => `<i class="fa fa-${type}" tabindex="0" data-toggle="popover" data-trigger="focus" data-content="${mensaje}"><i>`
@@ -178,7 +202,8 @@ class Empaquetado {
         button.setAttribute("class", "btn btn-success");
         button.setAttribute("id", "btn-pagar-"+usuario);
 
-        if(total < 0) btnDisabled = true;
+        
+
         if(btnDisabled) button.setAttribute("disabled", btnDisabled);
         button.innerHTML = "Pagar $" + convertirMiles(total);
         button.addEventListener("click", () => this.pagar(usuario));
@@ -200,7 +225,7 @@ class Empaquetado {
 
         userRef.analizado = true;
         userRef.pagoPendiente = total;
-        this.actual++
+        // this.actual++
     }
 
     async analizarGuias(usuario) {
@@ -672,26 +697,36 @@ async function consultarPendientes(e) {
         respuesta = data;
     }
     
-    empaquetarGuias(respuesta);
+    await empaquetarGuias(respuesta);
 
     loader.end();
 }
 
-function empaquetarGuias(arr) {
+async function empaquetarGuias(arr) {
     const paquete = new Empaquetado();
 
     arr
     .sort((a,b) => a["REMITENTE"].localeCompare(b["REMITENTE"]))
     .forEach(d => paquete.addPago(d));
+    
     paquete.init();
+
+    const condition = checkShowNegativos.prop("checked") ? "NEGATIVO" : "POSITIVO";
+    
+    visor.children(".step-view").addClass("d-none");
+    await paquete.chargeAll(condition);
+    visor.children(".step-view").removeClass("d-none");
 
     const stepper = new Stepper(visor);
     stepper.init();
+    visor.children(".step-view").click();
     stepper.onAfterChange = step => {
         paquete.actual = step;
         const paq = paquete.usuarios[paquete.actual];
+        const pagoUser = paquete.pagosPorUsuario[paq]
+
         paquete.usuarioActivo = paq;
-        console.log(paq, paquete.pagosPorUsuario[paq]);
+        console.log(paq, pagoUser);
 
         if(paq && !paq.analizado) paquete.analizarGuias(paq);
         const buttons = $(".next,.prev", visor);

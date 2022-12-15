@@ -10,6 +10,7 @@ export const inpFiltUsuario = $("#filtro-usuario-gestionar_pagos");
 export const inpFiltCuentaResp = $("#filtro-cuenta_responsable-gestionar_pagos");
 export const inpFiltnumeroGuia = $("#filtro-guia-gestionar_pagos");
 export const selFiltDiaPago = $("#filtro_tipo_pagos-gestionar_pagos");
+export const checkShowNegativos = $("#filtro_deudor-gestionar_pagos");
 
 export const nameCollectionDb = "pendientePorPagar";
 
