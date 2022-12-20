@@ -1508,9 +1508,7 @@ function finalizarCotizacion(datos) {
             <select class="custom-select" id="entrega_en_oficina" name="entrega_en_oficina">
                 <option value="">Seleccione</option>
                 <option value="1">Entrega en dirección</option>
-                <option value="2" 
-                    class='${ciudadD.dataset.dane_ciudad == "19780000" && datos.transportadora === "INTERRAPIDISIMO" ? "d-none" : ""}'
-                >
+                <option value="2">
                     Entrega en oficina
                 </option>
             </select>

@@ -158,7 +158,7 @@ class Empaquetado {
             userRef.condition = "POSITIVO";
         }
         
-        if(userRef.condition === this.condition) this.setPage(usuario, false);
+        if(userRef.condition === this.condition) this.setPage(usuario, true);
         else return;
 
         userRef.guias.forEach(guia => {
