@@ -490,7 +490,7 @@ class Empaquetado {
 
         }
 
-        const parametros = [pagado, comision_heka].map(p => ({default: p}));
+        const parametros = [pagado.toString(), comision_heka.toString()].map(p => ({default: p}));
         fetch("/mensajeria/ws/sendMessage/pagos_factura", organizarPostPlantillaMensaje(numero, parametros))
 
         this.pagosPorUsuario[usuario].pagoConcreto = pagado;

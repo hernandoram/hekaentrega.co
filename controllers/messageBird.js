@@ -2,12 +2,29 @@ const fetch = require("node-fetch");
 const db = require("../keys/firebase").firestore();
 const {plantillas, credenciales} = require("../keys/messageBird");
 
-const { key, chanel_id, namespace, endpoint } = credenciales;
+const { chanel_id, namespace, endpoint } = credenciales;
 
 const numberToNDC = number => number ? "+57" + number.toString().slice(-10) : "";
 
+let key;
+async function authorization() {
+    if(key) return key;
+
+    key = await db.collection("infoHeka").doc("messageBird")
+    .get().then(d => {
+        if(d.exists) {
+            return d.data().key;
+        }
+
+        return undefined;
+    });
+
+    return key;
+}
+
 async function singleMessage(number, message) {
     const numero = numberToNDC(number);
+    await authorization();
 
     const respuesta = await fetch(endpoint + "/send", {
         method: "POST",
@@ -46,6 +63,7 @@ async function singleMessageCtrl(req, res) {
 }
 
 async function templateMessage(templateName, number, params) {
+    await authorization();
     
     const numero = numberToNDC(number);
     console.log(templateName, params);
