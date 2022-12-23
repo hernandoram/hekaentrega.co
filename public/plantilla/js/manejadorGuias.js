@@ -739,9 +739,9 @@ async function actualizarEstadoGuiasDocCreado(arrGuias) {
         .then(() => {
             const link = guia.transportadora === "ENVIA" ? "https://envia.co/" : "https://www.interrapidisimo.com/sigue-tu-envio/"
 
-            const mensaje = "Se ha generado un envío con "+guia.transportadora+" con la guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link
+            const plantilla = [guia.transportadora, guia.numeroGuia, link].map(p => ({default: p}));
             if(guia.numeroGuia) {
-                fetch("/mensajeria/sendMessage?number=57"+guia.telefonoD+"&message="+mensaje);  
+                fetch("/mensajeria/ws/sendMessage/pedido_realizado", organizarPostPlantillaMensaje(guia.telefonoD, plantilla));  
             }
             
             if(guia.id_oficina) {

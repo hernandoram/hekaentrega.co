@@ -8,11 +8,11 @@ const firebase = require("../keys/firebase");
 const db = firebase.firestore();
 
 const extsFunc = require("../extends/funciones");
-const { singleMessage } = require("../controllers/cellVoz");
 const {notificarGuiaOficina} = require("../extends/notificaciones")
 
 const {UsuarioPrueba, Credenciales} = require("../keys/serviCredentials");
 const { revisarNovedadAsync } = require("../extends/manejadorMovimientosGuia");
+const { templateMessage } = require("./messageBird");
 
 // const storage = firebase.storage();
 
@@ -180,7 +180,11 @@ exports.generarManifiesto = async (req, res) => {
           })
           .then(() => {
             const link = 'https://www.servientrega.com/';
-            singleMessage("57"+guia.telefonoD, "Se ha generado un envío con "+guia.transportadora+" con la guía "+guia.numeroGuia+" puedes realizar el seguimiento de tu envío en "+link);
+            try {
+              const parametros = [guia.transportadora, guia.numeroGuia, link].map(p => ({default: p}));
+              templateMessage("pedido_realizado", guia.telefonoD, parametros);
+            } catch (e) {}
+
             if(guia.id_oficina) {
               notificarGuiaOficina({
                 user_id: vinculo.id_user,

@@ -353,6 +353,9 @@ class Empaquetado {
 
     async cargarInfoUsuario() {
         const user = this.usuarioActivo;
+        const userRef = this.pagosPorUsuario[user];
+
+        if(userRef.informacion) return userRef.informacion;
 
         return await db.collection("usuarios").where("centro_de_costo", "==", user).limit(1)
         .get().then(q => {
@@ -361,7 +364,11 @@ class Empaquetado {
             
             q.forEach(doc => {
                 usuario = doc.data();
-                this.pagosPorUsuario[user].id_user = doc.id;
+                const {datos_bancarios, numero_documento, celular} = usuario;
+                userRef.informacion = {
+                    datos_bancarios, numero_documento, celular
+                }
+                userRef.id_user = doc.id;
             });
 
             return usuario;
@@ -482,6 +489,9 @@ class Empaquetado {
             buttonFact.text("Facturar $" + convertirMiles(comision_heka));
 
         }
+
+        const parametros = [pagado, comision_heka].map(p => ({default: p}));
+        fetch("/mensajeria/ws/sendMessage/pagos_factura", organizarPostPlantillaMensaje(numero, parametros))
 
         this.pagosPorUsuario[usuario].pagoConcreto = pagado;
         this.pagosPorUsuario[usuario].comision_heka_total = comision_heka;

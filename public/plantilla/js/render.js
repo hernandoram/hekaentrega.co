@@ -1325,7 +1325,8 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
 
             const solucion = {
                 gestion: "<b>La transportadora \"" +data.transportadora+ "\" responde lo siguiente:</b> " + text.trim(),
-                fecha: new Date()
+                fecha: new Date(),
+                admin: true
             }
             avisar("Se enviará mensaje al usuario", text);
             if(extraData.seguimiento) {
@@ -2065,6 +2066,19 @@ function createModal() {
 
   document.body.append(modal);
   return m;
+}
+
+function organizarPostPlantillaMensaje(number, params) {
+    return {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            number,
+            params
+        })
+    }
 }
 
 const Toast = Swal.mixin({

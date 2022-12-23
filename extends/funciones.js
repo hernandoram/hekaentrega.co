@@ -1,8 +1,8 @@
 const {agregarEstadistica} = require("./estadisticas");
-const { singleMessage } = require("../controllers/cellVoz");
 const fetch = require("node-fetch");
 
 const {revisarNovedadAsync, revisarEstadoFinalizado, guiaEnNovedad} = require("./manejadorMovimientosGuia");
+const { templateMessage } = require("../controllers/messageBird");
 
 exports.segmentarString = (base64, limite = 1000) => {
   if (!base64) return new Array(0);
@@ -176,12 +176,10 @@ exports.transformarDatosDestinatario = data => {
 };
 
 exports.notificarEntregaEnOficina = (guia) => {
-  const mensaje = "Tu envío "+guia.transportadora+" con número "+guia.numeroGuia+" se encuentra en la oficina principal de tu ciudad, para que sea reclamado máximo en 6 días hábiles.";
-  console.log(mensaje);
-
   // return;
   try {
-    singleMessage("57"+guia.telefonoD, mensaje);
+    const parametros = [guia.transportadora, guia.numeroGuia].map(p => ({default: p}));
+    templateMessage("pedido_en_oficina", guia.telefonoD, parametros);
   } catch {
     console.log("Error enviando mensaje");
   }
