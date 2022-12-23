@@ -1,5 +1,5 @@
 const credenciales = {
-    key:"hHgXcdZWfTOSaNaHTPfBQybSU",
+    key:"RKgAOW5Cq6UJ2unl7PzsFeJ99",
     chanel_id: "f35e7a08-2086-49ae-a3b8-1c6be7920624",
     endpoint: "https://conversations.messagebird.com/v1",
     namespace: "f186f970_7b89_4b0e_bf3c_da3abf5a8e55",
