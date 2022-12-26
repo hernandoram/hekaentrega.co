@@ -487,11 +487,13 @@ class Empaquetado {
             buttonFact.prop("disabled", false);
             buttonFact.removeClass("d-none");
             buttonFact.text("Facturar $" + convertirMiles(comision_heka));
-
         }
 
-        const parametros = [pagado.toString(), comision_heka.toString()].map(p => ({default: p}));
-        fetch("/mensajeria/ws/sendMessage/pagos_factura", organizarPostPlantillaMensaje(numero, parametros))
+        if(pagoUser.informacion) {
+            const {celular} = pagoUser.informacion;
+            const parametros = [pagado.toString(), comision_heka.toString()].map(p => ({default: p}));
+            fetch("/mensajeria/ws/sendMessage/pagos_factura", organizarPostPlantillaMensaje(celular, parametros))
+        }
 
         this.pagosPorUsuario[usuario].pagoConcreto = pagado;
         this.pagosPorUsuario[usuario].comision_heka_total = comision_heka;
