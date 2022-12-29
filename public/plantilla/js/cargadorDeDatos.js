@@ -1085,6 +1085,7 @@ function mostrarPagosUsuario(data) {
         { data: "ENVÍO TOTAL", title: "Envío Total" },
         { data: "TOTAL A PAGAR", title: "Total a Pagar"},
         { data: "COMISION HEKA", title: "Comisión Heka", defaultContent: ""},
+        { data: "referencia", title: "Referencia", defaultContent: "No aplica"},
         { data: "momento", title: "Momento", visible: false}
     ],
     dom: 'Bfrtip',
@@ -1097,7 +1098,7 @@ function mostrarPagosUsuario(data) {
       }
     }],
     //Es importante organizarlo por fecha de manera específica, para poder segmentarlo
-    order: [[7, "desc"]],
+    order: [[8, "desc"]],
     fixedHeader: {footer:true},
     "drawCallback": function ( settings ) {
       //Me realiza una sumatoria de todos los elementos de una columna y los coloca en un footer

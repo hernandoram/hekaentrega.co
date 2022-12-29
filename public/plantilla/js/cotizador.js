@@ -1519,12 +1519,18 @@ function finalizarCotizacion(datos) {
         boton_regresar = crearNodo(`<a class="btn btn-outline-primary btn-block mb-3" href="#cotizar_envio" onclick="regresar()">
             Regresar
             </a>`),
-        input_producto = crearNodo(`<div class="col mb-3 mb-sm-0">
+        input_producto = crearNodo(`<div class="col-md-6 mb-3 mb-sm-0">
             <h6>producto <span>(Lo que se va a enviar)</span></h6>
             <input id="producto" class="form-control form-control-user detect-errors" 
             name="producto" type="text" maxlength="40"
             placeholder="Introduce el contenido de tu envío">
             <p id="aviso-producto" class="text-danger d-none m-2"></p>
+        </div>`),
+        input_referencia = crearNodo(`<div class="col-md-6 mb-3 mb-sm-0">
+            <h6>Referencia <span>(Opcional)</span></h6>
+            <input id="referencia" class="form-control form-control-user detect-errors" 
+            placeholder="Clasificación de manejo personal"
+            name="referencia" type="text" maxlength="40">
         </div>`),
         directionNode = mostrarDirecciones(datos),
         input_buscar_usuario = datos_usuario.type === "PUNTO" ? `
@@ -1635,7 +1641,7 @@ function finalizarCotizacion(datos) {
             class="btn btn-success btn-block mt-5" title="Crear guía" onclick="crearGuia()">Crear guía</button>`);
 
     if(!directionNode) return;
-    div_principal.append(boton_regresar, detalles, input_producto, datos_remitente, datos_destinatario, boton_crear);
+    div_principal.append(boton_regresar, detalles, input_producto, input_referencia, datos_remitente, datos_destinatario, boton_crear);
     creador.innerHTML = "";
     creador.innerHTML = div_principal.innerHTML;
     location.href = "#crear_guia";
@@ -2386,6 +2392,7 @@ function crearGuia() {
             datos_a_enviar.correoD = value("correoD").trim() || "notiene@gmail.com";
             datos_a_enviar.tipo_doc_dest = value("tipo-doc-dest");
             datos_a_enviar.dice_contener = value("producto").trim();
+            datos_a_enviar.referencia = value("referencia").trim();
             datos_a_enviar.observaciones = value("observaciones");
             datos_a_enviar.recoleccion_esporadica = recoleccion;
             datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`;

@@ -1,6 +1,6 @@
 import { ChangeElementContenWhileLoading, segmentarArreglo } from "../utils/functions.js";
 import Stepper from "../utils/stepper.js";
-import { checkShowNegativos, camposExcel, formularioPrincipal, inpFiltCuentaResp, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor } from "./config.js";
+import { checkShowNegativos, camposExcel, formularioPrincipal, inpFiltCuentaResp, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor, codigos_banco } from "./config.js";
 import { comprobarGuiaPagada, guiaExiste } from './comprobadores.js';
 
 const db = firebase.firestore();
@@ -75,7 +75,7 @@ class Empaquetado {
 
         const descargarExcel = $("#descargador-guias-pagos");
 
-        descargarExcel.click(() => this.descargarExcelPagos());
+        descargarExcel.click((e) => this.descargarExcelPagos(e));
 
         $(".step-view > .step:first-child", visor).addClass("active");
         this.activeActionsAfterSetPages();
@@ -251,7 +251,8 @@ class Empaquetado {
                 guia.cuenta_responsable = existente.cuenta_responsable || guia["CUENTA RESPONSABLE"] || "SCR";
                 guia.estado = existente.type;
                 guia.id_heka = existente.id_heka;
-                guia.id_user = existente.id_user
+                guia.id_user = existente.id_user;
+                guia.referencia = existente.referencia || "No aplica";
             } else {
                 guia.noExiste = true;
                 guia.estado = "NO EXISTE";
@@ -337,22 +338,66 @@ class Empaquetado {
         console.log(pagos);
         const columnas = this.columnas
 
-        descargarInformeGuiasAdmin(columnas, guias, "Pagos")
+        descargarInformeGuiasAdmin(columnas, guias, "Pagos");
     }
 
-    descargarExcelPagos() {
-        const guiasDescarga = this.usuarios.reduce((a,b) => {
-            const pagos = this.pagosPorUsuario[b];
-            const guias = pagos.guias;
-            a = a.concat(guias);
-            return a;
-        }, []);
+    async descargarExcelPagos(e) {
+        const loader = new ChangeElementContenWhileLoading(e.target);
+        loader.init();
+        const columnas = [
+            {data: "tipo_doc_number", title: "Tipo Documento Beneficiario"}, // tengo que convertir [null, cc, ce, nit, TI, Pasaporte]
+            {data: "numero_iden_banco", title: "Nit Beneficiario"},
+            {data: "nombre_ben", title: "Nombre Beneficiario"},
+            {data: "tipo_transaccion", title: "Tipo Transaccion"},
+            {data: "cod_bank", title: "Código Banco"},
+            {data: "numero_cuenta", title: "No Cuenta Beneficiario"},
+            {data: "correo", title: "Email"},
+            {data: "documento_autorizado", title: "Documento Autorizado"},
+            {data: "referencia", title: "Referencia"},
+            {data: "celular", title: "Celular Beneficiario"},
+            {data: "pagoPendiente", title: "ValorTransaccion"},
+            {data: "fecha_aplicacion", title: "Fecha de aplicación"}
+        ];
 
-        descargarInformeGuiasAdmin(this.columnas, guiasDescarga, "Guías a pagar");
+        const tiposDocumento = {
+            CC: 1,
+            "Cédula extranjería": 2,
+            "NIT": 3,
+            TI: 4,
+            PASAPORTE: 5
+        }
+
+        const infoUsuariosProm = this.usuarios.map(this.cargarInfoUsuario.bind(this));
+        const infoUsuarios = await Promise.all(infoUsuariosProm);
+        const guiasDescarga = infoUsuarios.map((us) => {
+            const datos_bancarios = us.datos_bancarios;
+            const pagos = this.pagosPorUsuario[us.centro_de_costo];
+
+            return {
+                tipo_doc_number: tiposDocumento[datos_bancarios.tipo_documento_banco],
+                numero_iden_banco: datos_bancarios.numero_iden_banco,
+                nombre_ben: datos_bancarios.centro_de_costo,
+                tipo_transaccion: datos_bancarios.tipo_de_cuenta === "Ahorros" ? 37 : 27,
+                cod_bank: codigos_banco[datos_bancarios.banco],
+                numero_cuenta: datos_bancarios.numero_cuenta,
+                correo: "",
+                documento_autorizado: "",
+                referencia: "",
+                celular: "",
+                pagoPendiente: pagos.pagoPendiente,
+                fecha_aplicacion: genFecha().replace(/\-/g, "")
+            };
+        });
+
+        console.log(guiasDescarga);
+
+        descargarInformeGuiasAdmin(columnas, guiasDescarga, "Guías a pagar");
+
+        loader.end();
     }
 
-    async cargarInfoUsuario() {
-        const user = this.usuarioActivo;
+    async cargarInfoUsuario(user) {
+        user = user ? user : this.usuarioActivo;
         const userRef = this.pagosPorUsuario[user];
 
         if(userRef.informacion) return userRef.informacion;
@@ -364,9 +409,13 @@ class Empaquetado {
             
             q.forEach(doc => {
                 usuario = doc.data();
-                const {datos_bancarios, numero_documento, celular} = usuario;
+                const {
+                    datos_bancarios, numero_documento, celular, centro_de_costo,
+                    correo
+                } = usuario;
                 userRef.informacion = {
-                    datos_bancarios, numero_documento, celular
+                    datos_bancarios, numero_documento, celular, centro_de_costo,
+                    correo
                 }
                 userRef.id_user = doc.id;
             });
@@ -631,7 +680,7 @@ class Empaquetado {
             {data: "FECHA", title: "Fecha"},
             {data: "cuenta_responsable", title: "Cuenta responsable"},
             {data: "estado", title: "Estado"},
-        ] 
+        ]
     }
 
     get conteoTotalGuias() {
