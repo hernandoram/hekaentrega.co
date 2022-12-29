@@ -376,7 +376,7 @@ class Empaquetado {
             return {
                 tipo_doc_number: tiposDocumento[datos_bancarios.tipo_documento_banco],
                 numero_iden_banco: datos_bancarios.numero_iden_banco,
-                nombre_ben: datos_bancarios.centro_de_costo,
+                nombre_ben: us.centro_de_costo,
                 tipo_transaccion: datos_bancarios.tipo_de_cuenta === "Ahorros" ? 37 : 27,
                 cod_bank: codigos_banco[datos_bancarios.banco],
                 numero_cuenta: datos_bancarios.numero_cuenta,
