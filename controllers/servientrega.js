@@ -181,8 +181,14 @@ exports.generarManifiesto = async (req, res) => {
           .then(() => {
             const link = 'https://www.servientrega.com/';
             try {
-              const parametros = [guia.transportadora, guia.numeroGuia, link].map(p => ({default: p}));
-              templateMessage("pedido_realizado", guia.telefonoD, parametros);
+              const {transportadora, numeroGuia, dice_contener, valor, nombre_empresa, nombreR, ciudadR, nombreD, ciudadD, direccionD} = guia;
+              
+              const parametros = [
+                  transportadora, numeroGuia, dice_contener, valor.toString(), nombre_empresa || nombreR, ciudadR,
+                  nombreD, ciudadD, direccionD.trim()
+              ].map(p => ({default: p}));
+
+              templateMessage("pedido_creado", guia.telefonoD, parametros);
             } catch (e) {}
 
             if(guia.id_oficina) {

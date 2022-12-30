@@ -558,12 +558,14 @@ function crearDocumentos(e, dt, node, config) {
 
         const {
             numeroGuia, id_heka, id_archivoCargar, prueba,
-            type, transportadora, has_sticker, telefonoD, id_oficina, id_punto, id_user
+            type, transportadora, has_sticker, telefonoD, id_oficina, id_punto, id_user,
+            dice_contener, valor, nombre_empresa, nombreR, ciudadR, ciudadD, nombreD, direccionD
         } = data;
 
         arrGuias.push({
             numeroGuia, id_heka, id_archivoCargar, prueba,
-            type, transportadora, has_sticker, telefonoD, id_oficina, id_punto, id_user
+            type, transportadora, has_sticker, telefonoD, id_oficina, id_punto, id_user,
+            dice_contener, valor, nombre_empresa, nombreR, ciudadR, ciudadD, nombreD, direccionD
         });
 
         $(nodo).removeClass("selected bg-gray-300");
@@ -739,9 +741,13 @@ async function actualizarEstadoGuiasDocCreado(arrGuias) {
         .then(() => {
             const link = guia.transportadora === "ENVIA" ? "https://envia.co/" : "https://www.interrapidisimo.com/sigue-tu-envio/"
 
-            const plantilla = [guia.transportadora, guia.numeroGuia, link].map(p => ({default: p}));
+            const {transportadora, numeroGuia, dice_contener, valor, nombre_empresa, nombreR, ciudadR, nombreD, ciudadD, direccionD} = guia;
+            const plantilla = [
+                transportadora, numeroGuia, dice_contener, valor.toString(), nombre_empresa || nombreR, ciudadR,
+                nombreD, ciudadD, direccionD.trim()
+            ].map(p => ({default: p}));
             if(guia.numeroGuia) {
-                fetch("/mensajeria/ws/sendMessage/pedido_realizado", organizarPostPlantillaMensaje(guia.telefonoD, plantilla));  
+                fetch("/mensajeria/ws/sendMessage/pedido_creado_completo", organizarPostPlantillaMensaje(guia.telefonoD, plantilla));  
             }
             
             if(guia.id_oficina) {

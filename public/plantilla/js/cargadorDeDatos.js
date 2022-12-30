@@ -168,6 +168,7 @@ async function consultarDatosDeUsuario() {
         tipo_documento: datos.tipo_documento,
         bodegasCompletas: datos.bodegas || [],
         type: datos.type || "NATURAL",
+        nombre_empresa: datos.nombre_empresa,
         bodegas
       }
 
