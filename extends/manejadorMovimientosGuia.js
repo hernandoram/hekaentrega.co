@@ -86,6 +86,7 @@ exports.guiaEnNovedad = (movimientos, transp) => {
     const maxHors = 72 * 3.6e6;
 
     let enNovedad = false;
+    let novedad;
 
     switch(transp) {
         case "INTERRAPIDISIMO":
@@ -99,8 +100,9 @@ exports.guiaEnNovedad = (movimientos, transp) => {
                 const fechaMovMill = new Date(fechaMov).getTime();
                 const diferencia = fechaActual - fechaMovMill;
                 const novedadEncontrada = this.revisarNovedad(mov, transp);
-
+                
                 if(novedadEncontrada) {
+                    novedad = mov;
                     enNovedad = diferencia <= maxHors;
                     break;
                 }
@@ -108,13 +110,14 @@ exports.guiaEnNovedad = (movimientos, transp) => {
             break;
 
         default: 
+            novedad = lastMov
             enNovedad = this.revisarNovedad(lastMov, transp);
             break;
     }
 
     movimientos.reverse();
 
-    return enNovedad;
+    return {enNovedad, novedad, transp};
 }
 
 exports.revisarEstadoFinalizado = (estado) => {

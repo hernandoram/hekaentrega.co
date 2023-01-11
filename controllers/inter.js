@@ -7,6 +7,7 @@ const {Credenciales, UsuarioPrueba, CredencialesEmpresa} = require("../keys/inte
 const urlEstados = "https://www3.interrapidisimo.com/ApiservInter/api/Mensajeria/ObtenerRastreoGuias?guias=";
 
 const firebase = require("../keys/firebase");
+const { notificarNovedadEncontrada } = require("../extends/notificaciones");
 const db = firebase.firestore();
 
 //FUNCIONES REGULARES
@@ -242,6 +243,9 @@ const actualizarMovimientos = async function(doc) {
         const {enNovedad} = updte_movs.guardado
         actualizaciones.enNovedad = enNovedad || false;
     }
+
+    actualizaciones.novedadesNotificadas = await notificarNovedadEncontrada(guia, movimientos);
+    console.log("Se terminará actualizando => ", actualizaciones);
     
     updte_estados = await extsFunc.actualizarEstado(doc, actualizaciones);
 

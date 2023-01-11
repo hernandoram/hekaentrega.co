@@ -1,6 +1,7 @@
 const firebase = require("../keys/firebase");
 const db = firebase.firestore();
-const {estandarizarFecha} = require("./funciones");
+const {estandarizarFecha, notificarNovedad} = require("./funciones");
+const { guiaEnNovedad, traducirMovimientoGuia } = require("./manejadorMovimientosGuia");
 
 exports.notificarGuiaOficina = async (options) => {
     //Este es el patrón utilizado para el objeto que se ingresa en las notificaciones
@@ -35,4 +36,36 @@ exports.notificarGuiaOficina = async (options) => {
     Object.assign(notificacion, options);
 
     db.collection("notificaciones").add(notificacion);
+}
+
+let novedadesMensajeria = [];
+exports.notificarNovedadEncontrada = async (guia, movimientos) => {
+    let {novedadesNotificadas, transportadora} = guia;
+    if(novedadesNotificadas && novedadesNotificadas.length > 2) return novedadesNotificadas;
+
+    if(!novedadesMensajeria.length) {
+        novedadesMensajeria = await db.collection("infoHeka")
+        .doc("novedadesMensajeria").get().then(d => d.data().lista);
+    }
+
+    if(!novedadesNotificadas) novedadesNotificadas = [];
+    if(!movimientos || !movimientos.length) return novedadesNotificadas;
+
+
+    const {novedad, enNovedad} = guiaEnNovedad(movimientos, transportadora);
+    const traductor = traducirMovimientoGuia(transportadora);
+
+    if(!enNovedad) return novedadesNotificadas;
+
+    let mensajeNovedad = novedad[traductor.novedad]
+    const mensaje = novedadesMensajeria.find(n => n.novedad.trim() === mensajeNovedad.trim());
+    if(!mensaje) return novedadesNotificadas;
+
+    const mensajeTraducido = mensaje.mensaje;
+    if(mensajeTraducido && mensajeTraducido.trim() && !novedadesNotificadas.includes(mensajeTraducido.trim())) {
+        novedadesNotificadas.push(mensajeTraducido.trim());
+        notificarNovedad(guia, mensaje);
+    }
+
+    return novedadesNotificadas;
 }

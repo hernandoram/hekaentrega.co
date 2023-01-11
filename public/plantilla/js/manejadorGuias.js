@@ -219,6 +219,10 @@ async function historialGuias(){
                 data: "detalles.comision_punto", title: "Ganancia", 
                 defaultContent: "No aplica", visible: ControlUsuario.esPuntoEnvio
             },
+            {
+                data: "referencia", title: "Referencia", 
+                defaultContent: "No aplica"
+            },
         ],
         language: {
           url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
@@ -229,7 +233,7 @@ async function historialGuias(){
             text: "Descargar excel",
             filename: "Historial Guías",
             exportOptions: {
-              columns: [1,2,3,4,5,6,7,9,10,11,12,13]
+              columns: [1,2,3,4,5,6,7,9,10,11,12,13,15]
             }
         }, {
             text: "Descargar guías",

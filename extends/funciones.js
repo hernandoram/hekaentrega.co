@@ -51,7 +51,7 @@ exports.actualizarMovimientos = async (doc, toUpdate) => {
   toUpdate.id_heka = doc.id;
   toUpdate.fechaUltimaActualizacion = new Date();
 
-  const novedad = guiaEnNovedad(toUpdate.movimientos, doc.data().transportadora);
+  const novedad = guiaEnNovedad(toUpdate.movimientos, doc.data().transportadora).enNovedad;
 
   toUpdate.mostrar_usuario = novedad && !revisarEstadoFinalizado(toUpdate.estadoActual);
   toUpdate.enNovedad = Boolean(novedad);
@@ -180,6 +180,16 @@ exports.notificarEntregaEnOficina = (guia) => {
   try {
     const parametros = [guia.transportadora, guia.numeroGuia].map(p => ({default: p}));
     templateMessage("pedido_en_oficina", guia.telefonoD, parametros);
+  } catch {
+    console.log("Error enviando mensaje");
+  }
+}
+
+exports.notificarNovedad = (guia, mensaje) => {
+  // return;
+  try {
+    const parametros = [guia.transportadora, guia.numeroGuia, mensaje].map(p => ({default: p}));
+    templateMessage("novedad_envio_completa", guia.telefonoD, parametros);
   } catch {
     console.log("Error enviando mensaje");
   }
