@@ -64,7 +64,7 @@ exports.notificarNovedadEncontrada = async (guia, movimientos) => {
     const mensajeTraducido = mensaje.mensaje;
     if(mensajeTraducido && mensajeTraducido.trim() && !novedadesNotificadas.includes(mensajeTraducido.trim())) {
         novedadesNotificadas.push(mensajeTraducido.trim());
-        notificarNovedad(guia, mensaje);
+        notificarNovedad(guia, mensaje.mensaje);
     }
 
     return novedadesNotificadas;
