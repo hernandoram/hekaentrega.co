@@ -13,6 +13,8 @@ const {notificarGuiaOficina} = require("../extends/notificaciones")
 const {UsuarioPrueba, Credenciales} = require("../keys/serviCredentials");
 const { revisarNovedadAsync } = require("../extends/manejadorMovimientosGuia");
 const { templateMessage } = require("./messageBird");
+const { notificarNovedadEncontrada } = require("../extends/notificaciones");
+
 
 // const storage = firebase.storage();
 
@@ -481,6 +483,8 @@ async function actualizarMovimientos(doc) {
             const {enNovedad} = upte_movs.guardado
             actualizaciones.enNovedad = enNovedad || false;
           }
+
+          actualizaciones.novedadesNotificadas = await notificarNovedadEncontrada(guia, movimientos);
 
           if(fecha_ult_novedad) actualizaciones.fecha_ult_novedad = fecha_ult_novedad;
           if(ultima_novedad) actualizaciones.ultima_novedad = ultima_novedad;
