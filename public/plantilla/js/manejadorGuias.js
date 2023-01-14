@@ -1,3 +1,5 @@
+let filtroPagos;
+
 if(administracion){
     if(localStorage.getItem("acceso_admin")){
         if(location.hash === "#documentos"){
@@ -2763,10 +2765,8 @@ $("#guias_punto-hist_guias").on("change", (e) => {
     }
 })
 
-let filtroPagos;
 async function cargarFiltroDePagosPersonalizados() {
-    console.log("cargando filtro pagos");
-    const filtroPagos = await db.collection("infoHeka").doc("usuariosPorDiaDePago")
+    filtroPagos = await db.collection("infoHeka").doc("usuariosPorDiaDePago")
     .get().then(d => d.data());
 
     const listaOpciones = filtroPagos.coleccion.map((c,i) => `<option value="${c}">${filtroPagos.titulos[i]}</option>`);
