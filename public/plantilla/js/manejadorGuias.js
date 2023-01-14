@@ -24,6 +24,7 @@ if(administracion){
             cargarPagos();
         })
 
+        cargarFiltroDePagosPersonalizados();
     } else {
         let inputs = document.querySelectorAll("input");
         let botones = document.querySelectorAll("button")
@@ -2763,6 +2764,20 @@ $("#guias_punto-hist_guias").on("change", (e) => {
 })
 
 let filtroPagos;
+async function cargarFiltroDePagosPersonalizados() {
+    console.log("cargando filtro pagos");
+    const filtroPagos = await db.collection("infoHeka").doc("usuariosPorDiaDePago")
+    .get().then(d => d.data());
+
+    const listaOpciones = filtroPagos.coleccion.map((c,i) => `<option value="${c}">${filtroPagos.titulos[i]}</option>`);
+
+    listaOpciones.unshift('<option value="">Seleccione pagos</option>');
+
+    $("#filtro_pagos-hist_guias").html(listaOpciones);
+
+    return filtroPagos;
+}
+
 async function historialGuiasAdmin(e) {
     const finalId = e.id.split("-")[1];
     let fechaI = document.querySelector("#fechaI-"+finalId).value + "::";
@@ -2778,13 +2793,11 @@ async function historialGuiasAdmin(e) {
 
     if(filtroCentroDeCosto) {
         if(!filtroPagos) {
-            filtroPagos = await db.collection("infoHeka").doc("usuariosPorDiaDePago")
-            .get().then(d => d.data());
+            filtroPagos = await cargarFiltroDePagosPersonalizados();
         }
 
         filtroPagoSeleccionado = filtroPagos[filtroCentroDeCosto];
     }
-
     let data = [];
     const manejarInformacion = querySnapshot => {
         console.log(querySnapshot.size);
