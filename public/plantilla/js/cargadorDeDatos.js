@@ -1113,7 +1113,7 @@ function mostrarPagosUsuario(data) {
             if ( last !== group ) {
                 $(rows).eq( i ).before(
                   //Ingresa la siguiente fila antes de cada grupo para que el usuario identifique el segmento en el que se encuentra
-                    '<tr class="group text-center text-primary"><td colspan="7">Pagos Realizados el '+group+'</td></tr>'
+                    '<tr class="group text-center text-primary"><td colspan="8">Pagos Realizados el '+group+'</td></tr>'
                 );
 
                 last = group;

@@ -274,7 +274,6 @@ function normalizarReporte(reporte) {
 
         const contar = param => (a[param] || 0) + b[param]
 
-        console.log("Ates del quiebre  => ", a, b);
         const usuarios = a.usuarios;
         
         b.usuarios.forEach(user => {
@@ -389,4 +388,4 @@ const ocultarOficinas = () => {
     })
 }
 
-module.exports = {actualizarMovimientos, actualizarMovimientosSemanales, actualizarMovimientoCtrl, ocultarOficinas}
+module.exports = {actualizarMovimientos, actualizarMovimientosSemanales, actualizarMovimientoCtrl, ocultarOficinas, actualizarMovimientosPorComparador}

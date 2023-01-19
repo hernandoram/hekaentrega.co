@@ -1,0 +1,55 @@
+
+<h2 class="d-flex justify-content-between my-2">
+    <span class="badge badge-pill badge-soft-primary p-2">{{guia.estado}}</span>
+    <span class="text-primary">Guía {{guia.numeroGuia}}</span>
+</h2>
+
+<ul class="nav nav-pills navtab-bg nav-justified" id="myTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <a class="nav-link active" id="detalles-tab" data-toggle="tab" data-target="#detalles" role="tab" aria-controls="detalles" aria-selected="true">Detalles</a>
+  </li>
+  <li class="nav-item" role="presentation">
+    <a class="nav-link" id="historial-tab" data-toggle="tab" data-target="#historial" role="tab" aria-controls="historial" aria-selected="false">Historial</a>
+  </li>
+</ul>
+
+<div class="tab-content">
+    <div id="detalles" class="tab-pane active show fade p-2">
+        <div class="row">
+            <h3 class="col-12 text-primary">Datos de la guía</h3>
+            <p class="col-md-6">Número de guía: <b>{{guia.numeroGuia}}</b></p>
+            <p class="col-md-6">Fecha de envío: <b>{{guia.fechaEnvio}}</b></p>
+            <p class="col-md-3">Estado: <b>{{guia.estado}}</b></p>
+            {{!-- <p class="col-md-3">Peso: <b>{{guia.peso_liquidar}} Kg</b></p> --}}
+            {{!-- <p class="col-md-3">Dice contener: <b>{{guia.dice_contener}}</b></p>             --}}
+        </div>
+
+        <hr>
+    </div>
+
+    <div class="tab-pane fade" id="historial">
+        <ul class="list-group list-group-flush">
+            {{#each guia.movimientos}}
+            <li class="list-group-item d-flex align-items-center">
+                <span class="badge badge-primary badge-pill mr-2 d-flex">{{index @index}}</span>
+                <div class="d-flex flex-column w-100">
+                <small class="d-flex justify-content-between">
+                    {{#if this.novedad}}
+                        <h6 class="text-danger">En novedad</h6>
+                    {{/if}}
+                    <h6>{{this.fechaMov}}</h6>
+                </small>
+                <h4>{{this.descripcionMov}}</h4>
+                <p class="mb-1">
+                    <b>{{this.observacion}}</b>
+                </p>
+                <p class="mb-1"><i class="fa fa-map-marker-alt mr-2 text-primary"></i>{{this.ubicacion}}</p>
+                <p>
+                    <span class="text-danger">{{this.novedad}}</span>
+                </p>
+                </div>
+            </li>
+            {{/each}}
+        </ul>
+    </div>
+</div>

@@ -54,7 +54,7 @@ exports.actualizarMovimientos = async (doc, toUpdate) => {
   const novedad = guiaEnNovedad(toUpdate.movimientos, doc.data().transportadora).enNovedad;
 
   toUpdate.mostrar_usuario = novedad && !revisarEstadoFinalizado(toUpdate.estadoActual);
-  toUpdate.enNovedad = Boolean(novedad);
+  toUpdate.enNovedad = novedad && !revisarEstadoFinalizado(toUpdate.estadoActual);
 
   return await doc.ref.parent.parent.collection("estadoGuias")
   .doc(doc.id)

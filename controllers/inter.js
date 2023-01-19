@@ -245,7 +245,6 @@ const actualizarMovimientos = async function(doc) {
     }
 
     actualizaciones.novedadesNotificadas = await notificarNovedadEncontrada(guia, movimientos);
-    console.log("Se terminará actualizando => ", actualizaciones);
     
     updte_estados = await extsFunc.actualizarEstado(doc, actualizaciones);
 
