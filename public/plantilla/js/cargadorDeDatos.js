@@ -41,7 +41,7 @@ datos_personalizados = {
   costo_especial2: 39000,
   costo_especial3: 6300,
   comision_servi: 3.1,
-  comision_heka: 1,
+  comision_heka: 1.5,
   constante_convencional: 800,
   constante_pagoContraentrega: 1700,
   comision_punto: 10,
