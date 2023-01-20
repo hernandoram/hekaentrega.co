@@ -28,6 +28,7 @@ let transportadoras = {
         },
         getCuentaResponsable: () => "EMPRESA",
         sistemaAutomatizado: () => /^automatico/.test(datos_personalizados.sistema_servientrega),
+        valorMinimoEnvio: kg => 0
     },
     "INTERRAPIDISIMO": {
         nombre: "Inter Rapidísimo",
@@ -54,6 +55,17 @@ let transportadoras = {
         },
         getCuentaResponsable: () => "EMPRESA",
         sistemaAutomatizado: () => /^automatico/.test(datos_personalizados.sistema_interrapidisimo),
+        valorMinimoEnvio: kg => {
+            if(kg == 1) {
+                return 15000;
+            } else if(kg >= 3 && kg <= 5) {
+                return 30000
+            } else if(kg >= 6 && kg <= 37) {
+                return 40000;
+            } else {
+                return 0;
+            }
+        }
     },
     "ENVIA": {
         nombre: "Envía",
@@ -78,6 +90,7 @@ let transportadoras = {
         },
         getCuentaResponsable: () => "EMPRESA",
         sistemaAutomatizado: () => /^automatico/.test(datos_personalizados.sistema_envia),
+        valorMinimoEnvio: kg => 0
     },
     "TCC": {
         nombre: "TCC",
@@ -104,6 +117,7 @@ let transportadoras = {
         },
         getCuentaResponsable: () => "EMPRESA",
         sistemaAutomatizado: () => /^automatico/.test(datos_personalizados.sistema_tcc),
+        valorMinimoEnvio: kg => 0
     },
 };
 
@@ -598,6 +612,12 @@ async function detallesTransportadoras(data) {
 
         if(data.sumar_envio  || data.type === "PAGO DESTINO") {
             cotizacion.sumarCostoDeEnvio = cotizacion.valor;
+            if(transp === "INTERRAPIDISIMO") {
+                const minimoEnvio = transportadora.valorMinimoEnvio(cotizacion.kgTomado);
+                const diferenciaMinima = minimoEnvio - cotizacion.valor;
+                if(diferenciaMinima > 0)
+                    cotizacion.sumarCostoDeEnvio = diferenciaMinima;
+            }
         }
         
         cotizacion.debe = data.debe;

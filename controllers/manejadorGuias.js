@@ -6,7 +6,7 @@ const {actualizarMovimientosPorComparador} = require("./seguimientos");
 exports.consultarGuia = async (req, res) => {
     const {n} = req.query;
 
-    // const reporte = await actualizarMovimientosPorComparador("numeroGuia", "==", n);
+    const reporte = await actualizarMovimientosPorComparador("numeroGuia", "==", n);
     // console.log("REPORTE", reporte);
 
     let guiaEncontrada = await db.collectionGroup("estadoGuias")
