@@ -1186,13 +1186,15 @@ function mostrarPagosUsuario(data) {
 }
 
 $("#calcular-pagos_pendientes").click(pagosPendientesParaUsuario);
+$("#solicitar-pagos_pendientes").click(solicitarPagosPendientesUs);
 $(".mostrar-saldo_pendiente + i").click(showHidePagosPendientesUsuario);
+let saldo_pendiente = 0;
 async function pagosPendientesParaUsuario() {
   const viewer = $(".mostrar-saldo_pendiente");
   const details = $("#detalles_pagos-home");
   const filtroFecha = $("#fecha_cargue-pagos_pendientes");
   viewer.text("Calculando...");
-  let saldo_pendiente = 0;
+  saldo_pendiente = 0;
 
   // Cómputo para calcular hasta el último viernes
   const fecha = new Date(filtroFecha.val());
@@ -1235,6 +1237,46 @@ async function pagosPendientesParaUsuario() {
 
   viewer.text(convertirMoneda(saldo_pendiente));
 
+}
+
+async function solicitarPagosPendientesUs() {
+  const minimo_diario = 1500000;
+  const ref = db.collection("infoHeka").doc("usuariosPorDiaDePago");
+  if(saldo_pendiente < minimo_diario) {
+    const resp = await Swal.fire(
+      "Solicitando pago", 
+      "Estás a punto de solicitar pago con un monto inferior a " + minimo_diario + " por lo tanto podrá solicitarlo una vez a la semana.",
+      "warning"
+    );
+
+    if(!resp.isConfirmed) return;
+
+    const data = await ref.get().then(d => d.data());
+    if(!data) return;
+
+    const {limitadosDiario} = data;
+
+    if(limitadosDiario.includes(datos_usuario.centro_de_costo)) {
+      Toast.fire("Has excedido el cupo de pagos por esta semana.", "Error solicitando pago", "error");
+      return;
+    }
+
+    const actualizacion = {
+      diarioSolicitado: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo),
+      limitadosDiario: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo)
+    }
+
+    await ref.update(actualizacion);
+    Toast.fire("Pago solicitado con éxito.", "", "success");
+
+  } else {
+    const actualizacion = {
+      diarioSolicitado: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo),
+    }
+
+    await ref.update(actualizacion);
+    Toast.fire("Pago solicitado con éxito.", "", "success");
+  }
 }
 
 function showHidePagosPendientesUsuario(e) {

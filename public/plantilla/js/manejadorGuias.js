@@ -2773,7 +2773,7 @@ async function cargarFiltroDePagosPersonalizados() {
 
     listaOpciones.unshift('<option value="">Seleccione pagos</option>');
 
-    $("#filtro_pagos-hist_guias").html(listaOpciones);
+    $(".filtro-pagos").html(listaOpciones);
 
     return filtroPagos;
 }

@@ -427,6 +427,7 @@ class Empaquetado {
     async pagar(usuario) {
         const timeline = new Date().getTime();
         const storageRef = storage.ref("comprobantes_bancarios").child(usuario).child(timeline + ".pdf");
+        const refDiasPago = db.collection("infoHeka").doc("usuariosPorDiaDePago");
 
         const file = $("#comprobante_pago-"+usuario)[0].files[0];
 
@@ -543,6 +544,12 @@ class Empaquetado {
             const parametros = [pagado.toString(), comision_heka.toString()].map(p => ({default: p}));
             fetch("/mensajeria/ws/sendMessage/pagos_factura", organizarPostPlantillaMensaje(celular, parametros))
         }
+
+        const actualizacion = {
+            diarioSolicitado: firebase.firestore.FieldValue.arrayRemove(usuario),
+        }
+    
+        refDiasPago.update(actualizacion);
 
         this.pagosPorUsuario[usuario].pagoConcreto = pagado;
         this.pagosPorUsuario[usuario].comision_heka_total = comision_heka;
