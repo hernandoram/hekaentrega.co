@@ -1,4 +1,4 @@
-import { auth, firestore as db } from "../config/firebase.js";
+import { auth } from "../config/firebase.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 import { handleAuthErrors, findUser } from "./handlers.js";
 

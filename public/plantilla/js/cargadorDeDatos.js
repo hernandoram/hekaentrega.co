@@ -55,6 +55,10 @@ class ControlUsuario {
   static get esPuntoEnvio() {
     return datos_usuario.type === "PUNTO";
   }
+
+  static get esUsuarioPunto() {
+    return datos_usuario.type === "USUARIO-PUNTO";
+  }
 }
 const puntoEnvio = () => datos_usuario.type === "PUNTO";
 
@@ -108,6 +112,7 @@ async function cargarDatosUsuario(){
   
   datos_usuario = await consultarDatosDeUsuario();
   
+  limitarAccesoSegunTipoUsuario();
   
   //Se enlistan las novedades de servientrega
   showPercentage.text(percentage());
@@ -188,6 +193,19 @@ async function consultarDatosDeUsuario() {
   return await usuarioDoc.get().then(actualizador);
 }
 
+function limitarAccesoSegunTipoUsuario() {
+  let quitarVistas = [];
+
+  if(ControlUsuario.esUsuarioPunto) {
+    quitarVistas = ["cotizar_envio", "tienda", "buscar_guia", "documentos", "manifiestos", "crear_guia", "deudas"];
+  }
+
+  quitarVistas.forEach(id => {
+    $("#"+id).remove();
+    $(`[href="#${id}"]`).remove();
+  });
+}
+
 function mostrarDatosUsuario(datos) {
   const mostradores = [".mostrar-nombre_completo", ".mostrar-nombre_empresa", ".mostrar-numero_documento", ".mostrar-tipo_documento"];
   mostradores.forEach(mostrador => {
@@ -225,7 +243,6 @@ async function mostrarDatosPersonalizados(datos) {
     }
   }
 
-  console.log(datos_personalizados);
   // const importants = ["id_agente_aveo", "codigo_sucursal_inter"];
   // const importantData = new Object();
   // importants.forEach(val => importantData[val] = datos_personalizados[val]);
@@ -1213,8 +1230,6 @@ async function pagosPendientesParaUsuario() {
   const fechaFinal = genFecha("LR", fechaMostrarMilli);
   const endAtMilli = fechaMostrarMilli + diaEnMilli;
   // Fin de cómputo
-
-  console.log(new Date(endAtMilli))
 
   $("#infoExtra-usuario").text("Guías entregadas hasta el " + fechaFinal);
   $("#infoExtra-usuario").attr("title", "Se han cargado los pagos que corresponden a la fecha del " + fechaFinal);

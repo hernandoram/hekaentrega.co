@@ -1329,7 +1329,9 @@
       <!-- End of Content Wrapper -->
     </div>
     <!-- End of Page Wrapper -->
-<!-------------------------------------------------------------------------------------------------------------------------->
+  </div>
+
+  <!-------------------------------------------------------------------------------------------------------------------------->
 
 
     <!-- Scroll to Top Button-->
@@ -1377,49 +1379,173 @@
     </div>
     
 
-<!-- Modal gestion novedades (sera controlado por javascript render.js)-->
-<div class="modal fade" id="modal-gestionarNovedad" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="titulo-gestionarNovedad" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="titulo-gestionarNovedad">Gestionar Guía</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="container-fluid" id="contenedor-gestionarNovedad">
-          Aquí va la información detallada de la guía seleccionada
+  <!-- Modal gestion novedades (sera controlado por javascript render.js)-->
+  <div class="modal fade" id="modal-gestionarNovedad" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="titulo-gestionarNovedad" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="titulo-gestionarNovedad">Gestionar Guía</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid" id="contenedor-gestionarNovedad">
+            Aquí va la información detallada de la guía seleccionada
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-      </div>
     </div>
-  </div>
-</div>  
+  </div>  
 
-<!--Modal para ver detalles de notificaciones-->
-<div class="modal fade" id="modal-detallesNotificacion" data-backdrop="static" tabindex="-1" aria-labelledby="titulo-detallesNotificacion" aria-hidden="true">
-  <div class="modal-dialog modal-xl">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="titulo-detallesNotificacion">Detalles</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="container-fluid" id="contenedor-detallesNotificacion">
-          Aquí irá la información detallada de la notificación seleccionada
+  <!--Modal para ver detalles de notificaciones-->
+  <div class="modal fade" id="modal-detallesNotificacion" data-backdrop="static" tabindex="-1" aria-labelledby="titulo-detallesNotificacion" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="titulo-detallesNotificacion">Detalles</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid" id="contenedor-detallesNotificacion">
+            Aquí irá la información detallada de la notificación seleccionada
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
         </div>
       </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+    </div>
+  </div>  
+
+  <!--Modal para Agregar un nuevo usuario desde el punto-->
+  <div class="modal fade" id="modal-usuario_punto" data-backdrop="static" tabindex="-1" aria-labelledby="titulo-usuario_punto" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="titulo-usuario_punto">Nuevo usuario</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid" id="contenedor-usuario_punto">
+            <form id="register-form" name="usuario" action="#">
+              <div class="step-view">
+                  <!-- INFORMACIÓN BÁSICA -->
+                  <div class="step active">
+                      <h3 class="text-center">Datos básicos</h3>
+                      <div class="form-group">
+                          <label for="register-nombre">Nombres <span class="text-danger">*</span></label>
+                          <input class="form-control" name="nombres" type="text" id="register-nombre" placeholder="Ingrese su nombre" required>
+                      </div>
+                      <div class="form-group">
+                          <label for="register-apellido">Apellidos <span class="text-danger">*</span></label>
+                          <input class="form-control" name="apellidos" type="text" id="register-apellido" placeholder="Ingrese su apellido" required>
+                      </div>
+
+                      <div class="form-group">
+                          <label for="register-password">Número de identificación <span class="text-danger">*</span></label>
+                          <div class="input-group">
+                              <div class="input-group-prepend">
+                                  <select name="tipo_documento" id="register-tipo_doc" class="form-control">
+                                      <option value="CC">C.C</option>
+                                      <option value="PASAPORTE">PASAPORTE</option>
+                                      <option value="NIT(RUT)">NIT (RUT)</option>
+                                  </select>
+                              </div>
+                              <input type="text" name="numero_documento" id="register-numero_documento" class="form-control verificacion-especial" placeholder="Ingrese número de identificación" required>
+                          </div>
+                      </div>
+                      
+                  </div>
+
+                  <!-- INFORMACIÓN DE CONTACTO -->
+                  <div class="step">
+                      <h3 class="text-center">Contacto y generalidades</h3>
+
+                      <div class="form-group">
+                          <label for="register-celular">Número celular <span class="text-danger">*</span></label>
+                          <input class="form-control verificacion-especial" name="celular" type="number" pattern="/^\d{10}$/" id="register-celular" placeholder="digite su número" maxlength="10" required>
+                      </div>
+
+                      <div class="form-group">
+                          <label for="register-celular">Número celular 2</label>
+                          <input class="form-control verificacion-especial" name="celular2" type="number" pattern="/^\d{10}$/" id="register-celular2" placeholder="digite su número" maxlength="10">
+                      </div> 
+
+                      <div class="form-group">
+                          <label for="register-objetos_envio">Cosas que envía *</label>
+                          <div class="input-group">
+                              <input class="form-control" type="text" id="register-objetos_envio" placeholder="Ej. Calzado">
+                              <div class="input-group-append">
+                                  <button class="btn btn-outline-secondary" type="button" id="register-add-objetos_envio">Agregar <i class="fa fa-plus"></i></button>
+                              </div>
+                          </div>
+                          <small class="form-text text-muted">Agregue las cosas que normalmente envía.</small>
+
+                          <div class="d-flex justify-content-center" id="register-cont-objetos_envio"></div>
+                      </div>
+                  </div>
+
+                  <!-- INFORMACIÓN DE REGISTRO-->
+                  <div class="step">
+                      <h3 class="text-center">Datos de ingreso</h3>
+                      <div class="form-group">
+                          <label for="register-empresa">Empresa <span class="text-danger">*</span></label>
+                          <input class="form-control verificacion-especial" name="nombre_empresa" type="text" id="register-empresa" placeholder="Nombre de la empresa" required>
+                      </div>
+
+                      <div class="form-group">
+                          <label for="register-correo">Correo electrónico <span class="text-danger">*</span></label>
+                          <input class="form-control" name="correo" type="email" id="register-correo" placeholder="Ingrese correo" required>
+                      </div>
+                      
+
+                      <div class="form-group">
+                          <label for="register-password">Contraseña <span class="text-danger">*</span></label>
+                          <div class="row mx-0">
+                              <input type="password" name="con" id="register-password" class="form-control col-12 verificacion-especial" placeholder="Ingresar contraseña" minlength="8" required>
+                              <!-- <div class="input-group-append col-2 ml-0" data-password="false">
+                                  <div class="input-group-text">
+                                      <span class="password-eye font-12"></span>
+                                  </div>
+                              </div> -->
+                          </div>
+                      </div>
+
+                      <div class="form-group">
+                          <div class="custom-control custom-checkbox">
+                              <input type="checkbox" class="custom-control-input" id="register-terms" required>
+                              <label class="custom-control-label" for="register-terms">Acepto los <a href="javascript: void(0);" class="text-dark">términos y condiciones</a></label>
+                          </div>
+                      </div>
+
+                  </div>
+              </div>
+
+              <div class="step-controller">
+                  <div class="row justify-content-between flex-row-reverse">
+                      <button class="col mx-3 btn btn-primary submit" style="display: none;" type="submit" id="registrar-nuevo-usuario"> Registrarse </button>
+                      <button class="col mx-3 btn btn-success next" type="button"> Continuar <i class="fa fa-arrow-right ml-1"></i> </button>
+                      <button class="col mx-3 btn btn-secondary prev" style="display: none;" type="button"> <i class="fa fa-arrow-left mr-1"></i> Atrás </button>
+                  </div>
+              </div>
+
+            </form>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+        </div>
       </div>
     </div>
-  </div>
-</div>  
+  </div>  
 
     
     <!-- FIREBASE -->
@@ -1445,8 +1571,8 @@
     <!-- Core plugin JavaScript-->
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 
-  <script src="./assets/libs/summernote/summernote-bs4.min.js"></script>
-  <script src="assets/libs/summernote/lang/summernote-es-ES.min.js"></script>
+    <script src="./assets/libs/summernote/summernote-bs4.min.js"></script>
+    <script src="assets/libs/summernote/lang/summernote-es-ES.min.js"></script>
 
 
     <!-- main.js -->

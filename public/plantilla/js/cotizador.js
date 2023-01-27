@@ -1563,6 +1563,11 @@ function finalizarCotizacion(datos) {
 
                     <div class="input-group-append">
                         <button id="buscador_usuario-guia" class="btn btn-outline-primary btn-small"><i class="fa fa-search"></i></button>
+                        <button data-toggle="modal" data-target="#modal-usuario_punto" 
+                        id="crear_usuario-guia" 
+                        class="btn btn-outline-primary btn-small">
+                            <i class="fa fa-plus"></i>
+                        </button>
                     </div>
                 </div>
             </div>

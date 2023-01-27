@@ -97,4 +97,34 @@ function redirectIfAuthenticated() {
     }
 }
 
-export {findUser, handleAuthErrors, redirectIfAuthenticated}
+function agregarObjetoDeEnvio(e) {
+    if (e.target.nodeName === "INPUT" && e.keyCode !== 13) return;
+    const input = $("#register-objetos_envio")
+    const val = input.val().trim();
+    const valores = $("[data-objeto_envio]").map((i,it) => it.getAttribute("data-objeto_envio")).get();
+
+    if(!val) return;
+
+    const contenedor = $("#register-cont-objetos_envio");
+    const objeto = document.createElement("p");
+    objeto.innerText = val;
+    objeto.setAttribute("class", "badge badge-soft-primary p-1 m-1");
+    objeto.setAttribute("data-objeto_envio", val);
+
+    const deleterObject =  document.createElement("span");
+    deleterObject.innerHTML = " &times;";
+    deleterObject.style.cursor = "pointer";
+    deleterObject.onclick = quitarObjetoEnvio;
+
+    objeto.appendChild(deleterObject);
+    contenedor.append(objeto);
+    
+    input.val("");
+
+    function quitarObjetoEnvio() {
+        $(this).parent().remove();
+    }
+
+}
+
+export {findUser, handleAuthErrors, redirectIfAuthenticated, agregarObjetoDeEnvio}

@@ -87,7 +87,7 @@ function revisarErroresParticularesRegistro(container) {
     return hasError;
 }
 
-async function registrarNuevoUsuario(toSend, data) {
+async function registrarNuevoUsuario(toSend, data, noSearch) {
     const {correo, con, nombre_empresa} = data;
     const existe_empresa = await verificarExistencia(toSend, data.cod_empresa);
     const existe_usuario = await numeroDocumentoRepetido(toSend, data.numero_documento);
@@ -109,7 +109,9 @@ async function registrarNuevoUsuario(toSend, data) {
     } else {
         data.ingreso = newUser.uid;
         await db.collection(toSend).add(data);
-        await findUser(newUser.uid);
+        
+        if(!noSearch)
+            await findUser(newUser.uid);
     }
     
 }
@@ -189,7 +191,7 @@ function checkTerms(checkQuery) {
     return true;
 }
 
-export default async function registro(e) {
+export async function registro(e) {
     e.preventDefault();
     console.log(e);
     const form = e.target;
@@ -225,4 +227,50 @@ export default async function registro(e) {
         form.append(errorEl);
         loader.end();
     });
+}
+
+export async function registroDesdePunto(e) {
+    e.preventDefault();
+    const inp = $("#numero_documento_usuario");
+    const buttonSerach = $("#buscador_usuario-guia");
+    const modal = $("#modal-usuario_punto");
+
+    const form = e.target;
+    const formData = new FormData(form);
+    const formName = form.name;
+    const loader = new ChangeElementContenWhileLoading(e.originalEvent.submitter || "#registrar-nuevo-usuario");
+    let data, collName, termsChecked
+    
+    if(revisarErroresParticularesRegistro(form)) return;
+    
+    switch(formName) {
+        default:
+            data = datosRegistroUsuario(formData);
+            collName = "usuarios";
+            termsChecked = checkTerms("#register-terms");
+    }
+
+    if(!termsChecked) return;
+
+    loader.init();
+
+    data.type = "USUARIO-PUNTO";
+
+    await registrarNuevoUsuario(collName, data, true)
+    .then(res => {
+        inp.val(data.numero_documento);
+        buttonSerach.click();
+        modal.modal("hide");
+        Toats.fire("Usuario agregado exitósamente", "", "success");
+    })
+    .catch(error => {
+        const errorEl = document.createElement("p");
+        errorEl.setAttribute("class", "mt-1 text-danger text-center mensaje-error");
+        errorEl.innerText = error.message;
+        console.log(error);
+        form.append(errorEl);
+        loader.end();
+    });
+
+    loader.end();
 }
