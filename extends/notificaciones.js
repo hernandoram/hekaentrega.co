@@ -38,18 +38,21 @@ exports.notificarGuiaOficina = async (options) => {
     db.collection("notificaciones").add(notificacion);
 }
 
-let novedadesMensajeria = [];
+let novedadesMensajeria = [], usuariosExcepcion = [];
 exports.notificarNovedadEncontrada = async (guia, movimientos) => {
     let {novedadesNotificadas, transportadora} = guia;
     if(novedadesNotificadas && novedadesNotificadas.length > 2) return novedadesNotificadas;
 
     if(!novedadesMensajeria.length) {
-        novedadesMensajeria = await db.collection("infoHeka")
-        .doc("novedadesMensajeria").get().then(d => d.data().lista);
+        await db.collection("infoHeka")
+        .doc("novedadesMensajeria").get().then(d => {
+            novedadesMensajeria = d.data().lista;
+            usuariosExcepcion = d.data().excepciones || [];
+        });
     }
 
     if(!novedadesNotificadas) novedadesNotificadas = [];
-    if(!movimientos || !movimientos.length) return novedadesNotificadas;
+    if(!movimientos || !movimientos.length || usuariosExcepcion.includes(guia.centro_de_costo)) return novedadesNotificadas;
 
 
     const {novedad, enNovedad} = guiaEnNovedad(movimientos, transportadora);

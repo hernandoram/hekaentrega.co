@@ -542,6 +542,7 @@ function descargarGuiasParticulares(e, dt, node, config) {
 }
 
 //función utilizada por el usuario para crear lo documentos
+let noNotificarGuia;
 function crearDocumentos(e, dt, node, config) {
     const api = dt;
     const selectedRows = api.rows(".selected");
@@ -623,6 +624,12 @@ function crearDocumentos(e, dt, node, config) {
         guias: arrGuias.map(v => v.id_heka).sort()
     })
     .then(async (docRef) => {
+        if(noNotificarGuia == undefined) {
+            const ref = db.collection("infoHeka").doc("manejoUsuarios");
+            const data = await ref.get().then(d => d.data().noEnviarWsPedido);
+            noNotificarGuia = data.includes(datos_usuario.centro_de_costo);
+        }
+
         const transportadora = arrGuias[0].transportadora;
         const generacion_automatizada = ["automatico", "automaticoEmp"].includes(transportadoras[transportadora].sistema());
         arrGuias.sort((a,b) => {
@@ -656,7 +663,8 @@ function crearDocumentos(e, dt, node, config) {
                     id_user, 
                     prueba: estado_prueba,
                     id_doc: docRef.id
-                })
+                });
+                arrGuias.forEach(notificarPedidoCreado);
             }
         } else {
             await documentReference.doc(docRef.id)
@@ -738,6 +746,8 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
 }
 
 async function actualizarEstadoGuiasDocCreado(arrGuias) {
+    
+
     for await (let guia of arrGuias) {
         usuarioAltDoc(guia.id_user)
         .collection("guias").doc(guia.id_heka)
@@ -748,14 +758,7 @@ async function actualizarEstadoGuiasDocCreado(arrGuias) {
         .then(() => {
             const link = guia.transportadora === "ENVIA" ? "https://envia.co/" : "https://www.interrapidisimo.com/sigue-tu-envio/"
 
-            const {transportadora, numeroGuia, dice_contener, valor, nombre_empresa, nombreR, ciudadR, nombreD, ciudadD, direccionD} = guia;
-            const plantilla = [
-                transportadora, numeroGuia, dice_contener, valor.toString(), nombre_empresa || nombreR, ciudadR,
-                nombreD, ciudadD, direccionD.trim()
-            ].map(p => ({default: p}));
-            if(guia.numeroGuia) {
-                fetch("/mensajeria/ws/sendMessage/pedido_creado_completo", organizarPostPlantillaMensaje(guia.telefonoD, plantilla));  
-            }
+            notificarPedidoCreado(guia);
             
             if(guia.id_oficina) {
                 enviarNotificacion({
@@ -767,6 +770,18 @@ async function actualizarEstadoGuiasDocCreado(arrGuias) {
                 });
             }
         });
+    }
+}
+
+function notificarPedidoCreado(guia) {
+    const {transportadora, numeroGuia, dice_contener, valor, nombre_empresa, nombreR, ciudadR, nombreD, ciudadD, direccionD} = guia;
+    const plantilla = [
+        transportadora, numeroGuia, dice_contener, valor.toString(), nombre_empresa || nombreR, ciudadR,
+        nombreD, ciudadD, direccionD.trim()
+    ].map(p => ({default: p}));
+
+    if(guia.numeroGuia && !noNotificarGuia) {
+        fetch("/mensajeria/ws/sendMessage/pedido_creado_completo", organizarPostPlantillaMensaje(guia.telefonoD, plantilla));  
     }
 }
 
@@ -2766,10 +2781,10 @@ $("#guias_punto-hist_guias").on("change", (e) => {
 })
 
 async function cargarFiltroDePagosPersonalizados() {
-    filtroPagos = await db.collection("infoHeka").doc("usuariosPorDiaDePago")
+    filtroPagos = await db.collection("infoHeka").doc("manejoUsuarios")
     .get().then(d => d.data());
 
-    const listaOpciones = filtroPagos.coleccion.map((c,i) => `<option value="${c}">${filtroPagos.titulos[i]}</option>`);
+    const listaOpciones = filtroPagos.pagar.map((c,i) => `<option value="${c}">${filtroPagos.titulos[c]}</option>`);
 
     listaOpciones.unshift('<option value="">Seleccione pagos</option>');
 

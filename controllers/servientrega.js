@@ -190,7 +190,7 @@ exports.generarManifiesto = async (req, res) => {
                   nombreD, ciudadD, direccionD.trim()
               ].map(p => ({default: p}));
 
-              templateMessage("pedido_creado_completo", guia.telefonoD, parametros);
+              // templateMessage("pedido_creado_completo", guia.telefonoD, parametros);
             } catch (e) {}
 
             if(guia.id_oficina) {

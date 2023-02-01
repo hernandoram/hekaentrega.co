@@ -1256,7 +1256,7 @@ async function pagosPendientesParaUsuario() {
 
 async function solicitarPagosPendientesUs() {
   const minimo_diario = 1500000;
-  const ref = db.collection("infoHeka").doc("usuariosPorDiaDePago");
+  const ref = db.collection("infoHeka").doc("manejoUsuarios");
   if(saldo_pendiente < minimo_diario) {
     const resp = await Swal.fire(
       "Solicitando pago", 
