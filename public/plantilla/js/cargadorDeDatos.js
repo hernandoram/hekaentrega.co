@@ -1258,11 +1258,15 @@ async function solicitarPagosPendientesUs() {
   const minimo_diario = 1500000;
   const ref = db.collection("infoHeka").doc("manejoUsuarios");
   if(saldo_pendiente < minimo_diario) {
-    const resp = await Swal.fire(
-      "Solicitando pago", 
-      "Estás a punto de solicitar pago con un monto inferior a " + minimo_diario + " por lo tanto podrá solicitarlo una vez a la semana.",
-      "warning"
-    );
+    const mensaje = "Estás a punto de solicitar pago con un monto inferior a " + minimo_diario + " por lo tanto podrá solicitarlo una vez a la semana.<br> ¿Estás seguro de solicitar el pago?";
+    const resp = await Swal.fire({
+      icon: "warning",
+      title: "Solicitando pago",
+      html: mensaje,
+      showCancelButton: true,
+      cancelButtonText: "No",
+      confirmButtonText: "Si"
+    });
 
     if(!resp.isConfirmed) return;
 
@@ -1285,6 +1289,20 @@ async function solicitarPagosPendientesUs() {
     Toast.fire("Pago solicitado con éxito.", "", "success");
 
   } else {
+    const mensaje = "Estás a punto de solicitar pago con un monto superior a " + minimo_diario + ".<br> ¿Estás seguro de solicitar el pago?";
+
+    const resp = await Swal.fire({
+      icon: "warning",
+      title: "Solicitando pago",
+      html: mensaje,
+      showCancelButton: true,
+      cancelButtonText: "No",
+      confirmButtonText: "Si"
+    });
+
+    if(!resp.isConfirmed) return;
+
+
     const actualizacion = {
       diarioSolicitado: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo),
     }
