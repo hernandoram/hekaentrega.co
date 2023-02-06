@@ -1273,19 +1273,24 @@ async function solicitarPagosPendientesUs() {
     const data = await ref.get().then(d => d.data());
     if(!data) return;
 
-    const {limitadosDiario} = data;
+    const {limitadosDiario, diarioSolicitado} = data;
+    const usuario = datos_usuario.centro_de_costo;
 
-    if(limitadosDiario.includes(datos_usuario.centro_de_costo)) {
+    if(limitadosDiario.includes(usuario)) {
       Toast.fire("Has excedido el cupo de pagos por esta semana.", "Error solicitando pago", "error");
       return;
+    } else {
+      limitadosDiario.push(usuario);
     }
 
-    const actualizacion = {
-      diarioSolicitado: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo),
-      limitadosDiario: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo)
-    }
+    if(!diarioSolicitado.includes(usuario)) diarioSolicitado.push(usuario);
 
-    await ref.update(actualizacion);
+    // const actualizacion = {
+    //   diarioSolicitado: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo),
+    //   limitadosDiario: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo)
+    // }
+
+    await ref.update({limitadosDiario, diarioSolicitado});
     Toast.fire("Pago solicitado con éxito.", "", "success");
 
   } else {

@@ -731,7 +731,7 @@ async function consultarPendientes(e) {
         inpFiltUsuario.val(usuarios.join())
     }
 
-    if(inpFiltUsuario.val()) {
+    if(inpFiltUsuario.val() || selFiltDiaPago.val()) {
         const filt = inpFiltUsuario.val().split(",");
         const empaquetador = segmentarArreglo(filt, 9);
 
