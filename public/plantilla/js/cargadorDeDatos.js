@@ -1302,12 +1302,25 @@ async function solicitarPagosPendientesUs() {
 
     if(!resp.isConfirmed) return;
 
+    const data = await ref.get().then(d => d.data());
+    if(!data) return;
 
-    const actualizacion = {
-      diarioSolicitado: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo),
+    const {diarioSolicitado} = data;
+
+    console.log(datos_usuario.centro_de_costo);
+    // return;
+
+    if(!diarioSolicitado.includes(datos_usuario.centro_de_costo)) {
+      diarioSolicitado.push(datos_usuario.centro_de_costo);
+      await ref.update({diarioSolicitado});
     }
 
-    await ref.update(actualizacion);
+    // const actualizacion = {
+    //   diarioSolicitado: firebase.firestore.FieldValue.arrayUnion("prueba"),
+    // }
+
+    // console.log(actualizacion);
+
     Toast.fire("Pago solicitado con éxito.", "", "success");
   }
 }

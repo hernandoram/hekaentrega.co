@@ -427,7 +427,7 @@ class Empaquetado {
     async pagar(usuario) {
         const timeline = new Date().getTime();
         const storageRef = storage.ref("comprobantes_bancarios").child(usuario).child(timeline + ".pdf");
-        const refDiasPago = db.collection("infoHeka").doc("usuariosPorDiaDePago");
+        const refDiasPago = db.collection("infoHeka").doc("manejoUsuarios");
 
         const file = $("#comprobante_pago-"+usuario)[0].files[0];
 
@@ -722,7 +722,7 @@ async function consultarPendientes(e) {
     let respuesta = [];
 
     if(selFiltDiaPago.val()) {
-        const data = await db.collection("infoHeka").doc("usuariosPorDiaDePago")
+        const data = await db.collection("infoHeka").doc("manejoUsuarios")
         .get().then(d => d.data());
 
         const usuarios = data[selFiltDiaPago.val()];
