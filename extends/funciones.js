@@ -148,9 +148,9 @@ exports.transformarDatosDestinatario = data => {
     }
     
     const datos_oficina = {
-      nombre: `${data.datos_oficina.nombres} ${data.datos_oficina.apellidos}`,
+      nombre: `${data.datos_oficina.nombres.trim()} ${data.datos_oficina.apellidos.trim()}`,
       ciudad: data.datos_oficina.ciudad,
-      direccion: `${data.datos_oficina.direccion}, ${data.datos_oficina.barrio}`,
+      direccion: `${data.datos_oficina.direccion.trim()}, ${data.datos_oficina.barrio.trim()}`,
       tipo_documento: tipoDocument,
       numero_documento: data.datos_oficina.numero_documento,
       celular: data.datos_oficina.celular2 || data.datos_oficina.celular,
@@ -161,10 +161,10 @@ exports.transformarDatosDestinatario = data => {
     return datos_oficina;
   } else {
     const datos_destinatario = {
-      nombre: data.nombreD,
+      nombre: data.nombreD.trim(),
       tipo_documento: data.tipo_doc_dest,
       numero_documento: data.identificacionD,
-      direccion: data.direccionD,
+      direccion: data.direccionD.trim(),
       ciudad: data.ciudadD,
       telefono: data.telefonoD,
       celular: data.celularD,

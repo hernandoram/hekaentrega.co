@@ -1240,6 +1240,7 @@ async function pagosPendientesParaUsuario() {
   .endAt(endAtMilli)
   .get()
   .then(querySnapshot => {
+    saldo_pendiente = 0;
     details.html("");
     querySnapshot.forEach(doc => {
       const data = doc.data();
@@ -1257,6 +1258,16 @@ async function pagosPendientesParaUsuario() {
 async function solicitarPagosPendientesUs() {
   const minimo_diario = 1500000;
   const ref = db.collection("infoHeka").doc("manejoUsuarios");
+  const data = await ref.get().then(d => d.data());
+
+  if(!data) return;
+
+  const {limitadosDiario, diarioSolicitado} = data;
+
+  if(diarioSolicitado.includes(datos_usuario.centro_de_costo)) 
+    return Swal.fire("Tu pago ya fue solicitado, esta listo para desembolso en 24 horas 😊", "", "info");
+
+
   if(saldo_pendiente < minimo_diario) {
     const mensaje = "Estás a punto de solicitar pago con un monto inferior a " + minimo_diario + " por lo tanto podrá solicitarlo una vez a la semana.<br> ¿Estás seguro de solicitar el pago?";
     const resp = await Swal.fire({
@@ -1270,14 +1281,12 @@ async function solicitarPagosPendientesUs() {
 
     if(!resp.isConfirmed) return;
 
-    const data = await ref.get().then(d => d.data());
     if(!data) return;
 
-    const {limitadosDiario, diarioSolicitado} = data;
     const usuario = datos_usuario.centro_de_costo;
 
     if(limitadosDiario.includes(usuario)) {
-      Toast.fire("Has excedido el cupo de pagos por esta semana.", "Error solicitando pago", "error");
+      Swal.fire("Has excedido el cupo de pagos por esta semana.", "Error solicitando pago", "error");
       return;
     } else {
       limitadosDiario.push(usuario);
@@ -1291,7 +1300,7 @@ async function solicitarPagosPendientesUs() {
     // }
 
     await ref.update({limitadosDiario, diarioSolicitado});
-    Toast.fire("Pago solicitado con éxito.", "", "success");
+    Swal.fire("Pago solicitado con éxito.", "", "success");
 
   } else {
     const mensaje = "Estás a punto de solicitar pago con un monto superior a " + minimo_diario + ".<br> ¿Estás seguro de solicitar el pago?";
@@ -1307,10 +1316,8 @@ async function solicitarPagosPendientesUs() {
 
     if(!resp.isConfirmed) return;
 
-    const data = await ref.get().then(d => d.data());
+    // const data = await ref.get().then(d => d.data());
     if(!data) return;
-
-    const {diarioSolicitado} = data;
 
     console.log(datos_usuario.centro_de_costo);
     // return;
@@ -1326,7 +1333,7 @@ async function solicitarPagosPendientesUs() {
 
     // console.log(actualizacion);
 
-    Toast.fire("Pago solicitado con éxito.", "", "success");
+    Swal.fire("Pago solicitado con éxito.", "", "success");
   }
 }
 

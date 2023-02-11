@@ -950,7 +950,7 @@
           <div class="container-fluid" id="historial_guias">
             <h2>Historial De Guías</h2>
             <div>
-              <div class="form-group row mb-3">
+              <div class="form-group row mb-2">
                 <div class="col-sm-3 mb-3 mb-sm-0">
                   <label for="fechaI-hist_guias">Fecha inicio</label>
                   <input type="date" class="form-control form-control-user"  id="fechaI-hist_guias">
@@ -965,14 +965,33 @@
                   <input type="text" class="form-control form-control-user" id="num_guia-hist_guias">
                 </div>
 
-                <div class="col-sm-6 mt-2">
+                <div class="col-md-12 mt-2">
+                  <input type="checkbox" name="guias_punto-hist_guias" id="guias_punto-hist_guias">
+                  <label for="guias_punto-hist_guias">Guías de puntos</label>
+                </div>
+                
+              </div>
+
+              <div class="from-group row mb-3">
+
+                <div class="col-sm-6">
+                  <label for="tipo_filt-hist_guias">Tipo filtro</label>
+                  <select id="tipo_filt-hist_guias" class="form-control">
+                    <option value="filt_1" selected>Usuario pagos</option>
+                    <option value="filt_2">Transportadora</option>
+                    <option value="filt_3">Centro costo</option>
+                    <option value="filt_4">Tipo de envío</option>
+                  </select>
+                </div>
+
+                <div class="col-sm-6 filtro-gen" id="filt_1-hist_guias">
                   <label for="filtro_pagos-hist_guias">Filtro pagos</label>
                   <select id="filtro_pagos-hist_guias" class="form-control filtro-pagos">
                     <option value="">Seleccione pagos</option>
                   </select>
                 </div>
                 
-                <div class="col-sm-6 mt-2">
+                <div class="col-sm-6 filtro-gen d-none" id="filt_2-hist_guias">
                   <label for="filtro_transp-hist_guias">Transportadora</label>
                   <select id="filtro_transp-hist_guias" class="form-control">
                     <option value="">Seleccione Transportadora</option>
@@ -983,11 +1002,20 @@
                   </select>
                 </div>
 
-                <div class="col-md-12 mt-2">
-                  <input type="checkbox" name="guias_punto-hist_guias" id="guias_punto-hist_guias">
-                  <label for="guias_punto-hist_guias">Guías de puntos</label>
+                <div class="col-sm-6 filtro-gen d-none" id="filt_3-hist_guias">
+                  <label for="cent_cost-hist_guias">Centro de costo</label>
+                  <input type="text" class="form-control form-control-user" id="cent_cost-hist_guias">
                 </div>
-                
+
+                <div class="col-sm-6 filtro-gen d-none" id="filt_4-hist_guias">
+                  <label for="filt_tipo_env-hist_guias">Tipo de envío</label>
+                  <select id="filt_tipo_env-hist_guias" class="form-control">
+                    <option value="CONVENCIONAL">Convencional</option>
+                    <option value="PAGO CONTRAENTREGA">Pago contraentrega</option>
+                    <option value="PAGO DESTINO">Pago destino</option>
+                  </select>
+                </div>
+
               </div>
               <div class="btn-group col-12 mb-3">
                 <button id="buscador-hist_guias" onclick="historialGuiasAdmin(this)" class="btn btn-primary">
@@ -1361,6 +1389,7 @@
                         Lista usuarios por colección
                         <div class="fa fa-plus text-primary d-none" id="agrega_nuevo-manejo_usuarios"></div>
                         <div class="fa fa-check text-success d-none" id="agregar_nuevo-manejo_usuarios"></div>
+                        <div class="fa fa-download text-primary d-none" id="descargar-manejo_usuarios"></div>
                       </label>
 
                       <select class="custom-select" id="lista-manejo_usuarios"></select>

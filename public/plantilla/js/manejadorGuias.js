@@ -2793,13 +2793,27 @@ async function cargarFiltroDePagosPersonalizados() {
     return filtroPagos;
 }
 
+$("#tipo_filt-hist_guias").on("change", cambiarFiltroHistGuiasAdmin);
+function cambiarFiltroHistGuiasAdmin(e) {
+    const el = e.target;
+    const idTarget = el.value;
+    const target = $("#" + idTarget + "-hist_guias");
+    
+    $(".filtro-gen").addClass("d-none");
+
+    target.removeClass("d-none");
+}
+
 async function historialGuiasAdmin(e) {
     const finalId = e.id.split("-")[1];
     let fechaI = document.querySelector("#fechaI-"+finalId).value + "::";
     let fechaF = document.querySelector("#fechaF-"+finalId).value + "::";
     const numeroGuia = document.querySelector("#num_guia-"+finalId).value;
+    const tipoFiltro = $("#tipo_filt-hist_guias").val();
     const filtroCentroDeCosto = $("#filtro_pagos-"+finalId).val();
     const filtroTransp = $("#filtro_transp-"+finalId).val();
+    const filtroActual = $("#" + tipoFiltro + "-hist_guias").children(".form-control").val();
+    console.log(filtroActual);
     const descargaDirecta = e.id === "descargar-hist_guias";
     $("#historial_guias .cargador").removeClass("d-none");
     const guiasPunto = $("#guias_punto-"+finalId).prop("checked");
@@ -2820,7 +2834,22 @@ async function historialGuiasAdmin(e) {
             const guia = doc.data();
             guia.transpToShow = doc.data().oficina ? guia.transportadora + "-Flexii" : guia.transportadora;
 
-            data.push(guia);
+            let condicion = true;
+
+            switch(tipoFiltro) {
+                case "filt_1":
+                case "filt_2":
+                case "filt_3":
+                case "filt_4":
+                    condicion = guia.centro_de_costo.toUpperCase().includes(filtroActual.toUpperCase());
+                break;
+
+                default:
+                    condicion = true;
+            }
+
+            if(condicion)
+                data.push(guia);
         });
     }
 
@@ -2836,14 +2865,20 @@ async function historialGuiasAdmin(e) {
 
     if(numeroGuia) {
         await referenceAlt.where("numeroGuia", "==", numeroGuia.trim()).get().then(manejarInformacion);
-    } else if(filtroPagoSeleccionado) {
+    } else if(tipoFiltro === "filt_1") {
         const segementado = segmentarArreglo(filtroPagoSeleccionado, 10);
         for await (const paquete of segementado) {
             await reference.where("centro_de_costo", "in", paquete)
             .get().then(manejarInformacion);
         }
-    } else if(filtroTransp) {
+    } else if(tipoFiltro === "filt_2") {
         await reference.where("transportadora", "==", filtroTransp).get().then(manejarInformacion);
+    } else if(tipoFiltro === "filt_3") {
+        await reference.where("centro_de_costo", "==", filtroActual).get().then(manejarInformacion);
+
+        // if(!data.length) await reference.get().then(manejarInformacion);
+    } else if(tipoFiltro === "filt_4") {
+        await reference.where("type", "==", filtroActual).get().then(manejarInformacion);
     } else {
         await reference.get().then(manejarInformacion);
     }

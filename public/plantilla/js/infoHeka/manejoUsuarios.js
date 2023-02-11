@@ -2,8 +2,10 @@ const db = firebase.firestore();
 const filtradorPagos = $(".filtro-pagos");
 const listaVer = $("#lista-manejo_usuarios");
 const inpNuevo = $("#nuevo-manejo_usuarios");
-const buttonAdd = $("#agrega_nuevo-manejo_usuarios")
-const buttonSave = $("#agregar_nuevo-manejo_usuarios")
+const buttonAdd = $("#agrega_nuevo-manejo_usuarios");
+const buttonSave = $("#agregar_nuevo-manejo_usuarios");
+const btnDownload = $("#descargar-manejo_usuarios");
+
 let valorseleccionado = "";
 
 const referencia = db.collection("infoHeka").doc("manejoUsuarios");
@@ -11,6 +13,7 @@ const referencia = db.collection("infoHeka").doc("manejoUsuarios");
 listaVer.change(mirarColeccion);
 buttonAdd.on("click", activarNuevo);
 buttonSave.on("click", guardarNuevo);
+btnDownload.on("click", descargarLista);
 
 cargarFiltroDePagosPersonalizados();
 async function cargarFiltroDePagosPersonalizados() {
@@ -42,6 +45,7 @@ async function cargarFiltroDePagosPersonalizados() {
 function reset() {
     buttonAdd.addClass("d-none");
     buttonSave.addClass("d-none");
+    btnDownload.addClass("d-none");
     inpNuevo.parent().addClass("d-none");
 }
 
@@ -75,6 +79,8 @@ function mirarColeccion(e) {
         $(".fa-pen", mostrario).removeClass("d-none");
         buttonAdd.removeClass("d-none")
     }
+
+    btnDownload.removeClass("d-none");
 
     $(".fa-trash", mostrario).click(eliminarDeLista);
     $(".fa-pen", mostrario).click(activarEditarUsuario);
@@ -167,4 +173,13 @@ function cancelarEdicion(e) {
     $(`#${id}`).addClass("d-none");
     btnGuardar.addClass("d-none");
     $(".fa-times", parent).addClass("d-none");
+}
+
+function descargarLista(e) {
+    const tipoLista = listaVer.val();
+    const lista = filtroPagos[tipoLista];
+    const columnas = {u: "Usuarios"};
+    const paraDescargar = lista.map(u => ({u: u}));
+
+    descargarInformeExcel(columnas, paraDescargar, "Lista");
 }
