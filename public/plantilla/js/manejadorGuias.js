@@ -2771,11 +2771,11 @@ function revisarGuiasSaldas() {
 
 $("#guias_punto-hist_guias").on("change", (e) => {
     if(e.target.checked) {
-        $("#filtro_pagos-hist_guias").parent().addClass("d-none");
-        $("#filtro_transp-hist_guias").parent().addClass("d-none");
+        $("#filt_exp-hist_guias").addClass("d-none");
+        // $("#filtro_transp-hist_guias").parent().addClass("d-none");
     } else {
-        $("#filtro_pagos-hist_guias").parent().removeClass("d-none");
-        $("#filtro_transp-hist_guias").parent().removeClass("d-none");
+        $("#filt_exp-hist_guias").removeClass("d-none");
+        // $("#filtro_transp-hist_guias").parent().removeClass("d-none");
 
     }
 })
