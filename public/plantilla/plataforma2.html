@@ -451,11 +451,20 @@
           
           <div class="container-fluid" id="cotizar_envio" style="display: none;">
             <div class="row">
-              <div class="col-12 mb-3">
+              <div class="col-12 mb-2">
                 <div class="alert alert-danger" role="alert">
                   Recuerda tomar las medidas de tu paquete después de embalado antes de ingresar en el cotizador, la transportadora hará reliquidación de costos de envío en caso que las medidas no coincidan con tu paquete.
                 </div>
               </div>              
+                           
+              <div class="col-12 mb-2 cotizador-beta d-none">
+                <div class="alert alert-danger" role="alert">
+                  <p class="col-12 mb-0">Cada día buscamos la manera de implementar herramientas que te agilicen la realización de tus guías y permitir que tu trabajo sea más óptimo🥳</p>
+                    <p class="col-12 mb-0">Por eso a partir de ahora, implementamos la siguiente actualización que te permitirá guardar un registro de cotizaciones, esto con la finalidad de que puedas ahorrar tiempos para digitar tus guías y adicionalmente puedas agilizar tus entregas👏🏻.</p>
+                    <p class="col-12 mb-0">Ten en cuenta que el cotizador seguirá funcionando con normalidad 😀</p>
+                </div>
+              </div>              
+                           
             </div>
 
             <!-- Page Heading -->
@@ -463,15 +472,23 @@
               <h1 class="h3 mb-4 text-gray-800">Cotizar envío</h1>
               <div class="card d-none cotizador-beta" id="opciones-cotizador">
                 <div class="card-body">
+                  <span class="badge badge-danger badge-counter float-right" style="font-size: medium;" data-toggle="tooltip" title='Esta es una implementación de prueba, dependiendo de la interacción con los usuarios puede o no eliminarse.'>Beta</span>
                   <div class="row">
+                    
                     <div class="form-group col-md">
-                      <label for="list_bodegas-cotizador">Bodegas</label>
+                      <label for="list_bodegas-cotizador">
+                        Bodegas
+                        <i class="fa fa-question-circle" data-toggle="tooltip" title='Se listan las bodegas guardadas para una selección más específica.'></i> 
+                      </label>
                       <select type="text" class="form-control"
                       id="list_bodegas-cotizador"></select>
                     </div>
   
                     <div class="form-group col-md">
-                      <label for="list_plantillas-cotizador">Plantillas</label>
+                      <label for="list_plantillas-cotizador">
+                        Plantillas
+                        <i class="fa fa-question-circle" data-toggle="tooltip" title='Se listan las plantillas guardadas previamente.'></i>
+                      </label>
                       <i id="boton_eliminar_plant" title="Eliminar plantilla" data-toggle="tooltip"
                       class="fa fa-trash mx-2 text-danger d-none"></i>
                       <select type="text" class="form-control"
@@ -480,23 +497,28 @@
                   </div>
 
                   <div class="row">
-                    <div class="col text-center">
-                      <input type="checkbox" id="actv_ciudad_plantilla-cotizador">
-                      <label for="actv_ciudad_plantilla-cotizador">Tomar ciudad de plantilla guardada</label>
-                    </div>
-                    
                     <div class="col-sm-6 text-center d-none" id="cont_act_plant-cotizador">
                       <input type="checkbox" id="actv_editar_plantilla-cotizador">
-                      <label for="actv_editar_plantilla-cotizador">Cambiar datos de la <b>plantilla</b></label>
+                      <label for="actv_editar_plantilla-cotizador">
+                        Cambiar datos de la <b>plantilla</b>
+                        <i class="fa fa-question-circle" data-toggle="tooltip" title='Si marcas la opción, se editará la información guardada previamente al presionar el botón "Cotizar envío"'></i> 
+                      </label>
+                    </div>
+
+                    <div class="col text-center">
+                      <input type="checkbox" id="actv_ciudad_plantilla-cotizador">
+                      <label for="actv_ciudad_plantilla-cotizador">
+                        Tomar ciudad de plantilla guardada
+                        <i class="fa fa-question-circle" data-toggle="tooltip" title='Las plantillas guardan también la ciudad desde la que se envió la primera vez, si la marcas, heredas la misma ciudad en caso de que tanto el producto como el destino coincidan.'></i> 
+                      </label>
                     </div>
   
                   </div>
   
                   <div class="d-flex justify-content-end">
-                    <div class="d-flex">
-                      <button id="boton_cotizar_2"  onclick="cotizador()" 
-                      class="btn btn-primary btn-sm mx-2">Cotizar envío</button>
-                    </div>
+                    <button id="boton_cotizar_2"  onclick="cotizador()" 
+                    class="btn btn-primary btn-sm mx-2">Cotizar envío</button>
+                    
                   </div>
 
                 </div>
@@ -559,11 +581,17 @@
                 <div class="form-group row align-items-end cotizador-beta d-none" id="cont_config_save-cotizador">
                   <div class="col-12 text-center mt-3">
                     <input type="checkbox" id="guardar_cotizacion-cotizador">
-                    <label for="guardar_cotizacion-cotizador">Crear <b>Plantilla</b> con los datos del cotizador <small class="popover-nombre_prod"></small></label>
+                    <label for="guardar_cotizacion-cotizador">
+                      Crear <b>Plantilla</b> con los datos del cotizador 
+                      <i class="fa fa-question-circle" data-toggle="tooltip" title='Esta opción te permitirá guardar una plantilla con los datos ingresados previamente para que no tengas que digitarlo nuevamente en el futuro.'></i>   
+                    </label>
                   </div>
 
                   <div class="col-12 mb-3 mb-sm-3 d-none" id="cont_nom_plant-cotizador">
-                    <label class="form-label" for="nombre">Nombre plantilla <small class="popover-nombre_prod"></small></label>
+                    <label class="form-label" for="nombre">
+                      Nombre plantilla 
+                      <i class="fa fa-question-circle" data-toggle="tooltip" title='Ingrese nombre único de la plantilla que le permita encontrarla más rápido en un futuro.'></i>     
+                    </label>
                     <input type="text" class="form-control" name="nombre" id="nombre_cotizador">  
                   </div>
                 </div>

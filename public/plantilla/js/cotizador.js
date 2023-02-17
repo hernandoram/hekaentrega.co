@@ -2,7 +2,8 @@ let datos_de_cotizacion, oficinas = [], bodega,
     datos_a_enviar = new Object({}),
     codTransp = "SERVIENTREGA"
 
-
+// No se encuentra pueblo viejo(magdalena), nazaret(cundinamarca)
+const bloqueo_direcciones_inter = ["19318000", "70523000", "73217001", "50711002", "13810011", "68298002"];
 // Objeto principal en que se basa la transportadora a ser utilizada
 let transportadoras = {
     "SERVIENTREGA": {
@@ -13,7 +14,7 @@ let transportadoras = {
         limitesPeso: [3,80],
         limitesLongitud: [1,150],
         limitesRecaudo: [5000, 2000000],
-        bloqueada: false,
+        bloqueada: () => false,
         bloqueadaOfi: false,
         limitesValorDeclarado: (valor) => {
             return [5000,300000000]
@@ -38,7 +39,7 @@ let transportadoras = {
         limitesPeso: [0.1, 80],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
-        bloqueada: false,
+        bloqueada: data => bloqueo_direcciones_inter.includes(data.dane_ciudadD),
         bloqueadaOfi: false,
         limitesValorDeclarado: (peso) => {
             if(peso <= 2) return [15000, 30000000]
@@ -75,7 +76,7 @@ let transportadoras = {
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
-        bloqueada: false,
+        bloqueada: () => false,
         bloqueadaOfi: true,
         limitesValorDeclarado: (valor) => {
             return [10000, 30000000]
@@ -100,7 +101,7 @@ let transportadoras = {
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
-        bloqueada: true,
+        bloqueada: () => true,
         bloqueadaOfi: true,
         limitesValorDeclarado: (valor) => {
             if(valor <= 2) return [12500, 30000000]
@@ -566,7 +567,7 @@ async function detallesTransportadoras(data) {
     for (let transp in transportadoras) {
         let seguro = data.seguro, recaudo = data.valor;
         let transportadora = transportadoras[transp];
-        if(transportadora.bloqueada && !estado_prueba) continue;
+        if(transportadora.bloqueada(data)) continue;
 
         if(!cotizacionAveo && (transp === "TCC")) {
 

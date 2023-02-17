@@ -4,11 +4,13 @@ import { iniciarOpcionesCotizador, llenarBodegasCotizador, llenarProductos } fro
 import { registroDesdePunto } from "./auth/register.js";
 import { agregarObjetoDeEnvio } from "./auth/handlers.js";
 
-if(estado_prueba) {
-    iniciarOpcionesCotizador();
-    llenarBodegasCotizador();
-    llenarProductos();
-}
+// if(estado_prueba) {
+// }
+// #region Funciones para habilitar configuraciones de las plantillas para el cotizador
+iniciarOpcionesCotizador();
+llenarBodegasCotizador();
+llenarProductos();
+// #endregion
 
 inicio();
 
