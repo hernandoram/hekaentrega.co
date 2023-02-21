@@ -73,6 +73,8 @@ exports.revisarNovedad = (mov, transp) => {
     } else {
         if(listaNovedadesServientrega) {
             return listaNovedadesServientrega.SERVIENTREGA.includes(mov.NomConc)
+        } else {
+            this.revisarNovedadAsync(mov,transp);
         }
 
         return mov.TipoMov === "1";
@@ -89,7 +91,8 @@ exports.guiaEnNovedad = (movimientos, transp) => {
     let novedad;
 
     switch(transp) {
-        case "INTERRAPIDISIMO":
+        case "INTERRAPIDISIMO": 
+        // case "SERVIENTREGA":
             for (const mov of movimientos) {
                 const tradFecha = this.traducirMovimientoGuia(transp)["fechaMov"];
                 const fechaMov = mov[tradFecha];
@@ -116,6 +119,8 @@ exports.guiaEnNovedad = (movimientos, transp) => {
     }
 
     movimientos.reverse();
+
+    console.log("NOVEDAD REGISTRADA", novedad, enNovedad);
 
     return {enNovedad, novedad, transp};
 }

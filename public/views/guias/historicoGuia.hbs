@@ -1,20 +1,54 @@
 
 <h2 class="d-flex justify-content-between my-2">
+    {{#if guia.enNovedad}}
+    <span class="badge badge-pill badge-soft-danger p-2">EN NOVEDAD</span>
+    {{else}}
     <span class="badge badge-pill badge-soft-primary p-2">{{guia.estado}}</span>
+    {{/if}}
     <span class="text-primary">Guía {{guia.numeroGuia}}</span>
 </h2>
 
 <ul class="nav nav-pills navtab-bg nav-justified" id="myTab" role="tablist">
   <li class="nav-item" role="presentation">
-    <a class="nav-link" id="detalles-tab" data-toggle="tab" data-target="#detalles" role="tab" aria-controls="detalles" aria-selected="true">Detalles</a>
+    <a class="nav-link active" id="detalles-tab" data-toggle="tab" data-target="#detalles" role="tab" aria-controls="detalles" aria-selected="true">Detalles</a>
   </li>
   <li class="nav-item" role="presentation">
-    <a class="nav-link active" id="historial-tab" data-toggle="tab" data-target="#historial" role="tab" aria-controls="historial" aria-selected="false">Historial</a>
+    <a class="nav-link" id="historial-tab" data-toggle="tab" data-target="#historial" role="tab" aria-controls="historial" aria-selected="false">Historial</a>
   </li>
 </ul>
 
 <div class="tab-content">
-    <div id="detalles" class="tab-pane fade p-2">
+    <div id="detalles" class="tab-pane active show fade p-2">
+        {{#if guia.enNovedad}}
+        <form class="form-sol my-2">
+            <p class="mb-1">Gestionar novedad {{novedadActual.tipo_solucion}}</p>
+            <input type="text" class="d-none" name="numeroGuia" value="{{guia.numeroGuia}}">
+            <input type="text" class="d-none" name="fechaMovimiento" value="{{novedadActual.fechaMov}}">
+            <div class="form-group">
+                <label for="respuesta-simple">{{novedadActual.tituloRespuesta}}</label>
+                <select class="custom-select" name="respuestaSimple" id="respuesta-simple"
+                data-tipo="{{novedadActual.tipo_solucion}}"
+                required>
+                    <option value> -- Seleccione -- </option>
+                    <option value="1">SI</option>
+                    <option value="0">NO</option>
+                </select>
+            </div>
+            
+            <div class="form-group d-none" id="dirrecion">
+                <label for="direccion-novedad">Agregar Dirección</label>
+                <input type="text" id="direccion-novedad" class="form-control" name="direccion" />
+            </div>
+            
+            <div class="form-group d-none" id="observaciones">
+                <label for="observaciones-novedad">Datos adicionales</label>
+                <input type="text" for="observaciones-novedad" class="form-control" name="observaciones" />
+            </div>
+
+            <button class="btn btn-primary btn-block" type="submit">Solucionar</button>
+        </form>
+        {{/if}}
+
         <div class="row">
             <h3 class="col-12 text-primary">Datos de la guía</h3>
             <p class="col-md-6">Número de guía: <b>{{guia.numeroGuia}}</b></p>
@@ -27,7 +61,7 @@
         <hr>
     </div>
 
-    <div class="tab-pane active show fade" id="historial">
+    <div class="tab-pane fade" id="historial">
         <ul class="list-group list-group-flush">
             {{#each guia.movimientos}}
             <li class="list-group-item d-flex align-items-center">
@@ -48,22 +82,6 @@
                     
                     <p class="mb-1"><span class="text-danger">{{this.novedad}}</span></p>
 
-                    {{#if this.gestion}}
-                    <small class="text-truncate text-success">{{this.gestion}}</small>
-                    {{else}}
-                        {{#if this.novedad}}
-                        <form class="form-sol">
-                            <input type="text" class="d-none" name="numeroGuia" value="{{../guia.numeroGuia}}">
-                            <input type="text" class="d-none" name="fechaMovimiento" value="{{this.fechaMov}}">
-                            <div class="input-group">
-                                <textarea type="text" class="form-control" rows="1" name="gestion" placeholder="Plantear solución" ></textarea>
-                                <div class="input-group-append">
-                                    <button class="btn btn-outline-primary" type="submit" id="solucionar-{{this.fechaMov}}"><i class="fa fa-paper-plane"></i></button>
-                                </div>
-                            </div>
-                        </form>
-                        {{/if}}
-                    {{/if}}
                 </div>
             </li>
             {{/each}}

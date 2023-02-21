@@ -1,16 +1,28 @@
 const firebase = require("../keys/firebase");
 const db = firebase.firestore();
-const {traducirMovimientoGuia} = require("../extends/manejadorMovimientosGuia");
+const {traducirMovimientoGuia, guiaEnNovedad} = require("../extends/manejadorMovimientosGuia");
 const {actualizarMovimientosPorComparador} = require("./seguimientos");
 
 const _collEstadoGuia = "estadoGuias";
 const _collGuia = "guias";
 
+const tituloPorNovedad = {
+    DIRECCION: "¿Te gustaría reparto?",
+    REUSADO: "Nuevo intento."
+}
+
+function cargarMensajeAleatorio() {
+    const titulos = ["DIRECCION", "REUSADO"];
+    const seleccionado = titulos[Math.floor((Math.random() * titulos.length))];
+
+    return {tipo: seleccionado, titulo: tituloPorNovedad[seleccionado]};
+}
+
 exports.consultarGuia = async (req, res) => {
     const {n} = req.query;
 
-    if(!process.env.DEVELOPMENT)
-        await actualizarMovimientosPorComparador("numeroGuia", "==", n);
+    // if(!process.env.DEVELOPMENT)
+    // await actualizarMovimientosPorComparador("numeroGuia", "==", n);
     // console.log("REPORTE", reporte);
 
     const docMovimiento = await buscarGuia(n, _collEstadoGuia);
@@ -19,34 +31,36 @@ exports.consultarGuia = async (req, res) => {
     let movimientosEncontrado = docMovimiento.data();
 
     let guiaEncontrada = docGuia.data();
-    const {seguimiento} = guiaEncontrada;
 
-    const traducirMovimientos = movimientosEncontrado.movimientos.map(m => {
-        const tradMov = traducirMovimientoGuia(movimientosEncontrado.transportadora);
+    const tradMov = traducirMovimientoGuia(movimientosEncontrado.transportadora);
+
+    const traduccion = (mov) => {
         const titulos = Object.keys(tradMov);
         const res = {};
         
-        titulos.forEach(t => res[t] = m[tradMov[t]]);
-        
-        if(seguimiento && seguimiento.length) {
-            const gestEnc = seguimiento.find(s => s.fechaMovimiento === res.fechaMov)
+        titulos.forEach(t => res[t] = mov[tradMov[t]]);
+        return res
+    }
 
-            if(gestEnc) res.gestion = gestEnc.gestion;
-        }
-        return res;
-    }).reverse();
+    const traducirMovimientos = movimientosEncontrado.movimientos.map(traduccion).reverse();
 
-    console.log(movimientosEncontrado, guiaEncontrada);
+    const {novedad} = guiaEnNovedad(movimientosEncontrado.movimientos, movimientosEncontrado.transportadora);
+    const novedadActual = traduccion(novedad);
+    const {tipo, titulo} = cargarMensajeAleatorio();
+    novedadActual.tituloRespuesta = titulo;
+    novedadActual.tipo_solucion = tipo;
 
     const guia = {
         movimientos: traducirMovimientos,
         estado: movimientosEncontrado.estadoActual.toUpperCase(),
         numeroGuia: movimientosEncontrado.numeroGuia,
         fechaEnvio: movimientosEncontrado.fechaEnvio,
+        enNovedad: movimientosEncontrado.enNovedad,
+        novedadActual
     }
 
     // res.json(movimientosEncontrado);
-    res.render("guias/historicoGuia", {guia, layout:"general"});
+    res.render("guias/historicoGuia", {guia, novedadActual, layout:"general"});
     
     // res.render("productos", {productos, tienda: req.params.storeInfo});
 };
