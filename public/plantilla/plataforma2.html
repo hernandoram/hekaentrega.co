@@ -79,6 +79,7 @@
 
   <!-- Contanido Css del swipper-->
   <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+  <link rel="stylesheet" href="./css/userPlatform.css">
 </head>
 
 <body class="bg-gradient-primary">
@@ -206,6 +207,8 @@
 
             <!-- Topbar Navbar -->
             <ul class="navbar-nav ml-auto">
+              <li class="nav-item d-flex align-items-center" id="titulo"></li>
+
               <!--Notifications-->
               <li class="nav-item dropdown no-arrow mx-1">
                 <a class="nav-link dropdown-toggle" href="#" id="notificaciones" role="button" 
@@ -262,7 +265,6 @@
             </ul>
         </nav>
         <!-- End of Topbar -->
-
         <!-- Main Content -->
         <div id="cargador-content" class="h-100">
           <div class="h-100 d-flex align-items-center justify-content-center">
@@ -274,6 +276,7 @@
             </div>
           </div>
         </div>
+        
         <div id="content" style="display: none;">     
           <!-- Begin Page Content -->
           <div class="container-fluid" id="home">
@@ -300,6 +303,8 @@
                   <div class="card-body row" id="Usuario">
                     <div class="col-7" >
                       <h5 class="card-title" >Hola, <span class="mostrar-nombre_completo"></span></h5>
+                      <h5 class="text-danger">Novedades: <span class="mostrar-cantidad_novedades"></span></h5>
+
                     </div>
                     <div class="col-5 imagen-estadisticas">
                       <img src="recursos/pagos.png" class="pr-1" alt="">
@@ -1003,17 +1008,7 @@
             <a href="#" class="d-none agregar-bodega" id="link-agregar-bodega">Agregar bodega</a>
           </div>
 
-          <div class="container-fluid" id="historial_guias" style="display: none;">
-            <div class="alert alert-warning alert-dismissible fade show" role="alert" id="alerta_novedad-guias_hist">
-              <p class="mb-1 d-flex aling-item-start">
-                <i class="fa fa-exclamation-triangle text-warning mr-2"></i>
-                <span>¡Ahora podrás OBTENER EL DINERO de tus guías todos los días hábiles! Estos tendrán una comisión del 1.5%, Recuerda que dicha comisión serán negociada según la cantidad de envíos realizada</span>
-              </p>
-              <strong>¿Qué esperas para comenzar?</strong>
-              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
+          <div class="container-fluid" id="historial_guias_antiguo" style="display: none;">
             <h3 class="m-0 font-weight-bold text-primary">Historial de guías</h3>
             
             <!--Formulario de busqueda guias-->
@@ -1088,6 +1083,45 @@
               </div>
             </div>
             
+          </div>
+
+          <div class="container-fluid" id="historial_guias" style="display: none;">
+            <div class="alert alert-warning alert-dismissible fade show d-none" role="alert" id="alerta_novedad-guias_hist">
+              <p>
+                <i class="fa fa-exclamation-triangle text-warning mr-2"></i>
+                Actualmente cuentas con <strong>{contador}</strong> novedades, por favor gestionalas en el menor tiempo posible para evitar devoluciones
+              </p>
+              <button class="btn btn-warning ver-novedades">Revisar Novedades</button>
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            
+            <div class="d-flex justify-content-between">
+              <h3 class="title" id="titulo-guias_hist">
+                Nuevo historial de guías 
+                <button class="btn btn-info" id="btn_actv_search-guias_hist"><i class="fa fa-search"></i></button>
+              </h3>
+              <small id="motrador_filt-guias_hist"></small>
+            </div>
+            <div class="form-group row mt-2" id="filtrado-guias_hist" style="display: none;">
+              <div class="col-sm-4 mb-3">
+                <h6>Fecha inicio</h6>
+                <input type="date" class="form-control form-control-user"  id="fecha_inicio-guias_hist">
+              </div>
+              <div class="col-sm-4 mb-3">
+                <h6>Fecha final</h6>
+                <input type="date" class="form-control form-control-user"  id="fecha_final-guias_hist" required>
+              </div>
+              <div class="col-sm-4">
+                <h6>Número de Guía</h6>
+                <input type="text" class="form-control form-control-user"  id="numeroGuia-guias_hist">
+              </div>
+              <button id="btn_buscar-guias_hist"
+              class="col-12 btn btn-primary btn-user btn-block">
+                Buscar
+              </button>
+            </div>
           </div>
           
           <div class="container-fluid" id="buscar_guia" style="display: none;">
@@ -1652,7 +1686,7 @@
 
     <script src="js/userPlatform.js" type="module"></script>
 
-  </body>
+</body>
   
 </html>
 

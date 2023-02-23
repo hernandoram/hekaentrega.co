@@ -2389,6 +2389,10 @@ function crearGuia() {
             verificador("numero_documento_usuario");
             renovarSubmit(boton_final_cotizador, textoBtn);
 
+        } else if(datos_a_enviar.transportadora === "INTERRAPIDISIMO" && (!bodega || !bodega.codigo_sucursal_inter)) {
+            swal.fire("Asegurece de seleccionar una bodega válida para interrapidísimo", "", "warning");
+            verificador("actualizar_direccionR", "moderador_direccionR");
+            renovarSubmit(boton_final_cotizador, textoBtn);
         } else {
             Swal.fire({
                 title: "Creando Guía",
@@ -2429,11 +2433,14 @@ function crearGuia() {
 
             if(datos_usuario.type !== "PUNTO")
             datos_a_enviar.id_user = user_id;
+            datos_a_enviar.staging = true;
             
             if(datos_usuario.type === "PUNTO") {
                 datos_a_enviar.id_punto = user_id;
                 datos_a_enviar.pertenece_punto = true;
             }
+
+            if(datos_a_enviar.transportadora === "INTERRAPIDISIMO") datos_a_enviar.codigo_sucursal = bodega.codigo_sucursal_inter;
             
             datos_a_enviar.cuenta_responsable = transportadoras[datos_a_enviar.transportadora]
             .getCuentaResponsable();
@@ -2576,6 +2583,8 @@ async function pruebaGeneracionGuias(idGuiaError) {
 async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
     //Primero consulto la respuesta del web service
     let generarGuia;
+    referenciaNuevaGuia = referenciaNuevaGuia || usuarioAltDoc(datos.id_user)
+    .collection("guias").doc(datos.id_heka);
 
     if(datos.transportadora === "SERVIENTREGA") {
         generarGuia = generarGuiaServientrega(datos);
@@ -2592,32 +2601,46 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
     const respuesta = await generarGuia.then(async (resGuia) => {
         //le midifico los datos de respuesta al que será enviado a firebase
         datos.numeroGuia = resGuia.numeroGuia || 0;
-        datos.id_archivoCargar = resGuia.id_archivoCargar || "";
         datos.has_sticker = resGuia.has_sticker || false;
         //y creo el documento de firebase
         if(resGuia.numeroGuia) {
+            datos.staging = false;
             datos.numeroGuia = datos.numeroGuia.toString();
-            let guia = await referenciaNuevaGuia.set(datos)
+            datos.fecha_aceptada = genFecha();
+            datos.estadoActual = estadosGuia.generada;
+            let guia = await referenciaNuevaGuia.update(datos)
             .then(doc => {
                 return resGuia;
             })
             .catch(err => {
                 console.log("Hubo un error al crear la guía con firebase => ", err);
-                return {numeroGuia: 0, error: "Lo sentimos, hubo un problema con conexión con nuestra base de datos, le recomendamos recargar la página."}
+                return {error: true, numeroGuia: 0, message: "Lo sentimos, hubo un problema con conexión con nuestra base de datos, le recomendamos recargar la página."}
             })
             console.log(guia);
             return guia;
         } else {
-            return {numeroGuia: 0, error: resGuia.error || resGuia.message}
+            return {
+                error: true,
+                message: resGuia.error || resGuia.message
+            }
         }
         //Procuro devolver un objeto con el número de guía y el respectivo mensaje de erro si lo tiene
     })
     console.log(respuesta);
 
-    if(respuesta.numeroGuia) {
-        return datos.id_heka;
+    if(!respuesta.error) {
+        return {
+            icon: "success",
+            title: "¡Guía creada con éxito!",
+            message: "¡Guía con id: " +datos.id_heka+ " creada con éxito!"
+        }
     } else {
-        throw new Error(respuesta.error);
+        return {
+            error: true,
+            icon: "error",
+            title: "¡Error con guía!",
+            message: respuesta.message
+        }
     }
 }
 
@@ -2630,41 +2653,6 @@ async function enviar_firestore(datos){
     let id_heka = datos_usuario.numero_documento.slice(-4);
     id_heka = id_heka.replace(/^0/, 1);
     let firestore = firebase.firestore();
-    const datos_heka = datos_personalizados || await firestore.collection("usuarios").doc(localStorage.user_id)
-    .get().then(doc => doc.data().datos_personalizados);
-
-    //Estas líneas será utilizadas para cuando todos los nuevos usuarios por defecto
-    //no tengan habilitadas las transportadoras, para que administración se las tenga que habilitar
-    // if(!datos_heka) {
-    //     return {
-    //         mensaje: "Lo sentimos, no pudimos carga su información de pago, por favor intente nuevamente.",
-    //         mensajeCorto: "No se pudo cargar su información de pago",
-    //         icon: "error",
-    //         title: "Sin procesar"
-    //     }
-    // }
-
-    // FIN DEL BLOQUE
-
-    console.log(datos.debe);
-    if(!datos.debe && !datos_personalizados.actv_credit &&
-        datos.costo_envio > datos_personalizados.saldo && datos.type !== CONTRAENTREGA) {
-        return {
-            mensaje: `Lo sentimos, en este momento, el costo de envío excede el saldo
-            que tienes actualmente, por lo tanto este metodo de envío no estará 
-            permitido hasta que recargues tu saldo. Puedes comunicarte con la asesoría logística para conocer los pasos
-            a seguir para recargar tu saldo.`,
-            mensajeCorto: "El costo de envío excede el saldo que tienes actualmente",
-            icon: "error",
-            title: "¡No permitido!"
-        }
-    };
-
-    let user_debe;
-    datos_personalizados.saldo <= 0 ? user_debe = datos.costo_envio
-    : user_debe = - datos_personalizados.saldo + datos.costo_envio;
-
-    if(user_debe > 0 && !datos.debe && datos.type !== CONTRAENTREGA) datos.user_debe = user_debe;
 
     datos.seguimiento_finalizado = false;
     datos.fecha = genFecha();
@@ -2690,76 +2678,15 @@ async function enviar_firestore(datos){
             
             firestore.collection("infoHeka").doc("heka_id").update({id: firebase.firestore.FieldValue.increment(1)});
 
-            if(transportadoras[datos.transportadora].sistema() === "automatico" || transportadoras[datos.transportadora].sistema() === "automaticoEmp") {
-                //Para cuando el usuario tenga activa la creación deguías automáticas.
-                const guiaExitosa = await crearGuiaTransportadora(datos, referenciaNuevaGuia);
-                
-                // if(puntoEnvio) {
-                //     const referenciaGuiaPunto = firestore.collection("usuarios").doc(datos.id_punto)
-                //     .collection("guiasPuntoEnvio").doc(id_heka);
+            let id = await referenciaNuevaGuia.set(datos).then(() => {
+                return id_heka;
+            })
+            .catch(() => {
+                throw new Error("no pudimos guardar la información de su guía, por falla en la conexión, por favor intente nuevamente");
+            })
 
-                //     await referenciaGuiaPunto.set(datos);
-                // }
-
-                return guiaExitosa;
-                 
-            } else {
-                //Para cuendo el usurio tenga la opcion de creacion de guias automática desactivada.
-
-                //Creo la guía para que administracion le cree los documentos al usuario
-                let id = await referenciaNuevaGuia.set(datos).then(() => {
-                    return id_heka;
-                })
-                .catch(() => {
-                    throw new Error("no pudimos guardar la información de su guía, por falla en la conexión, por favor intente nuevamente");
-                })
-
-                return id;
-            }
+            return id;
         }
-    })
-    .then(async (id) => {
-        console.log("PROBANDO DATOS AL ACTUALIZAR PAGOS", datos);
-        if(!datos_heka) return id;
-
-        let momento = new Date().getTime();
-        let saldo = datos_heka.saldo;
-        let saldo_detallado = {
-            saldo: saldo,
-            saldo_anterior: saldo,
-            limit_credit: datos_heka.limit_credit || 0,
-            actv_credit: datos_heka.actv_credit || false,
-            fecha: genFecha(),
-            diferencia: 0,
-            mensaje: "Guía " + id + " creada exitósamente",
-            momento: momento,
-            user_id: localStorage.user_id,
-            guia: id,
-            numeroGuia: datos.numeroGuia || "",
-            transportadora: datos.transportadora || "",
-            medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id,
-            type: "DESCONTADO"
-        };
-
-        //***si se descuenta del saldo***
-        if(!datos.debe && datos.type !== CONTRAENTREGA){
-            saldo_detallado.saldo = saldo - datos.costo_envio;
-            if(ControlUsuario.esPuntoEnvio) saldo_detallado.saldo += datos.detalles.comision_punto;
-            saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
-            
-            let factor_diferencial = parseInt(datos_heka.limit_credit) + parseInt(saldo);
-            console.log(saldo_detallado);
-            
-            /* creo un factor diferencial que sume el limite de credito del usuario
-            (si posee alguno) más el saldo actual para asegurarme que 
-            este por encima de cero y por debajo del costo de envío, 
-            en caso de que no se cumpla, se envía una notificación a administración del exceso de gastos*/
-            if(factor_diferencial <= datos.costo_envio && factor_diferencial > 0) {
-                notificarExcesoDeGasto();
-            }
-            await actualizarSaldo(saldo_detallado);
-        }
-        return id;
     })
     .then((id) => {
         return {
@@ -2838,7 +2765,8 @@ async function generarGuiaServientrega(datos) {
                 nombreD: data.querySelector("Nom_Contacto").textContent,
                 ciudadD: data.querySelector("Des_Ciudad").textContent,
                 id_archivoCargar: data.querySelector("Id_ArchivoCargar").textContent,
-                prueba: datos.centro_de_costo == "SellerNuevo" ? true : false
+                prueba: datos.centro_de_costo == "SellerNuevo" ? true : false,
+                staging: false,
             }
         } else {
             //En caso contrario retorna el error devuelto por el webservice
@@ -2901,19 +2829,6 @@ async function guardarStickerGuiaServientrega(data) {
 
 //función para consultar la api en el back para crear guiade inter rapidisimo.
 async function generarGuiaInterrapidisimo(datos) {
-    let codigo_sucursal = bodega.codigo_sucursal_inter;
-
-    if(!codigo_sucursal) {
-        codigo_sucursal = await usuarioDoc
-        .get().then(d => {
-            console.log("ingresó porque no se consiguió código sucursal")
-            if (d.exists && d.data().datos_personalizados) return d.data().datos_personalizados.codigo_sucursal_inter
-
-            return "SCS"
-        });
-    }
-
-    datos.codigo_sucursal = codigo_sucursal
     let respuesta = await fetch("/inter/crearGuia", {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -2946,6 +2861,7 @@ async function generarGuiaInterrapidisimo(datos) {
     respuesta.numeroGuia = respuesta.numeroPreenvio;
     respuesta.id_heka = datos.id_heka;
     respuesta.prueba = datos.prueba;
+    respuesta.staging = false;
     respuesta.has_sticker = await generarStickerGuiaInterrapidisimo(respuesta);
 
     console.log("interrapidísimo => ",respuesta);

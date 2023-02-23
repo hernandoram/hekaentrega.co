@@ -67,7 +67,7 @@ $(document).ready(() => {
 const toHtmlNode = str => new DOMParser().parseFromString(str, "text/html").body.firstChild;
 
 let snapshotHistorialGuias;
-async function historialGuias(){
+async function historialGuiasAntiguo(){
     if (snapshotHistorialGuias) {
         snapshotHistorialGuias();
     }
@@ -374,7 +374,7 @@ function funcionalidadesHistorialGuias(settings, json) {
     $(".todas").addClass("btn-primary");
 
     setTimeout(() => {
-        filtrarHistorialGuiasPorColumna(api.column(4)) 
+        filtrarHistorialGuiasPorColumna(api.column(4))
         filtrarHistorialGuiasPorColumna(api.column(5))
     }, 1000);
 }
@@ -458,7 +458,10 @@ function renderizadoDeTablaHistorialGuias(config) {
 
 function filtrarHistorialGuiasPorColumna(column) {
     const header = column.header();
-    const select = $("<select class='custom-select form-control-sm' style='min-width:120px'><option value=''>"+header.textContent+"</option></select>")
+    
+    const title = header.getAttribute("data-title") || header.textContent;
+    header.setAttribute("data-title", title);
+    const select = $("<select class='form-control form-control-sm' style='min-width:120px'><option value=''>"+title+"</option></select>")
         .appendTo($(header).empty())
         .on("change", function(e) {
             console.log($(this).val());
@@ -527,8 +530,7 @@ function descargarGuiasParticulares(e, dt, node, config) {
     
         const api = dt;
         const selectedRows = api.rows(".selected");
-        const datas = selectedRows.data();
-    
+        const datas = selectedRows.data().length > 0 ? selectedRows.data() : api.rows().data();
         const ids = new Array();
         datas.each(r => ids.push(r.id_heka));
         console.log(ids);
@@ -545,24 +547,32 @@ function descargarGuiasParticulares(e, dt, node, config) {
 let noNotificarGuia;
 function crearDocumentos(e, dt, node, config) {
     const api = dt;
-    const selectedRows = api.rows(".selected");
-    const datas = selectedRows.data();
+    // Para cuando se use el selector
+    // const selectedRows = api.rows(".selected");
+    // const datas = selectedRows.data();
+
+    // Para utilizar el método de empaque
+    const selectedRows = api.rows();
+    const datas = selectedRows.data().filter(d => d.empacada).slice(0, 51);
+    console.log(datas);
+
+
     const nodos = selectedRows.nodes();
     node.prop("disabled", true);
     
     let id_user = ControlUsuario.esPuntoEnvio ? datas[0].id_user : localStorage.user_id, arrGuias = new Array();
     
-    if(!nodos.length) {
+    if(!datas.length) {
         node.prop("disabled", false);
 
         return Toast.fire({
             icon: "error",
-            text: "No hay guías seleccionadas"
+            text: "No hay guías empacadas"
         })
     }
 
-    nodos.each((nodo, i) => {
-        const data = datas[i];
+    datas.each((data, i) => {
+        // const data = datas[i];
 
         const {
             numeroGuia, id_heka, id_archivoCargar, prueba,
@@ -576,7 +586,7 @@ function crearDocumentos(e, dt, node, config) {
             dice_contener, valor, nombre_empresa, nombreR, ciudadR, ciudadD, nombreD, direccionD
         });
 
-        $(nodo).removeClass("selected bg-gray-300");
+        // $(nodo).removeClass("selected bg-gray-300");
     });
 
     
@@ -595,7 +605,6 @@ function crearDocumentos(e, dt, node, config) {
     }
 
     console.log(arrGuias);
-
 
     // Add a new document with a generated id.
     swal.fire({
@@ -658,6 +667,7 @@ function crearDocumentos(e, dt, node, config) {
                 });
                 actualizarHistorialDeDocumentos();
                 location.href = "#documentos";
+                $("#filter_proceso-guias_hist").click();
             } else {
                 await crearManifiestoServientrega(arrGuias, {
                     id_user, 
@@ -692,7 +702,8 @@ function crearDocumentos(e, dt, node, config) {
                 visible_admin: true
             }).then(() => {
                 actualizarHistorialDeDocumentos();
-                location.href = "#documentos"
+                location.href = "#documentos";
+                $("#filter_proceso-guias_hist").click();
             });
         }
         
@@ -713,13 +724,13 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
     const diferentes = arrGuias.some((v, i, arr) => {
         const generacion_automatizada = ["automatico", "automaticoEmp"].includes(transportadoras[v.transportadora].sistema());
         if(v.type != arr[i? i - 1 :i].type) {
-            mensaje = "Los tipos de guías seleccionadas no coinciden.";
+            mensaje = "Los tipos de guías empacadas no coinciden.";
             return true
         } else if (v.transportadora != arr[i? i - 1 :i].transportadora) {
-            mensaje = "Las transportadoras seleccionadas no coinciden."
+            mensaje = "Las transportadoras empacadas no coinciden."
             return true
         } else if (generacion_automatizada && !v.numeroGuia) {
-            mensaje = "Para el modo automático de guías, es necesario que todas las seleccionadas contengan el número de guía de la transportadora. <br/> Se recomienda desactivar el sistema automatizado para generar guias (que se encuentra en el cotizador), de esta forma, se le será permitido crear el documento con la guía nro. " + v.id_heka ;
+            mensaje = "Para el modo automático de guías, es necesario que todas las empacadas contengan el número de guía de la transportadora. <br/> Se recomienda desactivar el sistema automatizado para generar guias (que se encuentra en el cotizador), de esta forma, se le será permitido crear el documento con la guía nro. " + v.id_heka ;
             
             return true;
         } else if (generacion_automatizada && !v.has_sticker) {
@@ -735,7 +746,7 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
             mensaje = mensaje.replace(match, "");
             return true;
         } else if (ControlUsuario.esPuntoEnvio && (v.id_user != arr[i? i - 1 :i].id_user)) {
-            mensaje = "Los usuarios seleccionadas no coinciden."
+            mensaje = "Los usuarios empacadas no coinciden."
             return true
         }
 
@@ -753,7 +764,8 @@ async function actualizarEstadoGuiasDocCreado(arrGuias) {
         .collection("guias").doc(guia.id_heka)
         .update({
             enviado: true,
-            estado: "Enviado"
+            estado: "Enviado",
+            estadoActual: estadosGuia.empacada
         })
         .then(() => {
             const link = guia.transportadora === "ENVIA" ? "https://envia.co/" : "https://www.interrapidisimo.com/sigue-tu-envio/"
@@ -874,7 +886,8 @@ async function crearManifiestoServientrega(arrGuias, vinculo) {
     }
     
     actualizarHistorialDeDocumentos();
-    location.href = "#documentos"
+    location.href = "#documentos";
+    $("#filter_proceso-guias_hist").click();
 
 }
 
@@ -930,7 +943,8 @@ async function crearManifiestoAveonline(arrGuias, vinculo) {
     }
     
     actualizarHistorialDeDocumentos();
-    location.href = "#documentos"
+    location.href = "#documentos";
+    $("#filter_proceso-guias_hist").click();
 
 }
 
