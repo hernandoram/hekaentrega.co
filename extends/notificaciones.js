@@ -54,6 +54,7 @@ exports.notificarNovedadEncontrada = async (guia, movimientos) => {
     if(!novedadesNotificadas) novedadesNotificadas = [];
     if(!movimientos || !movimientos.length || usuariosExcepcion.includes(guia.centro_de_costo)) return novedadesNotificadas;
 
+    return novedadesNotificadas; // se cancela el servicio de mensajería paranovedades
 
     const {novedad, enNovedad} = guiaEnNovedad(movimientos, transportadora);
     const traductor = traducirMovimientoGuia(transportadora);

@@ -319,7 +319,7 @@ exports.crearGuia = (req, res) => {
         "Notificacion":null,
         "RapiRadicado":{
         }, //Enviar solo si el servicio es id 16 RapiRadicado
-        "Observaciones": guia.id_heka
+        "Observaciones": guia.id_heka + " - " + guia.dice_contener
     }
 
     request.post(url + "/InsertarAdmision", {
