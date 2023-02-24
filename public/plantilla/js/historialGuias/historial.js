@@ -10,18 +10,22 @@ const buscador = $("#filtrado-guias_hist")
 buscador.before(filtersHtml);
 container.append(htmlTable);
 
+const typesGenerales = [novedad, proceso, pedido, pagada, finalizada, generada];
+
 const columns = [
-    {data: null, title: "Acción", render: accionesDeFila, types: [novedad, proceso, pedido, pagada, finalizada, generada]},
-    {data: null, title: "Empaque", render: accionEmpaque, types: [generada]},
+    {data: null, title: "Acciones", render: accionesDeFila, types: typesGenerales},
+    // {data: null, title: "Empaque", render: accionEmpaque, types: [generada]},
     {data: null, title: "Gestionar", render: accionGestNovedad, types: [novedad]},
-    {data: "id_heka", title: "Id", defaultContent: "", types: [novedad, proceso, pedido, pagada, finalizada, generada]},
+    {data: "id_heka", title: "Id", defaultContent: "", types: typesGenerales},
     {data: "numeroGuia", title: "# Guía", defaultContent: "", types: [novedad, proceso, pagada, finalizada, generada]},
     {data: "estado", title: "Estado", defaultContent: "", types: [novedad, proceso, pagada, finalizada]},
     {data: "transportadora", 
-    orderable: false, 
-    title: "Transportadora", defaultContent: "", types: [novedad, proceso, pedido, pagada, finalizada, generada]},
-    {data: "type", title: "Tipo", defaultContent: "", types: [novedad, proceso, pedido, pagada, finalizada, generada]},
-    {data: "nombreD", title: "Destinatario", defaultContent: "", types: [novedad, proceso, pedido, pagada, finalizada, generada]},
+    orderable: false,
+    title: "Transportadora", defaultContent: "", types: typesGenerales},
+    {data: "type", title: "Tipo", 
+    orderable: false,
+    defaultContent: "", types: typesGenerales},
+    {data: "nombreD", title: "Destinatario", defaultContent: "", types: typesGenerales},
     {
         data: "telefonoD", title: "Telefonos",
         defaultContent: "", render: (valor,type,row) => {
@@ -33,10 +37,10 @@ const columns = [
 
             return valor;
         }, 
-        types: [novedad, proceso, pedido, pagada, finalizada, generada]
+        types: typesGenerales
     },
-    {data: "ciudadD", title: "Ciudad", defaultContent: "", types: [novedad, proceso, pedido, pagada, finalizada, generada]},
-    {data: "fecha", title: "Fecha", defaultContent: "", types: [novedad, proceso, pedido, pagada, finalizada, generada]},
+    {data: "ciudadD", title: "Ciudad", defaultContent: "", types: typesGenerales},
+    {data: "fecha", title: "Fecha", defaultContent: "", types: typesGenerales},
     {
         data: "seguro", title: "Seguro", 
         defaultContent: "", render: (value, type, row) => {
@@ -46,22 +50,27 @@ const columns = [
 
             return value;
         },
-        types: [novedad, proceso, pedido, pagada, finalizada, generada]
+        types: typesGenerales
     },
     {
         data: "valor", title: "Recaudo", 
         defaultContent: "",
-        types: [novedad, proceso, pedido, pagada, finalizada, generada]
+        types: typesGenerales
     },
     {
         data: "costo_envio", title: "Costo de envío", 
         defaultContent: "",
-        types: [novedad, proceso, pedido, pagada, finalizada, generada]
+        types: typesGenerales
     },
     {
         data: "detalles.comision_punto", title: "Ganancia", 
         defaultContent: "No aplica", visible: ControlUsuario.esPuntoEnvio,
-        types: [novedad, proceso, pedido, pagada, finalizada, generada]
+        types: typesGenerales
+    },
+    {
+        data: "referencia", title: "Referencia", 
+        defaultContent: "No aplica",
+        types: typesGenerales
     }
 ]
 
@@ -168,7 +177,7 @@ export default class SetHistorial {
             table.button().add(indexBtn, {
                 action: crearDocumentos,
                 className: "btn-success",
-                text: "Empacar <i class='fa fa-arrow-right ml-2'></i>"
+                text: "Procesar <i class='fa fa-arrow-right ml-2'></i>"
             });
             indexBtn++;
         }
@@ -338,29 +347,32 @@ function agregarFuncionalidadesTablaPedidos() {
         counterSelector
     } = getContadorGuiasSeleccionadas();
 
+    const findIndex = data => columns.findIndex(d => d.data === data);
+    const colTransp = findIndex("transportadora");
+    const colType = findIndex("type");
 
     filtrador.watch(filt => {
         setTimeout(() => {
             renderContador(filt, api.data());
-            filtrarHistorialGuiasPorColumna(api.column(6))
-            filtrarHistorialGuiasPorColumna(api.column(7))
+            filtrarHistorialGuiasPorColumna(api.column(colTransp))
+            filtrarHistorialGuiasPorColumna(api.column(colType))
         }, 300);
     })
 
     inpSelectGuias.change(async (e) => {
         const checked = e.target.checked;
-        if(filtrador.value === generada) {
-            const cant = await empacarMasivo(api.data(), checked);
-            counterSelector.text(cant ? "("+cant+")" : "");
-            return
-        } 
+        // if(filtrador.value === generada) {
+        //     const cant = await empacarMasivo(api.data(), checked);
+        //     counterSelector.text(cant ? "("+cant+")" : "");
+        //     return
+        // } 
 
         if(checked) {
             let counter = 0;
             const limit = 50;
             const row = $("tr:gt(0)", this).each((i,row) => {
                 const data = api.row(row).data();
-                if(!data.enviado && counter < limit) {
+                if(counter < limit) {
                     $(row).addClass("selected bg-gray-300");
                     counter ++;
                 }
@@ -388,7 +400,7 @@ function agregarFuncionalidadesTablaPedidos() {
         renderContador(filtrador.value, api.data());
     });
 
-    
+        
 }
 
 function renderizadoDeTablaHistorialGuias(config) {
@@ -401,6 +413,7 @@ function renderizadoDeTablaHistorialGuias(config) {
         const buttonsActivated = row.getAttribute("data-active");
         
         if(!buttonsActivated) {
+            // $(".action", row).tooltip();
             activarBotonesDeGuias(data.id_heka, data, true);
         }
 
@@ -442,16 +455,17 @@ function renderContador(filt, data) {
 
     contenedorSelector.removeClass("d-none");
 
-    if(filt === generada) {
-        const cantidadEmpacadas = empacadas().length;
-        const textoDevuelto = cantidadEmpacadas > 0
-            ? "Empacar todas - cantidad empacadas" 
-            : "Empacar todas";
+    // if(filt === generada) {
+    //     const cantidadEmpacadas = empacadas().length;
+    //     const textoDevuelto = cantidadEmpacadas > 0
+    //         ? "Empacar todas - cantidad empacadas" 
+    //         : "Empacar todas";
 
-        if(cantidadEmpacadas >= 50 || cantidadEmpacadas === data.length) inpSelectGuias.prop("checked", true);
-        textoSelector.text(textoDevuelto);
-        llenarContador(empacadas().length);
-    } else if ([pedido, proceso, finalizada, pagada].includes(filt)) {
+    //     if(cantidadEmpacadas >= 50 || cantidadEmpacadas === data.length) inpSelectGuias.prop("checked", true);
+    //     textoSelector.text(textoDevuelto);
+    //     llenarContador(empacadas().length);
+    // }
+    if ([pedido, proceso, finalizada, pagada, generada].includes(filt)) {
         inpSelectGuias.prop("checked", false);
         textoSelector.text("Seleccionar todas");
         globalThis.d = data;
@@ -607,46 +621,53 @@ function accionesDeFila(datos, type, row) {
         const showMovements = datos.numeroGuia && datos.estado ? "" : "d-none";
         let buttons = `
         <div data-search="${datos.filter}"
-        class="d-flex justify-content-around flex-wrap">
+        class="d-flex justify-content-around">
         `;
 
-        const btnCrearSticker = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+        const btnCrearSticker = `<button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
         data-funcion="activar-desactivar"
+        data-placement="right"
         id="crear_sticker${id}" title="Crear Sticker de la guía">
             <i class="fas fa-stamp"></i>
         </button>`
         
-        const btnEdit = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+        const btnEdit = `<button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
         data-funcion="activar-desactivar"
+        data-placement="right"
         id="editar_guia${id}" title="Editar guía">
             <i class="fas fa-edit"></i>
         </button>`
 
-        const btnMovimientos = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+        const btnMovimientos = `<button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
         id="ver_movimientos${id}" data-toggle="modal" data-target="#modal-gestionarNovedad"
+        data-placement="right"
         title="Revisar movimientos">
             <i class="fas fa-truck"></i>
         </button>`
 
-        const btnDownloadDocs =  `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+        const btnDownloadDocs =  `<button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
+        data-placement="right"
         id="descargar_documento${id}" title="Descargar Documentos">
             <i class="fas fa-file-download"></i>
         </button>`;
 
-        const btnRotulo = `<button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
-        data-funcion="activar-desactivar" data-activate="after"
+        const btnRotulo = `<button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
+        data-funcion="activar-desactivar" data-activate="after" 
+        data-placement="right"
         id="generar_rotulo${id}" title="Generar Rótulo">
             <i class="fas fa-ticket-alt"></i>
         </button>`
 
-        const btnClone = `<button class="btn btn-success btn-circle btn-sm mt-2 action ${showCloneAndDelete}" data-id="${id}" 
+        const btnClone = `<button class="btn btn-success btn-circle btn-sm mx-1 action ${showCloneAndDelete}" data-id="${id}" 
         id="clonar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
+        data-placement="right"
         title="Clonar Guía">
             <i class="fas fa-clone"></i>
         </button>`;
 
-        const btnDelete = `<button class="btn btn-danger btn-circle btn-sm mt-2 action ${showCloneAndDelete}" data-id="${id}" 
+        const btnDelete = `<button class="btn btn-danger btn-circle btn-sm mx-1 action ${showCloneAndDelete}" data-id="${id}" 
         id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
+        data-placement="right"
         title="Eliminar Guía">
             <i class="fas fa-trash"></i>
         </button>`;
@@ -657,8 +678,9 @@ function accionesDeFila(datos, type, row) {
         }
 
         buttons += `
-            <button class="btn btn-primary btn-circle btn-sm mt-2 action" data-id="${id}"
+            <button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
             id="ver_detalles${id}" data-toggle="modal" data-target="#modal-detallesGuias"
+            data-placement="right"
             title="Detalles">
                 <i class="fas fa-search-plus"></i>
             </button>

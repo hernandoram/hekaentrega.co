@@ -515,6 +515,15 @@ function filtradorEspecialHistorialGuias() {
 }
 
 function descargarGuiasParticulares(e, dt, node, config) {
+    const api = dt;
+    const selectedRows = api.rows(".selected");
+    if(!selectedRows.data().length) {
+        return Toast.fire({
+            icon: "error",
+            text: "No hay guías Seleccionadas."
+        })
+    }
+
     Swal.fire({
         title: '¡Atención!',
         text: "Recuerda que al descargar los documentos, ya no podrás eliminar las guías seleccionadas, ¿Deseas continuar?",
@@ -527,10 +536,9 @@ function descargarGuiasParticulares(e, dt, node, config) {
     
         const charger = new ChangeElementContenWhileLoading(node)
         charger.init();
-    
-        const api = dt;
-        const selectedRows = api.rows(".selected");
-        const datas = selectedRows.data().length > 0 ? selectedRows.data() : api.rows().data();
+       
+        // const datas = selectedRows.data().length > 0 ? selectedRows.data() : api.rows().data();
+        const datas = selectedRows.data();
         const ids = new Array();
         datas.each(r => ids.push(r.id_heka));
         console.log(ids);
@@ -548,12 +556,13 @@ let noNotificarGuia;
 function crearDocumentos(e, dt, node, config) {
     const api = dt;
     // Para cuando se use el selector
-    // const selectedRows = api.rows(".selected");
-    // const datas = selectedRows.data();
+    const selectedRows = api.rows(".selected");
+    const datas = selectedRows.data();
 
     // Para utilizar el método de empaque
-    const selectedRows = api.rows();
-    const datas = selectedRows.data().filter(d => d.empacada).slice(0, 51);
+    // const selectedRows = api.rows();
+    // const datas = selectedRows.data().filter(d => d.empacada).slice(0, 51);
+
     console.log(datas);
 
 
@@ -567,7 +576,7 @@ function crearDocumentos(e, dt, node, config) {
 
         return Toast.fire({
             icon: "error",
-            text: "No hay guías empacadas"
+            text: "No hay guías Seleccionadas."
         })
     }
 

@@ -4,6 +4,7 @@ const table = `
     <style>
     #${idTable} td {
         vertical-align: middle;
+        padding: .5rem
     }
     </style>
     <div class="table-responsive mt-1">
