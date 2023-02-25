@@ -369,7 +369,13 @@ class Empaquetado {
 
         const infoUsuariosProm = this.usuarios.map(this.cargarInfoUsuario.bind(this));
         const infoUsuarios = await Promise.all(infoUsuariosProm);
-        const guiasDescarga = infoUsuarios.map((us) => {
+        const usuariosSinCuenta = infoUsuarios.filter(us => !us.datos_bancarios);
+        
+        
+
+        const guiasDescarga = infoUsuarios
+        .filter(us => !!us.datos_bancarios)
+        .map((us) => {
             const datos_bancarios = us.datos_bancarios;
             const pagos = this.pagosPorUsuario[us.centro_de_costo];
 
@@ -391,7 +397,15 @@ class Empaquetado {
 
         console.log(guiasDescarga);
 
-        descargarInformeGuiasAdmin(columnas, guiasDescarga, "Guías a pagar");
+        if(usuariosSinCuenta.length) {
+            Swal.fire(
+                "Revise los datos bancarios de los siguientes usuarios", 
+                `Los usuarios ${usuariosSinCuenta.map(u => u.centro_de_costo).join(", ")} no fueron tomados en cuenta para la descarga.`, 
+                "warning"
+            );
+        }
+
+        // descargarInformeGuiasAdmin(columnas, guiasDescarga, "Guías a pagar");
 
         loader.end();
     }

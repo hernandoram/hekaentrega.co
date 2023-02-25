@@ -174,6 +174,7 @@ async function consultarDatosDeUsuario() {
         bodegasCompletas: datos.bodegas || [],
         type: datos.type || "NATURAL",
         nombre_empresa: datos.nombre_empresa,
+        datos_bancarios,
         bodegas
       }
 
@@ -1260,9 +1261,25 @@ async function solicitarPagosPendientesUs() {
   const ref = db.collection("infoHeka").doc("manejoUsuarios");
   const data = await ref.get().then(d => d.data());
 
+  const transportadoras = ["servientrega", "interrapidisimo", "envía", "tcc"];
+  const verPago = t => db.collection("pagos").doc(t)
+  .collection("pagos").where("REMITENTE", "==", datos_usuario.centro_de_costo)
+  .limit(1)
+  .get()
+  .then(q => !!q.docs[0])
+
+  const hayPagoAnterior = await Promise.all(transportadoras.map(verPago));
+
+  if(!hayPagoAnterior.some(Boolean))
+    return Swal.fire("Se ha detectado que no hay registro de pago previo.", "Por favor, para poder contiuar, es necerio que nos envíe su NIT y que registre datos bancarios para tener donde hacer el depósito del dinero", "error");
+
   if(!data) return;
 
   const {limitadosDiario, diarioSolicitado} = data;
+
+  if(!datos_usuario.datos_bancarios) 
+    return Swal.fire("No puede solicitar pagos", "Es necesario que llenes tus datos bancarios para tener donde depositar el dinero.", "error");
+
 
   if(diarioSolicitado.includes(datos_usuario.centro_de_costo)) 
     return Swal.fire("Tu pago ya fue solicitado, esta listo para desembolso en 24 horas 😊", "", "info");
