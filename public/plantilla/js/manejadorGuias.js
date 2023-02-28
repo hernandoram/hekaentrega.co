@@ -2918,6 +2918,13 @@ async function historialGuiasAdmin(e) {
             return -content
         }},
         { data: "cuenta_responsable", title: "Cuenta responsable", defaultContent: "Personal"},
+        { data: "ciudadR", title: "Ciudad remitente", defaultContent: "---"},
+        { data: "ciudadD", title: "Ciudad destino", defaultContent: "---"},
+        { data: "id_tipo_entrega", title: "Tipo de entrega", defaultContent: "no aplica", render: function(content, display, data) {
+            
+
+            return [null, "Entrega en dirección", "Entrega en oficina"][content] || "no aplica"
+        }}
     ];
 
     const idTabla = "#tabla-"+finalId
