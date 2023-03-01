@@ -1271,14 +1271,14 @@ async function solicitarPagosPendientesUs() {
   const hayPagoAnterior = await Promise.all(transportadoras.map(verPago));
 
   if(!hayPagoAnterior.some(Boolean))
-    return Swal.fire("Se ha detectado que no hay registro de pago previo.", "Por favor, para poder contiuar, es necerio que nos envíe su NIT y que registre datos bancarios para tener donde hacer el depósito del dinero", "error");
+    return Swal.fire("Se ha detectado que no hay registro de pago previo.", "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico Hekanovedades@gmail.com esto se realiza con la finalidad de validación de datos.", "error");
 
   if(!data) return;
 
   const {limitadosDiario, diarioSolicitado} = data;
 
   if(!datos_usuario.datos_bancarios) 
-    return Swal.fire("No puede solicitar pagos", "Es necesario que llenes tus datos bancarios para tener donde depositar el dinero.", "error");
+    return Swal.fire("No puede solicitar pagos", "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico Hekanovedades@gmail.com esto se realiza con la finalidad de validación de datos. Adicional debes registrar datos bancarios para tener donde realizar el deposito del dinero.", "error");
 
 
   if(diarioSolicitado.includes(datos_usuario.centro_de_costo)) 
