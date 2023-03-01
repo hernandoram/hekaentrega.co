@@ -282,6 +282,12 @@ export default class SetHistorial {
             filtrar(this.getAttribute("data-filter"));
         });
 
+        nodeFilters.tooltip({
+            placement: "auto",
+            offset: "2",
+            boundary: "window"
+        });
+
         this.nodeFilters = nodeFilters;
 
         return filters;
