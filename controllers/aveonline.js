@@ -10,6 +10,7 @@ const { singleMessage } = require("../controllers/cellVoz");
 const guiasPorCrear = new Array();
 const referenceListado = db.collection("listaGuiasAveo");
 const {notificarGuiaOficina} = require("../extends/notificaciones");
+const { estadosGuia } = require("../extends/manejadorMovimientosGuia");
 
 exports.auth = async (req, res, next) => {
     const authentication = await rq.post(Cr.endpoint + "/comunes/v1.0/autenticarusuario.php", {
@@ -130,7 +131,8 @@ exports.generarRelacion = async (req, res) => {
                 .collection("guias").doc(guia.id_heka)
                 .update({
                     enviado: true,
-                    estado: "Enviado"
+                    estado: "Enviado",
+                    estadoActual: estadosGuia.proceso
                 }).catch((error) => {
                     console.log("hubo un error Al actualizar el estado de la guia a \"Enviado\" => ", error)
                 });
@@ -307,13 +309,16 @@ exports.actualizarMovimientos = async (doc) => {
         if (updte_movs.estado === "Mov.A" && updte_movs.guardado) {
             enNovedad = updte_movs.guardado.enNovedad || false;
         }
+
+        const seguimiento_finalizado = estados_finalizacion.some(v => detallesGuia.estado === v)
+        || finalizar_seguimiento
     
         updte_estados = await funct.actualizarEstado(doc, {
             estado: detallesGuia.estado,
             ultima_actualizacion: new Date(),
             enNovedad,
-            seguimiento_finalizado: estados_finalizacion.some(v => detallesGuia.estado === v)
-                || finalizar_seguimiento
+            seguimiento_finalizado: seguimiento_finalizado,
+            estadoActual: seguimiento_finalizado ? estadosGuia.finalizada : estadosGuia.proceso
         });
     
         return [updte_estados, updte_movs]
@@ -451,7 +456,7 @@ async function inspectGuiasPorCrear() {
 
         const has_sticker = await saveBase64Guia(guia.id_heka, toSave, isBase64);
 
-        refGuia.update({numeroGuia, urlGuia, has_sticker, estado});
+        refGuia.update({numeroGuia, urlGuia, has_sticker, estado, staging: false});
         referenceListado.doc(guia.id_heka).delete();
     } catch (e){
         refGuia.update({estado: e.message});

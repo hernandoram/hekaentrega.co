@@ -8,6 +8,7 @@ const urlEstados = "https://www3.interrapidisimo.com/ApiservInter/api/Mensajeria
 
 const firebase = require("../keys/firebase");
 const { notificarNovedadEncontrada } = require("../extends/notificaciones");
+const { estadosGuia } = require("../extends/manejadorMovimientosGuia");
 const db = firebase.firestore();
 
 //FUNCIONES REGULARES
@@ -144,12 +145,13 @@ const actualizarMovimientosScrapp = async function(doc) {
         };
 
         let finalizar_seguimiento = doc.data().prueba ? true : false
-
+        const seguimiento_finalizado = estados_finalizacion.some(v => consulta.estado["Gestion del Envio"] === v)
+        || finalizar_seguimiento;
         updte_estados = await extsFunc.actualizarEstado(doc, {
             estado: consulta.estado["Gestion del Envio"] || consulta.estado['Ultimo Estado'],
             ultima_actualizacion: new Date(),
-            seguimiento_finalizado: estados_finalizacion.some(v => consulta.estado["Gestion del Envio"] === v)
-                || finalizar_seguimiento
+            seguimiento_finalizado,
+            estadoActual: seguimiento_finalizado ? estadosGuia.finalizada : estadosGuia.proceso
         });
         
         updte_movs = await extsFunc.actualizarMovimientos(doc, movimientos);
