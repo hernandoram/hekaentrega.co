@@ -1,5 +1,5 @@
 import {title, table as htmlTable, filtersHtml, filterHtml} from "./views.js";
-import { filters, defFiltrado } from "./config.js";
+import { filters, defFiltrado, defineFilter } from "./config.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 
 const {novedad, proceso, pedido, pagada, finalizada, generada} = defFiltrado;
@@ -302,29 +302,7 @@ export default class SetHistorial {
     }
 }
 
-//Devuelve un string con el tipo de filtrado según la guía
-function defineFilter(data) {
-    const estGeneradas = ["Envío Admitido", "RECIBIDO DEL CLIENTE", "Enviado", "", undefined];
-    const estAnuladas = ["Documento Anulado", "Anulada"];
 
-    let filter;
-
-    if (data.enNovedad) {
-        filter = novedad;
-    } else if (data.staging) {
-        filter = pedido;
-    } else if(!data.debe && data.type !== "CONVENCIONAL") {
-        filter = pagada
-    } else if (data.seguimiento_finalizado) {
-        filter = finalizada;
-    } else if(data.estadoActual === generada) {
-        filter = generada;
-    } else {
-        filter = proceso;
-    }
-
-    return filter;
-}
 
 function getContadorGuiasSeleccionadas() {
     const inpSelectGuias = $("#select-all-guias");

@@ -1,6 +1,6 @@
 // import { firestore as db } from "../config/firebase.js";
 import SetHistorial from "./historial.js";
-import { defFiltrado } from "./config.js";
+import { defFiltrado, defineFilter } from "./config.js";
 import { renderInfoFecha } from "./views.js";
 
 const db = firebase.firestore();
@@ -64,6 +64,12 @@ async function consultarHistorialGuias() {
             if(change.type === "added" || change.type === "modified") {
                 data.deleted ? historial.delete(id) : historial.add(data);
             }
+
+            if(inpNumeroGuia.val()) {
+                const filt = defineFilter(data);
+                $(`[data-filter="${filt}"]`).click();
+            }
+
         });
         console.log(historial.filtrador);
         historial.filter(historial.filtrador);

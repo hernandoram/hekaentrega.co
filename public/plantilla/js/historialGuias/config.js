@@ -36,3 +36,27 @@ export const filters = [
         classColorBadge: "text-danger"
     }
 ];
+
+//Devuelve un string con el tipo de filtrado según la guía
+export function defineFilter(data) {
+    const estGeneradas = ["Envío Admitido", "RECIBIDO DEL CLIENTE", "Enviado", "", undefined];
+    const estAnuladas = ["Documento Anulado", "Anulada"];
+
+    let filter;
+
+    if (data.enNovedad) {
+        filter = defFiltrado.novedad;
+    } else if (data.staging) {
+        filter = defFiltrado.pedido;
+    } else if(!data.debe && data.type !== "CONVENCIONAL") {
+        filter = defFiltrado.pagada
+    } else if (data.seguimiento_finalizado) {
+        filter = defFiltrado.finalizada;
+    } else if(data.estadoActual === defFiltrado.generada) {
+        filter = defFiltrado.generada;
+    } else {
+        filter = defFiltrado.proceso;
+    }
+
+    return filter;
+}
