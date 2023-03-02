@@ -406,7 +406,7 @@ class Empaquetado {
             );
         }
 
-        // descargarInformeGuiasAdmin(columnas, guiasDescarga, "Guías a pagar");
+        descargarInformeGuiasAdmin(columnas, guiasDescarga, "Guías a pagar");
 
         loader.end();
     }

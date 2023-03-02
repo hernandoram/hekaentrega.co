@@ -2,7 +2,7 @@ import {title, table as htmlTable, filtersHtml, filterHtml} from "./views.js";
 import { filters, defFiltrado, defineFilter } from "./config.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 
-const {novedad, proceso, pedido, pagada, finalizada, generada} = defFiltrado;
+const {novedad, proceso, pedido, pagada, finalizada, generada, neutro} = defFiltrado;
 
 const container = $("#historial_guias");
 const buscador = $("#filtrado-guias_hist")
@@ -10,22 +10,24 @@ const buscador = $("#filtrado-guias_hist")
 buscador.before(filtersHtml);
 container.append(htmlTable);
 
-const typesGenerales = [novedad, proceso, pedido, pagada, finalizada, generada];
+const typesGenerales = [neutro, novedad, proceso, pedido, pagada, finalizada, generada];
 
 const columns = [
-    {data: null, title: "Acciones", render: accionesDeFila, types: typesGenerales},
+    {data: null, title: "Acciones", render: accionesDeFila, types: typesGenerales.slice(1)},
     // {data: null, title: "Empaque", render: accionEmpaque, types: [generada]},
     {data: null, title: "Gestionar", render: accionGestNovedad, types: [novedad]},
-    {data: "id_heka", title: "Id", defaultContent: "", types: typesGenerales},
-    {data: "numeroGuia", title: "# Guía", defaultContent: "", types: [novedad, proceso, pagada, finalizada, generada]},
-    {data: "estado", title: "Estado", defaultContent: "", types: [novedad, proceso, pagada, finalizada]},
+    {data: "id_heka", title: "Id", defaultContent: "", types: typesGenerales, saveInExcel: true},
+    {data: "numeroGuia", title: "# Guía", defaultContent: "", saveInExcel: true, types: [novedad, proceso, pagada, finalizada, generada, neutro]},
+    {data: "estado", title: "Estado", defaultContent: "", saveInExcel: true, types: [novedad, proceso, pagada, finalizada, neutro]},
     {data: "transportadora", 
     orderable: false,
     title: "Transportadora", defaultContent: "", types: typesGenerales},
-    {data: "type", title: "Tipo", 
+    {data: "type", title: "Tipo",
     orderable: false,
     defaultContent: "", types: typesGenerales},
-    {data: "nombreD", title: "Destinatario", defaultContent: "", types: typesGenerales},
+    {data: "transportadora", title: "Transportadora", defaultContent: "", saveInExcel: true, types: []},
+    {data: "type", title: "Tipo", defaultContent: "", saveInExcel: true, types: []},
+    {data: "nombreD", title: "Destinatario", defaultContent: "", types: typesGenerales, saveInExcel: true},
     {
         data: "telefonoD", title: "Telefonos",
         defaultContent: "", render: (valor,type,row) => {
@@ -37,10 +39,11 @@ const columns = [
 
             return valor;
         }, 
-        types: typesGenerales
+        types: typesGenerales,
+        saveInExcel: true
     },
-    {data: "ciudadD", title: "Ciudad", defaultContent: "", types: typesGenerales},
-    {data: "fecha", title: "Fecha", defaultContent: "", types: typesGenerales},
+    {data: "ciudadD", title: "Ciudad", defaultContent: "", types: typesGenerales, saveInExcel: true},
+    {data: "fecha", title: "Fecha", defaultContent: "", types: typesGenerales, saveInExcel: true},
     {
         data: "seguro", title: "Seguro", 
         defaultContent: "", render: (value, type, row) => {
@@ -50,27 +53,32 @@ const columns = [
 
             return value;
         },
-        types: typesGenerales
+        types: typesGenerales,
+        saveInExcel: true
     },
     {
         data: "valor", title: "Recaudo", 
         defaultContent: "",
-        types: typesGenerales
+        types: typesGenerales,
+        saveInExcel: true
     },
     {
         data: "costo_envio", title: "Costo de envío", 
         defaultContent: "",
-        types: typesGenerales
+        types: typesGenerales,
+        saveInExcel: true
     },
     {
         data: "detalles.comision_punto", title: "Ganancia", 
         defaultContent: "No aplica", visible: ControlUsuario.esPuntoEnvio,
-        types: typesGenerales
+        types: typesGenerales,
+        saveInExcel: ControlUsuario.esPuntoEnvio
     },
     {
         data: "referencia", title: "Referencia", 
         defaultContent: "No aplica",
-        types: typesGenerales
+        types: typesGenerales,
+        saveInExcel: true
     }
 ]
 
@@ -78,7 +86,7 @@ const table = $("#tabla-historial-guias").DataTable({
     destroy: true,
     data: null,
     rowId: "row_id",
-    order: [[3, "desc"]],
+    order: [[2, "desc"]],
     columns,
     language: {
       url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
@@ -99,7 +107,7 @@ export default class SetHistorial {
     constructor() {
         this.guias = [];
         this.filtradas = [];
-        this._filtrador = pedido;
+        this._filtrador = neutro;
         this.renderTable = true;
     }
 
@@ -182,13 +190,18 @@ export default class SetHistorial {
             indexBtn++;
         }
 
-        if([proceso, finalizada, pagada].includes(filt)) {
+        if([proceso, finalizada, pagada, neutro].includes(filt)) {
+            const indiceColumnas = columns
+            .map((c,i) => c.saveInExcel ? i : -1)
+            .filter(g => g >= 0);
+
+            console.log(indiceColumnas);
             table.button().add(indexBtn, {
                 extend: "excel",
                 text: "Descargar excel",
                 filename: "Historial Guías",
                 exportOptions: {
-                  columns: [1,2,3,4,5,6,7,9,10,11,12,13]
+                  columns: indiceColumnas
                 }
             });
             indexBtn++;
@@ -228,7 +241,7 @@ export default class SetHistorial {
 
     filter(filt) {
         this.filtrador = filt;
-        this.filtradas = this.guias.filter(g => defineFilter(g) === filt);
+        this.filtradas = filt === neutro ? this.guias : this.guias.filter(g => defineFilter(g) === filt);
         this.render(true);
 
         return this.filtradas;
@@ -257,7 +270,10 @@ export default class SetHistorial {
         if(!this.nodeFilters) return;
         this.nodeFilters.each((i,node) => {
             const filt = node.getAttribute("data-filter");
-            const cant = this.guias.filter(g => defineFilter(g) === filt).length;
+            const cant = filt === neutro 
+                ? this.guias.length 
+                : this.guias.filter(g => defineFilter(g) === filt).length;
+
             $(node).find(".counter").text(cant);
         })
     }
@@ -378,7 +394,7 @@ function agregarFuncionalidadesTablaPedidos() {
 
     $('tbody', this).on( 'click', 'tr', function (e) {
         console.log(!e.target.classList.contains("action"), e.target.tagName !== "I")
-        if([novedad].includes(filtrador.value)) return;
+        if([novedad, neutro].includes(filtrador.value)) return;
         if(!e.target.classList.contains("action") && e.target.tagName !== "I")
         $(this).toggleClass('selected bg-gray-300');
         renderContador(filtrador.value, api.data());

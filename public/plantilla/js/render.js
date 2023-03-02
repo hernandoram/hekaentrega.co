@@ -17,7 +17,8 @@ const estadosGuia = {
     generada: "GENERADA",
     proceso: "TRANSITO",
     empacada: "EMPACADA",
-    eliminada: "ELIMINADA"
+    eliminada: "ELIMINADA",
+    neutro: "NEUTRO" // formalmente ninguna guía debería ener registraod este estado
 }
 
 // Initialize Firebase
@@ -1819,6 +1820,7 @@ function gestionarNovedadModal(dataN, dataG) {
                     }]
                 }
     
+                // return;
                 usuarioDoc.collection("guias").doc(dataG.id_heka).update({
                     seguimiento: dataG.seguimiento,
                     novedad_solucionada: false
@@ -1845,6 +1847,9 @@ function gestionarNovedadModal(dataN, dataG) {
                         visible_admin: true
                     })
                     btn_solucionar.text("Enviar Solución")
+                })
+                .catch(e => {
+                    console.log(e);
                 })
             }
         })

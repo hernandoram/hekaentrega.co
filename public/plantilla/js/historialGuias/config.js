@@ -2,6 +2,11 @@ export const defFiltrado = estadosGuia;
 
 export const filters = [
     {
+        name: "Todas",
+        description: "Total de todas las guías a mopstrar.",
+        dataFilter: defFiltrado.neutro
+    },
+    {
         name: "Pedidos",
         description: "Aquellas guías registradas en heka, pero no generadas aún con la transportadora.",
         dataFilter: defFiltrado.pedido
