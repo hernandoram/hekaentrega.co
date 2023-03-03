@@ -59,7 +59,8 @@ async function consultarHistorialGuias() {
             const data = change.doc.data();
 
             const id = data.id_heka;
-              data.row_id = "historial-guias-row" + id;
+            data.row_id = "historial-guias-row-" + id;
+            data.marcaNeutro = defFiltrado.neutro
 
             if(change.type === "added" || change.type === "modified") {
                 data.deleted ? historial.delete(id) : historial.add(data);
@@ -90,7 +91,7 @@ async function cargarNovedades() {
             const data = doc.data();
 
             const id = data.id_heka;
-            data.row_id = "historial-guias-row" + id;
+            data.row_id = "historial-guias-row-" + id;
 
             data.deleted ? historial.delete(id) : historial.add(data);
 

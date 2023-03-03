@@ -107,7 +107,7 @@ export default class SetHistorial {
     constructor() {
         this.guias = [];
         this.filtradas = [];
-        this._filtrador = neutro;
+        this._filtrador = pedido;
         this.renderTable = true;
     }
 
@@ -241,7 +241,7 @@ export default class SetHistorial {
 
     filter(filt) {
         this.filtrador = filt;
-        this.filtradas = filt === neutro ? this.guias : this.guias.filter(g => defineFilter(g) === filt);
+        this.filtradas = this.guias.filter(g => filt === neutro ? g.marcaNeutro === neutro : defineFilter(g) === filt);
         this.render(true);
 
         return this.filtradas;
@@ -270,9 +270,7 @@ export default class SetHistorial {
         if(!this.nodeFilters) return;
         this.nodeFilters.each((i,node) => {
             const filt = node.getAttribute("data-filter");
-            const cant = filt === neutro 
-                ? this.guias.length 
-                : this.guias.filter(g => defineFilter(g) === filt).length;
+            const cant = this.guias.filter(g => filt === neutro ? g.marcaNeutro === neutro : defineFilter(g) === filt).length;
 
             $(node).find(".counter").text(cant);
         })
@@ -468,7 +466,6 @@ function renderContador(filt, data) {
     if ([pedido, proceso, finalizada, pagada, generada].includes(filt)) {
         inpSelectGuias.prop("checked", false);
         textoSelector.text("Seleccionar todas");
-        globalThis.d = data;
         const selectedRows = data.rows(".selected").data().length;
         
         llenarContador(selectedRows);
@@ -483,6 +480,16 @@ async function aceptarPedido(e, dt, node, config) {
 
     const loader = new ChangeElementContenWhileLoading(node);
     loader.init();
+    const contentCharger = $("#cargador-content");
+    const content = $("#content");
+    const showPercentage = $("#porcentaje-cargador-inicial");
+    const finalizar = () => {
+        loader.end();
+        contentCharger.hide();
+        content.show("fast"); 
+    }
+
+    showPercentage.text("0%");
 
     // Cargador.fire("Creando guías", "Estamos generando las guías solicitadas, esto podría demorar unos minutos, por favor espere.")
 
@@ -491,42 +498,69 @@ async function aceptarPedido(e, dt, node, config) {
     const nodos = selectedRows.nodes();
 
     if(!nodos.length) {
-        loader.end();
+        finalizar();
         return;
     }
     // return;
 
+    content.hide();
+    contentCharger.show("fast");
+
     let errores = [];
+    const columnasEnPedidos = columns.filter(c => c.types.includes(pedido)).length
     let i = 0;
     for await ( let guia of datas.toArray()) {
         const row = nodos[i];
+        const errorFabricado = {
+            error: !Math.floor(Math.random() * 2),
+            message: "Error Fabricado"
+        };
+
         const respuesta = await crearGuiaTransportadora(guia);
+        // const respuesta = errorFabricado.error ? errorFabricado : await crearGuiaTransportadora(guia);
         let icon, color;
         if(!respuesta.error) {
             icon = "clipboard-check";
             color = "text-success";
             row.classList.remove("selected", "bg-gray-300");
-            await descontarSaldo(guia);
+            // await descontarSaldo(guia);
         } else {
             icon = "exclamation-circle";
             color = "text-danger";
-            errores.push([row, respuesta.message, icon, color]);
+            errores.push({
+                row, mensaje: respuesta.message, icon, color,
+                id: guia.id_heka
+            });
         }
         i++;
+
+        showPercentage.text(parseInt(100 * i / datas.length) + "%");
     }
-    
-    errores.forEach(([row, mensaje, icon, colorText]) => {
-        $(row).after(`<tr><td colspan='11' class='${colorText} action'><i class='fa fa-${icon} mr-2'></i>${mensaje}</td></tr>`)
-    });
 
     if(!errores.length) $("#filter_listado-guias_hist").click(); 
-    
-    loader.end();
 
+    finalizar();
+    
     Toast.fire({
         icon: "success",
         title: "¡Proceso terminado!"
-    })
+    });
+    
+    if(errores.length) {
+        Swal.fire({
+            title: "No todas las guías fueron creadas de forma exitosa", 
+            html: `
+                <p>Hubo error al crear ${errores.length} guías. Se recomienda recargar la página y volver a intentar.</p>
+                <ul>${errores.map(e => "<li class='text-left'>" + "<b>" + e.id + ":</b> "+e.mensaje+"</li>").join("")}</ul>
+            `,
+            icon: "warning"
+        })
+        // .then(() => location.reload());
+    }
+
+    errores.forEach(({row, mensaje, icon, color, id}) => {
+        $(row).after(`<tr><td colspan='${columnasEnPedidos}' class='${color} action'><i class='fa fa-${icon} mr-2'></i>${mensaje}</td></tr>`)
+    });
 }
 
 async function descontarSaldo(datos) {

@@ -2,11 +2,6 @@ export const defFiltrado = estadosGuia;
 
 export const filters = [
     {
-        name: "Todas",
-        description: "Total de todas las guías a mopstrar.",
-        dataFilter: defFiltrado.neutro
-    },
-    {
         name: "Pedidos",
         description: "Aquellas guías registradas en heka, pero no generadas aún con la transportadora.",
         dataFilter: defFiltrado.pedido
@@ -32,6 +27,11 @@ export const filters = [
         name: "Pagadas",
         description: "Pagos efectuados por heka en el rango filtrado.",
         dataFilter: defFiltrado.pagada
+    },
+    {
+        name: "Todas",
+        description: "Total de todas las guías a mopstrar.",
+        dataFilter: defFiltrado.neutro
     },
     {
         id: "filter_novedad-guias_hist",
