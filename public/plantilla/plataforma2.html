@@ -1112,8 +1112,7 @@
               <p class="mb-2">✅ Si alguna de las transportadoras presenta errores ya no tendrás que  volver a crear envíos, se almacenarán para que puedas crear las guías más tarde.</p>
               <p class="mb-2">✅ Luego de generar un envío, para crearlo ante la transportadora debes seleccionar y <b>"Aceptar pedido".</b></p>
               <p class="mb-2">✅ Luego de aceptar un pedido podrás crear <b>PDF</b> y realizar el proceso normal de creación. </p>
-              <p class="mb-2">✅ Ahora las novedades podrán ser <b>solucionadas</b> desde el historial de envíos.</p>
-                
+              <p class="mb-2">✅ Ahora las novedades podrán ser <b>solucionadas</b> desde el historial de envíos.</p>       
             </div>
 
             <div class="alert alert-warning alert-dismissible fade show d-none" role="alert" id="alerta_novedad-guias_hist">
@@ -1130,11 +1129,11 @@
             <div class="d-flex justify-content-between">
               <h3 class="title" id="titulo-guias_hist">
                 Nuevo historial de guías 
-                <button class="btn btn-info" id="btn_actv_search-guias_hist" title="Permite realizar una busqueda más específica por fecha o número de guía" data-toggle="tooltip"><i class="fa fa-search"></i></button>
+                <button class="btn btn-info d-none" id="btn_actv_search-guias_hist" title="Permite realizar una busqueda más específica por fecha o número de guía" data-toggle="tooltip"><i class="fa fa-search"></i></button>
               </h3>
               <small id="motrador_filt-guias_hist"></small>
             </div>
-            <div class="form-group row mt-2" id="filtrado-guias_hist" style="display: none;">
+            <div class="form-group row mt-2" id="filtrado-guias_hist">
               <div class="col-sm-4 mb-3">
                 <h6>Fecha inicio</h6>
                 <input type="date" class="form-control form-control-user"  id="fecha_inicio-guias_hist">
@@ -1143,7 +1142,7 @@
                 <h6>Fecha final</h6>
                 <input type="date" class="form-control form-control-user"  id="fecha_final-guias_hist" required>
               </div>
-              <div class="col-sm-4">
+              <div class="col-sm-4 mb-3">
                 <h6>Número de Guía</h6>
                 <input type="text" class="form-control form-control-user"  id="numeroGuia-guias_hist">
               </div>

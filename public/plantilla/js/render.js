@@ -488,47 +488,47 @@ function activarBotonesDeGuias(id, data, activate_once){
         });
 
         $("#clonar_guia"+id).on("click", () => {
-        Swal.fire({
-            title: "Clonando",
-            html: "Por favor espere mientra generamos el nuevo número de guía.",
-            didOpen: () => {
-                Swal.showLoading();
-            },
-            allowOutsideClick: false,
-            allowEnterKey: false,
-            showConfirmButton: false,
-            allowEscapeKey: true
-        })
-        usuarioAltDoc(data.id_user).collection("guias").doc(id)
-        .get().then(doc => {
-            enviar_firestore(doc.data()).then(res => {
-                if(res.icon === "success") {
-                    Swal.fire({
-                        icon: "success",
-                        title: res.title,
-                        text: res.mensaje,
-                        timer: 6000,
-                        showCancelButton: true,
-                        confirmButtonText: "Si, ir al cotizador.",
-                        cancelButtonText: "No, ver el historial."
-            
-                    }).then((res) => {
-                        if(res.isConfirmed) {
-                            location.href = "plataforma2.html";
-                        } else {
-                            location.href = "#historial_guias";
-                            cambiarFecha();
-                        }
-                    })
-                } else {
-                    Swal.fire({
-                        icon: res.icon,
-                        title: res.title,
-                        html: res.mensaje
-                    })
-                }
-            });
-        })
+            Swal.fire({
+                title: "Clonando",
+                html: "Por favor espere mientra generamos el nuevo número de guía.",
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+                allowOutsideClick: false,
+                allowEnterKey: false,
+                showConfirmButton: false,
+                allowEscapeKey: true
+            })
+            usuarioAltDoc(data.id_user).collection("guias").doc(id)
+            .get().then(doc => {
+                enviar_firestore(doc.data()).then(res => {
+                    if(res.icon === "success") {
+                        Swal.fire({
+                            icon: "success",
+                            title: res.title,
+                            text: res.mensaje,
+                            timer: 6000,
+                            showCancelButton: true,
+                            confirmButtonText: "Si, ir al cotizador.",
+                            cancelButtonText: "No, ver el historial."
+                
+                        }).then((res) => {
+                            if(res.isConfirmed) {
+                                location.href = "plataforma2.html";
+                            } else {
+                                location.href = "#historial_guias";
+                                cambiarFecha();
+                            }
+                        })
+                    } else {
+                        Swal.fire({
+                            icon: res.icon,
+                            title: res.title,
+                            html: res.mensaje
+                        })
+                    }
+                });
+            })
         })
 
         $("#descargar_documento"+id).on("click", e => {

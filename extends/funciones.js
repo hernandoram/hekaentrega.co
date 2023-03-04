@@ -5,7 +5,7 @@ const {revisarNovedadAsync, revisarEstadoFinalizado, guiaEnNovedad} = require(".
 const { templateMessage } = require("../controllers/messageBird");
 
 exports.segmentarString = (base64, limite = 1000) => {
-  if (!base64) return new Array(0);
+  if (!base64 && typeof base64 !== "string") return new Array(0);
   let initial = 0;
   let final = limite;
   let parts = Math.floor(base64.length / limite);

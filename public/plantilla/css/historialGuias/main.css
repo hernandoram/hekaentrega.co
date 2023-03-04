@@ -27,11 +27,12 @@
 .filter-arrow-start {
     position: absolute;
     top: 0;
-    right: -24px;
+    right: -23px;
     border-top: 20px solid transparent;
     border-left: 8px solid lightgray;
     border-right: 16px solid transparent;
     border-bottom: 20px solid transparent;
+    height: 100%;
 }
 
 .active .filter-arrow-end {
@@ -52,6 +53,7 @@
     border-left: 8px solid transparent;
     border-right: 16px solid transparent;
     border-bottom: 20px solid lightgray;
+    height: 100%;
 }
 .m-12 {
     margin-left: 12px;

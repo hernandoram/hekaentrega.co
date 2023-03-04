@@ -7,7 +7,7 @@ const {novedad, proceso, pedido, pagada, finalizada, generada, neutro} = defFilt
 const container = $("#historial_guias");
 const buscador = $("#filtrado-guias_hist")
 
-buscador.before(filtersHtml);
+buscador.after(filtersHtml);
 container.append(htmlTable);
 
 const typesGenerales = [neutro, novedad, proceso, pedido, pagada, finalizada, generada];
@@ -107,7 +107,7 @@ export default class SetHistorial {
     constructor() {
         this.guias = [];
         this.filtradas = [];
-        this._filtrador = pedido;
+        this._filtrador = generada;
         this.renderTable = true;
     }
 
@@ -480,16 +480,10 @@ async function aceptarPedido(e, dt, node, config) {
 
     const loader = new ChangeElementContenWhileLoading(node);
     loader.init();
-    const contentCharger = $("#cargador-content");
-    const content = $("#content");
-    const showPercentage = $("#porcentaje-cargador-inicial");
     const finalizar = () => {
         loader.end();
-        contentCharger.hide();
-        content.show("fast"); 
     }
 
-    showPercentage.text("0%");
 
     // Cargador.fire("Creando guías", "Estamos generando las guías solicitadas, esto podría demorar unos minutos, por favor espere.")
 
@@ -503,9 +497,6 @@ async function aceptarPedido(e, dt, node, config) {
     }
     // return;
 
-    content.hide();
-    contentCharger.show("fast");
-
     let errores = [];
     const columnasEnPedidos = columns.filter(c => c.types.includes(pedido)).length
     let i = 0;
@@ -516,14 +507,27 @@ async function aceptarPedido(e, dt, node, config) {
             message: "Error Fabricado"
         };
 
+        Swal.fire({
+            title: "Creando Guía",
+            text: "Por favor espere mientras le generamos sus guías " + parseInt(100 * i / datas.length) + "%",
+            didOpen: () => {
+                Swal.showLoading();
+            },
+            allowOutsideClick: false,
+            allowEnterKey: false,
+            showConfirmButton: false,
+            allowEscapeKey: true
+        })
+
         const respuesta = await crearGuiaTransportadora(guia);
+        
         // const respuesta = errorFabricado.error ? errorFabricado : await crearGuiaTransportadora(guia);
         let icon, color;
         if(!respuesta.error) {
             icon = "clipboard-check";
             color = "text-success";
             row.classList.remove("selected", "bg-gray-300");
-            // await descontarSaldo(guia);
+            await descontarSaldo(guia);
         } else {
             icon = "exclamation-circle";
             color = "text-danger";
@@ -534,7 +538,7 @@ async function aceptarPedido(e, dt, node, config) {
         }
         i++;
 
-        showPercentage.text(parseInt(100 * i / datas.length) + "%");
+        
     }
 
     if(!errores.length) $("#filter_listado-guias_hist").click(); 
@@ -561,88 +565,6 @@ async function aceptarPedido(e, dt, node, config) {
     errores.forEach(({row, mensaje, icon, color, id}) => {
         $(row).after(`<tr><td colspan='${columnasEnPedidos}' class='${color} action'><i class='fa fa-${icon} mr-2'></i>${mensaje}</td></tr>`)
     });
-}
-
-async function descontarSaldo(datos) {
-    const datos_heka = datos_personalizados || await db.collection("usuarios").doc(localStorage.user_id)
-    .get().then(doc => doc.data().datos_personalizados);
-
-    //Estas líneas será utilizadas para cuando todos los nuevos usuarios por defecto
-    //no tengan habilitadas las transportadoras, para que administración se las tenga que habilitar
-    // if(!datos_heka) {
-    //     return {
-    //         mensaje: "Lo sentimos, no pudimos carga su información de pago, por favor intente nuevamente.",
-    //         mensajeCorto: "No se pudo cargar su información de pago",
-    //         icon: "error",
-    //         title: "Sin procesar"
-    //     }
-    // }
-
-    // FIN DEL BLOQUE
-
-    const id = datos.id_heka;
-    console.log(datos.debe);
-    if(!datos.debe && !datos_personalizados.actv_credit &&
-        datos.costo_envio > datos_personalizados.saldo && datos.type !== CONTRAENTREGA) {
-        return {
-            mensaje: `Lo sentimos, en este momento, el costo de envío excede el saldo
-            que tienes actualmente, por lo tanto este metodo de envío no estará 
-            permitido hasta que recargues tu saldo. Puedes comunicarte con la asesoría logística para conocer los pasos
-            a seguir para recargar tu saldo.`,
-            mensajeCorto: "El costo de envío excede el saldo que tienes actualmente",
-            icon: "error",
-            title: "¡No permitido!"
-        }
-    };
-
-    let user_debe;
-    datos_personalizados.saldo <= 0 ? user_debe = datos.costo_envio
-    : user_debe = - datos_personalizados.saldo + datos.costo_envio;
-
-    if(user_debe > 0 && !datos.debe) datos.user_debe = user_debe;
-
-    if(!datos_heka) return id;
-
-    let momento = new Date().getTime();
-    let saldo = datos_heka.saldo;
-    let saldo_detallado = {
-        saldo: saldo,
-        saldo_anterior: saldo,
-        limit_credit: datos_heka.limit_credit || 0,
-        actv_credit: datos_heka.actv_credit || false,
-        fecha: genFecha(),
-        diferencia: 0,
-        mensaje: "Guía " + id + " creada exitósamente",
-        momento: momento,
-        user_id: localStorage.user_id,
-        guia: id,
-        numeroGuia: datos.numeroGuia || "",
-        transportadora: datos.transportadora || "",
-        medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id,
-        type: "DESCONTADO"
-    };
-
-    //***si se descuenta del saldo***
-    if(!datos.debe && datos.type !== CONTRAENTREGA){
-        saldo_detallado.saldo = saldo - datos.costo_envio;
-
-        if(ControlUsuario.esPuntoEnvio) saldo_detallado.saldo += datos.detalles.comision_punto;
-
-        saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
-        
-        let factor_diferencial = parseInt(datos_heka.limit_credit) + parseInt(saldo);
-        console.log(saldo_detallado);
-        
-        /* creo un factor diferencial que sume el limite de credito del usuario
-        (si posee alguno) más el saldo actual para asegurarme que 
-        este por encima de cero y por debajo del costo de envío, 
-        en caso de que no se cumpla, se envía una notificación a administración del exceso de gastos*/
-        if(factor_diferencial <= datos.costo_envio && factor_diferencial > 0) {
-            notificarExcesoDeGasto();
-        }
-        await actualizarSaldo(saldo_detallado);
-    }
-    return id;
 }
 
 function accionesDeFila(datos, type, row) {

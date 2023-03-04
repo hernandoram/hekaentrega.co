@@ -1513,9 +1513,16 @@ function finalizarCotizacion(datos) {
     `;
     let entrega_en_oficina = "";
 
+    const checkCreacionPedido = `
+        <div class="col-sm-6 mb-2 form-check d-none">
+            <input type="checkbox" id="check-crear_pedido" class="form-check-input">
+            <label for="check-crear_pedido" class="form-check-label">Crear en forma de pedido</label>
+        </div>
+    `;
+
     if(datos.transportadora !== "SERVIENTREGA") {
         solicitud_recoleccion = `
-        <div class="alert alert-danger">
+        <div class="alert alert-danger col-12">
             <h3 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, enviar la solicitud al correo <a href="mailto:hekanovedades@gmail.com">hekanovedades@gmail.com</a>.</small></h3>
         </div>
         `;
@@ -1661,6 +1668,7 @@ function finalizarCotizacion(datos) {
                         <input type="text" id="observaciones" class="form-control form-control-user detect-errors" value="" placeholder="Observaciones Adicionales">
                     </div>
                     ${solicitud_recoleccion}
+                    ${checkCreacionPedido}
                 </div>
             </form>
         </div>
@@ -2353,6 +2361,47 @@ function crearGuia() {
 
     boton_final_cotizador.setAttribute("disabled", true);
 
+    const mostrarResultado = res => {
+        if(res.icon === "success") {
+            Swal.fire({
+                icon: "success",
+                title: res.title,
+                text: res.mensaje,
+                timer: 6000,
+                showCancelButton: true,
+                confirmButtonText: "Si, ir al cotizador.",
+                cancelButtonText: "No, ver el historial."
+    
+            }).then((res) => {
+                if(res.isConfirmed) {
+                    location.href = "#cotizador";
+                } else {
+                    location.href = "#historial_guias";
+                    cambiarFecha();
+                }
+            })
+        } else {
+            Swal.fire({
+                icon: res.icon,
+                title: res.title,
+                html: res.mensaje
+            });
+
+            firebase.firestore().collection("errores").add({
+                datos_personalizados, datos_a_enviar,
+                datos_usuario,
+                momento: new Date().getTime(),
+                fecha: new Date(),
+                respuesta: res
+            });
+        }
+
+        boton_final_cotizador.removeAttribute("disabled");
+
+        boton_final_cotizador.textContent = textoBtn;
+
+    }
+
     if(value("nombreD") != "" && value("direccionD") != "" && value("telefonoD") != ""){
         let recoleccion = 0;
         if(document.getElementById("recoleccion") && document.getElementById("recoleccion").checked){
@@ -2360,7 +2409,7 @@ function crearGuia() {
         }
         
         const inpTipo_entrega = document.getElementById("entrega_en_oficina");
-        
+        const checkCreacionPedido = $("#check-crear_pedido").prop("checked");
 
         if(value("producto") == ""){
             renovarSubmit(boton_final_cotizador, textoBtn)
@@ -2433,7 +2482,7 @@ function crearGuia() {
 
             if(datos_usuario.type !== "PUNTO")
             datos_a_enviar.id_user = user_id;
-            datos_a_enviar.staging = true;
+            datos_a_enviar.staging = checkCreacionPedido;
             
             if(datos_usuario.type === "PUNTO") {
                 datos_a_enviar.id_punto = user_id;
@@ -2449,47 +2498,11 @@ function crearGuia() {
 
             // boton_final_cotizador.remove()
 
-            enviar_firestore(datos_a_enviar).then(res => {
-                if(res.icon === "success") {
-                    Swal.fire({
-                        icon: "success",
-                        title: res.title,
-                        text: res.mensaje,
-                        timer: 6000,
-                        showCancelButton: true,
-                        confirmButtonText: "Si, ir al cotizador.",
-                        cancelButtonText: "No, ver el historial."
-            
-                    }).then((res) => {
-                        if(res.isConfirmed) {
-                            location.href = "plataforma2.html";
-                        } else {
-                            location.href = "#historial_guias";
-                            cambiarFecha();
-                        }
-                    })
-                } else {
-                    Swal.fire({
-                        icon: res.icon,
-                        title: res.title,
-                        html: res.mensaje
-                    });
-
-                    console.log(datos_a_enviar);
-                    firebase.firestore().collection("errores").add({
-                        datos_personalizados, datos_a_enviar,
-                        datos_usuario,
-                        momento: new Date().getTime(),
-                        fecha: new Date(),
-                        respuesta: res
-                    });
-                }
-
-                boton_final_cotizador.removeAttribute("disabled");
-
-                boton_final_cotizador.textContent = textoBtn;
-
-            })
+            if(checkCreacionPedido) {
+                enviar_firestore(datos_a_enviar).then(mostrarResultado);
+            } else {
+                creacionDirecta(datos_a_enviar).then(mostrarResultado);
+            }
         }
     } else {
         alert("Por favor, verifique que los campos escenciales no estén vacíos");
@@ -2583,6 +2596,7 @@ async function pruebaGeneracionGuias(idGuiaError) {
 async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
     //Primero consulto la respuesta del web service
     let generarGuia;
+    const stagingPrevio = datos.staging;
     referenciaNuevaGuia = referenciaNuevaGuia || usuarioAltDoc(datos.id_user)
     .collection("guias").doc(datos.id_heka);
 
@@ -2604,11 +2618,11 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
         datos.has_sticker = resGuia.has_sticker || false;
         //y creo el documento de firebase
         if(resGuia.numeroGuia) {
-            datos.staging = false;
+            datos.staging = false; // true: creación de pedido, false: creación directa
             datos.numeroGuia = datos.numeroGuia.toString();
             datos.fecha_aceptada = genFecha();
             datos.estadoActual = estadosGuia.generada;
-            let guia = await referenciaNuevaGuia.update(datos)
+            let guia = !stagingPrevio ? resGuia : await referenciaNuevaGuia.update(datos)
             .then(doc => {
                 return resGuia;
             })
@@ -2642,6 +2656,23 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
             message: respuesta.message
         }
     }
+}
+
+async function creacionDirecta(guia) {
+    const guiaGenerada = await crearGuiaTransportadora(guia);
+
+    if(guiaGenerada.error) {
+        return {
+            ...guiaGenerada,
+            icon: "error",
+            mensaje: "No se ha podido concretar la creación de guía, por favor intente nuevamente más tarde. \"" + guiaGenerada.message + "\"",
+        }
+    }
+
+    const respuesta = await enviar_firestore(guia);
+    await descontarSaldo(guia);
+
+    return respuesta;
 }
 
 
@@ -2713,6 +2744,88 @@ async function enviar_firestore(datos){
         })
     })
 };
+
+async function descontarSaldo(datos) {
+    const datos_heka = datos_personalizados || await db.collection("usuarios").doc(localStorage.user_id)
+    .get().then(doc => doc.data().datos_personalizados);
+
+    //Estas líneas será utilizadas para cuando todos los nuevos usuarios por defecto
+    //no tengan habilitadas las transportadoras, para que administración se las tenga que habilitar
+    // if(!datos_heka) {
+    //     return {
+    //         mensaje: "Lo sentimos, no pudimos carga su información de pago, por favor intente nuevamente.",
+    //         mensajeCorto: "No se pudo cargar su información de pago",
+    //         icon: "error",
+    //         title: "Sin procesar"
+    //     }
+    // }
+
+    // FIN DEL BLOQUE
+
+    const id = datos.id_heka;
+    console.log(datos.debe);
+    if(!datos.debe && !datos_personalizados.actv_credit &&
+        datos.costo_envio > datos_personalizados.saldo && datos.type !== CONTRAENTREGA) {
+        return {
+            mensaje: `Lo sentimos, en este momento, el costo de envío excede el saldo
+            que tienes actualmente, por lo tanto este metodo de envío no estará 
+            permitido hasta que recargues tu saldo. Puedes comunicarte con la asesoría logística para conocer los pasos
+            a seguir para recargar tu saldo.`,
+            mensajeCorto: "El costo de envío excede el saldo que tienes actualmente",
+            icon: "error",
+            title: "¡No permitido!"
+        }
+    };
+
+    let user_debe;
+    datos_personalizados.saldo <= 0 ? user_debe = datos.costo_envio
+    : user_debe = - datos_personalizados.saldo + datos.costo_envio;
+
+    if(user_debe > 0 && !datos.debe) datos.user_debe = user_debe;
+
+    if(!datos_heka) return id;
+
+    let momento = new Date().getTime();
+    let saldo = datos_heka.saldo;
+    let saldo_detallado = {
+        saldo: saldo,
+        saldo_anterior: saldo,
+        limit_credit: datos_heka.limit_credit || 0,
+        actv_credit: datos_heka.actv_credit || false,
+        fecha: genFecha(),
+        diferencia: 0,
+        mensaje: "Guía " + id + " creada exitósamente",
+        momento: momento,
+        user_id: localStorage.user_id,
+        guia: id,
+        numeroGuia: datos.numeroGuia || "",
+        transportadora: datos.transportadora || "",
+        medio: "Usuario: " + datos_usuario.nombre_completo + ", Id: " + localStorage.user_id,
+        type: "DESCONTADO"
+    };
+
+    //***si se descuenta del saldo***
+    if(!datos.debe && datos.type !== CONTRAENTREGA){
+        saldo_detallado.saldo = saldo - datos.costo_envio;
+
+        if(ControlUsuario.esPuntoEnvio) saldo_detallado.saldo += datos.detalles.comision_punto;
+
+        saldo_detallado.diferencia = saldo_detallado.saldo - saldo_detallado.saldo_anterior;
+        
+        let factor_diferencial = parseInt(datos_heka.limit_credit) + parseInt(saldo);
+        console.log(saldo_detallado);
+        
+        /* creo un factor diferencial que sume el limite de credito del usuario
+        (si posee alguno) más el saldo actual para asegurarme que 
+        este por encima de cero y por debajo del costo de envío, 
+        en caso de que no se cumpla, se envía una notificación a administración del exceso de gastos*/
+        if(factor_diferencial <= datos.costo_envio && factor_diferencial > 0) {
+            notificarExcesoDeGasto();
+        }
+        await actualizarSaldo(saldo_detallado);
+    }
+    return id;
+}
 
 function notificarExcesoDeGasto() {
     enviarNotificacion({
