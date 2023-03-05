@@ -2595,6 +2595,15 @@ async function pruebaGeneracionGuias(idGuiaError) {
 
 async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
     //Primero consulto la respuesta del web service
+    if(!datos.id_heka) {
+        return {
+            error: true,
+            icon: "error",
+            title: "¡Error con guía!",
+            message: "Problema de comunicación interno, ausencia de identificador."
+        }
+    }
+    
     let generarGuia;
     const stagingPrevio = datos.staging;
     referenciaNuevaGuia = referenciaNuevaGuia || usuarioAltDoc(datos.id_user)
@@ -2659,6 +2668,7 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
 }
 
 async function creacionDirecta(guia) {
+    guia.id_heka = await obtenerIdHeka();
     const guiaGenerada = await crearGuiaTransportadora(guia);
 
     if(guiaGenerada.error) {
@@ -2675,56 +2685,46 @@ async function creacionDirecta(guia) {
     return respuesta;
 }
 
+async function obtenerIdHeka() {
+    console.count("Se obtiene el id");
+    const ref = firebase.firestore().collection("infoHeka").doc("heka_id");
+
+    return await ref.get()
+    .then(async (doc) => {
+        // return doc.data().id;
+        if(doc.exists){
+            let id_heka = datos_usuario.numero_documento.slice(-4);
+            id_heka = id_heka.replace(/^0/, 1);
+            id_heka += doc.data().id.toString();
+            
+            ref.update({id: firebase.firestore.FieldValue.increment(1)});
+
+            return id_heka;
+        }
+    })
+}
 
 //función que envía los datos tomados a servientrega
-async function enviar_firestore(datos){
-    //tome los últimos 4 digitos del documento para crear el id
-    console.log(datos)
-    // return;
-    let id_heka = datos_usuario.numero_documento.slice(-4);
-    id_heka = id_heka.replace(/^0/, 1);
+async function enviar_firestore(datos){    
     let firestore = firebase.firestore();
+    const id_heka = datos.id_heka ? datos.id_heka : await obtenerIdHeka();
 
     datos.seguimiento_finalizado = false;
     datos.fecha = genFecha();
     datos.timeline = new Date().getTime();
 
-    console.log(datos);
-    // return;
+    const referenciaNuevaGuia = firestore.collection("usuarios").doc(datos.id_user)
+    .collection("guias").doc(id_heka);
     
-    //Reviso por donde va el identificador heka
-    return await firestore.collection("infoHeka").doc("heka_id").get()
-    .then(async (doc) => {
-        // return doc.data().id;
-        if(doc.exists){
-            id_heka += doc.data().id.toString();
+    firestore.collection("infoHeka").doc("heka_id").update({id: firebase.firestore.FieldValue.increment(1)});
 
-            //lo guardo en una varible
-            datos.id_heka = id_heka;
-            console.log(datos);
-
-            //Creo la referencia para la nueva guía generada con su respectivo id
-            let referenciaNuevaGuia = firestore.collection("usuarios").doc(datos.id_user)
-            .collection("guias").doc(id_heka);
-            
-            firestore.collection("infoHeka").doc("heka_id").update({id: firebase.firestore.FieldValue.increment(1)});
-
-            let id = await referenciaNuevaGuia.set(datos).then(() => {
-                return id_heka;
-            })
-            .catch(() => {
-                throw new Error("no pudimos guardar la información de su guía, por falla en la conexión, por favor intente nuevamente");
-            })
-
-            return id;
-        }
-    })
+    return await referenciaNuevaGuia.set(datos)
     .then((id) => {
         return {
             icon: "success",
             title: "¡Guía creada con éxito!",
             mensaje: "¿Deseas crear otra guía?",
-            mensajeCorto: "¡Guía con id: " +id+ " creada con éxito!"
+            mensajeCorto: "¡Guía con id: " +id_heka+ " creada con éxito!"
         }
     })
     .catch((err)=> {
@@ -3104,7 +3104,9 @@ async function guardarDocumentoSegmentado(base64Segmentada, referencia) {
         const res = await referencia.doc(i.toString()).set({
             index: i, segmento: base64Segmentada[i]
         })
-        .then(() => true)
+        .then(() => {
+            return true;
+        })
         .catch((error) => {
             console.log("hubo un error al guardar una parte del documento segmentado => ", error)
             guardado = false;
