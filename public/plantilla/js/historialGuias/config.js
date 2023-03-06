@@ -1,11 +1,11 @@
 export const defFiltrado = estadosGuia;
 
 export const filters = [
-    // {
-    //     name: "Pedidos",
-    //     description: "Aquellas guías registradas en heka, pero no generadas aún con la transportadora.",
-    //     dataFilter: defFiltrado.pedido
-    // },
+    {
+        name: "Pedidos",
+        description: "Aquellas guías registradas en heka, pero no generadas aún con la transportadora.",
+        dataFilter: defFiltrado.pedido
+    },
     {
         name: "Generadas",
         description: "Guías que, una vez creada con la transportadora, no presentas movimientos o que aún no han sido procesadas.",
