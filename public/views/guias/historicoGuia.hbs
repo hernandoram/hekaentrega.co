@@ -21,28 +21,29 @@
     <div id="detalles" class="tab-pane active show fade p-2">
         {{#if guia.enNovedad}}
         <form class="form-sol my-2">
-            <p class="mb-1">Gestionar novedad {{novedadActual.tipo_solucion}}</p>
+            <p class="mb-1">Gestionar novedad</p>
             <input type="text" class="d-none" name="numeroGuia" value="{{guia.numeroGuia}}">
             <input type="text" class="d-none" name="fechaMovimiento" value="{{novedadActual.fechaMov}}">
-            <div class="form-group">
+            <div class="form-group d-none">
                 <label for="respuesta-simple">{{novedadActual.tituloRespuesta}}</label>
                 <select class="custom-select" name="respuestaSimple" id="respuesta-simple"
                 data-tipo="{{novedadActual.tipo_solucion}}"
-                required>
+                >
                     <option value> -- Seleccione -- </option>
                     <option value="1">SI</option>
                     <option value="0">NO</option>
                 </select>
             </div>
             
-            <div class="form-group d-none" id="dirrecion">
+            <div class="form-group d-none" id="direccion">
                 <label for="direccion-novedad">Agregar Dirección</label>
                 <input type="text" id="direccion-novedad" class="form-control" name="direccion" />
             </div>
             
-            <div class="form-group d-none" id="observaciones">
-                <label for="observaciones-novedad">Datos adicionales</label>
-                <input type="text" for="observaciones-novedad" class="form-control" name="observaciones" />
+            <div class="form-group" id="observaciones">
+                <label for="observaciones-novedad">Observación</label>
+                {{!-- <input type="text" for="observaciones-novedad" class="form-control" name="observaciones" /> --}}
+                <textarea type="text" for="observaciones-novedad" class="form-control" name="gestion" ></textarea>
             </div>
 
             <button class="btn btn-primary btn-block" type="submit">Solucionar</button>

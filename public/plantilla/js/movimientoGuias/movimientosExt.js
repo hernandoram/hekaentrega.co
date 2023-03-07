@@ -18,7 +18,7 @@ async function enviarSolucion(e) {
         const resp = await Swal.fire({
             icon: "warning",
             title: "Solución de novedad",
-            text: "¿Deseas continuar con esta opción?",
+            text: "¿Seguro con la solución planteada?",
             showCancelButton: true,
             cancelButtonText: "No",
             confirmButtonText: "Si"
@@ -29,7 +29,7 @@ async function enviarSolucion(e) {
 
     console.log(respuestasimple);
 
-    return;
+    // return;
 
     fetch("plantearSolucion", {
         method: "POST",

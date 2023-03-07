@@ -456,27 +456,31 @@ function renderizadoDeTablaHistorialGuias(config) {
 
 }
 
+const filtrosSelectores = new Map();
 function filtrarHistorialGuiasPorColumna(column) {
     const header = column.header();
     
     const title = header.getAttribute("data-title") || header.textContent;
     header.setAttribute("data-title", title);
     const select = $("<select class='form-control form-control-sm' style='min-width:120px'><option value=''>"+title+"</option></select>")
-        .appendTo($(header).empty())
-        .on("change", function(e) {
-            console.log($(this).val());
-            const val = $.fn.dataTable.util.escapeRegex($(this).val());
+    .appendTo($(header).empty())
+    .on("change", function(e) {
+        console.log($(this).val());
+        const val = $.fn.dataTable.util.escapeRegex($(this).val());
 
-            column.search(val ? "^"+val+"$": "", true, false)
-            .draw();
-        })
+        column.search(val ? "^"+val+"$": "", true, false)
+        .draw();
+
+        filtrosSelectores.set(title.trim(), val);
+    });
 
 
     column.data().unique().sort().each((value, i) => {
-        select.append("<option value='"+value+"'>"+value+"</option>");
+        const selected = filtrosSelectores.get(title);
+        select.append(`<option value='${value}' ${selected === value ? "selected" : ""}>${value}</option>`);
     });
 
-    column.draw();
+    // column.draw();
 }
 
 function clasificarHistorialGuias(data) {

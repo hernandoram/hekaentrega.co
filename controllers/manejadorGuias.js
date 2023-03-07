@@ -22,15 +22,14 @@ exports.consultarGuia = async (req, res) => {
     const {n} = req.query;
 
     // if(!process.env.DEVELOPMENT)
-    // await actualizarMovimientosPorComparador("numeroGuia", "==", n);
+    await actualizarMovimientosPorComparador("numeroGuia", "==", n);
     // console.log("REPORTE", reporte);
 
     const docMovimiento = await buscarGuia(n, _collEstadoGuia);
-    const docGuia = await buscarGuia(n, _collEstadoGuia);
-    if(!docMovimiento || !docGuia) return res.send("GUIA NO ENCONTRADA");
-    let movimientosEncontrado = docMovimiento.data();
 
-    let guiaEncontrada = docGuia.data();
+    if(!docMovimiento) return res.send("GUIA NO ENCONTRADA");
+    let movimientosEncontrado = docMovimiento.data();
+    console.log("MOVIMIENTO =>", movimientosEncontrado);
 
     const tradMov = traducirMovimientoGuia(movimientosEncontrado.transportadora);
 
@@ -49,6 +48,7 @@ exports.consultarGuia = async (req, res) => {
     const {tipo, titulo} = cargarMensajeAleatorio();
     novedadActual.tituloRespuesta = titulo;
     novedadActual.tipo_solucion = tipo;
+    console.log(novedadActual);
 
     const guia = {
         movimientos: traducirMovimientos,
@@ -69,12 +69,12 @@ exports.plantearSolucion = async (req, res) => {
     console.log(req.body);
     const { numeroGuia, gestion, fechaMovimiento } = req.body;
 
-    const doc = await buscarGuia(numeroGuia, _collEstadoGuia); // Mientra para ir probando
+    const doc = await buscarGuia(numeroGuia, _collGuia);
     if(!doc) return res.status(400).send("GUÍA NO ENCONTRADA");
 
     const gest = {
         gestion, fecha: new Date(),
-        type: "EXERNO",
+        type: "EXTERNO",
         fechaMovimiento
     }
 
