@@ -36,7 +36,6 @@ exports.consultarGuia = async (req, res) => {
     const traduccion = (mov) => {
         const titulos = Object.keys(tradMov);
         const res = {};
-        
         titulos.forEach(t => res[t] = mov[tradMov[t]]);
         return res
     }
@@ -44,7 +43,7 @@ exports.consultarGuia = async (req, res) => {
     const traducirMovimientos = movimientosEncontrado.movimientos.map(traduccion).reverse();
 
     const {novedad} = guiaEnNovedad(movimientosEncontrado.movimientos, movimientosEncontrado.transportadora);
-    const novedadActual = traduccion(novedad);
+    const novedadActual = novedad ? traduccion(novedad) : {};
     const {tipo, titulo} = cargarMensajeAleatorio();
     novedadActual.tituloRespuesta = titulo;
     novedadActual.tipo_solucion = tipo;

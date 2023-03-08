@@ -2,6 +2,8 @@
 const fetch = require("node-fetch");
 const { urlToPdfBase64, segmentarString, estandarizarFecha, actualizarMovimientos, actualizarEstado } = require("../extends/funciones");
 const credentials = require("../keys/envia");
+const { estadosGuia } = require("../extends/manejadorMovimientosGuia");
+
 
 exports.cotizar = async (req, res) => {
     const {type} = req.params;
@@ -171,6 +173,7 @@ exports.actualizarMovimientos = async (doc) => {
         const ultimo_estado = movimientos[movimientos.length - 1];
         let finalizar_seguimiento = doc.data().prueba ? true : false
 
+        console.log(respuesta);
         // let estadoActual = respuesta.estado ? respuesta.estado.replace(/(?:EN\s|DESDE)[\s\w]+/g, "") : "NO APLICA";
         let estadoActual = respuesta.estado ? respuesta.estado.split(" ").slice(0, -2).join(" ") : "NO APLICA";
         // if(movimientos) {
@@ -220,6 +223,7 @@ exports.actualizarMovimientos = async (doc) => {
     
         return [updte_estados, updte_movs]
     } catch(error) {
+        console.log(error);
         return [{
             estado: "Error",
             guia: doc.id + " / " + doc.data().numeroGuia + " " + error.message

@@ -2934,6 +2934,7 @@ async function historialGuiasAdmin(e) {
         { data: "detalles.comision_trasportadora", title: "Comisión Transportadora"},
         { data: "detalles.flete", title: "Flete"},
         { data: "detalles.recaudo", title: "Recaudo"},
+        { data: "seguro", title: "Seguro"},
         { data: "detalles.total", title: "Total"},
         { data: "fecha", title: "Fecha"},
         { data: "debe", title: "deuda", defaultContent: "no aplica", render: function(content, display, data) {
