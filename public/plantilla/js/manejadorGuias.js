@@ -2330,7 +2330,7 @@ function revisarNovedades(transportadora) {
         if(!size) cargadorClass.add("d-none");
 
         q.forEach(d => {
-            let path = d.ref.path.split("/")
+            let path = d.ref.path.split("/");
             let dato = d.data();
             contador++
 

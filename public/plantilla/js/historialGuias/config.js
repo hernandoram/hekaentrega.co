@@ -30,7 +30,7 @@ export const filters = [
     },
     {
         name: "Todas",
-        description: "Total de todas las guías a mopstrar.",
+        description: "Total de todas las guías a mostrar.",
         dataFilter: defFiltrado.neutro
     },
     {

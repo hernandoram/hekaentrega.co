@@ -107,6 +107,7 @@ export default class SetHistorial {
     constructor() {
         this.guias = [];
         this.filtradas = [];
+        this.guiasNeutras = new Set();
         this._filtrador = generada;
         this.renderTable = true;
     }
@@ -119,6 +120,8 @@ export default class SetHistorial {
         this._filtrador = filt;
         filtrador.change(filt);
     }
+
+    
 
     add(guia) {
         const filtro = defineFilter(guia) === this.filtrador;
@@ -164,6 +167,7 @@ export default class SetHistorial {
         table.buttons().remove();
         let indexBtn = 0;
 
+        // Acceptar pedido
         if(filt === pedido) {
             table.button().add(indexBtn, {
                 action: aceptarPedido,
@@ -173,7 +177,8 @@ export default class SetHistorial {
             indexBtn++;
         } 
 
-        if([proceso, finalizada, generada].includes(filt)) {
+        // Descargar pdfs guías
+        if([proceso, finalizada, generada, neutro].includes(filt)) {
             table.button().add(indexBtn, {
                 action: descargarGuiasParticulares,
                 text: "Descargar Pdf"
@@ -181,6 +186,7 @@ export default class SetHistorial {
             indexBtn++;
         }
 
+        // Generar documento o procesar
         if (filt === generada){
             table.button().add(indexBtn, {
                 action: crearDocumentos,
@@ -190,6 +196,7 @@ export default class SetHistorial {
             indexBtn++;
         }
 
+        // Descargar excel
         if([proceso, finalizada, pagada, neutro].includes(filt)) {
             const indiceColumnas = columns
             .map((c,i) => c.saveInExcel ? i : -1)
@@ -239,9 +246,23 @@ export default class SetHistorial {
     
     }
 
+    generalFilter(filt) {
+        const neutral = g => this.guiasNeutras.has(g.id_heka);
+        const filtNeutro = filt === neutro;
+        const filtProceso = filt === proceso;
+        return this.guias.filter(g => {
+            const original = defineFilter(g) === filt;
+            const esNovedad = defineFilter(g) === novedad;
+            if(filtNeutro) return neutral(g) && filtNeutro;
+
+            if(filtProceso) return original || (neutral(g) && esNovedad);
+            return original;
+        });
+    }
+    
     filter(filt) {
         this.filtrador = filt;
-        this.filtradas = this.guias.filter(g => filt === neutro ? g.marcaNeutro === neutro : defineFilter(g) === filt);
+        this.filtradas = this.generalFilter(filt)
         this.render(true);
 
         return this.filtradas;
@@ -270,7 +291,7 @@ export default class SetHistorial {
         if(!this.nodeFilters) return;
         this.nodeFilters.each((i,node) => {
             const filt = node.getAttribute("data-filter");
-            const cant = this.guias.filter(g => filt === neutro ? g.marcaNeutro === neutro : defineFilter(g) === filt).length;
+            const cant = this.generalFilter(filt).length;
 
             $(node).find(".counter").text(cant);
         })
@@ -310,6 +331,7 @@ export default class SetHistorial {
     clean(avoid) {
         const respaldo = this.guias.filter(g => defineFilter(g) === avoid);
         this.filtradas = [];
+        this.guiasNeutras.clear();
         this.guias = respaldo;
 
         this.render(true);
@@ -392,7 +414,7 @@ function agregarFuncionalidadesTablaPedidos() {
 
     $('tbody', this).on( 'click', 'tr', function (e) {
         console.log(!e.target.classList.contains("action"), e.target.tagName !== "I")
-        if([novedad, neutro].includes(filtrador.value)) return;
+        if([novedad].includes(filtrador.value)) return;
         if(!e.target.classList.contains("action") && e.target.tagName !== "I")
         $(this).toggleClass('selected bg-gray-300');
         renderContador(filtrador.value, api.data());
@@ -463,7 +485,7 @@ function renderContador(filt, data) {
     //     textoSelector.text(textoDevuelto);
     //     llenarContador(empacadas().length);
     // }
-    if ([pedido, proceso, finalizada, pagada, generada].includes(filt)) {
+    if ([pedido, proceso, finalizada, pagada, generada, neutro].includes(filt)) {
         inpSelectGuias.prop("checked", false);
         textoSelector.text("Seleccionar todas");
         const selectedRows = data.rows(".selected").data().length;

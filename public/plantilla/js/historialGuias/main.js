@@ -57,10 +57,9 @@ async function consultarHistorialGuias() {
         
         snapshot.docChanges().forEach(change => {
             const data = change.doc.data();
-
             const id = data.id_heka;
             data.row_id = "historial-guias-row-" + id;
-            data.marcaNeutro = defFiltrado.neutro
+            historial.guiasNeutras.add(id);
 
             if(change.type === "added" || change.type === "modified") {
                 data.deleted ? historial.delete(id) : historial.add(data);
