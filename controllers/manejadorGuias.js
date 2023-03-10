@@ -1,7 +1,7 @@
 const firebase = require("../keys/firebase");
 const db = firebase.firestore();
 const {traducirMovimientoGuia, guiaEnNovedad} = require("../extends/manejadorMovimientosGuia");
-const {actualizarMovimientosPorComparador} = require("./seguimientos");
+// const {actualizarMovimientosPorComparador} = require("./seguimientos");
 
 const _collEstadoGuia = "estadoGuias";
 const _collGuia = "guias";
@@ -21,47 +21,54 @@ function cargarMensajeAleatorio() {
 exports.consultarGuia = async (req, res) => {
     const {n} = req.query;
 
-    // if(!process.env.DEVELOPMENT)
-    await actualizarMovimientosPorComparador("numeroGuia", "==", n);
-    // console.log("REPORTE", reporte);
-
-    const docMovimiento = await buscarGuia(n, _collEstadoGuia);
-
-    if(!docMovimiento) return res.send("GUIA NO ENCONTRADA");
-    let movimientosEncontrado = docMovimiento.data();
-    console.log("MOVIMIENTO =>", movimientosEncontrado);
-
-    const tradMov = traducirMovimientoGuia(movimientosEncontrado.transportadora);
-
-    const traduccion = (mov) => {
-        const titulos = Object.keys(tradMov);
-        const res = {};
-        titulos.forEach(t => res[t] = mov[tradMov[t]]);
-        return res
-    }
-
-    const traducirMovimientos = movimientosEncontrado.movimientos.map(traduccion).reverse();
-
-    const {novedad} = guiaEnNovedad(movimientosEncontrado.movimientos, movimientosEncontrado.transportadora);
-    const novedadActual = novedad ? traduccion(novedad) : {};
-    const {tipo, titulo} = cargarMensajeAleatorio();
-    novedadActual.tituloRespuesta = titulo;
-    novedadActual.tipo_solucion = tipo;
-    console.log(novedadActual);
-
-    const guia = {
-        movimientos: traducirMovimientos,
-        estado: movimientosEncontrado.estadoActual.toUpperCase(),
-        numeroGuia: movimientosEncontrado.numeroGuia,
-        fechaEnvio: movimientosEncontrado.fechaEnvio,
-        enNovedad: movimientosEncontrado.enNovedad,
-        novedadActual
-    }
-
-    // res.json(movimientosEncontrado);
-    res.render("guias/historicoGuia", {guia, novedadActual, layout:"general"});
+    try {
+        // if(!process.env.DEVELOPMENT)
+        // await actualizarMovimientosPorComparador("numeroGuia", "==", n);
+        // console.log("REPORTE", reporte);
     
-    // res.render("productos", {productos, tienda: req.params.storeInfo});
+        const docMovimiento = await buscarGuia(n, _collEstadoGuia);
+    
+        if(!docMovimiento) return res.send("GUIA NO ENCONTRADA");
+        let movimientosEncontrado = docMovimiento.data();
+        console.log("MOVIMIENTO =>", movimientosEncontrado);
+    
+        const tradMov = traducirMovimientoGuia(movimientosEncontrado.transportadora);
+    
+        const traduccion = (mov) => {
+            const titulos = Object.keys(tradMov);
+            const res = {};
+            titulos.forEach(t => res[t] = mov[tradMov[t]]);
+            return res
+        }
+    
+        const traducirMovimientos = movimientosEncontrado.movimientos.map(traduccion).reverse();
+    
+        const {novedad} = guiaEnNovedad(movimientosEncontrado.movimientos, movimientosEncontrado.transportadora);
+        const novedadActual = novedad ? traduccion(novedad) : {};
+        const {tipo, titulo} = cargarMensajeAleatorio();
+        novedadActual.tituloRespuesta = titulo;
+        novedadActual.tipo_solucion = tipo;
+        console.log(novedadActual);
+    
+        const guia = {
+            movimientos: traducirMovimientos,
+            estado: movimientosEncontrado.estadoActual.toUpperCase(),
+            numeroGuia: movimientosEncontrado.numeroGuia,
+            fechaEnvio: movimientosEncontrado.fechaEnvio,
+            enNovedad: movimientosEncontrado.enNovedad,
+            novedadActual
+        }
+    
+        // res.json(movimientosEncontrado);
+        res.render("guias/historicoGuia", {guia, novedadActual, layout:"general"});
+        
+        // res.render("productos", {productos, tienda: req.params.storeInfo});
+
+    } catch (e) {
+        console.log(e.message);
+        res.send(e.message);
+    }
+
 };
 
 exports.plantearSolucion = async (req, res) => {

@@ -1256,7 +1256,22 @@ async function pagosPendientesParaUsuario() {
 
 }
 
+function obtenerMensajeDesembolso() {
+  const mensajes = ["Tu pago ya fue solicitado, esta listo para desembolso en 24 horas 😊", "Tu pago ya fue solicitado, esta listo para desembolso en en el próximo día de pago, ya que nuestros días de pago son de lunes a viernes 😊", "Tu pago ya fue solicitado, esta listo para desembolso en MÁS de 24 horas, puesto que nuestros horarios de pago son de 8:00 am a 6:00 pm de Lunes a Viernes 😊"];
+  const lunJue = [8, 18, 0]; // hora inicial, hora final, index mensaje
+  const vieSab = [8, 13, 1];
+  const mensajeHor = [[0, 0, 3], lunJue, lunJue, lunJue, lunJue, vieSab, vieSab];
+  const hora = new Date().getHours();
+  const dia = new Date().getDay();
+  const horario = mensajeHor[dia];
+  const [hi, hf, i] = horario;
+
+  return hi <= hora && hf > hora ? mensajes[i] : mensajes[mensajes.length - 1];
+
+}
+
 async function solicitarPagosPendientesUs() {
+  const mensajeDesembolso = obtenerMensajeDesembolso();
   const minimo_diario = 1500000;
   const ref = db.collection("infoHeka").doc("manejoUsuarios");
   const data = await ref.get().then(d => d.data());
@@ -1271,18 +1286,18 @@ async function solicitarPagosPendientesUs() {
   const hayPagoAnterior = await Promise.all(transportadoras.map(verPago));
 
   if(!hayPagoAnterior.some(Boolean))
-    return Swal.fire("Se ha detectado que no hay registro de pago previo.", "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico Hekanovedades@gmail.com esto se realiza con la finalidad de validación de datos.", "error");
+    await Swal.fire("Se ha detectado que no hay registro de pago previo.", "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico Hekanovedades@gmail.com esto se realiza con la finalidad de validación de datos. ESTE MENSAJE SEGUIRÁ SIENDO VISIBLE HASTA QUE SE EFECTÚE SU PRIMER PAGO.", "error");
 
   if(!data) return;
 
   const {limitadosDiario, diarioSolicitado} = data;
 
   if(!datos_usuario.datos_bancarios) 
-    return Swal.fire("No puede solicitar pagos", "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico Hekanovedades@gmail.com esto se realiza con la finalidad de validación de datos. Adicional debes registrar datos bancarios para tener donde realizar el deposito del dinero.", "error");
+    await Swal.fire("No puede solicitar pagos", "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico Hekanovedades@gmail.com esto se realiza con la finalidad de validación de datos. Adicional debes registrar datos bancarios para tener donde realizar el deposito del dinero. ESTE MENSAJE SEGUIRÁ SIENDO VISIBLE HASTA QUE SE REGISTREN SUS DATOS BANCARIOS.", "error");
 
 
   if(diarioSolicitado.includes(datos_usuario.centro_de_costo)) 
-    return Swal.fire("Tu pago ya fue solicitado, esta listo para desembolso en 24 horas 😊", "", "info");
+    return Swal.fire("", mensajeDesembolso, "info");
 
 
   if(saldo_pendiente < minimo_diario) {

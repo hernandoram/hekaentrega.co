@@ -1412,6 +1412,86 @@
             </div>
 
           </div>
+
+          <div class="container-fluid" id="mensajeria">
+            <h2>Mensajería</h2>
+
+            <div id="visor_mensajeria">
+              <div class="card my-3">
+                <form class="card-body row">
+                  <div class="form-group col-12">
+                    <label for="novedad-mensajeria">Novedad</label>
+                    <input type="text" class="form-control" id="novedad-mensajeria" name="novedad">
+                  </div>
+                  <div class="form-group col-12">
+                    <label for="mensaje-mensajeria">Mensaje</label>
+                    <input type="text" class="form-control" id="mensaje-mensajeria" name="mensaje">
+                  </div>
+
+                  <div class="form-group col-md-4 d-flex align-items-center">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="notificar_ws-mensajeria" name="notificar_ws">
+                      <label class="custom-control-label" for="notificar_ws-mensajeria">Notificar novedad WhatsApp</label>
+                    </div>
+                  </div>
+
+                  <div class="form-group col-md-4">
+                    <label for="transportadora-mensajeria">Transportadora</label>
+                    <select class="custom-select" id="transportadora-mensajeria" name="transportadora">
+                      <option selected>-- Transportadora --</option>
+                      <option value="SERVIENTREGA">Servientrega</option>
+                      <option value="ENVIA">Envía</option>
+                      <option value="INTERRAPIDISIMO">Interrapidísimo</option>
+                    </select>
+                  </div>
+                  
+                  <div class="form-group col-md-4">
+                    <label for="formulario-mensajeria">Formulario asociado</label>
+                    <select class="custom-select" id="formulario-mensajeria">
+                      <option selected>-- Formulario --</option>
+                      <option value="0">Formulario 1</option>
+                      <option value="1">Formulario 2</option>
+                      <option value="2">Formulario 3</option>
+                    </select>
+                  </div>
+                </form>
+              </div>
+
+              <div class="card my-3">
+                <form class="card-body row">
+                  <div class="form-group col-md-6">
+                    <label for="nombre-mensajeria">Nombre</label>
+                    <input type="text" class="form-control" id="nombre-mensajeria" name="nombre">
+                  </div>
+
+                  <div class="form-group col-md-6">
+                    <label for="tipo-mensajeria">Tipo</label>
+                    <select class="custom-select" id="tipo-mensajeria" name="tipo">
+                      <option selected>-- Tipo --</option>
+                      <option value="SERVIENTREGA">Texto</option>
+                      <option value="ENVIA">Selección</option>
+                      <option value="INTERRAPIDISIMO">Descriptivo</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group col-md-6">
+                    <label for="opciones-mensajeria">Opciones</label>
+                    <input type="text" class="form-control" id="opciones-mensajeria" name="opciones">
+                  </div>
+
+                  <div class="form-group col-md-6">
+                    <label for="despendiente-mensajeria">Dependiente</label>
+                    <input type="text" class="form-control" id="despendiente-mensajeria" name="despendiente">
+                  </div>               
+                  
+                  <div class="form-group col-12">
+                    <label for="descripcion-mensajeria">Respuesta construida</label>
+                    <textarea class="form-control" id="descripcion-mensajeria" name="descripcion"></textarea>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
   
         </div>   
         <!-- Footer -->
