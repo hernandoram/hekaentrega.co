@@ -1414,30 +1414,54 @@
           </div>
 
           <div class="container-fluid" id="mensajeria">
-            <h2>Mensajería</h2>
+            <h2>
+              Mensajería
+            </h2>
 
-            <div id="visor_mensajeria">
-              <div class="card my-3">
-                <form class="card-body row">
+            <div class="card my-3">
+              <div class="card-body row" id="visor-mensajeria">
+                <h3 class="card-title">
+                  Registro novedades
+                  
+                  <small>
+                    <i class="fa fa-edit text-primary d-none" style="cursor: pointer" data-action="editar"></i>
+                    <i class="fa fa-check text-success d-none" style="cursor: pointer" data-action="guardar"></i>
+                  </small>
+                </h3>
+                <div class="form-group w-100">
+                  <label for="list_novedades-mensajeria">Novedades</label>
+                  <select class="custom-select" id="list_novedades-mensajeria" name="list_novedades">
+                    <option selected>-- Novedades --</option>
+                  </select>
+                </div>
+                <form class="row">
+  
                   <div class="form-group col-12">
                     <label for="novedad-mensajeria">Novedad</label>
-                    <input type="text" class="form-control" id="novedad-mensajeria" name="novedad">
+                    <input type="text" class="form-control" disabled id="novedad-mensajeria" name="novedad">
                   </div>
                   <div class="form-group col-12">
                     <label for="mensaje-mensajeria">Mensaje</label>
-                    <input type="text" class="form-control" id="mensaje-mensajeria" name="mensaje">
+                    <input type="text" class="form-control" disabled id="mensaje-mensajeria" name="mensaje">
                   </div>
-
-                  <div class="form-group col-md-4 d-flex align-items-center">
+  
+                  <div class="form-group col-md-3 d-flex align-items-center">
                     <div class="custom-control custom-switch">
-                      <input type="checkbox" class="custom-control-input" id="notificar_ws-mensajeria" name="notificar_ws">
+                      <input type="checkbox" class="custom-control-input" id="notificar_ws-mensajeria" value="1" name="notificar_ws">
                       <label class="custom-control-label" for="notificar_ws-mensajeria">Notificar novedad WhatsApp</label>
                     </div>
                   </div>
-
-                  <div class="form-group col-md-4">
+                  
+                  <div class="form-group col-md-3 d-flex align-items-center">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="esNovedad-mensajeria" value="1" name="esNovedad">
+                      <label class="custom-control-label" for="esNovedad-mensajeria">Es novedad</label>
+                    </div>
+                  </div>
+  
+                  <div class="form-group col-md-3">
                     <label for="transportadora-mensajeria">Transportadora</label>
-                    <select class="custom-select" id="transportadora-mensajeria" name="transportadora">
+                    <select class="custom-select" id="transportadora-mensajeria" name="transportadora" disabled>
                       <option selected>-- Transportadora --</option>
                       <option value="SERVIENTREGA">Servientrega</option>
                       <option value="ENVIA">Envía</option>
@@ -1445,51 +1469,46 @@
                     </select>
                   </div>
                   
-                  <div class="form-group col-md-4">
+                  <div class="form-group col-md-3">
                     <label for="formulario-mensajeria">Formulario asociado</label>
-                    <select class="custom-select" id="formulario-mensajeria">
-                      <option selected>-- Formulario --</option>
-                      <option value="0">Formulario 1</option>
-                      <option value="1">Formulario 2</option>
-                      <option value="2">Formulario 3</option>
+                    <select class="custom-select" name="formulario" id="formulario-mensajeria" disabled>
+                      <option selected value>-- Formulario --</option>
                     </select>
                   </div>
+
                 </form>
               </div>
+            </div>
 
-              <div class="card my-3">
-                <form class="card-body row">
-                  <div class="form-group col-md-6">
-                    <label for="nombre-mensajeria">Nombre</label>
-                    <input type="text" class="form-control" id="nombre-mensajeria" name="nombre">
+            <div class="card my-3">
+              <form class="card-body" id="visor_form-mensajeria">
+                <h3 class="card-title">
+                  Formulario
+                  <small>
+                    <i class="fa fa-edit text-primary mx-2 d-none" style="cursor: pointer" data-action="editar-form"></i>
+                    <i class="fa fa-plus text-primary mx-2 d-none" style="cursor: pointer" data-action="agregar-campo"></i>
+                    <i class="fa fa-check text-success mx-2 d-none" style="cursor: pointer" data-action="guardar-form"></i>
+                  </small>
+                </h3>
+
+                <div id="editor_form-mensajeria">
+                  <div class="form-group">
+                    <label for="titulo-mensajeria">Titulo</label>
+                    <input type="text" class="form-control" id="titulo-mensajeria" name="titulo">
                   </div>
-
-                  <div class="form-group col-md-6">
-                    <label for="tipo-mensajeria">Tipo</label>
-                    <select class="custom-select" id="tipo-mensajeria" name="tipo">
-                      <option selected>-- Tipo --</option>
-                      <option value="SERVIENTREGA">Texto</option>
-                      <option value="ENVIA">Selección</option>
-                      <option value="INTERRAPIDISIMO">Descriptivo</option>
-                    </select>
-                  </div>
-
-                  <div class="form-group col-md-6">
-                    <label for="opciones-mensajeria">Opciones</label>
-                    <input type="text" class="form-control" id="opciones-mensajeria" name="opciones">
-                  </div>
-
-                  <div class="form-group col-md-6">
-                    <label for="despendiente-mensajeria">Dependiente</label>
-                    <input type="text" class="form-control" id="despendiente-mensajeria" name="despendiente">
-                  </div>               
                   
-                  <div class="form-group col-12">
+                  <div id="campos_form-mensajeria"></div>
+                  
+                  <div class="form-group">
                     <label for="descripcion-mensajeria">Respuesta construida</label>
                     <textarea class="form-control" id="descripcion-mensajeria" name="descripcion"></textarea>
                   </div>
-                </form>
-              </div>
+                </div>
+
+                <div id="render_form-mensajeria">
+                  
+                </div>
+              </form>
             </div>
           </div>
   

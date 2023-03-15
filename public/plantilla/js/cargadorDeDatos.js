@@ -158,7 +158,7 @@ async function consultarDatosDeUsuario() {
   const actualizador = doc => {
     if(doc.exists) {
       const datos = doc.data();
-      const datos_bancarios = datos.datos_bancarios || {};
+      const datos_bancarios = datos.datos_bancarios;
       const datos_personalizados = datos.datos_personalizados;
       const bodegas = datos.bodegas ? datos.bodegas.filter(b => !b.inactiva) : [];
 
@@ -1286,14 +1286,14 @@ async function solicitarPagosPendientesUs() {
   const hayPagoAnterior = await Promise.all(transportadoras.map(verPago));
 
   if(!hayPagoAnterior.some(Boolean))
-    await Swal.fire("Se ha detectado que no hay registro de pago previo.", "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico Hekanovedades@gmail.com esto se realiza con la finalidad de validación de datos. ESTE MENSAJE SEGUIRÁ SIENDO VISIBLE HASTA QUE SE EFECTÚE SU PRIMER PAGO.", "error");
+    return Swal.fire("Se ha detectado que no hay registro de pago previo.", "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico Hekanovedades@gmail.com esto se realiza con la finalidad de validación de datos.", "error");
 
   if(!data) return;
 
   const {limitadosDiario, diarioSolicitado} = data;
 
   if(!datos_usuario.datos_bancarios) 
-    await Swal.fire("No puede solicitar pagos", "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico Hekanovedades@gmail.com esto se realiza con la finalidad de validación de datos. Adicional debes registrar datos bancarios para tener donde realizar el deposito del dinero. ESTE MENSAJE SEGUIRÁ SIENDO VISIBLE HASTA QUE SE REGISTREN SUS DATOS BANCARIOS.", "error");
+    return Swal.fire("No puede solicitar pagos", "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico Hekanovedades@gmail.com esto se realiza con la finalidad de validación de datos. Adicional debes registrar datos bancarios para tener donde realizar el deposito del dinero.", "error");
 
 
   if(diarioSolicitado.includes(datos_usuario.centro_de_costo)) 

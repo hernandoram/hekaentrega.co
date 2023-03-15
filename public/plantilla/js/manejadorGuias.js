@@ -59,7 +59,8 @@ $(document).ready(() => {
         }
     });
 
-    $("#btn-buscar-guias").click(historialGuias)
+    if(window.historialGuias)
+        $("#btn-buscar-guias").click(historialGuias)
     // revisarNotificaciones();
 
 })

@@ -210,16 +210,19 @@ exports.actualizarMovimientos = async (doc) => {
         }
 
         const seguimiento_finalizado = estados_finalizacion.some(v => respuesta.estado === v)
-        || finalizar_seguimiento,
-    
-        updte_estados = await actualizarEstado(doc, {
+        || finalizar_seguimiento;
+        
+        const actualizaciones = {
             estado: estadoActual,
             ultima_actualizacion: new Date(),
             enNovedad,
             seguimiento_finalizado,
-            estadoActual: seguimiento_finalizado ? estadosGuia.finalizada : estadosGuia.proceso
+        }
 
-        });
+        if(seguimiento_finalizado) actualizaciones.estadoActual = estadosGuia.finalizada;
+
+    
+        const updte_estados = await actualizarEstado(doc, actualizaciones);
     
         return [updte_estados, updte_movs]
     } catch(error) {
