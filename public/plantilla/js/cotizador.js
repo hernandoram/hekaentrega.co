@@ -1019,7 +1019,7 @@ function mostrarOficinas(oficinas) {
         aria-controls="list-offices"
         >
             <div class="row">
-                <img src="./img/flexii.jpeg" 
+                <img src="./img/logo-flexi.png" 
                 class="col" style="max-height:120px; max-width:fit-content"
                 alt="logo-OFFY">
                 <div class="col-12 col-sm-6 mt-3 mt-sm-0 order-1 order-sm-0">
