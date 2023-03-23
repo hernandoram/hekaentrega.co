@@ -1,0 +1,35 @@
+<!--COTIZADOR-->
+<!-- <?xml version="1.0" encoding="UTF-8"?> -->
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ser="https://ws.coordinadora.com/ags/1.5/server.php">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <ser:Cotizador_cotizar>
+            <p>
+                <nit>{nit}</nit>
+                <div>{div}</div>
+                <cuenta>{cuenta}</cuenta>
+                <producto>0</producto>
+                <origen>{ciudad_origen}</origen>
+                <destino>{ciudad_destino}</destino>
+                <valoracion>{seguro}</valoracion>
+                <detalle>
+                    {items}
+                </detalle>
+                <apikey>{apikey}</apikey>
+                <clave>{clave}</clave>
+            </p>
+        </ser:Cotizador_cotizar>
+    </soapenv:Body>
+</soapenv:Envelope>
+<!--#END COTIZADOR-->
+
+<!--ITEMS-->
+<item>
+    <ubl>{ubl}</ubl>
+    <alto>{alto}</alto>
+    <ancho>{ancho}</ancho>
+    <largo>{largo}</largo>
+    <peso>{peso}</peso>
+    <unidades>{unidades}</unidades>
+</item>
+<!--#END ITEMS-->

@@ -7,6 +7,7 @@ const bloqueo_direcciones_inter = ["19318000", "70523000", "73217001", "50711002
 // Objeto principal en que se basa la transportadora a ser utilizada
 let transportadoras = {
     "SERVIENTREGA": {
+        cod: "SERVIENTREGA",
         nombre: "Servientrega",
         observaciones: observacionesServientrega,
         logoPath: "img/logoServi.png",
@@ -32,6 +33,7 @@ let transportadoras = {
         valorMinimoEnvio: kg => 0
     },
     "INTERRAPIDISIMO": {
+        cod: "INTERRAPIDISIMO",
         nombre: "Inter Rapidísimo",
         observaciones: observacionesInteRapidisimo,
         logoPath: "img/logo-inter.png",
@@ -69,6 +71,7 @@ let transportadoras = {
         }
     },
     "ENVIA": {
+        cod: "ENVIA",
         nombre: "Envía",
         observaciones: observacionesEnvia,
         logoPath: "img/2001.png",
@@ -94,6 +97,7 @@ let transportadoras = {
         valorMinimoEnvio: kg => 0
     },
     "TCC": {
+        cod: "TCC",
         nombre: "TCC",
         observaciones: observacionesInteRapidisimo,
         logoPath: "img/logo-tcc.png",
@@ -118,6 +122,32 @@ let transportadoras = {
         },
         getCuentaResponsable: () => "EMPRESA",
         sistemaAutomatizado: () => /^automatico/.test(datos_personalizados.sistema_tcc),
+        valorMinimoEnvio: kg => 0
+    },
+    "COORDINADORA": {
+        cod: "COORDINADORA",
+        nombre: "Coordinadora",
+        observaciones: observacionesEnvia,
+        logoPath: "img/logo-coord.png",
+        color: "primary",
+        limitesPeso: [0.1,100],
+        limitesLongitud: [1,150],
+        limitesRecaudo: [10000, 3000000],
+        bloqueada: () => !estado_prueba,
+        bloqueadaOfi: true,
+        limitesValorDeclarado: (valor) => {
+            return [10000, 30000000]
+        },
+        habilitada: () => {
+            const sist = datos_personalizados.sistema_coord;
+            return sist && sist !== "inhabilitado";
+        },
+        sistema: () => {
+            const sist = datos_personalizados.sistema_coord;
+            return sist;
+        },
+        getCuentaResponsable: () => "EMPRESA",
+        sistemaAutomatizado: () => /^automatico/.test(datos_personalizados.sistema_coord),
         valorMinimoEnvio: kg => 0
     },
 };
@@ -2091,6 +2121,7 @@ class CalcularCostoDeEnvio {
         if(this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
         if(this.aveo) this.intoAveo(this.precio);
         if(this.envia) this.intoEnvia(this.precio);
+        if(this.coordinadora) this.intoCoord(this.precio);
         
         if(this.codTransp !== "SERVIENTREGA"  && !this.convencional) this.sobreflete_heka += 1000;
         
@@ -2148,7 +2179,7 @@ class CalcularCostoDeEnvio {
     async putTransp(transportadora, dataObj) {
         this.codTransp = transportadora;
         switch (transportadora) {
-            case "INTERRAPIDISIMO":
+            case transportadoras.INTERRAPIDISIMO.cod:
                 this.factor_de_conversion = 1 / 6000;
                 this.kg_min = 0.1;
                 let respuestaCotizacion = await this.cotizarInter(dataObj.dane_ciudadR, dataObj.dane_ciudadD);
@@ -2165,14 +2196,17 @@ class CalcularCostoDeEnvio {
                 this.intoInter(this.precio)
                 
 
-                break;
-
-            case "ENVIA": 
-                const respCotizacionEnvia = await this.cotizarEnvia(dataObj.dane_ciudadR, dataObj.dane_ciudadD);
-                break;
             break;
 
-            case "TCC":
+            case transportadoras.ENVIA.cod: 
+                const respCotizacionEnvia = await this.cotizarEnvia(dataObj.dane_ciudadR, dataObj.dane_ciudadD);
+            break;
+            
+            case transportadoras.COORDINADORA.cod: 
+                await this.cotizarCoord(dataObj.dane_ciudadR, dataObj.dane_ciudadD);
+            break;
+
+            case transportadoras.TCC.cod:
                 const cotizaciones = dataObj.cotizacionAveo;
                 if(!cotizaciones) {
                     this.empty = true;
@@ -2291,7 +2325,50 @@ class CalcularCostoDeEnvio {
 
         if(this.type === CONTRAENTREGA) this.valor = 0;
         this.intoEnvia(response);
-        return true;        
+        return true;
+    }
+
+    intoCoord(cotizacion) {
+        if(!cotizacion) cotizacion = this.precio;
+        this.kg = cotizacion.peso_liquidado;
+        this.total_flete = cotizacion.flete_total;
+        this.sobreflete = cotizacion.flete_fijo;
+        this.seguroMercancia = cotizacion.flete_variable;
+        this.tiempo = cotizacion.dias_entrega;
+    }
+
+    async cotizarCoord(origen, destino) {
+        console.log("Cotizando Coordinadora");
+        const data = {
+            "ciudad_origen": origen,
+            "ciudad_destino": destino,
+            "largo": this.largo,
+            "ancho": this.ancho,
+            "alto": this.alto,
+            "peso": this.kg,
+            "seguro": this.seguro,
+            "valorProducto": this.valor
+        }
+        
+        const response = await fetch("coordinadora/cotizar/" + this.type, {
+            method: "Post",
+            headers: {"Content-Type": "Application/json"},
+            body: JSON.stringify(data)
+        }).then(d => d.json())
+        .catch(d => ({respuesta: "Error del servidor"}))
+        
+        console.log(response);
+        if(!response || response.respuesta) {
+            this.empty = true;
+            return false;
+        }
+
+        this.precio = response;
+        this.coordinadora = true;
+
+        if(this.type === CONTRAENTREGA) this.valor = 0;
+        this.intoCoord(response);
+        return true;
     }
 
     intoAveo(cotizacion) {

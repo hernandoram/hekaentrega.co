@@ -1,0 +1,19 @@
+<soapenv:Envelope 
+xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
+xmlns:ser="https://ws.coordinadora.com/ags/1.5/server.php">
+    <soapenv:Header/>
+    <soapenv:Body>
+        <ser:Seguimiento_simple>
+            <p>
+                <codigo_remision>08376500002</codigo_remision>
+                <nit>800024265</nit>
+                <div>01</div>
+                <referencia></referencia>
+                <imagen>1</imagen>
+                <anexo></anexo>
+                <apikey>532e212c-3468-11ed-a261-0242ac120002</apikey>
+                <clave>dS3uM6vN9zC5pN9v</clave>
+            </p>
+        </ser:Seguimiento_simple>
+    </soapenv:Body>
+</soapenv:Envelope>
