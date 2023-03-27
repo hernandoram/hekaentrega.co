@@ -139,15 +139,15 @@ let transportadoras = {
             return [10000, 30000000]
         },
         habilitada: () => {
-            const sist = datos_personalizados.sistema_coord;
+            const sist = datos_personalizados.sistema_coordinadora;
             return sist && sist !== "inhabilitado";
         },
         sistema: () => {
-            const sist = datos_personalizados.sistema_coord;
+            const sist = datos_personalizados.sistema_coordinadora;
             return sist;
         },
         getCuentaResponsable: () => "EMPRESA",
-        sistemaAutomatizado: () => /^automatico/.test(datos_personalizados.sistema_coord),
+        sistemaAutomatizado: () => /^automatico/.test(datos_personalizados.sistema_coordinadora),
         valorMinimoEnvio: kg => 0
     },
 };
@@ -2694,8 +2694,10 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
         generarGuia = generarGuiaEnvia(datos)
     } else if(datos.transportadora === "TCC") {
         generarGuia = generarGuiaAveonline(datos)
+    } else if(datos.transportadora === transportadoras.COORDINADORA.cod) {
+        generarGuia = generarGuiaCoordinadora(datos)
     } else {
-        return new Error("Lo sentimos, ésta transportadora no está optimizada para generar guías de manera automática.");
+        return new Error("Lo sentimos, esta transportadora no está optimizada para generar guías de manera automática.");
     }
     
     const respuesta = await generarGuia.then(async (resGuia) => {
@@ -3168,6 +3170,53 @@ async function guardarStickerGuiaEnvia({url, numeroGuia, id_heka}) {
     .doc(id_heka).collection("guiaSegmentada");
     return await guardarDocumentoSegmentado(base64GuiaSegmentada, referenciaSegmentar);
     // return await guardarBase64ToStorage(base64Guia, user_id + "/guias/" + data.id_heka + ".pdf")
+};
+
+async function generarGuiaCoordinadora(datos) {
+    const response = await fetch("/coordinadora/crearGuia", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(datos)
+    }).then(d => d.json());
+
+    if(response.error) {
+        return {
+            numeroGuia: 0,
+            message: response.message
+        }
+    }
+
+    res = {
+        numeroGuia: response.codigo_remision,
+        id_heka: datos.id_heka,
+        has_sticker: false,
+    }
+    
+    const referenciaSegmentar = firebase.firestore().collection("base64StickerGuias")
+    .doc(datos.id_heka).collection("guiaSegmentada");
+
+    res.has_sticker = await guardarDocumentoSegmentado(response.base64GuiaSegmentada, referenciaSegmentar);
+    return res
+};
+
+async function guardarStickerGuiaCoordinadora({numeroGuia, id_heka}) {
+
+    let path = "/coordinadora/obtenerStickerGuia";
+
+    let response = await fetch(path, {
+        method: "POST",
+        headers: {"Content-Type": "Application/json"},
+        body: JSON.stringify({numeroGuia})
+    })
+    .then(data => data.json())
+    .catch(error => console.log("Hubo un error al consultar el base64 de coordinadora => ", error));
+
+    if(response.error) return false;
+
+    const base64GuiaSegmentada = response.base64GuiaSegmentada;
+    const referenciaSegmentar = firebase.firestore().collection("base64StickerGuias")
+    .doc(id_heka).collection("guiaSegmentada");
+    return await guardarDocumentoSegmentado(base64GuiaSegmentada, referenciaSegmentar);
 };
 
 // esta función me toma un arreglo de strings, junto con la refenrecia de FB, y lo guarda en una collectio indexada

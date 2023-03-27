@@ -615,6 +615,8 @@ function crearStickerParticular() {
                 has_sticker = await guardarStickerGuiaServientrega(para_crear);
             } else if(data.transportadora === "ENVIA") {
                 has_sticker = await guardarStickerGuiaEnvia(para_crear);
+            } else if(data.transportadora === "COORDINADORA") {
+                has_sticker = await guardarStickerGuiaCoordinadora(para_crear);
             } else {
                 has_sticker = await guardarStickerGuiaAveo(para_crear);
             }

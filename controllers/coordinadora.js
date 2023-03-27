@@ -3,6 +3,7 @@ const MaquetadorXML = require("../extends/maquetadorXML");
 const credentials = require("../keys/coordinadora");
 const xml2js = require("xml2js");
 const {DOMParser} = require("xmldom");
+const { transformarDatosDestinatario, segmentarString } = require("../extends/funciones");
 
 function normalizarValoresNumericos(valores) {
     const ks = Object.keys(valores);
@@ -85,24 +86,18 @@ exports.cotizar = async (req, res) => {
 exports.crearGuia = async (req, res) => {
     const guia = req.body;
     const maquetador = new MaquetadorXML("./estructura/crearGuia.cord.xml");
+    const datos_destinatario = transformarDatosDestinatario(guia);
+
+    console.log(guia);
     const {v16, nit, div} = credentials;
     const peticion = Object.assign({
         nit: nit,
         div: div,
         usuario: v16.usuario,
-        clave: v16.clave
-    }, {
-        dane_ciudadR: 76001000,
-        dane_cuidadD: 76001000,
-        seguro: 80000,
-        alto: 10,
-        ancho: 15,
-        largo: 16,
-        peso: 1,
-        unidades: 1,
-        ubl: 0
-    },
-    body);
+        clave: v16.clave,
+        id_cliente: v16.id_cliente,
+        codigo_cuenta: guia.type === "CONVENCIONAL" ? 1 : 3 // Codigo de la cuenta, 1 = Cuenta Corriente, 2 = Acuerdo semanal, 3 = Flete Pago
+    }, guia, datos_destinatario);
 
     const structure = maquetador.fill(peticion);
 
@@ -115,29 +110,40 @@ exports.crearGuia = async (req, res) => {
             body: structure
         })
         .then(d => d.text());
-    
+
         let xmlResponse = new DOMParser().parseFromString(response, "text/xml");
-        const resCotizar = xmlResponse.documentElement.getElementsByTagName("Cotizador_cotizarResult");
+        const resCrearGuia = xmlResponse.documentElement.getElementsByTagName("return");
+        const resError = xmlResponse.documentElement.getElementsByTagName("faultstring");
         
-        let responseJson = await xml2js.parseStringPromise(resCotizar, {
+        const conv = async xml => await xml2js.parseStringPromise(xml, {
             explicitArray: false,
             ignoreAttrs: true
         });
+
+        let responseJson = await conv(resCrearGuia);
     
         if(responseJson) {
-            responseJson = responseJson.Cotizador_cotizarResult;
+            responseJson = responseJson.return;
+            const base64 = responseJson.pdf_guia;
+            // if(!base64.startsWith("JVBERi0xLjQKJ")) return res.json([]);
+
+            const base64Segmented = segmentarString(base64, 500000);
+            responseJson.base64GuiaSegmentada = base64Segmented;
+        } else {
+            responseJson = await conv(resError);
+            if(responseJson) {
+                responseJson.error = true;
+                responseJson.message = responseJson.faultstring;
+            }
         }
     
-        console.log(response);
+        console.log(response, responseJson);
     
         res.send(responseJson || {
             error: true,
             message: "Problemas de comunicación"
         });
-    
-        console.log(response);
-    
-        res.send(response);
+
     } catch (e) {
         res.send({
             error: true,
@@ -146,4 +152,68 @@ exports.crearGuia = async (req, res) => {
     }
 
 
+}
+
+exports.crearStickerGuia = async (req, res) => {
+    const guia = req.body;
+    const maquetador = new MaquetadorXML("./estructura/crearSticker.coord.xml");
+
+    const {v16} = credentials;
+    const peticion = Object.assign({
+        usuario: v16.usuario,
+        clave: v16.clave,
+    }, guia);
+
+    const structure = maquetador.fill(peticion);
+
+    try {
+        const response = await fetch(v16.endpoint, {
+            method: "POST",
+            headers: {
+                "Content-Type": "text/xml"
+            },
+            body: structure
+        })
+        .then(d => d.text());
+
+        const valorRetorno = "return";
+        let xmlResponse = new DOMParser().parseFromString(response, "text/xml");
+        const resCrearSticker = xmlResponse.documentElement.getElementsByTagName(valorRetorno);
+        const resError = xmlResponse.documentElement.getElementsByTagName("faultstring");
+        
+        const conv = async xml => await xml2js.parseStringPromise(xml, {
+            explicitArray: false,
+            ignoreAttrs: true
+        });
+
+        let responseJson = await conv(resCrearSticker);
+    
+        if(responseJson) {
+            responseJson = responseJson[valorRetorno];
+            const base64 = responseJson.pdf;
+            // if(!base64.startsWith("JVBERi0xLjQKJ")) return res.json([]);
+
+            const base64Segmented = segmentarString(base64, 500000);
+            responseJson.base64GuiaSegmentada = base64Segmented;
+        } else {
+            responseJson = await conv(resError);
+            if(responseJson) {
+                responseJson.error = true;
+                responseJson.message = responseJson.faultstring;
+            }
+        }
+    
+        console.log(response, responseJson);
+    
+        res.send(responseJson || {
+            error: true,
+            message: "Problemas de comunicación"
+        });
+
+    } catch (e) {
+        res.send({
+            error: true,
+            message: e.message
+        })
+    }
 }

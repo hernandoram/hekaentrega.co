@@ -9,36 +9,36 @@ xmlns:soap-enc="http://ñschemas.xmlsoap.org/soap/encoding/">
         <p xsi:type="ser:Agw_typeGenerarGuiaIn">
             <codigo_remision xsi:type="xsd:string" />
             <fecha xsi:type="xsd:string" />
-            <id_cliente xsi:type="xsd:int">41272</id_cliente>
+            <id_cliente xsi:type="xsd:int">{id_cliente}</id_cliente>
             <id_remitente xsi:type="xsd:int" />
             <nit_remitente xsi:type="xsd:string" />
-            <nombre_remitente xsi:type="xsd:string">ENVIAME</nombre_remitente>
-            <direccion_remitente xsi:type="xsd:string">Avenida 19 No. 98-03</direccion_remitente>
-            <telefono_remitente xsi:type="xsd:string">999999999</telefono_remitente>
-            <ciudad_remitente xsi:type="xsd:string">11001000</ciudad_remitente>
-            <nit_destinatario xsi:type="xsd:string">1</nit_destinatario>
-            <div_destinatario xsi:type="xsd:string">1</div_destinatario>
-            <nombre_destinatario xsi:type="xsd:string">J. Doe</nombre_destinatario>
-            <direccion_destinatario xsi:type="xsd:string">Calle 26 # 27 16 Apto 301 Edificio El Portal del Parque
-            </direccion_destinatario>
-            <ciudad_destinatario xsi:type="xsd:string">11001000</ciudad_destinatario>
-            <telefono_destinatario xsi:type="xsd:string">123456789</telefono_destinatario>
-            <valor_declarado xsi:type="xsd:float">80000</valor_declarado>
-            <codigo_cuenta xsi:type="xsd:int">1</codigo_cuenta>
+            <nombre_remitente xsi:type="xsd:string">{nombreR}</nombre_remitente>
+            <direccion_remitente xsi:type="xsd:string">{direccionR}</direccion_remitente>
+            <telefono_remitente xsi:type="xsd:string">{celularR}</telefono_remitente>
+            <ciudad_remitente xsi:type="xsd:string">{dane_ciudadR}</ciudad_remitente>
+            <nit_destinatario xsi:type="xsd:string">{numero_documento}</nit_destinatario>
+            <div_destinatario xsi:type="xsd:string" />
+            <!-- <div_destinatario xsi:type="xsd:string">1</div_destinatario> -->
+            <nombre_destinatario xsi:type="xsd:string">{nombre}</nombre_destinatario>
+            <direccion_destinatario xsi:type="xsd:string">{direccion}</direccion_destinatario>
+            <ciudad_destinatario xsi:type="xsd:string">{dane_ciudadD}</ciudad_destinatario>
+            <telefono_destinatario xsi:type="xsd:string">{telefono}</telefono_destinatario>
+            <valor_declarado xsi:type="xsd:float">{seguro}</valor_declarado>
+            <codigo_cuenta xsi:type="xsd:int">{codigo_cuenta}</codigo_cuenta>
             <codigo_producto xsi:type="xsd:int">0</codigo_producto>
             <nivel_servicio xsi:type="xsd:int">1</nivel_servicio>
             <linea xsi:type="xsd:string" />
-            <contenido xsi:type="xsd:string">TEST</contenido>
-            <referencia xsi:type="xsd:string">20102106032</referencia>
-            <observaciones xsi:type="xsd:string">prueba</observaciones>
+            <contenido xsi:type="xsd:string">{dice_contener}</contenido>
+            <referencia xsi:type="xsd:string">{referencia}</referencia>
+            <observaciones xsi:type="xsd:string">{observaciones}</observaciones>
             <estado xsi:type="xsd:string">IMPRESO</estado>
             <detalle SOAP-ENC:arrayType="ns1:Agw_typeGuiaDetalle[1]" xsi:type="ns1:ArrayOfAgw_typeGuiaDetalle">
                 <item xsi:type="ns1:Agw_typeGuiaDetalle">
-                    <ubl xsi:type="xsd:int">0</ubl>
-                    <alto xsi:type="xsd:float">1</alto>
-                    <ancho xsi:type="xsd:float">50</ancho>
-                    <largo xsi:type="xsd:float">50</largo>
-                    <peso xsi:type="xsd:float">1</peso>
+                    <ubl xsi:type="xsd:int">{ubl}</ubl>
+                    <alto xsi:type="xsd:float">{alto}</alto>
+                    <ancho xsi:type="xsd:float">{ancho}</ancho>
+                    <largo xsi:type="xsd:float">{largo}</largo>
+                    <peso xsi:type="xsd:float">{peso}</peso>
                     <unidades xsi:type="xsd:int">1</unidades>
                     <referencia xsi:type="xsd:string" />
                     <nombre_empaque xsi:type="xsd:string" />
@@ -47,7 +47,15 @@ xmlns:soap-enc="http://ñschemas.xmlsoap.org/soap/encoding/">
             <cuenta_contable xsi:type="xsd:string" />
             <centro_costos xsi:type="xsd:string" />
             <recaudos xsi:type="ser:ArrayOfAgw_typeGuiaDetalleRecaudo"
-                soapenc:arrayType="ser:Agw_typeGuiaDetalleRecaudo[]" />
+                soapenc:arrayType="ser:Agw_typeGuiaDetalleRecaudo[]" >
+                <item>
+                    <referencia>{referencia}</referencia>
+                    <valor>{valor}</valor>
+                    <valor_base_iva />
+                    <valor_iva />
+                    <forma_pago>1</forma_pago>
+                </item>
+            </recaudos>
             <margen_izquierdo xsi:type="xsd:float" />
             <margen_superior xsi:type="xsd:float" />
             <usuario_vmi xsi:type="xsd:string" />
@@ -59,10 +67,10 @@ xmlns:soap-enc="http://ñschemas.xmlsoap.org/soap/encoding/">
             <atributos_retorno xsi:type="ser:Agw_typeAtributosRetorno">
                 <nit xsi:type="xsd:string">{nit}</nit>
                 <div xsi:type="xsd:string">{div}</div>
-                <nombre xsi:type="xsd:string">ENVIAME</nombre>
-                <direccion xsi:type="xsd:string">Avenida 19 No. 98-03</direccion>
-                <codigo_ciudad xsi:type="xsd:string">11001000</codigo_ciudad>
-                <telefono xsi:type="xsd:string">999999999</telefono>
+                <nombre xsi:type="xsd:string">{nombreR}</nombre>
+                <direccion xsi:type="xsd:string">{direccionR}</direccion>
+                <codigo_ciudad xsi:type="xsd:string">{dane_ciudadR}</codigo_ciudad>
+                <telefono xsi:type="xsd:string">{celularR}</telefono>
             </atributos_retorno>
             <nro_doc_radicados xsi:type="xsd:string">1</nro_doc_radicados>
             <nro_sobre xsi:type="xsd:string">1</nro_sobre>

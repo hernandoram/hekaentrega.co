@@ -807,7 +807,7 @@ function notificarPedidoCreado(guia) {
     ].map(p => ({default: p}));
 
     if(guia.numeroGuia && !noNotificarGuia) {
-        fetch("/mensajeria/ws/sendMessage/pedido_creado_completo", organizarPostPlantillaMensaje(guia.telefonoD, plantilla));  
+        fetch("/mensajeria/ws/sendMessage/pedido_generado", organizarPostPlantillaMensaje(guia.telefonoD, plantilla));  
     }
 }
 
