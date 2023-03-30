@@ -625,10 +625,9 @@ async function detallesTransportadoras(data) {
         if(data.type === "PAGO DESTINO") valor = 0;
         let cotizador = new CalcularCostoDeEnvio(valor, data.type)
         
-        if(transp === "ENVIA") {
+        if(["ENVIA", "COORDINADORA"].includes(transp)) {
             cotizador.valor = recaudo;
             cotizador.seguro = Math.max(seguro, transportadora.limitesValorDeclarado(data.peso)[0]);
-
         }
 
         cotizador.kg_min = transportadora.limitesPeso[0];
@@ -666,7 +665,7 @@ async function detallesTransportadoras(data) {
 
         let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
         let fleteConvertido = cotizacion.flete
-        if(transp !== "SERVIENTREGA" && data.type === "PAGO CONTRAENTREGA") {
+        if(["ENVIA", "INTERRAPIDISMO"].includes(transp) && data.type === "PAGO CONTRAENTREGA") {
             sobreFleteHekaEdit -= factor_conversor;
             fleteConvertido += factor_conversor;
         }
@@ -2331,8 +2330,8 @@ class CalcularCostoDeEnvio {
     intoCoord(cotizacion) {
         if(!cotizacion) cotizacion = this.precio;
         this.kg = cotizacion.peso_liquidado;
-        this.total_flete = cotizacion.flete_total;
-        this.sobreflete = cotizacion.flete_fijo;
+        this.total_flete = cotizacion.flete_fijo;
+        this.sobreflete = this.convencional ? 0 : Math.max(this.valor * 0.0265, 4300);
         this.seguroMercancia = cotizacion.flete_variable;
         this.tiempo = cotizacion.dias_entrega;
     }

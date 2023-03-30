@@ -119,9 +119,7 @@ export default class SetHistorial {
     set filtrador(filt) {
         this._filtrador = filt;
         filtrador.change(filt);
-    }
-
-    
+    }  
 
     add(guia) {
         const filtro = defineFilter(guia) === this.filtrador;

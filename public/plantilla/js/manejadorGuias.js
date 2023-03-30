@@ -670,8 +670,8 @@ function crearDocumentos(e, dt, node, config) {
                 prueba: estado_prueba,
                 id_doc: docRef.id
             })
-        }else if(generacion_automatizada) {
-            if(transportadora === "INTERRAPIDISIMO" || transportadora === "ENVIA") {
+        } else if (generacion_automatizada) {
+            if(["INTERRAPIDISIMO", "ENVIA", "COORDINADORA"].includes(transportadora)) {
               // Con esta transportadora no creamos manifiestos de esta forma,
               //ya que el usuario los crea por su cuenta  
                 await actualizarEstadoGuiasDocCreado(arrGuias);
@@ -771,7 +771,6 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
 }
 
 async function actualizarEstadoGuiasDocCreado(arrGuias) {
-    
 
     for await (let guia of arrGuias) {
         usuarioAltDoc(guia.id_user)
@@ -1751,10 +1750,10 @@ function descargarManifiesto(doc) {
     } else if(doc.data().base64Manifiesto) {
         let base64 = doc.data().base64Manifiesto;
         openPdfFromBase64(base64);
-    } else if (["INTERRAPIDISIMO", "ENVIA"].includes(doc.data().transportadora)) {
+    } else if (["INTERRAPIDISIMO", "ENVIA", "COORDINADORA"].includes(doc.data().transportadora)) {
         Swal.fire({
             icon: "info",
-            text: "Para descargar los manifiestos de inter rapidísimo o envía, debe ingresar a \"Manifiestos\", buscar filtrando por fecha, seleccionar la transportadora y las guías que desea gestionar para crearlo."
+            text: "Para descargar los manifiestos de inter rapidísimo, coordinadora o envía, debe ingresar a \"Manifiestos\", buscar filtrando por fecha, seleccionar la transportadora y las guías que desea gestionar para crearlo."
         });
     } else if (doc.data().nro_manifiesto) {
         const idEmpresa = doc.data().idEmpresa || 0;
@@ -3107,6 +3106,8 @@ async function generarRotulo(id_guias) {
             src_logo_transp = "img/2001.png";
         } else if (data.transportadora === "TCC") {
             src_logo_transp = "img/logo-tcc.png";
+        } else if (data.transportadora === "COORDINADORA") {
+            src_logo_transp = "img/logo-coord.png";
         }
 
         const celularD = data.celularD != data.telefonoD ? data.celularD +" - "+ data.telefonoD : data.telefonoD;
