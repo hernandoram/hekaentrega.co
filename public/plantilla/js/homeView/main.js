@@ -1,5 +1,5 @@
 
-import "https://unpkg.com/swiper@7/swiper-bundle.min.js";
+// import "https://unpkg.com/swiper@7/swiper-bundle.min.js";
 import CreateModal from "../utils/modal.js";
 const inicio = () => CarrucelVideos();
 
@@ -69,6 +69,8 @@ const datosModal = (video, link, titulo, descripcion) => {
       <iframe class="videoYoutube w-100" src=${link} title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
     `;
+
+    modal.onSubmit = () => modal.close();
   })
 }
 
@@ -93,5 +95,7 @@ function modalInicial() {
     <p>✅ Se realizaría devolución solamente si se autoriza o si tarda más de 15 días el paquete sin solucionar.</p>
     <p>✅ Métodos de pago como: Nequi, Bancolombia, Daviplata, Davivienda.</p>
   `;
+
+  m.onSubmit = () => m.close();
 }
 export default inicio;

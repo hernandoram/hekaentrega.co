@@ -5,7 +5,7 @@ export default class CreateModal {
         this.btnContinueText = opts.btnContinueText;
         this.btnCloseText = opts.btnCloseText;
         this.modalSize = opts.modalSize;
-        this.id = opts.id || "modal-creado"
+        this.id = opts.id || "modal-creado";
     }
 
     set init(body = "") {
