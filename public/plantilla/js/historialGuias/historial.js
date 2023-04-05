@@ -649,7 +649,7 @@ function accionesDeFila(datos, type, row) {
         </button>`;
         
         //Bottón para re crear el sticker de guía.
-        if(datos.numeroGuia && !datos.has_sticker && generacion_automatizada) {
+        if((datos.numeroGuia && !datos.has_sticker && generacion_automatizada) || estado_prueba) {
             buttons += btnCrearSticker;
         }
 

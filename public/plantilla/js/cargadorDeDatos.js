@@ -433,7 +433,9 @@ function descargarInformeUsuariosAdm(e) {
     "datos_personalizados.sistema_servientrega": "Sistema servi",
     "datos_personalizados.sistema_envia": "Sistema envia",
     "datos_personalizados.sistema_tcc": "Sistema tcc",
-    "bodega_principal.direccion_completa": "Dirección"
+    "bodega_principal.direccion": "Dirección",
+    "bodega_principal.ciudad": "Ciudad",
+    "bodega_principal.departamento": "Departamento"
   }
 
   const normalizeObject = (campo, obj) => {
@@ -447,6 +449,12 @@ function descargarInformeUsuariosAdm(e) {
     obj.bodega_principal = {};
     if(obj.bodegas && obj.bodegas.length) {
       obj.bodega_principal = obj.bodegas[0];
+      const bdg = obj.bodega_principal;
+      bdg.direccion = `${bdg.direccion.split()}, ${bdg.barrio}`;
+      console.log
+      const cdep = bdg.ciudad.slice(0, -1).split("(");
+      bdg.ciudad = cdep[0];
+      bdg.departamento = cdep[1];
     }
 
     for(let campo in datosDescarga) {
@@ -474,7 +482,7 @@ function descargarInformeUsuariosAdm(e) {
   const loader = new ChangeElementContenWhileLoading(e.target);
   loader.init();
 
-  db.collection("usuarios")
+  db.collection("usuarios").limit(10)
   .get().then(querySnapshot => {
     const data = [];
     querySnapshot.forEach(doc => {
