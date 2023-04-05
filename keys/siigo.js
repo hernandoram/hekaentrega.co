@@ -6,7 +6,7 @@ const credencialesPrueba = {
     identificacion: 13832081,
     id_vendedor: 629,
     id_tipo_pago: 5636,
-    idAutoRetencion: 27481
+    idAutoRetencion: 27481 // Autorretencion 0.8%
 };
 
 const credenciales = {
@@ -17,7 +17,7 @@ const credenciales = {
     identificacion: 1072497419,
     id_vendedor: 596,
     id_tipo_pago: 5340, // tarjeta débido,
-    idAutoRetencion: 27481
+    idAutoRetencion: 27657 // Autorretencion 1.10%
 }
 
 // module.exports = credencialesPrueba;
