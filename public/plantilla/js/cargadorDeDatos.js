@@ -11,6 +11,7 @@ if(localStorage.getItem("acceso_admin")){
     usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
     cargarDatosUsuario().then(() => {
       revisarNotificaciones();
+      cargarPagoSolicitado();
     });
   }
 } else {
@@ -128,6 +129,14 @@ async function cargarDatosUsuario(){
 
   contentCharger.hide();
   content.show("fast");  
+}
+
+async function cargarPagoSolicitado() {
+  const ref = db.collection("infoHeka").doc("manejoUsuarios");
+  const data = await ref.get().then(d => d.data().diarioSolicitado);
+  const centro_de_costo = datos_usuario.centro_de_costo;
+  const soliciado = data.includes(centro_de_costo);
+  $("#saldo-solicitado").text(soliciado ? "Pago solicitado ✅" : "Pago aún no solicitado ❌");
 }
 
 async function listarNovedadesServientrega() {
@@ -424,6 +433,7 @@ function descargarInformeUsuariosAdm(e) {
     "datos_personalizados.sistema_servientrega": "Sistema servi",
     "datos_personalizados.sistema_envia": "Sistema envia",
     "datos_personalizados.sistema_tcc": "Sistema tcc",
+    "bodega_principal.direccion_completa": "Dirección"
   }
 
   const normalizeObject = (campo, obj) => {
@@ -433,13 +443,21 @@ function descargarInformeUsuariosAdm(e) {
 
   const transformDatos = (obj) => {
     const res = {};
+
+    obj.bodega_principal = {};
+    if(obj.bodegas && obj.bodegas.length) {
+      obj.bodega_principal = obj.bodegas[0];
+    }
+
     for(let campo in datosDescarga) {
       const resumen = campo.split(".")
       if(resumen.length > 1) {
         let resultante = obj;
+          
         resumen.forEach(r => {
           resultante = normalizeObject(r, resultante)
         });
+
         res[datosDescarga[campo]] = resultante
 
       } else {
@@ -461,7 +479,8 @@ function descargarInformeUsuariosAdm(e) {
     const data = [];
     querySnapshot.forEach(doc => {
       data.push(transformDatos(doc.data()));
-    })
+    });
+
     crearExcel(data, "informe Usuarios");
     loader.end();
   })
@@ -1276,7 +1295,7 @@ async function solicitarPagosPendientesUs() {
   const ref = db.collection("infoHeka").doc("manejoUsuarios");
   const data = await ref.get().then(d => d.data());
 
-  const transportadoras = ["servientrega", "interrapidisimo", "envía", "tcc"];
+  const transportadoras = ["servientrega", "interrapidisimo", "envía", "tcc", "coordinadora"];
   const verPago = t => db.collection("pagos").doc(t)
   .collection("pagos").where("REMITENTE", "==", datos_usuario.centro_de_costo)
   .limit(1)
