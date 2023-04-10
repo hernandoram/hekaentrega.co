@@ -426,7 +426,7 @@ function activarBotonesDeGuias(id, data, activate_once){
         let when = actv.getAttribute("data-activate");
         let operador = when != "after" ? revisar != "true" : revisar == "true";
 
-        if(operador){
+        if(operador || estado_prueba){
           actv.removeAttribute("disabled");
         } else {
           actv.setAttribute("disabled", "true")

@@ -1,3 +1,4 @@
+<!--CREADOR-->
 <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
 xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
@@ -34,7 +35,7 @@ xmlns:soap-enc="http://ñschemas.xmlsoap.org/soap/encoding/">
             <estado xsi:type="xsd:string">IMPRESO</estado>
             <detalle SOAP-ENC:arrayType="ns1:Agw_typeGuiaDetalle[1]" xsi:type="ns1:ArrayOfAgw_typeGuiaDetalle">
                 <item xsi:type="ns1:Agw_typeGuiaDetalle">
-                    <ubl xsi:type="xsd:int">{ubl}</ubl>
+                    <ubl xsi:type="xsd:int">0</ubl>
                     <alto xsi:type="xsd:float">{alto}</alto>
                     <ancho xsi:type="xsd:float">{ancho}</ancho>
                     <largo xsi:type="xsd:float">{largo}</largo>
@@ -53,7 +54,7 @@ xmlns:soap-enc="http://ñschemas.xmlsoap.org/soap/encoding/">
                     <valor>{valor}</valor>
                     <valor_base_iva />
                     <valor_iva />
-                    <forma_pago>1</forma_pago>
+                    <forma_pago>{forma_pago}</forma_pago>
                 </item>
             </recaudos>
             <margen_izquierdo xsi:type="xsd:float" />
@@ -64,16 +65,10 @@ xmlns:soap-enc="http://ñschemas.xmlsoap.org/soap/encoding/">
             <atributo1_valor xsi:type="xsd:string" />
             <notificaciones xsi:type="ser:ArrayOfAgw_typeNotificaciones"
                 soapenc:arrayType="ser:Agw_typeNotificaciones[]" />
-            <atributos_retorno xsi:type="ser:Agw_typeAtributosRetorno">
-                <nit xsi:type="xsd:string">{nit}</nit>
-                <div xsi:type="xsd:string">{div}</div>
-                <nombre xsi:type="xsd:string">{nombreR}</nombre>
-                <direccion xsi:type="xsd:string">{direccionR}</direccion>
-                <codigo_ciudad xsi:type="xsd:string">{dane_ciudadR}</codigo_ciudad>
-                <telefono xsi:type="xsd:string">{celularR}</telefono>
-            </atributos_retorno>
-            <nro_doc_radicados xsi:type="xsd:string">1</nro_doc_radicados>
-            <nro_sobre xsi:type="xsd:string">1</nro_sobre>
+            <atributos_retorno xsi:type="ser:Agw_typeAtributosRetorno" />
+            
+            <nro_doc_radicados xsi:type="xsd:string" />
+            <nro_sobre xsi:type="xsd:string" />
             <codigo_vendedor xsi:type="xsd:int" />
             <usuario xsi:type="xsd:string">{usuario}</usuario>
             <clave xsi:type="xsd:string">{clave}</clave>
@@ -83,3 +78,15 @@ xmlns:soap-enc="http://ñschemas.xmlsoap.org/soap/encoding/">
       </ser:Guias_generarGuia>
    </soapenv:Body>
 </soapenv:Envelope>
+<!--#END CREADOR-->
+
+<!--Attr_retorno-->
+<atributos_retorno xsi:type="ser:Agw_typeAtributosRetorno">
+    <nit xsi:type="xsd:string">{nit}</nit>
+    <div xsi:type="xsd:string">{div}</div>
+    <nombre xsi:type="xsd:string">{nombreR}</nombre>
+    <direccion xsi:type="xsd:string">{direccionR}</direccion>
+    <codigo_ciudad xsi:type="xsd:string">{dane_ciudadR}</codigo_ciudad>
+    <telefono xsi:type="xsd:string">{celularR}</telefono>
+</atributos_retorno>
+<!--#END Attr_retorno-->

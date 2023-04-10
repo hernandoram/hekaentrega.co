@@ -32,7 +32,7 @@ exports.cotizar = async (req, res) => {
         clave: v15.clave,
         unidades: 1,
         ubl: 0,
-        cuenta: type === "CONVENCIONAL" ? 1 : 3 // Codigo de la cuenta, 1 = Cuenta Corriente, 2 = Acuerdo semanal, 3 = Flete Pago
+        cuenta: 2 // Codigo de la cuenta, 1 = Cuenta Corriente, 2 = Acuerdo semanal, 3 = Flete Pago
     }, body)
 
     const itemXml = maquetador.maqueta("ITEMS").fill(peticion);
@@ -88,7 +88,14 @@ exports.crearGuia = async (req, res) => {
     const maquetador = new MaquetadorXML("./estructura/crearGuia.cord.xml");
     const datos_destinatario = transformarDatosDestinatario(guia);
 
-    console.log(guia);
+    const esConvencional = guia.type === "CONVENCIONAL";
+    if(esConvencional) {
+        guia.referencia = undefined;
+        guia.valor = undefined;
+    } else {
+        guia.forma_pago = 1;
+    }
+
     const {v16, nit, div} = credentials;
     const peticion = Object.assign({
         nit: nit,
@@ -96,11 +103,14 @@ exports.crearGuia = async (req, res) => {
         usuario: v16.usuario,
         clave: v16.clave,
         id_cliente: v16.id_cliente,
-        codigo_cuenta: guia.type === "CONVENCIONAL" ? 1 : 3 // Codigo de la cuenta, 1 = Cuenta Corriente, 2 = Acuerdo semanal, 3 = Flete Pago
+        codigo_cuenta: 2 // Codigo de la cuenta, 1 = Cuenta Corriente, 2 = Acuerdo semanal (siempre), 3 = Flete Pago
     }, guia, datos_destinatario);
 
-    const structure = maquetador.fill(peticion);
+    const structure = maquetador
+    .maqueta("CREADOR")
+    .fill(peticion);
 
+    console.log(structure);
     try {
         const response = await fetch(v16.endpoint, {
             method: "POST",

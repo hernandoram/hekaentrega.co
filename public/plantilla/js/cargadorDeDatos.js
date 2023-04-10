@@ -482,7 +482,7 @@ function descargarInformeUsuariosAdm(e) {
   const loader = new ChangeElementContenWhileLoading(e.target);
   loader.init();
 
-  db.collection("usuarios").limit(10)
+  db.collection("usuarios")
   .get().then(querySnapshot => {
     const data = [];
     querySnapshot.forEach(doc => {
