@@ -24,9 +24,9 @@ export const campoFormulario = (campo, i) => (`
         data-action="select-tipo"
         data-index="${i}"
         id="tipo-mensajeria-${i}" value="${campo.tipo || ""}" name="tipo">
-            <option value="input">Texto</option>
-            <option value="select">Selección</option>
-            <option value="textarea">Descriptivo</option>
+            <option value="input" ${campo.tipo === "input" ? "selected" : ""}>Texto</option>
+            <option value="select" ${campo.tipo === "select" ? "selected" : ""}>Selección</option>
+            <option value="textarea" ${campo.tipo === "textarea" ? "selected" : ""}>Descriptivo</option>
         </select>
     </div>
 
@@ -74,11 +74,11 @@ export const obtenerCampoRenderFormulario = (campo, i) => {
 
         case "select": 
             return (`
-                <div class="form-group col-md-3 ${campo.dependiente ? 'd-none' : ''}">
+                <div class="form-group ${campo.dependiente ? 'd-none' : ''}">
                     <label for="${campo.nombre}-mensajeria">${campo.etiqueta}</label>
                     <select class="custom-select"
                     id="${campo.nombre}-mensajeria" name="${campo.nombre}">
-                        ${opciones.map(op => `<option value="${op}">${op}</option>`).join("")}
+                        ${["<option value>-- Seleccione --</option>"].concat(opciones.map(op => `<option value="${op}">${op}</option>`)).join("")}
                     </select>
                 </div>
             `);

@@ -11,6 +11,8 @@ const tituloPorNovedad = {
     REUSADO: "Nuevo intento."
 }
 
+const referenciaNovedades = db.collection("infoHeka").doc("novedadesMensajeria");
+
 function cargarMensajeAleatorio() {
     const titulos = ["DIRECCION", "REUSADO"];
     const seleccionado = titulos[Math.floor((Math.random() * titulos.length))];
@@ -22,15 +24,20 @@ exports.consultarGuia = async (req, res) => {
     const {n} = req.query;
 
     try {
-        // if(!process.env.DEVELOPMENT)
-        // await actualizarMovimientosPorComparador("numeroGuia", "==", n);
+        if(!process.env.DEVELOPMENT)
+            await actualizarMovimientosPorComparador("numeroGuia", "==", n);
         // console.log("REPORTE", reporte);
+
+        const {lista, formularios} = await referenciaNovedades.get().then(d => {
+            if(d.exists) return d.data();
     
+            return {};
+        });
+
         const docMovimiento = await buscarGuia(n, _collEstadoGuia);
     
         if(!docMovimiento) return res.send("GUIA NO ENCONTRADA");
         let movimientosEncontrado = docMovimiento.data();
-        console.log("MOVIMIENTO =>", movimientosEncontrado);
     
         const tradMov = traducirMovimientoGuia(movimientosEncontrado.transportadora);
     
@@ -45,10 +52,17 @@ exports.consultarGuia = async (req, res) => {
     
         const {novedad} = guiaEnNovedad(movimientosEncontrado.movimientos, movimientosEncontrado.transportadora);
         const novedadActual = novedad ? traduccion(novedad) : {};
-        const {tipo, titulo} = cargarMensajeAleatorio();
-        novedadActual.tituloRespuesta = titulo;
-        novedadActual.tipo_solucion = tipo;
-        console.log(novedadActual);
+        
+        let formularioNovedad;
+        if(novedad) {
+            const msjNovedad = novedadActual.novedad;
+            const novedadLista = lista.find(l => l.novedad === msjNovedad);
+
+            console.log(novedadActual, novedadLista);
+            if(novedadLista && novedadLista.formulario)
+                formularioNovedad = formularios[novedadLista.formulario];
+        }
+        
     
         const guia = {
             movimientos: traducirMovimientos,
@@ -56,7 +70,9 @@ exports.consultarGuia = async (req, res) => {
             numeroGuia: movimientosEncontrado.numeroGuia,
             fechaEnvio: movimientosEncontrado.fechaEnvio,
             enNovedad: movimientosEncontrado.enNovedad,
-            novedadActual
+            novedadActual,
+            formularioNovedad,
+            formularioStr: JSON.stringify(formularioNovedad)
         }
     
         // res.json(movimientosEncontrado);

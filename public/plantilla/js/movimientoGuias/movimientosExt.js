@@ -1,8 +1,13 @@
+import { mostrarRenderFormNovedades, obtenerDescripcion } from "./renderForm.js";
+
 const numeroGuia = new URLSearchParams(location.search).get("n");
 
 const seleccionRespSimple = $("#respuesta-simple");
 const campoDireccion = $("#dirrecion");
 const campoDetalles = $("#observaciones");
+const idVistaRender = "#render_form-mensajeria";
+const elFormulario = $(idVistaRender);
+
 
 $(".form-sol").on("submit", enviarSolucion);
 seleccionRespSimple.on("change", seleccionarSolSimple);
@@ -27,9 +32,9 @@ async function enviarSolucion(e) {
         if(!resp.isConfirmed) return;
     }
 
-    console.log(respuestasimple);
+    form.append("gestion", obtenerDescripcion());
 
-    // return;
+    console.log(form.get("gestion"));
 
     fetch("plantearSolucion", {
         method: "POST",
@@ -56,4 +61,12 @@ function seleccionarSolSimple(e) {
         default:
         break;
     }
+}
+
+renderizar();
+function renderizar() {
+    const form = elFormulario.attr("data-formulario");
+    const formulario = JSON.parse(form);
+
+    mostrarRenderFormNovedades(idVistaRender, formulario);
 }

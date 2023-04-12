@@ -1490,17 +1490,18 @@
             </div>
 
             <div class="card my-3">
-              <form class="card-body" id="visor_form-mensajeria">
+              <div class="card-body" id="visor_form-mensajeria">
                 <h3 class="card-title">
                   Formulario
                   <small>
                     <i class="fa fa-edit text-primary mx-2 d-none" style="cursor: pointer" data-action="editar-form"></i>
                     <i class="fa fa-plus text-primary mx-2 d-none" style="cursor: pointer" data-action="agregar-campo"></i>
                     <i class="fa fa-check text-success mx-2 d-none" style="cursor: pointer" data-action="guardar-form"></i>
+                    <i class="fa fa-eye text-primary mx-2 d-none" style="cursor: pointer" data-action="ver-form"></i>
                   </small>
                 </h3>
 
-                <div id="editor_form-mensajeria">
+                <form id="editor_form-mensajeria">
                   <div class="form-group">
                     <label for="titulo-mensajeria">Titulo</label>
                     <input type="text" class="form-control" id="titulo-mensajeria" name="titulo">
@@ -1512,12 +1513,12 @@
                     <label for="descripcion-mensajeria">Respuesta construida</label>
                     <textarea class="form-control" id="descripcion-mensajeria" name="descripcion"></textarea>
                   </div>
-                </div>
+                </form>
 
-                <div id="render_form-mensajeria">
+                <form id="render_form-mensajeria">
                   
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
           </div>
   

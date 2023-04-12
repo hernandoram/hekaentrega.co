@@ -1351,7 +1351,23 @@ function descargarExcelInter(JSONData, ReportTitle, type) {
     
     //un arreglo cuyo cada elemento contiene un arreglo: ["titulo de la columna", "la información a inrertar en dicha columna"]
     //Está ordenado, como saldrá en el excel
-    let encabezado = [["NUMERO GUIA", ""], ["ID DESTINATARIO", "_idDestinatario"], ["NOMBRE DESTINATARIO", "_nombreD"], ["APELLIDO1 DESTINATARIO", "_apellidoD"], ["APELLIDO2 DESTINATARIO", ""], ["TELEFONO DESTINATARIO", "telefonoD"],	["DIRECCION DESTINATARIO", "direccionD"], ["CODIGO CIUDAD DESTINO", "dane_ciudadD"], ["CIUDAD DESTINO", "_ciudad"], ["DICE CONTENER", "dice_contener"], ["OBSERVACIONES", "id_heka"],	["BOLSA DE SEGURIDAD", ""], ["PESO", "peso"], ["VALOR COMERCIAL", "valor"], ["NO PEDIDO", ""], ["DIRECCION AGENCIA DESTINO", ""]]
+    let encabezadoAntiguo = [["NUMERO GUIA", ""], ["ID DESTINATARIO", "_idDestinatario"], ["NOMBRE DESTINATARIO", "_nombreD"], ["APELLIDO1 DESTINATARIO", "_apellidoD"], ["APELLIDO2 DESTINATARIO", ""], ["TELEFONO DESTINATARIO", "telefonoD"],	["DIRECCION DESTINATARIO", "direccionD"], ["CODIGO CIUDAD DESTINO", "dane_ciudadD"], ["CIUDAD DESTINO", "_ciudad"], ["DICE CONTENER", "dice_contener"], ["OBSERVACIONES", "id_heka"],	["BOLSA DE SEGURIDAD", ""], ["PESO", "peso"], ["VALOR COMERCIAL", "valor"], ["NO PEDIDO", ""], ["DIRECCION AGENCIA DESTINO", ""]]
+    let encabezado = [
+        ["ID DESTINATARIO", "_idDestinatario"], 
+        ["NOMBRE DESTINATARIO", "_nombreD"], 
+        ["APELLIDO1 DESTINATARIO", "_apellidoD"], 
+        ["APELLIDO2 DESTINATARIO", ""], 
+        ["TELEFONO DESTINATARIO", "telefonoD"], 
+        ["TELEFONO DESTINATARIO 2", "telefonoD"], 
+        ["DIRECCION DESTINATARIO", "direccionD"], 
+        ["CODIGO CIUDAD DESTINO", "dane_ciudadD"], 
+        ["CIUDAD DESTINO", "_ciudad"], 
+        ["DICE CONTENER", "dice_contener"], 
+        ["OBSERVACIONES", "id_heka"],
+        ["BOLSA DE SEGURIDAD", ""], 
+        ["PESO", "peso"], 
+        ["VALOR COMERCIAL", "valor"]
+    ];
 
     let newDoc = arrData.map((dat, i) => {
         let d = new Object();

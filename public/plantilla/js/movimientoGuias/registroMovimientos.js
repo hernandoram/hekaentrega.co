@@ -7,9 +7,11 @@ const selListMovimientos = $("#list_novedades-mensajeria");
 const selListFormularios = $("#formulario-mensajeria");
 const visorMensajeria = $("#visor-mensajeria");
 const formRegistro = $("form", visorMensajeria);
-const formFormularios = $("#visor_form-mensajeria");
+const formFormularios = $("#editor_form-mensajeria");
 const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
 const opcionesMovimientos = $("#mensajeria [data-action]");
+const idVistaRender = "#render_form-mensajeria";
+const idVistaContructorForm = "#editor_form-mensajeria";
 
 const camposForm = $("#campos_form-mensajeria");
 
@@ -72,6 +74,8 @@ function seleccionarNovedad(e) {
     });
 
     action("editar").removeClass("d-none");
+
+    selListFormularios.val(elemento.formulario);
     selListFormularios.change();
 }
 
@@ -94,6 +98,9 @@ function manejarOpcion(e) {
         break;
         case "guardar-form":
             guardarForm(e);
+        break;
+        case "ver-form":
+            activarEdicionFormulario(e);
         break;
     }
 
@@ -157,7 +164,7 @@ let modoEdicionForm = false;
 function seleccionarFormulario(e) {
     const val = e.target.value;
     const els = () => $("[name]", formFormularios);
-    const acciones = ["editar-form", "agregar-campo", "guardar-form"];
+    const acciones = ["editar-form", "agregar-campo", "guardar-form", "ver-form"];
     hideActions(acciones);
     listaCampos.splice(0, listaCampos.length);
 
@@ -166,6 +173,9 @@ function seleccionarFormulario(e) {
         showActions(acciones.slice(-2));
         els().attr("disabled", false);
         formFormularios[0].reset();
+        $(idVistaContructorForm).show("fast");
+        $(idVistaRender).hide();
+        $(idVistaRender).html("");
         agregarCampo();
         modoEdicionForm = true;
         return;
@@ -185,11 +195,14 @@ function seleccionarFormulario(e) {
     });
 
     action("editar-form").removeClass("d-none");
+    $(idVistaContructorForm).hide("fast");
+    $(idVistaRender).show();
+
     renderizarCampos();
     els().attr("disabled", true);
     modoEdicionForm = false;
 
-    mostrarRenderFormNovedades("#render_form-mensajeria", elemento, {
+    mostrarRenderFormNovedades(idVistaRender, elemento, {
         integracionVisual: true
     });
 }
@@ -200,7 +213,19 @@ function activarEdicionFormulario() {
     el.attr("disabled", !attr);
     modoEdicionForm = !modoEdicionForm;
 
-    attr ? showActions(["agregar-campo", "guardar-form"]) : hideActions(["agregar-campo", "guardar-form"]);
+    if(attr) {
+        // CUANDO VOY A EDITAR
+        showActions(["agregar-campo", "guardar-form", "ver-form"]) 
+        hideActions(["editar-form"]);
+        $(idVistaContructorForm).show();
+        $(idVistaRender).hide("fast");
+    } else {
+        // CUANDO VOY A MIRAR EL FORMULARIO CREADO
+        $(idVistaContructorForm).hide("fast");
+        $(idVistaRender).show();
+        hideActions(["agregar-campo", "guardar-form", "ver-form"]);
+        showActions(["editar-form"]);
+    }
 
     selListMovimientos.attr("disabled", false);
 }
@@ -288,6 +313,5 @@ function selectTipoCampo(e) {
 
 
 }
-
 
 // #endregion
