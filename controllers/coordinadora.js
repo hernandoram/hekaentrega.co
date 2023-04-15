@@ -134,11 +134,7 @@ exports.crearGuia = async (req, res) => {
     
         if(responseJson) {
             responseJson = responseJson.return;
-            const base64 = responseJson.pdf_guia;
-            // if(!base64.startsWith("JVBERi0xLjQKJ")) return res.json([]);
-
-            const base64Segmented = segmentarString(base64, 500000);
-            responseJson.base64GuiaSegmentada = base64Segmented;
+            
         } else {
             responseJson = await conv(resError);
             if(responseJson) {
@@ -147,7 +143,6 @@ exports.crearGuia = async (req, res) => {
             }
         }
     
-        console.log(response, responseJson);
     
         res.send(responseJson || {
             error: true,
@@ -200,11 +195,12 @@ exports.crearStickerGuia = async (req, res) => {
     
         if(responseJson) {
             responseJson = responseJson[valorRetorno];
-            const base64 = responseJson.pdf;
+            const base64 = responseJson.rotulos;
             // if(!base64.startsWith("JVBERi0xLjQKJ")) return res.json([]);
 
             const base64Segmented = segmentarString(base64, 500000);
             responseJson.base64GuiaSegmentada = base64Segmented;
+            responseJson.error = false;
         } else {
             responseJson = await conv(resError);
             if(responseJson) {

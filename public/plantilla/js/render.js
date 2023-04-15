@@ -633,7 +633,8 @@ function crearStickerParticular() {
                     actualizarHistorialDeDocumentos();
                 });
 
-            } catch {
+            } catch (e){
+                console.log(e);
                 Toast.fire({
                     icon: "error",
                     text: "Lo siento, hubo un error para guardar el sticker"

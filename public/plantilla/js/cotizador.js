@@ -3190,11 +3190,9 @@ async function generarGuiaCoordinadora(datos) {
         id_heka: datos.id_heka,
         has_sticker: false,
     }
-    
-    const referenciaSegmentar = firebase.firestore().collection("base64StickerGuias")
-    .doc(datos.id_heka).collection("guiaSegmentada");
 
-    res.has_sticker = await guardarDocumentoSegmentado(response.base64GuiaSegmentada, referenciaSegmentar);
+    res.has_sticker = await guardarStickerGuiaCoordinadora(res);
+
     return res
 };
 
@@ -3208,10 +3206,11 @@ async function guardarStickerGuiaCoordinadora({numeroGuia, id_heka}) {
         body: JSON.stringify({numeroGuia})
     })
     .then(data => data.json())
-    .catch(error => console.log("Hubo un error al consultar el base64 de coordinadora => ", error));
+    .catch(error => console.log("Hubo un error al consultar el documento de coordinadora => ", error));
 
     if(response.error) return false;
 
+    console.log(response);
     const base64GuiaSegmentada = response.base64GuiaSegmentada;
     const referenciaSegmentar = firebase.firestore().collection("base64StickerGuias")
     .doc(id_heka).collection("guiaSegmentada");
@@ -3220,6 +3219,7 @@ async function guardarStickerGuiaCoordinadora({numeroGuia, id_heka}) {
 
 // esta función me toma un arreglo de strings, junto con la refenrecia de FB, y lo guarda en una collectio indexada
 async function guardarDocumentoSegmentado(base64Segmentada, referencia) {
+    console.log(base64Segmentada);
     if(typeof base64Segmentada !== "object") return false;
 
     if(!base64Segmentada.length) return false;
