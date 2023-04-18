@@ -1,7 +1,7 @@
 const firebase = require("../keys/firebase");
 const db = firebase.firestore();
 const {traducirMovimientoGuia, guiaEnNovedad} = require("../extends/manejadorMovimientosGuia");
-// const {actualizarMovimientosPorComparador} = require("./seguimientos");
+const {actualizarMovimientosPorComparador} = require("./seguimientos");
 
 const _collEstadoGuia = "estadoGuias";
 const _collGuia = "guias";
