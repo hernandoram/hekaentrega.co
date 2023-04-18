@@ -13,7 +13,7 @@ export async function cargarOficinas(e) {
         ref = ref.where("numero_documento", "==", valDoc)
     }
 
-    const listaOficinas = await ref.get().then(q => q.docs.map(d => {
+    const listaOficinas = await ref.limit(2).get().then(q => q.docs.map(d => {
         const data = d.data();
         data.id = d.id;
 

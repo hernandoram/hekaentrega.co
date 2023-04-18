@@ -9,7 +9,7 @@ class Oficinas {
 
     render() {
         this.oficinas.forEach(ofi => {
-            const oficina = mostrarUsuarios(ofi, ofi.id);
+            const oficina = mostrarOficinas(ofi, ofi.id);
             mostrario.append(oficina);
         });
     }
