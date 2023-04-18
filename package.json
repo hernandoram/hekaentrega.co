@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "watch": "cross-env DEVELOPMENT=true nodemon index.js",
-    "start": "cross-env DEVELOPMENT=true node index.js",
+    "start": "cross-env DEVELOPMENT=true node index.js --open",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
