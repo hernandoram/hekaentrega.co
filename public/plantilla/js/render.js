@@ -226,6 +226,7 @@ function mostrarOficinas(data, id){
         });
     }
 
+    
     return `<div class="col-md-4 mb-4" 
     data-filter-nombres="${data.nombres}" data-filter-apellidos="${data.apellidos}"
     data-filter-centro_de_costo="${data.centro_de_costo}" ${bodegasFilter} data-filter-celular="${data.celular + "-" +data.celular2}">
@@ -248,7 +249,7 @@ function mostrarOficinas(data, id){
             </div>
             <div class="btn-group" role="group" data-buscador="${id}" 
             data-nombre="${data.nombres.split(" ")[0]} ${data.apellidos.split(" ")[0]}">
-                <button class="btn btn-primary" data-funcion="ver-eliminar" value="">Ver Usuario</button>
+                <button class="btn btn-primary" onclick="mostrarID('${data.id}')" data-funcion="ver-eliminar" value="">Ver Usuario</button>
                 <button class="btn btn-info" data-funcion="movimientos" value="">Ver Movimientos</button>
             </div>
             <div class="custom-control custom-switch text-center mt-1">

@@ -393,6 +393,10 @@ async function verificarExistencia(administracion){
     })
 }
 
+function mostrarID(id){
+    console.log(id)
+}
+
 
 //esta funcion utilizara a otra para retornarme informacion basica del usuario
 async function buscarUsuarios(){
