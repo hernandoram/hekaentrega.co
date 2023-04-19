@@ -585,7 +585,7 @@ async function detallesTransportadoras(data) {
     result.after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
     const isIndex = document.getElementById("cotizar_envio").getAttribute("data-index");
 
-    if(!isIndex && data.type === PAGO_CONTRAENTREGA && data.peso <= 5) {
+    if(!isIndex && data.type === PAGO_CONTRAENTREGA && data.peso <= 5 && false) {
         oficinas = await detallesOficinas(data.ciudadD);
         cargarPreciosTransportadorasOficinas(data);
     }
