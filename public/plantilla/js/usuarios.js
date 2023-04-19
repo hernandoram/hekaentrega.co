@@ -395,6 +395,7 @@ async function verificarExistencia(administracion){
 
 function mostrarOficina(id){
     const mostrador= document.getElementById('mostrador-oficinas'); 
+    const oficina= document.getElementById('oficina-seleccionada'); 
 
 
     console.log(id);
@@ -403,7 +404,8 @@ function mostrarOficina(id){
         if (doc.exists) {
             const data = doc.data();
            console.log(data)
-           mostrador.style.display= 'none';     
+           mostrador.classList.add("d-none");    
+           oficina.classList.remove("d-none");
            
            //aquí hay que hacer la vuelta de los datos
 
