@@ -394,8 +394,25 @@ async function verificarExistencia(administracion){
 }
 
 function mostrarID(id){
-    console.log(id)
+    console.log(id);
+
+
+    firebase.firestore().collection("oficinas").doc(id).get()
+    .then((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+           console.log(data)
+        } else {
+            // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
+            //Hasta que todos los usuario futuramente tengan el doc "heka"
+            // $("#habilitar_servientrega").prop("checked", true);
+            console.log("No such document!");
+        }
+    }).catch((error) => {
+        console.log("Error getting document:", error);
+    });
 }
+
 
 
 //esta funcion utilizara a otra para retornarme informacion basica del usuario
