@@ -397,6 +397,7 @@ function mostrarOficina(id){
     const mostrador= document.getElementById('mostrador-oficinas'); 
     const oficina= document.getElementById('oficina-seleccionada'); 
 
+    const nombreOficina = document.querySelector('#nombre-oficina');
 
     console.log(id);
     firebase.firestore().collection("oficinas").doc(id).get()
@@ -406,9 +407,8 @@ function mostrarOficina(id){
            console.log(data)
            mostrador.classList.add("d-none");    
            oficina.classList.remove("d-none");
-           
+            nombreOficina.innerHTML= data.nombres.split(" ")[0] + " " + data.apellidos.split(" ")[0];
            //aquí hay que hacer la vuelta de los datos
-
 
         } else {
             // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario

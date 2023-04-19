@@ -249,7 +249,7 @@ function mostrarOficinas(data, id){
             </div>
             <div class="btn-group" role="group" data-buscador="${id}" 
             data-nombre="${data.nombres.split(" ")[0]} ${data.apellidos.split(" ")[0]}">
-                <button class="btn btn-primary" onclick="mostrarOficina('${data.id}')" data-funcion="ver-eliminar" value="">Ver Usuario</button>
+                <button class="btn btn-primary" onclick="mostrarOficina('${data.id}')" data-funcion="ver-eliminar" value="">Ver Oficina</button>
                 <button class="btn btn-info" data-funcion="movimientos" value="">Ver Movimientos</button>
             </div>
             <div class="custom-control custom-switch text-center mt-1">
