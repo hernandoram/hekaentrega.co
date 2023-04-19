@@ -393,15 +393,21 @@ async function verificarExistencia(administracion){
     })
 }
 
-function mostrarID(id){
+function mostrarOficina(id){
+    const mostrador= document.getElementById('mostrador-oficinas'); 
+
+
     console.log(id);
-
-
     firebase.firestore().collection("oficinas").doc(id).get()
     .then((doc) => {
         if (doc.exists) {
             const data = doc.data();
            console.log(data)
+           mostrador.style.display= 'none';     
+           
+           //aquí hay que hacer la vuelta de los datos
+
+
         } else {
             // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
             //Hasta que todos los usuario futuramente tengan el doc "heka"
