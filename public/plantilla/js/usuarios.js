@@ -398,6 +398,8 @@ function mostrarOficina(id){
     const oficina= document.getElementById('oficina-seleccionada'); 
 
     const nombreOficina = document.querySelector('#nombre-oficina');
+    const nombresOficina = document.querySelector('#nombres-oficina');
+    const apellidosOficina = document.querySelector('#apellidos-oficina');
 
     console.log(id);
     firebase.firestore().collection("oficinas").doc(id).get()
@@ -408,6 +410,8 @@ function mostrarOficina(id){
            mostrador.classList.add("d-none");    
            oficina.classList.remove("d-none");
             nombreOficina.innerHTML= data.nombres.split(" ")[0] + " " + data.apellidos.split(" ")[0];
+            nombresOficina.value= data.nombres;
+            apellidosOficina.value= data.apellidos;
            //aquí hay que hacer la vuelta de los datos
 
         } else {
