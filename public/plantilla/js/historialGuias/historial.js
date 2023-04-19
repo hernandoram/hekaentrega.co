@@ -19,13 +19,13 @@ const columns = [
     {data: "id_heka", title: "Id", defaultContent: "", types: typesGenerales, saveInExcel: true},
     {data: "numeroGuia", title: "# Guía", defaultContent: "", saveInExcel: true, types: [novedad, proceso, pagada, finalizada, generada, neutro]},
     {data: "estado", title: "Estado", defaultContent: "", saveInExcel: true, types: [novedad, proceso, pagada, finalizada, neutro]},
-    {data: "transportadora", 
+    {data: "mostrar_transp", 
     orderable: false,
     title: "Transportadora", defaultContent: "", types: typesGenerales},
     {data: "type", title: "Tipo",
     orderable: false,
     defaultContent: "", types: typesGenerales},
-    {data: "transportadora", title: "Transportadora", defaultContent: "", saveInExcel: true, types: []},
+    {data: "mostrar_transp", title: "Transportadora", defaultContent: "", saveInExcel: true, types: []},
     {data: "type", title: "Tipo", defaultContent: "", saveInExcel: true, types: []},
     {data: "nombreD", title: "Destinatario", defaultContent: "", types: typesGenerales, saveInExcel: true},
     {
@@ -366,7 +366,7 @@ function agregarFuncionalidadesTablaPedidos() {
     } = getContadorGuiasSeleccionadas();
 
     const findIndex = data => columns.findIndex(d => d.data === data);
-    const colTransp = findIndex("transportadora");
+    const colTransp = findIndex("mostrar_transp");
     const colType = findIndex("type");
 
     filtrador.watch(filt => {

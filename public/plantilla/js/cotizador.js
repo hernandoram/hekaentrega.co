@@ -16,7 +16,7 @@ let transportadoras = {
         limitesLongitud: [1,150],
         limitesRecaudo: [5000, 2000000],
         bloqueada: () => false,
-        bloqueadaOfi: false,
+        bloqueadaOfi: true,
         limitesValorDeclarado: (valor) => {
             return [5000,300000000]
         },
@@ -585,7 +585,7 @@ async function detallesTransportadoras(data) {
     result.after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
     const isIndex = document.getElementById("cotizar_envio").getAttribute("data-index");
 
-    if(!isIndex) {
+    if(!isIndex && data.type === PAGO_CONTRAENTREGA && data.peso <= 5) {
         oficinas = await detallesOficinas(data.ciudadD);
         cargarPreciosTransportadorasOficinas(data);
     }
@@ -1023,7 +1023,7 @@ async function detallesOficinas(destino) {
             data.id_oficina = doc.id;
             if(!data.precios) {
                 data.precios = {
-                    porcentaje_comsion: 10
+                    porcentaje_comsion: 5
                 }
             }
             

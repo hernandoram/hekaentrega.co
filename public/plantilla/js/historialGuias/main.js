@@ -59,6 +59,11 @@ async function consultarHistorialGuias() {
             const data = change.doc.data();
             const id = data.id_heka;
             data.row_id = "historial-guias-row-" + id;
+            
+            data.mostrar_transp = data.oficina 
+            ? data.transportadora + "-Flexii"
+            : data.transportadora;
+
             historial.guiasNeutras.add(id);
 
             if(change.type === "added" || change.type === "modified") {
@@ -91,6 +96,10 @@ async function cargarNovedades() {
 
             const id = data.id_heka;
             data.row_id = "historial-guias-row-" + id;
+
+            data.mostrar_transp = data.oficina 
+            ? data.transportadora + "-Flexii"
+            : data.transportadora
 
             data.deleted ? historial.delete(id) : historial.add(data);
 
