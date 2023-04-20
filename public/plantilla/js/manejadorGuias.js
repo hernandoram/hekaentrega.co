@@ -791,6 +791,8 @@ async function actualizarEstadoGuiasDocCreado(arrGuias) {
                     user_id,
                     office_id: guia.id_oficina,
                     id_heka: guia.id_heka,
+                    numeroGuia: guia.numeroGuia,
+                    transportadora: guia.transportadora,
                     mensaje: "Se ha creado una nueva guía que se dirige a tu oficina.",
                 });
             }
@@ -1353,12 +1355,12 @@ function descargarExcelInter(JSONData, ReportTitle, type) {
     //Está ordenado, como saldrá en el excel
     let encabezadoAntiguo = [["NUMERO GUIA", ""], ["ID DESTINATARIO", "_idDestinatario"], ["NOMBRE DESTINATARIO", "_nombreD"], ["APELLIDO1 DESTINATARIO", "_apellidoD"], ["APELLIDO2 DESTINATARIO", ""], ["TELEFONO DESTINATARIO", "telefonoD"],	["DIRECCION DESTINATARIO", "direccionD"], ["CODIGO CIUDAD DESTINO", "dane_ciudadD"], ["CIUDAD DESTINO", "_ciudad"], ["DICE CONTENER", "dice_contener"], ["OBSERVACIONES", "id_heka"],	["BOLSA DE SEGURIDAD", ""], ["PESO", "peso"], ["VALOR COMERCIAL", "valor"], ["NO PEDIDO", ""], ["DIRECCION AGENCIA DESTINO", ""]]
     let encabezado = [
+        ["NUMERO GUIA", ""],
         ["ID DESTINATARIO", "_idDestinatario"], 
         ["NOMBRE DESTINATARIO", "_nombreD"], 
         ["APELLIDO1 DESTINATARIO", "_apellidoD"], 
         ["APELLIDO2 DESTINATARIO", ""], 
         ["TELEFONO DESTINATARIO", "telefonoD"], 
-        ["TELEFONO DESTINATARIO 2", "telefonoD"], 
         ["DIRECCION DESTINATARIO", "direccionD"], 
         ["CODIGO CIUDAD DESTINO", "dane_ciudadD"], 
         ["CIUDAD DESTINO", "_ciudad"], 
@@ -1366,7 +1368,12 @@ function descargarExcelInter(JSONData, ReportTitle, type) {
         ["OBSERVACIONES", "id_heka"],
         ["BOLSA DE SEGURIDAD", ""], 
         ["PESO", "peso"], 
-        ["VALOR COMERCIAL", "valor"]
+        ["VALOR COMERCIAL", "valor"],
+        ["NO PEDIDO", ""],
+        ["DIRECCION AGENCIA DESTINO", ""],
+        ["FOLIO", ""],
+        ["CODIGO RADICADO", ""]
+
     ];
 
     let newDoc = arrData.map((dat, i) => {
@@ -3113,10 +3120,13 @@ async function generarRotulo(id_guias) {
         tr.classList.add("border-bottom-secondary")
 
         let src_logo_transp = "img/logoServi.png";
+        let logo = "img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg";
 
         if(data.oficina) {
-            src_logo_transp = "img/flexii.jpeg";
-        } else if(data.transportadora === "INTERRAPIDISIMO") {
+            logo = "img/flexii.jpeg";
+        }
+        
+        if(data.transportadora === "INTERRAPIDISIMO") {
             src_logo_transp = "img/logo-inter.png";
         } else if (data.transportadora === "ENVIA") {
             src_logo_transp = "img/2001.png";
@@ -3134,7 +3144,7 @@ async function generarRotulo(id_guias) {
         const celular = data.oficina ? data.datos_oficina.celular : celularD;
 
         let imgs = `<td><div class="align-items-center d-flex flex-column">
-            <img src="img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg" width="100px">
+            <img src="${logo}" width="100px">
             <img src="${src_logo_transp}" width="100px">
         </div></td>`;
         let infoRem = `<td>
