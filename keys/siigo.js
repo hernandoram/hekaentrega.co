@@ -16,7 +16,7 @@ const credenciales = {
     document_id: 23159,
     identificacion: 1072497419,
     id_vendedor: 596,
-    id_tipo_pago: 5340, // tarjeta débido,
+    id_tipo_pago: 17992, // Recarga sellers,
     idAutoRetencion: 27657 // Autorretencion 1.10%
 }
 
