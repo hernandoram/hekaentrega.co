@@ -411,13 +411,12 @@ function mostrarOficina(id){
     const con  = document.querySelector('#con-oficina');
     const visible= document.querySelector('#visible-oficina');
     
-
-    console.log(id);
+    //console.log(id);
     firebase.firestore().collection("oficinas").doc(id).get()
     .then((doc) => {
         if (doc.exists) {
             const data = doc.data();
-           console.log(data)
+           //console.log(data)
            mostrador.classList.add("d-none");    
            oficina.classList.remove("d-none");
             nombreOficina.innerHTML= data.nombres.split(" ")[0] + " " + data.apellidos.split(" ")[0];
