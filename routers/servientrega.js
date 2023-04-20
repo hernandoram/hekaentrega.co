@@ -6,6 +6,8 @@ const servientregaCtrl = require("../controllers/servientrega");
 
 
 //A partir de aquí estarán todas las rutas
+router.post("/cotizar", servientregaCtrl.cotizar)
+
 router.post("/consultarGuia", servientregaCtrl.consultarGuia);
 
 router.post("/estadoGuia", servientregaCtrl.estadoGuia);
