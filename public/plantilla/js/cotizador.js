@@ -585,7 +585,9 @@ async function detallesTransportadoras(data) {
     result.after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
     const isIndex = document.getElementById("cotizar_envio").getAttribute("data-index");
 
-    if(!isIndex && data.type === PAGO_CONTRAENTREGA && data.peso <= 5 && false) {
+    const sistFlexi = datos_personalizados.sistema_flexii;
+    const actvFlexi = sistFlexi && sistFlexi !== "inhabilitado";
+    if(!isIndex && data.type === PAGO_CONTRAENTREGA && data.peso <= 5 && actvFlexi) {
         oficinas = await detallesOficinas(data.ciudadD);
         cargarPreciosTransportadorasOficinas(data);
     }
@@ -1648,7 +1650,6 @@ function finalizarCotizacion(datos) {
             </div>
             <form id="datos-destinatario">
                 <div class="card-body row">
-                    ${notas_oficina}
                     <div class="col-lg-6 mb-3 mb-2">
                         <h5>Nombre del Destinatario</h5>
                         <input type="text" name="nombreD" id="nombreD" class="form-control form-control-user" value="" placeholder="Nombre" required="">

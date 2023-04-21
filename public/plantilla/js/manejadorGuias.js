@@ -1875,8 +1875,10 @@ function actualizarEstado(){
         body: data
     }).then((res) => {
         if(!res.ok){
+            console.log(res);
             throw Error("Lo sentimos, no pudimos cargar su documento, reviselo y vuelvalo a subir")
         }
+
         res.json().then(async (datos) => {
             let res = "";
             if(datos.length == 0){
@@ -1918,6 +1920,7 @@ function actualizarEstado(){
                                 .update({
                                     numeroGuia,
                                     estado: x.estado_envio,
+                                    seguimiento_finalizado: false
                                 })
                                 .then(() => {
                                     // console.log(id + " Actualizada exitósamente");
@@ -3123,7 +3126,7 @@ async function generarRotulo(id_guias) {
         let logo = "img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg";
 
         if(data.oficina) {
-            logo = "img/flexii.jpeg";
+            logo = "img/logo-flexi.png";
         }
         
         if(data.transportadora === "INTERRAPIDISIMO") {
@@ -3149,11 +3152,12 @@ async function generarRotulo(id_guias) {
         </div></td>`;
         let infoRem = `<td>
         <h2>Datos Del Remitente</h2>
-        <h5 class="text-dark">ID: <strong>${data.id_heka}</strong></h5>
-        <h5 class="text-dark">Nombre: <strong>${data.nombreR}</strong></h5>
-        <h5 class="text-dark">Dirección: <strong>${data.direccionR}</strong></h5>
-        <h5 class="text-dark">Ciudad:  <strong>${data.ciudadR}(${data.departamentoR})</strong>  </h5>
-        <h5 class="text-dark">Celular:  <strong>${data.celularR}</strong></h5>          
+            <h5 class="text-dark">ID: <strong>${data.id_heka}</strong></h5>
+            <h5 class="text-dark">Nombre: <strong>${data.nombreR}</strong></h5>
+            <h5 class="text-dark">Dirección: <strong>${data.direccionR}</strong></h5>
+            <h5 class="text-dark">Ciudad:  <strong>${data.ciudadR}(${data.departamentoR})</strong>  </h5>
+            <h5 class="text-dark">Celular:  <strong>${data.celularR}</strong></h5>          
+            <h5 class="text-dark">Contenido:  <strong>${data.dice_contener}</strong></h5>          
         </td>`;
 
         let infoDest = `<td>
@@ -3163,6 +3167,7 @@ async function generarRotulo(id_guias) {
             <h5 class="text-dark">Dirección: <strong>${direccion}</strong></h5>
             <h5 class="text-dark">Ciudad:  <strong>${ciudad}</strong>  </h5>
             <h5 class="text-dark">Celular:  <strong>${celular}</strong></h5>
+            <h5 class="text-dark">Valor asegurado:  <strong>${data.seguro}</strong></h5>
         </td>`;
 
 

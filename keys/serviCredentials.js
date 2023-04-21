@@ -15,7 +15,7 @@ exports.Credenciales = {
         login: "901521629SUC1",
         password: "Tb8Hb+NLWsc=",
         id_codFacturacion: "SER130112",
-    }, 
+    },
     url_generar_guias: "http://web.servientrega.com:8081/GeneracionGuias.asmx"
 }
 
