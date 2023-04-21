@@ -3,6 +3,8 @@ import { inputDoc, oficinaController } from "./control.js";
 
 const db = firebase.firestore();
 
+let listaO=[]
+
 export async function cargarOficinas(e) {
     const cargador = new ChangeElementContenWhileLoading(e.target);
     cargador.init();
@@ -19,11 +21,16 @@ export async function cargarOficinas(e) {
 
         return data;
     }));
+    listaO=listaOficinas;
 
     console.log(listaOficinas);
     oficinaController.agregarTodas = listaOficinas;
     cargador.end();
 }
+
+
+
+
 
 export function descargarInformeOficinasAdm(e) {
     const datosDescarga = {

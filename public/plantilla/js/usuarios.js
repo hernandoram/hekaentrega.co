@@ -393,6 +393,62 @@ async function verificarExistencia(administracion){
     })
 }
 
+function mostrarOficina(id){
+    const mostrador= document.getElementById('mostrador-oficinas'); 
+    const oficina= document.getElementById('oficina-seleccionada'); 
+
+    const nombreOficina = document.querySelector('#nombre-oficina');
+    const nombresOficina = document.querySelector('#nombres-oficina');
+    const apellidosOficina = document.querySelector('#apellidos-oficina');
+    const noIdentificacionOficina = document.querySelector('#no-documento-oficina');
+    const numero1 = document.querySelector('#numero1');
+    const numero2 = document.querySelector('#numero2');
+    const correoOficina = document.querySelector('#correo-oficina');
+    const nombreEmpresa = document.querySelector('#nombre-empresa-oficina');
+    const ciudad = document.querySelector('#ciudad-oficina');
+    const direccion  = document.querySelector('#dirección-oficina');
+    const barrio  = document.querySelector('#barrio-oficina');
+    const con  = document.querySelector('#con-oficina');
+    const visible= document.querySelector('#visible-oficina');
+    
+    //console.log(id);
+    firebase.firestore().collection("oficinas").doc(id).get()
+    .then((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+           //console.log(data)
+           mostrador.classList.add("d-none");    
+           oficina.classList.remove("d-none");
+            nombreOficina.innerHTML= data.nombres.split(" ")[0] + " " + data.apellidos.split(" ")[0];
+            nombresOficina.value= data.nombres;
+            apellidosOficina.value= data.apellidos;
+            noIdentificacionOficina.value= data.numero_documento;
+            numero1.value= data.celular;
+            numero2.value= data.celular2;
+            correoOficina.value= data.correo;
+            nombreEmpresa.value= data.nombre_empresa;
+            ciudad.value= data.ciudad;
+            direccion.value= data.direccion;
+            barrio.value= data.barrio;
+            con.value= data.con;
+            visible.value= data.visible;
+
+
+            
+           //aquí hay que hacer la vuelta de los datos
+
+        } else {
+            // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
+            //Hasta que todos los usuario futuramente tengan el doc "heka"
+            // $("#habilitar_servientrega").prop("checked", true);
+            console.log("No such document!");
+        }
+    }).catch((error) => {
+        console.log("Error getting document:", error);
+    });
+}
+
+
 
 //esta funcion utilizara a otra para retornarme informacion basica del usuario
 async function buscarUsuarios(){
