@@ -614,7 +614,7 @@ async function verificarExistencia(administracion) {
     });
 }
 
-let idOficina= "";
+let idOficina = "";
 
 function mostrarOficina(id) {
   const mostrador = document.getElementById("mostrador-oficinas");
@@ -662,8 +662,8 @@ function mostrarOficina(id) {
         barrio.value = data.barrio;
         con.value = data.con;
         visible.value = data.visible;
-        idOficina=id;
-        console.log(idOficina);
+        idOficina = id;
+        console.log(data);
         //aquí hay que hacer la vuelta de los datos
       } else {
         // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
@@ -1188,12 +1188,14 @@ function actualizarInformacionOficina() {
     direccion: value("dirección-oficina"),
     barrio: value("barrio-oficina"),
     con: value("con-oficina"),
+    visible: value("visible-oficina"),
+    direccion_completa: value("dirección-oficina") + ", " + value("barrio-oficina") + ", " + value("ciudad-oficina"),
   };
-
+  console.log(datos)
 
   let ofi = idOficina;
 
-  console.log(ofi)
+  console.log(ofi);
 
   firebase
     .firestore()

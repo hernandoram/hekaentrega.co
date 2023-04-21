@@ -912,6 +912,7 @@
                 </div>
             </div>
           </div>
+        
 
           <div class="container-fluid" id="oficinas" style="display: none;">
             <button class="btn btn-primary float-right" title="Descargar informe"  id="descargar-informe-oficinas">
@@ -950,12 +951,12 @@
                 <div class="form-group row">
                   <div class="col-sm-6 mb-3 mb-sm-0">
                     <h6>Nombres*</h6>
-                    <input type="text" class="form-control form-control-user"
+                    <input required type="text" class="form-control form-control-user"
                     name="nombres" id="nombres-oficina">
                   </div>
                   <div class="col-sm-6">
                     <h6>Apellidos*</h6>
-                    <input type="text" class="form-control form-control-user"
+                    <input required type="text" class="form-control form-control-user"
                     name="apellidos" id="apellidos-oficina">
                   </div> 
                 </div>
@@ -980,7 +981,7 @@
                 <div class="form-group row">
                   <div class="col-sm-6 mb-3 mb-sm-0">
                     <h6>Celular*</h6>
-                    <input type="number" class="form-control form-control-user"
+                    <input required type="number" class="form-control form-control-user"
                     name="celular" id="numero1">
                   </div>
                   <div class="col-sm-6">
@@ -993,12 +994,12 @@
                 <div class="form-group row">
                   <div class="col-sm-6 mb-3 mb-sm-0">
                     <h6>Correo*</h6>
-                    <input type="text" class="form-control form-control-user"
+                    <input required type="mail" class="form-control form-control-user"
                      id="correo-oficina">
                   </div>
                   <div class="col-sm-6">
                     <h6>Nombre empresa*</h6>
-                    <input type="text" class="form-control form-control-user"
+                    <input required type="text" class="form-control form-control-user"
                     name="celular2" id="nombre-empresa-oficina">
                   </div>
                 </div>
@@ -1006,12 +1007,12 @@
                 <div class="form-group row">
                   <div class="col-sm-6 mb-3 mb-sm-0">
                     <h6>Ciudad*</h6>
-                    <input type="text" class="form-control form-control-user"
+                    <input required type="text" class="form-control form-control-user"
                      id="ciudad-oficina">
                   </div>
                   <div class="col-sm-6">
                     <h6>Dirección*</h6>
-                    <input type="text" class="form-control form-control-user"
+                    <input required type="text" class="form-control form-control-user"
                      id="dirección-oficina">
                   </div>
                 </div>
@@ -1019,18 +1020,23 @@
                 <div class="form-group row">
                   <div class="col-sm-4 mb-3 mb-sm-0">
                     <h6>Barrio*</h6>
-                    <input type="text" class="form-control form-control-user"
+                    <input required type="text" class="form-control form-control-user"
                      id="barrio-oficina">
                   </div>
                   <div class="col-sm-4">
                     <h6>Con*</h6>
-                    <input type="text" class="form-control form-control-user"
+                    <input required type="text" class="form-control form-control-user"
                      id="con-oficina">
                   </div>
+
                   <div class="col-sm-4">
-                    <h6>Visible*</h6>
-                    <input type="text" class="form-control form-control-user"
-                     id="visible-oficina" readonly>
+
+                    <h6>Visible</h6>
+                  <select  class="form-control form-control"
+                  id="visible-oficina" readonly>
+                    <!-- <option value="true" >Si</option>  -->
+                    <option value="false" selected>No</option> 
+                  </select>
                   </div>
                 </div>
                 <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4 no-updte"
@@ -1776,9 +1782,9 @@
     
     
     <!-- index.js -->
-    <!--
-      <script src="../../index.js" ></script>
-    -->
+<!--     
+      <script src="../../index.js" ></script> -->
+   
     
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
