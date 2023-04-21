@@ -1033,6 +1033,8 @@ async function detallesOficinas(destino) {
             
             oficinas.push(data)
         });
+
+        console.log(oficinas);
         return oficinas;
     });
 }
@@ -1061,6 +1063,8 @@ function mostrarOficinas(oficinas) {
                     El Valor consignado a tu cuenta será: <b data-change="valorConsignar"></b></h6>
                 </div>
                 <div class="col d-flex flex-column justify-content-around">
+                    <small data-id="${i}" class="detalles detalles-office-click btn btn-outline-primary badge badge-pill">Detalles</small>
+
                     <select name="" data-id="${i}" class="form-control detalles ver-detalles-office">
                       
                     </select>
@@ -1111,6 +1115,7 @@ async function cargarPreciosTransportadorasOficinas(data) {
     let cotizacionAveo, corredor = 0;
     const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : "CONVENCIONAL";
     const observadorTransp = $(".ver-detalles-office");
+    const detallesClick = $(".detalles-office-click");
 
     mostradorOfi.find(".swiper-slide").attr("data-type", data.type);
 
@@ -1207,6 +1212,15 @@ async function cargarPreciosTransportadorasOficinas(data) {
         cambiarPreciosOficinasPorTransportadora(e.target, cotizacion, oficinas);
         verDetalles();
     });
+
+    detallesClick.on("click", (e) => {
+        const transp = observadorTransp.val();
+        const cotizacion = transportadoras[transp].cotizacion["OFICINA"];
+        const verDetalles = verDetallesTransportadora.bind(e.target);
+        
+        cambiarPreciosOficinasPorTransportadora(e.target, cotizacion, oficinas);
+        verDetalles();
+    })
 
     return oficinas;
 }
