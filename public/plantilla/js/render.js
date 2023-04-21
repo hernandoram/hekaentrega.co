@@ -234,7 +234,14 @@ function mostrarOficinas(data, id){
         <div class="card-body">
             <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
-                    <div class="h4 font-weight-bold text-info text-uppercase mb-2">${data.nombres.split(" ")[0]} ${data.apellidos.split(" ")[0]}</div>
+                ${data.nombres ? (
+                    `<div class="h4 font-weight-bold text-info text-uppercase mb-2">${data.nombres.split(" ")[0]} ${data.apellidos.split(" ")[0]}</div>`
+                    
+                    ) : (
+                       ` <div class="h4 font-weight-bold text-info text-uppercase mb-2">Oficina sin nombre</div>`
+                        
+                )}
+
                     <div class="row no-gutters align-items-center">
                         <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800">
                             <p>Nro. de Documento: <small>${data.numero_documento}</small></p>
@@ -248,7 +255,7 @@ function mostrarOficinas(data, id){
                 </div>
             </div>
             <div class="btn-group" role="group" data-buscador="${id}" 
-            data-nombre="${data.nombres.split(" ")[0]} ${data.apellidos.split(" ")[0]}">
+            >
                 <button class="btn btn-primary" onclick="mostrarOficina('${data.id}')" data-funcion="ver-eliminar" value="">Ver Oficina</button>
                 <button class="btn btn-info" data-funcion="movimientos" value="">Ver Movimientos</button>
             </div>
