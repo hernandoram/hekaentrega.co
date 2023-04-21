@@ -614,6 +614,8 @@ async function verificarExistencia(administracion) {
     });
 }
 
+let idOficina= "";
+
 function mostrarOficina(id) {
   const mostrador = document.getElementById("mostrador-oficinas");
   const oficina = document.getElementById("oficina-seleccionada");
@@ -660,7 +662,8 @@ function mostrarOficina(id) {
         barrio.value = data.barrio;
         con.value = data.con;
         visible.value = data.visible;
-
+        idOficina=id;
+        console.log(idOficina);
         //aquí hay que hacer la vuelta de los datos
       } else {
         // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
@@ -1187,26 +1190,25 @@ function actualizarInformacionOficina() {
     con: value("con-oficina"),
   };
 
-  console.log(datos)
 
-//   let id_usuario = document
-//     .getElementById("usuario-seleccionado")
-//     .getAttribute("data-id");
+  let ofi = idOficina;
 
-//   firebase
-//     .firestore()
-//     .collection("usuarios")
-//     .doc(id_usuario)
-//     .update(datos)
-//     .then(() => {
-//       avisar(
-//         "Actualización de Datos exitosa",
-//         "Se han registrado cambios en información personal para: " +
-//           datos.nombres.split(" ")[0] +
-//           " " +
-//           datos.apellidos.split(" ")[0]
-//       );
-//     });
+  console.log(ofi)
+
+  firebase
+    .firestore()
+    .collection("oficinas")
+    .doc(ofi)
+    .update(datos)
+    .then(() => {
+      avisar(
+        "Actualización de Datos exitosa",
+        "Se han registrado cambios en la oficina para: " +
+          datos.nombres.split(" ")[0] +
+          " " +
+          datos.apellidos.split(" ")[0]
+      );
+    });
 }
 
 function actualizarInformacionBancaria() {
