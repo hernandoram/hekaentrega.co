@@ -268,9 +268,9 @@
             <div id="usuario-seleccionado" class="d-none">
               <div class="card-header text-center">
                 <div class="row">
-                  <a class="btn btn-outline-primary btn-lg" href="javascript:volver()">Regresar</a>
+                  <a class="btn btn-outline-primary btn-lg" href="javascript:volver2()">Volver</a>
                   <script>
-                  function volver(){
+                  function volver2(){
                       document.getElementById("mostrador-usuarios").classList.remove("d-none");
                       document.getElementById("usuario-seleccionado").classList.add("d-none");
                     }
@@ -691,6 +691,7 @@
               </div>
 
             </div>
+
           </div>
 
           <div class="container-fluid" id="registrador">
@@ -927,11 +928,11 @@
             </button>
             <div class="row">
               <form class="input-group mb-3 col-12 offset-md-2 col-md-8">
-                <input type="text" class="form-control border-info" placeholder="Número documento" id="buscador_oficinas-documento">
+                <input type="text" class="form-control border-info" placeholder="Digite el nombre de la oficina" id="buscador_oficinas-documento">
                 <!-- <input type="text" class="form-control border-info" placeholder="Dirección" id="buscador_oficinas-direccion"> -->
                 <!-- <input type="text" class="form-control border-info" placeholder="Nombre" id="buscador_oficinas-nombre"> -->
                 <div class="input-group-append">
-                  <button type="button" class="btn btn-small btn-outline-info" id="buscador-oficinas" value="buscar">Buscar</button>
+                  <button type="button" class="btn btn-small btn-outline-info" id="buscador-oficinas">Buscar</button>
                 </div>
               </form>
             </div>
@@ -940,8 +941,109 @@
               <div class="lds-ellipsis mt-4 d-none" id="cargador-oficinas"><div></div>
               <div></div><div></div><div></div></div>
             </div>
-            <div id="mostrador-oficinas" class="row"></div>
+            <div id="mostrador-oficinas" class="row" ></div>
+            <div id="oficina-seleccionada" class="d-none ">
+              <div class="card-header text-center">
+                <div class="row">
+                  <a class="btn btn-outline-primary btn-lg" href="javascript:volver()">Volver</a>
+                  <script>
+                  function volver(){
+                      document.getElementById("mostrador-oficinas").classList.remove("d-none");
+                      document.getElementById("oficina-seleccionada").classList.add("d-none");
+                    }
+                  </script>
+                </div>
+                <h3 id="nombre-oficina">Nombre Oficina</h3>
+                <div class="form-group row">
+                  <div class="col-sm-6 mb-3 mb-sm-0">
+                    <h6>Nombres*</h6>
+                    <input type="text" class="form-control form-control-user"
+                    name="nombres" id="nombres-oficina">
+                  </div>
+                  <div class="col-sm-6">
+                    <h6>Apellidos*</h6>
+                    <input type="text" class="form-control form-control-user"
+                    name="apellidos" id="apellidos-oficina">
+                  </div> 
+                </div>
+                <div class="form-group row">
+                  <div class="col-sm-6 mb-3 mb-sm-0">
+                    <h6>Tipo documento*</6>
+                    <h6></h6>
+                    
+                    <select  class="form-control form-control"
+                    name="tipo_documento" id="tipo-documento-oficina" readonly>
+                      <option value="CC" selected>CC</option> 
+                    </select>
+                  </div>
+                  <div class="col-sm-6">
+                    <h6>Número identificación*</h6>
+                    <input type="number" class="form-control form-control-user"
+                    name="numero_documento" id="no-documento-oficina" readonly>
+                  </div>
+                  
+                </div>
 
+                <div class="form-group row">
+                  <div class="col-sm-6 mb-3 mb-sm-0">
+                    <h6>Celular*</h6>
+                    <input type="number" class="form-control form-control-user"
+                    name="celular" id="numero1">
+                  </div>
+                  <div class="col-sm-6">
+                    <h6>Celular #2</h6>
+                    <input type="number" class="form-control form-control-user"
+                    name="celular2" id="numero2">
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <div class="col-sm-6 mb-3 mb-sm-0">
+                    <h6>Correo*</h6>
+                    <input type="text" class="form-control form-control-user"
+                     id="correo-oficina">
+                  </div>
+                  <div class="col-sm-6">
+                    <h6>Nombre empresa*</h6>
+                    <input type="text" class="form-control form-control-user"
+                    name="celular2" id="nombre-empresa-oficina">
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <div class="col-sm-6 mb-3 mb-sm-0">
+                    <h6>Ciudad*</h6>
+                    <input type="text" class="form-control form-control-user"
+                     id="ciudad-oficina">
+                  </div>
+                  <div class="col-sm-6">
+                    <h6>Dirección*</h6>
+                    <input type="text" class="form-control form-control-user"
+                     id="dirección-oficina">
+                  </div>
+                </div>
+
+                <div class="form-group row">
+                  <div class="col-sm-4 mb-3 mb-sm-0">
+                    <h6>Barrio*</h6>
+                    <input type="text" class="form-control form-control-user"
+                     id="barrio-oficina">
+                  </div>
+                  <div class="col-sm-4">
+                    <h6>Con*</h6>
+                    <input type="text" class="form-control form-control-user"
+                     id="con-oficina">
+                  </div>
+                  <div class="col-sm-4">
+                    <h6>Visible*</h6>
+                    <input type="text" class="form-control form-control-user"
+                     id="visible-oficina" readonly>
+                  </div>
+                </div>
+
+
+              </div>
+            </div>
           </div>
 
           <div class="container-fluid" id="documentos" style="display: none;">
