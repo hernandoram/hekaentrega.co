@@ -679,6 +679,8 @@ function mostrarOficina(id) {
 
 //esta funcion utilizara a otra para retornarme informacion basica del usuario
 async function buscarUsuarios() {
+  const mostrador = document.getElementById("mostrador-usuarios");
+  mostrador.innerHTML = "";
   document.getElementById("cargador-usuarios").classList.remove("d-none");
   // let busqueda = ["!=", ""];
   // if(value("buscador_usuarios-id")){
