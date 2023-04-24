@@ -215,6 +215,7 @@ function avisar(title, content, type, redirigir, tiempo = 5000){
 };
 //// Esta funcion me retorna un card con informacion del usuario, sera invocada por otra funcion
 function mostrarOficinas(data, id){
+
     const bodegas = data.bodegas ? data.bodegas : [];
     // let bodega = data.bodegas ? data.bodegas.filter(b => b.principal)[0] : false
     let bodega = bodegas.filter(b => !b.inactiva)[0];
@@ -226,7 +227,6 @@ function mostrarOficinas(data, id){
         });
     }
 
-    
     return `<div class="col-md-4 mb-4" 
     data-filter-nombres="${data.nombres}" data-filter-apellidos="${data.apellidos}"
     data-filter-centro_de_costo="${data.centro_de_costo}" ${bodegasFilter} data-filter-celular="${data.celular + "-" +data.celular2}">
