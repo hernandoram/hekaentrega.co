@@ -668,19 +668,10 @@ function mostrarOficina(id) {
         con.value = data.con;
         visible.value = data.visible;
 
+        data.configuracion ?  porcentaje.value=data.configuracion.porcentaje_comsion: porcentaje.value=3.9;         
+        data.configuracion ? comisionMinima.value=data.configuracion.comision_minima : comisionMinima.value=3900;
 
-        if(data.configuracion){ 
-          console.log("si hay!")
-
-          porcentaje.value=data.configuracion.porcentaje_comsion           
-          comisionMinima.value=data.configuracion.comision_minima
-        }else{
-          console.log("NO hay!")
-
-          porcentaje.value=3.9
-          comisionMinima.value=3900
-        }
-
+        console.log(data.configuracion)
 
         idOficina = id;
 
