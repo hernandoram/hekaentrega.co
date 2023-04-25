@@ -636,6 +636,11 @@ function mostrarOficina(id) {
   const con = document.querySelector("#con-oficina");
   const visible = document.querySelector("#visible-oficina");
 
+
+  const porcentaje= document.querySelector("#porcentaje-comision-oficina");
+  const tipoDistribucion=document.querySelector("#tipo-distribucion-oficina");
+  const comisionMinima= document.querySelector("#comision-minima");
+
   //console.log(id);
   firebase
     .firestore()
@@ -662,6 +667,9 @@ function mostrarOficina(id) {
         barrio.value = data.barrio;
         con.value = data.con;
         visible.value = data.visible;
+        porcentaje.value=data.porcentaje_comision;
+        tipoDistribucion.value=data.tipo_distribucion;
+        comisionMinima=data.comision_minima;
         idOficina = id;
         console.log(data);
         //aquí hay que hacer la vuelta de los datos
@@ -1214,6 +1222,19 @@ function actualizarInformacionOficina() {
       );
     });
 }
+async function actualizarInformacionHekaOficina() {
+  let datos = {
+    porcentajeComision: value("porcentaje-comision-oficina"),
+    tipoDistri: value("tipo-distribución-oficina"),
+    comisionMinima: value("comision-minima"),
+  }
+  console.log(datos)
+}
+
+
+
+
+
 
 function actualizarInformacionBancaria() {
   // Datos bancarios
