@@ -667,11 +667,23 @@ function mostrarOficina(id) {
         barrio.value = data.barrio;
         con.value = data.con;
         visible.value = data.visible;
-        porcentaje.value=data.porcentaje_comision;
-        tipoDistribucion.value=data.tipo_distribucion;
-        comisionMinima=data.comision_minima;
+
+
+        if(data.configuracion){ 
+          console.log("si hay!")
+
+          porcentaje.value=data.configuracion.porcentaje_comsion           
+          comisionMinima.value=data.configuracion.comision_minima
+        }else{
+          console.log("NO hay!")
+
+          porcentaje.value=3.9
+          comisionMinima.value=3900
+        }
+
+
         idOficina = id;
-        console.log(data);
+
         //aquí hay que hacer la vuelta de los datos
       } else {
         // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
@@ -1224,11 +1236,25 @@ function actualizarInformacionOficina() {
 }
 async function actualizarInformacionHekaOficina() {
   let datos = {
-    porcentajeComision: value("porcentaje-comision-oficina"),
-    tipoDistri: value("tipo-distribución-oficina"),
-    comisionMinima: value("comision-minima"),
+    porcentaje_comsion: value("porcentaje-comision-oficina"),
+    tipo_distribucion: value("tipo-distribución-oficina"),
+    comision_minima: value("comision-minima"),
   }
   console.log(datos)
+
+  console.log(idOficina)
+
+  firebase
+  .firestore()
+  .collection("oficinas")
+  .doc(idOficina)
+  .update({configuracion:datos})
+  .then(() => {
+    avisar(
+      "Actualización de Datos exitosa",
+      "Se han registrado de información Heka en la oficina para"
+    );
+  });
 }
 
 
