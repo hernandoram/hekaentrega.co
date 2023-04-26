@@ -637,10 +637,11 @@ function mostrarOficina(id) {
   const barrio = document.querySelector("#barrio-oficina");
   const con = document.querySelector("#con-oficina");
   const visible = document.querySelector("#visible-oficina");
-
+  const checkbox1 = document.getElementById("tipo-distribucion-direccion"); 
+  const checkbox2 = document.getElementById("tipo-distribucion-oficina"); 
+ 
 
   const porcentaje= document.querySelector("#porcentaje-comision-oficina");
-  const tipoDistribucion=document.querySelector("#tipo-distribucion-oficina");
   const comisionMinima= document.querySelector("#comision-minima");
 
   //console.log(id);
@@ -676,11 +677,10 @@ function mostrarOficina(id) {
 
         data.configuracion ?  porcentaje.value=data.configuracion.porcentaje_comsion: porcentaje.value=3.9;         
         data.configuracion ? comisionMinima.value=data.configuracion.comision_minima : comisionMinima.value=3900;
-
-       data.configuracion ? tipoDistribucion.value=data.configuracion.tipo_distribucion : tipoDistribucion.value=0;
-
+        data.configuracion && data.configuracion.tipo_distribucion[0]==1 ? checkbox1.checked=true : checkbox1.checked=false;
+        data.configuracion && data.configuracion.tipo_distribucion[1]==1 ? checkbox2.checked=true : checkbox2.checked=false;
+    
         console.log(data.configuracion)
-
         idOficina = id;
 
         //aquí hay que hacer la vuelta de los datos
