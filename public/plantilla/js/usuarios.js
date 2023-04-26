@@ -1234,9 +1234,23 @@ function actualizarInformacionOficina() {
     });
 }
 async function actualizarInformacionHekaOficina() {
+  let checkbox1val = 0;
+  let checkbox2val = 0;
+  let checkbox1 = document.getElementById("tipo-distribucion-direccion");
+  let checkbox2 = document.getElementById("tipo-distribucion-oficina");
+
+  if (checkbox1.checked) {
+    checkbox1val = 1;
+  }
+
+  if (checkbox2.checked) {
+    checkbox2val = 1;
+  }
+
+
   let datos = {
     porcentaje_comsion: value("porcentaje-comision-oficina"),
-    tipo_distribucion: value("tipo-distribucion-oficina"),
+    tipo_distribucion: [checkbox1val, checkbox2val],
     comision_minima: value("comision-minima"),
   }
   console.log(datos)
