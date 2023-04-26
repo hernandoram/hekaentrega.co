@@ -618,6 +618,8 @@ let idOficina = "";
 
 function mostrarOficina(id) {
   const mostrador = document.getElementById("mostrador-oficinas");
+  const botonInforme = document.getElementById("descargar-informe-oficinas");
+  const busquedaOficina = document.getElementById("busqueda-oficinas");
   const oficina = document.getElementById("oficina-seleccionada");
 
   const nombreOficina = document.querySelector("#nombre-oficina");
@@ -652,6 +654,10 @@ function mostrarOficina(id) {
         const data = doc.data();
         //console.log(data)
         mostrador.classList.add("d-none");
+        
+        busquedaOficina.classList.add("d-none");
+        botonInforme.classList.add("d-none");
+
         oficina.classList.remove("d-none");
         nombreOficina.innerHTML =
           data.nombres.split(" ")[0] + " " + data.apellidos.split(" ")[0];
@@ -670,6 +676,8 @@ function mostrarOficina(id) {
 
         data.configuracion ?  porcentaje.value=data.configuracion.porcentaje_comsion: porcentaje.value=3.9;         
         data.configuracion ? comisionMinima.value=data.configuracion.comision_minima : comisionMinima.value=3900;
+
+       data.configuracion ? tipoDistribucion.value=data.configuracion.tipo_distribucion : tipoDistribucion.value=0;
 
         console.log(data.configuracion)
 
@@ -1228,7 +1236,7 @@ function actualizarInformacionOficina() {
 async function actualizarInformacionHekaOficina() {
   let datos = {
     porcentaje_comsion: value("porcentaje-comision-oficina"),
-    tipo_distribucion: value("tipo-distribución-oficina"),
+    tipo_distribucion: value("tipo-distribucion-oficina"),
     comision_minima: value("comision-minima"),
   }
   console.log(datos)
@@ -1243,7 +1251,7 @@ async function actualizarInformacionHekaOficina() {
   .then(() => {
     avisar(
       "Actualización de Datos exitosa",
-      "Se han registrado de información Heka en la oficina para"
+      "Se han registrado de información Heka en la oficina para "+value("nombres-oficina")+" "+value("apellidos-oficina")
     );
   });
 }

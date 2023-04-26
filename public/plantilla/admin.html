@@ -927,7 +927,7 @@
             <button class="btn btn-primary float-right" title="Descargar informe"  id="descargar-informe-oficinas">
               <span class="d-none d-md-inline">Descargar informe</span> <i class="fa fa-download"></i>
             </button>
-            <div class="row">
+            <div class="row" id="busqueda-oficinas">
               <form class="input-group mb-3 col-12 offset-md-2 col-md-8">
                 <input type="text" class="form-control border-info" placeholder="Digite el nombre de la oficina" id="buscador_oficinas-documento">
                 <!-- <input type="text" class="form-control border-info" placeholder="Dirección" id="buscador_oficinas-direccion"> -->
@@ -953,7 +953,10 @@
       <script>
       function volver(){
           document.getElementById("mostrador-oficinas").classList.remove("d-none");
+          document.getElementById("busqueda-oficinas").classList.remove("d-none");
+          document.getElementById("descargar-informe-oficinas").classList.remove("d-none");
           document.getElementById("oficina-seleccionada").classList.add("d-none");
+     
         }
       </script>
     </div>
@@ -1111,7 +1114,7 @@
             <select
               class="form-control form-control"
               name="tipo_distribucion"
-              id="tipo-distribución-oficina">
+              id="tipo-distribucion-oficina">
               <option value=0>Entrega en dirección</option>
               <option value=1>Entrega en oficina</option>
             </select>
