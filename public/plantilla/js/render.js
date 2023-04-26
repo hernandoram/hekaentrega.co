@@ -235,7 +235,7 @@ function mostrarOficinas(data, id){
             <div class="row no-gutters align-items-center">
                 <div class="col mr-2">
                 ${data.nombres ? (
-                    `<div class="h4 font-weight-bold text-info text-uppercase mb-2">${data.nombres.split(" ")[0]} ${data.apellidos.split(" ")[0]}</div>`
+                    `<div class="h4 font-weight-bold text-info text-uppercase mb-2 ${data.visible===true ?"text-danger"  :"text-primary"   }">${data.nombres.split(" ")[0]} ${data.apellidos.split(" ")[0]}</div>`
                     
                     ) : (
                        ` <div class="h4 font-weight-bold text-info text-uppercase mb-2">Oficina sin nombre</div>`
