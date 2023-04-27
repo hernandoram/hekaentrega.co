@@ -2476,7 +2476,7 @@ class CalcularCostoDeEnvio {
     if (this.aveo) this.intoAveo(this.precio);
     if (this.envia) this.intoEnvia(this.precio);
     if (this.coordinadora) this.intoCoord(this.precio);
-    if (this.servi) this.intoServi(this.precio);
+    if (this.servi) this.intoServi(this.precio,this.convencional);
 
     if (this.codTransp !== "SERVIENTREGA" && !this.convencional)
       this.sobreflete_heka += 1000;
@@ -2713,12 +2713,13 @@ class CalcularCostoDeEnvio {
     return true;
   }
 
-  async intoServi(cotizacion) {
+  async intoServi(cotizacion,conv) {
     if (!cotizacion) cotizacion = this.precio;
     this.total_flete = cotizacion.ValorFlete;
     // this.sobreflete = cotizacion.ValorSobreFlete;
-    // this.seguroMercancia = cotizacion.ValorSobreFlete? cotizacion.ValorSobreFlete: 500
-    // this.seguroMercancia = cotizacion.valor_costom;
+    if(conv){
+      this.seguroMercancia = cotizacion.ValorSobreFlete
+    }
   }
 
   async cotizarServi(dane_ciudadR, dane_ciudadD) {
@@ -2751,11 +2752,11 @@ class CalcularCostoDeEnvio {
       this.empty = true;
       return false;
     }
-
+    const conv = this.convencional
     this.precio = response;
     this.servi = true;
     console.log("ENTRANDO SERVI");
-    this.intoServi(response);
+    this.intoServi(response,conv);
     return true;
   }
 
