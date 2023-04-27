@@ -152,6 +152,14 @@ let transportadoras = {
     },
 };
 
+const configOficinaDefecto = {
+    porcentaje_comsion: 3.9,
+    tipo_distribucion: [0,1], // 0: Entrega en dirección ; 1: Entrega en oficina
+    comision_minima: 3900
+}
+
+const TIPOS_DIST_OFICINA = ["Entrega en dirección", "Entrega en oficina"];
+
 const CONTRAENTREGA = "PAGO DESTINO";
 const PAGO_CONTRAENTREGA = "PAGO CONTRAENTREGA";
 const CONVENCIONAL = "CONVENCIONAL";
@@ -991,7 +999,7 @@ async function detallesOficinas(destino) {
         nombres: "NombreO",
         apellidos: "ApellidoO",
         direccion_completa: "Kra 23 #40-40, los bellos, CALI (VALLE DEL CAUCA)",
-        precios: {
+        configuracion: {
             porcentaje_comsion: 10
         }
     }, {
@@ -1007,7 +1015,7 @@ async function detallesOficinas(destino) {
         nombres: "NombreO",
         apellidos: "ApellidoO",
         direccion_completa: "Kra 23 #40-40, los bellos, CALI (VALLE DEL CAUCA)",
-        precios: {
+        configuracion: {
             porcentaje_comsion: 5
         }
     }]
@@ -1023,16 +1031,16 @@ async function detallesOficinas(destino) {
             const data = doc.data();
             
             data.id_oficina = doc.id;
-            if(!data.precios) {
-                data.precios = {
-                    porcentaje_comsion: 5
-                }
+            if(!data.configuracion) {
+                data.configuracion = Object.assign({}, configOficinaDefecto);
             }
             
             if(!data.visible || data.eliminado || data.bloqueado) return;
             
             oficinas.push(data)
         });
+
+        console.log(oficinas);
         return oficinas;
     });
 }
@@ -1061,6 +1069,8 @@ function mostrarOficinas(oficinas) {
                     El Valor consignado a tu cuenta será: <b data-change="valorConsignar"></b></h6>
                 </div>
                 <div class="col d-flex flex-column justify-content-around">
+                    <small data-id="${i}" class="detalles detalles-office-click btn btn-outline-primary badge badge-pill">Detalles</small>
+
                     <select name="" data-id="${i}" class="form-control detalles ver-detalles-office">
                       
                     </select>
@@ -1111,6 +1121,7 @@ async function cargarPreciosTransportadorasOficinas(data) {
     let cotizacionAveo, corredor = 0;
     const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : "CONVENCIONAL";
     const observadorTransp = $(".ver-detalles-office");
+    const detallesClick = $(".detalles-office-click");
 
     mostradorOfi.find(".swiper-slide").attr("data-type", data.type);
 
@@ -1208,6 +1219,15 @@ async function cargarPreciosTransportadorasOficinas(data) {
         verDetalles();
     });
 
+    detallesClick.on("click", (e) => {
+        const transp = observadorTransp.val();
+        const cotizacion = transportadoras[transp].cotizacion["OFICINA"];
+        const verDetalles = verDetallesTransportadora.bind(e.target);
+        
+        cambiarPreciosOficinasPorTransportadora(e.target, cotizacion, oficinas);
+        verDetalles();
+    })
+
     return oficinas;
 }
 
@@ -1219,8 +1239,9 @@ function cambiarPreciosOficinasPorTransportadora(target, cotizacion, oficinas) {
     const nOficina = $(target).attr("data-id");
     
     const oficina = oficinas[nOficina];
-    const porcentaje_oficina = oficina.precios ? oficina.precios.porcentaje_comsion : 10
-    cotizacion.sobreflete_oficina = cotizacion.flete * porcentaje_oficina / 100;
+    const porcentaje_oficina = oficina.configuracion ? oficina.configuracion.porcentaje_comsion : configOficinaDefecto.porcentaje_comsion;
+    const sobreflete_ofi = cotizacion.valor * porcentaje_oficina / 100;
+    cotizacion.sobreflete_oficina = Math.max(sobreflete_ofi, oficina.configuracion.comision_minima);
 
     const costoEnvio = cotizacion.costoEnvio;
     
@@ -1320,18 +1341,19 @@ function observadorDetallesOficinas() {
 
 // retorna un objeto
 function tomarDetallesImportantesOficina(oficina) {
-    const arr = [
+    const campos_importante = [
         "id_oficina", "ciudad", "barrio", "direccion", "celular",
         "numero_documento", "tipo_documento",
         "nombres", "apellidos", "correo"
     ];
 
     const datos_obtenidos = new Object();
-    arr.forEach(v => {
+    campos_importante.forEach(v => {
         datos_obtenidos[v] = oficina[v]
     });
 
     datos_obtenidos.nombre_completo = datos_obtenidos.nombres + " " + datos_obtenidos.apellidos;
+    datos_obtenidos.tipo_distribucion = oficina.configuracion.tipo_distribucion;
 
     return datos_obtenidos
 }
@@ -1383,7 +1405,8 @@ function seleccionarTransportadora(e) {
 
     if(isOficina) {
         if(verificarAntesSeleccionarOficina(oficina, result_cotizacion)) return;
-        result_cotizacion.sobreflete_oficina = result_cotizacion.flete * oficina.precios.porcentaje_comsion / 100;
+        const sobreflete_ofi = result_cotizacion.valor * oficina.configuracion.porcentaje_comsion / 100;
+        result_cotizacion.sobreflete_oficina = Math.max(sobreflete_ofi, oficina.configuracion.comision_minima);
     }
 
     const texto_tranp_no_disponible = `Actualmente no tienes habilitada esta transportadora, 
@@ -1559,19 +1582,31 @@ function finalizarCotizacion(datos) {
         `;
     }
 
-    if(datos.transportadora === "INTERRAPIDISIMO" || datos.transportadora === "SERVIENTREGA") {
+    
+
+    if(datos.oficina) {
         entrega_en_oficina = `
         <div class="col-sm-2">
-            <h5>Tipo de entrega</h5>
+            <h5>Tipo de entrega (flexii)</h5>
 
-            <select class="custom-select" id="entrega_en_oficina" name="entrega_en_oficina">
+            <select class="custom-select" id="tipo_ditribucion_flexi" name="tipo_ditribucion_flexi">
                 <option value="">Seleccione</option>
-                <option value="1">Entrega en dirección</option>
-                <option value="2">
-                    Entrega en oficina
-                </option>
+                ${datos.datos_oficina.tipo_distribucion.map(id => `<option value="${id}">${TIPOS_DIST_OFICINA[id]}</option>`)}                
             </select>
-        </div>`;
+        </div>`
+    } else {
+        if(datos.transportadora === "INTERRAPIDISIMO" || datos.transportadora === "SERVIENTREGA") {
+            entrega_en_oficina = `
+            <div class="col-sm-2">
+                <h5>Tipo de entrega</h5>
+    
+                <select class="custom-select" id="entrega_en_oficina" name="entrega_en_oficina">
+                    <option value="">Seleccione</option>
+                    <option value="1">Entrega en dirección</option>
+                    <option value="2">Entrega en oficina</option>
+                </select>
+            </div>`;
+        }
     }
 
     let detalles = detalles_cotizacion(datos),
@@ -2037,6 +2072,19 @@ class CalcularCostoDeEnvio {
         return resultado;
     }
 
+    get costoDevolucion() {
+        switch(this.codTransp) {
+            case transportadoras.SERVIENTREGA.cod:
+                return this.costoEnvio;
+            case transportadoras.INTERRAPIDISIMO.cod:
+                return this.flete + this.seguroMercancia + this.sobreflete + 1000;
+            case transportadoras.ENVIA.cod:
+                return (this.flete + this.seguroMercancia + 1000) * 2;
+            case transportadoras.COORDINADORA.cod:
+                return (this.flete + this.seguroMercancia + 1000) * 2;
+        }
+    }
+
     get costoEnvioPrev() {
         let resultado = this.fletePrev + this.sobreFletes(this.valor);
         return resultado;
@@ -2064,7 +2112,8 @@ class CalcularCostoDeEnvio {
             peso_con_volumen: this.pesoVolumen,
             total: this.costoEnvio,
             recaudo: this.valor,
-            seguro: this.seguro
+            seguro: this.seguro,
+            costoDevolucion: this.costoDevolucion
         };
 
         if(this.aveo) {
@@ -2486,6 +2535,7 @@ function crearGuia() {
         }
         
         const inpTipo_entrega = document.getElementById("entrega_en_oficina");
+        const inpTipo_entregaFlexi = document.getElementById("tipo_ditribucion_flexi");
         const checkCreacionPedido = $("#check-crear_pedido").prop("checked");
 
         if(value("producto") == ""){
@@ -2509,6 +2559,10 @@ function crearGuia() {
         } else if(inpTipo_entrega && !inpTipo_entrega.value){
             swal.fire("Es necesario seleccionar el tipo de envío", "", "warning");
             verificador("entrega_en_oficina")
+            renovarSubmit(boton_final_cotizador, textoBtn)
+        } else if(inpTipo_entregaFlexi && !inpTipo_entregaFlexi.value){
+            swal.fire("Es necesario seleccionar el tipo de envío para flexi", "", "warning");
+            verificador("tipo_ditribucion_flexi")
             renovarSubmit(boton_final_cotizador, textoBtn)
         } else if(datos_usuario.type === "PUNTO" && !datos_a_enviar.id_user) {
             swal.fire("Recuerde seleccionar el cliente", "", "warning");
@@ -2572,6 +2626,7 @@ function crearGuia() {
             .getCuentaResponsable();
 
             if(inpTipo_entrega) datos_a_enviar.id_tipo_entrega = parseInt(inpTipo_entrega.value);
+            if(inpTipo_entregaFlexi) datos_a_enviar.id_tipo_entrega_flexi = parseInt(inpTipo_entregaFlexi.value);
 
             // boton_final_cotizador.remove()
 
@@ -3275,7 +3330,7 @@ function observacionesServientrega(result_cotizacion) {
         "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero o la oficina donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
         `Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span>`,
         `Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`,
-        `En caso de devolución pagarías: $${convertirMiles(result_cotizacion.costoEnvio)} (Aplica solo para envíos en pago contra entrega)`,
+        `En caso de devolución pagarías: $${convertirMiles(result_cotizacion.costoDevolucion)} (Aplica solo para envíos en pago contra entrega)`,
         "Las devoluciones con flexii se debe pagar envío ida y vuelta"
     ]
 
@@ -3302,7 +3357,7 @@ function observacionesInteRapidisimo(result_cotizacion) {
         "Las recolecciones deberán ser solicitadas el día anterior o el mismo antes de las 9:00 am para que pasen el mismo día.",
         "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
         "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
-        "En caso de devolución pagarías: $"+ convertirMiles(result_cotizacion.flete + result_cotizacion.seguroMercancia + result_cotizacion.sobreflete + 1000) +" (Aplica solo para envíos en pago contra entrega)",
+        "En caso de devolución pagarías: $"+ convertirMiles(result_cotizacion.costoDevolucion) +" (Aplica solo para envíos en pago contra entrega)",
         "Las devoluciones con flexii se debe pagar envío ida y vuelta"
     ]
 
@@ -3329,7 +3384,7 @@ function observacionesEnvia(result_cotizacion) {
         "Las recolecciones deberán ser solicitadas el día anterior o el mismo antes de las 9:00 am para que pasen el mismo día.",
         "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
         "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
-        `En caso de devolución pagarías: $${convertirMiles((result_cotizacion.flete + result_cotizacion.seguroMercancia + 1000) * 2)} (Aplica solo para envíos en pago contra entrega)`,
+        `En caso de devolución pagarías: $${convertirMiles(result_cotizacion.costoDevolucion)} (Aplica solo para envíos en pago contra entrega)`,
         "Las devoluciones con flexii se debe pagar envío ida y vuelta"
     ]
 
