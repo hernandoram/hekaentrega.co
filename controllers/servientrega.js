@@ -76,7 +76,7 @@ exports.cotizar = async (req, res) => {
     FormaPago: body.FormaPago,
     TiempoEntrega: 1,
     MedioTransporte: 1,
-    NumRecaudo: body.EnvioConCobro ? body.ValorDeclarado : 0,
+    NumRecaudo: body.ValorDeclarado,
   };
 //  return res.json(data)
   const response = await fetch(
@@ -85,7 +85,7 @@ exports.cotizar = async (req, res) => {
       method: "POST",
       headers: {
         "Content-Type": "Application/json",
-        Authorization: UsuarioPrueba.Token
+        Authorization: body.EnvioConCobro?Credenciales.PgCon.Token:Credenciales.Conv.Token
       },
       body: JSON.stringify(data),
     }
