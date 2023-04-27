@@ -1209,7 +1209,7 @@ function actualizarInformacionOficina() {
     direccion: value("dirección-oficina"),
     barrio: value("barrio-oficina"),
     con: value("con-oficina"),
-    visible: value("visible-oficina"),
+    visible: Boolean(value("visible-oficina")),
     direccion_completa: value("dirección-oficina") + ", " + value("barrio-oficina") + ", " + value("ciudad-oficina"),
   };
   console.log(datos)
