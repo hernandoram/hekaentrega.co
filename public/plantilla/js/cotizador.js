@@ -166,6 +166,14 @@ let transportadoras = {
   },
 };
 
+const configOficinaDefecto = {
+    porcentaje_comsion: 3.9,
+    tipo_distribucion: [0,1], // 0: Entrega en dirección ; 1: Entrega en oficina
+    comision_minima: 3900
+}
+
+const TIPOS_DIST_OFICINA = ["Entrega en dirección", "Entrega en oficina"];
+
 const CONTRAENTREGA = "PAGO DESTINO";
 const PAGO_CONTRAENTREGA = "PAGO CONTRAENTREGA";
 const CONVENCIONAL = "CONVENCIONAL";
@@ -1158,68 +1166,62 @@ function verDetallesTransportadora(e) {
 
 //*** FUNCIONES PARA OFICINAS ***
 async function detallesOficinas(destino) {
-  const p = [
-    {
-      nombre_empresa: "Oficina 1",
-      id_oficina: 1,
-      correo: "correo@dominio.com",
-      ciudad: "CALI(VALLE DEL CAUCA)",
-      barrio: "los bellos",
-      direccion: "Kra 23 #40-40",
-      celular: "3102584568",
-      numero_documento: "1234567989",
-      tipo_documento: "CC",
-      nombres: "NombreO",
-      apellidos: "ApellidoO",
-      direccion_completa: "Kra 23 #40-40, los bellos, CALI (VALLE DEL CAUCA)",
-      precios: {
-        porcentaje_comsion: 10,
-      },
-    },
-    {
-      nombre_empresa: "Oficina 1",
-      id_oficina: 2,
-      correo: "correo@dominio.com",
-      ciudad: "CALI(VALLE DEL CAUCA)",
-      barrio: "los bellos",
-      direccion: "Kra 23 #40-40",
-      celular: "3102584568",
-      numero_documento: "1234567989",
-      tipo_documento: "CC",
-      nombres: "NombreO",
-      apellidos: "ApellidoO",
-      direccion_completa: "Kra 23 #40-40, los bellos, CALI (VALLE DEL CAUCA)",
-      precios: {
-        porcentaje_comsion: 5,
-      },
-    },
-  ];
-
-  // if(!estado_prueba) return [];
-
-  return await firebase
-    .firestore()
-    .collection("oficinas")
-    .where("ciudad", "==", destino)
-    .get()
-    .then((querySnapshot) => {
-      const oficinas = new Array();
-
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-
-        data.id_oficina = doc.id;
-        if (!data.precios) {
-          data.precios = {
-            porcentaje_comsion: 5,
-          };
+    const p = [{
+        nombre_empresa: "Oficina 1",
+        id_oficina: 1,
+        correo: "correo@dominio.com",
+        ciudad: "CALI(VALLE DEL CAUCA)",
+        barrio: "los bellos",
+        direccion: "Kra 23 #40-40",
+        celular: "3102584568",
+        numero_documento: "1234567989",
+        tipo_documento: "CC",
+        nombres: "NombreO",
+        apellidos: "ApellidoO",
+        direccion_completa: "Kra 23 #40-40, los bellos, CALI (VALLE DEL CAUCA)",
+        configuracion: {
+            porcentaje_comsion: 10
         }
+    }, {
+        nombre_empresa: "Oficina 1",
+        id_oficina: 2,
+        correo: "correo@dominio.com",
+        ciudad: "CALI(VALLE DEL CAUCA)",
+        barrio: "los bellos",
+        direccion: "Kra 23 #40-40",
+        celular: "3102584568",
+        numero_documento: "1234567989",
+        tipo_documento: "CC",
+        nombres: "NombreO",
+        apellidos: "ApellidoO",
+        direccion_completa: "Kra 23 #40-40, los bellos, CALI (VALLE DEL CAUCA)",
+        configuracion: {
+            porcentaje_comsion: 5
+        }
+    }]
+    
+    // if(!estado_prueba) return [];
 
-        if (!data.visible || data.eliminado || data.bloqueado) return;
+    return await firebase.firestore().collection("oficinas")
+    .where("ciudad", "==", destino).get()
+    .then(querySnapshot => {
+        const oficinas = new Array();
+        
+        querySnapshot.forEach(doc => {
+            const data = doc.data();
+            
+            data.id_oficina = doc.id;
+            if(!data.configuracion) {
+                data.configuracion = Object.assign({}, configOficinaDefecto);
+            }
+            
+            if(!data.visible || data.eliminado || data.bloqueado) return;
+            
+            oficinas.push(data)
+        });
 
-        oficinas.push(data);
-      });
-      return oficinas;
+        console.log(oficinas);
+        return oficinas;
     });
 }
 
@@ -1248,6 +1250,8 @@ function mostrarOficinas(oficinas) {
                     El Valor consignado a tu cuenta será: <b data-change="valorConsignar"></b></h6>
                 </div>
                 <div class="col d-flex flex-column justify-content-around">
+                    <small data-id="${i}" class="detalles detalles-office-click btn btn-outline-primary badge badge-pill">Detalles</small>
+
                     <select name="" data-id="${i}" class="form-control detalles ver-detalles-office">
                       
                     </select>
@@ -1342,7 +1346,12 @@ async function cargarPreciosTransportadorasOficinas(data) {
     );
     let valorRecaudo = Math.max(recaudo, transportadora.limitesRecaudo[0]);
 
-    let cotizador = new CalcularCostoDeEnvio(valorSeguro, "CONVENCIONAL");
+
+    let cotizacionAveo, corredor = 0;
+    const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : "CONVENCIONAL";
+    const observadorTransp = $(".ver-detalles-office");
+    const detallesClick = $(".detalles-office-click");
+
 
     if (transp === "ENVIA") cotizador.valor = recaudo;
 
@@ -1404,11 +1413,40 @@ async function cargarPreciosTransportadorasOficinas(data) {
     verDetalles();
   });
 
-  return oficinas;
+
+    detallesClick.on("click", (e) => {
+        const transp = observadorTransp.val();
+        const cotizacion = transportadoras[transp].cotizacion["OFICINA"];
+        const verDetalles = verDetallesTransportadora.bind(e.target);
+        
+        cambiarPreciosOficinasPorTransportadora(e.target, cotizacion, oficinas);
+        verDetalles();
+    })
+
+    return oficinas;
 }
 
 function cambiarPreciosOficinasPorTransportadora(target, cotizacion, oficinas) {
-  if (!cotizacion) return;
+    if(!cotizacion) return;
+    
+    const factor_conversor = 1000;
+    const transp = cotizacion.codTransp;
+    const nOficina = $(target).attr("data-id");
+    
+    const oficina = oficinas[nOficina];
+    const porcentaje_oficina = oficina.configuracion ? oficina.configuracion.porcentaje_comsion : configOficinaDefecto.porcentaje_comsion;
+    const sobreflete_ofi = cotizacion.valor * porcentaje_oficina / 100;
+    cotizacion.sobreflete_oficina = Math.max(sobreflete_ofi, oficina.configuracion.comision_minima);
+
+    const costoEnvio = cotizacion.costoEnvio;
+    
+    let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
+    let fleteConvertido = cotizacion.flete
+    if(transp !== "SERVIENTREGA") {
+        sobreFleteHekaEdit -= factor_conversor;
+        fleteConvertido += factor_conversor;
+    }
+
 
   const factor_conversor = 1000;
   const transp = cotizacion.codTransp;
@@ -1538,28 +1576,23 @@ function observadorDetallesOficinas() {
 
 // retorna un objeto
 function tomarDetallesImportantesOficina(oficina) {
-  const arr = [
-    "id_oficina",
-    "ciudad",
-    "barrio",
-    "direccion",
-    "celular",
-    "numero_documento",
-    "tipo_documento",
-    "nombres",
-    "apellidos",
-    "correo",
-  ];
 
-  const datos_obtenidos = new Object();
-  arr.forEach((v) => {
-    datos_obtenidos[v] = oficina[v];
-  });
+    const campos_importante = [
+        "id_oficina", "ciudad", "barrio", "direccion", "celular",
+        "numero_documento", "tipo_documento",
+        "nombres", "apellidos", "correo"
+    ];
 
-  datos_obtenidos.nombre_completo =
-    datos_obtenidos.nombres + " " + datos_obtenidos.apellidos;
+    const datos_obtenidos = new Object();
+    campos_importante.forEach(v => {
+        datos_obtenidos[v] = oficina[v]
+    });
 
-  return datos_obtenidos;
+    datos_obtenidos.nombre_completo = datos_obtenidos.nombres + " " + datos_obtenidos.apellidos;
+    datos_obtenidos.tipo_distribucion = oficina.configuracion.tipo_distribucion;
+
+    return datos_obtenidos
+
 }
 
 function verificarAntesSeleccionarOficina(oficina, cotizacion) {
@@ -1592,34 +1625,33 @@ function verificarAntesSeleccionarOficina(oficina, cotizacion) {
 
 //Selecciona la transportadora a utilizar
 function seleccionarTransportadora(e) {
-  if (e.target.classList.contains("detalles")) return;
-  const transp = this.getAttribute("data-transp");
-  const type = this.getAttribute("data-type");
-  const isOficina = !!this.getAttribute("data-office");
-  const nOffice = this.getAttribute("data-id");
-  const oficina = oficinas[nOffice];
-  const seleccionado = isOficina ? "OFICINA" : type;
-  const isIndex = document
-    .getElementById("cotizar_envio")
-    .getAttribute("data-index");
 
-  delete datos_a_enviar.oficina;
-  delete datos_a_enviar.datos_oficina;
-  delete datos_a_enviar.id_oficina;
+    if (e.target.classList.contains("detalles")) return
+    const transp = this.getAttribute("data-transp");
+    const type = this.getAttribute("data-type");
+    const isOficina = !!this.getAttribute("data-office");
+    const nOffice = this.getAttribute("data-id");
+    const oficina = oficinas[nOffice];
+    const seleccionado = isOficina ? "OFICINA" : type;
+    const isIndex = document.getElementById("cotizar_envio").getAttribute("data-index");
 
-  let result_cotizacion = transportadoras[transp].cotizacion[seleccionado];
+    delete datos_a_enviar.oficina
+    delete datos_a_enviar.datos_oficina
+    delete datos_a_enviar.id_oficina
 
-  if (isIndex) {
-    location.href = "ingreso.html";
-  }
+    let result_cotizacion = transportadoras[transp].cotizacion[seleccionado];
 
-  if (isOficina) {
-    if (verificarAntesSeleccionarOficina(oficina, result_cotizacion)) return;
-    result_cotizacion.sobreflete_oficina =
-      (result_cotizacion.flete * oficina.precios.porcentaje_comsion) / 100;
-  }
+    if(isIndex){
+        location.href = "ingreso.html";
+    };
 
-  const texto_tranp_no_disponible = `Actualmente no tienes habilitada esta transportadora, 
+    if(isOficina) {
+        if(verificarAntesSeleccionarOficina(oficina, result_cotizacion)) return;
+        const sobreflete_ofi = result_cotizacion.valor * oficina.configuracion.porcentaje_comsion / 100;
+        result_cotizacion.sobreflete_oficina = Math.max(sobreflete_ofi, oficina.configuracion.comision_minima);
+    }
+
+    const texto_tranp_no_disponible = `Actualmente no tienes habilitada esta transportadora, 
     si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/8m9ovw">312 463 8608</a>`;
 
   const swal_error = {
@@ -1828,23 +1860,36 @@ function finalizarCotizacion(datos) {
         `;
   }
 
-  if (
-    datos.transportadora === "INTERRAPIDISIMO" ||
-    datos.transportadora === "SERVIENTREGA"
-  ) {
-    entrega_en_oficina = `
-        <div class="col-sm-2">
-            <h5>Tipo de entrega</h5>
 
-            <select class="custom-select" id="entrega_en_oficina" name="entrega_en_oficina">
+    
+
+    if(datos.oficina) {
+        entrega_en_oficina = `
+
+        <div class="col-sm-2">
+            <h5>Tipo de entrega (flexii)</h5>
+
+            <select class="custom-select" id="tipo_ditribucion_flexi" name="tipo_ditribucion_flexi">
                 <option value="">Seleccione</option>
-                <option value="1">Entrega en dirección</option>
-                <option value="2">
-                    Entrega en oficina
-                </option>
+                ${datos.datos_oficina.tipo_distribucion.map(id => `<option value="${id}">${TIPOS_DIST_OFICINA[id]}</option>`)}                
             </select>
-        </div>`;
-  }
+
+        </div>`
+    } else {
+        if(datos.transportadora === "INTERRAPIDISIMO" || datos.transportadora === "SERVIENTREGA") {
+            entrega_en_oficina = `
+            <div class="col-sm-2">
+                <h5>Tipo de entrega</h5>
+    
+                <select class="custom-select" id="entrega_en_oficina" name="entrega_en_oficina">
+                    <option value="">Seleccione</option>
+                    <option value="1">Entrega en dirección</option>
+                    <option value="2">Entrega en oficina</option>
+                </select>
+            </div>`;
+        }
+    }
+
 
   let detalles = detalles_cotizacion(datos),
     boton_regresar =
@@ -2414,9 +2459,50 @@ class CalcularCostoDeEnvio {
       seguro: this.seguro,
     };
 
-    if (this.aveo) {
-      details.seguro_mercancia = this.precio.costoManejo;
+
+    get costoDevolucion() {
+        switch(this.codTransp) {
+            case transportadoras.SERVIENTREGA.cod:
+                return this.costoEnvio;
+            case transportadoras.INTERRAPIDISIMO.cod:
+                return this.flete + this.seguroMercancia + this.sobreflete + 1000;
+            case transportadoras.ENVIA.cod:
+                return (this.flete + this.seguroMercancia + 1000) * 2;
+            case transportadoras.COORDINADORA.cod:
+                return (this.flete + this.seguroMercancia + 1000) * 2;
+        }
     }
+
+    get costoEnvioPrev() {
+        let resultado = this.fletePrev + this.sobreFletes(this.valor);
+        return resultado;
+    }
+    
+    get getDetails() {
+        console.groupCollapsed("Detalles de Cotización")
+        console.log("Valor ingresado =>", this.valor);
+        console.log("Kg => ", this.kgTomado);
+        console.log("Volumen => ", this.volumen);
+        console.log("comision transportadora => ", this.sobreflete);
+        console.log("Seguro mercancia => ", this.seguroMercancia);
+        console.log("Comision heka => ", this.sobreflete_heka);
+        console.log("Comisión Oficina =>", this.sobreflete_oficina);
+        console.log("Flete => ", this.flete);
+        console.log("Costo de envío =>", this.costoEnvio);
+        console.groupEnd();
+
+        const details = {
+            peso_real: this.kg,
+            flete: this.flete,
+            comision_heka: this.sobreflete_heka,
+            comision_trasportadora: this.sobreflete + this.seguroMercancia,
+            peso_liquidar: this.kgTomado,
+            peso_con_volumen: this.pesoVolumen,
+            total: this.costoEnvio,
+            recaudo: this.valor,
+            seguro: this.seguro,
+            costoDevolucion: this.costoDevolucion
+        };
 
     if (ControlUsuario.esPuntoEnvio)
       details.comision_punto = this.comision_punto;
@@ -2871,29 +2957,160 @@ function modificarDatosDeTransportadorasAveo(res) {
 
 // Para enviar la guia generada a firestore
 function crearGuia() {
-  let boton_final_cotizador = document.getElementById("boton_final_cotizador");
-  const textoBtn = boton_final_cotizador.textContent;
-  boton_final_cotizador.innerHTML =
-    "<span class='spinner-border spinner-border-sm'></span> Cargando...";
+    let boton_final_cotizador = document.getElementById("boton_final_cotizador");
+    const textoBtn = boton_final_cotizador.textContent;
+    boton_final_cotizador.innerHTML = "<span class='spinner-border spinner-border-sm'></span> Cargando...";
 
-  boton_final_cotizador.setAttribute("disabled", true);
+    boton_final_cotizador.setAttribute("disabled", true);
 
-  const mostrarResultado = (res) => {
-    if (res.icon === "success") {
-      Swal.fire({
-        icon: "success",
-        title: res.title,
-        text: res.mensaje,
-        timer: 6000,
-        showCancelButton: true,
-        confirmButtonText: "Si, ir al cotizador.",
-        cancelButtonText: "No, ver el historial.",
-      }).then((res) => {
-        if (res.isConfirmed) {
-          location.href = "#cotizador";
+    const mostrarResultado = res => {
+        if(res.icon === "success") {
+            Swal.fire({
+                icon: "success",
+                title: res.title,
+                text: res.mensaje,
+                timer: 6000,
+                showCancelButton: true,
+                confirmButtonText: "Si, ir al cotizador.",
+                cancelButtonText: "No, ver el historial."
+    
+            }).then((res) => {
+                if(res.isConfirmed) {
+                    location.href = "#cotizador";
+                } else {
+                    location.href = "#historial_guias";
+                    cambiarFecha();
+                }
+            })
         } else {
-          location.href = "#historial_guias";
-          cambiarFecha();
+            Swal.fire({
+                icon: res.icon,
+                title: res.title,
+                html: res.mensaje
+            });
+
+            firebase.firestore().collection("errores").add({
+                datos_personalizados, datos_a_enviar,
+                datos_usuario,
+                momento: new Date().getTime(),
+                fecha: new Date(),
+                respuesta: res
+            });
+        }
+
+        boton_final_cotizador.removeAttribute("disabled");
+
+        boton_final_cotizador.textContent = textoBtn;
+
+    }
+
+    if(value("nombreD") != "" && value("direccionD") != "" && value("telefonoD") != ""){
+        let recoleccion = 0;
+        if(document.getElementById("recoleccion") && document.getElementById("recoleccion").checked){
+            recoleccion = 1;
+        }
+        
+        const inpTipo_entrega = document.getElementById("entrega_en_oficina");
+        const inpTipo_entregaFlexi = document.getElementById("tipo_ditribucion_flexi");
+        const checkCreacionPedido = $("#check-crear_pedido").prop("checked");
+
+        if(value("producto") == ""){
+            renovarSubmit(boton_final_cotizador, textoBtn)
+            alert("Recuerde llenar también lo que contine su envío");
+            scrollTo({
+                top: document.getElementById("producto").parentNode.offsetTop - 60,
+                left: document.getElementById("producto").parentNode.offsetLeft,
+                behavior: "smooth"
+            })
+        } else if (!validar_email(value("correoD")) && value("correoD")){
+            //Recordar que existe una funcion llamada "validar_email(email)" que es mas especifica.
+            alert("Lo sentimos, verifique por favor que la dirección de correo sea valida")
+            renovarSubmit(boton_final_cotizador, textoBtn)
+        } else if (value("telefonoD").length != 10) {
+            alert("Por favor verifique que el celular esta escrito correctamente (debe contener 10 digitos)")
+            renovarSubmit(boton_final_cotizador, textoBtn)
+        } else if(!datos_usuario.centro_de_costo) {
+            avisar("¡Error al generar Guía!", "Por favor, recargue la página, e intente nuevamente, si su problema persiste, póngase en Contacto con nosotros para asignarle un centro de costo", "advertencia");
+            renovarSubmit(boton_final_cotizador, textoBtn)
+        } else if(inpTipo_entrega && !inpTipo_entrega.value){
+            swal.fire("Es necesario seleccionar el tipo de envío", "", "warning");
+            verificador("entrega_en_oficina")
+            renovarSubmit(boton_final_cotizador, textoBtn)
+        } else if(inpTipo_entregaFlexi && !inpTipo_entregaFlexi.value){
+            swal.fire("Es necesario seleccionar el tipo de envío para flexi", "", "warning");
+            verificador("tipo_ditribucion_flexi")
+            renovarSubmit(boton_final_cotizador, textoBtn)
+        } else if(datos_usuario.type === "PUNTO" && !datos_a_enviar.id_user) {
+            swal.fire("Recuerde seleccionar el cliente", "", "warning");
+            verificador("numero_documento_usuario");
+            renovarSubmit(boton_final_cotizador, textoBtn);
+
+        } else if(datos_a_enviar.transportadora === "INTERRAPIDISIMO" && (!bodega || !bodega.codigo_sucursal_inter)) {
+            swal.fire("Asegurece de seleccionar una bodega válida para interrapidísimo", "", "warning");
+            verificador("actualizar_direccionR", "moderador_direccionR");
+            renovarSubmit(boton_final_cotizador, textoBtn);
+        } else {
+            Swal.fire({
+                title: "Creando Guía",
+                text: "Por favor espere mientras le generamos su nueva Guía",
+                didOpen: () => {
+                    Swal.showLoading();
+                },
+                allowOutsideClick: false,
+                allowEnterKey: false,
+                showConfirmButton: false,
+                allowEscapeKey: true
+            })
+            let fecha = new Date(), mes = fecha.getMonth() + 1, dia = fecha.getDate();
+            if(dia < 10){
+                dia = "0" + dia;
+            }
+            if(mes < 10) {
+                mes = "0" + mes;
+            }
+
+            datos_a_enviar.nombreR = value("actualizar_nombreR").trim();
+            datos_a_enviar.direccionR = value("actualizar_direccionR").trim();
+            datos_a_enviar.nombre_empresa = datos_usuario.nombre_empresa || "";
+            datos_a_enviar.celularR = value("actualizar_celularR").trim();
+            datos_a_enviar.nombreD = value("nombreD").trim();
+            datos_a_enviar.identificacionD = value("identificacionD") || 123;
+            datos_a_enviar.direccionD = value("direccionD").trim() + " " + value("barrioD").trim() + " " + value("observaciones");
+            datos_a_enviar.telefonoD = value("telefonoD");
+            datos_a_enviar.celularD = value("celularD") || value("telefonoD");
+            datos_a_enviar.correoD = value("correoD").trim() || "notiene@gmail.com";
+            datos_a_enviar.tipo_doc_dest = value("tipo-doc-dest");
+            datos_a_enviar.dice_contener = value("producto").trim();
+            datos_a_enviar.referencia = value("referencia").trim();
+            datos_a_enviar.observaciones = value("observaciones");
+            datos_a_enviar.recoleccion_esporadica = recoleccion;
+            datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`;
+            datos_a_enviar.timeline = new Date().getTime();
+
+            if(datos_usuario.type !== "PUNTO")
+            datos_a_enviar.id_user = user_id;
+            datos_a_enviar.staging = checkCreacionPedido;
+            
+            if(datos_usuario.type === "PUNTO") {
+                datos_a_enviar.id_punto = user_id;
+                datos_a_enviar.pertenece_punto = true;
+            }
+
+            if(datos_a_enviar.transportadora === "INTERRAPIDISIMO") datos_a_enviar.codigo_sucursal = bodega.codigo_sucursal_inter;
+            
+            datos_a_enviar.cuenta_responsable = transportadoras[datos_a_enviar.transportadora]
+            .getCuentaResponsable();
+
+            if(inpTipo_entrega) datos_a_enviar.id_tipo_entrega = parseInt(inpTipo_entrega.value);
+            if(inpTipo_entregaFlexi) datos_a_enviar.id_tipo_entrega_flexi = parseInt(inpTipo_entregaFlexi.value);
+
+            // boton_final_cotizador.remove()
+
+            if(checkCreacionPedido) {
+                enviar_firestore(datos_a_enviar).then(mostrarResultado);
+            } else {
+                creacionDirecta(datos_a_enviar).then(mostrarResultado);
+            }
         }
       });
     } else {
@@ -3862,103 +4079,90 @@ function convertirMiles(n) {
 }
 
 function observacionesServientrega(result_cotizacion) {
-  console.log(result_cotizacion);
-  let c_destino = document.getElementById("ciudadD").dataset;
-  let lists = [
-    "Los tiempos de entrega son aproximados, no son exactos, ya que pueden suceder problemas operativos.",
-    "El paquete deberá estar correctamente embalado, de lo contrario la transportadora no responderá por averías.",
-    "En algunas ciudades y/o municipios, según las rutas, si el vehículo encargado de realizar las entregas no alcanza a culminar la ruta operativa dejara el paquete en una oficina para que sea reclamado por el destinatario.",
-    "En caso de novedad en la cual el destinatario no se encuentre la transportadora realizará un nuevo intento de entrega, en caso de presentarse una novedad distinta la transportadora se comunicará con el remitente y destinario, en caso de no tener respuesta a la llamada la transportadora genera la devolución. (Por eso recomendamos solucionar las novedades lo antes posible para intentar retener el proceso de devolución).",
-    "En caso de devolución la transportadora cobrará el valor completo del envío el cual estará reflejado en el cotizador. (Aplica para envíos en pago contra entrega).",
-    "Las recolecciones deberán ser solicitadas antes de las 10:00 am para que pasen el mismo día, en caso de ser solicitadas después de este horario quedaran automáticamente para el siguiente día.",
-    "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
-    "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero o la oficina donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
-    `Los envíos a ${
-      c_destino.ciudad
-    } frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span>`,
-    `Los envíos a ${
-      c_destino.ciudad
-    } disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`,
-    `En caso de devolución pagarías: $${convertirMiles(
-      result_cotizacion.costoEnvio
-    )} (Aplica solo para envíos en pago contra entrega)`,
-    "Las devoluciones con flexii se debe pagar envío ida y vuelta",
-  ];
 
-  let ul = document.createElement("ul");
-  ul.classList.add("text-left");
+    console.log(result_cotizacion);
+    let c_destino = document.getElementById('ciudadD').dataset;
+    let lists = [
+        "Los tiempos de entrega son aproximados, no son exactos, ya que pueden suceder problemas operativos.", 
+        "El paquete deberá estar correctamente embalado, de lo contrario la transportadora no responderá por averías.", 
+        "En algunas ciudades y/o municipios, según las rutas, si el vehículo encargado de realizar las entregas no alcanza a culminar la ruta operativa dejara el paquete en una oficina para que sea reclamado por el destinatario.", 
+        "En caso de novedad en la cual el destinatario no se encuentre la transportadora realizará un nuevo intento de entrega, en caso de presentarse una novedad distinta la transportadora se comunicará con el remitente y destinario, en caso de no tener respuesta a la llamada la transportadora genera la devolución. (Por eso recomendamos solucionar las novedades lo antes posible para intentar retener el proceso de devolución).", 
+        "En caso de devolución la transportadora cobrará el valor completo del envío el cual estará reflejado en el cotizador. (Aplica para envíos en pago contra entrega).", 
+        "Las recolecciones deberán ser solicitadas antes de las 10:00 am para que pasen el mismo día, en caso de ser solicitadas después de este horario quedaran automáticamente para el siguiente día.", 
+        "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.", 
+        "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero o la oficina donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
+        `Los envíos a ${c_destino.ciudad} frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span>`,
+        `Los envíos a ${c_destino.ciudad} disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`,
+        `En caso de devolución pagarías: $${convertirMiles(result_cotizacion.costoDevolucion)} (Aplica solo para envíos en pago contra entrega)`,
+        "Las devoluciones con flexii se debe pagar envío ida y vuelta"
+    ]
 
-  for (let list of lists) {
-    let li = document.createElement("li");
-    li.classList.add("my-3");
-    li.innerHTML = list;
-    ul.append(li);
-  }
+    let ul = document.createElement("ul");
+    ul.classList.add("text-left")
 
-  return ul;
-}
+    for(let list of lists) {
+        let li = document.createElement("li");
+        li.classList.add("my-3")
+        li.innerHTML = list;
+        ul.append(li);
+    }
+
+    return ul;
+};
 
 function observacionesInteRapidisimo(result_cotizacion) {
-  let lists = [
-    "Los tiempos de entrega son aproximados, no son exactos, ya que pueden suceder problemas operativos.",
-    "El paquete deberá estar correctamente embalado, de lo contrario la transportadora no responderá por averías.",
-    "En algunos municipios, si la entrega es en dirección y está fuera de la cobertura de la oficina el cliente deberá reclamar su paquete en la oficina.",
-    "En caso de novedad la transportadora llama a destinatario y/o remitente para solucionar.",
-    "En caso de devolución la transportadora cobrará el valor del flete ida + seguro de mercancía, no se cobra comisión de recaudo, ni flete de vuelta.",
-    "Las recolecciones deberán ser solicitadas el día anterior o el mismo antes de las 9:00 am para que pasen el mismo día.",
-    "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
-    "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
-    "En caso de devolución pagarías: $" +
-      convertirMiles(
-        result_cotizacion.flete +
-          result_cotizacion.seguroMercancia +
-          result_cotizacion.sobreflete +
-          1000
-      ) +
-      " (Aplica solo para envíos en pago contra entrega)",
-    "Las devoluciones con flexii se debe pagar envío ida y vuelta",
-  ];
+    let lists = [
+        "Los tiempos de entrega son aproximados, no son exactos, ya que pueden suceder problemas operativos.",
+        "El paquete deberá estar correctamente embalado, de lo contrario la transportadora no responderá por averías.",
+        "En algunos municipios, si la entrega es en dirección y está fuera de la cobertura de la oficina el cliente deberá reclamar su paquete en la oficina.",
+        "En caso de novedad la transportadora llama a destinatario y/o remitente para solucionar.",
+        "En caso de devolución la transportadora cobrará el valor del flete ida + seguro de mercancía, no se cobra comisión de recaudo, ni flete de vuelta.",
+        "Las recolecciones deberán ser solicitadas el día anterior o el mismo antes de las 9:00 am para que pasen el mismo día.",
+        "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
+        "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
+        "En caso de devolución pagarías: $"+ convertirMiles(result_cotizacion.costoDevolucion) +" (Aplica solo para envíos en pago contra entrega)",
+        "Las devoluciones con flexii se debe pagar envío ida y vuelta"
+    ]
 
-  let ul = document.createElement("ul");
-  ul.classList.add("text-left");
+    let ul = document.createElement("ul");
+    ul.classList.add("text-left")
 
-  for (let list of lists) {
-    let li = document.createElement("li");
-    li.classList.add("my-3");
-    li.innerHTML = list;
-    ul.append(li);
-  }
+    for(let list of lists) {
+        let li = document.createElement("li");
+        li.classList.add("my-3")
+        li.innerHTML = list;
+        ul.append(li);
+    }
 
-  return ul;
+    return ul;
 }
 
 function observacionesEnvia(result_cotizacion) {
-  let lists = [
-    "Los tiempos de entrega son aproximados, no son exactos, ya que pueden suceder problemas operativos.",
-    "El paquete deberá estar correctamente embalado, de lo contrario la transportadora no responderá por averías.",
-    "En algunos municipios, si la entrega es en dirección y está fuera de la cobertura de la oficina el cliente deberá reclamar su paquete en la oficina.",
-    "En caso de novedad la transportadora llama a destinatario y/o remitente para solucionar.",
-    "En caso de devolución la transportadora cobrará el valor del flete ida + seguro de mercancía, no se cobra comisión de recaudo, ni flete de vuelta.",
-    "Las recolecciones deberán ser solicitadas el día anterior o el mismo antes de las 9:00 am para que pasen el mismo día.",
-    "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
-    "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
-    `En caso de devolución pagarías: $${convertirMiles(
-      (result_cotizacion.flete + result_cotizacion.seguroMercancia + 1000) * 2
-    )} (Aplica solo para envíos en pago contra entrega)`,
-    "Las devoluciones con flexii se debe pagar envío ida y vuelta",
-  ];
+    let lists = [
+        "Los tiempos de entrega son aproximados, no son exactos, ya que pueden suceder problemas operativos.",
+        "El paquete deberá estar correctamente embalado, de lo contrario la transportadora no responderá por averías.",
+        "En algunos municipios, si la entrega es en dirección y está fuera de la cobertura de la oficina el cliente deberá reclamar su paquete en la oficina.",
+        "En caso de novedad la transportadora llama a destinatario y/o remitente para solucionar.",
+        "En caso de devolución la transportadora cobrará el valor del flete ida + seguro de mercancía, no se cobra comisión de recaudo, ni flete de vuelta.",
+        "Las recolecciones deberán ser solicitadas el día anterior o el mismo antes de las 9:00 am para que pasen el mismo día.",
+        "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
+        "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
+        `En caso de devolución pagarías: $${convertirMiles(result_cotizacion.costoDevolucion)} (Aplica solo para envíos en pago contra entrega)`,
+        "Las devoluciones con flexii se debe pagar envío ida y vuelta"
+    ]
 
-  let ul = document.createElement("ul");
-  ul.classList.add("text-left");
+    let ul = document.createElement("ul");
+    ul.classList.add("text-left")
 
-  for (let list of lists) {
-    let li = document.createElement("li");
-    li.classList.add("my-3");
-    li.innerHTML = list;
-    ul.append(li);
-  }
+    for(let list of lists) {
+        let li = document.createElement("li");
+        li.classList.add("my-3")
+        li.innerHTML = list;
+        ul.append(li);
+    }
 
-  return ul;
+    return ul;
+
 }
 
 // ESPACIO PARA ALIMENTAR LOS POPOVERS DEL COTIZADOR

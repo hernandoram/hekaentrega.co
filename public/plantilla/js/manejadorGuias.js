@@ -2962,6 +2962,7 @@ async function historialGuiasAdmin(e) {
         { data: "detalles.recaudo", title: "Recaudo"},
         { data: "seguro", title: "Seguro"},
         { data: "detalles.total", title: "Total"},
+        { data: "detalles.costoDevolucion", title: "Costo devolución", defaultContent: "---"},
         { data: "fecha", title: "Fecha"},
         { data: "debe", title: "deuda", defaultContent: "no aplica", render: function(content, display, data) {
             if(data.debe
