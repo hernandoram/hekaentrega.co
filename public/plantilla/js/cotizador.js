@@ -16,7 +16,7 @@ let transportadoras = {
         limitesLongitud: [1,150],
         limitesRecaudo: [5000, 2000000],
         bloqueada: () => false,
-        bloqueadaOfi: true,
+        bloqueadaOfi: false,
         limitesValorDeclarado: (valor) => {
             return [5000,300000000]
         },
@@ -80,7 +80,7 @@ let transportadoras = {
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
         bloqueada: () => false,
-        bloqueadaOfi: true,
+        bloqueadaOfi: false,
         limitesValorDeclarado: (valor) => {
             return [10000, 30000000]
         },
@@ -134,7 +134,7 @@ let transportadoras = {
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
         bloqueada: () => false,
-        bloqueadaOfi: true,
+        bloqueadaOfi: false,
         limitesValorDeclarado: (valor) => {
             return [10000, 30000000]
         },
@@ -593,9 +593,7 @@ async function detallesTransportadoras(data) {
     result.after('<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>')
     const isIndex = document.getElementById("cotizar_envio").getAttribute("data-index");
 
-    const sistFlexi = datos_personalizados.sistema_flexii;
-    const actvFlexi = sistFlexi && sistFlexi !== "inhabilitado";
-    if(!isIndex && data.type === PAGO_CONTRAENTREGA && data.peso <= 5 && actvFlexi) {
+    if(!isIndex && data.type === PAGO_CONTRAENTREGA && data.peso <= 5) {
         oficinas = await detallesOficinas(data.ciudadD);
         cargarPreciosTransportadorasOficinas(data);
     }
@@ -1160,7 +1158,8 @@ async function cargarPreciosTransportadorasOficinas(data) {
         let valorRecaudo = Math.max(recaudo, transportadora.limitesRecaudo[0]);
 
         let cotizador = new CalcularCostoDeEnvio(valorSeguro, "CONVENCIONAL")
-        
+        cotizador.isOficina = true;
+
         if(transp === "ENVIA") cotizador.valor = recaudo;
         
         cotizador.kg_min = transportadora.limitesPeso[0];
@@ -1407,6 +1406,15 @@ function seleccionarTransportadora(e) {
         if(verificarAntesSeleccionarOficina(oficina, result_cotizacion)) return;
         const sobreflete_ofi = result_cotizacion.valor * oficina.configuracion.porcentaje_comsion / 100;
         result_cotizacion.sobreflete_oficina = Math.max(sobreflete_ofi, oficina.configuracion.comision_minima);
+
+        const sistFlexi = datos_personalizados.sistema_flexii;
+        const actvFlexi = sistFlexi && sistFlexi !== "inhabilitado";
+
+        if(!actvFlexi) return Swal.fire({
+            icon: "error",
+            text: `Actualmente no tienes habilitaod el envío por flexii, 
+            si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/8m9ovw">312 463 8608</a>`
+        });
     }
 
     const texto_tranp_no_disponible = `Actualmente no tienes habilitada esta transportadora, 
@@ -2011,6 +2019,7 @@ class CalcularCostoDeEnvio {
         this.codTransp = "SERVIENTREGA";
         this.sobreflete_oficina = 0;
         this.comision_punto = 0;
+        this.isOficina = false;
 
         this._alto = parseInt(value("dimension-alto"));
         this._ancho = parseInt(value("dimension-ancho"));
@@ -2073,6 +2082,8 @@ class CalcularCostoDeEnvio {
     }
 
     get costoDevolucion() {
+        if(this.isOficina) return (this.flete * 2) + 1000;
+
         switch(this.codTransp) {
             case transportadoras.SERVIENTREGA.cod:
                 return this.costoEnvio;
