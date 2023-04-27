@@ -154,7 +154,7 @@ let transportadoras = {
 
 const configOficinaDefecto = {
     porcentaje_comsion: 3.9,
-    tipo_distribucion: [0,1], // 1: Entrega en dirección ; 2: Entrega en oficina
+    tipo_distribucion: [0,1], // 0: Entrega en dirección ; 1: Entrega en oficina
     comision_minima: 3900
 }
 

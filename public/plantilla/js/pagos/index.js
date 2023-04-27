@@ -141,8 +141,9 @@ function datosImportantesIncompletos(objToSend, completeData) {
     } else if (objToSend.TRANSPORTADORA !== "Servientrega" 
     && objToSend.TRANSPORTADORA != "ENVÍA" 
     && objToSend.TRANSPORTADORA != "TCC"
-    && objToSend.TRANSPORTADORA != "Interrapidisimo") {
-      return "Por favor, Asegurate que la factura de la guía: " + objToSend.GUIA + " le pertenezca a <b>ENVÍA, TCC, Servientrega o Interrapidisimo</b>"
+    && objToSend.TRANSPORTADORA != "Interrapidisimo"
+    && objToSend.TRANSPORTADORA != "COORDINADORA") {
+      return "Por favor, Asegurate que la factura de la guía: " + objToSend.GUIA + " le pertenezca a <b>ENVÍA, TCC, Servientrega, Interrapidisimo o COORDINADORA</b>"
     }
 }
 
