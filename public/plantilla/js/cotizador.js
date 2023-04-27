@@ -1345,7 +1345,12 @@ async function cargarPreciosTransportadorasOficinas(data) {
     );
     let valorRecaudo = Math.max(recaudo, transportadora.limitesRecaudo[0]);
 
-    let cotizador = new CalcularCostoDeEnvio(valorSeguro, "CONVENCIONAL");
+
+    let cotizacionAveo, corredor = 0;
+    const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : "CONVENCIONAL";
+    const observadorTransp = $(".ver-detalles-office");
+    const detallesClick = $(".detalles-office-click");
+
 
     if (transp === "ENVIA") cotizador.valor = recaudo;
 
@@ -1356,7 +1361,6 @@ async function cargarPreciosTransportadorasOficinas(data) {
       dane_ciudadD: data.dane_ciudadD,
       cotizacionAveo,
     });
-
 
     if (data.type === "PAGO CONTRAENTREGA") {
       const comision_heka = cotizacion.precios.comision_heka;
@@ -1408,7 +1412,17 @@ async function cargarPreciosTransportadorasOficinas(data) {
     verDetalles();
   });
 
-  return oficinas;
+
+    detallesClick.on("click", (e) => {
+        const transp = observadorTransp.val();
+        const cotizacion = transportadoras[transp].cotizacion["OFICINA"];
+        const verDetalles = verDetallesTransportadora.bind(e.target);
+        
+        cambiarPreciosOficinasPorTransportadora(e.target, cotizacion, oficinas);
+        verDetalles();
+    })
+
+    return oficinas;
 }
 
 function cambiarPreciosOficinasPorTransportadora(target, cotizacion, oficinas) {
@@ -1591,26 +1605,25 @@ function verificarAntesSeleccionarOficina(oficina, cotizacion) {
 
 //Selecciona la transportadora a utilizar
 function seleccionarTransportadora(e) {
-  if (e.target.classList.contains("detalles")) return;
-  const transp = this.getAttribute("data-transp");
-  const type = this.getAttribute("data-type");
-  const isOficina = !!this.getAttribute("data-office");
-  const nOffice = this.getAttribute("data-id");
-  const oficina = oficinas[nOffice];
-  const seleccionado = isOficina ? "OFICINA" : type;
-  const isIndex = document
-    .getElementById("cotizar_envio")
-    .getAttribute("data-index");
 
-  delete datos_a_enviar.oficina;
-  delete datos_a_enviar.datos_oficina;
-  delete datos_a_enviar.id_oficina;
+    if (e.target.classList.contains("detalles")) return
+    const transp = this.getAttribute("data-transp");
+    const type = this.getAttribute("data-type");
+    const isOficina = !!this.getAttribute("data-office");
+    const nOffice = this.getAttribute("data-id");
+    const oficina = oficinas[nOffice];
+    const seleccionado = isOficina ? "OFICINA" : type;
+    const isIndex = document.getElementById("cotizar_envio").getAttribute("data-index");
 
-  let result_cotizacion = transportadoras[transp].cotizacion[seleccionado];
+    delete datos_a_enviar.oficina
+    delete datos_a_enviar.datos_oficina
+    delete datos_a_enviar.id_oficina
 
-  if (isIndex) {
-    location.href = "ingreso.html";
-  }
+    let result_cotizacion = transportadoras[transp].cotizacion[seleccionado];
+
+    if(isIndex){
+        location.href = "ingreso.html";
+    };
 
     if(isOficina) {
         if(verificarAntesSeleccionarOficina(oficina, result_cotizacion)) return;
@@ -1618,7 +1631,7 @@ function seleccionarTransportadora(e) {
         result_cotizacion.sobreflete_oficina = Math.max(sobreflete_ofi, oficina.configuracion.comision_minima);
     }
 
-  const texto_tranp_no_disponible = `Actualmente no tienes habilitada esta transportadora, 
+    const texto_tranp_no_disponible = `Actualmente no tienes habilitada esta transportadora, 
     si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/8m9ovw">312 463 8608</a>`;
 
   const swal_error = {
@@ -2422,9 +2435,6 @@ class CalcularCostoDeEnvio {
       seguro: this.seguro,
     };
 
-    if (this.aveo) {
-      details.seguro_mercancia = this.precio.costoManejo;
-    }
 
     if (ControlUsuario.esPuntoEnvio)
       details.comision_punto = this.comision_punto;
@@ -2939,7 +2949,7 @@ function crearGuia() {
   const textoBtn = boton_final_cotizador.textContent;
   boton_final_cotizador.innerHTML = "<span class='spinner-border spinner-border-sm'></span> Cargando...";
 
-  boton_final_cotizador.setAttribute("disabled", true);
+    boton_final_cotizador.setAttribute("disabled", true);
 
   const mostrarResultado = res => {
       if(res.icon === "success") {
@@ -3921,18 +3931,18 @@ function observacionesServientrega(result_cotizacion) {
         "Las devoluciones con flexii se debe pagar envío ida y vuelta"
     ]
 
-  let ul = document.createElement("ul");
-  ul.classList.add("text-left");
+    let ul = document.createElement("ul");
+    ul.classList.add("text-left")
 
-  for (let list of lists) {
-    let li = document.createElement("li");
-    li.classList.add("my-3");
-    li.innerHTML = list;
-    ul.append(li);
-  }
+    for(let list of lists) {
+        let li = document.createElement("li");
+        li.classList.add("my-3")
+        li.innerHTML = list;
+        ul.append(li);
+    }
 
-  return ul;
-}
+    return ul;
+};
 
 function observacionesInteRapidisimo(result_cotizacion) {
     let lists = [
@@ -3948,17 +3958,17 @@ function observacionesInteRapidisimo(result_cotizacion) {
         "Las devoluciones con flexii se debe pagar envío ida y vuelta"
     ]
 
-  let ul = document.createElement("ul");
-  ul.classList.add("text-left");
+    let ul = document.createElement("ul");
+    ul.classList.add("text-left")
 
-  for (let list of lists) {
-    let li = document.createElement("li");
-    li.classList.add("my-3");
-    li.innerHTML = list;
-    ul.append(li);
-  }
+    for(let list of lists) {
+        let li = document.createElement("li");
+        li.classList.add("my-3")
+        li.innerHTML = list;
+        ul.append(li);
+    }
 
-  return ul;
+    return ul;
 }
 
 function observacionesEnvia(result_cotizacion) {
@@ -3975,17 +3985,18 @@ function observacionesEnvia(result_cotizacion) {
         "Las devoluciones con flexii se debe pagar envío ida y vuelta"
     ]
 
-  let ul = document.createElement("ul");
-  ul.classList.add("text-left");
+    let ul = document.createElement("ul");
+    ul.classList.add("text-left")
 
-  for (let list of lists) {
-    let li = document.createElement("li");
-    li.classList.add("my-3");
-    li.innerHTML = list;
-    ul.append(li);
-  }
+    for(let list of lists) {
+        let li = document.createElement("li");
+        li.classList.add("my-3")
+        li.innerHTML = list;
+        ul.append(li);
+    }
 
-  return ul;
+    return ul;
+
 }
 
 // ESPACIO PARA ALIMENTAR LOS POPOVERS DEL COTIZADOR
