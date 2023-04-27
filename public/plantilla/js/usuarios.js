@@ -636,7 +636,9 @@ function mostrarOficina(id) {
   const direccion = document.querySelector("#dirección-oficina");
   const barrio = document.querySelector("#barrio-oficina");
   const con = document.querySelector("#con-oficina");
+  
   const visible = document.querySelector("#visible-oficina");
+
   const checkbox1 = document.getElementById("tipo-distribucion-direccion"); 
   const checkbox2 = document.getElementById("tipo-distribucion-oficina"); 
  
@@ -673,7 +675,9 @@ function mostrarOficina(id) {
         direccion.value = data.direccion;
         barrio.value = data.barrio;
         con.value = data.con;
-        visible.value = data.visible;
+
+        console.log(data.visible)
+        data.visible===true?visible.value=true:visible.value=false;
 
         data.configuracion ?  porcentaje.value=data.configuracion.porcentaje_comsion: porcentaje.value=3.9;         
         data.configuracion ? comisionMinima.value=data.configuracion.comision_minima : comisionMinima.value=3900;
@@ -1198,6 +1202,12 @@ function actualizarInformacionPersonal() {
 }
 
 function actualizarInformacionOficina() {
+  let  aux = false;
+
+  if(value("visible-oficina") == "true"){
+  aux = true;
+  }
+
   let datos = {
     nombres: value("nombres-oficina"),
     apellidos: value("apellidos-oficina"),
@@ -1209,9 +1219,10 @@ function actualizarInformacionOficina() {
     direccion: value("dirección-oficina"),
     barrio: value("barrio-oficina"),
     con: value("con-oficina"),
-    visible: Boolean(value("visible-oficina")),
+    visible: aux,
     direccion_completa: value("dirección-oficina") + ", " + value("barrio-oficina") + ", " + value("ciudad-oficina"),
   };
+  console.log(aux);
   console.log(datos)
 
   let ofi = idOficina;
