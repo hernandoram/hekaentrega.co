@@ -154,7 +154,7 @@ let transportadoras = {
 
 const configOficinaDefecto = {
     porcentaje_comsion: 3.9,
-    tipo_distribucion: [0,1], // 0: Entrega en dirección ; 1: Entrega en oficina
+    tipo_distribucion: [1,1], // 0: Entrega en dirección ; 1: Entrega en oficina
     comision_minima: 3900
 }
 
@@ -1599,7 +1599,11 @@ function finalizarCotizacion(datos) {
 
             <select class="custom-select" id="tipo_ditribucion_flexi" name="tipo_ditribucion_flexi">
                 <option value="">Seleccione</option>
-                ${datos.datos_oficina.tipo_distribucion.map(id => `<option value="${id}">${TIPOS_DIST_OFICINA[id]}</option>`)}                
+                ${
+                    TIPOS_DIST_OFICINA
+                    .map((val, i) => datos.datos_oficina.tipo_distribucion[i] === 1 ? `<option value="${i}">${val}</option>` : null)
+                    .filter(Boolean)
+                }
             </select>
         </div>`
     } else {

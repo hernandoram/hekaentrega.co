@@ -6,6 +6,7 @@ const servientregaCtrl = require("./servientrega");
 const interrapidisimoCtrl = require("./inter");
 const aveoCtrl = require("./aveonline");
 const enviaCtrl = require("./envia");
+const coordCtrl = require("./coordinadora");
 
 const referenciaGuias = db.collectionGroup("guias");
 const maxPagination = 5e3;
@@ -148,6 +149,7 @@ async function actualizarMovimientosGuias(querySnapshot) {
         servientrega: 0,
         interrapidisimo: 0,
         aveonline: 0,
+        coordinadora: 0,
         envia: 0
     }
 
@@ -156,6 +158,9 @@ async function actualizarMovimientosGuias(querySnapshot) {
 
         console.log(querySnapshot.size);
         let faltantes = querySnapshot.size
+
+        const acumuladosCoord = [];
+        const MAX_COORD = 50;
         // throw "no babe"
 
         //Objeto que se va llenando paral luego mostrarme los detalles del proceso
@@ -186,6 +191,14 @@ async function actualizarMovimientosGuias(querySnapshot) {
                     continue;
                     consulta.aveonline ++;
                     // guia = aveoCtrl.actualizarMovimientos(doc);
+                } else if(doc.data().transportadora === "COORDINADORA") {
+                    consulta.coordinadora ++;
+                    if(acumuladosCoord.length < MAX_COORD) {
+                        acumuladosCoord.push(doc);
+                    } else {
+                        guia = coordCtrl.actualizarMovimientos(acumuladosCoord);
+                        acumuladosCoord = [];
+                    }
                 } else {
                     consulta.servientrega ++
                     // continue
@@ -205,6 +218,12 @@ async function actualizarMovimientosGuias(querySnapshot) {
 
             faltantes--;
         }
+
+        if(acumuladosCoord.length) {
+            guia = coordCtrl.actualizarMovimientos(acumuladosCoord);
+
+            if(guia) resultado_guias.push(guia);
+        }
         
         let guias_procesadas = await Promise.all(resultado_guias);
         console.log("Finalizó la ejecución de procesos");
@@ -215,12 +234,17 @@ async function actualizarMovimientosGuias(querySnapshot) {
                 let modo_estado = guia[0], modo_movimientos = guia[1];
                 if(modo_estado.estado == "Est.A") {
                     consulta.guias_est_actualizado++
-                } 
+                } else if (modo_estado.estado == "Est.M") {
+                    consulta.guias_est_actualizado += modo_estado.actualizadas
+                    consulta.guias_con_errores += modo_estado.errores
+                }
         
                 if(modo_movimientos.estado == "Mov.A") {
                     consulta.guias_mov_actualizado++
                 } else if (modo_movimientos.estado == "Sn.Mov") {
                     consulta.guias_sin_mov++
+                } else if (modo_movimientos.estado == "Mov.M") {
+                    consulta.guias_mov_actualizado += modo_movimientos.actualizadas;
                 }
             }
         }
@@ -316,7 +340,7 @@ async function actualizarMovimientosSemanales() {
     return normalizarReporte(historia);
 }
 
-// actualizarMovimientosPorComparador("numeroGuia", 'in', ["240002030978"])
+// actualizarMovimientosPorComparador("numeroGuia", 'in', [34281500154, 34281500155, 34281500156, 34281500157, 34281500158].map(v => v.toString()))
 // .then(resultado => {
 //     console.log(resultado);
 //     process.exit();

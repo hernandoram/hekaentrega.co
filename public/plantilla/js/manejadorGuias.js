@@ -2891,7 +2891,6 @@ async function historialGuiasAdmin(e) {
 
             switch(tipoFiltro) {
                 case "filt_1":
-                case "filt_2":
                 case "filt_3":
                 case "filt_4":
                     condicion = guia.centro_de_costo.toUpperCase().includes(filtroActual.toUpperCase());

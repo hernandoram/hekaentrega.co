@@ -1634,6 +1634,14 @@ function traducirMovimientoGuia(transportadora) {
                 descripcionMov: "Descripcion Estado",
                 ubicacion: "Ciudad"
             }
+        case "COORDINADORA":
+            return {
+                novedad: "codigo_novedad",
+                fechaMov: "fecha_completa",
+                observacion: "descripcion",
+                descripcionMov: "descripcion",
+                ubicacion: "Ciudad"
+            }
         default:
             return {
                 novedad: "NomConc",
@@ -1663,6 +1671,8 @@ function revisarNovedad(mov, transp) {
         return !!mov.Motivo;
     } else if (transp === "ENVIA" || transp === "TCC") {
         return !!mov.novedad
+    } else if(transp === "COORDINADORA") {
+        return !!mov.codigo_novedad;
     } else {
         if(listaNovedadesServientrega.length) {
             return listaNovedadesServientrega.includes(mov.NomConc)

@@ -47,6 +47,14 @@ exports.traducirMovimientoGuia = (transportadora) => {
                 descripcionMov: "Descripcion Estado",
                 ubicacion: "Ciudad"
             }
+        case "COORDINADORA":
+            return {
+                novedad: "codigo_novedad",
+                fechaMov: "fecha_completa",
+                observacion: "descripcion",
+                descripcionMov: "descripcion",
+                ubicacion: "Ciudad"
+            }
         default:
             return {
                 novedad: "NomConc",
@@ -64,6 +72,8 @@ exports.revisarNovedadAsync = async (mov, transp) => {
         return mov.Motivo;
     } else if (transp === "ENVIA" || transp === "TCC") {
         return mov.novedad
+    } else if(transp === "COORDINADORA") {
+        return !!mov.codigo_novedad;
     } else {
         listaNovedadesServientrega = listaNovedadesServientrega || await db.collection("infoHeka")
         .doc("novedadesRegistradas").get().then(d => d.data());
@@ -79,6 +89,8 @@ exports.revisarNovedadAsync = async (mov, transp) => {
 exports.revisarNovedad = (mov, transp) => {
     if(transp === "INTERRAPIDISIMO") {
         return !!mov.Motivo;
+    } else if(transp === "COORDINADORA") {
+        return !!mov.codigo_novedad;
     } else if (transp === "ENVIA" || transp === "TCC") {
         return !!mov.novedad
     } else {
@@ -140,6 +152,7 @@ exports.revisarEstadoFinalizado = (estado) => {
     return [
         "ENTREGADO", "Entrega Exitosa", 
         "ENTREGADO A REMITENTE", "Devuelto al Remitente", 
-        "Documento Anulado", "Entregado"
+        "Documento Anulado", "Entregado",
+        "ENTREGADA"
     ].includes(estado)
 }
