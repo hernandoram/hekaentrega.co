@@ -79,6 +79,7 @@ exports.cotizar = async (req, res) => {
     NumRecaudo: body.ValorDeclarado,
   };
 //  return res.json(data)
+  console.log("COTIZANDO SERVIENTREGA");
   const response = await fetch(
     "http://web.servientrega.com:8058/CotizadorCorporativo/api/Cotizacion",
     {
@@ -91,11 +92,13 @@ exports.cotizar = async (req, res) => {
     }
   )
     .then((data) => {
+      console.log("SERVIENTREGA RESPONDE");
       return data.json();
     })
     .catch((error) => {
       console.log("errorsinho");
     });
+  console.log("FINALIZÓ EL COTIZADOR SERVIENTREGA");
   res.send(response);
 };
 

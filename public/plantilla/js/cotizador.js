@@ -673,9 +673,9 @@ async function detallesTransportadoras(data) {
 
         let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
         let fleteConvertido = cotizacion.flete
-        if(["ENVIA", "INTERRAPIDISMO"].includes(transp) && data.type === "PAGO CONTRAENTREGA") {
-            sobreFleteHekaEdit -= factor_conversor;
-            fleteConvertido += factor_conversor;
+        if(["ENVIA", "INTERRAPIDISMO", "COORDINADORA", "SERVIENTREGA"].includes(transp) && data.type === PAGO_CONTRAENTREGA) {
+          sobreFleteHekaEdit -= factor_conversor;
+          fleteConvertido += factor_conversor;
         }
 
         if(!transportadora.cotizacion) 
@@ -1246,9 +1246,9 @@ function cambiarPreciosOficinasPorTransportadora(target, cotizacion, oficinas) {
     
     let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
     let fleteConvertido = cotizacion.flete
-    if(transp !== "SERVIENTREGA") {
-        sobreFleteHekaEdit -= factor_conversor;
-        fleteConvertido += factor_conversor;
+    if(["ENVIA", "INTERRAPIDISMO", "COORDINADORA", "SERVIENTREGA"].includes(transp) && cotizacion.type === PAGO_CONTRAENTREGA) {
+      sobreFleteHekaEdit -= factor_conversor;
+      fleteConvertido += factor_conversor;
     }
 
 
@@ -2186,8 +2186,9 @@ class CalcularCostoDeEnvio {
         if(this.aveo) this.intoAveo(this.precio);
         if(this.envia) this.intoEnvia(this.precio);
         if(this.coordinadora) this.intoCoord(this.precio);
+	      if (this.servi) this.intoServi(this.precio,this.convencional);
         
-        if(this.codTransp !== "SERVIENTREGA"  && !this.convencional) this.sobreflete_heka += 1000;
+        if(!this.convencional) this.sobreflete_heka += 1000;
         
         // let total = this.sobreflete + this.seguroMercancia + this.sobreflete_heka + this.sobreflete_oficina;
         
@@ -2300,6 +2301,8 @@ class CalcularCostoDeEnvio {
                     this.sobreflete_min = 350;
                     this.comision_transp = 1
                 }
+
+                await this.cotizarServi(dataObj.dane_ciudadR, dataObj.dane_ciudadD);
                 break;
         };
 
@@ -2442,6 +2445,54 @@ class CalcularCostoDeEnvio {
         this.seguroMercancia = cotizacion.costoManejo;
         this.tiempo = cotizacion.diasentrega;
     }
+
+    
+  async intoServi(cotizacion,conv) {
+    if (!cotizacion) cotizacion = this.precio;
+    this.total_flete = cotizacion.ValorFlete;
+    // this.sobreflete = cotizacion.ValorSobreFlete;
+    if(conv){
+      this.seguroMercancia = cotizacion.ValorSobreFlete
+    }
+  }
+
+  async cotizarServi(dane_ciudadR, dane_ciudadD) {
+    const data = {
+      IdProducto: 2,
+      NumeroPiezas: 1,
+      Peso: this.kg <= 3 ? 3 : this.kg,
+      Largo: this.largo,
+      Ancho: this.ancho,
+      Alto: this.alto,
+      ValorDeclarado: this.seguro,
+      IdDaneCiudadOrigen: dane_ciudadR,
+      IdDaneCiudadDestino: dane_ciudadD,
+      EnvioConCobro: !this.convencional,
+      FormaPago: 2,
+      TiempoEntrega: 1,
+      // MEDIO DE TRANSPORTE COD 1 = TERRESTRE
+      MedioTransporte: 1,
+    };
+    console.log("medellin", data);
+    const response = await fetch("servientrega/cotizar", {
+      method: "Post",
+      headers: { "Content-Type": "Application/json" },
+      body: JSON.stringify(data),
+    })
+      .then((R) => R.json())
+      .catch((R) => ({ respuesta: "Error del servidor" }));
+
+    if (response.message) {
+      this.empty = true;
+      return false;
+    }
+    const conv = this.convencional
+    this.precio = response;
+    this.servi = true;
+    console.log("ENTRANDO SERVI");
+    this.intoServi(response,conv);
+    return true;
+  }
 }
 
 function contizarEnviaPrueba() {
