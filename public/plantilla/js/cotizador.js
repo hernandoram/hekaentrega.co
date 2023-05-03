@@ -2792,7 +2792,6 @@ async function pruebaGeneracionGuias(idGuiaError) {
 }
 
 async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
-    //Primero consulto la respuesta del web service
     if(!datos.id_heka) {
         return {
             error: true,
@@ -2828,9 +2827,9 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
         //y creo el documento de firebase
         if(resGuia.numeroGuia) {
             datos.staging = false; // true: creación de pedido, false: creación directa
+            datos.estadoActual = estadosGuia.generada;
             datos.numeroGuia = datos.numeroGuia.toString();
             datos.fecha_aceptada = genFecha();
-            datos.estadoActual = estadosGuia.generada;
             let guia = !stagingPrevio ? resGuia : await referenciaNuevaGuia.update(datos)
             .then(doc => {
                 return resGuia;
@@ -2869,15 +2868,19 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
 
 async function creacionDirecta(guia) {
     guia.id_heka = await obtenerIdHeka();
-    const guiaGenerada = await crearGuiaTransportadora(guia);
-
-    if(guiaGenerada.error) {
-        return {
-            ...guiaGenerada,
-            icon: "error",
-            mensaje: "No se ha podido concretar la creación de guía, por favor intente nuevamente más tarde. \"" + guiaGenerada.message + "\"",
+    if(transportadoras[guia.transportadora].sistemaAutomatizado()) {
+        const guiaGenerada = await crearGuiaTransportadora(guia);
+    
+        if(guiaGenerada.error) {
+            return {
+                ...guiaGenerada,
+                icon: "error",
+                mensaje: "No se ha podido concretar la creación de guía, por favor intente nuevamente más tarde. \"" + guiaGenerada.message + "\"",
+            }
         }
     }
+
+    guia.estadoActual = estadosGuia.generada;
 
     const respuesta = await enviar_firestore(guia);
     await descontarSaldo(guia);
@@ -2897,7 +2900,7 @@ async function obtenerIdHeka() {
             id_heka = id_heka.replace(/^0/, 1);
             id_heka += doc.data().id.toString();
             
-            ref.update({id: firebase.firestore.FieldValue.increment(1)});
+            await ref.update({id: firebase.firestore.FieldValue.increment(1)});
 
             return id_heka;
         }
@@ -2916,7 +2919,8 @@ async function enviar_firestore(datos){
     const referenciaNuevaGuia = firestore.collection("usuarios").doc(datos.id_user)
     .collection("guias").doc(id_heka);
     
-    firestore.collection("infoHeka").doc("heka_id").update({id: firebase.firestore.FieldValue.increment(1)});
+    // Esto ya lo debería actualizar la funcion obtenerIdHeka()
+    // firestore.collection("infoHeka").doc("heka_id").update({id: firebase.firestore.FieldValue.increment(1)});
 
     return await referenciaNuevaGuia.set(datos)
     .then((id) => {

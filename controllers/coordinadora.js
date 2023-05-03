@@ -321,7 +321,7 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
     try {
         const guia = doc.data();
         const estados = respuesta.detalle_estados ? retornarArray(respuesta.detalle_estados.item) : [];
-        const novedades = respuesta.detalle_novedades ? retornarArray(respuesta.detalle_novedades) : [];
+        const novedades = respuesta.detalle_novedades ? retornarArray(respuesta.detalle_novedades.item) : [];
     
         estados.forEach(e => e.codigo_novedad = "");
 

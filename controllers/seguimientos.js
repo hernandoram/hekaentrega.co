@@ -340,7 +340,7 @@ async function actualizarMovimientosSemanales() {
     return normalizarReporte(historia);
 }
 
-// actualizarMovimientosPorComparador("numeroGuia", 'in', [34281500154, 34281500155, 34281500156, 34281500157, 34281500158].map(v => v.toString()))
+// actualizarMovimientosPorComparador("numeroGuia", 'in', [34281500173].map(v => v.toString()))
 // .then(resultado => {
 //     console.log(resultado);
 //     process.exit();
