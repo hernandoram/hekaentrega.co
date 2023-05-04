@@ -159,7 +159,7 @@ async function actualizarMovimientosGuias(querySnapshot) {
         console.log(querySnapshot.size);
         let faltantes = querySnapshot.size
 
-        const acumuladosCoord = [];
+        let acumuladosCoord = [];
         const MAX_COORD = 50;
         // throw "no babe"
 
@@ -340,7 +340,7 @@ async function actualizarMovimientosSemanales() {
     return normalizarReporte(historia);
 }
 
-// actualizarMovimientosPorComparador("numeroGuia", 'in', [34281500173].map(v => v.toString()))
+// actualizarMovimientosPorComparador("numeroGuia", 'in', [240004022955].map(v => v.toString()))
 // .then(resultado => {
 //     console.log(resultado);
 //     process.exit();
