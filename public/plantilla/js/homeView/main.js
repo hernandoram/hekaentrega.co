@@ -85,7 +85,7 @@ function modalInicial() {
     <div class="text-center">
       <img src="./img/logo-flexi.png" style="height: 30vh"/>
     </div>
-    <h5>Flexii será una nueva forma de entregar mensajería nacional, será un producto creado por HEKA, con el fin entregar mensajería, por el momento estaremos en <b>BOGOTÁ, CUCUTA,BUCARAMANGA,SILVANIA, FUSAGASUGÁ, GRANADA, CHINAUTA, ARBELAEZ.</b>
+    <h5>Flexii será una nueva forma de entregar mensajería nacional, será un producto creado por HEKA, con el fin entregar mensajería, por el momento estaremos en: <br/> <b>BOGOTÁ, CUCUTA,BUCARAMANGA,SILVANIA, FUSAGASUGÁ, GRANADA, CHINAUTA, ARBELAEZ.</b>
     <br/>
     <br/>
     Con los siguientes beneficios:</h5>

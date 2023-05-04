@@ -25,7 +25,6 @@ export default class CreateModal {
                     ${body}
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">${ this.btnCloseText || "Cerrar"}</button>
                     <button type="button" class="btn btn-primary" id="btn-continuar-${this.id}">${this.btnContinueText || "Continuar"}</button>
                 </div>
             </div>
@@ -58,3 +57,4 @@ export default class CreateModal {
         $(this.modal).modal("hide");
     }
 }
+

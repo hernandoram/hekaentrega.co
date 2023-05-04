@@ -283,8 +283,16 @@
             <link rel="stylesheet" href="./css/homeVIew/main.css">
             <div class="row">
               <div class="col-12 mb-3">
-                <div class="alert alert-success" role="alert">
-                  <h4 class="text-success">NOTICIAS</h4>
+                <div class="alert alert-success" id="noticiasinfo" role="alert">
+                  <div  style="display: flex; justify-content: space-between;">
+                    <h4 class="text-success">NOTICIAS</h4>
+                    <a style="cursor:pointer;" onMouseOver="this.style.color='#1cc88a'" onMouseOut="this.style.color='#000'" href="javascript:eliminarElemento()" >X</a>
+                    <script>
+                      function eliminarElemento(){
+                          document.getElementById("noticiasinfo").classList.add("d-none");
+                        }
+                      </script>
+                  </div>
                   <ul>
                     <li>
                       <b>
