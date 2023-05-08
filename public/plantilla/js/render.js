@@ -1677,11 +1677,33 @@ function gestionarNovedadModal(dataN, dataG) {
     console.log(dataN);
     console.log(dataG)
     const ultimo_mov = dataN.movimientos[dataN.movimientos.length - 1]
-    let mostrador_gestionar = `
+
+
+    const tiempoguardado= new Date(localStorage.getItem("tiempoguia"));
+    const tiempoguardadomilis= tiempoguardado.getTime();
+    let tiempoactual= new Date();
+    let tiempoactualmilis= tiempoactual.getTime();
+
+    console.log("el tiempo guardado es "+tiempoguardado)
+    console.log("el tiempo actual es "+tiempoactual)
+
+
+    let diff= (tiempoactualmilis - tiempoguardadomilis) / (1000*60);
+
+    console.log("la diferencia es de "+diff+ " minutos")
+    
+    let mostrador_gestionar;
+
+    if(diff<=10){
+        mostrador_gestionar= `Debes esperar para volver a gestionar la guía`
+    }else{
+        mostrador_gestionar= `
         <p>Escribe aquí tu solución a la novedad</p>
         <textarea type="text" class="form-control" name="solucion-novedad" id="solucion-novedad-${dataN.numeroGuia}"></textarea>
         <button class="btn btn-success m-2" id="solucionar-novedad-${dataN.numeroGuia}">Enviar Solución</button>
     `;
+    }
+
 
     if(dataG.oficina && !dataG.recibidoEnPunto) {
         mostrador_gestionar = `<p>Las guías que se dirigen hacia las oficinas flexii, no pueden ser gestionadas por este medio.</p>`;
