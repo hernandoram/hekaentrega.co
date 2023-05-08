@@ -1694,11 +1694,11 @@ function gestionarNovedadModal(dataN, dataG) {
     
     let mostrador_gestionar;
 
-    if(diff<=10){
+    if(diff<=0.5){ // indicar número de minutos a esperar!
         mostrador_gestionar= `Debes esperar para volver a gestionar la guía`
     }else{
         mostrador_gestionar= `
-        <p>Escribe aquí tu solución a la novedad</p>
+        <h3>Escribe aquí tu solución a la novedad</h3>
         <textarea type="text" class="form-control" name="solucion-novedad" id="solucion-novedad-${dataN.numeroGuia}"></textarea>
         <button class="btn btn-success m-2" id="solucionar-novedad-${dataN.numeroGuia}">Enviar Solución</button>
     `;
@@ -1869,7 +1869,6 @@ function gestionarNovedadModal(dataN, dataG) {
         p.classList.add("text-danger");
         let idSolucion = "#solucion-novedad-"+dataN.numeroGuia;
         let btn_solucionar = $("#solucionar-novedad-"+dataN.numeroGuia);
-
         btn_solucionar.parent().append(p);
 
         $(idSolucion).on("input", (e) => {
@@ -1881,6 +1880,7 @@ function gestionarNovedadModal(dataN, dataG) {
         })
         
         btn_solucionar.click((e) => {
+                        
             e.target.disabled = true;
             e.target.innerHTML = "";
             e.target.innerHTML = `
@@ -1908,8 +1908,12 @@ function gestionarNovedadModal(dataN, dataG) {
                     seguimiento: dataG.seguimiento,
                     novedad_solucionada: false
                 }).then(() => {
+                    localStorage.setItem("tiempoguia", new Date())
                     p.innerText = "Sugerencia enviada exitósamente";
                     p.classList.replace("text-danger", "text-success");
+
+                    btn_solucionar.remove();
+                    document.querySelector("#solucion-novedad-"+dataN.numeroGuia).remove();
 
                     let momento = new Date().getTime();
                     let hora = new Date().getMinutes() < 10 ? new Date().getHours() + ":0" + new Date().getMinutes() : new Date().getHours() + ":" + new Date().getMinutes();
