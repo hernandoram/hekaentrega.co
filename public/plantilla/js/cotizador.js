@@ -2086,6 +2086,9 @@ class CalcularCostoDeEnvio {
     }
 
     get costoDevolucion() {
+        if(this.costoDevolucionFormulado(datos_personalizados.formula_devolucion)) 
+            return this.costoDevolucionFormulado(datos_personalizados.formula_devolucion);
+
         if(this.isOficina) return (this.flete * 2) + 1000;
 
         switch(this.codTransp) {
@@ -2097,6 +2100,15 @@ class CalcularCostoDeEnvio {
                 return (this.flete + this.seguroMercancia + 1000) * 2;
             case transportadoras.COORDINADORA.cod:
                 return (this.flete + this.seguroMercancia + 1000) * 2;
+        }
+    }
+
+    get estructuraFormula() {
+        return {
+            F: this.flete, // Para el flete devuelto en la cotización
+            CE: this.costoEnvio, // EL costo del envío
+            SM: this.seguroMercancia, // El seguro de mercancía
+            SF: this.sobreflete // El sobreflete
         }
     }
 
@@ -2170,6 +2182,35 @@ class CalcularCostoDeEnvio {
         this.indisponible = val;
     }
 
+    costoDevolucionFormulado(formulas) {
+        console.log(formulas);
+        if(!formulas) return null;
+        const listadoFormulas = formulas.split("--").map(v => v.trim().split(":"));
+        if(!listadoFormulas.length) return null;
+
+        const estructura = listadoFormulas.find(f => f[0] === this.codTransp);
+
+        if(!estructura) return null;
+
+        let respuesta = estructura[1];
+        const regexp = /([A-Z]+)/g;
+
+        let exp, c = 0;
+        while(exp = regexp.exec(respuesta)) {
+            c++;
+            if(c >= 100) throw new Error("Alerta de bucle infinito");
+
+            console.log(exp);
+            const [expresion, item] = exp;
+
+            const valor = this.estructuraFormula[item];
+            respuesta = respuesta.replace(expresion, valor);   
+        }
+
+        console.log(respuesta);
+        return eval(respuesta);
+    }
+
     sobreFletes(valor) {
         this.sobreflete = Math.ceil(Math.max(this.seguro * this.comision_transp / 100, this.sobreflete_min));
     
@@ -2186,7 +2227,7 @@ class CalcularCostoDeEnvio {
         if(this.aveo) this.intoAveo(this.precio);
         if(this.envia) this.intoEnvia(this.precio);
         if(this.coordinadora) this.intoCoord(this.precio);
-	      if (this.servi) this.intoServi(this.precio,this.convencional);
+        if (this.servi) this.intoServi(this.precio,this.convencional);
         
         if(!this.convencional && ["ENVIA", "INTERRAPIDISMO", "COORDINADORA"].includes(this.codTransp)) this.sobreflete_heka += 1000;
         
