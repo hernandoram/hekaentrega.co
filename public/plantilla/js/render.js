@@ -1672,6 +1672,7 @@ function revisarNovedad(mov, transp) {
     }
 }
 
+
 //dataN = data de la novedad, dataG = data de la guía
 function gestionarNovedadModal(dataN, dataG) {
     console.log(dataN.numeroGuia);
@@ -1688,17 +1689,35 @@ function gestionarNovedadModal(dataN, dataG) {
     console.log("el tiempo guardado es "+tiempoguardado)
     console.log("el tiempo actual es "+tiempoactual)
 
+    let diffCounter= 21600000 - (tiempoactualmilis - tiempoguardadomilis);
 
-    let diff= (tiempoactualmilis - tiempoguardadomilis) / (1000*60);
+    hours = Math.floor(diffCounter / (1000 * 60 * 60));
+    mins = Math.floor(diffCounter / (1000 * 60));
 
-    console.log("la diferencia es de "+diff+ " minutos")
+
+    m = mins - hours * 60;
+
+    console.log(diffCounter)
+
+
+    console.log("la diferencia es de "+mins+ " minutos")
     
     let mostrador_gestionar;
 
-    if(diff<=0.5){ // indicar número de minutos a esperar!
-        mostrador_gestionar= `Debes esperar para volver a gestionar la guía`
+    if(hours<=6){ // indicar número de minutos a esperar!
+        mostrador_gestionar= `
+        <div class="card">
+        <div class="card-header">
+        <h5>Anuncio</h5>
+    </div>
+    <div class="card-body">
+    Debes esperar <b> ${hours} </b> horas y <b> ${m} </b> minutos  para volver a gestionar la guía
+    </div>
+    </div>
+    `
     }else{
         mostrador_gestionar= `
+        
         <h3>Escribe aquí tu solución a la novedad</h3>
         <textarea type="text" class="form-control" name="solucion-novedad" id="solucion-novedad-${dataN.numeroGuia}"></textarea>
         <button class="btn btn-success m-2" id="solucionar-novedad-${dataN.numeroGuia}">Enviar Solución</button>
