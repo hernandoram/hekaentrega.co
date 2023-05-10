@@ -1674,12 +1674,13 @@ function revisarNovedad(mov, transp) {
 
 //dataN = data de la novedad, dataG = data de la guía
 function gestionarNovedadModal(dataN, dataG) {
-    console.log(dataN);
+    console.log(dataN.numeroGuia);
     console.log(dataG)
     const ultimo_mov = dataN.movimientos[dataN.movimientos.length - 1]
 
-
-    const tiempoguardado= new Date(localStorage.getItem("tiempoguia"));
+    const noguia = dataN.numeroGuia;
+    
+    const tiempoguardado= new Date(localStorage.getItem("tiempoguia"+noguia));
     const tiempoguardadomilis= tiempoguardado.getTime();
     let tiempoactual= new Date();
     let tiempoactualmilis= tiempoactual.getTime();
@@ -1908,7 +1909,7 @@ function gestionarNovedadModal(dataN, dataG) {
                     seguimiento: dataG.seguimiento,
                     novedad_solucionada: false
                 }).then(() => {
-                    localStorage.setItem("tiempoguia", new Date())
+                    localStorage.setItem("tiempoguia"+noguia, new Date())
                     p.innerText = "Sugerencia enviada exitósamente";
                     p.classList.replace("text-danger", "text-success");
 
@@ -1918,22 +1919,22 @@ function gestionarNovedadModal(dataN, dataG) {
                     let momento = new Date().getTime();
                     let hora = new Date().getMinutes() < 10 ? new Date().getHours() + ":0" + new Date().getMinutes() : new Date().getHours() + ":" + new Date().getMinutes();
     
-                    firebase.firestore().collection("notificaciones").doc(dataG.id_heka).set({
-                        fecha: genFecha(),
-                        timeline: momento,
-                        mensaje: datos_usuario.nombre_completo + " (" + datos_usuario.centro_de_costo 
-                        + ") Sugirió una solución para la guía " 
-                        + dataN.numeroGuia + ": " + $(idSolucion).val(),
-                        hora: hora,
-                        guia: dataN.numeroGuia,
-                        id_heka: dataG.id_heka,
-                        type: "novedad",
-                        user_id: user_id,
-                        seguimiento: dataG.seguimiento,
-                        usuario: datos_usuario.centro_de_costo,
-                        visible_admin: true
-                    })
-                    btn_solucionar.text("Enviar Solución")
+                    // firebase.firestore().collection("notificaciones").doc(dataG.id_heka).set({
+                    //     fecha: genFecha(),
+                    //     timeline: momento,
+                    //     mensaje: datos_usuario.nombre_completo + " (" + datos_usuario.centro_de_costo 
+                    //     + ") Sugirió una solución para la guía " 
+                    //     + dataN.numeroGuia + ": " + $(idSolucion).val(),
+                    //     hora: hora,
+                    //     guia: dataN.numeroGuia,
+                    //     id_heka: dataG.id_heka,
+                    //     type: "novedad",
+                    //     user_id: user_id,
+                    //     seguimiento: dataG.seguimiento,
+                    //     usuario: datos_usuario.centro_de_costo,
+                    //     visible_admin: true
+                    // })
+                    // btn_solucionar.text("Enviar Solución")
                 })
                 .catch(e => {
                     console.log(e);
