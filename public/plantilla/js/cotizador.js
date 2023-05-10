@@ -79,7 +79,7 @@ let transportadoras = {
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
-        bloqueada: () => false,
+        bloqueada: coti => ["52427000"].includes(coti.dane_ciudadD),
         bloqueadaOfi: true,
         limitesValorDeclarado: (valor) => {
             return [10000, 30000000]
@@ -1238,7 +1238,12 @@ function cambiarPreciosOficinasPorTransportadora(target, cotizacion, oficinas) {
     const nOficina = $(target).attr("data-id");
     
     const oficina = oficinas[nOficina];
-    const porcentaje_oficina = oficina.configuracion ? oficina.configuracion.porcentaje_comsion : configOficinaDefecto.porcentaje_comsion;
+    const porcentaje_oficina = datos_personalizados.porcentaje_comsion_ofi ? 
+    datos_personalizados.porcentaje_comsion_ofi
+    : oficina.configuracion ? 
+    oficina.configuracion.porcentaje_comsion 
+    : configOficinaDefecto.porcentaje_comsion;
+
     const sobreflete_ofi = cotizacion.valor * porcentaje_oficina / 100;
     cotizacion.sobreflete_oficina = Math.max(sobreflete_ofi, oficina.configuracion.comision_minima);
 
@@ -1404,7 +1409,12 @@ function seleccionarTransportadora(e) {
 
     if(isOficina) {
         if(verificarAntesSeleccionarOficina(oficina, result_cotizacion)) return;
-        const sobreflete_ofi = result_cotizacion.valor * oficina.configuracion.porcentaje_comsion / 100;
+        const porc_comison = datos_personalizados.porcentaje_comsion_ofi ? 
+        datos_personalizados.porcentaje_comsion_ofi
+        : oficina.configuracion.porcentaje_comsion;
+
+        console.log(porc_comison);
+        const sobreflete_ofi = result_cotizacion.valor * porc_comison / 100;
         result_cotizacion.sobreflete_oficina = Math.max(sobreflete_ofi, oficina.configuracion.comision_minima);
 
         const sistFlexi = datos_personalizados.sistema_flexii;
