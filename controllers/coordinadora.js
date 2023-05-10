@@ -3,7 +3,10 @@ const MaquetadorXML = require("../extends/maquetadorXML");
 const credentials = require("../keys/coordinadora");
 const xml2js = require("xml2js");
 const {DOMParser} = require("xmldom");
-const { transformarDatosDestinatario, segmentarString } = require("../extends/funciones");
+const { transformarDatosDestinatario, segmentarString, estandarizarFecha, actualizarMovimientos, actualizarEstado } = require("../extends/funciones");
+
+const { estadosGuia } = require("../extends/manejadorMovimientosGuia");
+
 
 function normalizarValoresNumericos(valores) {
     const ks = Object.keys(valores);
@@ -16,6 +19,12 @@ function normalizarValoresNumericos(valores) {
     });
 
     return valores
+}
+
+function retornarArray(rec) {
+    if(!rec) return [];
+
+    return Array.isArray(rec) ? rec : [rec];
 }
 
 exports.cotizar = async (req, res) => {
@@ -221,5 +230,157 @@ exports.crearStickerGuia = async (req, res) => {
             error: true,
             message: e.message
         })
+    }
+}
+
+exports.actualizarMovimientos = async (docs) => {
+    const numerosGuia = docs.map(d => d.data().numeroGuia || undefined).filter(Boolean);
+    const maquetador = new MaquetadorXML("./estructura/seguimiento.coord.xml");
+    console.log("Numero guía =>", numerosGuia)
+    
+    const itemXml = numerosGuia.map(n => maquetador.maqueta("ITEM").fill({numeroGuia: n})).join("");
+    const {v16} = credentials;
+    const peticion = Object.assign({
+        usuario: v16.usuario,
+        clave: v16.clave,
+        items: itemXml
+    });
+
+    const structure = maquetador.maqueta("SEGUIMIENTO").fill(peticion);
+    try {
+        const response = await fetch(v16.endpoint, {
+            method: "POST",
+            Headers: {"Content-Type": "text/xml"},
+            body: structure
+        })
+        .then(d => {
+            console.log("status => ", d.status);
+            // if(d.status >= 400) return {respuesta: "Error de servidor"}
+            return d.text();
+        })
+        .catch(e => {
+            console.log(e.message);
+        })
+
+        let xmlResponse = new DOMParser().parseFromString(response, "text/xml");
+        const resSeguimiento = xmlResponse.documentElement.getElementsByTagName("return");
+        
+        let responseJson = await xml2js.parseStringPromise(resSeguimiento, {
+            explicitArray: false,
+            ignoreAttrs: true
+        });
+
+        if(responseJson) {
+            const items = responseJson.return.item;
+
+            responseJson = Array.isArray(items) ? items.map(normalizarValoresNumericos) : [items];
+        } else {
+            throw new Error("Hubo un error en la lectura del formato.");
+        }
+
+        console.log(responseJson);
+
+        const resultadoActualizacion = [{
+            estado: "Est.M",
+            actualizadas: 0,
+            errores: 0,
+        }, {
+            estado: "Mov.M",
+            actualizadas: 0,
+        }]
+
+        for await (const d of docs) {
+            const numeroGuia = d.data().numeroGuia;
+            const reporte = responseJson.find(rep => rep.codigo_remision == numeroGuia);
+
+            if(!reporte) continue;
+
+            const [est, mov, error] = await actualizarMovimientoIndividual(d, reporte);
+
+            if(est) resultadoActualizacion[0].actualizadas++;
+            if(mov) resultadoActualizacion[1].actualizadas++;
+            if(error) resultadoActualizacion[0].errores++;
+
+        }
+
+        return resultadoActualizacion;
+        
+    } catch(error) {
+        console.log(error);
+        return [{
+            estado: "Error",
+            guia: "Segmento de guías: " + error.message
+        }]
+    }
+   
+}
+
+async function actualizarMovimientoIndividual(doc, respuesta) {
+    const estados_finalizacion = ["ENTREGADA"];
+    
+    try {
+        const guia = doc.data();
+        const estados = respuesta.detalle_estados ? retornarArray(respuesta.detalle_estados.item) : [];
+        const novedades = respuesta.detalle_novedades ? retornarArray(respuesta.detalle_novedades.item) : [];
+    
+        estados.forEach(e => e.codigo_novedad = "");
+
+        const gTime = (fecha, hora) => new Date(fecha + "T" + (hora || "00:00")).getTime();
+        const movimientos = estados.concat(novedades)
+        .filter(Boolean)
+        .sort((a,b) => {
+            return gTime(a.fecha, a.hora) - gTime(b.fecha, b.hora);
+        });
+
+        movimientos.forEach(m => {
+            m.fecha_completa = m.fecha + " " + m.hora;
+        })
+    
+        console.log("BREAK", estados, novedades, movimientos);
+        const ultimo_estado = movimientos[movimientos.length - 1];
+        let finalizar_seguimiento = doc.data().prueba ? true : false
+    
+        const estadoActual = respuesta.descripcion_estado;
+    
+        const estado = {
+            numeroGuia: respuesta.codigo_remision.toString(), //guia devuelta por la transportadora
+            fechaEnvio: respuesta.fecha_recogida,
+            ciudadD: respuesta.nombre_destino,
+            nombreD: guia.nombreD,
+            direccionD:  guia.direccionD,
+            estadoActual: respuesta.descripcion_estado,
+            fecha: ultimo_estado ? ultimo_estado.fecha + " " + ultimo_estado.hora : estandarizarFecha(new Date(), "DD/MM/YYYY HH:mm"), //fecha del estado
+            id_heka: doc.id,
+            movimientos
+        };
+    
+        // return [updte_estados, updte_movs];
+    
+        let updte_movs;
+        if(movimientos.length) {
+            console.log("SE ACTUALIZARÁN LOS MOVIMIENTOS", doc.ref.path);
+            updte_movs = await actualizarMovimientos(doc, estado);
+        }
+    
+        let enNovedad = !!novedades.length;
+    
+        const seguimiento_finalizado = estados_finalizacion.some(v => respuesta.estado === v)
+        || finalizar_seguimiento;
+        
+        const actualizaciones = {
+            estado: estadoActual,
+            ultima_actualizacion: new Date(),
+            enNovedad,
+            seguimiento_finalizado,
+        }
+    
+        if(seguimiento_finalizado) actualizaciones.estadoActual = estadosGuia.finalizada;
+    
+        const updte_estados = await actualizarEstado(doc, actualizaciones);
+    
+        return [updte_estados.estado === "Est.A", updte_movs.estado === "Mov.A"];
+    } catch (e) {
+        console.log(e.message);
+        return [null, null, true];
     }
 }

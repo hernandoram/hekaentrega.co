@@ -79,8 +79,8 @@ let transportadoras = {
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
-        bloqueada: () => false,
-        bloqueadaOfi: false,
+        bloqueada: coti => ["52427000"].includes(coti.dane_ciudadD),
+        bloqueadaOfi: true,
         limitesValorDeclarado: (valor) => {
             return [10000, 30000000]
         },
@@ -134,7 +134,7 @@ let transportadoras = {
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
         bloqueada: () => false,
-        bloqueadaOfi: false,
+        bloqueadaOfi: true,
         limitesValorDeclarado: (valor) => {
             return [10000, 30000000]
         },
@@ -154,7 +154,7 @@ let transportadoras = {
 
 const configOficinaDefecto = {
     porcentaje_comsion: 3.9,
-    tipo_distribucion: [0,1], // 0: Entrega en dirección ; 1: Entrega en oficina
+    tipo_distribucion: [1,1], // 0: Entrega en dirección ; 1: Entrega en oficina
     comision_minima: 3900
 }
 
@@ -673,9 +673,9 @@ async function detallesTransportadoras(data) {
 
         let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
         let fleteConvertido = cotizacion.flete
-        if(["ENVIA", "INTERRAPIDISMO"].includes(transp) && data.type === "PAGO CONTRAENTREGA") {
-            sobreFleteHekaEdit -= factor_conversor;
-            fleteConvertido += factor_conversor;
+        if(["ENVIA", "INTERRAPIDISMO", "COORDINADORA"].includes(transp) && data.type === PAGO_CONTRAENTREGA) {
+          sobreFleteHekaEdit -= factor_conversor;
+          fleteConvertido += factor_conversor;
         }
 
         if(!transportadora.cotizacion) 
@@ -1238,7 +1238,12 @@ function cambiarPreciosOficinasPorTransportadora(target, cotizacion, oficinas) {
     const nOficina = $(target).attr("data-id");
     
     const oficina = oficinas[nOficina];
-    const porcentaje_oficina = oficina.configuracion ? oficina.configuracion.porcentaje_comsion : configOficinaDefecto.porcentaje_comsion;
+    const porcentaje_oficina = datos_personalizados.porcentaje_comsion_ofi ? 
+    datos_personalizados.porcentaje_comsion_ofi
+    : oficina.configuracion ? 
+    oficina.configuracion.porcentaje_comsion 
+    : configOficinaDefecto.porcentaje_comsion;
+
     const sobreflete_ofi = cotizacion.valor * porcentaje_oficina / 100;
     cotizacion.sobreflete_oficina = Math.max(sobreflete_ofi, oficina.configuracion.comision_minima);
 
@@ -1246,9 +1251,9 @@ function cambiarPreciosOficinasPorTransportadora(target, cotizacion, oficinas) {
     
     let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
     let fleteConvertido = cotizacion.flete
-    if(transp !== "SERVIENTREGA") {
-        sobreFleteHekaEdit -= factor_conversor;
-        fleteConvertido += factor_conversor;
+    if(["ENVIA", "INTERRAPIDISMO", "COORDINADORA"].includes(transp) && cotizacion.type === PAGO_CONTRAENTREGA) {
+      sobreFleteHekaEdit -= factor_conversor;
+      fleteConvertido += factor_conversor;
     }
 
 
@@ -1404,7 +1409,12 @@ function seleccionarTransportadora(e) {
 
     if(isOficina) {
         if(verificarAntesSeleccionarOficina(oficina, result_cotizacion)) return;
-        const sobreflete_ofi = result_cotizacion.valor * oficina.configuracion.porcentaje_comsion / 100;
+        const porc_comison = datos_personalizados.porcentaje_comsion_ofi ? 
+        datos_personalizados.porcentaje_comsion_ofi
+        : oficina.configuracion.porcentaje_comsion;
+
+        console.log(porc_comison);
+        const sobreflete_ofi = result_cotizacion.valor * porc_comison / 100;
         result_cotizacion.sobreflete_oficina = Math.max(sobreflete_ofi, oficina.configuracion.comision_minima);
 
         const sistFlexi = datos_personalizados.sistema_flexii;
@@ -1599,7 +1609,11 @@ function finalizarCotizacion(datos) {
 
             <select class="custom-select" id="tipo_ditribucion_flexi" name="tipo_ditribucion_flexi">
                 <option value="">Seleccione</option>
-                ${datos.datos_oficina.tipo_distribucion.map(id => `<option value="${id}">${TIPOS_DIST_OFICINA[id]}</option>`)}                
+                ${
+                    TIPOS_DIST_OFICINA
+                    .map((val, i) => datos.datos_oficina.tipo_distribucion[i] === 1 ? `<option value="${i}">${val}</option>` : null)
+                    .filter(Boolean)
+                }
             </select>
         </div>`
     } else {
@@ -2082,6 +2096,9 @@ class CalcularCostoDeEnvio {
     }
 
     get costoDevolucion() {
+        if(this.costoDevolucionFormulado(datos_personalizados.formula_devolucion)) 
+            return this.costoDevolucionFormulado(datos_personalizados.formula_devolucion);
+
         if(this.isOficina) return (this.flete * 2) + 1000;
 
         switch(this.codTransp) {
@@ -2093,6 +2110,15 @@ class CalcularCostoDeEnvio {
                 return (this.flete + this.seguroMercancia + 1000) * 2;
             case transportadoras.COORDINADORA.cod:
                 return (this.flete + this.seguroMercancia + 1000) * 2;
+        }
+    }
+
+    get estructuraFormula() {
+        return {
+            F: this.flete, // Para el flete devuelto en la cotización
+            CE: this.costoEnvio, // EL costo del envío
+            SM: this.seguroMercancia, // El seguro de mercancía
+            SF: this.sobreflete // El sobreflete
         }
     }
 
@@ -2166,6 +2192,35 @@ class CalcularCostoDeEnvio {
         this.indisponible = val;
     }
 
+    costoDevolucionFormulado(formulas) {
+        console.log(formulas);
+        if(!formulas) return null;
+        const listadoFormulas = formulas.split("--").map(v => v.trim().split(":"));
+        if(!listadoFormulas.length) return null;
+
+        const estructura = listadoFormulas.find(f => f[0] === this.codTransp);
+
+        if(!estructura) return null;
+
+        let respuesta = estructura[1];
+        const regexp = /([A-Z]+)/g;
+
+        let exp, c = 0;
+        while(exp = regexp.exec(respuesta)) {
+            c++;
+            if(c >= 100) throw new Error("Alerta de bucle infinito");
+
+            console.log(exp);
+            const [expresion, item] = exp;
+
+            const valor = this.estructuraFormula[item];
+            respuesta = respuesta.replace(expresion, valor);   
+        }
+
+        console.log(respuesta);
+        return eval(respuesta);
+    }
+
     sobreFletes(valor) {
         this.sobreflete = Math.ceil(Math.max(this.seguro * this.comision_transp / 100, this.sobreflete_min));
     
@@ -2182,8 +2237,9 @@ class CalcularCostoDeEnvio {
         if(this.aveo) this.intoAveo(this.precio);
         if(this.envia) this.intoEnvia(this.precio);
         if(this.coordinadora) this.intoCoord(this.precio);
+        if (this.servi) this.intoServi(this.precio,this.convencional);
         
-        if(this.codTransp !== "SERVIENTREGA"  && !this.convencional) this.sobreflete_heka += 1000;
+        if(!this.convencional && ["ENVIA", "INTERRAPIDISMO", "COORDINADORA"].includes(this.codTransp)) this.sobreflete_heka += 1000;
         
         // let total = this.sobreflete + this.seguroMercancia + this.sobreflete_heka + this.sobreflete_oficina;
         
@@ -2296,6 +2352,8 @@ class CalcularCostoDeEnvio {
                     this.sobreflete_min = 350;
                     this.comision_transp = 1
                 }
+
+                await this.cotizarServi(dataObj.dane_ciudadR, dataObj.dane_ciudadD);
                 break;
         };
 
@@ -2438,6 +2496,54 @@ class CalcularCostoDeEnvio {
         this.seguroMercancia = cotizacion.costoManejo;
         this.tiempo = cotizacion.diasentrega;
     }
+
+    
+  async intoServi(cotizacion,conv) {
+    if (!cotizacion) cotizacion = this.precio;
+    this.total_flete = cotizacion.ValorFlete;
+    // this.sobreflete = cotizacion.ValorSobreFlete;
+    if(conv){
+      this.seguroMercancia = cotizacion.ValorSobreFlete
+    }
+  }
+
+  async cotizarServi(dane_ciudadR, dane_ciudadD) {
+    const data = {
+      IdProducto: 2,
+      NumeroPiezas: 1,
+      Peso: this.kg <= 3 ? 3 : this.kg,
+      Largo: this.largo,
+      Ancho: this.ancho,
+      Alto: this.alto,
+      ValorDeclarado: this.seguro,
+      IdDaneCiudadOrigen: dane_ciudadR,
+      IdDaneCiudadDestino: dane_ciudadD,
+      EnvioConCobro: !this.convencional,
+      FormaPago: 2,
+      TiempoEntrega: 1,
+      // MEDIO DE TRANSPORTE COD 1 = TERRESTRE
+      MedioTransporte: 1,
+    };
+    console.log("medellin", data);
+    const response = await fetch("servientrega/cotizar", {
+      method: "Post",
+      headers: { "Content-Type": "Application/json" },
+      body: JSON.stringify(data),
+    })
+      .then((R) => R.json())
+      .catch((R) => ({ respuesta: "Error del servidor" }));
+
+    if (response.message) {
+      this.empty = true;
+      return false;
+    }
+    const conv = this.convencional
+    this.precio = response;
+    this.servi = true;
+    console.log("ENTRANDO SERVI");
+    this.intoServi(response,conv);
+    return true;
+  }
 }
 
 function contizarEnviaPrueba() {
@@ -2737,7 +2843,6 @@ async function pruebaGeneracionGuias(idGuiaError) {
 }
 
 async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
-    //Primero consulto la respuesta del web service
     if(!datos.id_heka) {
         return {
             error: true,
@@ -2773,9 +2878,9 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
         //y creo el documento de firebase
         if(resGuia.numeroGuia) {
             datos.staging = false; // true: creación de pedido, false: creación directa
+            datos.estadoActual = estadosGuia.generada;
             datos.numeroGuia = datos.numeroGuia.toString();
             datos.fecha_aceptada = genFecha();
-            datos.estadoActual = estadosGuia.generada;
             let guia = !stagingPrevio ? resGuia : await referenciaNuevaGuia.update(datos)
             .then(doc => {
                 return resGuia;
@@ -2814,15 +2919,19 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
 
 async function creacionDirecta(guia) {
     guia.id_heka = await obtenerIdHeka();
-    const guiaGenerada = await crearGuiaTransportadora(guia);
-
-    if(guiaGenerada.error) {
-        return {
-            ...guiaGenerada,
-            icon: "error",
-            mensaje: "No se ha podido concretar la creación de guía, por favor intente nuevamente más tarde. \"" + guiaGenerada.message + "\"",
+    if(transportadoras[guia.transportadora].sistemaAutomatizado()) {
+        const guiaGenerada = await crearGuiaTransportadora(guia);
+    
+        if(guiaGenerada.error) {
+            return {
+                ...guiaGenerada,
+                icon: "error",
+                mensaje: "No se ha podido concretar la creación de guía, por favor intente nuevamente más tarde. \"" + guiaGenerada.message + "\"",
+            }
         }
     }
+
+    guia.estadoActual = estadosGuia.generada;
 
     const respuesta = await enviar_firestore(guia);
     await descontarSaldo(guia);
@@ -2842,7 +2951,7 @@ async function obtenerIdHeka() {
             id_heka = id_heka.replace(/^0/, 1);
             id_heka += doc.data().id.toString();
             
-            ref.update({id: firebase.firestore.FieldValue.increment(1)});
+            await ref.update({id: firebase.firestore.FieldValue.increment(1)});
 
             return id_heka;
         }
@@ -2861,7 +2970,8 @@ async function enviar_firestore(datos){
     const referenciaNuevaGuia = firestore.collection("usuarios").doc(datos.id_user)
     .collection("guias").doc(id_heka);
     
-    firestore.collection("infoHeka").doc("heka_id").update({id: firebase.firestore.FieldValue.increment(1)});
+    // Esto ya lo debería actualizar la funcion obtenerIdHeka()
+    // firestore.collection("infoHeka").doc("heka_id").update({id: firebase.firestore.FieldValue.increment(1)});
 
     return await referenciaNuevaGuia.set(datos)
     .then((id) => {
