@@ -1689,22 +1689,22 @@ function gestionarNovedadModal(dataN, dataG) {
     console.log("el tiempo guardado es "+tiempoguardado)
     console.log("el tiempo actual es "+tiempoactual)
 
-    let diffCounter= 21600000 - (tiempoactualmilis - tiempoguardadomilis);
+    let diffCounter= 21600000 - (tiempoactualmilis - tiempoguardadomilis); //modificar el valor para cambiar el número de horas
 
     hours = Math.floor(diffCounter / (1000 * 60 * 60));
     mins = Math.floor(diffCounter / (1000 * 60));
 
-
+    console.log(hours)
     m = mins - hours * 60;
 
-    console.log(diffCounter)
+    console.log(diffCounter, m)
 
 
     console.log("la diferencia es de "+mins+ " minutos")
     
     let mostrador_gestionar;
 
-    if(hours<=6){ // indicar número de minutos a esperar!
+    if(mins>=1){ // indicar número de minutos a esperar!
         mostrador_gestionar= `
         <div class="card">
         <div class="card-header">
