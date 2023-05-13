@@ -1168,7 +1168,7 @@
             </div>
             
             <div class="d-flex justify-content-between">
-              <h3 class="title" id="titulo-guias_hist">
+              <h3 class="m-0 font-weight-bold text-primary" id="titulo-guias_hist">
                 Nuevo historial de guías 
                 <button class="btn btn-info d-none" id="btn_actv_search-guias_hist" title="Permite realizar una busqueda más específica por fecha o número de guía" data-toggle="tooltip"><i class="fa fa-search"></i></button>
               </h3>
@@ -1213,11 +1213,11 @@
           
           <div class="container-fluid" id="documentos" style="display: none;">
             <h3 class="m-0 font-weight-bold text-primary">Historial de documentos</h3>
+
             <br>
             
             <!--Formulario de busqueda de documentos-->
-            <div class="form-group row">
-              <div class="form-group row">
+            <div class="form-group row">                
                 <div class="col-sm-6 mb-3 mb-sm-0">
                   <h6>Fecha inicio</h6>
                   <input type="date" class="form-control form-control-user"  id="docs-fecha-inicio"  required>
@@ -1225,11 +1225,9 @@
                 <div class="col-sm-6">
                   <h6>Fecha final</h6>
                   <input type="date" class="form-control form-control-user"  id="docs-fecha-final"  required>
-                </div>
-              </div>
-            
+              </div>            
               <button  onclick="actualizarHistorialDeDocumentos()" 
-              class="btn btn-primary btn-user btn-block" id="btn-historial-docs">
+              class="btn btn-primary btn-user btn-block" style="margin-top: 20px;" id="btn-historial-docs">
                 Buscar
               </button>  
             </div>
