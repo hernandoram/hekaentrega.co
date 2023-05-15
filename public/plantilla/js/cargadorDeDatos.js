@@ -894,7 +894,7 @@ $("#btn-revisar_pagos").click(async(e) => {
   }
 
   if (transportadoras.length == 0){
-    transportadoras = ["servientrega", "envía", "tcc", "interrapidisimo"];
+    transportadoras = ["servientrega", "envía", "tcc", "interrapidisimo", "coordinadora"];
   }
 
   let response = []
