@@ -283,8 +283,16 @@
             <link rel="stylesheet" href="./css/homeVIew/main.css">
             <div class="row">
               <div class="col-12 mb-3">
-                <div class="alert alert-success" role="alert">
-                  <h4 class="text-success">NOTICIAS</h4>
+                <div class="alert alert-success" id="noticiasinfo" role="alert">
+                  <div  style="display: flex; justify-content: space-between;">
+                    <h4 class="text-success">NOTICIAS</h4>
+                    <a style="cursor:pointer;" onMouseOver="this.style.color='#1cc88a'" onMouseOut="this.style.color='#000'" href="javascript:eliminarElemento2()" >X</a>
+                    <script>
+                      function eliminarElemento2(){
+                          document.getElementById("noticiasinfo").classList.add("d-none");
+                        }
+                      </script>
+                  </div>
                   <ul>
                     <li>
                       <b>
@@ -479,16 +487,37 @@
           <div class="container-fluid" id="cotizar_envio" style="display: none;">
             <div class="row">
               <div class="col-12 mb-2">
-                <div class="alert alert-danger" role="alert">
-                  Recuerda tomar las medidas de tu paquete después de embalado antes de ingresar en el cotizador, la transportadora hará reliquidación de costos de envío en caso que las medidas no coincidan con tu paquete.
+                <div class="d-flex flex-row alert alert-danger" id="senal3" role="alert">
+                  <p>
+                    Recuerda tomar las medidas de tu paquete después de embalado antes de ingresar en el cotizador, la transportadora hará reliquidación de costos de envío en caso que las medidas no coincidan con tu paquete.
+                  </p>
+                  <a href="javascript:eliminarElemento3()" class="alert-danger" style="cursor: pointer;">X</a>
+                  <script>
+                    function eliminarElemento3(){
+                      document.getElementById("senal3").classList.add("d-none");
+                      document.getElementById("senal3").classList.remove("d-flex");
+                      }
+                    </script>
                 </div>
               </div>              
                            
               <div class="col-12 mb-2 cotizador-beta d-none">
-                <div class="alert alert-danger" role="alert">
-                  <p class="col-12 mb-0">Cada día buscamos la manera de implementar herramientas que te agilicen la realización de tus guías y permitir que tu trabajo sea más óptimo🥳</p>
+                <div class="alert alert-danger d-flex flex-row" id="senal14" role="alert">
+                  <div>
+
+                    <p class="col-12 mb-0">Cada día buscamos la manera de implementar herramientas que te agilicen la realización de tus guías y permitir que tu trabajo sea más óptimo🥳</p>
                     <p class="col-12 mb-0">Por eso a partir de ahora, implementamos la siguiente actualización que te permitirá guardar un registro de cotizaciones, esto con la finalidad de que puedas ahorrar tiempos para digitar tus guías y adicionalmente puedas agilizar tus entregas👏🏻.</p>
                     <p class="col-12 mb-0">Ten en cuenta que el cotizador seguirá funcionando con normalidad 😀</p>
+                    
+                  </div>
+                    <a href="javascript:eliminarElemento4()" class="alert-danger" style="cursor: pointer;">X</a>
+
+                    <script>
+                      function eliminarElemento4(){
+                        document.getElementById("senal14").classList.remove("d-flex");
+                        document.getElementById("senal14").classList.add("d-none");
+                        }
+                      </script>
                 </div>
               </div>              
                            
@@ -1108,8 +1137,16 @@
           </div>
 
           <div class="container-fluid" id="historial_guias" style="display: none;">
-            <div class="alert alert-success" role="alert">
-              <h4>¡Historial Actualizado! 6/03/2023</h4>
+            <div class="alert alert-success" id="senal2" role="alert">
+              <div class="d-flex justify-content-between">
+                <h4>¡Historial Actualizado! 6/03/2023</h4>
+                <a href="javascript:eliminarElemento()" style="cursor:pointer;">X</a>
+                <script>
+                  function eliminarElemento(){
+                      document.getElementById("senal2").classList.add("d-none");
+                    }
+                  </script>
+              </div>
               <p class="mb-2">Gracias a algunas recomendaciones de usuarios, volvimos a la versión anterior del historial con los siguientes cambios:</p>
 
               <p class="mb-2">✅ Ahora la creación de guías será exactamente igual a la anterior, las guías se crearán directamente sin hacer doble proceso.</p>
