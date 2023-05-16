@@ -2332,7 +2332,7 @@ function actualizarNumGuia(id_doc, id_user, numero_guias) {
         );
         if (!guiaEncontrada.length) {
           throw Error(
-            "no se encontro la informacion requerida, revisa el archivo y repite el proceso"
+            "No se encontro la informacion requerida, revisa el archivo, recarga la pagina y repite el proceso"
           );
         } else datosFiltrados.push(guiaEncontrada[0]);
       }
@@ -2355,7 +2355,11 @@ function actualizarNumGuia(id_doc, id_user, numero_guias) {
       resolve(true)
     })
     .catch(err =>{
-      alert(err.message)
+      Swal.fire({
+        icon: 'error',
+        title: 'Error al actualizar guia',
+        text: err.message,
+      })
       reject(false)
     });
   })
