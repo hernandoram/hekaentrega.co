@@ -1450,9 +1450,15 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
 
         filteredItems.forEach(key=>{
             const value= localStorageItems.getItem(key);
-            if (value){
-                console.log("hola");
+            const fecha= new Date(value);
+            const fechamil=fecha.getTime();
+            const fechaactual= new Date();
+           console.log(fechaactual.getTime()-fechamil)
+            
+            if(21600000-fechaactual.getTime()-fechamil >=1){
+                localStorage.removeItem(key);           
             }
+
         }
             )
     }
