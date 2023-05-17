@@ -91,13 +91,18 @@ exports.cotizar = async (req, res) => {
       body: JSON.stringify(data),
     }
   )
-    .then((data) => {
-      console.log("SERVIENTREGA RESPONDE");
-      return data.json();
-    })
-    .catch((error) => {
-      console.log("errorsinho");
-    });
+  .then((data) => {
+    console.log("SERVIENTREGA RESPONDE");
+    return data.json();
+  })
+  .catch((error) => {
+    console.log(error);
+    console.log("errorsinho");
+  })
+  .finally(() => {
+    console.log("FINALIZÓ PROCESO COTIZACIÓN")
+  });
+
   console.log("FINALIZÓ EL COTIZADOR SERVIENTREGA");
   res.send(response);
 };

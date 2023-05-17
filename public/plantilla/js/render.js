@@ -359,7 +359,7 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                     <span class="badge-pill badge-primary float-right">${data.guias.length}</span>
                 </div>
             </div>
-            <div class="row" data-guias="${data.guias}" data-type="${data.type}"
+            <form enctype="multipart/form-data" id="form-estado-numguia${id}" class="row" data-guias="${data.guias}" data-type="${data.type}"
             data-id_guia="${id}" data-user="${data.id_user}" 
             data-nombre="${data.nombre_usuario}" data-transportadora="${data.transportadora || "SERVIENTREGA"}">
                 <button class="col-12 col-md-6 btn btn-primary mb-3 text-truncate" title="Descargar Excel" data-funcion="descargar" value="">Descargar</button>
@@ -370,10 +370,12 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                     <div class="dropdown-menu" aria-labelledby="cargar${id}">
                         <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="cargar-relacion-envio${id}">Cargar Relacion de Envíos</label>
                         <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="cargar-guias${id}">Cargar Guías</label>
+                        <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="actualizar-num-guia${id}">Actualizar Guia</label>
                     </div>
                 </div>
-                <input type="file" name="cargar-documentos" data-tipo="relacion-envio" id="cargar-relacion-envio${id}" style="display: none">
-                <input type="file" name="cargar-documentos" data-tipo="guias" id="cargar-guias${id}" style="display: none">
+                <input class="cargar-documentos" type="file" data-tipo="relacion-envio" id="cargar-relacion-envio${id}" style="display: none">
+                <input class="cargar-documentos" type="file" data-tipo="guias" id="cargar-guias${id}" style="display: none">
+                <input class="cargar-documentos" type="file" name="documento" data-tipo="num-guia" id="actualizar-num-guia${id}" style="display: none">
                 <p id="mostrar-relacion-envio${id}" class="ml-2" 
                 style="text-overflow: ellipsis;
                 overflow: hidden;
@@ -385,7 +387,9 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                 white-space: nowrap;"></p>
                 
                 <button class="btn btn-danger d-none col-12" data-funcion="enviar" id="subir${id}">Subir</button>
-            </div>
+            </form>
+
+
         </div>
     </div>
   </div>`
