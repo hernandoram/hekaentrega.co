@@ -41,7 +41,7 @@ let transportadoras = {
         limitesPeso: [0.1, 80],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
-        bloqueada: data => bloqueo_direcciones_inter.includes(data.dane_ciudadD),
+        bloqueada: data => bloqueo_direcciones_inter.includes(data.dane_ciudadD) || true,
         bloqueadaOfi: false,
         limitesValorDeclarado: (peso) => {
             if(peso <= 2) return [15000, 30000000]
@@ -79,7 +79,7 @@ let transportadoras = {
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
-        bloqueada: coti => ["52427000"].includes(coti.dane_ciudadD),
+        bloqueada: coti => ["52427000"].includes(coti.dane_ciudadD) || true,
         bloqueadaOfi: true,
         limitesValorDeclarado: (valor) => {
             return [10000, 30000000]
@@ -133,7 +133,7 @@ let transportadoras = {
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
-        bloqueada: () => false,
+        bloqueada: () => true,
         bloqueadaOfi: true,
         limitesValorDeclarado: (valor) => {
             return [10000, 30000000]
@@ -1112,25 +1112,35 @@ function mostrarOficinas(oficinas) {
 async function cargarPreciosTransportadorasOficinas(data) {
     if(!oficinas.length) return false;
     
-    const mostradorOfi = mostrarOficinas(oficinas);
+    let oficinasMostradas = false;
     const detallesTransp = $("#nav-contentTransportadoras");
-    detallesTransp.append(observadorDetallesOficinas());
+    
+    // function que muestra el contenido html de las oficinas (SWIPPER)
+    const renderizarOficinas = () => {
+        const mostradorOfi = mostrarOficinas(oficinas);
+        mostradorOfi.find(".swiper-slide").attr("data-type", data.type);
+
+        if(data.type === "CONVENCIONAL") {
+            mostradorOfi.find(".ver-pagoContraentrega").remove();
+        } else {
+            mostradorOfi.find(".ver-convencional").remove();
+        }
+
+        oficinasMostradas = true;
+        detallesTransp.append(observadorDetallesOficinas());
+        observadorTransp = $(".ver-detalles-office");
+    }
 
     let cotizacionAveo, corredor = 0;
     const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : "CONVENCIONAL";
-    const observadorTransp = $(".ver-detalles-office");
+
+    /**Esta variable será llenada por la funcción {@link renderizarOficinas}*/
+    let observadorTransp;
     const detallesClick = $(".detalles-office-click");
-
-    mostradorOfi.find(".swiper-slide").attr("data-type", data.type);
-
-    if(data.type === "CONVENCIONAL") {
-        mostradorOfi.find(".ver-pagoContraentrega").remove();
-    } else {
-        mostradorOfi.find(".ver-convencional").remove();
-    }
-
+    
     //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
     for (let transp in transportadoras) {
+
         let seguro = data.seguro, recaudo = data.valor;
         let transportadora = transportadoras[transp];
 
@@ -1192,19 +1202,17 @@ async function cargarPreciosTransportadorasOficinas(data) {
         if(!transportadora.cotizacion) 
             transportadora.cotizacion = new Object();
         transportadora.cotizacion["OFICINA"] = cotizacion;
-        
-        let first = false;
-        if(transp === "INTERRAPIDISIMO") {
-            first = true;
-            observadorTransp.prepend(`<option value="${transp}" selected>${transp}</option>`);
+    
+        console.log("Añadiendo " + transp);
+        if(!oficinasMostradas) {
+            renderizarOficinas();
+            observadorTransp.append(`<option value="${transp}">${transp}</option>`);
+            const el = observadorTransp[0];
+            cambiarPreciosOficinasPorTransportadora(el, cotizacion, oficinas);
         } else {
             observadorTransp.append(`<option value="${transp}">${transp}</option>`);
         }
-        
-        if(first) {
-            const el = observadorTransp[0];
-            cambiarPreciosOficinasPorTransportadora(el, cotizacion, oficinas);
-        }
+
         corredor ++
     } 
 
@@ -1238,11 +1246,12 @@ function cambiarPreciosOficinasPorTransportadora(target, cotizacion, oficinas) {
     const nOficina = $(target).attr("data-id");
     
     const oficina = oficinas[nOficina];
+    console.log(oficina);
     const porcentaje_oficina = datos_personalizados.porcentaje_comsion_ofi ? 
-    datos_personalizados.porcentaje_comsion_ofi
-    : oficina.configuracion ? 
-    oficina.configuracion.porcentaje_comsion 
-    : configOficinaDefecto.porcentaje_comsion;
+        datos_personalizados.porcentaje_comsion_ofi
+        : oficina.configuracion ? 
+        oficina.configuracion.porcentaje_comsion 
+        : configOficinaDefecto.porcentaje_comsion;
 
     const sobreflete_ofi = cotizacion.valor * porcentaje_oficina / 100;
     cotizacion.sobreflete_oficina = Math.max(sobreflete_ofi, oficina.configuracion.comision_minima);
@@ -2354,7 +2363,7 @@ class CalcularCostoDeEnvio {
                 }
 
                 await this.cotizarServi(dataObj.dane_ciudadR, dataObj.dane_ciudadD);
-                break;
+            break;
         };
 
         return this;
@@ -2524,7 +2533,7 @@ class CalcularCostoDeEnvio {
       // MEDIO DE TRANSPORTE COD 1 = TERRESTRE
       MedioTransporte: 1,
     };
-    console.log("medellin", data);
+    console.log("COTIZANDO SERVIENTREGA", data);
     const response = await fetch("servientrega/cotizar", {
       method: "Post",
       headers: { "Content-Type": "Application/json" },
@@ -2540,8 +2549,8 @@ class CalcularCostoDeEnvio {
     const conv = this.convencional
     this.precio = response;
     this.servi = true;
-    console.log("ENTRANDO SERVI");
     this.intoServi(response,conv);
+    console.log("FINALIZÓ SERVIENTREGA");
     return true;
   }
 }
