@@ -1436,6 +1436,25 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         card.append(encabezado, cuerpo);
     
         document.getElementById("visor_novedades").appendChild(card);
+        console.log("holaa")
+
+        //logica para borrar los elementos del localstorage
+        
+        let localStorageItems= localStorage;
+
+        const keys= Object.keys(localStorageItems);
+
+        const filteredItems = keys.filter(key => key.startsWith("tiempoguia"));
+
+        console.log(filteredItems)
+
+        filteredItems.forEach(key=>{
+            const value= localStorageItems.getItem(key);
+            if (value){
+                console.log("hola");
+            }
+        }
+            )
     }
 
     $("#gestionar-guia-"+data.numeroGuia).click(() => {
@@ -2001,21 +2020,21 @@ function gestionarNovedadModal(dataN, dataG) {
                   ? new Date().getHours() + ":0" + new Date().getMinutes()
                   : new Date().getHours() + ":" + new Date().getMinutes();
   
-              firebase.firestore().collection("notificaciones").doc(dataG.id_heka).set({
-                  fecha: genFecha(),
-                  timeline: momento,
-                  mensaje: datos_usuario.nombre_completo + " (" + datos_usuario.centro_de_costo
-                  + ") Sugirió una solución para la guía "
-                  + dataN.numeroGuia + ": " + $(idSolucion).val(),
-                  hora: hora,
-                  guia: dataN.numeroGuia,
-                  id_heka: dataG.id_heka,
-                  type: "novedad",
-                  user_id: user_id,
-                  seguimiento: dataG.seguimiento,
-                  usuario: datos_usuario.centro_de_costo,
-                  visible_admin: true
-              })
+            //   firebase.firestore().collection("notificaciones").doc(dataG.id_heka).set({
+            //       fecha: genFecha(),
+            //       timeline: momento,
+            //       mensaje: datos_usuario.nombre_completo + " (" + datos_usuario.centro_de_costo
+            //       + ") Sugirió una solución para la guía "
+            //       + dataN.numeroGuia + ": " + $(idSolucion).val(),
+            //       hora: hora,
+            //       guia: dataN.numeroGuia,
+            //       id_heka: dataG.id_heka,
+            //       type: "novedad",
+            //       user_id: user_id,
+            //       seguimiento: dataG.seguimiento,
+            //       usuario: datos_usuario.centro_de_costo,
+            //       visible_admin: true
+            //   })
               btn_solucionar.text("Enviar Solución")
             })
             .catch((e) => {
