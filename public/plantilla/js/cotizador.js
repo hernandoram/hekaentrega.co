@@ -41,7 +41,7 @@ let transportadoras = {
         limitesPeso: [0.1, 80],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
-        bloqueada: data => bloqueo_direcciones_inter.includes(data.dane_ciudadD) || true,
+        bloqueada: data => bloqueo_direcciones_inter.includes(data.dane_ciudadD),
         bloqueadaOfi: false,
         limitesValorDeclarado: (peso) => {
             if(peso <= 2) return [15000, 30000000]
@@ -79,7 +79,7 @@ let transportadoras = {
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
-        bloqueada: coti => ["52427000"].includes(coti.dane_ciudadD) || true,
+        bloqueada: coti => ["52427000"].includes(coti.dane_ciudadD),
         bloqueadaOfi: true,
         limitesValorDeclarado: (valor) => {
             return [10000, 30000000]
@@ -133,7 +133,7 @@ let transportadoras = {
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
-        bloqueada: () => true,
+        bloqueada: () => false,
         bloqueadaOfi: true,
         limitesValorDeclarado: (valor) => {
             return [10000, 30000000]
