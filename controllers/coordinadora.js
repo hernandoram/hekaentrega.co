@@ -97,7 +97,7 @@ exports.crearGuia = async (req, res) => {
     const maquetador = new MaquetadorXML("./estructura/crearGuia.cord.xml");
     const datos_destinatario = transformarDatosDestinatario(guia);
 
-    const esConvencional = guia.type === "CONVENCIONAL";
+    const esConvencional = datos_destinatario.type === "CONVENCIONAL";
     if(esConvencional) {
         guia.referencia = undefined;
         guia.valor = undefined;
