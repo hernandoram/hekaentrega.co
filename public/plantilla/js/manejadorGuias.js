@@ -1925,7 +1925,7 @@ function subirDocumentos() {
         
         actualizarNumGuia(id_doc, id_user, numero_guias)
         .then(async (res)=>{
-          console.log(res + "hola peteeee")
+          
           actualizacionCompletada = await res
           if (actualizacionCompletada) {
             if (relacion_envio.files[0]) {
