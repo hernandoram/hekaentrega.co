@@ -105,7 +105,7 @@ const datosModal = (video, link, titulo, descripcion) => {
   });
 };
 
-modalInicial();
+// modalInicial();
 function modalInicial() {
   const m = new CreateModal({
     title: "<h3>Información importante!</h3>",
