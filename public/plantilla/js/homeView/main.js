@@ -105,24 +105,26 @@ const datosModal = (video, link, titulo, descripcion) => {
   });
 };
 
-modalInicial();
+// modalInicial();
 function modalInicial() {
   const m = new CreateModal({
-    title: "<h4>PROXIMAMENTE</h4>",
+    title: "<h3>Información importante!</h3>",
     modalSize: "modal-xl",
   });
 
   m.init = `
     <div class="text-center">
-      <img src="./img/logo-heka.png" style="height: 30vh"/>
-      <br/>
-      <h2> INFORMACION IMPORTANTE </h1>
+    <img src="./img/error_bancolombia.jpeg" style="height: 40vh"/>
+
+    <br/>
     </div>
     <br/>
-    <h5>Si solicitaste tu pago el dia <b> 18 de mayo de 8:00 am a 6:00 pm</b> te pedimos un poco de paciencia puesto que el banco (PYMES) se encuentra caido, estaremos realizando el desembolso de las guias en el transcurso del dia tan pronto sea reestablecido el banco, posterior a ello se estaran subiendo los recuentos para actualizacion de billetera.</br> </h5>
+    <h5>Si solicitaste tu pago el día <b> 18 de mayo de 8:00 am a 6:00 pm</b>, te pedimos un poco de paciencia, ya que el sistema bancario (PYMES) se encuentra experimentando dificultades técnicas. Estaremos procesando los desembolsos de las guías a lo largo del día tan pronto como el banco se restablezca. Una vez completado este proceso, se actualizarán los registros en tu billetera.
+
+    </h5>
+    </br> 
     <div class="text-center">
-      <h4><b>AGRADECEMOS TU COMPRENSION</b></h4>
-      <img src="./img/error_bancolombia.jpeg" style="height: 40vh"/>
+      <h4><b>Agradecemos sinceramente tu comprensión.<b></h4>
       <br/>
     </div>
   `;
