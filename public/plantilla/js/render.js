@@ -298,6 +298,7 @@ function mostrarUsuarios(data, id){
                         <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800">
                             <p>Nro. de Documento: <small>${data.numero_documento}</small></p>
                             <p>Contacto: <small>${data.celular}</small></p>
+                            <p>Correo: <small>${data.correo}</small></p>
                             <p>Bodega principal: <small>${bodega ? bodega.direccion_completa : "No cuenta con bodega activa."}</small></p>
                         </div>
                     </div>
