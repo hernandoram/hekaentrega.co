@@ -718,6 +718,7 @@ async function buscarUsuarios() {
     "numero_documento",
     "celular",
     "celular2",
+    "correo",
   ];
   let especifico;
 
