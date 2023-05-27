@@ -1848,7 +1848,7 @@ function subirDocumentos() {
         mostrador_guias.innerHTML = "Guías: " + e.target.files[0].name;
       }
 
-      if (num_guia_actualizado) {
+      if (true) {
         document.getElementById("subir" + id_doc).classList.remove("d-none");
       } else {
         document.getElementById("subir" + id_doc).classList.add("d-none");
@@ -1921,13 +1921,11 @@ function subirDocumentos() {
         .child(id_user + "/" + id_doc);
       let guias_enviadas, relacion_enviada;
       //Sube los documentos a Storage y coloca el indice de busqueda en firestore().documentos
-      if (actualizar_guia.files[0]) {
-        
-        actualizarNumGuia(id_doc, id_user, numero_guias)
-        .then(async (res)=>{
+      if (actualizar_guia.files[0]) {actualizarNumGuia(id_doc, id_user, numero_guias)}
+        // .then(async (res)=>{
           
-          actualizacionCompletada = await res
-          if (actualizacionCompletada) {
+          // actualizacionCompletada = await res
+          // if (true) {
             if (relacion_envio.files[0]) {
               relacion_enviada = await storageUser
                 .child(nombre_relacion + ".pdf")
@@ -1940,8 +1938,9 @@ function subirDocumentos() {
                   return true;
                 });
             }
-    
+            console.log("oka")
             if (guias.files[0]) {
+              console.log("ok")
               guias_enviadas = await storageUser
                 .child(nombre_guias + ".pdf")
                 .put(guias.files[0])
@@ -1977,7 +1976,7 @@ function subirDocumentos() {
                     });
                 }
               });
-            }
+            
             // apartado que será utilizado para cuando todos los usuarios tengan guías automáticas
             // firebase.firestore().collection("notificaciones").add({
             //     mensaje: `Se ha cargado un documento con las guias: ${numero_guias} a su cuenta.`,
@@ -1989,12 +1988,12 @@ function subirDocumentos() {
             //     type: "documento",
             //     important
             // })
-          }
-        })
-        .catch((res)=>{
-          console.log(res + "hola peteeee")
-          actualizacionCompletada = res
-        })
+          // }
+        // })
+        // .catch((res)=>{
+        //   console.log(res + "hola peteeee")
+        //   actualizacionCompletada = res
+        // })
         
           
       }
@@ -2310,6 +2309,7 @@ function actualizarNumGuia(id_doc, id_user, numero_guias) {
     let data = new FormData(
       document.getElementById("form-estado-numguia" + id_doc)
     );
+    if (!data) resolve(true)
     console.log(data.get("documento"));
       fetch("/excel_to_json", {
       method: "POST",
