@@ -2346,12 +2346,17 @@ function actualizarNumGuia(id_doc, id_user, numero_guias) {
           .collection("guias")
           .doc(idHeka)
           .update({
-            numeroGuia: data["Número de Guia"],
+            numeroGuia: data["Número de Guia"].toString(),
             estado: data["Estado Envío"],
             seguimiento_finalizado: false,
           });
-        console.log(data);
       });
+      Swal.fire({
+        icon: 'success',
+        title: 'Numero de guia actualizado correctamente',
+        showConfirmButton: false,
+        timer: 1500
+      })
       resolve(true)
     })
     .catch(err =>{
