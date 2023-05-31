@@ -14,17 +14,9 @@
     <p class="text-primary">{{guia.numeroGuia}}</p>
     </div>
 </h2>
+<div class="bg-light" style="width: 100%; height:5px"></div>
 
-<ul class="nav nav-pills navtab-bg nav-justified" id="myTab" role="tablist">
-  <li class="nav-item" role="presentation">
-    <a class="nav-link active" id="detalles-tab" data-toggle="tab" data-target="#detalles" role="tab" aria-controls="detalles" aria-selected="true">Detalles</a>
-  </li>
-  <li class="nav-item" role="presentation">
-    <a class="nav-link" id="historial-tab" data-toggle="tab" data-target="#historial" role="tab" aria-controls="historial" aria-selected="false">Historial</a>
-  </li>
-</ul>
-
-<div class="tab-content">
+<div>
     <div id="detalles" class="tab-pane active show fade p-2">
         {{#if guia.enNovedad}}
         <form class="form-sol my-2">
@@ -65,22 +57,8 @@
         </form>
         {{/if}}
 
-        <div class="row">
-            <h3 class="col-12 text-primary">Datos de la guía</h3>
-            <p class="col-md-6">Número de guía: <b>{{guia.numeroGuia}}</b></p>
-            <p class="col-md-6">Fecha de envío: <b>{{guia.fechaEnvio}}</b></p>
-            <p class="col-md-3">Estado: <b>{{guia.estado}}</b></p>
-            {{!-- <p class="col-md-3">Peso: <b>{{guia.peso_liquidar}} Kg</b></p> --}}
-            {{!-- <p class="col-md-3">Dice contener: <b>{{guia.dice_contener}}</b></p>--}}
-        </div>
-
-        <hr>
-
-        
-    </div>
-
-    <div class="tab-pane fade" id="historial">
-        <ul class="list-group list-group-flush">
+           <ul class="list-group list-group-flush">
+            <h3 class="text-center text-primary">Movimientos guía</h3>
             {{#each guia.movimientos}}
             <li class="list-group-item d-flex align-items-center">
                 <span class="badge badge-primary badge-pill mr-2 d-flex">{{index @index}}</span>
@@ -104,6 +82,7 @@
             </li>
             {{/each}}
         </ul>
+        
     </div>
 </div>
 
