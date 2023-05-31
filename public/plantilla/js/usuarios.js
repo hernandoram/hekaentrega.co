@@ -711,7 +711,6 @@ async function buscarUsuarios() {
   // }
   const nombreInpOriginal = value("buscador_usuarios-nombre");
   const nombreInp = value("buscador_usuarios-nombre").toLowerCase();
-  const dirInp = value("buscador_usuarios-direccion").toLowerCase();
   const reference = firebase.firestore().collection("usuarios");
   const casesToSearch = [
     "centro_de_costo",
@@ -719,6 +718,7 @@ async function buscarUsuarios() {
     "celular",
     "celular2",
     "correo",
+    "direccion_completa"
   ];
   let especifico;
 
@@ -786,22 +786,7 @@ async function buscarUsuarios() {
           }
         }
 
-        if (dirInp) {
-          if (
-            direcciones.some((dir) =>
-              dir.direccion_completa.includes(dirInp)
-            ) ||
-            direcciones.some(
-              (dir) => dir.codigo_sucursal_inter == dirInp.trim()
-            )
-          ) {
-            mostradorUsuarios.appendChild(
-              toDom(mostrarUsuarios(doc.data(), doc.id))
-            );
-          }
-        }
-
-        if (!dirInp && !nombreInp) {
+        if (!nombreInp) {
           mostradorUsuarios.appendChild(
             toDom(mostrarUsuarios(doc.data(), doc.id))
           );
