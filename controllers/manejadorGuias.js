@@ -2,6 +2,10 @@ const firebase = require("../keys/firebase");
 const db = firebase.firestore();
 const {traducirMovimientoGuia, guiaEnNovedad} = require("../extends/manejadorMovimientosGuia");
 const {actualizarMovimientosPorComparador} = require("./seguimientos");
+const ciudades = require("../data/ciudades.js");
+const busqueda= ciudades;
+
+console.log(busqueda)
 
 const _collEstadoGuia = "estadoGuias";
 const _collGuia = "guias";
