@@ -1,89 +1,136 @@
-
-<h2 class="d-flex justify-content-between" >
-    <div class="text-left">
+<h2 class="d-flex justify-content-between ">
+  <div class="text-left">
     <p style="font-size:20px">Estado de la guía</p>
-    {{#if guia.enNovedad}}
-    <span class="text-primary">EN NOVEDAD</span>
-    {{else}}
-    <span class="text-primary">{{guia.estado}}</span>
-    {{/if}}
-    </div>
 
-    <div class="text-right">
+    {{#if guia.enNovedad}}
+      <span class="text-primary m-0">EN NOVEDAD</span>
+
+    {{else}}
+      <span class="text-primary m-0">{{guia.estado}}</span>
+
+    {{/if}}
+  </div>
+
+  <div class="text-right">
     <p style="font-size:18px">Número de la guía</p>
-    <p class="text-primary">{{guia.numeroGuia}}</p>
-    </div>
+    <p class="text-primary m-0">{{guia.numeroGuia}}</p>
+
+  </div>
 </h2>
+<div class="d-flex justify-content-between">
+  <p style="font-size: 14px;">Destino: {{guia.ciudadDestino}}</p>
+  <p style="font-size: 14px;">Origen: {{guia.ciudadOrigen}}</p>
+</div>
 <div class="bg-light" style="width: 100%; height:5px"></div>
 
 <div>
-    <div id="detalles" class="tab-pane active show fade p-2">
-        {{#if guia.enNovedad}}
-        <form class="form-sol my-2">
-            <p class="mb-1">Gestionar novedad</p>
-            {{#if guia.formularioNovedad}}
-            <div id="render_form-mensajeria" data-formulario="{{guia.formularioStr}}"></div>
-            <button class="btn btn-primary btn-block" type="submit">Solucionar</button>
-            {{else}}
-            <div>
-                <input type="text" class="d-none" name="numeroGuia" value="{{guia.numeroGuia}}">
-                <input type="text" class="d-none" name="fechaMovimiento" value="{{novedadActual.fechaMov}}">
-                <div class="form-group d-none">
-                    <label for="respuesta-simple">{{novedadActual.tituloRespuesta}}</label>
-                    <select class="custom-select" name="respuestaSimple" id="respuesta-simple"
-                    data-tipo="{{novedadActual.tipo_solucion}}"
-                    >
-                        <option value> -- Seleccione -- </option>
-                        <option value="1">SI</option>
-                        <option value="0">NO</option>
-                    </select>
-                </div>
-                
-                <div class="form-group d-none" id="direccion">
-                    <label for="direccion-novedad">Agregar Dirección</label>
-                    <input type="text" id="direccion-novedad" class="form-control" name="direccion" />
-                </div>
-                
-                <div class="form-group" id="observaciones">
-                    <label for="observaciones-novedad">Observación</label>
-                    {{!-- <input type="text" for="observaciones-novedad" class="form-control" name="observaciones" /> --}}
-                    <textarea type="text" for="observaciones-novedad" class="form-control" name="gestion" ></textarea>
-                </div>
-
-                <button class="btn btn-primary btn-block" type="submit">Solucionar</button>
+  <div id="detalles" class="tab-pane active show fade p-2">
+    {{#if guia.enNovedad}}
+      <form class="form-sol my-2">
+        <p class="mb-1">Gestionar novedad</p>
+        {{#if guia.formularioNovedad}}
+          <div
+            id="render_form-mensajeria"
+            data-formulario="{{guia.formularioStr}}"
+          ></div>
+          <button
+            class="btn btn-primary btn-block"
+            type="submit"
+          >Solucionar</button>
+        {{else}}
+          <div>
+            <input
+              type="text"
+              class="d-none"
+              name="numeroGuia"
+              value="{{guia.numeroGuia}}"
+            />
+            <input
+              type="text"
+              class="d-none"
+              name="fechaMovimiento"
+              value="{{novedadActual.fechaMov}}"
+            />
+            <div class="form-group d-none">
+              <label
+                for="respuesta-simple"
+              >{{novedadActual.tituloRespuesta}}</label>
+              <select
+                class="custom-select"
+                name="respuestaSimple"
+                id="respuesta-simple"
+                data-tipo="{{novedadActual.tipo_solucion}}"
+              >
+                <option value> -- Seleccione -- </option>
+                <option value="1">SI</option>
+                <option value="0">NO</option>
+              </select>
             </div>
-            
-            {{/if}}
-        </form>
+
+            <div class="form-group d-none" id="direccion">
+              <label for="direccion-novedad">Agregar Dirección</label>
+              <input
+                type="text"
+                id="direccion-novedad"
+                class="form-control"
+                name="direccion"
+              />
+            </div>
+
+            <div class="form-group" id="observaciones">
+              <label for="observaciones-novedad">Observación</label>
+              {{! <input type="text" for="observaciones-novedad" class="form-control" name="observaciones" /> }}
+              <textarea
+                type="text"
+                for="observaciones-novedad"
+                class="form-control"
+                name="gestion"
+              ></textarea>
+            </div>
+
+            <button
+              class="btn btn-primary btn-block"
+              type="submit"
+            >Solucionar</button>
+          </div>
+
         {{/if}}
+      </form>
+    {{/if}}
 
-           <ul class="list-group list-group-flush">
-            <h2 class="text-center text-primary">Movimientos guía</h2>
-            {{#each guia.movimientos}}
-            <li class="list-group-item d-flex align-items-center">
-                <span class="badge badge-primary badge-pill mr-2 d-flex">{{index @index}}</span>
-                <div class="d-flex flex-column w-100">
-                    <small class="d-flex justify-content-between">
-                        {{#if this.novedad}}
-                            <h6 class="text-danger">En novedad</h6>
-                        {{/if}}
-                        <h6>{{this.fechaMov}}</h6>
-                    </small>
+    <ul class="list-group list-group-flush">
+      <h2 class="text-center text-primary">Movimientos guía</h2>
+      {{#each guia.movimientos}}
+        <li class="list-group-item d-flex align-items-center">
+          <span class="badge badge-primary badge-pill mr-2 d-flex">{{index
+              @index
+            }}</span>
+          <div class="d-flex flex-column w-100">
+            <small class="d-flex justify-content-between">
+              {{#if this.novedad}}
+                <h6 class="text-danger">En novedad</h6>
+              {{/if}}
+              <h6>{{this.fechaMov}}</h6>
+            </small>
 
-                    <h4>{{this.descripcionMov}}</h4>
-                    
-                    <p class="mb-1"><b>{{this.observacion}}</b></p>
-                    
-                    <p class="mb-1"><i class="fa fa-map-marker-alt mr-2 text-primary"></i>{{this.ubicacion}}</p>
-                    
-                    <p class="mb-1"><span class="text-danger">{{this.novedad}}</span></p>
+            <h4>{{this.descripcionMov}}</h4>
 
-                </div>
-            </li>
-            {{/each}}
-        </ul>
-        
-    </div>
+            <p class="mb-1"><b>{{this.observacion}}</b></p>
+
+            <p class="mb-1"><i
+                class="fa fa-map-marker-alt mr-2 text-primary"
+              ></i>{{this.ubicacion}}</p>
+
+            <p class="mb-1"><span
+                class="text-danger"
+              >{{this.novedad}}</span></p>
+
+          </div>
+        </li>
+      {{/each}}
+    </ul>
+
+  </div>
 </div>
 
 <script src="/js/movimientoGuias/movimientosExt.js" type="module"></script>
