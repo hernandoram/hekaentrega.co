@@ -54,12 +54,8 @@ async function consultarHistorialGuias() {
 
     historialConsultado = reference
     .onSnapshot(snapshot => {
-        // console.log("entro")
-        // console.log(snapshot)
         snapshot.docChanges().forEach(change => {
-            // console.log("230014766326")
             const data = change.doc.data();
-            // console.log(data)
             const id = data.id_heka;
             data.row_id = "historial-guias-row-" + id;
             
