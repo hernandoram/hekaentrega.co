@@ -256,7 +256,7 @@
                 <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
                   <a class="dropdown-item" href="#perfil">
                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Perfil de usuario
+                    Mis datos
                   </a>
                   <a class="dropdown-item" href="#datos_bancarios">
                     <i class="fas fa-money-check-alt fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -1487,20 +1487,15 @@
 
     <!-- Logout Modal-->
     <div class="modal fade" id="cerrarSesionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
+      aria-hidden="true" style="padding-top: 100px;">
       <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">¿Quieres salir de tu cuenta Heka?</h5>
-            <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">×</span>
-            </button>
-          </div>
+        <div class="modal-content" style="margin:0px; padding: 32px;">
+          <h5 class="modal-title" id="exampleModalLabel">¿Quieres cerrar la sesión de Heka?</h5>
+          <div class="modal-body">Puedes volver a iniciar sesión en cualquier momento.</div>
 
-          <div class="modal-body">Presiona Salir, para cerrar sesión</div>
-          <div class="modal-footer">
+          <div class="d-flex flex-column justify-content-between">
+            <a class="btn btn-primary mb-2" href="index.html" onclick="cerrarSession()">Cerrar sesión</a>
             <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-            <a class="btn btn-primary" href="index.html" onclick="cerrarSession()">Salir</a>
           </div>
         </div>
       </div>
