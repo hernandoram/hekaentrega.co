@@ -250,8 +250,7 @@
 
             <div class="row">
               <form class="input-group mb-3 col-12 offset-md-2 col-md-8">
-                <input type="text" class="form-control border-info" placeholder="Dirección" id="buscador_usuarios-direccion">
-                <input type="text" class="form-control border-info" placeholder="Busca por nombre o correo :D" id="buscador_usuarios-nombre">
+                <input type="text" class="form-control border-info" placeholder="Busca usuario por nombre, correo, dirección, número de documento o celular" id="buscador_usuarios-nombre">
                 <div class="input-group-append">
                   <input type="button" class="btn btn-small btn-outline-info" value="buscar" onclick="buscarUsuarios()">
                 </div>
@@ -716,9 +715,8 @@
                   <div class="row">
                     <div class="col-lg-12">
                       <div class="p-5">
-                        <div class="text-center" >
-                            <img style="max-width:100%;width:200px;height:200px;" src="img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg"  alt="1">
-                            <h1 class="h4 text-gray-900 mb-4"> Creando cuenta...</h1>
+                        <div class="text-left" >
+                            <h2 > Crea un nuevo usuario</h2>
                             </br>
                         </div>
                         <form class="user">
@@ -817,9 +815,22 @@
                             </div>
                           </div>
           
+                          <div class="form-check d-flex justify-content-between">
+                            <div>
+
+                              <input class="form-check-input" type="checkbox" name="CPNusuario_corporativo" 
+                              id="CPNusuario_corporativo" autocomplete="off">
+                              <label class="form-check-label" for="CPMusuario_corporativo">Usuario Corporativo</label>
+                            </div>
+                            <div>
+
+                              <input class="form-check-input" type="checkbox" id="CPNcheck_terminos_condiciones" 
+                               autocomplete="off"> <a href="/terminos.html">Acepto términos y condiciones</a>
+                            </div>
+                            <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
+                          </div>
+
                           <div class="form-group">
-                            </br> 
-                            </br>
                             <input type="checkbox"  name="" id="checkbox-banco" onchange="pruebacheck()"> Registrar datos bancarios para el pago de envíos con recaudo
                           </div>
           
@@ -912,14 +923,6 @@
                               </div>
                             </div>
           
-                            <div class="form-check">
-                              <input class="form-check-input" type="checkbox" name="CPNusuario_corporativo" 
-                              id="CPNusuario_corporativo" autocomplete="off">
-                              <label class="form-check-label" for="CPMusuario_corporativo">Usuario Corporativo</label><br>
-                              <input class="form-check-input" type="checkbox" id="CPNcheck_terminos_condiciones" 
-                              autocomplete="off"> <a href="/terminos.html">Acepto términos y condiciones</a>
-                              <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
-                            </div>
                         </form>
                           <button id="registrar-nueva-cuenta" class="btn btn-primary btn-user btn-block" disabled>
                             Registrar cuenta
@@ -1164,8 +1167,9 @@
 
           <div class="container-fluid" id="documentos" style="display: none;">
             <h2>Documentos</h2>
-            <div class="row">
-              <div class="form-group row mb-3">
+
+            <div>
+              <div class="form-group row mb-12">
                 <div class="col-sm-6 mb-3 mb-sm-0">
                   <h6>Fecha inicio</h6>
                   <input type="date" class="form-control form-control-user"  id="docs-fecha-inicio" required>
@@ -1175,11 +1179,12 @@
                   <input type="date" class="form-control form-control-user"  id="docs-fecha-final" required>
                 </div>
               </div>
-              <button id="buscador-documentos" class="mb-4 btn btn-primary btn-user btn-block">
-                Buscar
-              </button>  
-            
+              
             </div>
+
+            <button id="buscador-documentos" class="mb-4 btn btn-primary btn-user btn-block" style="padding-bottom: 10px;" >
+              Buscar
+            </button> 
             <div class="row" id="mostrador-documentos"></div>
           </div>
           
@@ -1765,7 +1770,7 @@
         <footer class="sticky-footer bg-white">
           <div class="container my-auto">
             <div class="copyright text-center my-auto">
-              <span>Copyright &copy; HEKA ENTREGA 2020</span>
+              <span>Copyright &copy; HEKA ENTREGA 2023</span>
             </div>
           </div>
         </footer>

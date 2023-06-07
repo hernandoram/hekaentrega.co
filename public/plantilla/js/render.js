@@ -1441,7 +1441,6 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         card.append(encabezado, cuerpo);
     
         document.getElementById("visor_novedades").appendChild(card);
-        console.log("holaa")
 
         //logica para borrar los elementos del localstorage
         

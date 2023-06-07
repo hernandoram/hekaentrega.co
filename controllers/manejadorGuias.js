@@ -2,6 +2,9 @@ const firebase = require("../keys/firebase");
 const db = firebase.firestore();
 const {traducirMovimientoGuia, guiaEnNovedad} = require("../extends/manejadorMovimientosGuia");
 const {actualizarMovimientosPorComparador} = require("./seguimientos");
+const ciudades = require("../data/ciudades.js");
+const busqueda= ciudades;
+
 
 const _collEstadoGuia = "estadoGuias";
 const _collGuia = "guias";
@@ -38,6 +41,11 @@ exports.consultarGuia = async (req, res) => {
     
         if(!docMovimiento) return res.send("GUIA NO ENCONTRADA");
         let movimientosEncontrado = docMovimiento.data();
+        let ciudadOrigen= busqueda.find((element)=>element.dane_ciudad===movimientosEncontrado.daneOrigen)
+        let ciudadDestino= busqueda.find((element)=>element.dane_ciudad===movimientosEncontrado.daneDestino)
+        
+        console.log(ciudadOrigen.nombre)
+        console.log(ciudadDestino.nombre)
     
         const tradMov = traducirMovimientoGuia(movimientosEncontrado.transportadora);
     
@@ -72,6 +80,8 @@ exports.consultarGuia = async (req, res) => {
             enNovedad: movimientosEncontrado.enNovedad,
             novedadActual,
             formularioNovedad,
+            ciudadDestino: ciudadOrigen.nombre,
+            ciudadOrigen: ciudadDestino.nombre,
             formularioStr: JSON.stringify(formularioNovedad)
         }
     
