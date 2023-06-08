@@ -24,13 +24,13 @@
 
 <div>
   <div id="detalles" class="tab-pane active show fade p-2">
-    {{#if guia.formularioNovedad}}
+    {{!-- {{#if guia.formularioNovedad}} --}}
       <button
         class="btn btn-primary btn-block"
         data-toggle="modal"
         data-target="#exampleModal"
       >Gestionar novedad</button>
-    {{/if}}
+    {{!-- {{/if}} --}}
 
     <div
       class="modal fade"
@@ -98,8 +98,7 @@
                   </div>
 
                   <div class="form-group" id="observaciones">
-                    <h5 for="observaciones-novedad">Escribe la observación para
-                      gestionar la novedad</h5>
+                    <h5 for="observaciones-novedad">Tu envío presenta la siguiente novedad: <p class="text-danger m-0">{{novedadActual.novedad}}</p> por favor ingresa una solución y oprime el botón “solucionar”</h5>
                     {{! <input type="text" for="observaciones-novedad" class="form-control" name="observaciones" /> }}
                     <textarea
                       type="text"
