@@ -786,6 +786,21 @@ async function buscarUsuarios() {
           }
         }
 
+        if (nombreInp) {
+          if (
+            direcciones.some((dir) =>
+              dir.direccion_completa.includes(nombreInp)
+            ) ||
+            direcciones.some(
+              (dir) => dir.codigo_sucursal_inter == nombreInp.trim()
+            )
+          ) {
+            mostradorUsuarios.appendChild(
+              toDom(mostrarUsuarios(doc.data(), doc.id))
+            );
+          }
+        }
+
         if (!nombreInp) {
           mostradorUsuarios.appendChild(
             toDom(mostrarUsuarios(doc.data(), doc.id))
@@ -802,7 +817,7 @@ async function buscarUsuarios() {
       if (document.getElementById("mostrador-usuarios").innerHTML == "") {
         inHTML(
           "mostrador-usuarios",
-          "<div class='card text-danger'><h5 class='m-3'>Lo sentimos, Sin resultados para tu búsqueda</h5></div>"
+          "<div class='w-100 text-center'><h5 class='m-3'>No hubo un resultado para tu busqueda, prueba con otro criterio!</h5></div>"
         );
       } else {
         let botones_ver = document.querySelectorAll(
