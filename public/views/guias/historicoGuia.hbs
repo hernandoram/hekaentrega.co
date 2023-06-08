@@ -24,9 +24,15 @@
 
 <div>
   <div id="detalles" class="tab-pane active show fade p-2">
-    <button class="btn btn-primary btn-block">Gestionar novedad</button>
-    <form class="form-sol my-2">
-      <h3 class="mb-1 text-primary">Gestionar novedad</h3>
+    <button class="btn btn-primary btn-block" data-toggle="modal" data-target="#exampleModal">Gestionar novedad</button>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+
+      <div class="modal-body">
+      <h3 class="text-primary">Gestionar novedad</h3>
+         <form class="form-sol">
       {{#if guia.formularioNovedad}}
         <div
           id="render_form-mensajeria"
@@ -78,7 +84,7 @@
           </div>
 
           <div class="form-group" id="observaciones">
-            <h4 for="observaciones-novedad">Observación</h4>
+            <h5 for="observaciones-novedad">Escribe la observación para gestionar la novedad</h5>
             {{! <input type="text" for="observaciones-novedad" class="form-control" name="observaciones" /> }}
             <textarea
               type="text"
@@ -88,14 +94,24 @@
             ></textarea>
           </div>
 
-          <button
-            class="btn btn-primary btn-block"
-            type="submit"
-          >Solucionar</button>
+
+  <div class="d-flex flex-column justify-content-between">
+          <button class="btn btn-primary btn-block" type="submit">Solucionar</button>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+          </div>
+
         </div>
 
       {{/if}}
     </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+   
     <div class="bg-light" style="width: 100%; height:5px"></div>
 
     <ul class="list-group list-group-flush">
