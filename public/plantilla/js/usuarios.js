@@ -817,7 +817,7 @@ async function buscarUsuarios() {
       if (document.getElementById("mostrador-usuarios").innerHTML == "") {
         inHTML(
           "mostrador-usuarios",
-          "<div class='card text-danger'><h5 class='m-3'>Lo sentimos, Sin resultados para tu búsqueda</h5></div>"
+          "<div class='w-100 text-center'><h5 class='m-3'>No hubo un resultado para tu busqueda, prueba con otro criterio!</h5></div>"
         );
       } else {
         let botones_ver = document.querySelectorAll(
