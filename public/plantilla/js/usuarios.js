@@ -786,6 +786,21 @@ async function buscarUsuarios() {
           }
         }
 
+        if (nombreInp) {
+          if (
+            direcciones.some((dir) =>
+              dir.direccion_completa.includes(nombreInp)
+            ) ||
+            direcciones.some(
+              (dir) => dir.codigo_sucursal_inter == nombreInp.trim()
+            )
+          ) {
+            mostradorUsuarios.appendChild(
+              toDom(mostrarUsuarios(doc.data(), doc.id))
+            );
+          }
+        }
+
         if (!nombreInp) {
           mostradorUsuarios.appendChild(
             toDom(mostrarUsuarios(doc.data(), doc.id))
