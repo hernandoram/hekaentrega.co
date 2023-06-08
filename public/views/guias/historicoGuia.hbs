@@ -98,7 +98,7 @@
                   </div>
 
                   <div class="form-group" id="observaciones">
-                    <h5 for="observaciones-novedad">Tu envío presenta la siguiente novedad: <p class="text-danger m-0">{{novedadActual.novedad}}</p> por favor ingresa una solución y oprime el botón “solucionar”</h5>
+                    <h5 for="observaciones-novedad">Tu envío presenta la siguiente novedad: <b class="text-danger">{{novedadActual.novedad}}</b> por favor ingresa una solución y oprime el botón “solucionar”</h5>
                     {{! <input type="text" for="observaciones-novedad" class="form-control" name="observaciones" /> }}
                     <textarea
                       type="text"
@@ -133,9 +133,10 @@
       </div>
     </div>
 
-    <div class="bg-light" style="width: 100%; height:5px"></div>
 
     <ul class="list-group list-group-flush">
+          <div class="bg-light" style="width: 100%; height:5px; margin-top: 10px;"></div>
+
       <h2 class="text-center text-primary">Movimientos guía</h2>
       {{#each guia.movimientos}}
         <li class="list-group-item d-flex align-items-center">
