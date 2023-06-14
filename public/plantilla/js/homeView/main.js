@@ -114,7 +114,7 @@ function modalInicial() {
 
   m.init = `
     <div class="text-center">
-    <img src="./img/interrapidisimo-logo.png" style="height: 25vh"/>
+    <img src="./img/logo-inter2.png" style="height: 25vh"/>
 
     <br/>
     </div>
