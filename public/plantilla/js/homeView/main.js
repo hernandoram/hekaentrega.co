@@ -105,26 +105,29 @@ const datosModal = (video, link, titulo, descripcion) => {
   });
 };
 
-// modalInicial();
+modalInicial();
 function modalInicial() {
   const m = new CreateModal({
-    title: "<h3>Información importante!</h3>",
+    title: "<h3><b>Información importante!</h3>",
     modalSize: "modal-xl",
   });
 
   m.init = `
     <div class="text-center">
-    <img src="./img/error_bancolombia.jpeg" style="height: 40vh"/>
+    <img src="./img/logo-inter2.png" style="height: 25vh"/>
 
     <br/>
     </div>
     <br/>
-    <h5>Si solicitaste tu pago el día <b> 18 de mayo de 8:00 am a 6:00 pm</b>, te pedimos un poco de paciencia, ya que el sistema bancario (PYMES) se encuentra experimentando dificultades técnicas. Estaremos procesando los desembolsos de las guías a lo largo del día tan pronto como el banco se restablezca. Una vez completado este proceso, se actualizarán los registros en tu billetera.
-
+    <h5><b>Actualmente Interrapidisimo presenta error en sus API, hasta el momento no se ha reportado solución.
+    </br> 
+    </br>
+    
+    Si necesitas despachar de manera urgente por favor escríbenos por Whatsapp a los siguientes números 3044431190 y/o 3112350856 para activarte guías de manera manual para que puedas despachar tus envíos pendientes de interrapidisimo.
     </h5>
     </br> 
     <div class="text-center">
-      <h4><b>Agradecemos sinceramente tu comprensión.<b></h4>
+      <h4><b>Agradecemos tu comprensión.<b></h4>
       <br/>
     </div>
   `;
