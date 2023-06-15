@@ -119,11 +119,8 @@ function modalInicial() {
     <br/>
     </div>
     <br/>
-    <h5><b>Actualmente Interrapidisimo presenta error en sus API, hasta el momento no se ha reportado solución.
+    <h5><b>Ya se ha restablecido el servicio con INTERRAPIDISIMO, puedes generar tus guías con normalidad.
     </br> 
-    </br>
-    
-    Si necesitas despachar de manera urgente por favor escríbenos por Whatsapp a los siguientes números 3044431190 y/o 3112350856 para activarte guías de manera manual para que puedas despachar tus envíos pendientes de interrapidisimo.
     </h5>
     </br> 
     <div class="text-center">
