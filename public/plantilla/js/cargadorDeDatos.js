@@ -1299,7 +1299,7 @@ function obtenerMensajeDesembolso() {
 
 async function solicitarPagosPendientesUs() {
   const mensajeDesembolso = obtenerMensajeDesembolso();
-  const minimo_diario = 1500000;
+  const minimo_diario = 3000000;
   const ref = db.collection("infoHeka").doc("manejoUsuarios");
   const data = await ref.get().then(d => d.data());
 
