@@ -108,7 +108,7 @@ const datosModal = (video, link, titulo, descripcion) => {
 modalInicial();
 function modalInicial() {
   const m = new CreateModal({
-    title: "<h3><b>Información importante!</h3>",
+    title: "<h3>Información importante!</h3>",
     modalSize: "modal-xl",
   });
 
@@ -119,11 +119,11 @@ function modalInicial() {
     <br/>
     </div>
     <br/>
-    <h5><b>Actualmente Interrapidisimo presenta error en sus API, hasta el momento no se ha reportado solución.
+    <h5>Actualmente <b>Interrapidisimo presenta error en sus API </b>, hasta el momento no se ha reportado solución.
     </br> 
     </br>
     
-    Si necesitas despachar de manera urgente por favor escríbenos por Whatsapp a los siguientes números 3044431190 y/o 3112350856 para activarte guías de manera manual para que puedas despachar tus envíos pendientes de interrapidisimo.
+    Si necesitas despachar de manera urgente por favor escríbenos por Whatsapp a los siguientes números <b>3044431190</b>  y/o <b>3112350856</b>  para activarte guías de manera manual para que puedas despachar tus envíos pendientes de interrapidisimo.
     </h5>
     </br> 
     <div class="text-center">

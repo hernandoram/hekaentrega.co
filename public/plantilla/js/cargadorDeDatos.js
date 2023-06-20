@@ -112,6 +112,9 @@ async function cargarDatosUsuario(){
   showPercentage.text(percentage());
   
   datos_usuario = await consultarDatosDeUsuario();
+
+//  console.log( datos_usuario) 
+
   
   limitarAccesoSegunTipoUsuario();
   
@@ -1299,7 +1302,7 @@ function obtenerMensajeDesembolso() {
 
 async function solicitarPagosPendientesUs() {
   const mensajeDesembolso = obtenerMensajeDesembolso();
-  const minimo_diario = 1500000;
+  const minimo_diario = 3000000;
   const ref = db.collection("infoHeka").doc("manejoUsuarios");
   const data = await ref.get().then(d => d.data());
 
@@ -1321,7 +1324,6 @@ async function solicitarPagosPendientesUs() {
 
   if(!datos_usuario.datos_bancarios) 
     return Swal.fire("No puede solicitar pagos", "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico atencion@hekaentrega.co esto se realiza con la finalidad de validación de datos. Adicional debes registrar datos bancarios para tener donde realizar el deposito del dinero.", "error");
-
 
   if(diarioSolicitado.includes(datos_usuario.centro_de_costo)) 
     return Swal.fire("", mensajeDesembolso, "info");
