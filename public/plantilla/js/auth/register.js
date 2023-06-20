@@ -18,6 +18,7 @@ rgOfiForm.findErrorsBeforeNext = revisarErroresParticularesRegistro;
 
 const comprobacionesRegistro = habilitarComprobacionesDeInputs();
 
+
 function habilitarComprobacionesDeInputs() {
     const varifyInputsImportants = new DetectorErroresInput(".verificacion-especial");
     varifyInputsImportants.init("blur");
@@ -58,6 +59,7 @@ function revisarErroresParticularesRegistro(container) {
     const ids = new Array();
     const inputs = $(container).find("input:required");
     inputs.each((i, input) => ids.push(input.getAttribute("id")));
+
 
     const [comprobador_particular] = comprobacionesRegistro;
     

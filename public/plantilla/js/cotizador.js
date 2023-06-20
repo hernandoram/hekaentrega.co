@@ -693,13 +693,13 @@ async function detallesTransportadoras(data) {
         `
         : ""
 
-        const encabezado = `<li class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
+        const encabezado = `<li style="cursor:pointer;" class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
         id="list-transportadora-${transp}-list" 
         data-transp="${transp}"
         data-type="${data.type}"
         aria-controls="list-transportadora-${transp}"
         >
-            <div class="row">
+            <div class="row" >
                 <img src="${transportadora.logoPath}" 
                 class="col" style="max-height:120px; max-width:fit-content"
                 alt="logo-${transportadora.nombre}">
@@ -1604,7 +1604,7 @@ function finalizarCotizacion(datos) {
     if(datos.transportadora !== "SERVIENTREGA") {
         solicitud_recoleccion = `
         <div class="alert alert-danger col-12">
-            <h3 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, enviar la solicitud al correo <a href="mailto:hekanovedades@gmail.com">hekanovedades@gmail.com</a>.</small></h3>
+            <h3 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, enviar la solicitud al correo <a href="mailto:atencion@hekaentrega.co">atencion@hekaentrega.co</a>.</small></h3>
         </div>
         `;
     }
