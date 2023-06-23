@@ -23,13 +23,35 @@
 </div>
 
 <div>
+
   <div id="detalles" class="tab-pane active show fade p-2">
-        {{#if guia.enNovedad}}
-      <button
+    {{#if guia.enNovedad}}
+
+      <div
+        class="alert alert-warning fade show"
+        role="alert"
+        id="alerta_novedad-guias_hist"
+      >
+        <h5 class="text-center">
+          <i class="fa fa-exclamation-triangle text-warning "></i>
+          Tu envio se encuentra
+          <b>en novedad,</b>
+          por favor gestionalo en el menor tiempo posible para evitar
+          devoluciones
+        </h5>
+        <button
+          class="btn btn-warning btn-block"
+          data-toggle="modal"
+          data-target="#exampleModal"
+        >Gestionar Novedad</button>
+
+      </div>
+
+      {{! <button
         class="btn btn-primary btn-block"
         data-toggle="modal"
         data-target="#exampleModal"
-      >Gestionar novedad</button>
+      >Gestionar novedad</button> }}
     {{/if}}
 
     <div
@@ -45,7 +67,7 @@
         <div class="modal-content">
 
           <div class="modal-body">
-            <h3 class="text-primary">Gestionar novedad</h3>
+            <h3 class="text-primary text-center">Gestionar novedad</h3>
             <form class="form-sol">
               {{#if guia.formularioNovedad}}
                 <div
@@ -98,7 +120,11 @@
                   </div>
 
                   <div class="form-group" id="observaciones">
-                    <h5 for="observaciones-novedad">Tu envío presenta la siguiente novedad: <b class="text-danger">{{novedadActual.novedad}}</b> por favor ingresa una solución y oprime el botón “solucionar”</h5>
+                    <h5 for="observaciones-novedad">Tu envío presenta la
+                      siguiente novedad:
+                      <b class="text-danger">{{novedadActual.novedad}}</b>
+                      por favor ingresa una solución y oprime el botón
+                      “solucionar”</h5>
                     {{! <input type="text" for="observaciones-novedad" class="form-control" name="observaciones" /> }}
                     <textarea
                       type="text"
@@ -133,9 +159,11 @@
       </div>
     </div>
 
-
     <ul class="list-group list-group-flush">
-          <div class="bg-light" style="width: 100%; height:5px; margin-top: 10px;"></div>
+      <div
+        class="bg-light"
+        style="width: 100%; height:5px; margin-top: 10px;"
+      ></div>
 
       <h2 class="text-center text-primary">Movimientos guía</h2>
       {{#each guia.movimientos}}
