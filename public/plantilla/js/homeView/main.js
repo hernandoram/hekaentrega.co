@@ -109,19 +109,16 @@ modalInicial();
 function modalInicial() {
   const m = new CreateModal({
     title: "<h3>Información importante!</h3>",
-    modalSize: "modal-xl",
+    modalSize: "modal-md",
   });
 
   m.init = `
     <div class="text-center">
-    <img src="./img/logo-inter2.png" style="height: 25vh"/>
+    <img src="./img/hekaimagen.jpeg" style="height: 56vh"/>
 
     <br/>
     </div>
     <br/>
-    <h5><b>Ya se ha restablecido el servicio con INTERRAPIDISIMO, puedes generar tus guías con normalidad.
-    </br> 
-    </h5>
     </br> 
     <div class="text-center">
       <h4><b>Agradecemos tu comprensión.<b></h4>
