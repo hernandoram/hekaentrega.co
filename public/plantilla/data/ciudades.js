@@ -64779,13 +64779,13 @@ export default [
     "departamento": "CUNDINAMARCA",
     "ciudad": "LA CARO"
   },
-  {
-    "idAveo": 9222,
-    "dane_ciudad": "119051000",
-    "nombreAveo": "USME(CUNDINAMARCA)",
-    "departamento": "CUNDINAMARCA",
-    "ciudad": "USME"
-  },
+  // {
+  //   "idAveo": 9222,
+  //   "dane_ciudad": "119051000",
+  //   "nombreAveo": "USME(CUNDINAMARCA)",
+  //   "departamento": "CUNDINAMARCA",
+  //   "ciudad": "USME"
+  // },
   {
     "idAveo": 9223,
     "dane_ciudad": "76622005",
@@ -64814,13 +64814,13 @@ export default [
     "departamento": "BOGOTA",
     "ciudad": "FONTIBON"
   },
-  {
-    "idAveo": 9237,
-    "dane_ciudad": "11001001",
-    "nombreAveo": "ENGATIVA(BOGOTA)",
-    "departamento": "BOGOTA",
-    "ciudad": "ENGATIVA"
-  },
+  // {
+  //   "idAveo": 9237,
+  //   "dane_ciudad": "11001001",
+  //   "nombreAveo": "ENGATIVA(BOGOTA)",
+  //   "departamento": "BOGOTA",
+  //   "ciudad": "ENGATIVA"
+  // },
   {
     "idAveo": 9238,
     "dane_ciudad": "25320003",
