@@ -11,6 +11,8 @@
     {{/if}}
   </div>
 
+
+
   <div class="text-right">
     <p style="font-size:18px">Número de la guía</p>
     <p class="text-primary m-0">{{guia.numeroGuia}}</p>
@@ -47,11 +49,6 @@
 
       </div>
 
-      {{! <button
-        class="btn btn-primary btn-block"
-        data-toggle="modal"
-        data-target="#exampleModal"
-      >Gestionar novedad</button> }}
     {{/if}}
 
     <div
@@ -120,12 +117,24 @@
                   </div>
 
                   <div class="form-group" id="observaciones">
-                    <h5 for="observaciones-novedad">Tu envío presenta la
+                    {{#if guia.novedadDireccion}}
+                     <h5>dirección incorrecta!</h5>
+
+                    {{else}}
+                   <h5 for="observaciones-novedad">Tu envío presenta la
                       siguiente novedad:
                       <b class="text-danger">{{novedadActual.novedad}}</b>
                       por favor ingresa una solución y oprime el botón
                       “solucionar”</h5>
+                    {{/if}}
+
+                 
+                   
+                   
+                      {{/if}}
+
                     {{! <input type="text" for="observaciones-novedad" class="form-control" name="observaciones" /> }}
+                    
                     <textarea
                       type="text"
                       for="observaciones-novedad"
@@ -152,7 +161,6 @@
 
                 </div>
 
-              {{/if}}
             </form>
           </div>
         </div>

@@ -44,8 +44,8 @@ exports.consultarGuia = async (req, res) => {
         let ciudadOrigen= busqueda.find((element)=>element.dane_ciudad===movimientosEncontrado.daneOrigen)
         let ciudadDestino= busqueda.find((element)=>element.dane_ciudad===movimientosEncontrado.daneDestino)
         
-        console.log(ciudadOrigen.nombre)
-        console.log(ciudadDestino.nombre)
+        // console.log(ciudadOrigen.nombre)
+        // console.log(ciudadDestino.nombre)
     
         const tradMov = traducirMovimientoGuia(movimientosEncontrado.transportadora);
     
@@ -60,17 +60,23 @@ exports.consultarGuia = async (req, res) => {
     
         const {novedad} = guiaEnNovedad(movimientosEncontrado.movimientos, movimientosEncontrado.transportadora);
         const novedadActual = novedad ? traduccion(novedad) : {};
+        let novedadDireccion = false;
         
         let formularioNovedad;
         if(novedad) {
             const msjNovedad = novedadActual.novedad;
             const novedadLista = lista.find(l => l.novedad === msjNovedad);
 
-            console.log(novedadActual, novedadLista);
+            // console.log(novedadActual, novedadLista);
             if(novedadLista && novedadLista.formulario)
                 formularioNovedad = formularios[novedadLista.formulario];
         }
+
+        if(novedadActual.novedad.includes("DIRECCION ERRADA" || "DIRECCION INCOMPLETA")){
+            novedadDireccion = true;
+        }
         
+        console.log(novedadDireccion)
     
         const guia = {
             movimientos: traducirMovimientos,
@@ -82,8 +88,11 @@ exports.consultarGuia = async (req, res) => {
             formularioNovedad,
             ciudadDestino: ciudadOrigen.nombre,
             ciudadOrigen: ciudadDestino.nombre,
-            formularioStr: JSON.stringify(formularioNovedad)
+            formularioStr: JSON.stringify(formularioNovedad),
+            novedadDireccion : novedadDireccion,
         }
+
+        console.log("hola" +guia.novedadActual.novedad)
     
         // res.json(movimientosEncontrado);
         res.render("guias/historicoGuia", {guia, novedadActual, layout:"general"});
