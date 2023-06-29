@@ -113,12 +113,10 @@ function modalInicial() {
   });
 
   m.init = `
-    <div class="text-center">
-    <img src="./img/hekaimagen.jpeg" style="height: 56vh"/>
-
+  <div class="text-center">
+    <img src="./img/aviso_inter_1.jpeg" style="height: 56vh"/>
     <br/>
     </div>
-    <br/>
     </br> 
     <div class="text-center">
       <h4><b>Agradecemos tu comprensión.<b></h4>
@@ -130,15 +128,3 @@ function modalInicial() {
 }
 export default inicio;
 
-// <div class="text-center">
-//   <img src="./img/logo-flexi.png" style="height: 30vh"/>
-// </div>
-// <h5>Flexii será una nueva forma de entregar mensajería nacional, será un producto creado por HEKA, con el fin entregar mensajería, por el momento estaremos en: <br/> <b>BOGOTÁ, CUCUTA,BUCARAMANGA,SILVANIA, FUSAGASUGÁ, GRANADA, CHINAUTA, ARBELAEZ.</b>
-// <br/>
-// <br/>
-// Con los siguientes beneficios:</h5>
-// <p>✅ Avisaremos por WhatsApp al momento de entregar.</p>
-// <p>✅ En caso de que suceda una novedad el mensajero u oficina contacta con destinatario.</p>
-// <p>✅ Si destinatario no contesta, tienes hasta 15 días calendario para gestionar una novedad.</p>
-// <p>✅ Se realizaría devolución solamente si se autoriza o si tarda más de 15 días el paquete sin solucionar.</p>
-// <p>✅ Métodos de pago como: Nequi, Bancolombia, Daviplata, Davivienda.</p>
