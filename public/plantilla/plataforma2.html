@@ -1347,6 +1347,27 @@ Recuerda que estos plazos están sujetos a nuestros horarios laborales y no labo
           </div>
 
           <div class="container-fluid" id="pagos" style="display: none;">
+            <div class="row">
+              <div class="col-12 mb-3">
+                <div class="alert alert-success" id="infoPagos1" role="alert">
+                  <div style="display: flex; justify-content: space-between;">
+                    <h4 class="text-success">¡A tener en cuenta! </h4>
+                    <a style="cursor:pointer;" onmouseover="this.style.color='#1cc88a'" onmouseout="this.style.color='#000'" href="javascript:eliminarElementoPagos1()">X</a>
+                    <script>
+                      function eliminarElementoPagos1(){
+                          document.getElementById("infoPagos1").classList.add("d-none");
+                        }
+                      </script>
+                  </div>
+      <p>
+        Heka cada vez intenta agilizar procesos de pagos, actualmente actualizando y pagando antes que las transportadoras. 
+        En algunas ocasiones cada transportadora puede reportar entregas que sean devoluciones y reportarlo en tiempos de 3-4 semanas 
+        después de haberse pagado, ya que Heka paga antes que la transportadora tan pronto nos reporten casos como los anteriormente 
+        comentados, se cargarán en billetera para descontar guías que sean devoluciones y se hayan pagado como entrega.
+      </p>
+                </div>
+              </div>                
+            </div>
             <div class="card my-5">
               <div class="card-body">
                 <form enctype="multipart/form-data" id="form-pagos">
