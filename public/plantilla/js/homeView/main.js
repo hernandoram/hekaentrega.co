@@ -2,6 +2,10 @@
 import CreateModal from "../utils/modal.js";
 const inicio = () => CarrucelVideos();
 
+const userid = localStorage.getItem("user_id");
+const encuesta = localStorage.getItem("encuesta");
+
+
 const CarrucelVideos = () => {
   const registroHeka = document.querySelector("#registroHeka");
   const novedadesEnvios = document.querySelector("#novedadesEnvios");
@@ -106,6 +110,7 @@ const datosModal = (video, link, titulo, descripcion) => {
 };
 
 modalInicial();
+
 function modalInicial() {
   const m = new CreateModal({
     title: "<h3>Información importante!</h3>",
@@ -124,7 +129,86 @@ function modalInicial() {
     </div>
   `;
 
-  m.onSubmit = () => m.close();
+  m.onSubmit = () => {
+    m.close()
+    if(!encuesta){
+      modalInicial2()
+    }
+
+  
+  } ;
+
 }
+
+function modalInicial2() {
+  const m = new CreateModal({
+    title: "<h3>Encuesta</h3>",
+    modalSize: "modal-md",
+  });
+
+  m.init = `
+  <div class="">
+  <p>Heka desea implementar un sistema de solución de novedades, en el cual tenemos dos posibilidades: <br/>
+
+  <ul>
+  <li> <b> Notificaciones de WhatsApp</b>, por cada novedad producida se enviaría una notificación al destinatario con un link donde podría acceder y solucionar la novedad del envío. Siendo así un proceso automático. 
+  </li>
+  <br/>
+  <li>
+  <b> Call center</b>, para llamar a destinarlo en caso de novedad y solucionarla. 
+  </li>
+  <br/>
+  </ul>
+  ¿Cuál te gustaría que implementemos? 
+
+  <p/>  
+  <form action="procesar_formulario.php" method="post">
+    <p>
+      <input type="radio" id="whatsapp" name="opciones" value="whatsapp">
+      <label for="whatsapp">Notificaciones de novedades por WhatsApp</label>
+    </p>
+    <p>
+      <input type="radio" id="callcenter" name="opciones" value="callcenter">
+      <label for="callcenter">Call center de novedades</label>
+    </p>
+    <p>
+    <input type="radio" id="ninguna" name="opciones" value="ninguna">
+    <label for="ninguna">Ninguna</label>
+  </p>
+  </form>
+
+
+  </div>
+  `;
+
+
+
+  m.onSubmit = () => {
+   m.close();
+    let opciones = document.getElementsByName('opciones');
+    let respuesta="";
+    for (var i = 0; i < opciones.length; i++) {
+      if (opciones[i].checked) {
+        respuesta=opciones[i].value;
+        break;
+      }
+    }
+  ;
+  
+  firebase
+    .firestore()
+    .collection("encuestaActualizacion")
+    .doc(userid) //111111
+    .set({respuesta}) 
+    .then(() => {
+      localStorage.setItem("encuesta", true);
+      avisar(
+         "Gracias por tu respuesta!", "Nos ayudas a brindarte un mejor servicio")
+    })
+};
+
+}
+
+
 export default inicio;
 
