@@ -642,7 +642,6 @@ class Empaquetado {
             terminar();
             return;
         }
-
         try {
             const resFact = await fetch("/siigo/crearFactura", {
                 method: "POST",
