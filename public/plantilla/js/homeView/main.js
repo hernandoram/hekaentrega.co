@@ -2,6 +2,10 @@
 import CreateModal from "../utils/modal.js";
 const inicio = () => CarrucelVideos();
 
+const userid = localStorage.getItem("user_id");
+const encuesta = localStorage.getItem("encuesta");
+
+
 const CarrucelVideos = () => {
   const registroHeka = document.querySelector("#registroHeka");
   const novedadesEnvios = document.querySelector("#novedadesEnvios");
@@ -127,7 +131,11 @@ function modalInicial() {
 
   m.onSubmit = () => {
     m.close()
-    modalInicial2()
+    if(!encuesta){
+      modalInicial2()
+    }
+
+  
   } ;
 
 }
@@ -151,8 +159,7 @@ function modalInicial2() {
   </li>
   <br/>
   </ul>
-  ¿Cuál de las dos soluciones te gustaría que implementemos? 
-
+  ¿Cuál te gustaría que implementemos? 
 
   <p/>  
   <form action="procesar_formulario.php" method="post">
@@ -162,16 +169,43 @@ function modalInicial2() {
     </p>
     <p>
       <input type="radio" id="callcenter" name="opciones" value="callcenter">
-      <label for="callcenter">CALL Center de novedades</label>
+      <label for="callcenter">Call center de novedades</label>
     </p>
-    <input type="submit" value="Enviar">
+    <p>
+    <input type="radio" id="ninguna" name="opciones" value="ninguna">
+    <label for="ninguna">Ninguna</label>
+  </p>
   </form>
 
 
   </div>
   `;
 
-  m.onSubmit = () => m.close();
+
+
+  m.onSubmit = () => {
+   m.close();
+    let opciones = document.getElementsByName('opciones');
+    let respuesta="";
+    for (var i = 0; i < opciones.length; i++) {
+      if (opciones[i].checked) {
+        respuesta=opciones[i].value;
+        break;
+      }
+    }
+  ;
+  
+  firebase
+    .firestore()
+    .collection("encuestaActualizacion")
+    .doc(userid) //111111
+    .set({respuesta}) 
+    .then(() => {
+      localStorage.setItem("encuesta", true);
+      avisar(
+         "Gracias por tu respuesta!", "Nos ayudas a brindarte un mejor servicio")
+    })
+};
 
 }
 
