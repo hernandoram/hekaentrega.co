@@ -106,6 +106,7 @@ const datosModal = (video, link, titulo, descripcion) => {
 };
 
 modalInicial();
+
 function modalInicial() {
   const m = new CreateModal({
     title: "<h3>Información importante!</h3>",
@@ -124,7 +125,29 @@ function modalInicial() {
     </div>
   `;
 
-  m.onSubmit = () => m.close();
+  m.onSubmit = () => {
+    m.close()
+    modalInicial2()
+  } ;
+
 }
+
+function modalInicial2() {
+  const m = new CreateModal({
+    title: "<h3>Información importante!</h3>",
+    modalSize: "modal-md",
+  });
+
+  m.init = `
+  <div class="text-center">
+ holaa
+    </div>
+  `;
+
+  m.onSubmit = () => m.close();
+
+}
+
+
 export default inicio;
 
