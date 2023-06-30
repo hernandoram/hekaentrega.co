@@ -134,14 +134,41 @@ function modalInicial() {
 
 function modalInicial2() {
   const m = new CreateModal({
-    title: "<h3>Información importante!</h3>",
+    title: "<h3>Encuesta</h3>",
     modalSize: "modal-md",
   });
 
   m.init = `
-  <div class="text-center">
- holaa
-    </div>
+  <div class="">
+  <p>Heka desea implementar un sistema de solución de novedades, en el cual tenemos dos posibilidades: <br/>
+
+  <ul>
+  <li> <b> Notificaciones de WhatsApp</b>, por cada novedad producida se enviaría una notificación al destinatario con un link donde podría acceder y solucionar la novedad del envío. Siendo así un proceso automático. 
+  </li>
+  <br/>
+  <li>
+  <b> Call center</b>, para llamar a destinarlo en caso de novedad y solucionarla. 
+  </li>
+  <br/>
+  </ul>
+  ¿Cuál de las dos soluciones te gustaría que implementemos? 
+
+
+  <p/>  
+  <form action="procesar_formulario.php" method="post">
+    <p>
+      <input type="radio" id="whatsapp" name="opciones" value="whatsapp">
+      <label for="whatsapp">Notificaciones de novedades por WhatsApp</label>
+    </p>
+    <p>
+      <input type="radio" id="callcenter" name="opciones" value="callcenter">
+      <label for="callcenter">CALL Center de novedades</label>
+    </p>
+    <input type="submit" value="Enviar">
+  </form>
+
+
+  </div>
   `;
 
   m.onSubmit = () => m.close();
