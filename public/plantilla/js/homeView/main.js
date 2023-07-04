@@ -129,22 +129,22 @@ function modalInicial() {
   `;
 
   m.onSubmit = () => {
-   if(encuesta == "true"){
-    m.close();
-   }else{
-     firebase
-     .firestore()
-     .collection("encuestaActualizacion")
-     .doc(userid)
-     .get()
-     .then((doc) => {
-       if (doc.exists) {
-         m.close();
-        } else {
-          m.close();
-          modalInicial2();
-        }
-      });
+    if (encuesta == "true") {
+      m.close();
+    } else {
+      firebase
+        .firestore()
+        .collection("encuestaActualizacion")
+        .doc(userid)
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            m.close();
+          } else {
+            m.close();
+            modalInicial2();
+          }
+        });
     }
   };
 }
@@ -168,10 +168,12 @@ function modalInicial2() {
   </li>
   <br/>
   </ul>
+
+
   ¿Cuál te gustaría que implementemos? 
 
   <p/>  
-  <form action="procesar_formulario.php" method="post">
+  <form method="post">
     <p>
       <input type="radio" id="whatsapp" name="opciones" value="whatsapp">
       <label for="whatsapp">Notificaciones de novedades por WhatsApp</label>
@@ -186,12 +188,12 @@ function modalInicial2() {
   </p>
   </form>
 
+  <p class="text-danger d-none seleccion">Debes seleccionar una opción </p>
 
   </div>
   `;
 
   m.onSubmit = () => {
-    m.close();
     let opciones = document.getElementsByName("opciones");
     let respuesta = "";
     for (var i = 0; i < opciones.length; i++) {
@@ -200,18 +202,23 @@ function modalInicial2() {
         break;
       }
     }
-    firebase
-      .firestore()
-      .collection("encuestaActualizacion")
-      .doc(userid)
-      .set({ respuesta })
-      .then(() => {
-        localStorage.setItem("encuesta", true);
-        avisar(
-          "Gracias por tu respuesta!",
-          "Nos ayudas a brindarte un mejor servicio"
-        );
-      });
+    if (respuesta == "") {
+      document.querySelector(".seleccion").classList.remove("d-none");
+    } else {
+      firebase
+        .firestore()
+        .collection("encuestaActualizacion")
+        .doc(userid)
+        .set({ respuesta })
+        .then(() => {
+          localStorage.setItem("encuesta", true);
+          avisar(
+            "Gracias por tu respuesta!",
+            "Nos ayudas a brindarte un mejor servicio"
+          );
+          m.close();
+        });
+    }
   };
 }
 
