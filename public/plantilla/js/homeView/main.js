@@ -5,7 +5,6 @@ const inicio = () => CarrucelVideos();
 const userid = localStorage.getItem("user_id");
 const encuesta = localStorage.getItem("encuesta");
 
-
 const CarrucelVideos = () => {
   const registroHeka = document.querySelector("#registroHeka");
   const novedadesEnvios = document.querySelector("#novedadesEnvios");
@@ -130,14 +129,24 @@ function modalInicial() {
   `;
 
   m.onSubmit = () => {
-    m.close()
-    if(!encuesta){
-      modalInicial2()
+   if(encuesta == "true"){
+    m.close();
+   }else{
+     firebase
+     .firestore()
+     .collection("encuestaActualizacion")
+     .doc(userid)
+     .get()
+     .then((doc) => {
+       if (doc.exists) {
+         m.close();
+        } else {
+          m.close();
+          modalInicial2();
+        }
+      });
     }
-
-  
-  } ;
-
+  };
 }
 
 function modalInicial2() {
@@ -181,34 +190,29 @@ function modalInicial2() {
   </div>
   `;
 
-
-
   m.onSubmit = () => {
-   m.close();
-    let opciones = document.getElementsByName('opciones');
-    let respuesta="";
+    m.close();
+    let opciones = document.getElementsByName("opciones");
+    let respuesta = "";
     for (var i = 0; i < opciones.length; i++) {
       if (opciones[i].checked) {
-        respuesta=opciones[i].value;
+        respuesta = opciones[i].value;
         break;
       }
     }
-  ;
-  
-  firebase
-    .firestore()
-    .collection("encuestaActualizacion")
-    .doc(userid) //111111
-    .set({respuesta}) 
-    .then(() => {
-      localStorage.setItem("encuesta", true);
-      avisar(
-         "Gracias por tu respuesta!", "Nos ayudas a brindarte un mejor servicio")
-    })
-};
-
+    firebase
+      .firestore()
+      .collection("encuestaActualizacion")
+      .doc(userid)
+      .set({ respuesta })
+      .then(() => {
+        localStorage.setItem("encuesta", true);
+        avisar(
+          "Gracias por tu respuesta!",
+          "Nos ayudas a brindarte un mejor servicio"
+        );
+      });
+  };
 }
 
-
 export default inicio;
-
