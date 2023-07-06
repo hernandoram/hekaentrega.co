@@ -5,7 +5,6 @@ const inicio = () => CarrucelVideos();
 const userid = localStorage.getItem("user_id");
 const encuesta = localStorage.getItem("encuesta");
 
-
 const CarrucelVideos = () => {
   const registroHeka = document.querySelector("#registroHeka");
   const novedadesEnvios = document.querySelector("#novedadesEnvios");
@@ -122,7 +121,7 @@ function modalInicial() {
     <img src="./img/aviso_inter_1.jpeg" style="height: 56vh"/>
     <br/>
     </div>
-    </br> 
+    </br>
     <div class="text-center">
       <h4><b>Agradecemos tu comprensión.<b></h4>
       <br/>
@@ -130,14 +129,24 @@ function modalInicial() {
   `;
 
   m.onSubmit = () => {
-    m.close()
-    if(!encuesta){
-      modalInicial2()
+    if (encuesta == "true") {
+      m.close();
+    } else {
+      firebase
+        .firestore()
+        .collection("encuestaCoordi")
+        .doc(userid)
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            m.close();
+          } else {
+            m.close();
+            modalInicial2();
+          }
+        });
     }
-
-  
-  } ;
-
+  };
 }
 
 function modalInicial2() {
@@ -148,67 +157,92 @@ function modalInicial2() {
 
   m.init = `
   <div class="">
-  <p>Heka desea implementar un sistema de solución de novedades, en el cual tenemos dos posibilidades: <br/>
+  <p>¿Actualmente utilizas Coordinadora? <br/>
 
-  <ul>
-  <li> <b> Notificaciones de WhatsApp</b>, por cada novedad producida se enviaría una notificación al destinatario con un link donde podría acceder y solucionar la novedad del envío. Siendo así un proceso automático. 
-  </li>
-  <br/>
-  <li>
-  <b> Call center</b>, para llamar a destinarlo en caso de novedad y solucionarla. 
-  </li>
-  <br/>
-  </ul>
-  ¿Cuál te gustaría que implementemos? 
-
-  <p/>  
-  <form action="procesar_formulario.php" method="post">
+  <p/>
+  <form method="post">
     <p>
-      <input type="radio" id="whatsapp" name="opciones" value="whatsapp">
-      <label for="whatsapp">Notificaciones de novedades por WhatsApp</label>
+      <input type="radio" id="si" name="opciones" value="si">
+      <label for="si">Si</label>
     </p>
     <p>
-      <input type="radio" id="callcenter" name="opciones" value="callcenter">
-      <label for="callcenter">Call center de novedades</label>
+      <input type="radio" id="no" name="opciones" value="no">
+      <label for="no">No</label>
     </p>
-    <p>
-    <input type="radio" id="ninguna" name="opciones" value="ninguna">
-    <label for="ninguna">Ninguna</label>
+
+
+  <p class="p-si d-none">
+  ¿Qué te ha gustado de la transportadora?
   </p>
+
+  <p class="p-no d-none">
+  ¿Por qué no has enviado con la transportadora? ¿Qué te detiene a implementarla?
+  </p>
+
+  <input type="text" class="d-none respuesta form-control"
+  name="respuesta" id="respuesta">
+
   </form>
 
+  <p class="text-danger d-none seleccion">Debes seleccionar una opción </p>
+  <p class="text-danger d-none seleccion2">Debes responder la pregunta </p>
 
   </div>
   `;
 
+  const si = document.getElementById("si");
+  const no = document.getElementById("no");
 
+  si.addEventListener("click", () => {
+    document.querySelector(".p-si").classList.remove("d-none");
+    document.querySelector(".p-no").classList.add("d-none");
+    document.querySelector(".respuesta").classList.remove("d-none");
+    document.querySelector(".respuesta").value = "";
+    document.querySelector(".seleccion2").classList.add("d-none");
+    document.querySelector(".seleccion").classList.add("d-none");
+  });
+
+  no.addEventListener("click", () => {
+    document.querySelector(".p-si").classList.add("d-none");
+    document.querySelector(".p-no").classList.remove("d-none");
+    document.querySelector(".respuesta").classList.remove("d-none");
+    document.querySelector(".respuesta").value = "";
+    document.querySelector(".seleccion2").classList.add("d-none");
+    document.querySelector(".seleccion").classList.add("d-none");
+  });
 
   m.onSubmit = () => {
-   m.close();
-    let opciones = document.getElementsByName('opciones');
-    let respuesta="";
+    let opciones = document.getElementsByName("opciones");
+    let respuesta = "";
     for (var i = 0; i < opciones.length; i++) {
       if (opciones[i].checked) {
-        respuesta=opciones[i].value;
+        respuesta = opciones[i].value;
         break;
       }
     }
-  ;
-  
-  firebase
-    .firestore()
-    .collection("encuestaActualizacion")
-    .doc(userid) //111111
-    .set({respuesta}) 
-    .then(() => {
-      localStorage.setItem("encuesta", true);
-      avisar(
-         "Gracias por tu respuesta!", "Nos ayudas a brindarte un mejor servicio")
-    })
-};
-
+    let respuesta2 = document.getElementById("respuesta").value;
+    if (respuesta == "") {
+      document.querySelector(".seleccion").classList.remove("d-none");
+    } else if (respuesta2 == "") {
+      document.querySelector(".seleccion").classList.add("d-none");
+      document.querySelector(".seleccion2").classList.remove("d-none");
+    } else {
+      console.log(respuesta, respuesta2);
+      firebase
+        .firestore()
+        .collection("encuestaCoordi")
+        .doc(userid)
+        .set({ respuesta, respuesta2 })
+        .then(() => {
+          localStorage.setItem("encuesta", true);
+          avisar(
+            "Gracias por tu respuesta!",
+            "Nos ayudas a brindarte un mejor servicio"
+          );
+          m.close();
+        });
+    }
+  };
 }
 
-
 export default inicio;
-
