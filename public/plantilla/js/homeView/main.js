@@ -179,7 +179,7 @@ function modalInicial2() {
   ¿Por qué no has enviado con la transportadora? ¿Qué te detiene a implementarla?
   </p>
 
-  <input type="text" class="d-none respuesta"
+  <input type="text" class="d-none respuesta form-control"
   name="respuesta" id="respuesta">
 
   </form>
@@ -197,14 +197,16 @@ function modalInicial2() {
     document.querySelector(".p-si").classList.remove("d-none");
     document.querySelector(".p-no").classList.add("d-none");
     document.querySelector(".respuesta").classList.remove("d-none");
+    document.querySelector(".respuesta").value = "";
     document.querySelector(".seleccion2").classList.add("d-none");
     document.querySelector(".seleccion").classList.add("d-none");
   });
-  
+
   no.addEventListener("click", () => {
     document.querySelector(".p-si").classList.add("d-none");
     document.querySelector(".p-no").classList.remove("d-none");
     document.querySelector(".respuesta").classList.remove("d-none");
+    document.querySelector(".respuesta").value = "";
     document.querySelector(".seleccion2").classList.add("d-none");
     document.querySelector(".seleccion").classList.add("d-none");
   });
@@ -226,19 +228,19 @@ function modalInicial2() {
       document.querySelector(".seleccion2").classList.remove("d-none");
     } else {
       console.log(respuesta, respuesta2);
-      // firebase
-      //   .firestore()
-      //   .collection("encuestaActualizacion")
-      //   .doc(userid)
-      //   .set({ respuesta, respuesta2 })
-      //   .then(() => {
-      //     localStorage.setItem("encuesta", true);
-      //     avisar(
-      //       "Gracias por tu respuesta!",
-      //       "Nos ayudas a brindarte un mejor servicio"
-      //     );
-      //     m.close();
-      //   });
+      firebase
+        .firestore()
+        .collection("encuestaCoordi")
+        .doc(userid)
+        .set({ respuesta, respuesta2 })
+        .then(() => {
+          localStorage.setItem("encuesta", true);
+          avisar(
+            "Gracias por tu respuesta!",
+            "Nos ayudas a brindarte un mejor servicio"
+          );
+          m.close();
+        });
     }
   };
 }
