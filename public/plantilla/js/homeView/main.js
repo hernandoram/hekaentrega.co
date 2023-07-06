@@ -169,12 +169,40 @@ function modalInicial2() {
       <input type="radio" id="no" name="opciones" value="no">
       <label for="no">No</label>
     </p>
+
+
+  <p class="p-si d-none">
+  ¿Qué te ha gustado de la transportadora?
+  </p>
+  
+  <p class="p-no d-none">
+  ¿Por qué no has enviado con la transportadora? ¿Qué te detiene a implementarla?
+  </p>
+
+  <input type="text" class="d-none respuesta"
+  name="respuesta" id="respuesta">
+      
   </form>
 
   <p class="text-danger d-none seleccion">Debes seleccionar una opción </p>
 
   </div>
   `;
+
+  const si = document.getElementById("si");
+  const no = document.getElementById("no");
+
+  si.addEventListener("click", () => {
+    document.querySelector(".p-si").classList.remove("d-none");
+    document.querySelector(".p-no").classList.add("d-none");
+    document.querySelector(".respuesta").classList.remove("d-none");
+  })
+  
+  no.addEventListener("click", () => {
+    document.querySelector(".p-si").classList.add("d-none");
+    document.querySelector(".p-no").classList.remove("d-none");
+    document.querySelector(".respuesta").classList.remove("d-none");
+  })
 
   m.onSubmit = () => {
     let opciones = document.getElementsByName("opciones");
