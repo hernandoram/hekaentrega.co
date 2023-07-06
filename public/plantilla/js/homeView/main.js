@@ -134,7 +134,7 @@ function modalInicial() {
     } else {
       firebase
         .firestore()
-        .collection("encuestaActualizacion")
+        .collection("encuestaCoordi")
         .doc(userid)
         .get()
         .then((doc) => {
@@ -157,35 +157,18 @@ function modalInicial2() {
 
   m.init = `
   <div class="">
-  <p>Heka desea implementar un sistema de solución de novedades, en el cual tenemos dos posibilidades: <br/>
-
-  <ul>
-  <li> <b> Notificaciones de WhatsApp</b>, por cada novedad producida se enviaría una notificación al destinatario con un link donde podría acceder y solucionar la novedad del envío. Siendo así un proceso automático. 
-  </li>
-  <br/>
-  <li>
-  <b> Call center</b>, para llamar a destinarlo en caso de novedad y solucionarla. 
-  </li>
-  <br/>
-  </ul>
-
-
-  ¿Cuál te gustaría que implementemos? 
+  <p>¿Actualmente utilizas Coordinadora? <br/>
 
   <p/>  
   <form method="post">
     <p>
-      <input type="radio" id="whatsapp" name="opciones" value="whatsapp">
-      <label for="whatsapp">Notificaciones de novedades por WhatsApp</label>
+      <input type="radio" id="si" name="opciones" value="si">
+      <label for="si">Si</label>
     </p>
     <p>
-      <input type="radio" id="callcenter" name="opciones" value="callcenter">
-      <label for="callcenter">Call center de novedades</label>
+      <input type="radio" id="no" name="opciones" value="no">
+      <label for="no">No</label>
     </p>
-    <p>
-    <input type="radio" id="ninguna" name="opciones" value="ninguna">
-    <label for="ninguna">Ninguna</label>
-  </p>
   </form>
 
   <p class="text-danger d-none seleccion">Debes seleccionar una opción </p>
