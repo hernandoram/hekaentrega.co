@@ -121,7 +121,7 @@ function modalInicial() {
     <img src="./img/aviso_inter_1.jpeg" style="height: 56vh"/>
     <br/>
     </div>
-    </br> 
+    </br>
     <div class="text-center">
       <h4><b>Agradecemos tu comprensión.<b></h4>
       <br/>
@@ -159,7 +159,7 @@ function modalInicial2() {
   <div class="">
   <p>¿Actualmente utilizas Coordinadora? <br/>
 
-  <p/>  
+  <p/>
   <form method="post">
     <p>
       <input type="radio" id="si" name="opciones" value="si">
@@ -174,17 +174,18 @@ function modalInicial2() {
   <p class="p-si d-none">
   ¿Qué te ha gustado de la transportadora?
   </p>
-  
+
   <p class="p-no d-none">
   ¿Por qué no has enviado con la transportadora? ¿Qué te detiene a implementarla?
   </p>
 
   <input type="text" class="d-none respuesta"
   name="respuesta" id="respuesta">
-      
+
   </form>
 
   <p class="text-danger d-none seleccion">Debes seleccionar una opción </p>
+  <p class="text-danger d-none seleccion2">Debes responder la pregunta </p>
 
   </div>
   `;
@@ -196,13 +197,17 @@ function modalInicial2() {
     document.querySelector(".p-si").classList.remove("d-none");
     document.querySelector(".p-no").classList.add("d-none");
     document.querySelector(".respuesta").classList.remove("d-none");
-  })
+    document.querySelector(".seleccion2").classList.add("d-none");
+    document.querySelector(".seleccion").classList.add("d-none");
+  });
   
   no.addEventListener("click", () => {
     document.querySelector(".p-si").classList.add("d-none");
     document.querySelector(".p-no").classList.remove("d-none");
     document.querySelector(".respuesta").classList.remove("d-none");
-  })
+    document.querySelector(".seleccion2").classList.add("d-none");
+    document.querySelector(".seleccion").classList.add("d-none");
+  });
 
   m.onSubmit = () => {
     let opciones = document.getElementsByName("opciones");
@@ -213,22 +218,27 @@ function modalInicial2() {
         break;
       }
     }
+    let respuesta2 = document.getElementById("respuesta").value;
     if (respuesta == "") {
       document.querySelector(".seleccion").classList.remove("d-none");
+    } else if (respuesta2 == "") {
+      document.querySelector(".seleccion").classList.add("d-none");
+      document.querySelector(".seleccion2").classList.remove("d-none");
     } else {
-      firebase
-        .firestore()
-        .collection("encuestaActualizacion")
-        .doc(userid)
-        .set({ respuesta })
-        .then(() => {
-          localStorage.setItem("encuesta", true);
-          avisar(
-            "Gracias por tu respuesta!",
-            "Nos ayudas a brindarte un mejor servicio"
-          );
-          m.close();
-        });
+      console.log(respuesta, respuesta2);
+      // firebase
+      //   .firestore()
+      //   .collection("encuestaActualizacion")
+      //   .doc(userid)
+      //   .set({ respuesta, respuesta2 })
+      //   .then(() => {
+      //     localStorage.setItem("encuesta", true);
+      //     avisar(
+      //       "Gracias por tu respuesta!",
+      //       "Nos ayudas a brindarte un mejor servicio"
+      //     );
+      //     m.close();
+      //   });
     }
   };
 }
