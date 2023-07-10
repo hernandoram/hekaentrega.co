@@ -597,7 +597,7 @@ function accionesDeFila(datos, type, row) {
         const showMovements = datos.numeroGuia && datos.estado ? "" : "d-none";
         let buttons = `
         <div data-search="${datos.filter}"
-        class="d-flex justify-content-around">
+        class="d-flex justify-content-around align-items-center">
         `;
 
         const btnCrearSticker = `<button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
