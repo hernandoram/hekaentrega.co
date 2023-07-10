@@ -2763,7 +2763,7 @@ function crearGuia() {
             }
         }
     } else {
-        alert("Por favor, verifique que los campos escenciales no estén vacíos");
+        alert("Por favor, verifique que los campos esenciales no estén vacíos");
         verificador(["producto", "nombreD", "direccionD", "telefonoD"]);
         
         boton_final_cotizador.textContent = textoBtn;
