@@ -640,6 +640,7 @@ function accionesDeFila(datos, type, row) {
         title="Clonar Guía">
             <i class="fas fa-clone"></i>
         </button>`;
+
         //quitarle el d-none al siguiente elemento para que aparezca otra vez el botón de eliminar guía
 
         const btnDelete = `<button class="btn d-none btn-danger btn-circle btn-sm mx-1 action ${showCloneAndDelete}" data-id="${id}" 
@@ -649,6 +650,8 @@ function accionesDeFila(datos, type, row) {
             <i class="fas fa-trash"></i>
         </button>`;
         
+        const btnACtualizar= `<i id="actualizar-guia-${id}" class="fa fa-sync ml-1 text-primary" title="Actualizar guía ${id}" style="cursor: pointer"></i>`
+    
         //Bottón para re crear el sticker de guía.
         if((datos.numeroGuia && !datos.has_sticker && generacion_automatizada) || estado_prueba) {
             buttons += btnCrearSticker;
@@ -684,7 +687,7 @@ function accionesDeFila(datos, type, row) {
 
         // buttons += "<a href='javascript:void(0)' class='action text-trucate'>Ver más</a>"
         // buttons += btnEdit;
-        buttons += "</div>";
+        buttons += btnACtualizar + "</div>";
         return buttons
     }
     return datos;
