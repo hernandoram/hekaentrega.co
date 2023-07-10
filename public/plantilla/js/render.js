@@ -498,6 +498,11 @@
         }
 
         if(activate_once) {
+
+           
+        
+
+
             $("#eliminar_guia"+id).on("click", async function(e) {
                 // let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
                 const resp = await Swal.fire({
@@ -534,6 +539,8 @@
                 }
             });
 
+        
+
             $("#ver_movimientos"+id).on("click", e => {
             document.getElementById("contenedor-gestionarNovedad").innerHTML = ""
             document.getElementById("contenedor-gestionarNovedad").innerHTML = `
@@ -549,6 +556,11 @@
                 }
             })
             });
+
+            
+            $("#actualizar-guia"+id).on("click", () => {
+                alert("guía actualizada"+id)
+                })
 
             $("#clonar_guia"+id).on("click", () => {
                 Swal.fire({
@@ -613,6 +625,8 @@
             });
 
             $("#ver_detalles" + id).click(verDetallesGuia)
+
+         
 
             $("#generar_rotulo" + id).click(function() {
                 let id = this.getAttribute("data-id");
