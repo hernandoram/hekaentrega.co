@@ -640,8 +640,9 @@ function accionesDeFila(datos, type, row) {
         title="Clonar Guía">
             <i class="fas fa-clone"></i>
         </button>`;
+        //quitarle el d-none al siguiente elemento para que aparezca otra vez el botón de eliminar guía
 
-        const btnDelete = `<button class="btn btn-danger btn-circle btn-sm mx-1 action ${showCloneAndDelete}" data-id="${id}" 
+        const btnDelete = `<button class="btn d-none btn-danger btn-circle btn-sm mx-1 action ${showCloneAndDelete}" data-id="${id}" 
         id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
         data-placement="right"
         title="Eliminar Guía">
