@@ -650,17 +650,13 @@ function accionesDeFila(datos, type, row) {
             <i class="fas fa-trash"></i>
         </button>`;
         
-        const btnActualizar= `<button class="btn btn-circle btn-primary btn-sm mx-1 id="actualizar-guia-${id}>
+        const btnActualizar= `<button class="btn btn-circle btn-primary btn-sm mx-1 action id="actualizar-guia-${id}>
         <i class="fa fa-sync" title="Actualizar guía ${id}" style="cursor: pointer"></i>
         </button>`;
     
-        function actualizar(id){
-            console.log(id)
-        }
-        // btnActualizar.onclick = (e)=>{
-        //     e.preventDefault();
-        //     console.log(id)
-        // }
+        // actualizar-guia-id.addEventListener("click", () => {
+        //     alert("hola"+ id);
+        // });
 
         //Bottón para re crear el sticker de guía.
         if((datos.numeroGuia && !datos.has_sticker && generacion_automatizada) || estado_prueba) {
