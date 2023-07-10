@@ -314,6 +314,9 @@ async function historialGuiasAntiguo() {
     drawCallback: renderizadoDeTablaHistorialGuias,
   });
 
+ 
+
+
   document.getElementById("cargador-guias").classList.remove("d-none");
   if (!user_id) return;
 
