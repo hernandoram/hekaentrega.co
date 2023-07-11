@@ -1287,7 +1287,7 @@ async function pagosPendientesParaUsuario() {
 }
 
 function obtenerMensajeDesembolso() {
-  const mensajes = ["Tu pago ya fue solicitado, esta listo para desembolso en 24 horas 😊", "Tu pago ya fue solicitado, esta listo para desembolso en en el próximo día de pago, ya que nuestros días de pago son de lunes a viernes 😊", "Tu pago ya fue solicitado, esta listo para desembolso en MÁS de 24 horas, puesto que nuestros horarios de pago son de 8:00 am a 6:00 pm de Lunes a Viernes 😊"];
+  const mensajes = ["Pago solicitado  ✅ <br/>  Si solicitaste tu pago entre las 8 am - 6 pm llegará al siguiente día Habil, si solicitas fuera de dicho horario llegará al segundo día hábil. <br/> El pago llega durante el día y no hay un horario específico de pago ya que es programado.", "Tu pago ya fue solicitado, esta listo para desembolso en en el próximo día de pago, ya que nuestros días de pago son de lunes a viernes 😊", "Tu pago ya fue solicitado, esta listo para desembolso en MÁS de 24 horas, puesto que nuestros horarios de pago son de 8:00 am a 6:00 pm de Lunes a Viernes 😊"];
   const lunJue = [8, 18, 0]; // hora inicial, hora final, index mensaje
   const vieSab = [8, 13, 1];
   const mensajeHor = [[0, 0, 3], lunJue, lunJue, lunJue, lunJue, vieSab, vieSab];

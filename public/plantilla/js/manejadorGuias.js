@@ -2980,6 +2980,134 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
     }
   }
 }
+function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
+  let filtro = true,
+    toggle = "==",
+    buscador = "enNovedad";
+  const cargadorClass = document.getElementById("cargador-novedades").classList;
+  cargadorClass.remove("d-none");
+
+  if (($("#filtrado-novedades-guias").val() || guia) && admin) {
+    let filtrado = guia || $("#filtrado-novedades-guias").val().split(",");
+    if (typeof filtrado == "object") {
+      filtrado.forEach((v, i) => {
+        firebase
+          .firestore()
+          .collectionGroup("estadoGuias")
+          .where("numeroGuia", "==", v.trim())
+          .get()
+          .then((querySnapshot) => {
+            querySnapshot.size == 0
+              ? $("#cargador-novedades").addClass("d-none")
+              : "";
+            querySnapshot.forEach((doc) => {
+              let path = doc.ref.path.split("/");
+              let data = doc.data();
+              consultarGuiaFb(
+                path[1],
+                doc.id,
+                data,
+                "Consulta Personalizada",
+                i + 1,
+                filtrado.length
+              );
+            });
+          });
+      });
+    } else {
+      firebase
+        .firestore()
+        .collectionGroup("estadoGuias")
+        .where("numeroGuia", "==", filtrado)
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.size == 0
+            ? $("#cargador-novedades").addClass("d-none")
+            : "";
+          querySnapshot.forEach((doc) => {
+            let path = doc.ref.path.split("/");
+            let data = doc.data();
+            consultarGuiaFb(path[1], doc.id, data, "Solucionar Novedad");
+          });
+        });
+    }
+  } else if (admin) {
+    if ($("#filtrado-novedades-usuario").val()) {
+      filtro = $("#filtrado-novedades-usuario").val();
+      toggle = "==";
+      buscador = "centro_de_costo";
+    }
+
+    firebase
+      .firestore()
+      .collectionGroup("estadoGuias")
+      .where(buscador, toggle, filtro)
+      .get()
+      .then((querySnapshot) => {
+        let contador = 0;
+        let size = querySnapshot.size;
+        querySnapshot.forEach((doc) => {
+          let path = doc.ref.path.split("/");
+          let dato = doc.data();
+          contador++;
+          consultarGuiaFb(
+            path[1],
+            doc.id,
+            dato,
+            dato.centro_de_costo,
+            contador,
+            size
+          );
+          // console.log(doc.data());
+        });
+      });
+  } else {
+    if (
+      (document.getElementById("visor_novedades").innerHTML == "" &&
+        seguimiento == "once") ||
+      !seguimiento
+    ) {
+      firebase
+        .firestore()
+        .collection("usuarios")
+        .doc(localStorage.user_id)
+        .collection("estadoGuias")
+        // .orderBy("estado")
+        .where("mostrar_usuario", "==", true)
+        // .limit(10)
+        .get()
+        .then((querySnapshot) => {
+          let contador = 0;
+          let size = querySnapshot.size;
+          console.log(size);
+          if (!querySnapshot.size) {
+            return cargadorClass.add("d-none");
+          }
+          $("#visor_novedades").html("");
+          const guias_actualizadas = revisarTiempoGuiasActualizadas();
+          querySnapshot.forEach((doc) => {
+            let dato = doc.data();
+            contador++;
+
+            consultarGuiaFb(
+              user_id,
+              doc.id,
+              dato,
+              "Posibles Novedades",
+              contador,
+              size
+            );
+            if (!guias_actualizadas) actualizarEstadoGuia(dato.numeroGuia);
+          });
+
+          actualizarEstadosEnNovedad();
+        });
+    } else {
+      cargadorClass.add("d-none");
+    }
+  }
+}
+
 
 function revisarNovedades(transportadora) {
   const cargadorClass = document.getElementById("cargador-novedades").classList;

@@ -557,9 +557,12 @@
             })
             });
 
-            
-            $("#actualizar-guia"+id).on("click", () => {
-                alert("guía actualizada"+id)
+            //jose
+            $("#actualizar-guia"+id).on("click", async function (e) {
+                avisar("Guía actualizada", "La guía Número " + id + " ha sido actualizada");
+                const resp = await actualizarEstadoGuia(data.numeroGuia, id_user, true);
+                revisarMovimientosGuias(true, null, null, data.numeroGuia);
+                console.log(resp);
                 })
 
             $("#clonar_guia"+id).on("click", () => {
@@ -653,6 +656,14 @@
         }
 
     }
+    async function actualizarEstadoGuia(numeroGuia, id_user = user_id, wait) {
+        console.log(numeroGuia, id_user);
+        return await fetch("/procesos/actualizarEstados/numeroGuia", {
+          method: "POST",
+          headers: { "Content-Type": "Application/json" },
+          body: JSON.stringify({ user_id: id_user, argumento: numeroGuia, wait }),
+        }).then((d) => d.json());
+      }
 
 
     function crearStickerParticular() {
@@ -1250,6 +1261,7 @@
             procesoFinalizado();
             return;
         }
+        //jose
 
         if(datos_saldo_usuario.saldo < 0) {
             avisar("No permitido", "Se detecta un saldo negativo, por favor justifica el saldo canjeado en deudas, o contace al desarrollador para agregar una excepción.", "advertencia")
