@@ -1287,19 +1287,20 @@ async function pagosPendientesParaUsuario() {
 }
 
 function obtenerMensajeDesembolso() {
-  // const mensajes = ["Pago solicitado  ✅ <br/>  Si solicitaste tu pago entre las 8 am - 6 pm llegará al siguiente día Habil, si solicitas fuera de dicho horario llegará al segundo día hábil. <br/> El pago llega durante el día y no hay un horario específico de pago ya que es programado.", "Tu pago ya fue solicitado, esta listo para desembolso en en el próximo día de pago, ya que nuestros días de pago son de lunes a viernes 😊", "Tu pago ya fue solicitado, esta listo para desembolso en MÁS de 24 horas, puesto que nuestros horarios de pago son de 8:00 am a 6:00 pm de Lunes a Viernes 😊"];
-  const mensajes = ["Pago solicitado  ✅ ",
-   "Tu pago ya fue solicitado, esta listo para desembolso en en el próximo día de pago, ya que nuestros días de pago son de lunes a viernes 😊",
-    "Tu pago ya fue solicitado, esta listo para desembolso en MÁS de 24 horas, puesto que nuestros horarios de pago son de 8:00 am a 6:00 pm de Lunes a Viernes 😊"];
-  const lunJue = [8, 18, 0]; // hora inicial, hora final, index mensaje
-  const vieSab = [8, 13, 1];
-  const mensajeHor = [[0, 0, 3], lunJue, lunJue, lunJue, lunJue, vieSab, vieSab];
-  const hora = new Date().getHours();
-  const dia = new Date().getDay();
-  const horario = mensajeHor[dia];
-  const [hi, hf, i] = horario;
+  const mensajes2 = "<h2> Pago solicitado ✅</h2>  <br/>  Si solicitaste tu pago entre las 8 am - 6 pm lo recibirás al siguiente día habil, si realizas la solicitud fuera de ese horario, el pago llegará al segundo día hábil. <br/> e el pago se realizará durante el transcurso del día, sin un horario específico, ya que está programado." ;
+  return mensajes2;
+  // const mensajes = ["Pago solicitado  ✅ ",
+  //  "Tu pago ya fue solicitado, esta listo para desembolso en en el próximo día de pago, ya que nuestros días de pago son de lunes a viernes 😊",
+  //   "Tu pago ya fue solicitado, esta listo para desembolso en MÁS de 24 horas, puesto que nuestros horarios de pago son de 8:00 am a 6:00 pm de Lunes a Viernes 😊"];
+  // const lunJue = [8, 18, 0]; // hora inicial, hora final, index mensaje
+  // const vieSab = [8, 13, 1];
+  // const mensajeHor = [[0, 0, 3], lunJue, lunJue, lunJue, lunJue, vieSab, vieSab];
+  // const hora = new Date().getHours();
+  // const dia = new Date().getDay();
+  // const horario = mensajeHor[dia];
+  // const [hi, hf, i] = horario;
 
-  return hi <= hora && hf > hora ? mensajes[i] : mensajes[mensajes.length - 1];
+  // return hi <= hora && hf > hora ? mensajes[i] : mensajes[mensajes.length - 1];
 
 }
 
