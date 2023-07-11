@@ -559,11 +559,16 @@
 
             //jose
             $("#actualizar-guia"+id).on("click", async function (e) {
-                avisar("Guía actualizada", "La guía Número " + id + " ha sido actualizada");
                 const resp = await actualizarEstadoGuia(data.numeroGuia, data.id_user, true);
                 revisarMovimientosGuias(true, null, null, data.numeroGuia);
                 console.log(resp);
-                })
+                console.log(resp.guias_est_actualizado);
+                if(resp.guias_est_actualizado===1 && resp.guias_con_errores===0){
+                    avisar("Guía actualizada", "La guía Número " + id + " ha sido actualizada");
+                }else if(resp.guias_est_actualizado===0 && resp.guias_con_errores===1){
+                    avisar("Guía no actualizada", "La guía Número " + id + " no ha sido actualizada", "aviso");
+                }
+            });
 
             $("#clonar_guia"+id).on("click", () => {
                 Swal.fire({
@@ -1504,8 +1509,13 @@
 
 
         boton_actualizar.click(async (e) => {
-            avisar("Guía actualizada", "La guía Número " + data.numeroGuia + " ha sido actualizada");
             const resp = await actualizarEstadoGuia(data.numeroGuia, id_user, true);
+            console.log(resp);
+            if(resp.guias_est_actualizado===1 && resp.guias_con_errores===0){
+                avisar("Guía actualizada", "La guía Número " + data.numeroGuia + " ha sido actualizada");
+            }else if(resp.guias_est_actualizado===0 && resp.guias_con_errores===1){
+                avisar("Guía no actualizada", "La guía Número " + data.numeroGuia + " no ha sido actualizada", "aviso");
+            }
 
             revisarMovimientosGuias(true, null, null, data.numeroGuia);
         });
