@@ -560,7 +560,7 @@
             //jose
             $("#actualizar-guia"+id).on("click", async function (e) {
                 avisar("Guía actualizada", "La guía Número " + id + " ha sido actualizada");
-                const resp = await actualizarEstadoGuia(data.numeroGuia, id_user, true);
+                const resp = await actualizarEstadoGuia(data.numeroGuia, data.id_user, true);
                 revisarMovimientosGuias(true, null, null, data.numeroGuia);
                 console.log(resp);
                 })
@@ -1504,7 +1504,7 @@
 
 
         boton_actualizar.click(async (e) => {
-            e.target.remove();
+            avisar("Guía actualizada", "La guía Número " + data.numeroGuia + " ha sido actualizada");
             const resp = await actualizarEstadoGuia(data.numeroGuia, id_user, true);
 
             revisarMovimientosGuias(true, null, null, data.numeroGuia);
