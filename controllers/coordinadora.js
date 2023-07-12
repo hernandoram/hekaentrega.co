@@ -5,7 +5,7 @@ const xml2js = require("xml2js");
 const {DOMParser} = require("xmldom");
 const { transformarDatosDestinatario, segmentarString, estandarizarFecha, actualizarMovimientos, actualizarEstado } = require("../extends/funciones");
 
-const { estadosGuia } = require("../extends/manejadorMovimientosGuia");
+const { estadosGuia, guiaEnNovedad } = require("../extends/manejadorMovimientosGuia");
 
 
 function normalizarValoresNumericos(valores) {
@@ -362,7 +362,7 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
             updte_movs = await actualizarMovimientos(doc, estado);
         }
     
-        let enNovedad = !!novedades.length;
+        let enNovedad = !!novedades.length && guiaEnNovedad(movimientos, "COORDINADORA");
     
         const seguimiento_finalizado = estados_finalizacion.some(v => respuesta.estado === v)
         || finalizar_seguimiento;
