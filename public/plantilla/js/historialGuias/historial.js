@@ -671,7 +671,7 @@ function accionesDeFila(datos, type, row) {
 
         //Botón para ver movimientos
         if (datos.numeroGuia && datos.estado) {
-            buttons += btnMovimientos;
+            buttons += btnMovimientos + btnActualizar;
         }
 
         //Botones para descargar documentosy rótulos cuando accede a la condición
@@ -690,7 +690,7 @@ function accionesDeFila(datos, type, row) {
 
         // buttons += "<a href='javascript:void(0)' class='action text-trucate'>Ver más</a>"
         // buttons += btnEdit;
-        buttons += btnActualizar + "</div>";
+        buttons += "</div>";
         return buttons
     }
     return datos;
