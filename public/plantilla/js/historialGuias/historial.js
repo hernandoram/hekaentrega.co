@@ -650,7 +650,6 @@ function accionesDeFila(datos, type, row) {
             <i class="fas fa-trash"></i>
         </button>`;
 
-        //jose
         const btnActualizar= `<button class="btn btn-circle btn-primary btn-sm mx-1 action data-id="${id}" id="actualizar-guia${id}">
         <i class="fa fa-sync" title="Actualizar guía ${id}" style="cursor: pointer"></i>
         </button>`;
@@ -677,7 +676,7 @@ function accionesDeFila(datos, type, row) {
         //Botones para descargar documentosy rótulos cuando accede a la condición
         //botones para clonar y eliminar guía cuando rechaza la condición.
         if(datos.enviado && !datos.enNovedad) {
-            buttons += btnDownloadDocs + btnRotulo;
+            buttons +=  btnDownloadDocs + btnRotulo;
         }
 
         if(filtrado === pedido) {
@@ -690,7 +689,7 @@ function accionesDeFila(datos, type, row) {
 
         // buttons += "<a href='javascript:void(0)' class='action text-trucate'>Ver más</a>"
         // buttons += btnEdit;
-        buttons += "</div>";
+        buttons +=  "</div>";
         return buttons
     }
     return datos;
