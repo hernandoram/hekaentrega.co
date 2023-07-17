@@ -2,19 +2,30 @@ import { mostrarRenderFormNovedades } from "./renderForm.js";
 import { campoFormulario } from "./views.js";
 
 const db = firebase.firestore();
-
-const selListMovimientos = $("#list_novedades-mensajeria");
-const selListFormularios = $("#formulario-mensajeria");
-const visorMensajeria = $("#visor-mensajeria");
-const formRegistro = $("form", visorMensajeria);
-const formFormularios = $("#editor_form-mensajeria");
 const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
-const opcionesMovimientos = $("#mensajeria [data-action]");
+
+/*
+    Script encargado de la creación, manipulación de estados puestos por heka entrega para:
+        - Definir movimientos de guías
+        - Definir novedades
+        - Crear formularios para asignarlos dinámicamente en las novedades y/o estados establecidos
+
+    Dentro de la plataforma de admin se puede encontra el #mensajeria que será utilizado para configurar lo necesario
+ */
+
+//#region SELECTORES DE FUNCIONALIDAD Y EVENTOS
 const idVistaRender = "#render_form-mensajeria";
 const idVistaContructorForm = "#editor_form-mensajeria";
-
+const selListMovimientos = $("#list_novedades-mensajeria"); // select de la lista de movimientos
+const selListFormularios = $("#formulario-mensajeria"); // Select de la lista de formularios
+const visorMensajeria = $("#visor-mensajeria"); // El contenedor principal donde muestra el formulario para editar/crear novedades
+const formRegistro = $("form", visorMensajeria); // Formulario para crear/editar novedades
+const formFormularios = $("#editor_form-mensajeria"); // Formulario para crear/editar un formulario asociado
+const opcionesMovimientos = $("#mensajeria [data-action]"); // Acciones particulares como editar, agregar, etc
 const camposForm = $("#campos_form-mensajeria");
+//#endregion
 
+//#region Acciones y eventos
 selListMovimientos.on("change", seleccionarNovedad);
 selListFormularios.on("change", seleccionarFormulario);
 opcionesMovimientos.on("click", manejarOpcion);
@@ -22,10 +33,19 @@ opcionesMovimientos.on("click", manejarOpcion);
 const action = act => $(`#mensajeria [data-action='${act}']`);
 const showActions = acts => acts.forEach(a => action(a).removeClass("d-none"));
 const hideActions = acts => acts.forEach(a => action(a).addClass("d-none"));
+//#endregion
 
 let listaRegistros = [], listaFormularios = [];
+
+//#region APARTADO PARA LAS FUNCIONES DE MENSAJERÍA
 mostrarRegistros();
+/**
+ * La función "mostrarRegistros" recupera una lista de mensajes y formularios, completa los menús
+ * desplegables con los datos recuperados y agrega opciones predeterminadas para crear nuevos mensajes
+ * y formularios.
+ */
 async function mostrarRegistros() {
+    // Consulat la lista de mensajes y novedades
     const {lista, formularios} = await referencia.get().then(d => {
         if(d.exists) return d.data();
 
@@ -35,21 +55,31 @@ async function mostrarRegistros() {
     listaRegistros = lista;
     listaFormularios = formularios || [];
 
+    // Se llena la lista de movimientos o novedades
     const opcionesLista = lista.map((l,i) => `<option value="${i}">${l.novedad}</option>`).join("");
     selListMovimientos.html(opcionesLista);
     selListMovimientos.prepend("<option value selected>-- Nueva --</option>");
     selListMovimientos.change();
 
+    // Se llena la lista de formularios
     const opcionesFormularios = listaFormularios.map((l,i) => `<option value="${i}">${l.titulo}</option>`).join("");
     selListFormularios.html(opcionesFormularios);
     selListFormularios.prepend("<option value selected>-- Nuevo Formulario --</option>");
 }
 
+/**
+ * La función "seleccionarNovedad" se utiliza para seleccionar un elemento específico de una lista y
+ * llenar un formulario con sus datos correspondientes.
+ * @param e - El parámetro "e" es un objeto de evento que representa el evento que activó la función.
+ * Se pasa como argumento cuando se llama a la función en respuesta al enevento "onchange" de la lista
+ * de novedades
+ */
 function seleccionarNovedad(e) {
     const val = e.target.value;
     opcionesMovimientos.addClass("d-none");
     const els = $("[name]", formRegistro);
 
+    // En caso de que val sea null|undefined|"" es porque se va a cargar una información nueva
     if(!val) {
         action("guardar").removeClass("d-none");
         els.attr("disabled", false);
@@ -59,12 +89,14 @@ function seleccionarNovedad(e) {
         return;
     }
 
+    // representa la novedad/movimiento seleciconado
     const elemento = listaRegistros[val];
     const modulo = "-mensajeria";
     const keys = Object.keys(elemento);
 
     els.attr("disabled", true);
 
+    // Para llenar el formulario del módulo de mensajería con los valores extraidos
     keys.forEach(k => {
         const el = $("#" + k + modulo, formRegistro);
         if(el.prop("type") === "checkbox")
@@ -75,10 +107,18 @@ function seleccionarNovedad(e) {
 
     action("editar").removeClass("d-none");
 
+    // Para activar el enveto "onChange" para el formulario asociado
     selListFormularios.val(elemento.formulario);
     selListFormularios.change();
 }
 
+/**
+ * La función "manejarOpcion" maneja diferentes acciones basadas en el atributo "data-action" del
+ * elemento de destino.
+ * @param e - El parámetro "e" es un objeto de evento que representa el evento que activó la función.
+ * Se usa comúnmente en los controladores de eventos para acceder a la información sobre el evento,
+ * como el elemento de destino que activó el evento.
+ */
 function manejarOpcion(e) {
     const type = e.target.getAttribute("data-action");
     console.log(type);
@@ -106,6 +146,9 @@ function manejarOpcion(e) {
 
 }
 
+/**
+ * La función "activarEdicionMensaje" habilita o deshabilita los campos y botones del visor del registro
+ */
 function activarEdicionMensaje() {
     const el = $("[name]", formRegistro);
     const attr = el.prop("disabled");
@@ -116,12 +159,17 @@ function activarEdicionMensaje() {
     selListMovimientos.attr("disabled", false);
 }
 
+/**
+ * La función `guardarRegistro` es una función asíncrona que guarda un registro al actualizar una lista
+ * de registros en la base de datos de Firebase.
+ */
 async function guardarRegistro() {
     const idNov = selListMovimientos.val();
 
     const elemento = listaRegistros[idNov] || {};
     const booleans = ["notificar_ws", "esNovedad"];
 
+    // Para guardar la respuesta del formulario
     const formData = new FormData(formRegistro[0]);
     for ( let key of Object.keys(elemento) ) {
         const val = formData.get(key);
@@ -131,6 +179,7 @@ async function guardarRegistro() {
         elemento[key] = esBoleano ? !!val : val;
     }
 
+    // También se usa como emergencia lo expuesto por formaData
     for ( let ent of formData.entries() ) {
         const [key, val] = ent;
         const esBoleano = booleans.includes(key);
@@ -140,6 +189,7 @@ async function guardarRegistro() {
 
     elemento.fecha_actualizacion = new Date();
 
+    // Es caso de que sea una novedad inexistente
     if(Number.isNaN(parseInt(idNov))) {
         console.log("Se va a guardar uno nuevo");
         elemento.fecha_creacion = new Date();
@@ -148,6 +198,7 @@ async function guardarRegistro() {
 
     console.log(elemento, listaRegistros, idNov);
 
+    // Se actualiza solo la lista de mensajería
     referencia.update({lista: listaRegistros})
     .then(() => {
         Toast.fire("Registros Actualizados correctamente", "", "success");
@@ -157,10 +208,19 @@ async function guardarRegistro() {
     
 }
 
+//#endregion
+
 // #region APARTADO PARA LA OPCIONES DEL FORMULARIO
 const listaCampos = [];
 let modoEdicionForm = false;
 
+/**
+ * La función "seleccionarFormulario" se utiliza para manejar la selección de un formulario y realizar
+ * acciones en base al formulario seleccionado.
+ * @param e - El parámetro `e` es un objeto de evento que representa el evento que activó la función.
+ * En respuesta el evento "onchange" de la lista de formularios
+ * @returns La función no tiene declaración de retorno, por lo que no devuelve ningún valor.
+ */
 function seleccionarFormulario(e) {
     const val = e.target.value;
     const els = () => $("[name]", formFormularios);
@@ -202,11 +262,16 @@ function seleccionarFormulario(e) {
     els().attr("disabled", true);
     modoEdicionForm = false;
 
+    // Función para mostrar el resultado del formulario agregado
     mostrarRenderFormNovedades(idVistaRender, elemento, {
         integracionVisual: true
     });
 }
 
+/**
+ * La función `activarEdicionFormulario` alterna el atributo deshabilitado de los elementos del
+ * formulario y muestra/oculta ciertas acciones y vistas según el modo actual.
+ */
 function activarEdicionFormulario() {
     const el = $("[name]", formFormularios);
     const attr = el.prop("disabled");
@@ -230,6 +295,10 @@ function activarEdicionFormulario() {
     selListMovimientos.attr("disabled", false);
 }
 
+/**
+ * La función "renderizarCampos" genera campos HTML basados en una lista de campos y agrega detectores
+ * de eventos para eliminar campos y cambiar tipos de campos.
+ */
 function renderizarCampos() {
     const camposHtml = listaCampos.map(campoFormulario).join("");
     camposForm.html(camposHtml);
@@ -237,11 +306,22 @@ function renderizarCampos() {
     action("select-tipo").on("change", selectTipoCampo);
 }
 
+/**
+ * La función "agregarCampo" agrega un objeto vacío a la matriz "listaCampos" y luego llama a la
+ * función "renderizarCampos".
+ */
 function agregarCampo() {
     listaCampos.push({});
     renderizarCampos();
 }
 
+/**
+ * La función "quitarCampo" elimina un campo de una lista de campos.
+ * @param e - El parámetro "e" es un objeto de evento que representa el evento que activó la función.
+ * Producida por el evento onclik de la acciones quitar
+ * @returns Si la variable `modoEdicionForm` es `falsa`, la función regresará sin realizar más
+ * acciones.
+ */
 function quitarCampo(e) {
     if(modoEdicionForm === false) return;
     const i = e.target.getAttribute("data-index");
@@ -249,29 +329,41 @@ function quitarCampo(e) {
     renderizarCampos();
 }
 
+/**
+ * La función `guardarForm` es una función asíncrona que guarda los datos del formulario en la base de
+ * datos y muestra un mensaje de éxito si los datos se guardan correctamente.
+ */
 async function guardarForm() {
     const idForm = selListFormularios.val();
 
-    const elemento = {campos: [{}]};
+    // Se inicializa el objeto con la maqueta vacía
+    const estructuraFormularioGenerado = {campos: [{}]};
+
+    // Se estable el patrón de elementos de lista para definir como se va a registrar la información
     const elementosDeLista = ["nombre", "tipo", "opciones", "dependiente", "alerta", "etiqueta"];
 
     const formData = new FormData(formFormularios[0]);
     
     let i = 0;
+    /* Itera sobre las entradas del formulario, luego analiza si es de tipo campo o si es un elemnto general
+        del formulario, al ser un campo, ingresa sobre los campos del formulario construido para añadir
+        el campo tomado del formulario en caso de que ya exista el campo, genera un nuevo registro para trabajar
+        sobre un campo nuevo
+    */
     for ( let ent of formData.entries() ) {
         const [key, val] = ent;
         const esCampo = elementosDeLista.includes(key);
         if(esCampo) {
-            const actual = elemento.campos[i];
+            const actual = estructuraFormularioGenerado.campos[i];
             const existe = actual && actual[key] !== undefined;
             if(existe) {
                 i++;
-                elemento.campos.push({});
+                estructuraFormularioGenerado.campos.push({});
             }
 
-            elemento.campos[i][key] = val;
+            estructuraFormularioGenerado.campos[i][key] = val;
         } else {
-            elemento[key] = val;
+            estructuraFormularioGenerado[key] = val;
         }
 
     }
@@ -291,7 +383,7 @@ async function guardarForm() {
 
     console.log(elemento, listaFormularios, idForm);
 
-    
+    // Se actulizan solo los formularios
     referencia.update({formularios: listaFormularios})
     .then(() => {
         Toast.fire("Formulario guardado correctamente", "", "success");
@@ -301,6 +393,12 @@ async function guardarForm() {
 
 }
 
+/**
+ * La función `selectTipoCampo` se utiliza para alternar la visibilidad de un conjunto de opciones en
+ * función del valor seleccionado de un menú desplegable.
+ * @param e - El parámetro "e" es un objeto de evento que representa el evento que activó la función.
+ * Activado por el "onchange" del campo para selecciona el tipo 
+ */
 function selectTipoCampo(e) {
     const i = e.target.getAttribute("data-index");
     console.log(e.target.value);

@@ -2,7 +2,7 @@ const XLSX = require("xlsx");
 const path = require("path");
 const db = require("../keys/firebase.js").firestore()
 
-const ws = XLSX.readFile("../procesos/corregir usuarios.xlsx");
+const ws = XLSX.readFile("../procesos/Para corregir en plataforma.xlsx");
 
 
 const usuarios =  XLSX.utils.sheet_to_json(ws.Sheets[ws.SheetNames[0]], {header: "A1"});
