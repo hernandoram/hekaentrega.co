@@ -110,14 +110,14 @@ async function cargarDatosUsuario(){
   const showPercentage = $("#porcentaje-cargador-inicial");
   //Carga la informacion personal en un objeto y se llena el html de los datos del usuario
   showPercentage.text(percentage());
-  
+
   datos_usuario = await consultarDatosDeUsuario();
 
-//  console.log( datos_usuario) 
+//  console.log( datos_usuario)
 
-  
+
   limitarAccesoSegunTipoUsuario();
-  
+
   //Se enlistan las novedades de servientrega
   showPercentage.text(percentage());
   await listarNovedadesServientrega()
@@ -131,7 +131,7 @@ async function cargarDatosUsuario(){
   }
 
   contentCharger.hide();
-  content.show("fast");  
+  content.show("fast");
 }
 
 async function cargarPagoSolicitado() {
@@ -276,7 +276,7 @@ function mostrarDatosBancarios(datos) {
   buttonAgregarDatosBancarios.setAttribute("class", "btn btn-block btn-primary");
   buttonAgregarDatosBancarios.setAttribute("type", "submit");
   buttonAgregarDatosBancarios.textContent = "Agregar datos bancarios";
-  
+
   if(!datos) {
     visorDatos.addClass("d-none");
     sinDatos.removeClass("d-none");
@@ -332,7 +332,7 @@ function mostrarBodegas(bodegas) {
 function mostrarTranspEnBodega(bodega) {
   const revisarTranps = ["SERVIENTREGA", "INTERRAPIDISIMO", "ENVIA", "TCC"];
   let res = "";
-  
+
   revisarTranps.forEach((t, i) => {
     const transp = transportadoras[t];
     const habilitada = transp.habilitada();
@@ -464,7 +464,7 @@ function descargarInformeUsuariosAdm(e) {
       const resumen = campo.split(".")
       if(resumen.length > 1) {
         let resultante = obj;
-          
+
         resumen.forEach(r => {
           resultante = normalizeObject(r, resultante)
         });
@@ -498,7 +498,7 @@ function descargarInformeUsuariosAdm(e) {
 }
 
 //invocada por el boton para buscar guias
-function cambiarFecha(){  
+function cambiarFecha(){
   if($("#contenedor-tabla-historial-guias").css("display") === "none") {
     historialGuias();
   }
@@ -549,7 +549,7 @@ function cargarPagos(){
         } else if (transportadoras.length == 0){
           permitir_transportadora = true;
         }
-      
+
         if($("#filtro-pago-guia").val()){
           guia = $("#filtro-pago-guia").val();
           return permitir_transportadora && data.GUIA == guia;
@@ -642,7 +642,7 @@ function cargarPagos(){
                     .then(() => g.classList.add("text-success"))
                   });
                 });
-                
+
                 pagado += parseInt(celda[5].textContent);
               });
             }
@@ -680,7 +680,7 @@ function cargarPagos(){
           console.log("Antes del algoritmo: ",total_local);
           let mostrador_total = document.getElementById("total_pagos");
           let total = mostrador_total.getAttribute("data-total");
-        
+
           let datos_guia = await firebase.firestore().collectionGroup("guias")
           .where("numeroGuia", "==", identificador)
           .get().then(querySnapshot => {
@@ -697,7 +697,7 @@ function cargarPagos(){
           .get().then(querySnapshot => {
             let usuario_corporativo = false
             querySnapshot.forEach(doc => {
-              if(doc.data().usuario_corporativo) usuario_corporativo = true 
+              if(doc.data().usuario_corporativo) usuario_corporativo = true
             })
           })
 
@@ -713,10 +713,10 @@ function cargarPagos(){
               mostrador_total_local = document.getElementById("total"+remitente);
               btn_local = document.getElementById("pagar" + remitente);
               total_local = mostrador_total_local.getAttribute("data-total");
-              
+
               mostrador_total = document.getElementById("total_pagos");
               total = mostrador_total.getAttribute("data-total");
-              
+
               console.log(total_local);
               total -= parseInt(guia.children[5].textContent);
               total_local -= parseInt(guia.children[5].textContent);
@@ -729,7 +729,7 @@ function cargarPagos(){
               comprobarBoton(fecha);
               existe = true;
             }
-      
+
             if(datos_guia) {
               // Para mostrar el tipo cuenta_responsable es de empresa o personal y guardarlo
               guia.children[8].textContent = datos_guia.cuenta_responsable || "Personal";
@@ -739,7 +739,7 @@ function cargarPagos(){
               if(datos_guia.centro_de_costo != remitente) {
                 row_guia_actual.textContent += " El centro de costo de la guía subida no coincide con el registrado en la base de datos.\n";
               }
-              
+
               if(!datos_guia.debe || usuario_corporativo) {
                 row_guia_actual.textContent += " La guía fue descontada.";
                 if(!existe) sumarCostoEnvio(guia, remitente);
@@ -751,9 +751,9 @@ function cargarPagos(){
             totalizador(guia, remitente);
 
           })
-          
+
         })
-        
+
         usuarios.forEach(usuario => {
           let remitente = usuario.getAttribute("data-usuario");
           let tipo_usuario = document.createElement("p");
@@ -765,7 +765,7 @@ function cargarPagos(){
           .get().then(querySnapshot => {
             querySnapshot.forEach(doc => {
               const docBank = doc.data().datos_bancarios;
-              if(doc.data().usuario_corporativo){  
+              if(doc.data().usuario_corporativo){
                 tipo_usuario.textContent = "Usuario Corporativo";
               } else {
                 tipo_usuario.textContent = "Usuario no Corporativo";
@@ -791,7 +791,7 @@ function cargarPagos(){
           })
         })
 
-        
+
 
         //alterna las fechas entre la actual o la del documento ingresado
         function alternarFecha(contenido){
@@ -829,13 +829,13 @@ function cargarPagos(){
               document.getElementById("pagar"+identificador[0]).setAttribute("disabled", "");
             }
           });
-          
+
         }
 
         function sumarCostoEnvio(guia, remitente){
           const mostrador_total_local = document.getElementById("total"+remitente);
           const btn_local = document.getElementById("pagar" + remitente);
-          
+
           let total_local = mostrador_total_local.getAttribute("data-total");
           let mostrador_total = document.getElementById("total_pagos");
           let total = mostrador_total.getAttribute("data-total");
@@ -844,7 +844,7 @@ function cargarPagos(){
           guia.children[5].textContent = guia.children[3].textContent;
         }
 
-        
+
         document.querySelector("#cargador-pagos").classList.add("d-none");
     })
   }).catch((err) => {
@@ -857,9 +857,9 @@ function cargarPagos(){
 $("#btn-revisar_pagos").click(async(e) => {
   console.log(e.target);
   document.querySelector("#cargador-pagos").classList.remove("d-none");
-  let fechaI = 0, fechaF = new Date().getTime(), 
+  let fechaI = 0, fechaF = new Date().getTime(),
   buscador="REMITENTE", busqueda = "", guia, tipo = "!="
-  
+
   if(!administracion){
     tipo = "=="
     busqueda = datos_usuario.centro_de_costo
@@ -869,7 +869,7 @@ $("#btn-revisar_pagos").click(async(e) => {
     fechaI = new Date($("#filtro-fechaI").val()).getTime();
     fechaF = new Date($("#filtro-fechaF").val()).getTime();
   }
-  
+
   if($("#filtro-pago-usuario").val()){
     busqueda = $("#filtro-pago-usuario").val();
     tipo = "==";
@@ -949,13 +949,13 @@ $("#btn-revisar_pagos").click(async(e) => {
 function totalizador(guia, remitente) {
   const mostrador_total_local = document.getElementById("total"+remitente);
   const btn_local = document.getElementById("pagar" + remitente);
-  
+
   let total_local = mostrador_total_local.getAttribute("data-total");
   let mostrador_total = document.getElementById("total_pagos");
   let total = mostrador_total.getAttribute("data-total");
   let recaudo = parseInt(guia.children[4].textContent);
 
-  
+
   total = parseInt(total) + parseInt(guia.children[5].textContent);
   mostrador_total.setAttribute("data-total", total);
   mostrador_total.textContent = "Total $"+convertirMiles(total);
@@ -971,13 +971,13 @@ function mostrarPagos(datos) {
   visor_pagos.innerHTML = "";
   let centros_costo = [];
   datos.forEach((D, i) => {
-    
+
     if(!D.GUIA) {
       D.ERROR = "Sin número de guía para subir: " + D.GUIA;
     } else if (!D.TRANSPORTADORA){
       D.ERROR = "Lo siento, no se a que transportadora subir la guía: " + D.GUIA;
-    } else if (D.TRANSPORTADORA.toLowerCase() !== "servientrega" 
-    && D.TRANSPORTADORA.toLowerCase() != "envía" 
+    } else if (D.TRANSPORTADORA.toLowerCase() !== "servientrega"
+    && D.TRANSPORTADORA.toLowerCase() != "envía"
     && D.TRANSPORTADORA.toLowerCase() != "tcc"
     && D.TRANSPORTADORA.toLowerCase() != "interrapidisimo"){
       D.ERROR = "Por favor, Asegurate que la factura de la guía: " + D.GUIA + " le pertenezca a <b>Envía, TCC, Servientrega o Interrapidisimo</b>"
@@ -1007,11 +1007,11 @@ function mostrarPagos(datos) {
   }).reduce((a,b) => {
       if (a["REMITENTE"] != b["REMITENTE"]){
           centros_costo.push(b["REMITENTE"]);
-      }  
+      }
       return b;
   }, {REMITENTE: ""});
 
-  
+
   const dowloader = document.createElement("button");
   dowloader.classList.add("btn", "btn-outline-dark", "btn-block", "my-2");
   dowloader.setAttribute("id", "descargar-pagos")
@@ -1029,11 +1029,11 @@ function mostrarPagos(datos) {
     tablaPagos(filtrado, "visor_pagos");
   };
 
-  
+
   let total = datos.reduce(function(a,b) {
     return a + parseInt(b["TOTAL A PAGAR"]);
   }, 0);
-  
+
   // <h2 class="text-right mt-4" id="total_pagos" data-total="${total}">Total:  $${convertirMiles(total)}</h2>
   document.getElementById("visor_pagos").innerHTML += `
     <h2 class="text-right mt-4" id="total_pagos" data-total="0">Total:  $${convertirMiles(0)}</h2>
@@ -1070,14 +1070,14 @@ function activarBotonesVisorPagos() {
           if(q.size) {
             return q.docs[0].data();
           }
-    
+
           return null
         });
-    
+
         console.log(paquete, numeroGuia);
-    
+
         if(!paquete) return finalizar("Esta guía no fue facturada", "", "error");
-        
+
         const guiasPagadas = paquete.guiasPagadas;
         const idFactura = paquete.id_factura;
         guiasPagadas.forEach(g => {
@@ -1086,20 +1086,20 @@ function activarBotonesVisorPagos() {
       }
 
       const idFactura = paqueteGuiasPagadas.guias.get(numeroGuia);
-      
+
       if(!paqueteGuiasPagadas.facturas.has(idFactura)) {
         const factura = await fetch("/siigo/pdfFactura/" + idFactura)
         .then(d => d.json());
-    
+
         console.log(factura);
         if(!factura.base64) return finalizar("No se pudo cargar la factura.", "", "error");
 
         paqueteGuiasPagadas.facturas.set(idFactura, factura.base64);
-    
+
       }
-      
+
       const base64 = paqueteGuiasPagadas.facturas.get(idFactura)
-  
+
       if(base64) {
         paqueteGuiasPagadas.facturas.set(idFactura, base64);
         openPdfFromBase64(base64);
@@ -1214,7 +1214,7 @@ function mostrarPagosUsuario(data) {
 
       column.data().unique().each( function ( d, j ) {
         //Toma aquellas fechas diferentes de la anterios y me crea un option por cada una
-        
+
         //reviso todos los totales correspondientes a la fecha filtrada para agregarle también el total
         let sum = 0;
         $(totales).parent().each(function (){
@@ -1255,8 +1255,8 @@ async function pagosPendientesParaUsuario() {
   // const diasARestar = 1;
   if(diaSemana <= 5 && false) {
     dia -= diaSemana;
-  } 
-  
+  }
+
   const fechaMostrarMilli = Date.parse(year + "/" + mes + "/" + dia);
   const fechaFinal = genFecha("LR", fechaMostrarMilli);
   const endAtMilli = fechaMostrarMilli + diaEnMilli;
@@ -1265,7 +1265,7 @@ async function pagosPendientesParaUsuario() {
   $("#infoExtra-usuario").text("Guías entregadas hasta el " + fechaFinal);
   $("#infoExtra-usuario").attr("title", "Se han cargado los pagos que corresponden a la fecha del " + fechaFinal);
 
-  await firebase.firestore().collection("pendientePorPagar") 
+  await firebase.firestore().collection("pendientePorPagar")
   .where("REMITENTE", "==", datos_usuario.centro_de_costo)
   .orderBy("timeline")
   .endAt(endAtMilli)
@@ -1276,7 +1276,7 @@ async function pagosPendientesParaUsuario() {
     querySnapshot.forEach(doc => {
       const data = doc.data();
       const saldo = data["TOTAL A PAGAR"];
-      
+
       saldo_pendiente += saldo;
       details.append(`<li class="list-group-item">${data.GUIA} ---> ${convertirMoneda(saldo)}</li>`);
     });
@@ -1287,16 +1287,20 @@ async function pagosPendientesParaUsuario() {
 }
 
 function obtenerMensajeDesembolso() {
-  const mensajes = ["Tu pago ya fue solicitado, esta listo para desembolso en 24 horas 😊", "Tu pago ya fue solicitado, esta listo para desembolso en en el próximo día de pago, ya que nuestros días de pago son de lunes a viernes 😊", "Tu pago ya fue solicitado, esta listo para desembolso en MÁS de 24 horas, puesto que nuestros horarios de pago son de 8:00 am a 6:00 pm de Lunes a Viernes 😊"];
-  const lunJue = [8, 18, 0]; // hora inicial, hora final, index mensaje
-  const vieSab = [8, 13, 1];
-  const mensajeHor = [[0, 0, 3], lunJue, lunJue, lunJue, lunJue, vieSab, vieSab];
-  const hora = new Date().getHours();
-  const dia = new Date().getDay();
-  const horario = mensajeHor[dia];
-  const [hi, hf, i] = horario;
+  const mensajes2 = "<h2> Pago solicitado ✅</h2>  <br/>  Si solicitaste tu pago entre las 8 am - 6 pm lo recibirás al siguiente día habil, si realizas la solicitud fuera de ese horario, el pago llegará al segundo día hábil. <br/> e el pago se realizará durante el transcurso del día, sin un horario específico, ya que está programado." ;
+  return mensajes2;
+  // const mensajes = ["Pago solicitado  ✅ ",
+  //  "Tu pago ya fue solicitado, esta listo para desembolso en en el próximo día de pago, ya que nuestros días de pago son de lunes a viernes 😊",
+  //   "Tu pago ya fue solicitado, esta listo para desembolso en MÁS de 24 horas, puesto que nuestros horarios de pago son de 8:00 am a 6:00 pm de Lunes a Viernes 😊"];
+  // const lunJue = [8, 18, 0]; // hora inicial, hora final, index mensaje
+  // const vieSab = [8, 13, 1];
+  // const mensajeHor = [[0, 0, 3], lunJue, lunJue, lunJue, lunJue, vieSab, vieSab];
+  // const hora = new Date().getHours();
+  // const dia = new Date().getDay();
+  // const horario = mensajeHor[dia];
+  // const [hi, hf, i] = horario;
 
-  return hi <= hora && hf > hora ? mensajes[i] : mensajes[mensajes.length - 1];
+  // return hi <= hora && hf > hora ? mensajes[i] : mensajes[mensajes.length - 1];
 
 }
 
@@ -1315,18 +1319,31 @@ async function solicitarPagosPendientesUs() {
 
   const hayPagoAnterior = await Promise.all(transportadoras.map(verPago));
 
+
   if(!hayPagoAnterior.some(Boolean))
     return Swal.fire("Se ha detectado que no hay registro de pago previo.", "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico atencion@hekaentrega.co esto se realiza con la finalidad de validación de datos.", "error");
 
   if(!data) return;
 
   const {limitadosDiario, diarioSolicitado} = data;
+  
 
-  if(!datos_usuario.datos_bancarios) 
+  if(!datos_usuario.datos_bancarios)
     return Swal.fire("No puede solicitar pagos", "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico atencion@hekaentrega.co esto se realiza con la finalidad de validación de datos. Adicional debes registrar datos bancarios para tener donde realizar el deposito del dinero.", "error");
 
-  if(diarioSolicitado.includes(datos_usuario.centro_de_costo)) 
+  if(diarioSolicitado.includes(datos_usuario.centro_de_costo))
     return Swal.fire("", mensajeDesembolso, "info");
+
+    if(saldo_pendiente < 0) {
+      const mensaje = "No puedes solicitar tu pago ya que tienes saldo negativo en tu cuenta";
+      const resp = await Swal.fire({
+        icon: "warning",
+        title: "Solicitando pago",
+        html: mensaje,
+        showCancelButton: false,
+        confirmButtonText: "Aceptar"
+      });  
+    } 
 
 
   if(saldo_pendiente < minimo_diario) {

@@ -1180,6 +1180,7 @@ function actualizarInformacionPersonal() {
     nombre_empresa: value("actualizar_nombre_empresa"),
     correo: value("actualizar_correo"),
     objetos_envio: value("actualizar_objetos_envio").split(","),
+    numero_documento: value("actualizar_numero_documento"),
   };
 
   let id_usuario = document

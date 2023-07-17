@@ -597,7 +597,7 @@ function accionesDeFila(datos, type, row) {
         const showMovements = datos.numeroGuia && datos.estado ? "" : "d-none";
         let buttons = `
         <div data-search="${datos.filter}"
-        class="d-flex justify-content-around">
+        class="d-flex justify-content-around align-items-center">
         `;
 
         const btnCrearSticker = `<button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
@@ -641,13 +641,19 @@ function accionesDeFila(datos, type, row) {
             <i class="fas fa-clone"></i>
         </button>`;
 
-        const btnDelete = `<button class="btn btn-danger btn-circle btn-sm mx-1 action ${showCloneAndDelete}" data-id="${id}" 
+        //quitarle el d-none al siguiente elemento para que aparezca otra vez el botón de eliminar guía
+
+        const btnDelete = `<button class="btn d-none btn-danger btn-circle btn-sm mx-1 action ${showCloneAndDelete}" data-id="${id}" 
         id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
         data-placement="right"
         title="Eliminar Guía">
             <i class="fas fa-trash"></i>
         </button>`;
-        
+
+        const btnActualizar= `<button class="btn btn-circle btn-primary btn-sm mx-1 action data-id="${id}" id="actualizar-guia${id}">
+        <i class="fa fa-sync" title="Actualizar guía ${id}" style="cursor: pointer"></i>
+        </button>`;
+
         //Bottón para re crear el sticker de guía.
         if((datos.numeroGuia && !datos.has_sticker && generacion_automatizada) || estado_prueba) {
             buttons += btnCrearSticker;
@@ -664,13 +670,13 @@ function accionesDeFila(datos, type, row) {
 
         //Botón para ver movimientos
         if (datos.numeroGuia && datos.estado) {
-            buttons += btnMovimientos;
+            buttons += btnMovimientos + btnActualizar;
         }
 
         //Botones para descargar documentosy rótulos cuando accede a la condición
         //botones para clonar y eliminar guía cuando rechaza la condición.
         if(datos.enviado && !datos.enNovedad) {
-            buttons += btnDownloadDocs + btnRotulo;
+            buttons +=  btnDownloadDocs + btnRotulo;
         }
 
         if(filtrado === pedido) {
@@ -683,7 +689,7 @@ function accionesDeFila(datos, type, row) {
 
         // buttons += "<a href='javascript:void(0)' class='action text-trucate'>Ver más</a>"
         // buttons += btnEdit;
-        buttons += "</div>";
+        buttons +=  "</div>";
         return buttons
     }
     return datos;

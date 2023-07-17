@@ -314,6 +314,9 @@ async function historialGuiasAntiguo() {
     drawCallback: renderizadoDeTablaHistorialGuias,
   });
 
+ 
+
+
   document.getElementById("cargador-guias").classList.remove("d-none");
   if (!user_id) return;
 
@@ -2977,6 +2980,7 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
     }
   }
 }
+
 
 function revisarNovedades(transportadora) {
   const cargadorClass = document.getElementById("cargador-novedades").classList;
