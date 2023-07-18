@@ -368,20 +368,20 @@ async function guardarForm() {
 
     }
 
-    console.log(elemento);
+    console.log(estructuraFormularioGenerado);
 
-    if(!elemento.campos || !elemento.campos.length) {
+    if(!estructuraFormularioGenerado.campos || !estructuraFormularioGenerado.campos.length) {
         return Toast.fire("Tienes que asignar un campo", "", "error");
     }
 
     if(Number.isNaN(parseInt(idForm))) {
         // elemento.fecha_creacion = new Date();
-        listaFormularios.push(elemento);
+        listaFormularios.push(estructuraFormularioGenerado);
     } else {
         listaFormularios[idForm] = elemento;
     }
 
-    console.log(elemento, listaFormularios, idForm);
+    console.log(estructuraFormularioGenerado, listaFormularios, idForm);
 
     // Se actulizan solo los formularios
     referencia.update({formularios: listaFormularios})
