@@ -3595,8 +3595,11 @@ function cambiarFiltroHistGuiasAdmin(e) {
 
 async function historialGuiasAdmin(e) {
   const finalId = e.id.split("-")[1];
-  let fechaI = document.querySelector("#fechaI-" + finalId).value + "::";
-  let fechaF = document.querySelector("#fechaF-" + finalId).value + "::";
+  let fechaI = document.querySelector("#fechaI-" + finalId).value;
+  let fechaF = document.querySelector("#fechaF-" + finalId).value;
+
+  const fecha_inicio = new Date(fechaI).setHours(0) + 8.64e7;;
+  const fecha_final = new Date(fechaF).setHours(0) + (2 * 8.64e7);
   const numeroGuia = document.querySelector("#num_guia-" + finalId).value;
   const tipoFiltro = $("#tipo_filt-hist_guias").val();
   const filtroCentroDeCosto = $("#filtro_pagos-" + finalId).val();
@@ -3650,8 +3653,8 @@ async function historialGuiasAdmin(e) {
 
   reference = reference
     .orderBy("timeline")
-    .startAt(new Date(fechaI).getTime())
-    .endAt(new Date(fechaF).getTime() + 8.64e7);
+    .startAt(fecha_inicio)
+    .endAt(fecha_final);
 
   if (guiasPunto) reference = reference.where("pertenece_punto", "==", true);
 

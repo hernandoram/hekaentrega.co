@@ -224,14 +224,21 @@ async function cargarPagosDirectos(e) {
   loader.end();
   
   console.log(lista);
-  
-  location.href = "#gestionar_pagos";
 
   empaquetarGuias(lista);
 
+  btnCargarPagos.after("<a class='btn btn-success mt-4' href='#gestionar_pagos'>Ir a gestionar</a>")
 }
 
 function transformarGuiaAPago(guia)  {  
+  const estadosDevolucion = ["ENTREGADO A REMITENTE", "Devuelto al Remitente"];
+  const esDevolucion = estadosDevolucion.includes(guia.estado);
+  const costoDevolucion = guia.detalles.costoDevolucion;
+
+  const totalPagar = esDevolucion 
+    ? guia.detalles.recaudo - guia.detalles.total
+    : costoDevolucion;
+  
   return {
     GUIA: guia.numeroGuia,
     "REMITENTE": guia.centro_de_costo,
@@ -240,7 +247,7 @@ function transformarGuiaAPago(guia)  {
     "COMISION HEKA": guia.detalles.comision_heka,
     RECAUDO: guia.detalles.recaudo,
     "ENVÍO TOTAL": guia.detalles.total,
-    "TOTAL A PAGAR": guia.detalles.recaudo - guia.detalles.total
+    "TOTAL A PAGAR": totalPagar
   }
 }
 
