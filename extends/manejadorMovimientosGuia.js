@@ -1,5 +1,27 @@
 const db = require("../keys/firebase").firestore();
 
+/*
+    COORDINADORA
+
+        ENTREGADA
+        CERRADO POR INCIDENCIA, VER CAUSA
+
+    ENVIA
+
+        ENTREGADA DIGITALIZADA
+        DEVOLUCION
+
+    INTER
+
+        Entrega Exitosa
+        Entregada
+        Devuelto al Remitente
+
+    SERVI
+
+        ENTREGADO
+        ENTREGADO A REMITENTE
+*/
 exports.estadosGuia = {
     novedad: "NOVEDAD",
     pedido: "PEDIDO",

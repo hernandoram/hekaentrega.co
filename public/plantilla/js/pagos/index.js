@@ -231,13 +231,17 @@ async function cargarPagosDirectos(e) {
 }
 
 function transformarGuiaAPago(guia)  {  
-  const estadosDevolucion = ["ENTREGADO A REMITENTE", "Devuelto al Remitente"];
+  const estadosDevolucion = [
+    "ENTREGADO A REMITENTE", "Devuelto al Remitente",
+    "CERRADO POR INCIDENCIA, VER CAUSA", "DEVOLUCION"
+  ];
+  
   const esDevolucion = estadosDevolucion.includes(guia.estado);
   const costoDevolucion = guia.detalles.costoDevolucion;
 
   const totalPagar = esDevolucion 
-    ? guia.detalles.recaudo - guia.detalles.total
-    : costoDevolucion;
+    ? costoDevolucion
+    : guia.detalles.recaudo - guia.detalles.total;
   
   return {
     GUIA: guia.numeroGuia,
