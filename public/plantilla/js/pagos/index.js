@@ -235,13 +235,17 @@ function transformarGuiaAPago(guia)  {
     "ENTREGADO A REMITENTE", "Devuelto al Remitente",
     "CERRADO POR INCIDENCIA, VER CAUSA", "DEVOLUCION"
   ];
-  
+
   const esDevolucion = estadosDevolucion.includes(guia.estado);
-  const costoDevolucion = guia.detalles.costoDevolucion;
+  const costoDevolucion = -guia.detalles.costoDevolucion; // El costo de devolución debe ser negativo
 
   const totalPagar = esDevolucion 
     ? costoDevolucion
     : guia.detalles.recaudo - guia.detalles.total;
+
+  const valorRecaudo = esDevolucion
+    ? 0
+    : guia.detalles.recaudo;
   
   return {
     GUIA: guia.numeroGuia,
@@ -249,7 +253,7 @@ function transformarGuiaAPago(guia)  {
     TRANSPORTADORA: guia.transportadora,
     "CUENTA RESPONSABLE": guia.cuenta_responsable,
     "COMISION HEKA": guia.detalles.comision_heka,
-    RECAUDO: guia.detalles.recaudo,
+    RECAUDO: valorRecaudo,
     "ENVÍO TOTAL": guia.detalles.total,
     "TOTAL A PAGAR": totalPagar
   }

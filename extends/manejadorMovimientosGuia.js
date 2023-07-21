@@ -22,6 +22,24 @@ const db = require("../keys/firebase").firestore();
         ENTREGADO
         ENTREGADO A REMITENTE
 */
+const estadosEntregado = [
+    "ENTREGADA", // COORDINADORA
+    "ENTREGADA DIGITALIZADA", //ENVIA
+    "Entrega Exitosa", "Entregada", // INTERRAPIDISIMO
+    "ENTREGADO" // SERVIENTREGA
+];
+
+const estadosDevolucion = [
+    "CERRADO POR INCIDENCIA, VER CAUSA", // COORDINADORA
+    "DEVOLUCION", //ENVIA
+    "Devuelto al Remitente", // INTERRAPIDISIMO
+    "ENTREGADO A REMITENTE" // SERVIENTREGA
+];
+
+const estadosAnuladas = [
+    "Documento Anulado" // INTERRAPIDÍSIMO
+]
+
 exports.estadosGuia = {
     novedad: "NOVEDAD",
     pedido: "PEDIDO",
@@ -33,10 +51,13 @@ exports.estadosGuia = {
     eliminada: "ELIMINADA"
 }
 
+/**
+ * @deprecated Función utilizada solo para estadísticas
+ */
 exports.revisarTipoEstado = (est, transp) => {
-    const entregadas = ["ENTREGADO", "Entrega Exitosa"];
-    const devoluciones = ["ENTREGADO A REMITENTE", "Devuelto al Remitente"];
-    const anulados = ["Documento Anulado"];
+    const entregadas = estadosEntregado;
+    const devoluciones = estadosDevolucion;
+    const anulados = estadosAnuladas;
   
     if(entregadas.includes(est)) return "entregas";
     if(devoluciones.includes(est)) return "devoluciones";
@@ -171,10 +192,7 @@ exports.guiaEnNovedad = (movimientos, transp) => {
 }
 
 exports.revisarEstadoFinalizado = (estado) => {
-    return [
-        "ENTREGADO", "Entrega Exitosa", 
-        "ENTREGADO A REMITENTE", "Devuelto al Remitente", 
-        "Documento Anulado", "Entregado",
-        "ENTREGADA"
-    ].includes(estado)
+    const listaEstadosFinalizadaCompleta = estadosEntregado.concat(estadosAnuladas, estadosDevolucion);
+    
+    return listaEstadosFinalizadaCompleta.includes(estado)
 }
