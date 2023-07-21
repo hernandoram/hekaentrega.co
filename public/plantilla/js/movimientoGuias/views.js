@@ -8,17 +8,14 @@ export const campoFormulario = (campo, i) => (`
     data-index="${i}"
     >&times;</span>
 
-    <div class="form-group col-md-3">
+    <div class="form-group col-md-6">
         <label for="nombre-mensajeria-${i}">Nombre</label>
-        <input type="text" class="form-control" id="nombre-mensajeria-${i}" value="${campo.nombre || ""}" name="nombre">
+        <input type="text" class="form-control" id="nombre-mensajeria-${i}" value="${campo.nombre || ""}" placeholder="Identificador de la respuesta para enviarla a la administración" name="nombre">
     </div>
 
-    <div class="form-group col-md-3">
-        <label for="etiqueta-mensajeria-${i}">Etiqueta</label>
-        <input type="text" class="form-control" id="etiqueta-mensajeria-${i}" value="${campo.etiqueta || ""}" name="etiqueta">
-    </div>
+  
 
-    <div class="form-group col-md-3">
+    <div class="form-group col-md-6">
         <label for="tipo-mensajeria-${i}">Tipo</label>
         <select class="custom-select"
         data-action="select-tipo"
@@ -30,14 +27,19 @@ export const campoFormulario = (campo, i) => (`
         </select>
     </div>
 
-    <div class="form-group col-md-3">
+    <div class="form-group col-md-12">
+    <label for="etiqueta-mensajeria-${i}">Etiqueta</label>
+    <input type="text" class="form-control" id="etiqueta-mensajeria-${i}" placeholder="Esta información es la que se le despliega al usuario" value="${campo.etiqueta || ""}" name="etiqueta">
+</div>
+
+    <div class="form-group col-md-3 ${campo.opciones ? '' : 'd-none'}">
         <label for="despendiente-mensajeria-${i}">Dependiente</label>
         <input type="text" class="form-control" id="despendiente-mensajeria-${i}"
         placeholder="nombre:valor"
         value="${campo.dependiente || ""}" name="dependiente">
     </div>
 
-    <div class="form-group col-md">
+    <div class="form-group col-md ${campo.opciones ? '' : 'd-none'}">
         <label for="alerta-mensajeria-${i}">Alertas</label>
         <input type="text" class="form-control" id="alerta-mensajeria-${i}"
         placeholder="opt1:Alerta uno -- opt2:Alerta dos"

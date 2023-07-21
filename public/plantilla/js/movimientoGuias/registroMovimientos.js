@@ -333,7 +333,8 @@ function quitarCampo(e) {
  * La función `guardarForm` es una función asíncrona que guarda los datos del formulario en la base de
  * datos y muestra un mensaje de éxito si los datos se guardan correctamente.
  */
-async function guardarForm() {
+async function guardarForm(e) {
+    e.preventDefault();
     const idForm = selListFormularios.val();
 
     // Se inicializa el objeto con la maqueta vacía
@@ -367,18 +368,19 @@ async function guardarForm() {
         }
 
     }
+    // if(estructuraFormularioGenerado)
 
-    console.log(estructuraFormularioGenerado);
+    console.log(estructuraFormularioGenerado.descripcion);
 
-    if(!estructuraFormularioGenerado.campos || !estructuraFormularioGenerado.campos.length) {
-        return Toast.fire("Tienes que asignar un campo", "", "error");
+    if(estructuraFormularioGenerado.titulo.length<1 || estructuraFormularioGenerado.descripcion.length<1) {
+        return Toast.fire("El formulario debe tener un titulo y respuesta construida", "", "error");
     }
 
     if(Number.isNaN(parseInt(idForm))) {
         // elemento.fecha_creacion = new Date();
         listaFormularios.push(estructuraFormularioGenerado);
     } else {
-        listaFormularios[idForm] = elemento;
+        listaFormularios[idForm] = estructuraFormularioGenerado;
     }
 
     console.log(estructuraFormularioGenerado, listaFormularios, idForm);
