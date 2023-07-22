@@ -375,6 +375,9 @@ async function guardarForm(e) {
     if(estructuraFormularioGenerado.titulo.length<1 || estructuraFormularioGenerado.descripcion.length<1) {
         return Toast.fire("El formulario debe tener un titulo y respuesta construida", "", "error");
     }
+    if(estructuraFormularioGenerado.campos[0].nombre<1 || estructuraFormularioGenerado.campos[0].etiqueta<1 ) {
+        return Toast.fire("El formulario debe tener una respuesta del usuario y una etiqueta", "", "error");
+    }
 
     if(Number.isNaN(parseInt(idForm))) {
         // elemento.fecha_creacion = new Date();
@@ -406,8 +409,10 @@ function selectTipoCampo(e) {
     console.log(e.target.value);
     if(e.target.value === "select") {
         $(`#opciones-mensajeria-${i}`).parent().removeClass("d-none");
+        $(`#alerta-mensajeria-${i}`).parent().removeClass("d-none");
     } else {
         $(`#opciones-mensajeria-${i}`).parent().addClass("d-none");
+        $(`#alerta-mensajeria-${i}`).parent().addClass("d-none");
 
     }
 

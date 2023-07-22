@@ -1,4 +1,6 @@
-export const campoFormulario = (campo, i) => (`
+export const campoFormulario = (campo, i) => (
+    console.log(campo),
+    `
 <div class="row border border-info my-2 p-2 rounded position-relative">
     
     <span 
@@ -32,28 +34,32 @@ export const campoFormulario = (campo, i) => (`
     <input type="text" class="form-control" id="etiqueta-mensajeria-${i}" placeholder="Esta información es la que se le despliega al usuario" value="${campo.etiqueta || ""}" name="etiqueta">
 </div>
 
-    <div class="form-group col-md-3 ${campo.opciones ? '' : 'd-none'}">
+    <div class="form-group col-md-3 ${campo.tipo==="select" ? '' : 'd-none'}">
         <label for="despendiente-mensajeria-${i}">Dependiente</label>
         <input type="text" class="form-control" id="despendiente-mensajeria-${i}"
         placeholder="nombre:valor"
         value="${campo.dependiente || ""}" name="dependiente">
     </div>
 
-    <div class="form-group col-md ${campo.opciones ? '' : 'd-none'}">
-        <label for="alerta-mensajeria-${i}">Alertas</label>
-        <input type="text" class="form-control" id="alerta-mensajeria-${i}"
-        placeholder="opt1:Alerta uno -- opt2:Alerta dos"
-        value="${campo.alerta || ""}" name="alerta">
-    </div>
-
     <div class="form-group col-md-6 ${campo.opciones ? '' : 'd-none'}">
-        <label for="opciones-mensajeria-${i}">Opciones</label>
-        <input type="text" class="form-control" id="opciones-mensajeria-${i}"
-        placeholder="opt1,opt2,opt3"
-        value="${campo.opciones || ""}" name="opciones">
-    </div>
+    <label for="opciones-mensajeria-${i}">Opciones</label>
+    <input type="text" class="form-control" id="opciones-mensajeria-${i}"
+    placeholder="opt1,opt2,opt3"
+    value="${campo.opciones || ""}" name="opciones">
+</div>
+
+
+     <div class="form-group col-md ${campo.opciones ? '' : 'd-none'}">
+    <label for="alerta-mensajeria-${i}">Alertas</label>
+    <input type="text" class="form-control" id="alerta-mensajeria-${i}"
+    placeholder="opt1:Alerta uno -- opt2:Alerta dos"
+    value="${campo.alerta || ""}" name="alerta">
+    </div> 
+
+  
 </div>
 `);
+
 
 export const obtenerCampoRenderFormulario = (campo, i) => {
     const opciones = campo.opciones ? campo.opciones.split(",") : [];
