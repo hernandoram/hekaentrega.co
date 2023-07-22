@@ -180,8 +180,10 @@ async function cargarPagosDirectos(e) {
       const type = guia.type;
       const deuda = guia.debe;
       
-      // Ignorar aquelas que hayan sido pagadas;
+      // Ignorar la convencionales
       if(type === "CONVENCIONAL") return;
+
+      // Ignorar aquelas que hayan sido pagadas;
       if(type === "PAGO CONTRAENTREGA" && deuda === 0) return;
           
       listaGuias.push(transformarGuiaAPago(guia));
@@ -227,7 +229,8 @@ async function cargarPagosDirectos(e) {
 
   empaquetarGuias(lista);
 
-  btnCargarPagos.after("<a class='btn btn-success mt-4' href='#gestionar_pagos'>Ir a gestionar</a>")
+  if(!document.getElementById("btn-gotoGestionar_cargador_pagos"))
+    btnCargarPagos.after("<a class='btn btn-success mt-4' href='#gestionar_pagos' id='btn-gotoGestionar_cargador_pagos'>Ir a gestionar</a>")
 }
 
 function transformarGuiaAPago(guia)  {  
@@ -246,13 +249,27 @@ function transformarGuiaAPago(guia)  {
   const valorRecaudo = esDevolucion
     ? 0
     : guia.detalles.recaudo;
+
+  let comisionHeka = guia.detalles.comision_heka;
+
+  if(esDevolucion) {
+    switch(guia.transportadora) {
+      case "COORDINADORA": case "ENVIA":
+        comisionHeka = 2000;
+      break;
+  
+      case "INTERRAPIDISIMO":
+        comisionHeka = 1000;
+      break;
+    }
+  }
   
   return {
     GUIA: guia.numeroGuia,
     "REMITENTE": guia.centro_de_costo,
     TRANSPORTADORA: guia.transportadora,
     "CUENTA RESPONSABLE": guia.cuenta_responsable,
-    "COMISION HEKA": guia.detalles.comision_heka,
+    "COMISION HEKA": comisionHeka,
     RECAUDO: valorRecaudo,
     "ENVÍO TOTAL": guia.detalles.total,
     "TOTAL A PAGAR": totalPagar

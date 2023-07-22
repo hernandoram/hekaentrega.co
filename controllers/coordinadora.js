@@ -316,7 +316,7 @@ exports.actualizarMovimientos = async (docs) => {
 }
 
 async function actualizarMovimientoIndividual(doc, respuesta) {
-    const estados_finalizacion = ["ENTREGADA"];
+    const estados_finalizacion = ["ENTREGADA", "CERRADO POR INCIDENCIA, VER CAUSA"];
     
     try {
         const guia = doc.data();
@@ -364,7 +364,7 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
     
         let enNovedad = !!novedades.length && guiaEnNovedad(movimientos, "COORDINADORA");
     
-        const seguimiento_finalizado = estados_finalizacion.some(v => respuesta.estado === v)
+        const seguimiento_finalizado = estados_finalizacion.some(v => estadoActual === v)
         || finalizar_seguimiento;
         
         const actualizaciones = {
