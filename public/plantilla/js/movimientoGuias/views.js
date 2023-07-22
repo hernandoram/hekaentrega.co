@@ -34,12 +34,7 @@ export const campoFormulario = (campo, i) => (
     <input type="text" class="form-control" id="etiqueta-mensajeria-${i}" placeholder="Esta información es la que se le despliega al usuario" value="${campo.etiqueta || ""}" name="etiqueta">
 </div>
 
-    <div class="form-group col-md-3 ${campo.tipo==="select" ? '' : 'd-none'}">
-        <label for="despendiente-mensajeria-${i}">Dependiente</label>
-        <input type="text" class="form-control" id="despendiente-mensajeria-${i}"
-        placeholder="nombre:valor"
-        value="${campo.dependiente || ""}" name="dependiente">
-    </div>
+   
 
     <div class="form-group col-md-6 ${campo.opciones ? '' : 'd-none'}">
     <label for="opciones-mensajeria-${i}">Opciones</label>
@@ -59,6 +54,13 @@ export const campoFormulario = (campo, i) => (
   
 </div>
 `);
+
+{/* <div class="form-group col-md-3 ${campo.tipo==="select" ? '' : 'd-none'}">
+<label for="despendiente-mensajeria-${i}">Dependiente</label>
+<input type="text" class="form-control" id="despendiente-mensajeria-${i}"
+placeholder="nombre:valor"
+value="${campo.dependiente || ""}" name="dependiente">
+</div> */}
 
 
 export const obtenerCampoRenderFormulario = (campo, i) => {
