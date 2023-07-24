@@ -1,5 +1,7 @@
-export const campoFormulario = (campo, i) => (
-    console.log(campo),
+export const campoFormulario = (campo, i) => {
+    console.log(campo);
+    console.log("hola");
+    return(
     `
 <div class="row border border-info my-2 p-2 rounded position-relative">
     
@@ -53,7 +55,7 @@ export const campoFormulario = (campo, i) => (
 
   
 </div>
-`);
+`)};
 
 {/* <div class="form-group col-md-3 ${campo.tipo==="select" ? '' : 'd-none'}">
 <label for="despendiente-mensajeria-${i}">Dependiente</label>
