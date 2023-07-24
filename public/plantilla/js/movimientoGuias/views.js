@@ -43,7 +43,7 @@ export const campoFormulario = (campo, i) => {
     placeholder="opt1,opt2,opt3"
     value="${campo.opciones1 || ""}" name="opciones1">
 
-    <input type="text" class="form-control" id="opciones-mensajeria2-${i}"
+    <input type="text" class="form-control mt-2" id="opciones-mensajeria2-${i}"
     placeholder="opt1,opt2,opt3"
     value="${campo.opciones2 || ""}" name="opciones2">
 </div>
@@ -51,9 +51,15 @@ export const campoFormulario = (campo, i) => {
 
      <div class="form-group col-md ${campo.opciones ? '' : 'd-none'}">
     <label for="alerta-mensajeria-${i}">Alertas</label>
+
     <input type="text" class="form-control" id="alerta-mensajeria-${i}"
-    placeholder="opt1:Alerta uno -- opt2:Alerta dos"
-    value="${campo.alerta || ""}" name="alerta">
+    placeholder="Alerta uno"
+    value="${campo.alerta1 || ""}" name="alerta1">
+
+
+    <input type="text" class="form-control mt-2" id="alerta-mensajeria-${i}"
+    placeholder="Alerta dos"
+    value="${campo.alerta2 || ""}" name="alerta2">
     </div> 
 
   
