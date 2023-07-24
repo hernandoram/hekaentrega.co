@@ -341,7 +341,7 @@ async function guardarForm(e) {
     const estructuraFormularioGenerado = {campos: [{}]};
 
     // Se estable el patrón de elementos de lista para definir como se va a registrar la información
-    const elementosDeLista = ["nombre", "tipo", "opciones", "opciones2", "dependiente", "alerta", "etiqueta"];
+    const elementosDeLista = ["nombre", "tipo", "opciones","opciones1", "opciones2", "dependiente", "alerta", "etiqueta"];
 
     const formData = new FormData(formFormularios[0]);
     
@@ -369,6 +369,8 @@ async function guardarForm(e) {
 
     }
     // if(estructuraFormularioGenerado)
+
+    estructuraFormularioGenerado.campos[0].opciones= estructuraFormularioGenerado.campos[0].opciones1 + "," + estructuraFormularioGenerado.campos[0].opciones2;
 
     console.log(estructuraFormularioGenerado);
 

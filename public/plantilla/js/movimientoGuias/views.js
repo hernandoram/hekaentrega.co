@@ -1,6 +1,5 @@
 export const campoFormulario = (campo, i) => {
     console.log(campo);
-    console.log("hola");
     return(
     `
 <div class="row border border-info my-2 p-2 rounded position-relative">
@@ -42,7 +41,7 @@ export const campoFormulario = (campo, i) => {
     <label for="opciones-mensajeria-${i}">Opciones</label>
     <input type="text" class="form-control" id="opciones-mensajeria-${i}"
     placeholder="opt1,opt2,opt3"
-    value="${campo.opciones || ""}" name="opciones">
+    value="${campo.opciones1 || ""}" name="opciones1">
 
     <input type="text" class="form-control" id="opciones-mensajeria2-${i}"
     placeholder="opt1,opt2,opt3"
