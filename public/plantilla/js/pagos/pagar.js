@@ -11,6 +11,9 @@ const btnGestionar = $("#btn-gestionar_pagos");
 
 btnGestionar.click(consultarPendientes);
 
+/**
+ * Clase en cargada de manipular la información de pagos para almacenarla de manera organizada, por usuario
+ */
 class Empaquetado {
     constructor() {
         this.pagosPorUsuario = {};
@@ -21,6 +24,12 @@ class Empaquetado {
         this.guiasAnalizadas = 0;
     }
 
+    /**
+     * La función `addPago` agrega una guia (guía) al objeto pagosPorUsuario (pagos por usuario),
+     * agrupándolos por la propiedad REMITENTE (remitente).
+     * @param guia - El parámetro "guia" es un objeto que representa una guía de pago. Contiene
+     * información sobre el remitente ("REMITENTE") y otras propiedades relacionadas con el pago.
+     */
     addPago(guia) {
         const usuario = guia["REMITENTE"];
         if(this.pagosPorUsuario[usuario]) {
@@ -38,6 +47,10 @@ class Empaquetado {
 
     }
 
+    /**
+     * La función `init()` inicializa el contenido HTML y establece los valores para los elementos
+     * "pagado", "por pago" y "total procesado".
+     */
     init() {
         const valoresHtml = `
             <div class="d-flex justify-content-between m-3 align-items-center">
@@ -52,6 +65,12 @@ class Empaquetado {
         // usuariosIniciales.reduce( async usuario => this.analizarGuias(usuario));
     }
 
+    /**
+     * La función "chargeAll" es una función asíncrona que itera a través de una lista de usuarios y
+     * realiza un análisis de sus datos, y luego actualiza la interfaz de usuario en consecuencia.
+     * @param [condition=POSITIVO] - El parámetro de condición es una cadena que especifica la
+     * condición para filtrar los usuarios. En este código, está configurado en "POSITIVO" por defecto.
+     */
     async chargeAll(condition = "POSITIVO") {
 
         this.condition = condition;
@@ -68,9 +87,14 @@ class Empaquetado {
         this.usuarioActivo = this.usuarios[this.actual];
         if(this.usuarios.length > 1) {
             visor.append(`
-            <button class="btn btn-secondary prev mt-2" style="display: none;">anterior</button>
-            <button class="btn btn-primary next mt-2">siguiente</button>
-            <button class="btn btn-outline-primary mt-2 ml-3" id="descargador-guias-pagos">Descargar info</button>
+                <button class="btn btn-secondary prev mt-2" style="display: none;">anterior <span class="badge badge-light">0</span></button>
+                <button class="btn btn-primary next mt-2">
+                    siguiente 
+                    <span class="badge badge-light">
+                        ${this.usuarios.length - 1}
+                    </span>
+                </button>
+                <button class="btn btn-outline-primary mt-2 ml-3" id="descargador-guias-pagos">Descargar info</button>
             `);
         }
 
@@ -83,6 +107,10 @@ class Empaquetado {
 
     }
 
+    /**
+     * La función "setPages" itera sobre una lista de usuarios y llama a la función "setPage" para cada
+     * usuario, y luego llama a la función "activeActionsAfterSetPages".
+     */
     setPages() {
         this.usuarios
         .forEach(this.setPage);
@@ -91,6 +119,11 @@ class Empaquetado {
         
     }
     
+    /**
+     * La función "activeActionsAfterSetPages" inicializa detectores de eventos para hacer clic en
+     * elementos con las clases "set-info-bank" y "dwload-excel", y también inicializa una entrada de
+     * archivo personalizada.
+     */
     activeActionsAfterSetPages() {
         $(".set-info-bank").click(e => this.cargarInformacionBancaria(e));
         $(".dwload-excel").click(e => this.descargarExcelPagosUsuario(e));
@@ -99,6 +132,15 @@ class Empaquetado {
         bsCustomFileInput.init();
     }
 
+    /**
+     * La función `setPage` genera elementos HTML para la página de pago de un usuario.
+     * @param usuario - El parámetro "usuario" representa al usuario para el que se está configurando
+     * la página. Se utiliza para personalizar los elementos de la página y mostrar información
+     * específica del usuario.
+     * @param i - El parámetro "i" se utiliza para determinar si el paso debe estar activo o no. Si "i"
+     * es verdadero, entonces el paso no tendrá la clase "activa", de lo contrario, tendrá la clase
+     * "activa".
+     */
     setPage(usuario, i) {
         const element = `
             <div class="step ${i ? "" : "active"}">
@@ -138,6 +180,13 @@ class Empaquetado {
         visor.children(".step-view").append(element);
     }
 
+    /**
+     * La función `cargarInformacion(usuario)` carga información de un usuario específico y la muestra
+     * en una tabla, incluyendo botones para pagar y generar factura.
+     * @param usuario - El parámetro "usuario" representa al usuario para el cual se está cargando la
+     * información.
+     * @returns La función no tiene declaración de retorno, por lo que no devuelve ningún valor.
+     */
     cargarInformacion(usuario) {
         let btnDisabled = false;
         let btnFactDisabled = true;
@@ -146,11 +195,13 @@ class Empaquetado {
         $("#btn-pagar-"+usuario).remove();
         const userRef = this.pagosPorUsuario[usuario];
 
+        // Calcula el total por usuario
         const total = userRef.guias.reduce((a,b) => {
             if(!b.guiaPaga) a += b["TOTAL A PAGAR"];
             return a;
         },0);
 
+        // revisa si el pago pendiente es negativo para aplicarle el filtro correspondiente
         if(total < 0) {
             btnDisabled = true;
             userRef.condition = "NEGATIVO";
@@ -159,9 +210,11 @@ class Empaquetado {
             userRef.condition = "POSITIVO";
         }
         
+        // En caso que la condición corresponda con la marcada inicialmente se agrega la página para el usuario
         if(userRef.condition === this.condition) this.setPage(usuario, true);
         else return;
 
+        // Se analiza cada guía del usuario para añadirle ciertas funciones y/o mensajes de utilidad
         userRef.guias.forEach(guia => {
             if(guia.guiaPaga) {
                 btnDisabled = true;
@@ -204,11 +257,12 @@ class Empaquetado {
         button.setAttribute("id", "btn-pagar-"+usuario);
 
         
-
+        // Se añaden la configuraciones sobre el botón encargado de pagar
         if(btnDisabled) button.setAttribute("disabled", btnDisabled);
         button.innerHTML = "Pagar $" + convertirMiles(total);
         button.addEventListener("click", () => this.pagar(usuario));
         
+        // Se agregan la configuraciones al botón encagado de facturar
         const buttonFact = document.createElement("button");
         buttonFact.setAttribute("class", "btn btn-outline-success ml-2 d-none");
         buttonFact.setAttribute("id", "btn-facturar-"+usuario);
@@ -219,6 +273,8 @@ class Empaquetado {
         $("#pagos-usuario-"+usuario +" [data-toggle='popover']").popover();
 
         visor.find("#pagos-usuario-"+usuario + ">.card-body").append(button, buttonFact);
+
+        // Se agrega la función sobre el botón encargado de eliminar
         $(".deleter", visor).click(eliminarGuiaStagging);
 
         this.totalAPagar += total;
@@ -229,6 +285,14 @@ class Empaquetado {
         // this.actual++
     }
 
+    /**
+     * La función `analizarGuias` analiza una lista de guías para un usuario determinado, verifica si
+     * son pagas y si existen, y actualiza su estado en consecuencia.
+     * @param usuario - El parámetro `usuario` representa al usuario para el que se deben analizar las
+     * guías.
+     * @returns La función `analizarGuias` no tiene declaración de retorno, por lo que no devuelve nada
+     * explícitamente.
+     */
     async analizarGuias(usuario) {
         const paq = this.pagosPorUsuario[usuario];
         const guias = paq.guias;
@@ -287,6 +351,15 @@ class Empaquetado {
         
     }
 
+    /**
+     * La función "tipoAviso" devuelve una cadena que representa el tipo de alerta en función de la
+     * frase de entrada.
+     * @param sentencia - El parámetro "sentencia" es una cadena que representa el estado de un aviso.
+     * @returns La función `tipoAviso` devuelve un valor de cadena. El valor de cadena específico
+     * devuelto depende del valor del parámetro `sentencia`. Si `sentencia` es igual a "PAGADA", la
+     * función devuelve "peligro". Si `sentencia` es igual a "NO EXISTE", la función devuelve
+     * "advertencia". Para cualquier otro valor de `sentencia`, la función devuelve
+     */
     tipoAviso(sentencia) {
         switch(sentencia) {
             case "PAGADA":
@@ -298,6 +371,14 @@ class Empaquetado {
         }
     }
 
+    /**
+     * La función "cargarInformacionBancaria" es una función asíncrona que carga y muestra la
+     * información bancaria de un usuario.
+     * @param e - El parámetro `e` es un objeto de evento que representa el evento que activó la
+     * función. Por lo general, se pasa a las funciones del controlador de eventos y contiene
+     * información sobre el evento, como el elemento de destino que desencadenó el evento.
+     * @returns nada (indefinido).
+     */
     async cargarInformacionBancaria(e) {
         const target = e.target;
         const usuario = target.getAttribute("data-user");
@@ -330,6 +411,13 @@ class Empaquetado {
         visualizador.addClass("cargado");
     }
 
+    /**
+     * La función `descargarExcelPagosUsuario` descarga un archivo Excel que contiene la información de
+     * pago de un usuario específico.
+     * @param e - El parámetro "e" es un objeto de evento que se pasa a la función cuando se
+     * desencadena por un evento. Se usa comúnmente para acceder a información sobre el evento que
+     * ocurrió, como el elemento de destino que desencadenó el evento.
+     */
     descargarExcelPagosUsuario(e) {
         const target = e.target;
         const usuario = target.getAttribute("data-user");
@@ -342,6 +430,13 @@ class Empaquetado {
         descargarInformeGuiasAdmin(columnas, guias, "Pagos");
     }
 
+    /**
+     * La función `descargarExcelPagos` es una función asíncrona que descarga un archivo de Excel que
+     * contiene información de pago para usuarios con detalles de cuenta bancaria.
+     * @param e - El parámetro `e` es un objeto de evento que se pasa a la función
+     * `descargarExcelPagos`. Por lo general, es un objeto de evento que se desencadena por un evento,
+     * como hacer clic en un botón o enviar un formulario.
+     */
     async descargarExcelPagos(e) {
         const loader = new ChangeElementContenWhileLoading(e.target);
         loader.init();
@@ -411,6 +506,15 @@ class Empaquetado {
         loader.end();
     }
 
+    /**
+     * La función `cargarInfoUsuario` es una función asíncrona que recupera información del usuario de
+     * una base de datos basada en la identificación del usuario o la identificación del usuario activo
+     * si no se proporciona una identificación.
+     * @param user - El parámetro de usuario es opcional y representa el usuario para el que queremos
+     * cargar la información. Si no se proporciona ningún usuario, se establecerá de forma
+     * predeterminada en el usuario activo.
+     * @returns la información del usuario de la base de datos.
+     */
     async cargarInfoUsuario(user) {
         user = user ? user : this.usuarioActivo;
         const userRef = this.pagosPorUsuario[user];
@@ -439,6 +543,15 @@ class Empaquetado {
         })
     }
 
+    /**
+     * La función `pagar` es una función asíncrona en JavaScript que maneja el proceso de pago de un
+     * usuario, incluida la carga de un recibo de pago, la actualización de la información de pago en
+     * la base de datos y el envío de notificaciones.
+     * @param usuario - El parámetro `usuario` representa al usuario por el cual se está realizando el
+     * pago.
+     * @returns La función `pagar` no tiene declaración de retorno, por lo que no devuelve ningún
+     * valor.
+     */
     async pagar(usuario) {
         const timeline = new Date().getTime();
         const storageRef = storage.ref("comprobantes_bancarios").child(usuario).child(timeline + ".pdf");
@@ -473,6 +586,7 @@ class Empaquetado {
             cancelButtonText: "¡pera reviso!"
         }
 
+        // Si se le carga un comporbante manual, se guarda
         if(file) {
             const comprobar = await Swal.fire(swalObj);
 
@@ -572,6 +686,12 @@ class Empaquetado {
         terminar();
     }
 
+    /**
+     * La función `guardarPaquetePagado` guarda la información de pago de un paquete en una colección
+     * de Firestore.
+     * @param factura - El parámetro `factura` es un objeto que representa una factura de pago.
+     * Contiene las siguientes propiedades:
+     */
     async guardarPaquetePagado(factura) {
         const userRef = this.pagosPorUsuario[this.usuarioActivo];
         const {guiasPagadas, pagoConcreto, comision_heka_total} = userRef;
@@ -597,6 +717,11 @@ class Empaquetado {
 
     }
 
+    /**
+     * La función `facturar` genera una factura (factura) para un usuario, muestra un mensaje de
+     * confirmación y realiza una solicitud para crear la factura utilizando la API de Siigo.
+     * @returns La función `facturar()` devuelve una Promesa.
+     */
     async facturar() {
         const userRef = this.pagosPorUsuario[this.usuarioActivo];
         const swalObj = {
@@ -672,6 +797,9 @@ class Empaquetado {
 
     }
 
+    /**
+     * La función calcula y representa el monto total pagado, pendiente y el monto total general.
+     */
     get renderTotales() {
         let pagado = 0;
         for(const usuario in this.pagosPorUsuario) {
@@ -689,6 +817,13 @@ class Empaquetado {
         total.text("$"+convertirMiles(this.totalAPagar));
     }
 
+    /**
+     * La función devuelve una matriz de objetos que representan columnas con sus respectivos títulos.
+     * @returns Se devuelve una matriz de objetos. Cada objeto representa una columna en una tabla y
+     * contiene dos propiedades: "datos" y "título". La propiedad "datos" representa el campo de datos
+     * o la clave de esa columna, mientras que la propiedad "título" representa el título o el
+     * encabezado de esa columna.
+     */
     get columnas() {
         return [
             {data: "REMITENTE", title: "Centro de costo"},
@@ -704,12 +839,24 @@ class Empaquetado {
         ]
     }
 
+    /**
+     * La función `countTotalGuides` calcula el número total de guías para todos los usuarios en el
+     * objeto `PaymentsPerUser`.
+     * @returns el conteo total de guías para todos los usuarios en el objeto "pagosPorUsuario".
+     */
     get conteoTotalGuias() {
         const usuarios = Object.keys(this.pagosPorUsuario);
         return usuarios.reduce((a,b) => a + this.pagosPorUsuario[b].guias.length, 0)
     }
 }
 
+/**
+ * La función `consultarPendientes` es una función asincrónica que recupera elementos
+ * pendientes en función de varios filtros y los muestra en la página web.
+ * @param e - El parámetro `e` es un objeto de evento que representa el evento que activó la función.
+ * Por lo general, se usa para acceder a información sobre el evento, como el elemento de destino que
+ * activó el evento.
+ */
 async function consultarPendientes(e) {
     const selectorFecha = $("#fecha-gestionar_pagos");
     const fechaI = $("#filtro-fechaI-gestionar_pagos");
@@ -784,6 +931,12 @@ async function consultarPendientes(e) {
     loader.end();
 }
 
+/**
+ * La función `empaquetarGuias` es una función asíncrona que toma una matriz como entrada, la ordena
+ * según la propiedad "REMITENTE" y realiza varias operaciones sobre los datos de la matriz.
+ * @param arr - El parámetro `arr` es una matriz de objetos. Cada objeto representa una guía y tiene
+ * propiedades como "REMITENTE" (remitente), que se utiliza para ordenar las guías.
+ */
 async function empaquetarGuias(arr) {
     const paquete = new Empaquetado();
 
@@ -802,6 +955,12 @@ async function empaquetarGuias(arr) {
     const stepper = new Stepper(visor);
     stepper.init();
     visor.children(".step-view").click();
+
+    /* El código anterior define un controlador de eventos para el evento `onAfterChange` de un objeto
+    `stepper`. Cuando se activa el evento `onAfterChange`, el código actualiza la variable
+    `paquete.actual` con el nuevo valor del paso. Luego recupera la información del usuario y del
+    pago para el paso actual del objeto `paquete`. La información del usuario se almacena en la
+    variable `paq` y la información de pago se almacena en la variable `pagoUser`. */
     stepper.onAfterChange = step => {
         paquete.actual = step;
         const paq = paquete.usuarios[paquete.actual];
@@ -812,6 +971,8 @@ async function empaquetarGuias(arr) {
 
         if(paq && !paq.analizado) paquete.analizarGuias(paq);
         const buttons = $(".next,.prev", visor);
+        buttons.first().find("span").text(step);
+        buttons.last().find("span").text(paquete.usuarios.length - step - 1);
         setTimeout(() => {
             buttons[0].scrollIntoView({
                 behavior: "smooth"
@@ -822,6 +983,15 @@ async function empaquetarGuias(arr) {
     console.log(paquete);
 }
 
+/**
+ * La función "handlerInformation" recupera datos de una instantánea de consulta y los devuelve como
+ * una matriz.
+ * @param querySnapshot - El parámetro querySnapshot es un objeto que representa el resultado de una
+ * consulta. Contiene los documentos devueltos por la consulta y proporciona métodos para acceder a los
+ * datos de cada documento.
+ * @returns una matriz llamada "respuesta" que contiene los datos de cada documento en el
+ * querySnapshot.
+ */
 function handlerInformation(querySnapshot) {
     const respuesta = [];
     querySnapshot.forEach(doc => {
@@ -832,6 +1002,13 @@ function handlerInformation(querySnapshot) {
     return respuesta;
 }
 
+/**
+ * Se utiliza para eliminar una guía que no es necesaria pagar porque esté mal, o esté repetida o porque tenga un error ya solucionado,
+ * pero que a su vez, genera un obstaculo para proceder con el pago
+ * @param e - El parámetro "e" es un objeto de evento que representa el evento que activó la función.
+ * Se usa comúnmente en los controladores de eventos para acceder a información sobre el evento, como
+ * el elemento de destino que activó el evento.
+ */
 function eliminarGuiaStagging(e) {
     const target = e.target;
     const numeroGuia = target.getAttribute("data-numeroGuia");
