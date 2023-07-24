@@ -341,7 +341,7 @@ async function guardarForm(e) {
     const estructuraFormularioGenerado = {campos: [{}]};
 
     // Se estable el patrón de elementos de lista para definir como se va a registrar la información
-    const elementosDeLista = ["nombre", "tipo", "opciones", "dependiente", "alerta", "etiqueta"];
+    const elementosDeLista = ["nombre", "tipo", "opciones", "opciones2", "dependiente", "alerta", "etiqueta"];
 
     const formData = new FormData(formFormularios[0]);
     
@@ -370,7 +370,7 @@ async function guardarForm(e) {
     }
     // if(estructuraFormularioGenerado)
 
-    console.log(estructuraFormularioGenerado.descripcion);
+    console.log(estructuraFormularioGenerado);
 
     if(estructuraFormularioGenerado.titulo.length<1 || estructuraFormularioGenerado.descripcion.length<1) {
         return Toast.fire("El formulario debe tener un titulo y respuesta construida", "", "error");
@@ -386,7 +386,7 @@ async function guardarForm(e) {
         listaFormularios[idForm] = estructuraFormularioGenerado;
     }
 
-    console.log(estructuraFormularioGenerado, listaFormularios, idForm);
+    // console.log(estructuraFormularioGenerado, listaFormularios, idForm);
 
     // Se actulizan solo los formularios
     referencia.update({formularios: listaFormularios})

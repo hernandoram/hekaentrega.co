@@ -43,6 +43,10 @@ export const campoFormulario = (campo, i) => {
     <input type="text" class="form-control" id="opciones-mensajeria-${i}"
     placeholder="opt1,opt2,opt3"
     value="${campo.opciones || ""}" name="opciones">
+
+    <input type="text" class="form-control" id="opciones-mensajeria2-${i}"
+    placeholder="opt1,opt2,opt3"
+    value="${campo.opciones2 || ""}" name="opciones2">
 </div>
 
 
