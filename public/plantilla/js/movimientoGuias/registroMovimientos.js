@@ -413,9 +413,13 @@ function selectTipoCampo(e) {
     if(e.target.value === "select") {
         $(`#opciones-mensajeria-${i}`).parent().removeClass("d-none");
         $(`#alerta-mensajeria-${i}`).parent().removeClass("d-none");
+        $(`#select-opciones`).removeClass("d-none");
+        $(`#select-opciones`).addClass("d-flex");
     } else {
         $(`#opciones-mensajeria-${i}`).parent().addClass("d-none");
         $(`#alerta-mensajeria-${i}`).parent().addClass("d-none");
+        $(`#select-opciones`).addClass("d-none");
+        $(`#select-opciones`).removeClass("d-flex");
 
     }
 

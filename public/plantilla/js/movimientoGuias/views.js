@@ -40,11 +40,11 @@ export const campoFormulario = (campo, i) => {
     <div class="form-group col-md-6 ${campo.opciones ? '' : 'd-none'}">
     <label for="opciones-mensajeria-${i}">Opciones</label>
     <input type="text" class="form-control" id="opciones-mensajeria-${i}"
-    placeholder="opt1,opt2,opt3"
+    placeholder="Si"
     value="${campo.opciones1 || ""}" name="opciones1">
 
     <input type="text" class="form-control mt-2" id="opciones-mensajeria2-${i}"
-    placeholder="opt1,opt2,opt3"
+    placeholder="No"
     value="${campo.opciones2 || ""}" name="opciones2">
 </div>
 
@@ -62,8 +62,22 @@ export const campoFormulario = (campo, i) => {
     value="${campo.alerta2 || ""}" name="alerta2">
     </div> 
 
-  
-</div>
+    <div class="col-md-12 ${campo.opciones ? 'd-flex' : 'd-none'} align-items-center"
+    id="select-opciones">
+
+    <p class="mt-0 mb-0 mr-2">Número de opciones</p>
+
+    <select id="selectInputs" onchange="generateInputs()">
+    <option value="2">2</option>
+    <option value="3">3</option>
+    <option value="4">4</option>
+    </select>
+
+    </div>
+
+    </div>
+
+
 `)};
 
 {/* <div class="form-group col-md-3 ${campo.tipo==="select" ? '' : 'd-none'}">
