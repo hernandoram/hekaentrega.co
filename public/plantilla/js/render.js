@@ -20,6 +20,8 @@
         eliminada: "ELIMINADA",
         neutro: "NEUTRO" // formalmente ninguna guía debería ener registraod este estado
     }
+   
+    let novedadesExcelData = [1,2,3]
 
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
@@ -1315,6 +1317,8 @@
     //Mustra los movimientos de las guías
     function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         const ultimo_movimiento = data.movimientos[data.movimientos.length - 1];
+        novedadesExcelData.push(extraData)
+        
         
         //Preparon los componentes necesarios
         let card = document.createElement("div"),
@@ -1341,6 +1345,7 @@
         thead.classList.add("text-light", "bg-primary");
         const classHead = "text-nowrap";
         thead.innerHTML = `<tr>
+            
             <th class="${classHead}">Guía</th>
             <th class="${classHead}">Acción</th>
             <th class="${classHead}">Novedad</th>
@@ -1466,11 +1471,16 @@
             tbody.appendChild(tr);
             table.append(thead, tbody);
             let mensaje = document.createElement("p");
+            let descargar = document.createElement("button");
+            descargar.innerHTML = "Descargar Excel"
+            descargar.addEventListener("click",(e)=>{
+                descargarExcelNovedades(novedadesExcelData)
+            })
             mensaje.classList.add("text-center", "text-danger");
             mensaje.innerHTML = "Tiempo óptimo de solución: 24 horas";
-            cuerpo.append(mensaje, table);
+            cuerpo.append(mensaje, descargar, table);
             card.append(encabezado, cuerpo);
-        
+            console.log(card)
             document.getElementById("visor_novedades").appendChild(card);
 
             //logica para borrar los elementos del localstorage

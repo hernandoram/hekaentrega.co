@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Impact Bootstrap Template - Index</title>
+  <title>Flexii</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -27,6 +27,8 @@
 
   <!-- Template Main CSS File -->
   <link rel="stylesheet" href="css/index-flexii2.css">
+  <script src="js/index/jquery.min.js"></script>
+  <script src="js/index/jquery.easing.min.js"></script>
 
 </head>
 
@@ -51,11 +53,9 @@
   <header id="header" class="header d-flex align-items-center">
 
     <div class="container-fluid container-xl d-flex align-items-center justify-content-between">
-      <a href="index.html" class="logo d-flex align-items-center">
+      <a href="" class="logo d-flex align-items-center">
         <!-- Uncomment the line below if you also wish to use an image logo -->
-        <img src="img/logo-flexi.png" alt="s">
-        
-        <!-- <h1>Impact<span>.</span></h1> -->
+        <img src="static/logoDark" alt="s">
       </a>
       <nav id="navbar" class="navbar">
         <ul>
@@ -358,6 +358,88 @@
 
       </div>
     </section><!-- End Our Services Section -->
+
+    <!-- start cotizador -->
+    <section class="contenedor-costoenvio section bg-gris pb-0" id="contenedor-costoenvio">
+      <div class="container-fluid">
+          <div class="row justify-content-center" id="cotizar">
+              <div class="col-12 col-sm-6">
+                  <div class="text-center mb-5">
+                      <h3>Costos de envío</h3>
+                  </div>
+              </div>
+          </div>
+              <div class="contenido-textos">
+
+                  <div data-index="true" id="cotizar_envio">
+                      <!-- Page Heading -->
+                      <div style="display: block;" class="p-5 " id="cotizador">
+                          <!-- <h3 class="mb-4"><span>1</span>Costo de envío</h3> -->
+                        <h1 class="h3 mb-4 text-gray-800 ">Cotizar envío</h1>
+                        <hr class="sidebar-divider"></hr>
+                        <form class="user" name="cotizacionEnvio" id="cotizar-envio">
+                          <div class="form-group row">
+                            <div class="col-sm-6">
+                              <h6>CIUDAD REMITENTE</h6>
+                              <h6>**Escribir ciudad y luego elegir del menú desplegable**</h6>
+                              <input   name="ciudadR" type="text" class="form-control form-control-user" id="ciudadR"  autocomplete="off" required>
+                            </div>
+          
+                            <div class="col-sm-6">
+                              <h6>CIUDAD DESTINO</h6>
+                              <h6>**Escribir ciudad y luego elegir del menú desplegable**</h6>
+                              <input type="text"  name="ciudadD" class="form-control form-control-user" id="ciudadD" autocomplete="off"  required>
+                            </div>
+                          </div>
+          
+                          <div class="form-group row align-items-end mb-3">
+                            <div class="col-sm-6 mb-3 mb-sm-2">
+                              <h6>KILOS</h6>
+                              <input type="number" class="form-control form-control-user" step="any" name="kilos" id="Kilos" min="3" max="25" autocomplete="off" required>  
+                            </div>      
+                            <div class="col mb-3 mb-sm-2">
+                              <h6>Valor Declarado</h6>
+                              <input type="number" class="form-control form-control-user" id="seguro-mercancia" step="1000" name="seguro" autocomplete="off" min="5000" max="300000000" >
+                            </div>      
+                          </div>
+          
+                          <div class="form-group row align-items-end">
+                            <div class="col">
+                              <h6 class="mb-2 text-center ">Dimensiones <span>(Expresadas en Centímetros)</span></h6>
+                              <div class="row">
+                                <div class="col-sm-4 d-flex align-items-center mb-2">
+                                  <label for="dimension-ancho ">Ancho:  </label>
+                                  <input type="number" class="form-control form-control-user ml-2" id="dimension-ancho" name="dimension-ancho" autocomplete="off" min="1" max="150" >
+                                </div>
+                                <div class="col-sm-4 d-flex align-items-center mb-2">
+                                  <label for="dimension-largo">Largo:  </label>
+                                  <input type="number" class="form-control form-control-user ml-2" id="dimension-largo" name="dimension-Largo" autocomplete="off" min="1" max="150" >
+                                </div>
+                                <div class="col-sm-4 d-flex align-items-center mb-2">
+                                  <label for="dimension-alto">Alto:  </label>
+                                  <input type="number" class="form-control form-control-user ml-2" id="dimension-alto" name="dimension-alto" autocomplete="off" min="1" max="150" >
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+          
+                          <hr class="sidebar-divider"></hr>
+                        </form>
+            
+                        <div id="texto_envio"></div>
+                        <button style="display: block;" id="boton_cotizar"  onclick="cotizador()" class="btn btn-warning btn-user">
+                          Cotizar envío
+                        </button>
+                        <!-- End of Main Content -->
+                      </div> <!-- End of Main Content -->
+                      <div id="result_cotizacion" class="m-5"></div>
+                  </div>
+                    <br>
+                  <!-- <p>Para visualizar costos de envío dar clic en el siguiente enlace <a href="index_cotizar_envio.html">cotizador</a></p> -->
+              </div>
+      </div>
+</section>
+  <!-- cotizador end -->
 
     <!-- ======= Testimonials Section ======= -->
     <section id="testimonials" class="testimonials">
@@ -734,6 +816,130 @@
 
   <div id="preloader"></div>
 
+  <script>
+		function genFecha(direccion, milliseconds){
+			// Genera un formato de fecha AAAA-MM-DD
+			let fecha = new Date(milliseconds || new Date()), mes = fecha.getMonth() + 1, dia = fecha.getDate();
+			if(dia < 10){
+				dia = "0" + dia;
+			}
+			if(mes < 10) {
+				mes = "0" + mes;
+			}
+			if(direccion == "LR"){
+				return `${dia}-${mes}-${fecha.getFullYear()}` 
+			} else
+			return `${fecha.getFullYear()}-${mes}-${dia}`
+		}
+
+		function value(request) {
+			return document.getElementById(request).value;
+		}
+
+        let estado_prueba = false;
+
+		var datos_usuario = {
+            nombre_completo: "Nombre Apellido",
+            direccion: "direccion",
+            celular: "celular",
+            correo: "correo@ejemplo.com"
+        }
+
+		datos_personalizados = {
+            costo_zonal1: 8650,
+            costo_zonal2: 13300,
+            costo_zonal3: 2800,
+            costo_nacional1: 11500,
+            costo_nacional2: 20400,
+            costo_nacional3: 3400,
+            costo_especial1: 25550,
+            costo_especial2: 39000,
+            costo_especial3: 6300,
+            comision_servi: 3.1,
+            comision_heka: 1.5,
+            constante_convencional: 800,
+            constante_pagoContraentrega: 1700,
+            comision_punto: 10,
+            saldo: 0
+        };
+
+        const estadosGuia = {
+            novedad: "NOVEDAD",
+            pedido: "PEDIDO",
+            pagada: "PAGADA",
+            finalizada: "FINALIZADA",
+            generada: "GENERADA",
+            proceso: "TRANSITO",
+            empacada: "EMPACADA",
+            eliminada: "ELIMINADA"
+        }
+		//funcion que me devuelve a los inputs que estan escritos incorrectamente o vacios Proviene de render.js
+		function verificador(arr, boolean) {
+			let inputs = document.getElementsByTagName("input");
+			let primerInput;
+			for(let i = 0; i < inputs.length; i++){
+				inputs[i].classList.remove("border-danger", "border");
+			}
+
+			if(arr){
+				if(typeof arr == "string") {
+					addId(arr)
+					primerInput = document.getElementById(arr).parentNode;
+				} else {
+					let error = [];
+					for(let id of arr){
+						addId(id)
+						if(addId(id)){
+							error.push(id);
+							primerInput = document.getElementById(error[0]).parentNode;
+						}
+					}
+				}
+				primerInput.scrollIntoView({
+					behavior: "smooth"
+				})
+				console.log(primerInput)
+			}
+			
+			function addId(id){
+				let elemento = document.getElementById(id);
+				if(elemento.value == ""){
+					elemento.classList.add("border", "border-danger");
+					return true
+				} else if(boolean) {
+					elemento.classList.add("border", "border-danger");
+					return true
+				} else {
+					elemento.classList.remove("border-danger");
+					return false
+				}
+			}
+
+		}
+
+    $("#submit").click(e => {
+                e.preventDefault();
+                $(e.target).val("Cargando...")
+                $(e.target).prop("disabled", true)
+                
+                setTimeout(() => {
+                    $(e.target).val("Enviar Mensaje")
+                    $(e.target).prop("disabled", false);
+                    $("#message").show("fast");
+                }, 2000)
+                
+                setTimeout(() => {
+                    $("#message").hide("slow");
+                }, 6000)
+            })
+
+            class ControlUsuario {
+                static get esPuntoEnvio() {
+                    return datos_usuario.type === "PUNTO";
+                }  
+            }
+	</script>
+
   <!-- Vendor JS Files -->
   <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
   <script src="assets/vendor/aos/aos.js"></script>
@@ -741,10 +947,13 @@
   <script src="assets/vendor/purecounter/purecounter_vanilla.js"></script>
   <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
   <script src="assets/vendor/isotope-layout/isotope.pkgd.min.js"></script>
-  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  
 
-  <!-- Template Main JS File -->
+  
   <script src="assets/js/flexii-index.js"></script>
+  <script src="/js/consultarCiudades.js" type="module"></script>
+	<script src="/js/cotizador.js"></script>
 
 </body>
 
