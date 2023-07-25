@@ -517,7 +517,7 @@ async function response(datos) {
         boton_regresar = crearNodo(`<a class="btn btn-outline-primary mb-2" href="#cotizar_envio" onclick="regresar()">
             Subir
             </a>`),
-        head = crearNodo(`<h4 class="text-center mb-3">Seleccione transportadora</h4>`),
+        head = crearNodo(`<h4 class="text-center mb-3 flexii-title">Seleccione transportadora</h4>`),
         info_principal = detalles_cotizacion(datos_de_cotizacion),
         oficinas = crearNodo(`
 
