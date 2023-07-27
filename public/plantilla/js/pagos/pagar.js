@@ -94,13 +94,16 @@ class Empaquetado {
                         ${this.usuarios.length - 1}
                     </span>
                 </button>
-                <button class="btn btn-outline-primary mt-2 ml-3" id="descargador-guias-pagos">Descargar info</button>
+                <button class="btn btn-outline-primary mt-2 ml-3" id="descargador-guias-pagos">Descargar Pagos</button>
+                <button class="btn btn-outline-secondary mt-2 ml-3" id="descargador-guias_masivo-pagos">Descargar excel masivo</button>
             `);
         }
 
         const descargarExcel = $("#descargador-guias-pagos");
+        const descargarExcelMAsivo = $("#descargador-guias_masivo-pagos");
 
         descargarExcel.click((e) => this.descargarExcelPagos(e));
+        descargarExcelMAsivo.click((e) => this.descargarExcelPagosMasivo(e));
 
         $(".step-view > .step:first-child", visor).addClass("active");
         this.activeActionsAfterSetPages();
@@ -502,6 +505,24 @@ class Empaquetado {
         }
 
         descargarInformeGuiasAdmin(columnas, guiasDescarga, "Guías a pagar");
+
+        loader.end();
+    }
+    
+    async descargarExcelPagosMasivo(e) {
+        const loader = new ChangeElementContenWhileLoading(e.target);
+        loader.init();
+        const columnas = this.columnas;
+
+        const guiasDescarga = this.usuarios.flatMap(us => {
+            const pagos = this.pagosPorUsuario[us];
+            const guias = pagos.guias;
+
+            return guias;
+        });
+        
+        console.log(guiasDescarga);
+        descargarInformeGuiasAdmin(columnas, guiasDescarga, "Pagos masivo");
 
         loader.end();
     }
