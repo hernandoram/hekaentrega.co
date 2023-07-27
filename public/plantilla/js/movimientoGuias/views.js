@@ -46,6 +46,14 @@ export const campoFormulario = (campo, i) => {
     <input type="text" class="form-control mt-2" id="opciones-mensajeria2-${i}"
     placeholder="No"
     value="${campo.opciones2 || ""}" name="opciones2">
+
+    <input type="text" class="form-control mt-2 d-none" id="opciones-mensajeria3-${i}"
+    placeholder="Quizas"
+    value="${campo.opciones3 || ""}" name="opciones3">
+
+    <input type="text" class="form-control mt-2 d-none" id="opciones-mensajeria4-${i}"
+    placeholder="De pronto"
+    value="${campo.opciones4 || ""}" name="opciones4">
 </div>
 
 
@@ -60,6 +68,16 @@ export const campoFormulario = (campo, i) => {
     <input type="text" class="form-control mt-2" id="alerta-mensajeria-${i}"
     placeholder="Alerta dos"
     value="${campo.alerta2 || ""}" name="alerta2">
+
+    <input type="text" class="form-control mt-2 d-none" id="alerta-mensajeria-${i}"
+    placeholder="Alerta tres"
+    value="${campo.alerta3 || ""}" name="alerta3">
+
+    <input type="text" class="form-control mt-2 d-none" id="alerta-mensajeria-${i}"
+    placeholder="Alerta cuatro"
+    value="${campo.alerta4 || ""}" name="alerta3">
+
+
     </div> 
 
     <div class="col-md-12 ${campo.opciones ? 'd-flex' : 'd-none'} align-items-center"
@@ -67,7 +85,7 @@ export const campoFormulario = (campo, i) => {
 
     <p class="mt-0 mb-0 mr-2">Número de opciones</p>
 
-    <select id="selectInputs" onchange="generateInputs()">
+    <select id="selectInputs">
     <option value="2">2</option>
     <option value="3">3</option>
     <option value="4">4</option>

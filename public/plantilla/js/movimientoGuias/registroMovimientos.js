@@ -361,17 +361,25 @@ async function guardarForm(e) {
                 i++;
                 estructuraFormularioGenerado.campos.push({});
             }
-
-            estructuraFormularioGenerado.campos[i][key] = val;
+            if (val.length>0){
+                estructuraFormularioGenerado.campos[i][key] = val;
+            }else{
+                delete estructuraFormularioGenerado.campos[i][key]
+            }
+          
         } else {
             estructuraFormularioGenerado[key] = val;
         }
 
     }
-    // if(estructuraFormularioGenerado)
+    
 
-    estructuraFormularioGenerado.campos[0].opciones= estructuraFormularioGenerado.campos[0].opciones1 + "," + estructuraFormularioGenerado.campos[0].opciones2;
-    estructuraFormularioGenerado.campos[0].alerta=  `${estructuraFormularioGenerado.campos[0].opciones1}:${estructuraFormularioGenerado.campos[0].alerta1} -- ${estructuraFormularioGenerado.campos[0].opciones2}:${estructuraFormularioGenerado.campos[0].alerta2}`;
+     if(estructuraFormularioGenerado.campos[0].tipo==="select"){
+         estructuraFormularioGenerado.campos[0].opciones= estructuraFormularioGenerado.campos[0].opciones1 + "," + estructuraFormularioGenerado.campos[0].opciones2;
+         estructuraFormularioGenerado.campos[0].alerta=  `${estructuraFormularioGenerado.campos[0].opciones1}:${estructuraFormularioGenerado.campos[0].alerta1} -- ${estructuraFormularioGenerado.campos[0].opciones2}:${estructuraFormularioGenerado.campos[0].alerta2}`;
+        }
+         
+         
     
     console.log(estructuraFormularioGenerado);
 
@@ -425,5 +433,6 @@ function selectTipoCampo(e) {
 
 
 }
+
 
 // #endregion
