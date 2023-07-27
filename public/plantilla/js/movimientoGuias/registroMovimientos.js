@@ -307,7 +307,36 @@ function renderizarCampos() {
     action("select-no-inputs").on("change", selectNoInputs);
 }
 function selectNoInputs(){
-    console.log("hola, jose")
+    const input = document.getElementById("selectInputs").value;
+    const opcion3 = document.querySelector('[id^="opciones-mensajeria3"]');
+    const alerta3 = document.querySelector('[id^="alerta-mensajeria3"]');
+    const opcion4 = document.querySelector('[id^="opciones-mensajeria4"]');
+    const alerta4 = document.querySelector('[id^="alerta-mensajeria4"]');
+    console.log(input);
+
+    if (input == 4) {
+      opcion3.classList.remove("d-none");
+      alerta3.classList.remove("d-none");
+      opcion4.classList.remove("d-none");
+      alerta4.classList.remove("d-none");
+    } else if (input == 3) {
+      opcion3.classList.remove("d-none");
+      alerta3.classList.remove("d-none");
+      opcion4.classList.add("d-none");
+      opcion4.value = "";
+      alerta4.classList.add("d-none");
+      alerta4.value = "";
+    } else {
+      opcion3.classList.add("d-none");
+      opcion3.value = "";
+      alerta3.classList.add("d-none");
+      alerta3.value = "";
+      opcion4.classList.add("d-none");
+      opcion4.value = "";
+      alerta4.classList.add("d-none");
+      alerta4.value = "";
+    }
+
 }
 
 /**

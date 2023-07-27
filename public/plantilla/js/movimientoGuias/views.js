@@ -47,11 +47,11 @@ export const campoFormulario = (campo, i) => {
     placeholder="No"
     value="${campo.opciones2 || ""}" name="opciones2">
 
-    <input type="text" class="form-control mt-2 d-none" id="opciones-mensajeria3-${i}"
+    <input type="text" class="form-control mt-2  ${campo.opciones3 ?"" : 'd-none'}" id="opciones-mensajeria3-${i}"
     placeholder="Quizas"
     value="${campo.opciones3 || ""}" name="opciones3">
 
-    <input type="text" class="form-control mt-2 d-none" id="opciones-mensajeria4-${i}"
+    <input type="text" class="form-control mt-2 ${campo.opciones4 ?"" : 'd-none'}" id="opciones-mensajeria4-${i}"
     placeholder="De pronto"
     value="${campo.opciones4 || ""}" name="opciones4">
 </div>
@@ -65,17 +65,17 @@ export const campoFormulario = (campo, i) => {
     value="${campo.alerta1 || ""}" name="alerta1">
 
 
-    <input type="text" class="form-control mt-2" id="alerta-mensajeria-${i}"
+    <input type="text" class="form-control mt-2" id="alerta-mensajeria2-${i}"
     placeholder="Alerta dos"
     value="${campo.alerta2 || ""}" name="alerta2">
 
-    <input type="text" class="form-control mt-2 ${campo.alerta3 ?"" : 'd-none'}" id="alerta-mensajeria-${i}"
+    <input type="text" class="form-control mt-2 ${campo.alerta3 ?"" : 'd-none'}" id="alerta-mensajeria3-${i}"
     placeholder="Alerta tres"
     value="${campo.alerta3 || ""}" name="alerta3">
 
-    <input type="text" class="form-control mt-2 ${campo.alerta4 ?"" : 'd-none'}" id="alerta-mensajeria-${i}"
+    <input type="text" class="form-control mt-2 ${campo.alerta4 ?"" : 'd-none'}" id="alerta-mensajeria4-${i}"
     placeholder="Alerta cuatro"
-    value="${campo.alerta4 || ""}" name="alerta3">
+    value="${campo.alerta4 || ""}" name="alerta4">
 
 
     </div> 
@@ -86,6 +86,7 @@ export const campoFormulario = (campo, i) => {
     <p class="mt-0 mb-0 mr-2">Número de opciones</p>
 
     <select id="selectInputs" data-action="select-no-inputs">
+    <option value="">-</option>
     <option value="2">2</option>
     <option value="3">3</option>
     <option value="4">4</option>
