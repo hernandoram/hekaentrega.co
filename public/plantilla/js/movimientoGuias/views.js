@@ -69,11 +69,11 @@ export const campoFormulario = (campo, i) => {
     placeholder="Alerta dos"
     value="${campo.alerta2 || ""}" name="alerta2">
 
-    <input type="text" class="form-control mt-2 d-none" id="alerta-mensajeria-${i}"
+    <input type="text" class="form-control mt-2 ${campo.alerta3 ?"" : 'd-none'}" id="alerta-mensajeria-${i}"
     placeholder="Alerta tres"
     value="${campo.alerta3 || ""}" name="alerta3">
 
-    <input type="text" class="form-control mt-2 d-none" id="alerta-mensajeria-${i}"
+    <input type="text" class="form-control mt-2 ${campo.alerta4 ?"" : 'd-none'}" id="alerta-mensajeria-${i}"
     placeholder="Alerta cuatro"
     value="${campo.alerta4 || ""}" name="alerta3">
 
@@ -85,7 +85,7 @@ export const campoFormulario = (campo, i) => {
 
     <p class="mt-0 mb-0 mr-2">Número de opciones</p>
 
-    <select id="selectInputs">
+    <select id="selectInputs" data-action="select-no-inputs">
     <option value="2">2</option>
     <option value="3">3</option>
     <option value="4">4</option>

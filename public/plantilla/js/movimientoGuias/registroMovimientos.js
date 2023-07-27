@@ -304,6 +304,10 @@ function renderizarCampos() {
     camposForm.html(camposHtml);
     action("quitar-campo").click(quitarCampo);
     action("select-tipo").on("change", selectTipoCampo);
+    action("select-no-inputs").on("change", selectNoInputs);
+}
+function selectNoInputs(){
+    console.log("hola, jose")
 }
 
 /**
@@ -341,7 +345,9 @@ async function guardarForm(e) {
     const estructuraFormularioGenerado = {campos: [{}]};
 
     // Se estable el patrón de elementos de lista para definir como se va a registrar la información
-    const elementosDeLista = ["nombre", "tipo", "opciones","opciones1", "opciones2", "dependiente", "alerta", "alerta1", "alerta2", "etiqueta"];
+    const elementosDeLista = ["nombre", "tipo", "dependiente",
+     "opciones","opciones1", "opciones2", "opciones3","opciones4",
+      "alerta", "alerta1", "alerta2", "alerta3", "alerta4", "etiqueta"];
 
     const formData = new FormData(formFormularios[0]);
     
