@@ -411,26 +411,8 @@ async function guardarForm(e) {
             estructuraFormularioGenerado[key] = val;
         }
 
-    
-        if(estructuraFormularioGenerado.campos[i].tipo==="select"){
-
-            const estructura= estructuraFormularioGenerado.campos[i];
-            //opciones
-
-            estructura.opciones= estructura.opciones1 + "," + estructura.opciones2;
-
-            if(estructura.opciones3){
-                estructura.opciones+= "," + estructura.opciones3;
-            }
-
-            if(estructura.opciones4){
-                estructura.opciones+=  "," + estructura.opciones3;
-            }
-
-            
-            //estructuraFormularioGenerado.campos[i].alerta=  `${estructuraFormularioGenerado.campos[i].opciones1}:${estructuraFormularioGenerado.campos[i].alerta1} -- ${estructuraFormularioGenerado.campos[i].opciones2}:${estructuraFormularioGenerado.campos[i].alerta2}`;
-       }else{
-        eliminarCamposEmpiecen(estructuraFormularioGenerado.campos[i],"opciones","alerta");
+        if(estructuraFormularioGenerado.campos[i].tipo!="select"){
+            eliminarCamposEmpiecen(estructuraFormularioGenerado.campos[i],"opciones","alerta");
        }
 
     }      
@@ -443,6 +425,31 @@ async function guardarForm(e) {
 
 
     for(let i=0; i<estructuraFormularioGenerado.campos.length; i++) {
+
+        if(estructuraFormularioGenerado.campos[i].tipo==="select"){
+            const estructura= estructuraFormularioGenerado.campos[i];
+            
+            if(!estructura.opciones1 || !estructura.opciones2 ) {
+            return Toast.fire("El formulario debe contener minimo dos opciones", "", "error");
+        }else{           
+            estructura.opciones= estructura.opciones1 + "," + estructura.opciones2;
+
+            if(estructura.opciones3){
+                estructura.opciones+= "," + estructura.opciones3;
+            }
+
+            if(estructura.opciones4){
+                estructura.opciones+=  "," + estructura.opciones3;
+            }
+
+            //alertas
+            
+            //estructuraFormularioGenerado.campos[i].alerta=  `${estructuraFormularioGenerado.campos[i].opciones1}:${estructuraFormularioGenerado.campos[i].alerta1} -- ${estructuraFormularioGenerado.campos[i].opciones2}:${estructuraFormularioGenerado.campos[i].alerta2}`;
+
+        }
+        
+        }
+
         if(!estructuraFormularioGenerado.campos[i].nombre || !estructuraFormularioGenerado.campos[i].etiqueta ) {
             return Toast.fire("El formulario debe tener un nombre y una etiqueta", "", "error");
         }
