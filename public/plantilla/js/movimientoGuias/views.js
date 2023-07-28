@@ -40,11 +40,11 @@ export const campoFormulario = (campo, i) => {
     <div class="form-group col-md-6 ${campo.opciones ? '' : 'd-none'}">
     <label for="opciones-mensajeria-${i}">Opciones</label>
     <input type="text" class="form-control" id="opciones-mensajeria-${i}"
-    placeholder="Si"
+    placeholder="Si" 
     value="${campo.opciones1 || ""}" name="opciones1">
 
     <input type="text" class="form-control mt-2" id="opciones-mensajeria2-${i}"
-    placeholder="No"
+    placeholder="No" 
     value="${campo.opciones2 || ""}" name="opciones2">
 
     <input type="text" class="form-control mt-2  ${campo.opciones3 ?"" : 'd-none'}" id="opciones-mensajeria3-${i}"
@@ -69,11 +69,11 @@ export const campoFormulario = (campo, i) => {
     placeholder="Alerta dos"
     value="${campo.alerta2 || ""}" name="alerta2">
 
-    <input type="text" class="form-control mt-2 ${campo.alerta3 ?"" : 'd-none'}" id="alerta-mensajeria3-${i}"
+    <input type="text" class="form-control mt-2 ${campo.alerta3 || campo.opciones3 ?"" : 'd-none'}" id="alerta-mensajeria3-${i}"
     placeholder="Alerta tres"
     value="${campo.alerta3 || ""}" name="alerta3">
 
-    <input type="text" class="form-control mt-2 ${campo.alerta4 ?"" : 'd-none'}" id="alerta-mensajeria4-${i}"
+    <input type="text" class="form-control mt-2 ${campo.alerta4 || campo.opciones4 ?"" : 'd-none'}" id="alerta-mensajeria4-${i}"
     placeholder="Alerta cuatro"
     value="${campo.alerta4 || ""}" name="alerta4">
 

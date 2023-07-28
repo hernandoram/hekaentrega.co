@@ -25,6 +25,9 @@ const opcionesMovimientos = $("#mensajeria [data-action]"); // Acciones particul
 const camposForm = $("#campos_form-mensajeria");
 //#endregion
 
+//inputs
+
+
 //#region Acciones y eventos
 selListMovimientos.on("change", seleccionarNovedad);
 selListFormularios.on("change", seleccionarFormulario);
@@ -307,11 +310,13 @@ function renderizarCampos() {
     action("select-no-inputs").on("change", selectNoInputs);
 }
 function selectNoInputs(){
-    const input = document.getElementById("selectInputs").value;
-    const opcion3 = document.querySelector('[id^="opciones-mensajeria3"]');
+
+    const opcion3 = document.querySelector('[id^="opciones-mensajeria3-"]');
     const alerta3 = document.querySelector('[id^="alerta-mensajeria3"]');
     const opcion4 = document.querySelector('[id^="opciones-mensajeria4"]');
     const alerta4 = document.querySelector('[id^="alerta-mensajeria4"]');
+    const input = document.getElementById("selectInputs").value;
+
     console.log(input);
 
     if (input == 4) {
@@ -406,24 +411,44 @@ async function guardarForm(e) {
             estructuraFormularioGenerado[key] = val;
         }
 
-    }
     
+        if(estructuraFormularioGenerado.campos[i].tipo==="select"){
 
-     if(estructuraFormularioGenerado.campos[0].tipo==="select"){
-         estructuraFormularioGenerado.campos[0].opciones= estructuraFormularioGenerado.campos[0].opciones1 + "," + estructuraFormularioGenerado.campos[0].opciones2;
-         estructuraFormularioGenerado.campos[0].alerta=  `${estructuraFormularioGenerado.campos[0].opciones1}:${estructuraFormularioGenerado.campos[0].alerta1} -- ${estructuraFormularioGenerado.campos[0].opciones2}:${estructuraFormularioGenerado.campos[0].alerta2}`;
-        }
-         
-         
+            const estructura= estructuraFormularioGenerado.campos[i];
+            //opciones
+
+            estructura.opciones= estructura.opciones1 + "," + estructura.opciones2;
+
+            if(estructura.opciones3){
+                estructura.opciones+= "," + estructura.opciones3;
+            }
+
+            if(estructura.opciones4){
+                estructura.opciones+=  "," + estructura.opciones3;
+            }
+
+            
+            //estructuraFormularioGenerado.campos[i].alerta=  `${estructuraFormularioGenerado.campos[i].opciones1}:${estructuraFormularioGenerado.campos[i].alerta1} -- ${estructuraFormularioGenerado.campos[i].opciones2}:${estructuraFormularioGenerado.campos[i].alerta2}`;
+       }else{
+        eliminarCamposEmpiecen(estructuraFormularioGenerado.campos[i],"opciones","alerta");
+       }
+
+    }      
     
     console.log(estructuraFormularioGenerado);
 
-    if(estructuraFormularioGenerado.titulo.length<1 || estructuraFormularioGenerado.descripcion.length<1) {
+    if(!estructuraFormularioGenerado.titulo || !estructuraFormularioGenerado.descripcion) {
         return Toast.fire("El formulario debe tener un titulo y respuesta construida", "", "error");
     }
-    if(estructuraFormularioGenerado.campos[0].nombre<1 || estructuraFormularioGenerado.campos[0].etiqueta<1 ) {
-        return Toast.fire("El formulario debe tener una respuesta del usuario y una etiqueta", "", "error");
+
+
+    for(let i=0; i<estructuraFormularioGenerado.campos.length; i++) {
+        if(!estructuraFormularioGenerado.campos[i].nombre || !estructuraFormularioGenerado.campos[i].etiqueta ) {
+            return Toast.fire("El formulario debe tener un nombre y una etiqueta", "", "error");
+        }
     }
+
+
 
     if(Number.isNaN(parseInt(idForm))) {
         // elemento.fecha_creacion = new Date();
@@ -459,15 +484,24 @@ function selectTipoCampo(e) {
         $(`#select-opciones`).removeClass("d-none");
         $(`#select-opciones`).addClass("d-flex");
     } else {
+
         $(`#opciones-mensajeria-${i}`).parent().addClass("d-none");
         $(`#alerta-mensajeria-${i}`).parent().addClass("d-none");
         $(`#select-opciones`).addClass("d-none");
         $(`#select-opciones`).removeClass("d-flex");
-
+           
     }
 
 
 }
 
+
+function eliminarCamposEmpiecen(objeto, propiedad, propiedad2) {
+    for (let key in objeto) {
+      if (key.startsWith(propiedad) || key.startsWith(propiedad2)) {
+        delete objeto[key];
+      }
+    }
+  }
 
 // #endregion
