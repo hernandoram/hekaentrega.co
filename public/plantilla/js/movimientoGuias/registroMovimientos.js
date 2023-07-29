@@ -424,38 +424,68 @@ async function guardarForm(e) {
     }
 
 
-    for(let i=0; i<estructuraFormularioGenerado.campos.length; i++) {
+    for (let i = 0; i < estructuraFormularioGenerado.campos.length; i++) {
+      if (
+        !estructuraFormularioGenerado.campos[i].nombre ||
+        !estructuraFormularioGenerado.campos[i].etiqueta
+      ) {
+        return Toast.fire(
+          "El formulario debe tener un nombre y una etiqueta",
+          "",
+          "error"
+        );
+      }
 
-        if(estructuraFormularioGenerado.campos[i].tipo==="select"){
-            const estructura= estructuraFormularioGenerado.campos[i];
-            
-            if(!estructura.opciones1 || !estructura.opciones2 ) {
-            return Toast.fire("El formulario debe contener minimo dos opciones", "", "error");
-        }else{           
-            estructura.opciones= estructura.opciones1 + "," + estructura.opciones2;
+      if (estructuraFormularioGenerado.campos[i].tipo === "select") {
+        const estructura = estructuraFormularioGenerado.campos[i];
 
-            if(estructura.opciones3){
-                estructura.opciones+= "," + estructura.opciones3;
-            }
+        if (!estructura.opciones1 || !estructura.opciones2) {
+          return Toast.fire(
+            "El formulario debe contener minimo dos opciones",
+            "",
+            "error"
+          );
+        } else {
+          estructura.opciones =
+            estructura.opciones1 + "," + estructura.opciones2;
 
-            if(estructura.opciones4){
-                estructura.opciones+=  "," + estructura.opciones3;
-            }
+          if (estructura.opciones3) {
+            estructura.opciones += "," + estructura.opciones3;
+          }
 
-            //alertas
-            
-            //estructuraFormularioGenerado.campos[i].alerta=  `${estructuraFormularioGenerado.campos[i].opciones1}:${estructuraFormularioGenerado.campos[i].alerta1} -- ${estructuraFormularioGenerado.campos[i].opciones2}:${estructuraFormularioGenerado.campos[i].alerta2}`;
+          if (estructura.opciones4) {
+            estructura.opciones += "," + estructura.opciones4;
+          }
+
+          //alertas
+
+          if(!estructura.alerta && estructura.alerta1){
+            estructura.alerta = `${estructura.opciones1}:${estructura.alerta1}`;
+          }
+
+          if(!estructura.alerta && estructura.alerta2){
+            estructura.alerta = `${estructura.opciones2}:${estructura.alerta2}`;
+        } else if(estructura.alerta && estructura.alerta2){
+            estructura.alerta += ` -- ${estructura.opciones2}:${estructura.alerta2}`;
+          }
+
+
+          if(!estructura.alerta && estructura.alerta3 && estructura.opciones3){
+            estructura.alerta = `${estructura.opciones3}:${estructura.alerta3}`;
+        } else if(estructura.alerta && estructura.alerta3){
+            estructura.alerta += ` -- ${estructura.opciones3}:${estructura.alerta3}`;
+          }
+
+          
+          if(!estructura.alerta && estructura.alerta4 && estructura.opciones4){
+            estructura.alerta = `${estructura.opciones4}:${estructura.alerta4}`;
+        } else if(estructura.alerta && estructura.alerta4){
+            estructura.alerta += ` -- ${estructura.opciones4}:${estructura.alerta4}`;
+          }
 
         }
-        
-        }
-
-        if(!estructuraFormularioGenerado.campos[i].nombre || !estructuraFormularioGenerado.campos[i].etiqueta ) {
-            return Toast.fire("El formulario debe tener un nombre y una etiqueta", "", "error");
-        }
+      }
     }
-
-
 
     if(Number.isNaN(parseInt(idForm))) {
         // elemento.fecha_creacion = new Date();
