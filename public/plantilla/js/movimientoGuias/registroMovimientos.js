@@ -309,13 +309,16 @@ function renderizarCampos() {
     action("select-tipo").on("change", selectTipoCampo);
     action("select-no-inputs").on("change", selectNoInputs);
 }
-function selectNoInputs(){
+
+function selectNoInputs(e){
+    const i = e.target.getAttribute("data-index");
+    console.log(i)
 
     const opcion3 = document.querySelector('[id^="opciones-mensajeria3-"]');
     const alerta3 = document.querySelector('[id^="alerta-mensajeria3"]');
     const opcion4 = document.querySelector('[id^="opciones-mensajeria4"]');
     const alerta4 = document.querySelector('[id^="alerta-mensajeria4"]');
-    const input = document.getElementById("selectInputs").value;
+    const input = document.getElementById(`selectInputs-${i}`).value;
 
     console.log(input);
 
@@ -518,14 +521,14 @@ function selectTipoCampo(e) {
     if(e.target.value === "select") {
         $(`#opciones-mensajeria-${i}`).parent().removeClass("d-none");
         $(`#alerta-mensajeria-${i}`).parent().removeClass("d-none");
-        $(`#select-opciones`).removeClass("d-none");
-        $(`#select-opciones`).addClass("d-flex");
+        $(`#select-opciones-${i}`).removeClass("d-none");
+        $(`#select-opciones-${i}`).addClass("d-flex");
     } else {
 
         $(`#opciones-mensajeria-${i}`).parent().addClass("d-none");
         $(`#alerta-mensajeria-${i}`).parent().addClass("d-none");
-        $(`#select-opciones`).addClass("d-none");
-        $(`#select-opciones`).removeClass("d-flex");
+        $(`#select-opciones-${i}`).addClass("d-none");
+        $(`#select-opciones-${i}`).removeClass("d-flex");
            
     }
 

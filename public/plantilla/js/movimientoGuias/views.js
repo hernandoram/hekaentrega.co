@@ -80,12 +80,12 @@ export const campoFormulario = (campo, i) => {
 
     </div> 
 
-    <div class="col-md-12 ${campo.opciones ? 'd-flex' : 'd-none'} align-items-center"
-    id="select-opciones">
+    <div class="col-md-12 ${campo.tipo==="select" ? 'd-flex' : 'd-none'} align-items-center"
+    id="select-opciones" >
 
     <p class="mt-0 mb-0 mr-2">Número de opciones</p>
 
-    <select id="selectInputs" data-action="select-no-inputs">
+    <select id="selectInputs-${i}" data-action="select-no-inputs" data-index="${i}">
     <option value="">-</option>
     <option value="2">2</option>
     <option value="3">3</option>
