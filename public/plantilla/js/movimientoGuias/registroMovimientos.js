@@ -316,10 +316,21 @@ function renderizarCampos() {
 
 function dependerCampo(e){
     const i = e.target.getAttribute("data-index");
-    console.log(i)    
+    console.log(i);
+    const campoDependiente = document.getElementById(
+      `despendiente-mensajeria-${i}`
+    );
 
+    const cbox = document.getElementById(`cbox-${i}`);
+    console.log(cbox);
+    if (cbox.checked) {
+      campoDependiente.classList.remove("d-none");
+    } else {
+      campoDependiente.classList.add("d-none");
+    }
 
 }
+
 function selectNoInputs(e){
     const i = e.target.getAttribute("data-index");
     console.log(i)

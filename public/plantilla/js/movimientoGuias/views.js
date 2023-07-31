@@ -5,7 +5,7 @@ export const campoFormulario = (campo, i) => {
 <div class="row border border-info my-2 p-2 rounded position-relative">
     
     <span 
-    class="position-absolute p-2 text-center" 
+    class="${i!=0? "" : "d-none"} position-absolute p-2 text-center" 
     style="right: 0; top: 0; cursor: pointer; height: 30px; width: 30px; z-index: 2"
     data-action="quitar-campo"
     data-index="${i}"
