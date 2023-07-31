@@ -137,7 +137,7 @@ function manejarOpcion(e) {
             activarEdicionFormulario();
         break;
         case "agregar-campo":
-            agregarCampo();
+            agregarCampo2();
         break;
         case "guardar-form":
             guardarForm(e);
@@ -308,8 +308,18 @@ function renderizarCampos() {
     action("quitar-campo").click(quitarCampo);
     action("select-tipo").on("change", selectTipoCampo);
     action("select-no-inputs").on("change", selectNoInputs);
+    action("depender-campo").on("change", dependerCampo);
+
+
 }
 
+
+function dependerCampo(e){
+    const i = e.target.getAttribute("data-index");
+    console.log(i)    
+
+
+}
 function selectNoInputs(e){
     const i = e.target.getAttribute("data-index");
     console.log(i)
@@ -353,6 +363,11 @@ function selectNoInputs(e){
  */
 function agregarCampo() {
     listaCampos.push({});
+    renderizarCampos();
+}
+
+function agregarCampo2() {
+    listaCampos.push({dependiente:"si"});
     renderizarCampos();
 }
 

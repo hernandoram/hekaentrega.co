@@ -93,18 +93,29 @@ export const campoFormulario = (campo, i) => {
     </select>
 
     </div>
+    
+    <div class="form-group col-md-12 ${campo.dependiente ? "" : "d-none"} mb-0">
+
+    <label><input type="checkbox" data-action="depender-campo" data-index="${i}" id="cbox-${i}" value="" /> este campo depende de otro?</label
+    
+    <div>
+
+    <input type="text" class="form-control d-none" id="despendiente-mensajeria-${i}"
+
+    placeholder="nombre:valor"
+
+    value="${campo.dependiente || ""}" name="dependiente">
+
+    </div>
+
+    </div>
 
     </div>
 
 
 `)};
 
-{/* <div class="form-group col-md-3 ${campo.tipo==="select" ? '' : 'd-none'}">
-<label for="despendiente-mensajeria-${i}">Dependiente</label>
-<input type="text" class="form-control" id="despendiente-mensajeria-${i}"
-placeholder="nombre:valor"
-value="${campo.dependiente || ""}" name="dependiente">
-</div> */}
+  
 
 
 export const obtenerCampoRenderFormulario = (campo, i) => {
