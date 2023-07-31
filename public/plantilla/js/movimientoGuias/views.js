@@ -80,8 +80,8 @@ export const campoFormulario = (campo, i) => {
 
     </div> 
 
-    <div class="col-md-12 ${campo.tipo==="select" ? 'd-flex' : 'd-none'} align-items-center"
-    id="select-opciones" >
+    <div class="col-md-12 d-none align-items-center"
+    id="select-opciones-${i}" >
 
     <p class="mt-0 mb-0 mr-2">Número de opciones</p>
 

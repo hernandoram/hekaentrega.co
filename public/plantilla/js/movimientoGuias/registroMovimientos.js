@@ -314,10 +314,10 @@ function selectNoInputs(e){
     const i = e.target.getAttribute("data-index");
     console.log(i)
 
-    const opcion3 = document.querySelector('[id^="opciones-mensajeria3-"]');
-    const alerta3 = document.querySelector('[id^="alerta-mensajeria3"]');
-    const opcion4 = document.querySelector('[id^="opciones-mensajeria4"]');
-    const alerta4 = document.querySelector('[id^="alerta-mensajeria4"]');
+    const opcion3 = document.getElementById(`opciones-mensajeria3-${i}`);
+    const alerta3 = document.getElementById(`alerta-mensajeria3-${i}`);
+    const opcion4 = document.getElementById(`opciones-mensajeria4-${i}`);
+    const alerta4 = document.getElementById(`alerta-mensajeria4-${i}`);
     const input = document.getElementById(`selectInputs-${i}`).value;
 
     console.log(input);
