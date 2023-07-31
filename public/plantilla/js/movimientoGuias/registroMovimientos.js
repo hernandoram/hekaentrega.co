@@ -137,7 +137,7 @@ function manejarOpcion(e) {
             activarEdicionFormulario();
         break;
         case "agregar-campo":
-            agregarCampo2();
+            agregarCampo();
         break;
         case "guardar-form":
             guardarForm(e);
@@ -366,10 +366,6 @@ function agregarCampo() {
     renderizarCampos();
 }
 
-function agregarCampo2() {
-    listaCampos.push({dependiente:"si"});
-    renderizarCampos();
-}
 
 /**
  * La función "quitarCampo" elimina un campo de una lista de campos.
