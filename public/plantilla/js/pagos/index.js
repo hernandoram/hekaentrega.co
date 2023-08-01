@@ -274,11 +274,15 @@ function transformarGuiaAPago(guia)  {
   ];
 
   const esDevolucion = estadosDevolucion.includes(guia.estado);
-  const costoDevolucion = -guia.detalles.costoDevolucion; // El costo de devolución debe ser negativo
+  const costoDevolucion = guia.detalles.costoDevolucion; // El costo de devolución debe ser negativo
 
   const totalPagar = esDevolucion 
-    ? costoDevolucion
+    ? -costoDevolucion
     : guia.detalles.recaudo - guia.detalles.total;
+
+  const envioTotal = esDevolucion
+    ? costoDevolucion
+    : guia.detalles.total;
 
   const valorRecaudo = esDevolucion
     ? 0
@@ -305,7 +309,7 @@ function transformarGuiaAPago(guia)  {
     "CUENTA RESPONSABLE": guia.cuenta_responsable,
     "COMISION HEKA": comisionHeka,
     RECAUDO: valorRecaudo,
-    "ENVÍO TOTAL": guia.detalles.total,
+    "ENVÍO TOTAL": envioTotal,
     "TOTAL A PAGAR": totalPagar
   }
 }
