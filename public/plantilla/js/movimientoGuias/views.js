@@ -96,11 +96,11 @@ export const campoFormulario = (campo, i) => {
     
     <div class="form-group col-md-12 ${i != 0 ? "" : "d-none"} mb-0">
 
-    <label><input type="checkbox" data-action="depender-campo" data-index="${i}" id="cbox-${i}" value="" /> este campo depende de otro?</label
+    <label><input type="checkbox" data-action="depender-campo" data-index="${i}" id="cbox-${i}" ${campo.dependiente ? "checked" : ""} /> este campo depende de otro?</label
     
     <div>
 
-    <input type="text" class="form-control d-none" id="despendiente-mensajeria-${i}"
+    <input type="text" class="form-control ${campo.dependiente ? "" : "d-none"}" id="despendiente-mensajeria-${i}"
 
     placeholder="nombre:valor"
 

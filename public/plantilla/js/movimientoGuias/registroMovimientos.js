@@ -320,13 +320,15 @@ function dependerCampo(e){
     const campoDependiente = document.getElementById(
       `despendiente-mensajeria-${i}`
     );
-
+    
     const cbox = document.getElementById(`cbox-${i}`);
-    console.log(cbox);
+
+  
     if (cbox.checked) {
       campoDependiente.classList.remove("d-none");
     } else {
       campoDependiente.classList.add("d-none");
+      campoDependiente.value="";
     }
 
 }
@@ -461,6 +463,17 @@ async function guardarForm(e) {
         );
       }
 
+      
+    const cbox = document.getElementById(`cbox-${i}`);
+  
+    if (cbox.checked && !estructuraFormularioGenerado.campos[i].dependiente) {
+        return Toast.fire(
+            "El formulario debe tener un campo del que dependa",
+            "",
+            "error"
+          );
+    
+    }
       if (estructuraFormularioGenerado.campos[i].tipo === "select") {
         const estructura = estructuraFormularioGenerado.campos[i];
 
