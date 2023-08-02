@@ -59,6 +59,7 @@
 
 
               {{else}}
+
               <div>
                 <input type="text" class="d-none" name="numeroGuia" value="{{guia.numeroGuia}}" />
                 <input type="text" class="d-none" name="fechaMovimiento" value="{{novedadActual.fechaMov}}" />
@@ -78,10 +79,7 @@
                 </div>
 
                 <div class="form-group" id="observaciones">
-                  {{#if guia.novedadDireccion}}
-                  <h5>dirección incorrecta!</h5>
 
-                  {{else}}
                   <h5 for="observaciones-novedad">Tu envío presenta la
                     siguiente novedad:
                     <b class="text-danger">{{novedadActual.novedad}}</b>
@@ -100,7 +98,6 @@
                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
                 </div>
 
-                {{/if}}
 
                 {{/if}}
 
