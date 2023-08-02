@@ -1575,7 +1575,7 @@ function descargarExcelServi(JSONData, ReportTitle, type) {
   console.log(JSONData);
   //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
   var arrData = typeof JSONData != "object" ? JSON.parse(JSONData) : JSONData;
-
+  
   //un arreglo cuyo cada elemento contiene un arreglo: ["titulo de la columna", "la información a inrertar en dicha columna"]
   //Está ordenado, como saldrá en el excel
   let encabezado = [
@@ -1656,10 +1656,49 @@ function descargarExcelServi(JSONData, ReportTitle, type) {
   return;
 }
 
+function descargarExcelNovedades(JSONData){
+  const arrayFiltrado= JSONData.map((data)=>{
+    return {
+      numeroGuia: data.numeroGuia,
+      solicitud: data.seguimiento[-0].gestion,
+      respuesta:""
+    }
+  })
+  let arrData = typeof arrayFiltrado != "object" ? JSON.parse(arrayFiltrado) : arrayFiltrado
+
+  let encabezado = [
+    ["NUMERO GUIA", "_numGuia"],
+    ["SOLICITUD", "_solicitud"],
+    ["RESPUESTA TRANSPORTADORA", "_respuesta"],
+  ];
+
+  let newDoc = arrData.map((dat, i) => {
+    let d = new Object();
+  
+    encabezado.forEach(([headExcel, fromData]) => {
+      if (fromData === "_numGuia") {
+        fromData = dat.numeroGuia;
+      }
+
+      if (fromData === "_solicitud") {
+        fromData = dat.solicitud
+      }
+
+      if (fromData === "_respuesta") {
+        fromData = dat.respuesta;
+      }
+      d[headExcel] = dat[fromData] || fromData;
+    });
+    return d;
+  });
+  crearExcel(newDoc, "Excel Novedades");
+}
+
 function descargarExcelInter(JSONData, ReportTitle, type) {
   //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
   var arrData = typeof JSONData != "object" ? JSON.parse(JSONData) : JSONData;
-
+  console.log(arrData)
+  console.log(JSONData)
   //un arreglo cuyo cada elemento contiene un arreglo: ["titulo de la columna", "la información a inrertar en dicha columna"]
   //Está ordenado, como saldrá en el excel
   let encabezadoAntiguo = [
@@ -2854,6 +2893,8 @@ function cargarNovedades() {
 
 //función que me revisa los movimientos de las guías
 function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
+  novedadesExcelData= []
+  console.log(novedadesExcelData)
   let filtro = true,
     toggle = "==",
     buscador = "enNovedad";
@@ -2961,7 +3002,7 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
           querySnapshot.forEach((doc) => {
             let dato = doc.data();
             contador++;
-
+            console.log(dato)
             consultarGuiaFb(
               user_id,
               doc.id,
@@ -2983,6 +3024,9 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
 
 
 function revisarNovedades(transportadora) {
+  novedadesExcelData=[]
+  console.log(novedadesExcelData)
+  
   const cargadorClass = document.getElementById("cargador-novedades").classList;
   cargadorClass.remove("d-none");
 
@@ -3104,6 +3148,7 @@ document
       console.log("Busqueda natural");
       revisarMovimientosGuias(administracion);
     }
+    
   });
 
 $("#btn-vaciar-consulta").click(() => {
@@ -3595,8 +3640,11 @@ function cambiarFiltroHistGuiasAdmin(e) {
 
 async function historialGuiasAdmin(e) {
   const finalId = e.id.split("-")[1];
-  let fechaI = document.querySelector("#fechaI-" + finalId).value + "::";
-  let fechaF = document.querySelector("#fechaF-" + finalId).value + "::";
+  let fechaI = document.querySelector("#fechaI-" + finalId).value;
+  let fechaF = document.querySelector("#fechaF-" + finalId).value;
+
+  const fecha_inicio = new Date(fechaI).setHours(0) + 8.64e7;;
+  const fecha_final = new Date(fechaF).setHours(0) + (2 * 8.64e7);
   const numeroGuia = document.querySelector("#num_guia-" + finalId).value;
   const tipoFiltro = $("#tipo_filt-hist_guias").val();
   const filtroCentroDeCosto = $("#filtro_pagos-" + finalId).val();
@@ -3650,8 +3698,8 @@ async function historialGuiasAdmin(e) {
 
   reference = reference
     .orderBy("timeline")
-    .startAt(new Date(fechaI).getTime())
-    .endAt(new Date(fechaF).getTime() + 8.64e7);
+    .startAt(fecha_inicio)
+    .endAt(fecha_final);
 
   if (guiasPunto) reference = reference.where("pertenece_punto", "==", true);
 

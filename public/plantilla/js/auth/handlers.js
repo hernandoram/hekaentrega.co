@@ -42,6 +42,12 @@ function handleAuthErrors(error) {
                 message: "Se ha producido un error de red (como tiempo de espera o conexión interrumpida) intente nuevamente más tarde."
             }
             break;
+        case "auth/too-many-requests":
+            res = {
+                title: "Cantidad de intentos excedida",
+                message: "El acceso a esta cuenta ha sido temporalmente desactivado debido a la cantidad de intentos fallidos, puedes cambiar la contraseña o intentarlo más tarde."
+            }
+            break;
         default: 
             return {
                 title: "Error desconocido",

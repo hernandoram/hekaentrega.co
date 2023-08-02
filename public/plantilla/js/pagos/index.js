@@ -1,21 +1,40 @@
 import "./pagar.js";
 import AnotacionesPagos from "./AnotacionesPagos.js";
+import { comprobarGuiaPagada } from "./comprobadores.js";
 import { ChangeElementContenWhileLoading, segmentarArreglo } from "../utils/functions.js";
 import { empaquetarGuias } from "./pagar.js";
 
+
+/*
+ Aquí se encuentran las funcionalidades de pagos para la parte administrativa, encargada de:
+  - Cargar un excel para pagar
+  - Dicha información se almancena en "pendientePorPagar", para luego ser consultada
+  - La consulta de los pagos pendietes se puede hace por fecha, por centro de costo, por trasportadora o por tipos de pagos por cosulta
+  - El aplicativo permite pagar usuario por usuario las guías que correspodan
+  - Muestra saldos positivos si así se desea, de otra manera se puede solicitar ver los negativos para conocer de los usuarios con saldo pendiente
+  - Permite realizar una facturación con "siigo" y almacenarla en el pago correspondiente
+*/
+
+// Contantes base de datos
 const db = firebase.firestore();
+const referencePagos = db.collection("pendientePorPagar");
+const refHistGuias = db.collectionGroup("guias");
+
+// Contantes de elementos html
 const formularioPrincipal = $("#form-cargador_pagos");
 const errorContainer = $("#errores-cargador_pagos");
 const btnCargarPagos = $("#btn-cargar_cargador_pagos");
 const btnCargarPagosHistGuias = $("#pagar-hist_guias");
 const cargador = $("#cargador-cargador_pagos");
 
+// Handlers de eventos
 btnCargarPagos.click(cargarPagosPendientes);
 btnCargarPagosHistGuias.click(cargarPagosDirectos);
 
-const referencePagos = db.collection("pendientePorPagar");
-const refHistGuias = db.collectionGroup("guias");
-
+/**
+ * Es una función asíncrona que carga datos de pagos pendientes, tomando en cuenta la información proveniente de un excel, los
+ * procesa y los agrega a una base de datos.
+ */
 async function cargarPagosPendientes(e) {
   const loader = new ChangeElementContenWhileLoading(e.target);
   loader.init();
@@ -28,6 +47,7 @@ async function cargarPagosPendientes(e) {
   let i = 1;
   let agregados = 0;
 
+  // Anotaciones para ir listando los errores en caso de que existan
   const anotaciones = new AnotacionesPagos(errorContainer);
   anotaciones.init();
 
@@ -39,6 +59,8 @@ async function cargarPagosPendientes(e) {
 
   const data = new FormData(document.getElementById("form-cargador_pagos"));
   console.log(data.get("documento"));
+
+  // Se le pide al back que devuelva la información del excel en json para procesarla
   const datosDePago = await fetch("/excel_to_json", {
     method: "POST",
     body: data
@@ -49,6 +71,7 @@ async function cargarPagosPendientes(e) {
 
   fEl.text(datosDePago.length);
 
+  // Se evalúa cada guía para asegurarse que: No hay sido pagada previamente y que el excel no tenga errores en las columnas que se suben
   for await (const guia of datosDePago) {
     counterEl.text(i);
 
@@ -127,6 +150,13 @@ function filtradoVisual(datos) {
       return filtroInputs;
 }
 
+/**
+ * La función comprueba si faltan ciertos datos importantes de un objeto y devuelve un mensaje de error
+ * si falta algún dato.
+ * @param objToSend - Un objeto que contiene datos para enviar.
+ * @returns un mensaje de cadena que indica los datos faltantes o incompletos en el objeto `objToSend`.
+ * El mensaje específico depende de qué condición no se cumpla.
+ */
 function datosImportantesIncompletos(objToSend, completeData) {
     if (!objToSend.GUIA) {
       return "Sin número de guía para subir: " + objToSend.GUIA;
@@ -147,20 +177,13 @@ function datosImportantesIncompletos(objToSend, completeData) {
     }
 }
 
-async function comprobarGuiaPagada(objToSend) {
-    const transportadora = objToSend["TRANSPORTADORA"];
-    const numeroGuia = objToSend["GUIA"];
-    
-    const guiaPaga = await firebase.firestore().collection("pagos").doc(transportadora.toLocaleLowerCase())
-    .collection("pagos").doc(numeroGuia.toString()).get();
 
-    if(guiaPaga.exists) {
-      return true;
-    }
-
-    return false;
-}
-
+// #region Cargue hacia pagos directo del historial de guías
+/**
+ * Función encargada de solicitar directamente del historial de guías, las que entén listas para pagar y de esta forma pasarla a la lista
+ * de pagos pendientes, sin ncesidad de tener que pasar por un excel
+ * @param {any} e Evento del click que activa el cargador de pagos directo
+ */
 async function cargarPagosDirectos(e) {
   const finalId = e.target.id.split("-")[1];
   const loader = new ChangeElementContenWhileLoading(e.target);
@@ -172,6 +195,7 @@ async function cargarPagosDirectos(e) {
   const filtroTransp = $("#filtro_transp-"+finalId).val();
   const listaGuias = [];
 
+  // Función utilizada por cada ocasión que se consulte la referencia con una lista de data por firebase
   const manejarInformacion = querySnapshot => {
     console.log(querySnapshot.size);
     querySnapshot.forEach(doc => {
@@ -180,8 +204,10 @@ async function cargarPagosDirectos(e) {
       const type = guia.type;
       const deuda = guia.debe;
       
-      // Ignorar aquelas que hayan sido pagadas;
+      // Ignorar la convencionales
       if(type === "CONVENCIONAL") return;
+
+      // Ignorar aquelas que hayan sido pagadas;
       if(type === "PAGO CONTRAENTREGA" && deuda === 0) return;
           
       listaGuias.push(transformarGuiaAPago(guia));
@@ -199,11 +225,13 @@ async function cargarPagosDirectos(e) {
     filtroPagoSeleccionado = filtroPagos[filtroCentroDeCosto];
   }
 
+  // Se inicia con la referencia importante que toma en cuenta aquellas con el estado finalizado
   const referencia = refHistGuias
   .orderBy("timeline")
   .startAt(new Date(fechaI).getTime()).endAt(new Date(fechaF).getTime() + 8.64e+7)
   .where("seguimiento_finalizado", "==", true)
 
+  // Según el filtro que se haya escogido, se le añade los comportamientos necesarios sobre la referencia anterior marcada
   if(filtroPagoSeleccionado) {
     const segementado = segmentarArreglo(filtroPagoSeleccionado, 10);
     for await (const paquete of segementado) {
@@ -216,34 +244,81 @@ async function cargarPagosDirectos(e) {
     await referencia.get().then(manejarInformacion);
   }
 
-
+  // una vez finalice la carga, se redirige al cargador que puede mostrar la lista de errores, en caso d equ eexistan
   location.href = "#cargador_pagos";
   
+  // Se encarga de filtrar la lista encontrando errores o guías ya pagadas
   const lista = await filtraPendientes(listaGuias);
 
   loader.end();
   
   console.log(lista);
-  
-  location.href = "#gestionar_pagos";
 
+  // LLama a una función externa que se encarga de la muesra de la interfaz
   empaquetarGuias(lista);
 
+  if(!document.getElementById("btn-gotoGestionar_cargador_pagos"))
+    btnCargarPagos.after("<a class='btn btn-success mt-4' href='#gestionar_pagos' id='btn-gotoGestionar_cargador_pagos'>Ir a gestionar</a>")
 }
 
+/**
+ * Función en cargada de recibir la guía como viene del historial, para transformarla a como se está guardando en el panel de pagos.
+ * Encargada de manipular los precios según se hacía de forma manual para identificar las guía en devolución y otro tipo de información relevante
+ * @param {*} guia 
+ * @returns El objeto formateado a como se va a registrar en la base de datos
+ */
 function transformarGuiaAPago(guia)  {  
+  const estadosDevolucion = [
+    "ENTREGADO A REMITENTE", "Devuelto al Remitente",
+    "CERRADO POR INCIDENCIA, VER CAUSA", "DEVOLUCION"
+  ];
+
+  const esDevolucion = estadosDevolucion.includes(guia.estado);
+  const costoDevolucion = guia.detalles.costoDevolucion; // El costo de devolución debe ser negativo
+
+  const totalPagar = esDevolucion 
+    ? -costoDevolucion
+    : guia.detalles.recaudo - guia.detalles.total;
+
+  const envioTotal = esDevolucion
+    ? costoDevolucion
+    : guia.detalles.total;
+
+  const valorRecaudo = esDevolucion
+    ? 0
+    : guia.detalles.recaudo;
+
+  let comisionHeka = guia.detalles.comision_heka;
+
+  if(esDevolucion) {
+    switch(guia.transportadora) {
+      case "COORDINADORA": case "ENVIA":
+        comisionHeka = 2000;
+      break;
+  
+      case "INTERRAPIDISIMO":
+        comisionHeka = 1000;
+      break;
+    }
+  }
+  
   return {
     GUIA: guia.numeroGuia,
     "REMITENTE": guia.centro_de_costo,
     TRANSPORTADORA: guia.transportadora,
     "CUENTA RESPONSABLE": guia.cuenta_responsable,
-    "COMISION HEKA": guia.detalles.comision_heka,
-    RECAUDO: guia.detalles.recaudo,
-    "ENVÍO TOTAL": guia.detalles.total,
-    "TOTAL A PAGAR": guia.detalles.recaudo - guia.detalles.total
+    "COMISION HEKA": comisionHeka,
+    RECAUDO: valorRecaudo,
+    "ENVÍO TOTAL": envioTotal,
+    "TOTAL A PAGAR": totalPagar
   }
 }
 
+/**
+ * Función en cargada de segmentar un arreglo y observar en la base de datos si dicha guía fue pagada para guardarla en la lisa de pendientes
+ * @param {*} listaGuias Lista de guías encontradas del historial
+ * @returns La lista de guías que corresponde a aquellas guías que pasan el filtrado correcamente
+ */
 async function filtraPendientes(listaGuias) {
   const anotaciones = new AnotacionesPagos(errorContainer);
   anotaciones.init();
@@ -263,7 +338,9 @@ async function filtraPendientes(listaGuias) {
   let agregados = 0;
   let restantes = listaGuias.length;
 
-  let respuesta = []
+  let respuesta = [];
+
+  // Segementa la lisa para verificarlas por parte
   const listaGuiasSegmentada = segmentarArreglo(listaGuias, 500);
   for await (let segmento of listaGuiasSegmentada) {
     restantes-= segmento.length;
@@ -287,6 +364,14 @@ async function filtraPendientes(listaGuias) {
   
 }
 
+/**
+ * Toma un segmento de guias, verifica si cada guia esta pagada, y
+ * devuelve una lista filtrada de guias que no estan pagadas.
+ * @param segmento - Una matriz de objetos que representan un segmento de guias (guías).
+ * @param logger - El parámetro `logger` es un objeto que tiene un método llamado `addError`. Este
+ * método se utiliza para agregar un mensaje de error al registrador.
+ * @returns una lista filtrada de guias (segmento) que no han sido pagadas.
+ */
 async function comprobarSegmentoGuias(segmento, logger) {
   const listaAsync = segmento.map(comprobarGuiaPagada);
 

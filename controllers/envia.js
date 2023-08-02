@@ -167,7 +167,7 @@ exports.actualizarMovimientos = async (doc) => {
             }]
         }
         
-        const estados_finalizacion = ["Entregado"];
+        const estados_finalizacion = ["ENTREGADA DIGITALIZADA", "DEVOLUCION"];
         
         const movimientos = desglozarMovimientos(respuesta);
         const ultimo_estado = movimientos[movimientos.length - 1];
@@ -209,7 +209,7 @@ exports.actualizarMovimientos = async (doc) => {
             enNovedad = updte_movs.guardado.enNovedad || false;
         }
 
-        const seguimiento_finalizado = estados_finalizacion.some(v => respuesta.estado === v)
+        const seguimiento_finalizado = estados_finalizacion.some(v => estadoActual === v)
         || finalizar_seguimiento;
         
         const actualizaciones = {

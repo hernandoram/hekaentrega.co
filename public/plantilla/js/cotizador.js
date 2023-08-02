@@ -4,6 +4,7 @@ let datos_de_cotizacion, oficinas = [], bodega,
 
 // No se encuentra pueblo viejo(magdalena), nazaret(cundinamarca)
 const bloqueo_direcciones_inter = ["19318000", "70523000", "73217001", "50711002", "13810011", "68298002"];
+const bloqueo_direcciones_envia = ["97666000", "52427000"];
 // Objeto principal en que se basa la transportadora a ser utilizada
 let transportadoras = {
     "SERVIENTREGA": {
@@ -79,7 +80,7 @@ let transportadoras = {
         limitesPeso: [0.1,100],
         limitesLongitud: [1,150],
         limitesRecaudo: [10000, 3000000],
-        bloqueada: coti => ["52427000"].includes(coti.dane_ciudadD),
+        bloqueada: coti => bloqueo_direcciones_envia.includes(coti.dane_ciudadD),
         bloqueadaOfi: true,
         limitesValorDeclarado: (valor) => {
             return [10000, 30000000]
@@ -517,7 +518,7 @@ async function response(datos) {
         boton_regresar = crearNodo(`<a class="btn btn-outline-primary mb-2" href="#cotizar_envio" onclick="regresar()">
             Subir
             </a>`),
-        head = crearNodo(`<h4 class="text-center mb-3">Seleccione transportadora</h4>`),
+        head = crearNodo(`<h4 class="text-center mb-3 flexii-title">Seleccione transportadora</h4>`),
         info_principal = detalles_cotizacion(datos_de_cotizacion),
         oficinas = crearNodo(`
 
@@ -600,6 +601,7 @@ async function detallesTransportadoras(data) {
 
     const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
     let cotizacionAveo;
+    const soloEntreganEnDireccion = ["ENVIA", "COORDINADORA"];
 
     //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
     for (let transp in transportadoras) {
@@ -718,9 +720,14 @@ async function detallesTransportadoras(data) {
             </div>
             <p class="text-center mb-0 mt-2 d-none d-sm-block">Costo de envío para ${data.type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"}: <b>$${convertirMiles(data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor)}</b></p>
             <p class="mb-0 d-sm-none">${data.type == "CONVENCIONAL" ? "Valor declarado" : "Recaudo"}: <b>$${convertirMiles(data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor)}</b></p>
+            
             <p class="mb-0 text-center">
                 <span class="estadisticas position-relative"></span>
             </p>
+            
+            <h5 class="text-danger text-center ${soloEntreganEnDireccion.includes(transp) ? "" : "d-none"}">
+                Solo entrega en dirección
+            </h5>
 
         </li>`;
 

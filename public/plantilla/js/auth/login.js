@@ -21,6 +21,7 @@ export default async function iniciarSesion(e) {
         const password = form.get("password");
         auth = await signInWithEmailAndPassword(email, password);
         const errorAuth = auth && auth.code;
+        console.log(auth);
         if(errorAuth) {
             response.text(auth.message);
         } else {
