@@ -457,7 +457,7 @@ async function guardarForm(e) {
         !estructuraFormularioGenerado.campos[i].etiqueta
       ) {
         return Toast.fire(
-          "El formulario debe tener un nombre y una etiqueta",
+          `El formulario ${i+1} debe tener un nombre y una etiqueta`,
           "",
           "error"
         );
@@ -468,7 +468,7 @@ async function guardarForm(e) {
   
     if (cbox.checked && !estructuraFormularioGenerado.campos[i].dependiente) {
         return Toast.fire(
-            "El formulario debe tener un campo del que dependa",
+            `El formulario ${i+1} debe tener un campo del que dependa`,
             "",
             "error"
           );
@@ -479,7 +479,7 @@ async function guardarForm(e) {
 
         if (!estructura.opciones1 || !estructura.opciones2) {
           return Toast.fire(
-            "El formulario debe contener minimo dos opciones",
+            `El formulario ${i+1} debe contener minimo dos opciones`,
             "",
             "error"
           );
