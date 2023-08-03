@@ -1104,7 +1104,7 @@ function editarBodegaUsuarioAdm(e) {
 
         <small>${data.direccion_completa}</small>
     </form>
-    <button id="copiarInfoBodega">Copiar información bodega</button>
+    <button id="copiarInfoBodega" class="btn btn-outline-primary btn-block">Copiar información bodega</button>
     `;
 
   Swal.fire({
@@ -1149,6 +1149,9 @@ function editarBodegaUsuarioAdm(e) {
     } ${data.barrio} \t ${data.ciudad} \t ${datos.correo} \t  ${
       datos.nombres
     } ${datos.apellidos}`;
+
+
+    console.log(textoACopiar)
 
     navigator.clipboard.writeText(textoACopiar).then(() => {
       avisar(
