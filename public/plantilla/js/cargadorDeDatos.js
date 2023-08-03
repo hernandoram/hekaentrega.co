@@ -904,7 +904,7 @@ $("#btn-revisar_pagos").click(async(e) => {
   let filtro_transportadoras = document.getElementsByName("filtro-trasnportadoras");
   for(let transp of filtro_transportadoras){
     if(transp.checked){
-      transportadoras.push(transp.value.toLowerCase());
+      transportadoras.push(transp.value);
     }
   }
 
@@ -957,7 +957,6 @@ function totalizador(guia, remitente) {
   const mostrador_total_local = document.getElementById("total"+remitente);
   const btn_local = document.getElementById("pagar" + remitente);
 
-  console.log(mostrador_total_local, "total"+remitente);
   let total_local = mostrador_total_local.getAttribute("data-total");
   let mostrador_total = document.getElementById("total_pagos");
   let total = mostrador_total.getAttribute("data-total");
