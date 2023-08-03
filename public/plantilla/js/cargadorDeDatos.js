@@ -857,35 +857,47 @@ function cargarPagos(){
 $("#btn-revisar_pagos").click(async(e) => {
   console.log(e.target);
   document.querySelector("#cargador-pagos").classList.remove("d-none");
-  let fechaI = 0, fechaF = new Date().getTime(),
-  buscador="REMITENTE", busqueda = "", guia, tipo = "!="
+  let fechaI = new Date($("#filtro-fechaI").val()).setHours(0) + 8.64e7, 
+  fechaF = new Date($("#filtro-fechaF").val()).setHours(0) + (2 * 8.64e7),
+  guia;
 
+  const filtroFechaActivo = $("#fecha-pagos").css("display") != "none";
+
+  const referenceNatural = (b) => firebase.firestore().collection("pagos").doc(b)
+  .collection("pagos");
+
+  const referenceSorted = b => referenceNatural(b)
+  .orderBy("momentoParticularPago")
+  .startAt(fechaI)
+  .endAt(fechaF);
+
+  let reference = b => referenceSorted(b);
+  
   if(!administracion){
-    tipo = "=="
-    busqueda = datos_usuario.centro_de_costo
-  }
+    const referenciaClave = filtroFechaActivo ? referenceSorted : referenceNatural;
 
-  if($("#fecha-pagos").css("display") != "none"){
-    fechaI = new Date($("#filtro-fechaI").val()).getTime();
-    fechaF = new Date($("#filtro-fechaF").val()).getTime();
+    reference = b => referenciaClave(b)
+    .where("REMITENTE", "==", datos_usuario.centro_de_costo)
   }
 
   if($("#filtro-pago-usuario").val()){
-    busqueda = $("#filtro-pago-usuario").val();
-    tipo = "==";
+
+    const referenciaClave = filtroFechaActivo ? referenceSorted : referenceNatural;
+
+    reference = b => referenciaClave(b)
+    .where("REMITENTE", "==", $("#filtro-pago-usuario").val());
   }
 
   if($("#filtro-cuenta_responsable").val()) {
-    buscador = "cuenta_responsable";
-    busqueda = $("#filtro-cuenta_responsable").val();
-    tipo = "==";
+    reference = b => referenceNatural(b)
+    .where("cuenta_responsable", "==", $("#filtro-cuenta_responsable").val());
   }
 
   if($("#filtro-pago-guia").val()){
     guia = $("#filtro-pago-guia").val();
-    buscador = "GUIA"
-    busqueda = guia;
-    tipo = "=="
+
+    reference = b => referenceNatural(b)
+    .where("GUIA", "==", guia);
   }
 
   let transportadoras = [];
@@ -897,15 +909,14 @@ $("#btn-revisar_pagos").click(async(e) => {
   }
 
   if (transportadoras.length == 0){
-    transportadoras = ["servientrega", "envía", "tcc", "interrapidisimo", "coordinadora"];
+    transportadoras = ["SERVIENTREGA", "ENVIA", "TCC", "INTERRAPIDISIMO", "COORDINADORA"];
   }
 
-  let response = []
+  let response = [];
   let consulta = 0
   for await (let busqueda_trans of transportadoras) {
-    await firebase.firestore().collection("pagos").doc(busqueda_trans)
-    .collection("pagos")
-    .where(buscador, tipo, busqueda)
+    
+    await reference(busqueda_trans)
     .get()
     .then((querySnapshot) => {
       consulta += querySnapshot.size;
@@ -913,14 +924,9 @@ $("#btn-revisar_pagos").click(async(e) => {
         let data = doc.data();
         let fecha_estandar = doc.data().FECHA.split("-").reverse().join("-")
         data.momento = new Date(fecha_estandar).getTime();
-        if(fechaI && fechaF && !guia){
-          let fechaFire = new Date(fecha_estandar).getTime();
-          if(fechaI <= fechaFire && fechaFire <= fechaF){
-            response.push(data);
-          }
-        } else {
-          response.push(data)
-        }
+        
+        response.push(data)
+        
       });
 
       if(!administracion){
@@ -930,8 +936,9 @@ $("#btn-revisar_pagos").click(async(e) => {
     console.log("total consulta", consulta)
     console.log(busqueda_trans);
   }
+
   if(administracion) {
-    mostrarPagos(response);
+    mostrarPagosAdmin(response);
     $("[data-funcion='pagar']").css("display", "none")
     document.querySelector("#cargador-pagos").classList.add("d-none");
 
@@ -950,6 +957,7 @@ function totalizador(guia, remitente) {
   const mostrador_total_local = document.getElementById("total"+remitente);
   const btn_local = document.getElementById("pagar" + remitente);
 
+  console.log(mostrador_total_local, "total"+remitente);
   let total_local = mostrador_total_local.getAttribute("data-total");
   let mostrador_total = document.getElementById("total_pagos");
   let total = mostrador_total.getAttribute("data-total");
@@ -1046,10 +1054,62 @@ function mostrarPagos(datos) {
   activarBotonesVisorPagos();
 }
 
+function mostrarPagosAdmin(datos) {
+  const visor_pagos = document.getElementById("visor_pagos");
+  visor_pagos.innerHTML = "";
+  let centros_costo = [];
+
+  datos.sort((a,b) => {
+      if (a["REMITENTE"] > b["REMITENTE"]){
+        return 1
+      } else if (a["REMITENTE"] < b["REMITENTE"]){
+        return -1
+      } else {
+        return 0
+      };
+  }).reduce((a,b) => {
+      if (a["REMITENTE"] != b["REMITENTE"]){
+        centros_costo.push(b["REMITENTE"]);
+      }
+      return b;
+  }, {REMITENTE: ""});
+
+
+  const dowloader = document.createElement("button");
+  dowloader.classList.add("btn", "btn-outline-dark", "btn-block", "my-2");
+  dowloader.setAttribute("id", "descargar-pagos")
+  dowloader.innerText = "Descargar visibles";
+  visor_pagos.appendChild(dowloader);
+
+  const toDownload = datos.map(data => {
+    const down = Object.assign({}, data);
+    delete down.momento
+    return down;
+  });
+
+  for(let user of centros_costo) {
+    let filtrado = datos.filter((d) => d.REMITENTE == user);
+    tablaPagos(filtrado, "visor_pagos");
+  };
+
+
+  // <h2 class="text-right mt-4" id="total_pagos" data-total="${total}">Total:  $${convertirMiles(total)}</h2>
+  document.getElementById("visor_pagos").innerHTML += `
+    <h2 class="text-right mt-4" id="total_pagos" data-total="0">Total:  $${convertirMiles(0)}</h2>
+  `;
+
+  visor_pagos.querySelector("#descargar-pagos").addEventListener("click", () => {
+    crearExcel(toDownload, "Historial de pagos")
+  });
+
+  activarBotonesVisorPagos();
+}
+
 const paqueteGuiasPagadas = {
   guias: new Map(),
   facturas: new Map()
 }
+
 function activarBotonesVisorPagos() {
   $("[data-action='ver-factura']").click(async e => {
     const trget = e.target;

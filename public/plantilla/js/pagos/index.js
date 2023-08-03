@@ -106,7 +106,7 @@ function filtradoVisual(datos) {
       let filtro_transportadoras = formularioPrincipal[0].getElementsByName("filtro-trasnportadoras");
       for(let transp of filtro_transportadoras){
         if(transp.checked){
-          transportadoras.push(transp.value.toLowerCase());
+          transportadoras.push(transp.value.toUpperCase());
         }
       }
       let filtroInputs = datos.filter((data) => {
@@ -114,7 +114,7 @@ function filtradoVisual(datos) {
         if(!Number.isInteger(data["ENVÍO TOTAL"]) || !Number.isInteger(data.RECAUDO) || !Number.isInteger(data["TOTAL A PAGAR"])){
           numero_flotante += 1;
         }
-        if(data.TRANSPORTADORA && transportadoras.indexOf(data.TRANSPORTADORA.toLowerCase()) != -1 && transportadoras.length != 0) {
+        if(data.TRANSPORTADORA && transportadoras.indexOf(data.TRANSPORTADORA.toUpperCase()) != -1 && transportadoras.length != 0) {
           permitir_transportadora = true;
         } else if (transportadoras.length == 0){
           permitir_transportadora = true;
@@ -158,6 +158,9 @@ function filtradoVisual(datos) {
  * El mensaje específico depende de qué condición no se cumpla.
  */
 function datosImportantesIncompletos(objToSend, completeData) {
+    
+    const transportadorasAdmitidas = ["SERVIENTREGA", "INTERRAPIDISIMO", "TCC", "ENVIA", "COORDINADORA"];
+
     if (!objToSend.GUIA) {
       return "Sin número de guía para subir: " + objToSend.GUIA;
     } else if (!objToSend.REMITENTE) {
@@ -168,12 +171,8 @@ function datosImportantesIncompletos(objToSend, completeData) {
       return "Recuerda por favor agregar la cuenta responsable de la guia " + objToSend.GUIA;
     } else if (!objToSend["COMISION HEKA"] && objToSend["COMISION HEKA"] !== 0) {
       return "Falta el campo \"COMISION HEKA\" de la guia " + objToSend.GUIA;
-    } else if (objToSend.TRANSPORTADORA !== "Servientrega" 
-    && objToSend.TRANSPORTADORA != "ENVÍA" 
-    && objToSend.TRANSPORTADORA != "TCC"
-    && objToSend.TRANSPORTADORA != "Interrapidisimo"
-    && objToSend.TRANSPORTADORA != "COORDINADORA") {
-      return "Por favor, Asegurate que la factura de la guía: " + objToSend.GUIA + " le pertenezca a <b>ENVÍA, TCC, Servientrega, Interrapidisimo o COORDINADORA</b>"
+    } else if (!transportadorasAdmitidas.includes(objToSend.TRANSPORTADORA)) {
+      return "Por favor, Asegurate que la factura de la guía: " + objToSend.GUIA + " le pertenezca a <b>"+ transportadorasAdmitidas.join(", ") +"</b>"
     }
 }
 

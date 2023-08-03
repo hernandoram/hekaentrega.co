@@ -1359,10 +1359,11 @@
               <div class="card-body">
                 <form enctype="multipart/form-data" id="form-pagos">
                   <div class="form-group">
-                    <div class="custom-file mt-2 mb-4">
+                    <!-- queda acompletamente obsoleto esta subida de archivo -->
+                    <!-- <div class="custom-file mt-2 mb-4">
                       <input type="file" class="custom-file-input" id="cargar_pagos" accept=".xlsx" name="documento" lang="es">
                       <label class="custom-file-label" for="cargar_pagos">Seleccionar Archivo</label>
-                    </div>
+                    </div> -->
 
                     <h2>Filtrado</h2>
                     <span>Si decide Buscar por Guía, se anularan los filtros restantes</span>
@@ -1404,11 +1405,11 @@
                       </div>
                       <div class="col-12 d-flex justify-content-around flex-wrap align-items-end m-2">
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1" name="filtro-trasnportadoras" value="Servientrega">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1" name="filtro-trasnportadoras" value="SERVIENTREGA">
                           <label class="form-check-label" for="filtro-trasnportadora1">Servientrega</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2" name="filtro-trasnportadoras" value="ENVÍA">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2" name="filtro-trasnportadoras" value="ENVIA">
                           <label class="form-check-label" for="filtro-trasnportadora2">Envía</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
@@ -1416,7 +1417,7 @@
                           <label class="form-check-label" for="filtro-trasnportadora3">TCC</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora4" name="filtro-trasnportadoras" value="Interrapidisimo">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora4" name="filtro-trasnportadoras" value="INTERRAPIDISIMO">
                           <label class="form-check-label" for="filtro-trasnportadora4">Inter Rapidísimo</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
@@ -1430,7 +1431,7 @@
                       <input type="button" id="btn-revisar_pagos" 
                       value="Revisar Pagos" class="btn btn-secondary mt-4 text-truncate">
                       <input type="submit" id="btn-cargar_pagos" 
-                      value="Cargar Pagos" class="btn btn-primary mt-4 text-truncate">
+                      value="Cargar Pagos" class="btn btn-primary mt-4 text-truncate d-none">
                     </div>
                   </div>
                 </form>
@@ -1495,11 +1496,11 @@
 
                       <div class="col-12 d-flex justify-content-around flex-wrap align-items-end m-2">
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1-gestionar_pagos" name="filtro-transportadoras" value="Servientrega">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1-gestionar_pagos" name="filtro-transportadoras" value="SERVIENTREGA">
                           <label class="form-check-label" for="filtro-trasnportadora1-gestionar_pagos">Servientrega</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2-gestionar_pagos" name="filtro-transportadoras" value="ENVÍA">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2-gestionar_pagos" name="filtro-transportadoras" value="ENVIA">
                           <label class="form-check-label" for="filtro-trasnportadora2-gestionar_pagos">Envía</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
@@ -1507,7 +1508,7 @@
                           <label class="form-check-label" for="filtro-trasnportadora3-gestionar_pagos">TCC</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora4-gestionar_pagos" name="filtro-transportadoras" value="Interrapidisimo">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora4-gestionar_pagos" name="filtro-transportadoras" value="INTERRAPIDISIMO">
                           <label class="form-check-label" for="filtro-trasnportadora4-gestionar_pagos">Inter Rapidísimo</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
