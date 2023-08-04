@@ -241,7 +241,7 @@ class Empaquetado {
                     <td>${guia["ENVÍO TOTAL"]}</td>
                     <td>${guia["TOTAL A PAGAR"]}</td>
                     <td>${guia["COMISION HEKA"] || 0}</td>
-                    <td>${guia.FECHA || genFecha()}</td>
+                    <td>${guia.FECHA || genFecha("LR")}</td>
                     <td>${guia.cuenta_responsable || "No registró"}</td>
                     <td>
                         ${guia.estado} 
@@ -631,10 +631,27 @@ class Empaquetado {
         let pagado = 0;
         let comision_heka = 0;
         for await(let guia of guias) {
+            //La diferencia entre el "momentoParticularPago" y "timeline"
+            //  timeline marca excatamente el momento en el que se le da a "pagar"
             guia.timeline = timeline;
+
+            // momentoParticularPago marca el momento impuesto por el campo "FECHA" en el que se pago (En la gran mayoría de los casos debería ser igual)
+            guia.momentoParticularPago = timeline;
+
+            // En caso de que el momento en el que se paga, no coincida con la fecha impuesta cambia el "momentoParticularPago"
+            if(genFecha("LR", timeline) !== guia.FECHA) { 
+                /**
+                 Es necesario invertir la fecha ya que el formato e el que se guardar en base de datos es:
+                DD-MM-AAAA y para que funcione la especificaciò del Date.parse, se debe usar el formato:
+                AAAA-MM-DD para posteriormente sumarle "T00:00:00" por el TimeZone y para uqe funcione en todos los navegadores 
+                */
+                const fechaParse = guia.FECHA.split("-").reverse().join("-");
+                guia.momentoParticularPago = Date.parse(fechaParse + "T00:00:00");
+            }
+
             guia.comprobante_bancario = comprobante_bancario;
 
-            const transp = guia["TRANSPORTADORA"].toLowerCase();
+            const transp = guia["TRANSPORTADORA"].toUpperCase();
             const numeroGuia = guia["GUIA"].toString();
             const id_heka = guia.id_heka;
             const id_user = guia.id_user;

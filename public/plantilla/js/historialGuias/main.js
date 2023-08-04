@@ -30,7 +30,7 @@ fechas.watch(renderInfoFecha);
 
 consultarHistorialGuias();
 async function consultarHistorialGuias() {
-    const fecha_inicio = new Date(inpFechaInicio.val()).setHours(0) + 8.64e7;;
+    const fecha_inicio = new Date(inpFechaInicio.val()).setHours(0) + 8.64e7;
     const fecha_final = new Date(inpFechaFinal.val()).setHours(0) + (2 * 8.64e7);
 
     fechas.change([fecha_inicio, fecha_final, inpNumeroGuia.val()]);
