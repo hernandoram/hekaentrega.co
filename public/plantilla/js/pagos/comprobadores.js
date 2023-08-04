@@ -9,7 +9,7 @@ export async function comprobarGuiaPagada(objToSend) {
     const transportadora = objToSend["TRANSPORTADORA"];
     const numeroGuia = objToSend["GUIA"];
     
-    const guiaPaga = await firebase.firestore().collection("pagos").doc(transportadora.toLocaleLowerCase())
+    const guiaPaga = await firebase.firestore().collection("pagos").doc(transportadora.toUpperCase())
     .collection("pagos").doc(numeroGuia.toString()).get();
 
     if(guiaPaga.exists) {
