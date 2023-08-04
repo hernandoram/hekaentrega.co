@@ -1732,3 +1732,5 @@ async function verMovimientos(usuario, fechaI, fechaF) {
     console.log(error);
   }
 }
+
+

@@ -245,4 +245,40 @@ function modalInicial2() {
   };
 }
 
+function cambiarTema() {
+  // Obtiene el elemento :root del documento
+  var root = document.documentElement;
+
+  // Cambia el valor de la variable --primary
+  root.style.setProperty("--primary", "purple");
+
+  let navvar = document.getElementById("accordionSidebar");
+  let buttons = document.querySelectorAll(".btn-primary");
+  let texts = document.querySelectorAll(".text-primary");
+  let brandName = document.getElementById("brandName");
+
+  brandName.innerText = "flexii.co";
+
+  buttons.forEach(function (button) {
+    button.style.backgroundColor = "purple";
+    button.style.color = "white";
+  });
+
+  texts.forEach(function (text) {
+    text.style.setProperty("color", "purple", "important");
+  });
+
+  navvar.style.setProperty(
+    "background-image",
+    "linear-gradient(180deg, #800080 10%, #800080 100%)",
+    "important"
+  );
+  navvar.style.setProperty("background-image", "#800080", "important");
+}
+
+  
+if(window.location.href.includes("flexii.co")){
+    cambiarTema()
+}  
+
 export default inicio;
