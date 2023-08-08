@@ -1369,7 +1369,7 @@ async function solicitarPagosPendientesUs() {
   const ref = db.collection("infoHeka").doc("manejoUsuarios");
   const data = await ref.get().then(d => d.data());
 
-  const transportadoras = ["servientrega", "interrapidisimo", "envía", "tcc", "coordinadora"];
+  const transportadoras = ["SERVIENTREGA", "ENVIA", "TCC", "INTERRAPIDISIMO", "COORDINADORA"];
   const verPago = t => db.collection("pagos").doc(t)
   .collection("pagos").where("REMITENTE", "==", datos_usuario.centro_de_costo)
   .limit(1)
@@ -1377,6 +1377,8 @@ async function solicitarPagosPendientesUs() {
   .then(q => !!q.docs[0])
 
   const hayPagoAnterior = await Promise.all(transportadoras.map(verPago));
+
+  console.log(hayPagoAnterior)
 
 
   if(!hayPagoAnterior.some(Boolean))
