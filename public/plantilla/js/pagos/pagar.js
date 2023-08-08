@@ -1,6 +1,6 @@
 import { ChangeElementContenWhileLoading, segmentarArreglo } from "../utils/functions.js";
 import Stepper from "../utils/stepper.js";
-import { checkShowNegativos, camposExcel, formularioPrincipal, inpFiltCuentaResp, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor, codigos_banco } from "./config.js";
+import { checkShowNegativos, camposExcel, formularioPrincipal, inpFiltCuentaResp, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor, codigos_banco, inpFiltGuia } from "./config.js";
 import { comprobarGuiaPagada, guiaExiste } from './comprobadores.js';
 import { defFiltrado as estadosGlobalGuias } from "../historialGuias/config.js";
 
@@ -22,6 +22,7 @@ class Empaquetado {
         this.usuarioActivo = "";
         this.totalAPagar = 0;
         this.guiasAnalizadas = 0;
+        this.pagado = 0;
     }
 
     /**
@@ -94,10 +95,13 @@ class Empaquetado {
                         ${this.usuarios.length - 1}
                     </span>
                 </button>
-                <button class="btn btn-outline-primary mt-2 ml-3" id="descargador-guias-pagos">Descargar Pagos</button>
                 <button class="btn btn-outline-secondary mt-2 ml-3" id="descargador-guias_masivo-pagos">Descargar excel masivo</button>
             `);
         }
+
+        // botón general para descargar excel y pagar directamente sobre el banco        
+        if(this.usuarios.length > 0)
+            visor.append(`<button class="btn btn-outline-primary mt-2 ml-3" id="descargador-guias-pagos">Descargar Pagos</button>`);
 
         const descargarExcel = $("#descargador-guias-pagos");
         const descargarExcelMAsivo = $("#descargador-guias_masivo-pagos");
@@ -906,9 +910,12 @@ async function consultarPendientes(e) {
     const formData = new FormData(formularioPrincipal[0]);
     const transpSelected = formData.getAll("filtro-transportadoras");
 
+    // Se instancia la referencia a la colección principal organizando por timeline
     let reference = db.collection(nameCollectionDb)
     .orderBy("timeline")
 
+    // Si se ha decidido filtra por fecha se activa los limitadores de firebase para filtrar por el timeline
+    // según los límites de fechas ingresados
     if(selectorFecha.css("display") != "none") {
         console.log("fecha inicial => ", new Date(startAtMilli))
         console.log("fecha final => ", new Date(endAtMilli))
@@ -920,6 +927,8 @@ async function consultarPendientes(e) {
 
     let respuesta = [];
 
+    // En caso de que se haya seleccionado el filtrado especial por sellers se buscan los sellers que corresponden a ese filtrado
+    // y se inserta sobre el campo encargado de buscar por usuario (cetro de costo)
     if(selFiltDiaPago.val()) {
         const data = await db.collection("infoHeka").doc("manejoUsuarios")
         .get().then(d => d.data());
@@ -930,8 +939,15 @@ async function consultarPendientes(e) {
         inpFiltUsuario.val(usuarios.join())
     }
 
-    if(inpFiltUsuario.val() || selFiltDiaPago.val()) {
-        const filt = inpFiltUsuario.val().split(",");
+    // Se filtra por orde de relevacia
+    // - Primero por número de guía, segundo por usuario, que puede trabajar también con cuenta responsable
+    //  tercero por cuenta responsable y finalmente por transportadora
+    if(inpFiltGuia.val()) {
+        respuesta = await db.collection(nameCollectionDb)
+        .where("GUIA", "==", inpFiltGuia.val().trim())
+        .get().then(handlerInformation);
+    } else if(inpFiltUsuario.val() || selFiltDiaPago.val()) {
+        const filt = inpFiltUsuario.val().split(",").map(u => u.trim());
         const empaquetador = segmentarArreglo(filt, 9);
 
         for await (let paquete of empaquetador) {
