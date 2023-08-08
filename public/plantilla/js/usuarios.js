@@ -1104,6 +1104,7 @@ function editarBodegaUsuarioAdm(e) {
 
         <small>${data.direccion_completa}</small>
     </form>
+    <button id="copiarInfoBodega" class="btn btn-outline-primary btn-block">Copiar información bodega</button>
     `;
 
   Swal.fire({
@@ -1128,6 +1129,40 @@ function editarBodegaUsuarioAdm(e) {
   });
 
   consultarCiudades(document.getElementById("ciudad-bodega"));
+
+  $("#copiarInfoBodega").click(() => {
+    let datos = {
+      nombres: value("actualizar_nombres"),
+      apellidos: value("actualizar_apellidos"),
+      celular: value("actualizar_telefono"),
+      celular2: value("actualizar_celular"),
+      nombre_empresa: value("actualizar_nombre_empresa"),
+      correo: value("actualizar_correo"),
+      numero_documento: value("actualizar_numero_documento"),
+      centro: value("actualizar_centro_costo"),
+    };
+
+    let textoACopiar = `${datos.centro} \t ${datos.numero_documento} \t ${
+      datos.nombres
+    } ${datos.apellidos} \t ${datos.celular || datos.celular2} \t ${
+      data.direccion
+    } ${data.barrio} \t ${data.ciudad} \t ${datos.correo} \t  ${
+      datos.nombres
+    } ${datos.apellidos}`;
+
+
+    console.log(textoACopiar)
+
+    navigator.clipboard.writeText(textoACopiar).then(() => {
+      avisar(
+        "Información copiada con éxito",
+        "Se ha copiado la información de la bodega a cargo de " +
+          datos.nombres +
+          " " +
+          datos.apellidos
+      );
+    });
+  });
 }
 
 function actualizarBodegasAdm() {
@@ -1697,3 +1732,5 @@ async function verMovimientos(usuario, fechaI, fechaF) {
     console.log(error);
   }
 }
+
+

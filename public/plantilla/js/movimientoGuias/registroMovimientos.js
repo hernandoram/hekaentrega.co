@@ -25,6 +25,9 @@ const opcionesMovimientos = $("#mensajeria [data-action]"); // Acciones particul
 const camposForm = $("#campos_form-mensajeria");
 //#endregion
 
+//inputs
+
+
 //#region Acciones y eventos
 selListMovimientos.on("change", seleccionarNovedad);
 selListFormularios.on("change", seleccionarFormulario);
@@ -304,6 +307,67 @@ function renderizarCampos() {
     camposForm.html(camposHtml);
     action("quitar-campo").click(quitarCampo);
     action("select-tipo").on("change", selectTipoCampo);
+    action("select-no-inputs").on("change", selectNoInputs);
+    action("depender-campo").on("change", dependerCampo);
+
+
+}
+
+
+function dependerCampo(e){
+    const i = e.target.getAttribute("data-index");
+    console.log(i);
+    const campoDependiente = document.getElementById(
+      `despendiente-mensajeria-${i}`
+    );
+    
+    const cbox = document.getElementById(`cbox-${i}`);
+
+  
+    if (cbox.checked) {
+      campoDependiente.classList.remove("d-none");
+    } else {
+      campoDependiente.classList.add("d-none");
+      campoDependiente.value="";
+    }
+
+}
+
+function selectNoInputs(e){
+    const i = e.target.getAttribute("data-index");
+    console.log(i)
+
+    const opcion3 = document.getElementById(`opciones-mensajeria3-${i}`);
+    const alerta3 = document.getElementById(`alerta-mensajeria3-${i}`);
+    const opcion4 = document.getElementById(`opciones-mensajeria4-${i}`);
+    const alerta4 = document.getElementById(`alerta-mensajeria4-${i}`);
+    const input = document.getElementById(`selectInputs-${i}`).value;
+
+    console.log(input);
+
+    if (input == 4) {
+      opcion3.classList.remove("d-none");
+      alerta3.classList.remove("d-none");
+      opcion4.classList.remove("d-none");
+      alerta4.classList.remove("d-none");
+    } else if (input == 3) {
+      opcion3.classList.remove("d-none");
+      alerta3.classList.remove("d-none");
+      opcion4.classList.add("d-none");
+      opcion4.value = "";
+      alerta4.classList.add("d-none");
+      alerta4.value = "";
+    } else {
+      opcion3.classList.add("d-none");
+      opcion3.value = "";
+      alerta3.classList.add("d-none");
+      alerta3.value = "";
+      opcion4.classList.add("d-none");
+      opcion4.value = "";
+      alerta4.classList.add("d-none");
+      alerta4.value = "";
+    }
+
 }
 
 /**
@@ -314,6 +378,7 @@ function agregarCampo() {
     listaCampos.push({});
     renderizarCampos();
 }
+
 
 /**
  * La función "quitarCampo" elimina un campo de una lista de campos.
@@ -333,14 +398,17 @@ function quitarCampo(e) {
  * La función `guardarForm` es una función asíncrona que guarda los datos del formulario en la base de
  * datos y muestra un mensaje de éxito si los datos se guardan correctamente.
  */
-async function guardarForm() {
+async function guardarForm(e) {
+    e.preventDefault();
     const idForm = selListFormularios.val();
 
     // Se inicializa el objeto con la maqueta vacía
     const estructuraFormularioGenerado = {campos: [{}]};
 
     // Se estable el patrón de elementos de lista para definir como se va a registrar la información
-    const elementosDeLista = ["nombre", "tipo", "opciones", "dependiente", "alerta", "etiqueta"];
+    const elementosDeLista = ["nombre", "tipo", "dependiente",
+     "opciones","opciones1", "opciones2", "opciones3","opciones4",
+      "alerta", "alerta1", "alerta2", "alerta3", "alerta4", "etiqueta"];
 
     const formData = new FormData(formFormularios[0]);
     
@@ -360,28 +428,111 @@ async function guardarForm() {
                 i++;
                 estructuraFormularioGenerado.campos.push({});
             }
-
-            estructuraFormularioGenerado.campos[i][key] = val;
+            if (val.length>0){
+                estructuraFormularioGenerado.campos[i][key] = val;
+            }else{
+                delete estructuraFormularioGenerado.campos[i][key]
+            }
+          
         } else {
             estructuraFormularioGenerado[key] = val;
         }
 
+        if(estructuraFormularioGenerado.campos[i].tipo!="select"){
+            eliminarCamposEmpiecen(estructuraFormularioGenerado.campos[i],"opciones","alerta");
+       }
+
+    }      
+    
+    console.log(estructuraFormularioGenerado);
+
+    if(!estructuraFormularioGenerado.titulo || !estructuraFormularioGenerado.descripcion) {
+        return Toast.fire("El formulario debe tener un titulo y respuesta construida", "", "error");
     }
 
-    console.log(elemento);
 
-    if(!elemento.campos || !elemento.campos.length) {
-        return Toast.fire("Tienes que asignar un campo", "", "error");
+    for (let i = 0; i < estructuraFormularioGenerado.campos.length; i++) {
+      if (
+        !estructuraFormularioGenerado.campos[i].nombre ||
+        !estructuraFormularioGenerado.campos[i].etiqueta
+      ) {
+        return Toast.fire(
+          `El formulario ${i+1} debe tener un nombre y una etiqueta`,
+          "",
+          "error"
+        );
+      }
+
+      
+    const cbox = document.getElementById(`cbox-${i}`);
+  
+    if (cbox.checked && !estructuraFormularioGenerado.campos[i].dependiente) {
+        return Toast.fire(
+            `El formulario ${i+1} debe tener un campo del que dependa`,
+            "",
+            "error"
+          );
+    
+    }
+      if (estructuraFormularioGenerado.campos[i].tipo === "select") {
+        const estructura = estructuraFormularioGenerado.campos[i];
+
+        if (!estructura.opciones1 || !estructura.opciones2) {
+          return Toast.fire(
+            `El formulario ${i+1} debe contener minimo dos opciones`,
+            "",
+            "error"
+          );
+        } else {
+          estructura.opciones =
+            estructura.opciones1 + "," + estructura.opciones2;
+
+          if (estructura.opciones3) {
+            estructura.opciones += "," + estructura.opciones3;
+          }
+
+          if (estructura.opciones4) {
+            estructura.opciones += "," + estructura.opciones4;
+          }
+
+          //alertas
+
+          if(!estructura.alerta && estructura.alerta1){
+            estructura.alerta = `${estructura.opciones1}:${estructura.alerta1}`;
+          }
+
+          if(!estructura.alerta && estructura.alerta2){
+            estructura.alerta = `${estructura.opciones2}:${estructura.alerta2}`;
+        } else if(estructura.alerta && estructura.alerta2){
+            estructura.alerta += ` -- ${estructura.opciones2}:${estructura.alerta2}`;
+          }
+
+
+          if(!estructura.alerta && estructura.alerta3 && estructura.opciones3){
+            estructura.alerta = `${estructura.opciones3}:${estructura.alerta3}`;
+        } else if(estructura.alerta && estructura.alerta3){
+            estructura.alerta += ` -- ${estructura.opciones3}:${estructura.alerta3}`;
+          }
+
+          
+          if(!estructura.alerta && estructura.alerta4 && estructura.opciones4){
+            estructura.alerta = `${estructura.opciones4}:${estructura.alerta4}`;
+        } else if(estructura.alerta && estructura.alerta4){
+            estructura.alerta += ` -- ${estructura.opciones4}:${estructura.alerta4}`;
+          }
+
+        }
+      }
     }
 
     if(Number.isNaN(parseInt(idForm))) {
         // elemento.fecha_creacion = new Date();
-        listaFormularios.push(elemento);
+        listaFormularios.push(estructuraFormularioGenerado);
     } else {
-        listaFormularios[idForm] = elemento;
+        listaFormularios[idForm] = estructuraFormularioGenerado;
     }
 
-    console.log(elemento, listaFormularios, idForm);
+    // console.log(estructuraFormularioGenerado, listaFormularios, idForm);
 
     // Se actulizan solo los formularios
     referencia.update({formularios: listaFormularios})
@@ -404,12 +555,28 @@ function selectTipoCampo(e) {
     console.log(e.target.value);
     if(e.target.value === "select") {
         $(`#opciones-mensajeria-${i}`).parent().removeClass("d-none");
+        $(`#alerta-mensajeria-${i}`).parent().removeClass("d-none");
+        $(`#select-opciones-${i}`).removeClass("d-none");
+        $(`#select-opciones-${i}`).addClass("d-flex");
     } else {
-        $(`#opciones-mensajeria-${i}`).parent().addClass("d-none");
 
+        $(`#opciones-mensajeria-${i}`).parent().addClass("d-none");
+        $(`#alerta-mensajeria-${i}`).parent().addClass("d-none");
+        $(`#select-opciones-${i}`).addClass("d-none");
+        $(`#select-opciones-${i}`).removeClass("d-flex");
+           
     }
 
 
 }
+
+
+function eliminarCamposEmpiecen(objeto, propiedad, propiedad2) {
+    for (let key in objeto) {
+      if (key.startsWith(propiedad) || key.startsWith(propiedad2)) {
+        delete objeto[key];
+      }
+    }
+  }
 
 // #endregion

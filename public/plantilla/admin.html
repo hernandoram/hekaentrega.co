@@ -1742,24 +1742,34 @@
                 <h3 class="card-title">
                   Formulario
                   <small>
-                    <i class="fa fa-edit text-primary mx-2 d-none" style="cursor: pointer" data-action="editar-form"></i>
-                    <i class="fa fa-plus text-primary mx-2 d-none" style="cursor: pointer" data-action="agregar-campo"></i>
-                    <i class="fa fa-check text-success mx-2 d-none" style="cursor: pointer" data-action="guardar-form"></i>
-                    <i class="fa fa-eye text-primary mx-2 d-none" style="cursor: pointer" data-action="ver-form"></i>
+                    <i class="fa fa-edit text-primary mx-2 d-none" style="cursor: pointer" data-action="editar-form" title="Editar formulario"></i>
+                    <i class="fa fa-plus text-primary mx-2 d-none" style="cursor: pointer" data-action="agregar-campo" title="Agregar campo"></i>
+                    <!-- <i class="fa fa-check text-success mx-2 d-none" style="cursor: pointer" data-action="guardar-form"></i> -->
+                    <i class="fa fa-eye text-primary mx-2 d-none" style="cursor: pointer" data-action="ver-form" title="Visualizar formulario"></i>
                   </small>
                 </h3>
 
                 <form id="editor_form-mensajeria">
                   <div class="form-group">
-                    <label for="titulo-mensajeria">Titulo</label>
-                    <input type="text" class="form-control" id="titulo-mensajeria" name="titulo">
+                    <h5 for="titulo-mensajeria">Titulo*</h5>
+                    <input placeholder="Este campo sirve para identificar el formulario en el panel de mensajería" type="text" class="form-control" id="titulo-mensajeria" required name="titulo">
+
                   </div>
+
+                  <h5>Respuesta usuario*</h5>
                   
                   <div id="campos_form-mensajeria"></div>
                   
                   <div class="form-group">
-                    <label for="descripcion-mensajeria">Respuesta construida</label>
-                    <textarea class="form-control" id="descripcion-mensajeria" name="descripcion"></textarea>
+                    <label for="descripcion-mensajeria"><h5>
+                      Respuesta construida*
+                    </h5>
+                  </label>
+                    <div id="variables"></div>
+                    <textarea class="form-control" id="descripcion-mensajeria" placeholder="Mensaje que será enviado a la administración" name="descripcion" required></textarea>
+                  </div>
+                  <div class="d-flex justify-content-end">
+                    <button data-action="guardar-form" class="btn btn-small btn-outline-info">Guardar cambios</button>
                   </div>
                 </form>
 
