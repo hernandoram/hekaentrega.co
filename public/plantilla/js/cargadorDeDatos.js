@@ -1364,6 +1364,7 @@ function obtenerMensajeDesembolso() {
 }
 
 async function solicitarPagosPendientesUs() {
+
   const mensajeDesembolso = obtenerMensajeDesembolso();
   const minimo_diario = 3000000;
   const ref = db.collection("infoHeka").doc("manejoUsuarios");
@@ -1386,7 +1387,7 @@ async function solicitarPagosPendientesUs() {
 
   if(!data) return;
 
-  const {limitadosDiario, diarioSolicitado} = data;
+  const {limitadosDiario, diarioSolicitado, fechaSolicitud} = data;
   
 
   if(!datos_usuario.datos_bancarios)
@@ -1444,13 +1445,35 @@ async function solicitarPagosPendientesUs() {
     }
 
     if(!diarioSolicitado.includes(usuario)) diarioSolicitado.push(usuario);
+    
 
     // const actualizacion = {
     //   diarioSolicitado: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo),
     //   limitadosDiario: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo)
     // }
 
-    await ref.update({limitadosDiario, diarioSolicitado});
+   let fechaActual = new Date();
+
+   // Definir opciones de formato
+   const opcionesFormato = {
+     year: "numeric",
+     month: "long",
+     day: "numeric",
+     weekday: "long",
+     hour: "numeric",
+     minute: "numeric",
+     second: "numeric",
+   };
+
+   // Formatear la fecha actual
+   const fechaFormateada =  fechaActual.toLocaleDateString('es-ES', opcionesFormato);
+
+    const fechaEnviada = `${usuario} solicito el pago el <br> ${fechaFormateada}` ;
+
+    if(!fechaSolicitud.includes(fechaEnviada)) fechaSolicitud.push(fechaEnviada);
+
+
+    await ref.update({limitadosDiario, diarioSolicitado, fechaSolicitud});
     Swal.fire("Pago solicitado con éxito.", "", "success");
 
   } else {
