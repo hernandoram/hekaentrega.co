@@ -6,12 +6,29 @@ export default class {
         this.opts = opts;
     }
 
+    /**
+     * La función init borra el contenedor, establece el título y establece el contenido.
+     */
     init() {
         this.container.html("");
         this.setTitle();
         this.setContent();
     }
 
+    /**
+     * La función `addError` agrega un mensaje de error a una lista y actualiza un contador.
+     * @param error - El parámetro de error es una cadena que representa el mensaje de error que se
+     * mostrará en el elemento de la lista.
+     * @param [config] - El parámetro `config` es un objeto que contiene opciones de configuración para
+     * el mensaje de error. Puede tener las siguientes propiedades:
+     *  - Color: Representa el naombre del color de bootstrap ej. warning
+     * @param btnConfig - El parámetro `btnConfig` es un objeto opcional que contiene opciones de
+     * configuración para un botón que se puede agregar al elemento de la lista de errores. Tiene las
+     * siguientes propiedades:
+     *  - Color: Representa el naombre del color de bootstrap ej. warning
+     *  - text: El texto que será mostrado
+     *  - onclick: La función que llevará el botón cuando se presione
+     */
     addError(error, config = {}, btnConfig) {
         const li = document.createElement("li");
         const {color} = config;
