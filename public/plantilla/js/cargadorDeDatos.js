@@ -220,6 +220,7 @@ function limitarAccesoSegunTipoUsuario() {
 }
 
 function mostrarDatosUsuario(datos) {
+  console.log(datos)
   const mostradores = [".mostrar-nombre_completo", ".mostrar-nombre_empresa", ".mostrar-numero_documento", ".mostrar-tipo_documento"];
   mostradores.forEach(mostrador => {
     const campo = mostrador.replace(".mostrar-", "");
