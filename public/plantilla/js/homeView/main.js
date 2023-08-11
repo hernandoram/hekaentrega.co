@@ -118,11 +118,12 @@ function modalInicial() {
 
   m.init = `
   <div class="text-center">
-    <img src="./img/aviso_inter_1.jpeg" style="height: 56vh"/>
+    <img src="./img/logobancolombia.png" style="height: 20vh"/>
     <br/>
     </div>
     </br>
     <div class="text-center">
+    <p>La sucursal de nuestra empresa está experimentando una interrupción en su funcionamiento, lo que nos ha llevado a gestionar los pagos de manera manual. Valoramos enormemente su paciencia en este asunto y deseamos disculparnos sinceramente por los inconvenientes ocasionados. Estamos dedicando todos nuestros esfuerzos para agilizar los desembolsos pendientes, tanto para aquellos con pagos programados para hoy como para los pagos diarios.</p>
       <h4><b>Agradecemos tu comprensión.<b></h4>
       <br/>
     </div>

@@ -1364,12 +1364,13 @@ function obtenerMensajeDesembolso() {
 }
 
 async function solicitarPagosPendientesUs() {
+
   const mensajeDesembolso = obtenerMensajeDesembolso();
   const minimo_diario = 3000000;
   const ref = db.collection("infoHeka").doc("manejoUsuarios");
   const data = await ref.get().then(d => d.data());
 
-  const transportadoras = ["servientrega", "interrapidisimo", "envía", "tcc", "coordinadora"];
+  const transportadoras = ["SERVIENTREGA", "ENVIA", "TCC", "INTERRAPIDISIMO", "COORDINADORA"];
   const verPago = t => db.collection("pagos").doc(t)
   .collection("pagos").where("REMITENTE", "==", datos_usuario.centro_de_costo)
   .limit(1)
@@ -1378,13 +1379,15 @@ async function solicitarPagosPendientesUs() {
 
   const hayPagoAnterior = await Promise.all(transportadoras.map(verPago));
 
+  console.log(hayPagoAnterior)
+
 
   if(!hayPagoAnterior.some(Boolean))
     return Swal.fire("Se ha detectado que no hay registro de pago previo.", "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico atencion@hekaentrega.co esto se realiza con la finalidad de validación de datos.", "error");
 
   if(!data) return;
 
-  const {limitadosDiario, diarioSolicitado} = data;
+  const {limitadosDiario, diarioSolicitado, fechaSolicitud} = data;
   
 
   if(!datos_usuario.datos_bancarios)
@@ -1442,13 +1445,35 @@ async function solicitarPagosPendientesUs() {
     }
 
     if(!diarioSolicitado.includes(usuario)) diarioSolicitado.push(usuario);
+    
 
     // const actualizacion = {
     //   diarioSolicitado: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo),
     //   limitadosDiario: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo)
     // }
 
-    await ref.update({limitadosDiario, diarioSolicitado});
+   let fechaActual = new Date();
+
+   // Definir opciones de formato
+   const opcionesFormato = {
+     year: "numeric",
+     month: "long",
+     day: "numeric",
+     weekday: "long",
+     hour: "numeric",
+     minute: "numeric",
+     second: "numeric",
+   };
+
+   // Formatear la fecha actual
+   const fechaFormateada =  fechaActual.toLocaleDateString('es-ES', opcionesFormato);
+
+    const fechaEnviada = `${usuario} solicito el pago el <br> ${fechaFormateada}` ;
+
+    if(!fechaSolicitud.includes(fechaEnviada)) fechaSolicitud.push(fechaEnviada);
+
+
+    await ref.update({limitadosDiario, diarioSolicitado, fechaSolicitud});
     Swal.fire("Pago solicitado con éxito.", "", "success");
 
   } else {
