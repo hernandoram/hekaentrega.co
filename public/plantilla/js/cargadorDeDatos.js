@@ -219,8 +219,10 @@ function limitarAccesoSegunTipoUsuario() {
   });
 }
 
+
 function mostrarDatosUsuario(datos) {
-  console.log(datos)
+  const referal= document.getElementById("referal");
+  referal.value=`https://www.hekaentrega.co/ingreso.html?rf=${datos.centro_de_costo}#registrar`
   const mostradores = [".mostrar-nombre_completo", ".mostrar-nombre_empresa", ".mostrar-numero_documento", ".mostrar-tipo_documento"];
   mostradores.forEach(mostrador => {
     const campo = mostrador.replace(".mostrar-", "");
@@ -515,6 +517,16 @@ function limitarSeleccionGuias(limit = 50) {
               text: "Puede seleccionar como máximo " + limit + " guías por documento"
           });
       }
+  });
+}
+
+function copiarData(){
+  let textoACopiar=document.getElementById("referal").value;
+  navigator.clipboard.writeText(textoACopiar).then(() => {
+    avisar(
+      "Información copiada con éxito",
+      "Se ha copiado el link de referido exitosamente",
+    );
   });
 }
 
