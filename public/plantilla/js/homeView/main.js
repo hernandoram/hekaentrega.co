@@ -108,7 +108,7 @@ const datosModal = (video, link, titulo, descripcion) => {
   });
 };
 
-//modalInicial();
+modalInicial();
 
 function modalInicial() {
   const m = new CreateModal({
