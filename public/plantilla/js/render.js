@@ -21,7 +21,7 @@
         neutro: "NEUTRO" // formalmente ninguna guía debería ener registraod este estado
     }
    
-    let novedadesExcelData = [1,2,3]
+    let novedadesExcelData = []
 
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
@@ -1314,16 +1314,19 @@
 
     }
 
+    
     //Mustra los movimientos de las guías
     function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         const ultimo_movimiento = data.movimientos[data.movimientos.length - 1];
-        novedadesExcelData.push(extraData)
+        console.log(data)
+        novedadesExcelData.push({extraData,data})
         
         
         //Preparon los componentes necesarios
         let card = document.createElement("div"),
             encabezado = document.createElement("a"),
             cuerpo = document.createElement("div"),
+
             table = document.createElement("table"),
             thead = document.createElement("thead"),
             tbody = document.createElement("tbody"),
@@ -1332,13 +1335,15 @@
 
         card.classList.add("card", "mt-5");
         ul.classList.add("list-group", "list-group-flush");
-
+        
         encabezado.setAttribute("class","card-header d-flex justify-content-between");
         encabezado.setAttribute("data-toggle", "collapse");
         encabezado.setAttribute("role", "button");
         encabezado.setAttribute("aria-expanded", "true");
 
         cuerpo.setAttribute("class", "card-body collapse table-responsive");
+        
+//        
 
         table.classList.add("table");
         table.setAttribute("id", "tabla-estadoGuias-"+usuario.replace(/\s/g, ""));
@@ -1370,7 +1375,7 @@
         encabezado.textContent = usuario;
         cuerpo.setAttribute("id", "estadoGuias-" + usuario.replace(/\s/g, ""));
         cuerpo.setAttribute("data-usuario", usuario.replace(/\s/g, ""));
-
+        
         tr.setAttribute("id", "estadoGuia"+data.numeroGuia);
 
         //Si parece una novedad, el texto lo pinta de rojo
@@ -1471,14 +1476,10 @@
             tbody.appendChild(tr);
             table.append(thead, tbody);
             let mensaje = document.createElement("p");
-            let descargar = document.createElement("button");
-            descargar.innerHTML = "Descargar Excel"
-            descargar.addEventListener("click",(e)=>{
-                descargarExcelNovedades(novedadesExcelData)
-            })
+            
             mensaje.classList.add("text-center", "text-danger");
             mensaje.innerHTML = "Tiempo óptimo de solución: 24 horas";
-            cuerpo.append(mensaje, descargar, table);
+            cuerpo.append(mensaje, table);
             card.append(encabezado, cuerpo);
             console.log(card)
             document.getElementById("visor_novedades").appendChild(card);
@@ -1562,7 +1563,8 @@
                 const solucion = {
                     gestion: "<b>La transportadora \"" +data.transportadora+ "\" responde lo siguiente:</b> " + text.trim(),
                     fecha: new Date(),
-                    admin: true
+                    admin: true,
+                    type: "Individual"
                 }
                 avisar("Se enviará mensaje al usuario", text);
                 if(extraData.seguimiento) {

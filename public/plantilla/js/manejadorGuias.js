@@ -314,9 +314,6 @@ async function historialGuiasAntiguo() {
     drawCallback: renderizadoDeTablaHistorialGuias,
   });
 
- 
-
-
   document.getElementById("cargador-guias").classList.remove("d-none");
   if (!user_id) return;
 
@@ -1575,7 +1572,7 @@ function descargarExcelServi(JSONData, ReportTitle, type) {
   console.log(JSONData);
   //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
   var arrData = typeof JSONData != "object" ? JSON.parse(JSONData) : JSONData;
-  
+
   //un arreglo cuyo cada elemento contiene un arreglo: ["titulo de la columna", "la información a inrertar en dicha columna"]
   //Está ordenado, como saldrá en el excel
   let encabezado = [
@@ -1656,37 +1653,273 @@ function descargarExcelServi(JSONData, ReportTitle, type) {
   return;
 }
 
-function descargarExcelNovedades(JSONData){
-  const arrayFiltrado= JSONData.map((data)=>{
-    return {
-      numeroGuia: data.numeroGuia,
-      solicitud: data.seguimiento[-0].gestion,
-      respuesta:""
-    }
+let errActualizarNovedades = [];
+let actualizadasCorrectamente = 0;
+
+async function subirExcelNovedades() {
+  let datos = [];
+  let contador = 0;
+  let label = document.getElementById("excelDocSolucionesLabel");
+  let inputExcel = document.getElementById("excelDocSoluciones")
+  let data = new FormData(document.getElementById("form-novedades"));
+  console.log(data.get("documento"));
+  fetch("/excel_to_json", {
+    method: "POST",
+    body: data,
   })
-  let arrData = typeof arrayFiltrado != "object" ? JSON.parse(arrayFiltrado) : arrayFiltrado
+    .then(async (res) => {
+      if (!res.ok) {
+        console.log(res);
+        throw Error(
+          "Lo sentimos, no pudimos cargar su documento, reviselo y vuelvalo a subir"
+        );
+      }
+      inputExcel.value = ""
+      label.innerHTML = "Seleccionar Archivo"
+      datos = await res.json();
+      let tamaño = datos.length;
+      datos.forEach(async (data) => {
+        contador++;
+        const id_user = data["ID USUARIO"];
+        const id_heka = data["ID HEKA"].toString();
+        const numGuia = data["NUMERO GUIA"];
+        const respuesta = data["RESPUESTA TRANSPORTADORA"];
+        const actualizar = data["ACTUALIZAR"];
+        const transpor = data["TRANSPORTADORA"];
+        const referenciaGuia = firebase
+          .firestore()
+          .collection("usuarios")
+          .doc(id_user)
+          .collection("guias")
+          .doc(id_heka);
+        if (!respuesta) {
+          errActualizarNovedades.push({
+            guia: numGuia,
+            error: "No se encontro la informacion necesaria",
+          });
+        }
+        if (errActualizarNovedades.length == tamaño) {
+          Swal.fire({
+            icon: "error",
+            title: "Informe de actualizacion",
+            showDenyButton: true,
+            denyButtonText: `Descargar reporte`,
+            text:
+              "Se actualizaron correctamente " +
+              actualizadasCorrectamente +
+              " de " +
+              tamaño +
+              ".",
+          }).then((result) => {
+            if (result.isConfirmed) {
+              errActualizarNovedades = [];
+              actualizadasCorrectamente = 0;
+            } else if (result.isDenied) {
+              descargarInformeNovedades(errActualizarNovedades);
+            }
+          });
+        }
+        if (actualizar == "SI" && respuesta) {
+          const solucion = {
+            gestion:
+              '<b>La transportadora "' +
+              transpor +
+              '" responde lo siguiente:</b> ' +
+              respuesta.trim(),
+            fecha: new Date(),
+            admin: true,
+            type: "Masivo",
+          };
+        
+
+          await referenciaGuia
+            .update({
+              seguimiento: firebase.firestore.FieldValue.arrayUnion(solucion),
+              novedad_solucionada: true,
+            })
+            .then(() => {
+              console.log("todo nice");
+              actualizadasCorrectamente++;
+              console.log(actualizadasCorrectamente);
+              firebase
+                .firestore()
+                .collection("notificaciones")
+                .doc(id_heka)
+                .delete();
+
+              enviarNotificacion({
+                visible_user: true,
+                user_id: id_user,
+                id_heka: id_heka,
+                mensaje:
+                  "Respuesta a Solución de la guía número " +
+                  numGuia +
+                  ": " +
+                  respuesta.trim(),
+                href: "novedades",
+              });
+            })
+            .catch((err) => {
+              errActualizarNovedades.push({
+                guia: numGuia,
+                error: err.message,
+              });
+            })
+            .finally(() => {
+              console.log(datos.length);
+              console.log(contador);
+              if (contador == datos.length) {
+                Swal.fire({
+                  icon: "success",
+                  title: "Informe de actualizacion",
+                  showDenyButton: true,
+                  denyButtonText: `Descargar reporte`,
+                  text:
+                    "Se actualizaron correctamente " +
+                    actualizadasCorrectamente +
+                    " de " +
+                    tamaño +
+                    ".",
+                }).then((result) => {
+                  
+                  if (result.isConfirmed) {
+                    
+                    errActualizarNovedades = [];
+                    actualizadasCorrectamente = 0;
+                  } else if (result.isDenied) {
+                    descargarInformeNovedades(errActualizarNovedades);
+                  }
+                });
+              }
+            });
+        }
+      });
+    })
+    .catch((err) => {
+      Swal.fire({
+        icon: "error",
+        title: "Error al subir excel",
+        text: err.message,
+      });
+    });
+}
+
+function descargarInformeNovedades(data) {
+  if (!data.length) {
+    return Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "No hay datos que descargar!",
+    });
+  }
+  let arrData = typeof data != "object" ? JSON.parse(data) : data;
 
   let encabezado = [
-    ["NUMERO GUIA", "_numGuia"],
-    ["SOLICITUD", "_solicitud"],
-    ["RESPUESTA TRANSPORTADORA", "_respuesta"],
+    ["NUMERO DE GUIA", "_guia"],
+    ["ERROR", "_error"],
   ];
 
   let newDoc = arrData.map((dat, i) => {
     let d = new Object();
-  
+
+    encabezado.forEach(([headExcel, fromData]) => {
+      if (fromData === "_guia") {
+        fromData = dat.guia;
+      }
+
+      if (fromData === "_error") {
+        fromData = dat.error;
+      }
+
+      d[headExcel] = dat[fromData] || fromData;
+    });
+    return d;
+  });
+  crearExcel(newDoc, "Reporte de errores");
+}
+
+function descargarExcelNovedades() {
+  let JSONData = novedadesExcelData;
+  console.log(novedadesExcelData);
+  if (!novedadesExcelData.length) {
+    return Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "No hay datos que descargar!",
+    });
+  }
+  const arrayFiltrado = JSONData.map((data) => {
+    // if(data.seguimiento_finalizado == false)
+    console.log(data);
+    const dataMovimientos =
+      data.data.movimientos[data.data.movimientos.length - 1];
+    const extraData = data.extraData;
+    return {
+      idUser: extraData.id_user,
+      idHeka: extraData.id_heka,
+      numeroGuia: extraData.numeroGuia,
+      solicitud:
+        extraData.seguimiento[extraData.seguimiento.length - 1].gestion,
+      transportadora: extraData.transportadora,
+      nombreMov: dataMovimientos.NomMov,
+      mensajeMov: dataMovimientos.NomConc,
+      fechaMov: dataMovimientos.FecMov,
+    };
+  });
+  let arrData =
+    typeof arrayFiltrado != "object"
+      ? JSON.parse(arrayFiltrado)
+      : arrayFiltrado;
+
+  let encabezado = [
+    ["ID USUARIO", "_idUser"],
+    ["ID HEKA", "_idHeka"],
+    ["NUMERO GUIA", "_numGuia"],
+    ["TRANSPORTADORA", "_Transportadora"],
+    ["SOLICITUD", "_solicitud"],
+    ["MOVIMIENTO", "_nombreMov"],
+    ["MENSAJE MOVIMIENTO", "_mensajeMov"],
+    ["FECHA MOVIMIENTO", "_fechaMov"],
+    ["RESPUESTA TRANSPORTADORA", ""],
+    ["ACTUALIZAR", "SI"],
+  ];
+
+  let newDoc = arrData.map((dat, i) => {
+    let d = new Object();
+
     encabezado.forEach(([headExcel, fromData]) => {
       if (fromData === "_numGuia") {
         fromData = dat.numeroGuia;
       }
 
       if (fromData === "_solicitud") {
-        fromData = dat.solicitud
+        fromData = dat.solicitud;
       }
 
-      if (fromData === "_respuesta") {
-        fromData = dat.respuesta;
+      if (fromData === "_idHeka") {
+        fromData = dat.idHeka;
       }
+
+      if (fromData === "_idUser") {
+        fromData = dat.idUser;
+      }
+
+      if (fromData === "_nombreMov") {
+        fromData = dat.nombreMov;
+      }
+
+      if (fromData === "_mensajeMov") {
+        fromData = dat.mensajeMov;
+      }
+
+      if (fromData === "_fechaMov") {
+        fromData = dat.fechaMov;
+      }
+
+      if (fromData === "_Transportadora") {
+        fromData = dat.transportadora;
+      }
+
       d[headExcel] = dat[fromData] || fromData;
     });
     return d;
@@ -1697,8 +1930,8 @@ function descargarExcelNovedades(JSONData){
 function descargarExcelInter(JSONData, ReportTitle, type) {
   //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
   var arrData = typeof JSONData != "object" ? JSON.parse(JSONData) : JSONData;
-  console.log(arrData)
-  console.log(JSONData)
+  console.log(arrData);
+  console.log(JSONData);
   //un arreglo cuyo cada elemento contiene un arreglo: ["titulo de la columna", "la información a inrertar en dicha columna"]
   //Está ordenado, como saldrá en el excel
   let encabezadoAntiguo = [
@@ -1868,6 +2101,7 @@ function descargarInformeGuias(JSONData, ReportTitle) {
 function subirDocumentos() {
   let cargadores = document.getElementsByClassName("cargar-documentos");
   let botones_envio = document.querySelectorAll('[data-funcion="enviar"]');
+  console.log(botones_envio);
   let num_guia_actualizado = false;
   for (let cargador of cargadores) {
     //verifica y muestra cada documetno cargado
@@ -1963,84 +2197,83 @@ function subirDocumentos() {
         .child(id_user + "/" + id_doc);
       let guias_enviadas, relacion_enviada;
       //Sube los documentos a Storage y coloca el indice de busqueda en firestore().documentos
-      if (actualizar_guia.files[0]) {actualizarNumGuia(id_doc, id_user, numero_guias)}
-        // .then(async (res)=>{
-          
-          // actualizacionCompletada = await res
-          // if (true) {
-            if (relacion_envio.files[0]) {
-              relacion_enviada = await storageUser
-                .child(nombre_relacion + ".pdf")
-                .put(relacion_envio.files[0])
-                .then((querySnapshot) => {
-                  firebase.firestore().collection("documentos").doc(id_doc).update({
-                    descargar_relacion_envio: true,
-                    nombre_relacion,
-                  });
-                  return true;
+      // .then(async (res)=>{
+
+      // actualizacionCompletada = await res
+      // if (true) {
+      if (relacion_envio.files[0]) {
+        relacion_enviada = await storageUser
+          .child(nombre_relacion + ".pdf")
+          .put(relacion_envio.files[0])
+          .then((querySnapshot) => {
+            firebase.firestore().collection("documentos").doc(id_doc).update({
+              descargar_relacion_envio: true,
+              nombre_relacion,
+            });
+            return true;
+          });
+      }
+      console.log("oka");
+      if (guias.files[0]) {
+        console.log("ok");
+        guias_enviadas = await storageUser
+          .child(nombre_guias + ".pdf")
+          .put(guias.files[0])
+          .then((querySnapshot) => {
+            firebase.firestore().collection("documentos").doc(id_doc).update({
+              descargar_guias: true,
+              nombre_guias,
+              important: !relacion_enviada,
+            });
+            return true;
+          });
+      }
+
+      if (actualizar_guia.files[0]) {
+        actualizarNumGuia(id_doc, id_user, numero_guias);
+      }
+
+      if (guias_enviadas || relacion_enviada) {
+        Swal.fire({
+          icon: "success",
+          title: "Documento cargado con éxito",
+          text: "¿Deseas eliminar la notificación?",
+          showCancelButton: true,
+          cancelButtonText: "no, gracias",
+          confirmButtonText: "si, por favor",
+        }).then((response) => {
+          if (response.isConfirmed) {
+            db.collection("notificaciones")
+              .where("guias", "array-contains", numero_guias[0])
+              .get()
+              .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                  if (doc.data().visible_admin) {
+                    doc.ref.delete();
+                  }
                 });
-            }
-            console.log("oka")
-            if (guias.files[0]) {
-              console.log("ok")
-              guias_enviadas = await storageUser
-                .child(nombre_guias + ".pdf")
-                .put(guias.files[0])
-                .then((querySnapshot) => {
-                  firebase.firestore().collection("documentos").doc(id_doc).update({
-                    descargar_guias: true,
-                    nombre_guias,
-                    important: !relacion_enviada,
-                  });
-                  return true;
-                });
-            }
-    
-            if (guias_enviadas || relacion_enviada) {
-              Swal.fire({
-                icon: "success",
-                title: "Documento cargado con éxito",
-                text: "¿Deseas eliminar la notificación?",
-                showCancelButton: true,
-                cancelButtonText: "no, gracias",
-                confirmButtonText: "si, por favor",
-              }).then((response) => {
-                if (response.isConfirmed) {
-                  db.collection("notificaciones")
-                    .where("guias", "array-contains", numero_guias[0])
-                    .get()
-                    .then((querySnapshot) => {
-                      querySnapshot.forEach((doc) => {
-                        if (doc.data().visible_admin) {
-                          doc.ref.delete();
-                        }
-                      });
-                    });
-                }
               });
-            
-            // apartado que será utilizado para cuando todos los usuarios tengan guías automáticas
-            // firebase.firestore().collection("notificaciones").add({
-            //     mensaje: `Se ha cargado un documento con las guias: ${numero_guias} a su cuenta.`,
-            //     fecha: genFecha(),
-            //     guias: numero_guias,
-            //     user_id: id_user,
-            //     visible_user: true,
-            //     timeline: new Date().getTime(),
-            //     type: "documento",
-            //     important
-            // })
-          // }
+          }
+        });
+
+        // apartado que será utilizado para cuando todos los usuarios tengan guías automáticas
+        // firebase.firestore().collection("notificaciones").add({
+        //     mensaje: `Se ha cargado un documento con las guias: ${numero_guias} a su cuenta.`,
+        //     fecha: genFecha(),
+        //     guias: numero_guias,
+        //     user_id: id_user,
+        //     visible_user: true,
+        //     timeline: new Date().getTime(),
+        //     type: "documento",
+        //     important
+        // })
+        // }
         // })
         // .catch((res)=>{
         //   console.log(res + "hola peteeee")
         //   actualizacionCompletada = res
         // })
-        
-          
       }
-
-      
 
       enviar.disabled = false;
     });
@@ -2346,70 +2579,72 @@ async function buscarGuiasParaDescargarStickers(guias) {
 }
 
 function actualizarNumGuia(id_doc, id_user, numero_guias) {
-
   return new Promise((resolve, reject) => {
     let data = new FormData(
       document.getElementById("form-estado-numguia" + id_doc)
     );
-    if (!data) resolve(true)
+    if (!data) resolve(true);
     console.log(data.get("documento"));
-      fetch("/excel_to_json", {
+    fetch("/excel_to_json", {
       method: "POST",
       body: data,
-    }).then(async (res) => {
-      if (!res.ok) {
-        console.log(res);
-        throw Error(
-          "Lo sentimos, no pudimos cargar su documento, reviselo y vuelvalo a subir"
-        );
-      }
-      const datos = await res.json();
-      const datosFiltrados = [];
-      console.log(datos);
-  
-      for (let e of numero_guias) {
-        const guiaEncontrada = datos.filter(
-          (data) =>
-            data.IdCliente == e && data["Número de Guia"] && data["Estado Envío"]
-        );
-        if (!guiaEncontrada.length) {
-          throw Error(
-            "No se encontro la informacion requerida, revisa el archivo, recarga la pagina y repite el proceso"
-          );
-        } else datosFiltrados.push(guiaEncontrada[0]);
-      }
-      
-      datosFiltrados.forEach(async (data) => {
-        const idHeka = data["IdCliente"].toString();
-        await firebase
-          .firestore()
-          .collection("usuarios")
-          .doc(id_user)
-          .collection("guias")
-          .doc(idHeka)
-          .update({
-            numeroGuia: data["Número de Guia"].toString(),
-            estado: data["Estado Envío"],
-            seguimiento_finalizado: false,
-          });
-      });
-      Swal.fire({
-        icon: 'success',
-        title: 'Numero de guia actualizado correctamente',
-        showConfirmButton: false,
-        timer: 1500
-      })
-      resolve(true)
     })
-    .catch(err =>{
-      Swal.fire({
-        icon: 'error',
-        title: 'Error al actualizar guia',
-        text: err.message,
+      .then(async (res) => {
+        if (!res.ok) {
+          console.log(res);
+          throw Error(
+            "Lo sentimos, no pudimos cargar su documento, reviselo y vuelvalo a subir"
+          );
+        }
+        const datos = await res.json();
+        const datosFiltrados = [];
+        console.log(datos);
+
+        for (let e of numero_guias) {
+          const guiaEncontrada = datos.filter(
+            (data) =>
+              data.IdCliente == e &&
+              data["Número de Guia"] &&
+              data["Estado Envío"]
+          );
+          if (!guiaEncontrada.length) {
+            throw Error(
+              "No se encontro la informacion requerida, revisa el archivo, recarga la pagina y repite el proceso"
+            );
+          } else datosFiltrados.push(guiaEncontrada[0]);
+        }
+
+        datosFiltrados.forEach(async (data) => {
+          const idHeka = data["IdCliente"].toString();
+          await firebase
+            .firestore()
+            .collection("usuarios")
+            .doc(id_user)
+            .collection("guias")
+            .doc(idHeka)
+            .update({
+              numeroGuia: data["Número de Guia"].toString(),
+              estado: data["Estado Envío"],
+              seguimiento_finalizado: false,
+            });
+        });
+        Swal.fire({
+          icon: "success",
+          title: "Numero de guia actualizado correctamente",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        resolve(true);
       })
-      reject(false)
-    });
-  })
+      .catch((err) => {
+        Swal.fire({
+          icon: "error",
+          title: "Error al actualizar guia",
+          text: err.message,
+        });
+        reject(false);
+      });
+  });
 }
 
 function actualizarEstado() {
@@ -2893,8 +3128,8 @@ function cargarNovedades() {
 
 //función que me revisa los movimientos de las guías
 function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
-  novedadesExcelData= []
-  console.log(novedadesExcelData)
+  novedadesExcelData = [];
+
   let filtro = true,
     toggle = "==",
     buscador = "enNovedad";
@@ -3002,7 +3237,7 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
           querySnapshot.forEach((doc) => {
             let dato = doc.data();
             contador++;
-            console.log(dato)
+            console.log(dato);
             consultarGuiaFb(
               user_id,
               doc.id,
@@ -3022,11 +3257,9 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
   }
 }
 
-
 function revisarNovedades(transportadora) {
-  novedadesExcelData=[]
-  console.log(novedadesExcelData)
-  
+  novedadesExcelData = [];
+
   const cargadorClass = document.getElementById("cargador-novedades").classList;
   cargadorClass.remove("d-none");
 
@@ -3148,10 +3381,30 @@ document
       console.log("Busqueda natural");
       revisarMovimientosGuias(administracion);
     }
-    
   });
 
+let inputExcelDoc = document.getElementById("excelDocSoluciones");
+let excelDocSoluciones = document.getElementById("descargarExcelNovedades");
+let excelDocSolucionesBoton = document.getElementById(
+  "excelDocSolucionesBoton"
+);
+
+inputExcelDoc.addEventListener("change", (e) => {
+  let label = document.getElementById("excelDocSolucionesLabel");
+  label.innerHTML = e.target.files[0].name
+});
+
+excelDocSoluciones.addEventListener("click", (e) => {
+  descargarExcelNovedades();
+});
+
+excelDocSolucionesBoton.addEventListener("click", async (e) => {
+  e.preventDefault();
+  subirExcelNovedades();
+});
+
 $("#btn-vaciar-consulta").click(() => {
+  novedadesExcelData = [];
   $("#visor_novedades").html("");
 });
 
