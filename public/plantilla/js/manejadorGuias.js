@@ -1854,6 +1854,7 @@ function descargarExcelNovedades() {
     const dataMovimientos =
       data.data.movimientos[data.data.movimientos.length - 1];
     const extraData = data.extraData;
+    console.log(dataMovimientos)
     return {
       idUser: extraData.id_user,
       idHeka: extraData.id_heka,
@@ -1861,9 +1862,9 @@ function descargarExcelNovedades() {
       solicitud:
         extraData.seguimiento[extraData.seguimiento.length - 1].gestion,
       transportadora: extraData.transportadora,
-      nombreMov: dataMovimientos.NomMov,
-      mensajeMov: dataMovimientos.NomConc,
-      fechaMov: dataMovimientos.FecMov,
+      nombreMov: dataMovimientos["Descripcion Estado"],
+      mensajeMov: dataMovimientos["Motivo"],
+      fechaMov: dataMovimientos["Fecha Cambio Estado"],
     };
   });
   let arrData =
