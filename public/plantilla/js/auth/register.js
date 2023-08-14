@@ -113,6 +113,7 @@ async function registrarNuevoUsuario(toSend, data, noSearch) {
     if (newUser.error) throw new Error(newUser.message);
 
     if (data.referidoDe) {
+
       let datosReferido = {
         sellerReferido: data.centro_de_costo,
         sellerReferente: data.referidoDe,
@@ -120,7 +121,15 @@ async function registrarNuevoUsuario(toSend, data, noSearch) {
         celularReferido: data.celular,
         cantidadEnvios: 0,
       };
-      console.log(datosReferido);
+      firebase
+      .firestore()
+      .collection("referidos")
+      .doc(data.centro_de_costo)
+      .set(datosReferido)
+      .then(()=>{
+        console.log("Referido agregado");
+      })
+
     }
 
     await auth.currentUser.sendEmailVerification();
@@ -139,12 +148,11 @@ async function registrarNuevoUsuario(toSend, data, noSearch) {
 
 async function createUserWithEmailAndPassword(email, password) {
 
-    alert("Hola")
-    // const user = await auth.createUserWithEmailAndPassword(email, password)
-    // .then(cr => cr.user)
-    // .catch(handleAuthErrors);
+    const user = await auth.createUserWithEmailAndPassword(email, password)
+    .then(cr => cr.user)
+    .catch(handleAuthErrors);
   
-    // return user;
+    return user;
   
 }
 

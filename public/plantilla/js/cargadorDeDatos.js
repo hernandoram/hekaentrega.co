@@ -194,6 +194,7 @@ async function consultarDatosDeUsuario() {
 
       datos.nombre_completo = datos_usuario.nombre_completo;
       mostrarDatosUsuario(datos);
+      mostrarReferidos(datos)
       mostrarDatosPersonalizados(datos_personalizados);
       mostrarDatosBancarios(datos_bancarios);
       mostrarBodegas(bodegas);
@@ -518,6 +519,21 @@ function limitarSeleccionGuias(limit = 50) {
           });
       }
   });
+}
+function mostrarReferidos(datos){
+  //console.log(datos)
+
+
+  firebase
+    .firestore()
+    .collection("referidos")
+    .where("sellerReferente", "==", datos.centro_de_costo)
+    .get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        console.log(doc.data());
+      });
+    });
 }
 
 function copiarData(){
