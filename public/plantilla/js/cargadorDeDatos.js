@@ -522,7 +522,7 @@ function limitarSeleccionGuias(limit = 50) {
 }
 function mostrarReferidos(datos){
   //console.log(datos)
-
+  let referidos = [];
 
   firebase
     .firestore()
@@ -531,9 +531,13 @@ function mostrarReferidos(datos){
     .get()
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
-        console.log(doc.data());
+        referidos.push(doc.data());
       });
+    }
+    ).finally(()=>{
+      console.log(referidos)
     });
+    
 }
 
 function copiarData(){
