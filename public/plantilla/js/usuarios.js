@@ -1032,30 +1032,20 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
       referidos.push(doc.data());
       console.log(referidos)
     });
-  });
+  })
+  .finally(()=>{
 
+    
+    
 
-
-  const table = $("#tabla-referidos").DataTable({
-    destroy: true,
+    const table = $("#tabla-referidos").DataTable({
+      destroy: true,
     data: referidos,
     columns: [
-      { data: "id", title: "Nº", defaultContent: "" },
-      { data: "nombre", title: "Nombre", defaultContent: "" },
-      { data: "ciudad", title: "Ciudad", defaultContent: "" },
-      { data: "barrio", title: "Barrio", defaultContent: "" },
-      { data: "direccion", title: "Dirección", defaultContent: "" },
-      {
-        data: "inactiva",
-        title: "Estado",
-        defaultContent: "Activa",
-        render: function (content, type, data) {
-          if (type === "display" || type === "filter") {
-            return content ? "Inactiva" : "Activada";
-          }
-          return content;
-        },
-      },
+      { data: "sellerReferido", title: "Seller Referido", defaultContent: "" },
+      { data: "nombreApellido", title: "Nombre Referido", defaultContent: "" },
+      { data: "celularReferido", title: "Celular", defaultContent: "" },
+      { data: "cantidadEnvios", title: "Cantidad Envios", defaultContent: "" },
     ],
     language: {
       url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
@@ -1067,8 +1057,9 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
       [5, 10, 25, 30],
     ],
   });
-
+  
   if (!referidos || !referidos.length) table.clear();
+});
 }
 
 function mostrarBodegasUsuarioAdm(bodegas) {
