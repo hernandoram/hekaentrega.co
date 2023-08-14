@@ -1064,7 +1064,7 @@ Recuerda que estos plazos están sujetos a nuestros horarios laborales y no labo
 
           <div class="container-fluid" id="referidos" style="display: none;">
 
-            <div class="d-flex flex-column flex-lg-row">
+            <div class="d-flex flex-column flex-lg-row" id="intro-referidos">
               <div class="pt-4">
                 <h7 class="text-primary">Recomiende a un amig@</h7>
                 <h2 class="text-dark"><b>Únase a nuestro Programa de Referidos y gane hasta ___</b></h2>
@@ -1075,11 +1075,16 @@ Recuerda que estos plazos están sujetos a nuestros horarios laborales y no labo
               <img src="./img/referal.jpg" style="height:60vh;" alt="aliados chocando manos">
             </div>
 
+          
+
             <div class="input-group">
               <input type="text" id="referal" class="form-control" value="">
               <div class="input-group-append">
                 <button class="btn btn-primary" type="button" onclick="copiarData()">Copiar</button>
               </div>
+            </div>
+
+            <div id="mostrador-referidos" class="d-none mt-2">              
             </div>
       
 

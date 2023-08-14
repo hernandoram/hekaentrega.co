@@ -520,6 +520,9 @@ function limitarSeleccionGuias(limit = 50) {
       }
   });
 }
+
+
+
 function mostrarReferidos(datos){
   //console.log(datos)
   let referidos = [];
@@ -533,11 +536,50 @@ function mostrarReferidos(datos){
       querySnapshot.forEach((doc) => {
         referidos.push(doc.data());
       });
-    }
-    ).finally(()=>{
-      console.log(referidos)
-    });
+    })
+    .finally(() => {
+      console.log(referidos);
+        despliegueReferidos(referidos);
+      });
+}
+
+function despliegueReferidos(referidos){
+  let mostradorReferidos = document.getElementById("mostrador-referidos");
+
+  mostradorReferidos.classList.remove("d-none");
     
+  if (referidos.length < 0) {
+    return
+    }
+  
+
+  mostradorReferidos.innerHTML += `<h4 class="text-center">Tus Referidos</h4>`;
+
+  for (referido of referidos) {
+    const htmlCard = `
+    <div class="col-md-4 mb-4" >
+    <p>${referido.nombreApellido}</p>
+    </div>
+    `;
+    mostradorReferidos.innerHTML += htmlCard;
+  }
+
+  //eliminar elementos repetidos
+
+  const uniqueElements = new Set();
+        
+  const children = mostradorReferidos.children;
+  for (const child of children) {
+      const textContent = child.textContent.trim();
+      
+      if (uniqueElements.has(textContent)) {
+          child.remove();
+      } else {
+          uniqueElements.add(textContent);
+      }
+  }
+
+
 }
 
 function copiarData(){
