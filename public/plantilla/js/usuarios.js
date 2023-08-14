@@ -932,6 +932,8 @@ function seleccionarUsuario(id) {
 
         mostrarDatosPersonales(datos_bancarios, "bancaria");
         mostrarDatosPersonales(datos_personalizados, "heka");
+
+        mostrarReferidosUsuarioAdm(data.centro_de_costo)
         mostrarBodegasUsuarioAdm(bodegas);
       } else {
         // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
@@ -1014,6 +1016,59 @@ function mostrarDatosPersonales(data, info) {
       $("#actv_credit").prop("checked", false);
     }
   }
+}
+
+function mostrarReferidosUsuarioAdm(centro_costo) {
+  console.log(centro_costo)
+  const referidos= [];
+
+  firebase
+  .firestore()
+  .collection("referidos")
+  .where("sellerReferente", "==", centro_costo)
+  .get()
+  .then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      referidos.push(doc.data());
+      console.log(referidos)
+    });
+  });
+
+
+
+  const table = $("#tabla-referidos").DataTable({
+    destroy: true,
+    data: referidos,
+    columns: [
+      { data: "id", title: "Nº", defaultContent: "" },
+      { data: "nombre", title: "Nombre", defaultContent: "" },
+      { data: "ciudad", title: "Ciudad", defaultContent: "" },
+      { data: "barrio", title: "Barrio", defaultContent: "" },
+      { data: "direccion", title: "Dirección", defaultContent: "" },
+      {
+        data: "inactiva",
+        title: "Estado",
+        defaultContent: "Activa",
+        render: function (content, type, data) {
+          if (type === "display" || type === "filter") {
+            return content ? "Inactiva" : "Activada";
+          }
+          return content;
+        },
+      },
+    ],
+    language: {
+      url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
+    },
+    scrollX: true,
+    scrollCollapse: true,
+    lengthMenu: [
+      [5, 10, 25, 30],
+      [5, 10, 25, 30],
+    ],
+  });
+
+  if (!referidos || !referidos.length) table.clear();
 }
 
 function mostrarBodegasUsuarioAdm(bodegas) {
