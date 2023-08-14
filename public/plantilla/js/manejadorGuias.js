@@ -3390,16 +3390,16 @@ let excelDocSolucionesBoton = document.getElementById(
   "excelDocSolucionesBoton"
 );
 
-inputExcelDoc.addEventListener("change", (e) => {
+inputExcelDoc?.addEventListener("change", (e) => {
   let label = document.getElementById("excelDocSolucionesLabel");
   label.innerHTML = e.target.files[0].name
 });
 
-excelDocSoluciones.addEventListener("click", (e) => {
+excelDocSoluciones?.addEventListener("click", (e) => {
   descargarExcelNovedades();
 });
 
-excelDocSolucionesBoton.addEventListener("click", async (e) => {
+excelDocSolucionesBoton?.addEventListener("click", async (e) => {
   e.preventDefault();
   subirExcelNovedades();
 });
