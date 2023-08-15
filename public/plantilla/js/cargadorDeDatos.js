@@ -585,9 +585,28 @@ function despliegueReferidos(referidos){
 
 
 }
-function agregarSaldo(referido, referente) {
-  let boton = document.getElementById(`btn-${referente}`);
-  boton.disabled = true;
+function agregarSaldo( referente, referido) {
+  firebase
+    .firestore()
+    .collection("referidos")
+    .where("sellerReferente", "==", referente)
+    .get()
+    .then((querySnapshot) => {
+      console.log("hola")
+      querySnapshot.forEach((doc) => {
+        if (doc.data().sellerReferido == referido) {
+          doc.ref.update({
+            reclamado: true,
+          });
+        }
+      });
+    })
+    .finally(() => {
+      let boton = document.getElementById(`btn-${referido}`);
+      boton.disabled = true;
+    });
+
+
 }
 
 function copiarData(){
