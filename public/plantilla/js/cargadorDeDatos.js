@@ -571,7 +571,7 @@ function despliegueReferidos(referidos){
     <div>
     
     </div>
-    <button class="btn btn-primary text-centered" onclick="agregarSaldo('${referido.nombreApellido}')">Reclamar recompensa</button>
+    <button class="btn btn-primary text-centered" ${referido.cantidadEnvios <5 ? "disabled" : ""} onclick="agregarSaldo('${referido.sellerReferente} , ${referido.sellerReferido}')">Reclamar recompensa</button>
 </div>
 
     </div>
@@ -584,8 +584,8 @@ function despliegueReferidos(referidos){
 
 
 }
-function agregarSaldo(referido){
-  console.log("agregar saldo", referido)
+function agregarSaldo(referido, referente){
+  console.log("agregar saldo", referido, referente)
 }
 
 function copiarData(){
