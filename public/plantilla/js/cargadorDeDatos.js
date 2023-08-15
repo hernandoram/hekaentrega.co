@@ -538,15 +538,16 @@ function mostrarReferidos(datos){
       });
     })
     .finally(() => {
+      despliegueReferidos(referidos);
       console.log(referidos);
-        despliegueReferidos(referidos);
       });
 }
 
 function despliegueReferidos(referidos){
   let mostradorReferidos = document.getElementById("mostrador-referidos");
-
+  
   mostradorReferidos.classList.remove("d-none");
+  mostradorReferidos.innerText = "";
     
   if (referidos.length < 0) {
     return
@@ -558,26 +559,30 @@ function despliegueReferidos(referidos){
   for (referido of referidos) {
     const htmlCard = `
     <div class="col-md-4 mb-4" >
-    <p>${referido.nombreApellido}</p>
+    <div class="card border-bottom-primary" shadow="h-100 py-2">
+
+    <div class="card-body">
+    <div class="row no-gutters align-items-center">
+    <div class="h7 font-weight-bold text-primary text-uppercase mb-2">${
+      referido.nombreApellido
+    }</div>
+    <div class="row no-gutters align-items-center">
+    <div class="h6 mb-0 mr-3 font-weight-bold">
+        <p>Número de envíos: <small>${referido.cantidadEnvios}</small></p>       
+    </div>
+    <div>
+    
+    </div>
+    <button class="btn btn-primary text-centered" onclick="TODO" data-funcion="ver-eliminar" value="">Reclamar recompensa</button>
+</div>
+
+    </div>
+    </div>
     </div>
     `;
     mostradorReferidos.innerHTML += htmlCard;
   }
 
-  //eliminar elementos repetidos
-
-  const uniqueElements = new Set();
-        
-  const children = mostradorReferidos.children;
-  for (const child of children) {
-      const textContent = child.textContent.trim();
-      
-      if (uniqueElements.has(textContent)) {
-          child.remove();
-      } else {
-          uniqueElements.add(textContent);
-      }
-  }
 
 
 }
