@@ -571,7 +571,7 @@ function despliegueReferidos(referidos){
     <div>
     
     </div>
-    <button class="btn btn-primary text-centered" ${referido.cantidadEnvios <5 ? "disabled" : ""} onclick="agregarSaldo('${referido.sellerReferente} , ${referido.sellerReferido}')">Reclamar recompensa</button>
+    <button class="btn btn-primary text-centered" id="btn-${referido.sellerReferido}"  onclick="agregarSaldo('${referido.sellerReferente}' , '${referido.sellerReferido}')">Reclamar recompensa</button>
 </div>
 
     </div>
@@ -581,11 +581,13 @@ function despliegueReferidos(referidos){
     mostradorReferidos.innerHTML += htmlCard;
   }
 
+  // ${referido.cantidadEnvios <5 ? "disabled" : ""}
 
 
 }
-function agregarSaldo(referido, referente){
-  console.log("agregar saldo", referido, referente)
+function agregarSaldo(referido, referente) {
+  let boton = document.getElementById(`btn-${referente}`);
+  boton.disabled = true;
 }
 
 function copiarData(){
