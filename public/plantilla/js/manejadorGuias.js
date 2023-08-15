@@ -1839,6 +1839,17 @@ function descargarInformeNovedades(data) {
 }
 
 function descargarExcelNovedades() {
+  const checkboxNovedadesInter = document.getElementById("checkboxNovedadesInter")
+  const checkboxNovedadesServientrega = document.getElementById("checkboxNovedadesServientrega")
+  const checkboxNovedadesCoordinadora = document.getElementById("checkboxNovedadesCoordinadora")
+  const checkboxNovedadesEnvia = document.getElementById("checkboxNovedadesEnvia")
+  let interArr = []
+  let serviArr = []
+  let enviaArr = []
+  let cordiArr = []
+  let arrayFiltrado = []
+  console.log(checkboxNovedadesInter.checked + checkboxNovedadesInter.value)
+  
   let JSONData = novedadesExcelData;
   console.log(novedadesExcelData);
   if (!novedadesExcelData.length) {
@@ -1848,25 +1859,92 @@ function descargarExcelNovedades() {
       text: "No hay datos que descargar!",
     });
   }
-  const arrayFiltrado = JSONData.map((data) => {
+  JSONData.forEach((data) => {
     // if(data.seguimiento_finalizado == false)
-    console.log(data);
+
     const dataMovimientos =
       data.data.movimientos[data.data.movimientos.length - 1];
+      console.log(dataMovimientos)
     const extraData = data.extraData;
-    console.log(dataMovimientos)
-    return {
-      idUser: extraData.id_user,
-      idHeka: extraData.id_heka,
-      numeroGuia: extraData.numeroGuia,
-      solicitud:
-        extraData.seguimiento[extraData.seguimiento.length - 1].gestion,
-      transportadora: extraData.transportadora,
-      nombreMov: dataMovimientos["Descripcion Estado"],
-      mensajeMov: dataMovimientos["Motivo"],
-      fechaMov: dataMovimientos["Fecha Cambio Estado"],
-    };
+    
+    if (extraData.transportadora == "INTERRAPIDISIMO" ){
+      let dataFinal = {
+        idUser: extraData.id_user,
+        idHeka: extraData.id_heka,
+        numeroGuia: extraData.numeroGuia,
+        solicitud:
+          extraData.seguimiento[extraData.seguimiento.length - 1].gestion,
+        transportadora: extraData.transportadora,
+        nombreMov: dataMovimientos["Descripcion Estado"],
+        mensajeMov: dataMovimientos["Motivo"],
+        fechaMov: dataMovimientos["Fecha Cambio Estado"],
+      }
+      interArr.push(dataFinal)
+    }
+    else if(extraData.transportadora == "SERVIENTREGA" ){
+      let dataFinal = { 
+        idUser: extraData.id_user,
+        idHeka: extraData.id_heka,
+        numeroGuia: extraData.numeroGuia,
+        solicitud:
+          extraData.seguimiento[extraData.seguimiento.length - 1].gestion,
+        transportadora: extraData.transportadora,
+        nombreMov: dataMovimientos.NomMov,
+        mensajeMov: dataMovimientos.NomConc,
+        fechaMov: dataMovimientos.FecMov,
+      }
+      serviArr.push(dataFinal)
+    }
+    else if (extraData.transportadora == "ENVIA" ){
+      let dataFinal ={
+        idUser: extraData.id_user,
+        idHeka: extraData.id_heka,
+        numeroGuia: extraData.numeroGuia,
+        solicitud:
+          extraData.seguimiento[extraData.seguimiento.length - 1].gestion,
+        transportadora: extraData.transportadora,
+        nombreMov: dataMovimientos.novedad,
+        mensajeMov: dataMovimientos.aclaracion,
+        fechaMov: dataMovimientos.fechaMov,
+      }
+      enviaArr.push(dataFinal)
+    }
+    else if (extraData.transportadora == "COORDINADORA" ){
+      let dataFinal ={
+        idUser: extraData.id_user,
+        idHeka: extraData.id_heka,
+        numeroGuia: extraData.numeroGuia,
+        solicitud:
+          extraData.seguimiento[extraData.seguimiento.length - 1].gestion,
+        transportadora: extraData.transportadora,
+        nombreMov: dataMovimientos.descripcion,
+        mensajeMov: dataMovimientos.codigo_novedad,
+        fechaMov: data.data.fecha,
+      }
+      cordiArr.push(dataFinal)
+    }
   });
+
+  if (checkboxNovedadesInter.checked){
+    console.log(checkboxNovedadesInter.checked)
+    arrayFiltrado = arrayFiltrado.concat(interArr)
+  }
+  if (checkboxNovedadesServientrega.checked){
+    arrayFiltrado = arrayFiltrado.push(serviArrArr)
+  }
+  if (checkboxNovedadesCoordinadora.checked){
+    arrayFiltrado = arrayFiltrado.concat(cordiArr)
+  }
+  if (checkboxNovedadesEnvia.checked){
+    arrayFiltrado = arrayFiltrado.concat(enviaArr)
+  }
+  if (!arrayFiltrado.length){
+    return Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "No hay datos que descargar!",
+    });
+  }
   let arrData =
     typeof arrayFiltrado != "object"
       ? JSON.parse(arrayFiltrado)
@@ -2012,7 +2090,6 @@ function descargarExcelInter(JSONData, ReportTitle, type) {
 
       d[headExcel] = dat[fromData] || fromData;
     });
-    console.log(d);
     return d;
   });
 
