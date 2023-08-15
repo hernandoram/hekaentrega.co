@@ -1318,7 +1318,7 @@
     //Mustra los movimientos de las guías
     function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         const ultimo_movimiento = data.movimientos[data.movimientos.length - 1];
-        console.log(data)
+        
         novedadesExcelData.push({extraData,data})
         
         
