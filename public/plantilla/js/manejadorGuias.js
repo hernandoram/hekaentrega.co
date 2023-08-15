@@ -1930,7 +1930,7 @@ function descargarExcelNovedades() {
     arrayFiltrado = arrayFiltrado.concat(interArr)
   }
   if (checkboxNovedadesServientrega.checked){
-    arrayFiltrado = arrayFiltrado.push(serviArr)
+    arrayFiltrado = arrayFiltrado.concat(serviArr)
   }
   if (checkboxNovedadesCoordinadora.checked){
     arrayFiltrado = arrayFiltrado.concat(cordiArr)
