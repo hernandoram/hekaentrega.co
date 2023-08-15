@@ -113,6 +113,9 @@ async function cargarDatosUsuario(){
 
   datos_usuario = await consultarDatosDeUsuario();
 
+  mostrarReferidos(datos_usuario)
+
+
 //  console.log( datos_usuario)
 
 
@@ -194,7 +197,6 @@ async function consultarDatosDeUsuario() {
 
       datos.nombre_completo = datos_usuario.nombre_completo;
       mostrarDatosUsuario(datos);
-      mostrarReferidos(datos)
       mostrarDatosPersonalizados(datos_personalizados);
       mostrarDatosBancarios(datos_bancarios);
       mostrarBodegas(bodegas);
@@ -545,17 +547,15 @@ function mostrarReferidos(datos){
 
 function despliegueReferidos(referidos){
   let mostradorReferidos = document.getElementById("mostrador-referidos");
+  let tituloreferidos = document.getElementById("titulo-referidos");
   
   mostradorReferidos.classList.remove("d-none");
-  mostradorReferidos.innerText = "";
+  tituloreferidos.classList.remove("d-none");
     
   if (referidos.length < 0) {
     return
     }
   
-
-  mostradorReferidos.innerHTML += `<h4 class="text-center">Tus Referidos</h4>`;
-
   for (referido of referidos) {
     const htmlCard = `
     <div class="col-md-4 mb-4" >
@@ -563,9 +563,7 @@ function despliegueReferidos(referidos){
 
     <div class="card-body">
     <div class="row no-gutters align-items-center">
-    <div class="h7 font-weight-bold text-primary text-uppercase mb-2">${
-      referido.nombreApellido
-    }</div>
+    <div class="h7 font-weight-bold text-primary text-uppercase mb-2">${referido.nombreApellido}</div>
     <div class="row no-gutters align-items-center">
     <div class="h6 mb-0 mr-3 font-weight-bold">
         <p>Número de envíos: <small>${referido.cantidadEnvios}</small></p>       
@@ -573,7 +571,7 @@ function despliegueReferidos(referidos){
     <div>
     
     </div>
-    <button class="btn btn-primary text-centered" onclick="TODO" data-funcion="ver-eliminar" value="">Reclamar recompensa</button>
+    <button class="btn btn-primary text-centered" onclick="agregarSaldo('${referido.nombreApellido}')">Reclamar recompensa</button>
 </div>
 
     </div>
@@ -585,6 +583,9 @@ function despliegueReferidos(referidos){
 
 
 
+}
+function agregarSaldo(referido){
+  console.log("agregar saldo", referido)
 }
 
 function copiarData(){
