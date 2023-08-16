@@ -536,12 +536,14 @@ function mostrarReferidos(datos){
     .get()
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
+        if(doc.data().reclamado == false)
         referidos.push(doc.data());
       });
     })
     .finally(() => {
-      despliegueReferidos(referidos);
       console.log(referidos);
+      if (referidos.length < 0)         
+      despliegueReferidos(referidos);
       });
 }
 
@@ -551,10 +553,6 @@ function despliegueReferidos(referidos){
   
   mostradorReferidos.classList.remove("d-none");
   tituloreferidos.classList.remove("d-none");
-    
-  if (referidos.length < 0) {
-    return
-    }
   
   for (referido of referidos) {
     const htmlCard = `
@@ -592,7 +590,6 @@ function agregarSaldo( referente, referido) {
     .where("sellerReferente", "==", referente)
     .get()
     .then((querySnapshot) => {
-      console.log("hola")
       querySnapshot.forEach((doc) => {
         if (doc.data().sellerReferido == referido) {
           doc.ref.update({
