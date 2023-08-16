@@ -536,13 +536,13 @@ function mostrarReferidos(datos){
     .get()
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
-        if(doc.data().reclamado == false)
+        if(doc.data().reclamado !== true)
         referidos.push(doc.data());
       });
     })
     .finally(() => {
-      console.log(referidos);
-      if (referidos.length < 0)         
+      console.log(referidos); 
+      if(referidos.length > 0)
       despliegueReferidos(referidos);
       });
 }
@@ -579,11 +579,12 @@ function despliegueReferidos(referidos){
     mostradorReferidos.innerHTML += htmlCard;
   }
 
-  // ${referido.cantidadEnvios <5 ? "disabled" : ""}
+  // ${referido.cantidadEnvios <5 ? "disabled" : ""} 
 
 
 }
 function agregarSaldo( referente, referido) {
+  //comprobaciónn real 
   firebase
     .firestore()
     .collection("referidos")
