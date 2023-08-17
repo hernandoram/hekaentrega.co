@@ -569,7 +569,7 @@ function despliegueReferidos(referidos){
     <div>
     
     </div>
-    <button class="btn btn-primary text-centered" id="btn-${referido.sellerReferido}"  onclick="agregarSaldo('${referido.sellerReferente}' , '${referido.sellerReferido}')">Reclamar recompensa</button>
+    <button class="btn btn-primary text-centered" id="btn-${referido.sellerReferido}"  onclick="agregarSaldo('${referido.cantidadEnvios}','${referido.sellerReferente}' , '${referido.sellerReferido}')">Reclamar recompensa</button>
 </div>
 
     </div>
@@ -583,8 +583,19 @@ function despliegueReferidos(referidos){
 
 
 }
-function agregarSaldo( referente, referido) {
-  //comprobaciónn real 
+function agregarSaldo( envios,referente, referido) {
+  //referente
+  if(envios < 5){
+    avisar(
+      "Error",
+      "Este referido aún no cumple con los requisitos para reclamar su recompensa"        
+    );
+    return
+  }
+
+  
+
+
   firebase
     .firestore()
     .collection("referidos")
