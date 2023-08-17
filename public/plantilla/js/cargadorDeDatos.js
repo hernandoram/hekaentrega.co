@@ -536,7 +536,7 @@ function mostrarReferidos(datos){
     .get()
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
-        if(doc.data().reclamado !== true)
+        // if(doc.data().reclamado !== true)
         referidos.push(doc.data());
       });
     })
@@ -585,16 +585,15 @@ function despliegueReferidos(referidos){
 }
 function agregarSaldo( envios,referente, referido) {
   //referente
-  if(envios < 5){
+  if(envios < 1){
     avisar(
       "Error",
       "Este referido aún no cumple con los requisitos para reclamar su recompensa"        
     );
     return
   }
-
   
-
+  reclamarReferido(referido,referente)
 
   firebase
     .firestore()
@@ -613,7 +612,57 @@ function agregarSaldo( envios,referente, referido) {
     .finally(() => {
       let boton = document.getElementById(`btn-${referido}`);
       boton.disabled = true;
+      avisar(
+        "Recompensa reclamada",
+        "Recompensa reclamada con éxito!"        
+      );
     });
+}
+
+/**{@link genFecha}; */
+
+function reclamarReferido(referido, referente){
+  console.log(referente)
+  let userid= localStorage.getItem("user_id");
+  let fecha= genFecha();
+  let datos_saldo_usuario ={}
+
+  const objetoSaldo = {
+    saldo: "Aquí muestra como va a quedar el saldo",
+    saldo_anterior: "Saldo anterior",
+    fecha: fecha,
+    diferencia: 0,
+    mensaje: `saldo del usuario ${referente} reclamado por referir al usuario ${referido} `,
+
+    //si alguno de estos datos es undefined podría generar error al subirlos
+    momento: new Date().getTime(),
+    user_id: userid,
+    guia: null,
+    medio: `Usuario reclama saldo del referido ${referido}`, 
+    numeroGuia: null,
+    type: "REFERIDO"
+  };
+  
+
+   firebase
+     .firestore()
+     .collection("usuarios")
+     .doc(userid)
+     .get()
+     .then((doc) => {
+       datos_saldo_usuario = doc.data().datos_personalizados;
+       console.log(datos_saldo_usuario);
+        objetoSaldo.saldo_anterior = datos_saldo_usuario.saldo;
+        objetoSaldo.saldo = objetoSaldo.saldo_anterior+500;
+        objetoSaldo.diferencia = objetoSaldo.saldo-objetoSaldo.saldo_anterior;
+
+     })
+     .finally(() => {
+      console.log(objetoSaldo);
+      actualizarSaldo(objetoSaldo);
+     });
+
+
 
 
 }
