@@ -4009,7 +4009,6 @@ async function historialGuiasAdmin(e) {
       let condicion = true;
 
       switch (tipoFiltro) {
-        case "filt_1":
         case "filt_3":
         case "filt_4":
           condicion = guia.centro_de_costo
