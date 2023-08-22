@@ -642,7 +642,6 @@ function reclamarReferido(referido, referente){
     numeroGuia: null,
     type: "REFERIDO"
   };
-  
 
    firebase
      .firestore()
@@ -652,14 +651,15 @@ function reclamarReferido(referido, referente){
      .then((doc) => {
        datos_saldo_usuario = doc.data().datos_personalizados;
        console.log(datos_saldo_usuario);
-        objetoSaldo.saldo_anterior = datos_saldo_usuario.saldo;
-        objetoSaldo.saldo = objetoSaldo.saldo_anterior+500;
-        objetoSaldo.diferencia = objetoSaldo.saldo-objetoSaldo.saldo_anterior;
-
+       objetoSaldo.saldo_anterior = datos_saldo_usuario.saldo;
+       objetoSaldo.saldo =
+         objetoSaldo.saldo_anterior +
+           (parseInt(datos_saldo_usuario.premio_referido) || 500);
+       objetoSaldo.diferencia = objetoSaldo.saldo - objetoSaldo.saldo_anterior;
      })
      .finally(() => {
-      console.log(objetoSaldo);
-      actualizarSaldo(objetoSaldo);
+       console.log(objetoSaldo);
+       // actualizarSaldo(objetoSaldo);
      });
 
 
