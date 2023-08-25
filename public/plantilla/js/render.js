@@ -507,6 +507,18 @@
 
             $("#eliminar_guia"+id).on("click", async function(e) {
                 // let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
+
+                if (data.deletable === false){
+                    return await Swal.fire({
+                        title: '¡AENCIÓN',
+                        text: "Está guia no se puede eliminar",
+                        icon: 'warning',
+                        // showCancelButton: true,
+                        // confirmButtonText: '¡Si! continuar 👍',
+                        // cancelButtonText: "¡No, me equivoqué!"
+                })}
+
+
                 const resp = await Swal.fire({
                     title: '¡AENCIÓN',
                     text: "Estás a punto de eliminar la guía Nro. " + id + ", Si la elimina, no lo va a poder recuperar, ¿Desea continuar?",
@@ -522,8 +534,8 @@
                     (this.getAttribute("data-enviado") != "true" || this.getAttribute("data-deletable") != "false")
                 ){
                     $("#enviar-documentos").prop("disabled", true);
-                    this.disabled = true;
-                    this.display = "none";
+                    // this.disabled = true;
+                    // this.display = "none";
                     usuarioAltDoc(data.id_user).collection("guias")
                     .doc(id).update({deleted: true, fecha_eliminada: new Date(), estadoActual: estadosGuia.eliminada}).then((res) => {
                         console.log(res);

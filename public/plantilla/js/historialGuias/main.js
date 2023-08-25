@@ -66,7 +66,7 @@ async function consultarHistorialGuias() {
             historial.guiasNeutras.add(id);
 
             if(change.type === "added" || change.type === "modified") {
-                data.deleted ? historial.delete(id) : historial.add(data);
+                historial.add(data);
             }
 
             if(inpNumeroGuia.val()) {
