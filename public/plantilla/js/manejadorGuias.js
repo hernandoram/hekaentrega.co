@@ -2615,9 +2615,8 @@ async function descargarStickerGuias(doc) {
 
 async function buscarGuiasParaDescargarStickers(guias) {
   const pdfDoc = await PDFLib.PDFDocument.create();
-
   for await (let guia of guias) {
-    let deletable = true;
+    let deletable = false;
     await firebase
       .firestore()
       .collection("base64StickerGuias")
@@ -2644,7 +2643,6 @@ async function buscarGuiasParaDescargarStickers(guias) {
         console.log("la guías numero " + guia + " no fue encontrada");
       });
 
-    console.log(deletable);
     if (deletable === false) {
       usuarioDoc.collection("guias").doc(guia).update({ deletable });
     }

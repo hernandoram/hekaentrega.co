@@ -480,6 +480,7 @@
 
     //Activa los inputs y btones de cada guia que no haya sido enviada
     function activarBotonesDeGuias(id, data, activate_once){
+        console.log(data.estadoActual)
         let activos = document.querySelectorAll('[data-funcion="activar-desactivar"]');
         for (let actv of activos){
             if(id == actv.getAttribute("data-id")){
@@ -502,11 +503,23 @@
         if(activate_once) {
 
            
-        
+            
 
 
             $("#eliminar_guia"+id).on("click", async function(e) {
                 // let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
+
+                if (data.deletable === false){
+                    return await Swal.fire({
+                        title: '¡AENCIÓN',
+                        text: "Está guia no se puede eliminar",
+                        icon: 'warning',
+                        // showCancelButton: true,
+                        // confirmButtonText: '¡Si! continuar 👍',
+                        // cancelButtonText: "¡No, me equivoqué!"
+                })}
+
+
                 const resp = await Swal.fire({
                     title: '¡AENCIÓN',
                     text: "Estás a punto de eliminar la guía Nro. " + id + ", Si la elimina, no lo va a poder recuperar, ¿Desea continuar?",
@@ -522,10 +535,11 @@
                     (this.getAttribute("data-enviado") != "true" || this.getAttribute("data-deletable") != "false")
                 ){
                     $("#enviar-documentos").prop("disabled", true);
-                    this.disabled = true;
-                    this.display = "none";
+                    // this.disabled = true;
+                    // this.display = "none";
                     usuarioAltDoc(data.id_user).collection("guias")
-                    .doc(id).update({deleted: true, fecha_eliminada: new Date(), estadoActual: estadosGuia.eliminada}).then((res) => {
+                    .doc(id).update({deleted: true, fecha_eliminada: new Date(), estadoActual: estadosGuia.eliminada, seguimiento_finalizado: true, estadoAnterior: data.estadoActual 
+                    }).then((res) => {
                         console.log(res);
                         console.log("Document successfully deleted!");
                         avisar("Guia Eliminada", "La guia Número " + id + " Ha sido eliminada", "alerta");
