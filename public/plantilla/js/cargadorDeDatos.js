@@ -538,9 +538,9 @@ function mostrarReferidos(datos){
       topeUsuario = parseInt(datos_saldo_usuario.tope_referido) || 100000;
       console.log("tope" + topeUsuario ,"recibo"+ datos_saldo_usuario.recibidoReferidos);
 
-      if(topeUsuario < datos_saldo_usuario.recibidoReferidos){
-        throw new Error("Condición cumplida. No se ejecutará el resto de la función.");
-      }
+      // if(topeUsuario < datos_saldo_usuario.recibidoReferidos){
+      //   throw new Error("Condición cumplida. No se ejecutará el resto de la función.");
+      // }
     })
     .then(() => {
       let referidos = [];
@@ -609,7 +609,6 @@ function agregarSaldo( envios,referente, referido) {
     return
   }
   
-  reclamarReferido(referido,referente)
 
   firebase
     .firestore()
@@ -618,7 +617,9 @@ function agregarSaldo( envios,referente, referido) {
     .get()
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
+        console.log(doc.data())
         if (doc.data().sellerReferido == referido) {
+        console.log(doc.data())
           doc.ref.update({
             reclamado: true,
           });
@@ -626,6 +627,8 @@ function agregarSaldo( envios,referente, referido) {
       });
     })
     .finally(() => {
+      reclamarReferido(referido,referente)
+
       let boton = document.getElementById(`btn-${referido}`);
       boton.disabled = true;
       avisar(
@@ -705,7 +708,7 @@ function reclamarReferido(referido, referente){
 
      .finally(() => {
        console.log(objetoSaldo);
-       // actualizarSaldo(objetoSaldo);
+        actualizarSaldo(objetoSaldo);
      });
 
 
