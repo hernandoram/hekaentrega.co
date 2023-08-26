@@ -535,11 +535,11 @@ function mostrarReferidos(datos){
     .get()
     .then((doc) => {
       datos_saldo_usuario = doc.data().datos_personalizados;
-      console.log("tope" + parseInt(datos_saldo_usuario.tope_referido) ,"recibo"+ datos_saldo_usuario.recibidoReferidos);
+      topeUsuario = parseInt(datos_saldo_usuario.tope_referido) || 100000;
+      console.log("tope" + topeUsuario ,"recibo"+ datos_saldo_usuario.recibidoReferidos);
 
-      if(parseInt(datos_saldo_usuario.tope_referido) < datos_saldo_usuario.recibidoReferidos){
+      if(topeUsuario < datos_saldo_usuario.recibidoReferidos){
         throw new Error("Condición cumplida. No se ejecutará el resto de la función.");
-
       }
     })
     .then(() => {
