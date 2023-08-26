@@ -1,8 +1,9 @@
 import { ChangeElementContenWhileLoading, segmentarArreglo } from "../utils/functions.js";
 import Stepper from "../utils/stepper.js";
-import { checkShowNegativos, camposExcel, formularioPrincipal, inpFiltCuentaResp, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor, codigos_banco, inpFiltGuia } from "./config.js";
+import { checkShowNegativos, camposExcel, formularioPrincipal, inpFiltCuentaResp, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor, codigos_banco, inpFiltGuia, errorContainer } from "./config.js";
 import { comprobarGuiaPagada, guiaExiste } from './comprobadores.js';
 import { defFiltrado as estadosGlobalGuias } from "../historialGuias/config.js";
+import AnotacionesPagos from "./AnotacionesPagos.js";
 
 const db = firebase.firestore();
 const storage = firebase.storage();
@@ -23,6 +24,8 @@ class Empaquetado {
         this.totalAPagar = 0;
         this.guiasAnalizadas = 0;
         this.pagado = 0;
+
+        this.stepper = new Stepper(); // Se carga un stteper vacío, que luego debería ser sustituido por el real
     }
 
     /**
@@ -100,14 +103,27 @@ class Empaquetado {
         }
 
         // botón general para descargar excel y pagar directamente sobre el banco        
-        if(this.usuarios.length > 0)
+        if(this.usuarios.length > 0) {
             visor.append(`<button class="btn btn-outline-primary mt-2 ml-3" id="descargador-guias-pagos">Descargar Pagos</button>`);
+            visor.append(`
+                <button class="btn btn-outline-success mt-2 ml-3" id="btn-carga_masiva-guias-pagos" onclick="pressPagoArchivosMasivos()">Cargar Pagos</button>
+                <input id="carga_masiva-guias-pagos" type="file" class="d-none"/>
+                <script>
+                    function pressPagoArchivosMasivos() {
+                        document.getElementById("carga_masiva-guias-pagos").click()
+                    }
+                </script>
+            `);
+
+        }
 
         const descargarExcel = $("#descargador-guias-pagos");
         const descargarExcelMAsivo = $("#descargador-guias_masivo-pagos");
+        const subidaExcelMasivo = $("#carga_masiva-guias-pagos");
 
         descargarExcel.click((e) => this.descargarExcelPagos(e));
         descargarExcelMAsivo.click((e) => this.descargarExcelPagosMasivo(e));
+        subidaExcelMasivo.on("change", e => this.pagoMasivoExcel(e));
 
         $(".step-view > .step:first-child", visor).addClass("active");
         this.activeActionsAfterSetPages();
@@ -587,6 +603,13 @@ class Empaquetado {
         const pagoUser = this.pagosPorUsuario[usuario];
         pagoUser.guiasPagadas = [];
         const guias = pagoUser.guias;
+
+        const reporteFinal = {
+            errores: 0,
+            guiasPagadas: 0,
+            totalGuias: guias
+        }
+
         const buttons = $(".next,.prev");
         const loader = new ChangeElementContenWhileLoading("#btn-pagar-"+usuario);
         loader.init();
@@ -629,7 +652,11 @@ class Empaquetado {
 
             const comprobar = await Swal.fire(swalObj);
 
-            if(!comprobar.isConfirmed) return terminar();
+            if(!comprobar.isConfirmed) {
+                terminar();
+                reporteFinal.errores++;
+                return reporteFinal;
+            }
         }
 
         let pagado = 0;
@@ -692,6 +719,7 @@ class Empaquetado {
                 // Sumar las comisiones y los totales
                 pagado += guia["TOTAL A PAGAR"];
                 comision_heka += guia[camposExcel.comision_heka];
+                reporteFinal.guiasPagadas++;
 
             } catch(e) {
                 console.log(e);
@@ -700,6 +728,7 @@ class Empaquetado {
                     "title": e.message
                 });
                 fila.tooltip();
+                reporteFinal.errores++;
             }
         }
 
@@ -726,6 +755,8 @@ class Empaquetado {
         this.pagosPorUsuario[usuario].comision_heka_total = comision_heka;
 
         terminar();
+
+        return reporteFinal;
     }
 
     /**
@@ -780,6 +811,11 @@ class Empaquetado {
         const loader = new ChangeElementContenWhileLoading(idButtonFacturar);
         loader.init();
 
+        const reporteFinalFactura = {
+            error: false,
+            message: "Reporte generado correctamente"
+        }
+
         const terminar = (proceso_correcto) => {
             loader.end();
 
@@ -807,8 +843,9 @@ class Empaquetado {
         if(!comision_heka_total) {
             Toast.fire("No hay comisión para facturar", "", "error");
             terminar();
-            return;
+            return reporteFinalFactura;
         }
+
         try {
             const resFact = await fetch("/siigo/crearFactura", {
                 method: "POST",
@@ -834,9 +871,112 @@ class Empaquetado {
         } catch (e) {
             Swal.fire("¡ERROR!", e.message, "error");
             terminar();
+            reporteFinalFactura.error = true;
+            reporteFinalFactura.message = e.message;
+        }
+        
+        return reporteFinalFactura;
+
+    }
+
+    /**
+     * La función `pagoMasivoExcel` es una función asíncrona que maneja el pago masivo de los usuarios
+     * en base a la entrada de un archivo de Excel.
+     * @param e - El parámetro `e` es un objeto de evento que representa el evento de cambio de entrada
+     * del archivo. Por lo general, se pasa a la función cuando se cambia el campo de entrada del
+     * archivo y se selecciona un archivo.
+     * @returns La función no devuelve nada explícitamente.
+     */
+    async pagoMasivoExcel(e) {
+        const files = e.target.files;
+
+        // Preparamos el mostrador de errores
+        const anotaciones = new AnotacionesPagos(errorContainer, {
+            title: "Errores pagos masivos"
+        });
+
+        // Preparamos el cargador del botón, luego inicializamos ambas
+        const loader = new ChangeElementContenWhileLoading("#btn-carga_masiva-guias-pagos");
+        
+        // Si no hay archivos la función no hace nada
+        if(!files.length) return; 
+
+        loader.init();
+        anotaciones.init();
+
+        const file = files[0];
+
+        // Creamos el formulario que va ser enviado al back
+        const formData = new FormData();
+        formData.set("documento", file);
+
+        const responseExcel = await fetch("excel_to_json", {
+            method: "POST",
+            body: formData
+        }).then(res => res.json());
+
+        if(!responseExcel.length) {
+            loader.end();
+            return;
+        } 
+
+        console.log(responseExcel);
+
+        let contador = 0;
+        // Comenzamos a iterar sobre cada fila del excel para revisar cada seller y proceder a pagar
+        for await ( let ex of responseExcel ) {
+            const nombre_ben = ex["Nombre Beneficiario"];
+            const valorPagoExcel = ex.ValorTransaccion;
+
+            
+            const idxSeller = this.usuarios.indexOf(nombre_ben);
+
+            // Se valida que el usuario esté entre la lista que se procede a pagar
+            if(idxSeller == -1) {
+                anotaciones.addError(`El usuario ${nombre_ben} no se encuentra en la lista por pagar.`);
+                continue;
+            }
+
+            const valorPagoUsuario = this.pagosPorUsuario[nombre_ben].pagoPendiente;
+            const eventoInterno = () => this.stepper.moveTo(idxSeller);
+            const opcionesBasicaBoton = {
+                text: "Ver",
+                color: "danger",
+                onClick: eventoInterno
+            };
+
+            // Si el valor a pagar y el valor impuesto por el excel no coinciden, marca error y activa el botòn de la alerta
+            if(valorPagoExcel !== valorPagoUsuario) {
+
+                anotaciones.addError(`La cifra descrita en el excel "$${convertirMiles(valorPagoExcel)}" para el usuario ${nombre_ben}, no coincide con el valor a pagar del usuario "$${convertirMiles(valorPagoUsuario)}"`, undefined, opcionesBasicaBoton);
+
+                continue;
+            }
+
+            this.stepper.moveTo(idxSeller);
+
+            // Se procede a pagar, si no se paga de forma exitosa, o hay algún error, 
+            // lo señala con el respectivo botón para poder dirigirse al usuario del problema y ver más detalles o pagar manual
+            const reportePago = await this.pagar(nombre_ben);
+            if(reportePago.errores) {
+                opcionesBasicaBoton.text = "Revisar";
+                anotaciones.addError(`No todas las guias fueron pagadas para el usuario ${nombre_ben}`, undefined, opcionesBasicaBoton);
+                continue;
+            }
+            
+            // Luego que el pago haya sido exitoso, se procede a facturar con la información paga
+            const reporteFactura = await this.facturar();
+            if(reporteFactura.error) {
+                opcionesBasicaBoton.text = "Revisar";
+                anotaciones.addError(`ERROR al facturar ${nombre_ben}: ${reporteFactura.message}`, undefined, opcionesBasicaBoton);
+                continue;
+            }
+
+            contador++;
         }
 
-
+        Swal.fire(`Se han pagado ${contador} usuario de los ${responseExcel.length} Obtenidos por el excel.`);
+        loader.end();
     }
 
     /**
@@ -1009,6 +1149,7 @@ async function empaquetarGuias(arr) {
     const stepper = new Stepper(visor);
     stepper.init();
     visor.children(".step-view").click();
+    paquete.stepper = stepper;
 
     /* El código anterior define un controlador de eventos para el evento `onAfterChange` de un objeto
     `stepper`. Cuando se activa el evento `onAfterChange`, el código actualiza la variable

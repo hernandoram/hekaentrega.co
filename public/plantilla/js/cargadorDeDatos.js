@@ -173,7 +173,7 @@ async function consultarDatosDeUsuario() {
   const actualizador = doc => {
     if(doc.exists) {
       const datos = doc.data();
-      const datos_bancarios = datos.datos_bancarios;
+      const datos_bancarios = datos.datos_bancarios || null;
       const datos_personalizados = datos.datos_personalizados;
       const bodegas = datos.bodegas ? datos.bodegas.filter(b => !b.inactiva) : [];
 

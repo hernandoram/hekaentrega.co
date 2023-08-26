@@ -2,7 +2,7 @@ import {title, table as htmlTable, filtersHtml, filterHtml} from "./views.js";
 import { filters, defFiltrado, defineFilter } from "./config.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 
-const {novedad, proceso, pedido, pagada, finalizada, generada, neutro} = defFiltrado;
+const {novedad, proceso, pedido, pagada, finalizada, generada, neutro, eliminada} = defFiltrado;
 
 const container = $("#historial_guias");
 const buscador = $("#filtrado-guias_hist")
@@ -10,15 +10,15 @@ const buscador = $("#filtrado-guias_hist")
 buscador.after(filtersHtml);
 container.append(htmlTable);
 
-const typesGenerales = [neutro, novedad, proceso, pedido, pagada, finalizada, generada];
+const typesGenerales = [neutro, eliminada, novedad, proceso, pedido, pagada, finalizada, generada];
 
 const columns = [
-    {data: null, title: "Acciones", render: accionesDeFila, types: typesGenerales.slice(1)},
+    {data: null, title: "Acciones", render: accionesDeFila, types: typesGenerales.slice(2)},
     // {data: null, title: "Empaque", render: accionEmpaque, types: [generada]},
     {data: null, title: "Gestionar", render: accionGestNovedad, types: [novedad]},
     {data: "id_heka", title: "Id", defaultContent: "", types: typesGenerales, saveInExcel: true},
-    {data: "numeroGuia", title: "# Guía", defaultContent: "", saveInExcel: true, types: [novedad, proceso, pagada, finalizada, generada, neutro]},
-    {data: "estado", title: "Estado", defaultContent: "", saveInExcel: true, types: [novedad, proceso, pagada, finalizada, neutro]},
+    {data: "numeroGuia", title: "# Guía", defaultContent: "", saveInExcel: true, types: [novedad, proceso, pagada, finalizada, generada, neutro,eliminada]},
+    {data: "estado", title: "Estado", defaultContent: "", saveInExcel: true, types: [novedad, proceso, pagada, finalizada, neutro,eliminada]},
     {data: "mostrar_transp", 
     orderable: false,
     title: "Transportadora", defaultContent: "", types: typesGenerales},
@@ -154,10 +154,10 @@ export default class SetHistorial {
     delete(id_heka) {
         const index = this.guias.findIndex(g => g.id_heka === id_heka);
 
-        if(index !== -1) {
-            this.guias.splice(index,1);
-            this.renderTable = true;
-        };
+        // if(index !== -1) {
+        //     this.guias.splice(index,1);
+        //     this.renderTable = true;
+        // };
     }
 
     //Según el tipo de filtrado muestra los botones necesarios
@@ -200,7 +200,6 @@ export default class SetHistorial {
             .map((c,i) => c.saveInExcel ? i : -1)
             .filter(g => g >= 0);
 
-            console.log(indiceColumnas);
             table.button().add(indexBtn, {
                 extend: "excel",
                 text: "Descargar excel",
@@ -216,8 +215,8 @@ export default class SetHistorial {
 
     defineColumns() {
         // No está funcionando como debería (error desconocido)
-        
-        let columnas = columns.map((c,i) =>  c.types.includes(this.filtrador) && c.visible !== false ? i : false)
+        let columnas = columns.map((c,i) =>  
+        c.types.includes(this.filtrador) && c.visible !== false ? i : false)
         .filter(f => f !== false);
 
         const renderizar = () => {
@@ -244,11 +243,11 @@ export default class SetHistorial {
     
     }
 
-    generalFilter(filt) {
+    generalFilter(filt) {   
         const neutral = g => this.guiasNeutras.has(g.id_heka);
         const filtNeutro = filt === neutro;
         const filtProceso = filt === proceso;
-        return this.guias.filter(g => {
+        return this.guias.filter(g => {     
             const original = defineFilter(g) === filt;
             const esNovedad = defineFilter(g) === novedad;
             if(filtNeutro) return neutral(g) && filtNeutro;
@@ -290,7 +289,6 @@ export default class SetHistorial {
         this.nodeFilters.each((i,node) => {
             const filt = node.getAttribute("data-filter");
             const cant = this.generalFilter(filt).length;
-
             $(node).find(".counter").text(cant);
         })
     }
@@ -322,7 +320,6 @@ export default class SetHistorial {
         });
 
         this.nodeFilters = nodeFilters;
-
         return filters;
     }
 
@@ -592,7 +589,7 @@ function accionesDeFila(datos, type, row) {
         const filtrado = defineFilter(row);
         const id = datos.id_heka;
         const generacion_automatizada = ["automatico", "automaticoEmp"].includes(transportadoras[datos.transportadora || "SERVIENTREGA"].sistema());
-        const showCloneAndDelete = datos.enviado ? "d-none" : "";
+        const showCloneAndDelete = datos.enviado ? "" : "";
         const showDownloadAndRotulo = !datos.enviado ? "d-none" : "";
         const showMovements = datos.numeroGuia && datos.estado ? "" : "d-none";
         let buttons = `
@@ -643,7 +640,7 @@ function accionesDeFila(datos, type, row) {
 
         //quitarle el d-none al siguiente elemento para que aparezca otra vez el botón de eliminar guía
 
-        const btnDelete = `<button class="btn d-none btn-danger btn-circle btn-sm mx-1 action ${showCloneAndDelete}" data-id="${id}" 
+        const btnDelete = `<button class="btn btn-danger btn-circle btn-sm mx-1 action ${showCloneAndDelete}" data-id="${id}" 
         id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
         data-placement="right"
         title="Eliminar Guía">

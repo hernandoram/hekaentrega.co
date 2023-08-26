@@ -1,7 +1,7 @@
 const {agregarEstadistica} = require("./estadisticas");
 const fetch = require("node-fetch");
 
-const {revisarNovedadAsync, revisarEstadoFinalizado, guiaEnNovedad} = require("./manejadorMovimientosGuia");
+const {revisarNovedadAsync, revisarEstadoFinalizado, guiaEnNovedad, actualizarReferidoPorGuiaEntregada} = require("./manejadorMovimientosGuia");
 const { templateMessage } = require("../controllers/messageBird");
 
 exports.segmentarString = (base64, limite = 1000) => {
@@ -24,6 +24,8 @@ exports.segmentarString = (base64, limite = 1000) => {
 }
 
 exports.actualizarEstado = async (doc, toUpdate) => {
+  await actualizarReferidoPorGuiaEntregada(doc.data(), toUpdate);
+
   return await doc.ref.parent.parent.collection("guias")
   .doc(doc.id).update(toUpdate)
   .then(() => {

@@ -150,7 +150,7 @@ exports.actualizarMovimientos = async (doc) => {
             }
         });
 
-        if(respuesta.status === "Falla") {
+        if(["Falla", "Error", "error"].includes(respuesta.status)) {
 
             const finalizar_seguimiento = doc.data().prueba ? true : false;
             if(finalizar_seguimiento) {

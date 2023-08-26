@@ -36,10 +36,16 @@ export const filters = [
     {
         id: "filter_novedad-guias_hist",
         name: "En novedad",
-        description: "Muesran aquellas guías que presentan novedad.",
+        description: "Muestran aquellas guías que presentan novedad.",
         dataFilter: defFiltrado.novedad,
         classColorBadge: "text-danger"
-    }
+    },
+    {
+        id: "Eliminadas",
+        name: "Eliminadas",
+        description: "Muestran aquellas guías que fueron eliminadas.",
+        dataFilter: defFiltrado.eliminada,
+    },
 ];
 
 //Devuelve un string con el tipo de filtrado según la guía
@@ -55,13 +61,14 @@ export function defineFilter(data) {
         filter = defFiltrado.pedido;
     } else if(!data.debe && data.type !== "CONVENCIONAL") {
         filter = defFiltrado.pagada
-    } else if (data.seguimiento_finalizado) {
+    } else if(data.estadoActual === defFiltrado.eliminada) {
+        filter = defFiltrado.eliminada;
+    } else if (data.estadoActual === defFiltrado.finalizada) {
         filter = defFiltrado.finalizada;
     } else if(data.estadoActual === defFiltrado.generada) {
         filter = defFiltrado.generada;
     } else {
         filter = defFiltrado.proceso;
     }
-
     return filter;
 }

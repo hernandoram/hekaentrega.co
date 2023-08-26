@@ -1,4 +1,5 @@
-const db = require("../keys/firebase").firestore();
+const firebase = require("../keys/firebase");
+const db = firebase.firestore();
 
 /*
     COORDINADORA
@@ -196,3 +197,38 @@ exports.revisarEstadoFinalizado = (estado) => {
     
     return listaEstadosFinalizadaCompleta.includes(estado)
 }
+
+exports.actualizarReferidoPorGuiaEntregada = async (data, nuevosDatos) => {
+    const usuario = data.centro_de_costo;
+    const numeroGuia = data.numeroGuia;
+    const nuevoEstado = nuevosDatos.estado;
+    const estadoGuiaEntregado = estadosEntregado.includes(nuevoEstado);
+
+    /** Para actualizar la información del referido, deben coincidir las siguientes condiciones:
+      - {@link dataReferido}: Se debe verificar que exista el dato del seller en la colección "referidos"
+      - {@link guiaEntregadaPrevia}: Si la guía ya existe entre las pagadas del referido, no debería volver a sumar
+      - {@link estadoGuiaEntregado}: Se debe valida que el estado de la guía corresponde con una guía efectivamente entregada
+    */
+    if(!estadoGuiaEntregado) return;
+
+    // Se marca le referencia del seller referido y se verifica la existencia, para denotar si es un referido
+    // En caso de ser un referido, estará disponible para realizar ediciones sobre el mismo
+  
+    const referidoRef = db.collection("referidos").doc(usuario);
+    const dataReferido = await referidoRef.get().then(d => d.exists ? d.data() : null);
+   
+  
+    if(dataReferido === null) return;
+  
+    const guiasEntregadas = dataReferido.guiasEntregadas || [];
+  
+    const guiaEntregadaPrevia = guiasEntregadas.includes(numeroGuia);
+  
+    if(guiaEntregadaPrevia) return;
+  
+    await referidoRef.update({
+      cantidadEnvios: firebase.firestore.FieldValue.increment(1),
+      guiasEntregadas: firebase.firestore.FieldValue.arrayUnion(numeroGuia)
+    });
+  
+  }
