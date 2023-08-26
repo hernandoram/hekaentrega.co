@@ -61,13 +61,13 @@ export function defineFilter(data) {
         filter = defFiltrado.pedido;
     } else if(!data.debe && data.type !== "CONVENCIONAL") {
         filter = defFiltrado.pagada
-    } else if (data.seguimiento_finalizado) {
+    } else if(data.estadoActual === defFiltrado.eliminada) {
+        filter = defFiltrado.eliminada;
+    } else if (data.estadoActual === defFiltrado.finalizada) {
         filter = defFiltrado.finalizada;
     } else if(data.estadoActual === defFiltrado.generada) {
         filter = defFiltrado.generada;
-    } else if(data.estadoActual === defFiltrado.eliminada) {
-        filter = defFiltrado.eliminada;
-    }  else {
+    } else {
         filter = defFiltrado.proceso;
     }
     return filter;

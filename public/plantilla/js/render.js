@@ -480,6 +480,7 @@
 
     //Activa los inputs y btones de cada guia que no haya sido enviada
     function activarBotonesDeGuias(id, data, activate_once){
+        console.log(data.estadoActual)
         let activos = document.querySelectorAll('[data-funcion="activar-desactivar"]');
         for (let actv of activos){
             if(id == actv.getAttribute("data-id")){
@@ -502,7 +503,7 @@
         if(activate_once) {
 
            
-        
+            
 
 
             $("#eliminar_guia"+id).on("click", async function(e) {
@@ -537,7 +538,8 @@
                     // this.disabled = true;
                     // this.display = "none";
                     usuarioAltDoc(data.id_user).collection("guias")
-                    .doc(id).update({deleted: true, fecha_eliminada: new Date(), estadoActual: estadosGuia.eliminada}).then((res) => {
+                    .doc(id).update({deleted: true, fecha_eliminada: new Date(), estadoActual: estadosGuia.eliminada, seguimiento_finalizado: true, estadoAnterior: data.estadoActual 
+                    }).then((res) => {
                         console.log(res);
                         console.log("Document successfully deleted!");
                         avisar("Guia Eliminada", "La guia Número " + id + " Ha sido eliminada", "alerta");
