@@ -232,14 +232,17 @@ const actualizarMovimientos = async function(doc) {
     };
     
     updte_movs = await extsFunc.actualizarMovimientos(doc, estado);
+    const seguimiento_finalizado = estados_finalizacion.some(v => estado.estadoActual === v)
+    || finalizar_seguimiento;
 
     const actualizaciones = {
         entrega_oficina_notificada,
         estado: estado.estadoActual,
         ultima_actualizacion: new Date(),
-        seguimiento_finalizado: estados_finalizacion.some(v => estado.estadoActual === v)
-        || finalizar_seguimiento
+        seguimiento_finalizado: seguimiento_finalizado
     };
+
+    if(seguimiento_finalizado) actualizaciones.estadoActual = estadosGuia.finalizada;
 
     if (updte_movs.estado === "Mov.A" && updte_movs.guardado) {
         const {enNovedad} = updte_movs.guardado
