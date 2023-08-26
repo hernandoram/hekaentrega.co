@@ -526,28 +526,44 @@ function limitarSeleccionGuias(limit = 50) {
 
 
 function mostrarReferidos(datos){
-  //console.log(datos)
-  let referidos = [];
+  let userid= localStorage.getItem("user_id");
 
   firebase
     .firestore()
-    .collection("referidos")
-    .where("sellerReferente", "==", datos.centro_de_costo)
+    .collection("usuarios")
+    .doc(userid)
     .get()
-    .then((querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-        // if(doc.data().reclamado !== true)
-        referidos.push(doc.data());
-      });
+    .then((doc) => {
+      datos_saldo_usuario = doc.data().datos_personalizados;
+      console.log("tope" + parseInt(datos_saldo_usuario.tope_referido) ,"recibo"+ datos_saldo_usuario.recibidoReferidos);
+
+      if(parseInt(datos_saldo_usuario.tope_referido) < datos_saldo_usuario.recibidoReferidos){
+        throw new Error("Condición cumplida. No se ejecutará el resto de la función.");
+
+      }
     })
-    .finally(() => {
-      console.log(referidos); 
-      if(referidos.length > 0)
-      despliegueReferidos(referidos);
-      });
+    .then(() => {
+      let referidos = [];
+
+      firebase
+        .firestore()
+        .collection("referidos")
+        .where("sellerReferente", "==", datos.centro_de_costo)
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            if (doc.data().reclamado !== true) referidos.push(doc.data());
+          });
+        })
+        .finally(() => {
+          console.log(referidos);
+          if (referidos.length > 0) despliegueReferidos(referidos);
+        });
+    });
 }
 
 function despliegueReferidos(referidos){
+
   let mostradorReferidos = document.getElementById("mostrador-referidos");
   let tituloreferidos = document.getElementById("titulo-referidos");
   
@@ -564,12 +580,12 @@ function despliegueReferidos(referidos){
     <div class="h7 font-weight-bold text-primary text-uppercase mb-2">${referido.nombreApellido}</div>
     <div class="row no-gutters align-items-center">
     <div class="h6 mb-0 mr-3 font-weight-bold">
-        <p>Número de envíos: <small>${referido.cantidadEnvios}</small></p>       
+        <p>Número de envíos: <small>${referido.cantidadEnvios<10 ? referido.cantidadEnvios :"10"}</small></p>       
     </div>
     <div>
     
     </div>
-    <button class="btn btn-primary text-centered" id="btn-${referido.sellerReferido}"  onclick="agregarSaldo('${referido.cantidadEnvios}','${referido.sellerReferente}' , '${referido.sellerReferido}')">Reclamar recompensa</button>
+    <button class="btn btn-primary text-centered" id="btn-${referido.sellerReferido}" ${referido.cantidadEnvios <10 ? "disabled" : ""}  onclick="agregarSaldo('${referido.cantidadEnvios}','${referido.sellerReferente}' , '${referido.sellerReferido}')">Reclamar recompensa</button>
 </div>
 
     </div>
@@ -579,13 +595,13 @@ function despliegueReferidos(referidos){
     mostradorReferidos.innerHTML += htmlCard;
   }
 
-  // ${referido.cantidadEnvios <5 ? "disabled" : ""} 
+  // 
 
 
 }
 function agregarSaldo( envios,referente, referido) {
   //referente
-  if(envios < 1){
+  if(envios < 10){
     avisar(
       "Error",
       "Este referido aún no cumple con los requisitos para reclamar su recompensa"        
@@ -643,6 +659,10 @@ function reclamarReferido(referido, referente){
     type: "REFERIDO"
   };
 
+
+  let  recibidoReferidos
+  
+
    firebase
      .firestore()
      .collection("usuarios")
@@ -650,13 +670,39 @@ function reclamarReferido(referido, referente){
      .get()
      .then((doc) => {
        datos_saldo_usuario = doc.data().datos_personalizados;
+       recibidoReferidos= datos_saldo_usuario.recibidoReferidos;
+
+       console.log(recibidoReferidos)
+       
+       recibidoReferidos +=
+       parseInt(datos_saldo_usuario.premio_referido) || 5000;
+       
+       console.log(recibidoReferidos)
+       
        console.log(datos_saldo_usuario);
+
        objetoSaldo.saldo_anterior = datos_saldo_usuario.saldo;
        objetoSaldo.saldo =
          objetoSaldo.saldo_anterior +
-           (parseInt(datos_saldo_usuario.premio_referido) || 500);
+         (parseInt(datos_saldo_usuario.premio_referido) || 5000);
        objetoSaldo.diferencia = objetoSaldo.saldo - objetoSaldo.saldo_anterior;
+
+       const datos = doc.data();
+
+       // Creamos un nuevo objeto con los datos anteriores y el nuevo valor
+       const nuevosDatosPersonalizados = {
+         ...datos.datos_personalizados, // Mantenemos las propiedades anteriores
+         recibidoReferidos: recibidoReferidos, // Agregamos la nueva propiedad con su valor
+       };
+
+       console.log(nuevosDatosPersonalizados);
+
+       // Actualizamos el documento con los nuevos datos
+       return firebase.firestore().collection("usuarios").doc(userid).update({
+         datos_personalizados: nuevosDatosPersonalizados,
+       });
      })
+
      .finally(() => {
        console.log(objetoSaldo);
        // actualizarSaldo(objetoSaldo);
