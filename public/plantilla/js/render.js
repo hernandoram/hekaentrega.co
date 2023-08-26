@@ -21,7 +21,7 @@
         neutro: "NEUTRO" // formalmente ninguna guía debería ener registraod este estado
     }
    
-    let novedadesExcelData = [1,2,3]
+    let novedadesExcelData = []
 
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
@@ -480,6 +480,7 @@
 
     //Activa los inputs y btones de cada guia que no haya sido enviada
     function activarBotonesDeGuias(id, data, activate_once){
+        console.log(data.estadoActual)
         let activos = document.querySelectorAll('[data-funcion="activar-desactivar"]');
         for (let actv of activos){
             if(id == actv.getAttribute("data-id")){
@@ -502,11 +503,23 @@
         if(activate_once) {
 
            
-        
+            
 
 
             $("#eliminar_guia"+id).on("click", async function(e) {
                 // let confirmacion = confirm("Si lo elimina, no lo va a poder recuperar, ¿Desea continuar?");
+
+                if (data.deletable === false){
+                    return await Swal.fire({
+                        title: '¡AENCIÓN',
+                        text: "Está guia no se puede eliminar",
+                        icon: 'warning',
+                        // showCancelButton: true,
+                        // confirmButtonText: '¡Si! continuar 👍',
+                        // cancelButtonText: "¡No, me equivoqué!"
+                })}
+
+
                 const resp = await Swal.fire({
                     title: '¡AENCIÓN',
                     text: "Estás a punto de eliminar la guía Nro. " + id + ", Si la elimina, no lo va a poder recuperar, ¿Desea continuar?",
@@ -522,10 +535,11 @@
                     (this.getAttribute("data-enviado") != "true" || this.getAttribute("data-deletable") != "false")
                 ){
                     $("#enviar-documentos").prop("disabled", true);
-                    this.disabled = true;
-                    this.display = "none";
+                    // this.disabled = true;
+                    // this.display = "none";
                     usuarioAltDoc(data.id_user).collection("guias")
-                    .doc(id).update({deleted: true, fecha_eliminada: new Date(), estadoActual: estadosGuia.eliminada}).then((res) => {
+                    .doc(id).update({deleted: true, fecha_eliminada: new Date(), estadoActual: estadosGuia.eliminada, seguimiento_finalizado: true, estadoAnterior: data.estadoActual 
+                    }).then((res) => {
                         console.log(res);
                         console.log("Document successfully deleted!");
                         avisar("Guia Eliminada", "La guia Número " + id + " Ha sido eliminada", "alerta");
@@ -1314,16 +1328,19 @@
 
     }
 
+    
     //Mustra los movimientos de las guías
     function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user){
         const ultimo_movimiento = data.movimientos[data.movimientos.length - 1];
-        novedadesExcelData.push(extraData)
+        
+        novedadesExcelData.push({extraData,data})
         
         
         //Preparon los componentes necesarios
         let card = document.createElement("div"),
             encabezado = document.createElement("a"),
             cuerpo = document.createElement("div"),
+
             table = document.createElement("table"),
             thead = document.createElement("thead"),
             tbody = document.createElement("tbody"),
@@ -1332,13 +1349,15 @@
 
         card.classList.add("card", "mt-5");
         ul.classList.add("list-group", "list-group-flush");
-
+        
         encabezado.setAttribute("class","card-header d-flex justify-content-between");
         encabezado.setAttribute("data-toggle", "collapse");
         encabezado.setAttribute("role", "button");
         encabezado.setAttribute("aria-expanded", "true");
 
         cuerpo.setAttribute("class", "card-body collapse table-responsive");
+        
+//        
 
         table.classList.add("table");
         table.setAttribute("id", "tabla-estadoGuias-"+usuario.replace(/\s/g, ""));
@@ -1370,7 +1389,7 @@
         encabezado.textContent = usuario;
         cuerpo.setAttribute("id", "estadoGuias-" + usuario.replace(/\s/g, ""));
         cuerpo.setAttribute("data-usuario", usuario.replace(/\s/g, ""));
-
+        
         tr.setAttribute("id", "estadoGuia"+data.numeroGuia);
 
         //Si parece una novedad, el texto lo pinta de rojo
@@ -1471,14 +1490,10 @@
             tbody.appendChild(tr);
             table.append(thead, tbody);
             let mensaje = document.createElement("p");
-            let descargar = document.createElement("button");
-            descargar.innerHTML = "Descargar Excel"
-            descargar.addEventListener("click",(e)=>{
-                descargarExcelNovedades(novedadesExcelData)
-            })
+            
             mensaje.classList.add("text-center", "text-danger");
             mensaje.innerHTML = "Tiempo óptimo de solución: 24 horas";
-            cuerpo.append(mensaje, descargar, table);
+            cuerpo.append(mensaje, table);
             card.append(encabezado, cuerpo);
             console.log(card)
             document.getElementById("visor_novedades").appendChild(card);
@@ -1562,7 +1577,8 @@
                 const solucion = {
                     gestion: "<b>La transportadora \"" +data.transportadora+ "\" responde lo siguiente:</b> " + text.trim(),
                     fecha: new Date(),
-                    admin: true
+                    admin: true,
+                    type: "Individual"
                 }
                 avisar("Se enviará mensaje al usuario", text);
                 if(extraData.seguimiento) {

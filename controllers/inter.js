@@ -232,14 +232,17 @@ const actualizarMovimientos = async function(doc) {
     };
     
     updte_movs = await extsFunc.actualizarMovimientos(doc, estado);
+    const seguimiento_finalizado = estados_finalizacion.some(v => estado.estadoActual === v)
+    || finalizar_seguimiento;
 
     const actualizaciones = {
         entrega_oficina_notificada,
         estado: estado.estadoActual,
         ultima_actualizacion: new Date(),
-        seguimiento_finalizado: estados_finalizacion.some(v => estado.estadoActual === v)
-        || finalizar_seguimiento
+        seguimiento_finalizado: seguimiento_finalizado
     };
+
+    if(seguimiento_finalizado) actualizaciones.estadoActual = estadosGuia.finalizada;
 
     if (updte_movs.estado === "Mov.A" && updte_movs.guardado) {
         const {enNovedad} = updte_movs.guardado
@@ -323,6 +326,7 @@ exports.crearGuia = (req, res) => {
         }, //Enviar solo si el servicio es id 16 RapiRadicado
         "Observaciones": guia.id_heka + " - " + guia.dice_contener
     }
+    console.log(JSON.stringify(data), null, "\t");
 
     request.post(url + "/InsertarAdmision", {
         headers: {
@@ -332,9 +336,13 @@ exports.crearGuia = (req, res) => {
         },
         body: JSON.stringify(data)
     }, (error, response, body) => {
-        if(error) res.send("Hubo un error => "+error);
+        if(error) res.send({
+            error: true,
+            message: "Hubo un error " + error,
+            detalles: error
+        });
 
-        console.log(body);
+        console.log("Body: ", body);
         if(typeof body === "string") {
             try {
                 const respuesta = JSON.parse(body);
@@ -345,7 +353,7 @@ exports.crearGuia = (req, res) => {
                 }
 
             } catch (e) {
-                console.log("Error al comprobar")
+                console.log("Error al comprobar => ", e);
             }
         }
         res.json(body);

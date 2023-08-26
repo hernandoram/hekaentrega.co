@@ -1,4 +1,3 @@
-const { Console } = require("console");
 const ciudades = require("../data/ciudades");
 const firebase = require("../keys/firebase");
 const db = firebase.firestore();

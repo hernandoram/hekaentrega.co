@@ -2975,7 +2975,8 @@ async function obtenerIdHeka() {
 }
 
 //función que envía los datos tomados a servientrega
-async function enviar_firestore(datos){    
+async function enviar_firestore(datos){
+    console.log(datos);
     let firestore = firebase.firestore();
     const id_heka = datos.id_heka ? datos.id_heka : await obtenerIdHeka();
 
@@ -3219,7 +3220,7 @@ async function generarGuiaInterrapidisimo(datos) {
         body: JSON.stringify(datos)
     }).then(d => {
         if(d.status === 500) return {message: "Ocurrió un error interno con la transportadora, por favor intente nuevamente."};
-
+        
         return d.json()
     })
     .catch(err => {
@@ -3230,7 +3231,13 @@ async function generarGuiaInterrapidisimo(datos) {
         };
     });
 
-    // console.log(respuesta);
+    if(!respuesta) {
+        return {
+            numeroGuia: 0,
+            message: "Lo sentimos, " + codTransp + " no ha respondido correctamente su solicitud"
+        }
+    }
+
     respuesta = typeof respuesta === "object" ? respuesta : JSON.parse(respuesta);
     if(respuesta.Message || respuesta.message) {
         respuesta.centro_de_costo = datos_usuario.centro_de_costo || "SCC";
@@ -3323,6 +3330,11 @@ async function generarGuiaEnvia(datos) {
         body: JSON.stringify(datos)
     }).then(d => d.json());
 
+    if(!response) return {
+        numeroGuia: 0,
+        message: "Lo sentimos, " + codTransp + " no ha respondido correctamente su solicitud"
+    }
+    
     if(response.respuesta) {
         return {
             numeroGuia: 0,
