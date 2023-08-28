@@ -523,10 +523,17 @@ function limitarSeleccionGuias(limit = 50) {
   });
 }
 
-
+function numberWithCommas(x) {  
+  var parts = x.toString().split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return parts.join(".");
+}
 
 function mostrarReferidos(datos){
   let userid= localStorage.getItem("user_id");
+
+  const topeReferidos= document.getElementById("tope-referido");
+
 
   firebase
     .firestore()
@@ -537,6 +544,7 @@ function mostrarReferidos(datos){
       datos_saldo_usuario = doc.data().datos_personalizados;
       topeUsuario = parseInt(datos_saldo_usuario.tope_referido) || 100000;
       console.log("tope" + topeUsuario ,"recibo"+ datos_saldo_usuario.recibidoReferidos);
+      topeReferidos.innerHTML= `$${numberWithCommas(topeUsuario)}`;
 
       // if(topeUsuario < datos_saldo_usuario.recibidoReferidos){
       //   throw new Error("Condición cumplida. No se ejecutará el resto de la función.");
@@ -560,9 +568,12 @@ function mostrarReferidos(datos){
           if (referidos.length > 0) despliegueReferidos(referidos);
         });
     });
+
+    
 }
 
 function despliegueReferidos(referidos){
+  console.log(referidos)
 
   let mostradorReferidos = document.getElementById("mostrador-referidos");
   let tituloreferidos = document.getElementById("titulo-referidos");
