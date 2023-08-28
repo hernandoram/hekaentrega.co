@@ -63,7 +63,7 @@ export function defineFilter(data) {
         filter = defFiltrado.pagada
     } else if(data.estadoActual === defFiltrado.eliminada) {
         filter = defFiltrado.eliminada;
-    } else if (data.estadoActual === defFiltrado.finalizada) {
+    } else if (data.seguimiento_finalizado) {
         filter = defFiltrado.finalizada;
     } else if(data.estadoActual === defFiltrado.generada) {
         filter = defFiltrado.generada;
