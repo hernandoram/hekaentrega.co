@@ -544,11 +544,11 @@ function mostrarReferidos(datos){
       datos_saldo_usuario = doc.data().datos_personalizados;
       topeUsuario = parseInt(datos_saldo_usuario.tope_referido) || 100000;
       console.log("tope" + topeUsuario ,"recibo"+ datos_saldo_usuario.recibidoReferidos);
-      topeReferidos.innerHTML= `$${numberWithCommas(topeUsuario)}`;
+      topeReferidos.innerHTML= `$${numberWithCommas(topeUsuario) || 100.000}`;
 
-      // if(topeUsuario < datos_saldo_usuario.recibidoReferidos){
-      //   throw new Error("Condición cumplida. No se ejecutará el resto de la función.");
-      // }
+      if(topeUsuario < datos_saldo_usuario.recibidoReferidos){
+        throw new Error("Condición cumplida. No se ejecutará el resto de la función.");
+      }
     })
     .then(() => {
       let referidos = [];
@@ -567,6 +567,10 @@ function mostrarReferidos(datos){
           console.log(referidos);
           if (referidos.length > 0) despliegueReferidos(referidos);
         });
+    }).catch(err => {
+      let mostradorReferidos = document.getElementById("mostrador-referidos");
+      mostradorReferidos.classList.remove("d-none");
+      mostradorReferidos.innerHTML = `<h3 class="text-center mt-2">¡Felicidades! Has reclamado todos los premios por referir usuarios que teníamos disponibles. ¡Gracias por tu apoyo!</h3>`;
     });
 
     
