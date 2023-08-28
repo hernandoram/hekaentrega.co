@@ -90,40 +90,70 @@ function revisarErroresParticularesRegistro(container) {
 }
 
 async function registrarNuevoUsuario(toSend, data, noSearch) {
-    const {correo, con, nombre_empresa} = data;
+    const { correo, con, nombre_empresa } = data;
     const existe_empresa = await verificarExistencia(toSend, data.cod_empresa);
-    const existe_usuario = await numeroDocumentoRepetido(toSend, data.numero_documento);
-    
-    console.log(toSend, data.cod_empresa);
+    const existe_usuario = await numeroDocumentoRepetido(
+      toSend,
+      data.numero_documento
+    );
 
-    if(existe_empresa) throw new Error('¡El nombre de empresa "' +nombre_empresa+ '" ya existe!');
-    if(existe_usuario) throw new Error('¡El número de documento "' +data.numero_documento+ '" ya existe!');
+    console.log(toSend, data);
+
+    if (existe_empresa)
+      throw new Error(
+        '¡El nombre de empresa "' + nombre_empresa + '" ya existe!'
+      );
+    if (existe_usuario)
+      throw new Error(
+        '¡El número de documento "' + data.numero_documento + '" ya existe!'
+      );
 
     const newUser = await createUserWithEmailAndPassword(correo, con);
 
-    if(newUser.error) throw new Error(newUser.message);
+    if (newUser.error) throw new Error(newUser.message);
+
+    if (data.referidoDe) {
+
+      let datosReferido = {
+        sellerReferido: data.centro_de_costo,
+        sellerReferente: data.referidoDe,
+        nombreApellido: data.nombres + " " + data.apellidos,
+        celularReferido: data.celular,
+        cantidadEnvios: 0,
+      };
+      firebase
+      .firestore()
+      .collection("referidos")
+      .doc(data.centro_de_costo)
+      .set(datosReferido)
+      .then(()=>{
+        console.log("Referido agregado");
+      })
+
+    }
 
     await auth.currentUser.sendEmailVerification();
 
-    if(toSend === "oficinas") {
-        await db.collection(toSend).doc(newUser.uid).set(data);
-        location.href = "#";
+    if (toSend === "oficinas") {
+      await db.collection(toSend).doc(newUser.uid).set(data);
+      location.href = "#";
     } else {
-        data.ingreso = newUser.uid;
-        await db.collection(toSend).add(data);
-        
-        if(!noSearch)
-            await findUser(newUser.uid);
+      data.ingreso = newUser.uid;
+      await db.collection(toSend).add(data);
+
+      if (!noSearch) await findUser(newUser.uid);
     }
     
 }
 
 async function createUserWithEmailAndPassword(email, password) {
+
     const user = await auth.createUserWithEmailAndPassword(email, password)
     .then(cr => cr.user)
     .catch(handleAuthErrors);
-
+  
     return user;
+  
 }
 
 async function verificarExistencia(coll, cod_empresa) {
@@ -141,7 +171,12 @@ async function numeroDocumentoRepetido(coll, cod_empresa) {
 }
 
 function datosRegistroUsuario(formData) {
+
+
     const toSend = new Object();
+  
+
+
     for(let registro of formData) {
         toSend[registro[0]] = registro[1].trim();
     }
@@ -162,6 +197,18 @@ function datosRegistroUsuario(formData) {
     toSend.centro_de_costo = "Seller" + empresa;
     toSend.cod_empresa = empresa.toLowerCase();
     toSend.fecha_creacion = new Date();
+
+    // Query parameters de la URL actual
+  let queryParams = new URLSearchParams(window.location.search);
+
+  // Acceso a un query parameter específico por su nombre
+  let rfValue = queryParams.get("rf");
+
+    if(rfValue) {
+        toSend.referidoDe = rfValue;
+  }
+
+  console.log(toSend);
 
     return toSend;
 }

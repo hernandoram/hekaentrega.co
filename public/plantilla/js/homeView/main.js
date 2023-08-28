@@ -128,7 +128,6 @@ function modalInicial() {
       <br/>
     </div>
   `;
-
   m.onSubmit = () => {
     if (encuesta == "true") {
       m.close();

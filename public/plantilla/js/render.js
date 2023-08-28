@@ -2299,7 +2299,8 @@
                 GENERAL: "Cuando admin configura el saldo del usuario de forma genérica",
                 DESCONTADO: "Cuando se descuenta al usuario (al crear la guía)",
                 RESTAURADO: "Cuando se retorna un saldo descontado de una guía en concreto",
-                CANJEADO: "Cuando admin retorna un saldo deudor"
+                CANJEADO: "Cuando admin retorna un saldo deudor",
+                REFERIDO: "Cuando el user reclama un saldo de referido",
             }
         }
 

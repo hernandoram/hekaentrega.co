@@ -932,6 +932,8 @@ function seleccionarUsuario(id) {
 
         mostrarDatosPersonales(datos_bancarios, "bancaria");
         mostrarDatosPersonales(datos_personalizados, "heka");
+
+        mostrarReferidosUsuarioAdm(data.centro_de_costo)
         mostrarBodegasUsuarioAdm(bodegas);
       } else {
         // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
@@ -1014,6 +1016,50 @@ function mostrarDatosPersonales(data, info) {
       $("#actv_credit").prop("checked", false);
     }
   }
+}
+
+function mostrarReferidosUsuarioAdm(centro_costo) {
+  console.log(centro_costo)
+  const referidos= [];
+
+  firebase
+  .firestore()
+  .collection("referidos")
+  .where("sellerReferente", "==", centro_costo)
+  .get()
+  .then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      referidos.push(doc.data());
+      console.log(referidos)
+    });
+  })
+  .finally(()=>{
+
+    
+    
+
+    const table = $("#tabla-referidos").DataTable({
+      destroy: true,
+    data: referidos,
+    columns: [
+      { data: "sellerReferido", title: "Seller Referido", defaultContent: "" },
+      { data: "nombreApellido", title: "Nombre Referido", defaultContent: "" },
+      { data: "celularReferido", title: "Celular", defaultContent: "" },
+      { data: "cantidadEnvios", title: "Cantidad Envios", defaultContent: "" },
+    ],
+    language: {
+      url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
+    },
+    scrollX: true,
+    scrollCollapse: true,
+    lengthMenu: [
+      [5, 10, 25, 30],
+      [5, 10, 25, 30],
+    ],
+  });
+  
+  if (!referidos || !referidos.length) table.clear();
+});
 }
 
 function mostrarBodegasUsuarioAdm(bodegas) {
