@@ -4087,10 +4087,10 @@ async function historialGuiasAdmin(e) {
       defaultContent: "Servientrega",
     },
     { data: "type", title: "Tipo", defaultContent: "Pago contraentrega" },
-    { data: "alto", title: "Alto" },
-    { data: "ancho", title: "Ancho" },
-    { data: "largo", title: "Largo" },
-    { data: "peso", title: "peso" },
+    { data: "alto", title: "Alto", visible: false },
+    { data: "ancho", title: "Ancho", visible: false },
+    { data: "largo", title: "Largo", visible: false },
+    { data: "peso", title: "peso", visible: false },
     { data: "detalles.comision_heka", title: "Comisión Heka" },
     {
       data: "detalles.comision_trasportadora",
@@ -4098,12 +4098,13 @@ async function historialGuiasAdmin(e) {
     },
     { data: "detalles.flete", title: "Flete" },
     { data: "detalles.recaudo", title: "Recaudo" },
-    { data: "seguro", title: "Seguro" },
+    { data: "seguro", title: "Seguro", visible: false },
     { data: "detalles.total", title: "Total" },
     {
       data: "detalles.costoDevolucion",
       title: "Costo devolución",
       defaultContent: "---",
+      visible: false
     },
     { data: "fecha", title: "Fecha" },
     {
@@ -4126,14 +4127,15 @@ async function historialGuiasAdmin(e) {
       title: "Cuenta responsable",
       defaultContent: "Personal",
     },
-    { data: "ciudadR", title: "Ciudad remitente", defaultContent: "---" },
-    { data: "ciudadD", title: "Ciudad destino", defaultContent: "---" },
+    { data: "ciudadR", title: "Ciudad remitente", defaultContent: "---", visible: false },
+    { data: "ciudadD", title: "Ciudad destino", defaultContent: "---", visible: false },
     {
       data: "departamentoD",
       title: "Despartamento destino",
       defaultContent: "---",
+      visible: false
     },
-    { data: "direccionD", title: "Dirección", defaultContent: "---" },
+    { data: "direccionD", title: "Dirección", defaultContent: "---", visible: false },
     {
       data: "id_tipo_entrega",
       title: "Tipo de entrega",
@@ -4144,6 +4146,7 @@ async function historialGuiasAdmin(e) {
           "no aplica"
         );
       },
+      visible: false
     },
   ];
 
