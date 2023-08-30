@@ -511,7 +511,7 @@
 
                 if (data.deletable === false){
                     return await Swal.fire({
-                        title: '¡AENCIÓN',
+                        title: '¡ATENCIÓN',
                         text: "Está guia no se puede eliminar",
                         icon: 'warning',
                         // showCancelButton: true,
