@@ -376,8 +376,8 @@
                             <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="actualizar-num-guia${id}">Actualizar Guia</label>
                         </div>
                     </div>
-                    <input class="cargar-documentos" type="file" data-tipo="relacion-envio" id="cargar-relacion-envio${id}" style="display: none">
-                    <input class="cargar-documentos" type="file" data-tipo="guias" id="cargar-guias${id}" style="display: none">
+                    <input class="cargar-documentos" type="file" accept="application/pdf" data-tipo="relacion-envio" id="cargar-relacion-envio${id}" style="display: none">
+                    <input class="cargar-documentos" type="file" accept="application/pdf" data-tipo="guias" id="cargar-guias${id}" style="display: none">
                     <input class="cargar-documentos" type="file" name="documento" data-tipo="num-guia" id="actualizar-num-guia${id}" style="display: none">
                     <p id="mostrar-relacion-envio${id}" class="ml-2" 
                     style="text-overflow: ellipsis;
