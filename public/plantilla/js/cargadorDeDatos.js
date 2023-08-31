@@ -1588,26 +1588,6 @@ function obtenerMensajeDesembolso() {
 }
 
 
-let fechaActual = new Date();
-
-// Definir opciones de formato
-const opcionesFormato = {
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-  weekday: "long",
-  hour: "numeric",
-  minute: "numeric",
-  second: "numeric",
-};
-
-// Formatear la fecha actual
-const fechaFormateada =  fechaActual.toLocaleDateString('es-ES', opcionesFormato);
-
- const fechaEnviada = `${datos_usuario.centro_de_costo} solicito el pago el <br> ${fechaFormateada}` ;
-
- console.log(fechaEnviada)
-
 
 async function solicitarPagosPendientesUs() {
 
@@ -1665,6 +1645,29 @@ async function solicitarPagosPendientesUs() {
 
   if(diarioSolicitado.includes(datos_usuario.centro_de_costo))
     return Swal.fire("", mensajeDesembolso, "info");
+
+    let fechaActual = new Date();
+
+    // Definir opciones de formato
+    const opcionesFormato = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      weekday: "long",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      hour12: true,
+    };
+
+    // Formatear la fecha actual
+    const fechaFormateada = fechaActual.toLocaleDateString(
+      "es-ES",
+      opcionesFormato
+    );
+
+    const fechaEnviada = `${datos_usuario.centro_de_costo} solicito el pago el <br> ${fechaFormateada}`;
+
 
   if(saldo_pendiente < minimo_diario) {
     const mensaje = "Estás a punto de solicitar pago con un monto inferior a " + minimo_diario + " por lo tanto podrá solicitarlo una vez a la semana.<br> ¿Estás seguro de solicitar el pago?";
@@ -1727,6 +1730,7 @@ async function solicitarPagosPendientesUs() {
 
     if(!diarioSolicitado.includes(datos_usuario.centro_de_costo) && !fechaSolicitud.includes(fechaEnviada)) {
       diarioSolicitado.push(datos_usuario.centro_de_costo);
+      console.log(fechaEnviada);
       fechaSolicitud.push(`${datos_usuario.centro_de_costo} solicito el pago el <br> ${fechaFormateada}`)
       await ref.update({diarioSolicitado, fechaSolicitud});
     }
