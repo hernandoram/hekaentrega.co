@@ -1604,7 +1604,10 @@ const opcionesFormato = {
 // Formatear la fecha actual
 const fechaFormateada =  fechaActual.toLocaleDateString('es-ES', opcionesFormato);
 
- const fechaEnviada = `${usuario} solicito el pago el <br> ${fechaFormateada}` ;
+ const fechaEnviada = `${datos_usuario.centro_de_costo} solicito el pago el <br> ${fechaFormateada}` ;
+
+ console.log(fechaEnviada)
+
 
 async function solicitarPagosPendientesUs() {
 
@@ -1636,16 +1639,16 @@ async function solicitarPagosPendientesUs() {
   if(!datos_usuario.datos_bancarios)
     return Swal.fire("No puede solicitar pagos", "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico atencion@hekaentrega.co esto se realiza con la finalidad de validación de datos. Adicional debes registrar datos bancarios para tener donde realizar el deposito del dinero.", "error");
 
-    if(saldo_pendiente == 0) {
-      const mensaje = "No puedes solicitar tu pago ya que no tienes saldo";
-      return Swal.fire({
-        icon: "warning",
-        title: "No tienes saldo",
-        html: mensaje,
-        showCancelButton: false,
-        confirmButtonText: "Aceptar"
-      });  
-    } 
+    // if(saldo_pendiente == 0) {
+    //   const mensaje = "No puedes solicitar tu pago ya que no tienes saldo";
+    //   return Swal.fire({
+    //     icon: "warning",
+    //     title: "No tienes saldo",
+    //     html: mensaje,
+    //     showCancelButton: false,
+    //     confirmButtonText: "Aceptar"
+    //   });  
+    // } 
 
     
     if(saldo_pendiente < 0) {
@@ -1724,7 +1727,7 @@ async function solicitarPagosPendientesUs() {
 
     if(!diarioSolicitado.includes(datos_usuario.centro_de_costo) && !fechaSolicitud.includes(fechaEnviada)) {
       diarioSolicitado.push(datos_usuario.centro_de_costo);
-      fechaSolicitud.push(fechaEnviada)
+      fechaSolicitud.push(`${datos_usuario.centro_de_costo} solicito el pago el <br> ${fechaFormateada}`)
       await ref.update({diarioSolicitado, fechaSolicitud});
     }
 
