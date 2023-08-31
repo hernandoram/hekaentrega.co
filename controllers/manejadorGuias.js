@@ -31,8 +31,8 @@ exports.consultarGuia = async (req, res) => {
   const { n } = req.query;
 
   try {
-    if (!process.env.DEVELOPMENT)
-      await actualizarMovimientosPorComparador("numeroGuia", "==", n);
+    // if (!process.env.DEVELOPMENT)
+    //   await actualizarMovimientosPorComparador("numeroGuia", "==", n);
     // console.log("REPORTE", reporte);
 
     const { lista, formularios } = await referenciaNovedades.get().then((d) => {
