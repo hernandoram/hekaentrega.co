@@ -2466,7 +2466,7 @@ class CalcularCostoDeEnvio {
         if(!cotizacion) cotizacion = this.precio;
         this.kg = cotizacion.peso_liquidado;
         this.total_flete = cotizacion.flete_fijo;
-        this.sobreflete = this.convencional ? 0 : Math.max(this.valor * 0.0265, 4300);
+        this.sobreflete = this.convencional ? 0 : Math.round(Math.max(this.valor * 0.0265, 4300));
         this.seguroMercancia = cotizacion.flete_variable;
         this.tiempo = cotizacion.dias_entrega;
     }
