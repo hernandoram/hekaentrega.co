@@ -71,7 +71,11 @@ function mirarColeccion(e) {
     valorseleccionado = collection;
     if(!collection) return mostrario.html("");
 
+    
     const listaUsuarios = filtroPagos[collection];
+    if(collection=== "fechaSolicitud") {listaUsuarios.reverse()}
+
+    console.log(listaUsuarios);
     mostrario.html(listaUsuarios.map(seller => mostrarioUsuario(collection, seller)));
     const puedeEditar = editar.includes(collection);
 

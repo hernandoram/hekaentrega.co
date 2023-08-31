@@ -523,10 +523,17 @@ function limitarSeleccionGuias(limit = 50) {
   });
 }
 
-
+function numberWithCommas(x) {  
+  var parts = x.toString().split(".");
+  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+  return parts.join(".");
+}
 
 function mostrarReferidos(datos){
   let userid= localStorage.getItem("user_id");
+
+  const topeReferidos= document.getElementById("tope-referido");
+
 
   firebase
     .firestore()
@@ -537,10 +544,11 @@ function mostrarReferidos(datos){
       datos_saldo_usuario = doc.data().datos_personalizados;
       topeUsuario = parseInt(datos_saldo_usuario.tope_referido) || 100000;
       console.log("tope" + topeUsuario ,"recibo"+ datos_saldo_usuario.recibidoReferidos);
+      topeReferidos.innerHTML= `$${numberWithCommas(topeUsuario) || 100.000}`;
 
-      // if(topeUsuario < datos_saldo_usuario.recibidoReferidos){
-      //   throw new Error("Condición cumplida. No se ejecutará el resto de la función.");
-      // }
+      if(topeUsuario < datos_saldo_usuario.recibidoReferidos){
+        throw new Error("Condición cumplida. No se ejecutará el resto de la función.");
+      }
     })
     .then(() => {
       let referidos = [];
@@ -559,10 +567,17 @@ function mostrarReferidos(datos){
           console.log(referidos);
           if (referidos.length > 0) despliegueReferidos(referidos);
         });
+    }).catch(err => {
+      let mostradorReferidos = document.getElementById("mostrador-referidos");
+      mostradorReferidos.classList.remove("d-none");
+      mostradorReferidos.innerHTML = `<h3 class="text-center mt-2">¡Felicidades! Has reclamado todos los premios por referir usuarios que teníamos disponibles. ¡Gracias por tu apoyo!</h3>`;
     });
+
+    
 }
 
 function despliegueReferidos(referidos){
+  console.log(referidos)
 
   let mostradorReferidos = document.getElementById("mostrador-referidos");
   let tituloreferidos = document.getElementById("titulo-referidos");
@@ -1572,6 +1587,8 @@ function obtenerMensajeDesembolso() {
 
 }
 
+
+
 async function solicitarPagosPendientesUs() {
 
   const mensajeDesembolso = obtenerMensajeDesembolso();
@@ -1629,6 +1646,29 @@ async function solicitarPagosPendientesUs() {
   if(diarioSolicitado.includes(datos_usuario.centro_de_costo))
     return Swal.fire("", mensajeDesembolso, "info");
 
+    let fechaActual = new Date();
+
+    // Definir opciones de formato
+    const opcionesFormato = {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      weekday: "long",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      hour12: true,
+    };
+
+    // Formatear la fecha actual
+    const fechaFormateada = fechaActual.toLocaleDateString(
+      "es-ES",
+      opcionesFormato
+    );
+
+    const fechaEnviada = `${datos_usuario.centro_de_costo} solicito el pago el <br> ${fechaFormateada}`;
+
+
   if(saldo_pendiente < minimo_diario) {
     const mensaje = "Estás a punto de solicitar pago con un monto inferior a " + minimo_diario + " por lo tanto podrá solicitarlo una vez a la semana.<br> ¿Estás seguro de solicitar el pago?";
     const resp = await Swal.fire({
@@ -1661,23 +1701,6 @@ async function solicitarPagosPendientesUs() {
     //   limitadosDiario: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo)
     // }
 
-   let fechaActual = new Date();
-
-   // Definir opciones de formato
-   const opcionesFormato = {
-     year: "numeric",
-     month: "long",
-     day: "numeric",
-     weekday: "long",
-     hour: "numeric",
-     minute: "numeric",
-     second: "numeric",
-   };
-
-   // Formatear la fecha actual
-   const fechaFormateada =  fechaActual.toLocaleDateString('es-ES', opcionesFormato);
-
-    const fechaEnviada = `${usuario} solicito el pago el <br> ${fechaFormateada}` ;
 
     if(!fechaSolicitud.includes(fechaEnviada)) fechaSolicitud.push(fechaEnviada);
 
@@ -1705,9 +1728,11 @@ async function solicitarPagosPendientesUs() {
     console.log(datos_usuario.centro_de_costo);
     // return;
 
-    if(!diarioSolicitado.includes(datos_usuario.centro_de_costo)) {
+    if(!diarioSolicitado.includes(datos_usuario.centro_de_costo) && !fechaSolicitud.includes(fechaEnviada)) {
       diarioSolicitado.push(datos_usuario.centro_de_costo);
-      await ref.update({diarioSolicitado});
+      console.log(fechaEnviada);
+      fechaSolicitud.push(`${datos_usuario.centro_de_costo} solicito el pago el <br> ${fechaFormateada}`)
+      await ref.update({diarioSolicitado, fechaSolicitud});
     }
 
     // const actualizacion = {

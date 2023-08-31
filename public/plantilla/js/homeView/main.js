@@ -108,24 +108,19 @@ const datosModal = (video, link, titulo, descripcion) => {
   });
 };
 
-// modalInicial();
+modalInicial();
 
 function modalInicial() {
   const m = new CreateModal({
     title: "<h3>Información importante!</h3>",
-    modalSize: "modal-md",
+    modalSize: "modal-lg",
   });
 
   m.init = `
-  <div class="text-center">
-    <img src="./img/logobancolombia.png" style="height: 20vh"/>
+  <div class="text-center d-flex justify-content-between">
+    <img src="./img/notificacionseptiembre.jpeg" style="height: 50vh"/>
+    <img src="./img/aumentoprecioservi.jpeg" style="height: 50vh"/>
     <br/>
-    </div>
-    </br>
-    <div class="text-center">
-    <p>La sucursal de nuestra empresa está experimentando una interrupción en su funcionamiento, lo que nos ha llevado a gestionar los pagos de manera manual. Valoramos enormemente su paciencia en este asunto y deseamos disculparnos sinceramente por los inconvenientes ocasionados. Estamos dedicando todos nuestros esfuerzos para agilizar los desembolsos pendientes, tanto para aquellos con pagos programados para hoy como para los pagos diarios.</p>
-      <h4><b>Agradecemos tu comprensión.<b></h4>
-      <br/>
     </div>
   `;
   m.onSubmit = () => {
