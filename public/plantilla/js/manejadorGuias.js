@@ -1657,6 +1657,8 @@ let errActualizarNovedades = [];
 let actualizadasCorrectamente = 0;
 
 async function subirExcelNovedades() {
+  
+  
   let datos = [];
   let contador = 0;
   let label = document.getElementById("excelDocSolucionesLabel");
@@ -1680,6 +1682,7 @@ async function subirExcelNovedades() {
       let tamaño = datos.length;
       datos.forEach(async (data) => {
         contador++;
+        let anteriorSeguimiento 
         const id_user = data["ID USUARIO"];
         const id_heka = data["ID HEKA"].toString();
         const numGuia = data["NUMERO GUIA"];
@@ -1692,12 +1695,32 @@ async function subirExcelNovedades() {
           .doc(id_user)
           .collection("guias")
           .doc(id_heka);
-        if (!respuesta) {
-          errActualizarNovedades.push({
-            guia: numGuia,
-            error: "No se encontro la informacion necesaria",
-          });
-        }
+
+        referenciaGuia.get()
+        .then(async doc=>{
+          anteriorSeguimiento = doc.data().seguimiento?doc.data().seguimiento[doc.data().seguimiento?.length-1]:
+          console.log(doc.data().seguimiento)
+          
+          let respuestaRepetida = false
+          if (anteriorSeguimiento?.admin){
+            console.log("entro")
+            const respAnt = '<b>La transportadora "' +transpor + '" responde lo siguiente:</b> ' + respuesta.trim()
+            console.log(respAnt)
+            console.log(anteriorSeguimiento.gestion)
+            if(anteriorSeguimiento.gestion == respAnt){
+              errActualizarNovedades.push({
+                guia: numGuia,
+                error: "Ultima respuesta duplicada",
+              })
+              respuestaRepetida = true
+            }
+          }
+          else if (!respuesta) {
+            errActualizarNovedades.push({
+              guia: numGuia,
+              error: "No se encontro la informacion necesaria",
+            });
+          }
         if (errActualizarNovedades.length == tamaño) {
           Swal.fire({
             icon: "error",
@@ -1705,13 +1728,13 @@ async function subirExcelNovedades() {
             showDenyButton: true,
             denyButtonText: `Descargar reporte`,
             text:
-              "Se actualizaron correctamente " +
-              actualizadasCorrectamente +
-              " de " +
-              tamaño +
+            "Se actualizaron correctamente " +
+            actualizadasCorrectamente +
+            " de " +
+            tamaño +
               ".",
-          }).then((result) => {
-            if (result.isConfirmed) {
+            }).then((result) => {
+              if (result.isConfirmed) {
               errActualizarNovedades = [];
               actualizadasCorrectamente = 0;
             } else if (result.isDenied) {
@@ -1719,34 +1742,34 @@ async function subirExcelNovedades() {
             }
           });
         }
-        if (actualizar == "SI" && respuesta) {
+        if (actualizar == "SI" && respuesta && !respuestaRepetida) {
           const solucion = {
             gestion:
-              '<b>La transportadora "' +
-              transpor +
-              '" responde lo siguiente:</b> ' +
-              respuesta.trim(),
+            '<b>La transportadora "' +
+            transpor +
+            '" responde lo siguiente:</b> ' +
+            respuesta.trim(),
             fecha: new Date(),
             admin: true,
             type: "Masivo",
           };
-        
-
+          console.log(anteriorSeguimiento)
+          
           await referenciaGuia
-            .update({
-              seguimiento: firebase.firestore.FieldValue.arrayUnion(solucion),
-              novedad_solucionada: true,
-            })
+          .update({
+            seguimiento: firebase.firestore.FieldValue.arrayUnion(solucion),
+            novedad_solucionada: true,
+          })
             .then(() => {
               console.log("todo nice");
               actualizadasCorrectamente++;
               console.log(actualizadasCorrectamente);
               firebase
-                .firestore()
-                .collection("notificaciones")
-                .doc(id_heka)
-                .delete();
-
+              .firestore()
+              .collection("notificaciones")
+              .doc(id_heka)
+              .delete();
+              
               enviarNotificacion({
                 visible_user: true,
                 user_id: id_user,
@@ -1775,11 +1798,11 @@ async function subirExcelNovedades() {
                   showDenyButton: true,
                   denyButtonText: `Descargar reporte`,
                   text:
-                    "Se actualizaron correctamente " +
-                    actualizadasCorrectamente +
-                    " de " +
-                    tamaño +
-                    ".",
+                  "Se actualizaron correctamente " +
+                  actualizadasCorrectamente +
+                  " de " +
+                  tamaño +
+                  ".",
                 }).then((result) => {
                   
                   if (result.isConfirmed) {
@@ -1792,8 +1815,9 @@ async function subirExcelNovedades() {
                 });
               }
             });
-        }
-      });
+          }
+        });
+      })
     })
     .catch((err) => {
       Swal.fire({
@@ -2184,8 +2208,6 @@ function subirDocumentos() {
   for (let cargador of cargadores) {
     //verifica y muestra cada documetno cargado
     cargador.addEventListener("change", (e) => {
-      console.log(e.target);
-      console.log(e.target.files[0]);
 
       let tipo_de_doumento = e.target.getAttribute("data-tipo");
       let id_doc = e.target.parentNode.getAttribute("data-id_guia");
@@ -4087,10 +4109,10 @@ async function historialGuiasAdmin(e) {
       defaultContent: "Servientrega",
     },
     { data: "type", title: "Tipo", defaultContent: "Pago contraentrega" },
-    { data: "alto", title: "Alto" },
-    { data: "ancho", title: "Ancho" },
-    { data: "largo", title: "Largo" },
-    { data: "peso", title: "peso" },
+    { data: "alto", title: "Alto", visible: false },
+    { data: "ancho", title: "Ancho", visible: false },
+    { data: "largo", title: "Largo", visible: false },
+    { data: "peso", title: "peso", visible: false },
     { data: "detalles.comision_heka", title: "Comisión Heka" },
     {
       data: "detalles.comision_trasportadora",
@@ -4098,12 +4120,13 @@ async function historialGuiasAdmin(e) {
     },
     { data: "detalles.flete", title: "Flete" },
     { data: "detalles.recaudo", title: "Recaudo" },
-    { data: "seguro", title: "Seguro" },
+    { data: "seguro", title: "Seguro", visible: false },
     { data: "detalles.total", title: "Total" },
     {
       data: "detalles.costoDevolucion",
       title: "Costo devolución",
       defaultContent: "---",
+      visible: false
     },
     { data: "fecha", title: "Fecha" },
     {
@@ -4126,14 +4149,15 @@ async function historialGuiasAdmin(e) {
       title: "Cuenta responsable",
       defaultContent: "Personal",
     },
-    { data: "ciudadR", title: "Ciudad remitente", defaultContent: "---" },
-    { data: "ciudadD", title: "Ciudad destino", defaultContent: "---" },
+    { data: "ciudadR", title: "Ciudad remitente", defaultContent: "---", visible: false },
+    { data: "ciudadD", title: "Ciudad destino", defaultContent: "---", visible: false },
     {
       data: "departamentoD",
       title: "Despartamento destino",
       defaultContent: "---",
+      visible: false
     },
-    { data: "direccionD", title: "Dirección", defaultContent: "---" },
+    { data: "direccionD", title: "Dirección", defaultContent: "---", visible: false },
     {
       data: "id_tipo_entrega",
       title: "Tipo de entrega",
@@ -4144,6 +4168,7 @@ async function historialGuiasAdmin(e) {
           "no aplica"
         );
       },
+      visible: false
     },
   ];
 
