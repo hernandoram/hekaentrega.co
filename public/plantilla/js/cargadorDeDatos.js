@@ -1587,6 +1587,25 @@ function obtenerMensajeDesembolso() {
 
 }
 
+
+let fechaActual = new Date();
+
+// Definir opciones de formato
+const opcionesFormato = {
+  year: "numeric",
+  month: "long",
+  day: "numeric",
+  weekday: "long",
+  hour: "numeric",
+  minute: "numeric",
+  second: "numeric",
+};
+
+// Formatear la fecha actual
+const fechaFormateada =  fechaActual.toLocaleDateString('es-ES', opcionesFormato);
+
+ const fechaEnviada = `${usuario} solicito el pago el <br> ${fechaFormateada}` ;
+
 async function solicitarPagosPendientesUs() {
 
   const mensajeDesembolso = obtenerMensajeDesembolso();
@@ -1676,23 +1695,6 @@ async function solicitarPagosPendientesUs() {
     //   limitadosDiario: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo)
     // }
 
-   let fechaActual = new Date();
-
-   // Definir opciones de formato
-   const opcionesFormato = {
-     year: "numeric",
-     month: "long",
-     day: "numeric",
-     weekday: "long",
-     hour: "numeric",
-     minute: "numeric",
-     second: "numeric",
-   };
-
-   // Formatear la fecha actual
-   const fechaFormateada =  fechaActual.toLocaleDateString('es-ES', opcionesFormato);
-
-    const fechaEnviada = `${usuario} solicito el pago el <br> ${fechaFormateada}` ;
 
     if(!fechaSolicitud.includes(fechaEnviada)) fechaSolicitud.push(fechaEnviada);
 
