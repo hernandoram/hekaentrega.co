@@ -1722,9 +1722,10 @@ async function solicitarPagosPendientesUs() {
     console.log(datos_usuario.centro_de_costo);
     // return;
 
-    if(!diarioSolicitado.includes(datos_usuario.centro_de_costo)) {
+    if(!diarioSolicitado.includes(datos_usuario.centro_de_costo) && !fechaSolicitud.includes(fechaEnviada)) {
       diarioSolicitado.push(datos_usuario.centro_de_costo);
-      await ref.update({diarioSolicitado});
+      fechaSolicitud.push(fechaEnviada)
+      await ref.update({diarioSolicitado, fechaSolicitud});
     }
 
     // const actualizacion = {
