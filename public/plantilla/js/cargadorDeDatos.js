@@ -1619,16 +1619,16 @@ async function solicitarPagosPendientesUs() {
   if(!datos_usuario.datos_bancarios)
     return Swal.fire("No puede solicitar pagos", "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico atencion@hekaentrega.co esto se realiza con la finalidad de validación de datos. Adicional debes registrar datos bancarios para tener donde realizar el deposito del dinero.", "error");
 
-    // if(saldo_pendiente == 0) {
-    //   const mensaje = "No puedes solicitar tu pago ya que no tienes saldo";
-    //   return Swal.fire({
-    //     icon: "warning",
-    //     title: "No tienes saldo",
-    //     html: mensaje,
-    //     showCancelButton: false,
-    //     confirmButtonText: "Aceptar"
-    //   });  
-    // } 
+    if(saldo_pendiente == 0) {
+      const mensaje = "No puedes solicitar tu pago ya que no tienes saldo";
+      return Swal.fire({
+        icon: "warning",
+        title: "No tienes saldo",
+        html: mensaje,
+        showCancelButton: false,
+        confirmButtonText: "Aceptar"
+      });  
+    } 
 
     
     if(saldo_pendiente < 0) {
