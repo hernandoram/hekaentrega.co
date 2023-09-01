@@ -200,8 +200,10 @@ async function cargarPagosDirectos(e) {
     querySnapshot.forEach(doc => {
       const guia = doc.data();
 
-      const type = guia.type;
+      const {type, numeroGuia} = guia;
       const deuda = guia.debe;
+      // Ignorar aquellas que no presenten número de guía
+      if(!numeroGuia) return;
       
       // Ignorar la convencionales
       if(type === "CONVENCIONAL") return;
@@ -272,6 +274,7 @@ function transformarGuiaAPago(guia)  {
     "CERRADO POR INCIDENCIA, VER CAUSA", "DEVOLUCION"
   ];
 
+  const detalles = guia.detalles;
   const esDevolucion = estadosDevolucion.includes(guia.estado);
   const costoDevolucion = guia.detalles.costoDevolucion; // El costo de devolución debe ser negativo
 
@@ -291,8 +294,14 @@ function transformarGuiaAPago(guia)  {
 
   if(esDevolucion) {
     switch(guia.transportadora) {
-      case "COORDINADORA": case "ENVIA":
+      case "COORDINADORA": 
         comisionHeka = 2000;
+      break;
+
+      case "ENVIA":
+        comisionHeka = Math.round(detalles.flete * 0.25); // Cuando es devolución con envía la comisión heka pasa a ser el 25%
+        console.log(comisionHeka);
+        // comisionHeka = this.fleteTrasportadora * 0.25
       break;
   
       case "INTERRAPIDISIMO":
@@ -309,7 +318,8 @@ function transformarGuiaAPago(guia)  {
     "COMISION HEKA": comisionHeka,
     RECAUDO: valorRecaudo,
     "ENVÍO TOTAL": envioTotal,
-    "TOTAL A PAGAR": totalPagar
+    "TOTAL A PAGAR": totalPagar,
+    causaPago: esDevolucion ? "DEVOLUCION" : "ENTREGA"
   }
 }
 
