@@ -1587,6 +1587,7 @@ function detalles_cotizacion(datos) {
 
 //M edevuelve el html del último formulario del cotizador
 function finalizarCotizacion(datos) {
+
     let div_principal = document.createElement("DIV"),
         crearNodo = str => new DOMParser().parseFromString(str, "text/html").body;
 
@@ -1721,6 +1722,37 @@ function finalizarCotizacion(datos) {
             <div class="card-header py-3">
                 <h4 class="m-0 font-weight-bold text-primary text-center">Datos del Destinatario</h4>
             </div>
+
+
+         <div class="card cotizador-beta" id="opciones-cotizador">
+            <div class="card-body">
+
+              <div class="row">    
+                <div class="form-group col-md">
+                  <label for="list_bodegas-cotizador">
+                    Clientes Frecuentes
+                    <i class="fa fa-question-circle" data-toggle="tooltip" title='Puedes listar clientes frecuentes para una creación de guía más oportuna'></i> 
+                  </label>
+                  <select type="text" class="form-control"
+                  id="list_clientesFrecuentes" >
+                </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-sm-6 text-center d-none" id="cont_act_plant-cotizador">
+                  <input type="checkbox" id="actv_editar_plantilla-cotizador">
+                  <label for="actv_editar_plantilla-cotizador">
+                    Cambiar datos de la <b>plantilla</b>
+                    <i class="fa fa-question-circle" data-toggle="tooltip" title='Si marcas la opción, se editará la información guardada previamente al presionar el botón "Cotizar envío"'></i> 
+                  </label>
+                </div>
+
+              </div>
+            </div>
+            
+          </div>
+
             <form id="datos-destinatario">
                 <div class="card-body row">
                     <div class="col-lg-6 mb-3 mb-2">
@@ -1812,7 +1844,89 @@ function finalizarCotizacion(datos) {
             aviso.classList.add("d-none")
         }
     });
+    cargarUsuariosFrecuentes()
 }
+
+
+//jose
+function cargarUsuariosFrecuentes() {
+    const selectClientes = document.getElementById("list_clientesFrecuentes");
+    const personas = [
+      {
+        nombre: "Juan Perez",
+        documentoIdentidad: "123",
+        tipoDocumento: "Cédula de Identidad",
+      },
+      {
+        nombre: "Ana López",
+        documentoIdentidad: "987654321",
+        tipoDocumento: "CC",
+      },
+      {
+        nombre: "Carlos González",
+        documentoIdentidad: "456789123",
+        tipoDocumento: "CC",
+      },
+    ];
+    // Obtén el elemento select por su ID
+    console.log(personas)
+  
+    // Itera a través del arreglo de personas y agrega opciones al select
+    personas.map((persona) => {
+      const option = document.createElement("option");
+      option.value = persona.documentoIdentidad; // Puedes usar el documento de identidad como valor
+      option.text = `${persona.nombre} (${persona.tipoDocumento})`;
+      selectClientes.appendChild(option);
+    });
+
+    selectClientes.addEventListener("change", () => {
+    const selectedValue = selectClientes.value;
+    console.log(selectedValue)
+
+        // Obtener los elementos input por su ID
+      const nombreDestinatario = document.getElementById("nombreD");
+      const identificacionDestinatario =
+        document.getElementById("identificacionD");
+      const tipoDocumentoDestinatario =
+        document.getElementById("tipo-doc-dest");
+    //   const direccionDestinatario = document.getElementById("direccionD").value;
+    //   const barrioDestinatario = document.getElementById("barrioD").value;
+    //   const telefonoDestinatario = document.getElementById("telefonoD").value;
+    //   const celularDestinatario = document.getElementById("celularD").value;
+    //   const correoDestinatario = document.getElementById("correoD").value;
+    //   const observacionesDestinatario =
+    //     document.getElementById("observaciones").value;
+
+
+      // Encuentra el usuario seleccionado en el arreglo de personas
+      const selectedPersona = personas.find(
+        (persona) => persona.documentoIdentidad === selectedValue
+      );
+
+      console.log(selectedPersona)
+
+      // Actualiza los valores de los inputs
+      if (selectedPersona) {
+        nombreDestinatario.value = selectedPersona.nombre;
+        identificacionDestinatario.value = selectedPersona.documentoIdentidad;
+        tipoDocumentoDestinatario.value = selectedPersona.tipoDocumento;
+      } else {
+        // Si no se encuentra el usuario, puedes borrar los valores o mostrar un mensaje de error.
+        inputNombre.value = "";
+        inputDocumento.value = "";
+        inputTipoDocumento.value = "";
+      }
+    });
+    
+    
+
+
+  }
+  
+
+
+
+
 
 async function buscarUsuario(e) {
     const inp = $("#numero_documento_usuario");
