@@ -1735,6 +1735,7 @@ function finalizarCotizacion(datos) {
                   </label>
                   <select type="text" class="form-control"
                   id="list_clientesFrecuentes" >
+                  <option value="">Seleccione</option>
                 </select>
                 </div>
               </div>
@@ -1851,7 +1852,7 @@ function finalizarCotizacion(datos) {
 //jose
 function cargarUsuariosFrecuentes() {
     const selectClientes = document.getElementById("list_clientesFrecuentes");
-    //0: Entrega en dirección ; 1: Entrega en oficina
+    //1: Entrega en dirección ; 2: Entrega en oficina
     const personas = [
         {
           nombre: "Juan Pérez",
@@ -1869,7 +1870,7 @@ function cargarUsuariosFrecuentes() {
           nombre: "María López",
           documentoIdentidad: "987654321",
           tipoDocumento: 2, // 1 para NIT, 2 para CC
-          tipoEntrega: 0,   // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
+          tipoEntrega: 2,   // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
           direccionDestinatario: "Avenida 456",
           barrio: "Barrio B",
           celular: "5555555555",
@@ -1947,9 +1948,16 @@ function cargarUsuariosFrecuentes() {
         tipoEntrega.dispatchEvent(event);
       } else {
         // Si no se encuentra el usuario, puedes borrar los valores o mostrar un mensaje de error.
-        inputNombre.value = "";
-        inputDocumento.value = "";
-        inputTipoDocumento.value = "";
+        nombreDestinatario.value = "";
+        identificacionDestinatario.value = "";
+        tipoDocumentoDestinatario.value ="";
+        direccionDestinatario.value = "";
+        barrioDestinatario.value = "";
+        telefonoDestinatario.value = "";
+        celularDestinatario.value = "";
+        correoDestinatario.value = "";
+        tipoEntrega.value = "";
+        observacionesDestinatario.value = "";
       }
     });
     
