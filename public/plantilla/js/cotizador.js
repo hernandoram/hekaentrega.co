@@ -1851,23 +1851,45 @@ function finalizarCotizacion(datos) {
 //jose
 function cargarUsuariosFrecuentes() {
     const selectClientes = document.getElementById("list_clientesFrecuentes");
+    //0: Entrega en dirección ; 1: Entrega en oficina
     const personas = [
-      {
-        nombre: "Juan Perez",
-        documentoIdentidad: "123",
-        tipoDocumento: "1",
-      },
-      {
-        nombre: "Ana López",
-        documentoIdentidad: "987654321",
-        tipoDocumento: "2",
-      },
-      {
-        nombre: "Carlos González",
-        documentoIdentidad: "456789123",
-        tipoDocumento: "2",
-      },
-    ];
+        {
+          nombre: "Juan Pérez",
+          documentoIdentidad: "123456789",
+          tipoDocumento: 1, // 1 para NIT, 2 para CC
+          tipoEntrega: 1,   // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
+          direccionDestinatario: "Calle 123",
+          barrio: "Barrio A",
+          celular: "1234567890",
+          otroCelular: "9876543210",
+          email: "juan.perez@example.com",
+          observaciones: "Entregar por la puerta trasera"
+        },
+        {
+          nombre: "María López",
+          documentoIdentidad: "987654321",
+          tipoDocumento: 2, // 1 para NIT, 2 para CC
+          tipoEntrega: 0,   // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
+          direccionDestinatario: "Avenida 456",
+          barrio: "Barrio B",
+          celular: "5555555555",
+          otroCelular: "6666666666",
+          email: "maria.lopez@example.com",
+          observaciones: "Llamar antes de entregar"
+        },
+        {
+          nombre: "Carlos González",
+          documentoIdentidad: "555555555",
+          tipoDocumento: 1, // 1 para NIT, 2 para CC
+          tipoEntrega: 1,   // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
+          direccionDestinatario: "Carrera 789",
+          barrio: "Barrio C",
+          celular: "7777777777",
+          otroCelular: "8888888888",
+          email: "carlos.gonzalez@example.com",
+          observaciones: "Dejar paquete en la portería"
+        }
+      ];
     // Obtén el elemento select por su ID
     console.log(personas)
   
@@ -1875,7 +1897,7 @@ function cargarUsuariosFrecuentes() {
     personas.map((persona) => {
       const option = document.createElement("option");
       option.value = persona.documentoIdentidad; // Puedes usar el documento de identidad como valor
-      option.text = `${persona.nombre} (${persona.tipoDocumento})`;
+      option.text = `${persona.nombre}`;
       selectClientes.appendChild(option);
     });
 
@@ -1889,13 +1911,15 @@ function cargarUsuariosFrecuentes() {
         document.getElementById("identificacionD");
       const tipoDocumentoDestinatario =
         document.getElementById("tipo-doc-dest");
-    //   const direccionDestinatario = document.getElementById("direccionD").value;
-    //   const barrioDestinatario = document.getElementById("barrioD").value;
-    //   const telefonoDestinatario = document.getElementById("telefonoD").value;
-    //   const celularDestinatario = document.getElementById("celularD").value;
-    //   const correoDestinatario = document.getElementById("correoD").value;
-    //   const observacionesDestinatario =
-    //     document.getElementById("observaciones").value;
+      const direccionDestinatario = document.getElementById("direccionD");
+
+      const barrioDestinatario = document.getElementById("barrioD");
+      const telefonoDestinatario = document.getElementById("telefonoD");
+      const celularDestinatario = document.getElementById("celularD");
+      const correoDestinatario = document.getElementById("correoD");
+      const tipoEntrega = document.getElementById("entrega_en_oficina");
+      const observacionesDestinatario =
+        document.getElementById("observaciones");
 
 
       // Encuentra el usuario seleccionado en el arreglo de personas
@@ -1910,9 +1934,17 @@ function cargarUsuariosFrecuentes() {
         nombreDestinatario.value = selectedPersona.nombre;
         identificacionDestinatario.value = selectedPersona.documentoIdentidad;
         tipoDocumentoDestinatario.value = selectedPersona.tipoDocumento;
+        direccionDestinatario.value = selectedPersona.direccionDestinatario;
+        barrioDestinatario.value = selectedPersona.barrio;
+        telefonoDestinatario.value = selectedPersona.celular;
+        celularDestinatario.value = selectedPersona.otroCelular;
+        correoDestinatario.value = selectedPersona.email;
+        tipoEntrega.value = selectedPersona.tipoEntrega;
+        observacionesDestinatario.value = selectedPersona.observaciones;
 
         var event = new Event("change");
         tipoDocumentoDestinatario.dispatchEvent(event);
+        tipoEntrega.dispatchEvent(event);
       } else {
         // Si no se encuentra el usuario, puedes borrar los valores o mostrar un mensaje de error.
         inputNombre.value = "";
