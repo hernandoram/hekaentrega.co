@@ -2484,6 +2484,7 @@ class CalcularCostoDeEnvio {
             "valorProducto": this.valor
         }
         
+        console.log(JSON.stringify(data))
         const response = await fetch("coordinadora/cotizar/" + this.type, {
             method: "Post",
             headers: {"Content-Type": "Application/json"},
