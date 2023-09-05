@@ -120,11 +120,10 @@ function modalInicial() {
     // <img src="./img/aumentoprecioservi.jpeg" style="height: 50vh"/>
 
   m.init = `
-  <div class="text-center">
-      <img src="./img/logo-heka.png" style="height: 30vh"/>
-      <br/>
-      <h4>Actualmente el sistema de INTERRAPIDISIMO y COORDINADORA se encuentran caídos, es por ello que no esta permitiendo la generación de guías ni cotizaciones, ya las transportadoras se encuentran trabajando en la falla, agradecemos tu comprensión, tan pronto las trasportadoras reestablezcan estaremos informando</h3>
-      <br/>
+  <div class="text-center d-flex justify-content-around">
+      <img src="./img/notificacionseptiembre.jpeg" style="height: 50vh"/>
+      <img src="./img/aumentoprecioservi.jpeg" style="height: 50vh"/>
+    <br/>
     </div>
   `;
   m.onSubmit = () => {
