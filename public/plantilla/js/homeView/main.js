@@ -113,15 +113,16 @@ modalInicial();
 function modalInicial() {
   const m = new CreateModal({
     title: "<h3>Información importante!</h3>",
-    modalSize: "modal-md",
+    modalSize: "modal-xl",
   });
 
    // <img src="./img/notificacionseptiembre.jpeg" style="height: 50vh"/>
     // <img src="./img/aumentoprecioservi.jpeg" style="height: 50vh"/>
 
   m.init = `
-  <div class="text-center">
-     <img src="./img/ultima.jpeg" style="height: 70vh"/>
+  <div class="text-center d-flex justify-content-around">
+      <img src="./img/notificacionseptiembre.jpeg" style="height: 50vh"/>
+      <img src="./img/aumentoprecioservi.jpeg" style="height: 50vh"/>
     <br/>
     </div>
   `;
