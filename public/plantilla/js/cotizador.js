@@ -1547,7 +1547,7 @@ function detalles_cotizacion(datos) {
                 </div>
                 <div class="col-sm-6 mb-3 mb-sm-2">
                     <h5>Ciudad de Destino</h5>
-                    <input readonly="readonly" type="text" class="form-control form-control-user" value="${datos.ciudadD}(${datos.departamentoD})" required="">  
+                    <input readonly="readonly" type="text" class="form-control form-control-user" id="ciudadDestinoUsuario" value="${datos.ciudadD}(${datos.departamentoD})" required="">  
                 </div>
                 <div class="col-sm-6 mb-3 mb-sm-2">
                     <h5>Kilos</h5>
@@ -1848,70 +1848,86 @@ function finalizarCotizacion(datos) {
 
     const referenciaListaPlantillas = usuarioAltDoc().collection("plantillasCotizador");
 
-    const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes");
+    const ciudad= document.getElementById("ciudadDestinoUsuario");
+    
+    const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes").doc(`${ciudad.value}`);
 
     const opciones = [];
-    referenciaListaPlantillas
-      .get()
-      .then((q) => {
-        q.forEach((d) => {
-          const data = d.data();
 
-          opciones.push(data);
-        });
-      })
-      .then(() => {
-        console.log(opciones);
-        cargarUsuariosFrecuentes(opciones)
-      });
+    // referenciaUsuariosFrecuentes
+    //   .get()
+    //   .then((querySnapshot) => {
+    //     querySnapshot.forEach((document) => {
+    //       const data = document.data();
+    //       console.log(data)
 
+    //       opciones.push(data);
+    //     });
+    //   })
+    //   .then(() => {
+    //     console.log(opciones);
+    //     cargarUsuariosFrecuentes(opciones)
+    //   });
+
+
+    referenciaUsuariosFrecuentes
+    .get()
+    .then((document) => {
+      console.log(document)
+        const data = document.data();
+        opciones.push(data);
+    })
+    .then(() => {
+      console.log(opciones);
+      cargarUsuariosFrecuentes(opciones)
+    });
 
 }
 
 
 //jose
-function cargarUsuariosFrecuentes(usuarios) {
-    console.log(usuarios)
+function cargarUsuariosFrecuentes(personas) {
+    console.log(personas)
     const selectClientes = document.getElementById("list_clientesFrecuentes");
     //1: Entrega en dirección ; 2: Entrega en oficina
-    const personas = [
-        {
-          nombre: "Juan Pérez",
-          documentoIdentidad: "123456789",
-          tipoDocumento: 1, // 1 para NIT, 2 para CC
-          tipoEntrega: 1,   // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
-          direccionDestinatario: "Calle 123",
-          barrio: "Barrio A",
-          celular: "1234567890",
-          otroCelular: "9876543210",
-          email: "juan.perez@example.com",
-          observaciones: "Entregar por la puerta trasera"
-        },
-        {
-          nombre: "María López",
-          documentoIdentidad: "987654321",
-          tipoDocumento: 2, // 1 para NIT, 2 para CC
-          tipoEntrega: 2,   // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
-          direccionDestinatario: "Avenida 456",
-          barrio: "Barrio B",
-          celular: "5555555555",
-          otroCelular: "6666666666",
-          email: "maria.lopez@example.com",
-          observaciones: "Llamar antes de entregar"
-        },
-        {
-          nombre: "Carlos González",
-          documentoIdentidad: "555555555",
-          tipoDocumento: 1, // 1 para NIT, 2 para CC
-          tipoEntrega: 1,   // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
-          direccionDestinatario: "Carrera 789",
-          barrio: "Barrio C",
-          celular: "7777777777",
-          otroCelular: "8888888888",
-          email: "carlos.gonzalez@example.com",
-          observaciones: "Dejar paquete en la portería"
-        }
-      ];
+    // const personas = [
+    //     {
+    //       nombre: "Juan Pérez",
+    //       documentoIdentidad: "123456789",
+    //       tipoDocumento: 1, // 1 para NIT, 2 para CC
+    //       tipoEntrega: 1,   // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
+    //       direccionDestinatario: "Calle 123",
+    //       barrio: "Barrio A",
+    //       celular: "1234567890",
+    //       otroCelular: "9876543210",
+    //       email: "juan.perez@example.com",
+    //       observaciones: "Entregar por la puerta trasera"
+    //     },
+    //     {
+    //       nombre: "María López",
+    //       documentoIdentidad: "987654321",
+    //       tipoDocumento: 2, // 1 para NIT, 2 para CC
+    //       tipoEntrega: 2,   // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
+    //       direccionDestinatario: "Avenida 456",
+    //       barrio: "Barrio B",
+    //       celular: "5555555555",
+    //       otroCelular: "6666666666",
+    //       email: "maria.lopez@example.com",
+    //       observaciones: "Llamar antes de entregar"
+    //     },
+    //     {
+    //       nombre: "Carlos González",
+    //       documentoIdentidad: "555555555",
+    //       tipoDocumento: 1, // 1 para NIT, 2 para CC
+    //       tipoEntrega: 1,   // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
+    //       direccionDestinatario: "Carrera 789",
+    //       barrio: "Barrio C",
+    //       celular: "7777777777",
+    //       otroCelular: "8888888888",
+    //       email: "carlos.gonzalez@example.com",
+    //       observaciones: "Dejar paquete en la portería"
+    //     }
+    //   ];
     // Obtén el elemento select por su ID
     console.log(personas)
   
@@ -1985,20 +2001,22 @@ function cargarUsuariosFrecuentes(usuarios) {
 
 
   function enviarUsuarioFrecuente(){
-   const dataejemplo = {
-      nombre: "Juan Pérez",
-      documentoIdentidad: "123456789",
-      tipoDocumento: 1, // 1 para NIT, 2 para CC
-      tipoEntrega: 1, // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
-      direccionDestinatario: "Calle 123",
-      barrio: "Barrio A",
-      celular: "1234567890",
-      otroCelular: "9876543210",
-      email: "juan.perez@example.com",
-      observaciones: "Entregar por la puerta trasera",
-    };
-    
 
+    
+   const dataejemplo = {
+    nombre: "Juan Pérez",
+    documentoIdentidad: "123456789",
+    tipoDocumento: 1, // 1 para NIT, 2 para CC
+    tipoEntrega: 1, // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
+    direccionDestinatario: "Calle 123",
+    barrio: "Barrio A",
+    celular: "1234567890",
+    otroCelular: "9876543210",
+    email: "juan.perez@example.com",
+    observaciones: "Entregar por la puerta trasera",
+  };
+
+  
     // Obtener los elementos input por su ID
     const nombreDestinatario = document.getElementById("nombreD");
     const identificacionDestinatario =
@@ -2012,7 +2030,26 @@ function cargarUsuariosFrecuentes(usuarios) {
     const correoDestinatario = document.getElementById("correoD");
     const tipoEntrega = document.getElementById("entrega_en_oficina");
     const observacionesDestinatario = document.getElementById("observaciones");
+    const ciudad= document.getElementById("ciudadDestinoUsuario");
 
+    console.log(ciudad.value)
+
+
+    // const opciones = [];
+    // referenciaUsuariosFrecuentes
+    //   .get()
+    //   .then((q) => {
+    //     q.forEach((d) => {
+    //       const data = d.data();
+
+    //       opciones.push(data);
+    //     });
+    //   })
+    //   .then(() => {
+    //     console.log(opciones);
+    //   });
+
+    
     const nuevoObjeto = {
         nombre: nombreDestinatario.value,
         documentoIdentidad: identificacionDestinatario.value,
@@ -2026,9 +2063,18 @@ function cargarUsuariosFrecuentes(usuarios) {
         observaciones: observacionesDestinatario.value,
       };
 
-      console.log(nuevoObjeto)
+ const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes").doc(`${ciudad.value}`);
 
-  
+
+      referenciaUsuariosFrecuentes
+      .set(nuevoObjeto)
+      .then((docRef) => {
+        console.log("Documento agregado con ID:", docRef.id);
+      })
+      .catch((error) => {
+        console.error("Error al agregar el documento:", error);
+      });
+ 
   }
   
 
@@ -3081,6 +3127,9 @@ async function pruebaGeneracionGuias(idGuiaError) {
 }
 
 async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
+
+    enviarUsuarioFrecuente()
+    return;
     if(!datos.id_heka) {
         return {
             error: true,
