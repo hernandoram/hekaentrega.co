@@ -1768,7 +1768,7 @@ function finalizarCotizacion(datos) {
                             <div class="col mb-2">
                                 <label for="tipo-doc-dest" class="col-form-label">Tipo De Documento</label>
                                 <select class="custom-select" form="datos-destinatario" id="tipo-doc-dest">
-                                    <option value="2">Seleccione</option>
+                                    <option value="">Seleccione</option>
                                     <option value="1">NIT</option>
                                     <option value="2">CC</option>
                                 </select>
@@ -1855,17 +1855,17 @@ function cargarUsuariosFrecuentes() {
       {
         nombre: "Juan Perez",
         documentoIdentidad: "123",
-        tipoDocumento: "Cédula de Identidad",
+        tipoDocumento: "1",
       },
       {
         nombre: "Ana López",
         documentoIdentidad: "987654321",
-        tipoDocumento: "CC",
+        tipoDocumento: "2",
       },
       {
         nombre: "Carlos González",
         documentoIdentidad: "456789123",
-        tipoDocumento: "CC",
+        tipoDocumento: "2",
       },
     ];
     // Obtén el elemento select por su ID
@@ -1910,6 +1910,9 @@ function cargarUsuariosFrecuentes() {
         nombreDestinatario.value = selectedPersona.nombre;
         identificacionDestinatario.value = selectedPersona.documentoIdentidad;
         tipoDocumentoDestinatario.value = selectedPersona.tipoDocumento;
+
+        var event = new Event("change");
+        tipoDocumentoDestinatario.dispatchEvent(event);
       } else {
         // Si no se encuentra el usuario, puedes borrar los valores o mostrar un mensaje de error.
         inputNombre.value = "";
