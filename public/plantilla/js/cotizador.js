@@ -1845,12 +1845,33 @@ function finalizarCotizacion(datos) {
             aviso.classList.add("d-none")
         }
     });
-    cargarUsuariosFrecuentes()
+
+    const referenciaListaPlantillas = usuarioAltDoc().collection("plantillasCotizador");
+
+    const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes");
+
+    const opciones = [];
+    referenciaListaPlantillas
+      .get()
+      .then((q) => {
+        q.forEach((d) => {
+          const data = d.data();
+
+          opciones.push(data);
+        });
+      })
+      .then(() => {
+        console.log(opciones);
+        cargarUsuariosFrecuentes(opciones)
+      });
+
+
 }
 
 
 //jose
-function cargarUsuariosFrecuentes() {
+function cargarUsuariosFrecuentes(usuarios) {
+    console.log(usuarios)
     const selectClientes = document.getElementById("list_clientesFrecuentes");
     //1: Entrega en dirección ; 2: Entrega en oficina
     const personas = [
@@ -1960,10 +1981,54 @@ function cargarUsuariosFrecuentes() {
         observacionesDestinatario.value = "";
       }
     });
-    
-    
+  }
 
 
+  function enviarUsuarioFrecuente(){
+   const dataejemplo = {
+      nombre: "Juan Pérez",
+      documentoIdentidad: "123456789",
+      tipoDocumento: 1, // 1 para NIT, 2 para CC
+      tipoEntrega: 1, // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
+      direccionDestinatario: "Calle 123",
+      barrio: "Barrio A",
+      celular: "1234567890",
+      otroCelular: "9876543210",
+      email: "juan.perez@example.com",
+      observaciones: "Entregar por la puerta trasera",
+    };
+    
+
+    // Obtener los elementos input por su ID
+    const nombreDestinatario = document.getElementById("nombreD");
+    const identificacionDestinatario =
+      document.getElementById("identificacionD");
+    const tipoDocumentoDestinatario = document.getElementById("tipo-doc-dest");
+    const direccionDestinatario = document.getElementById("direccionD");
+
+    const barrioDestinatario = document.getElementById("barrioD");
+    const telefonoDestinatario = document.getElementById("telefonoD");
+    const celularDestinatario = document.getElementById("celularD");
+    const correoDestinatario = document.getElementById("correoD");
+    const tipoEntrega = document.getElementById("entrega_en_oficina");
+    const observacionesDestinatario = document.getElementById("observaciones");
+
+    const nuevoObjeto = {
+        nombre: nombreDestinatario.value,
+        documentoIdentidad: identificacionDestinatario.value,
+        tipoDocumento: parseInt(tipoDocumentoDestinatario.value),
+        tipoEntrega: parseInt(tipoEntrega.value),
+        direccionDestinatario: direccionDestinatario.value,
+        barrio: barrioDestinatario.value,
+        celular: celularDestinatario.value,
+        otroCelular: telefonoDestinatario.value, // Nota: ¿Estás seguro de que quieres usar "otroCelular" para el número de teléfono?
+        email: correoDestinatario.value,
+        observaciones: observacionesDestinatario.value,
+      };
+
+      console.log(nuevoObjeto)
+
+  
   }
   
 
@@ -3094,6 +3159,7 @@ async function creacionDirecta(guia) {
     guia.id_heka = await obtenerIdHeka();
     if(transportadoras[guia.transportadora].sistemaAutomatizado()) {
         const guiaGenerada = await crearGuiaTransportadora(guia);
+        console.log(guiaGenerada)
     
         if(guiaGenerada.error) {
             return {
