@@ -300,8 +300,6 @@ function transformarGuiaAPago(guia)  {
 
       case "ENVIA":
         comisionHeka = Math.round(detalles.flete * 0.25); // Cuando es devolución con envía la comisión heka pasa a ser el 25%
-        console.log(comisionHeka);
-        // comisionHeka = this.fleteTrasportadora * 0.25
       break;
   
       case "INTERRAPIDISIMO":

@@ -1530,8 +1530,6 @@ async function pagosPendientesParaUsuario() {
   // Cómputo para calcular hasta el último viernes
   const fecha = new Date(filtroFecha.val());
   const diaSemana = fecha.getDay();
-  const mes = fecha.getMonth() + 1;
-  const year = fecha.getFullYear();
   const diaEnMilli = 8.64e+7;
 
   let dia = fecha.getDate() + 1;
@@ -1540,7 +1538,7 @@ async function pagosPendientesParaUsuario() {
     dia -= diaSemana;
   }
 
-  const fechaMostrarMilli = Date.parse(year + "/" + mes + "/" + dia);
+  const fechaMostrarMilli = fecha.getTime();
   const fechaFinal = genFecha("LR", fechaMostrarMilli);
   const endAtMilli = fechaMostrarMilli + diaEnMilli;
   // Fin de cómputo
