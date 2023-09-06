@@ -1585,6 +1585,8 @@ function detalles_cotizacion(datos) {
         `, "text/html").body;
 }
 
+const opciones = [];
+
 //M edevuelve el html del último formulario del cotizador
 function finalizarCotizacion(datos) {
 
@@ -1853,13 +1855,10 @@ function finalizarCotizacion(datos) {
         }
     });
 
-    const referenciaListaPlantillas = usuarioAltDoc().collection("plantillasCotizador");
-
     const ciudad= document.getElementById("ciudadDestinoUsuario");
     
     const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes");
 
-    const opciones = [];
 
     referenciaUsuariosFrecuentes
     .where("ciudad","==", ciudad.value)
@@ -1953,6 +1952,14 @@ function cargarUsuariosFrecuentes(personas) {
 
 
   function enviarUsuarioFrecuente(){
+
+
+    const guardarUsuario = document.getElementById("guardarUsuario");
+
+    if(!guardarUsuario.checked){
+      return  
+    }
+    console.log("holita")
   
    const dataejemplo = {
     nombre: "Juan Pérez",
@@ -1967,6 +1974,7 @@ function cargarUsuariosFrecuentes(personas) {
     observaciones: "Entregar por la puerta trasera",
   };
 
+  console.log(opciones)
   
     // Obtener los elementos input por su ID
     const nombreDestinatario = document.getElementById("nombreD");
@@ -3065,11 +3073,7 @@ async function pruebaGeneracionGuias(idGuiaError) {
 async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
 
     
-    const guardarUsuario = document.getElementById("guardarUsuario");
-
-    if(guardarUsuario.checked){
-        enviarUsuarioFrecuente()
-    }
+    enviarUsuarioFrecuente()
 
     return;
 
