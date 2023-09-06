@@ -1599,7 +1599,13 @@ function finalizarCotizacion(datos) {
             <input type="checkbox" id="recoleccion" class="form-check-input">
             <label for="recoleccion" class="form-check-label" checked>Solicitud de Recolección</label>
         </div>
+     
     `;
+
+    let clientes= `   <div class="col-sm-6 mb-2 form-check">
+    <input type="checkbox" id="guardarUsuario" class="form-check-input">
+    <label for="guardarUsuario" class="form-check-label" checked>Guardar en clientes frecuentes</label>
+</div>`;
     let entrega_en_oficina = "";
 
     const checkCreacionPedido = `
@@ -1804,6 +1810,7 @@ function finalizarCotizacion(datos) {
                         <input type="text" id="observaciones" class="form-control form-control-user detect-errors" value="" placeholder="Observaciones Adicionales">
                     </div>
                     ${solicitud_recoleccion}
+                    ${clientes}
                     ${checkCreacionPedido}
                 </div>
             </form>
@@ -1850,85 +1857,32 @@ function finalizarCotizacion(datos) {
 
     const ciudad= document.getElementById("ciudadDestinoUsuario");
     
-    const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes").doc(`${ciudad.value}`);
+    const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes");
 
     const opciones = [];
 
-    // referenciaUsuariosFrecuentes
-    //   .get()
-    //   .then((querySnapshot) => {
-    //     querySnapshot.forEach((document) => {
-    //       const data = document.data();
-    //       console.log(data)
-
-    //       opciones.push(data);
-    //     });
-    //   })
-    //   .then(() => {
-    //     console.log(opciones);
-    //     cargarUsuariosFrecuentes(opciones)
-    //   });
-
-
     referenciaUsuariosFrecuentes
-    .get()
-    .then((document) => {
-      console.log(document)
-        const data = document.data();
-        opciones.push(data);
-    })
-    .then(() => {
-      console.log(opciones);
-      cargarUsuariosFrecuentes(opciones)
-    });
+    .where("ciudad","==", ciudad.value)
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((document) => {
+          const data = document.data();
+          console.log(data)
 
+          opciones.push(data);
+        });
+      })
+      .then(() => {
+        console.log(opciones);
+        cargarUsuariosFrecuentes(opciones)
+      });
 }
 
 
 //jose
 function cargarUsuariosFrecuentes(personas) {
-    console.log(personas)
     const selectClientes = document.getElementById("list_clientesFrecuentes");
-    //1: Entrega en dirección ; 2: Entrega en oficina
-    // const personas = [
-    //     {
-    //       nombre: "Juan Pérez",
-    //       documentoIdentidad: "123456789",
-    //       tipoDocumento: 1, // 1 para NIT, 2 para CC
-    //       tipoEntrega: 1,   // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
-    //       direccionDestinatario: "Calle 123",
-    //       barrio: "Barrio A",
-    //       celular: "1234567890",
-    //       otroCelular: "9876543210",
-    //       email: "juan.perez@example.com",
-    //       observaciones: "Entregar por la puerta trasera"
-    //     },
-    //     {
-    //       nombre: "María López",
-    //       documentoIdentidad: "987654321",
-    //       tipoDocumento: 2, // 1 para NIT, 2 para CC
-    //       tipoEntrega: 2,   // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
-    //       direccionDestinatario: "Avenida 456",
-    //       barrio: "Barrio B",
-    //       celular: "5555555555",
-    //       otroCelular: "6666666666",
-    //       email: "maria.lopez@example.com",
-    //       observaciones: "Llamar antes de entregar"
-    //     },
-    //     {
-    //       nombre: "Carlos González",
-    //       documentoIdentidad: "555555555",
-    //       tipoDocumento: 1, // 1 para NIT, 2 para CC
-    //       tipoEntrega: 1,   // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
-    //       direccionDestinatario: "Carrera 789",
-    //       barrio: "Barrio C",
-    //       celular: "7777777777",
-    //       otroCelular: "8888888888",
-    //       email: "carlos.gonzalez@example.com",
-    //       observaciones: "Dejar paquete en la portería"
-    //     }
-    //   ];
-    // Obtén el elemento select por su ID
+
     console.log(personas)
   
     // Itera a través del arreglo de personas y agrega opciones al select
@@ -1941,8 +1895,6 @@ function cargarUsuariosFrecuentes(personas) {
 
     selectClientes.addEventListener("change", () => {
     const selectedValue = selectClientes.value;
-    console.log(selectedValue)
-
         // Obtener los elementos input por su ID
       const nombreDestinatario = document.getElementById("nombreD");
       const identificacionDestinatario =
@@ -2001,8 +1953,7 @@ function cargarUsuariosFrecuentes(personas) {
 
 
   function enviarUsuarioFrecuente(){
-
-    
+  
    const dataejemplo = {
     nombre: "Juan Pérez",
     documentoIdentidad: "123456789",
@@ -2032,24 +1983,6 @@ function cargarUsuariosFrecuentes(personas) {
     const observacionesDestinatario = document.getElementById("observaciones");
     const ciudad= document.getElementById("ciudadDestinoUsuario");
 
-    console.log(ciudad.value)
-
-
-    // const opciones = [];
-    // referenciaUsuariosFrecuentes
-    //   .get()
-    //   .then((q) => {
-    //     q.forEach((d) => {
-    //       const data = d.data();
-
-    //       opciones.push(data);
-    //     });
-    //   })
-    //   .then(() => {
-    //     console.log(opciones);
-    //   });
-
-    
     const nuevoObjeto = {
         nombre: nombreDestinatario.value,
         documentoIdentidad: identificacionDestinatario.value,
@@ -2061,13 +1994,16 @@ function cargarUsuariosFrecuentes(personas) {
         otroCelular: telefonoDestinatario.value, // Nota: ¿Estás seguro de que quieres usar "otroCelular" para el número de teléfono?
         email: correoDestinatario.value,
         observaciones: observacionesDestinatario.value,
+        ciudad: ciudad.value,
       };
 
- const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes").doc(`${ciudad.value}`);
+    const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes");
+
+
 
 
       referenciaUsuariosFrecuentes
-      .set(nuevoObjeto)
+      .add(nuevoObjeto)
       .then((docRef) => {
         console.log("Documento agregado con ID:", docRef.id);
       })
@@ -3128,8 +3064,15 @@ async function pruebaGeneracionGuias(idGuiaError) {
 
 async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
 
-    enviarUsuarioFrecuente()
+    
+    const guardarUsuario = document.getElementById("guardarUsuario");
+
+    if(guardarUsuario.checked){
+        enviarUsuarioFrecuente()
+    }
+
     return;
+
     if(!datos.id_heka) {
         return {
             error: true,
