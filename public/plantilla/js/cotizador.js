@@ -1611,7 +1611,7 @@ function finalizarCotizacion(datos) {
 
 let modificarCliente= `   <div class="col-sm-6 mb-2 form-check d-none" id="contenedor-modificar-user">
 <input type="checkbox" id="modificarUser" class="form-check-input">
-<label for="guardarUsuario" class="form-check-label" checked>Modificar usuario frecuente</label>
+<label for="modificarUser" class="form-check-label" checked>Modificar usuario frecuente</label>
 </div>`;
     let entrega_en_oficina = "";
 
@@ -1944,6 +1944,7 @@ function cargarUsuariosFrecuentes(personas) {
         correoDestinatario.value = selectedPersona.email;
         tipoEntrega.value = selectedPersona.tipoEntrega;
         observacionesDestinatario.value = selectedPersona.observaciones;
+        contenedorGuardar.classList.add("d-none")
 
         var event = new Event("change");
         tipoDocumentoDestinatario.dispatchEvent(event);
@@ -1962,6 +1963,7 @@ function cargarUsuariosFrecuentes(personas) {
         observacionesDestinatario.value = "";
         modificarUser.checked= false;
         contenedorGuardar.classList.remove("d-none")
+        contenedorModificar.classList.add("d-none")
 
       }
     });
@@ -1994,7 +1996,7 @@ function cargarUsuariosFrecuentes(personas) {
         direccionDestinatario: direccionDestinatario.value,
         barrio: barrioDestinatario.value,
         celular: celularDestinatario.value,
-        otroCelular: telefonoDestinatario.value, // Nota: ¿Estás seguro de que quieres usar "otroCelular" para el número de teléfono?
+        otroCelular: telefonoDestinatario.value, 
         email: correoDestinatario.value,
         observaciones: observacionesDestinatario.value,
         ciudad: ciudad.value,
@@ -2018,11 +2020,11 @@ function cargarUsuariosFrecuentes(personas) {
       const guardarUsuario = document.getElementById("guardarUsuario");
       const modificarUser= document.getElementById("modificarUser");
 
+      const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes");
 
 
 //si quiero agregar un nuevo usuario frecuente
-if(guardarUsuario.checked){
-const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes");
+if(guardarUsuario.checked && !modificarUser.checked){
       referenciaUsuariosFrecuentes
       .add(nuevoObjeto)
       .then((docRef) => {
@@ -2035,9 +2037,29 @@ const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuar
 
 //si quiero modificar un usuario frecuente que ya esté creado
 
-if(modificarUser.checked){
-    console.log("modificando...")
-  }
+if(modificarUser.checked && !guardarUsuario.checked){
+
+   const usuarioEncontrado = opciones.find(
+     (persona) => persona.documentoIdentidad === nuevoObjeto.documentoIdentidad
+   );
+
+   console.log(usuarioEncontrado);
+
+   referenciaUsuariosFrecuentes
+     .where("documentoIdentidad","==", usuarioEncontrado.documentoIdentidad)
+     .get().then(querySnapshot=>{
+        if (!querySnapshot.empty) {
+            const snapshot = querySnapshot.docs[0]  // use only the first document, but there could be more
+            const documentRef = snapshot.ref  // now you have a DocumentReference
+            console.log(snapshot.data())
+            console.log(documentRef)
+
+            documentRef.update(nuevoObjeto)
+     }}) 
+    //  .set(nuevoObjeto)
+ 
+
+}
   
 }
 
