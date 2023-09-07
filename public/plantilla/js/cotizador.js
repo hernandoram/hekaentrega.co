@@ -1604,7 +1604,7 @@ function finalizarCotizacion(datos) {
      
     `;
 
-    let clientes= `   <div class="col-sm-6 mb-2 form-check">
+    let clientes= `   <div class="col-sm-6 mb-2 form-check" id="contenedor-guardar-user">
     <input type="checkbox" id="guardarUsuario" class="form-check-input">
     <label for="guardarUsuario" class="form-check-label" checked>Guardar en clientes frecuentes</label>
 </div>`;
@@ -1881,6 +1881,8 @@ function finalizarCotizacion(datos) {
 //jose
 function cargarUsuariosFrecuentes(personas) {
     const selectClientes = document.getElementById("list_clientesFrecuentes");
+    const contenedorGuardar= document.getElementById("contenedor-guardar-user");
+    const guardarUser= document.getElementById("guardarUsuario");
 
     console.log(personas)
   
@@ -1920,6 +1922,8 @@ function cargarUsuariosFrecuentes(personas) {
 
       // Actualiza los valores de los inputs
       if (selectedPersona) {
+        contenedorGuardar.classList.add("d-none")
+        guardarUser.checked= false;
         nombreDestinatario.value = selectedPersona.nombre;
         identificacionDestinatario.value = selectedPersona.documentoIdentidad;
         tipoDocumentoDestinatario.value = selectedPersona.tipoDocumento;
@@ -1946,6 +1950,9 @@ function cargarUsuariosFrecuentes(personas) {
         correoDestinatario.value = "";
         tipoEntrega.value = "";
         observacionesDestinatario.value = "";
+
+        contenedorGuardar.classList.remove("d-none")
+
       }
     });
   }
@@ -1959,7 +1966,6 @@ function cargarUsuariosFrecuentes(personas) {
     if(!guardarUsuario.checked){
       return  
     }
-    console.log("holita")
   
    const dataejemplo = {
     nombre: "Juan Pérez",
@@ -2004,6 +2010,9 @@ function cargarUsuariosFrecuentes(personas) {
         observaciones: observacionesDestinatario.value,
         ciudad: ciudad.value,
       };
+
+
+
 
     const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes");
 
