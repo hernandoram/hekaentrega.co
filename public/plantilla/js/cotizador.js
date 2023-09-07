@@ -1608,6 +1608,11 @@ function finalizarCotizacion(datos) {
     <input type="checkbox" id="guardarUsuario" class="form-check-input">
     <label for="guardarUsuario" class="form-check-label" checked>Guardar en clientes frecuentes</label>
 </div>`;
+
+let modificarCliente= `   <div class="col-sm-6 mb-2 form-check d-none" id="contenedor-modificar-user">
+<input type="checkbox" id="modificarUser" class="form-check-input">
+<label for="guardarUsuario" class="form-check-label" checked>Modificar usuario frecuente</label>
+</div>`;
     let entrega_en_oficina = "";
 
     const checkCreacionPedido = `
@@ -1813,6 +1818,7 @@ function finalizarCotizacion(datos) {
                     </div>
                     ${solicitud_recoleccion}
                     ${clientes}
+                    ${modificarCliente}
                     ${checkCreacionPedido}
                 </div>
             </form>
@@ -1884,6 +1890,9 @@ function cargarUsuariosFrecuentes(personas) {
     const contenedorGuardar= document.getElementById("contenedor-guardar-user");
     const guardarUser= document.getElementById("guardarUsuario");
 
+    const contenedorModificar= document.getElementById("contenedor-modificar-user");
+    const modificarUser= document.getElementById("modificarUser");
+
     console.log(personas)
   
     // Itera a través del arreglo de personas y agrega opciones al select
@@ -1922,6 +1931,7 @@ function cargarUsuariosFrecuentes(personas) {
 
       // Actualiza los valores de los inputs
       if (selectedPersona) {
+        contenedorModificar.classList.remove("d-none")
         contenedorGuardar.classList.add("d-none")
         guardarUser.checked= false;
         nombreDestinatario.value = selectedPersona.nombre;
@@ -1950,7 +1960,7 @@ function cargarUsuariosFrecuentes(personas) {
         correoDestinatario.value = "";
         tipoEntrega.value = "";
         observacionesDestinatario.value = "";
-
+        modificarUser.checked= false;
         contenedorGuardar.classList.remove("d-none")
 
       }
@@ -1960,28 +1970,7 @@ function cargarUsuariosFrecuentes(personas) {
 
   function enviarUsuarioFrecuente(){
 
-
-    const guardarUsuario = document.getElementById("guardarUsuario");
-
-    if(!guardarUsuario.checked){
-      return  
-    }
-  
-   const dataejemplo = {
-    nombre: "Juan Pérez",
-    documentoIdentidad: "123456789",
-    tipoDocumento: 1, // 1 para NIT, 2 para CC
-    tipoEntrega: 1, // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
-    direccionDestinatario: "Calle 123",
-    barrio: "Barrio A",
-    celular: "1234567890",
-    otroCelular: "9876543210",
-    email: "juan.perez@example.com",
-    observaciones: "Entregar por la puerta trasera",
-  };
-
-  console.log(opciones)
-  
+      
     // Obtener los elementos input por su ID
     const nombreDestinatario = document.getElementById("nombreD");
     const identificacionDestinatario =
@@ -2010,15 +1999,30 @@ function cargarUsuariosFrecuentes(personas) {
         observaciones: observacionesDestinatario.value,
         ciudad: ciudad.value,
       };
+      const dataejemplo = {
+        nombre: "Juan Pérez",
+        documentoIdentidad: "123456789",
+        tipoDocumento: 1, // 1 para NIT, 2 para CC
+        tipoEntrega: 1, // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
+        direccionDestinatario: "Calle 123",
+        barrio: "Barrio A",
+        celular: "1234567890",
+        otroCelular: "9876543210",
+        email: "juan.perez@example.com",
+        observaciones: "Entregar por la puerta trasera",
+      };
+    
+      console.log(opciones)
+    
+
+      const guardarUsuario = document.getElementById("guardarUsuario");
+      const modificarUser= document.getElementById("modificarUser");
 
 
 
-
-    const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes");
-
-
-
-
+//si quiero agregar un nuevo usuario frecuente
+if(guardarUsuario.checked){
+const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes");
       referenciaUsuariosFrecuentes
       .add(nuevoObjeto)
       .then((docRef) => {
@@ -2027,10 +2031,15 @@ function cargarUsuariosFrecuentes(personas) {
       .catch((error) => {
         console.error("Error al agregar el documento:", error);
       });
- 
+}
+
+//si quiero modificar un usuario frecuente que ya esté creado
+
+if(modificarUser.checked){
+    console.log("modificando...")
   }
   
-
+}
 
 
 
