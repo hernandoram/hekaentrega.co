@@ -1865,6 +1865,7 @@ let modificarCliente= `   <div class="col-sm-6 mb-2 form-check d-none" id="conte
     
     const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes");
 
+    opciones.length = 0;
 
     referenciaUsuariosFrecuentes
     .where("ciudad","==", ciudad.value)
@@ -1940,8 +1941,8 @@ function cargarUsuariosFrecuentes(personas) {
         tipoDocumentoDestinatario.value = selectedPersona.tipoDocumento;
         direccionDestinatario.value = selectedPersona.direccionDestinatario;
         barrioDestinatario.value = selectedPersona.barrio;
-        telefonoDestinatario.value = selectedPersona.celular;
-        celularDestinatario.value = selectedPersona.otroCelular;
+        telefonoDestinatario.value = selectedPersona.otroCelular;
+        celularDestinatario.value = selectedPersona.celular;
         correoDestinatario.value = selectedPersona.email;
         tipoEntrega.value = selectedPersona.tipoEntrega;
         observacionesDestinatario.value = selectedPersona.observaciones;
@@ -1971,9 +1972,16 @@ function cargarUsuariosFrecuentes(personas) {
   }
 
 
-  function enviarUsuarioFrecuente(){
+  function enviarUsuarioFrecuente() {
+    //inputs importantes
+    const guardarUsuario = document.getElementById("guardarUsuario");
+    const modificarUser = document.getElementById("modificarUser");
 
-      
+    //en el caso que no haya ninguna opción seleccionada
+    if (!guardarUsuario.checked && !modificarUser.checked) {
+      return;
+    }
+
     // Obtener los elementos input por su ID
     const nombreDestinatario = document.getElementById("nombreD");
     const identificacionDestinatario =
@@ -1987,82 +1995,63 @@ function cargarUsuariosFrecuentes(personas) {
     const correoDestinatario = document.getElementById("correoD");
     const tipoEntrega = document.getElementById("entrega_en_oficina");
     const observacionesDestinatario = document.getElementById("observaciones");
-    const ciudad= document.getElementById("ciudadDestinoUsuario");
+    const ciudad = document.getElementById("ciudadDestinoUsuario");
 
     const nuevoObjeto = {
-        nombre: nombreDestinatario.value,
-        documentoIdentidad: identificacionDestinatario.value,
-        tipoDocumento: parseInt(tipoDocumentoDestinatario.value),
-        tipoEntrega: parseInt(tipoEntrega.value),
-        direccionDestinatario: direccionDestinatario.value,
-        barrio: barrioDestinatario.value,
-        celular: celularDestinatario.value,
-        otroCelular: telefonoDestinatario.value, 
-        email: correoDestinatario.value,
-        observaciones: observacionesDestinatario.value,
-        ciudad: ciudad.value,
-      };
-      const dataejemplo = {
-        nombre: "Juan Pérez",
-        documentoIdentidad: "123456789",
-        tipoDocumento: 1, // 1 para NIT, 2 para CC
-        tipoEntrega: 1, // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
-        direccionDestinatario: "Calle 123",
-        barrio: "Barrio A",
-        celular: "1234567890",
-        otroCelular: "9876543210",
-        email: "juan.perez@example.com",
-        observaciones: "Entregar por la puerta trasera",
-      };
-    
-      console.log(opciones)
-    
+      nombre: nombreDestinatario.value,
+      documentoIdentidad: identificacionDestinatario.value,
+      tipoDocumento: parseInt(tipoDocumentoDestinatario.value),
+      tipoEntrega: parseInt(tipoEntrega.value),
+      direccionDestinatario: direccionDestinatario.value,
+      barrio: barrioDestinatario.value,
+      celular: celularDestinatario.value,
+      otroCelular: telefonoDestinatario.value,
+      email: correoDestinatario.value,
+      observaciones: observacionesDestinatario.value,
+      ciudad: ciudad.value,
+    };
+    const dataejemplo = {
+      nombre: "Juan Pérez",
+      documentoIdentidad: "123456789",
+      tipoDocumento: 1, // 1 para NIT, 2 para CC
+      tipoEntrega: 1, // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
+      direccionDestinatario: "Calle 123",
+      barrio: "Barrio A",
+      celular: "1234567890",
+      otroCelular: "9876543210",
+      email: "juan.perez@example.com",
+      observaciones: "Entregar por la puerta trasera",
+    };
 
-      const guardarUsuario = document.getElementById("guardarUsuario");
-      const modificarUser= document.getElementById("modificarUser");
+    console.log(opciones);
 
-      const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes");
+    const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
+      "plantillasUsuariosFrecuentes"
+    );
 
-
-//si quiero agregar un nuevo usuario frecuente
-if(guardarUsuario.checked && !modificarUser.checked){
+    //si quiero agregar un nuevo usuario frecuente
+    if (guardarUsuario.checked && !modificarUser.checked) {
       referenciaUsuariosFrecuentes
-      .add(nuevoObjeto)
-      .then((docRef) => {
-        console.log("Documento agregado con ID:", docRef.id);
-      })
-      .catch((error) => {
-        console.error("Error al agregar el documento:", error);
-      });
-}
+        .add(nuevoObjeto)
+        .then((docRef) => {
+          console.log("Documento agregado con ID:", docRef.id);
+        })
+        .catch((error) => {
+          console.error("Error al agregar el documento:", error);
+        });
+    }
 
-//si quiero modificar un usuario frecuente que ya esté creado
+    //si quiero modificar un usuario frecuente que ya esté creado
 
-if(modificarUser.checked && !guardarUsuario.checked){
+    const selectClientes = document.getElementById("list_clientesFrecuentes");
 
-   const usuarioEncontrado = opciones.find(
-     (persona) => persona.documentoIdentidad === nuevoObjeto.documentoIdentidad
-   );
-
-   console.log(usuarioEncontrado);
-
-   referenciaUsuariosFrecuentes
-     .where("documentoIdentidad","==", usuarioEncontrado.documentoIdentidad)
-     .get().then(querySnapshot=>{
-        if (!querySnapshot.empty) {
-            const snapshot = querySnapshot.docs[0]  // use only the first document, but there could be more
-            const documentRef = snapshot.ref  // now you have a DocumentReference
-            console.log(snapshot.data())
-            console.log(documentRef)
-
-            documentRef.update(nuevoObjeto)
-     }}) 
-    //  .set(nuevoObjeto)
- 
-
-}
-  
-}
+    if (modificarUser.checked && !guardarUsuario.checked) {
+      referenciaUsuariosFrecuentes
+        .doc(selectClientes.value)
+        .set(nuevoObjeto)
+        .then(console.log("modificado"));
+    }
+  }
 
 
 
@@ -3115,8 +3104,6 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
 
     
     enviarUsuarioFrecuente()
-
-    return;
 
     if(!datos.id_heka) {
         return {
