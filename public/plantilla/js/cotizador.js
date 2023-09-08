@@ -1872,6 +1872,7 @@ let modificarCliente= `   <div class="col-sm-6 mb-2 form-check d-none" id="conte
       .then((querySnapshot) => {
         querySnapshot.forEach((document) => {
           const data = document.data();
+          data.id = document.id;
           console.log(data)
 
           opciones.push(data);
@@ -1898,7 +1899,7 @@ function cargarUsuariosFrecuentes(personas) {
     // Itera a través del arreglo de personas y agrega opciones al select
     personas.map((persona) => {
       const option = document.createElement("option");
-      option.value = persona.documentoIdentidad; // Puedes usar el documento de identidad como valor
+      option.value = persona.id;
       option.text = `${persona.nombre}`;
       selectClientes.appendChild(option);
     });
@@ -1924,7 +1925,7 @@ function cargarUsuariosFrecuentes(personas) {
 
       // Encuentra el usuario seleccionado en el arreglo de personas
       const selectedPersona = personas.find(
-        (persona) => persona.documentoIdentidad === selectedValue
+        (persona) => persona.id === selectedValue
       );
 
       console.log(selectedPersona)
