@@ -1177,6 +1177,65 @@ $("#btn-revisar_pagos").click(async(e) => {
   }
 })
 
+$("#btn-descargar_facturas").click(consultarFacturasGuardadasAdmin);
+async function consultarFacturasGuardadasAdmin() {
+  const l = new ChangeElementContenWhileLoading(this);
+  l.init();
+  
+  let fechaI = new Date($("#filtro-fechaI").val()).setHours(0) + 8.64e7, 
+  fechaF = new Date($("#filtro-fechaF").val()).setHours(0) + (2 * 8.64e7);
+
+  const referencia = firebase.firestore().collection("paquetePagos")
+  .orderBy("timeline")
+  .startAt(fechaI)
+  .endAt(fechaF);
+
+  const facturas = [];
+  await referencia.get().then(q => {
+    q.forEach(d => {
+      const data = d.data();
+
+      facturas.push(data);
+    })
+  });
+
+  const usuarioCargados = new Map();
+  const promiseFacturas = facturas.map(async f => {
+    const id_user = f.id_user;
+    if(!usuarioCargados.has(id_user)) {
+      const respuestaUsuario = await db.collection("usuarios").doc(id_user)
+      .get().then(d => d ? d.data() : null);
+
+      usuarioCargados.set(id_user, respuestaUsuario);
+    }
+
+    const info_usuario = usuarioCargados.get(id_user);
+    let identificacion, nombre_completo;
+    if(info_usuario) {
+      identificacion = info_usuario.numero_documento;
+      nombre_completo = info_usuario.nombres +" "+ info_usuario.apellidos;
+    }
+
+    const jsonArchivo = {
+      "Centro de costo": f.centro_de_costo,
+      "COMISION HEKA": f.comision_heka,
+      "TOTAL A PAGAR": f.total_pagado,
+      "CEDULA": identificacion,
+      "TERCERO": nombre_completo,
+      "FACTURA": f.num_factura
+    }
+
+    return jsonArchivo
+  });
+
+  const dataDescarga = await Promise.all(promiseFacturas);
+
+  console.log(dataDescarga);
+  crearExcel(dataDescarga, `Informe Facturas ${genFecha("LR", fechaI)} ${genFecha("LR", fechaF)}`);
+  
+  l.end();
+}
+
 function totalizador(guia, remitente) {
   const mostrador_total_local = document.getElementById("total"+remitente);
   const btn_local = document.getElementById("pagar" + remitente);
@@ -1324,6 +1383,7 @@ function mostrarPagosAdmin(datos) {
   visor_pagos.querySelector("#descargar-pagos").addEventListener("click", () => {
     crearExcel(toDownload, "Historial de pagos")
   });
+  
 
   activarBotonesVisorPagos();
 }
@@ -1348,27 +1408,15 @@ function activarBotonesVisorPagos() {
 
     try {
       if(!paqueteGuiasPagadas.guias.has(numeroGuia)) {
-        const paquete = await db.collection("paquetePagos").where("guiasPagadas", "array-contains", numeroGuia)
-        .get().then(q => {
-          if(q.size) {
-            return q.docs[0].data();
-          }
-
-          return null
-        });
+        const paquete = await obtenerFacturaRegistradaPorGuia(numeroGuia);
 
         console.log(paquete, numeroGuia);
 
         if(!paquete) return finalizar("Esta guía no fue facturada", "", "error");
 
-        const guiasPagadas = paquete.guiasPagadas;
-        const idFactura = paquete.id_factura;
-        guiasPagadas.forEach(g => {
-          paqueteGuiasPagadas.guias.set(g, idFactura);
-        });
       }
 
-      const idFactura = paqueteGuiasPagadas.guias.get(numeroGuia);
+      const {idFactura} = paqueteGuiasPagadas.guias.get(numeroGuia);
 
       if(!paqueteGuiasPagadas.facturas.has(idFactura)) {
         const factura = await fetch("/siigo/pdfFactura/" + idFactura)
@@ -1396,6 +1444,33 @@ function activarBotonesVisorPagos() {
     }
 
   })
+}
+
+
+async function obtenerFacturaRegistradaPorGuia(numeroGuia) {
+  const guiasEstablecidas = paqueteGuiasPagadas.guias;
+  if(guiasEstablecidas.has(numeroGuia)) return guiasEstablecidas.get(numeroGuia);
+
+  const referencia = db.collection("paquetePagos").where("guiasPagadas", "array-contains", numeroGuia);
+
+  const paquete = await referencia
+  .get().then(q => {
+    if(q.size) {
+      return q.docs[0].data();
+    }
+
+    return null
+  });
+
+  if(!paquete) return null;
+
+  const guiasPagadas = paquete.guiasPagadas;
+  const idFactura = paquete.id_factura;
+  guiasPagadas.forEach(g => {
+    paqueteGuiasPagadas.guias.set(g, {idFactura, comision_heka: paquete.comision_heka});
+  });
+
+  return guiasEstablecidas.get(numeroGuia);
 }
 
 function mostrarPagosUsuario(data) {
@@ -1530,8 +1605,6 @@ async function pagosPendientesParaUsuario() {
   // Cómputo para calcular hasta el último viernes
   const fecha = new Date(filtroFecha.val());
   const diaSemana = fecha.getDay();
-  const mes = fecha.getMonth() + 1;
-  const year = fecha.getFullYear();
   const diaEnMilli = 8.64e+7;
 
   let dia = fecha.getDate() + 1;
@@ -1540,7 +1613,7 @@ async function pagosPendientesParaUsuario() {
     dia -= diaSemana;
   }
 
-  const fechaMostrarMilli = Date.parse(year + "/" + mes + "/" + dia);
+  const fechaMostrarMilli = fecha.getTime();
   const fechaFinal = genFecha("LR", fechaMostrarMilli);
   const endAtMilli = fechaMostrarMilli + diaEnMilli;
   // Fin de cómputo

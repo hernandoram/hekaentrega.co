@@ -32,7 +32,7 @@ function habilitarComprobacionesDeInputs() {
         operator: 'regExp',
         message: 'El carácter {forbidden} no está permitido',
         selector: "#register-empresa",
-        forbid: /[^\w\d\s_\-]/g
+        forbid: /[^A-Za-z0-9\s]/g
     }, {
         operator: '>=',
         message: 'Has llegado al límite de carácteres ({forbidden}).',
