@@ -1777,11 +1777,11 @@ let modificarCliente= `   <div class="col-sm-6 mb-2 form-check d-none" id="conte
                         <div class="row align-items-center">
                             <div class="col-sm-8 mb-2">
                                 <label for="identificacionD">Documento de identificación</label>
-                                <input type="number" id="identificacionD" class="form-control form-control-user detect-errors" value="" placeholder="ej. 123456789" required="">
+                                <input type="number" id="identificacionD" required="" class="form-control form-control-user detect-errors" value="" placeholder="ej. 123456789" required="">
                             </div>
                             <div class="col mb-2">
                                 <label for="tipo-doc-dest" class="col-form-label">Tipo De Documento</label>
-                                <select class="custom-select" form="datos-destinatario" id="tipo-doc-dest">
+                                <select class="custom-select" form="datos-destinatario" required="" id="tipo-doc-dest">
                                     <option value="">Seleccione</option>
                                     <option value="1">NIT</option>
                                     <option value="2">CC</option>
