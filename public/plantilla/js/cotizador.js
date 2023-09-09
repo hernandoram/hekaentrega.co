@@ -1547,7 +1547,7 @@ function detalles_cotizacion(datos) {
                 </div>
                 <div class="col-sm-6 mb-3 mb-sm-2">
                     <h5>Ciudad de Destino</h5>
-                    <input readonly="readonly" type="text" class="form-control form-control-user" value="${datos.ciudadD}(${datos.departamentoD})" required="">  
+                    <input readonly="readonly" type="text" class="form-control form-control-user" id="ciudadDestinoUsuario" value="${datos.ciudadD}(${datos.departamentoD})" required="">  
                 </div>
                 <div class="col-sm-6 mb-3 mb-sm-2">
                     <h5>Kilos</h5>
@@ -1585,8 +1585,11 @@ function detalles_cotizacion(datos) {
         `, "text/html").body;
 }
 
+const opciones = [];
+
 //M edevuelve el html del último formulario del cotizador
 function finalizarCotizacion(datos) {
+
     let div_principal = document.createElement("DIV"),
         crearNodo = str => new DOMParser().parseFromString(str, "text/html").body;
 
@@ -1598,7 +1601,18 @@ function finalizarCotizacion(datos) {
             <input type="checkbox" id="recoleccion" class="form-check-input">
             <label for="recoleccion" class="form-check-label" checked>Solicitud de Recolección</label>
         </div>
+     
     `;
+
+    let clientes= `   <div class="col-sm-6 mb-2 form-check" id="contenedor-guardar-user">
+    <input type="checkbox" id="guardarUsuario" class="form-check-input">
+    <label for="guardarUsuario" class="form-check-label" checked>Guardar en clientes frecuentes</label>
+</div>`;
+
+let modificarCliente= `   <div class="col-sm-6 mb-2 form-check d-none" id="contenedor-modificar-user">
+<input type="checkbox" id="modificarUser" class="form-check-input">
+<label for="modificarUser" class="form-check-label" checked>Modificar usuario frecuente</label>
+</div>`;
     let entrega_en_oficina = "";
 
     const checkCreacionPedido = `
@@ -1721,6 +1735,38 @@ function finalizarCotizacion(datos) {
             <div class="card-header py-3">
                 <h4 class="m-0 font-weight-bold text-primary text-center">Datos del Destinatario</h4>
             </div>
+
+
+         <div class="card cotizador-beta" id="opciones-cotizador">
+            <div class="card-body">
+
+              <div class="row">    
+                <div class="form-group col-md">
+                  <label for="list_bodegas-cotizador">
+                    Clientes Frecuentes
+                    <i class="fa fa-question-circle" data-toggle="tooltip" title='Puedes listar clientes frecuentes para una creación de guía más oportuna'></i> 
+                  </label>
+                  <select type="text" class="form-control"
+                  id="list_clientesFrecuentes" >
+                  <option value="">Seleccione</option>
+                </select>
+                </div>
+              </div>
+
+              <div class="row">
+                <div class="col-sm-6 text-center d-none" id="cont_act_plant-cotizador">
+                  <input type="checkbox" id="actv_editar_plantilla-cotizador">
+                  <label for="actv_editar_plantilla-cotizador">
+                    Cambiar datos de la <b>plantilla</b>
+                    <i class="fa fa-question-circle" data-toggle="tooltip" title='Si marcas la opción, se editará la información guardada previamente al presionar el botón "Cotizar envío"'></i> 
+                  </label>
+                </div>
+
+              </div>
+            </div>
+            
+          </div>
+
             <form id="datos-destinatario">
                 <div class="card-body row">
                     <div class="col-lg-6 mb-3 mb-2">
@@ -1731,12 +1777,12 @@ function finalizarCotizacion(datos) {
                         <div class="row align-items-center">
                             <div class="col-sm-8 mb-2">
                                 <label for="identificacionD">Documento de identificación</label>
-                                <input type="number" id="identificacionD" class="form-control form-control-user detect-errors" value="" placeholder="ej. 123456789" required="">
+                                <input type="number" id="identificacionD" required="" class="form-control form-control-user detect-errors" value="" placeholder="ej. 123456789" required="">
                             </div>
                             <div class="col mb-2">
                                 <label for="tipo-doc-dest" class="col-form-label">Tipo De Documento</label>
-                                <select class="custom-select" form="datos-destinatario" id="tipo-doc-dest">
-                                    <option value="2">Seleccione</option>
+                                <select class="custom-select" form="datos-destinatario" required="" id="tipo-doc-dest">
+                                    <option value="">Seleccione</option>
                                     <option value="1">NIT</option>
                                     <option value="2">CC</option>
                                 </select>
@@ -1771,6 +1817,8 @@ function finalizarCotizacion(datos) {
                         <input type="text" id="observaciones" class="form-control form-control-user detect-errors" value="" placeholder="Observaciones Adicionales">
                     </div>
                     ${solicitud_recoleccion}
+                    ${clientes}
+                    ${modificarCliente}
                     ${checkCreacionPedido}
                 </div>
             </form>
@@ -1812,7 +1860,201 @@ function finalizarCotizacion(datos) {
             aviso.classList.add("d-none")
         }
     });
+
+    const ciudad= document.getElementById("ciudadDestinoUsuario");
+    
+    const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes");
+
+    opciones.length = 0;
+
+    referenciaUsuariosFrecuentes
+    .where("ciudad","==", ciudad.value)
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((document) => {
+          const data = document.data();
+          data.id = document.id;
+          console.log(data)
+
+          opciones.push(data);
+        });
+      })
+      .then(() => {
+        console.log(opciones);
+        cargarUsuariosFrecuentes(opciones)
+      });
 }
+
+
+//jose
+function cargarUsuariosFrecuentes(personas) {
+    const selectClientes = document.getElementById("list_clientesFrecuentes");
+    const contenedorGuardar= document.getElementById("contenedor-guardar-user");
+    const guardarUser= document.getElementById("guardarUsuario");
+
+    const contenedorModificar= document.getElementById("contenedor-modificar-user");
+    const modificarUser= document.getElementById("modificarUser");
+
+    console.log(personas)
+  
+    // Itera a través del arreglo de personas y agrega opciones al select
+    personas.map((persona) => {
+      const option = document.createElement("option");
+      option.value = persona.id;
+      option.text = `${persona.nombre}`;
+      selectClientes.appendChild(option);
+    });
+
+    selectClientes.addEventListener("change", () => {
+    const selectedValue = selectClientes.value;
+        // Obtener los elementos input por su ID
+      const nombreDestinatario = document.getElementById("nombreD");
+      const identificacionDestinatario =
+        document.getElementById("identificacionD");
+      const tipoDocumentoDestinatario =
+        document.getElementById("tipo-doc-dest");
+      const direccionDestinatario = document.getElementById("direccionD");
+
+      const barrioDestinatario = document.getElementById("barrioD");
+      const telefonoDestinatario = document.getElementById("telefonoD");
+      const celularDestinatario = document.getElementById("celularD");
+      const correoDestinatario = document.getElementById("correoD");
+      const tipoEntrega = document.getElementById("entrega_en_oficina");
+      const observacionesDestinatario =
+        document.getElementById("observaciones");
+
+
+      // Encuentra el usuario seleccionado en el arreglo de personas
+      const selectedPersona = personas.find(
+        (persona) => persona.id === selectedValue
+      );
+
+      console.log(selectedPersona)
+
+      // Actualiza los valores de los inputs
+      if (selectedPersona) {
+        contenedorModificar.classList.remove("d-none")
+        contenedorGuardar.classList.add("d-none")
+        guardarUser.checked= false;
+        nombreDestinatario.value = selectedPersona.nombre;
+        identificacionDestinatario.value = selectedPersona.documentoIdentidad;
+        tipoDocumentoDestinatario.value = selectedPersona.tipoDocumento;
+        direccionDestinatario.value = selectedPersona.direccionDestinatario;
+        barrioDestinatario.value = selectedPersona.barrio;
+        telefonoDestinatario.value = selectedPersona.otroCelular;
+        celularDestinatario.value = selectedPersona.celular;
+        correoDestinatario.value = selectedPersona.email;
+        tipoEntrega.value = selectedPersona.tipoEntrega;
+        observacionesDestinatario.value = selectedPersona.observaciones;
+        contenedorGuardar.classList.add("d-none")
+
+        var event = new Event("change");
+        tipoDocumentoDestinatario.dispatchEvent(event);
+        tipoEntrega.dispatchEvent(event);
+      } else {
+        // Si no se encuentra el usuario, puedes borrar los valores o mostrar un mensaje de error.
+        nombreDestinatario.value = "";
+        identificacionDestinatario.value = "";
+        tipoDocumentoDestinatario.value ="";
+        direccionDestinatario.value = "";
+        barrioDestinatario.value = "";
+        telefonoDestinatario.value = "";
+        celularDestinatario.value = "";
+        correoDestinatario.value = "";
+        tipoEntrega.value = "";
+        observacionesDestinatario.value = "";
+        modificarUser.checked= false;
+        contenedorGuardar.classList.remove("d-none")
+        contenedorModificar.classList.add("d-none")
+
+      }
+    });
+  }
+
+
+  function enviarUsuarioFrecuente() {
+    //inputs importantes
+    const guardarUsuario = document.getElementById("guardarUsuario");
+    const modificarUser = document.getElementById("modificarUser");
+
+    //en el caso que no haya ninguna opción seleccionada
+    if (!guardarUsuario.checked && !modificarUser.checked) {
+      return;
+    }
+
+    // Obtener los elementos input por su ID
+    const nombreDestinatario = document.getElementById("nombreD");
+    const identificacionDestinatario =
+      document.getElementById("identificacionD");
+    const tipoDocumentoDestinatario = document.getElementById("tipo-doc-dest");
+    const direccionDestinatario = document.getElementById("direccionD");
+
+    const barrioDestinatario = document.getElementById("barrioD");
+    const telefonoDestinatario = document.getElementById("telefonoD");
+    const celularDestinatario = document.getElementById("celularD");
+    const correoDestinatario = document.getElementById("correoD");
+    const tipoEntrega = document.getElementById("entrega_en_oficina");
+    const observacionesDestinatario = document.getElementById("observaciones");
+    const ciudad = document.getElementById("ciudadDestinoUsuario");
+
+    const nuevoObjeto = {
+      nombre: nombreDestinatario.value,
+      documentoIdentidad: identificacionDestinatario.value,
+      tipoDocumento: parseInt(tipoDocumentoDestinatario.value),
+      tipoEntrega: parseInt(tipoEntrega.value),
+      direccionDestinatario: direccionDestinatario.value,
+      barrio: barrioDestinatario.value,
+      celular: celularDestinatario.value,
+      otroCelular: telefonoDestinatario.value,
+      email: correoDestinatario.value,
+      observaciones: observacionesDestinatario.value,
+      ciudad: ciudad.value,
+    };
+    const dataejemplo = {
+      nombre: "Juan Pérez",
+      documentoIdentidad: "123456789",
+      tipoDocumento: 1, // 1 para NIT, 2 para CC
+      tipoEntrega: 1, // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
+      direccionDestinatario: "Calle 123",
+      barrio: "Barrio A",
+      celular: "1234567890",
+      otroCelular: "9876543210",
+      email: "juan.perez@example.com",
+      observaciones: "Entregar por la puerta trasera",
+    };
+
+    console.log(opciones);
+
+    const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
+      "plantillasUsuariosFrecuentes"
+    );
+
+    //si quiero agregar un nuevo usuario frecuente
+    if (guardarUsuario.checked && !modificarUser.checked) {
+      referenciaUsuariosFrecuentes
+        .add(nuevoObjeto)
+        .then((docRef) => {
+          console.log("Documento agregado con ID:", docRef.id);
+        })
+        .catch((error) => {
+          console.error("Error al agregar el documento:", error);
+        });
+    }
+
+    //si quiero modificar un usuario frecuente que ya esté creado
+
+    const selectClientes = document.getElementById("list_clientesFrecuentes");
+
+    if (modificarUser.checked && !guardarUsuario.checked) {
+      referenciaUsuariosFrecuentes
+        .doc(selectClientes.value)
+        .set(nuevoObjeto)
+        .then(console.log("modificado"));
+    }
+  }
+
+
+
 
 async function buscarUsuario(e) {
     const inp = $("#numero_documento_usuario");
@@ -2860,6 +3102,10 @@ async function pruebaGeneracionGuias(idGuiaError) {
 }
 
 async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
+
+    
+    enviarUsuarioFrecuente()
+
     if(!datos.id_heka) {
         return {
             error: true,
@@ -2938,6 +3184,7 @@ async function creacionDirecta(guia) {
     guia.id_heka = await obtenerIdHeka();
     if(transportadoras[guia.transportadora].sistemaAutomatizado()) {
         const guiaGenerada = await crearGuiaTransportadora(guia);
+        console.log(guiaGenerada)
     
         if(guiaGenerada.error) {
             return {
