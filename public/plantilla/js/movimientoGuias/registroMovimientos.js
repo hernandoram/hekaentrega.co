@@ -81,7 +81,6 @@ function seleccionarNovedad(e) {
     const val = e.target.value;
     opcionesMovimientos.addClass("d-none");
     const els = $("[name]", formRegistro);
-
     // En caso de que val sea null|undefined|"" es porque se va a cargar una información nueva
     if(!val) {
         action("guardar").removeClass("d-none");
@@ -94,9 +93,13 @@ function seleccionarNovedad(e) {
 
     // representa la novedad/movimiento seleciconado
     const elemento = listaRegistros[val];
+    
     const modulo = "-mensajeria";
     const keys = Object.keys(elemento);
 
+
+    console.log(elemento);
+    
     els.attr("disabled", true);
 
     // Para llenar el formulario del módulo de mensajería con los valores extraidos
