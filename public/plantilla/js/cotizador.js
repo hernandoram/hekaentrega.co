@@ -3201,6 +3201,7 @@ class CalcularCostoDeEnvio {
       MedioTransporte: 1,
     };
     console.log("COTIZANDO SERVIENTREGA", data);
+    
     const response = await fetch("servientrega/cotizar", {
       method: "Post",
       headers: { "Content-Type": "Application/json" },
@@ -3209,14 +3210,15 @@ class CalcularCostoDeEnvio {
       .then((R) => R.json())
       .catch((R) => ({ respuesta: "Error del servidor" }));
 
-    if (response.message) {
+    if (response.message || response.Message) {
       this.empty = true;
+      console.log("ERROR EN SERVIENTREGA", response)
       return false;
     }
     const conv = this.convencional;
     this.precio = response;
     this.servi = true;
-    this.intoServi(response, conv);
+    this.intoServi(response, conv); 
     console.log("FINALIZÓ SERVIENTREGA");
     return true;
   }
