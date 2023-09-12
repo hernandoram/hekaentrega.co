@@ -1,69 +1,10 @@
 const fetch = require("node-fetch");
+const db = require("../keys/firebase.js").firestore()
+const XLSX = require("xlsx");
 
-
-/*
-    curl -X POST https://messages-sandbox.nexmo.com/v1/messages \
--u '097f0f9a:nhDrqPrlxShR8stV' \
--H 'Content-Type: application/json' \
--H 'Accept: application/json' \
--d '{
-    "from": "14157386102",
-    "to": "$TO_NUMBER",
-    "message_type": "text",
-    "text": "This is a WhatsApp Message sent from the Messages API",
-    "channel": "whatsapp"
-  }'
-
-  curl -X POST https://messages-sandbox.nexmo.com/v1/messages \
--u '097f0f9a:nhDrqPrlxShR8stV' \
--H 'Content-Type: application/json' \
--H 'Accept: application/json' \
--d '{
-    "from": "14157386102",
-    "to": "573103228343",
-    "message_type": "text",
-    "text": "This is a WhatsApp Message sent from the Messages API",
-    "channel": "whatsapp"
-  }'
-*/
-// fetch("https://messages-sandbox.nexmo.com/v1/messages", {
-//     method: "POST",
-//     headers: {
-//         "097f0f9a": "nhDrqPrlxShR8stV",
-//         "Content-Type": "Application/json",
-//         'Accept': 'application/json',
-//         "Authorization": "Bearer " + "MDk3ZjBmOWEsbmhEcnFQcmx4U2hSOHN0Vg=="
-//     },
-//     body: JSON.stringify({
-//         "from": "14157386102",
-//         "to": "573214929471",
-//         "message_type": "text",
-//         "text": "This is a WhatsApp Message sent from the Messages API",
-//         "channel": "whatsapp"
-//     })
-// }).then(d => d.json())
-// .then(d => {
-//     console.log(d);
-// })
-
-
-/**
- curl -X "POST" "https://conversations.messagebird.com/v1/send" \
--H "Authorization: AccessKey YOUR-API-KEY" \
--H "Content-Type: application/json" \
---data '{
-  "to": "+31XXXXXXXXX",
-  "from": "WHATSAPP-CHANNEL-ID",
-  "type": "text",
-  "content": {
-    "text": "Hello!",
-    "disableUrlPreview": false
-  }
-}'
- */
 const key_prod = "WYLRFc9YwKNN3swvQ64owaOIg";
 const key_dev = "test_baDWoKRn30HA5fNAZeU2wZLME";
-senMes();
+// senMes();
 function senMes() {
     fetch("https://conversations.messagebird.com/v1/send", {
         method: "POST",
@@ -124,4 +65,129 @@ function getMes() {
         console.log(d);
     })
     .catch(e => console.log(e.message))
+}
+
+
+const ws = XLSX.readFile("../procesos/InformeEnvios_20230905_8088.xlsx");
+
+const listaGuias =  XLSX.utils.sheet_to_json(ws.Sheets["Table1"], {header:"A1"});
+// actualizarFlete();
+async function actualizarFlete() {
+    console.log(listaGuias.length);
+
+    const resultado = {
+        iguales: 0,
+        diferentes: 0,
+        finalmenteIguales: 0,
+        guiasPagadas: 0,
+        erroresApi: 0
+    }
+
+    const respuestaAsincrona = listaGuias
+    // .slice(0,5)
+    .map(async (g, i) => {
+        const flete = g["FLETE"];
+        const sobreFlete = g["SOBREFLETE"];
+        const numeroGuia = g["Número de Guia"].toString();
+
+
+        await db.collectionGroup("guias").where("numeroGuia", "==", numeroGuia)
+        .get()
+        .then(async q => {
+            const doc = q.docs[0];
+            const infoOriginal = doc.data();
+            const nuevaData = JSON.parse(JSON.stringify(infoOriginal));
+            const detalles = nuevaData.detalles;
+            const sobrefleteOficina = detalles.sobreflete_oficina ?? 0;
+            const seguroMercancia = 0;
+
+            
+            if(nuevaData.debe == 0) {
+                resultado.guiasPagadas++;
+                return;
+            }
+            
+            const cotizacionApi = await cotizarApi(nuevaData);
+            if(cotizacionApi.error) {
+                resultado.erroresApi++;
+                console.log(cotizacionApi, nuevaData.numeroGuia);
+                return;
+            }
+
+            const {flete, sobreflete:sobreFlete} = cotizacionApi;
+
+            if(detalles.flete !== flete || detalles.comision_trasportadora !== sobreFlete) resultado.diferentes++
+            else resultado.iguales++;
+            
+
+            detalles.flete = flete;
+            detalles.comision_trasportadora = sobreFlete;
+
+            const total = flete + sobreFlete + detalles.comision_heka 
+                + seguroMercancia + sobrefleteOficina
+
+            detalles.total = total;
+            detalles.costoDevolucion = total;
+
+            nuevaData.costo_envio = detalles.total;
+            nuevaData.debe = -detalles.total;
+
+
+            const arrayCambios = ["costo_envio", "debe", "detalles"];
+            const origen = tomarSoloCiertosCampos(infoOriginal, arrayCambios);
+            const resultante = tomarSoloCiertosCampos(nuevaData, arrayCambios);
+
+            if(analizardiferenciaSuperficial(origen, resultante)) resultado.finalmenteIguales++;
+
+            // console.log("ANTES => ", origen);
+            // console.log("DESPUES => ", resultante);
+
+            // doc.ref.update(resultante);
+        });
+    
+        return resultado;
+    });
+
+    const analisis = await Promise.all(respuestaAsincrona);
+
+    console.log(resultado);
+
+}
+
+function tomarSoloCiertosCampos(objeto, arrCampos) {
+    return arrCampos.reduce((a,b) => {
+        a[b] = objeto[b];
+        return a;
+    }, {});
+}
+
+function analizardiferenciaSuperficial(obj1, obj2) {
+    return JSON.stringify(obj1) == JSON.stringify(obj2);
+}
+
+async function cotizarApi(data) {
+    const id_user = data.id_user;
+    const detalles = data.detalles;
+    const cotizar = {
+        "peso": detalles.peso_liquidar,
+        "alto": parseInt(data.alto),
+        "largo": parseInt(data.largo),
+        "ancho": parseInt(data.ancho),
+        "valorSeguro": data.seguro,
+        "valorRecaudo": detalles.recaudo,
+        "idDaneCiudadOrigen": data.dane_ciudadR,
+        "idDaneCiudadDestino": data.dane_ciudadD,
+        "tipo": data.type
+    }
+
+    const res = await fetch("http://localhost:6201/Api/Servientrega/Cotizar", {
+        method: "POST",
+        headers: {
+            Authentication: id_user,
+            "Content-Type": "Application/json"
+        },
+        body: JSON.stringify(cotizar)
+    }).then(d => d.json());
+
+    return res.body;
 }
