@@ -2001,7 +2001,7 @@ function cargarUsuariosFrecuentes(personas) {
       nombre: nombreDestinatario.value,
       documentoIdentidad: identificacionDestinatario.value,
       tipoDocumento: parseInt(tipoDocumentoDestinatario.value),
-      tipoEntrega: parseInt(tipoEntrega.value),
+      tipoEntrega: parseInt(tipoEntrega?.value) || 1,
       direccionDestinatario: direccionDestinatario.value,
       barrio: barrioDestinatario.value,
       celular: celularDestinatario.value,
