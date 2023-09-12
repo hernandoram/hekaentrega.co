@@ -2434,6 +2434,8 @@ function actualizarHistorialDeDocumentos(timeline) {
             id_descargar_relacion + doc.id
           );
 
+          const documentoReciente = () => doc;
+
           //funcionalidad de botones para descargar guias y relaciones
           firebase
             .firestore()
@@ -2446,13 +2448,15 @@ function actualizarHistorialDeDocumentos(timeline) {
               if (row.data().descargar_relacion_envio) {
                 $(id_descargar_relacion + row.id).prop("disabled", false);
               }
+              doc = row;
             });
 
           btn_descarga_guia.addEventListener("click", async (e) => {
             e.target.innerHTML =
               "<span class='spinner-border spinner-border-sm'></span> Cargando...";
             e.target.setAttribute("disabled", true);
-            await descargarStickerGuias(doc);
+            const docActualizado = documentoReciente();
+            await descargarStickerGuias(docActualizado);
             e.target.innerHTML = "Descargar Guías";
             e.target.removeAttribute("disabled");
           });
