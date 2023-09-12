@@ -1800,7 +1800,7 @@ function detalles_cotizacion(datos) {
                 </div>
                 <div class="col-sm-6 mb-3 mb-sm-2">
                     <h5>Ciudad de Destino</h5>
-                    <input readonly="readonly" type="text" class="form-control form-control-user" value="${
+                    <input readonly="readonly" type="text" id="ciudadDestinoUsuario" class="form-control form-control-user" value="${
                       datos.ciudadD
                     }(${datos.departamentoD})" required="">  
                 </div>
@@ -1872,6 +1872,16 @@ function finalizarCotizacion(datos) {
             <label for="recoleccion" class="form-check-label" checked>Solicitud de Recolección</label>
         </div>
     `;
+
+    let clientes= `   <div class="col-sm-6 mb-2 form-check" id="contenedor-guardar-user">
+    <input type="checkbox" id="guardarUsuario" class="form-check-input">
+    <label for="guardarUsuario" class="form-check-label" checked>Guardar en clientes frecuentes</label>
+</div>`;
+
+let modificarCliente= `   <div class="col-sm-6 mb-2 form-check d-none" id="contenedor-modificar-user">
+<input type="checkbox" id="modificarUser" class="form-check-input">
+<label for="modificarUser" class="form-check-label" checked>Modificar usuario frecuente</label>
+</div>`;
     let entrega_en_oficina = "";
 
   const checkCreacionPedido = `
