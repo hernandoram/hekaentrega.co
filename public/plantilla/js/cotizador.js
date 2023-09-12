@@ -1889,6 +1889,7 @@ let modificarCliente= `   <div class="col-sm-6 mb-2 form-check d-none" id="conte
 //jose
 function cargarUsuariosFrecuentes(personas) {
     const selectClientes = document.getElementById("list_clientesFrecuentes");
+
     const contenedorGuardar= document.getElementById("contenedor-guardar-user");
     const guardarUser= document.getElementById("guardarUsuario");
 
@@ -1952,6 +1953,8 @@ function cargarUsuariosFrecuentes(personas) {
         tipoDocumentoDestinatario.dispatchEvent(event);
         tipoEntrega.dispatchEvent(event);
       } else {
+          contenedorModificar.classList.add("d-none")
+        contenedorGuardar.classList.remove("d-none")
         // Si no se encuentra el usuario, puedes borrar los valores o mostrar un mensaje de error.
         nombreDestinatario.value = "";
         identificacionDestinatario.value = "";
@@ -1964,8 +1967,7 @@ function cargarUsuariosFrecuentes(personas) {
         tipoEntrega.value = "";
         observacionesDestinatario.value = "";
         modificarUser.checked= false;
-        contenedorGuardar.classList.remove("d-none")
-        contenedorModificar.classList.add("d-none")
+       
 
       }
     });
