@@ -2970,7 +2970,7 @@ class CalcularCostoDeEnvio {
       .then((R) => R.json())
       .catch((R) => ({ respuesta: "Error del servidor" }));
 
-    if (response.message) {
+    if (response.message || response.Message) {
       this.empty = true;
       return false;
     }
