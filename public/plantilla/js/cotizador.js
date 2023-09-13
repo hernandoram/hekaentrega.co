@@ -2269,6 +2269,7 @@ function cargarUsuariosFrecuentes(personas) {
 
 
   function enviarUsuarioFrecuente() {
+    console.log("hola")
     //inputs importantes
     const guardarUsuario = document.getElementById("guardarUsuario");
     const modificarUser = document.getElementById("modificarUser");
@@ -2331,6 +2332,7 @@ function cargarUsuariosFrecuentes(personas) {
         .add(nuevoObjeto)
         .then((docRef) => {
           console.log("Documento agregado con ID:", docRef.id);
+          avisar("Usuario frecuente agregado", "success")
         })
         .catch((error) => {
           console.error("Error al agregar el documento:", error);
@@ -2345,7 +2347,13 @@ function cargarUsuariosFrecuentes(personas) {
       referenciaUsuariosFrecuentes
         .doc(selectClientes.value)
         .set(nuevoObjeto)
-        .then(console.log("modificado"));
+        .then(
+        ()=>{
+          console.log("modificado")
+        } 
+        ).then(
+          avisar("Usuario frecuente agregado")
+        );
     }
   }
 
@@ -3279,6 +3287,8 @@ function modificarDatosDeTransportadorasAveo(res) {
 
 // Para enviar la guia generada a firestore
 function crearGuia() {
+
+  enviarUsuarioFrecuente()
   let boton_final_cotizador = document.getElementById("boton_final_cotizador");
   const textoBtn = boton_final_cotizador.textContent;
   boton_final_cotizador.innerHTML =
@@ -3298,7 +3308,7 @@ function crearGuia() {
         cancelButtonText: "No, ver el historial.",
       }).then((res) => {
         if (res.isConfirmed) {
-          location.href = "#cotizador";
+          location.href = "#cotizar_envio";
         } else {
           location.href = "#historial_guias";
           cambiarFecha();
