@@ -86,7 +86,7 @@ async function mostrarRegistros() {
     // Se llena la lista de formularios
     const opcionesCategoria = categorias.map((l) => `<option value="${l.titulo}">${l.titulo}</option>`).join("");
     visorCategoria.html(opcionesCategoria);
-    visorCategoria.prepend("<option selected>-- Seleccione --</option>");
+    visorCategoria.prepend("<option value='seleccione' selected>-- Seleccione --</option>");
 }
 visorCategoria.on("change", seleccionarCategoria);
 
@@ -113,6 +113,11 @@ function crearCategoria(e) {
   referencia2
     .set({listacategorias: categorias})
     .then(Toast.fire("Registros Actualizados correctamente", "", "success"));
+
+    mostrarRegistros()
+
+    inputcategoria.classList.add("d-none");
+    botoncategoria.classList.add("d-none");
 }
 
 /**
@@ -136,6 +141,9 @@ function seleccionarNovedad(e) {
         return;
     }
 
+    // if(!listaRegistros[val].categoria){
+    //     visorCategoria.value="seleccione";
+    // }
     // representa la novedad/movimiento seleciconado
     const elemento = listaRegistros[val];
     
@@ -160,7 +168,9 @@ function seleccionarNovedad(e) {
 
     // Para activar el enveto "onChange" para el formulario asociado
     selListFormularios.val(elemento.formulario);
+    visorCategoria.val(elemento.categoria);
     selListFormularios.change();
+    visorCategoria.change()
 }
 
 /**
@@ -278,7 +288,6 @@ function seleccionarFormulario(e) {
     const acciones = ["editar-form", "agregar-campo", "guardar-form", "ver-form"];
     hideActions(acciones);
     listaCampos.splice(0, listaCampos.length);
-
     console.log("sleccion de formulario", val);
     if(!val) {
         showActions(acciones.slice(-2));
@@ -291,6 +300,8 @@ function seleccionarFormulario(e) {
         modoEdicionForm = true;
         return;
     }
+
+
 
     const elemento = listaFormularios[val];
     const modulo = "-mensajeria";
