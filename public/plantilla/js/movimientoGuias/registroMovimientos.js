@@ -3,6 +3,8 @@ import { campoFormulario } from "./views.js";
 
 const db = firebase.firestore();
 const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
+const referencia2 = db.collection("infoHeka").doc("categoriasMensajeria");
+
 
 /*
     Script encargado de la creación, manipulación de estados puestos por heka entrega para:
@@ -19,10 +21,14 @@ const idVistaContructorForm = "#editor_form-mensajeria";
 const selListMovimientos = $("#list_novedades-mensajeria"); // select de la lista de movimientos
 const selListFormularios = $("#formulario-mensajeria"); // Select de la lista de formularios
 const visorMensajeria = $("#visor-mensajeria"); // El contenedor principal donde muestra el formulario para editar/crear novedades
+const visorCategoria = $("#categoria-mensajeria"); // El contenedor principal donde muestra el formulario para editar/crear novedades
 const formRegistro = $("form", visorMensajeria); // Formulario para crear/editar novedades
 const formFormularios = $("#editor_form-mensajeria"); // Formulario para crear/editar un formulario asociado
 const opcionesMovimientos = $("#mensajeria [data-action]"); // Acciones particulares como editar, agregar, etc
 const camposForm = $("#campos_form-mensajeria");
+const botoncategoria= document.getElementById("crear-categoria-boton");
+const inputcategoria= document.getElementById("nueva-categoria");
+
 //#endregion
 
 //inputs
@@ -39,6 +45,7 @@ const hideActions = acts => acts.forEach(a => action(a).addClass("d-none"));
 //#endregion
 
 let listaRegistros = [], listaFormularios = [];
+let categorias = [];
 
 //#region APARTADO PARA LAS FUNCIONES DE MENSAJERÍA
 mostrarRegistros();
@@ -51,12 +58,19 @@ async function mostrarRegistros() {
     // Consulat la lista de mensajes y novedades
     const {lista, formularios} = await referencia.get().then(d => {
         if(d.exists) return d.data();
-
         return {};
     });
 
+    const {listacategorias} = await referencia2.get().then(d => {
+        if(d.exists) return d.data();
+    })
+
     listaRegistros = lista;
     listaFormularios = formularios || [];
+    categorias= listacategorias || [];
+
+    console.log(listaRegistros, listaFormularios)
+    console.log(categorias)
 
     // Se llena la lista de movimientos o novedades
     const opcionesLista = lista.map((l,i) => `<option value="${i}">${l.novedad}</option>`).join("");
@@ -68,6 +82,37 @@ async function mostrarRegistros() {
     const opcionesFormularios = listaFormularios.map((l,i) => `<option value="${i}">${l.titulo}</option>`).join("");
     selListFormularios.html(opcionesFormularios);
     selListFormularios.prepend("<option value selected>-- Nuevo Formulario --</option>");
+
+    // Se llena la lista de formularios
+    const opcionesCategoria = categorias.map((l) => `<option value="${l.titulo}">${l.titulo}</option>`).join("");
+    visorCategoria.html(opcionesCategoria);
+    visorCategoria.prepend("<option selected>-- Seleccione --</option>");
+}
+visorCategoria.on("change", seleccionarCategoria);
+
+function seleccionarCategoria(e) {
+    if (e.target.value == "OTRA"){
+        inputcategoria.classList.remove("d-none");
+        botoncategoria.classList.remove("d-none");
+    }else{
+        inputcategoria.classList.add("d-none");
+        botoncategoria.classList.add("d-none");
+    }
+}
+botoncategoria.addEventListener("click", crearCategoria);
+
+
+function crearCategoria(e) {
+  e.preventDefault();
+  const elemento={ titulo: inputcategoria.value.toUpperCase()}
+
+  console.log(categorias, elemento)
+
+  categorias.push(elemento);
+
+  referencia2
+    .set({listacategorias: categorias})
+    .then(Toast.fire("Registros Actualizados correctamente", "", "success"));
 }
 
 /**
