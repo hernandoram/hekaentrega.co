@@ -4210,7 +4210,7 @@ async function historialGuiasAdmin(e) {
   if (descargaDirecta) {
     $("#historial_guias .cargador").addClass("d-none");
 
-    return descargarInformeGuiasAdmin(columnas, data, nombre);
+    return descargarInformeGuiasAdmin(columnas.filter(g => g.visible !== false), data, nombre);
   }
 
   let tabla = $(guiasPunto ? idTablaPunto : idTabla).DataTable({
