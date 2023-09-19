@@ -4038,7 +4038,14 @@ async function historialGuiasAdmin(e) {
           condicion = guia.centro_de_costo
             .toUpperCase()
             .includes(filtroActual.toUpperCase());
-          break;
+        break;
+
+        case "filt_5":
+          condicion = !guia.deleted // Se captura entre las que no fueron eliminadas
+          && guia.deuda != 0 // Solamente se va a tomar aquellas que no tengan deuda
+          && guia.numeroGuia // Debe también tener número de guía
+          && guia.estado // Debe tener un estado presente
+        break;
 
         default:
           condicion = true;
@@ -4087,6 +4094,11 @@ async function historialGuiasAdmin(e) {
   } else if (tipoFiltro === "filt_4") {
     await reference
       .where("type", "==", filtroActual)
+      .get()
+      .then(manejarInformacion);
+  } else if (tipoFiltro === "filt_5") {
+    await referenceAlt
+      .where("debe", "<", 0)
       .get()
       .then(manejarInformacion);
   } else {
@@ -4210,7 +4222,7 @@ async function historialGuiasAdmin(e) {
   if (descargaDirecta) {
     $("#historial_guias .cargador").addClass("d-none");
 
-    return descargarInformeGuiasAdmin(columnas, data, nombre);
+    return descargarInformeGuiasAdmin(columnas.filter(g => g.visible !== false), data, nombre);
   }
 
   let tabla = $(guiasPunto ? idTablaPunto : idTabla).DataTable({

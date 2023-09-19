@@ -304,6 +304,7 @@ export async function registroDesdePunto(e) {
     loader.init();
 
     data.type = "USUARIO-PUNTO";
+    data.punto_responsable = user_id; // Se carga el id del usuario actual que se cargar previamente desde cargador.js
 
     await registrarNuevoUsuario(collName, data, true)
     .then(res => {
