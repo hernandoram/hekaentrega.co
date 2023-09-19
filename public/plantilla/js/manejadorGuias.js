@@ -3994,6 +3994,16 @@ function cambiarFiltroHistGuiasAdmin(e) {
 }
 
 async function historialGuiasAdmin(e) {
+
+  const referencia2 = db.collection("infoHeka").doc("categoriasMensajeria");
+
+  const {listacategorias} = await referencia2.get().then(d => {
+    if(d.exists) return d.data();
+})
+  categorias= listacategorias || [];
+
+  console.log(categorias)
+
   const finalId = e.id.split("-")[1];
   let fechaI = document.querySelector("#fechaI-" + finalId).value;
   let fechaF = document.querySelector("#fechaF-" + finalId).value;
@@ -4026,11 +4036,39 @@ async function historialGuiasAdmin(e) {
     console.log(querySnapshot.size);
     querySnapshot.forEach((doc) => {
       const guia = doc.data();
+
       guia.transpToShow = doc.data().oficina
         ? guia.transportadora + "-Flexii"
         : guia.transportadora;
 
+
+
+        let tituloEncontrado = null; // Inicializamos la variable donde almacenaremos el título si se encuentra una coincidencia
+
+        // Recorremos el array de objetos
+        for (const objeto of categorias) {
+          // Verificamos si el objeto tiene la propiedad "opciones"
+          if (objeto.opciones) {
+            console.log(guia);
+
+            // Si tiene la propiedad "opciones", verificamos si el input está incluido en ellas
+            if (objeto.opciones.includes(guia.estado)) {
+              // Si encontramos una coincidencia, almacenamos el título y salimos del bucle
+              tituloEncontrado = objeto.titulo;
+              break;
+            }
+          }
+        }
+        if (tituloEncontrado !== null) {
+          guia.estado = tituloEncontrado;
+        }
+
+
+
       let condicion = true;
+
+      
+
 
       switch (tipoFiltro) {
         case "filt_3":
