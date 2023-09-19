@@ -2442,6 +2442,8 @@ function actualizarHistorialDeDocumentos(timeline) {
             id_descargar_relacion + doc.id
           );
 
+          const documentoReciente = () => doc;
+
           //funcionalidad de botones para descargar guias y relaciones
           firebase
             .firestore()
@@ -2454,13 +2456,15 @@ function actualizarHistorialDeDocumentos(timeline) {
               if (row.data().descargar_relacion_envio) {
                 $(id_descargar_relacion + row.id).prop("disabled", false);
               }
+              doc = row;
             });
 
           btn_descarga_guia.addEventListener("click", async (e) => {
             e.target.innerHTML =
               "<span class='spinner-border spinner-border-sm'></span> Cargando...";
             e.target.setAttribute("disabled", true);
-            await descargarStickerGuias(doc);
+            const docActualizado = documentoReciente();
+            await descargarStickerGuias(docActualizado);
             e.target.innerHTML = "Descargar Guías";
             e.target.removeAttribute("disabled");
           });
@@ -4042,7 +4046,14 @@ async function historialGuiasAdmin(e) {
           condicion = guia.centro_de_costo
             .toUpperCase()
             .includes(filtroActual.toUpperCase());
-          break;
+        break;
+
+        case "filt_5":
+          condicion = !guia.deleted // Se captura entre las que no fueron eliminadas
+          && guia.deuda != 0 // Solamente se va a tomar aquellas que no tengan deuda
+          && guia.numeroGuia // Debe también tener número de guía
+          && guia.estado // Debe tener un estado presente
+        break;
 
         default:
           condicion = true;
@@ -4091,6 +4102,11 @@ async function historialGuiasAdmin(e) {
   } else if (tipoFiltro === "filt_4") {
     await reference
       .where("type", "==", filtroActual)
+      .get()
+      .then(manejarInformacion);
+  } else if (tipoFiltro === "filt_5") {
+    await referenceAlt
+      .where("debe", "<", 0)
       .get()
       .then(manejarInformacion);
   } else {
@@ -4214,7 +4230,7 @@ async function historialGuiasAdmin(e) {
   if (descargaDirecta) {
     $("#historial_guias .cargador").addClass("d-none");
 
-    return descargarInformeGuiasAdmin(columnas, data, nombre);
+    return descargarInformeGuiasAdmin(columnas.filter(g => g.visible !== false), data, nombre);
   }
 
   let tabla = $(guiasPunto ? idTablaPunto : idTabla).DataTable({

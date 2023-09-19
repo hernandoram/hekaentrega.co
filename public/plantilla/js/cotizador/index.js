@@ -18,6 +18,8 @@ const btnCotizar = $("#boton_cotizar_2");
 const referenciaListaPlantillas = usuarioAltDoc().collection("plantillasCotizador");
 
 
+
+
 const listaPlantilla = new Map();
 
 bodegasEl.change(cambiarBodegaCotizador);
@@ -35,6 +37,8 @@ export function iniciarOpcionesCotizador() {
 export function llenarBodegasCotizador() {
     bodegasWtch.watch(info => {
         if(!info) return;
+
+        console.log(info)
 
         bodegasEl.html("");
 

@@ -133,4 +133,33 @@ function agregarObjetoDeEnvio(e) {
 
 }
 
-export {findUser, handleAuthErrors, redirectIfAuthenticated, agregarObjetoDeEnvio}
+// función que será utilizada para validar diariamente la contraseña del sistema administrativo
+async function ValidarAccesoAdmin() {
+    const ref = usuarioAltDoc(user_id) // referencia de firebase contenida en cargadorDeDatos.js 
+    
+    const ultimoAcceso = localStorage.getItem("last_connection") ?? 0;
+    const cod_ingreso = localStorage.getItem("user_login");
+    const accesoActual = Date.now();
+    const horasDeterminadas = 12 * 3.6e+6;
+
+    if( ultimoAcceso === 0 ) {
+        localStorage.setItem("last_connection", accesoActual);
+        return true;
+    }
+
+    if(accesoActual - ultimoAcceso > horasDeterminadas) {
+        const data = await ref.get()
+        .then(d => d.data());
+
+        if(data.ingreso !== cod_ingreso) {
+            localStorage.clear();
+            await Swal.fire("Sesión expirada", "Su sesión ha expirado, por favor inicie sesion nuevamente.", "error");
+            location.href = "/";
+        }
+    }
+    
+    localStorage.setItem("last_connection", accesoActual);
+}
+
+
+export {findUser, handleAuthErrors, redirectIfAuthenticated, agregarObjetoDeEnvio, ValidarAccesoAdmin}
