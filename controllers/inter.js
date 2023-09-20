@@ -354,10 +354,11 @@ exports.crearGuia = (req, res) => {
 
             } catch (e) {
                 console.log("Error al comprobar => ", e);
-                db.collection("errores")
-                .add({type: "INTER", data, respuesta: e.message, respuesta2: body, momento: Date.now()});
+                
             }
         }
+        db.collection("errores")
+        .add({type: "INTER", data, respuesta: body, momento: Date.now()});
         res.json(body);
     })
 };
