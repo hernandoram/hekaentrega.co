@@ -22,6 +22,26 @@ const estadosGuia = {
 };
 
 let novedadesExcelData = [];
+const dominiosFlexii = ["flexii.co", "www.flexi.co"];
+
+hostnameReader()
+function hostnameReader(){
+  const hostname = window.location.host
+  const element = document.getElementById("copyrightWord")
+  const brandName = document.getElementById("brandName")
+  let brandNameContent = "HEKA"
+  let elementContent = "Heka Entrega"
+  if(dominiosFlexii.includes(hostname)) {
+    brandNameContent = "FLEXII"
+    elementContent = "Flexii"
+  }
+  console.log(element)
+  console.log(brandName)
+  if(element) element.innerHTML = elementContent
+  if(brandName) brandName.innerHTML = brandNameContent
+
+}
+
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -399,7 +419,7 @@ function mostrarUsuarios(data, id) {
 
 //Retorna una tarjeta con informacion del documento por id
 function mostrarDocumentos(id, data, tipo_aviso) {
-  return `<div class="col-sm-6 col-lg-4 mb-4 document-filter" 
+  return `<div class="col-sm-6 col-lg-4 mb-4 document-filter h-25" 
         data-filter_user="${data.centro_de_costo}"
         data-filter_transportadora="${data.transportadora || "SERVIENTREGA"}"
         data-filter_type="${
@@ -410,6 +430,10 @@ function mostrarDocumentos(id, data, tipo_aviso) {
             <h6 class='text-center card-header'>${
               data.transportadora || "Servientrega"
             }</h6>
+            
+            <span class='text-center'>${
+             data.generacion_automatizada == null ? "Automatica" : data.generacion_automatizada? "Automatica":"Manual"
+            }</span>
 
             <div class="card-body">
                 <i class="fa fa-eye${
@@ -432,10 +456,15 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                                 data-mostrar="texto">Id Guias Generadas: <br><small class="text-break">${
                                   data.guias
                                 }</small> </p>
+                                <p class="${data.codigo_sucursal? "":"d-none"}">Bodega: <small>${
+                                  data.codigo_sucursal
+                                }</small></p>     
                                 <p>Tipo: <small class="text-break">${
                                   data.type || "PAGO CONTRAENTREGA"
-                                }</span></p>
-                                <p>Fecha: <small>${data.fecha}</small></p>
+                                }</small></p>
+
+                                <p><small>Fecha: ${data.fecha}</small></p>
+                                
                             </div>
                         </div>
                     </div>

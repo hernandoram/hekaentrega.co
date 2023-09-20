@@ -2223,11 +2223,11 @@ function subirDocumentos() {
         "mostrar-relacion-envio" + id_doc
       );
       let mostrador_guias = document.getElementById("mostrar-guias" + id_doc);
-      if (tipo_de_doumento == "relacion-envio") {
+      if (tipo_de_doumento == "num-guia") {
+        num_guia_actualizado = true;
+      } else if (tipo_de_doumento == "relacion-envio") {
         mostrador_relacion.innerHTML =
           "Relación de envíos: " + e.target.files[0].name;
-      } else if (tipo_de_doumento == "num-guia") {
-        num_guia_actualizado = true;
       } else {
         mostrador_guias.innerHTML = "Guías: " + e.target.files[0].name;
       }
@@ -2309,8 +2309,8 @@ function subirDocumentos() {
 
       // actualizacionCompletada = await res
       // if (true) {
-      if (relacion_envio.files[0]) {
-        relacion_enviada = await storageUser
+        if (relacion_envio.files[0]) {
+          relacion_enviada = await storageUser
           .child(nombre_relacion + ".pdf")
           .put(relacion_envio.files[0])
           .then((querySnapshot) => {
@@ -2338,9 +2338,9 @@ function subirDocumentos() {
       }
 
       if (actualizar_guia.files[0]) {
-        actualizarNumGuia(id_doc, id_user, numero_guias);
+          actualizarNumGuia(id_doc, id_user, numero_guias);
       }
-
+      
       if (guias_enviadas || relacion_enviada) {
         Swal.fire({
           icon: "success",
