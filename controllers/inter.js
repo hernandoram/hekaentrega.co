@@ -330,7 +330,7 @@ exports.crearGuia = (req, res) => {
     console.log(JSON.stringify(data), null, "\t");
 
     db.collection("errores")
-    .add({type: "InterLogs", data, respuesta: "", momento: Date.now(),Fase:"inicio", tiempo: tiempoInicial-Date.now()});
+    .add({identificador:guia.dice_contener ,type: "InterLogs", data, respuesta: "", momento: Date.now(),Fase:"inicio", tiempo: tiempoInicial-Date.now()});
 
     request.post(url + "/InsertarAdmision", {
         headers: {
@@ -341,7 +341,7 @@ exports.crearGuia = (req, res) => {
         body: JSON.stringify(data)
     }, (error, response, body) => {
         db.collection("errores")
-        .add({type: "InterLogs", data, respuesta: body, momento: Date.now(),Fase:"respuesta",tiempo: tiempoInicial-Date.now()});
+        .add({identificador:guia.dice_contener ,type: "InterLogs", data, respuesta: body, momento: Date.now(),Fase:"respuesta",tiempo: tiempoInicial-Date.now()});
         if(error) res.send({
             error: true,
             message: "Hubo un error " + error,
@@ -364,7 +364,7 @@ exports.crearGuia = (req, res) => {
             }
         }
         db.collection("errores")
-        .add({type: "InterLogs", data, respuesta: body, momento: Date.now(),Fase:"final",tiempo: tiempoInicial-Date.now()});
+        .add({identificador:guia.dice_contener ,type: "InterLogs", data, respuesta: body, momento: Date.now(),Fase:"final",tiempo: tiempoInicial-Date.now()});
         res.json(body);
     })
 };
