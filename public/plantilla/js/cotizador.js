@@ -2332,7 +2332,7 @@ function cargarUsuariosFrecuentes(personas) {
         .add(nuevoObjeto)
         .then((docRef) => {
           console.log("Documento agregado con ID:", docRef.id);
-          avisar("Usuario frecuente agregado", "success")
+          avisar("Usuario frecuente agregado")
         })
         .catch((error) => {
           console.error("Error al agregar el documento:", error);

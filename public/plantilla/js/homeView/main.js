@@ -108,22 +108,21 @@ const datosModal = (video, link, titulo, descripcion) => {
   });
 };
 
-//modalInicial();
+modalInicial();
 
 function modalInicial() {
   const m = new CreateModal({
-    title: "<h3>Información importante!</h3>",
-    modalSize: "modal-xl",
+    title: "<h3>Aviso Interrapidisimo!</h3>",
+    modalSize: "modal-md",
   });
 
    // <img src="./img/notificacionseptiembre.jpeg" style="height: 50vh"/>
     // <img src="./img/aumentoprecioservi.jpeg" style="height: 50vh"/>
+    // <img src="./img/aumentoprecioservi.jpeg" style="height: 50vh"/>
 
   m.init = `
   <div class="text-center d-flex justify-content-around">
-      <img src="./img/notificacionseptiembre.jpeg" style="height: 50vh"/>
-      <img src="./img/aumentoprecioservi.jpeg" style="height: 50vh"/>
-    <br/>
+      <img src="./img/intercaido.jpeg" style="height: 70vh"/>
     </div>
   `;
   m.onSubmit = () => {
