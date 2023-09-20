@@ -1368,6 +1368,11 @@ async function mostrarNotificacionAlertaUsuario(noti, id) {
     opciones.cancelButtonText = "No volver a ver";
   }
 
+  if(noti.imageUrl) {
+    opciones.imageUrl = noti.imageUrl;
+    opciones.imageAlt = "Imagen notificación";
+  }
+
   Swal.fire(opciones).then((r) => {
     if (noti.deleteAfterWatch) {
       console.log("Eliminar después de ver");
@@ -2551,11 +2556,11 @@ function enviarNotificacion(options) {
     href: "id destino",
     fecha: "dd/mm/aaaa",
     timeline: "new Date().getTime()", // ej. 125645584895
-    type: "tipo de noticiación",
+    type: "tipo de noticiación", // alerta, estatica, novedad, documento
 
     //Para notificaciones dinamicas
-    startDate: "fecha desde que se quiere mostrar",
-    endDate: "hasta cuando se va a mostrar",
+    startDate: "fecha desde que se quiere mostrar, en milisegundos",
+    endDate: "hasta cuando se va a mostrar, en milisegundos",
     allowDelete: "bool: para permitirle al usuario eliminarla o no",
     deleteAfterWatch:
       "boll para que se auto elimine luego que el usuario la observe",

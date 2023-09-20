@@ -3105,6 +3105,8 @@ function revisarNotificaciones() {
           const data = doc.data();
           if (data.type === "estatica") {
             mostrarNotificacionEstaticaUsuario(data, doc.id);
+          } else if(data.type === "alerta") {
+            mostrarNotificacionAlertaUsuario(data, doc.id);
           }
         });
       });
