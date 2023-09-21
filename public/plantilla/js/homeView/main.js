@@ -113,7 +113,7 @@ modalInicial();
 function modalInicial() {
   const m = new CreateModal({
     title: "<h3>Aviso Interrapidisimo!</h3>",
-    modalSize: "modal-md",
+    modalSize: "modal-lg",
   });
 
    // <img src="./img/notificacionseptiembre.jpeg" style="height: 50vh"/>
@@ -122,7 +122,7 @@ function modalInicial() {
 
   m.init = `
   <div class="text-center d-flex justify-content-around">
-      <img src="./img/intercaido.jpeg" style="height: 70vh"/>
+      <img src="./img/Error-inter.jpg" style="height: 50vh"/>
     </div>
   `;
   m.onSubmit = () => {
