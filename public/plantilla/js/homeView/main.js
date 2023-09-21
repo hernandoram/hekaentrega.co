@@ -112,17 +112,23 @@ modalInicial();
 
 function modalInicial() {
   const m = new CreateModal({
-    title: "<h3>Aviso Interrapidisimo!</h3>",
+    title: "<h3>AVISO IMPORTANTE</h3>",
     modalSize: "modal-lg",
   });
 
    // <img src="./img/notificacionseptiembre.jpeg" style="height: 50vh"/>
     // <img src="./img/aumentoprecioservi.jpeg" style="height: 50vh"/>
     // <img src="./img/aumentoprecioservi.jpeg" style="height: 50vh"/>
+    //    <img src="./img/Error-inter.jpg" style="height: 50vh"/>
 
   m.init = `
   <div class="text-center d-flex justify-content-around">
-      <img src="./img/Error-inter.jpg" style="height: 50vh"/>
+
+ 
+<h4>
+Mientras se soluciona la creación de guías con Api de Interrapidisimo, <b> utilizaremos nuestro sistema POS para crear guías manuales </b>, por favor comunicarse al número <a href="https://wa.link/0f6bn8">3112350856 </a>   Para solicitar usuario manual y poder crear guías pos para despachar con Interrapidisimo
+</h4>
+
     </div>
   `;
   m.onSubmit = () => {
