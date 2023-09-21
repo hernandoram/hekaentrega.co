@@ -22,6 +22,26 @@ const estadosGuia = {
 };
 
 let novedadesExcelData = [];
+const dominiosFlexii = ["flexii.co", "www.flexi.co"];
+
+hostnameReader()
+function hostnameReader(){
+  const hostname = window.location.host
+  const element = document.getElementById("copyrightWord")
+  const brandName = document.getElementById("brandName")
+  let brandNameContent = "HEKA"
+  let elementContent = "Heka Entrega"
+  if(dominiosFlexii.includes(hostname)) {
+    brandNameContent = "FLEXII"
+    elementContent = "Flexii"
+  }
+  console.log(element)
+  console.log(brandName)
+  if(element) element.innerHTML = elementContent
+  if(brandName) brandName.innerHTML = brandNameContent
+
+}
+
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -399,7 +419,7 @@ function mostrarUsuarios(data, id) {
 
 //Retorna una tarjeta con informacion del documento por id
 function mostrarDocumentos(id, data, tipo_aviso) {
-  return `<div class="col-sm-6 col-lg-4 mb-4 document-filter" 
+  return `<div class="col-sm-6 col-lg-4 mb-4 document-filter h-25" 
         data-filter_user="${data.centro_de_costo}"
         data-filter_transportadora="${data.transportadora || "SERVIENTREGA"}"
         data-filter_type="${
@@ -410,6 +430,10 @@ function mostrarDocumentos(id, data, tipo_aviso) {
             <h6 class='text-center card-header'>${
               data.transportadora || "Servientrega"
             }</h6>
+            
+            <span class='text-center'>${
+             data.generacion_automatizada == null ? "Automatica" : data.generacion_automatizada? "Automatica":"Manual"
+            }</span>
 
             <div class="card-body">
                 <i class="fa fa-eye${
@@ -432,10 +456,15 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                                 data-mostrar="texto">Id Guias Generadas: <br><small class="text-break">${
                                   data.guias
                                 }</small> </p>
+                                <p class="${data.codigo_sucursal? "":"d-none"}">Bodega: <small>${
+                                  data.codigo_sucursal
+                                }</small></p>     
                                 <p>Tipo: <small class="text-break">${
                                   data.type || "PAGO CONTRAENTREGA"
-                                }</span></p>
-                                <p>Fecha: <small>${data.fecha}</small></p>
+                                }</small></p>
+
+                                <p><small>Fecha: ${data.fecha}</small></p>
+                                
                             </div>
                         </div>
                     </div>
@@ -1324,10 +1353,6 @@ function mostrarNotificacion(data, type, id) {
 function mostrarNotificacionEstaticaUsuario(noti, id) {
   if (noti.startDate > new Date().getTime()) return;
 
-  if (noti.endDate < new Date().getTime()) {
-    eliminarNotificacion(id);
-  }
-
   const mostrador = $("#notificaciones-estaticas");
   const alerta = document.createElement("div");
   const buttonCloseAlert = document.createElement("button");
@@ -1353,11 +1378,7 @@ function mostrarNotificacionEstaticaUsuario(noti, id) {
 
 async function mostrarNotificacionAlertaUsuario(noti, id) {
   if (noti.startDate > new Date().getTime()) return;
-
-  if (noti.endDate < new Date().getTime()) {
-    console.log("eliminar notificación");
-  }
-
+  
   const opciones = {
     icon: noti.icon[0],
     text: noti.mensaje,
@@ -1366,6 +1387,11 @@ async function mostrarNotificacionAlertaUsuario(noti, id) {
   if (noti.allowDelete) {
     opciones.showCancelButton = true;
     opciones.cancelButtonText = "No volver a ver";
+  }
+
+  if(noti.imageUrl) {
+    opciones.imageUrl = noti.imageUrl;
+    opciones.imageAlt = "Imagen notificación";
   }
 
   Swal.fire(opciones).then((r) => {
@@ -1379,6 +1405,10 @@ async function mostrarNotificacionAlertaUsuario(noti, id) {
 
 function eliminarNotificacion(id) {
   db.collection("notificaciones").doc(id).delete();
+}
+
+function eliminarNotificacionDinamica(id) {
+  db.collection("centro_notificaciones").doc(id).delete();
 }
 
 function userClickNotification(data) {
@@ -2551,11 +2581,11 @@ function enviarNotificacion(options) {
     href: "id destino",
     fecha: "dd/mm/aaaa",
     timeline: "new Date().getTime()", // ej. 125645584895
-    type: "tipo de noticiación",
+    type: "tipo de noticiación", // alerta, estatica, novedad, documento
 
     //Para notificaciones dinamicas
-    startDate: "fecha desde que se quiere mostrar",
-    endDate: "hasta cuando se va a mostrar",
+    startDate: "fecha desde que se quiere mostrar, en milisegundos",
+    endDate: "hasta cuando se va a mostrar, en milisegundos",
     allowDelete: "bool: para permitirle al usuario eliminarla o no",
     deleteAfterWatch:
       "boll para que se auto elimine luego que el usuario la observe",

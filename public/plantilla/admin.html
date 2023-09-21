@@ -1885,6 +1885,79 @@
               </div>
             </div>
           </div>
+
+          <div class="container-fluid" id="centro_notificaciones">
+            <h2>
+              Centro de notificaciones
+            </h2>
+
+            <div class="card my-3">
+              <div class="card-body" id="generador-centro_notificaciones">
+                <h3 class="card-title">
+                  Notificación masiva
+                </h3>
+                
+                <form class="row" id="form-centro_notificaciones">
+                  <div class="form-group col-12">
+                    <label for="nombre-centro_notificaciones">Nombre</label>
+                    <input type="text" class="form-control" id="nombre-centro_notificaciones" name="name">
+                  </div>
+
+                  <div class="col-sm-3 mb-3 mb-sm-0">
+                    <label for="fechaI-centro_notificaciones">Fecha inicio</label>
+                    <input type="date" class="form-control form-control-user"  id="fechaI-centro_notificaciones" name="startDate">
+                  </div>
+                  <div class="col-sm-3">
+                    <label for="fechaF-centro_notificaciones">Fecha final</label>
+                    <input type="date" class="form-control form-control-user"  id="fechaF-centro_notificaciones" name="endDate">
+                  </div>
+
+                  <div class="form-group col-md-3">
+                    <label for="type-centro_notificaciones">Tipo notificación</label>
+                    <select class="custom-select" id="type-centro_notificaciones" name="type" required>
+                      <option selected value>-- Tipo notificación --</option>
+                      <option value="alerta">Alerta</option>
+                      <option value="estatica">Estática</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group col-md-3">
+                    <label for="imageUrl-centro_notificaciones">Seleccione imágen</label>
+                    <select class="custom-select" id="imageUrl-centro_notificaciones" name="imageUrl">
+                    </select>
+                  </div>
+
+                  <div class="col-12 text-center">
+                    <img src="https://placeholder.pics/svg/300/DEDEDE/555555/previsualizador" id="preview-centro_notificaciones" class="m-auto" alt="">
+                  </div>
+
+                  <div class="custom-file mt-2">
+                    <input type="file" class="custom-file-input" id="cargar_imagen-centro_notificaciones" accept=".jpg,.jpeg,.png" lang="es">
+                    <label class="custom-file-label" for="cargar_imagen-centro_notificaciones">Carga tu imágen</label>
+                  </div>
+                  
+                  <div class="form-group col-12">
+                    <label for="mensaje-centro_notificaciones">Mensaje</label>
+                    <textarea type="text" class="form-control" id="mensaje-centro_notificaciones" name="mensaje"></textarea>
+                  </div>                
+
+                  <button class="btn btn-primary" type="submit">Generar notificación</button>
+                </form>
+              </div>
+            </div>
+
+            <div class="card my-3">
+              <div class="card-body">
+                <h3 class="card-title">
+                  Notificaciones presentes
+                </h3>
+                
+                <div id="visor-centro_notificaciones" class="row">
+                  <!-- MOSTADOR DE NOTIFICACIONES ACTIVAS -->
+                </div>
+              </div>
+            </div>
+          </div>
   
         </div>   
         <!-- Footer -->

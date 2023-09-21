@@ -678,7 +678,7 @@ function crearDocumentos(e, dt, node, config) {
 
   datas.each((data, i) => {
     // const data = datas[i];
-
+    console.log(data)
     const {
       numeroGuia,
       id_heka,
@@ -699,6 +699,7 @@ function crearDocumentos(e, dt, node, config) {
       ciudadD,
       nombreD,
       direccionD,
+      codigo_sucursal
     } = data;
 
     arrGuias.push({
@@ -721,6 +722,7 @@ function crearDocumentos(e, dt, node, config) {
       ciudadD,
       nombreD,
       direccionD,
+      codigo_sucursal
     });
 
     // $(nodo).removeClass("selected bg-gray-300");
@@ -728,7 +730,9 @@ function crearDocumentos(e, dt, node, config) {
 
   //Verifica que todas las guias crrespondan al mismo tipo
   let tipos_diferentes = revisarCompatibilidadGuiasSeleccionadas(arrGuias);
-
+  const guia_automatizada = ["automatico", "automaticoEmp"].includes(
+    transportadoras[arrGuias[0].transportadora].sistema()
+    );
   //Si no corresponden, arroja una excepción
   if (tipos_diferentes) {
     node.prop("disabled", false);
@@ -740,7 +744,6 @@ function crearDocumentos(e, dt, node, config) {
     });
   }
 
-  console.log(arrGuias);
 
   // Add a new document with a generated id.
   swal.fire({
@@ -769,6 +772,8 @@ function crearDocumentos(e, dt, node, config) {
       type: arrGuias[0].type,
       transportadora: arrGuias[0].transportadora,
       guias: arrGuias.map((v) => v.id_heka).sort(),
+      codigo_sucursal: arrGuias[0].codigo_sucursal? arrGuias[0].codigo_sucursal : "" ,
+      generacion_automatizada: guia_automatizada
     })
     .then(async (docRef) => {
       if (noNotificarGuia == undefined) {
@@ -875,13 +880,16 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
   const diferentes = arrGuias.some((v, i, arr) => {
     const generacion_automatizada = ["automatico", "automaticoEmp"].includes(
       transportadoras[v.transportadora].sistema()
-    );
+      );
     if (v.type != arr[i ? i - 1 : i].type) {
       mensaje = "Los tipos de guías empacadas no coinciden.";
       return true;
     } else if (v.transportadora != arr[i ? i - 1 : i].transportadora) {
       mensaje = "Las transportadoras empacadas no coinciden.";
       return true;
+    } else if (v.codigo_sucursal != arr[i ? i - 1 : i].codigo_sucursal && v.transportadora == "INTERRAPIDISIMO") {
+      mensaje = "Para empacar guías de interrapidísimo, es necesario que todas las guías pertenezcan a la misma bodega.";
+      return true
     } else if (generacion_automatizada && !v.numeroGuia) {
       mensaje =
         "Para el modo automático de guías, es necesario que todas las empacadas contengan el número de guía de la transportadora. <br/> Se recomienda desactivar el sistema automatizado para generar guias (que se encuentra en el cotizador), de esta forma, se le será permitido crear el documento con la guía nro. " +
@@ -2215,11 +2223,11 @@ function subirDocumentos() {
         "mostrar-relacion-envio" + id_doc
       );
       let mostrador_guias = document.getElementById("mostrar-guias" + id_doc);
-      if (tipo_de_doumento == "relacion-envio") {
+      if (tipo_de_doumento == "num-guia") {
+        num_guia_actualizado = true;
+      } else if (tipo_de_doumento == "relacion-envio") {
         mostrador_relacion.innerHTML =
           "Relación de envíos: " + e.target.files[0].name;
-      } else if (tipo_de_doumento == "num-guia") {
-        num_guia_actualizado = true;
       } else {
         mostrador_guias.innerHTML = "Guías: " + e.target.files[0].name;
       }
@@ -2301,8 +2309,8 @@ function subirDocumentos() {
 
       // actualizacionCompletada = await res
       // if (true) {
-      if (relacion_envio.files[0]) {
-        relacion_enviada = await storageUser
+        if (relacion_envio.files[0]) {
+          relacion_enviada = await storageUser
           .child(nombre_relacion + ".pdf")
           .put(relacion_envio.files[0])
           .then((querySnapshot) => {
@@ -2330,9 +2338,9 @@ function subirDocumentos() {
       }
 
       if (actualizar_guia.files[0]) {
-        actualizarNumGuia(id_doc, id_user, numero_guias);
+          actualizarNumGuia(id_doc, id_user, numero_guias);
       }
-
+      
       if (guias_enviadas || relacion_enviada) {
         Swal.fire({
           icon: "success",
@@ -3095,20 +3103,32 @@ function revisarNotificaciones() {
     });
 
   if (!administracion) {
-    db.collection("notificaciones")
-      .orderBy("startDate")
-      .endAt(new Date().getTime())
-      .where("isGlobal", "==", true)
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          if (data.type === "estatica") {
-            mostrarNotificacionEstaticaUsuario(data, doc.id);
-          }
-        });
-      });
+    manejarNotificacionesMasivas();
   }
+}
+
+async function manejarNotificacionesMasivas() {
+  db.collection("centro_notificaciones")
+  .orderBy("startDate")
+  .endAt(new Date().getTime())
+  .where("isGlobal", "==", true)
+  .get()
+  .then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      return;
+      
+      if (data.endDate < new Date().getTime()) {
+        eliminarNotificacionDinamica(doc.id);
+      }
+
+      if (data.type === "estatica") {
+        mostrarNotificacionEstaticaUsuario(data, doc.id);
+      } else if(data.type === "alerta") {
+        mostrarNotificacionAlertaUsuario(data, doc.id);
+      }
+    });
+  });
 }
 
 function eliminarNotificaciones() {
