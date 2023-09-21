@@ -3995,9 +3995,9 @@ function cambiarFiltroHistGuiasAdmin(e) {
 
 async function historialGuiasAdmin(e) {
 
-  const referencia2 = db.collection("infoHeka").doc("categoriasMensajeria");
+  const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
 
-  const {listacategorias} = await referencia2.get().then(d => {
+  const {lista:listacategorias} = await referencia.get().then(d => {
     if(d.exists) return d.data();
 })
   categorias= listacategorias || [];
@@ -4045,22 +4045,10 @@ async function historialGuiasAdmin(e) {
 
         let tituloEncontrado = null; // Inicializamos la variable donde almacenaremos el título si se encuentra una coincidencia
 
-        // Recorremos el array de objetos
-        for (const objeto of categorias) {
-          // Verificamos si el objeto tiene la propiedad "opciones"
-          if (objeto.opciones) {
-            console.log(guia);
+        tituloEncontrado = categorias.find((categoria)=>categoria.novedad==guia.estado)?.categoria; 
 
-            // Si tiene la propiedad "opciones", verificamos si el input está incluido en ellas
-            if (objeto.opciones.includes(guia.estado)) {
-              // Si encontramos una coincidencia, almacenamos el título y salimos del bucle
-              tituloEncontrado = objeto.titulo;
-              break;
-            }
-          }
-        }
         if (tituloEncontrado !== null) {
-          guia.estado = tituloEncontrado;
+          guia.categoria = tituloEncontrado;
         }
 
 
@@ -4143,6 +4131,7 @@ async function historialGuiasAdmin(e) {
   const columnas = [
     { data: "id_heka", title: "# Guía Heka" },
     { data: "numeroGuia", title: "# Guía Servientrega", defaultContent: "" },
+    { data: "categoria", title: "Categoría", defaultContent: "NaN" },
     { data: "estado", title: "Estado", defaultContent: "" },
     { data: "centro_de_costo", title: "Centro de Costo" },
     {

@@ -115,7 +115,6 @@ function crearCategoria(e) {
     .then(Toast.fire("Registros Actualizados correctamente", "", "success"));
 
     mostrarRegistros()
-
     inputcategoria.classList.add("d-none");
     botoncategoria.classList.add("d-none");
 }
