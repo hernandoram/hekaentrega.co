@@ -3103,22 +3103,32 @@ function revisarNotificaciones() {
     });
 
   if (!administracion) {
-    db.collection("notificaciones")
-      .orderBy("startDate")
-      .endAt(new Date().getTime())
-      .where("isGlobal", "==", true)
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          if (data.type === "estatica") {
-            mostrarNotificacionEstaticaUsuario(data, doc.id);
-          } else if(data.type === "alerta") {
-            mostrarNotificacionAlertaUsuario(data, doc.id);
-          }
-        });
-      });
+    manejarNotificacionesMasivas();
   }
+}
+
+async function manejarNotificacionesMasivas() {
+  db.collection("centro_notificaciones")
+  .orderBy("startDate")
+  .endAt(new Date().getTime())
+  .where("isGlobal", "==", true)
+  .get()
+  .then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      return;
+      
+      if (data.endDate < new Date().getTime()) {
+        eliminarNotificacionDinamica(doc.id);
+      }
+
+      if (data.type === "estatica") {
+        mostrarNotificacionEstaticaUsuario(data, doc.id);
+      } else if(data.type === "alerta") {
+        mostrarNotificacionAlertaUsuario(data, doc.id);
+      }
+    });
+  });
 }
 
 function eliminarNotificaciones() {

@@ -176,6 +176,42 @@ function datosImportantesIncompletos(objToSend, completeData) {
     }
 }
 
+/*
+    COORDINADORA
+
+        ENTREGADA
+        CERRADO POR INCIDENCIA, VER CAUSA
+
+    ENVIA
+
+        ENTREGADA DIGITALIZADA
+        DEVOLUCION
+
+    INTER
+
+        Entrega Exitosa
+        Entregada
+        Devuelto al Remitente
+
+    SERVI
+
+        ENTREGADO
+        ENTREGADO A REMITENTE
+*/
+const estadosEntregado = [
+  "ENTREGADA", // COORDINADORA
+  "ENTREGADA DIGITALIZADA", //ENVIA
+  "Entrega Exitosa", "Entregada", // INTERRAPIDISIMO
+  "ENTREGADO" // SERVIENTREGA
+];
+
+const estadosDevolucion = [
+  "CERRADO POR INCIDENCIA, VER CAUSA", // COORDINADORA
+  "DEVOLUCION", //ENVIA
+  "Devuelto al Remitente", // INTERRAPIDISIMO
+  "ENTREGADO A REMITENTE" // SERVIENTREGA
+];
+
 
 // #region Cargue hacia pagos directo del historial de guías
 /**
@@ -200,10 +236,13 @@ async function cargarPagosDirectos(e) {
     querySnapshot.forEach(doc => {
       const guia = doc.data();
 
-      const {type, numeroGuia} = guia;
+      const {type, numeroGuia, estado} = guia;
       const deuda = guia.debe;
       // Ignorar aquellas que no presenten número de guía
       if(!numeroGuia) return;
+
+      // Si la guía no fue entregada ni devuelta
+      if(!estadosEntregado.includes(estado) && !estadosDevolucion.includes(estado)) return;
       
       // Ignorar la convencionales
       if(type === "CONVENCIONAL") return;

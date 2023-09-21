@@ -1353,10 +1353,6 @@ function mostrarNotificacion(data, type, id) {
 function mostrarNotificacionEstaticaUsuario(noti, id) {
   if (noti.startDate > new Date().getTime()) return;
 
-  if (noti.endDate < new Date().getTime()) {
-    eliminarNotificacion(id);
-  }
-
   const mostrador = $("#notificaciones-estaticas");
   const alerta = document.createElement("div");
   const buttonCloseAlert = document.createElement("button");
@@ -1382,11 +1378,7 @@ function mostrarNotificacionEstaticaUsuario(noti, id) {
 
 async function mostrarNotificacionAlertaUsuario(noti, id) {
   if (noti.startDate > new Date().getTime()) return;
-
-  if (noti.endDate < new Date().getTime()) {
-    console.log("eliminar notificación");
-  }
-
+  
   const opciones = {
     icon: noti.icon[0],
     text: noti.mensaje,
@@ -1413,6 +1405,10 @@ async function mostrarNotificacionAlertaUsuario(noti, id) {
 
 function eliminarNotificacion(id) {
   db.collection("notificaciones").doc(id).delete();
+}
+
+function eliminarNotificacionDinamica(id) {
+  db.collection("centro_notificaciones").doc(id).delete();
 }
 
 function userClickNotification(data) {
