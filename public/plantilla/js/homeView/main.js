@@ -145,7 +145,7 @@ Mientras se soluciona la creación de guías con Api de Interrapidisimo, <b> uti
             m.close();
           } else {
             m.close();
-            modalInicial2();
+           // modalInicial2();
           }
         });
     }
