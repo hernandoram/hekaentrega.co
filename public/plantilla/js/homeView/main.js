@@ -126,7 +126,7 @@ function modalInicial() {
 
  
 <h4>
-Mientras se soluciona la creación de guías con Api de Interrapidisimo, <b> utilizaremos nuestro sistema POS para crear guías manuales </b>, por favor comunicarse al número <a href="https://wa.link/0f6bn8">3112350856 </a>   Para solicitar usuario manual y poder crear guías pos para despachar con Interrapidisimo
+Mientras se soluciona la creación de guías con Api de Interrapidisimo, <b> utilizaremos nuestro sistema POS para crear guías manuales </b>, por favor comunicarse al número <a target="_blank" href="https://wa.link/0f6bn8">3112350856 </a>   Para solicitar usuario manual y poder crear guías pos para despachar con Interrapidisimo
 </h4>
 
     </div>
