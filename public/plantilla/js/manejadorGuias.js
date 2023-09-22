@@ -3108,27 +3108,38 @@ function revisarNotificaciones() {
 }
 
 async function manejarNotificacionesMasivas() {
-  db.collection("centro_notificaciones")
-  .orderBy("startDate")
-  .endAt(new Date().getTime())
-  .where("isGlobal", "==", true)
-  .get()
-  .then((querySnapshot) => {
+  const manejarInformacion = querySnapshot => {
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      return;
+      if(!data.active) return;
+      // return;
       
       if (data.endDate < new Date().getTime()) {
         eliminarNotificacionDinamica(doc.id);
       }
-
+  
       if (data.type === "estatica") {
         mostrarNotificacionEstaticaUsuario(data, doc.id);
       } else if(data.type === "alerta") {
-        mostrarNotificacionAlertaUsuario(data, doc.id);
+        data.id = doc.id;
+        listaNotificacionesAlerta.push(data);
+  
+        if(!data.ubicacion || "#"+data.ubicacion === location.hash)
+          mostrarNotificacionAlertaUsuario(data, doc.id);
       }
     });
-  });
+  }
+
+  const ref = db.collection("centro_notificaciones")
+  .orderBy("startDate")
+  .endAt(new Date().getTime());
+
+  ref.where("isGlobal", "==", true)
+  .get()
+  .then(manejarInformacion);
+
+  ref.where("usuarios", "array-contains", user_id)
+  .get().then(manejarInformacion);
 }
 
 function eliminarNotificaciones() {
