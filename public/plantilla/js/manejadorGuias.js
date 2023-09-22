@@ -4174,7 +4174,7 @@ async function historialGuiasAdmin(e) {
   const columnas = [
     { data: "id_heka", title: "# Guía Heka" },
     { data: "numeroGuia", title: "# Guía Servientrega", defaultContent: "" },
-    { data: "categoria", title: "Categoría", defaultContent: "NaN" },
+    { data: "categoria", title: "Categoría", defaultContent: "NaN", visible: false },
     { data: "estado", title: "Estado", defaultContent: "" },
     { data: "centro_de_costo", title: "Centro de Costo" },
     {
