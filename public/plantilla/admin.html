@@ -1772,7 +1772,7 @@
             <div class="card my-3">
               <div class="card-body row" id="visor-mensajeria">
                 <h3 class="card-title">
-                  Registro novedades
+                  Registro estados
                   
                   <small>
                     <i class="fa fa-edit text-primary d-none" style="cursor: pointer" data-action="editar"></i>
@@ -1780,7 +1780,7 @@
                   </small>
                 </h3>
                 <div class="form-group w-100">
-                  <label for="list_novedades-mensajeria">Novedades</label>
+                  <label for="list_novedades-mensajeria">Estado</label>
                   <select class="custom-select" id="list_novedades-mensajeria" name="list_novedades">
                     <option selected>-- Novedades --</option>
                   </select>
@@ -1796,17 +1796,31 @@
                     <input type="text" class="form-control" disabled id="mensaje-mensajeria" name="mensaje">
                   </div>
   
-                  <div class="form-group col-md-3 d-flex align-items-center">
+                  <div class="form-group col-md-2 d-flex align-items-center">
                     <div class="custom-control custom-switch">
                       <input type="checkbox" class="custom-control-input" id="notificar_ws-mensajeria" value="1" name="notificar_ws">
                       <label class="custom-control-label" for="notificar_ws-mensajeria">Notificar novedad WhatsApp</label>
                     </div>
                   </div>
                   
-                  <div class="form-group col-md-3 d-flex align-items-center">
+                  <div class="form-group col-md-2 d-flex align-items-center">
                     <div class="custom-control custom-switch">
                       <input type="checkbox" class="custom-control-input" id="esNovedad-mensajeria" value="1" name="esNovedad">
                       <label class="custom-control-label" for="esNovedad-mensajeria">Es novedad</label>
+                    </div>
+                  </div>
+
+                  <div class="form-group col-md-2">
+                    <label for="categoria-mensajeria">Categoría</label>
+                    <select id="categoria-mensajeria" class="form-control" name="categoria">
+                      <!-- <option selected>-- Categoría --</option>
+                      <option value="ENTREGADA">ENTREGADA</option>
+                      <option value="DEVUELTA">DEVUELTA</option>
+                      <option value="OTRA">OTRA</option> -->
+                    </select>
+                    <div >
+                      <input type="text" class="form-control mt-3 d-none"  id="nueva-categoria">
+                      <button id="crear-categoria-boton" class="d-none btn mt-3 btn-primary w-100">Crear Categoria</button>
                     </div>
                   </div>
   

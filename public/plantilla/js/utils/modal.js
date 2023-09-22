@@ -11,7 +11,7 @@ export default class CreateModal {
     set init(body = "") {
         const title = this.title || "Título";
 
-        this.modal = new DOMParser().parseFromString(`<div class="modal fade" id="${this.id}" 
+        this.modal = new DOMParser().parseFromString(`<div class="modal fade" style="top:100px" id="${this.id}" 
             tabindex="-1" aria-labelledby="titulo-${this.id}" aria-hidden="true">
             <div class="modal-dialog ${this.modalSize || ""}">
             <div class="modal-content">
