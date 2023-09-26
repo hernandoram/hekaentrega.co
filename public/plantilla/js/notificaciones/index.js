@@ -15,6 +15,8 @@ formulario.on("submit", generarNotificacion);
 const storageRef = storage.ref("centro_notificaciones");
 const fireRef = firestore.collection("centro_notificaciones");
 
+let notificaciones= []
+
 const summernoteOptions = {
     fontNames: ['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', "Times New Roman", "Helvetica", "Impact"],
     styleTags: [
@@ -108,8 +110,10 @@ function mostrarNotificaciones() {
             const data = d.data();
             data.id = d.id;
             visorNotificaciones.append(visualizarNotificacion(data));
+            console.log(data)
+            notificaciones.push(data);
         });
-
+        console.log(notificaciones)
         activarAccion($("[data-action]", visorNotificaciones));
     })
 }
