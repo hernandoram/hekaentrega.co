@@ -7,6 +7,8 @@ const cargadorImagen = $("#cargar_imagen-centro_notificaciones");
 const rutaPorDefectoPrevisualizador = previsualizadorImagen.attr("src");
 const formulario = $("#form-centro_notificaciones");
 const visorNotificaciones = $("#visor-centro_notificaciones");
+const selectorNotificacion = document.getElementById("selectorNotificacion");
+
 
 slectImagenes.on("change", seleccionarImagen);
 cargadorImagen.on("change", cargarNuevaImagen);
@@ -115,7 +117,29 @@ function mostrarNotificaciones() {
         });
         console.log(notificaciones)
         activarAccion($("[data-action]", visorNotificaciones));
+    }).then(()=> selectorNotificaciones(notificaciones))
+}
+
+function selectorNotificaciones(notificaciones) {
+  const opciones = notificaciones
+    .map((notificacion) => {
+      return `<option value="${notificacion.id}">${notificacion.name}</option>`;
     })
+    .join("");
+  selectorNotificacion.innerHTML = opciones;
+
+  // Crear una nueva opción
+  const opcionPorDefecto = document.createElement("option");
+  opcionPorDefecto.value = "";
+  
+  opcionPorDefecto.text = "--Nueva notificación--";
+
+  // Insertar la nueva opción al principio del elemento select
+  selectorNotificacion.insertBefore(
+    opcionPorDefecto,
+    selectorNotificacion.firstChild
+  );
+    selectorNotificacion.selectedIndex = 0;
 }
 
 function activarAccion(el) {
