@@ -25,6 +25,9 @@
   <!-- Custom styles for this template-->
   <link href="css/sb-admin-2.min.css" rel="stylesheet">
 
+  <link href="./assets/libs/summernote/summernote-bs4.min.css" rel="stylesheet">
+
+
   <!--Datatebles-->
   <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/jq-3.3.1/dt-1.10.25/b-1.7.1/b-colvis-1.7.1/b-html5-1.7.1/datatables.min.css"/>
   <!-- <link rel="stylesheet" type="text/css" href="vendor/datatables/dataTables.bootstrap4.min.css"> -->
@@ -1897,7 +1900,7 @@
                 <form class="row" id="form-centro_notificaciones">
                   <div class="form-group col-12">
                     <label for="nombre-centro_notificaciones">Nombre</label>
-                    <input type="text" class="form-control" id="nombre-centro_notificaciones" name="name">
+                    <input type="text" class="form-control" id="nombre-centro_notificaciones" name="name" required>
                   </div>
 
                   <div class="col-sm-3 mb-3 mb-sm-0">
@@ -1917,8 +1920,22 @@
                       <option value="estatica">Estática</option>
                     </select>
                   </div>
-
+                  
                   <div class="form-group col-md-3">
+                    <label for="ubicacion-centro_notificaciones">Ubicación</label>
+                    <select class="custom-select" id="ubicacion-centro_notificaciones" name="ubicacion">
+                      <option selected value>-- General --</option>
+                      <option value="home">Inicio</option>
+                      <option value="cotizar_envio">Cotizador</option>
+                      <option value="perfil">Perfil</option>
+                      <option value="datos_bancarios">Datos bancarios</option>
+                      <option value="bodegas">Bodegas</option>
+                      <option value="historial_guias">Historial Guías</option>
+                      <option value="pagos">Pagos</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group col-12">
                     <label for="imageUrl-centro_notificaciones">Seleccione imágen</label>
                     <select class="custom-select" id="imageUrl-centro_notificaciones" name="imageUrl">
                     </select>
@@ -1935,7 +1952,7 @@
                   
                   <div class="form-group col-12">
                     <label for="mensaje-centro_notificaciones">Mensaje</label>
-                    <textarea type="text" class="form-control" id="mensaje-centro_notificaciones" name="mensaje"></textarea>
+                    <textarea class="form-control summernote" name="mensaje" id="mensaje-centro_notificaciones"></textarea>
                   </div>                
 
                   <button class="btn btn-primary" type="submit">Generar notificación</button>
@@ -2111,6 +2128,9 @@
     
     <!-- Core plugin JavaScript-->
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <script src="assets/libs/summernote/summernote-bs4.min.js"></script>
+    <script src="assets/libs/summernote/lang/summernote-es-ES.min.js"></script>
     
     <!-- main.js -->
     <!-- <script src="js/main.js"></script> -->
