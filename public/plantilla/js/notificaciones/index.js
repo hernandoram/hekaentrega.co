@@ -7,12 +7,15 @@ const cargadorImagen = $("#cargar_imagen-centro_notificaciones");
 const rutaPorDefectoPrevisualizador = previsualizadorImagen.attr("src");
 const formulario = $("#form-centro_notificaciones");
 const visorNotificaciones = $("#visor-centro_notificaciones");
-const selectorNotificacion = document.getElementById("selectorNotificacion");
+const selectorNotificacion = document.querySelector("#selectorNotificacion");
 
-
+selectorNotificacion.onchange = cambioNotificacion;
 slectImagenes.on("change", seleccionarImagen);
 cargadorImagen.on("change", cargarNuevaImagen);
+
 formulario.on("submit", generarNotificacion);
+
+
 
 const storageRef = storage.ref("centro_notificaciones");
 const fireRef = firestore.collection("centro_notificaciones");
@@ -49,6 +52,11 @@ function listarImagenes() {
             slectImagenes.append(`<option value="${path}">${name}</option>`);
         });
     });
+}
+
+function cambioNotificacion(e){
+    const val= e.target.value;
+    console.log(val)
 }
 
 function seleccionarImagen() {
@@ -141,6 +149,7 @@ function selectorNotificaciones(notificaciones) {
   );
     selectorNotificacion.selectedIndex = 0;
 }
+
 
 function activarAccion(el) {
     const accion = el.attr("data-action");
