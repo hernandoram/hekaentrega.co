@@ -99,8 +99,8 @@ async function generarNotificacion(e) {
         Toast.fire("Error", e.message, "error");
     }
 }
-
 mostrarNotificaciones();
+
 function mostrarNotificaciones() {
     fireRef.get().then(q => {
         visorNotificaciones.html("");
