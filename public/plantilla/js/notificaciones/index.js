@@ -8,6 +8,12 @@ const rutaPorDefectoPrevisualizador = previsualizadorImagen.attr("src");
 const formulario = $("#form-centro_notificaciones");
 const visorNotificaciones = $("#visor-centro_notificaciones");
 const selectorNotificacion = document.querySelector("#selectorNotificacion");
+const botonNotificacion= document.querySelector("#form-centro_notificaciones button");
+
+const inputs = document.querySelectorAll("#form-centro_notificaciones input, #form-centro_notificaciones select");
+
+console.log(inputs)
+
 
 selectorNotificacion.onchange = cambioNotificacion;
 slectImagenes.on("change", seleccionarImagen);
@@ -55,8 +61,16 @@ function listarImagenes() {
 }
 
 function cambioNotificacion(e){
+
     const val= e.target.value;
     console.log(val)
+    //cambio botones
+    if(val){
+        botonNotificacion.innerHTML="Editar notificación"
+    }else{
+        botonNotificacion.innerHTML="Generar notificación"
+
+    }
 }
 
 function seleccionarImagen() {
