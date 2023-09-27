@@ -66,9 +66,15 @@ function cambioNotificacion(e){
     console.log(val)
     //cambio botones
     if(val){
-        botonNotificacion.innerHTML="Editar notificación"
+        botonNotificacion.innerHTML="Editar notificación";
+        const notificacion= notificaciones.find(notificacion => notificacion.id === val);
+        console.log(notificacion)
+        inputs.forEach(input => input.value = notificacion[input.name]);
     }else{
         botonNotificacion.innerHTML="Generar notificación"
+        inputs.forEach(input => {
+            input.value = "";
+          });
 
     }
 }
@@ -128,11 +134,14 @@ async function generarNotificacion(e) {
 mostrarNotificaciones();
 
 function mostrarNotificaciones() {
+
     fireRef.get().then(q => {
         visorNotificaciones.html("");
         q.forEach(d => {
             const data = d.data();
             data.id = d.id;
+            data.startDate= convertirFecha(data.startDate);
+            data.endDate= convertirFecha(data.endDate); 
             visorNotificaciones.append(visualizarNotificacion(data));
             console.log(data)
             notificaciones.push(data);
@@ -140,6 +149,15 @@ function mostrarNotificaciones() {
         console.log(notificaciones)
         activarAccion($("[data-action]", visorNotificaciones));
     }).then(()=> selectorNotificaciones(notificaciones))
+}
+
+
+
+function convertirFecha(inputfecha){
+    const fecha = new Date(inputfecha);
+    const fechaFormateada = fecha.toISOString().substring(0, 10);
+    return fechaFormateada;
+
 }
 
 function selectorNotificaciones(notificaciones) {
