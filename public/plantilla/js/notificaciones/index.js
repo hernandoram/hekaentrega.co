@@ -12,7 +12,10 @@ const botonNotificacion= document.querySelector("#form-centro_notificaciones but
 
 const inputs = document.querySelectorAll("#form-centro_notificaciones input, #form-centro_notificaciones select");
 
-console.log(inputs)
+
+
+
+
 
 
 selectorNotificacion.onchange = cambioNotificacion;
@@ -43,7 +46,7 @@ const summernoteOptions = {
         ['color', ['color']],
         ['paragraph', ['ul', 'ol', 'paragraph', 'height', 'fullscreen']],
     ],
-    lang: "es-ES"
+    lang: "es-ES",
 };
 
 $('#mensaje-centro_notificaciones').summernote(summernoteOptions);
@@ -68,9 +71,11 @@ function cambioNotificacion(e){
     if(val){
         botonNotificacion.innerHTML="Editar notificación";
         const notificacion= notificaciones.find(notificacion => notificacion.id === val);
+        $('#mensaje-centro_notificaciones').summernote('code', notificacion.mensaje);
         console.log(notificacion)
         inputs.forEach(input => input.value = notificacion[input.name]);
     }else{
+        $('#mensaje-centro_notificaciones').summernote('code', "");
         botonNotificacion.innerHTML="Generar notificación"
         inputs.forEach(input => {
             input.value = "";
@@ -132,6 +137,7 @@ async function generarNotificacion(e) {
     }
 }
 mostrarNotificaciones();
+
 
 function mostrarNotificaciones() {
 
