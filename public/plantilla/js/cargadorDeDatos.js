@@ -1216,13 +1216,15 @@ async function consultarFacturasGuardadasAdmin() {
       nombre_completo = info_usuario.nombres +" "+ info_usuario.apellidos;
     }
 
+    const strFecha = genFecha("LR", f.timeline).replace(/\-/g, "/");
     const jsonArchivo = {
       "Centro de costo": f.centro_de_costo,
       "COMISION HEKA": f.comision_heka,
       "TOTAL A PAGAR": f.total_pagado,
       "CEDULA": identificacion,
       "TERCERO": nombre_completo,
-      "FACTURA": f.num_factura
+      "FACTURA": f.num_factura,
+      "Fecha elaboración": strFecha
     }
 
     return jsonArchivo
