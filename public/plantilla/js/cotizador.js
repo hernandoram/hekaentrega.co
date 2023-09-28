@@ -1673,7 +1673,7 @@ function seleccionarTransportadora(e) {
     if (!actvFlexi)
       return Swal.fire({
         icon: "error",
-        text: `Actualmente no tienes habilitaod el envío por flexii, 
+        html: `Actualmente no tienes habilitado el envío por flexii, 
             si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/8m9ovw">312 463 8608</a>`,
       });
   }
