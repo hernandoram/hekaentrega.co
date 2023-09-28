@@ -103,6 +103,7 @@ async function cargarNuevaImagen(e) {
 
 async function generarNotificacion(e) {
     e.preventDefault();
+
     console.log(e.target);
     const formData = new FormData(e.target);
     
@@ -124,17 +125,34 @@ async function generarNotificacion(e) {
 
     }
 
-    console.log(notificacion);
+    console.log(notificacion);  
     
-    try {
+    console.log(selectorNotificacion.value)
+
+    if (selectorNotificacion.value) {
+      try {
+        await fireRef.doc(selectorNotificacion.value).update(notificacion)
+        .then(()=>{
+            Toast.fire("Notificación actualizada correctamente", "", "success");
+            e.target.reset();
+            renderizarImagen();
+            mostrarNotificaciones();
+        });
+      } catch (e) {
+        Toast.fire("Error", e.message, "error");
+      }
+    } else {
+      try {
         await fireRef.add(notificacion);
         Toast.fire("Notificación agregada correctamente", "", "success");
         e.target.reset();
         renderizarImagen();
         mostrarNotificaciones();
-    } catch(e) {
+      } catch (e) {
         Toast.fire("Error", e.message, "error");
+      }
     }
+
 }
 mostrarNotificaciones();
 
@@ -150,11 +168,18 @@ function mostrarNotificaciones() {
             data.endDate= convertirFecha(data.endDate); 
             visorNotificaciones.append(visualizarNotificacion(data));
             console.log(data)
-            notificaciones.push(data);
+   
+            if(notificaciones.find(notificacion => notificacion.id === data.id)){
+                const index = notificaciones.findIndex(notificacion => notificacion.id === data.id);
+                notificaciones[index] = data;
+            }else{
+                notificaciones.push(data);
+            }
         });
         console.log(notificaciones)
         activarAccion($("[data-action]", visorNotificaciones));
-    }).then(()=> selectorNotificaciones(notificaciones))
+    })
+    .then(()=> selectorNotificaciones(notificaciones))
 }
 
 
@@ -167,7 +192,9 @@ function convertirFecha(inputfecha){
 }
 
 function selectorNotificaciones(notificaciones) {
-  const opciones = notificaciones
+    selectorNotificacion.innerHTML = "";
+    console.log(notificaciones)
+    let opciones = notificaciones
     .map((notificacion) => {
       return `<option value="${notificacion.id}">${notificacion.name}</option>`;
     })
