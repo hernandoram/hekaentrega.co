@@ -3108,27 +3108,38 @@ function revisarNotificaciones() {
 }
 
 async function manejarNotificacionesMasivas() {
-  db.collection("centro_notificaciones")
-  .orderBy("startDate")
-  .endAt(new Date().getTime())
-  .where("isGlobal", "==", true)
-  .get()
-  .then((querySnapshot) => {
+  const manejarInformacion = querySnapshot => {
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      return;
+      if(!data.active) return;
+      // return;
       
       if (data.endDate < new Date().getTime()) {
         eliminarNotificacionDinamica(doc.id);
       }
-
+  
       if (data.type === "estatica") {
         mostrarNotificacionEstaticaUsuario(data, doc.id);
       } else if(data.type === "alerta") {
-        mostrarNotificacionAlertaUsuario(data, doc.id);
+        data.id = doc.id;
+        listaNotificacionesAlerta.push(data);
+  
+        if(!data.ubicacion || "#"+data.ubicacion === location.hash)
+          mostrarNotificacionAlertaUsuario(data, doc.id);
       }
     });
-  });
+  }
+
+  const ref = db.collection("centro_notificaciones")
+  .orderBy("startDate")
+  .endAt(new Date().getTime());
+
+  ref.where("isGlobal", "==", true)
+  .get()
+  .then(manejarInformacion);
+
+  ref.where("usuarios", "array-contains", user_id)
+  .get().then(manejarInformacion);
 }
 
 function eliminarNotificaciones() {
@@ -4014,6 +4025,16 @@ function cambiarFiltroHistGuiasAdmin(e) {
 }
 
 async function historialGuiasAdmin(e) {
+
+  const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
+
+  const {lista:listacategorias} = await referencia.get().then(d => {
+    if(d.exists) return d.data();
+})
+  categorias= listacategorias || [];
+
+  console.log(categorias)
+
   const finalId = e.id.split("-")[1];
   let fechaI = document.querySelector("#fechaI-" + finalId).value;
   let fechaF = document.querySelector("#fechaF-" + finalId).value;
@@ -4046,11 +4067,27 @@ async function historialGuiasAdmin(e) {
     console.log(querySnapshot.size);
     querySnapshot.forEach((doc) => {
       const guia = doc.data();
+
       guia.transpToShow = doc.data().oficina
         ? guia.transportadora + "-Flexii"
         : guia.transportadora;
 
+
+
+        let tituloEncontrado = null; // Inicializamos la variable donde almacenaremos el título si se encuentra una coincidencia
+
+        tituloEncontrado = categorias.find((categoria)=>categoria.novedad==guia.estado)?.categoria; 
+
+        if (tituloEncontrado !== null) {
+          guia.categoria = tituloEncontrado;
+        }
+
+
+
       let condicion = true;
+
+      
+
 
       switch (tipoFiltro) {
         case "filt_3":
@@ -4137,6 +4174,7 @@ async function historialGuiasAdmin(e) {
   const columnas = [
     { data: "id_heka", title: "# Guía Heka" },
     { data: "numeroGuia", title: "# Guía Servientrega", defaultContent: "" },
+    { data: "categoria", title: "Categoría", defaultContent: "NaN", visible: false },
     { data: "estado", title: "Estado", defaultContent: "" },
     { data: "centro_de_costo", title: "Centro de Costo" },
     {

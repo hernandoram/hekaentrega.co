@@ -79,6 +79,7 @@ function escucha(id, e, funcion) {
  */
 
 //Muestra en la pantalla lo que el cliente quiere hacer
+const listaNotificacionesAlerta = [];
 function mostrar(id) {
   let content = document.getElementById("content").children;
 
@@ -95,6 +96,15 @@ function mostrar(id) {
       let item = $("[href='#" + id + "']");
       item.parents(".nav-item").addClass("active");
       if (item.hasClass("collapse-item")) item.addClass("active");
+
+      const idxNoti = listaNotificacionesAlerta.findIndex(n => n.ubicacion === id);
+
+      if(idxNoti !== -1) {
+        const notificacionAMostrar = listaNotificacionesAlerta[idxNoti];
+        mostrarNotificacionAlertaUsuario(notificacionAMostrar, notificacionAMostrar.id);
+        listaNotificacionesAlerta.splice(idxNoti, 1);
+      }
+
     } else if (
       window.top[id].classList[0] == "container" ||
       window.top[id].nodeName == "BODY"
@@ -1375,35 +1385,48 @@ function mostrarNotificacion(data, type, id) {
 function mostrarNotificacionEstaticaUsuario(noti, id) {
   if (noti.startDate > new Date().getTime()) return;
 
-  const mostrador = $("#notificaciones-estaticas");
-  const alerta = document.createElement("div");
-  const buttonCloseAlert = document.createElement("button");
-
-  alerta.setAttribute("class", `alert alert-${noti.icon[1]}`);
-  alerta.setAttribute("role", "alert");
-
-  buttonCloseAlert.innerHTML = '<span aria-hidden="true">&times;</span>';
-  buttonCloseAlert.classList.add("close");
-  buttonCloseAlert.setAttribute("type", "button");
-  buttonCloseAlert.setAttribute("data-dismiss", "alert");
-  buttonCloseAlert.setAttribute("data-notification", id);
-  buttonCloseAlert.setAttribute("aria-label", "close");
-  buttonCloseAlert.addEventListener("click", () => eliminarNotificacion(id));
-
-  mostrador.append(alerta);
-
-  if (noti.allowDelete) alerta.appendChild(buttonCloseAlert);
-  $(alerta).append(noti.mensaje);
-
-  // buttonCloseAlert.onclick = () => eliminarNotificacion(id);
+  const nuevoMostrador = '<div class="mostrador-notificacion-estatica mb-3"></div>';
+  let parent;
+  if(noti.ubicacion) {
+    parent = $("#" + noti.ubicacion);
+  } else {
+    parent = $(".container-fluid")
+  }
+  
+  if(!parent.has(".mostrador-notificacion-estatica").length) {
+    parent.prepend(nuevoMostrador);
+  }
+  
+  $(".mostrador-notificacion-estatica").each((i, mostrador) => {
+    const alerta = document.createElement("div");
+    const buttonCloseAlert = document.createElement("button");
+  
+    alerta.setAttribute("class", `alert alert-${noti.icon[1]}`);
+    alerta.setAttribute("role", "alert");
+  
+    buttonCloseAlert.innerHTML = '<span aria-hidden="true">&times;</span>';
+    buttonCloseAlert.classList.add("close");
+    buttonCloseAlert.setAttribute("type", "button");
+    buttonCloseAlert.setAttribute("data-dismiss", "alert");
+    buttonCloseAlert.setAttribute("data-notification", id);
+    buttonCloseAlert.setAttribute("aria-label", "close");
+    buttonCloseAlert.addEventListener("click", () => eliminarNotificacionDinamica(id));
+  
+    mostrador.append(alerta);
+  
+    if (noti.allowDelete) alerta.appendChild(buttonCloseAlert);
+    $(alerta).append(noti.mensaje);
+  
+    // buttonCloseAlert.onclick = () => eliminarNotificacion(id);
+  });
 }
 
 async function mostrarNotificacionAlertaUsuario(noti, id) {
   if (noti.startDate > new Date().getTime()) return;
-  
+
   const opciones = {
     icon: noti.icon[0],
-    text: noti.mensaje,
+    html: noti.mensaje,
   };
 
   if (noti.allowDelete) {
