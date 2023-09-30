@@ -1659,10 +1659,22 @@ function obtenerMensajeDesembolso() {
   // return hi <= hora && hf > hora ? mensajes[i] : mensajes[mensajes.length - 1];
 
 }
+const datosUsuario = localStorage.getItem("user_id");
 
+console.log(datosUsuario)
 
 
 async function solicitarPagosPendientesUs() {
+
+  const datosUsuario = localStorage.getItem("user_id");
+
+  console.log(datosUsuario)
+
+if(datosUsuario == "zGR9EbRKEQGRxIMfKiu4"){
+  return Swal.fire(" Desactivación Temporal de la Función de Solicitar Pagos", "Hemos desactivado temporalmente la función de solicitar pagos. Estamos trabajando en la solución y te mantendremos informado.", "error");
+
+}
+
 
   const mensajeDesembolso = obtenerMensajeDesembolso();
   const minimo_diario = 3000000;
