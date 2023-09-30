@@ -4027,6 +4027,8 @@ function cambiarFiltroHistGuiasAdmin(e) {
 async function historialGuiasAdmin(e) {
 
   const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
+  const htmlStatus = $("#status-historial_guias");
+  const limiteConsulta = 5e3;
 
   const {lista:listacategorias} = await referencia.get().then(d => {
     if(d.exists) return d.data();
@@ -4062,9 +4064,11 @@ async function historialGuiasAdmin(e) {
 
     filtroPagoSeleccionado = filtroPagos[filtroCentroDeCosto];
   }
+
   let data = [];
   const manejarInformacion = (querySnapshot) => {
-    console.log(querySnapshot.size);
+    const s = querySnapshot.size;
+    
     querySnapshot.forEach((doc) => {
       const guia = doc.data();
 
@@ -4074,20 +4078,15 @@ async function historialGuiasAdmin(e) {
 
 
 
-        let tituloEncontrado = null; // Inicializamos la variable donde almacenaremos el título si se encuentra una coincidencia
+      let tituloEncontrado = null; // Inicializamos la variable donde almacenaremos el título si se encuentra una coincidencia
 
-        tituloEncontrado = categorias.find((categoria)=>categoria.novedad==guia.estado)?.categoria; 
+      tituloEncontrado = categorias.find((categoria)=>categoria.novedad==guia.estado)?.categoria; 
 
-        if (tituloEncontrado !== null) {
-          guia.categoria = tituloEncontrado;
-        }
-
-
+      if (tituloEncontrado !== null) {
+        guia.categoria = tituloEncontrado;
+      }
 
       let condicion = true;
-
-      
-
 
       switch (tipoFiltro) {
         case "filt_3":
@@ -4110,6 +4109,19 @@ async function historialGuiasAdmin(e) {
 
       if (condicion) data.push(guia);
     });
+
+    if(s === limiteConsulta) {
+      let message = "Vaya 😲! Parece que nuestra consulta se ha extendido más de lo que debería, pero bueno solucionemos, te estaré mostrando el estado"
+      if(htmlStatus.children().length) {
+        message = `Ten paciencia, hago lo mejor que puedo, vamos por ${data[data.length - 1].fecha}. ¡SI SE PUEDE!`
+      }
+      htmlStatus.append(`<li>${message}</li>`);
+    } else {
+      if(htmlStatus.children().length) {
+        htmlStatus.html(`<li>¡LO HEMOS LOGRADO! ya te muestro bien, dejame respirar 😪😥😴</li>`);
+        setTimeout(() => htmlStatus.html(""), 5000);
+      }
+    }
   };
 
   let reference = firebase.firestore().collectionGroup("guias");
@@ -4159,7 +4171,10 @@ async function historialGuiasAdmin(e) {
       .get()
       .then(manejarInformacion);
   } else {
-    await reference.get().then(manejarInformacion);
+    // await reference
+    // .get().then(manejarInformacion);
+
+    await recursividadPorReferencia(reference, manejarInformacion, limiteConsulta)
   }
 
   let nombre = "Historial Guias" + fechaI + "_" + fechaF;
@@ -4343,6 +4358,23 @@ async function historialGuiasAdmin(e) {
   });
 
   $("#historial_guias .cargador").addClass("d-none");
+}
+
+async function recursividadPorReferencia(ref, handler, limitePaginacion, next) {
+  let consulta = ref;
+  if(next) {
+    consulta = ref.startAfter(next);
+  }
+
+  return await consulta.limit(limitePaginacion).get().then(async q => {
+    const t = q.size;
+    handler(q);
+
+    if(t === limitePaginacion) {
+      const siguiente = q.docs[t - 1];
+      await recursividadPorReferencia(ref, handler, limitePaginacion, siguiente);
+    }
+  });
 }
 
 function descargarInformeGuiasAdmin(columnas, guias, nombre) {
