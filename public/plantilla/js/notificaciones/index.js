@@ -12,12 +12,6 @@ const botonNotificacion= document.querySelector("#form-centro_notificaciones but
 
 const inputs = document.querySelectorAll("#form-centro_notificaciones input, #form-centro_notificaciones select");
 
-
-
-
-
-
-
 selectorNotificacion.onchange = cambioNotificacion;
 slectImagenes.on("change", seleccionarImagen);
 cargadorImagen.on("change", cargarNuevaImagen);
@@ -84,6 +78,7 @@ function cambioNotificacion(e){
     }
 }
 
+
 function seleccionarImagen() {
     const val = slectImagenes.val();
     renderizarImagen();
@@ -122,11 +117,13 @@ async function generarNotificacion(e) {
         } else {
             notificacion[key] = val;
         }
-
     }
 
+    notificacion.isGlobal = (notificacion.isGlobal === "true");
+    notificacion.visible = (notificacion.visible === "true");
     console.log(notificacion);  
-    
+
+    return
     console.log(selectorNotificacion.value)
 
     if (selectorNotificacion.value) {

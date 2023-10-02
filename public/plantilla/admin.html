@@ -1941,14 +1941,23 @@
                       <option value="pagos">Pagos</option>
                     </select>
                   </div>
-<div class="form-group col-8">
+
+
+<div class="form-group col-6">
   <label for="imageUrl-centro_notificaciones">Seleccione imágen</label>
   <select class="custom-select" id="imageUrl-centro_notificaciones" name="imageUrl">
   </select>
 </div>
-<div class="form-group col-4">
+<div class="form-group col-3">
   <label for="notificacionVisible">Será visible?</label>
   <select class="custom-select" id="notificacionVisible" name="visible">
+    <option value="true">Si</option>
+    <option value="false">No</option>
+  </select>
+</div>
+<div class="form-group col-3">
+  <label for="notificacionVisible">Será global?</label>
+  <select class="custom-select" id="notificacionGlobal" name="isGlobal">
     <option value="true">Si</option>
     <option value="false">No</option>
   </select>
