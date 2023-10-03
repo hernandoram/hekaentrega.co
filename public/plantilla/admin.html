@@ -381,9 +381,6 @@
                           name="objetos_envio" id="actualizar_objetos_envio" placeholder="objeto1,objeto2,etc..."  required>
                         </div>
                       </div>
-                      <h6>Nombre de la empresa*</h6>
-                      <input type="text" class="form-control form-control-user"
-                      name="nombre_empresa" id="actualizar_nombre_empresa" >
                         
                       <h6 class="mt-2 ">Referido de</h6>
                         <input type="text" class="form-control form-control-user"
@@ -1900,6 +1897,12 @@
                 <h3 class="card-title">
                   Notificación masiva
                 </h3>
+
+                <div class="form-group col-12 p-0 ">
+                  <label for="selectorNotificacion">Selecciona la notificación</label>
+                  <select class="custom-select" id="selectorNotificacion" name="selector">
+                  </select>
+                </div>
                 
                 <form class="row" id="form-centro_notificaciones">
                   <div class="form-group col-12">
@@ -1938,12 +1941,20 @@
                       <option value="pagos">Pagos</option>
                     </select>
                   </div>
+<div class="form-group col-8">
+  <label for="imageUrl-centro_notificaciones">Seleccione imágen</label>
+  <select class="custom-select" id="imageUrl-centro_notificaciones" name="imageUrl">
+  </select>
+</div>
+<div class="form-group col-4">
+  <label for="notificacionVisible">Será visible?</label>
+  <select class="custom-select" id="notificacionVisible" name="visible">
+    <option value="true">Si</option>
+    <option value="false">No</option>
+  </select>
+</div>
 
-                  <div class="form-group col-12">
-                    <label for="imageUrl-centro_notificaciones">Seleccione imágen</label>
-                    <select class="custom-select" id="imageUrl-centro_notificaciones" name="imageUrl">
-                    </select>
-                  </div>
+                  
 
                   <div class="col-12 text-center">
                     <img src="https://placeholder.pics/svg/300/DEDEDE/555555/previsualizador" id="preview-centro_notificaciones" class="m-auto" alt="">
