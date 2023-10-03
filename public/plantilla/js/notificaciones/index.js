@@ -9,9 +9,10 @@ const formulario = $("#form-centro_notificaciones");
 const visorNotificaciones = $("#visor-centro_notificaciones");
 const selectorNotificacion = document.querySelector("#selectorNotificacion");
 const botonNotificacion= document.querySelector("#form-centro_notificaciones button");
-
+const notificacionGlobal= document.querySelector("#notificacionGlobal");
 const inputs = document.querySelectorAll("#form-centro_notificaciones input, #form-centro_notificaciones select");
 
+const mostradorUsuariosNoti= document.querySelector("#mostradorUsuariosNoti");
 selectorNotificacion.onchange = cambioNotificacion;
 slectImagenes.on("change", seleccionarImagen);
 cargadorImagen.on("change", cargarNuevaImagen);
@@ -96,6 +97,11 @@ async function cargarNuevaImagen(e) {
     listarImagenes();
 }
 
+
+
+
+
+
 async function generarNotificacion(e) {
     e.preventDefault();
 
@@ -151,8 +157,66 @@ async function generarNotificacion(e) {
     }
 
 }
+
+const reference = firebase.firestore().collection("usuarios");
+let centros=[]
+
+reference.limit(10)
+.get()
+.then((querySnapshot) => {
+
+    console.log(querySnapshot.size);
+    querySnapshot.forEach((doc) => {
+        centros.push({id:doc.id, centro_de_costo:doc.data().centro_de_costo})
+    })
+}).then(()=>
+{console.log(centros)
+
+})
+
+
+notificacionGlobal.addEventListener("change", (e)=>{
+  console.log(obtenerCheckboxesMarcados(centros));
+   let valor= e.target.value;
+   if(valor=="false"){
+        mostradorUsuariosNoti.classList.add("d-flex");
+        mostradorUsuariosNoti.classList.remove("d-none");
+        mostradorUsuariosNoti.innerHTML="";
+        if(mostradorUsuariosNoti.innerHTML==""){
+            crearCheckboxes(centros)
+        }
+    }else{
+        mostradorUsuariosNoti.classList.add("d-none");
+        mostradorUsuariosNoti.classList.remove("d-flex");
+    }
+})
 mostrarNotificaciones();
 
+
+function crearCheckboxes(arreglo) {  
+    arreglo.forEach((objeto) => {
+      const centroDeCosto = objeto.centro_de_costo;
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.name = "centrosDeCosto";
+      checkbox.value = objeto.id;
+      const etiqueta = document.createElement("label");
+      etiqueta.textContent = centroDeCosto;
+      etiqueta.style.display = "flex";
+      etiqueta.style.flexDirection = "row-reverse";
+      etiqueta.style.margin="10px"
+      etiqueta.appendChild(checkbox);
+      mostradorUsuariosNoti.appendChild(etiqueta);
+    });
+  
+  }
+
+  function obtenerCheckboxesMarcados(arreglo) {
+    const checkboxes = document.querySelectorAll("input[name='centrosDeCosto']:checked");
+    const idsMarcados = Array.from(checkboxes).map(checkbox => checkbox.value);
+    const objetosMarcados = arreglo.filter(objeto => idsMarcados.includes(objeto.id));
+    return objetosMarcados;
+  }
 
 function mostrarNotificaciones() {
 
