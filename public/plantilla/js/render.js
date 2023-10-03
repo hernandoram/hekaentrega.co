@@ -22,23 +22,51 @@ const estadosGuia = {
 };
 
 let novedadesExcelData = [];
-const dominiosFlexii = ["flexii.co", "www.flexi.co"];
+const dominiosFlexii = ["flexii.co", "www.flexi.co","localhost:6200"];
+const brands = {
+  heka: {
+    nombre: "HEKA",
+    cod: "H001",
+    nombre_completo: "Heka Entrega",
+    cel_area_comercial:"+57 312 463 8608",
+    correo:" atencion@hekaentrega.co",
+    hosts: "hekaentrega.co",
+    index:"../index.html"
+  },
+  flexii: {
+    nombre: "FLEXII",
+    cod: "H001",
+    nombre_completo: "Flexii",
+    cel_area_comercial:"+57 312 463 8608",
+    correo:" atencion@flexii.co",
+    hosts: "flexii.co",
+    index: "../index-flexii-2.html"
+  }
+}
 
 hostnameReader()
 function hostnameReader(){
   const hostname = window.location.host
-  const element = document.getElementById("copyrightWord")
-  const brandName = document.getElementById("brandName")
-  let brandNameContent = "HEKA"
-  let elementContent = "Heka Entrega"
+  const pageTitle = $("#pageTitle")
+  const indexLink = $(".indexLink")
+  const element = $(".copyrightWord")
+  const brandName = $("#brandName")
+  const correoAtencionCliente = $(".correo-atencion")
   if(dominiosFlexii.includes(hostname)) {
-    brandNameContent = "FLEXII"
-    elementContent = "Flexii"
+    pageTitle.text(brands.flexii.hosts)
+    indexLink.attr("href", brands.flexii.index)
+    element.text(brands.flexii.nombre_completo) 
+    brandName.text(brands.flexii.nombre) 
+    correoAtencionCliente.text(brands.flexii.correo)
+    correoAtencionCliente.attr("href","mailto:"+brands.flexii.correo)
+  }else{
+    pageTitle.text(brands.flexii.hosts)
+    indexLink.attr("href", brands.flexii.index)
+    element.text(brands.heka.nombre_completo) 
+    brandName.text(brands.heka.nombre) 
+    correoAtencionCliente.text(brands.heka.correo)
+    correoAtencionCliente.attr("href","mailto:"+brands.heka.correo)
   }
-  console.log(element)
-  console.log(brandName)
-  if(element) element.innerHTML = elementContent
-  if(brandName) brandName.innerHTML = brandNameContent
 
 }
 
