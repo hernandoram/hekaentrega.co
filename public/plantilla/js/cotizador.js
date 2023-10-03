@@ -1673,7 +1673,7 @@ function seleccionarTransportadora(e) {
     if (!actvFlexi)
       return Swal.fire({
         icon: "error",
-        text: `Actualmente no tienes habilitaod el envío por flexii, 
+        html: `Actualmente no tienes habilitado el envío por flexii, 
             si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/8m9ovw">312 463 8608</a>`,
       });
   }
@@ -2332,7 +2332,7 @@ function cargarUsuariosFrecuentes(personas) {
         .add(nuevoObjeto)
         .then((docRef) => {
           console.log("Documento agregado con ID:", docRef.id);
-          avisar("Usuario frecuente agregado")
+          avisar("Operación exitosa","Usuario frecuente agregado")
         })
         .catch((error) => {
           console.error("Error al agregar el documento:", error);
@@ -2352,8 +2352,8 @@ function cargarUsuariosFrecuentes(personas) {
           console.log("modificado")
         } 
         ).then(
-          avisar("Usuario frecuente agregado")
-        );
+          avisar("Operación exitosa","Usuario frecuente agregado")
+          );
     }
   }
 
