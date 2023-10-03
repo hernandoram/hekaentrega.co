@@ -30,8 +30,8 @@ const brands = {
     nombre_completo: "Heka Entrega",
     cel_area_comercial:"+57 312 463 8608",
     correo:" atencion@hekaentrega.co",
-    hosts: ["hekaentrega.co"],
-    indice: (ind) => "hekaentrega.co/"+ ind,
+    hosts: "hekaentrega.co",
+    index:"../index.html"
   },
   flexii: {
     nombre: "FLEXII",
@@ -39,23 +39,29 @@ const brands = {
     nombre_completo: "Flexii",
     cel_area_comercial:"+57 312 463 8608",
     correo:" atencion@flexii.co",
-    hosts: ["flexii.co"],
-    indice: (ind) => "hekaentrega.co/"+ ind,
+    hosts: "flexii.co",
+    index: "../index-flexii-2.html"
   }
 }
 
 hostnameReader()
 function hostnameReader(){
   const hostname = window.location.host
+  const pageTitle = $("#pageTitle")
+  const indexLink = $(".indexLink")
   const element = $(".copyrightWord")
   const brandName = $("#brandName")
   const correoAtencionCliente = $(".correo-atencion")
   if(dominiosFlexii.includes(hostname)) {
+    pageTitle.text(brands.flexii.hosts)
+    indexLink.attr("href", brands.flexii.index)
     element.text(brands.flexii.nombre_completo) 
     brandName.text(brands.flexii.nombre) 
     correoAtencionCliente.text(brands.flexii.correo)
     correoAtencionCliente.attr("href","mailto:"+brands.flexii.correo)
   }else{
+    pageTitle.text(brands.flexii.hosts)
+    indexLink.attr("href", brands.flexii.index)
     element.text(brands.heka.nombre_completo) 
     brandName.text(brands.heka.nombre) 
     correoAtencionCliente.text(brands.heka.correo)
