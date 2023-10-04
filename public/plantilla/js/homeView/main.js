@@ -109,6 +109,7 @@ const datosModal = (video, link, titulo, descripcion) => {
 };
 
 // modalInicial();
+modalInicial2();
 
 function modalInicial() {
   const m = new CreateModal({
@@ -153,6 +154,21 @@ Mientras se soluciona la creación de guías con Api de Interrapidisimo, <b> uti
 }
 
 function modalInicial2() {
+  if (localStorage.getItem("encuestaFlexii") == "true") {
+    return;
+  }
+  firebase
+    .firestore()
+    .collection("encuestaFlexii")
+    .doc(userid)
+    .get()
+    .then((doc) => {
+      if (doc.exists) {
+        return;
+      } else {
+     
+
+
   const m = new CreateModal({
     title: "<h3>Encuesta</h3>",
     modalSize: "modal-md",
@@ -160,7 +176,7 @@ function modalInicial2() {
 
   m.init = `
   <div class="">
-  <p>¿Actualmente utilizas Coordinadora? <br/>
+  <p>¿Actualmente utilizas Flexii? <br/>
 
   <p/>
   <form method="post">
@@ -175,11 +191,11 @@ function modalInicial2() {
 
 
   <p class="p-si d-none">
-  ¿Qué te ha gustado de la transportadora?
+  ¿Cuéntanos tu experiencia con Flexii?
   </p>
 
   <p class="p-no d-none">
-  ¿Por qué no has enviado con la transportadora? ¿Qué te detiene a implementarla?
+  Cuéntanos, ¿Por qué razón no la utilizas? Ayúdanos a mejorarlo para ti.
   </p>
 
   <input type="text" class="d-none respuesta form-control"
@@ -233,11 +249,11 @@ function modalInicial2() {
       console.log(respuesta, respuesta2);
       firebase
         .firestore()
-        .collection("encuestaCoordi")
+        .collection("encuestaFlexii")
         .doc(userid)
         .set({ respuesta, respuesta2 })
         .then(() => {
-          localStorage.setItem("encuesta", true);
+          localStorage.setItem("encuestaFlexii", true);
           avisar(
             "Gracias por tu respuesta!",
             "Nos ayudas a brindarte un mejor servicio"
@@ -246,6 +262,8 @@ function modalInicial2() {
         });
     }
   };
+}
+});
 }
 
 function cambiarTema() {
