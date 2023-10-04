@@ -136,7 +136,6 @@ async function generarNotificacion(e) {
 
     console.log(notificacion);  
 
-    return
     if (selectorNotificacion.value) {
       try {
         await fireRef.doc(selectorNotificacion.value).update(notificacion)
