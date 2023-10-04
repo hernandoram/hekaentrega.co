@@ -107,12 +107,14 @@ async function generarNotificacion(e) {
 
     console.log(e.target);
     const formData = new FormData(e.target);
+
     
     const notificacion = {
         icon: ["info", "warning"],
         timeline: new Date().getTime(),
         isGlobal: true,
-        active: true
+        active: true,
+        allowDelete:true
     };
 
     formData.delete("files");
@@ -127,11 +129,14 @@ async function generarNotificacion(e) {
 
     notificacion.isGlobal = (notificacion.isGlobal === "true");
     notificacion.visible = (notificacion.visible === "true");
+    notificacion.allowDelete = (notificacion.allowDelete === "true");
+
+    notificacion.usuarios = obtenerCheckboxesMarcados(centros);
+
+
     console.log(notificacion);  
 
     return
-    console.log(selectorNotificacion.value)
-
     if (selectorNotificacion.value) {
       try {
         await fireRef.doc(selectorNotificacion.value).update(notificacion)
@@ -176,7 +181,6 @@ reference.limit(10)
 
 
 notificacionGlobal.addEventListener("change", (e)=>{
-  console.log(obtenerCheckboxesMarcados(centros));
    let valor= e.target.value;
    if(valor=="false"){
         mostradorUsuariosNoti.classList.add("d-flex");
@@ -215,7 +219,8 @@ function crearCheckboxes(arreglo) {
     const checkboxes = document.querySelectorAll("input[name='centrosDeCosto']:checked");
     const idsMarcados = Array.from(checkboxes).map(checkbox => checkbox.value);
     const objetosMarcados = arreglo.filter(objeto => idsMarcados.includes(objeto.id));
-    return objetosMarcados;
+    const idsObjetosMarcados = objetosMarcados.map(objeto => objeto.id);
+    return idsObjetosMarcados;
   }
 
 function mostrarNotificaciones() {
