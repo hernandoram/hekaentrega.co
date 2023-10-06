@@ -161,19 +161,24 @@ async function actualizarMovimientosGuias(querySnapshot) {
 
         let acumuladosCoord = [];
         const MAX_COORD = 50;
-        // throw "no babe"
 
-        //Objeto que se va llenando paral luego mostrarme los detalles del proceso
+        //Objeto que se va llenando para luego mostrarme los detalles del proceso
         
         
         //Aquí se alamcenarán la respuesta obtenida de cada proceso de actualización
         let resultado_guias = new Array();
         
         //Itero entre todos los registros de guías encontrados
-        console.log("ejecutando procesos");
         for (let doc of querySnapshot.docs) {
+            const data = doc.data();
+            
             //Verifico que exista un número de guía
-            if (doc.data().numeroGuia) {
+            const existeNumeroGuia = !!data.numeroGuia;
+
+            // Se verifica que la guía no ha sido recibida por el punto ( aplica para las guías que han sido enviada a oficinas flexi)
+            const noHasidoEntregadaAPunto = !data.recibidoEnPunto;
+
+            if (existeNumeroGuia && noHasidoEntregadaAPunto) {
                 if (consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
                     consulta.usuarios.push(doc.data().centro_de_costo);
                 }

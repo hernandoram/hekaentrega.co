@@ -1,6 +1,46 @@
 const firebase = require("../keys/firebase");
 const db = firebase.firestore();
 
+/**
+ * TRANSPORTADORA: {
+ *  entregada: Representa el estado por transportadora para indicar que una guía fue entregada,
+ *  devuelta: Representa el estado por transportadora para indicar que una guía fue devuelta,
+ *  anulada: Representa los estados que proporciona la transportadora para indicar que una guía fue anulada
+ * }
+ */
+const estadosTransportadora = {
+    SERVIENTREGA: {
+        entregada: ["ENTREGADO"],
+        devuelta: ["ENTREGADO A REMITENTE"],
+        anulada: []
+    },
+    INTERRAPIDISIMO: {
+        entregada: ["Entrega Exitosa", "Entregada"],
+        devuelta: ["Devuelto al Remitente"],
+        anulada: ["Documento Anulado"]
+    },
+    ENVIA: {
+        entregada: ["ENTREGADA DIGITALIZADA"],
+        devuelta: ["DEVOLUCION"],
+        anulada: []
+    },
+    COORDINADORA: {
+        entregada: ["ENTREGADA"],
+        devuelta: ["CERRADO POR INCIDENCIA, VER CAUSA"],
+        anulada: []
+    }
+}
+
+const estadosGenerales = Object.values(estadosTransportadora);
+
+const capturarEstadosEntregada = estadosGenerales.map(v => v.entregada);
+const capturarEstadosDevoluciones = estadosGenerales.map(v => v.devuelta);
+const capturarEstadosAnuladas = estadosGenerales.map(v => v.anulada);
+
+const estadosFinalizacionPorTransportadora = t => {
+    return Object.values(estadosTransportadora[t]).flat();
+}
+
 /*
     COORDINADORA
 
@@ -23,33 +63,20 @@ const db = firebase.firestore();
         ENTREGADO
         ENTREGADO A REMITENTE
 */
-const estadosEntregado = [
-    "ENTREGADA", // COORDINADORA
-    "ENTREGADA DIGITALIZADA", //ENVIA
-    "Entrega Exitosa", "Entregada", // INTERRAPIDISIMO
-    "ENTREGADO" // SERVIENTREGA
-];
+const estadosEntregado = capturarEstadosEntregada.flat();
+const estadosDevolucion = capturarEstadosDevoluciones.flat();
 
-const estadosDevolucion = [
-    "CERRADO POR INCIDENCIA, VER CAUSA", // COORDINADORA
-    "DEVOLUCION", //ENVIA
-    "Devuelto al Remitente", // INTERRAPIDISIMO
-    "ENTREGADO A REMITENTE" // SERVIENTREGA
-];
-
-const estadosAnuladas = [
-    "Documento Anulado" // INTERRAPIDÍSIMO
-]
+const estadosAnuladas = capturarEstadosAnuladas.flat();
 
 exports.estadosGuia = {
-    novedad: "NOVEDAD",
-    pedido: "PEDIDO",
-    pagada: "PAGADA",
-    finalizada: "FINALIZADA",
-    generada: "GENERADA",
-    proceso: "TRANSITO",
-    empacada: "EMPACADA",
-    eliminada: "ELIMINADA"
+    novedad: "NOVEDAD", // Cuando la guía presenta una novedad por la transportadora
+    pedido: "PEDIDO", // cuando la guía es generada por nosotros sin la transportadora ( sucede con la tienda, por ejemplo)
+    pagada: "PAGADA", // Cuando la guía ha sido pagada por Heka entrega ( Viene luego de finalizada ) ULTIMO ESTADO
+    finalizada: "FINALIZADA", // Cuando la transportadora ha entregado la guía correctamente al destinatario
+    generada: "GENERADA", // Cuando la guía es generada con la transportadora correctamente
+    proceso: "TRANSITO", // Cuando, aceptada por la transportadora, la guía ya presenta estados
+    empacada: "EMPACADA", // El flujo alterno para mantener el orden en el proceso de creación, es un estado intermedio en el que el usuario concerta de que efectivamente va a enviar la guía ( viene antes de transito y despues de generada)
+    eliminada: "ELIMINADA" // cuando el usuario ha decidido eliminar la guía (flujo alterno de pedido o en proceso)
 }
 
 /**
@@ -232,3 +259,75 @@ exports.actualizarReferidoPorGuiaEntregada = async (data, nuevosDatos) => {
     });
   
   }
+
+
+exports.modificarEstadoGuia = (data) => {
+    // Constantes importantes que deben ser recibidas para su correcto funcionamiento recibidas
+    const {transportadora, estadoTransportadora, oficina, estadoFlexii, estadoActual, enNovedad} = data;
+    const estadosFinalizacion = estadosFinalizacionPorTransportadora(transportadora);
+    const seguimiento_finalizado = estadosFinalizacion.includes(data.estado);
+    const estados = this.estadosGuia;
+    
+    // Primero se genera el estado base de toda guía que se encuentra en proceso
+    // Que se da cuando la transportadora presenta estado, de otra forma se mantiene empacada, generada o en novedad
+    if([estados.empacada, estados.generada, estados.novedad].includes(estadoActual) && estadoTransportadora) {
+        data.estadoActual = estados.proceso;
+    }
+
+    // Si presenta novedad, ignora el estado de proceso y lo quiebra por la novedad
+    if(enNovedad) data.estadoActual = estados.novedad;
+
+    // En caso de que la guía haya cumplido todo su proceso, se procede a indicar un estado de finelizada
+    if (seguimiento_finalizado && ![this.estadosGuia.pagada].includes(data.estadoActual)) {
+        data.estadoActual = this.estadosGuia.finalizada;
+    }
+
+    // Para validar cual fue el estado anterior con respecto al nuevo ( solo cuando es diferente )
+    if(estadoActual && data.estadoActual !== estadoActual) {
+        data.estadoAnterior = estadoActual;
+    }
+
+    data.estado = estadoTransportadora;
+
+    // Si la guía es de oficina y ya fue entregada por la transportadora, se cambia el estado a "Por Entregar"
+    if(oficina 
+        && estadosTransportadora[transportadora].entregada.includes(estadoTransportadora)
+    ) {
+        const estadoBaseFlexi = "Recibido por Oficina";
+        data.estado = estadoFlexii || estadoBaseFlexi;
+
+        if(!estadoFlexii) 
+            data.estadoFlexii = estadoBaseFlexi;
+    }
+
+    data.ultima_actualizacion = new Date();
+
+    delete data.oficina; // No es necesario actualizar esto, se elimina para evitar errores
+
+    // Es posible que esto sea undefined ya que esto solo corresponde a los estados generados por flexii
+    if(!estadoFlexii) {
+        delete data.estadoFlexii;
+    } 
+
+    return data;
+}
+
+exports.detectaNovedadEnElHistorialDeEstados = (respuestaMovimientos) => {
+    if (respuestaMovimientos.estado === "Mov.A" && respuestaMovimientos.guardado) {
+        const { enNovedad } = respuestaMovimientos.guardado;
+        return enNovedad || false;
+    }
+
+    return false;
+}
+
+exports.atributosAdicionalesEnActualizacion = (data, atributos) => {
+    Object.keys(atributos)
+    .forEach(k => {
+        if(atributos[k]) {
+            data[k] = atributos[k];
+        }
+    });
+
+    return data;
+}
