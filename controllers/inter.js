@@ -233,9 +233,6 @@ const actualizarMovimientos = async function(doc) {
     updte_movs = await extsFunc.actualizarMovimientos(doc, estado);
     
 
-    // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
-    modificarEstadoGuia(actualizaciones);
-
     guia.estadoTransportadora = estado.estadoActual;
             
     // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
