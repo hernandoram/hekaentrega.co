@@ -232,17 +232,16 @@ const actualizarMovimientos = async function(doc) {
     
     updte_movs = await extsFunc.actualizarMovimientos(doc, estado);
     
-    const actualizaciones = {
-        estadoTransportadora: estado.estadoActual,
-        transportadora: guia.transportadora,
-        oficina: guia.oficina,
-        estadoFlexii: guia.estadoFlexii,
-        estadoActual: guia.estadoActual,
-        enNovedad: detectaNovedadEnElHistorialDeEstados(upte_movs)
-    };
 
     // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
     modificarEstadoGuia(actualizaciones);
+
+    guia.estadoTransportadora = estado.estadoActual;
+            
+    // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
+    const actualizaciones = modificarEstadoGuia(guia);
+
+    actualizaciones.enNovedad = detectaNovedadEnElHistorialDeEstados(updte_movs);
 
     // Esto me llena un arreglo de todas las novedades que han sido notificadas, para consultarlo y evitar duplicar notificaciones
     actualizaciones.novedadesNotificadas = await notificarNovedadEncontrada(guia, movimientos);

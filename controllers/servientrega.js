@@ -624,7 +624,7 @@ async function actualizarMovimientos(doc) {
               //#endregion
 
               /*Respuesta ante la actualización de movimientos.
-            se actulizan aquellos estados que sean diferentes y que estén registrados en este objeto*/
+              se actulizan aquellos estados que sean diferentes y que estén registrados en este objeto*/
               upte_movs = await extsFunc.actualizarMovimientos(doc, data_to_fb);
             } else {
               upte_movs = {
@@ -638,17 +638,12 @@ async function actualizarMovimientos(doc) {
             ésta me actualiza el estado actual que manifiesta la guía, si el seguimiento
             fue finalizado, y la fecha de actualización*/
             
-            const actualizaciones = {
-              estadoTransportadora: data.EstAct[0],
-              transportadora: guia.transportadora,
-              oficina: guia.oficina,
-              estadoFlexii: guia.estadoFlexii,
-              estadoActual: guia.estadoActual,
-              enNovedad: detectaNovedadEnElHistorialDeEstados(upte_movs)
-            };
-
+            guia.estadoTransportadora = data.EstAct[0];
+            
             // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
-            modificarEstadoGuia(actualizaciones);
+            const actualizaciones = modificarEstadoGuia(guia);
+
+            actualizaciones.enNovedad = detectaNovedadEnElHistorialDeEstados(upte_movs);
 
             // Esto me llena un arreglo de todas las novedades que han sido notificadas, para consultarlo y evitar duplicar notificaciones
             actualizaciones.novedadesNotificadas =
@@ -660,6 +655,8 @@ async function actualizarMovimientos(doc) {
               fecha_ult_novedad, ultima_novedad, entrega_oficina_notificada, 
               seguimiento_finalizado: finalizar_seguimiento
             });
+
+            console.log(actualizaciones);
 
             // return [{
             //   estado: "Est.N.A", //Estado no actualizado

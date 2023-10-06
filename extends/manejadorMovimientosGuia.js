@@ -261,55 +261,57 @@ exports.actualizarReferidoPorGuiaEntregada = async (data, nuevosDatos) => {
   }
 
 
-exports.modificarEstadoGuia = (data) => {
+exports.modificarEstadoGuia = (guia) => {
     // Constantes importantes que deben ser recibidas para su correcto funcionamiento recibidas
-    const {transportadora, estadoTransportadora, oficina, estadoFlexii, estadoActual, enNovedad} = data;
-    const estadosFinalizacion = estadosFinalizacionPorTransportadora(transportadora);
-    const seguimiento_finalizado = estadosFinalizacion.includes(data.estado);
+    const {transportadora, estadoTransportadora, oficina, estadoFlexii, estadoActual, enNovedad} = guia;
+    const estadosFinalizacion = estadosFinalizacionPorTransportadora(transportadora || "SERVIENTREGA");
+    const seguimiento_finalizado = estadosFinalizacion.includes(guia.estadoTransportadora);
     const estados = this.estadosGuia;
+
+    const actualizaciones = {
+        estadoTransportadora: guia.estadoTransportadora,
+        estado: estadoTransportadora,
+        ultima_actualizacion: new Date()
+    };
     
     // Primero se genera el estado base de toda guía que se encuentra en proceso
     // Que se da cuando la transportadora presenta estado, de otra forma se mantiene empacada, generada o en novedad
     if([estados.empacada, estados.generada, estados.novedad].includes(estadoActual) && estadoTransportadora) {
-        data.estadoActual = estados.proceso;
+        actualizaciones.estadoActual = estados.proceso;
     }
 
     // Si presenta novedad, ignora el estado de proceso y lo quiebra por la novedad
-    if(enNovedad) data.estadoActual = estados.novedad;
+    if(enNovedad) actualizaciones.estadoActual = estados.novedad;
 
     // En caso de que la guía haya cumplido todo su proceso, se procede a indicar un estado de finelizada
-    if (seguimiento_finalizado && ![this.estadosGuia.pagada].includes(data.estadoActual)) {
-        data.estadoActual = this.estadosGuia.finalizada;
+    if (seguimiento_finalizado && ![this.estadosGuia.pagada].includes(actualizaciones.estadoActual)) {
+        actualizaciones.estadoActual = this.estadosGuia.finalizada;
     }
 
     // Para validar cual fue el estado anterior con respecto al nuevo ( solo cuando es diferente )
-    if(estadoActual && data.estadoActual !== estadoActual) {
-        data.estadoAnterior = estadoActual;
+    if(estadoActual && actualizaciones.estadoActual !== estadoActual) {
+        actualizaciones.estadoAnterior = estadoActual;
     }
 
-    data.estado = estadoTransportadora;
 
     // Si la guía es de oficina y ya fue entregada por la transportadora, se cambia el estado a "Por Entregar"
     if(oficina 
         && estadosTransportadora[transportadora].entregada.includes(estadoTransportadora)
     ) {
         const estadoBaseFlexi = "Recibido por Oficina";
-        data.estado = estadoFlexii || estadoBaseFlexi;
+        actualizaciones.estado = estadoFlexii || estadoBaseFlexi;
 
         if(!estadoFlexii) 
-            data.estadoFlexii = estadoBaseFlexi;
+            actualizaciones.estadoFlexii = estadoBaseFlexi;
     }
 
-    data.ultima_actualizacion = new Date();
-
-    delete data.oficina; // No es necesario actualizar esto, se elimina para evitar errores
 
     // Es posible que esto sea undefined ya que esto solo corresponde a los estados generados por flexii
     if(!estadoFlexii) {
-        delete data.estadoFlexii;
+        delete actualizaciones.estadoFlexii;
     } 
 
-    return data;
+    return actualizaciones;
 }
 
 exports.detectaNovedadEnElHistorialDeEstados = (respuestaMovimientos) => {
