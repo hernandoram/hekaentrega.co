@@ -9,8 +9,7 @@ const enviaCtrl = require("./envia");
 const coordCtrl = require("./coordinadora");
 
 const referenciaGuias = db.collectionGroup("guias");
-const maxPagination = 50;
-// const maxPagination = 5e3;
+const maxPagination = 5e3;
 
 async function actualizarMovimientosGuiasAntiguo(d, general) {
     let inicio_func = new Date().getTime();
@@ -325,7 +324,6 @@ function normalizarReporte(reporte) {
     });
 }
 
-actualizarMovimientos();
 async function actualizarMovimientos() {
     const referencia = referenciaGuias
     .where("seguimiento_finalizado", "!=", true)
