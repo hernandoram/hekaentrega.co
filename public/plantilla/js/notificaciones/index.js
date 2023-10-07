@@ -202,12 +202,12 @@ mostrarNotificaciones();
 console.log(inputBuscador)
 
 function crearCheckboxes(arreglo) {  
+    inputBuscador.value="";
     let textoBuscador = "";
     let elementosPorPagina = 50;
     let paginaActual = 1;
 
     inputBuscador.addEventListener("input", (e) => {
-        alert("hola")
         if(e.target.value.length>3){
             elementosPorPagina= arreglo.length;
             mostrarPagina(paginaActual)
@@ -232,7 +232,9 @@ function crearCheckboxes(arreglo) {
     const botonAnterior = document.createElement("button");
     botonAnterior.textContent = "Anterior";
     botonAnterior.disabled = true;
-    botonAnterior.addEventListener("click", () => {
+    botonAnterior.addEventListener("click", (e) => {
+        e.preventDefault();
+
       paginaActual--;
       mostrarPagina(paginaActual);
     });
@@ -240,7 +242,8 @@ function crearCheckboxes(arreglo) {
   
     const botonSiguiente = document.createElement("button");
     botonSiguiente.textContent = "Siguiente";
-    botonSiguiente.addEventListener("click", () => {
+    botonSiguiente.addEventListener("click", (e) => {
+        e.preventDefault();
       paginaActual++;
       mostrarPagina(paginaActual);
     });
@@ -268,8 +271,8 @@ function crearCheckboxes(arreglo) {
         mostradorUsuariosNotiUsers.appendChild(etiqueta);
       });
   
-      mostradorUsuariosNoti.appendChild(botonAnterior);
-      mostradorUsuariosNoti.appendChild(botonSiguiente);
+    //   mostradorUsuariosNoti.appendChild(botonAnterior);
+    //   mostradorUsuariosNoti.appendChild(botonSiguiente);
 
       if(paginaActual===1){
         botonAnterior.disabled = true;
