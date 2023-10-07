@@ -165,7 +165,8 @@ async function generarNotificacion(e) {
 const reference = firebase.firestore().collection("usuarios");
 let centros=[]
 
-reference.limit(10)
+reference
+// .limit(10)
 .get()
 .then((querySnapshot) => {
 
@@ -195,24 +196,96 @@ notificacionGlobal.addEventListener("change", (e)=>{
 })
 mostrarNotificaciones();
 
-
 function crearCheckboxes(arreglo) {  
-    arreglo.forEach((objeto) => {
-      const centroDeCosto = objeto.centro_de_costo;
-      const checkbox = document.createElement("input");
-      checkbox.type = "checkbox";
-      checkbox.name = "centrosDeCosto";
-      checkbox.value = objeto.id;
-      const etiqueta = document.createElement("label");
-      etiqueta.textContent = centroDeCosto;
-      etiqueta.style.display = "flex";
-      etiqueta.style.flexDirection = "row-reverse";
-      etiqueta.style.margin="10px"
-      etiqueta.appendChild(checkbox);
-      mostradorUsuariosNoti.appendChild(etiqueta);
+    let textoBuscador = "";
+
+    const inputBuscador = document.createElement("input");
+    inputBuscador.type = "text";
+    inputBuscador.placeholder = "Buscar...";
+    inputBuscador.addEventListener("input", () => {
+      textoBuscador = inputBuscador.value.toLowerCase();
+      const checkboxes = document.querySelectorAll("input[type='checkbox']");
+      checkboxes.forEach((checkbox) => {
+        const etiqueta = checkbox.parentNode;
+        const textoEtiqueta = etiqueta.textContent.toLowerCase();
+        if (textoEtiqueta.includes(textoBuscador)) {
+          etiqueta.style.display = "flex";
+        } else {
+          etiqueta.style.display = "none";
+        }
+      });
     });
+    mostradorUsuariosNoti.appendChild(inputBuscador);
+ 
+    let elementosPorPagina = 50;
+    let paginaActual = 1;
+    const botonAnterior = document.createElement("button");
+    botonAnterior.textContent = "Anterior";
+    botonAnterior.disabled = true;
+    botonAnterior.addEventListener("click", () => {
+      paginaActual--;
+      mostrarPagina(paginaActual);
+    });
+    mostradorUsuariosNoti.appendChild(botonAnterior);
   
+    const botonSiguiente = document.createElement("button");
+    botonSiguiente.textContent = "Siguiente";
+    botonSiguiente.addEventListener("click", () => {
+      paginaActual++;
+      mostrarPagina(paginaActual);
+    });
+    mostradorUsuariosNoti.appendChild(botonSiguiente);
+  
+    function mostrarPagina(pagina) {
+      const inicio = (pagina - 1) * elementosPorPagina;
+      const fin = inicio + elementosPorPagina;
+      const elementos = arreglo.slice(inicio, fin);
+      mostradorUsuariosNoti.innerHTML = "";
+      mostradorUsuariosNoti.appendChild(inputBuscador);
+  
+      elementos.forEach((objeto) => {
+        const centroDeCosto = objeto.centro_de_costo;
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.name = "centrosDeCosto";
+        checkbox.value = objeto.id;
+        const etiqueta = document.createElement("label");
+        etiqueta.textContent = centroDeCosto;
+        etiqueta.style.display = "flex";
+        etiqueta.style.flexDirection = "row-reverse";
+        etiqueta.style.margin = "10px";
+        etiqueta.appendChild(checkbox);
+        mostradorUsuariosNoti.appendChild(etiqueta);
+      });
+  
+      mostradorUsuariosNoti.appendChild(botonAnterior);
+      mostradorUsuariosNoti.appendChild(botonSiguiente);
+
+      if(paginaActual===1){
+        botonAnterior.disabled = true;
+    }else{
+        botonAnterior.disabled = false;
+
+    }
+      const checkboxes = document.querySelectorAll("input[type='checkbox']");
+
+      checkboxes.forEach((checkbox) => {
+        const etiqueta = checkbox.parentNode;
+        const textoEtiqueta = etiqueta.textContent.toLowerCase();
+        if (textoEtiqueta.includes(textoBuscador)) {
+          etiqueta.style.display = "flex";
+        } else {
+          etiqueta.style.display = "none";
+        }
+      });
+  
+      botonAnterior.disabled = pagina === 1;
+      botonSiguiente.disabled = fin >= arreglo.length;
+    }
+  
+    mostrarPagina(paginaActual);
   }
+
 
   function obtenerCheckboxesMarcados(arreglo) {
     const checkboxes = document.querySelectorAll("input[name='centrosDeCosto']:checked");
