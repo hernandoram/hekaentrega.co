@@ -13,6 +13,8 @@ const notificacionGlobal= document.querySelector("#notificacionGlobal");
 const inputs = document.querySelectorAll("#form-centro_notificaciones input, #form-centro_notificaciones select");
 
 const mostradorUsuariosNoti= document.querySelector("#mostradorUsuariosNoti");
+const mostradorUsuariosNotiUsers= document.querySelector("#mostradorUsuariosNotiUsers");
+const inputBuscador = document.getElementById("inputMostradorUserNoti");
 selectorNotificacion.onchange = cambioNotificacion;
 slectImagenes.on("change", seleccionarImagen);
 cargadorImagen.on("change", cargarNuevaImagen);
@@ -185,8 +187,9 @@ notificacionGlobal.addEventListener("change", (e)=>{
    if(valor=="false"){
         mostradorUsuariosNoti.classList.add("d-flex");
         mostradorUsuariosNoti.classList.remove("d-none");
-        mostradorUsuariosNoti.innerHTML="";
-        if(mostradorUsuariosNoti.innerHTML==""){
+        inputBuscador.classList.remove("d-none");
+        mostradorUsuariosNotiUsers.innerHTML="";
+        if(mostradorUsuariosNotiUsers.innerHTML==""){
             crearCheckboxes(centros)
         }
     }else{
@@ -196,13 +199,22 @@ notificacionGlobal.addEventListener("change", (e)=>{
 })
 mostrarNotificaciones();
 
+console.log(inputBuscador)
+
 function crearCheckboxes(arreglo) {  
     let textoBuscador = "";
+    let elementosPorPagina = 50;
+    let paginaActual = 1;
 
-    const inputBuscador = document.createElement("input");
-    inputBuscador.type = "text";
-    inputBuscador.placeholder = "Buscar...";
-    inputBuscador.addEventListener("input", () => {
+    inputBuscador.addEventListener("input", (e) => {
+        alert("hola")
+        if(e.target.value.length>3){
+            elementosPorPagina= arreglo.length;
+            mostrarPagina(paginaActual)
+        }else{
+            elementosPorPagina= 50;
+            mostrarPagina(paginaActual)
+        }
       textoBuscador = inputBuscador.value.toLowerCase();
       const checkboxes = document.querySelectorAll("input[type='checkbox']");
       checkboxes.forEach((checkbox) => {
@@ -215,10 +227,8 @@ function crearCheckboxes(arreglo) {
         }
       });
     });
-    mostradorUsuariosNoti.appendChild(inputBuscador);
  
-    let elementosPorPagina = 50;
-    let paginaActual = 1;
+
     const botonAnterior = document.createElement("button");
     botonAnterior.textContent = "Anterior";
     botonAnterior.disabled = true;
@@ -240,8 +250,8 @@ function crearCheckboxes(arreglo) {
       const inicio = (pagina - 1) * elementosPorPagina;
       const fin = inicio + elementosPorPagina;
       const elementos = arreglo.slice(inicio, fin);
-      mostradorUsuariosNoti.innerHTML = "";
-      mostradorUsuariosNoti.appendChild(inputBuscador);
+
+      mostradorUsuariosNotiUsers.innerHTML = "";
   
       elementos.forEach((objeto) => {
         const centroDeCosto = objeto.centro_de_costo;
@@ -255,7 +265,7 @@ function crearCheckboxes(arreglo) {
         etiqueta.style.flexDirection = "row-reverse";
         etiqueta.style.margin = "10px";
         etiqueta.appendChild(checkbox);
-        mostradorUsuariosNoti.appendChild(etiqueta);
+        mostradorUsuariosNotiUsers.appendChild(etiqueta);
       });
   
       mostradorUsuariosNoti.appendChild(botonAnterior);
