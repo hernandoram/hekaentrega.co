@@ -135,32 +135,34 @@ async function generarNotificacion(e) {
 
     notificacion.usuarios = obtenerCheckboxesMarcados(centros);
 
+ 
+    console.log(idsCheckboxMarcados)
 
     console.log(notificacion);  
 
-    if (selectorNotificacion.value) {
-      try {
-        await fireRef.doc(selectorNotificacion.value).update(notificacion)
-        .then(()=>{
-            Toast.fire("Notificación actualizada correctamente", "", "success");
-            e.target.reset();
-            renderizarImagen();
-            mostrarNotificaciones();
-        });
-      } catch (e) {
-        Toast.fire("Error", e.message, "error");
-      }
-    } else {
-      try {
-        await fireRef.add(notificacion);
-        Toast.fire("Notificación agregada correctamente", "", "success");
-        e.target.reset();
-        renderizarImagen();
-        mostrarNotificaciones();
-      } catch (e) {
-        Toast.fire("Error", e.message, "error");
-      }
-    }
+    // if (selectorNotificacion.value) {
+    //   try {
+    //     await fireRef.doc(selectorNotificacion.value).update(notificacion)
+    //     .then(()=>{
+    //         Toast.fire("Notificación actualizada correctamente", "", "success");
+    //         e.target.reset();
+    //         renderizarImagen();
+    //         mostrarNotificaciones();
+    //     });
+    //   } catch (e) {
+    //     Toast.fire("Error", e.message, "error");
+    //   }
+    // } else {
+    //   try {
+    //     await fireRef.add(notificacion);
+    //     Toast.fire("Notificación agregada correctamente", "", "success");
+    //     e.target.reset();
+    //     renderizarImagen();
+    //     mostrarNotificaciones();
+    //   } catch (e) {
+    //     Toast.fire("Error", e.message, "error");
+    //   }
+    // }
 
 }
 
@@ -201,6 +203,11 @@ mostrarNotificaciones();
 
 console.log(inputBuscador)
 
+let idsCheckboxMarcados = [];
+let auxidsCheckboxMarcados = ""
+
+
+
 function crearCheckboxes(arreglo) {  
     inputBuscador.value="";
     let textoBuscador = "";
@@ -234,7 +241,7 @@ function crearCheckboxes(arreglo) {
     botonAnterior.disabled = true;
     botonAnterior.addEventListener("click", (e) => {
         e.preventDefault();
-
+        obtenerCheckboxesMarcados(centros)
       paginaActual--;
       mostrarPagina(paginaActual);
     });
@@ -244,6 +251,7 @@ function crearCheckboxes(arreglo) {
     botonSiguiente.textContent = "Siguiente";
     botonSiguiente.addEventListener("click", (e) => {
         e.preventDefault();
+        obtenerCheckboxesMarcados(centros)
       paginaActual++;
       mostrarPagina(paginaActual);
     });
@@ -255,6 +263,8 @@ function crearCheckboxes(arreglo) {
       const elementos = arreglo.slice(inicio, fin);
 
       mostradorUsuariosNotiUsers.innerHTML = "";
+
+      console.log(idsCheckboxMarcados)
   
       elementos.forEach((objeto) => {
         const centroDeCosto = objeto.centro_de_costo;
@@ -262,6 +272,7 @@ function crearCheckboxes(arreglo) {
         checkbox.type = "checkbox";
         checkbox.name = "centrosDeCosto";
         checkbox.value = objeto.id;
+        checkbox.checked = idsCheckboxMarcados.includes(objeto.id);
         const etiqueta = document.createElement("label");
         etiqueta.textContent = centroDeCosto;
         etiqueta.style.display = "flex";
@@ -270,9 +281,6 @@ function crearCheckboxes(arreglo) {
         etiqueta.appendChild(checkbox);
         mostradorUsuariosNotiUsers.appendChild(etiqueta);
       });
-  
-    //   mostradorUsuariosNoti.appendChild(botonAnterior);
-    //   mostradorUsuariosNoti.appendChild(botonSiguiente);
 
       if(paginaActual===1){
         botonAnterior.disabled = true;
@@ -299,13 +307,24 @@ function crearCheckboxes(arreglo) {
     mostrarPagina(paginaActual);
   }
 
-
   function obtenerCheckboxesMarcados(arreglo) {
-    const checkboxes = document.querySelectorAll("input[name='centrosDeCosto']:checked");
-    const idsMarcados = Array.from(checkboxes).map(checkbox => checkbox.value);
-    const objetosMarcados = arreglo.filter(objeto => idsMarcados.includes(objeto.id));
-    const idsObjetosMarcados = objetosMarcados.map(objeto => objeto.id);
-    return idsObjetosMarcados;
+    const checkboxes = document.querySelectorAll(
+      "input[name='centrosDeCosto']:checked"
+    );
+    const idsMarcados = Array.from(checkboxes).map(
+      (checkbox) => checkbox.value
+    );
+    const objetosMarcados = arreglo.filter((objeto) =>
+      idsMarcados.includes(objeto.id)
+    );
+    const idsObjetosMarcados = objetosMarcados.map((objeto) => objeto.id);
+    idsCheckboxMarcados.push(...idsObjetosMarcados);
+    idsCheckboxMarcados = idsCheckboxMarcados.filter((value, index, self) => {
+      return self.indexOf(value) === index;
+    });
+    console.log(idsCheckboxMarcados);
+    console.log(idsObjetosMarcados);
+    return idsCheckboxMarcados;
   }
 
 function mostrarNotificaciones() {
