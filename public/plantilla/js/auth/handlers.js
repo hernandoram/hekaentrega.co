@@ -1,6 +1,6 @@
 import { firestore as db } from "../config/firebase.js";
 
-
+const dominiosFlexii = ["flexii.co", "www.flexi.co"];
 function handleAuthErrors(error) {
     const code = error.code;
     console.log(error);
@@ -96,9 +96,17 @@ async function findUser(ingreso) {
 }
 
 function redirectIfAuthenticated() {
-    if(localStorage.getItem("acceso_admin")){
+    // const hostname = window.location.host
+    // if(dominiosFlexii.includes(hostname)) {
+    //     if(localStorage.getItem("acceso_admin")){
+    //         location.href = "www.flexi.co/admin.html";
+    //     } else if(localStorage.getItem("user_id")) {
+    //         location.href = "www.flexi.co/plataforma2.html";
+    //     }
+    // }else 
+        if(localStorage.getItem("acceso_admin")){
         location.href = "admin.html";
-    } else if(localStorage.getItem("user_id")) {
+        } else if(localStorage.getItem("user_id")) {
         location.href = "plataforma2.html";
     }
 }

@@ -1021,6 +1021,18 @@ function mostrarDatosPersonales(data, info) {
 
 function mostrarReferidosUsuarioAdm(centro_costo) {
   console.log(centro_costo)
+
+  const codigoIngreso = document.getElementById("actualizar_contraseña").value;
+const contraseña = document.getElementById("actualizar_repetir_contraseña").value;
+const actualizarCorreo = document.getElementById("actualizar_correo");
+
+if (codigoIngreso !== contraseña) {
+  console.log("no es igual")
+  actualizarCorreo.readOnly = true;
+}else{
+  
+  actualizarCorreo.readOnly = false;
+}
   const referidos= [];
 
   firebase
@@ -1177,6 +1189,8 @@ function editarBodegaUsuarioAdm(e) {
 
   consultarCiudades(document.getElementById("ciudad-bodega"));
 
+
+
   $("#copiarInfoBodega").click(() => {
     let datos = {
       nombres: value("actualizar_nombres"),
@@ -1231,6 +1245,7 @@ function actualizarBodegasAdm() {
       });
     });
 }
+
 
 function asignarValores(data, query) {
   for (let value in data) {
