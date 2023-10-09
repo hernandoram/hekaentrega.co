@@ -183,6 +183,7 @@ reference
 
 })
 
+const botonesInputUserNoti = document.querySelector("#botones-inputusernoti");
 
 notificacionGlobal.addEventListener("change", (e)=>{
    let valor= e.target.value;
@@ -194,8 +195,10 @@ notificacionGlobal.addEventListener("change", (e)=>{
         if(mostradorUsuariosNotiUsers.innerHTML==""){
             crearCheckboxes(centros)
         }
-    }else{
+        botonesInputUserNoti.classList.remove("d-none");
+      }else{
         mostradorUsuariosNoti.classList.add("d-none");
+        botonesInputUserNoti.classList.add("d-none");
         mostradorUsuariosNoti.classList.remove("d-flex");
     }
 })
