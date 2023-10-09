@@ -234,29 +234,25 @@ function crearCheckboxes(arreglo) {
         }
       });
     });
- 
 
-    const botonAnterior = document.createElement("button");
-    botonAnterior.textContent = "Anterior";
-    botonAnterior.disabled = true;
-    botonAnterior.addEventListener("click", (e) => {
-        e.preventDefault();
-        obtenerCheckboxesMarcados(centros)
-      paginaActual--;
-      mostrarPagina(paginaActual);
+    const botonesInputUserNoti = document.querySelectorAll("#botones-inputusernoti button");
+    
+    botonesInputUserNoti[0].addEventListener("click", (e) => {
+      e.preventDefault();
+      obtenerCheckboxesMarcados(centros)
+    paginaActual--;
+    mostrarPagina(paginaActual);
     });
-    mostradorUsuariosNoti.appendChild(botonAnterior);
-  
-    const botonSiguiente = document.createElement("button");
-    botonSiguiente.textContent = "Siguiente";
-    botonSiguiente.addEventListener("click", (e) => {
+
+       botonesInputUserNoti[1].addEventListener("click", (e) => {
         e.preventDefault();
         obtenerCheckboxesMarcados(centros)
       paginaActual++;
       mostrarPagina(paginaActual);
     });
-    mostradorUsuariosNoti.appendChild(botonSiguiente);
   
+
+
     function mostrarPagina(pagina) {
       const inicio = (pagina - 1) * elementosPorPagina;
       const fin = inicio + elementosPorPagina;
@@ -282,12 +278,6 @@ function crearCheckboxes(arreglo) {
         mostradorUsuariosNotiUsers.appendChild(etiqueta);
       });
 
-      if(paginaActual===1){
-        botonAnterior.disabled = true;
-    }else{
-        botonAnterior.disabled = false;
-
-    }
       const checkboxes = document.querySelectorAll("input[type='checkbox']");
 
       checkboxes.forEach((checkbox) => {
@@ -300,9 +290,8 @@ function crearCheckboxes(arreglo) {
         }
       });
   
-      botonAnterior.disabled = pagina === 1;
-      botonSiguiente.disabled = fin >= arreglo.length;
-    }
+      botonesInputUserNoti[0].disabled = pagina === 1;
+      botonesInputUserNoti[1].disabled = fin >= arreglo.length;    }
   
     mostrarPagina(paginaActual);
   }
@@ -322,8 +311,6 @@ function crearCheckboxes(arreglo) {
     idsCheckboxMarcados = idsCheckboxMarcados.filter((value, index, self) => {
       return self.indexOf(value) === index;
     });
-    console.log(idsCheckboxMarcados);
-    console.log(idsObjetosMarcados);
     return idsCheckboxMarcados;
   }
 
