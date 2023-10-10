@@ -276,7 +276,8 @@ exports.modificarEstadoGuia = (guia) => {
     const actualizaciones = {
         estadoTransportadora: guia.estadoTransportadora,
         estado: estadoTransportadora,
-        ultima_actualizacion: new Date()
+        ultima_actualizacion: new Date(),
+        seguimiento_finalizado
     };
     
     // Primero se genera el estado base de toda guía que se encuentra en proceso
