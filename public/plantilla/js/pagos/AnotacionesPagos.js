@@ -10,7 +10,7 @@ export default class {
      * La función init borra el contenedor, establece el título y establece el contenido.
      */
     init() {
-        this.container.html("");
+        this.reset();
         this.setTitle();
         this.setContent();
     }
@@ -62,6 +62,10 @@ export default class {
         content.setAttribute("class", "list-group");
 
         this.container.append(this.content);
+    }
+
+    reset() {
+        this.container.html("");
     }
 
 }

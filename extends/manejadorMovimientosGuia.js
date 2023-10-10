@@ -260,6 +260,11 @@ exports.actualizarReferidoPorGuiaEntregada = async (data, nuevosDatos) => {
   
   }
 
+exports.estadosFinalizacion = {
+    entregados: estadosEntregado,
+    devolucion: estadosDevolucion,
+    anulados: estadosAnuladas
+}
 
 exports.modificarEstadoGuia = (guia) => {
     // Constantes importantes que deben ser recibidas para su correcto funcionamiento recibidas
