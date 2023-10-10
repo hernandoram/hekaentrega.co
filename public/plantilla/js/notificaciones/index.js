@@ -8,7 +8,7 @@ const rutaPorDefectoPrevisualizador = previsualizadorImagen.attr("src");
 const formulario = $("#form-centro_notificaciones");
 const visorNotificaciones = $("#visor-centro_notificaciones");
 const selectorNotificacion = document.querySelector("#selectorNotificacion");
-const botonNotificacion= document.querySelector("#form-centro_notificaciones button");
+const botonNotificacion= document.querySelector("#generar-notificacion");
 const notificacionGlobal= document.querySelector("#notificacionGlobal");
 const inputs = document.querySelectorAll("#form-centro_notificaciones input, #form-centro_notificaciones select");
 
@@ -133,36 +133,36 @@ async function generarNotificacion(e) {
     notificacion.visible = (notificacion.visible === "true");
     notificacion.allowDelete = (notificacion.allowDelete === "true");
 
-    notificacion.usuarios = obtenerCheckboxesMarcados(centros);
-
- 
-    console.log(idsCheckboxMarcados)
-
+    if(!notificacion.isGlobal){
+      notificacion.usuarios = obtenerCheckboxesMarcados(centros);
+    }else{
+      notificacion.usuarios = [];
+    }
     console.log(notificacion);  
 
-    // if (selectorNotificacion.value) {
-    //   try {
-    //     await fireRef.doc(selectorNotificacion.value).update(notificacion)
-    //     .then(()=>{
-    //         Toast.fire("Notificación actualizada correctamente", "", "success");
-    //         e.target.reset();
-    //         renderizarImagen();
-    //         mostrarNotificaciones();
-    //     });
-    //   } catch (e) {
-    //     Toast.fire("Error", e.message, "error");
-    //   }
-    // } else {
-    //   try {
-    //     await fireRef.add(notificacion);
-    //     Toast.fire("Notificación agregada correctamente", "", "success");
-    //     e.target.reset();
-    //     renderizarImagen();
-    //     mostrarNotificaciones();
-    //   } catch (e) {
-    //     Toast.fire("Error", e.message, "error");
-    //   }
-    // }
+    if (selectorNotificacion.value) {
+      try {
+        await fireRef.doc(selectorNotificacion.value).update(notificacion)
+        .then(()=>{
+            Toast.fire("Notificación actualizada correctamente", "", "success");
+            e.target.reset();
+            renderizarImagen();
+            mostrarNotificaciones();
+        });
+      } catch (e) {
+        Toast.fire("Error", e.message, "error");
+      }
+    } else {
+      try {
+        await fireRef.add(notificacion);
+        Toast.fire("Notificación agregada correctamente", "", "success");
+        e.target.reset();
+        renderizarImagen();
+        mostrarNotificaciones();
+      } catch (e) {
+        Toast.fire("Error", e.message, "error");
+      }
+    }
 
 }
 

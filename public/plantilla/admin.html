@@ -1971,13 +1971,13 @@
 </div>
 
 <div id="mostradorUsuariosNoti" class="col-12 d-flex flex-wrap gap-10 d-none">
-  <input id="inputMostradorUserNoti" class="d-none" type="text">
+  <input id="inputMostradorUserNoti" class="d-none form-control" type="text" placeholder="Busca un usuario!">
   <div id="mostradorUsuariosNotiUsers" class="col-12 d-flex flex-wrap gap-10 d-none">
 
   </div>
   <div id="botones-inputusernoti" class="d-none">
-    <button disabled>Anterior</button>
-    <button>Siguiente</button>
+    <button class="btn btn-primary" disabled>Anterior</button>
+    <button class="btn btn-primary">Siguiente</button>
   </div>
 </div>
 
@@ -1995,7 +1995,7 @@
                     <textarea class="form-control summernote" name="mensaje" id="mensaje-centro_notificaciones"></textarea>
                   </div>                
 
-                  <button class="btn btn-primary" type="submit">Generar notificación</button>
+                  <button class="btn btn-primary" id="generar-notificacion" type="submit">Generar notificación</button>
                 </form>
               </div>
             </div>
