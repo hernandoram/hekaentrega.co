@@ -43,7 +43,9 @@ exports.consultarGuia = async (req, res) => {
 
     const docMovimiento = await buscarGuia(n, _collEstadoGuia);
 
-    if (!docMovimiento) return res.send("GUIA NO ENCONTRADA");
+    if (!docMovimiento) return res.render("guias/guiaNoEncontrada", {
+      layout: "general",
+    });
     let movimientosEncontrado = docMovimiento.data();
     let ciudadOrigen = busqueda.find(
       (element) => element.dane_ciudad === movimientosEncontrado.daneOrigen
