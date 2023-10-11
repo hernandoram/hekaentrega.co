@@ -173,7 +173,12 @@ async function actualizarMovimientosGuias(querySnapshot) {
         console.log("ejecutando procesos");
         for (let doc of querySnapshot.docs) {
             //Verifico que exista un número de guía
-            if (doc.data().numeroGuia) {
+            const existeNumeroGuia = !!data.numeroGuia;
+
+            // Se verifica que la guía no ha sido recibida por el punto ( aplica para las guías que han sido enviada a oficinas flexi)
+            const noHasidoEntregadaAPunto = !data.estadoFlexii;
+
+            if (existeNumeroGuia && noHasidoEntregadaAPunto) {
                 if (consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
                     consulta.usuarios.push(doc.data().centro_de_costo);
                 }

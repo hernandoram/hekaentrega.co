@@ -1,3 +1,5 @@
+const { estadosFinalizacion } = require("../extends/manejadorMovimientosGuia");
+
 const db = require("firebase").firestore();
 
 let ciudades = [];
@@ -32,4 +34,8 @@ async function bringCiudades() {
     console.log("TIEMPO DE CONSULTA => ", (final - initial) / 1000);
 
     return ciudades;
+}
+
+exports.estadosFinalizacion = (req, res) => {
+    res.json(estadosFinalizacion);
 }
