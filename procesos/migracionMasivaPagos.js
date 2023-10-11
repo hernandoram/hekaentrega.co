@@ -4,7 +4,8 @@ const fs = require("fs");
 const transportadorasFrom = ["servientrega", "envía", "tcc", "interrapidisimo", "coordinadora"];
 const transportadorasTo = ["SERVIENTREGA", "ENVIA", "TCC", "INTERRAPIDISIMO", "COORDINADORA"];
 const camposNumericos = ["COMISION HEKA", "RECAUDO", "ENVÍO TOTAL", "TOTAL A PAGAR"];
-const db = require("../keys/firebase.js").firestore()
+const firebase = require("../keys/firebase.js");
+const db = firebase.firestore()
 
 /**
  * Script creado el 3 de agosto del 2023 para migrar toda la información contenida en pagos
@@ -209,4 +210,85 @@ function actualizacionDePendientesPorPagar() {
             console.log("Reportando errorres => ", errores);
         })
     })
+}
+
+// otraVez();
+function otraVez() {
+    const x = {
+        diferentes: 0,
+        actualizadas: 0,
+        fechas: []
+    }
+
+    transportadorasTo.forEach(t => {
+        db.collection("pagos").doc(t)
+        .collection("pagos")
+        .where("timeline", ">=", 1696568400000)
+        .get()
+        .then(q => {
+            q.forEach(d => {
+                const data = d.data();
+                if(data.momentoParticularPago !== data.timeline) {
+                    x.diferentes++;
+                    const fechaMomento = estandarizarFecha(data.momentoParticularPago, "DD-MM-YYYY");
+                    const fechaTime = estandarizarFecha(data.timeline, "DD-MM-YYYY");
+
+                    if(!x.fechas.includes(fechaTime)) x.fechas.push(fechaTime);
+
+                    const actualizar = {
+                        momentoParticularPago: data.timeline,
+                        FECHA: estandarizarFecha(data.timeline, "DD-MM-YYYY")
+                    }
+                    return;
+
+                    d.ref.update(actualizar)
+                    .then(() => x.actualizadas++);
+                }
+
+            });
+        });
+    });
+
+    setTimeout(() => {
+        console.log(x);
+    }, 60000)
+
+}
+
+limpiarPorPagar();
+async function limpiarPorPagar() {
+    x = {
+        t: 0,
+        i: 0,
+        a: 0,
+        e: 0,
+        fs: []
+    }
+
+    await db.collection("pendientePorPagar")
+    // .limit(12)
+    .get()
+    .then(q => {
+        x.t = q.size;
+
+        q.forEach(d => {
+            const data = d.data();
+
+            if(data.FECHA) {
+                x.i++;
+                if(!x.fs.includes(data.FECHA)) x.fs.push(data.FECHA);
+
+                // console.log(data);
+                // return;
+                d.ref.update({FECHA: firebase.firestore.FieldValue.delete()})
+                .then(() => x.a++)
+                .catch(() => x.e++)
+            }
+        });
+    });
+
+    setTimeout(() => {
+        console.log(x);
+        process.exit();
+    }, 60000)
 }

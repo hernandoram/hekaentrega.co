@@ -2522,10 +2522,13 @@ function verificarSelectorEntregaOficina(e) {
     }
   } else if (codTransp === "INTERRAPIDISIMO") {
     const inpDir = $("#direccionD");
+    const barrioDir = $("#barrioD");
     if (select.value == "2") {
-      inpDir.prop("disabled", true).val("Oficina principal interrapidisimo");
+      inpDir.prop("disabled", true).val("RECLAME EN OFICINA");
+      barrioDir.prop("disabled", true).val("");
     } else {
       inpDir.prop("disabled", false).val("");
+      barrioDir.prop("disabled", false).val("");
     }
   }
 }
