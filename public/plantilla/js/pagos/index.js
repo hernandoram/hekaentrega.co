@@ -198,19 +198,9 @@ function datosImportantesIncompletos(objToSend, completeData) {
         ENTREGADO
         ENTREGADO A REMITENTE
 */
-const estadosEntregado = [
-  "ENTREGADA", // COORDINADORA
-  "ENTREGADA DIGITALIZADA", //ENVIA
-  "Entrega Exitosa", "Entregada", // INTERRAPIDISIMO
-  "ENTREGADO" // SERVIENTREGA
-];
+let estadosEntregado = []; // Serán extraidos por el backend
 
-const estadosDevolucion = [
-  "CERRADO POR INCIDENCIA, VER CAUSA", // COORDINADORA
-  "DEVOLUCION", //ENVIA
-  "Devuelto al Remitente", // INTERRAPIDISIMO
-  "ENTREGADO A REMITENTE" // SERVIENTREGA
-];
+let estadosDevolucion = []; // Serán extraidos por el backend
 
 
 // #region Cargue hacia pagos directo del historial de guías
@@ -220,9 +210,16 @@ const estadosDevolucion = [
  * @param {any} e Evento del click que activa el cargador de pagos directo
  */
 async function cargarPagosDirectos(e) {
+  const limiteConsulta = 5000;
   const finalId = e.target.id.split("-")[1];
   const loader = new ChangeElementContenWhileLoading(e.target);
   loader.init();
+
+  const anotaciones = new AnotacionesPagos($("#status_pagos-historial_guias"), {
+    title: "Estado Consulta",
+
+  });
+  anotaciones.init();
 
   let fechaI = document.querySelector("#fechaI-"+finalId).value + "::";
   let fechaF = document.querySelector("#fechaF-"+finalId).value + "::";
@@ -230,9 +227,16 @@ async function cargarPagosDirectos(e) {
   const filtroTransp = $("#filtro_transp-"+finalId).val();
   const listaGuias = [];
 
+  if(!estadosEntregado.length || estadosDevolucion.length) {
+    await cargarEstados();
+  }
+
+  let ultimaFecha;
+
   // Función utilizada por cada ocasión que se consulte la referencia con una lista de data por firebase
   const manejarInformacion = querySnapshot => {
-    console.log(querySnapshot.size);
+    const s = querySnapshot.size;
+
     querySnapshot.forEach(doc => {
       const guia = doc.data();
 
@@ -249,9 +253,16 @@ async function cargarPagosDirectos(e) {
 
       // Ignorar aquelas que hayan sido pagadas;
       if(type === "PAGO CONTRAENTREGA" && deuda === 0) return;
+
+      ultimaFecha = guia.fecha;
           
       listaGuias.push(transformarGuiaAPago(guia));
     });
+
+    const message = `Ten paciencia, hago lo mejor que puedo, vamos por ${ultimaFecha}. ¡SI SE PUEDE!`
+
+    anotaciones.addError(message, {color: "info"});
+    
   }
 
   let filtroPagoSeleccionado;
@@ -281,12 +292,15 @@ async function cargarPagosDirectos(e) {
   } else if(filtroTransp) {
     await referencia.where("transportadora", "==", filtroTransp).get().then(manejarInformacion);
   } else {
-    await referencia.get().then(manejarInformacion);
+    await recursividadPorReferencia(referencia, manejarInformacion, limiteConsulta);
+    // await referencia.get().then(manejarInformacion);
   }
 
   // una vez finalice la carga, se redirige al cargador que puede mostrar la lista de errores, en caso d equ eexistan
   location.href = "#cargador_pagos";
   
+  anotaciones.addError("¡LO HEMOS LOGRADO! ya te muestro bien, dejame respirar 😪😥😴", {color: "success"});
+  setTimeout(() => anotaciones.reset(), 5000);
   // Se encarga de filtrar la lista encontrando errores o guías ya pagadas
   const lista = await filtraPendientes(listaGuias);
 
@@ -301,6 +315,21 @@ async function cargarPagosDirectos(e) {
     btnCargarPagos.after("<a class='btn btn-success mt-4' href='#gestionar_pagos' id='btn-gotoGestionar_cargador_pagos'>Ir a gestionar</a>")
 }
 
+async function cargarEstados() {
+  try {
+    const estados = await fetch("/procesos/EstadosFinalizacion")
+    .then(d => d.json());
+  
+    estadosEntregado = estados.entregados;
+    estadosDevolucion = estados.devolucion;
+  
+    return estados;
+  } catch (e) {
+    Swal.fire("Error", "Hubo un error para extraer los estados: " + e.message, "error");
+    throw new Error(e.message);
+  }
+}
+
 /**
  * Función en cargada de recibir la guía como viene del historial, para transformarla a como se está guardando en el panel de pagos.
  * Encargada de manipular los precios según se hacía de forma manual para identificar las guía en devolución y otro tipo de información relevante
@@ -308,11 +337,6 @@ async function cargarPagosDirectos(e) {
  * @returns El objeto formateado a como se va a registrar en la base de datos
  */
 function transformarGuiaAPago(guia)  {  
-  const estadosDevolucion = [
-    "ENTREGADO A REMITENTE", "Devuelto al Remitente",
-    "CERRADO POR INCIDENCIA, VER CAUSA", "DEVOLUCION"
-  ];
-
   const detalles = guia.detalles;
   const esDevolucion = estadosDevolucion.includes(guia.estado);
   const costoDevolucion = guia.detalles.costoDevolucion; // El costo de devolución debe ser negativo
@@ -433,3 +457,5 @@ async function comprobarSegmentoGuias(segmento, logger) {
     return !pagada;
   })
 }
+
+//#endregion

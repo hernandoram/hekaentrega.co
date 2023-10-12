@@ -4,7 +4,8 @@ const fs = require("fs");
 const transportadorasFrom = ["servientrega", "envía", "tcc", "interrapidisimo", "coordinadora"];
 const transportadorasTo = ["SERVIENTREGA", "ENVIA", "TCC", "INTERRAPIDISIMO", "COORDINADORA"];
 const camposNumericos = ["COMISION HEKA", "RECAUDO", "ENVÍO TOTAL", "TOTAL A PAGAR"];
-const db = require("../keys/firebase.js").firestore()
+const firebase = require("../keys/firebase.js");
+const db = firebase.firestore()
 
 /**
  * Script creado el 3 de agosto del 2023 para migrar toda la información contenida en pagos

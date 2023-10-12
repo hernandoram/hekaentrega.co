@@ -8,7 +8,7 @@
     <meta content="Coderthemes" name="author" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <!-- App favicon -->
-    <link rel="shortcut icon" href="/static/logoDark">
+    <link rel="shortcut icon" href="/img/logo-heka.png">
 
     <!-- App css -->
     <link href="/assets/css/bootstrap-modern.css" rel="stylesheet" type="text/css" id="bs-default-stylesheet" />
@@ -87,8 +87,8 @@
 
               <!-- LOGO -->
               <div class="logo-box">
-                  <a href="/"  class="logo indexLink text-center">
-                    <img src="/static/logoLight" class="rounded-circle" alt="Logo tienda" height="40">
+                  <a href="/index.html" class="logo text-center">
+                    <img src="{{#unless tienda.logoUrl}}/img/logo-heka.png{{/unless}}{{tienda.logoUrl}}" class="rounded-circle" alt="Logo tienda" height="40">
                   </a>
               </div>
 
@@ -212,7 +212,7 @@
 
         <!-- Footer Start -->
         <footer class="footer text-center fixed-bottom" >
-                        2018 - <script>document.write(new Date().getFullYear())</script> &copy; <a class="copyrightWord indexLink" href="/"></a> 
+                        2018 - <script>document.write(new Date().getFullYear())</script> &copy; <a href="/">Heka Entrega</a> 
         </footer>
         <!-- end Footer -->
           
@@ -223,6 +223,7 @@
     
     <!-- Vendor js -->
     <script src="/assets/js/vendor.min.js"></script>
+
     {{!-- <script src="/public/plantilla/js/hostNameReader.js" type="module"></script> --}}
     <script>
         const dominiosFlexii = ["flexii.co", "www.flexi.co","localhost:6200"];
@@ -269,6 +270,7 @@ function hostnameReader(){
 
 }
     </script>
+
 
     <!-- App js -->
     <script src="/assets/js/app.min.js"></script>

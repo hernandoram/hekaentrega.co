@@ -8,16 +8,13 @@ const rutaPorDefectoPrevisualizador = previsualizadorImagen.attr("src");
 const formulario = $("#form-centro_notificaciones");
 const visorNotificaciones = $("#visor-centro_notificaciones");
 const selectorNotificacion = document.querySelector("#selectorNotificacion");
-const botonNotificacion= document.querySelector("#form-centro_notificaciones button");
-
+const botonNotificacion= document.querySelector("#generar-notificacion");
+const notificacionGlobal= document.querySelector("#notificacionGlobal");
 const inputs = document.querySelectorAll("#form-centro_notificaciones input, #form-centro_notificaciones select");
 
-
-
-
-
-
-
+const mostradorUsuariosNoti= document.querySelector("#mostradorUsuariosNoti");
+const mostradorUsuariosNotiUsers= document.querySelector("#mostradorUsuariosNotiUsers");
+const inputBuscador = document.getElementById("inputMostradorUserNoti");
 selectorNotificacion.onchange = cambioNotificacion;
 slectImagenes.on("change", seleccionarImagen);
 cargadorImagen.on("change", cargarNuevaImagen);
@@ -84,6 +81,7 @@ function cambioNotificacion(e){
     }
 }
 
+
 function seleccionarImagen() {
     const val = slectImagenes.val();
     renderizarImagen();
@@ -101,17 +99,24 @@ async function cargarNuevaImagen(e) {
     listarImagenes();
 }
 
+
+
+
+
+
 async function generarNotificacion(e) {
     e.preventDefault();
 
     console.log(e.target);
     const formData = new FormData(e.target);
+
     
     const notificacion = {
         icon: ["info", "warning"],
         timeline: new Date().getTime(),
         isGlobal: true,
-        active: true
+        active: true,
+        allowDelete:true
     };
 
     formData.delete("files");
@@ -122,12 +127,18 @@ async function generarNotificacion(e) {
         } else {
             notificacion[key] = val;
         }
-
     }
 
+    notificacion.isGlobal = (notificacion.isGlobal === "true");
+    notificacion.visible = (notificacion.visible === "true");
+    notificacion.allowDelete = (notificacion.allowDelete === "true");
+
+    if(!notificacion.isGlobal){
+      notificacion.usuarios = obtenerCheckboxesMarcados(centros);
+    }else{
+      notificacion.usuarios = [];
+    }
     console.log(notificacion);  
-    
-    console.log(selectorNotificacion.value)
 
     if (selectorNotificacion.value) {
       try {
@@ -154,8 +165,157 @@ async function generarNotificacion(e) {
     }
 
 }
+
+const reference = firebase.firestore().collection("usuarios");
+let centros=[]
+
+reference
+// .limit(10)
+.get()
+.then((querySnapshot) => {
+
+    console.log(querySnapshot.size);
+    querySnapshot.forEach((doc) => {
+        centros.push({id:doc.id, centro_de_costo:doc.data().centro_de_costo})
+    })
+}).then(()=>
+{console.log(centros)
+
+})
+
+const botonesInputUserNoti = document.querySelector("#botones-inputusernoti");
+
+notificacionGlobal.addEventListener("change", (e)=>{
+   let valor= e.target.value;
+   if(valor=="false"){
+        mostradorUsuariosNoti.classList.add("d-flex");
+        mostradorUsuariosNoti.classList.remove("d-none");
+        inputBuscador.classList.remove("d-none");
+        mostradorUsuariosNotiUsers.innerHTML="";
+        if(mostradorUsuariosNotiUsers.innerHTML==""){
+            crearCheckboxes(centros)
+        }
+        botonesInputUserNoti.classList.remove("d-none");
+      }else{
+        mostradorUsuariosNoti.classList.add("d-none");
+        botonesInputUserNoti.classList.add("d-none");
+        mostradorUsuariosNoti.classList.remove("d-flex");
+    }
+})
 mostrarNotificaciones();
 
+console.log(inputBuscador)
+
+let idsCheckboxMarcados = [];
+let auxidsCheckboxMarcados = ""
+
+
+
+function crearCheckboxes(arreglo) {  
+    inputBuscador.value="";
+    let textoBuscador = "";
+    let elementosPorPagina = 50;
+    let paginaActual = 1;
+
+    inputBuscador.addEventListener("input", (e) => {
+        if(e.target.value.length>3){
+            elementosPorPagina= arreglo.length;
+            mostrarPagina(paginaActual)
+        }else{
+            elementosPorPagina= 50;
+            mostrarPagina(paginaActual)
+        }
+      textoBuscador = inputBuscador.value.toLowerCase();
+      const checkboxes = document.querySelectorAll("input[type='checkbox']");
+      checkboxes.forEach((checkbox) => {
+        const etiqueta = checkbox.parentNode;
+        const textoEtiqueta = etiqueta.textContent.toLowerCase();
+        if (textoEtiqueta.includes(textoBuscador)) {
+          etiqueta.style.display = "flex";
+        } else {
+          etiqueta.style.display = "none";
+        }
+      });
+    });
+
+    const botonesInputUserNoti = document.querySelectorAll("#botones-inputusernoti button");
+    
+    botonesInputUserNoti[0].addEventListener("click", (e) => {
+      e.preventDefault();
+      obtenerCheckboxesMarcados(centros)
+    paginaActual--;
+    mostrarPagina(paginaActual);
+    });
+
+       botonesInputUserNoti[1].addEventListener("click", (e) => {
+        e.preventDefault();
+        obtenerCheckboxesMarcados(centros)
+      paginaActual++;
+      mostrarPagina(paginaActual);
+    });
+  
+
+
+    function mostrarPagina(pagina) {
+      const inicio = (pagina - 1) * elementosPorPagina;
+      const fin = inicio + elementosPorPagina;
+      const elementos = arreglo.slice(inicio, fin);
+
+      mostradorUsuariosNotiUsers.innerHTML = "";
+
+      console.log(idsCheckboxMarcados)
+  
+      elementos.forEach((objeto) => {
+        const centroDeCosto = objeto.centro_de_costo;
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.name = "centrosDeCosto";
+        checkbox.value = objeto.id;
+        checkbox.checked = idsCheckboxMarcados.includes(objeto.id);
+        const etiqueta = document.createElement("label");
+        etiqueta.textContent = centroDeCosto;
+        etiqueta.style.display = "flex";
+        etiqueta.style.flexDirection = "row-reverse";
+        etiqueta.style.margin = "10px";
+        etiqueta.appendChild(checkbox);
+        mostradorUsuariosNotiUsers.appendChild(etiqueta);
+      });
+
+      const checkboxes = document.querySelectorAll("input[type='checkbox']");
+
+      checkboxes.forEach((checkbox) => {
+        const etiqueta = checkbox.parentNode;
+        const textoEtiqueta = etiqueta.textContent.toLowerCase();
+        if (textoEtiqueta.includes(textoBuscador)) {
+          etiqueta.style.display = "flex";
+        } else {
+          etiqueta.style.display = "none";
+        }
+      });
+  
+      botonesInputUserNoti[0].disabled = pagina === 1;
+      botonesInputUserNoti[1].disabled = fin >= arreglo.length;    }
+  
+    mostrarPagina(paginaActual);
+  }
+
+  function obtenerCheckboxesMarcados(arreglo) {
+    const checkboxes = document.querySelectorAll(
+      "input[name='centrosDeCosto']:checked"
+    );
+    const idsMarcados = Array.from(checkboxes).map(
+      (checkbox) => checkbox.value
+    );
+    const objetosMarcados = arreglo.filter((objeto) =>
+      idsMarcados.includes(objeto.id)
+    );
+    const idsObjetosMarcados = objetosMarcados.map((objeto) => objeto.id);
+    idsCheckboxMarcados.push(...idsObjetosMarcados);
+    idsCheckboxMarcados = idsCheckboxMarcados.filter((value, index, self) => {
+      return self.indexOf(value) === index;
+    });
+    return idsCheckboxMarcados;
+  }
 
 function mostrarNotificaciones() {
 
