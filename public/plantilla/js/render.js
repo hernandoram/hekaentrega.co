@@ -1369,7 +1369,7 @@ function mostrarNotificacionEstaticaUsuario(noti, id) {
     buttonCloseAlert.setAttribute("data-dismiss", "alert");
     buttonCloseAlert.setAttribute("data-notification", id);
     buttonCloseAlert.setAttribute("aria-label", "close");
-    buttonCloseAlert.addEventListener("click", () => eliminarNotificacionDinamica(id));
+    buttonCloseAlert.addEventListener("click", () => eliminarNotificacionparaUsuario(id));
   
     mostrador.append(alerta);
   
@@ -1402,6 +1402,7 @@ async function mostrarNotificacionAlertaUsuario(noti, id) {
     if (noti.deleteAfterWatch) {
       console.log("Eliminar después de ver");
     } else if (r.dismiss === Swal.DismissReason.cancel) {
+      eliminarNotificacionparaUsuario(id);
       console.log("Eliminado por decisión del usuario");
     }
   });
@@ -1413,6 +1414,13 @@ function eliminarNotificacion(id) {
 
 function eliminarNotificacionDinamica(id) {
   db.collection("centro_notificaciones").doc(id).delete();
+}
+function eliminarNotificacionparaUsuario(id) {
+  console.log(id)
+  const userid= localStorage.getItem("user_id");
+  db.collection("centro_notificaciones").doc(id).update({
+    usuarios: firebase.firestore.FieldValue.arrayRemove(userid)
+  });
 }
 
 function userClickNotification(data) {
