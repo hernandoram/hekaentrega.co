@@ -370,11 +370,11 @@ async function actualizarMovimientosSemanales() {
     return normalizarReporte(historia);
 }
 
-actualizarMovimientosPorComparador("numeroGuia", 'in', [240006199566, 240006256718, 240006311756, 240006325071].map(v => v.toString()))
-.then(resultado => {
-    console.log(resultado);
-    process.exit();
-});
+// actualizarMovimientosPorComparador("numeroGuia", 'in', [240006199566, 240006256718, 240006311756, 240006325071].map(v => v.toString()))
+// .then(resultado => {
+//     console.log(resultado);
+//     process.exit();
+// });
 async function actualizarMovimientosPorComparador(comparador, comparando, campo) {
     const referencia = referenciaGuias
     // .where("seguimiento_finalizado", "!=", true)
