@@ -758,6 +758,7 @@ async function buscarUsuarios() {
       console.log(querySnapshot.size);
       const size = querySnapshot.size;
       querySnapshot.forEach((doc) => {
+        console.log(doc.data())
         //Luego de la consulta se realizan tres filtros
 
         const nombre = doc.data().nombres.trim().toLowerCase();
