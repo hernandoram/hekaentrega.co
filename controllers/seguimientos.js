@@ -161,17 +161,17 @@ async function actualizarMovimientosGuias(querySnapshot) {
 
         let acumuladosCoord = [];
         const MAX_COORD = 50;
+        // throw "no babe"
 
-        //Objeto que se va llenando para luego mostrarme los detalles del proceso
+        //Objeto que se va llenando paral luego mostrarme los detalles del proceso
         
         
         //Aquí se alamcenarán la respuesta obtenida de cada proceso de actualización
         let resultado_guias = new Array();
         
         //Itero entre todos los registros de guías encontrados
+        console.log("ejecutando procesos");
         for (let doc of querySnapshot.docs) {
-            const data = doc.data();
-            
             //Verifico que exista un número de guía
             const existeNumeroGuia = !!data.numeroGuia;
 
