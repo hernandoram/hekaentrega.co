@@ -8,7 +8,7 @@ const urlEstados = "https://www3.interrapidisimo.com/ApiservInter/api/Mensajeria
 
 const firebase = require("../keys/firebase");
 const { notificarNovedadEncontrada } = require("../extends/notificaciones");
-const { estadosGuia, detectaNovedadEnElHistorialDeEstados, modificarEstadoGuia, atributosAdicionalesEnActualizacion } = require("../extends/manejadorMovimientosGuia");
+const { estadosGuia } = require("../extends/manejadorMovimientosGuia");
 const db = firebase.firestore();
 
 //FUNCIONES REGULARES
@@ -196,6 +196,7 @@ const actualizarMovimientos = async function(doc) {
 
     const guia = doc.data();
 
+    const estados_finalizacion = ["Documento Anulado", "Entrega Exitosa", "Devuelto al Remitente", "Entregada"];
     let entrega_oficina_notificada = guia.entrega_oficina_notificada || false;
     
     const movimientos = respuesta[0].EstadosGuia.map(estado => {
@@ -234,24 +235,25 @@ const actualizarMovimientos = async function(doc) {
     };
     
     updte_movs = await extsFunc.actualizarMovimientos(doc, estado);
-    
+    const seguimiento_finalizado = estados_finalizacion.some(v => estado.estadoActual === v)
+    || finalizar_seguimiento;
 
-    guia.estadoTransportadora = estado.estadoActual;
-            
-    // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
-    const actualizaciones = modificarEstadoGuia(guia);
+    const actualizaciones = {
+        entrega_oficina_notificada,
+        estado: estado.estadoActual,
+        ultima_actualizacion: new Date(),
+        seguimiento_finalizado: seguimiento_finalizado
+    };
 
-    actualizaciones.enNovedad = detectaNovedadEnElHistorialDeEstados(updte_movs);
+    if(seguimiento_finalizado) actualizaciones.estadoActual = estadosGuia.finalizada;
 
-    // Esto me llena un arreglo de todas las novedades que han sido notificadas, para consultarlo y evitar duplicar notificaciones
+    if (updte_movs.estado === "Mov.A" && updte_movs.guardado) {
+        const {enNovedad} = updte_movs.guardado
+        actualizaciones.enNovedad = enNovedad || false;
+    }
+
     actualizaciones.novedadesNotificadas = await notificarNovedadEncontrada(guia, movimientos);
     
-    // Esto pasa una serie de argumentos, que detecta que haya alguna información para actualizar
-    // en caso de que los valores del segundo parametros sean falsos, undefined o null, no los toma en cuenta para actualizar
-    atributosAdicionalesEnActualizacion(actualizaciones, {
-        seguimiento_finalizado: finalizar_seguimiento, entrega_oficina_notificada
-    });
-
     updte_estados = await extsFunc.actualizarEstado(doc, actualizaciones);
 
     return [updte_estados, updte_movs];

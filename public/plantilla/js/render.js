@@ -24,6 +24,7 @@ const estadosGuia = {
 let novedadesExcelData = [];
 
 
+
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();

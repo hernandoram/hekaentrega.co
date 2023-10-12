@@ -2,7 +2,7 @@
 const fetch = require("node-fetch");
 const { urlToPdfBase64, segmentarString, estandarizarFecha, actualizarMovimientos, actualizarEstado } = require("../extends/funciones");
 const credentials = require("../keys/envia");
-const { estadosGuia, detectaNovedadEnElHistorialDeEstados, modificarEstadoGuia } = require("../extends/manejadorMovimientosGuia");
+const { estadosGuia } = require("../extends/manejadorMovimientosGuia");
 
 
 exports.cotizar = async (req, res) => {
@@ -168,9 +168,11 @@ exports.actualizarMovimientos = async (doc) => {
             }];
         }
         
+        const estados_finalizacion = ["ENTREGADA DIGITALIZADA", "DEVOLUCION"];
+        
         const movimientos = desglozarMovimientos(respuesta);
         const ultimo_estado = movimientos[movimientos.length - 1];
-        const guia = doc.data();
+        let finalizar_seguimiento = doc.data().prueba ? true : false
 
         console.log(respuesta);
         // let estadoActual = respuesta.estado ? respuesta.estado.replace(/(?:EN\s|DESDE)[\s\w]+/g, "") : "NO APLICA";
@@ -202,16 +204,24 @@ exports.actualizarMovimientos = async (doc) => {
         if(movimientos.length) {
             updte_movs = await actualizarMovimientos(doc, estado);
         }
+
+        let enNovedad = false;
+        if (updte_movs.estado === "Mov.A" && updte_movs.guardado) {
+            enNovedad = updte_movs.guardado.enNovedad || false;
+        }
+
+        const seguimiento_finalizado = estados_finalizacion.some(v => estadoActual === v)
+        || finalizar_seguimiento;
         
-        guia.estadoTransportadora = estadoActual;
-            
-        // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
-        const actualizaciones = modificarEstadoGuia(guia);
+        const actualizaciones = {
+            estado: estadoActual,
+            ultima_actualizacion: new Date(),
+            enNovedad,
+            seguimiento_finalizado,
+        }
 
-        actualizaciones.enNovedad = detectaNovedadEnElHistorialDeEstados(updte_movs);
+        if(seguimiento_finalizado) actualizaciones.estadoActual = estadosGuia.finalizada;
 
-        // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
-        modificarEstadoGuia(actualizaciones);
     
         const updte_estados = await actualizarEstado(doc, actualizaciones);
     

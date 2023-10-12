@@ -173,6 +173,7 @@ async function actualizarMovimientosGuias(querySnapshot) {
         //Itero entre todos los registros de guías encontrados
         console.log("ejecutando procesos");
         for (let doc of querySnapshot.docs) {
+
             const data = doc.data();
 
             //Verifico que exista un número de guía
