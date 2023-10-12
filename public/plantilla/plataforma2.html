@@ -65,6 +65,8 @@
   Para llamarlo, tengo que introducir <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>-->
   <link rel="stylesheet" href="css/loader.css">
 
+  <link rel="stylesheet" href="css/chat.css">
+
   <!--Sweet Alert 2-->
   <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -295,6 +297,9 @@
         <div id="content" style="display: none;">     
           <!-- Begin Page Content -->
 
+
+          
+
           <div class="container-fluid" id="home">
             <link rel="stylesheet" href="./css/homeVIew/main.css">
             <div class="row">
@@ -324,12 +329,15 @@
 
         Basado en nuestros <b><a class="text-dark" target="_blank" href="https://www.hekaentrega.co/terminos.html">Terminos y Condiciones</a></b>, solamente se aceptan reclamos de los pagos en un máximo de 2 días calendario posteriores al pago.
       </p>
+
+
+                
+ 
                 </div>
               </div>                
             </div>
-
+      
             
-
             <div class="row estadisticas">
               <div class="col-12 col-md-5">
                 <div class="card m-2">
@@ -387,6 +395,9 @@
             </div>
 
             <div class="cuerpo_carousel my-3">
+
+
+
               <h3 class="text-center mb-3">Video Tutoriales</h3>
               <div class="swiper mySwiper">
                 <div class="swiper-wrapper">
@@ -1358,6 +1369,8 @@
             
           </div>
 
+
+
           <div class="container-fluid" id="crear_guia" style="display: none;">
             <!-- 404 Error Text -->
             <div class="text-center">
@@ -1367,6 +1380,11 @@
               <a href="plataforma2.html">&larr; Regresar a la plataforma</a>
             </div>
           </div>
+
+
+      
+
+
 
           <div class="container-fluid" id="novedades" style="display: none;">
             <div class="card mt-1">
@@ -1517,6 +1535,7 @@
         </div>   
         <!-- Footer -->
         <footer class="sticky-footer bg-white">
+          
           <div class="container my-auto">
             <div class="copyright text-center my-auto">
               <span>Copyright &copy; <a id="copyrightWord"></a></span>
@@ -1524,10 +1543,16 @@
           </div>
         </footer>
         <!-- End of Footer -->
+    
       </div>
       <!-- End of Content Wrapper -->
+    
+    
     </div>
     <!-- End of Page Wrapper -->
+
+
+    
   </div>
 
   <!-------------------------------------------------------------------------------------------------------------------------->
@@ -1818,6 +1843,104 @@
 
     <script src="js/userPlatform.js" type="module"></script>
 
+
+
+
+    <div class="container chat-absolute" style="z-index: 3;
+    bottom: 0;
+    /* right: unset; */
+    position: sticky;
+    width: 100vw;
+    display: flex;
+    justify-content: flex-end;
+    margin: 0px;
+    padding: 0px;">
+      <div class="row">
+          <div class="col-md-5">
+              <div class="panel panel-primary">
+                  <div class="panel-heading" id="accordion">
+                      <span class="glyphicon glyphicon-comment"></span> Tienes un mensaje
+                      <div class="btn-group pull-right">
+                          <a type="button" class="btn btn-default btn-xs" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                              <span class="glyphicon glyphicon-chevron-down">toggle</span>
+                          </a>
+                      </div>
+                  </div>
+              <div class="panel-collapse collapse" id="collapseOne">
+                  <div class="panel-body">
+                      <ul class="chat">
+                          <li class="left clearfix"><span class="chat-img pull-left">
+                              <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />
+                          </span>
+                              <div class="chat-body clearfix">
+                                  <div class="header">
+                                      <strong class="primary-font">Jack Sparrow</strong> <small class="pull-right text-muted">
+                                          <span class="glyphicon glyphicon-time"></span>12 mins ago</small>
+                                  </div>
+                                  <p>
+                                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
+                                      dolor, quis ullamcorper ligula sodales.
+                                  </p>
+                              </div>
+                          </li>
+                          <li class="right clearfix"><span class="chat-img pull-right">
+                              <img src="http://placehold.it/50/FA6F57/fff&text=ME" alt="User Avatar" class="img-circle" />
+                          </span>
+                              <div class="chat-body clearfix">
+                                  <div class="header">
+                                      <small class=" text-muted"><span class="glyphicon glyphicon-time"></span>13 mins ago</small>
+                                      <strong class="pull-right primary-font">Bhaumik Patel</strong>
+                                  </div>
+                                  <p>
+                                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
+                                      dolor, quis ullamcorper ligula sodales.
+                                  </p>
+                              </div>
+                          </li>
+                          <li class="left clearfix"><span class="chat-img pull-left">
+                              <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />
+                          </span>
+                              <div class="chat-body clearfix">
+                                  <div class="header">
+                                      <strong class="primary-font">Jack Sparrow</strong> <small class="pull-right text-muted">
+                                          <span class="glyphicon glyphicon-time"></span>14 mins ago</small>
+                                  </div>
+                                  <p>
+                                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
+                                      dolor, quis ullamcorper ligula sodales.
+                                  </p>
+                              </div>
+                          </li>
+                          <li class="right clearfix"><span class="chat-img pull-right">
+                              <img src="http://placehold.it/50/FA6F57/fff&text=ME" alt="User Avatar" class="img-circle" />
+                          </span>
+                              <div class="chat-body clearfix">
+                                  <div class="header">
+                                      <small class=" text-muted"><span class="glyphicon glyphicon-time"></span>15 mins ago</small>
+                                      <strong class="pull-right primary-font">Bhaumik Patel</strong>
+                                  </div>
+                                  <p>
+                                      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
+                                      dolor, quis ullamcorper ligula sodales.
+                                  </p>
+                              </div>
+                          </li>
+                      </ul>
+                  </div>
+                  <div class="panel-footer">
+                      <div class="input-group">
+                          <input id="btn-input" type="text" class="form-control input-sm" placeholder="Type your message here..." />
+                          <span class="input-group-btn">
+                              <button class="btn btn-warning btn-sm" id="btn-chat">
+                                  Send</button>
+                          </span>
+                      </div>
+                  </div>
+              </div>
+              </div>
+          </div>
+      </div>
+  </div>
 </body>
   
 </html>
