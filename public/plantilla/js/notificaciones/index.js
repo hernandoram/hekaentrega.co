@@ -67,16 +67,51 @@ function cambioNotificacion(e){
     //cambio botones
     if(val){
         botonNotificacion.innerHTML="Editar notificación";
-        const notificacion= notificaciones.find(notificacion => notificacion.id === val);
-        $('#mensaje-centro_notificaciones').summernote('code', notificacion.mensaje);
+        const notificacion= notificaciones.find(notificacion => notificacion.id === val) || null;
         console.log(notificacion)
+
+        if(notificacion==null){
+
+          mostradorUsuariosNoti.classList.add("d-none");
+          botonesInputUserNoti.classList.add("d-none");
+          mostradorUsuariosNoti.classList.remove("d-flex");
+
+          for (let i = 0; i < inputs.length; i++) {
+            inputs[i].value = "";
+          }
+
+          $('#mensaje-centro_notificaciones').summernote('code', "");
+
+          return
+        }
+        $('#mensaje-centro_notificaciones').summernote('code', notificacion.mensaje);
+        if(!notificacion.isGlobal ){
+          console.log(mostradorUsuariosNoti)
+          mostradorUsuariosNoti.classList.add("d-flex");
+          mostradorUsuariosNoti.classList.remove("d-none");
+          inputBuscador.classList.remove("d-none");
+          mostradorUsuariosNotiUsers.innerHTML="";
+          if(mostradorUsuariosNotiUsers.innerHTML==""){
+            crearCheckboxes(centros)
+          }
+          botonesInputUserNoti.classList.remove("d-none");
+        } else{
+          mostradorUsuariosNoti.classList.add("d-none");
+          botonesInputUserNoti.classList.add("d-none");
+          mostradorUsuariosNoti.classList.remove("d-flex");
+        }
         inputs.forEach(input => input.value = notificacion[input.name]);
     }else{
+      mostradorUsuariosNoti.classList.add("d-none");
+      botonesInputUserNoti.classList.add("d-none");
+      mostradorUsuariosNoti.classList.remove("d-flex");
         $('#mensaje-centro_notificaciones').summernote('code', "");
         botonNotificacion.innerHTML="Generar notificación"
         inputs.forEach(input => {
             input.value = "";
           });
+
+          
 
     }
 }
@@ -362,9 +397,7 @@ function selectorNotificaciones(notificaciones) {
   selectorNotificacion.innerHTML = opciones;
 
   // Crear una nueva opción
-  const opcionPorDefecto = document.createElement("option");
-  opcionPorDefecto.value = "";
-  
+  const opcionPorDefecto = document.createElement("option");  
   opcionPorDefecto.text = "--Nueva notificación--";
 
   // Insertar la nueva opción al principio del elemento select
