@@ -86,13 +86,13 @@ function cambioNotificacion(e) {
 
   //cambio botones
 
-  if (val) {
+  if (val!== "--Nueva notificación--") {
     botonNotificacion.innerHTML = "Editar notificación";
     const notificacion =
       notificaciones.find((notificacion) => notificacion.id === val) || null;
     console.log(notificacion);
 
-    idsCheckboxMarcados = [];
+    idsCheckboxMarcados = notificacion.usuarios || [];
 
     if (notificacion == null) {
       mostradorUsuariosNoti.classList.add("d-none");
@@ -131,7 +131,6 @@ function cambioNotificacion(e) {
         crearCheckboxes(centros);
       }
       botonesInputUserNoti.classList.remove("d-none");
-      mostrarPagina(1);
     } else {
       mostradorUsuariosNoti.classList.add("d-none");
       botonesInputUserNoti.classList.add("d-none");
@@ -196,12 +195,14 @@ async function generarNotificacion(e) {
   notificacion.isGlobal = notificacion.isGlobal === "true";
   notificacion.active = notificacion.active === "true";
   notificacion.allowDelete = notificacion.allowDelete === "true";
+  notificacion.usuarios = idsCheckboxMarcados;
 
   if (!notificacion.isGlobal) {
     notificacion.usuarios = obtenerCheckboxesMarcados(centros);
   } else {
     notificacion.usuarios = [];
   }
+
   console.log(notificacion);
 
   if (selectorNotificacion.value) {
@@ -229,6 +230,16 @@ async function generarNotificacion(e) {
       Toast.fire("Error", e.message, "error");
     }
   }
+
+  mostradorUsuariosNoti.classList.add("d-none");
+  botonesInputUserNoti.classList.add("d-none");
+  mostradorUsuariosNoti.classList.remove("d-flex");
+  $("#mensaje-centro_notificaciones").summernote("code", "");
+  botonNotificacion.innerHTML = "Generar notificación";
+  inputs.forEach((input) => {
+    input.value = "";
+  });
+
 }
 
 const reference = firebase.firestore().collection("usuarios");
@@ -271,7 +282,6 @@ mostrarNotificaciones();
 console.log(inputBuscador);
 
 let idsCheckboxMarcados = [];
-let auxidsCheckboxMarcados = "";
 
 const botonesInputUserNotiAll = document.querySelectorAll(
   "#botones-inputusernoti button"
@@ -285,6 +295,9 @@ function crearCheckboxes(arreglo) {
   inputBuscador.value = "";
 
   inputBuscador.addEventListener("input", (e) => {
+
+    obtenerCheckboxesMarcados(centros)
+
     if (e.target.value.length > 3) {
       elementosPorPagina = arreglo.length;
       mostrarPagina(paginaActual);
@@ -330,9 +343,6 @@ function mostrarPagina(pagina) {
   const elementos = centros.slice(inicio, fin);
 
   mostradorUsuariosNotiUsers.innerHTML = "";
-
-  console.log(idsCheckboxMarcados);
-
   elementos.forEach((objeto) => {
     const centroDeCosto = objeto.centro_de_costo;
     const checkbox = document.createElement("input");
@@ -367,7 +377,6 @@ function mostrarPagina(pagina) {
 
 function obtenerCheckboxesMarcados(arreglo) {
   const checkboxes = document.querySelectorAll("input[name='centrosDeCosto']");
-  console.log(checkboxes);
 
   const noMarcados = Array.from(checkboxes)
     .filter((objeto) => !objeto.checked)
@@ -377,19 +386,19 @@ function obtenerCheckboxesMarcados(arreglo) {
     .filter((checkbox) => checkbox.checked)
     .map((checkbox) => checkbox.value);
 
-  const objetosMarcados = arreglo.filter((objeto) =>
-    idsMarcados.includes(objeto.id)
-  );
-
-  const idsObjetosMarcados = objetosMarcados.map((objeto) => objeto.id);
-  console.log(idsObjetosMarcados);
+  const idsObjetosMarcados = arreglo
+    .filter((objeto) => idsMarcados.includes(objeto.id))
+    .map((objeto) => objeto.id);
 
   idsCheckboxMarcados.push(...idsObjetosMarcados);
-  idsCheckboxMarcados = idsCheckboxMarcados.filter((value) => !noMarcados.includes(value));
+  idsCheckboxMarcados = idsCheckboxMarcados.filter(
+    (value) => !noMarcados.includes(value)
+  );
   idsCheckboxMarcados = idsCheckboxMarcados.filter((value, index, self) => {
     return self.indexOf(value) === index;
   });
 
+  console.log(idsCheckboxMarcados);
   return idsCheckboxMarcados;
 }
 
