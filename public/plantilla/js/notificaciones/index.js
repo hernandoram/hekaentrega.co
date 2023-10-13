@@ -108,14 +108,20 @@ function cambioNotificacion(e) {
       return;
     }
 
-    inputs.forEach((input) => (input.value = notificacion[input.name]));
+    inputs.forEach((input) => {
+      if (input.type == "file") {
+        input.value = null;
+      } else {
+        input.value = notificacion[input.name];
+      }
+    });
 
     $("#mensaje-centro_notificaciones").summernote(
       "code",
       notificacion.mensaje
     );
+
     if (!notificacion.isGlobal) {
-      mostrarPagina(1);
       console.log(mostradorUsuariosNoti);
       mostradorUsuariosNoti.classList.add("d-flex");
       mostradorUsuariosNoti.classList.remove("d-none");
@@ -125,6 +131,7 @@ function cambioNotificacion(e) {
         crearCheckboxes(centros);
       }
       botonesInputUserNoti.classList.remove("d-none");
+      mostrarPagina(1);
     } else {
       mostradorUsuariosNoti.classList.add("d-none");
       botonesInputUserNoti.classList.add("d-none");
@@ -355,7 +362,7 @@ function mostrarPagina(pagina) {
   });
 
   botonesInputUserNotiAll[0].disabled = pagina === 1;
-  botonesInputUserNotiAll[1].disabled = fin >= arreglo.length;
+  botonesInputUserNotiAll[1].disabled = fin >= centros.length;
 }
 
 function obtenerCheckboxesMarcados(arreglo) {
