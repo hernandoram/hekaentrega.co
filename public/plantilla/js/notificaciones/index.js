@@ -366,18 +366,30 @@ function mostrarPagina(pagina) {
 }
 
 function obtenerCheckboxesMarcados(arreglo) {
-  const checkboxes = document.querySelectorAll(
-    "input[name='centrosDeCosto']:checked"
-  );
-  const idsMarcados = Array.from(checkboxes).map((checkbox) => checkbox.value);
+  const checkboxes = document.querySelectorAll("input[name='centrosDeCosto']");
+  console.log(checkboxes);
+
+  const noMarcados = Array.from(checkboxes)
+    .filter((objeto) => !objeto.checked)
+    .map((objeto) => objeto.value);
+
+  const idsMarcados = Array.from(checkboxes)
+    .filter((checkbox) => checkbox.checked)
+    .map((checkbox) => checkbox.value);
+
   const objetosMarcados = arreglo.filter((objeto) =>
     idsMarcados.includes(objeto.id)
   );
+
   const idsObjetosMarcados = objetosMarcados.map((objeto) => objeto.id);
+  console.log(idsObjetosMarcados);
+
   idsCheckboxMarcados.push(...idsObjetosMarcados);
+  idsCheckboxMarcados = idsCheckboxMarcados.filter((value) => !noMarcados.includes(value));
   idsCheckboxMarcados = idsCheckboxMarcados.filter((value, index, self) => {
     return self.indexOf(value) === index;
   });
+
   return idsCheckboxMarcados;
 }
 
