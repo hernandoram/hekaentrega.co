@@ -1870,7 +1870,7 @@ function descargarInformeNovedades(data) {
   crearExcel(newDoc, "Reporte de errores");
 }
 
-function descargarExcelNovedades() {
+function informeNovedadesCallcenter(JSONData){
   const checkboxNovedadesInter = document.getElementById("checkboxNovedadesInter")
   const checkboxNovedadesServientrega = document.getElementById("checkboxNovedadesServientrega")
   const checkboxNovedadesCoordinadora = document.getElementById("checkboxNovedadesCoordinadora")
@@ -1880,24 +1880,175 @@ function descargarExcelNovedades() {
   let enviaArr = []
   let cordiArr = []
   let arrayFiltrado = []
-  console.log(checkboxNovedadesInter.checked + checkboxNovedadesInter.value)
-  
-  let JSONData = novedadesExcelData;
-  console.log(novedadesExcelData);
-  if (!novedadesExcelData.length) {
+
+  JSONData.forEach((data) => {
+    const dataMovimientos = data.data.movimientos;
+    const extraData = data.extraData;
+
+    
+    if (extraData.transportadora == "INTERRAPIDISIMO" ){
+      let indexUltimaNovedad = data.data.movimientos.findLastIndex(movimiento => movimiento["Motivo"] !== "")
+      let dataFinal = {
+        idUser: extraData.id_user,
+        seller: extraData.centro_de_costo,
+        idHeka: extraData.id_heka,
+        numeroGuia: extraData.numeroGuia,
+        solicitud:
+          extraData.seguimiento?extraData.seguimiento[extraData.seguimiento.length - 1].gestion:"",
+        transportadora: extraData.transportadora,
+        Novedad: dataMovimientos[indexUltimaNovedad]["Motivo"],
+        fechaMov: dataMovimientos[indexUltimaNovedad]["Fecha Cambio Estado"],
+      }
+      interArr.push(dataFinal)
+    }
+    else if(extraData.transportadora == "SERVIENTREGA" ){
+      let indexUltimaNovedad = data.data.movimientos.findLastIndex(movimiento => movimiento.NomConc !== "")
+      let dataFinal = { 
+        idUser: extraData.id_user,
+        seller: extraData.centro_de_costo,
+        idHeka: extraData.id_heka,
+        numeroGuia: extraData.numeroGuia,
+        solicitud:
+          extraData.seguimiento?extraData.seguimiento[extraData.seguimiento.length - 1].gestion:"",
+        transportadora: extraData.transportadora,
+        Novedad: dataMovimientos[indexUltimaNovedad].NomConc,
+        fechaMov: dataMovimientos[indexUltimaNovedad].FecMov,
+      }
+      serviArr.push(dataFinal)
+    }
+    else if (extraData.transportadora == "ENVIA" ){
+      let indexUltimaNovedad = data.data.movimientos.findLastIndex(movimiento => movimiento.novedad !== "")
+      let dataFinal ={
+        idUser: extraData.id_user,
+        seller: extraData.centro_de_costo,
+        idHeka: extraData.id_heka,
+        numeroGuia: extraData.numeroGuia,
+        solicitud:
+        extraData.seguimiento?extraData.seguimiento[extraData.seguimiento.length - 1].gestion:"",
+        transportadora: extraData.transportadora,
+        Novedad: dataMovimientos[indexUltimaNovedad].novedad,
+        fechaMov: dataMovimientos[indexUltimaNovedad].fechaMov,
+      }
+      enviaArr.push(dataFinal)
+    }
+    else if (extraData.transportadora == "COORDINADORA" ){
+      let indexUltimaNovedad = data.data.movimientos.findLastIndex(movimiento => movimiento.codigo_novedad !== "")
+      let dataFinal ={
+        idUser: extraData.id_user,
+        seller: extraData.centro_de_costo,
+        idHeka: extraData.id_heka,
+        numeroGuia: extraData.numeroGuia,
+        solicitud:
+        extraData.seguimiento?extraData.seguimiento[extraData.seguimiento.length - 1].gestion:"",
+        transportadora: extraData.transportadora,
+        Novedad: dataMovimientos[indexUltimaNovedad].descripcion,
+        fechaMov: dataMovimientos[indexUltimaNovedad].fecha_completa,
+      }
+      cordiArr.push(dataFinal)
+    }
+  });
+
+  if (checkboxNovedadesInter.checked){
+    console.log(checkboxNovedadesInter.checked)
+    arrayFiltrado = arrayFiltrado.concat(interArr)
+  }
+  if (checkboxNovedadesServientrega.checked){
+    arrayFiltrado = arrayFiltrado.concat(serviArr)
+  }
+  if (checkboxNovedadesCoordinadora.checked){
+    arrayFiltrado = arrayFiltrado.concat(cordiArr)
+  }
+  if (checkboxNovedadesEnvia.checked){
+    arrayFiltrado = arrayFiltrado.concat(enviaArr)
+  }
+  if (!arrayFiltrado.length){
     return Swal.fire({
       icon: "error",
       title: "Oops...",
       text: "No hay datos que descargar!",
     });
   }
+  let arrData =
+    typeof arrayFiltrado != "object"
+      ? JSON.parse(arrayFiltrado)
+      : arrayFiltrado;
+
+  let encabezado = [
+    // ["ID USUARIO", "_idUser"],
+    ["SELLER", "_seller"],
+    ["ID HEKA", "_idHeka"],
+    ["NUMERO GUIA", "_numGuia"],
+    ["TRANSPORTADORA", "_Transportadora"],
+    // ["SOLICITUD", "_solicitud"],
+    ["NOVEDAD", "_novedad"],
+    ["FECHA MOVIMIENTO", "_fechaMov"],
+  ];
+
+  let newDoc = arrData.map((dat, i) => {
+    let d = new Object();
+
+    encabezado.forEach(([headExcel, fromData]) => {
+      if (fromData === "_numGuia") {
+        fromData = dat.numeroGuia;
+      }
+
+      // if (fromData === "_solicitud") {
+      //   fromData = dat.solicitud;
+      // }
+
+      if (fromData === "_idHeka") {
+        fromData = dat.idHeka;
+      }
+
+      if (fromData === "_idUser") {
+        fromData = dat.idUser;
+      }
+
+      if (fromData === "_novedad") {
+        fromData = dat.Novedad;
+      }
+
+      if (fromData === "_seller") {
+        fromData = dat.seller;
+      }
+
+      if (fromData === "_fechaMov") {
+        fromData = dat.fechaMov;
+      }
+
+      if (fromData === "_Transportadora") {
+        fromData = dat.transportadora;
+      }
+
+      d[headExcel] = dat[fromData] || fromData;
+    });
+    return d;
+  });
+  const hoy = new Date(Date.now());
+  const fecha_archivo = (hoy.toLocaleDateString()+" "+hoy.getHours()+"-"+hoy.getMinutes())
+  crearExcel(newDoc, ("Excel Novedades Callcenter "+fecha_archivo));
+
+}
+
+function informeNovedadesLogistica(JSONData){
+  const checkboxNovedadesInter = document.getElementById("checkboxNovedadesInter")
+  const checkboxNovedadesServientrega = document.getElementById("checkboxNovedadesServientrega")
+  const checkboxNovedadesCoordinadora = document.getElementById("checkboxNovedadesCoordinadora")
+  const checkboxNovedadesEnvia = document.getElementById("checkboxNovedadesEnvia")
+  let interArr = []
+  let serviArr = []
+  let enviaArr = []
+  let cordiArr = []
+  let arrayFiltrado = []
+
   JSONData.forEach((data) => {
     // if(data.seguimiento_finalizado == false)
 
     const dataMovimientos =
       data.data.movimientos[data.data.movimientos.length - 1];
-      console.log(dataMovimientos)
+      console.log(data)
     const extraData = data.extraData;
+
     
     if (extraData.transportadora == "INTERRAPIDISIMO" ){
       let dataFinal = {
@@ -1905,7 +2056,7 @@ function descargarExcelNovedades() {
         idHeka: extraData.id_heka,
         numeroGuia: extraData.numeroGuia,
         solicitud:
-          extraData.seguimiento[extraData.seguimiento.length - 1].gestion,
+          extraData.seguimiento?extraData.seguimiento[extraData.seguimiento.length - 1].gestion:"",
         transportadora: extraData.transportadora,
         nombreMov: dataMovimientos["Descripcion Estado"],
         mensajeMov: dataMovimientos["Motivo"],
@@ -1919,7 +2070,7 @@ function descargarExcelNovedades() {
         idHeka: extraData.id_heka,
         numeroGuia: extraData.numeroGuia,
         solicitud:
-          extraData.seguimiento[extraData.seguimiento.length - 1].gestion,
+          extraData.seguimiento?extraData.seguimiento[extraData.seguimiento.length - 1].gestion:"",
         transportadora: extraData.transportadora,
         nombreMov: dataMovimientos.NomMov,
         mensajeMov: dataMovimientos.NomConc,
@@ -1933,7 +2084,7 @@ function descargarExcelNovedades() {
         idHeka: extraData.id_heka,
         numeroGuia: extraData.numeroGuia,
         solicitud:
-          extraData.seguimiento[extraData.seguimiento.length - 1].gestion,
+        extraData.seguimiento?extraData.seguimiento[extraData.seguimiento.length - 1].gestion:"",
         transportadora: extraData.transportadora,
         nombreMov: dataMovimientos.novedad,
         mensajeMov: dataMovimientos.aclaracion,
@@ -1947,7 +2098,7 @@ function descargarExcelNovedades() {
         idHeka: extraData.id_heka,
         numeroGuia: extraData.numeroGuia,
         solicitud:
-          extraData.seguimiento[extraData.seguimiento.length - 1].gestion,
+        extraData.seguimiento?extraData.seguimiento[extraData.seguimiento.length - 1].gestion:"",
         transportadora: extraData.transportadora,
         nombreMov: dataMovimientos.descripcion,
         mensajeMov: dataMovimientos.codigo_novedad,
@@ -2035,7 +2186,35 @@ function descargarExcelNovedades() {
     });
     return d;
   });
-  crearExcel(newDoc, "Excel Novedades");
+  const hoy = new Date(Date.now());
+  const fecha_archivo = (hoy.toLocaleDateString()+" "+hoy.getHours()+"-"+hoy.getMinutes())
+  crearExcel(newDoc, ("Excel Novedades Logistica "+fecha_archivo));
+
+}
+
+function descargarExcelNovedades() {
+  // const checkboxNovedadesLogistica = document.getElementById("checkboxNovedadesLogistica")
+  // const checkboxNovedadesCallcenter = document.getElementById("checkboxNovedadesCallcenter")
+   
+  let JSONData = novedadesExcelData;
+  if (!novedadesExcelData.length) {
+    return Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: "No hay datos que descargar!",
+    });
+  }
+  informeNovedadesLogistica(JSONData)
+  // if(checkboxNovedadesLogistica.checked) {informeNovedadesLogistica(JSONData)}
+  // else if(checkboxNovedadesCallcenter.checked){informeNovedadesCallcenter(JSONData)}
+  // else return Swal.fire({
+  //   icon: "error",
+  //   title: "Oops...",
+  //   text: "No hay datos que descargar!",
+  // });
+
+  
+  
 }
 
 function descargarExcelInter(JSONData, ReportTitle, type) {
@@ -2129,7 +2308,7 @@ function descargarExcelInter(JSONData, ReportTitle, type) {
 }
 
 function crearExcel(newDoc, nombre) {
-  console.log(newDoc);
+  console.log(nombre);
 
   let ws = XLSX.utils.json_to_sheet(newDoc);
 
@@ -2137,7 +2316,7 @@ function crearExcel(newDoc, nombre) {
   console.log(wb);
   XLSX.utils.book_append_sheet(wb, ws, "1");
 
-  XLSX.writeFile(wb, nombre.replace(/ /g, "_") + ".xlsx");
+  XLSX.writeFile(wb, nombre + ".xlsx");
 }
 
 function descargarInformeGuias(JSONData, ReportTitle) {

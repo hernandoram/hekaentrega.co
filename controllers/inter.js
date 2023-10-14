@@ -171,11 +171,13 @@ const actualizarMovimientos = async function(doc) {
     const respuesta = await requestP.get(urlEstados + doc.data().numeroGuia)
     .then(res => JSON.parse(res))
     .catch(err => {
-        console.log(err.body);
-        return 0
+        return {
+            error:true,
+            message: err.body
+        }
     });
 
-    if(!respuesta || !respuesta.length) {
+    if(respuesta.error || !respuesta.length) {
         const finalizar_seguimiento = doc.data().prueba ? true : false;
         if(finalizar_seguimiento) {
             await extsFunc.actualizarEstado(doc, {
@@ -187,8 +189,9 @@ const actualizarMovimientos = async function(doc) {
         
         return [{
             estado: "Error",
-            guia: doc.id + " / " + doc.data().numeroGuia + " Hubo un error desconocido."
-        }]
+            guia: doc.id + " / " + doc.data().numeroGuia + " Hubo un error desconocido.",
+            causa: respuesta.message || "Error desconocido INTERRAPIDISMO"
+        }];
     }
 
     const guia = doc.data();

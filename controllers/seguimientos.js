@@ -145,6 +145,7 @@ async function actualizarMovimientosGuias(querySnapshot) {
         guias_sin_mov: 0,
         guias_con_errores: 0,
         usuarios: [],
+        causas_error: [],
         total_consulta: querySnapshot.size,
         servientrega: 0,
         interrapidisimo: 0,
@@ -161,6 +162,7 @@ async function actualizarMovimientosGuias(querySnapshot) {
 
         let acumuladosCoord = [];
         const MAX_COORD = 50;
+        // throw "no babe"
         // throw "no babe"
 
         //Objeto que se va llenando paral luego mostrarme los detalles del proceso
@@ -221,6 +223,10 @@ async function actualizarMovimientosGuias(querySnapshot) {
                 if(guia) resultado_guias.push(guia);
             }
 
+            if(!noHasidoEntregadaAPunto) {
+                resultado_guias.push(new Promise((r) => r([{causa: "No se puede actualizar una guía que ha sido entregada al punto."}])));
+            }
+
             faltantes--;
         }
 
@@ -234,14 +240,17 @@ async function actualizarMovimientosGuias(querySnapshot) {
         console.log("Finalizó la ejecución de procesos");
         for(let guia of guias_procesadas) {
             if(guia.length == 1) {
-                consulta.guias_con_errores ++
+                consulta.guias_con_errores ++;
+                if(guia[0].causa) consulta.causas_error.push(guia[0].causa);
             } else {
                 let modo_estado = guia[0], modo_movimientos = guia[1];
                 if(modo_estado.estado == "Est.A") {
                     consulta.guias_est_actualizado++
                 } else if (modo_estado.estado == "Est.M") {
-                    consulta.guias_est_actualizado += modo_estado.actualizadas
-                    consulta.guias_con_errores += modo_estado.errores
+                    consulta.guias_est_actualizado += modo_estado.actualizadas;
+                    consulta.guias_con_errores += modo_estado.errores;
+
+                    if(modo_estado.causas && modo_estado.causas.length) consulta.causas_error = consulta.causas_error.concat(modo_estado.causas);
                 }
         
                 if(modo_movimientos.estado == "Mov.A") {
@@ -308,6 +317,19 @@ function normalizarReporte(reporte) {
         b.usuarios.forEach(user => {
             if(!usuarios.includes(user)) usuarios.push(user);
         });
+        
+        const causas_error = a.causas_error;  
+        b.causas_error.forEach(c => {
+            if(!c) return;
+
+            const idx = causas_error.indexOf(c);
+            if(idx === -1) {
+                const nLenth = causas_error.push(c);
+                a.cantidad_por_causa[nLenth - 1] = 1;
+            } else {
+                a.cantidad_por_causa[idx]++;
+            }
+        });
 
         a.tiempo_segmentado_ejecucion.push(b.tiempo_ejecucion);
  
@@ -320,7 +342,9 @@ function normalizarReporte(reporte) {
     }, {
         usuarios: [],
         fecha: new Date(),
-        tiempo_segmentado_ejecucion: []
+        tiempo_segmentado_ejecucion: [],
+        causas_error: [],
+        cantidad_por_causa: []
     });
 }
 
@@ -345,7 +369,7 @@ async function actualizarMovimientosSemanales() {
     return normalizarReporte(historia);
 }
 
-// actualizarMovimientosPorComparador("numeroGuia", 'in', ["034044534103"].map(v => v.toString()))
+// actualizarMovimientosPorComparador("numeroGuia", 'in', [240006199566, 240006256718, 240006311756, 240006325071].map(v => v.toString()))
 // .then(resultado => {
 //     console.log(resultado);
 //     process.exit();

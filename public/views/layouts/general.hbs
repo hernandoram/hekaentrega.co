@@ -203,7 +203,7 @@
       <!-- Left Sidebar End -->
 
       <div class="content-page mx-0 p-0">
-          <div class="container-fluid" style="max-width: 800px;">
+          <div class="container-fluid pt-3" style="max-width: 800px; min-height: 80vh">
             <div class="card-box shadow mt-2 mt-md-3">
             {{{body}}}
             </div>
@@ -223,6 +223,54 @@
     
     <!-- Vendor js -->
     <script src="/assets/js/vendor.min.js"></script>
+
+    {{!-- <script src="/public/plantilla/js/hostNameReader.js" type="module"></script> --}}
+    <script>
+        const dominiosFlexii = ["flexii.co", "www.flexi.co","localhost:6200"];
+const brands = {
+  heka: {
+    nombre: "HEKA",
+    cod: "H001",
+    nombre_completo: "Heka Entrega",
+    cel_area_comercial:"+57 312 463 8608",
+    correo:" atencion@hekaentrega.co",
+    hosts: ["hekaentrega.co"],
+    index:"../index.html"
+  },
+  flexii: {
+    nombre: "FLEXII",
+    cod: "H001",
+    nombre_completo: "Flexii",
+    cel_area_comercial:"+57 312 463 8608",
+    correo:" atencion@flexii.co",
+    hosts: ["flexii.co"],
+    index: "../index-flexii-2.html"
+  }
+}
+hostnameReader()
+function hostnameReader(){
+  const hostname = window.location.host
+  const element = $(".copyrightWord")
+  const indexLink = $(".indexLink")
+  const brandName = $("#brandName")
+  const correoAtencionCliente = $(".correo-atencion")
+  if(dominiosFlexii.includes(hostname)) {
+    element.text(brands.flexii.nombre_completo) 
+    indexLink.attr("href", brands.flexii.index)
+    brandName.text(brands.flexii.nombre) 
+    correoAtencionCliente.text(brands.flexii.correo)
+    correoAtencionCliente.attr("href","mailto:"+brands.flexii.correo)
+  }else{
+    element.text(brands.heka.nombre_completo) 
+    indexLink.attr("href", brands.heka.index)
+    brandName.text(brands.heka.nombre) 
+    correoAtencionCliente.text(brands.heka.correo)
+    correoAtencionCliente.attr("href","mailto:"+brands.heka.correo)
+  }
+
+}
+    </script>
+
 
     <!-- App js -->
     <script src="/assets/js/app.min.js"></script>

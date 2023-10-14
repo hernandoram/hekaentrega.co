@@ -163,8 +163,9 @@ exports.actualizarMovimientos = async (doc) => {
     
             return [{
                 estado: "Error",
-                guia: doc.id + " / " + doc.data().numeroGuia + " " + respuesta.message
-            }]
+                guia: doc.id + " / " + doc.data().numeroGuia + " " + respuesta.message,
+                causa: respuesta.message || "Error desconocido ENVIA"
+            }];
         }
         
         const estados_finalizacion = ["ENTREGADA DIGITALIZADA", "DEVOLUCION"];
@@ -229,7 +230,8 @@ exports.actualizarMovimientos = async (doc) => {
         console.log(error);
         return [{
             estado: "Error",
-            guia: doc.id + " / " + doc.data().numeroGuia + " " + error.message
+            guia: doc.id + " / " + doc.data().numeroGuia + " " + error.message,
+            causa: error.message || "Error desconocido ENVIA"
         }]
     }
    

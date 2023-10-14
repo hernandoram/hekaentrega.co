@@ -554,10 +554,11 @@ async function actualizarMovimientos(doc) {
       let respuesta = await new Promise((resolve, reject) => {
         parseString(body, async (error, result) => {
           if (error)
-            return {
+            return [{
               estado: "Est.N.A", //Estado no actualizado
               guia: doc.id + " / " + doc.data().numeroGuia,
-            };
+              causa: error.message || "Error desconocido SERVIENTREGA"
+            }];
           try {
             // let path = doc.ref.path.split("/");
             let data = result.InformacionGuiaMov;
@@ -689,6 +690,7 @@ async function actualizarMovimientos(doc) {
         {
           estado: "error",
           guia: doc.id + " / " + doc.data().numeroGuia + err.message,
+          causa: err.message || "Error desconocido SERVIENTREGA"
         },
       ];
     });

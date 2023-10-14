@@ -11,7 +11,7 @@
   <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
 
 
-  <title>hekaentrega.co</title>
+  <title id="pageTitle"></title>
 
   <!--autocompeltar-->
   <script type="text/javascript" src="https://www.aveonline.co/app/incluidos/jquery-1.9.1.min.js"></script>
@@ -1389,9 +1389,58 @@
                       <button type="button" id="btn-revisar-novedades"
                        class="btn btn-primary mt-4">Revisar Movimientos</button>
                     </div>
-                    <div class="d-flex pt-5 mx-5">
-                      <button class="btn btn-outline-danger w-25 mr-5" type="button" id="descargarExcelNovedades">Descargar Excel</button>
-                      <div class="input-group w-50" id="formExcelNovedades">
+                    <div class="d-flex pt-5 mx-5 ">
+                      <div class="flex-column mr-5" style="width: 35%;">
+                        <button class="btn btn-outline-danger w-100 mr-2" type="button" id="descargarExcelNovedades">Descargar Excel</button>
+                        <hr/>
+                        <div class="d-flex">
+                          <!-- <div class="col ml-2 pl-3" >
+                            <div class="form-check px-2 ">
+                              <p class="pl-5">Tipo:</p>
+                              <input class="form-check-input" type="checkbox" value="LOGISTICA" id="checkboxNovedadesLogistica" checked onclick="document.getElementById('checkboxNovedadesCallcenter').checked = false">
+                              <label class="form-check-label" for="defaultCheck1">
+                                LOGISTICA
+                              </label>
+                            </div>
+                            <div class="form-check px-2  ">
+                              <input class="form-check-input" type="checkbox" value="CALLCENTER" id="checkboxNovedadesCallcenter" onclick="document.getElementById('checkboxNovedadesLogistica').checked = false">
+                              <label class="form-check-label" for="defaultCheck1">
+                                CALLCENTER
+                              </label>
+                            </div>
+                          </div> -->
+                          <div class="col ml-2 pl-3" >
+                            <div class="form-check px-2 ">
+                              <p class="pl-5">Filtros:</p>
+                              <input class="form-check-input" type="checkbox" value="INTERRAPIDISIMO" id="checkboxNovedadesInter" checked>
+                              <label class="form-check-label" for="defaultCheck1">
+                                INTERRAPIDISIMO
+                              </label>
+                            </div>
+                            <div class="form-check px-2  ">
+                              <input class="form-check-input" type="checkbox" value="SERVIENTREGA" id="checkboxNovedadesServientrega" checked>
+                              <label class="form-check-label" for="defaultCheck1">
+                                SERVIENTREGA
+                              </label>
+                            </div>
+                            <div class="form-check px-2 ">
+                              <input class="form-check-input" type="checkbox" value="COORDINADORA" id="checkboxNovedadesCoordinadora" checked>
+                              <label class="form-check-label" for="defaultCheck1">
+                                COORDINADORA
+                              </label>
+                            </div>
+                            <div class="form-check px-2  ">
+                              <input class="form-check-input" type="checkbox" value="ENVIA" id="checkboxNovedadesEnvia" checked>
+                              <label class="form-check-label" for="defaultCheck1">
+                                ENVIA
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+      
+                      </div>
+                      
+                      <div class="input-group w-50 h-25" id="formExcelNovedades">
                         <div class="custom-file">
                           <input type="file" class="custom-file-input w-50" id="excelDocSoluciones" name="documento">
                           <label id="excelDocSolucionesLabel" class="custom-file-label" for="excelDocSoluciones" data-browse="Buscar">Seleccionar Archivo</label>
@@ -1404,32 +1453,7 @@
                   
                   </div>
                 </form>
-                <div class="col ml-5 pl-3 w-25" >
-                  <div class="form-check px-2 ">
-                    <input class="form-check-input" type="checkbox" value="INTERRAPIDISIMO" id="checkboxNovedadesInter" checked>
-                    <label class="form-check-label" for="defaultCheck1">
-                      INTERRAPIDISIMO
-                    </label>
-                  </div>
-                  <div class="form-check px-2  ">
-                    <input class="form-check-input" type="checkbox" value="SERVIENTREGA" id="checkboxNovedadesServientrega" checked>
-                    <label class="form-check-label" for="defaultCheck1">
-                      SERVIENTREGA
-                    </label>
-                  </div>
-                  <div class="form-check px-2 ">
-                    <input class="form-check-input" type="checkbox" value="COORDINADORA" id="checkboxNovedadesCoordinadora" checked>
-                    <label class="form-check-label" for="defaultCheck1">
-                      COORDINADORA
-                    </label>
-                  </div>
-                  <div class="form-check px-2  ">
-                    <input class="form-check-input" type="checkbox" value="ENVIA" id="checkboxNovedadesEnvia" checked>
-                    <label class="form-check-label" for="defaultCheck1">
-                      ENVIA
-                    </label>
-                  </div>
-                </div>
+                
                 
                 
               </div>
@@ -1946,6 +1970,9 @@
 
 
 <div class="form-group col-3">
+
+
+<div class="form-group col-3">
   <label for="imageUrl-centro_notificaciones">Seleccione imágen</label>
   <select class="custom-select" id="imageUrl-centro_notificaciones" name="imageUrl">
   </select>
@@ -2221,6 +2248,7 @@
     <script src="js/usuarios.js"></script>
     <script src="js/manejadorGuias.js"></script>
     <script src="js/adminPlatform.js" type="module"></script>
+    <script src="js/hostNameReader.js"></script>
 
   </body>
   

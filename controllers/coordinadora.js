@@ -284,6 +284,7 @@ exports.actualizarMovimientos = async (docs) => {
             estado: "Est.M",
             actualizadas: 0,
             errores: 0,
+            causas: []
         }, {
             estado: "Mov.M",
             actualizadas: 0,
@@ -299,7 +300,10 @@ exports.actualizarMovimientos = async (docs) => {
 
             if(est) resultadoActualizacion[0].actualizadas++;
             if(mov) resultadoActualizacion[1].actualizadas++;
-            if(error) resultadoActualizacion[0].errores++;
+            if(error) {
+                resultadoActualizacion[0].errores++;
+                resultadoActualizacion[0].causas.push(error);
+            }
 
         }
 
@@ -309,7 +313,8 @@ exports.actualizarMovimientos = async (docs) => {
         console.log(error);
         return [{
             estado: "Error",
-            guia: "Segmento de guías: " + error.message
+            guia: "Segmento de guías: " + error.message,
+            causa: error.message || "Error desconocido COORDINADORA"
         }]
     }
    
@@ -381,6 +386,6 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
         return [updte_estados.estado === "Est.A", updte_movs.estado === "Mov.A"];
     } catch (e) {
         console.log(e.message);
-        return [null, null, true];
+        return [null, null, e.message];
     }
 }

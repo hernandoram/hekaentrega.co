@@ -148,6 +148,7 @@ function cambioNotificacion(e) {
   }
 }
 
+
 function seleccionarImagen() {
   const val = slectImagenes.val();
   renderizarImagen();
@@ -168,11 +169,17 @@ async function cargarNuevaImagen(e) {
   listarImagenes();
 }
 
+
+
+
+
+
 async function generarNotificacion(e) {
   e.preventDefault();
 
   console.log(e.target);
   const formData = new FormData(e.target);
+
 
   const notificacion = {
     icon: ["info", "warning"],
@@ -324,7 +331,7 @@ function crearCheckboxes(arreglo) {
     paginaActual--;
     mostrarPagina(paginaActual);
 
-    //jose
+
   });
 
   botonesInputUserNotiAll[1].addEventListener("click", (e) => {
