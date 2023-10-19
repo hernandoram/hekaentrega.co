@@ -250,10 +250,11 @@ function modalInicial2() {
 
 function cambiarTema() {
   // Obtiene el elemento :root del documento
+  console.log("hola")
   var root = document.documentElement;
 
   // Cambia el valor de la variable --primary
-  root.style.setProperty("--primary", "purple");
+  root.style.setProperty("--primary", "red");
 
   let navvar = document.getElementById("accordionSidebar");
   let buttons = document.querySelectorAll(".btn-primary");
@@ -280,7 +281,7 @@ function cambiarTema() {
 }
 
   
-if(window.location.href.includes("flexii.co")){
+if(window.location.href.includes("flexii.co","localhost:6200")){
     cambiarTema()
 }  
 
