@@ -146,7 +146,7 @@ function tablaDeGuias(id, datos) {
                 id="generar_rotulo${id}" title="Generar Rótulo">
                     <i class="fas fa-ticket-alt"></i>
                 </button>
-                
+
                 ${
                   datos.numeroGuia
                     ? `<button class="btn btn-primary btn-circle btn-sm mt-2" data-id="${id}"
