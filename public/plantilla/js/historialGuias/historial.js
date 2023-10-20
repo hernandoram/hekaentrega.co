@@ -508,7 +508,7 @@ function agregarFuncionalidadesTablaPedidos() {
   //     this[0].setAttribute("data-table_initialized", true);
   // }
 
-  $("tbody", this).on("click", "tr", function (e) {
+  $(" tbody", this).on("click", "tr", function (e) {
     console.log(
       !e.target.classList.contains("action"),
       e.target.tagName !== "I"
@@ -754,11 +754,12 @@ function accionesDeFila(datos, type, row) {
             <i class="fas fa-ticket-alt"></i>
         </button>`;
 
+        //jose
       const btnGuiaFlexii= `<button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
       data-funcion="activar-desactivar" data-activate="after" 
       data-placement="right"
-      id="generar_rotulo${id}" title="Generar Guía Flexii">
-          <i class="fas fa-ticket-alt"></i>
+      id="generar_guiaflexii${id}" title="Generar Guía Flexii">
+          <i class="fas fa-f"></i>
       </button>`;
 
     const btnClone = `<button class="btn btn-success btn-circle btn-sm mx-1 action ${showCloneAndDelete}" data-id="${id}" 

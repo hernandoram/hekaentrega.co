@@ -147,6 +147,13 @@ async function historialGuiasAntiguo() {
                         <i class="fas fa-ticket-alt"></i>
                     </button>`;
 
+            const btnGuiaFlexii = `<button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
+                    data-funcion="activar-desactivar" data-activate="after" 
+                    data-placement="right"
+                    id="generar_guiaflexii${id}" title="Generar Guía Flexii">
+                        <i class="fas fa-f"></i>
+                    </button>`;
+
             const btnClone = `<button class="btn btn-success btn-circle btn-sm action mt-1 ${showCloneAndDelete}" data-id="${id}" 
                     id="clonar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
                     title="Clonar Guía">
@@ -185,7 +192,7 @@ async function historialGuiasAntiguo() {
             //Botones para descargar documentosy rótulos cuando accede a la condición
             //botones para clonar y eliminar guía cuando rechaza la condición.
             if (datos.enviado) {
-              buttons += btnDownloadDocs + btnRotulo;
+              buttons += btnDownloadDocs + btnRotulo + btnGuiaFlexii;
             }
 
             if (!datos.estado) buttons += btnClone;
@@ -4670,6 +4677,127 @@ async function generarRotulo(id_guias) {
         </td>`;
 
     tr.innerHTML = imgs + infoRem + infoDest;
+    tbody.appendChild(tr);
+  }
+  table.appendChild(tbody);
+  div.appendChild(table);
+
+  var element = div;
+  var opt = {
+    margin: 0,
+    filename: "myfile.pdf",
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: { scale: 2 },
+    pagebreak: { mode: "avoid-all" },
+    // jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+
+  // New Promise-based usage:
+  // html2pdf().set(opt).from(element).save();
+
+  w = window.open();
+  w.document.write(`<html><head>
+        <meta charset="utf-8">
+
+        <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
+
+        <link href="css/sb-admin-2.min.css" rel="stylesheet">
+        
+        <title>Rótulo Heka</title>
+    </head><body>`);
+  w.document.write(div.innerHTML);
+  w.document.write("</body></html>");
+  // w.document.close();
+  w.focus();
+  setTimeout(() => {
+    w.print();
+    // w.close();
+  }, 500);
+}
+
+async function generarGuiaFlexii(id_guias) {
+  let div = document.createElement("div");
+  let table = document.createElement("table");
+  let tbody = document.createElement("tbody");
+  let guias = new Array();
+  for (let id of id_guias) {
+    let x = usuarioDoc
+      .collection("guias")
+      .doc(id)
+      .get()
+      .then((d) => d.data());
+    guias.push(x);
+  }
+
+  let data_guias = await Promise.all(guias);
+  console.log(data_guias);
+
+  table.setAttribute("class", "table");
+  for (let data of data_guias) {
+    let tr = document.createElement("tr");
+    tr.classList.add("border-bottom-secondary");
+
+    let src_logo_transp = "img/logoServi.png";
+    let logo = "img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg";
+
+    if (data.oficina) {
+      logo = "img/logo-flexi.png";
+    }
+
+    if (data.transportadora === "INTERRAPIDISIMO") {
+      src_logo_transp = "img/logo-inter.png";
+    } else if (data.transportadora === "ENVIA") {
+      src_logo_transp = "img/2001.png";
+    } else if (data.transportadora === "TCC") {
+      src_logo_transp = "img/logo-tcc.png";
+    } else if (data.transportadora === "COORDINADORA") {
+      src_logo_transp = "img/logo-coord.png";
+    }
+
+    const celularD =
+      data.celularD != data.telefonoD
+        ? data.celularD + " - " + data.telefonoD
+        : data.telefonoD;
+
+    const nombres = data.oficina
+      ? data.datos_oficina.nombre_completo
+      : data.nombreD;
+    const direccion = data.oficina
+      ? data.datos_oficina.direccion
+      : data.direccionD;
+    const ciudad = data.oficina
+      ? data.datos_oficina.ciudad
+      : `${data.ciudadD}(${data.departamentoD})`;
+    const celular = data.oficina ? data.datos_oficina.celular : celularD;
+
+    let imgs = `<td><div class="align-items-center d-flex flex-column">
+            <img src="${logo}" width="100px">
+            <img src="${src_logo_transp}" width="100px">
+        </div></td>`;
+    let infoRem = `<td>
+        <h2>Datos Del Remitente</h2>
+            <h5 class="text-dark">ID: <strong>${data.id_heka}</strong></h5>
+            <h5 class="text-dark">Nombre: <strong>${data.nombreR}</strong></h5>
+            <h5 class="text-dark">Dirección: <strong>${data.direccionR}</strong></h5>
+            <h5 class="text-dark">Ciudad:  <strong>${data.ciudadR}(${data.departamentoR})</strong>  </h5>
+            <h5 class="text-dark">Celular:  <strong>${data.celularR}</strong></h5>          
+            <h5 class="text-dark">Contenido:  <strong>${data.dice_contener}</strong></h5>          
+        </td>`;
+
+    let infoDest = `<td>
+            <h2>Datos Del Destinatario</h2>
+            <h5 class="text-dark">Número de Guía: <strong>${data.numeroGuia}</strong></h5>
+            <h5 class="text-dark">Nombre: <strong>${nombres}</strong></h5>
+            <h5 class="text-dark">Dirección: <strong>${direccion}</strong></h5>
+            <h5 class="text-dark">Ciudad:  <strong>${ciudad}</strong>  </h5>
+            <h5 class="text-dark">Celular:  <strong>${celular}</strong></h5>
+            <h5 class="text-dark">Valor asegurado:  <strong>${data.seguro}</strong></h5>
+        </td>`;
+
+
+   let text = `<p> El usuario deja constancia expresa de que acepta y tiene conocimiento del contrato publicado en la pagina web Flexii ,como remitente declara que este envío no contiene dinero en efectivo, joyas, objetos o fines prohibidos por la ley, y exime a Flexii y la transportadora asignada de toda responsabilidad. </p>`;
+        
+    tr.innerHTML += text + imgs + infoRem + infoDest;
     tbody.appendChild(tr);
   }
   table.appendChild(tbody);
