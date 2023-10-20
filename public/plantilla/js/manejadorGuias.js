@@ -4729,6 +4729,7 @@ async function generarGuiaFlexii(id_guias) {
     guias.push(x);
   }
 
+
   let data_guias = await Promise.all(guias);
   console.log(data_guias);
 
@@ -4795,11 +4796,69 @@ async function generarGuiaFlexii(id_guias) {
         </td>`;
 
 
-   let text = `<p> El usuario deja constancia expresa de que acepta y tiene conocimiento del contrato publicado en la pagina web Flexii ,como remitente declara que este envío no contiene dinero en efectivo, joyas, objetos o fines prohibidos por la ley, y exime a Flexii y la transportadora asignada de toda responsabilidad. </p>`;
+   let header = `
+   <div>
+   <table class="table table-bordered">
+   <thead>
+   <tr>
+   <th scope="col">#</th>
+   <th scope="col">Flexii</th>
+   <th scope="col">RECIBE: </th>
+   <th scope="col">Fecha:</th>
+   <th scope="col">Guia:</th>
+   <th scope="col">Transportadora:</th>
+   </tr>
+   </thead>
+   </table>
+   <p> El usuario deja constancia expresa de que acepta y tiene conocimiento del contrato publicado en la pagina web Flexii ,como remitente declara que este envío no contiene dinero en efectivo, joyas, objetos o fines prohibidos por la ley, y exime a Flexii y la transportadora asignada de toda responsabilidad. </p>
+   </div>   
+   `;
+   
+   let body = `
+   
+   <table class="table table-bordered">
+
+  <tbody>
+      <td >
+        DATOS REMITENTE  <br/>
+        Remitente: ${data.id_heka} <br/>
+        Origen: ${data.ciudadR} <br/>
+        Cel/Tel: ${data.celularR}</td>
         
-    tr.innerHTML += text + imgs + infoRem + infoDest;
+      <td>DATOS DESTINO <br/>
+        Destinatario: ${nombres}<br/>
+        Destino: ${ciudad} <br/>
+        Dirección: ${direccion} <br/>
+        Cel/Tel: ${celular}</td>
+      <th >Firma de quien recibe:</th>
+      
+    </tr>
+    <tr>
+      <th >Escanea el qr</th>
+      <td>
+          Peso real: <br/>
+          Contenido: <br/>
+          Costo envío: <br/>
+      </td>
+      
+            <th >Valor cobro destino</th>
+
+    </tr>
+
+ 
+  </tbody>
+</table>
+   
+   `;
+   
+      
+   
+    tr.innerHTML += imgs + infoRem + infoDest;
+    div.innerHTML += header + body;
     tbody.appendChild(tr);
   }
+
+
   table.appendChild(tbody);
   div.appendChild(table);
 
