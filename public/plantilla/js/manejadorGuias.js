@@ -4730,6 +4730,9 @@ async function generarGuiaFlexii(id_guias) {
   }
 
 
+
+
+
   let data_guias = await Promise.all(guias);
   console.log(data_guias);
 
@@ -4822,19 +4825,22 @@ async function generarGuiaFlexii(id_guias) {
       <td >
         DATOS REMITENTE  <br/>
         Remitente: ${data.id_heka} <br/>
-        Origen: ${data.ciudadR} <br/>
+        Nombre: ${data.nombreR} <br/>
+        Ciudad: ${data.ciudadR} <br/>
+        Dirección: ${data.direccionR} <br/>
         Cel/Tel: ${data.celularR}</td>
         
       <td>DATOS DESTINO <br/>
-        Destinatario: ${nombres}<br/>
-        Destino: ${ciudad} <br/>
+        Nombre: ${nombres}<br/>
+        Ciudad: ${ciudad} <br/>
         Dirección: ${direccion} <br/>
         Cel/Tel: ${celular}</td>
       <th >Firma de quien recibe:</th>
       
-    </tr>
-    <tr>
+      </tr>
+      <tr>
       <th >Escanea el qr</th>
+
       <td>
           Peso real: <br/>
           Contenido: <br/>
@@ -4850,13 +4856,11 @@ async function generarGuiaFlexii(id_guias) {
 </table>
    
    `;
-   
-      
-   
     tr.innerHTML += imgs + infoRem + infoDest;
     div.innerHTML += header + body;
     tbody.appendChild(tr);
   }
+
 
 
   table.appendChild(tbody);
@@ -4884,16 +4888,31 @@ async function generarGuiaFlexii(id_guias) {
         <link href="css/sb-admin-2.min.css" rel="stylesheet">
         
         <title>Rótulo Heka</title>
-    </head><body>`);
+
+        <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+
+    </head><body>
+
+
+
+    `);
   w.document.write(div.innerHTML);
-  w.document.write("</body></html>");
+  w.document.write(`
+  <div id="qrcode"></div>
+  <script type="text/javascript">
+  new QRCode(document.getElementById("qrcode"), "https://webisora.com");
+  </script>
+  </body></html>` );
   // w.document.close();
   w.focus();
   setTimeout(() => {
     w.print();
     // w.close();
   }, 500);
+  new QRCode(document.getElementById("qrcode"), "https://webisora.com");
 }
+
+
 
 async function imprimirRotuloPunto(id_heka) {
   fetch("procesos/rotuloPunto/" + id_heka)
