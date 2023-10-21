@@ -3,7 +3,7 @@ export const defFiltrado = estadosGuia;
 export const filters = [
     {
         name: "Pedidos",
-        description: "Aquellas guías registradas en heka, pero no generadas aún con la transportadora.",
+        description: "Aquellas guías registradas en la plataforma, pero no generadas aún con la transportadora.",
         dataFilter: defFiltrado.pedido
     },
     {
@@ -25,7 +25,7 @@ export const filters = [
     },
     {
         name: "Pagadas",
-        description: "Pagos efectuados por heka en el rango filtrado.",
+        description: "Pagos efectuados en el rango filtrado.",
         dataFilter: defFiltrado.pagada
     },
     {
