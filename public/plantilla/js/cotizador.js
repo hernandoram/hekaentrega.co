@@ -1607,7 +1607,7 @@ function verificarAntesSeleccionarOficina(oficina, cotizacion) {
   //Le idea es utilizar la variable oficina, para obtener valores restrictivos particulares de cada oficina
 
   const maxKilos = 5,
-    maxRec = 300000;
+  maxRec = 1000000;
 
   console.log(datos_a_enviar);
   if (cotizacion.kgTomado > maxKilos) {
