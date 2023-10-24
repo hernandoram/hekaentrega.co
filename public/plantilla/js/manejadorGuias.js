@@ -4866,19 +4866,6 @@ async function generarGuiaFlexii(id_guias) {
   table.appendChild(tbody);
   div.appendChild(table);
 
-  var element = div;
-  var opt = {
-    margin: 0,
-    filename: "myfile.pdf",
-    image: { type: "jpeg", quality: 0.98 },
-    html2canvas: { scale: 2 },
-    pagebreak: { mode: "avoid-all" },
-    // jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-  };
-
-  // New Promise-based usage:
-  // html2pdf().set(opt).from(element).save();
-
   w = window.open();
   w.document.write(`<html><head>
         <meta charset="utf-8">
@@ -4900,7 +4887,7 @@ async function generarGuiaFlexii(id_guias) {
   w.document.write(`
   <div id="qrcode"></div>
   <script type="text/javascript">
-  new QRCode(document.getElementById("qrcode"), "https://webisora.com");
+  new QRCode(document.getElementById("qrcode"), "http://localhost:6200/consulta/guia?n=${id_guias}");
   </script>
   </body></html>` );
   // w.document.close();
@@ -4909,7 +4896,6 @@ async function generarGuiaFlexii(id_guias) {
     w.print();
     // w.close();
   }, 500);
-  new QRCode(document.getElementById("qrcode"), "https://webisora.com");
 }
 
 
