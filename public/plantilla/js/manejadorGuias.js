@@ -4720,6 +4720,8 @@ async function generarGuiaFlexii(id_guias) {
   let table = document.createElement("table");
   let tbody = document.createElement("tbody");
   let guias = new Array();
+  let urlMagica = "";
+
   for (let id of id_guias) {
     let x = usuarioDoc
       .collection("guias")
@@ -4729,6 +4731,42 @@ async function generarGuiaFlexii(id_guias) {
     guias.push(x);
   }
 
+  
+  let guiaImprimir = null;
+
+  firebase
+    .firestore()
+    .collection("documentos")
+    .where("guias", "array-contains", id_guias.toString())
+    .get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        guiaImprimir = { ...doc.data(), id: doc.id };
+        console.log(doc.id);
+        console.log(doc.data());
+      });
+    })
+    .then(() => {
+      let nombre_guias = "Guias " + guiaImprimir.guias.toString();
+
+      firebase
+        .storage()
+        .ref()
+        .child(
+          guiaImprimir.id_user +
+            "/" +
+            guiaImprimir.id +
+            "/" +
+            nombre_guias +
+            ".pdf"
+        )
+        .getDownloadURL()
+        .then((url) => {
+          console.log(url);
+
+          urlMagica = url;
+        });
+    });
 
 
 
@@ -4883,11 +4921,12 @@ async function generarGuiaFlexii(id_guias) {
 
 
     `);
+    console.log(urlMagica)
   w.document.write(div.innerHTML);
   w.document.write(`
   <div id="qrcode"></div>
   <script type="text/javascript">
-  new QRCode(document.getElementById("qrcode"), "http://localhost:6200/consulta/guia?n=${id_guias}");
+  new QRCode(document.getElementById("qrcode"), "${urlMagica}");
   </script>
   </body></html>` );
   // w.document.close();
