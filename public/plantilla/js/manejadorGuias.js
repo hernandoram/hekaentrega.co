@@ -4720,7 +4720,6 @@ async function generarGuiaFlexii(id_guias) {
   let table = document.createElement("table");
   let tbody = document.createElement("tbody");
   let guias = new Array();
-  let urlMagica = "";
 
   for (let id of id_guias) {
     let x = usuarioDoc
@@ -4745,29 +4744,7 @@ async function generarGuiaFlexii(id_guias) {
         console.log(doc.id);
         console.log(doc.data());
       });
-    })
-    .then(() => {
-      let nombre_guias = "Guias " + guiaImprimir.guias.toString();
-
-      firebase
-        .storage()
-        .ref()
-        .child(
-          guiaImprimir.id_user +
-            "/" +
-            guiaImprimir.id +
-            "/" +
-            nombre_guias +
-            ".pdf"
-        )
-        .getDownloadURL()
-        .then((url) => {
-          console.log(url);
-
-          urlMagica = url;
-        });
-    });
-
+    }).then(async()=>{
 
 
 
@@ -4816,26 +4793,6 @@ async function generarGuiaFlexii(id_guias) {
             <img src="${logo}" width="100px">
             <img src="${src_logo_transp}" width="100px">
         </div></td>`;
-    let infoRem = `<td>
-        <h2>Datos Del Remitente</h2>
-            <h5 class="text-dark">ID: <strong>${data.id_heka}</strong></h5>
-            <h5 class="text-dark">Nombre: <strong>${data.nombreR}</strong></h5>
-            <h5 class="text-dark">Dirección: <strong>${data.direccionR}</strong></h5>
-            <h5 class="text-dark">Ciudad:  <strong>${data.ciudadR}(${data.departamentoR})</strong>  </h5>
-            <h5 class="text-dark">Celular:  <strong>${data.celularR}</strong></h5>          
-            <h5 class="text-dark">Contenido:  <strong>${data.dice_contener}</strong></h5>          
-        </td>`;
-
-    let infoDest = `<td>
-            <h2>Datos Del Destinatario</h2>
-            <h5 class="text-dark">Número de Guía: <strong>${data.numeroGuia}</strong></h5>
-            <h5 class="text-dark">Nombre: <strong>${nombres}</strong></h5>
-            <h5 class="text-dark">Dirección: <strong>${direccion}</strong></h5>
-            <h5 class="text-dark">Ciudad:  <strong>${ciudad}</strong>  </h5>
-            <h5 class="text-dark">Celular:  <strong>${celular}</strong></h5>
-            <h5 class="text-dark">Valor asegurado:  <strong>${data.seguro}</strong></h5>
-        </td>`;
-
 
    let header = `
    <div>
@@ -4894,9 +4851,9 @@ async function generarGuiaFlexii(id_guias) {
 </table>
    
    `;
-    tr.innerHTML += imgs + infoRem + infoDest;
     div.innerHTML += header + body;
     tbody.appendChild(tr);
+
   }
 
 
@@ -4921,12 +4878,13 @@ async function generarGuiaFlexii(id_guias) {
 
 
     `);
-    console.log(urlMagica)
   w.document.write(div.innerHTML);
+    console.log(guiaImprimir)
+
   w.document.write(`
   <div id="qrcode"></div>
   <script type="text/javascript">
-  new QRCode(document.getElementById("qrcode"), "${urlMagica}");
+  new QRCode(document.getElementById("qrcode"), "${"https://wildchamo.me/"+ guiaImprimir.id}");
   </script>
   </body></html>` );
   // w.document.close();
@@ -4935,6 +4893,9 @@ async function generarGuiaFlexii(id_guias) {
     w.print();
     // w.close();
   }, 500);
+
+})
+
 }
 
 
