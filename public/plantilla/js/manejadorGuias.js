@@ -4805,7 +4805,7 @@ async function generarGuiaFlexii(id_guias) {
    <th scope="col">Flexii</th>
    <th scope="col">RECIBE: ${data.nombreD} </th>
    <th scope="col">Fecha: ${data.fecha}</th>
-   <th scope="col">Guia:</th>
+   <th scope="col">Guia:  ${data.id_heka}</th>
    <th scope="col">Transportadora: ${data.transportadora}</th>
    </tr>
    </thead>
@@ -4886,7 +4886,7 @@ async function generarGuiaFlexii(id_guias) {
   w.document.write(`
   <div id="qrcode"></div>
   <script type="text/javascript">
-  new QRCode(document.getElementById("qrcode"), "${"https://wildchamo.me/"+ guiaImprimir.id}");
+  new QRCode(document.getElementById("qrcode"), "${"https://wildchamo.me/"+ guiaImprimir.id_heka}");
   </script>
   </body></html>` );
   // w.document.close();
