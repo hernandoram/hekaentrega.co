@@ -4753,6 +4753,8 @@ async function generarGuiaFlexii(id_guias) {
 
   table.setAttribute("class", "table");
   for (let data of data_guias) {
+    guiaImprimir= data;
+    console.log(data)
     let tr = document.createElement("tr");
     tr.classList.add("border-bottom-secondary");
 
@@ -4801,10 +4803,10 @@ async function generarGuiaFlexii(id_guias) {
    <tr>
    <th scope="col">#</th>
    <th scope="col">Flexii</th>
-   <th scope="col">RECIBE: </th>
-   <th scope="col">Fecha:</th>
+   <th scope="col">RECIBE: ${data.nombreD} </th>
+   <th scope="col">Fecha: ${data.fecha}</th>
    <th scope="col">Guia:</th>
-   <th scope="col">Transportadora:</th>
+   <th scope="col">Transportadora: ${data.transportadora}</th>
    </tr>
    </thead>
    </table>
@@ -4837,12 +4839,12 @@ async function generarGuiaFlexii(id_guias) {
       <th >Escanea el qr</th>
 
       <td>
-          Peso real: <br/>
-          Contenido: <br/>
-          Costo envío: <br/>
+          Peso real: ${data.peso} kg<br/>
+          Contenido: ${data.dice_contener}<br/>
+          Costo envío: ${data.valor} <br/>
       </td>
       
-            <th >Valor cobro destino</th>
+            <th >Valor cobro destino: ${data.valor}</th>
 
     </tr>
 
