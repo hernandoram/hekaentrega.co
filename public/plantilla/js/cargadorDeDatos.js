@@ -1846,3 +1846,9 @@ function descargarExcelPagosAdmin(datos) {
 function cerrarSession() {
   localStorage.clear()
 }
+
+
+const inputFlexii= document.querySelector("#inputIDGuiaFlexii")
+
+
+inputFlexii.setAttribute("value","JOse") 
