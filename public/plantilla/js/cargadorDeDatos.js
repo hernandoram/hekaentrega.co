@@ -1850,5 +1850,11 @@ function cerrarSession() {
 
 const inputFlexii= document.querySelector("#inputIDGuiaFlexii")
 
+const urlParams = new URLSearchParams(window.location.search);
+const valorQuery = urlParams.get("idguia");
 
-inputFlexii.setAttribute("value","JOse") 
+
+if (valorQuery) {
+  
+  inputFlexii.setAttribute("value", valorQuery);
+}

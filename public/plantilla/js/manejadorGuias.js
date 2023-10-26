@@ -4885,8 +4885,9 @@ async function generarGuiaFlexii(id_guias) {
 
   w.document.write(`
   <div id="qrcode"></div>
+  http://localhost:6200/plataforma2.html?idguia=${guiaImprimir.id_heka}#flexii-guia
   <script type="text/javascript">
-  new QRCode(document.getElementById("qrcode"), "${"https://wildchamo.me/"+ guiaImprimir.id_heka}");
+  new QRCode(document.getElementById("qrcode"), "${`http://localhost:6200/plataforma2.html?idguia=${guiaImprimir.id_heka}#flexii-guia`}");
   </script>
   </body></html>` );
   // w.document.close();
