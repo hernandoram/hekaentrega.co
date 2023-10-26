@@ -1852,9 +1852,9 @@ const inputFlexii= document.querySelector("#inputIDGuiaFlexii")
 
 const urlParams = new URLSearchParams(window.location.search);
 const valorQuery = urlParams.get("idguia");
+const userquery = urlParams.get("id_user");
 
 
 if (valorQuery) {
-  
-  inputFlexii.setAttribute("value", valorQuery);
+    inputFlexii.setAttribute("value", valorQuery);
 }
