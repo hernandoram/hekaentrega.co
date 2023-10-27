@@ -38,6 +38,37 @@ exports.notificarGuiaOficina = async (options) => {
     db.collection("notificaciones").add(notificacion);
 }
 
+exports.estructuraBaseNotificacion = (options) => {
+    //Este es el patrón utilizado para el objeto que se ingresa en las notificaciones
+    let example_data = {
+        visible_admin: false,
+        visible_user: false,
+        visible_office: true,
+        icon: ["exclamation", "danger"],
+        detalles: "arrErroresUsuario", //mostrar una lista de posibles causas
+        user_id: "vinculo.id_user",
+        office_id: "identificador de una oficina",
+        mensaje: "Mensaje a mostrar en la notificación",
+        href: "id destino",
+        fecha: "dd/mm/aaaa",
+        timeline: "new Date().getTime()", // ej. 125645584895
+        id_heka: "id_heka"
+    }
+
+    let fecha = estandarizarFecha(null, "DD/MM/YYY - HH:MM", true);
+    
+    let notificacion = {
+        visible_office: true,
+        fecha,
+        timeline: new Date().getTime(),
+        mensaje: ""
+    };
+
+    Object.assign(notificacion, options);
+
+    return notificacion;
+}
+
 let novedadesMensajeria = [], usuariosExcepcion = [];
 exports.notificarNovedadEncontrada = async (guia, movimientos) => {
     let {novedadesNotificadas, transportadora} = guia;

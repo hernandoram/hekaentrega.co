@@ -50,9 +50,12 @@
         <div class="modal-content">
 
           <div class="modal-body">
-            <h3 class="text-primary text-center">Gestionar novedad</h3>
+            <h3 class="text-primary text-center modal-title">Gestionar novedad</h3>
             <form class="form-sol">
               {{#if guia.formularioNovedad}}
+              <input type="text" class="d-none" name="numeroGuia" value="{{guia.numeroGuia}}" />
+              <input type="text" class="d-none" name="fechaMovimiento" value="{{novedadActual.fechaMov}}" />
+              <h5 class="text-center">{{guia.tituloSolucion}}</h5>
               <div id="render_form-mensajeria" data-formulario="{{guia.formularioStr}}"></div>
               <button class="btn btn-primary btn-block" type="submit">Solucionar</button>
               <button type="button" class="btn btn-secondary btn-block" data-dismiss="modal">Cancelar</button>

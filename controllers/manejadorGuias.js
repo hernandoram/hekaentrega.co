@@ -6,6 +6,7 @@ const {
 } = require("../extends/manejadorMovimientosGuia");
 const { actualizarMovimientosPorComparador } = require("./seguimientos");
 const ciudades = require("../data/ciudades.js");
+const { estructuraBaseNotificacion } = require("../extends/notificaciones");
 const busqueda = ciudades;
 
 const _collEstadoGuia = "estadoGuias";
@@ -78,6 +79,7 @@ exports.consultarGuia = async (req, res) => {
     let novedadDireccion = false;
 
     let formularioNovedad;
+    let tituloSolucion;
     if (novedad) {
       const msjNovedad = novedadActual.novedad;
       const novedadLista = lista.find((l) => l.novedad === msjNovedad);
@@ -85,6 +87,10 @@ exports.consultarGuia = async (req, res) => {
       // console.log(novedadActual, novedadLista);
       if (novedadLista && novedadLista.formulario)
         formularioNovedad = formularios[novedadLista.formulario];
+
+      if(novedadLista) {
+        tituloSolucion = novedadLista.mensaje || msjNovedad;
+      }
 
       if (
         novedadActual.novedad.includes(
@@ -103,6 +109,7 @@ exports.consultarGuia = async (req, res) => {
       numeroGuia: movimientosEncontrado.numeroGuia,
       fechaEnvio: movimientosEncontrado.fechaEnvio,
       enNovedad: movimientosEncontrado.enNovedad,
+      tituloSolucion,
       novedadActual,
       formularioNovedad,
       ciudadDestino: ciudadOrigen.nombre,
@@ -110,8 +117,6 @@ exports.consultarGuia = async (req, res) => {
       formularioStr: JSON.stringify(formularioNovedad),
       novedadDireccion: novedadDireccion,
     };
-
-    console.log("hola" + guia.novedadActual.novedad);
 
     // res.json(movimientosEncontrado);
     res.render("guias/historicoGuia", {
@@ -141,15 +146,38 @@ exports.plantearSolucion = async (req, res) => {
     fechaMovimiento,
   };
 
-  doc.ref
-    .update({ seguimiento: firebase.firestore.FieldValue.arrayUnion(gest) })
-    .then(() => {
-      res.send("Información registrada correctamente");
-    })
-    .catch((e) => {
-      console.log(e);
-      res.status(400).send("Error registrando la información");
+  
+  
+  try {
+    const guia = doc.data();
+    let batch = db.batch();
+    batch.update(doc.ref, { seguimiento: firebase.firestore.FieldValue.arrayUnion(gest) });
+
+    const referenciaNotificacion = db.collection("notificaciones").doc();
+
+    const notificacion = estructuraBaseNotificacion({
+      mensaje: `Solución externa para la guía: ${numeroGuia}`,
+      guia: numeroGuia, // Esto es importante cuando se lee en el evento oclick de administrador
+      id_heka: guia.id_heka, // Esto es importante cuando se lee en el evento oclick de administrador
+      type: "novedad", // Para que redirecciones a los que son las novedades
+      seguimiento: guia.seguimiento || [], // Esto es importante cuando se lee en el evento oclick de administrador
+      usuario: guia.centro_de_costo,
+      visible_admin: true,
     });
+
+    batch.set(referenciaNotificacion, notificacion);
+    
+    await batch.commit();
+    res.json({
+      error: false,
+      message: "Información actualizada correctamente"
+    });
+  } catch (e) {
+    res.status(409).json({
+      error: true,
+      message: e.message
+    });
+  }
 };
 
 async function buscarGuia(numeroGuia, coll) {
