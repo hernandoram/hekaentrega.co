@@ -2194,6 +2194,7 @@ const userquery = urlParams.get("iduser");
 if (valorQuery) {
   inputFlexii.setAttribute("value", valorQuery);
 }
+let id_punto = localStorage.getItem("user_id");
 
 botonInputFlexii.onclick = function () {
   db.collection("usuarios")
@@ -2203,7 +2204,24 @@ botonInputFlexii.onclick = function () {
     .get()
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
-        console.log(doc.data())
+        console.log(doc.data());
+        if (doc.data().id_punto == id_punto) {
+          return Swal.fire({
+            icon: "success",
+            text: "Esta guía ya está registrada en tu punto",
+          });
+        }
+        if (doc.data().id_punto !== id_punto) {
+          return Swal.fire({
+            icon: "success",
+            text: "Esta guía ya está registrada en otro punto",
+          });
+        }
+        doc.ref.update({ id_punto: id_punto });
+        return Swal.fire({
+          icon: "success",
+          text: "Guía registrada con éxito",
+        });
       });
     });
 };
