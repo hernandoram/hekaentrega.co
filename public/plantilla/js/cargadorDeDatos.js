@@ -2198,30 +2198,44 @@ let id_punto = localStorage.getItem("user_id");
 
 botonInputFlexii.onclick = function () {
   db.collection("usuarios")
-    .doc(userquery)
-    .collection("guias")
-    .where("id_heka", "==", valorQuery)
+    .doc(id_punto)
     .get()
-    .then((querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-        console.log(doc.data());
-        if (doc.data().id_punto == id_punto) {
-          return Swal.fire({
-            icon: "success",
-            text: "Esta guía ya está registrada en tu punto",
+    .then((doc) => {
+      if (doc.data().type === "PUNTO") {
+        db.collection("usuarios")
+          .doc(userquery)
+          .collection("guias")
+          .where("id_heka", "==", valorQuery)
+          .get()
+          .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+              console.log(doc.data());
+              if (doc.data().id_punto == id_punto) {
+                return Swal.fire({
+                  icon: "success",
+                  text: "Esta guía ya está registrada en tu punto",
+                });
+              }
+              if (doc.data().id_punto !== id_punto) {
+                return Swal.fire({
+                  icon: "success",
+                  text: "Esta guía ya está registrada en otro punto",
+                });
+              }
+              doc.ref.update({ id_punto: id_punto });
+              return Swal.fire({
+                icon: "success",
+                text: "Guía registrada con éxito",
+              });
+            });
           });
-        }
-        if (doc.data().id_punto !== id_punto) {
-          return Swal.fire({
-            icon: "success",
-            text: "Esta guía ya está registrada en otro punto",
-          });
-        }
-        doc.ref.update({ id_punto: id_punto });
+      } else {
         return Swal.fire({
-          icon: "success",
-          text: "Guía registrada con éxito",
+          icon: "error",
+          text: "No tienes permisos para registrar guías",
+        }).then(() => {
+          window.location.replace("/plataforma2.html");
         });
-      });
+      }
     });
 };
