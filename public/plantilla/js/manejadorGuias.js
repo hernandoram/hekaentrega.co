@@ -4883,11 +4883,13 @@ async function generarGuiaFlexii(id_guias) {
   w.document.write(div.innerHTML);
     console.log(guiaImprimir)
 
+
+
   w.document.write(`
   <div id="qrcode"></div>
-  http://localhost:6200/plataforma2.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia
+  http://localhost:6200/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia
   <script type="text/javascript">
-  new QRCode(document.getElementById("qrcode"), "${`http://localhost:6200/plataforma2.html?idguia=${guiaImprimir.id_heka}#flexii-guia`}");
+  new QRCode(document.getElementById("qrcode"), "${`http://localhost:6200/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia`}");
   </script>
   </body></html>` );
   // w.document.close();
