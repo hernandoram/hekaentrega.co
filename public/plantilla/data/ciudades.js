@@ -11665,6 +11665,7 @@ export default [
     "ciudad": "REMEDIOS",
     "departamento": "ANTIOQUIA",
     "dane_ciudad": "05604000",
+    "tipo_distribucion": "ENTREGA A DOMICILIO",
     "nombreAveo": "REMEDIOS(ANTIOQUIA)"
   },
   {
@@ -13442,6 +13443,7 @@ export default [
     "ciudad": "GUACHUCAL",
     "departamento": "NARIÑO",
     "dane_ciudad": "52317000",
+    "tipo_distribucion": "ENTREGA A DOMICILIO",
     "nombreAveo": "GUACHUCAL(NARINO)"
   },
   {

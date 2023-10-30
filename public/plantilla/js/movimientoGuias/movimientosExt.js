@@ -40,7 +40,13 @@ async function enviarSolucion(e) {
         method: "POST",
         body: form,
     })
-    .then(d => location.reload())
+    .then(d => d.json())
+    .then(d => {
+        if(d.error) throw new Error(d.message || "Error desconocido.");
+        
+        location.reload();
+    })
+    .catch(e => Swal.fire("Error", e.message, "error"));
 }
 
 function seleccionarSolSimple(e) {
