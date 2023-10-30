@@ -1672,10 +1672,10 @@ async function solicitarPagosPendientesUs() {
 
   console.log(datosUsuario)
 
-if(datosUsuario == "zGR9EbRKEQGRxIMfKiu4"){
-  return Swal.fire(" Desactivación Temporal de la Función de Solicitar Pagos", "Hemos desactivado temporalmente la función de solicitar pagos. Estamos trabajando en la solución y te mantendremos informado.", "error");
+// if(datosUsuario == "zGR9EbRKEQGRxIMfKiu4"){
+//   return Swal.fire(" Desactivación Temporal de la Función de Solicitar Pagos", "Hemos desactivado temporalmente la función de solicitar pagos. Estamos trabajando en la solución y te mantendremos informado.", "error");
 
-}
+// }
 
 
   const mensajeDesembolso = obtenerMensajeDesembolso();
