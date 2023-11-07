@@ -1,19 +1,22 @@
 const db = firebase.firestore();
 
-const bodegasEl = $("#list_bodegas-cotizador");
-const plantillasEl = $("#list_plantillas-cotizador");
-const opcionesEl = $(".cotizador-beta");
-const inpCiudadR = $("#ciudadR");
-const inpCiudadD = $("#ciudadD");
-const CheckGuardar = $("#guardar_cotizacion-cotizador");
-const configGuardado = $("#cont_config_save-cotizador");
-const contNombrePlantilla = $("#cont_nom_plant-cotizador");
-const formulario = $("#cotizar-envio");
-const checkActivarDestinoPlantilla = $("#actv_ciudad_plantilla-cotizador");
-const actionEliminarPlantilla = $("#boton_eliminar_plant");
+let hostname_index = window.location.href;
+let cotizador= hostname_index.split("#")[1]
+console.log(window.localStorage)
+const bodegasEl = cotizador === "cotizar_envio-flexii"? $("#list_bodegas-cotizador-flexii") : $("#list_bodegas-cotizador");
+const plantillasEl = cotizador === "cotizar_envio-flexii"? $("#list_plantillas-cotizador-flexii") : $("#list_plantillas-cotizador");
+const opcionesEl = cotizador === "cotizar_envio-flexii"? $(".cotizador-beta-flexii") : $(".cotizador-beta");
+const inpCiudadR = cotizador === "cotizar_envio-flexii"? $("#ciudadR-flexii") : $("#ciudadR");
+const inpCiudadD = cotizador === "cotizar_envio-flexii"? $("#ciudadD-flexii") : $("#ciudadD");
+const CheckGuardar =cotizador === "cotizar_envio-flexii"? $("#guardar_cotizacion-cotizador-flexii") : $("#guardar_cotizacion-cotizador");
+const configGuardado = cotizador === "cotizar_envio-flexii"? $("#cont_config_save-cotizador-flexii") : $("#cont_config_save-cotizador");
+const contNombrePlantilla = cotizador === "cotizar_envio-flexii"? $("#cont_nom_plant-cotizador-flexii") : $("#cont_nom_plant-cotizador");
+const formulario = cotizador === "cotizar_envio-flexii"? $("#cotizar-envio-flexii") : $("#cotizar-envio");
+const checkActivarDestinoPlantilla = cotizador === "cotizar_envio-flexii"? $("#actv_ciudad_plantilla-cotizador-flexii") : $("#actv_ciudad_plantilla-cotizador");
+const actionEliminarPlantilla = cotizador === "cotizar_envio-flexii"? $("#boton_eliminar_plant-flexii") : $("#boton_eliminar_plant");
 const checkEditPlant = $("#actv_editar_plantilla-cotizador");
-const contEditPlant = $("#cont_act_plant-cotizador");
-const btnCotizar = $("#boton_cotizar_2");
+const contEditPlant = cotizador === "cotizar_envio-flexii"? $("#cont_act_plant-cotizador-flexii") : $("#cont_act_plant-cotizador");
+const btnCotizar = cotizador == "cotizar_envio-flexii"? $("#boton_cotizar_2-flexii") : $("#boton_cotizar_2");
 
 const referenciaListaPlantillas = usuarioAltDoc().collection("plantillasCotizador");
 

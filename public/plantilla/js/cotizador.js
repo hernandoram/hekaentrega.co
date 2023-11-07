@@ -1,3 +1,4 @@
+// $("#xx").empty();
 let datos_de_cotizacion,
   oficinas = [],
   bodega,
@@ -294,16 +295,16 @@ async function cotizador() {
       );
       verificador("seguro-mercancia", true);
     } else if (
-      value("dimension-ancho") <
+      datos_de_cotizacion.ancho <
         transportadoras[codTransp].limitesLongitud[0] ||
-      value("dimension-largo") <
+        datos_de_cotizacion.largo <
         transportadoras[codTransp].limitesLongitud[0] ||
-      value("dimension-alto") < transportadoras[codTransp].limitesLongitud[0] ||
-      value("dimension-ancho") >
+        datos_de_cotizacion.alto < transportadoras[codTransp].limitesLongitud[0] ||
+        datos_de_cotizacion.ancho >
         transportadoras[codTransp].limitesLongitud[1] ||
-      value("dimension-largo") >
+        datos_de_cotizacion.largo >
         transportadoras[codTransp].limitesLongitud[1] ||
-      value("dimension-alto") > transportadoras[codTransp].limitesLongitud[1]
+        datos_de_cotizacion.alto > transportadoras[codTransp].limitesLongitud[1]
     ) {
       // Si el valor de las dimensiones exceden el limite permitido
       alert(
@@ -394,6 +395,228 @@ async function cotizador() {
       "dimension-ancho",
     ]);
   }
+}
+
+let datoscoti
+
+async function cotizadorFlexii() {
+  let ciudadR = document.getElementById("ciudadR-flexii");
+  let ciudadD = document.getElementById("ciudadD-flexii");
+  
+  datoscoti={
+    // "peso": 1,
+    // "alto": 10,
+    // "largo": 10,
+    // "ancho": 10,
+    // "valorSeguro": 50000,
+    // "valorRecaudo": 50000,
+    // "idDaneCiudadOrigen": "05001000",
+    // "idDaneCiudadDestino": "05001000",
+    tipo: "CONVENCIONAL",
+    ciudadR: value("ciudadR-flexii"),
+    ciudadD: value("ciudadD-flexii"),
+    dane_ciudadR: ciudadR.dataset.dane_ciudad,
+    dane_ciudadD: ciudadD.dataset.dane_ciudad,
+    ave_ciudadR: ciudadR.dataset.nombre_aveo,
+    ave_ciudadD: ciudadD.dataset.nombre_aveo,
+    peso: value("Kilos-flexii"),
+    seguro: value("seguro-mercancia-flexii"),
+    recaudo: 0,
+    ancho: value("dimension-ancho-flexii"),
+    largo: value("dimension-largo-flexii"),
+    alto: value("dimension-alto-flexii"),
+  };
+  
+  console.log(datoscoti)
+  
+  // validad obejeto datoscorti != ""
+  if (
+    true
+  ) {
+    //Si todos los campos no estan vacios
+    if (
+      !datoscoti.dane_ciudadR ||
+      !datoscoti.dane_ciudadD ||
+      !/^.+\(.+\)$/.test(datoscoti.ciudadR) ||
+      !/^.+\(.+\)$/.test(datoscoti.ciudadD)
+    ) {
+      alert(
+        "Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable"
+      );
+      verificador(["ciudadR", "ciudadD"], true);
+    } else if (
+      datoscoti.seguro <
+        transportadoras[codTransp].limitesValorDeclarado(datoscoti.peso)[0] ||
+        datoscoti.seguro >
+        transportadoras[codTransp].limitesValorDeclarado(datoscoti.peso)[1]
+    ) {
+      // Si el valor del recaudo excede el limite permitido
+      alert(
+        "Ups! el valor declarado en base a " +
+          value("Kilos") +
+          "Kg no puede ser menor a $" +
+          convertirMiles(
+            transportadoras[codTransp].limitesValorDeclarado(value("Kilos"))[0]
+          ) +
+          ", ni mayor a $" +
+          convertirMiles(
+            transportadoras[codTransp].limitesValorDeclarado(value("Kilos"))[1]
+          )
+      );
+      verificador("seguro-mercancia", true);
+    } else if (datoscoti.ancho <
+        transportadoras[codTransp].limitesLongitud[0] ||
+        datoscoti.largo <
+        transportadoras[codTransp].limitesLongitud[0] ||
+        datoscoti.alto < transportadoras[codTransp].limitesLongitud[0] ||
+        datoscoti.ancho >
+        transportadoras[codTransp].limitesLongitud[1] ||
+        datoscoti.largo >
+        transportadoras[codTransp].limitesLongitud[1] ||
+        datoscoti.alto > transportadoras[codTransp].limitesLongitud[1]
+    ) {
+      // Si el valor de las dimensiones exceden el limite permitido
+      alert(
+        "Alguno de los valores ingresados en la dimensiones no es válido, Por favor verifique que no sean menor a 1cm, o mayor a 150cm"
+      );
+      verificador(
+        ["dimension-alto", "dimension-largo", "dimension-ancho"],
+        true
+      );
+    } else {
+      //Si todo esta Correcto...
+      verificador();
+
+      let mostrador = document.getElementById("result_cotizacion-flexii");
+      mostrador.style.display = "block";
+      let respuesta = await responseFlexii(datoscoti);
+      // funcion que lee respuesta del api e inserta card
+      mostrador.innerHTML = respuesta
+      // seleccionarTipoEnvio()
+      // if (datos_de_cotizacion.recaudo < datos_de_cotizacion.precio) {
+      //   alert(
+      //     "El costo del envío excede el valor declarado, para continuar, debe incrementar el valor declarado"
+      //   );
+      //   document.getElementById("boton_continuar").disabled = true;
+      //   verificador("seguro-mercancia", true);
+      // } 
+      // ***** Agregando los datos que se van a enviar para crear guia ******* //
+      datos_a_enviar.ciudadR = ciudadR.dataset.ciudad;
+      datos_a_enviar.ciudadD = ciudadD.dataset.ciudad;
+      datos_a_enviar.departamentoD = ciudadD.dataset.departamento;
+      datos_a_enviar.departamentoR = ciudadR.dataset.departamento;
+      datos_a_enviar.alto = datoscoti.alto;
+      datos_a_enviar.ancho = datoscoti.ancho;
+      datos_a_enviar.largo = datoscoti.largo;
+      // datos_a_enviar.valor = 0;
+      // datos_a_enviar.seguro = value("seguro-mercancia");
+      datos_a_enviar.correoR = datos_usuario.correo || "notiene@gmail.com";
+
+      if (ControlUsuario.esPuntoEnvio) {
+        datos_a_enviar.centro_de_costo_punto = datos_usuario.centro_de_costo;
+      } else {
+        datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo;
+      }
+      // datos_a_enviar.peso = datos_de_cotizacion.peso;
+      // datos_a_enviar.costo_envio = datos_de_cotizacion.precio;
+
+      // if(estado_prueba) datos_a_enviar.prueba = true;
+
+      // $("#list-transportadoras a").click(seleccionarTransportadora);
+
+      $("#boton_continuar").click(seleccionarTransportadora);
+
+      if (!isIndex) guardarCotizacion();
+
+      location.href = "#result_cotizacion-flexii";
+    }
+  } else {
+    //si todos los campos estan vacios
+    alert(
+      "Ups! ha habido un error inesperado, por favor, verifique que los campos no estén vacíos"
+    );
+    verificador([
+      "ciudadR",
+      "ciudadD",
+      "Kilos",
+      "valor-a-recaudar",
+      "dimension-alto",
+      "dimension-largo",
+      "dimension-ancho",
+    ]);
+  }
+}
+
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
+
+async function cotizarApi(datos,type){
+  console.log("COTIZANDO API")
+  const transportadoras = ["INTERRAPIDISIMO","COORDINADORA"]
+  try {
+    const cotizacion = await fetch('https://hekaentrega.co/Api/Heka/Cotizar/'+transportadoras[getRandomInt(2)],
+    {
+      method: 'POST',
+      headers: {
+        'Authentication': 'nk58Yq6Y1GUFbaaRkdMFuwmDLxO2',
+        'Content-Type': 'application/json'
+      },
+      body:JSON.stringify({
+        "peso": parseInt(datos.peso),
+        "alto": parseInt(datos.alto),
+        "largo": parseInt(datos.largo),
+        "ancho": parseInt(datos.ancho),
+        "valorSeguro": parseInt(datos.seguro),
+        "valorRecaudo": parseInt(datos.seguro),
+        "idDaneCiudadOrigen": datos.dane_ciudadR,
+        "idDaneCiudadDestino": datos.dane_ciudadD,
+        "tipo": type
+      })
+    }).then(httpResponse => httpResponse.json()
+    )
+    return cotizacion.body
+  } catch (error) {
+    console.log(error)
+  } 
+}
+
+async function responseFlexii(datos) {
+  let result_cotizacion,
+    act_btn_continuar = true;
+
+  //Primero le consulta al usuario por el tipo de envío
+  let type = await seleccionarTipoEnvio();
+
+  //si no selecciona ninguno, no devuelve nada
+  if (!type) {
+    return "";
+  } else if (type == "PAGO DESTINO") {
+    result_cotizacion = await cotizarApi(datos,type) // si coloco cero no funciona con envía
+    result_cotizacion.debe = true;
+  } else if (type == "PAGO CONTRAENTREGA") {
+    // Para esta selección activa un nuevo modal que me devuleve los datos de cotización
+    let resp_usuario = await pagoContraentrega();
+    result_cotizacion = resp_usuario.value;
+    if (!resp_usuario) {
+      return "";
+    }
+  } else {
+    // de resto calcula el costo del envío directamente con el seguro de mercancía o valor declarado
+    result_cotizacion = await cotizarApi(datos,type)
+    datos_a_enviar.debe = false;
+  }
+console.log(result_cotizacion)
+  //Lleno algunos campos de los datos de cotizacióm
+  datoscoti.peso = result_cotizacion.detalles.peso_real;
+  datoscoti.costo_envio = result_cotizacion.costoEnvio;
+  datoscoti.valor = result_cotizacion.valor;
+  // datos_de_cotizacion.seguro = result_cotizacion.seguro;
+  datoscoti.sumar_envio = result_cotizacion.sumar_envio;
+  datoscoti.debe = result_cotizacion.debe;
+  datoscoti.type = type;
+  
 }
 
 const watcherPlantilla = isIndex ? null : new Watcher(0);
@@ -586,7 +809,6 @@ async function response(datos) {
     );
     datos_a_enviar.debe = false;
   }
-
   //Lleno algunos campos de los datos de cotizacióm
   datos_de_cotizacion.peso = result_cotizacion.kg;
   datos_de_cotizacion.costo_envio = result_cotizacion.costoEnvio;
@@ -597,7 +819,7 @@ async function response(datos) {
   datos_de_cotizacion.type = type;
 
   const notas = agregarNotasDeExepcionAlCotizador();
-
+  console.log(datos_de_cotizacion)
   // let htmlTransportadoras = await detallesTransportadoras(datos_de_cotizacion);
 
   //Creo un html con los detalles de la consulta y las transportadoras involucradas
