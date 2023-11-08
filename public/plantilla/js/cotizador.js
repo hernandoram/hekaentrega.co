@@ -397,8 +397,8 @@ async function cotizador() {
   }
 }
 
+//#region COTIZADOR FLEXII
 let datoscoti
-
 async function cotizadorFlexii() {
   let ciudadR = document.getElementById("ciudadR-flexii");
   let ciudadD = document.getElementById("ciudadD-flexii");
@@ -419,9 +419,9 @@ async function cotizadorFlexii() {
     dane_ciudadD: ciudadD.dataset.dane_ciudad,
     ave_ciudadR: ciudadR.dataset.nombre_aveo,
     ave_ciudadD: ciudadD.dataset.nombre_aveo,
-    peso: value("Kilos-flexii"),
-    seguro: value("seguro-mercancia-flexii"),
-    recaudo: 0,
+    peso: parseInt(value("Kilos-flexii")),
+    valorSeguro: parseInt(value("seguro-mercancia-flexii")),
+    valorRecaudo: parseInt(value("seguro-mercancia-flexii")),
     ancho: value("dimension-ancho-flexii"),
     largo: value("dimension-largo-flexii"),
     alto: value("dimension-alto-flexii"),
@@ -486,20 +486,16 @@ async function cotizadorFlexii() {
     } else {
       //Si todo esta Correcto...
       verificador();
+      const loader = new ChangeElementContenWhileLoading("#boton_cotizar_2-flexii,#boton_cotizar-flexii");
+      loader.init();
 
       let mostrador = document.getElementById("result_cotizacion-flexii");
       mostrador.style.display = "block";
       let respuesta = await responseFlexii(datoscoti);
       // funcion que lee respuesta del api e inserta card
       mostrador.innerHTML = respuesta
-      // seleccionarTipoEnvio()
-      // if (datos_de_cotizacion.recaudo < datos_de_cotizacion.precio) {
-      //   alert(
-      //     "El costo del envío excede el valor declarado, para continuar, debe incrementar el valor declarado"
-      //   );
-      //   document.getElementById("boton_continuar").disabled = true;
-      //   verificador("seguro-mercancia", true);
-      // } 
+      loader.end();
+
       // ***** Agregando los datos que se van a enviar para crear guia ******* //
       datos_a_enviar.ciudadR = ciudadR.dataset.ciudad;
       datos_a_enviar.ciudadD = ciudadD.dataset.ciudad;
@@ -528,7 +524,6 @@ async function cotizadorFlexii() {
 
       if (!isIndex) guardarCotizacion();
 
-      location.href = "#result_cotizacion-flexii";
     }
   } else {
     //si todos los campos estan vacios
@@ -552,11 +547,10 @@ function getRandomInt(max) {
 }
 
 
-async function cotizarApi(datos,type){
+async function cotizarApi(datos, transportadora,type){
   console.log("COTIZANDO API")
-  const transportadoras = ["INTERRAPIDISIMO","COORDINADORA"]
   try {
-    const cotizacion = await fetch('https://hekaentrega.co/Api/Heka/Cotizar/'+transportadoras[getRandomInt(2)],
+    const cotizacion = await fetch('https://hekaentrega.co/Api/Heka/Cotizar/'+transportadora,
     {
       method: 'POST',
       headers: {
@@ -568,23 +562,83 @@ async function cotizarApi(datos,type){
         "alto": parseInt(datos.alto),
         "largo": parseInt(datos.largo),
         "ancho": parseInt(datos.ancho),
-        "valorSeguro": parseInt(datos.seguro),
-        "valorRecaudo": parseInt(datos.seguro),
+        "valorSeguro": parseInt(datos.valorSeguro),
+        "valorRecaudo": parseInt(datos.valorRecaudo),
         "idDaneCiudadOrigen": datos.dane_ciudadR,
         "idDaneCiudadDestino": datos.dane_ciudadD,
         "tipo": type
       })
     }).then(httpResponse => httpResponse.json()
     )
-    return cotizacion.body
+    return cotizacion
   } catch (error) {
     console.log(error)
   } 
 }
 
+async function validaPagoContraentregaFlexii() {
+  //le muestra al usuario las opciones del pago contraentrega y
+  // devuelve un objeto conciertas opciones a implementar al cotizador
+  let recaudo = await Swal.fire({
+    title: "<strong>Valor de Recaudo</strong>",
+    icon: "info",
+    html: `
+            <p>Recuerde que es posible que el "valor Declarado" será sustituido por el valor de recaudo</p>
+            <input type="number" id="valor-recaudo" class="form-control" placeholder="Ingrese monto"
+            min="5000" max="2000000" require></input>
+            <div class="form-group form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="sumar-envio-cotizador"></input>
+                <label class="form-check-label" for="sumar-envio-cotizador">¿Desea sumar costo de envío?</label>
+            </div>
+            ${
+              true
+                ? ""
+                : `
+            <div class="form-group form-check mt-2">
+                <input type="checkbox" class="form-check-input" id="restar-saldo-cotizador"></input>
+                <label class="form-check-label" for="restar-saldo-cotizador">¿Desea restar el costo del envío del saldo?</label>
+            </div>
+            `
+            }
+          `,
+    confirmButtonText: "Continuar",
+    buttonsStyling: false,
+    customClass: {
+      confirmButton: "btn btn-success",
+    },
+    confirmButtonAriaLabel: "continuar",
+    preConfirm: () => {
+      //Antes de continuar, utiliza un validador
+      let valor_recaudo = value("valor-recaudo");
+      let sumar_envio = $("#sumar-envio-cotizador").prop("checked");
+      let restar_saldo = $("#restar-saldo-cotizador").prop("checked");
+
+      /*Verifica que haya valor en el recaudo, que no supere los límites ingresados
+            Y que no sea menor al costo del envío*/
+      if (!valor_recaudo) {
+        Swal.showValidationMessage(`¡Recuerde ingresar un valor!`);
+      } else if (
+        value("valor-recaudo") < 5000 ||
+        value("valor-recaudo") > 2000000
+      ) {
+        Swal.showValidationMessage(
+          "El valor no puede ser menor a $5.000 ni mayor a $2.000.000"
+        );
+      }
+
+
+      return {
+        sumar_envio, restar_saldo, valor_recaudo: parseInt(valor_recaudo)
+      };
+    },
+  }).then((result) => {
+    return result.isConfirmed ? result : "";
+  });
+
+  return recaudo;
+}
+
 async function responseFlexii(datos) {
-  let result_cotizacion,
-    act_btn_continuar = true;
 
   //Primero le consulta al usuario por el tipo de envío
   let type = await seleccionarTipoEnvio();
@@ -593,21 +647,36 @@ async function responseFlexii(datos) {
   if (!type) {
     return "";
   } else if (type == "PAGO DESTINO") {
-    result_cotizacion = await cotizarApi(datos,type) // si coloco cero no funciona con envía
-    result_cotizacion.debe = true;
+    // result_cotizacion.debe = true;
   } else if (type == "PAGO CONTRAENTREGA") {
     // Para esta selección activa un nuevo modal que me devuleve los datos de cotización
-    let resp_usuario = await pagoContraentrega();
-    result_cotizacion = resp_usuario.value;
+    let resp_usuario = await validaPagoContraentregaFlexii();
+    
     if (!resp_usuario) {
       return "";
     }
+
+    datos.sumar_envio = resp_usuario.value.sumar_envio;
+    datos.valorRecaudo = resp_usuario.value.valor_recaudo;
+    console.log(datos);
   } else {
     // de resto calcula el costo del envío directamente con el seguro de mercancía o valor declarado
-    result_cotizacion = await cotizarApi(datos,type)
     datos_a_enviar.debe = false;
   }
-console.log(result_cotizacion)
+
+  const codTransp = ["COORDINADORA", "INTERRAPIDISIMO", "SERVIENTREGA"];
+  const tSeleccionada = codTransp[getRandomInt(codTransp.length)];
+
+  const cotizacion = await cotizarApi(datos, tSeleccionada, type);
+
+  if(cotizacion.error) {
+    console.log(cotizacion);
+    Swal.fire("Error Cod. " + tSeleccionada.substring(0,4), cotizacion.body.message || cotizacion.body, "error");
+    return "";
+  }
+  
+  const result_cotizacion = cotizacion.body;
+  console.log(result_cotizacion)
   //Lleno algunos campos de los datos de cotizacióm
   datoscoti.peso = result_cotizacion.detalles.peso_real;
   datoscoti.costo_envio = result_cotizacion.costoEnvio;
@@ -616,8 +685,58 @@ console.log(result_cotizacion)
   datoscoti.sumar_envio = result_cotizacion.sumar_envio;
   datoscoti.debe = result_cotizacion.debe;
   datoscoti.type = type;
+
+  return detallesFlexii(result_cotizacion);
   
 }
+
+function detallesFlexii(objData) {
+  return `
+  <div class="card">
+    <div class="card-header bg-primary text-light">
+      FLEXII - COD: ${objData.transportadora.substring(0, 4) + getRandomInt(100)}
+    </div>
+    <div class="card-body">
+      <div class="card my-3 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Cotización</h5>
+          <p class="card-text d-flex justify-content-between">Valor declarado <b>$${convertirMiles(objData.detalles.seguro)}</b></p>
+          <p class="card-text d-flex justify-content-between">Valor recaudo <b>$${convertirMiles(objData.detalles.recaudo)}</b></p>
+          <p class="card-text d-flex justify-content-between">Peso <b>${objData.detalles.peso_liquidar}</b></p>
+          <p class="card-text d-flex justify-content-between">Tiempo de entrega <b>${objData.tiempoEntrega} días hábiles</b></p>
+        </div>
+      </div>
+      
+      <div class="card my-3 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Costo Transportadora</h5>
+          <p class="card-text d-flex justify-content-between">Valor flete <b>$${convertirMiles(objData.flete)}</b></p>
+          <p class="card-text d-flex justify-content-between">Comisión transportadora <b>$${convertirMiles(objData.sobreflete)}</b></p>
+          <p class="card-text d-flex justify-content-between">Seguro mercancía <b>$${convertirMiles(objData.seguroMercancia)}</b></p>
+        </div>
+      </div>
+        
+      <div class="card my-3 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Costo Flexii</h5>
+          <p class="card-text d-flex justify-content-between">Comisión heka <b>$${convertirMiles(objData.sobrefleteHeka)}</b></p>
+        </div>
+      </div>
+
+      <div class="card my-3 shadow-sm border-primary">
+        <div class="card-body">
+          <h3 class="card-text d-flex justify-content-between">Total:  
+            <b>
+              $${convertirMiles(objData.costoEnvio)}
+            </b>
+          </h3>
+        </div>
+      </div>
+    </div>
+  </div>
+  `;
+}
+//#endregion
 
 const watcherPlantilla = isIndex ? null : new Watcher(0);
 
