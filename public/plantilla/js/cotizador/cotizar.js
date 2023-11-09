@@ -183,7 +183,8 @@ async function cotizarApi(datos, transportadora,type){
         "valorRecaudo": parseInt(datos.valorRecaudo),
         "idDaneCiudadOrigen": datos.dane_ciudadR,
         "idDaneCiudadDestino": datos.dane_ciudadD,
-        "tipo": type
+        "tipo": type,
+        sumarCostoEnvio: !!datos.sumar_envio
       })
     }).then(httpResponse => httpResponse.json()
     )
@@ -273,9 +274,8 @@ async function responseFlexii(datos) {
       return "";
     }
 
-    datos.sumar_envio = resp_usuario.value.sumar_envio;
+    datos.sumar_envio = !!resp_usuario.value.sumar_envio;
     datos.valorRecaudo = resp_usuario.value.valor_recaudo;
-    console.log(datos);
   } else {
     // de resto calcula el costo del envío directamente con el seguro de mercancía o valor declarado
     datos_a_enviar.debe = false;
