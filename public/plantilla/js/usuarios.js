@@ -505,7 +505,7 @@ function nuevaCuenta() {
                             );
                             console.log(localStorage);
 
-                            location.href = "plataforma2.html";
+                           location.href = "plataforma2.html";
                           });
                         })
                         .then((d) => {
