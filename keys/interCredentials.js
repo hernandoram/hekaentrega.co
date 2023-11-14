@@ -15,9 +15,6 @@ exports.CredencialesEmpresa = {
     usuario: "cliente.cetina19",
     clave: "10724974190",
     endpoint: "https://www3.interrapidisimo.com/ApiVentaCredito/api/Admision"
-
-    // Cambio efectuado el 14/11/2023
-    // endpoint: "https://www3.interrapidisimo.com/ApiVentaCredito/api/Admision"
 }
 //código sucursa prueba para cuenta empresa 48838
 

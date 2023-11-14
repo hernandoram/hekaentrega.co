@@ -52,7 +52,7 @@ let transportadoras = {
     limitesPeso: [0.1, 80],
     limitesLongitud: [1, 150],
     limitesRecaudo: [10000, 3000000],
-    bloqueada: (data) => bloqueo_direcciones_inter.includes(data.dane_ciudadD) || !estado_prueba,
+    bloqueada: (data) => bloqueo_direcciones_inter.includes(data.dane_ciudadD),
     bloqueadaOfi: false,
     limitesValorDeclarado: (peso) => {
       if (peso <= 2) return [15000, 30000000];
