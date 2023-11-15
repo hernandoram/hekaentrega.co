@@ -53,6 +53,7 @@ export function llenarBodegasCotizador() {
     })
 }
 
+
 watcherPlantilla.watch(llenarProductos);
 export function llenarProductos(num) {
     

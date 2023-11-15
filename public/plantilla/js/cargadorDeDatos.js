@@ -175,7 +175,7 @@ async function consultarDatosDeUsuario() {
       const datos = doc.data();
       const datos_bancarios = datos.datos_bancarios || null;
       const datos_personalizados = datos.datos_personalizados;
-      const bodegas = datos.bodegas ? datos.bodegas.filter(b => !b.inactiva) : [];
+      let bodegas = datos.bodegas ? datos.bodegas.filter(b => !b.inactiva) : [];
 
       datos_usuario = {
         nombre_completo: datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0],
@@ -192,14 +192,22 @@ async function consultarDatosDeUsuario() {
         datos_bancarios,
         bodegas
       }
-
+      console.log(datos_usuario)
       bodegasWtch.change(bodegas);
 
       datos.nombre_completo = datos_usuario.nombre_completo;
       mostrarDatosUsuario(datos);
       mostrarDatosPersonalizados(datos_personalizados);
       mostrarDatosBancarios(datos_bancarios);
+
+      if(datos_usuario.type === "NATURALFLEXII") {
+        bodegas = bodegas.filter(bodega => ["BOGOTA(CUNDINAMARCA)", "TUMACO(NARIÑO)"].includes(bodega.ciudad));
+      }
+       
       mostrarBodegas(bodegas);
+      
+
+
 
       return datos_usuario;
     }
@@ -315,6 +323,8 @@ function mostrarBodegas(bodegas) {
   const crearBodega = $("#agregar-bodega").clone(true);
   const parent = template.parent();
   parent.empty();
+
+  console.log(bodegas)
 
   if (bodegas) {
     bodegas.forEach((bodega, i) => {
