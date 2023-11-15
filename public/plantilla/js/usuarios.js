@@ -760,7 +760,6 @@ async function buscarUsuarios(e) {
       console.log(querySnapshot.size);
       const size = querySnapshot.size;
       querySnapshot.forEach((doc) => {
-        console.log(doc.data())
         //Luego de la consulta se realizan tres filtros
 
         const nombre = doc.data().nombres.trim().toLowerCase();
@@ -954,6 +953,7 @@ function seleccionarUsuario(id) {
 function mostrarDatosPersonales(data, info) {
   limpiarFormulario("#informacion-" + info, "input,select");
   console.log(data);
+  console.log(data.type)
 
   if (!data) return;
 
