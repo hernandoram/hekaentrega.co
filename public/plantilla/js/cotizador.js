@@ -3031,7 +3031,7 @@ class CalcularCostoDeEnvio {
     });
 
 
-    if (ciudadBloqueada && (this.type === "PAGO CONTRAENTREGA" || this.type == "PAGO DESTINO")) return 0;
+    if (ciudadBloqueada && !this.isOficina && (this.type === "PAGO CONTRAENTREGA" || this.type == "PAGO DESTINO")) return 0;
 
     const pagoContraentrega = this.convencional ? "FALSE" : "TRUE";
     let res = await fetch(
