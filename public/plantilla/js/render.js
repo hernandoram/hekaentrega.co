@@ -618,6 +618,9 @@ function mostrarDocumentosUsuario(id, data) {
                         <button class="col-12 btn btn-info dropdown-toggle text-truncate" title="Subir documentos" type="button" id="acciones-documento${id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Descargar
                         </button>
+                        ${
+                          datos_usuario.type !=="NATURAL"
+                        }
                         <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
                             <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-guias${id}">Guías</label>
                             <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-relacion_envio${id}">Manifiesto</label>
