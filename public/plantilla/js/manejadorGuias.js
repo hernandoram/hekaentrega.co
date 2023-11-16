@@ -637,6 +637,8 @@ function descargarGuiasParticulares(e, dt, node, config) {
   }).then((resp) => {
     if (!resp.isConfirmed) return;
 
+    //JOSEE
+
     const charger = new ChangeElementContenWhileLoading(node);
     charger.init();
 
@@ -645,6 +647,8 @@ function descargarGuiasParticulares(e, dt, node, config) {
     const ids = new Array();
     datas.each((r) => ids.push(r.id_heka));
     console.log(ids);
+
+    console.log(datos_usuario)
 
     buscarGuiasParaDescargarStickers(ids).then(() => {
       charger.end();

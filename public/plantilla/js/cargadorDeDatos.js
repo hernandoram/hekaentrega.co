@@ -206,11 +206,12 @@ async function consultarDatosDeUsuario() {
         datos_bancarios,
         bodegas,
       };
+
       if(datos_usuario.type === "NATURALFLEXII") {
         bodegas = bodegas.filter(bodega => ["BOGOTA(CUNDINAMARCA)", "TUMACO(NARIÑO)"].includes(bodega.ciudad));
+        datos_usuario.bodegas = bodegas;
       }
 
-      console.log(datos_usuario.bodegasCompletas)
 
       bodegasWtch.change(bodegas);
 
