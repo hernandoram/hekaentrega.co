@@ -147,6 +147,13 @@ async function historialGuiasAntiguo() {
                         <i class="fas fa-ticket-alt"></i>
                     </button>`;
 
+            const btnGuiaFlexii = `<button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
+                    data-funcion="activar-desactivar" data-activate="after" 
+                    data-placement="right"
+                    id="generar_guiaflexii${id}" title="Generar Guía Flexii">
+                        <i class="fas fa-f"></i>
+                    </button>`;
+
             const btnClone = `<button class="btn btn-success btn-circle btn-sm action mt-1 ${showCloneAndDelete}" data-id="${id}" 
                     id="clonar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
                     title="Clonar Guía">
@@ -185,7 +192,7 @@ async function historialGuiasAntiguo() {
             //Botones para descargar documentosy rótulos cuando accede a la condición
             //botones para clonar y eliminar guía cuando rechaza la condición.
             if (datos.enviado) {
-              buttons += btnDownloadDocs + btnRotulo;
+              buttons += btnDownloadDocs + btnRotulo + btnGuiaFlexii;
             }
 
             if (!datos.estado) buttons += btnClone;
@@ -4707,6 +4714,196 @@ async function generarRotulo(id_guias) {
     // w.close();
   }, 500);
 }
+
+async function generarGuiaFlexii(id_guias) {
+  let div = document.createElement("div");
+  let table = document.createElement("table");
+  let tbody = document.createElement("tbody");
+  let guias = new Array();
+
+  for (let id of id_guias) {
+    let x = usuarioDoc
+      .collection("guias")
+      .doc(id)
+      .get()
+      .then((d) => d.data());
+    guias.push(x);
+  }
+
+  
+  let guiaImprimir = null;
+
+  firebase
+    .firestore()
+    .collection("documentos")
+    .where("guias", "array-contains", id_guias.toString())
+    .get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        guiaImprimir = { ...doc.data(), id: doc.id };
+        console.log(doc.id);
+        console.log(doc.data());
+      });
+    }).then(async()=>{
+
+
+
+  let data_guias = await Promise.all(guias);
+  console.log(data_guias);
+
+  table.setAttribute("class", "table");
+  for (let data of data_guias) {
+    guiaImprimir= data;
+    console.log(data)
+    let tr = document.createElement("tr");
+    tr.classList.add("border-bottom-secondary");
+
+    let src_logo_transp = "img/logoServi.png";
+    let logo = "img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg";
+
+    if (data.oficina) {
+      logo = "img/logo-flexi.png";
+    }
+
+    if (data.transportadora === "INTERRAPIDISIMO") {
+      src_logo_transp = "img/logo-inter.png";
+    } else if (data.transportadora === "ENVIA") {
+      src_logo_transp = "img/2001.png";
+    } else if (data.transportadora === "TCC") {
+      src_logo_transp = "img/logo-tcc.png";
+    } else if (data.transportadora === "COORDINADORA") {
+      src_logo_transp = "img/logo-coord.png";
+    }
+
+    const celularD =
+      data.celularD != data.telefonoD
+        ? data.celularD + " - " + data.telefonoD
+        : data.telefonoD;
+
+    const nombres = data.oficina
+      ? data.datos_oficina.nombre_completo
+      : data.nombreD;
+    const direccion = data.oficina
+      ? data.datos_oficina.direccion
+      : data.direccionD;
+    const ciudad = data.oficina
+      ? data.datos_oficina.ciudad
+      : `${data.ciudadD}(${data.departamentoD})`;
+    const celular = data.oficina ? data.datos_oficina.celular : celularD;
+
+    let imgs = `<td><div class="align-items-center d-flex flex-column">
+            <img src="${logo}" width="100px">
+            <img src="${src_logo_transp}" width="100px">
+        </div></td>`;
+
+   let header = `
+   <div>
+   <table class="table table-bordered">
+   <thead>
+   <tr>
+   <th scope="col">#</th>
+   <th scope="col">Flexii</th>
+   <th scope="col">RECIBE: ${data.nombreD} </th>
+   <th scope="col">Fecha: ${data.fecha}</th>
+   <th scope="col">Guia:  ${data.id_heka}</th>
+   <th scope="col">Transportadora: ${data.transportadora}</th>
+   </tr>
+   </thead>
+   </table>
+   <p> El usuario deja constancia expresa de que acepta y tiene conocimiento del contrato publicado en la pagina web Flexii ,como remitente declara que este envío no contiene dinero en efectivo, joyas, objetos o fines prohibidos por la ley, y exime a Flexii y la transportadora asignada de toda responsabilidad. </p>
+   </div>   
+   `;
+   
+   let body = `
+   
+   <table class="table table-bordered">
+
+  <tbody>
+      <td >
+        DATOS REMITENTE  <br/>
+        Remitente: ${data.id_heka} <br/>
+        Nombre: ${data.nombreR} <br/>
+        Ciudad: ${data.ciudadR} <br/>
+        Dirección: ${data.direccionR} <br/>
+        Cel/Tel: ${data.celularR}</td>
+        
+      <td>DATOS DESTINO <br/>
+        Nombre: ${nombres}<br/>
+        Ciudad: ${ciudad} <br/>
+        Dirección: ${direccion} <br/>
+        Cel/Tel: ${celular}</td>
+      <th >Firma de quien recibe:</th>
+      
+      </tr>
+      <tr>
+      <th >Escanea el qr</th>
+
+      <td>
+          Peso real: ${data.peso} kg<br/>
+          Contenido: ${data.dice_contener}<br/>
+          Costo envío: ${data.valor} <br/>
+      </td>
+      
+            <th >Valor cobro destino: ${data.valor}</th>
+
+    </tr>
+
+ 
+  </tbody>
+</table>
+   
+   `;
+    div.innerHTML += header + body;
+    tbody.appendChild(tr);
+
+  }
+
+
+
+  table.appendChild(tbody);
+  div.appendChild(table);
+
+  w = window.open();
+  w.document.write(`<html><head>
+        <meta charset="utf-8">
+
+        <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
+
+        <link href="css/sb-admin-2.min.css" rel="stylesheet">
+        
+        <title>Rótulo Heka</title>
+
+        <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+
+    </head><body>
+
+
+
+    `);
+  w.document.write(div.innerHTML);
+    console.log(guiaImprimir)
+
+
+
+  w.document.write(`
+  <div id="qrcode"></div>
+  http://localhost:6200/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia
+  <script type="text/javascript">
+  new QRCode(document.getElementById("qrcode"), "${`http://localhost:6200/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia`}");
+  </script>
+  </body></html>` );
+  // w.document.close();
+  w.focus();
+  setTimeout(() => {
+    w.print();
+    // w.close();
+  }, 500);
+
+})
+
+}
+
+
 
 async function imprimirRotuloPunto(id_heka) {
   fetch("procesos/rotuloPunto/" + id_heka)
