@@ -619,13 +619,23 @@ function mostrarDocumentosUsuario(id, data) {
                             Descargar
                         </button>
                         ${
-                          datos_usuario.type !=="NATURAL"
+                           datos_usuario.type !=="NATURAL-FLEXII"?
+                           `
+                           <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
+                           <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-guias${id}">Guías</label>
+                           <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-relacion_envio${id}">Manifiesto</label>
+                           <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-generar-rotulo${id}">Rótulos</label>
+                       </div>
+                           `:`
+                           <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
+
+                           <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-generar-rotulo${id}">Guía</label>
+                           </div>
+
+                           `
                         }
-                        <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
-                            <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-guias${id}">Guías</label>
-                            <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-relacion_envio${id}">Manifiesto</label>
-                            <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-generar-rotulo${id}">Rótulos</label>
-                        </div>
+
+                
                     </div>
                 </div>
             </div>

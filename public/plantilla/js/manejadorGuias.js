@@ -2668,14 +2668,28 @@ function actualizarHistorialDeDocumentos(timeline) {
             e.target.removeAttribute("disabled");
           });
 
+  
+
           document
             .getElementById("boton-generar-rotulo" + doc.id)
             .addEventListener("click", function () {
-              generarRotulo(
-                this.parentNode.parentNode.getAttribute("data-guias").split(",")
-              );
+              if (datos_usuario.type == "NATURAL-FLEXII") {
+                generarGuiaFlexii(
+                  this.parentNode.parentNode
+                    .getAttribute("data-guias")
+                    .split(",")
+                );
+              } else {
+                generarRotulo(
+                  this.parentNode.parentNode
+                    .getAttribute("data-guias")
+                    .split(",")
+                );
+              }
             });
         });
+
+        
 
         var contarExistencia = 0;
         for (let i = tabla.length - 1; i >= 0; i--) {
