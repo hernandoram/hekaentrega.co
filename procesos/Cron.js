@@ -9,6 +9,9 @@ cron.schedule("00 */6 * * *", () => {
         console.log(detalles);
         firebase.firestore().collection("reporte").add(detalles);
     });
+}, {
+    scheduled: true,
+    timezone: "America/Sao_Paulo" // Para cambiar los tiempos de sincronización
 });
 
 cron.schedule("0 0 * * 0", () => {
