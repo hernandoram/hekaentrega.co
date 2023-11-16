@@ -206,6 +206,11 @@ async function consultarDatosDeUsuario() {
         datos_bancarios,
         bodegas,
       };
+      if(datos_usuario.type === "NATURALFLEXII") {
+        bodegas = bodegas.filter(bodega => ["BOGOTA(CUNDINAMARCA)", "TUMACO(NARIÑO)"].includes(bodega.ciudad));
+      }
+
+      console.log(datos_usuario.bodegasCompletas)
 
       bodegasWtch.change(bodegas);
 
@@ -214,9 +219,7 @@ async function consultarDatosDeUsuario() {
       mostrarDatosPersonalizados(datos_personalizados);
       mostrarDatosBancarios(datos_bancarios);
 
-      if(datos_usuario.type === "NATURALFLEXII") {
-        bodegas = bodegas.filter(bodega => ["BOGOTA(CUNDINAMARCA)", "TUMACO(NARIÑO)"].includes(bodega.ciudad));
-      }
+  
        
       mostrarBodegas(bodegas);
       
