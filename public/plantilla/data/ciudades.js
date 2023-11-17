@@ -13935,6 +13935,7 @@ export default [
     "ciudad": "PINILLOS",
     "departamento": "BOLIVAR",
     "dane_ciudad": "13549000",
+    "tipo_distribucion": "ENTREGA A DOMICILIO",
     "nombreAveo": "PINILLOS(BOLIVAR)"
   },
   {
