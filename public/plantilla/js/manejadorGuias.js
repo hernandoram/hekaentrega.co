@@ -637,6 +637,8 @@ function descargarGuiasParticulares(e, dt, node, config) {
   }).then((resp) => {
     if (!resp.isConfirmed) return;
 
+    //JOSEE
+
     const charger = new ChangeElementContenWhileLoading(node);
     charger.init();
 
@@ -645,6 +647,8 @@ function descargarGuiasParticulares(e, dt, node, config) {
     const ids = new Array();
     datas.each((r) => ids.push(r.id_heka));
     console.log(ids);
+
+    console.log(datos_usuario)
 
     buscarGuiasParaDescargarStickers(ids).then(() => {
       charger.end();
@@ -2664,14 +2668,28 @@ function actualizarHistorialDeDocumentos(timeline) {
             e.target.removeAttribute("disabled");
           });
 
+  
+
           document
             .getElementById("boton-generar-rotulo" + doc.id)
             .addEventListener("click", function () {
-              generarRotulo(
-                this.parentNode.parentNode.getAttribute("data-guias").split(",")
-              );
+              if (datos_usuario.type == "NATURAL-FLEXII") {
+                generarGuiaFlexii(
+                  this.parentNode.parentNode
+                    .getAttribute("data-guias")
+                    .split(",")
+                );
+              } else {
+                generarRotulo(
+                  this.parentNode.parentNode
+                    .getAttribute("data-guias")
+                    .split(",")
+                );
+              }
             });
         });
+
+        
 
         var contarExistencia = 0;
         for (let i = tabla.length - 1; i >= 0; i--) {

@@ -382,10 +382,25 @@
                           name="objetos_envio" id="actualizar_objetos_envio" placeholder="objeto1,objeto2,etc..."  required>
                         </div>
                       </div>
+
+                      <div>
+                        <h6 class="mt-2">Referido de</h6>
+                          <input type="text" class="form-control form-control-user"
+                          name="referidoDe" id="referidoDe" readonly>   
+
+                          <h6 class="mt-2">Tipo Usuario</h6>
+                          <select  class="form-control form-control"
+                          name="type" id="actualizar_tipo_user">
+                          <option value="NATURAL" selected>Natural</option>
+                          <option value="PUNTO">Punto</option>
+                          <option value="NATURAL-FLEXII">Natural Flexii</option>
+                          </select>
+  
+                      </div>
                         
-                      <h6 class="mt-2 ">Referido de</h6>
-                        <input type="text" class="form-control form-control-user"
-                        name="referidoDe" id="referidoDe" readonly>   
+
+                                                
+
 
                       <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4 no-updte"
                       onclick="actualizarInformacionPersonal()" value="Actualizar Datos Personales">
