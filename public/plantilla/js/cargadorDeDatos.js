@@ -207,7 +207,7 @@ async function consultarDatosDeUsuario() {
         bodegas,
       };
 
-      if(datos_usuario.type === "NATURALFLEXII") {
+      if(datos_usuario.type === "NATURAL-FLEXII") {
         bodegas = bodegas.filter(bodega => ["BOGOTA(CUNDINAMARCA)", "TUMACO(NARIÑO)"].includes(bodega.ciudad));
         datos_usuario.bodegas = bodegas;
       }
