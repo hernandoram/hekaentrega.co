@@ -1864,7 +1864,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
             </td>
             <td>${
               ultimo_seguimiento.fecha
-                ? genFecha(ultimo_seguimiento.fecha.toMillis()) +
+                ? genFecha("LR", ultimo_seguimiento.fecha.toMillis()) +
                   " " +
                   ultimo_seguimiento.fecha
                     .toDate()
