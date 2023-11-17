@@ -188,6 +188,16 @@ async function cotizarApi(datos, transportadora,type){
       })
     }).then(httpResponse => httpResponse.json()
     )
+
+    let detalles = cotizacion.body.detalles
+    let ResultadoValorAdicional= Math.trunc((detalles.costoDevolucion*3)/7)
+    let datosModificados = {
+       ResultadoValorAdicional : Math.trunc((detalles.costoDevolucion*3)/7),
+       FleteConValorAdicional : detalles.flete + ResultadoValorAdicional,
+       ComisionHekaOrigianl : detalles.comision_heka,
+    }
+    cotizacion.body.detalles = {...detalles,...datosModificados}
+    cotizacion.body.detalles.comision_heka += ResultadoValorAdicional
     return cotizacion
   } catch (error) {
     console.log(error)
