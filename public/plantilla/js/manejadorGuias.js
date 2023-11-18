@@ -648,7 +648,14 @@ function descargarGuiasParticulares(e, dt, node, config) {
     datas.each((r) => ids.push(r.id_heka));
     console.log(ids);
 
-    console.log(datos_usuario)
+    
+
+    console.log(ids)
+
+    if(datos_usuario.type == "NATURAL-FLEXII"){
+      generarGuiaFlexii(ids)
+      return charger.end();
+      }
 
     buscarGuiasParaDescargarStickers(ids).then(() => {
       charger.end();
