@@ -89,7 +89,7 @@ async function historialGuiasAntiguo() {
   const originalTextBuscador = btnBuscador.text();
 
   btnBuscador.html(`
-      <span class="spinner-border 
+      <span class="spinner-border
       spinner-border-sm" role="status" aria-hidden="true"></span>
       Cargando...
     `);
@@ -148,19 +148,19 @@ async function historialGuiasAntiguo() {
                     </button>`;
 
             const btnGuiaFlexii = `<button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
-                    data-funcion="activar-desactivar" data-activate="after" 
+                    data-funcion="activar-desactivar" data-activate="after"
                     data-placement="right"
                     id="generar_guiaflexii${id}" title="Generar Guía Flexii">
                         <i class="fas fa-f"></i>
                     </button>`;
 
-            const btnClone = `<button class="btn btn-success btn-circle btn-sm action mt-1 ${showCloneAndDelete}" data-id="${id}" 
+            const btnClone = `<button class="btn btn-success btn-circle btn-sm action mt-1 ${showCloneAndDelete}" data-id="${id}"
                     id="clonar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
                     title="Clonar Guía">
                         <i class="fas fa-clone"></i>
                     </button>`;
 
-            const btnDelete = `<button class="btn btn-danger btn-circle btn-sm action mt-1 ${showCloneAndDelete}" data-id="${id}" 
+            const btnDelete = `<button class="btn btn-danger btn-circle btn-sm action mt-1 ${showCloneAndDelete}" data-id="${id}"
                     id="eliminar_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
                     title="Eliminar Guía">
                         <i class="fas fa-trash"></i>
@@ -648,7 +648,7 @@ function descargarGuiasParticulares(e, dt, node, config) {
     datas.each((r) => ids.push(r.id_heka));
     console.log(ids);
 
-    
+
 
     console.log(ids)
 
@@ -810,8 +810,8 @@ function crearDocumentos(e, dt, node, config) {
 
       const guias = arrGuias.map((v) => v.id_heka).sort();
 
-      /* Si tiene inhabilitado la creción de guías automáticas 
-        solo actualizará las guías que pasaron el filtro anterior y enviará una 
+      /* Si tiene inhabilitado la creción de guías automáticas
+        solo actualizará las guías que pasaron el filtro anterior y enviará una
         notificación a administración, es caso contrario utilizará el web service */
       if (["TCC"].includes(transportadora)) {
         await crearManifiestoAveonline(arrGuias, {
@@ -1415,7 +1415,7 @@ function guiaRepetida(arr) {
   return false;
 }
 
-/*Funcion que tomará un identificador como primer arg, creará un div que 
+/*Funcion que tomará un identificador como primer arg, creará un div que
 me muestre cierta información que irá siento alterada cada vez que se
 llame el método
 */
@@ -1459,7 +1459,7 @@ function showStatistics(query, arr, insertAfter) {
                               card[2]
                             } fa-2x text-gray-300"></i>
                         </div>
-                    
+
                     </div>
                 </div>
             </div>
@@ -1683,8 +1683,8 @@ let errActualizarNovedades = [];
 let actualizadasCorrectamente = 0;
 
 async function subirExcelNovedades() {
-  
-  
+
+
   let datos = [];
   let contador = 0;
   let label = document.getElementById("excelDocSolucionesLabel");
@@ -1708,7 +1708,7 @@ async function subirExcelNovedades() {
       let tamaño = datos.length;
       datos.forEach(async (data) => {
         contador++;
-        let anteriorSeguimiento 
+        let anteriorSeguimiento
         const id_user = data["ID USUARIO"];
         const id_heka = data["ID HEKA"].toString();
         const numGuia = data["NUMERO GUIA"];
@@ -1726,7 +1726,7 @@ async function subirExcelNovedades() {
         .then(async doc=>{
           anteriorSeguimiento = doc.data().seguimiento?doc.data().seguimiento[doc.data().seguimiento?.length-1]:
           console.log(doc.data().seguimiento)
-          
+
           let respuestaRepetida = false
           if (anteriorSeguimiento?.admin){
             console.log("entro")
@@ -1780,7 +1780,7 @@ async function subirExcelNovedades() {
             type: "Masivo",
           };
           console.log(anteriorSeguimiento)
-          
+
           await referenciaGuia
           .update({
             seguimiento: firebase.firestore.FieldValue.arrayUnion(solucion),
@@ -1795,7 +1795,7 @@ async function subirExcelNovedades() {
               .collection("notificaciones")
               .doc(id_heka)
               .delete();
-              
+
               enviarNotificacion({
                 visible_user: true,
                 user_id: id_user,
@@ -1830,9 +1830,9 @@ async function subirExcelNovedades() {
                   tamaño +
                   ".",
                 }).then((result) => {
-                  
+
                   if (result.isConfirmed) {
-                    
+
                     errActualizarNovedades = [];
                     actualizadasCorrectamente = 0;
                   } else if (result.isDenied) {
@@ -1903,7 +1903,7 @@ function informeNovedadesCallcenter(JSONData){
     const dataMovimientos = data.data.movimientos;
     const extraData = data.extraData;
 
-    
+
     if (extraData.transportadora == "INTERRAPIDISIMO" ){
       let indexUltimaNovedad = data.data.movimientos.findLastIndex(movimiento => movimiento["Motivo"] !== "")
       let dataFinal = {
@@ -1921,7 +1921,7 @@ function informeNovedadesCallcenter(JSONData){
     }
     else if(extraData.transportadora == "SERVIENTREGA" ){
       let indexUltimaNovedad = data.data.movimientos.findLastIndex(movimiento => movimiento.NomConc !== "")
-      let dataFinal = { 
+      let dataFinal = {
         idUser: extraData.id_user,
         seller: extraData.centro_de_costo,
         idHeka: extraData.id_heka,
@@ -2067,7 +2067,7 @@ function informeNovedadesLogistica(JSONData){
       console.log(data)
     const extraData = data.extraData;
 
-    
+
     if (extraData.transportadora == "INTERRAPIDISIMO" ){
       let dataFinal = {
         idUser: extraData.id_user,
@@ -2083,7 +2083,7 @@ function informeNovedadesLogistica(JSONData){
       interArr.push(dataFinal)
     }
     else if(extraData.transportadora == "SERVIENTREGA" ){
-      let dataFinal = { 
+      let dataFinal = {
         idUser: extraData.id_user,
         idHeka: extraData.id_heka,
         numeroGuia: extraData.numeroGuia,
@@ -2213,7 +2213,7 @@ function informeNovedadesLogistica(JSONData){
 function descargarExcelNovedades() {
   // const checkboxNovedadesLogistica = document.getElementById("checkboxNovedadesLogistica")
   // const checkboxNovedadesCallcenter = document.getElementById("checkboxNovedadesCallcenter")
-   
+
   let JSONData = novedadesExcelData;
   if (!novedadesExcelData.length) {
     return Swal.fire({
@@ -2231,8 +2231,8 @@ function descargarExcelNovedades() {
   //   text: "No hay datos que descargar!",
   // });
 
-  
-  
+
+
 }
 
 function descargarExcelInter(JSONData, ReportTitle, type) {
@@ -2537,7 +2537,7 @@ function subirDocumentos() {
       if (actualizar_guia.files[0]) {
           actualizarNumGuia(id_doc, id_user, numero_guias);
       }
-      
+
       if (guias_enviadas || relacion_enviada) {
         Swal.fire({
           icon: "success",
@@ -2588,7 +2588,7 @@ function subirDocumentos() {
 //Similar a historial de Guias, carga los documentos al usuario por fecha.
 function actualizarHistorialDeDocumentos(timeline) {
   // $('#tabla_documentos').DataTable().destroy();
-  $("#btn-historial-docs").html(`<span class="spinner-border 
+  $("#btn-historial-docs").html(`<span class="spinner-border
     spinner-border-sm" role="status" aria-hidden="true"></span>
     Cargando...`);
   if (user_id) {
@@ -2675,7 +2675,7 @@ function actualizarHistorialDeDocumentos(timeline) {
             e.target.removeAttribute("disabled");
           });
 
-  
+
 
           document
             .getElementById("boton-generar-rotulo" + doc.id)
@@ -2696,7 +2696,7 @@ function actualizarHistorialDeDocumentos(timeline) {
             });
         });
 
-        
+
 
         var contarExistencia = 0;
         for (let i = tabla.length - 1; i >= 0; i--) {
@@ -3158,14 +3158,14 @@ async function executeUtils(e) {
             doc.data().centro_de_costo
           }</li>`;
         } catch (e) {
-          respuesta = `<li class="text-danger">Hubo un error (${e.message}) al actualizar 
+          respuesta = `<li class="text-danger">Hubo un error (${e.message}) al actualizar
                     el número de guía ${res.numeroGuia} con id ${doc.id}</li>`;
         }
         resultado.append(respuesta);
       });
 
       if (!respuesta) {
-        respuesta = `<li class="text-danger">No se consiguió el id ${res.id} 
+        respuesta = `<li class="text-danger">No se consiguió el id ${res.id}
                 de la guía ${res.numeroGuia}</li>`;
         resultado.append(respuesta);
       }
@@ -3324,17 +3324,17 @@ async function manejarNotificacionesMasivas() {
       const data = doc.data();
       if(!data.active) return;
       // return;
-      
+
       if (data.endDate < new Date().getTime()) {
         eliminarNotificacionDinamica(doc.id);
       }
-  
+
       if (data.type === "estatica") {
         mostrarNotificacionEstaticaUsuario(data, doc.id);
       } else if(data.type === "alerta") {
         data.id = doc.id;
         listaNotificacionesAlerta.push(data);
-  
+
         if(!data.ubicacion || "#"+data.ubicacion === location.hash)
           mostrarNotificacionAlertaUsuario(data, doc.id);
       }
@@ -4008,7 +4008,7 @@ function consolidadorTotales(query, saldo) {
         type: "CANJEADO",
       };
 
-      let btn_saldar = `<button 
+      let btn_saldar = `<button
         class="btn btn-primary ${isNaN(saldo) ? "disabled" : "saldar"}">
         $${convertirMiles(sumaChecks)}</button>`;
 
@@ -4279,7 +4279,7 @@ async function historialGuiasAdmin(e) {
   let data = [];
   const manejarInformacion = (querySnapshot) => {
     const s = querySnapshot.size;
-    
+
     querySnapshot.forEach((doc) => {
       const guia = doc.data();
 
@@ -4291,7 +4291,7 @@ async function historialGuiasAdmin(e) {
 
       let tituloEncontrado = null; // Inicializamos la variable donde almacenaremos el título si se encuentra una coincidencia
 
-      tituloEncontrado = categorias.find((categoria)=>categoria.novedad==guia.estado)?.categoria; 
+      tituloEncontrado = categorias.find((categoria)=>categoria.novedad==guia.estado)?.categoria;
 
       if (tituloEncontrado !== null) {
         guia.categoria = tituloEncontrado;
@@ -4687,8 +4687,8 @@ async function generarRotulo(id_guias) {
             <h5 class="text-dark">Nombre: <strong>${data.nombreR}</strong></h5>
             <h5 class="text-dark">Dirección: <strong>${data.direccionR}</strong></h5>
             <h5 class="text-dark">Ciudad:  <strong>${data.ciudadR}(${data.departamentoR})</strong>  </h5>
-            <h5 class="text-dark">Celular:  <strong>${data.celularR}</strong></h5>          
-            <h5 class="text-dark">Contenido:  <strong>${data.dice_contener}</strong></h5>          
+            <h5 class="text-dark">Celular:  <strong>${data.celularR}</strong></h5>
+            <h5 class="text-dark">Contenido:  <strong>${data.dice_contener}</strong></h5>
         </td>`;
 
     let infoDest = `<td>
@@ -4727,7 +4727,7 @@ async function generarRotulo(id_guias) {
         <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
 
         <link href="css/sb-admin-2.min.css" rel="stylesheet">
-        
+
         <title>Rótulo Heka</title>
     </head><body>`);
   w.document.write(div.innerHTML);
@@ -4755,7 +4755,7 @@ async function generarGuiaFlexii(id_guias) {
     guias.push(x);
   }
 
-  
+
   let guiaImprimir = null;
 
   firebase
@@ -4770,13 +4770,13 @@ async function generarGuiaFlexii(id_guias) {
         console.log(doc.data());
       });
     }).then(async()=>{
-
-
-
   let data_guias = await Promise.all(guias);
   console.log(data_guias);
 
   table.setAttribute("class", "table");
+
+  let urlsQR= []
+
   for (let data of data_guias) {
     guiaImprimir= data;
     console.log(data)
@@ -4804,7 +4804,9 @@ async function generarGuiaFlexii(id_guias) {
       : `${data.ciudadD}(${data.departamentoD})`;
     const celular = data.oficina ? data.datos_oficina.celular : celularD;
     const urlQR= `http://localhost:6200/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia
+
     `
+    urlsQR.push(urlQR)
 
    let header = `
    <div>
@@ -4821,11 +4823,11 @@ async function generarGuiaFlexii(id_guias) {
    </thead>
    </table>
    <p> El usuario deja constancia expresa de que acepta y tiene conocimiento del contrato publicado en la pagina web Flexii ,como remitente declara que este envío no contiene dinero en efectivo, joyas, objetos o fines prohibidos por la ley, y exime a Flexii y la transportadora asignada de toda responsabilidad. </p>
-   </div>   
+   </div>
    `;
-   
+
    let body = `
-   
+
    <table class="table table-bordered">
 
   <tbody>
@@ -4836,39 +4838,40 @@ async function generarGuiaFlexii(id_guias) {
         Ciudad: ${data.ciudadR} <br/>
         Dirección: ${data.direccionR} <br/>
         Cel/Tel: ${data.celularR}</td>
-        
+
       <td>DATOS DESTINO <br/>
         Nombre: ${nombres}<br/>
         Ciudad: ${ciudad} <br/>
         Dirección: ${direccion} <br/>
         Cel/Tel: ${celular}</td>
       <th >Firma de quien recibe:</th>
-      
+
       </tr>
       <tr>
       <th >Escanea el qr </br>
+      <div id="qrcode-${urlQR}"></div>
       ${urlQR}
-      <div id="qrcode"></div></th>
-
-              <td>
+      <td>
           Peso real: ${data.peso} kg<br/>
           Contenido: ${data.dice_contener}<br/>
           Costo envío: ${data.valor} <br/>
       </td>
-      
+
             <th >Valor cobro destino: ${data.valor}</th>
 
     </tr>
 
- 
+
   </tbody>
 </table>
-   
+
    `;
     div.innerHTML += header + body;
     tbody.appendChild(tr);
 
   }
+
+   console.log(urlsQR)
 
 
 
@@ -4882,7 +4885,7 @@ async function generarGuiaFlexii(id_guias) {
         <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
 
         <link href="css/sb-admin-2.min.css" rel="stylesheet">
-        
+
         <title>Rótulo Heka</title>
 
         <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
@@ -4894,16 +4897,17 @@ async function generarGuiaFlexii(id_guias) {
     `);
   w.document.write(div.innerHTML);
     console.log(guiaImprimir)
-
-
-
   w.document.write(`
-  
-  http://localhost:6200/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia
+
   <script type="text/javascript">
-  new QRCode(document.getElementById("qrcode"), "${`http://localhost:6200/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia`}");
-  </script>
-  </body></html>` );
+      urlsQR.forEach(function(urlQR) {
+      let container= document.getElementById("qrcode-" + urlQR)
+
+      // new QRCode(document.getElementById("qrcode-" + urlQR), urlQR);
+    })
+  
+</script>
+  </body></html>`);
   // w.document.close();
   w.focus();
   setTimeout(() => {
@@ -5016,12 +5020,12 @@ function incializarTablaTablaGuiasInter() {
           let n = 1;
           let telefono = data;
           while (n <= 1) {
-            result += `<a class="btn btn-light d-flex align-items-baseline mb-1" 
+            result += `<a class="btn btn-light d-flex align-items-baseline mb-1"
                         href="https://api.whatsapp.com/send?phone=57${telefono
                           .toString()
-                          .replace(/\s/g, "")}" 
+                          .replace(/\s/g, "")}"
                         target="_blank">
-                            <i class="fab fa-whatsapp mr-1" style="color: #25D366"></i> 
+                            <i class="fab fa-whatsapp mr-1" style="color: #25D366"></i>
                             ${telefono}
                         </a>`;
 
