@@ -4783,23 +4783,11 @@ async function generarGuiaFlexii(id_guias) {
     let tr = document.createElement("tr");
     tr.classList.add("border-bottom-secondary");
 
-    let src_logo_transp = "img/logoServi.png";
     let logo = "img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg";
 
     if (data.oficina) {
       logo = "img/logo-flexi.png";
     }
-
-    if (data.transportadora === "INTERRAPIDISIMO") {
-      src_logo_transp = "img/logo-inter.png";
-    } else if (data.transportadora === "ENVIA") {
-      src_logo_transp = "img/2001.png";
-    } else if (data.transportadora === "TCC") {
-      src_logo_transp = "img/logo-tcc.png";
-    } else if (data.transportadora === "COORDINADORA") {
-      src_logo_transp = "img/logo-coord.png";
-    }
-
     const celularD =
       data.celularD != data.telefonoD
         ? data.celularD + " - " + data.telefonoD
@@ -4815,11 +4803,8 @@ async function generarGuiaFlexii(id_guias) {
       ? data.datos_oficina.ciudad
       : `${data.ciudadD}(${data.departamentoD})`;
     const celular = data.oficina ? data.datos_oficina.celular : celularD;
-
-    let imgs = `<td><div class="align-items-center d-flex flex-column">
-            <img src="${logo}" width="100px">
-            <img src="${src_logo_transp}" width="100px">
-        </div></td>`;
+    const urlQR= `http://localhost:6200/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia
+    `
 
    let header = `
    <div>
@@ -4862,6 +4847,7 @@ async function generarGuiaFlexii(id_guias) {
       </tr>
       <tr>
       <th >Escanea el qr </br>
+      ${urlQR}
       <div id="qrcode"></div></th>
 
               <td>
