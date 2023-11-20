@@ -4861,9 +4861,10 @@ async function generarGuiaFlexii(id_guias) {
       
       </tr>
       <tr>
-      <th >Escanea el qr</th>
+      <th >Escanea el qr </br>
+      <div id="qrcode"></div></th>
 
-      <td>
+              <td>
           Peso real: ${data.peso} kg<br/>
           Contenido: ${data.dice_contener}<br/>
           Costo envío: ${data.valor} <br/>
@@ -4911,7 +4912,7 @@ async function generarGuiaFlexii(id_guias) {
 
 
   w.document.write(`
-  <div id="qrcode"></div>
+  
   http://localhost:6200/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia
   <script type="text/javascript">
   new QRCode(document.getElementById("qrcode"), "${`http://localhost:6200/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia`}");
