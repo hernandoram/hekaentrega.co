@@ -4744,8 +4744,7 @@ async function generarGuiaFlexii(id_guias) {
   let div = document.createElement("div");
   let table = document.createElement("table");
   let tbody = document.createElement("tbody");
-  let guias = new Array();
-
+  let guias = new Array(); 
 
   for (let id of id_guias) {
     let x = usuarioDoc
@@ -4755,7 +4754,6 @@ async function generarGuiaFlexii(id_guias) {
       .then((d) => d.data());
     guias.push(x);
   }
-
 
   let guiaImprimir = null;
 
@@ -4772,7 +4770,6 @@ async function generarGuiaFlexii(id_guias) {
       });
     }).then(async()=>{
   let data_guias = await Promise.all(guias);
-  console.log(data_guias);
 
   table.setAttribute("class", "table");
 
@@ -4780,7 +4777,6 @@ async function generarGuiaFlexii(id_guias) {
 
   for (let data of data_guias) {
     guiaImprimir= data;
-    console.log(data)
     let tr = document.createElement("tr");
     tr.classList.add("border-bottom-secondary");
 
@@ -4854,7 +4850,6 @@ async function generarGuiaFlexii(id_guias) {
       <tr>
       <th >Escanea el qr </br>
       <div class="qr-code" id="qrcode-${urlQR}"></div>
-      ${urlQR}
       <td>
           Peso real: ${data.peso} kg<br/>
           Contenido: ${data.dice_contener}<br/>
@@ -4870,9 +4865,6 @@ async function generarGuiaFlexii(id_guias) {
 </table>
 
    `;
-
-
-
     div.innerHTML += header + body;
     tbody.appendChild(tr);
 
@@ -4936,6 +4928,7 @@ async function generarGuiaFlexii(id_guias) {
 })
 
 }
+
 
 
 
