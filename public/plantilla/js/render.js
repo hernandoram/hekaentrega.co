@@ -912,57 +912,64 @@ function crearStickerParticular() {
   const id_heka = this.getAttribute("data-id");
   const id_user = this.getAttribute("data-id_user");
   console.log(id_heka);
-  usuarioAltDoc(id_user)
-    .collection("guias")
-    .doc(id_heka)
-    .get()
-    .then(async (doc) => {
-      if (doc.exists) {
-        const data = doc.data();
-        const para_crear = {
-          numeroGuia: data.numeroGuia,
-          id_heka: data.id_heka,
-          id_archivoCargar: data.id_archivoCargar, // paraservientrega (no es tan necesario)
-          prueba: data.prueba,
-          url: data.urlGuia,
-          oficina: data.oficina,
-          type: data.type,
-        };
 
-        let has_sticker;
+  generarSticker(id_user, id_heka)
+  .then((res) => {
+    Toast.fire(res);
+    actualizarHistorialDeDocumentos();
+  });
+}
 
-        if (data.transportadora === "INTERRAPIDISIMO") {
-          has_sticker = await generarStickerGuiaInterrapidisimo(para_crear);
-        } else if (data.transportadora === "SERVIENTREGA") {
-          has_sticker = await guardarStickerGuiaServientrega(para_crear);
-        } else if (data.transportadora === "ENVIA") {
-          has_sticker = await guardarStickerGuiaEnvia(para_crear);
-        } else if (data.transportadora === "COORDINADORA") {
-          has_sticker = await guardarStickerGuiaCoordinadora(para_crear);
-        } else {
-          has_sticker = await guardarStickerGuiaAveo(para_crear);
-        }
+async function generarSticker(id_user, id_heka) {
+  return await usuarioAltDoc(id_user)
+  .collection("guias")
+  .doc(id_heka)
+  .get()
+  .then(async (doc) => {
+    if (doc.exists) {
+      const data = doc.data();
+      const para_crear = {
+        numeroGuia: data.numeroGuia,
+        id_heka: data.id_heka,
+        id_archivoCargar: data.id_archivoCargar, // paraservientrega (no es tan necesario)
+        prueba: data.prueba,
+        url: data.urlGuia,
+        oficina: data.oficina,
+        type: data.type,
+      };
 
-        try {
-          if (!has_sticker) throw "No se creó el sticker";
+      let has_sticker;
 
-          doc.ref.update({ has_sticker }).then(() => {
-            Toast.fire({
-              icon: "success",
-              text: "Sticker de guía creado exitósamente",
-            });
-
-            actualizarHistorialDeDocumentos();
-          });
-        } catch (e) {
-          console.log(e);
-          Toast.fire({
-            icon: "error",
-            text: "Lo siento, hubo un error para guardar el sticker",
-          });
-        }
+      if (data.transportadora === "INTERRAPIDISIMO") {
+        has_sticker = await generarStickerGuiaInterrapidisimo(para_crear);
+      } else if (data.transportadora === "SERVIENTREGA") {
+        has_sticker = await guardarStickerGuiaServientrega(para_crear);
+      } else if (data.transportadora === "ENVIA") {
+        has_sticker = await guardarStickerGuiaEnvia(para_crear);
+      } else if (data.transportadora === "COORDINADORA") {
+        has_sticker = await guardarStickerGuiaCoordinadora(para_crear);
+      } else {
+        has_sticker = await guardarStickerGuiaAveo(para_crear);
       }
-    });
+
+      try {
+        if (!has_sticker) throw "No se creó el sticker";
+
+        return await doc.ref.update({ has_sticker }).then(() => {
+          return {
+            icon: "success",
+            text: "Sticker de guía creado exitósamente",
+          };
+        });
+      } catch (e) {
+        console.log(e);
+        return {
+          icon: "error",
+          text: "Lo siento, hubo un error para guardar el sticker",
+        };
+      }
+    }
+  });
 }
 
 function editarGuiaCreada() {
@@ -1606,6 +1613,7 @@ async function restaurarSaldoGuia(trg, data) {
 
 //Mustra los movimientos de las guías
 function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
+  generarSegundaVersionMovimientoGuias(data);
   const ultimo_movimiento = data.movimientos[data.movimientos.length - 1];
 
   novedadesExcelData.push({ extraData, data });
@@ -1684,10 +1692,8 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
       ? ultimo_seguimiento.fecha.toMillis()
       : new Date();
 
-  const mov = traducirMovimientoGuia(data.transportadora);
-
   const tiempo_en_novedad = diferenciaDeTiempo(
-    momento_novedad[mov.fechaMov] || new Date(),
+    momento_novedad.fechaMov || new Date(),
     new Date()
   );
 
@@ -1745,11 +1751,11 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
                 ${btn_solucionar}
             </td>
 
-            <td class="text-danger">${ultimo_movimiento[mov.novedad]}</td>
+            <td class="text-danger">${ultimo_movimiento.novedad}</td>
             <td>${data.transportadora || "Servientrega"}</td>
             <td>${
-              momento_novedad[mov.fechaMov]
-                ? momento_novedad[mov.fechaMov]
+              momento_novedad.fechaMov
+                ? momento_novedad.fechaMov
                 : "No aplica"
             }</td>
 
@@ -1795,7 +1801,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
             <td>${extraData.ciudadD} / ${extraData.departamentoD}</td>
             
             <td>
-                ${ultimo_movimiento[mov.descripcionMov]}
+                ${ultimo_movimiento.descripcionMov}
             </td>
             
             <td style="min-width:250px; max-width:300px">
@@ -2090,8 +2096,43 @@ function mostrarPosiblesRespuestasNovedad(domResp, textarea, mensaje = "") {
   return lista;
 }
 
+/**
+ * Función encargada de traducir el historial de movimiento de las guías para generar una segunda versión
+ * De manera que si no tiene esa segunda versión, el fron la traduzca por completo para que se adapte a la nueva
+ * con la intención de migrar toda las guías de a poco hacia una nueva versión que tenga una lectura más globalizada
+ * @param {*} guia 
+ * @returns la guía cuyo historial de movimientos ya se encuentre traducido o la guía sin editar en caso que ya se encuentre en la versión 2
+ */
+function generarSegundaVersionMovimientoGuias(guia) {
+  if(guia.version === 2) return guia; // Sigifica que la guía que se está tratando de leer está en su segunda versión, por lo que no es necesario traducir
+
+  guia.version = 2;
+  const movTrad = traducirMovimientoGuia(guia.transportadora);
+
+  if(!guia.movimientos) return guia;
+
+  guia.movimientosV1 = guia.movimientos;
+
+  guia.movimientos = guia.movimientos.map(mov => {
+    const titulos = Object.keys(movTrad);
+    const res = {};
+    titulos.forEach((t) => (res[t] = mov[movTrad[t]]));
+    return res;
+  });
+
+  return guia;
+}
+
+// Function que devuelve un objeto con las "keys" que se prentan por cada transportadora para describir los movimientos
 function traducirMovimientoGuia(transportadora) {
-  let traductor = new Object();
+  let traductor = new Object({
+    novedad: "Está presente cuando existe una novedad, si no hay simplemente se genera un string vacío",
+    fechaMov: "La fecha en la que se efectuó dicho movimiento",
+    observacion: "Algún detalle sobre el mmovimiento",
+    descripcionMov: "Una descripción que otorga la transportadora al actualizar un estado",
+    ubicacion: "El lugar en que se dió a cabo del movimiento (normalmente lo usa servientrega)"
+  });
+
   switch (transportadora) {
     case "ENVIA":
       return {
@@ -2148,7 +2189,13 @@ function buscarMomentoNovedad(movimientos, transp) {
   return {};
 }
 
-function revisarNovedad(mov, transp) {
+/**
+ * @deprecated Corresponde a la primera versión del revisor de novedad por movimiento usar {@link revisarNovedad}
+ * @param {*} mov Corresponde al movimiento
+ * @param {*} transp Corresponde a la transportadora
+ * @returns
+ */
+function revisarNovedadV1(mov, transp) {
   if (transp === "INTERRAPIDISIMO") {
     return !!mov.Motivo;
   } else if (transp === "ENVIA" || transp === "TCC") {
@@ -2164,8 +2211,24 @@ function revisarNovedad(mov, transp) {
   }
 }
 
+
+function revisarNovedad(mov, transp) {
+  switch(transp) {
+    case "INTERRAPIDISIMO": case "ENVIA": case "TCC": case "COORDINADORA":
+      return !!mov.novedad
+
+    default: // La transportadora por defecto es SERVIENTREGA
+      if (listaNovedadesServientrega.length) {
+        return listaNovedadesServientrega.includes(mov.novedad);
+      }
+
+      return mov.idNovedad === "1";
+  }
+}
+
 //dataN = data de la novedad, dataG = data de la guía
 function gestionarNovedadModal(dataN, dataG) {
+  generarSegundaVersionMovimientoGuias(dataN); // Para que la lectura siempre esté adaptad aa la nueva versión
   // console.log(dataN.numeroGuia);
   // console.log(dataG)
   const ultimo_mov = dataN.movimientos[dataN.movimientos.length - 1];
@@ -2334,7 +2397,6 @@ function gestionarNovedadModal(dataN, dataG) {
       "text/html"
     ).body.firstChild;
 
-  const movTrad = traducirMovimientoGuia(dataN.transportadora);
   const guardarComoNovedad =
     dataG.transportadora === "SERVIENTREGA" && administracion;
 
@@ -2344,9 +2406,9 @@ function gestionarNovedadModal(dataN, dataG) {
       let li = document.createElement("li");
       let enNovedad = revisarNovedad(mov, dataN.transportadora);
       const btnGuardarComoNovedad =
-        guardarComoNovedad && mov[movTrad.novedad]
+        guardarComoNovedad && mov.novedad
           ? `<button class='btn btn-sm ml-2 btn-outline-danger registrar-novedad' data-novedad='${
-              mov[movTrad.novedad]
+              mov.novedad
             }'>Registrar novedad</button>`
           : "";
 
@@ -2361,17 +2423,17 @@ function gestionarNovedadModal(dataN, dataG) {
                             ? "<i class='fa fa-exclamation-triangle mr-2'></i>En novedad"
                             : ""
                         }</h6>
-                        <h6>${mov[movTrad.fechaMov]}</h6>
+                        <h6>${mov.fechaMov}</h6>
                     </small>
-                    <h4>${mov[movTrad.descripcionMov]}</h4>
+                    <h4>${mov.descripcionMov}</h4>
                     <p class="mb-1">
-                        <b>${mov[movTrad.observacion]}</b>
+                        <b>${mov.observacion}</b>
                     </p>
                     <p class="mb-1"><i class="fa fa-map-marker-alt mr-2 text-primary"></i>${
-                      mov[movTrad.ubicacion] || "No registra."
+                      mov.ubicacion || "No registra."
                     }</p>
                     <p>
-                        <span class="text-danger">${mov[movTrad.novedad]}</span>
+                        <span class="text-danger">${mov.novedad}</span>
                         ${btnGuardarComoNovedad}
                     </p>
                     </div>
