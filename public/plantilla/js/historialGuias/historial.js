@@ -460,6 +460,7 @@ function agregarFuncionalidadesTablaPedidos() {
             <input type="checkbox" class="form-check-input" id="select-all-guias">
             <label class="form-check-label" for="select-all-guias"><span class='texto'>Seleccionar Todas </span><span class="counter"></span></label>
         </div>
+        <ul class="text-danger" id="errores-generadas_historial-guias"></ul>
     `);
 
   const { inpSelectGuias, counterSelector } = getContadorGuiasSeleccionadas();
@@ -509,10 +510,6 @@ function agregarFuncionalidadesTablaPedidos() {
   // }
 
   $("tbody", this).on("click", "tr", function (e) {
-    console.log(
-      !e.target.classList.contains("action"),
-      e.target.tagName !== "I"
-    );
     if ([novedad].includes(filtrador.value)) return;
     if (!e.target.classList.contains("action") && e.target.tagName !== "I")
       $(this).toggleClass("selected bg-gray-300");
@@ -524,6 +521,7 @@ function renderizadoDeTablaHistorialGuias(config) {
   console.count("renderizando tabla");
   const api = this.api();
   const data = this.api().data();
+  const erroresSticker = [];
 
   data.each((data, i) => {
     const row = api.row(i).node();
@@ -533,9 +531,31 @@ function renderizadoDeTablaHistorialGuias(config) {
       // $(".action", row).tooltip();
       activarBotonesDeGuias(data.id_heka, data, true);
     }
+    
+    if([generada].includes(filtrador.value) && !data.has_sticker) {
+      row.classList.add("text-warning");
+      erroresSticker.push(data);
+    }
 
     row.setAttribute("data-active", true);
   });
+
+  const muestraErroresGeneradas = $("#errores-generadas_historial-guias");
+  muestraErroresGeneradas.html("");
+  if(erroresSticker.length) {
+    muestraErroresGeneradas.append(`
+      <li>
+        La(s) guía(s) <b>${erroresSticker.map(error => error.id_heka).join(", ")}</b> no posee(n) el Sticker de la guía (PDF de guía de la transportadora), o no ha(n) sido creado(s) correctamente. 
+        Por favor intente solucionarlo antes de realizar alguna acción sobre la(s) misma(s), presionando el botón 
+        <button class="btn btn-warning btn-circle btn-sm mx-1"
+        data-funcion="activar-desactivar"
+        data-placement="right"
+        title="Crear Sticker de la guía">
+            <i class="fas fa-stamp"></i>
+        </button> <b>"Presente en las guía(s) correspondiente(s)"</b>
+      </li>
+    `);
+  }
 
   return;
 
@@ -720,7 +740,7 @@ function accionesDeFila(datos, type, row) {
         class="d-flex justify-content-around align-items-center">
         `;
 
-    const btnCrearSticker = `<button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
+    const btnCrearSticker = `<button class="btn btn-warning btn-circle btn-sm mx-1 action" data-id="${id}"
         data-funcion="activar-desactivar"
         data-placement="right"
         id="crear_sticker${id}" title="Crear Sticker de la guía">
