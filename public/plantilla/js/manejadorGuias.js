@@ -4746,6 +4746,7 @@ async function generarGuiaFlexii(id_guias) {
   let tbody = document.createElement("tbody");
   let guias = new Array();
 
+
   for (let id of id_guias) {
     let x = usuarioDoc
       .collection("guias")
@@ -4775,7 +4776,7 @@ async function generarGuiaFlexii(id_guias) {
 
   table.setAttribute("class", "table");
 
-  let urlsQR= []
+  let urlsQR= [] //array
 
   for (let data of data_guias) {
     guiaImprimir= data;
@@ -4803,10 +4804,13 @@ async function generarGuiaFlexii(id_guias) {
       ? data.datos_oficina.ciudad
       : `${data.ciudadD}(${data.departamentoD})`;
     const celular = data.oficina ? data.datos_oficina.celular : celularD;
-    const urlQR= `http://localhost:6200/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia
-
-    `
-    urlsQR.push(urlQR)
+    const urlQR= `http://localhost:6200/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia`
+   
+    urlsQR.push({
+      id_heka: guiaImprimir.id_heka,
+      id_user: guiaImprimir.id_user,
+      urlQR,
+    });
 
    let header = `
    <div>
@@ -4849,7 +4853,7 @@ async function generarGuiaFlexii(id_guias) {
       </tr>
       <tr>
       <th >Escanea el qr </br>
-      <div id="qrcode-${urlQR}"></div>
+      <div class="qr-code" id="qrcode-${urlQR}"></div>
       ${urlQR}
       <td>
           Peso real: ${data.peso} kg<br/>
@@ -4866,11 +4870,14 @@ async function generarGuiaFlexii(id_guias) {
 </table>
 
    `;
+
+
+
     div.innerHTML += header + body;
     tbody.appendChild(tr);
 
   }
-
+    
    console.log(urlsQR)
 
 
@@ -4900,11 +4907,22 @@ async function generarGuiaFlexii(id_guias) {
   w.document.write(`
 
   <script type="text/javascript">
-      urlsQR.forEach(function(urlQR) {
-      let container= document.getElementById("qrcode-" + urlQR)
 
-      // new QRCode(document.getElementById("qrcode-" + urlQR), urlQR);
-    })
+  const urlsQR= document.querySelectorAll(".qr-code");
+  console.log(urlsQR);
+
+  // Itera sobre cada elemento
+  for (let i = 0; i < urlsQR.length; i++) {
+    // Obtiene el id del elemento
+    const id = urlsQR[i].id;
+
+    // Extrae la parte del id después de "qrcode-"
+    const url = id.substring("qrcode-".length);
+
+    // Genera el código QR
+    new QRCode(urlsQR[i], url);
+  }
+
   
 </script>
   </body></html>`);
