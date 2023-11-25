@@ -191,6 +191,7 @@ async function historialGuiasAntiguo() {
 
             //Botones para descargar documentosy rótulos cuando accede a la condición
             //botones para clonar y eliminar guía cuando rechaza la condición.
+            
             if (datos.enviado) {
               buttons += btnDownloadDocs + btnRotulo + btnGuiaFlexii;
             }
