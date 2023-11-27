@@ -11,11 +11,7 @@
   margin:0;
   width: auto;
 }
-.chat li {
-  margin-bottom: 10px;
-  padding-bottom: 5px;
-  border-bottom: 1px dotted #b3a9a9;
-}
+
 
 .chat li.left .chat-body {
   margin-left: 60px;
