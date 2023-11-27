@@ -40,6 +40,7 @@ export function detallesFlexii(objData) {
             </h3>
           </div>
         </div>
+        <button class="btn-primary btn-block btn-lg" id="botonFinalizarCoti"> Continuar </button>
       </div>
     </div>
     `;
