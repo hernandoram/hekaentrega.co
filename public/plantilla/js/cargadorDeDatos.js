@@ -53,11 +53,7 @@ let datos_usuario = {},
     saldo: 0,
   };
 
-const ciudadesFlexxi=[
-  "BOGOTA(CUNDINAMARCA)",
-  "TUMACO(NARIÑO)"
-];
-
+const ciudadesFlexxi = ["BOGOTA(CUNDINAMARCA)", "TUMACO(NARIÑO)"];
 
 const bodegasWtch = new Watcher();
 
@@ -194,7 +190,9 @@ async function consultarDatosDeUsuario() {
       const datos = doc.data();
       const datos_bancarios = datos.datos_bancarios || null;
       const datos_personalizados = datos.datos_personalizados;
-      let bodegas = datos.bodegas ? datos.bodegas.filter(b => !b.inactiva) : [];
+      let bodegas = datos.bodegas
+        ? datos.bodegas.filter((b) => !b.inactiva)
+        : [];
 
       datos_usuario = {
         nombre_completo:
@@ -213,11 +211,12 @@ async function consultarDatosDeUsuario() {
         bodegas,
       };
 
-      if(datos_usuario.type === "NATURAL-FLEXII") {
-        bodegas = bodegas.filter(bodega => ciudadesFlexxi.includes(bodega.ciudad));
+      if (datos_usuario.type === "NATURAL-FLEXII") {
+        bodegas = bodegas.filter((bodega) =>
+          ciudadesFlexxi.includes(bodega.ciudad)
+        );
         datos_usuario.bodegas = bodegas;
       }
-
 
       bodegasWtch.change(bodegas);
 
@@ -226,12 +225,7 @@ async function consultarDatosDeUsuario() {
       mostrarDatosPersonalizados(datos_personalizados);
       mostrarDatosBancarios(datos_bancarios);
 
-  
-       
       mostrarBodegas(bodegas);
-      
-
-
 
       return datos_usuario;
     }
@@ -373,7 +367,7 @@ function mostrarBodegas(bodegas) {
   const parent = template.parent();
   parent.empty();
 
-  console.log(bodegas)
+  console.log(bodegas);
 
   if (bodegas) {
     bodegas.forEach((bodega, i) => {
@@ -1997,12 +1991,12 @@ console.log(datosUsuario);
 async function solicitarPagosPendientesUs() {
   const datosUsuario = localStorage.getItem("user_id");
 
-  console.log(datosUsuario)
+  console.log(datosUsuario);
 
-// if(datosUsuario == "zGR9EbRKEQGRxIMfKiu4"){
-//   return Swal.fire(" Desactivación Temporal de la Función de Solicitar Pagos", "Hemos desactivado temporalmente la función de solicitar pagos. Estamos trabajando en la solución y te mantendremos informado.", "error");
+  // if(datosUsuario == "zGR9EbRKEQGRxIMfKiu4"){
+  //   return Swal.fire(" Desactivación Temporal de la Función de Solicitar Pagos", "Hemos desactivado temporalmente la función de solicitar pagos. Estamos trabajando en la solución y te mantendremos informado.", "error");
 
-// }
+  // }
 
   const mensajeDesembolso = obtenerMensajeDesembolso();
   const minimo_diario = 3000000;
@@ -2254,3 +2248,24 @@ botonInputFlexii.onclick = function () {
       }
     });
 };
+
+const itemsChat = document.querySelector("#items-chat-notification");
+
+function llenarItemsChat() {
+  const itemChat = `
+  <div>
+  <div class="header">
+    <strong class="primary-font">Jack Sparrow</strong>
+  </div>
+  <p>
+    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
+    dolor, quis ullamcorper ligula sodales.
+  </p>
+</div>
+`;
+
+itemsChat.innerHTML += itemChat;
+
+}
+
+llenarItemsChat();
