@@ -713,7 +713,7 @@ async function buscarUsuarios(e) {
   // if(value("buscador_usuarios-id")){
   //     busqueda = ["==", value("buscador_usuarios-id")];
   // }
-  const nombreInpOriginal = value("buscador_usuarios-nombre").toLowerCase().trim();
+  const nombreInpOriginal = value("buscador_usuarios-nombre").trim();
   const nombreInp = value("buscador_usuarios-nombre").toLowerCase().trim();
   const reference = firebase.firestore().collection("usuarios");
   const casesToSearch = [
