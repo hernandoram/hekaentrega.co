@@ -8,6 +8,7 @@ const hekaBrand = {
   hosts: "hekaentrega.co",
   dominios: ["hekaentrega.co", "www.flehekaentregaxi.co"],
   index: "/",
+  cotizador: "cotizador-1"
 };
 
 const flexxiBrand = {
@@ -20,6 +21,7 @@ const flexxiBrand = {
   hosts: "flexii.co",
   dominios: ["flexii.co", "www.flexi.co"],
   index: "/",
+  cotizador: "cotizador-2"
 };
 
 const localBrand = {
@@ -33,6 +35,7 @@ const localBrand = {
   dominios: ["localhost:6200"],
   index: "/",
   seccionesEliminadas: ["pagos", "novedades"],
+  cotizador: "cotizador-1"
 };
 
 const brands = [hekaBrand, flexxiBrand, localBrand];
@@ -48,6 +51,7 @@ function hostnameReader() {
   const brandName = $("#brandName");
   const correoAtencionCliente = $(".correo-atencion");
   const celAtencionCliente = $(".cel-atencion");
+  const buttonCotizar = $(".cotizador-button")
   // Buscamos el objeto de la empresa que alguno de los dominios coincida con el actual
   // Si no detecta uno, utiliza el de heka por defecto
   const brand = brands.find((b) => b.dominios.includes(hostname)) || hekaBrand;
@@ -57,6 +61,7 @@ function hostnameReader() {
   // if(brand == localBrand) redirectHeka.addClass("d-none");
   if(brand == hekaBrand) redirectFlexii.addClass("d-none");
   if(brand == flexxiBrand) redirectHeka.addClass("d-none");
+  // buttonCotizar.addClass(brand.cotizador)
   pageTitle.text(brand.nombre_completo);
   indexLink.attr("href", brand.index);
   element.text(brand.nombre_completo);

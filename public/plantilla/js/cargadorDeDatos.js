@@ -53,6 +53,12 @@ let datos_usuario = {},
     saldo: 0,
   };
 
+const ciudadesFlexxi=[
+  "BOGOTA(CUNDINAMARCA)",
+  "TUMACO(NARIÑO)"
+];
+
+
 const bodegasWtch = new Watcher();
 
 class ControlUsuario {
@@ -208,7 +214,7 @@ async function consultarDatosDeUsuario() {
       };
 
       if(datos_usuario.type === "NATURAL-FLEXII") {
-        bodegas = bodegas.filter(bodega => ["BOGOTA(CUNDINAMARCA)", "TUMACO(NARIÑO)"].includes(bodega.ciudad));
+        bodegas = bodegas.filter(bodega => ciudadesFlexxi.includes(bodega.ciudad));
         datos_usuario.bodegas = bodegas;
       }
 
