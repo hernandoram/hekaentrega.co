@@ -759,7 +759,7 @@ function accionesDeFila(datos, type, row) {
       data-funcion="activar-desactivar" data-activate="after" 
       data-placement="right"
       id="generar_guiaflexii${id}" title="Generar Guía Flexii">
-          <i class="fas fa-f"></i>
+          <i class="fas fa-file-download"></i>
       </button>`;
 
     const btnClone = `<button class="btn btn-success btn-circle btn-sm mx-1 action ${showCloneAndDelete}" data-id="${id}" 
@@ -812,9 +812,17 @@ function accionesDeFila(datos, type, row) {
 
     //Botones para descargar documentosy rótulos cuando accede a la condición
     //botones para clonar y eliminar guía cuando rechaza la condición.
-    if (datos.enviado && !datos.enNovedad) {
-      buttons += btnDownloadDocs + btnRotulo + btnGuiaFlexii;
+    
+    if (datos_usuario.type === "NATURAL-FLEXII") {
+      if (datos.enviado && !datos.enNovedad) {
+        buttons += btnGuiaFlexii;
+      }
+    } else {
+      if (datos.enviado && !datos.enNovedad) {
+        buttons += btnDownloadDocs + btnRotulo;
+      }
     }
+
 
     if (filtrado === pedido) {
       buttons += btnClone;
