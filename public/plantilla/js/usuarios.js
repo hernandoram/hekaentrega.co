@@ -702,6 +702,8 @@ function mostrarOficina(id) {
 
 //esta funcion utilizara a otra para retornarme informacion basica del usuario
 async function buscarUsuarios(e) {
+
+  console.log("buscando usuarios");
   console.log(this, e);
   e.preventDefault();
   const mostrador = document.getElementById("mostrador-usuarios");
@@ -711,8 +713,8 @@ async function buscarUsuarios(e) {
   // if(value("buscador_usuarios-id")){
   //     busqueda = ["==", value("buscador_usuarios-id")];
   // }
-  const nombreInpOriginal = value("buscador_usuarios-nombre");
-  const nombreInp = value("buscador_usuarios-nombre").toLowerCase();
+  const nombreInpOriginal = value("buscador_usuarios-nombre").trim();
+  const nombreInp = value("buscador_usuarios-nombre").toLowerCase().trim();
   const reference = firebase.firestore().collection("usuarios");
   const casesToSearch = [
     "centro_de_costo",
@@ -757,10 +759,8 @@ async function buscarUsuarios(e) {
     .get()
     .then((querySnapshot) => {
       inHTML("mostrador-usuarios", "");
-      console.log(querySnapshot.size);
       const size = querySnapshot.size;
       querySnapshot.forEach((doc) => {
-        console.log(doc.data())
         //Luego de la consulta se realizan tres filtros
 
         const nombre = doc.data().nombres.trim().toLowerCase();
