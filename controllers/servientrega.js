@@ -607,23 +607,6 @@ async function actualizarMovimientos(doc) {
                 movimientos, // movimientos registrados por la transportadora
               };
 
-              //#region Enviar mensaje cuando se detecte cierta novedad y asignar la última novedad encontrada a la guía
-              // movimientos.reverse();
-              // for await (const mov of movimientos) {
-              //   // const revision = await revisarNovedadAsync(mov, "SERVIENTREGA");
-              //   if(false) {
-              //     ultima_novedad = mov.NomConc;
-              //     fecha_ult_novedad = mov.FecMov;
-              //     if(ultima_novedad !== ultimaNovedadRegistrada) {
-              //       notificarNovedadPorMensaje(guia, ultima_novedad);
-              //     }
-              //     break;
-              //   }
-
-              // }
-              // movimientos.reverse();
-              //#endregion
-
               /*Respuesta ante la actualización de movimientos.
               se actulizan aquellos estados que sean diferentes y que estén registrados en este objeto*/
               upte_movs = await extsFunc.actualizarMovimientos(doc, data_to_fb);

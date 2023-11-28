@@ -2130,7 +2130,8 @@ function traducirMovimientoGuia(transportadora) {
     fechaMov: "La fecha en la que se efectuó dicho movimiento",
     observacion: "Algún detalle sobre el mmovimiento",
     descripcionMov: "Una descripción que otorga la transportadora al actualizar un estado",
-    ubicacion: "El lugar en que se dió a cabo del movimiento (normalmente lo usa servientrega)"
+    ubicacion: "El lugar en que se dió a cabo del movimiento (normalmente lo usa servientrega)",
+    tipoMotivo: "el tipo de motivo por el cual se determina la novedad (usado por servientrega)"
   });
 
   switch (transportadora) {
@@ -2141,6 +2142,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "observacion",
         descripcionMov: "estado",
         ubicacion: "ciudad",
+        tipoMotivo: "TipoMov"
       };
     case "TCC":
       return {
@@ -2149,6 +2151,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "descripcion",
         descripcionMov: "estado",
         ubicacion: "ciudad",
+        tipoMotivo: "TipoMov"
       };
     case "INTERRAPIDISIMO":
       return {
@@ -2157,6 +2160,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "Motivo",
         descripcionMov: "Descripcion Estado",
         ubicacion: "Ciudad",
+        tipoMotivo: "TipoMov"
       };
     case "COORDINADORA":
       return {
@@ -2165,6 +2169,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "descripcion",
         descripcionMov: "descripcion",
         ubicacion: "Ciudad",
+        tipoMotivo: "TipoMov"
       };
     default:
       return {
@@ -2173,6 +2178,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "DesTipoMov",
         descripcionMov: "NomMov",
         ubicacion: "OriMov",
+        tipoMotivo: "TipoMov"
       };
   }
 }
@@ -2222,7 +2228,7 @@ function revisarNovedad(mov, transp) {
         return listaNovedadesServientrega.includes(mov.novedad);
       }
 
-      return mov.idNovedad === "1";
+      return mov.tipoMotivo === "1";
   }
 }
 

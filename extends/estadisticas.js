@@ -183,8 +183,7 @@ async function definirEstadisticas(data) {
         try {
             const novedad = await revisarNovedadAsync(b, data.transportadora);
             if(novedad) {
-                const campoNovedad = traducirMovimientoGuia(data.transportadora).novedad
-                posiblesNovedades.push(b[campoNovedad]);
+                posiblesNovedades.push(b.novedad);
                 a++;
             }
         } catch (e) {
