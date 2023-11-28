@@ -86,7 +86,7 @@ function cambioNotificacion(e) {
 
   //cambio botones
 
-  if (val!== "--Nueva notificación--") {
+  if (val!== "nueva") {
     botonNotificacion.innerHTML = "Editar notificación";
     const notificacion =
       notificaciones.find((notificacion) => notificacion.id === val) || null;
@@ -137,6 +137,7 @@ function cambioNotificacion(e) {
       mostradorUsuariosNoti.classList.remove("d-flex");
     }
   } else {
+    console.log("HOLA")
     mostradorUsuariosNoti.classList.add("d-none");
     botonesInputUserNoti.classList.add("d-none");
     mostradorUsuariosNoti.classList.remove("d-flex");
@@ -212,7 +213,8 @@ async function generarNotificacion(e) {
 
   console.log(notificacion);
 
-  if (selectorNotificacion.value) {
+  console.log(selectorNotificacion.value);
+  if (!selectorNotificacion.value == "nueva") {
     try {
       await fireRef
         .doc(selectorNotificacion.value)
@@ -458,6 +460,7 @@ function selectorNotificaciones(notificaciones) {
   // Crear una nueva opción
   const opcionPorDefecto = document.createElement("option");
   opcionPorDefecto.text = "--Nueva notificación--";
+  opcionPorDefecto.value = "nueva";
 
   // Insertar la nueva opción al principio del elemento select
   selectorNotificacion.insertBefore(
