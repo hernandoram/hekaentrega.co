@@ -662,7 +662,6 @@ function mostrarReferidos(datos) {
           });
         })
         .finally(() => {
-          console.log(referidos);
           if (referidos.length > 0) despliegueReferidos(referidos);
         });
     })
@@ -674,7 +673,6 @@ function mostrarReferidos(datos) {
 }
 
 function despliegueReferidos(referidos) {
-  console.log(referidos);
 
   let mostradorReferidos = document.getElementById("mostrador-referidos");
   let tituloreferidos = document.getElementById("titulo-referidos");
@@ -2251,21 +2249,36 @@ botonInputFlexii.onclick = function () {
 
 const itemsChat = document.querySelector("#items-chat-notification");
 
-function llenarItemsChat() {
+
+function traerNoti() {
+  let notificaciones= [];
+  const fireRef = db.collection("centro_notificaciones");
+  fireRef.where("type", "==", "mensaje").get().then((q) => {
+    q.forEach((d) => {
+      const data = d.data();
+      data.id = d.id;
+      notificaciones.push(data);
+      console.log(data);
+      llenarItemsChat(data); // Llama a llenarItemsChat para cada notificación
+    });
+  }).then(()=>{
+    console.log(notificaciones);
+  })
+}
+
+function llenarItemsChat(notificacion) {
   const itemChat = `
   <div>
   <div class="header">
-    <strong class="primary-font">Jack Sparrow</strong>
+    <strong class="primary-font">${notificacion.name}</strong>
   </div>
   <p>
-    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
-    dolor, quis ullamcorper ligula sodales.
+    ${notificacion.mensaje}
   </p>
 </div>
 `;
 
-itemsChat.innerHTML += itemChat;
-
+  itemsChat.innerHTML += itemChat;
 }
 
-llenarItemsChat();
+traerNoti();

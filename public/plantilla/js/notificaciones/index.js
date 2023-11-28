@@ -137,7 +137,6 @@ function cambioNotificacion(e) {
       mostradorUsuariosNoti.classList.remove("d-flex");
     }
   } else {
-    console.log("HOLA")
     mostradorUsuariosNoti.classList.add("d-none");
     botonesInputUserNoti.classList.add("d-none");
     mostradorUsuariosNoti.classList.remove("d-flex");
