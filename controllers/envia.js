@@ -66,7 +66,7 @@ exports.crearGuia = async (req, res) => {
     const data = {
         "ciudad_origen": guia.dane_ciudadR,
         "ciudad_destino": guia.dane_ciudadD,
-        "cod_formapago": 4,
+        "cod_formapago": 4, // Crédito
         "cod_servicio": guia.peso >= 9 ? 3 : 12,
         "info_cubicacion": [{
             "cantidad": 1,
@@ -124,7 +124,7 @@ exports.crearGuia = async (req, res) => {
 exports.obtenerStickerGuia = async (req, res) => {
     const {numeroGuia, url} = req.body;
 
-    const rutaBase = `http://200.69.100.66/2impresionGuiaspruebas/Guia3.aspx?Usuario=${credentials.usuario}&Guia=${numeroGuia}`;
+    const rutaBase = `http://200.69.100.66/2impresionGuias/Guia3.aspx?Usuario=${credentials.usuario}&Guia=${numeroGuia}`;
 
     const ruta = url ? url : rutaBase;
     const base64 = await urlToPdfBase64(ruta);

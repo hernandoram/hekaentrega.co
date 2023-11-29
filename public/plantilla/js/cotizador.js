@@ -4173,6 +4173,12 @@ async function generarGuiaEnvia(datos) {
     has_sticker: false,
   };
 
+  // Para guardar la url en la que se encuentra alojada la guía inicialmente
+  if(response.urlguia) {
+    // Inyectamos el valor por referencia del objeto que se está pasando "datos"
+    datos.urlGuia = response.urlguia;
+  }
+
   res.has_sticker = await guardarStickerGuiaEnvia({
     url: response.urlguia,
     id_heka: datos.id_heka,
