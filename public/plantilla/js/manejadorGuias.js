@@ -618,7 +618,7 @@ function filtradorEspecialHistorialGuias() {
   api.search(filtrador).draw();
 }
 
-function descargarGuiasParticulares(e, dt, node, config) {
+async function descargarGuiasParticulares(e, dt, node, config) {
   const api = dt;
   const selectedRows = api.rows(".selected");
   if (!selectedRows.data().length) {
@@ -628,39 +628,53 @@ function descargarGuiasParticulares(e, dt, node, config) {
     });
   }
 
-  Swal.fire({
+  const respuestaUsuario = await Swal.fire({
     title: "¡Atención!",
     text: "Recuerda que al descargar los documentos, ya no podrás eliminar las guías seleccionadas, ¿Deseas continuar?",
     icon: "warning",
     showCancelButton: true,
     confirmButtonText: "¡Si! continuar 👍",
     cancelButtonText: "¡No, déjame pensarlo!",
-  }).then((resp) => {
-    if (!resp.isConfirmed) return;
+  });
 
-    //JOSEE
+  console.log(respuestaUsuario);
 
-    const charger = new ChangeElementContenWhileLoading(node);
-    charger.init();
+  if (!respuestaUsuario.isConfirmed) return;
 
-    // const datas = selectedRows.data().length > 0 ? selectedRows.data() : api.rows().data();
-    const datas = selectedRows.data();
-    const ids = new Array();
-    datas.each((r) => ids.push(r.id_heka));
-    console.log(ids);
+  const charger = new ChangeElementContenWhileLoading(node);
+  charger.init();
 
+  // const datas = selectedRows.data().length > 0 ? selectedRows.data() : api.rows().data();
+  const datas = selectedRows.data();
+  const ids = new Array();
+  const idsFaltantes = new Array();
+  datas.each((r) => {
+    const {has_sticker, id_heka, id_user} = r;
+    if(!has_sticker) idsFaltantes.push([id_user, id_heka]);
+    
+    ids.push(id_heka)
+  });
 
+  console.log(ids);
 
-    console.log(ids)
+  if(datos_usuario.type == "NATURAL-FLEXII") {
+    generarGuiaFlexii(ids)
+    return charger.end();
+  }
 
-    if(datos_usuario.type == "NATURAL-FLEXII"){
-      generarGuiaFlexii(ids)
-      return charger.end();
-      }
+  if(idsFaltantes.length) {
+    Cargador.fire(
+      "Solucionando conflictos",
+      `Se han encontrado ${idsFaltantes.length} guías que no fueron creadas correctamente, estamos intentando solucionarlo por usted.`
+    );
 
-    buscarGuiasParaDescargarStickers(ids).then(() => {
-      charger.end();
-    });
+    // return;
+    await Promise.all(idsFaltantes.map(([id_user, id_heka]) => generarSticker(id_user, id_heka)));
+  }
+
+  buscarGuiasParaDescargarStickers(ids).then(() => {
+    charger.end();
+    Toast.fire("Cargue Terminado", "Se han cargado las guías disponibles", "info");
   });
 }
 
