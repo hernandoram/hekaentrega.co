@@ -6,8 +6,11 @@ const pathCiudadesLista = pathCiudades + "/Lista";
 const pathCiudadDane = pathCiudades + "/CiudadDane";
 const pathEstadisticasCiudad = pathCiudades + "/Estadisticas";
 
+const pathCotizador = endpoint + "/Heka/Cotizar";
+
 export {
     pathCiudadesLista,
     pathCiudadDane,
-    pathEstadisticasCiudad
+    pathEstadisticasCiudad,
+    pathCotizador
 }

@@ -61,7 +61,17 @@ async function agregarNuevaBodega(form) {
     let bodegas = datos_usuario.bodegasCompletas;
     const btnContinue = modalNuevaBodega.btnContinue;
 
+
+    if (datos_usuario.type === "NATURAL-FLEXII" && !ciudadesFlexxi.includes(ciudadBodega.value)) {
+        return Swal.fire({
+            icon: 'error',
+            text: 'No puedes crear bodegas en esta ciudad.'
+          });
+    }
+
+
     const trigger = new ChangeElementContenWhileLoading(btnContinue);
+
 
     form.checkValidity();
     verificador([idInpNombre, idInpCiudad], null);

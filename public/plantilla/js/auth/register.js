@@ -1,5 +1,8 @@
-
-import { ChangeElementContenWhileLoading, verificador, DetectorErroresInput } from "../utils/functions.js";
+import {
+  ChangeElementContenWhileLoading,
+  verificador,
+  DetectorErroresInput,
+} from "../utils/functions.js";
 import { handleAuthErrors, findUser } from "./handlers.js";
 import { auth, firestore as db } from "../config/firebase.js";
 
@@ -18,309 +21,340 @@ rgOfiForm.findErrorsBeforeNext = revisarErroresParticularesRegistro;
 
 const comprobacionesRegistro = habilitarComprobacionesDeInputs();
 
-
 function habilitarComprobacionesDeInputs() {
-    const varifyInputsImportants = new DetectorErroresInput(".verificacion-especial");
-    varifyInputsImportants.init("blur");
-    varifyInputsImportants.setBooleans = [{
-        operator: '<',
-        message: 'La contraseña debe tener como mínimo 8 carácteres',
-        selector: "#register-password",
-        forbid: 8,
-        case: "length"
-    }, {
-        operator: 'regExp',
-        message: 'El carácter {forbidden} no está permitido',
-        selector: "#register-empresa",
-        forbid: /[^A-Za-z0-9\s]/g
-    }, {
-        operator: '>=',
-        message: 'Has llegado al límite de carácteres ({forbidden}).',
-        selector: "#register-empresa",
-        forbid: 25,
-        case: "length"
-    }, {
-        operator: 'regExp',
-        message: 'Recuerde ingresar solo números.',
-        selectors: ["#register-celular", "#register-celular2", "#register-numero_documento"],
-        forbid: /[^\d]/
-    }, {
-        operator: '!=',
-        message: 'El celular debe tener 10 díjitos',
-        selector: "#register-celular",
-        forbid: 10,
-        case: "length",
-    }];
+  const varifyInputsImportants = new DetectorErroresInput(
+    ".verificacion-especial"
+  );
+  varifyInputsImportants.init("blur");
+  varifyInputsImportants.setBooleans = [
+    {
+      operator: "<",
+      message: "La contraseña debe tener como mínimo 8 carácteres",
+      selector: "#register-password",
+      forbid: 8,
+      case: "length",
+    },
+    {
+      operator: "regExp",
+      message: "El carácter {forbidden} no está permitido",
+      selector: "#register-empresa",
+      forbid: /[^A-Za-z0-9\s]/g,
+    },
+    {
+      operator: ">=",
+      message: "Has llegado al límite de carácteres ({forbidden}).",
+      selector: "#register-empresa",
+      forbid: 25,
+      case: "length",
+    },
+    {
+      operator: "regExp",
+      message: "Recuerde ingresar solo números.",
+      selectors: [
+        "#register-celular",
+        "#register-celular2",
+        "#register-numero_documento",
+      ],
+      forbid: /[^\d]/,
+    },
+    {
+      operator: "!=",
+      message: "El celular debe tener 10 díjitos",
+      selector: "#register-celular",
+      forbid: 10,
+      case: "length",
+    },
+  ];
 
-    return [varifyInputsImportants]
+  return [varifyInputsImportants];
 }
 
 function revisarErroresParticularesRegistro(container) {
-    const ids = new Array();
-    const inputs = $(container).find("input:required");
-    inputs.each((i, input) => ids.push(input.getAttribute("id")));
+  const ids = new Array();
+  const inputs = $(container).find("input:required");
+  inputs.each((i, input) => ids.push(input.getAttribute("id")));
 
+  const [comprobador_particular] = comprobacionesRegistro;
 
-    const [comprobador_particular] = comprobacionesRegistro;
-    
-    let hasError = false;
-    let firstError;
-    
-    if(comprobador_particular.hasError()) {
-        const firstSelector = comprobador_particular.errores[0];
-        firstError = $(firstSelector);
-        hasError = true;
-    } 
-    
-    if(!hasError) {
-        const inner_comprobator = verificador(ids, null, "Este campo es obligatorio.");
-        if(inner_comprobator.length) {
-            const firstSelector = inner_comprobator[0];
-            firstError = $("#"+firstSelector);
-            hasError = true;
-        }
+  let hasError = false;
+  let firstError;
+
+  if (comprobador_particular.hasError()) {
+    const firstSelector = comprobador_particular.errores[0];
+    firstError = $(firstSelector);
+    hasError = true;
+  }
+
+  if (!hasError) {
+    const inner_comprobator = verificador(
+      ids,
+      null,
+      "Este campo es obligatorio."
+    );
+    if (inner_comprobator.length) {
+      const firstSelector = inner_comprobator[0];
+      firstError = $("#" + firstSelector);
+      hasError = true;
     }
-    
-    if(hasError) {
-        const step = firstError.parents(".step");
-        registerStep.moveTo(step);
-    }
+  }
 
-    return hasError;
+  if (hasError) {
+    const step = firstError.parents(".step");
+    registerStep.moveTo(step);
+  }
+
+  return hasError;
 }
 
 async function registrarNuevoUsuario(toSend, data, noSearch) {
-    const { correo, con, nombre_empresa } = data;
-    const existe_empresa = await verificarExistencia(toSend, data.cod_empresa);
-    const existe_usuario = await numeroDocumentoRepetido(
-      toSend,
-      data.numero_documento
+  const { correo, con, nombre_empresa } = data;
+  const existe_empresa = await verificarExistencia(toSend, data.cod_empresa);
+  const existe_usuario = await numeroDocumentoRepetido(
+    toSend,
+    data.numero_documento
+  );
+
+  console.log(toSend, data);
+
+  if (existe_empresa)
+    throw new Error(
+      '¡El nombre de empresa "' + nombre_empresa + '" ya existe!'
+    );
+  if (existe_usuario)
+    throw new Error(
+      '¡El número de documento "' + data.numero_documento + '" ya existe!'
     );
 
-    console.log(toSend, data);
+  const newUser = await createUserWithEmailAndPassword(correo, con);
 
-    if (existe_empresa)
-      throw new Error(
-        '¡El nombre de empresa "' + nombre_empresa + '" ya existe!'
-      );
-    if (existe_usuario)
-      throw new Error(
-        '¡El número de documento "' + data.numero_documento + '" ya existe!'
-      );
+  if (newUser.error) throw new Error(newUser.message);
 
-    const newUser = await createUserWithEmailAndPassword(correo, con);
-
-    if (newUser.error) throw new Error(newUser.message);
-
-    if (data.referidoDe) {
-
-      let datosReferido = {
-        sellerReferido: data.centro_de_costo,
-        sellerReferente: data.referidoDe,
-        nombreApellido: data.nombres + " " + data.apellidos,
-        celularReferido: data.celular,
-        cantidadEnvios: 0,
-      };
-      firebase
+  if (data.referidoDe) {
+    let datosReferido = {
+      sellerReferido: data.centro_de_costo,
+      sellerReferente: data.referidoDe,
+      nombreApellido: data.nombres + " " + data.apellidos,
+      celularReferido: data.celular,
+      cantidadEnvios: 0,
+    };
+    firebase
       .firestore()
       .collection("referidos")
       .doc(data.centro_de_costo)
       .set(datosReferido)
-      .then(()=>{
+      .then(() => {
         console.log("Referido agregado");
-      })
+      });
+  }
 
-    }
+  await auth.currentUser.sendEmailVerification();
 
-    await auth.currentUser.sendEmailVerification();
+  if (toSend === "oficinas") {
+    await db.collection(toSend).doc(newUser.uid).set(data);
+    location.href = "#";
+  } else {
+    data.ingreso = newUser.uid;
+    await db.collection(toSend).add(data);
 
-    if (toSend === "oficinas") {
-      await db.collection(toSend).doc(newUser.uid).set(data);
-      location.href = "#";
-    } else {
-      data.ingreso = newUser.uid;
-      await db.collection(toSend).add(data);
-
-      if (!noSearch) await findUser(newUser.uid);
-    }
-    
+    if (!noSearch) await findUser(newUser.uid);
+  }
 }
 
 async function createUserWithEmailAndPassword(email, password) {
-
-    const user = await auth.createUserWithEmailAndPassword(email, password)
-    .then(cr => cr.user)
+  const user = await auth
+    .createUserWithEmailAndPassword(email, password)
+    .then((cr) => cr.user)
     .catch(handleAuthErrors);
-  
-    return user;
-  
+
+  return user;
 }
 
 async function verificarExistencia(coll, cod_empresa) {
-    return await db.collection(coll).where("cod_empresa", "==", cod_empresa)
-    .get().then(querySnapshot => {
-        return querySnapshot.size;
+  return await db
+    .collection(coll)
+    .where("cod_empresa", "==", cod_empresa)
+    .get()
+    .then((querySnapshot) => {
+      return querySnapshot.size;
     });
 }
 
 async function numeroDocumentoRepetido(coll, cod_empresa) {
-    return await db.collection(coll).where("numero_documento", "==", cod_empresa)
-    .get().then(querySnapshot => {
-        return querySnapshot.size;
+  return await db
+    .collection(coll)
+    .where("numero_documento", "==", cod_empresa)
+    .get()
+    .then((querySnapshot) => {
+      return querySnapshot.size;
     });
 }
 
 function datosRegistroUsuario(formData) {
+  const toSend = new Object();
 
+  for (let registro of formData) {
+    toSend[registro[0]] = registro[1].trim();
+  }
 
-    const toSend = new Object();
-  
+  toSend.objetos_envio = $("[data-objeto_envio]")
+    .map((i, it) => it.getAttribute("data-objeto_envio"))
+    .get();
 
+  if (!toSend.objetos_envio.length) {
+    const inpObjetos = $("#register-objetos_envio");
+    const step = inpObjetos.parents(".step");
+    inpObjetos.addClass("border-danger");
+    registerStep.moveTo(step);
 
-    for(let registro of formData) {
-        toSend[registro[0]] = registro[1].trim();
-    }
+    throw new Error("Recuerde agregar la(s) cosas que normalmente envía.");
+  }
 
-    toSend.objetos_envio = $("[data-objeto_envio]").map((i,it) => it.getAttribute("data-objeto_envio")).get();
+  const empresa = toSend.nombre_empresa.replace(/\s/g, "");
 
-    if(!toSend.objetos_envio.length) {
-        const inpObjetos = $("#register-objetos_envio");
-        const step = inpObjetos.parents(".step");
-        inpObjetos.addClass("border-danger");
-        registerStep.moveTo(step);
+  toSend.centro_de_costo = "Seller" + empresa;
+  toSend.cod_empresa = empresa.toLowerCase();
+  toSend.fecha_creacion = new Date();
 
-        throw new Error("Recuerde agregar la(s) cosas que normalmente envía.")
-    }
-
-    const empresa = toSend.nombre_empresa.replace(/\s/g, "");
-    
-    toSend.centro_de_costo = "Seller" + empresa;
-    toSend.cod_empresa = empresa.toLowerCase();
-    toSend.fecha_creacion = new Date();
-
-    // Query parameters de la URL actual
+  // Query parameters de la URL actual
   let queryParams = new URLSearchParams(window.location.search);
 
   // Acceso a un query parameter específico por su nombre
   let rfValue = queryParams.get("rf");
 
-    if(rfValue) {
-        toSend.referidoDe = rfValue;
+  if (rfValue) {
+    toSend.referidoDe = rfValue;
   }
 
   console.log(toSend);
 
-    return toSend;
+  return toSend;
 }
 
 function datosRegistroOficina(formData) {
-    const toSend = new Object();
-    for(let registro of formData) {
-        toSend[registro[0]] = registro[1].trim();
-    }
+  const toSend = new Object();
+  for (let registro of formData) {
+    toSend[registro[0]] = registro[1].trim();
+  }
 
-    toSend.direccion_completa = toSend.direccion + ", " + toSend.barrio + ", " + toSend.ciudad;
+  toSend.direccion_completa =
+    toSend.direccion + ", " + toSend.barrio + ", " + toSend.ciudad;
 
-    const empresa = toSend.nombre_empresa.replace(/\s/g, "");
-    
-    toSend.centro_de_costo = "Flexii" + empresa;
-    toSend.cod_empresa = empresa.toLowerCase();
-    toSend.fecha_creacion = new Date();
-    toSend.visible = true;
+  const empresa = toSend.nombre_empresa.replace(/\s/g, "");
 
-    return toSend;
+  toSend.centro_de_costo = "Flexii" + empresa;
+  toSend.cod_empresa = empresa.toLowerCase();
+  toSend.fecha_creacion = new Date();
+  toSend.visible = true;
+
+  return toSend;
 }
 
 function checkTerms(checkQuery) {
-    if(!$(checkQuery).prop("checked")) {
-        verificador(["register-terms"], true, "Debe aceptar términos y condiciones.")
-        return false;
-    }
+  if (!$(checkQuery).prop("checked")) {
+    verificador(
+      ["register-terms"],
+      true,
+      "Debe aceptar términos y condiciones."
+    );
+    return false;
+  }
 
-    return true;
+  return true;
 }
 
 export async function registro(e) {
-    e.preventDefault();
-    console.log(e);
-    const form = e.target;
-    const formData = new FormData(form);
-    const formName = form.name;
-    const loader = new ChangeElementContenWhileLoading(e.originalEvent.submitter || "#registrar-nuevo-usuario");
-    let data, collName, termsChecked
-    
-    if(revisarErroresParticularesRegistro(form)) return;
-    
-    switch(formName) {
-        case "oficina":
-            data = datosRegistroOficina(formData);
-            collName = "oficinas";
-            termsChecked = checkTerms("#rgOficina-terms");
-            break;
-        default:
-            data = datosRegistroUsuario(formData);
-            collName = "usuarios";
-            termsChecked = checkTerms("#register-terms");
-    }
+  e.preventDefault();
+  const form = e.target;
+  const formData = new FormData(form);
+  const formName = form.name;
+  const loader = new ChangeElementContenWhileLoading(
+    e.originalEvent.submitter || "#registrar-nuevo-usuario"
+  );
+  let data, collName, termsChecked;
 
-    if(!termsChecked) return;
+  if (revisarErroresParticularesRegistro(form)) return;
 
-    loader.init();
+  switch (formName) {
+    case "oficina":
+      data = datosRegistroOficina(formData);
+      collName = "oficinas";
+      termsChecked = checkTerms("#rgOficina-terms");
+      break;
+    default:
+      data = datosRegistroUsuario(formData);
+      collName = "usuarios";
+      termsChecked = checkTerms("#register-terms");
+  }
 
-    registrarNuevoUsuario(collName, data)
-    .catch(error => {
-        const errorEl = document.createElement("p");
-        errorEl.setAttribute("class", "mt-1 text-danger text-center mensaje-error");
-        errorEl.innerText = error.message;
-        console.log(error);
-        form.append(errorEl);
-        loader.end();
-    });
+  if (!termsChecked) return;
+
+  console.log(data);
+  let url = window.location.href;
+
+  if (!url.includes("hekaentrega.co")) {
+    data.type = "NATURAL-FLEXII";
+  }
+
+  loader.init();
+
+  registrarNuevoUsuario(collName, data).catch((error) => {
+    const errorEl = document.createElement("p");
+    errorEl.setAttribute("class", "mt-1 text-danger text-center mensaje-error");
+    errorEl.innerText = error.message;
+    console.log(error);
+    form.append(errorEl);
+    loader.end();
+  });
 }
 
 export async function registroDesdePunto(e) {
-    e.preventDefault();
-    const inp = $("#numero_documento_usuario");
-    const buttonSerach = $("#buscador_usuario-guia");
-    const modal = $("#modal-usuario_punto");
+  e.preventDefault();
+  const inp = $("#numero_documento_usuario");
+  const buttonSerach = $("#buscador_usuario-guia");
+  const modal = $("#modal-usuario_punto");
 
-    const form = e.target;
-    const formData = new FormData(form);
-    const formName = form.name;
-    const loader = new ChangeElementContenWhileLoading(e.originalEvent.submitter || "#registrar-nuevo-usuario");
-    let data, collName, termsChecked
-    
-    if(revisarErroresParticularesRegistro(form)) return;
-    
-    switch(formName) {
-        default:
-            data = datosRegistroUsuario(formData);
-            collName = "usuarios";
-            termsChecked = checkTerms("#register-terms");
-    }
+  const form = e.target;
+  const formData = new FormData(form);
+  const formName = form.name;
+  const loader = new ChangeElementContenWhileLoading(
+    e.originalEvent.submitter || "#registrar-nuevo-usuario"
+  );
+  let data, collName, termsChecked;
 
-    if(!termsChecked) return;
+  if (revisarErroresParticularesRegistro(form)) return;
 
-    loader.init();
+  switch (formName) {
+    default:
+      data = datosRegistroUsuario(formData);
+      collName = "usuarios";
+      termsChecked = checkTerms("#register-terms");
+  }
 
-    data.type = "USUARIO-PUNTO";
-    data.punto_responsable = user_id; // Se carga el id del usuario actual que se cargar previamente desde cargador.js
+  if (!termsChecked) return;
 
-    await registrarNuevoUsuario(collName, data, true)
-    .then(res => {
-        inp.val(data.numero_documento);
-        buttonSerach.click();
-        modal.modal("hide");
-        Toats.fire("Usuario agregado exitósamente", "", "success");
+  loader.init();
+
+  data.type = "USUARIO-PUNTO";
+  data.punto_responsable = user_id; // Se carga el id del usuario actual que se cargar previamente desde cargador.js
+
+  await registrarNuevoUsuario(collName, data, true)
+    .then((res) => {
+      inp.val(data.numero_documento);
+      buttonSerach.click();
+      modal.modal("hide");
+      Toats.fire("Usuario agregado exitósamente", "", "success");
     })
-    .catch(error => {
-        const errorEl = document.createElement("p");
-        errorEl.setAttribute("class", "mt-1 text-danger text-center mensaje-error");
-        errorEl.innerText = error.message;
-        console.log(error);
-        form.append(errorEl);
-        loader.end();
+    .catch((error) => {
+      const errorEl = document.createElement("p");
+      errorEl.setAttribute(
+        "class",
+        "mt-1 text-danger text-center mensaje-error"
+      );
+      errorEl.innerText = error.message;
+      console.log(error);
+      form.append(errorEl);
+      loader.end();
     });
 
-    loader.end();
+  loader.end();
 }

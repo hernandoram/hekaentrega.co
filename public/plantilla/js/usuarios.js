@@ -505,7 +505,7 @@ function nuevaCuenta() {
                             );
                             console.log(localStorage);
 
-                            location.href = "plataforma2.html";
+                           location.href = "plataforma2.html";
                           });
                         })
                         .then((d) => {
@@ -954,6 +954,7 @@ function seleccionarUsuario(id) {
 function mostrarDatosPersonales(data, info) {
   limpiarFormulario("#informacion-" + info, "input,select");
   console.log(data);
+  console.log(data.type)
 
   if (!data) return;
 
@@ -1265,6 +1266,7 @@ function actualizarInformacionPersonal() {
     correo: value("actualizar_correo"),
     objetos_envio: value("actualizar_objetos_envio").split(","),
     numero_documento: value("actualizar_numero_documento"),
+    type: value("actualizar_tipo_user"),
   };
 
   let id_usuario = document
