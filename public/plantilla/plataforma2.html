@@ -30,6 +30,7 @@
   /></noscript>
   <!-- End Meta Pixel Code -->
 
+    
 
 
   <title>hekaentrega.co</title>
@@ -65,6 +66,8 @@
   Para llamarlo, tengo que introducir <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>-->
   <link rel="stylesheet" href="css/loader.css">
 
+  <link rel="stylesheet" href="css/chat.css">
+
   <!--Sweet Alert 2-->
   <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -80,6 +83,9 @@
   <!-- Contanido Css del swipper-->
   <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
   <link rel="stylesheet" href="./css/userPlatform.css">
+
+  <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+
 </head>
 
 <body class="bg-gradient-primary">
@@ -113,7 +119,7 @@
             <i class="fas fa-fw fa-home"></i>
             <span>Inicio</span></a>
         </li>
-        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Acá podras cotizar tus envios">
+        <li class="nav-item" id="redirectHeka" data-toggle="tooltip" data-placement="right" title="Acá podras cotizar tus envios">
           <a class="nav-link" href="#cotizar_envio">
             <i class="fas fa-fw fa-balance-scale"></i>
             <span>Cotizar envío</span></a>
@@ -191,8 +197,8 @@
       <!-- Content Wrapper -->
       <div id="content-wrapper" class="d-flex flex-column">
         <div class="row">
-          <div  class="text-center bg-dark text-white col-sm">Area logística <a class="text-white correo-atencion" href="mailto:atencion@hekaentrega.co"></a></div>
-          <div  class="text-center bg-dark text-white col-sm">Area comercial <a class="text-white cel-atencion" href="https://wa.link/jwryoa">312 463 8608</a></div>
+          <div  class="text-center bg-dark text-white col-sm">Area logística <a class="text-white correo-atencion"></a></div>
+          <div  class="text-center bg-dark text-white col-sm">Area comercial <a class="text-white cel-atencion" ></a></div>
           <div class="text-center text-white bg-info col-sm">Saldo: <span class="text-white mostrar-saldo" id="saldo"></span></div>
         </div>
         <!-- Topbar -->
@@ -295,6 +301,9 @@
         <div id="content" style="display: none;">     
           <!-- Begin Page Content -->
 
+
+          
+
           <div class="container-fluid" id="home">
             <link rel="stylesheet" href="./css/homeVIew/main.css">
             <div class="row">
@@ -324,12 +333,15 @@
 
         Basado en nuestros <b><a class="text-dark" target="_blank" href="https://www.hekaentrega.co/terminos.html">Terminos y Condiciones</a></b>, solamente se aceptan reclamos de los pagos en un máximo de 2 días calendario posteriores al pago.
       </p>
+
+
+                
+ 
                 </div>
               </div>                
             </div>
-
+      
             
-
             <div class="row estadisticas">
               <div class="col-12 col-md-5">
                 <div class="card m-2">
@@ -387,6 +399,9 @@
             </div>
 
             <div class="cuerpo_carousel my-3">
+
+
+
               <h3 class="text-center mb-3">Video Tutoriales</h3>
               <div class="swiper mySwiper">
                 <div class="swiper-wrapper">
@@ -536,7 +551,7 @@
             <!-- Page Heading -->
             <div style="display: block;" id="cotizador">
               <h1 class="h3 mb-4 text-gray-800">Cotizar envío</h1>
-              <div class="card d-none cotizador-beta" id="opciones-cotizador">
+              <div class="card cotizador-beta" id="opciones-cotizador">
                 <div class="card-body">
                   <span class="badge badge-danger badge-counter float-right" style="font-size: medium;" data-toggle="tooltip" title='Esta es una implementación de prueba, dependiendo de la interacción con los usuarios puede o no eliminarse.'>Beta</span>
                   <div class="row">
@@ -582,8 +597,8 @@
                   </div>
   
                   <div class="d-flex justify-content-end">
-                    <button id="boton_cotizar_2"  onclick="cotizador()" 
-                    class="btn btn-primary btn-sm mx-2">Cotizar envío</button>
+                    <button id="boton_cotizar_2"
+                    class="btn btn-primary btn-sm mx-2 cotizador-button">Cotizar envío</button>
                     
                   </div>
 
@@ -671,14 +686,26 @@
               </div> -->
 
               </form>
-              <button id="boton_cotizar"  onclick="cotizador()" 
-              class="btn btn-primary btn-block btn-lg mb-3">
+              <button id="boton_cotizar"
+              class="btn btn-primary btn-block btn-lg mb-3 cotizador-button">
                 Cotizar envío
               </button>
   
               <!-- End of Main Content -->
             </div> <!-- End of Main Content -->
             <div id="result_cotizacion" class="mt-5"></div>
+          </div>
+
+          <div class="container-fluid flex justify-content-center align-items-center" id="flexii-guia" style="display: none;">
+            <div class="bg-white px-5 py-5">
+              <h2 class="text-center">Genera la guía en tu Punto</h2>
+              <div class="input-group">
+                <input type="text" class="form-control" id="inputIDGuiaFlexii" placeholder="Ingresa el número de guía">
+                <span class="input-group-btn">
+                  <button class="btn btn-primary" id="boton-idPunto">Generar</button>
+                </span>
+              </div>
+            </div>
           </div>
 
           <div class="container-fluid" id="tienda" style="display: none;">
@@ -1359,6 +1386,8 @@
             
           </div>
 
+
+
           <div class="container-fluid" id="crear_guia" style="display: none;">
             <!-- 404 Error Text -->
             <div class="text-center">
@@ -1368,6 +1397,11 @@
               <a href="plataforma2.html">&larr; Regresar a la plataforma</a>
             </div>
           </div>
+
+
+      
+
+
 
           <div class="container-fluid" id="novedades" style="display: none;">
             <div class="card mt-1">
@@ -1518,17 +1552,24 @@
         </div>   
         <!-- Footer -->
         <footer class="sticky-footer bg-white">
+          
           <div class="container my-auto">
             <div class="copyright text-center my-auto">
-              <span>Copyright &copy; <a Area logística="copyrightWord"></a></span>
+              <span>Copyright &copy; <a class="copyrightWord"></a></span>
             </div>
           </div>
         </footer>
         <!-- End of Footer -->
+    
       </div>
       <!-- End of Content Wrapper -->
+    
+    
     </div>
     <!-- End of Page Wrapper -->
+
+
+    
   </div>
 
   <!-------------------------------------------------------------------------------------------------------------------------->
@@ -1740,7 +1781,60 @@
         </div>
       </div>
     </div>
+
+
+    
   </div>  
+
+  <div class="chat-absolute d-none" >
+    <div class="row justify-content-end mr-0">
+        <div class="col-md-5">
+            <div class="panel panel-primary">
+                <div class="panel-heading d-flex justify-content-end" id="accordion">
+                    <div class="btn-group pull-right">
+                        <a class="btn btn-default bg-primary text-white" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
+                            Tienes un mensaje
+                        </a>
+                    </div>
+                </div>
+            <div class="panel-collapse collapse" id="collapseOne">
+                <div class="panel-body">
+                    <ul class="chat">
+                        <li class="left clearfix"><span class="chat-img pull-left">
+                            <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />
+                        </span>
+                            <div class="chat-body clearfix">
+                                <div class="header">
+                                    <strong class="primary-font">Jack Sparrow</strong> <small class="pull-right text-muted">
+                                        <span class="glyphicon glyphicon-time"></span>12 mins ago</small>
+                                </div>
+                                <p>
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
+                                    dolor, quis ullamcorper ligula sodales.
+                                </p>
+                            </div>
+                        </li>
+                                        <li class="left clearfix"><span class="chat-img pull-left">
+                            <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />
+                        </span>
+                            <div class="chat-body clearfix">
+                                <div class="header">
+                                    <strong class="primary-font">Jack Sparrow</strong> <small class="pull-right text-muted">
+                                        <span class="glyphicon glyphicon-time"></span>14 mins ago</small>
+                                </div>
+                                <p>
+                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
+                                    dolor, quis ullamcorper ligula sodales.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>  
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
 
   <div class="w-100 position-absolute d-none align-items-center justify-content-center"
   style="top: 0; background-color: rgba(0,0,0,0.2); height: 100vh"
@@ -1819,6 +1913,10 @@
     <script src="js/hostNameReader.js"></script>
     <script src="js/userPlatform.js" type="module"></script>
 
+
+
+
+ 
 </body>
   
 </html>
