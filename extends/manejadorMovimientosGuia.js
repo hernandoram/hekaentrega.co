@@ -93,52 +93,82 @@ exports.revisarTipoEstado = (est, transp) => {
 }
 
 exports.traducirMovimientoGuia = (transportadora) => {
+    let traductor = new Object({
+      novedad: "Está presente cuando existe una novedad, si no hay simplemente se genera un string vacío",
+      fechaMov: "La fecha en la que se efectuó dicho movimiento",
+      observacion: "Algún detalle sobre el mmovimiento",
+      descripcionMov: "Una descripción que otorga la transportadora al actualizar un estado",
+      ubicacion: "El lugar en que se dió a cabo del movimiento (normalmente lo usa servientrega)",
+      tipoMotivo: "el tipo de motivo por el cual se determina la novedad (usado por servientrega)"
+    });
+  
     switch (transportadora) {
-        case "ENVIA":
-            return {
-                novedad: "novedad",
-                fechaMov: "fechaMov",
-                observacion: "observacion",
-                descripcionMov: "estado",
-                ubicacion: "ciudad"
-            }
-        case "TCC":
-            return {
-                novedad: "aclaracion",
-                fechaMov: "fechamostrar",
-                observacion: "descripcion",
-                descripcionMov: "estado",
-                ubicacion: "ciudad"
-            }
-        case "INTERRAPIDISIMO":
-            return {
-                novedad: "Motivo",
-                fechaMov: "Fecha Cambio Estado",
-                observacion: "Motivo",
-                descripcionMov: "Descripcion Estado",
-                ubicacion: "Ciudad"
-            }
-        case "COORDINADORA":
-            return {
-                novedad: "codigo_novedad",
-                fechaMov: "fecha_completa",
-                observacion: "descripcion",
-                descripcionMov: "descripcion",
-                ubicacion: "Ciudad"
-            }
-        default:
-            return {
-                novedad: "NomConc",
-                fechaMov: "FecMov",
-                observacion: "DesTipoMov",
-                descripcionMov: "NomMov",
-                ubicacion: "OriMov"
-            }
+      case "ENVIA":
+        return {
+          novedad: "novedad",
+          fechaMov: "fechaMov",
+          observacion: "observacion",
+          descripcionMov: "estado",
+          ubicacion: "ciudad",
+          tipoMotivo: null
+        };
+      case "TCC":
+        return {
+          novedad: "aclaracion",
+          fechaMov: "fechamostrar",
+          observacion: "descripcion",
+          descripcionMov: "estado",
+          ubicacion: "ciudad",
+          tipoMotivo: null
+        };
+      case "INTERRAPIDISIMO":
+        return {
+          novedad: "Motivo",
+          fechaMov: "Fecha Cambio Estado",
+          observacion: "Motivo",
+          descripcionMov: "Descripcion Estado",
+          ubicacion: "Ciudad",
+          tipoMotivo: null
+        };
+      case "COORDINADORA":
+        return {
+          novedad: "codigo_novedad",
+          fechaMov: "fecha_completa",
+          observacion: "descripcion",
+          descripcionMov: "descripcion",
+          ubicacion: "Ciudad",
+          tipoMotivo: null
+        };
+      default:
+        return {
+          novedad: "NomConc",
+          fechaMov: "FecMov",
+          observacion: "DesTipoMov",
+          descripcionMov: "NomMov",
+          ubicacion: "OriMov",
+          tipoMotivo: "TipoMov"
+        };
     }
 }
 
 let listaNovedadesServientrega;
 exports.revisarNovedadAsync = async (mov, transp) => {
+    switch(transp) {
+        case "INTERRAPIDISIMO": case "ENVIA": case "TCC": case "COORDINADORA":
+          return !!mov.novedad;
+        default: // La transportadora por defecto es SERVIENTREGA
+
+        listaNovedadesServientrega = listaNovedadesServientrega || await db.collection("infoHeka")
+        .doc("novedadesRegistradas").get().then(d => d.data());
+
+        if(listaNovedadesServientrega) {
+            return listaNovedadesServientrega.SERVIENTREGA.includes(mov.novedad)
+        }
+
+        return mov.tipoMotivo === "1";
+    }
+
+    //CORRESPONDE A UNA ANTIGUA VERSIÓN ELIMINAR PARA EL 2024
     if(transp === "INTERRAPIDISIMO") {
         return mov.Motivo;
     } else if (transp === "ENVIA" || transp === "TCC") {
@@ -158,22 +188,20 @@ exports.revisarNovedadAsync = async (mov, transp) => {
 }
 
 exports.revisarNovedad = (mov, transp) => {
-    if(transp === "INTERRAPIDISIMO") {
-        return !!mov.Motivo;
-    } else if(transp === "COORDINADORA") {
-        return !!mov.codigo_novedad;
-    } else if (transp === "ENVIA" || transp === "TCC") {
+    switch(transp) {
+      case "INTERRAPIDISIMO": case "ENVIA": case "TCC": case "COORDINADORA":
         return !!mov.novedad
-    } else {
-        if(listaNovedadesServientrega) {
-            return listaNovedadesServientrega.SERVIENTREGA.includes(mov.NomConc)
+  
+      default: // La transportadora por defecto es SERVIENTREGA
+        if (listaNovedadesServientrega) {
+          return listaNovedadesServientrega.SERVIENTREGA.includes(mov.novedad);
         } else {
             this.revisarNovedadAsync(mov,transp);
         }
-
-        return mov.TipoMov === "1";
+  
+        return mov.tipoMotivo === "1";
     }
-}
+  }
 
 exports.guiaEnNovedad = (movimientos, transp) => {
     movimientos.reverse();
@@ -188,8 +216,7 @@ exports.guiaEnNovedad = (movimientos, transp) => {
         case "INTERRAPIDISIMO": 
         // case "SERVIENTREGA":
             for (const mov of movimientos) {
-                const tradFecha = this.traducirMovimientoGuia(transp)["fechaMov"];
-                const fechaMov = mov[tradFecha];
+                const fechaMov = mov.fechaMov;
                 // const [soloFech, soloHr] = fechaMov.split(" ");
                 // const soleFechFormat = soloFech.split("/").reverse().join("-");
 

@@ -1607,7 +1607,7 @@ function verificarAntesSeleccionarOficina(oficina, cotizacion) {
   //Le idea es utilizar la variable oficina, para obtener valores restrictivos particulares de cada oficina
 
   const maxKilos = 5,
-  maxRec = 300000;
+  maxRec = 500000;
 
   console.log(datos_a_enviar);
   if (cotizacion.kgTomado > maxKilos) {
@@ -4172,6 +4172,12 @@ async function generarGuiaEnvia(datos) {
     id_heka: datos.id_heka,
     has_sticker: false,
   };
+
+  // Para guardar la url en la que se encuentra alojada la guía inicialmente
+  if(response.urlguia) {
+    // Inyectamos el valor por referencia del objeto que se está pasando "datos"
+    datos.urlGuia = response.urlguia;
+  }
 
   res.has_sticker = await guardarStickerGuiaEnvia({
     url: response.urlguia,

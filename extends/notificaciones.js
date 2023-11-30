@@ -87,11 +87,10 @@ exports.notificarNovedadEncontrada = async (guia, movimientos) => {
     return novedadesNotificadas; // se cancela el servicio de mensajería paranovedades
 
     const {novedad, enNovedad} = guiaEnNovedad(movimientos, transportadora);
-    const traductor = traducirMovimientoGuia(transportadora);
 
     if(!enNovedad) return novedadesNotificadas;
 
-    let mensajeNovedad = novedad[traductor.novedad]
+    let mensajeNovedad = novedad.novedad;
     const mensaje = novedadesMensajeria.find(n => n.novedad.trim() === mensajeNovedad.trim());
     if(!mensaje) return novedadesNotificadas;
 

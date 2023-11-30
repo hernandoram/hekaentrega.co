@@ -244,7 +244,7 @@ const actualizarMovimientos = async function(doc) {
     actualizaciones.enNovedad = detectaNovedadEnElHistorialDeEstados(updte_movs);
 
     // Esto me llena un arreglo de todas las novedades que han sido notificadas, para consultarlo y evitar duplicar notificaciones
-    actualizaciones.novedadesNotificadas = await notificarNovedadEncontrada(guia, movimientos);
+    actualizaciones.novedadesNotificadas = await notificarNovedadEncontrada(guia, estado.movimientos);
     
     // Esto pasa una serie de argumentos, que detecta que haya alguna información para actualizar
     // en caso de que los valores del segundo parametros sean falsos, undefined o null, no los toma en cuenta para actualizar
