@@ -164,6 +164,7 @@
 
       <!-- Content Wrapper -->
       <div id="content-wrapper" class="d-flex flex-column">
+    
         <div class="row">
           <div  class="text-center bg-dark text-white col-sm">Area logística +57 <a class="text-white" href="https://wa.link/j8l2ku">321 336 1911</a></div>
           <div  class="text-center bg-dark text-white col-sm">Gerencia +57 <a class="text-white" href="https://wa.link/jwryoa">312 463 8608</a></div>
@@ -381,10 +382,25 @@
                           name="objetos_envio" id="actualizar_objetos_envio" placeholder="objeto1,objeto2,etc..."  required>
                         </div>
                       </div>
+
+                      <div>
+                        <h6 class="mt-2">Referido de</h6>
+                          <input type="text" class="form-control form-control-user"
+                          name="referidoDe" id="referidoDe" readonly>   
+
+                          <h6 class="mt-2">Tipo Usuario</h6>
+                          <select  class="form-control form-control"
+                          name="type" id="actualizar_tipo_user">
+                          <option value="NATURAL" selected>Natural</option>
+                          <option value="PUNTO">Punto</option>
+                          <option value="NATURAL-FLEXII">Natural Flexii</option>
+                          </select>
+  
+                      </div>
                         
-                      <h6 class="mt-2 ">Referido de</h6>
-                        <input type="text" class="form-control form-control-user"
-                        name="referidoDe" id="referidoDe" readonly>   
+
+                                                
+
 
                       <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4 no-updte"
                       onclick="actualizarInformacionPersonal()" value="Actualizar Datos Personales">
@@ -1981,8 +1997,8 @@
   </select>
 </div>
 <div class="form-group col-3">
-  <label for="notificacionVisible">Será visible?</label>
-  <select class="custom-select" id="notificacionVisible" name="visible">
+  <label for="notificacionVisible">Está activo?</label>
+  <select class="custom-select" id="notificacionVisible" name="active">
     <option value="true">Si</option>
     <option value="false">No</option>
   </select>

@@ -1,3 +1,4 @@
+// $("#xx").empty();
 let datos_de_cotizacion,
   oficinas = [],
   bodega,
@@ -294,16 +295,16 @@ async function cotizador() {
       );
       verificador("seguro-mercancia", true);
     } else if (
-      value("dimension-ancho") <
+      datos_de_cotizacion.ancho <
         transportadoras[codTransp].limitesLongitud[0] ||
-      value("dimension-largo") <
+        datos_de_cotizacion.largo <
         transportadoras[codTransp].limitesLongitud[0] ||
-      value("dimension-alto") < transportadoras[codTransp].limitesLongitud[0] ||
-      value("dimension-ancho") >
+        datos_de_cotizacion.alto < transportadoras[codTransp].limitesLongitud[0] ||
+        datos_de_cotizacion.ancho >
         transportadoras[codTransp].limitesLongitud[1] ||
-      value("dimension-largo") >
+        datos_de_cotizacion.largo >
         transportadoras[codTransp].limitesLongitud[1] ||
-      value("dimension-alto") > transportadoras[codTransp].limitesLongitud[1]
+        datos_de_cotizacion.alto > transportadoras[codTransp].limitesLongitud[1]
     ) {
       // Si el valor de las dimensiones exceden el limite permitido
       alert(
@@ -586,7 +587,6 @@ async function response(datos) {
     );
     datos_a_enviar.debe = false;
   }
-
   //Lleno algunos campos de los datos de cotizacióm
   datos_de_cotizacion.peso = result_cotizacion.kg;
   datos_de_cotizacion.costo_envio = result_cotizacion.costoEnvio;
@@ -597,7 +597,7 @@ async function response(datos) {
   datos_de_cotizacion.type = type;
 
   const notas = agregarNotasDeExepcionAlCotizador();
-
+  console.log(datos_de_cotizacion)
   // let htmlTransportadoras = await detallesTransportadoras(datos_de_cotizacion);
 
   //Creo un html con los detalles de la consulta y las transportadoras involucradas
@@ -4172,6 +4172,12 @@ async function generarGuiaEnvia(datos) {
     id_heka: datos.id_heka,
     has_sticker: false,
   };
+
+  // Para guardar la url en la que se encuentra alojada la guía inicialmente
+  if(response.urlguia) {
+    // Inyectamos el valor por referencia del objeto que se está pasando "datos"
+    datos.urlGuia = response.urlguia;
+  }
 
   res.has_sticker = await guardarStickerGuiaEnvia({
     url: response.urlguia,

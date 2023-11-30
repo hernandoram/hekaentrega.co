@@ -1,7 +1,7 @@
 const {agregarEstadistica} = require("./estadisticas");
 const fetch = require("node-fetch");
 
-const {revisarNovedadAsync, revisarEstadoFinalizado, guiaEnNovedad, actualizarReferidoPorGuiaEntregada} = require("./manejadorMovimientosGuia");
+const {revisarEstadoFinalizado, guiaEnNovedad, actualizarReferidoPorGuiaEntregada, traducirMovimientoGuia} = require("./manejadorMovimientosGuia");
 const { templateMessage } = require("../controllers/messageBird");
 
 exports.segmentarString = (base64, limite = 1000) => {
@@ -44,14 +44,14 @@ exports.actualizarEstado = async (doc, toUpdate) => {
 }
 
 exports.actualizarMovimientos = async (doc, toUpdate) => {
-  const ultimo_mov = toUpdate.movimientos[toUpdate.movimientos.length - 1];
-
   toUpdate.transportadora = doc.data().transportadora || "SERVIENTREGA";
   toUpdate.centro_de_costo = doc.data().centro_de_costo;
   toUpdate.daneOrigen = doc.data().dane_ciudadR || "NA";
   toUpdate.daneDestino = doc.data().dane_ciudadD || "NA";
   toUpdate.id_heka = doc.id;
   toUpdate.fechaUltimaActualizacion = new Date();
+
+  this.generarSegundaVersionMovimientoGuias(toUpdate);
 
   const novedad = guiaEnNovedad(toUpdate.movimientos, doc.data().transportadora).enNovedad;
 
@@ -207,4 +207,31 @@ exports.urlToPdfBase64 = async (url) => {
 
   // console.log("base64 => ", base64);
   return base64; 
+}
+
+/**
+ * Función encargada de traducir el historial de movimiento de las guías para generar una segunda versión
+ * De manera que si no tiene esa segunda versión, el fron la traduzca por completo para que se adapte a la nueva
+ * con la intención de migrar toda las guías de a poco hacia una nueva versión que tenga una lectura más globalizada
+ * @param {*} guia 
+ * @returns la guía cuyo historial de movimientos ya se encuentre traducido o la guía sin editar en caso que ya se encuentre en la versión 2
+ */
+exports.generarSegundaVersionMovimientoGuias = (guia) => {
+  if(guia.version === 2) return guia; // Sigifica que la guía que se está tratando de leer está en su segunda versión, por lo que no es necesario traducir
+
+  guia.version = 2;
+  const movTrad = traducirMovimientoGuia(guia.transportadora);
+
+  if(!guia.movimientos) return guia;
+
+  guia.movimientosV1 = guia.movimientos;
+
+  guia.movimientos = guia.movimientos.map(mov => {
+    const titulos = Object.keys(movTrad);
+    const res = {};
+    titulos.forEach((t) => (res[t] = mov[movTrad[t]] ?? null));
+    return res;
+  });
+
+  return guia;
 }

@@ -22,7 +22,25 @@ const estadosGuia = {
 };
 
 let novedadesExcelData = [];
+const dominiosFlexii = ["flexii.co", "www.flexi.co"];
 
+hostnameReader()
+function hostnameReader(){
+  const hostname = window.location.host
+  const element = document.getElementById("copyrightWord")
+  const brandName = document.getElementById("brandName")
+  let brandNameContent = "HEKA"
+  let elementContent = "Heka Entrega"
+  if(dominiosFlexii.includes(hostname)) {
+    brandNameContent = "FLEXII"
+    elementContent = "Flexii"
+  }
+  console.log(element)
+  console.log(brandName)
+  if(element) element.innerHTML = elementContent
+  if(brandName) brandName.innerHTML = brandNameContent
+
+}
 
 
 // Initialize Firebase
@@ -127,6 +145,12 @@ function tablaDeGuias(id, datos) {
                 data-funcion="activar-desactivar" data-activate="after"
                 id="generar_rotulo${id}" title="Generar Rótulo">
                     <i class="fas fa-ticket-alt"></i>
+                </button>
+                
+                 <button class="btn btn-primary btn-circle btn-sm mt-2" data-id="${id}"
+                data-funcion="activar-desactivar" data-activate="after"
+                id="generar_guiaflexii${id}" title="Generar Guía Flexii">
+                    <i class="fas fa-f"></i>
                 </button>
                 
                 ${
@@ -594,11 +618,24 @@ function mostrarDocumentosUsuario(id, data) {
                         <button class="col-12 btn btn-info dropdown-toggle text-truncate" title="Subir documentos" type="button" id="acciones-documento${id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Descargar
                         </button>
-                        <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
-                            <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-guias${id}">Guías</label>
-                            <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-relacion_envio${id}">Manifiesto</label>
-                            <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-generar-rotulo${id}">Rótulos</label>
-                        </div>
+                        ${
+                           datos_usuario.type !=="NATURAL-FLEXII"?
+                           `
+                           <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
+                           <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-guias${id}">Guías</label>
+                           <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-relacion_envio${id}">Manifiesto</label>
+                           <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-generar-rotulo${id}">Rótulos</label>
+                       </div>
+                           `:`
+                           <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
+
+                           <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-generar-rotulo${id}">Guía</label>
+                           </div>
+
+                           `
+                        }
+
+                
                     </div>
                 </div>
             </div>
@@ -878,6 +915,30 @@ function activarBotonesDeGuias(id, data, activate_once) {
           });
       }
     });
+
+
+    $("#generar_guiaflexii" + id).click(function () {
+      let id = this.getAttribute("data-id");
+      console.log("generando guía "+id);
+      const guiaPunto = this.getAttribute("data-punto");
+      if (guiaPunto) {
+        imprimirRotuloPunto(id);
+      } else {
+        firebase
+          .firestore()
+          .collection("documentos")
+          .where("guias", "array-contains", id)
+          .get()
+          .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+              generarGuiaFlexii(doc.data().guias);
+            });
+          });
+      }
+
+    });
+
+
 
     $("#crear_sticker" + id).click(crearStickerParticular);
 
@@ -2130,7 +2191,8 @@ function traducirMovimientoGuia(transportadora) {
     fechaMov: "La fecha en la que se efectuó dicho movimiento",
     observacion: "Algún detalle sobre el mmovimiento",
     descripcionMov: "Una descripción que otorga la transportadora al actualizar un estado",
-    ubicacion: "El lugar en que se dió a cabo del movimiento (normalmente lo usa servientrega)"
+    ubicacion: "El lugar en que se dió a cabo del movimiento (normalmente lo usa servientrega)",
+    tipoMotivo: "el tipo de motivo por el cual se determina la novedad (usado por servientrega)"
   });
 
   switch (transportadora) {
@@ -2141,6 +2203,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "observacion",
         descripcionMov: "estado",
         ubicacion: "ciudad",
+        tipoMotivo: "TipoMov"
       };
     case "TCC":
       return {
@@ -2149,6 +2212,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "descripcion",
         descripcionMov: "estado",
         ubicacion: "ciudad",
+        tipoMotivo: "TipoMov"
       };
     case "INTERRAPIDISIMO":
       return {
@@ -2157,6 +2221,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "Motivo",
         descripcionMov: "Descripcion Estado",
         ubicacion: "Ciudad",
+        tipoMotivo: "TipoMov"
       };
     case "COORDINADORA":
       return {
@@ -2165,6 +2230,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "descripcion",
         descripcionMov: "descripcion",
         ubicacion: "Ciudad",
+        tipoMotivo: "TipoMov"
       };
     default:
       return {
@@ -2173,6 +2239,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "DesTipoMov",
         descripcionMov: "NomMov",
         ubicacion: "OriMov",
+        tipoMotivo: "TipoMov"
       };
   }
 }
@@ -2222,7 +2289,7 @@ function revisarNovedad(mov, transp) {
         return listaNovedadesServientrega.includes(mov.novedad);
       }
 
-      return mov.idNovedad === "1";
+      return mov.tipoMotivo === "1";
   }
 }
 

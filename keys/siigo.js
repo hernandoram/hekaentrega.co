@@ -17,7 +17,8 @@ const credenciales = {
     identificacion: 1072497419,
     id_vendedor: 596,
     id_tipo_pago: 17992, // Recarga sellers,
-    idAutoRetencion: 27657 // Autorretencion 1.10%
+    idAutoRetencion: 27657, // Autorretencion 1.10%
+    partnerId: "OFFYSAS" // Un nuevo header solicitado https://siigoapi.docs.apiary.io/#introduction/partner-id
 }
 
 // module.exports = credencialesPrueba;
