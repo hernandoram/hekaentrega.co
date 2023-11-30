@@ -7,6 +7,7 @@ const {
 const { actualizarMovimientosPorComparador } = require("./seguimientos");
 const ciudades = require("../data/ciudades.js");
 const { estructuraBaseNotificacion } = require("../extends/notificaciones");
+const { generarSegundaVersionMovimientoGuias } = require("../extends/funciones.js");
 const busqueda = ciudades;
 
 const _collEstadoGuia = "estadoGuias";
@@ -53,29 +54,14 @@ exports.consultarGuia = async (req, res) => {
       (element) => element.dane_ciudad === movimientosEncontrado.daneDestino
     );
 
-    // console.log(ciudadOrigen.nombre)
-    // console.log(ciudadDestino.nombre)
-
-    const tradMov = traducirMovimientoGuia(
-      movimientosEncontrado.transportadora
-    );
-
-    const traduccion = (mov) => {
-      const titulos = Object.keys(tradMov);
-      const res = {};
-      titulos.forEach((t) => (res[t] = mov[tradMov[t]]));
-      return res;
-    };
-
-    const traducirMovimientos = movimientosEncontrado.movimientos
-      .map(traduccion)
-      .reverse();
+    generarSegundaVersionMovimientoGuias(movimientosEncontrado);
 
     const { novedad } = guiaEnNovedad(
       movimientosEncontrado.movimientos,
       movimientosEncontrado.transportadora
     );
-    const novedadActual = novedad ? traduccion(novedad) : {};
+
+    const novedadActual = novedad ? novedad : {};
     let novedadDireccion = false;
 
     let formularioNovedad;
@@ -104,7 +90,7 @@ exports.consultarGuia = async (req, res) => {
     console.log(novedadDireccion);
 
     const guia = {
-      movimientos: traducirMovimientos,
+      movimientos: movimientosEncontrado.movimientos.reverse(),
       estado: movimientosEncontrado.estadoActual.toUpperCase(),
       numeroGuia: movimientosEncontrado.numeroGuia,
       fechaEnvio: movimientosEncontrado.fechaEnvio,
@@ -127,7 +113,7 @@ exports.consultarGuia = async (req, res) => {
 
     // res.render("productos", {productos, tienda: req.params.storeInfo});
   } catch (e) {
-    console.log(e.message);
+    console.log(e);
     res.send(e.message);
   }
 };

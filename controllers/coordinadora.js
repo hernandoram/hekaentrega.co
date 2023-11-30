@@ -330,18 +330,18 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
         estados.forEach(e => e.codigo_novedad = "");
 
         const gTime = (fecha, hora) => new Date(fecha + "T" + (hora || "00:00")).getTime();
-        const movimientos = estados.concat(novedades)
+        const movimientosOriginales = estados.concat(novedades)
         .filter(Boolean)
         .sort((a,b) => {
             return gTime(a.fecha, a.hora) - gTime(b.fecha, b.hora);
         });
 
-        movimientos.forEach(m => {
+        movimientosOriginales.forEach(m => {
             m.fecha_completa = m.fecha + " " + m.hora;
         })
     
-        console.log("BREAK", estados, novedades, movimientos);
-        const ultimo_estado = movimientos[movimientos.length - 1];
+        console.log("BREAK", estados, novedades, movimientosOriginales);
+        const ultimo_estado = movimientosOriginales[movimientosOriginales.length - 1];
     
         const estadoActual = respuesta.descripcion_estado;
     
@@ -354,16 +354,18 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
             estadoActual: respuesta.descripcion_estado,
             fecha: ultimo_estado ? ultimo_estado.fecha + " " + ultimo_estado.hora : estandarizarFecha(new Date(), "DD/MM/YYYY HH:mm"), //fecha del estado
             id_heka: doc.id,
-            movimientos
+            movimientos: movimientosOriginales
         };
     
         // return [updte_estados, updte_movs];
     
         let updte_movs;
-        if(movimientos.length) {
+        if(movimientosOriginales.length) {
             console.log("SE ACTUALIZARÁN LOS MOVIMIENTOS", doc.ref.path);
             updte_movs = await actualizarMovimientos(doc, estado);
         }
+
+        const { movimientos } = estado;
     
         let novedad = !!novedades.length && guiaEnNovedad(movimientos, "COORDINADORA");
     
