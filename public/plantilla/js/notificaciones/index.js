@@ -441,6 +441,7 @@ function mostrarNotificaciones() {
 }
 
 function convertirFecha(inputfecha) {
+  if(inputfecha == undefined) return;
   const fecha = new Date(inputfecha);
   const fechaFormateada = fecha.toISOString().substring(0, 10);
   return fechaFormateada;

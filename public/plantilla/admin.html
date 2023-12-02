@@ -1948,21 +1948,21 @@
                 <form class="row" id="form-centro_notificaciones">
                   <div class="form-group col-12">
                     <label for="nombre-centro_notificaciones">Nombre</label>
-                    <input type="text" class="form-control" id="nombre-centro_notificaciones" name="name" required>
+                    <input type="text" required class="form-control" id="nombre-centro_notificaciones" name="name" required>
                   </div>
 
                   <div class="col-sm-3 mb-3 mb-sm-0">
                     <label for="fechaI-centro_notificaciones">Fecha inicio</label>
-                    <input type="date" class="form-control form-control-user"  id="fechaI-centro_notificaciones" name="startDate">
+                    <input type="date" required class="form-control form-control-user"  id="fechaI-centro_notificaciones" name="startDate">
                   </div>
                   <div class="col-sm-3">
                     <label for="fechaF-centro_notificaciones">Fecha final</label>
-                    <input type="date" class="form-control form-control-user"  id="fechaF-centro_notificaciones" name="endDate">
+                    <input type="date" required class="form-control form-control-user"  id="fechaF-centro_notificaciones" name="endDate">
                   </div>
 
                   <div class="form-group col-md-3">
                     <label for="type-centro_notificaciones">Tipo notificación</label>
-                    <select class="custom-select" id="type-centro_notificaciones" name="type" required>
+                    <select class="custom-select" required id="type-centro_notificaciones" name="type" required>
                       <option selected value>-- Tipo notificación --</option>
                       <option value="alerta">Alerta</option>
                       <option value="estatica">Estática</option>
@@ -1972,7 +1972,7 @@
                   
                   <div class="form-group col-md-3">
                     <label for="ubicacion-centro_notificaciones">Ubicación</label>
-                    <select class="custom-select" id="ubicacion-centro_notificaciones" name="ubicacion">
+                    <select class="custom-select" required id="ubicacion-centro_notificaciones" name="ubicacion">
                       <option selected value>-- General --</option>
                       <option value="home">Inicio</option>
                       <option value="cotizar_envio">Cotizador</option>
@@ -1992,21 +1992,21 @@
 </div>
 <div class="form-group col-3">
   <label for="seraBorrable">Será eliminable?</label>
-  <select class="custom-select" id="seraBorrable" name="allowDelete">
+  <select class="custom-select" required id="seraBorrable" name="allowDelete">
     <option value="true">Si</option>
     <option value="false">No</option>
   </select>
 </div>
 <div class="form-group col-3">
   <label for="notificacionVisible">Está activo?</label>
-  <select class="custom-select" id="notificacionVisible" name="active">
+  <select class="custom-select" required id="notificacionVisible" name="active">
     <option value="true">Si</option>
     <option value="false">No</option>
   </select>
 </div>
 <div class="form-group col-3">
   <label for="notificacionVisible">Será global?</label>
-  <select class="custom-select" id="notificacionGlobal" name="isGlobal">
+  <select class="custom-select" required id="notificacionGlobal" name="isGlobal">
     <option value="true">Si</option>
     <option value="false" >No</option>
   </select>

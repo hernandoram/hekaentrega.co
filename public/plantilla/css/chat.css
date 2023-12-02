@@ -57,3 +57,7 @@
   display: flex;
   justify-content: end;
 }
+
+.last-item {
+  color: red;
+}

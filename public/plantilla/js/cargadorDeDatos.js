@@ -2259,26 +2259,30 @@ function traerNoti() {
       data.id = d.id;
       notificaciones.push(data);
       console.log(data);
-      llenarItemsChat(data); // Llama a llenarItemsChat para cada notificación
     });
   }).then(()=>{
     console.log(notificaciones);
+    llenarItemsChat(notificaciones); // Llama a llenarItemsChat para cada notificación
   })
 }
 
-function llenarItemsChat(notificacion) {
-  const itemChat = `
-  <div>
-  <div class="header">
-    <strong class="primary-font">${notificacion.name}</strong>
+function llenarItemsChat(notificaciones) {
+  notificaciones.forEach((notificacion, index) => {
+    const isLastItem = index === notificaciones.length - 1;
+    const itemChat = `
+    <div class="${isLastItem ? 'last-item' : ''} ">
+    <div class="header">
+      <strong class="primary-font">${notificacion.name}</strong>
+    </div>
+    <p>
+      ${notificacion.mensaje}
+    </p>
   </div>
-  <p>
-    ${notificacion.mensaje}
-  </p>
-</div>
-`;
+  `;
 
-  itemsChat.innerHTML += itemChat;
+    itemsChat.innerHTML += itemChat;
+  });
 }
+
 
 traerNoti();
