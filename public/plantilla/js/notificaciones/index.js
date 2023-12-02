@@ -440,8 +440,23 @@ function mostrarNotificaciones() {
     .then(() => selectorNotificaciones(notificaciones));
 }
 
+function eliminarNotificaciones() {
+  fireRef.get().then((q) => {
+    const batch = db.batch();
+
+    q.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    return batch.commit();
+  }).then(() => {
+    console.log('Todas las notificaciones han sido eliminadas');
+  });
+}
+
+
 function convertirFecha(inputfecha) {
-  if(inputfecha == undefined) return;
+  if(inputfecha == undef) return;
   const fecha = new Date(inputfecha);
   const fechaFormateada = fecha.toISOString().substring(0, 10);
   return fechaFormateada;
