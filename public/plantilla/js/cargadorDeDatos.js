@@ -673,7 +673,6 @@ function mostrarReferidos(datos) {
 }
 
 function despliegueReferidos(referidos) {
-
   let mostradorReferidos = document.getElementById("mostrador-referidos");
   let tituloreferidos = document.getElementById("titulo-referidos");
 
@@ -2249,40 +2248,53 @@ botonInputFlexii.onclick = function () {
 
 const itemsChat = document.querySelector("#items-chat-notification");
 
+const messageNumberSpan = document.getElementById('message-number');
 
 function traerNoti() {
-  let notificaciones= [];
+  let notificaciones = [];
   const fireRef = db.collection("centro_notificaciones");
-  fireRef.where("type", "==", "mensaje").get().then((q) => {
-    q.forEach((d) => {
-      const data = d.data();
-      data.id = d.id;
-      notificaciones.push(data);
-      console.log(data);
+  fireRef
+    .where("type", "==", "mensaje")
+    .get()
+    .then((q) => {
+      q.forEach((d) => {
+        const data = d.data();
+        data.id = d.id;
+        notificaciones.push(data);
+        console.log(data);
+      });
+    })
+    .then(() => {
+      console.log(notificaciones);
+      messageNumberSpan.innerText = notificaciones.length;
+      notificaciones.sort((a, b) => a.timeline - b.timeline);
+      llenarItemsChat(notificaciones); // Llama a llenarItemsChat para cada notificación
     });
-  }).then(()=>{
-    console.log(notificaciones);
-    llenarItemsChat(notificaciones); // Llama a llenarItemsChat para cada notificación
-  })
 }
+
+// ${isLastItem ? '<img src="" alt="user-img" class="img-circle">' : ""}
 
 function llenarItemsChat(notificaciones) {
   notificaciones.forEach((notificacion, index) => {
     const isLastItem = index === notificaciones.length - 1;
     const itemChat = `
-    <div class="${isLastItem ? 'last-item' : ''} ">
-    <div class="header">
-      <strong class="primary-font">${notificacion.name}</strong>
-    </div>
-    <p>
-      ${notificacion.mensaje}
-    </p>
-  </div>
-  `;
+      <div class="${isLastItem ? "d-flex align-items-end" : ""}">
+       ${
+         isLastItem
+           ? '<img src= "../img/logoNuevo.jpeg" class="imgchat" alt="user-img">'
+           : ""
+       }
+      <div class="${isLastItem ? "last-item" : ""} item-chat">
+          <div class="header">
+            <strong class="primary-font">${notificacion.name}</strong>
+          </div>
+          <span>${notificacion.mensaje}</span>
+        </div>
+      </div>
+    `;
 
     itemsChat.innerHTML += itemChat;
   });
 }
-
 
 traerNoti();

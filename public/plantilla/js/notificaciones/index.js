@@ -456,7 +456,6 @@ function eliminarNotificaciones() {
 
 
 function convertirFecha(inputfecha) {
-  if(inputfecha == undef) return;
   const fecha = new Date(inputfecha);
   const fechaFormateada = fecha.toISOString().substring(0, 10);
   return fechaFormateada;
