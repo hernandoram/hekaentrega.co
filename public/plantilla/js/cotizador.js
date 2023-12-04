@@ -3034,20 +3034,24 @@ class CalcularCostoDeEnvio {
     if (ciudadBloqueada && !this.isOficina && (this.type === "PAGO CONTRAENTREGA" || this.type == "PAGO DESTINO")) return 0;
 
     const pagoContraentrega = this.convencional ? "FALSE" : "TRUE";
+
+    const data = {
+      dane_ciudadR,
+      dane_ciudadD,
+      peso: this.kgTomado,
+      seguro: this.seguro,
+      pagoContraentrega
+    }
+
     let res = await fetch(
-      url +
-      7986 +
-      "/" +
-      dane_ciudadR +
-      "/" +
-      dane_ciudadD +
-      "/" +
-      this.kgTomado +
-      "/" +
-      this.seguro +
-      "/1/" +
-      genFecha("LR")
-      + "/" + pagoContraentrega
+      "/inter/cotizar",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "Application/json"
+        }
+      }
     )
     .then((data) => {
       return data.json()
