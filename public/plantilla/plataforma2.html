@@ -1791,10 +1791,10 @@
         <div class="col-md-5">
             <div class="panel panel-primary">
                 <div class="panel-heading d-flex justify-content-end" id="accordion">
-                    <div class="btn-group pull-right">
-                        <a class="btn btn-default bg-primary text-white" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                            Tienes <span id="message-number">un</span> mensajes
-                        </a>
+                    <div class="btn-group pull-right" id="button-dimensions-chat">
+                        <div class="btn btn-default bg-primary text-white" id="text-modal" data-parent="#accordion">
+                            Tienes <span id="message-number"></span> mensajes
+                        </div>
                     </div>
                 </div>
            <div class="panel-collapse collapse panel-chat" id="collapseOne">
@@ -1808,6 +1808,7 @@
         </div>
     </div>
 </div>
+
 
   <div class="w-100 position-absolute d-none align-items-center justify-content-center"
   style="top: 0; background-color: rgba(0,0,0,0.2); height: 100vh"

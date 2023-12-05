@@ -2248,10 +2248,10 @@ botonInputFlexii.onclick = function () {
 
 const itemsChat = document.querySelector("#items-chat-notification");
 
-const messageNumberSpan = document.getElementById('message-number');
+const messageNumberSpan = document.getElementById("message-number");
+let notificaciones = [];
 
 function traerNoti() {
-  let notificaciones = [];
   const fireRef = db.collection("centro_notificaciones");
   fireRef
     .where("type", "==", "mensaje")
@@ -2296,5 +2296,31 @@ function llenarItemsChat(notificaciones) {
     itemsChat.innerHTML += itemChat;
   });
 }
+
+let isModalOpen = false;
+const modal = document.querySelector(".panel-collapse");
+const textModal = document.getElementById("text-modal");
+const buttonDimensionsChat = document.getElementById("button-dimensions-chat");
+const collapse = document.getElementById("collapseOne");
+
+textModal.addEventListener("click", function () {
+  isModalOpen = !isModalOpen;
+  if (isModalOpen) {
+    textModal.innerHTML = `
+    <div class="d-flex justify-content-between">
+    <span>Heka Entrega</span>
+    <span>X</span>
+    </div>
+    `;
+    buttonDimensionsChat.style.width = "80%";
+    collapse.classList.add("show");
+  } else {
+    collapse.classList.remove("show");
+    textModal.innerHTML = `Tienes ${notificaciones.length} mensajes`;
+    buttonDimensionsChat.style.width = "40%";
+  }
+  console.log(isModalOpen);
+});
+
 
 traerNoti();
