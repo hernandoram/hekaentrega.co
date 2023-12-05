@@ -11,7 +11,9 @@
   margin:0;
   width: auto;
 }
-
+.openButton{
+  border-radius: 10px 10px 0 0;
+}
 
 .chat li.left .chat-body {
   margin-left: 60px;
