@@ -954,7 +954,6 @@ function seleccionarUsuario(id) {
 function mostrarDatosPersonales(data, info) {
   limpiarFormulario("#informacion-" + info, "input,select");
   console.log(data);
-  console.log(data.type)
 
   if (!data) return;
 
