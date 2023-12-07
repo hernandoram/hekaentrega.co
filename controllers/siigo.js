@@ -65,7 +65,8 @@ const crearFactura = async (req, res) => {
         method: "POST",
         "headers": {
             "content-type": "application/json",
-            Authorization: token
+            Authorization: token,
+            "Partner-Id": Cr.partnerId
         },
         "body": JSON.stringify(data)
     }).then(d => d.json())
