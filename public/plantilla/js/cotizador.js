@@ -3035,6 +3035,8 @@ class CalcularCostoDeEnvio {
 
     const pagoContraentrega = this.convencional ? "FALSE" : "TRUE";
 
+    
+    //#region SOLICITUD PASADA AL BACK
     const data = {
       dane_ciudadR,
       dane_ciudadD,
@@ -3042,8 +3044,8 @@ class CalcularCostoDeEnvio {
       seguro: this.seguro,
       pagoContraentrega
     }
-
-    let res = await fetch(
+    /* Request de solicitud al back
+    let resBack = await fetch(
       "/inter/cotizar",
       {
         method: "POST",
@@ -3052,6 +3054,28 @@ class CalcularCostoDeEnvio {
           "Content-Type": "Application/json"
         }
       }
+    )
+    .then((data) => {
+      return data.json()
+    })
+    .catch((err) => err);
+    */
+    //#endregion
+
+    let res = await fetch(
+      url +
+      7986 +
+      "/" +
+      dane_ciudadR +
+      "/" +
+      dane_ciudadD +
+      "/" +
+      this.kgTomado +
+      "/" +
+      this.seguro +
+      "/1/" +
+      genFecha("LR")
+      + "/" + pagoContraentrega
     )
     .then((data) => {
       return data.json()
