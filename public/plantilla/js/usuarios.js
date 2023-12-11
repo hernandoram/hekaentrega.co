@@ -505,7 +505,7 @@ function nuevaCuenta() {
                             );
                             console.log(localStorage);
 
-                           location.href = "plataforma2.html";
+                            location.href = "plataforma2.html";
                           });
                         })
                         .then((d) => {
@@ -636,15 +636,14 @@ function mostrarOficina(id) {
   const direccion = document.querySelector("#dirección-oficina");
   const barrio = document.querySelector("#barrio-oficina");
   const con = document.querySelector("#con-oficina");
-  
+
   const visible = document.querySelector("#visible-oficina");
 
-  const checkbox1 = document.getElementById("tipo-distribucion-direccion"); 
-  const checkbox2 = document.getElementById("tipo-distribucion-oficina"); 
- 
+  const checkbox1 = document.getElementById("tipo-distribucion-direccion");
+  const checkbox2 = document.getElementById("tipo-distribucion-oficina");
 
-  const porcentaje= document.querySelector("#porcentaje-comision-oficina");
-  const comisionMinima= document.querySelector("#comision-minima");
+  const porcentaje = document.querySelector("#porcentaje-comision-oficina");
+  const comisionMinima = document.querySelector("#comision-minima");
 
   //console.log(id);
   firebase
@@ -657,7 +656,7 @@ function mostrarOficina(id) {
         const data = doc.data();
         //console.log(data)
         mostrador.classList.add("d-none");
-        
+
         busquedaOficina.classList.add("d-none");
         botonInforme.classList.add("d-none");
 
@@ -676,15 +675,25 @@ function mostrarOficina(id) {
         barrio.value = data.barrio;
         con.value = data.con;
 
-        console.log(data.visible)
-        data.visible===true?visible.value=true:visible.value=false;
+        console.log(data.visible);
+        data.visible === true
+          ? (visible.value = true)
+          : (visible.value = false);
 
-        data.configuracion ?  porcentaje.value=data.configuracion.porcentaje_comsion: porcentaje.value=3.9;         
-        data.configuracion ? comisionMinima.value=data.configuracion.comision_minima : comisionMinima.value=3900;
-        data.configuracion && data.configuracion.tipo_distribucion[0]==1 ? checkbox1.checked=true : checkbox1.checked=false;
-        data.configuracion && data.configuracion.tipo_distribucion[1]==1 ? checkbox2.checked=true : checkbox2.checked=false;
-    
-        console.log(data.configuracion)
+        data.configuracion
+          ? (porcentaje.value = data.configuracion.porcentaje_comsion)
+          : (porcentaje.value = 3.9);
+        data.configuracion
+          ? (comisionMinima.value = data.configuracion.comision_minima)
+          : (comisionMinima.value = 3900);
+        data.configuracion && data.configuracion.tipo_distribucion[0] == 1
+          ? (checkbox1.checked = true)
+          : (checkbox1.checked = false);
+        data.configuracion && data.configuracion.tipo_distribucion[1] == 1
+          ? (checkbox2.checked = true)
+          : (checkbox2.checked = false);
+
+        console.log(data.configuracion);
         idOficina = id;
 
         //aquí hay que hacer la vuelta de los datos
@@ -702,7 +711,6 @@ function mostrarOficina(id) {
 
 //esta funcion utilizara a otra para retornarme informacion basica del usuario
 async function buscarUsuarios(e) {
-
   console.log("buscando usuarios");
   console.log(this, e);
   e.preventDefault();
@@ -722,7 +730,7 @@ async function buscarUsuarios(e) {
     "celular",
     "celular2",
     "correo",
-    "direccion_completa"
+    "direccion_completa",
   ];
   let especifico;
 
@@ -931,12 +939,21 @@ function seleccionarUsuario(id) {
         const datos_bancarios = data.datos_bancarios;
         const datos_personalizados = data.datos_personalizados;
         const bodegas = data.bodegas;
+
+        console.log(doc.data());
+        if (doc.data().ingreso === doc.data().con) {
+          document.getElementById("actualizar_correo").readOnly = false;
+        } else {
+  
+          document.getElementById("actualizar_correo").readOnly = true;
+        }
+
         mostrarDatosPersonales(doc.data(), "personal");
 
         mostrarDatosPersonales(datos_bancarios, "bancaria");
         mostrarDatosPersonales(datos_personalizados, "heka");
 
-        mostrarReferidosUsuarioAdm(data.centro_de_costo)
+        mostrarReferidosUsuarioAdm(data.centro_de_costo);
         mostrarBodegasUsuarioAdm(bodegas);
       } else {
         // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
@@ -954,7 +971,6 @@ function seleccionarUsuario(id) {
 function mostrarDatosPersonales(data, info) {
   limpiarFormulario("#informacion-" + info, "input,select");
   console.log(data);
-  console.log(data.type)
 
   if (!data) return;
 
@@ -1023,47 +1039,55 @@ function mostrarDatosPersonales(data, info) {
 }
 
 function mostrarReferidosUsuarioAdm(centro_costo) {
-  console.log(centro_costo)
-  const referidos= [];
+  console.log(centro_costo);
+  const referidos = [];
 
   firebase
-  .firestore()
-  .collection("referidos")
-  .where("sellerReferente", "==", centro_costo)
-  .get()
-  .then((querySnapshot) => {
-    querySnapshot.forEach((doc) => {
-      referidos.push(doc.data());
-      console.log(referidos)
+    .firestore()
+    .collection("referidos")
+    .where("sellerReferente", "==", centro_costo)
+    .get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        referidos.push(doc.data());
+        console.log(referidos);
+      });
+    })
+    .finally(() => {
+      const table = $("#tabla-referidos").DataTable({
+        destroy: true,
+        data: referidos,
+        columns: [
+          {
+            data: "sellerReferido",
+            title: "Seller Referido",
+            defaultContent: "",
+          },
+          {
+            data: "nombreApellido",
+            title: "Nombre Referido",
+            defaultContent: "",
+          },
+          { data: "celularReferido", title: "Celular", defaultContent: "" },
+          {
+            data: "cantidadEnvios",
+            title: "Cantidad Envios",
+            defaultContent: "",
+          },
+        ],
+        language: {
+          url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
+        },
+        scrollX: true,
+        scrollCollapse: true,
+        lengthMenu: [
+          [5, 10, 25, 30],
+          [5, 10, 25, 30],
+        ],
+      });
+
+      if (!referidos || !referidos.length) table.clear();
     });
-  })
-  .finally(()=>{
-
-    
-    
-
-    const table = $("#tabla-referidos").DataTable({
-      destroy: true,
-    data: referidos,
-    columns: [
-      { data: "sellerReferido", title: "Seller Referido", defaultContent: "" },
-      { data: "nombreApellido", title: "Nombre Referido", defaultContent: "" },
-      { data: "celularReferido", title: "Celular", defaultContent: "" },
-      { data: "cantidadEnvios", title: "Cantidad Envios", defaultContent: "" },
-    ],
-    language: {
-      url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
-    },
-    scrollX: true,
-    scrollCollapse: true,
-    lengthMenu: [
-      [5, 10, 25, 30],
-      [5, 10, 25, 30],
-    ],
-  });
-  
-  if (!referidos || !referidos.length) table.clear();
-});
 }
 
 function mostrarBodegasUsuarioAdm(bodegas) {
@@ -1200,8 +1224,7 @@ function editarBodegaUsuarioAdm(e) {
       datos.nombres
     } ${datos.apellidos}`;
 
-
-    console.log(textoACopiar)
+    console.log(textoACopiar);
 
     navigator.clipboard.writeText(textoACopiar).then(() => {
       avisar(
@@ -1290,10 +1313,10 @@ function actualizarInformacionPersonal() {
 }
 
 function actualizarInformacionOficina() {
-  let  aux = false;
+  let aux = false;
 
-  if(value("visible-oficina") == "true"){
-  aux = true;
+  if (value("visible-oficina") == "true") {
+    aux = true;
   }
 
   let datos = {
@@ -1308,10 +1331,15 @@ function actualizarInformacionOficina() {
     barrio: value("barrio-oficina"),
     con: value("con-oficina"),
     visible: aux,
-    direccion_completa: value("dirección-oficina") + ", " + value("barrio-oficina") + ", " + value("ciudad-oficina"),
+    direccion_completa:
+      value("dirección-oficina") +
+      ", " +
+      value("barrio-oficina") +
+      ", " +
+      value("ciudad-oficina"),
   };
   console.log(aux);
-  console.log(datos)
+  console.log(datos);
 
   let ofi = idOficina;
 
@@ -1346,33 +1374,30 @@ async function actualizarInformacionHekaOficina() {
     checkbox2val = 1;
   }
 
-
   let datos = {
     porcentaje_comsion: value("porcentaje-comision-oficina"),
     tipo_distribucion: [checkbox1val, checkbox2val],
     comision_minima: value("comision-minima"),
-  }
-  console.log(datos)
+  };
+  console.log(datos);
 
-  console.log(idOficina)
+  console.log(idOficina);
 
   firebase
-  .firestore()
-  .collection("oficinas")
-  .doc(idOficina)
-  .update({configuracion:datos})
-  .then(() => {
-    avisar(
-      "Actualización de Datos exitosa",
-      "Se han registrado de información Heka en la oficina para "+value("nombres-oficina")+" "+value("apellidos-oficina")
-    );
-  });
+    .firestore()
+    .collection("oficinas")
+    .doc(idOficina)
+    .update({ configuracion: datos })
+    .then(() => {
+      avisar(
+        "Actualización de Datos exitosa",
+        "Se han registrado de información Heka en la oficina para " +
+          value("nombres-oficina") +
+          " " +
+          value("apellidos-oficina")
+      );
+    });
 }
-
-
-
-
-
 
 function actualizarInformacionBancaria() {
   // Datos bancarios
@@ -1783,5 +1808,3 @@ async function verMovimientos(usuario, fechaI, fechaF) {
     console.log(error);
   }
 }
-
-

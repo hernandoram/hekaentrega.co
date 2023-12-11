@@ -10,6 +10,8 @@ export function visualizarNotificacion(noti) {
         </h3>
         
         <p><b>Tipo: </b> ${noti.type}</p>
+        <p><b>Mensaje: </b> ${noti.mensaje}</p>
+
         </div>
     </div>
     `;
