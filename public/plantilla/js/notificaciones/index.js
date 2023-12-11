@@ -207,7 +207,20 @@ async function generarNotificacion(e) {
   console.log(notificacion);
 
   console.log(selectorNotificacion.value);
-  if (!selectorNotificacion.value == "nueva") {
+
+  if (selectorNotificacion.value === "nueva") {
+    try {
+      await fireRef.add(notificacion);
+      Toast.fire("Notificación agregada correctamente", "", "success");
+      seccionNotificaciones.removeClass("d-none");
+
+      e.target.reset();
+      renderizarImagen();
+      mostrarNotificaciones();
+    } catch (e) {
+      Toast.fire("Error", e.message, "error");
+    }
+  } else {
     try {
       await fireRef
         .doc(selectorNotificacion.value)
@@ -218,18 +231,6 @@ async function generarNotificacion(e) {
           renderizarImagen();
           mostrarNotificaciones();
         });
-    } catch (e) {
-      Toast.fire("Error", e.message, "error");
-    }
-  } else {
-    try {
-      await fireRef.add(notificacion);
-      Toast.fire("Notificación agregada correctamente", "", "success");
-      seccionNotificaciones.removeClass("d-none");
-
-      e.target.reset();
-      renderizarImagen();
-      mostrarNotificaciones();
     } catch (e) {
       Toast.fire("Error", e.message, "error");
     }
