@@ -225,6 +225,8 @@ async function generarNotificacion(e) {
     try {
       await fireRef.add(notificacion);
       Toast.fire("Notificación agregada correctamente", "", "success");
+      seccionNotificaciones.removeClass("d-none");
+
       e.target.reset();
       renderizarImagen();
       mostrarNotificaciones();
@@ -413,7 +415,7 @@ function mostrarNotificaciones() {
         visorNotificaciones.append(visualizarNotificacion(data));
         console.log(data);
 
-        if (q.size > 0) {
+        if (q.size === 0) {
           return;
         }
         seccionNotificaciones.removeClass("d-none");
