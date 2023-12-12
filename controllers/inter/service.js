@@ -17,14 +17,14 @@ async function createSporadicCollections(req, res) {
   }
   else {
     let build = {
-      IdClienteCredito: CredencialesEmpresa.idCliente,
+      IdClienteCredito: CredencialesEmpresa.branchCode,
       listaNumPreenvios: []
     };
 
     let documents = [];
 
     data.forEach(element => {
-      build.IdSucursalCliente = element.sucursalId;
+      build.IdSucursalCliente = element.branchCode;
       build.fechaRecogida = element.date;
       element.listGuias.forEach(list => {
         build.listaNumPreenvios.push(list);
@@ -96,7 +96,7 @@ function testMode(build) {
 function validateSucursal(data) {
   const sucursalIds = new Set();
   for (let i = 0; i < data.length; i++) {
-      sucursalIds.add(data[i].sucursalId);
+      sucursalIds.add(data[i].branchCode);
   }
   return sucursalIds.size === data.length;
 }
