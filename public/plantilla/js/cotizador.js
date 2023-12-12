@@ -3016,6 +3016,8 @@ class CalcularCostoDeEnvio {
     this.flete = precio.Valor;
   }
 
+  
+
   async cotizarInter(dane_ciudadR, dane_ciudadD) {
     console.log("cotizando Interrapidisimo");
     let ciudadBloqueada = false
@@ -3034,7 +3036,7 @@ class CalcularCostoDeEnvio {
     if (ciudadBloqueada && !this.isOficina && (this.type === "PAGO CONTRAENTREGA" || this.type == "PAGO DESTINO")) return 0;
 
     const pagoContraentrega = this.convencional ? "FALSE" : "TRUE";
-    let res = await fetch(
+    let res = await fetchWithRetry(
       url +
       7986 +
       "/" +
@@ -3086,6 +3088,8 @@ class CalcularCostoDeEnvio {
     // console.log(res);
     return mensajeria[0];
   }
+
+
 
   intoEnvia(cotizacion) {
     if (!cotizacion) cotizacion = this.precio;
@@ -3291,6 +3295,19 @@ function modificarDatosDeTransportadorasAveo(res) {
       transportadoras[t].logoPath = res[t].logoTransportadora;
     }
   });
+}
+
+ async function fetchWithRetry(url, options, maxRetries = 3) {
+
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      let response = await fetch(url, options);
+      console.log(`intento ${1}`)
+      return response;
+    } catch (error) {
+      if (i === maxRetries - 1) throw error; // Si es el último intento, lanza el error
+    }
+  }
 }
 
 // Para enviar la guia generada a firestore
@@ -3995,7 +4012,7 @@ async function guardarStickerGuiaServientrega(data) {
 
 //función para consultar la api en el back para crear guiade inter rapidisimo.
 async function generarGuiaInterrapidisimo(datos) {
-  let respuesta = await fetch("/inter/crearGuia", {
+  let respuesta = await fetchWithRetry("/inter/crearGuia", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(datos),
