@@ -53,11 +53,7 @@ let datos_usuario = {},
     saldo: 0,
   };
 
-const ciudadesFlexxi=[
-  "BOGOTA(CUNDINAMARCA)",
-  "TUMACO(NARIÑO)"
-];
-
+const ciudadesFlexxi = ["BOGOTA(CUNDINAMARCA)", "TUMACO(NARIÑO)"];
 
 const bodegasWtch = new Watcher();
 
@@ -194,7 +190,9 @@ async function consultarDatosDeUsuario() {
       const datos = doc.data();
       const datos_bancarios = datos.datos_bancarios || null;
       const datos_personalizados = datos.datos_personalizados;
-      let bodegas = datos.bodegas ? datos.bodegas.filter(b => !b.inactiva) : [];
+      let bodegas = datos.bodegas
+        ? datos.bodegas.filter((b) => !b.inactiva)
+        : [];
 
       datos_usuario = {
         nombre_completo:
@@ -213,11 +211,12 @@ async function consultarDatosDeUsuario() {
         bodegas,
       };
 
-      if(datos_usuario.type === "NATURAL-FLEXII") {
-        bodegas = bodegas.filter(bodega => ciudadesFlexxi.includes(bodega.ciudad));
+      if (datos_usuario.type === "NATURAL-FLEXII") {
+        bodegas = bodegas.filter((bodega) =>
+          ciudadesFlexxi.includes(bodega.ciudad)
+        );
         datos_usuario.bodegas = bodegas;
       }
-
 
       bodegasWtch.change(bodegas);
 
@@ -226,12 +225,7 @@ async function consultarDatosDeUsuario() {
       mostrarDatosPersonalizados(datos_personalizados);
       mostrarDatosBancarios(datos_bancarios);
 
-  
-       
       mostrarBodegas(bodegas);
-      
-
-
 
       return datos_usuario;
     }
@@ -373,7 +367,7 @@ function mostrarBodegas(bodegas) {
   const parent = template.parent();
   parent.empty();
 
-  console.log(bodegas)
+  console.log(bodegas);
 
   if (bodegas) {
     bodegas.forEach((bodega, i) => {
@@ -668,7 +662,6 @@ function mostrarReferidos(datos) {
           });
         })
         .finally(() => {
-          console.log(referidos);
           if (referidos.length > 0) despliegueReferidos(referidos);
         });
     })
@@ -680,8 +673,6 @@ function mostrarReferidos(datos) {
 }
 
 function despliegueReferidos(referidos) {
-  console.log(referidos);
-
   let mostradorReferidos = document.getElementById("mostrador-referidos");
   let tituloreferidos = document.getElementById("titulo-referidos");
 
@@ -1997,12 +1988,12 @@ console.log(datosUsuario);
 async function solicitarPagosPendientesUs() {
   const datosUsuario = localStorage.getItem("user_id");
 
-  console.log(datosUsuario)
+  console.log(datosUsuario);
 
-// if(datosUsuario == "zGR9EbRKEQGRxIMfKiu4"){
-//   return Swal.fire(" Desactivación Temporal de la Función de Solicitar Pagos", "Hemos desactivado temporalmente la función de solicitar pagos. Estamos trabajando en la solución y te mantendremos informado.", "error");
+  // if(datosUsuario == "zGR9EbRKEQGRxIMfKiu4"){
+  //   return Swal.fire(" Desactivación Temporal de la Función de Solicitar Pagos", "Hemos desactivado temporalmente la función de solicitar pagos. Estamos trabajando en la solución y te mantendremos informado.", "error");
 
-// }
+  // }
 
   const mensajeDesembolso = obtenerMensajeDesembolso();
   const minimo_diario = 3000000;
@@ -2254,3 +2245,82 @@ botonInputFlexii.onclick = function () {
       }
     });
 };
+
+const itemsChat = document.querySelector("#items-chat-notification");
+
+const messageNumberSpan = document.getElementById("message-number");
+let notificaciones = [];
+
+function traerNoti() {
+  const fireRef = db.collection("centro_notificaciones");
+  fireRef
+    .where("type", "==", "mensaje")
+    .get()
+    .then((q) => {
+      q.forEach((d) => {
+        const data = d.data();
+        data.id = d.id;
+        notificaciones.push(data);
+        console.log(data);
+      });
+    })
+    .then(() => {
+      console.log(notificaciones);
+      messageNumberSpan.innerText = notificaciones.length;
+      notificaciones.sort((a, b) => a.timeline - b.timeline);
+      llenarItemsChat(notificaciones); // Llama a llenarItemsChat para cada notificación
+    });
+}
+
+// ${isLastItem ? '<img src="" alt="user-img" class="img-circle">' : ""}
+
+function llenarItemsChat(notificaciones) {
+  notificaciones.forEach((notificacion, index) => {
+    const isLastItem = index === notificaciones.length - 1;
+    const itemChat = `
+      <div class="${isLastItem ? "d-flex align-items-end" : ""}">
+       ${
+         isLastItem
+           ? '<img src= "../img/logoNuevo.jpeg" class="imgchat" alt="user-img">'
+           : ""
+       }
+      <div class="${isLastItem ? "last-item" : ""} item-chat">
+          <div class="header">
+            <strong class="primary-font">${notificacion.name}</strong>
+          </div>
+          <span>${notificacion.mensaje}</span>
+        </div>
+      </div>
+    `;
+
+    itemsChat.innerHTML += itemChat;
+  });
+}
+
+let isModalOpen = false;
+const modal = document.querySelector(".panel-collapse");
+const textModal = document.getElementById("text-modal");
+const buttonDimensionsChat = document.getElementById("button-dimensions-chat");
+const collapse = document.getElementById("collapseOne");
+
+textModal.addEventListener("click", function () {
+  isModalOpen = !isModalOpen;
+  if (isModalOpen) {
+    textModal.innerHTML = `
+    <div class="d-flex justify-content-between">
+    <span>Heka Entrega</span>
+    <span>X</span>
+    </div>
+    `;
+    buttonDimensionsChat.style.width = "80%";
+    collapse.classList.add("show");
+  } else {
+    collapse.classList.remove("show");
+    textModal.innerHTML = `Tienes ${notificaciones.length} mensajes`;
+    buttonDimensionsChat.style.width = "40%";
+  }
+  console.log(isModalOpen);
+});
+
+
+traerNoti();

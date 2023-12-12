@@ -86,7 +86,7 @@ function cambioNotificacion(e) {
 
   //cambio botones
 
-  if (val!== "--Nueva notificación--") {
+  if (val!== "nueva") {
     botonNotificacion.innerHTML = "Editar notificación";
     const notificacion =
       notificaciones.find((notificacion) => notificacion.id === val) || null;
@@ -212,7 +212,8 @@ async function generarNotificacion(e) {
 
   console.log(notificacion);
 
-  if (selectorNotificacion.value) {
+  console.log(selectorNotificacion.value);
+  if (!selectorNotificacion.value == "nueva") {
     try {
       await fireRef
         .doc(selectorNotificacion.value)
@@ -439,6 +440,21 @@ function mostrarNotificaciones() {
     .then(() => selectorNotificaciones(notificaciones));
 }
 
+function eliminarNotificaciones() {
+  fireRef.get().then((q) => {
+    const batch = db.batch();
+
+    q.forEach((doc) => {
+      batch.delete(doc.ref);
+    });
+
+    return batch.commit();
+  }).then(() => {
+    console.log('Todas las notificaciones han sido eliminadas');
+  });
+}
+
+
 function convertirFecha(inputfecha) {
   const fecha = new Date(inputfecha);
   const fechaFormateada = fecha.toISOString().substring(0, 10);
@@ -458,6 +474,7 @@ function selectorNotificaciones(notificaciones) {
   // Crear una nueva opción
   const opcionPorDefecto = document.createElement("option");
   opcionPorDefecto.text = "--Nueva notificación--";
+  opcionPorDefecto.value = "nueva";
 
   // Insertar la nueva opción al principio del elemento select
   selectorNotificacion.insertBefore(
