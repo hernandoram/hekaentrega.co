@@ -101,6 +101,8 @@ function testMode(build) {
 }
 
 function validateSucursal(data) {
+
+  if(data.length == 1) return false;
   const sucursalIds = new Set();
   for (let i = 0; i < data.length; i++) {
       sucursalIds.add(data[i].branchCode);
@@ -124,7 +126,7 @@ async function createSpreadsheet(req, res) {
   
 }
 
-function sendSpreadsheetApi(build, mode) {
+function sendSpreadsheetApi(build) {
   return new Promise(async (resolve, reject) => {
     request.post(CredencialesEmpresa.endpointv2 + "/Planilla/GenerarPlanillaRecoleccionPreenvios", {
       headers: {
