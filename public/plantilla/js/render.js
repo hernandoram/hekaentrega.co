@@ -559,12 +559,12 @@ function genFecha(direccion, milliseconds) {
 
 //Retorna una tabla de documentos filtrados
 function renderUserDocumentCard(id, data) {
-
   const isInterrapidisimo = data.transportadora && data.transportadora.toUpperCase() === "INTERRAPIDISIMO";
-
   const checkboxInput = isInterrapidisimo
     ? `<input type="checkbox" id="checkbox-interrapidisimo-${id}" name="interrapidisimo" value="${id}">`
     : '';
+
+  const idRecogicaInfo = data.idRecogida ? `<p>Id Recogida: <small class="text-break">${data.idRecogida}</small></p>` : '';
 
   return `
     <div class="col-sm-6 col-lg-4 mb-4">
@@ -583,6 +583,7 @@ function renderUserDocumentCard(id, data) {
                   <p class="text-truncate" style="cursor: zoom-in" data-display="text">
                     Id Guias Generadas: <br>
                     <small class="text-break" data-guides="[${data.guias.join(', ')}]">${data.guias}</small>
+                    ${idRecogicaInfo}
                   </p>
                   <p>Tipo: <small class="text-break">${data.type || "PAGO CONTRAENTREGA"}</span></p>
                   <p>Fecha: <small class="fecha">${data.fecha}</small></p>
@@ -624,6 +625,7 @@ function renderUserDocumentCard(id, data) {
       </div>
     </div>`;
 }
+
 
 document.addEventListener('change', function (event) {
   if (event.target.type === 'checkbox' && event.target.name === 'interrapidisimo') {
@@ -679,10 +681,31 @@ document.getElementById('correspondence-button').addEventListener('click', funct
   });
 
   if (activeCardData.length > 0) {
-    console.log('Active card data:', JSON.stringify(activeCardData, null, 2));
+    const jsonData = JSON.stringify(activeCardData, null, 2);
+  
+    fetch('/inter/recogidaesporadica?mode=test', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonData,
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      return response.json();
+    })
+    .then(data => {
+      // Manejar la respuesta del servidor si es necesario
+      console.log('POST successful:', data);
+    })
+    .catch(error => {
+      console.error('Error during POST:', error);
+    });
   } else {
     console.log('No cards are active.');
-  }
+  }  
 });
 
 document.addEventListener('change', function () {
