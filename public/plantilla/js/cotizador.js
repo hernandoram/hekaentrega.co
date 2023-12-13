@@ -297,14 +297,15 @@ async function cotizador() {
     } else if (
       datos_de_cotizacion.ancho <
         transportadoras[codTransp].limitesLongitud[0] ||
-        datos_de_cotizacion.largo <
+      datos_de_cotizacion.largo <
         transportadoras[codTransp].limitesLongitud[0] ||
-        datos_de_cotizacion.alto < transportadoras[codTransp].limitesLongitud[0] ||
-        datos_de_cotizacion.ancho >
+      datos_de_cotizacion.alto <
+        transportadoras[codTransp].limitesLongitud[0] ||
+      datos_de_cotizacion.ancho >
         transportadoras[codTransp].limitesLongitud[1] ||
-        datos_de_cotizacion.largo >
+      datos_de_cotizacion.largo >
         transportadoras[codTransp].limitesLongitud[1] ||
-        datos_de_cotizacion.alto > transportadoras[codTransp].limitesLongitud[1]
+      datos_de_cotizacion.alto > transportadoras[codTransp].limitesLongitud[1]
     ) {
       // Si el valor de las dimensiones exceden el limite permitido
       alert(
@@ -597,7 +598,7 @@ async function response(datos) {
   datos_de_cotizacion.type = type;
 
   const notas = agregarNotasDeExepcionAlCotizador();
-  console.log(datos_de_cotizacion)
+  console.log(datos_de_cotizacion);
   // let htmlTransportadoras = await detallesTransportadoras(datos_de_cotizacion);
 
   //Creo un html con los detalles de la consulta y las transportadoras involucradas
@@ -1607,7 +1608,7 @@ function verificarAntesSeleccionarOficina(oficina, cotizacion) {
   //Le idea es utilizar la variable oficina, para obtener valores restrictivos particulares de cada oficina
 
   const maxKilos = 5,
-  maxRec = 500000;
+    maxRec = 500000;
 
   console.log(datos_a_enviar);
   if (cotizacion.kgTomado > maxKilos) {
@@ -1860,8 +1861,8 @@ const opciones = [];
 
 //M edevuelve el html del último formulario del cotizador
 function finalizarCotizacion(datos) {
-    let div_principal = document.createElement("DIV"),
-        crearNodo = str => new DOMParser().parseFromString(str, "text/html").body;
+  let div_principal = document.createElement("DIV"),
+    crearNodo = (str) => new DOMParser().parseFromString(str, "text/html").body;
 
   let creador = document.getElementById("crear_guia");
   const readonly = datos.transportadora == "INTERRAPIDISIMO";
@@ -1873,16 +1874,16 @@ function finalizarCotizacion(datos) {
         </div>
     `;
 
-    let clientes= `   <div class="col-sm-6 mb-2 form-check" id="contenedor-guardar-user">
+  let clientes = `   <div class="col-sm-6 mb-2 form-check" id="contenedor-guardar-user">
     <input type="checkbox" id="guardarUsuario" class="form-check-input">
     <label for="guardarUsuario" class="form-check-label" checked>Guardar en clientes frecuentes</label>
 </div>`;
 
-let modificarCliente= `   <div class="col-sm-6 mb-2 form-check d-none" id="contenedor-modificar-user">
+  let modificarCliente = `   <div class="col-sm-6 mb-2 form-check d-none" id="contenedor-modificar-user">
 <input type="checkbox" id="modificarUser" class="form-check-input">
 <label for="modificarUser" class="form-check-label" checked>Modificar usuario frecuente</label>
 </div>`;
-    let entrega_en_oficina = "";
+  let entrega_en_oficina = "";
 
   const checkCreacionPedido = `
         <div class="col-sm-6 mb-2 form-check d-none">
@@ -2136,149 +2137,78 @@ let modificarCliente= `   <div class="col-sm-6 mb-2 form-check d-none" id="conte
   if (datos_usuario.type === "PUNTO")
     $("#buscador_usuario-guia").click(buscarUsuario);
 
-    restringirCaracteresEspecialesEnInput()
-    let informacion = document.getElementById("informacion-personal");
-    document.getElementById("producto").addEventListener("blur", () => {
-        let normalmente_envia = false;
-        for(let product of datos_usuario.objetos_envio){
-            product = product.toLowerCase();
-            if(value("producto").trim().toLowerCase() == product){
-                normalmente_envia = true;
-            }
-        }
-        let aviso = document.getElementById("aviso-producto");
-        if(!normalmente_envia){
-            aviso.innerHTML = "No se registra en lo que normalmente envías: <b>\"" + datos_usuario.objetos_envio.join(", ") + "\".</b> \r si deseas continuar de todos modos, solo ignora este mensaje";
-            aviso.classList.remove("d-none");
-        }else {
-            aviso.classList.add("d-none")
-        }
-    });
+  restringirCaracteresEspecialesEnInput();
+  let informacion = document.getElementById("informacion-personal");
+  document.getElementById("producto").addEventListener("blur", () => {
+    let normalmente_envia = false;
+    for (let product of datos_usuario.objetos_envio) {
+      product = product.toLowerCase();
+      if (value("producto").trim().toLowerCase() == product) {
+        normalmente_envia = true;
+      }
+    }
+    let aviso = document.getElementById("aviso-producto");
+    if (!normalmente_envia) {
+      aviso.innerHTML =
+        'No se registra en lo que normalmente envías: <b>"' +
+        datos_usuario.objetos_envio.join(", ") +
+        '".</b> \r si deseas continuar de todos modos, solo ignora este mensaje';
+      aviso.classList.remove("d-none");
+    } else {
+      aviso.classList.add("d-none");
+    }
+  });
 
-    const ciudad= document.getElementById("ciudadDestinoUsuario");
-    
-    const referenciaUsuariosFrecuentes = usuarioAltDoc().collection("plantillasUsuariosFrecuentes");
+  const ciudad = document.getElementById("ciudadDestinoUsuario");
 
-    opciones.length = 0;
+  const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
+    "plantillasUsuariosFrecuentes"
+  );
 
-    referenciaUsuariosFrecuentes
-    .where("ciudad","==", ciudad.value)
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach((document) => {
-          const data = document.data();
-          data.id = document.id;
-          console.log(data)
+  opciones.length = 0;
 
-          opciones.push(data);
-        });
-      })
-      .then(() => {
-        console.log(opciones);
-        cargarUsuariosFrecuentes(opciones)
+  referenciaUsuariosFrecuentes
+    .where("ciudad", "==", ciudad.value)
+    .get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach((document) => {
+        const data = document.data();
+        data.id = document.id;
+        console.log(data);
+
+        opciones.push(data);
       });
+    })
+    .then(() => {
+      console.log(opciones);
+      cargarUsuariosFrecuentes(opciones);
+    });
 }
-
 
 //jose
 function cargarUsuariosFrecuentes(personas) {
-    const selectClientes = document.getElementById("list_clientesFrecuentes");
+  const selectClientes = document.getElementById("list_clientesFrecuentes");
 
-    const contenedorGuardar= document.getElementById("contenedor-guardar-user");
-    const guardarUser= document.getElementById("guardarUsuario");
+  const contenedorGuardar = document.getElementById("contenedor-guardar-user");
+  const guardarUser = document.getElementById("guardarUsuario");
 
-    const contenedorModificar= document.getElementById("contenedor-modificar-user");
-    const modificarUser= document.getElementById("modificarUser");
+  const contenedorModificar = document.getElementById(
+    "contenedor-modificar-user"
+  );
+  const modificarUser = document.getElementById("modificarUser");
 
-    console.log(personas)
-  
-    // Itera a través del arreglo de personas y agrega opciones al select
-    personas.map((persona) => {
-      const option = document.createElement("option");
-      option.value = persona.id;
-      option.text = `${persona.nombre}`;
-      selectClientes.appendChild(option);
-    });
+  console.log(personas);
 
-    selectClientes.addEventListener("change", () => {
+  // Itera a través del arreglo de personas y agrega opciones al select
+  personas.map((persona) => {
+    const option = document.createElement("option");
+    option.value = persona.id;
+    option.text = `${persona.nombre}`;
+    selectClientes.appendChild(option);
+  });
+
+  selectClientes.addEventListener("change", () => {
     const selectedValue = selectClientes.value;
-        // Obtener los elementos input por su ID
-      const nombreDestinatario = document.getElementById("nombreD");
-      const identificacionDestinatario =
-        document.getElementById("identificacionD");
-      const tipoDocumentoDestinatario =
-        document.getElementById("tipo-doc-dest");
-      const direccionDestinatario = document.getElementById("direccionD");
-
-      const barrioDestinatario = document.getElementById("barrioD");
-      const telefonoDestinatario = document.getElementById("telefonoD");
-      const celularDestinatario = document.getElementById("celularD");
-      const correoDestinatario = document.getElementById("correoD");
-      const tipoEntrega = document.getElementById("entrega_en_oficina");
-      const observacionesDestinatario =
-        document.getElementById("observaciones");
-
-
-      // Encuentra el usuario seleccionado en el arreglo de personas
-      const selectedPersona = personas.find(
-        (persona) => persona.id === selectedValue
-      );
-
-      console.log(selectedPersona)
-
-      // Actualiza los valores de los inputs
-      if (selectedPersona) {
-        contenedorModificar.classList.remove("d-none")
-        contenedorGuardar.classList.add("d-none")
-        guardarUser.checked= false;
-        nombreDestinatario.value = selectedPersona.nombre;
-        identificacionDestinatario.value = selectedPersona.documentoIdentidad;
-        tipoDocumentoDestinatario.value = selectedPersona.tipoDocumento;
-        direccionDestinatario.value = selectedPersona.direccionDestinatario;
-        barrioDestinatario.value = selectedPersona.barrio;
-        telefonoDestinatario.value = selectedPersona.otroCelular;
-        celularDestinatario.value = selectedPersona.celular;
-        correoDestinatario.value = selectedPersona.email;
-        tipoEntrega.value = selectedPersona.tipoEntrega;
-        observacionesDestinatario.value = selectedPersona.observaciones;
-        contenedorGuardar.classList.add("d-none")
-
-        var event = new Event("change");
-        tipoDocumentoDestinatario.dispatchEvent(event);
-        tipoEntrega.dispatchEvent(event);
-      } else {
-          contenedorModificar.classList.add("d-none")
-        contenedorGuardar.classList.remove("d-none")
-        // Si no se encuentra el usuario, puedes borrar los valores o mostrar un mensaje de error.
-        nombreDestinatario.value = "";
-        identificacionDestinatario.value = "";
-        tipoDocumentoDestinatario.value ="";
-        direccionDestinatario.value = "";
-        barrioDestinatario.value = "";
-        telefonoDestinatario.value = "";
-        celularDestinatario.value = "";
-        correoDestinatario.value = "";
-        tipoEntrega.value = "";
-        observacionesDestinatario.value = "";
-        modificarUser.checked= false;
-       
-
-      }
-    });
-  }
-
-
-  function enviarUsuarioFrecuente() {
-    console.log("hola")
-    //inputs importantes
-    const guardarUsuario = document.getElementById("guardarUsuario");
-    const modificarUser = document.getElementById("modificarUser");
-
-    //en el caso que no haya ninguna opción seleccionada
-    if (!guardarUsuario.checked && !modificarUser.checked) {
-      return;
-    }
-
     // Obtener los elementos input por su ID
     const nombreDestinatario = document.getElementById("nombreD");
     const identificacionDestinatario =
@@ -2292,73 +2222,137 @@ function cargarUsuariosFrecuentes(personas) {
     const correoDestinatario = document.getElementById("correoD");
     const tipoEntrega = document.getElementById("entrega_en_oficina");
     const observacionesDestinatario = document.getElementById("observaciones");
-    const ciudad = document.getElementById("ciudadDestinoUsuario");
 
-    const nuevoObjeto = {
-      nombre: nombreDestinatario.value,
-      documentoIdentidad: identificacionDestinatario.value,
-      tipoDocumento: parseInt(tipoDocumentoDestinatario.value),
-      tipoEntrega: parseInt(tipoEntrega?.value) || 1,
-      direccionDestinatario: direccionDestinatario.value,
-      barrio: barrioDestinatario.value,
-      celular: celularDestinatario.value,
-      otroCelular: telefonoDestinatario.value,
-      email: correoDestinatario.value,
-      observaciones: observacionesDestinatario.value,
-      ciudad: ciudad.value,
-    };
-    const dataejemplo = {
-      nombre: "Juan Pérez",
-      documentoIdentidad: "123456789",
-      tipoDocumento: 1, // 1 para NIT, 2 para CC
-      tipoEntrega: 1, // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
-      direccionDestinatario: "Calle 123",
-      barrio: "Barrio A",
-      celular: "1234567890",
-      otroCelular: "9876543210",
-      email: "juan.perez@example.com",
-      observaciones: "Entregar por la puerta trasera",
-    };
-
-    console.log(opciones);
-
-    const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
-      "plantillasUsuariosFrecuentes"
+    // Encuentra el usuario seleccionado en el arreglo de personas
+    const selectedPersona = personas.find(
+      (persona) => persona.id === selectedValue
     );
 
-    //si quiero agregar un nuevo usuario frecuente
-    if (guardarUsuario.checked && !modificarUser.checked) {
-      referenciaUsuariosFrecuentes
-        .add(nuevoObjeto)
-        .then((docRef) => {
-          console.log("Documento agregado con ID:", docRef.id);
-          avisar("Operación exitosa","Usuario frecuente agregado")
-        })
-        .catch((error) => {
-          console.error("Error al agregar el documento:", error);
-        });
+    console.log(selectedPersona);
+
+    // Actualiza los valores de los inputs
+    if (selectedPersona) {
+      contenedorModificar.classList.remove("d-none");
+      contenedorGuardar.classList.add("d-none");
+      guardarUser.checked = false;
+      nombreDestinatario.value = selectedPersona.nombre;
+      identificacionDestinatario.value = selectedPersona.documentoIdentidad;
+      tipoDocumentoDestinatario.value = selectedPersona.tipoDocumento;
+      direccionDestinatario.value = selectedPersona.direccionDestinatario;
+      barrioDestinatario.value = selectedPersona.barrio;
+      telefonoDestinatario.value = selectedPersona.otroCelular;
+      celularDestinatario.value = selectedPersona.celular;
+      correoDestinatario.value = selectedPersona.email;
+      tipoEntrega.value = selectedPersona.tipoEntrega;
+      observacionesDestinatario.value = selectedPersona.observaciones;
+      contenedorGuardar.classList.add("d-none");
+
+      var event = new Event("change");
+      tipoDocumentoDestinatario.dispatchEvent(event);
+      tipoEntrega.dispatchEvent(event);
+    } else {
+      contenedorModificar.classList.add("d-none");
+      contenedorGuardar.classList.remove("d-none");
+      // Si no se encuentra el usuario, puedes borrar los valores o mostrar un mensaje de error.
+      nombreDestinatario.value = "";
+      identificacionDestinatario.value = "";
+      tipoDocumentoDestinatario.value = "";
+      direccionDestinatario.value = "";
+      barrioDestinatario.value = "";
+      telefonoDestinatario.value = "";
+      celularDestinatario.value = "";
+      correoDestinatario.value = "";
+      tipoEntrega.value = "";
+      observacionesDestinatario.value = "";
+      modificarUser.checked = false;
     }
+  });
+}
 
-    //si quiero modificar un usuario frecuente que ya esté creado
+function enviarUsuarioFrecuente() {
+  console.log("hola");
+  //inputs importantes
+  const guardarUsuario = document.getElementById("guardarUsuario");
+  const modificarUser = document.getElementById("modificarUser");
 
-    const selectClientes = document.getElementById("list_clientesFrecuentes");
-
-    if (modificarUser.checked && !guardarUsuario.checked) {
-      referenciaUsuariosFrecuentes
-        .doc(selectClientes.value)
-        .set(nuevoObjeto)
-        .then(
-        ()=>{
-          console.log("modificado")
-        } 
-        ).then(
-          avisar("Operación exitosa","Usuario frecuente agregado")
-          );
-    }
+  //en el caso que no haya ninguna opción seleccionada
+  if (!guardarUsuario.checked && !modificarUser.checked) {
+    return;
   }
 
+  // Obtener los elementos input por su ID
+  const nombreDestinatario = document.getElementById("nombreD");
+  const identificacionDestinatario = document.getElementById("identificacionD");
+  const tipoDocumentoDestinatario = document.getElementById("tipo-doc-dest");
+  const direccionDestinatario = document.getElementById("direccionD");
 
+  const barrioDestinatario = document.getElementById("barrioD");
+  const telefonoDestinatario = document.getElementById("telefonoD");
+  const celularDestinatario = document.getElementById("celularD");
+  const correoDestinatario = document.getElementById("correoD");
+  const tipoEntrega = document.getElementById("entrega_en_oficina");
+  const observacionesDestinatario = document.getElementById("observaciones");
+  const ciudad = document.getElementById("ciudadDestinoUsuario");
 
+  const nuevoObjeto = {
+    nombre: nombreDestinatario.value,
+    documentoIdentidad: identificacionDestinatario.value,
+    tipoDocumento: parseInt(tipoDocumentoDestinatario.value),
+    tipoEntrega: parseInt(tipoEntrega?.value) || 1,
+    direccionDestinatario: direccionDestinatario.value,
+    barrio: barrioDestinatario.value,
+    celular: celularDestinatario.value,
+    otroCelular: telefonoDestinatario.value,
+    email: correoDestinatario.value,
+    observaciones: observacionesDestinatario.value,
+    ciudad: ciudad.value,
+  };
+  const dataejemplo = {
+    nombre: "Juan Pérez",
+    documentoIdentidad: "123456789",
+    tipoDocumento: 1, // 1 para NIT, 2 para CC
+    tipoEntrega: 1, // 1 para Tipo de entrega 1, 2 para Tipo de entrega 2
+    direccionDestinatario: "Calle 123",
+    barrio: "Barrio A",
+    celular: "1234567890",
+    otroCelular: "9876543210",
+    email: "juan.perez@example.com",
+    observaciones: "Entregar por la puerta trasera",
+  };
+
+  console.log(opciones);
+
+  const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
+    "plantillasUsuariosFrecuentes"
+  );
+
+  //si quiero agregar un nuevo usuario frecuente
+  if (guardarUsuario.checked && !modificarUser.checked) {
+    referenciaUsuariosFrecuentes
+      .add(nuevoObjeto)
+      .then((docRef) => {
+        console.log("Documento agregado con ID:", docRef.id);
+        avisar("Operación exitosa", "Usuario frecuente agregado");
+      })
+      .catch((error) => {
+        console.error("Error al agregar el documento:", error);
+      });
+  }
+
+  //si quiero modificar un usuario frecuente que ya esté creado
+
+  const selectClientes = document.getElementById("list_clientesFrecuentes");
+
+  if (modificarUser.checked && !guardarUsuario.checked) {
+    referenciaUsuariosFrecuentes
+      .doc(selectClientes.value)
+      .set(nuevoObjeto)
+      .then(() => {
+        console.log("modificado");
+      })
+      .then(avisar("Operación exitosa", "Usuario frecuente agregado"));
+  }
+}
 
 async function buscarUsuario(e) {
   const inp = $("#numero_documento_usuario");
@@ -3016,45 +3010,51 @@ class CalcularCostoDeEnvio {
     this.flete = precio.Valor;
   }
 
-  
-
   async cotizarInter(dane_ciudadR, dane_ciudadD) {
     console.log("cotizando Interrapidisimo");
-    let ciudadBloqueada = false
+    let ciudadBloqueada = false;
     // let url = "https://www3.interrapidisimo.com/ApiServInter/api/Cotizadorcliente/ResultadoListaCotizar/";
-    let url = "https://www3.interrapidisimo.com/ApiServInter/api/CotizadorCliente/ResultadoListaCotizarValidaContrapago/";
-    
+    let url =
+      "https://www3.interrapidisimo.com/ApiServInter/api/CotizadorCliente/ResultadoListaCotizarValidaContrapago/";
+
     //let ciudadesPorBloquear = ["20013000","19022000","27025000","05034000","05040000","54051000","73055000","27050000","27073000","27075000","52079000","13074000","13001004","27615023","25086000","27099000","05107000","54109000","76109000","05129000","25288001","05147000","97161000","27160000","85015000","27205000","13212000","81220000","52224000","15223000","52233000","19532000","50245000","27135000","27245000","52250000","13248000","20250000","47258000","47268000","70233000","19256000","54250000","19290000","52520000","20295000","52320000","19318000","70265000","54344000","13300000","52354000","27361000","27372000","20383000","47980003","50370001","95025001","99524000","52390000","86573000","52405000","52411000","27413000","19418000","08421000","68425000","25426000","52427000","44430000","70429000","08433000","08436000","20443000","27425000","27430000","27450000","97001000","23500000","13458000","52473000","73461000","54480000","05495000","13490000","27491000","85225000","27495000","68498000","05501000","73504000","52506000","19517000","25518000","05543000","13549000","47555000","52540000","08560000","88564000","91540000","81591000","13580000","52786019","08606000","27580000","27600000","52621000","19622000","47660000","47675000","05642000","68669000","70678000","13655000","50686000","13667000","70713000","05667000","19693000","47703000","52696000","19701000","99624000","54680000","47980008","19743000","68745000","70771000","27787000","13780000","20787000","97666000","19809000","52835000","15839000","27810000","50370000","44847000","76890000","47960000"]
     let ciudadesPorBloquear = ["52835000"];
     ciudadesPorBloquear.forEach((ciudad) => {
-      if(ciudad == dane_ciudadD){
-        ciudadBloqueada = true
+      if (ciudad == dane_ciudadD) {
+        ciudadBloqueada = true;
       }
     });
 
-
-    if (ciudadBloqueada && !this.isOficina && (this.type === "PAGO CONTRAENTREGA" || this.type == "PAGO DESTINO")) return 0;
+    if (
+      ciudadBloqueada &&
+      !this.isOficina &&
+      (this.type === "PAGO CONTRAENTREGA" || this.type == "PAGO DESTINO")
+    )
+      return 0;
 
     const pagoContraentrega = this.convencional ? "FALSE" : "TRUE";
     let res = await fetchWithRetry(
       url +
-      7986 +
-      "/" +
-      dane_ciudadR +
-      "/" +
-      dane_ciudadD +
-      "/" +
-      this.kgTomado +
-      "/" +
-      this.seguro +
-      "/1/" +
-      genFecha("LR")
-      + "/" + pagoContraentrega
+        7986 +
+        "/" +
+        dane_ciudadR +
+        "/" +
+        dane_ciudadD +
+        "/" +
+        this.kgTomado +
+        "/" +
+        this.seguro +
+        "/1/" +
+        genFecha("LR") +
+        "/" +
+        pagoContraentrega
     )
-    .then((data) => {
-      return data.json()
-    })
-    .catch((err) => err);
+      .then((data) => {
+        return data.json();
+      })
+      .catch((err) => {
+        return err;
+      });
 
     console.log(res);
     if (res.message || res.Message) return 0;
@@ -3085,11 +3085,9 @@ class CalcularCostoDeEnvio {
 
     if (!mensajeria.length) return 0;
 
-    // console.log(res);
+    console.log(res);
     return mensajeria[0];
   }
-
-
 
   intoEnvia(cotizacion) {
     if (!cotizacion) cotizacion = this.precio;
@@ -3219,7 +3217,7 @@ class CalcularCostoDeEnvio {
       MedioTransporte: 1,
     };
     console.log("COTIZANDO SERVIENTREGA", data);
-    
+
     const response = await fetch("servientrega/cotizar", {
       method: "Post",
       headers: { "Content-Type": "Application/json" },
@@ -3230,13 +3228,13 @@ class CalcularCostoDeEnvio {
 
     if (response.message || response.Message) {
       this.empty = true;
-      console.log("ERROR EN SERVIENTREGA", response)
+      console.log("ERROR EN SERVIENTREGA", response);
       return false;
     }
     const conv = this.convencional;
     this.precio = response;
     this.servi = true;
-    this.intoServi(response, conv); 
+    this.intoServi(response, conv);
     console.log("FINALIZÓ SERVIENTREGA");
     return true;
   }
@@ -3297,12 +3295,11 @@ function modificarDatosDeTransportadorasAveo(res) {
   });
 }
 
- async function fetchWithRetry(url, options, maxRetries = 3) {
-
+async function fetchWithRetry(url, options, maxRetries = 3) {
   for (let i = 0; i < maxRetries; i++) {
     try {
       let response = await fetch(url, options);
-      console.log(`intento ${1}`)
+      console.log(`intento ${i + 1}`);
       return response;
     } catch (error) {
       if (i === maxRetries - 1) throw error; // Si es el último intento, lanza el error
@@ -3310,10 +3307,11 @@ function modificarDatosDeTransportadorasAveo(res) {
   }
 }
 
+
+
 // Para enviar la guia generada a firestore
 function crearGuia() {
-
-  enviarUsuarioFrecuente()
+  enviarUsuarioFrecuente();
   let boton_final_cotizador = document.getElementById("boton_final_cotizador");
   const textoBtn = boton_final_cotizador.textContent;
   boton_final_cotizador.innerHTML =
@@ -3601,19 +3599,20 @@ async function pruebaGeneracionGuias(idGuiaError) {
 }
 
 async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
-    if(!datos.id_heka) {
-        return {
-            error: true,
-            icon: "error",
-            title: "¡Error con guía!",
-            message: "Problema de comunicación interno, ausencia de identificador."
-        }
-    }
-    
-    let generarGuia;
-    const stagingPrevio = datos.staging;
-    referenciaNuevaGuia = referenciaNuevaGuia || usuarioAltDoc(datos.id_user)
-    .collection("guias").doc(datos.id_heka);
+  if (!datos.id_heka) {
+    return {
+      error: true,
+      icon: "error",
+      title: "¡Error con guía!",
+      message: "Problema de comunicación interno, ausencia de identificador.",
+    };
+  }
+
+  let generarGuia;
+  const stagingPrevio = datos.staging;
+  referenciaNuevaGuia =
+    referenciaNuevaGuia ||
+    usuarioAltDoc(datos.id_user).collection("guias").doc(datos.id_heka);
 
   if (datos.transportadora === "SERVIENTREGA") {
     generarGuia = generarGuiaServientrega(datos);
@@ -3689,18 +3688,21 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
 }
 
 async function creacionDirecta(guia) {
-    guia.id_heka = await obtenerIdHeka();
-    if(transportadoras[guia.transportadora].sistemaAutomatizado()) {
-        const guiaGenerada = await crearGuiaTransportadora(guia);
-    
-        if(guiaGenerada.error) {
-            return {
-                ...guiaGenerada,
-                icon: "error",
-                mensaje: "No se ha podido concretar la creación de guía, por favor intente nuevamente más tarde. \"" + guiaGenerada.message + "\"",
-            }
-        }
+  guia.id_heka = await obtenerIdHeka();
+  if (transportadoras[guia.transportadora].sistemaAutomatizado()) {
+    const guiaGenerada = await crearGuiaTransportadora(guia);
+
+    if (guiaGenerada.error) {
+      return {
+        ...guiaGenerada,
+        icon: "error",
+        mensaje:
+          'No se ha podido concretar la creación de guía, por favor intente nuevamente más tarde. "' +
+          guiaGenerada.message +
+          '"',
+      };
     }
+  }
 
   guia.estadoActual = estadosGuia.generada;
 
@@ -4012,10 +4014,18 @@ async function guardarStickerGuiaServientrega(data) {
 
 //función para consultar la api en el back para crear guiade inter rapidisimo.
 async function generarGuiaInterrapidisimo(datos) {
+
+  const controller = new AbortController();
+  const signal = controller.signal;
+
+  setTimeout(() => controller.abort(), 4000);
+
+
   let respuesta = await fetchWithRetry("/inter/crearGuia", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(datos),
+    signal: signal, // Pasar la señal a fetch
   })
     .then((d) => {
       if (d.status === 500)
@@ -4068,6 +4078,9 @@ async function generarGuiaInterrapidisimo(datos) {
   respuesta.has_sticker = await generarStickerGuiaInterrapidisimo(respuesta);
 
   console.log("interrapidísimo => ", respuesta);
+
+
+  setTimeout(() => controller.abort(), 5000);
 
   return respuesta;
 }
@@ -4191,7 +4204,7 @@ async function generarGuiaEnvia(datos) {
   };
 
   // Para guardar la url en la que se encuentra alojada la guía inicialmente
-  if(response.urlguia) {
+  if (response.urlguia) {
     // Inyectamos el valor por referencia del objeto que se está pasando "datos"
     datos.urlGuia = response.urlguia;
   }
