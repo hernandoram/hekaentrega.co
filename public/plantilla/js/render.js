@@ -22,7 +22,25 @@ const estadosGuia = {
 };
 
 let novedadesExcelData = [];
+const dominiosFlexii = ["flexii.co", "www.flexi.co"];
 
+hostnameReader()
+function hostnameReader(){
+  const hostname = window.location.host
+  const element = document.getElementById("copyrightWord")
+  const brandName = document.getElementById("brandName")
+  let brandNameContent = "HEKA"
+  let elementContent = "Heka Entrega"
+  if(dominiosFlexii.includes(hostname)) {
+    brandNameContent = "FLEXII"
+    elementContent = "Flexii"
+  }
+  console.log(element)
+  console.log(brandName)
+  if(element) element.innerHTML = elementContent
+  if(brandName) brandName.innerHTML = brandNameContent
+
+}
 
 
 // Initialize Firebase
@@ -127,6 +145,12 @@ function tablaDeGuias(id, datos) {
                 data-funcion="activar-desactivar" data-activate="after"
                 id="generar_rotulo${id}" title="Generar Rótulo">
                     <i class="fas fa-ticket-alt"></i>
+                </button>
+                
+                 <button class="btn btn-primary btn-circle btn-sm mt-2" data-id="${id}"
+                data-funcion="activar-desactivar" data-activate="after"
+                id="generar_guiaflexii${id}" title="Generar Guía Flexii">
+                    <i class="fas fa-f"></i>
                 </button>
                 
                 ${
@@ -942,6 +966,30 @@ function activarBotonesDeGuias(id, data, activate_once) {
           });
       }
     });
+
+
+    $("#generar_guiaflexii" + id).click(function () {
+      let id = this.getAttribute("data-id");
+      console.log("generando guía "+id);
+      const guiaPunto = this.getAttribute("data-punto");
+      if (guiaPunto) {
+        imprimirRotuloPunto(id);
+      } else {
+        firebase
+          .firestore()
+          .collection("documentos")
+          .where("guias", "array-contains", id)
+          .get()
+          .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+              generarGuiaFlexii(doc.data().guias);
+            });
+          });
+      }
+
+    });
+
+
 
     $("#crear_sticker" + id).click(crearStickerParticular);
 
