@@ -9,6 +9,13 @@ async function createSporadicCollections(req, res) {
   const query = req.query || null;
   let isDiferent = validateSucursal(data);
 
+  if(!Array.isArray(data)) {
+    return res.status(400).send({
+      'code': 400,
+      'response': {"message": 'Debe ser un arreglo'}
+    });
+  }
+
   if(isDiferent) {
     res.status(400).send({
       'code': 400,
@@ -26,7 +33,7 @@ async function createSporadicCollections(req, res) {
     data.forEach(element => {
       build.IdSucursalCliente = element.branchCode;
       build.fechaRecogida = element.date;
-      element.listGuias.forEach(list => {
+      element.listGuides.forEach(list => {
         build.listaNumPreenvios.push(list);
       });
       documents.push(element.id);
@@ -101,6 +108,43 @@ function validateSucursal(data) {
   return sucursalIds.size === data.length;
 }
 
+async function createSpreadsheet(req, res) {
+  const data = req.body;
+  res.status(400).send({
+    'code': 400,
+    'response': {"message": 'La sucursal no puede ser diferente'}
+  });
+
+  let build = {
+    idCliente: CredencialesEmpresa.branchCode,
+    idSucursal: data.branchCode,
+    listaNumPreenvios: data.listGuides
+  };
+
+  
+}
+
+function sendSpreadsheetApi(build, mode) {
+  return new Promise(async (resolve, reject) => {
+    request.post(CredencialesEmpresa.endpointv2 + "/Planilla/GenerarPlanillaRecoleccionPreenvios", {
+      headers: {
+          "x-app-signature": CredencialesEmpresa.x_app_signature,
+          "x-app-security_token":  CredencialesEmpresa.x_app_security_token,
+          "Content-type": "application/json"
+      },
+      body: JSON.stringify(build)
+      }, (error, response, body) => {
+        const bodyResponse = JSON.parse(response.body);
+        if(bodyResponse.idRecogida) {
+          return resolve(bodyResponse);
+        }
+        reject(bodyResponse); 
+      }
+    )
+  });
+}
+
 module.exports = {
-  createSporadicCollections
+  createSporadicCollections,
+  createSpreadsheet
 }

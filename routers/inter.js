@@ -20,5 +20,7 @@ router.post("/crearGuia", interRouter.crearGuia);
 
 router.post("/recogidaesporadica", serviceInter.createSporadicCollections);
 
+router.post("/planilladeenvios", serviceInter.createSpreadsheet);
+
 
 module.exports = router
