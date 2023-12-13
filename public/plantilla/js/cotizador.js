@@ -3033,7 +3033,7 @@ class CalcularCostoDeEnvio {
       return 0;
 
     const pagoContraentrega = this.convencional ? "FALSE" : "TRUE";
-    let res = await fetchWithRetry(
+    let res = await fetch(
       url +
         7986 +
         "/" +
@@ -3294,20 +3294,25 @@ function modificarDatosDeTransportadorasAveo(res) {
     }
   });
 }
-
 async function fetchWithRetry(url, options, maxRetries = 3) {
   for (let i = 0; i < maxRetries; i++) {
+    const controller = new AbortController();
+    options.signal = controller.signal;
+    setTimeout(() => controller.abort(), 8000); // SEGUNDOSSSS
+
     try {
       let response = await fetch(url, options);
       console.log(`intento ${i + 1}`);
       return response;
     } catch (error) {
+      if (error.name === "AbortError") {
+        console.log("La solicitud se ha agotado, reintentando...");
+        continue; // Si la solicitud se agotó, reintenta
+      }
       if (i === maxRetries - 1) throw error; // Si es el último intento, lanza el error
     }
   }
 }
-
-
 
 // Para enviar la guia generada a firestore
 function crearGuia() {
@@ -4014,13 +4019,6 @@ async function guardarStickerGuiaServientrega(data) {
 
 //función para consultar la api en el back para crear guiade inter rapidisimo.
 async function generarGuiaInterrapidisimo(datos) {
-
-  const controller = new AbortController();
-  const signal = controller.signal;
-
-  setTimeout(() => controller.abort(), 4000);
-
-
   let respuesta = await fetchWithRetry("/inter/crearGuia", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -4078,7 +4076,6 @@ async function generarGuiaInterrapidisimo(datos) {
   respuesta.has_sticker = await generarStickerGuiaInterrapidisimo(respuesta);
 
   console.log("interrapidísimo => ", respuesta);
-
 
   setTimeout(() => controller.abort(), 5000);
 
