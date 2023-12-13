@@ -534,77 +534,120 @@ function genFecha(direccion, milliseconds) {
 }
 
 //Retorna una tabla de documentos filtrados
-function mostrarDocumentosUsuario(id, data) {
-  return `<div class="col-sm-6 col-lg-4 mb-4">
-        <div class="card border-bottom-info shadow h-100 py-2" id="${id}">
-            <h6 class='text-center card-header'>${
-              data.transportadora || "Servientrega"
-            }</h6>
+function renderUserDocumentCard(id, data) {
 
-            <div class="card-body">
-            <h5 class="card-title font-weight-bold text-info text-uppercase mb-2">${
-              data.nombre_usuario
-            }</h5>
-            <div class="row no-gutters align-items-center">
-                <div class="col mr-2">
-                    <div class="row no-gutters align-items-center">
-                        <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800 w-100">
-                            <p class="text-truncate"
-                            style="cursor: zoom-in"
-                            data-mostrar="texto">Id Guias Generadas: <br><small class="text-break">${
-                              data.guias
-                            }</small> </p>
-                            <p>Tipo: <small class="text-break">${
-                              data.type || "PAGO CONTRAENTREGA"
-                            }</span></p>
-                            <p>Fecha: <small>${data.fecha}</small></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-auto">
-                    <i class="fa fa-file fa-2x text-gray-300" data-id_guia="${id}" 
-                    data-guias="${data.guias}" data-nombre_guias="${
-    data.nombre_guias
-  }"
-                    data-nombre_relacion="${data.nombre_relacion}"
-                    data-user="${data.id_user}" data-funcion="descargar-docs" 
-                    id="descargar-docs${id}"></i>
+  const isInterrapidisimo = data.transportadora && data.transportadora.toUpperCase() === "INTERRAPIDISIMO";
 
-                    <span class="badge-pill badge-primary float-right">${
-                      data.guias.length
-                    }</span>
+  const checkboxInput = isInterrapidisimo
+    ? `<input type="checkbox" id="checkbox-interrapidisimo-${id}" name="interrapidisimo" value="${id}">`
+    : '';
+
+  return `
+    <div class="col-sm-6 col-lg-4 mb-4">
+      <div class="card border-bottom-info shadow h-100 py-2" id="${id}" data-branch_code="${data.codigo_sucursal || ''}">
+        <h6 class='text-center card-header'>
+          ${data.transportadora || "Servientrega"}
+          ${checkboxInput}
+        </h6>
+
+        <div class="card-body">
+          <h5 class="card-title font-weight-bold text-info text-uppercase mb-2">${data.nombre_usuario}</h5>
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="row no-gutters align-items-center">
+                <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800 w-100">
+                  <p class="text-truncate" style="cursor: zoom-in" data-display="text">
+                    Id Guias Generadas: <br>
+                    <small class="text-break" data-guides="[${data.guias.join(', ')}]">${data.guias}</small>
+                  </p>
+                  <p>Tipo: <small class="text-break">${data.type || "PAGO CONTRAENTREGA"}</span></p>
+                  <p>Fecha: <small class="fecha">${data.fecha}</small></p>
                 </div>
+              </div>
             </div>
-                <div class="row" data-guias="${data.guias.toString()}" data-id_guia="${id}" data-user="${
-    data.id_user
-  }" data-nombre="${data.nombre_usuario}">
-                    <div class="d-none">
-                        <button class="col-12 btn btn-info mb-2" 
-                        type="button" id="boton-descargar-guias${id}" disabled>
-                            Descargar Guías
-                        </button>
-                        <button class="col btn btn-info mb-2" 
-                        type="button" id="boton-descargar-relacion_envio${id}" disabled>
-                            Descargar Manifiesto
-                        </button>
-                        <button class="col-12 btn btn-info mb-2" 
-                        type="button" id="boton-generar-rotulo${id}">Genera Rótulo</button>
-                    </div>
-                    <div class="col-12 dropdown">
-                        <button class="col-12 btn btn-info dropdown-toggle text-truncate" title="Subir documentos" type="button" id="acciones-documento${id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Descargar
-                        </button>
-                        <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
-                            <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-guias${id}">Guías</label>
-                            <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-relacion_envio${id}">Manifiesto</label>
-                            <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-generar-rotulo${id}">Rótulos</label>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-auto">
+              <i class="fa fa-file fa-2x text-gray-300" data-id_guia="${id}" 
+                data-guides="${data.guias}" data-guide_name="${data.nombre_guias}"
+                data-related_name="${data.nombre_relacion}" data-user="${data.id_user}" 
+                data-action="download-docs" id="descargar-docs${id}"></i>
+              <span class="badge-pill badge-primary float-right">${data.guias.length}</span>
             </div>
+          </div>
+          <div class="row" data-guides="${data.guias.toString()}" data-id_guia="${id}" data-user="${data.id_user}" data-name="${data.nombre_usuario}">
+            <div class="d-none">
+              <button class="col-12 btn btn-info mb-2" type="button" id="boton-descargar-guias${id}" disabled>
+                Descargar Guías
+              </button>
+              <button class="col btn btn-info mb-2" type="button" id="boton-descargar-relacion_envio${id}" disabled>
+                Descargar Manifiesto
+              </button>
+              <button class="col-12 btn btn-info mb-2" type="button" id="boton-generar-rotulo${id}">Genera Rótulo</button>
+            </div>
+            <div class="col-12 dropdown">
+              <button class="col-12 btn btn-info dropdown-toggle text-truncate" title="Subir documentos" 
+                type="button" id="acciones-documento${id}" data-toggle="dropdown" 
+                aria-haspopup="true" aria-expanded="false">
+                Descargar
+              </button>
+              <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
+                <label class="dropdown-item form-control" data-action="upload-documents" for="boton-descargar-guias${id}">Guías</label>
+                <label class="dropdown-item form-control" data-action="upload-documents" for="boton-descargar-relacion_envio${id}">Manifiesto</label>
+                <label class="dropdown-item form-control" data-action="upload-documents" for="boton-generar-rotulo${id}">Rótulos</label>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>`;
 }
+
+document.addEventListener('change', function (event) {
+  if (event.target.type === 'checkbox' && event.target.name === 'interrapidisimo') {
+    const id = event.target.value;
+    const cardData = getCardData(id);
+    storeCardData(cardData);
+  }
+});
+
+function getCardData(id) {
+  const card = document.getElementById(id);
+  const dateElement = card.querySelector('.fecha');
+  const date = dateElement ? dateElement.textContent.trim() : '';
+  const listGuidesElement = card.querySelector('[data-guides]');
+  const listGuides = listGuidesElement ? JSON.parse(listGuidesElement.dataset.guides) : [];
+  const branchCode = card.dataset.branch_code;
+  return { id, date, listGuides, branchCode };
+}
+
+function storeCardData(cardData) {
+  if (!window.activeCardData) {
+    window.activeCardData = [];
+  }
+  const index = window.activeCardData.findIndex(data => data.id === cardData.id);
+
+  if (index !== -1) {
+    window.activeCardData[index] = cardData;
+  } else {
+    window.activeCardData.push(cardData);
+  }
+}
+
+document.getElementById('correspondence-button').addEventListener('click', function () {
+  if (window.activeCardData) {
+    console.log('Active card data:', JSON.stringify(window.activeCardData, null, 2));
+  } else {
+    console.log('No cards are active.');
+  }
+});
+
+document.addEventListener('change', function () {
+  const checkboxes = document.querySelectorAll('input[name="interrapidisimo"]');
+  const atLeastOneChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+  const correspondenceButton = document.getElementById('correspondence-button');
+  correspondenceButton.style.display = atLeastOneChecked ? 'block' : 'none';
+});
+
+
 
 //Actiualiza todos los inputs de fechas que hay en el documento
 for (let input_fecha of document.querySelectorAll('[type="date"]')) {

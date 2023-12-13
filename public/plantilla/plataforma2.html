@@ -1269,7 +1269,17 @@
                 <div class="col-sm-6">
                   <h6>Fecha final</h6>
                   <input type="date" class="form-control form-control-user"  id="docs-fecha-final"  required>
-              </div>            
+              </div>      
+              <div class="col-sm-6 mt-3 mb-sm-0">
+                <h6>Filtrar por transportadora</h6>
+                <select id="filtro-documentos" class="form-control">
+                  <option value="Todos">Todos</option>
+                  <option value="SERVIENTREGA">SERVIENTREGA</option>
+                  <option value="COORDINADORA">COORDINADORA</option>
+                  <option value="INTERRAPIDISIMO">INTERRAPIDISIMO</option>
+                  <option value="ENVIA">ENVIA</option>
+                </select>
+              </div>      
               <button  onclick="actualizarHistorialDeDocumentos()" 
               class="btn btn-primary btn-user btn-block" style="margin-top: 20px;" id="btn-historial-docs">
                 Buscar
@@ -1280,8 +1290,10 @@
             <h6 class="text-danger">SIN DATOS EXISTENTES PARA TU BÚSQUEDA</h6>
             </div>
             <div class="card-shadow mb-4" style="display: none;" id="historial-docs">
+              <button class="btn btn-primary" id="correspondence-button" style="display: none;">
+                Correspondencia
+              </button>
               <div class="row card-body" id="body-documentos">
-                
               </div>
             </div>
             
