@@ -6,6 +6,7 @@ const previsualizadorImagen = $("#preview-centro_notificaciones");
 const cargadorImagen = $("#cargar_imagen-centro_notificaciones");
 const rutaPorDefectoPrevisualizador = previsualizadorImagen.attr("src");
 const formulario = $("#form-centro_notificaciones");
+const seccionNotificaciones = $("#seccion-notificaciones");
 const visorNotificaciones = $("#visor-centro_notificaciones");
 const selectorNotificacion = document.querySelector("#selectorNotificacion");
 const botonNotificacion = document.querySelector("#generar-notificacion");
@@ -86,7 +87,7 @@ function cambioNotificacion(e) {
 
   //cambio botones
 
-  if (val!== "nueva") {
+  if (val !== "nueva") {
     botonNotificacion.innerHTML = "Editar notificación";
     const notificacion =
       notificaciones.find((notificacion) => notificacion.id === val) || null;
@@ -148,7 +149,6 @@ function cambioNotificacion(e) {
   }
 }
 
-
 function seleccionarImagen() {
   const val = slectImagenes.val();
   renderizarImagen();
@@ -169,17 +169,11 @@ async function cargarNuevaImagen(e) {
   listarImagenes();
 }
 
-
-
-
-
-
 async function generarNotificacion(e) {
   e.preventDefault();
 
   console.log(e.target);
   const formData = new FormData(e.target);
-
 
   const notificacion = {
     icon: ["info", "warning"],
@@ -213,7 +207,20 @@ async function generarNotificacion(e) {
   console.log(notificacion);
 
   console.log(selectorNotificacion.value);
-  if (!selectorNotificacion.value == "nueva") {
+
+  if (selectorNotificacion.value === "nueva") {
+    try {
+      await fireRef.add(notificacion);
+      Toast.fire("Notificación agregada correctamente", "", "success");
+      seccionNotificaciones.removeClass("d-none");
+
+      e.target.reset();
+      renderizarImagen();
+      mostrarNotificaciones();
+    } catch (e) {
+      Toast.fire("Error", e.message, "error");
+    }
+  } else {
     try {
       await fireRef
         .doc(selectorNotificacion.value)
@@ -227,16 +234,6 @@ async function generarNotificacion(e) {
     } catch (e) {
       Toast.fire("Error", e.message, "error");
     }
-  } else {
-    try {
-      await fireRef.add(notificacion);
-      Toast.fire("Notificación agregada correctamente", "", "success");
-      e.target.reset();
-      renderizarImagen();
-      mostrarNotificaciones();
-    } catch (e) {
-      Toast.fire("Error", e.message, "error");
-    }
   }
 
   mostradorUsuariosNoti.classList.add("d-none");
@@ -247,7 +244,6 @@ async function generarNotificacion(e) {
   inputs.forEach((input) => {
     input.value = "";
   });
-
 }
 
 const reference = firebase.firestore().collection("usuarios");
@@ -303,8 +299,7 @@ function crearCheckboxes(arreglo) {
   inputBuscador.value = "";
 
   inputBuscador.addEventListener("input", (e) => {
-
-    obtenerCheckboxesMarcados(centros)
+    obtenerCheckboxesMarcados(centros);
 
     if (e.target.value.length > 3) {
       elementosPorPagina = arreglo.length;
@@ -331,8 +326,6 @@ function crearCheckboxes(arreglo) {
     obtenerCheckboxesMarcados(centros);
     paginaActual--;
     mostrarPagina(paginaActual);
-
-
   });
 
   botonesInputUserNotiAll[1].addEventListener("click", (e) => {
@@ -423,6 +416,11 @@ function mostrarNotificaciones() {
         visorNotificaciones.append(visualizarNotificacion(data));
         console.log(data);
 
+        if (q.size === 0) {
+          return;
+        }
+        seccionNotificaciones.removeClass("d-none");
+
         if (
           notificaciones.find((notificacion) => notificacion.id === data.id)
         ) {
@@ -441,19 +439,21 @@ function mostrarNotificaciones() {
 }
 
 function eliminarNotificaciones() {
-  fireRef.get().then((q) => {
-    const batch = db.batch();
+  fireRef
+    .get()
+    .then((q) => {
+      const batch = db.batch();
 
-    q.forEach((doc) => {
-      batch.delete(doc.ref);
+      q.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+
+      return batch.commit();
+    })
+    .then(() => {
+      console.log("Todas las notificaciones han sido eliminadas");
     });
-
-    return batch.commit();
-  }).then(() => {
-    console.log('Todas las notificaciones han sido eliminadas');
-  });
 }
-
 
 function convertirFecha(inputfecha) {
   const fecha = new Date(inputfecha);

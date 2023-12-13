@@ -2257,6 +2257,10 @@ function traerNoti() {
     .where("type", "==", "mensaje")
     .get()
     .then((q) => {
+      console.log(q.size);
+      if (q.size == 0) return;
+
+      document.getElementById("chat-notificaciones").classList.remove("d-none");
       q.forEach((d) => {
         const data = d.data();
         data.id = d.id;
@@ -2309,11 +2313,20 @@ textModal.addEventListener("click", function () {
     textModal.innerHTML = `
     <div class="d-flex justify-content-between">
     <span>Heka Entrega</span>
-    <span>X</span>
+    <span id="close-modal">X</span>
     </div>
     `;
     buttonDimensionsChat.style.width = "80%";
     collapse.classList.add("show");
+
+    const closeModal = document.getElementById("close-modal");
+    if (closeModal) {
+      closeModal.addEventListener("click", (event) => {
+        event.stopPropagation();
+
+        document.getElementById("chat-notificaciones").classList.add("d-none");
+      });
+    }
   } else {
     collapse.classList.remove("show");
     textModal.innerHTML = `Tienes ${notificaciones.length} mensajes`;
@@ -2321,6 +2334,5 @@ textModal.addEventListener("click", function () {
   }
   console.log(isModalOpen);
 });
-
 
 traerNoti();
