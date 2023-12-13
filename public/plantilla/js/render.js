@@ -611,30 +611,51 @@ document.addEventListener('change', function (event) {
 
 function getCardData(id) {
   const card = document.getElementById(id);
-  const dateElement = card.querySelector('.fecha');
-  const date = dateElement ? dateElement.textContent.trim() : '';
-  const listGuidesElement = card.querySelector('[data-guides]');
-  const listGuides = listGuidesElement ? JSON.parse(listGuidesElement.dataset.guides) : [];
-  const branchCode = card.dataset.branch_code;
-  return { id, date, listGuides, branchCode };
+  const checkbox = card.querySelector('input[name="interrapidisimo"]');
+  
+  if (checkbox && checkbox.checked) {
+    const dateElement = card.querySelector('.fecha');
+    const date = dateElement ? dateElement.textContent.trim() : '';
+    const listGuidesElement = card.querySelector('[data-guides]');
+    const listGuides = listGuidesElement ? JSON.parse(listGuidesElement.dataset.guides) : [];
+    const branchCode = card.dataset.branch_code;
+    return { id, date, listGuides, branchCode };
+  }
+
+  return null;
 }
 
 function storeCardData(cardData) {
-  if (!window.activeCardData) {
-    window.activeCardData = [];
-  }
-  const index = window.activeCardData.findIndex(data => data.id === cardData.id);
+  if (cardData) {
+    if (!window.activeCardData) {
+      window.activeCardData = [];
+    }
+    const index = window.activeCardData.findIndex(data => data.id === cardData.id);
 
-  if (index !== -1) {
-    window.activeCardData[index] = cardData;
-  } else {
-    window.activeCardData.push(cardData);
+    if (index !== -1) {
+      window.activeCardData[index] = cardData;
+    } else {
+      window.activeCardData.push(cardData);
+    }
   }
 }
 
 document.getElementById('correspondence-button').addEventListener('click', function () {
-  if (window.activeCardData) {
-    console.log('Active card data:', JSON.stringify(window.activeCardData, null, 2));
+  const activeCardData = [];
+  
+  const checkboxes = document.querySelectorAll('input[name="interrapidisimo"]');
+  checkboxes.forEach(checkbox => {
+    if (checkbox.checked) {
+      const id = checkbox.value;
+      const cardData = getCardData(id);
+      if (cardData) {
+        activeCardData.push(cardData);
+      }
+    }
+  });
+
+  if (activeCardData.length > 0) {
+    console.log('Active card data:', JSON.stringify(activeCardData, null, 2));
   } else {
     console.log('No cards are active.');
   }
