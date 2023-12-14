@@ -2218,7 +2218,6 @@ function cargarUsuariosFrecuentes(personas) {
       const observacionesDestinatario =
         document.getElementById("observaciones");
 
-
       // Encuentra el usuario seleccionado en el arreglo de personas
       const selectedPersona = personas.find(
         (persona) => persona.id === selectedValue
@@ -2522,8 +2521,10 @@ function verificarSelectorEntregaOficina(e) {
     }
   } else if (codTransp === "INTERRAPIDISIMO") {
     const inpDir = $("#direccionD");
+    const inputBarrio= $("#barrioD");
     if (select.value == "2") {
       inpDir.prop("disabled", true).val("Oficina principal interrapidisimo");
+      inputBarrio.prop("disabled", true).val("Oficina principal interrapidisimo");
     } else {
       inpDir.prop("disabled", false).val("");
     }
