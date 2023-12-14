@@ -561,7 +561,7 @@ function genFecha(direccion, milliseconds) {
 function renderUserDocumentCard(id, data) {
   const isInterrapidisimo = data.transportadora && data.transportadora.toUpperCase() === "INTERRAPIDISIMO";
   const checkboxInput = isInterrapidisimo
-    ? `<input type="checkbox" id="checkbox-interrapidisimo-${id}" name="interrapidisimo" value="${id}">`
+    ? `<input type="checkbox" id="checkbox-interrapidisimo-${id}" name="interrapidisimo" value="${id}" ${data.idRecogida ? 'disabled' : ''}>`
     : '';
 
   const idRecogicaInfo = data.idRecogida ? `<p>Id Recogida: <small class="text-break">${data.idRecogida}</small></p>` : '';
@@ -626,14 +626,13 @@ function renderUserDocumentCard(id, data) {
     </div>`;
 }
 
-
-document.addEventListener('change', function (event) {
+function handleCheckboxChange(event) {
   if (event.target.type === 'checkbox' && event.target.name === 'interrapidisimo') {
     const id = event.target.value;
     const cardData = getCardData(id);
     storeCardData(cardData);
   }
-});
+}
 
 function getCardData(id) {
   const card = document.getElementById(id);
@@ -666,23 +665,31 @@ function storeCardData(cardData) {
   }
 }
 
-document.getElementById('correspondence-button').addEventListener('click', function () {
+function disableCheckboxesAndReturnActiveData(checkboxes) {
   const activeCardData = [];
-  
-  const checkboxes = document.querySelectorAll('input[name="interrapidisimo"]');
+
   checkboxes.forEach(checkbox => {
-    if (checkbox.checked) {
-      const id = checkbox.value;
-      const cardData = getCardData(id);
-      if (cardData) {
-        activeCardData.push(cardData);
-      }
+    const id = checkbox.value;
+    const cardData = getCardData(id);
+    if (cardData && cardData.branchCode) {
+      checkbox.checked = false;
+      checkbox.disabled = true;
+      activeCardData.push(cardData);
     }
   });
 
+  return activeCardData;
+}
+
+const handleCorrespondenceButtonClick = () => {
+  this.disabled = true;
+
+  const checkboxes = document.querySelectorAll('input[name="interrapidisimo"]');
+  const activeCardData = disableCheckboxesAndReturnActiveData(checkboxes);
+
   if (activeCardData.length > 0) {
     const jsonData = JSON.stringify(activeCardData, null, 2);
-  
+
     fetch('/inter/recogidaesporadica?mode=test', {
       method: 'POST',
       headers: {
@@ -697,25 +704,60 @@ document.getElementById('correspondence-button').addEventListener('click', funct
       return response.json();
     })
     .then(data => {
-      // Manejar la respuesta del servidor si es necesario
-      console.log('POST successful:', data);
+      correspondenceSentSuccessfully = true;
+
+      const successModal = document.getElementById('successModal');
+      if (successModal) {
+        const titleElement = successModal.querySelector('.modal-title');
+        const bodyElement = successModal.querySelector('.modal-body');
+        titleElement.textContent = data.title || 'Operación exitosa';
+        bodyElement.textContent = data.message || 'Operación exitosa';
+
+        $(successModal).modal('show');
+        $(successModal).on('shown.bs.modal', function () {
+          setTimeout(function () {
+            $(successModal).modal('hide');
+          }, 2000);
+        });
+      }
     })
     .catch(error => {
       console.error('Error during POST:', error);
+
+      const errorModal = document.getElementById('successModal');
+      if (errorModal) {
+        const titleElement = errorModal.querySelector('.modal-title');
+        const bodyElement = errorModal.querySelector('.modal-body');
+        titleElement.textContent = 'Error';
+        bodyElement.textContent = error.message || 'Error en la solicitud';
+
+        $(errorModal).modal('show');
+        $(errorModal).on('shown.bs.modal', function () {
+          setTimeout(function () {
+            $(errorModal).modal('hide');
+          }, 2000);
+        });
+      }
+    })
+    .finally(() => {
+      this.disabled = false;
     });
   } else {
     console.log('No cards are active.');
-  }  
-});
+    this.disabled = false;
+  }
+}
 
-document.addEventListener('change', function () {
+function handleDocumentChange() {
   const checkboxes = document.querySelectorAll('input[name="interrapidisimo"]');
   const atLeastOneChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
   const correspondenceButton = document.getElementById('correspondence-button');
   correspondenceButton.style.display = atLeastOneChecked ? 'block' : 'none';
-});
+}
 
-
+document.addEventListener('change', handleCheckboxChange);
+document.getElementById('correspondence-button').addEventListener('click', handleCorrespondenceButtonClick);
+document.addEventListener('change', handleDocumentChange);
 
 //Actiualiza todos los inputs de fechas que hay en el documento
 for (let input_fecha of document.querySelectorAll('[type="date"]')) {

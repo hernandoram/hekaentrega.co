@@ -1317,9 +1317,24 @@
             <h6 class="text-danger">SIN DATOS EXISTENTES PARA TU BÚSQUEDA</h6>
             </div>
             <div class="card-shadow mb-4" style="display: none;" id="historial-docs">
-              <button class="btn btn-primary" id="correspondence-button" style="display: none;">
-                Correspondencia
-              </button>
+              <button id="correspondence-button" type="button" class="btn btn-primary mx-4">Enviar Correspondencia</button>
+              <!-- Modal -->
+              <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="successModalLabel"></h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body"></div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal" data-toggle="modal" data-target="#successModal">Cerrar</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div class="row card-body" id="body-documentos">
               </div>
             </div>
