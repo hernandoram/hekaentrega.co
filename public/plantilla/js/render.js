@@ -616,7 +616,7 @@ function renderUserDocumentCard(id, data) {
               </button>
               <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
                 <label class="dropdown-item form-control" data-action="upload-documents" for="boton-descargar-guias${id}">Guías</label>
-                <label class="dropdown-item form-control" data-action="upload-documents" for="boton-descargar-relacion_envio${id}">Manifiesto</label>
+                <label class="dropdown-item form-control" data-action="upload-documents" data-is-interrapidisimo="${isInterrapidisimo}" for="boton-descargar-relacion_envio${isInterrapidisimo ? '_inter' : ''}${id}" id="${id}">Manifiesto</label>
                 <label class="dropdown-item form-control" data-action="upload-documents" for="boton-generar-rotulo${id}">Rótulos</label>
               </div>
             </div>
@@ -633,6 +633,8 @@ function handleCheckboxChange(event) {
     storeCardData(cardData);
   }
 }
+
+document.addEventListener('change', handleCheckboxChange);
 
 function getCardData(id) {
   const card = document.getElementById(id);
@@ -674,11 +676,70 @@ function disableCheckboxesAndReturnActiveData(checkboxes) {
     if (cardData && cardData.branchCode) {
       checkbox.checked = false;
       checkbox.disabled = true;
+      const correspondenceButton = document.getElementById('correspondence-button');
+      correspondenceButton.style.display = 'none';
       activeCardData.push(cardData);
     }
   });
 
   return activeCardData;
+}
+
+const sendCorrespondence = (activeCardData) => {
+  const jsonData = JSON.stringify(activeCardData, null, 2);
+
+  fetch('/inter/recogidaesporadica?mode=test', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: jsonData,
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    correspondenceSentSuccessfully = true;
+
+    const successModal = document.getElementById('successModal');
+    if (successModal) {
+      const titleElement = successModal.querySelector('.modal-title');
+      const bodyElement = successModal.querySelector('.modal-body');
+      titleElement.textContent = data.title || 'Operación exitosa';
+      bodyElement.textContent = data.message || 'Su correspondencia fue creada con éxito';
+
+      $(successModal).modal('show');
+      $(successModal).on('shown.bs.modal', function () {
+        setTimeout(function () {
+          $(successModal).modal('hide');
+        }, 2000);
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error during POST:', error);
+
+    const errorModal = document.getElementById('successModal');
+    if (errorModal) {
+      const titleElement = errorModal.querySelector('.modal-title');
+      const bodyElement = errorModal.querySelector('.modal-body');
+      titleElement.textContent = 'Error';
+      bodyElement.textContent = error.message || 'Error en la solicitud';
+
+      $(errorModal).modal('show');
+      $(errorModal).on('shown.bs.modal', function () {
+        setTimeout(function () {
+          $(errorModal).modal('hide');
+        }, 2000);
+      });
+    }
+  })
+  .finally(() => {
+    this.disabled = false;
+  });
 }
 
 const handleCorrespondenceButtonClick = () => {
@@ -688,65 +749,14 @@ const handleCorrespondenceButtonClick = () => {
   const activeCardData = disableCheckboxesAndReturnActiveData(checkboxes);
 
   if (activeCardData.length > 0) {
-    const jsonData = JSON.stringify(activeCardData, null, 2);
-
-    fetch('/inter/recogidaesporadica?mode=test', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonData,
-    })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      return response.json();
-    })
-    .then(data => {
-      correspondenceSentSuccessfully = true;
-
-      const successModal = document.getElementById('successModal');
-      if (successModal) {
-        const titleElement = successModal.querySelector('.modal-title');
-        const bodyElement = successModal.querySelector('.modal-body');
-        titleElement.textContent = data.title || 'Operación exitosa';
-        bodyElement.textContent = data.message || 'Operación exitosa';
-
-        $(successModal).modal('show');
-        $(successModal).on('shown.bs.modal', function () {
-          setTimeout(function () {
-            $(successModal).modal('hide');
-          }, 2000);
-        });
-      }
-    })
-    .catch(error => {
-      console.error('Error during POST:', error);
-
-      const errorModal = document.getElementById('successModal');
-      if (errorModal) {
-        const titleElement = errorModal.querySelector('.modal-title');
-        const bodyElement = errorModal.querySelector('.modal-body');
-        titleElement.textContent = 'Error';
-        bodyElement.textContent = error.message || 'Error en la solicitud';
-
-        $(errorModal).modal('show');
-        $(errorModal).on('shown.bs.modal', function () {
-          setTimeout(function () {
-            $(errorModal).modal('hide');
-          }, 2000);
-        });
-      }
-    })
-    .finally(() => {
-      this.disabled = false;
-    });
+    sendCorrespondence(activeCardData);
   } else {
     console.log('No cards are active.');
     this.disabled = false;
   }
 }
+
+document.getElementById('correspondence-button').addEventListener('click', handleCorrespondenceButtonClick);
 
 function handleDocumentChange() {
   const checkboxes = document.querySelectorAll('input[name="interrapidisimo"]');
@@ -755,9 +765,41 @@ function handleDocumentChange() {
   correspondenceButton.style.display = atLeastOneChecked ? 'block' : 'none';
 }
 
-document.addEventListener('change', handleCheckboxChange);
-document.getElementById('correspondence-button').addEventListener('click', handleCorrespondenceButtonClick);
 document.addEventListener('change', handleDocumentChange);
+
+function handleDocumentClick(event) {
+  const target = event.target;
+
+  if ( target.dataset.isInterrapidisimo === 'true') {
+    const id = target.id;
+    const card = document.getElementById(id);
+    const listGuidesElement = card.querySelector('[data-guides]');
+    const listGuides = listGuidesElement ? JSON.parse(listGuidesElement.dataset.guides) : [];
+    const branchCode = card.dataset.branch_code;
+
+    fetch('/inter/planilladeenvios?mode=test', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: id,
+        listGuides: listGuides,
+        branchCode: branchCode,
+      }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      const url = data?.response?.urlDocument;
+      if (url) {
+        window.open(url, '_blank');
+      }
+    })
+    .catch(error => console.error('Error durante la solicitud:', error));
+  }
+}
+
+document.addEventListener('click', handleDocumentClick);
 
 //Actiualiza todos los inputs de fechas que hay en el documento
 for (let input_fecha of document.querySelectorAll('[type="date"]')) {

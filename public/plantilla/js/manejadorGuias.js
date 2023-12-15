@@ -2552,10 +2552,10 @@ function descargarManifiesto(doc) {
   } else if (doc.data().base64Manifiesto) {
     let base64 = doc.data().base64Manifiesto;
     openPdfFromBase64(base64);
-  } else if (['INTERRAPIDISIMO', 'ENVIA', 'COORDINADORA'].includes(doc.data().transportadora)) {
+  } else if (['ENVIA', 'COORDINADORA'].includes(doc.data().transportadora)) {
     Swal.fire({
       icon: 'info',
-      text: 'Para descargar los manifiestos de inter rapidísimo, coordinadora o envía, debe ingresar a "Manifiestos", buscar filtrando por fecha, seleccionar la transportadora y las guías que desea gestionar para crearlo.',
+      text: 'Para descargar los manifiestos de coordinadora o envía, debe ingresar a "Manifiestos", buscar filtrando por fecha, seleccionar la transportadora y las guías que desea gestionar para crearlo.',
     });
   } else if (doc.data().nro_manifiesto) {
     const idEmpresa = doc.data().idEmpresa || 0;
