@@ -3297,12 +3297,26 @@ function modificarDatosDeTransportadorasAveo(res) {
 async function fetchWithRetry(url, options, maxRetries = 3) {
   for (let i = 0; i < maxRetries; i++) {
     const controller = new AbortController();
-    options.signal = controller.signal;
+    const signal = controller.signal;
     setTimeout(() => controller.abort(), 8000); // SEGUNDOSSSS
 
     try {
       let response = await fetch(url, options);
+
       console.log(`intento ${i + 1}`);
+
+      Swal.fire({
+        title: "Creando Guía",
+        text: `Intento de conexión No. ${i + 1}`,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+        allowOutsideClick: false,
+        allowEnterKey: false,
+        showConfirmButton: false,
+        allowEscapeKey: true,
+      });
+
       return response;
     } catch (error) {
       if (error.name === "AbortError") {
@@ -3702,7 +3716,7 @@ async function creacionDirecta(guia) {
         ...guiaGenerada,
         icon: "error",
         mensaje:
-          'No se ha podido concretar la creación de guía, por favor intente nuevamente más tarde. "' +
+          'Error: No se ha podido concretar la creación de guía, por favor intente nuevamente más tarde. "' +
           guiaGenerada.message +
           '"',
       };
@@ -4023,7 +4037,6 @@ async function generarGuiaInterrapidisimo(datos) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(datos),
-    signal: signal, // Pasar la señal a fetch
   })
     .then((d) => {
       if (d.status === 500)
