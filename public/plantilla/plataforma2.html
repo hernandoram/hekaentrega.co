@@ -185,6 +185,7 @@
           </div>
         </li>
 
+
         <!-- Sidebar Toggler (Sidebar) -->
         <div class="text-center d-none d-md-inline">
           <button class="rounded-circle border-0" id="sidebarToggle"></button>
@@ -1786,55 +1787,29 @@
     
   </div>  
 
-  <div class="chat-absolute d-none" >
+  <div class="chat-absolute d-none" id="chat-notificaciones">
     <div class="row justify-content-end mr-0">
         <div class="col-md-5">
             <div class="panel panel-primary">
                 <div class="panel-heading d-flex justify-content-end" id="accordion">
-                    <div class="btn-group pull-right">
-                        <a class="btn btn-default bg-primary text-white" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                            Tienes un mensaje
-                        </a>
+                    <div class="btn-group pull-right" id="button-dimensions-chat">
+                        <div class="btn text-white openButton" id="text-modal" data-parent="#accordion">
+                            Tienes <span id="message-number"></span> mensajes
+                        </div>
                     </div>
                 </div>
-            <div class="panel-collapse collapse" id="collapseOne">
+           <div class="panel-collapse collapse panel-chat" id="collapseOne">
                 <div class="panel-body">
-                    <ul class="chat">
-                        <li class="left clearfix"><span class="chat-img pull-left">
-                            <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />
-                        </span>
-                            <div class="chat-body clearfix">
-                                <div class="header">
-                                    <strong class="primary-font">Jack Sparrow</strong> <small class="pull-right text-muted">
-                                        <span class="glyphicon glyphicon-time"></span>12 mins ago</small>
-                                </div>
-                                <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
-                                    dolor, quis ullamcorper ligula sodales.
-                                </p>
-                            </div>
-                        </li>
-                                        <li class="left clearfix"><span class="chat-img pull-left">
-                            <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />
-                        </span>
-                            <div class="chat-body clearfix">
-                                <div class="header">
-                                    <strong class="primary-font">Jack Sparrow</strong> <small class="pull-right text-muted">
-                                        <span class="glyphicon glyphicon-time"></span>14 mins ago</small>
-                                </div>
-                                <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
-                                    dolor, quis ullamcorper ligula sodales.
-                                </p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>  
+                  <div id="items-chat-notification" class="chat pr-5 pt-4" >
+                            
+                        </div>
+                  </div>  
             </div>
             </div>
         </div>
     </div>
 </div>
+
 
   <div class="w-100 position-absolute d-none align-items-center justify-content-center"
   style="top: 0; background-color: rgba(0,0,0,0.2); height: 100vh"
