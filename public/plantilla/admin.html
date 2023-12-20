@@ -1488,6 +1488,121 @@
             <div id="visor_novedades"></div>
           </div>
 
+          <div class="container-fluid" id="callcenter" style="display: none;">
+            <div class="card mt-1">
+              <div class="card-body">
+                <form enctype="multipart/form-data" id="form-callcenter">
+                  <div class="form-group">
+                    <div class="input-group mb-3">
+                      <select name="filtrado-callcenter" class="form-control" id="filtrado-callcenter">
+                        <option value="">Elije filtro...</option>
+                        <option value="CENTRO-COSTO">Centros de costo</option>
+                        <option value="GUIAS">Guias</option>
+                      </select>
+                      <input type="text" class="form-control" id="input-filtrado-callcenter" aria-describedby="btn-revisar-callcenter">
+                      <select name="activador_busq_callcenter" class="form-control" id="activador_busq_callcenter">
+                        <option value="">Buscar solo novedades</option>
+                        <option value="INTERRAPIDISIMO">Interrapidísimo</option>
+                        <option value="SERVIENTREGA">Servientrega</option>
+                        <option value="ENVIA">Envía</option>
+                        <option value="COORDINADORA">Coordinadora</option>
+                      </select>
+                    </div>
+                    <div class="input-group d-none">
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="cargar_gest-callcenter" accept=".xlsx" name="documento" lang="es">
+                        <label class="custom-file-label" for="cargar_gest-callcenter">Seleccionar Archivo</label>
+                      </div>
+                      <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="btn_descargar_gest-callcenter">Descargar gestiones</button>
+                      </div>
+                    </div>
+
+                  
+                    <div class="btn-group col-12">
+                      <button type="button" id="btn-vaciar-consulta-callcenter" 
+                      class="btn btn-secondary mt-4">Limpiar Consulta</button>
+                      <button type="button" id="btn-revisar-callcenter"
+                       class="btn btn-primary mt-4">Revisar Movimientos</button>
+                    </div>
+                    <div class="d-flex pt-5 mx-5 ">
+                      <div class="flex-column mr-5" style="width: 35%;">
+                        <button class="btn btn-outline-danger w-100 mr-2" type="button" id="descargarExcelCallcenter">Descargar Excel</button>
+                        <hr/>
+                        <div class="d-flex">
+                          <!-- <div class="col ml-2 pl-3" >
+                            <div class="form-check px-2 ">
+                              <p class="pl-5">Tipo:</p>
+                              <input class="form-check-input" type="checkbox" value="LOGISTICA" id="checkboxNovedadesLogistica" checked onclick="document.getElementById('checkboxNovedadesCallcenter').checked = false">
+                              <label class="form-check-label" for="defaultCheck1">
+                                LOGISTICA
+                              </label>
+                            </div>
+                            <div class="form-check px-2  ">
+                              <input class="form-check-input" type="checkbox" value="CALLCENTER" id="checkboxNovedadesCallcenter" onclick="document.getElementById('checkboxNovedadesLogistica').checked = false">
+                              <label class="form-check-label" for="defaultCheck1">
+                                CALLCENTER
+                              </label>
+                            </div>
+                          </div> -->
+                          <div class="col ml-2 pl-3" >
+                            <div class="form-check px-2 ">
+                              <p class="pl-5">Filtros:</p>
+                              <input class="form-check-input" type="checkbox" value="INTERRAPIDISIMO" id="checkboxCallcenterInter" checked>
+                              <label class="form-check-label" for="defaultCheck1">
+                                INTERRAPIDISIMO
+                              </label>
+                            </div>
+                            <div class="form-check px-2  ">
+                              <input class="form-check-input" type="checkbox" value="SERVIENTREGA" id="checkboxCallcenterServientrega" checked>
+                              <label class="form-check-label" for="defaultCheck1">
+                                SERVIENTREGA
+                              </label>
+                            </div>
+                            <div class="form-check px-2 ">
+                              <input class="form-check-input" type="checkbox" value="COORDINADORA" id="checkboxCallcenterCoordinadora" checked>
+                              <label class="form-check-label" for="defaultCheck1">
+                                COORDINADORA
+                              </label>
+                            </div>
+                            <div class="form-check px-2  ">
+                              <input class="form-check-input" type="checkbox" value="ENVIA" id="checkboxCallcenterEnvia" checked>
+                              <label class="form-check-label" for="defaultCheck1">
+                                ENVIA
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+      
+                      </div>
+                      
+                      <div class="input-group w-50 h-25" id="formExcelCallcenter">
+                        <div class="custom-file">
+                          <input type="file" class="custom-file-input w-50" id="excelDocSoluciones" name="documento">
+                          <label id="excelDocSolucionesLabel" class="custom-file-label" for="excelDocSoluciones" data-browse="Buscar">Seleccionar Archivo</label>
+                    </div>
+                    <div class="input-group-append w-25">
+                      <button class="btn btn-outline-secondary w-100" type="button" id="excelDocSolucionesBoton" >Actualizar</button>
+                    </div>
+                  </div>
+                </div>
+                  
+                  </div>
+                </form>
+                
+                
+                
+              </div>
+            </div>
+            
+            <div class="d-flex justify-content-center">
+              <div class="lds-ellipsis mt-4 d-none" id="cargador-callcenter"><div></div>
+              <div></div><div></div><div></div></div>
+            </div>
+            
+            <div id="visor_callcenter"></div>
+          </div>
+
           <div class="container-fluid" id="pagos" style="display: none;">
             <div class="card mt-3">
               <div class="card-body">
@@ -2343,6 +2458,7 @@
     </script>
     
     <script src="js/render.js"></script>
+    <script src="js/callcenter/callcenter.js"></script>
     <script src="js/cargadorDeDatos.js"></script>
     <script src="js/consultarCiudades.js" type="module"></script>
     <script src="js/usuarios.js"></script>

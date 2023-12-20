@@ -3720,6 +3720,7 @@ document
   .addEventListener("click", (e) => {
     e.preventDefault();
     const novedades_transportadora = $("#activador_busq_novedades").val();
+    
     if (administracion && novedades_transportadora) {
       console.log("Buscando novedades");
       revisarNovedades(novedades_transportadora);
