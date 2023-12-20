@@ -2516,10 +2516,12 @@ function verificarSelectorEntregaOficina(e) {
     }
   } else if (codTransp === "INTERRAPIDISIMO") {
     const inpDir = $("#direccionD");
-    const inputBarrio= $("#barrioD");
+    const inputBarrio = $("#barrioD");
     if (select.value == "2") {
       inpDir.prop("disabled", true).val("Oficina principal interrapidisimo");
-      inputBarrio.prop("disabled", true).val("Oficina principal interrapidisimo");
+      inputBarrio
+        .prop("disabled", true)
+        .val("Oficina principal interrapidisimo");
     } else {
       inpDir.prop("disabled", false).val("");
     }
@@ -2866,10 +2868,10 @@ class CalcularCostoDeEnvio {
 
     //* TEMPORAL: cuando el typo de envio es contraentrega y la transportadora es envía, el 'sobreflete_heka'
     //* pasa a ser cero, hasta que se genere la estrategia de comisión heka
-    if(this.type === CONTRAENTREGA && this.envia) {
+    if (this.type === CONTRAENTREGA && this.envia) {
       this.sobreflete_heka = 0;
     }
-    
+
     const respuesta =
       this.sobreflete +
       this.seguroMercancia +
@@ -3038,15 +3040,14 @@ class CalcularCostoDeEnvio {
 
     const pagoContraentrega = this.convencional ? "FALSE" : "TRUE";
 
-    
     //#region SOLICITUD PASADA AL BACK
     const data = {
       dane_ciudadR,
       dane_ciudadD,
       peso: this.kgTomado,
       seguro: this.seguro,
-      pagoContraentrega
-    }
+      pagoContraentrega,
+    };
     /* Request de solicitud al back
     let resBack = await fetch(
       "/inter/cotizar",
@@ -3325,28 +3326,45 @@ function modificarDatosDeTransportadorasAveo(res) {
     }
   });
 }
-async function fetchWithRetry(url, options, maxRetries = 3) {
+async function fetchWithRetry(url, options, maxRetries, segundos) {
+  console.log("número maximo de retrys: ", maxRetries, segundos);
+  console.log("segundos para rehacer la petición: ", segundos);
+
   for (let i = 0; i < maxRetries; i++) {
     const controller = new AbortController();
     const signal = controller.signal;
-    setTimeout(() => controller.abort(), 8000); // SEGUNDOSSSS
+    setTimeout(() => controller.abort(), segundos * 1000); // SEGUNDOSSSS
 
     try {
-      let response = await fetch(url, options);
+      let response = await fetch(url, { ...options, signal }); // Asociar la señal con la solicitud fetch
 
       console.log(`intento ${i + 1}`);
 
-      Swal.fire({
-        title: "Creando Guía",
-        text: `Intento de conexión No. ${i + 1}`,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-        allowOutsideClick: false,
-        allowEnterKey: false,
-        showConfirmButton: false,
-        allowEscapeKey: true,
-      });
+      if (i === 0) {
+        Swal.fire({
+          title: "Creando Guía",
+          text: `Estamos conectandonos con la transportadora, por favor espere un momento`,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+          allowOutsideClick: false,
+          allowEnterKey: false,
+          showConfirmButton: false,
+          allowEscapeKey: true,
+        });
+      } else {
+        Swal.fire({
+          title: "Creando Guía",
+          text: `Intento de conexión No. ${i + 1}`,
+          didOpen: () => {
+            Swal.showLoading();
+          },
+          allowOutsideClick: false,
+          allowEnterKey: false,
+          showConfirmButton: false,
+          allowEscapeKey: true,
+        });
+      }
 
       return response;
     } catch (error) {
@@ -4064,11 +4082,16 @@ async function guardarStickerGuiaServientrega(data) {
 
 //función para consultar la api en el back para crear guiade inter rapidisimo.
 async function generarGuiaInterrapidisimo(datos) {
-  let respuesta = await fetchWithRetry("/inter/crearGuia", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(datos),
-  })
+  let respuesta = await fetchWithRetry(
+    "/inter/crearGuia",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(datos),
+    },
+    3, // maxRetries
+    2 // segundos
+  )
     .then((d) => {
       if (d.status === 500)
         return {
