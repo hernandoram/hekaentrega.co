@@ -26,26 +26,12 @@ async function createSporadicCollections(req, res) {
     });
   }
   else {
-    let build = {
-      IdClienteCredito: CredencialesEmpresa.branchCode,
-      listaNumPreenvios: []
-    };
-
-    let documents = [];
-
-    data.forEach(element => {
-      build.IdSucursalCliente = element.branchCode;
-      build.fechaRecogida = element.date;
-      element.listGuides.forEach(list => {
-        build.listaNumPreenvios.push(list);
-      });
-      documents.push(element.id);
-    });
+    const build = await buildData(data);
     createBuild(build, query.mode)
       .then((response) => {
-        documents.forEach(item => {
+        data.forEach(item => {
           db.collection("documentos")
-          .doc(item)
+          .doc(item.id)
           .update({idRecogida: response.idRecogida});
         });
         res.status(200).send({
@@ -62,6 +48,26 @@ async function createSporadicCollections(req, res) {
         });
       })
   }
+}
+
+async function buildData(data) {
+  let build =  {
+    IdClienteCredito: CredencialesEmpresa.idCliente,
+    listaNumPreenvios: []
+  };
+  for (const element of data) {
+    build.IdSucursalCliente = element.branchCode;
+    build.fechaRecogida = element.date;
+    const queryDb = await db.collection("documentos").doc(element.id).get();
+    const documentData = queryDb.data();
+
+    for (const list of element.listGuides) {
+      const queryList = await db.doc(`/usuarios/${documentData.id_user}/guias/${list}`).get();
+      const userData = queryList.data();
+      build.listaNumPreenvios.push(userData.numeroGuia);
+    }
+  }
+  return build;
 }
 
 function createBuild(build, mode) {
