@@ -1,5 +1,5 @@
 
-const {CredencialesEmpresa} = require("../../keys/interCredentials");
+const CredencialesEmpresa = require("../../keys/interCredentials").CredencialesEmpresa;
 const request = require("request");
 const firebase = require("../../keys/firebase");
 const { Exception } = require("handlebars");
@@ -76,7 +76,7 @@ function createBuild(build, mode) {
       return resolve(testMode(build));
     }
 
-    request.post(CredencialesEmpresa.endpointv2 + "/InsertarAdmision", {
+    request.post(CredencialesEmpresa.endpointv2 + "/Recogida/InsertarRecogidaCliente", {
       headers: {
           "x-app-signature": CredencialesEmpresa.x_app_signature,
           "x-app-security_token":  CredencialesEmpresa.x_app_security_token,
