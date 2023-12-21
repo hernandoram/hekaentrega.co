@@ -1317,7 +1317,11 @@
             <h6 class="text-danger">SIN DATOS EXISTENTES PARA TU BÚSQUEDA</h6>
             </div>
             <div class="card-shadow mb-4" style="display: none;" id="historial-docs">
-              <button id="correspondence-button" type="button" class="btn btn-primary mx-4">Enviar Correspondencia</button>
+              <div class="mx-4" id="date-container">
+                <label for="date-input">Seleccione Fecha y Hora de su recolección:</label>
+                <input type="datetime-local" id="date-input" class="form-control fecha-input" disabled>
+              </div>
+              <button id="correspondence-button" type="button" class="btn btn-primary mx-4 mt-2">Enviar Correspondencia</button>
               <!-- Modal -->
               <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">

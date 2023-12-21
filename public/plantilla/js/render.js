@@ -628,9 +628,23 @@ function renderUserDocumentCard(id, data) {
 
 function handleCheckboxChange(event) {
   if (event.target.type === 'checkbox' && event.target.name === 'interrapidisimo') {
+    const isChecked = event.target.checked;
     const id = event.target.value;
     const cardData = getCardData(id);
     storeCardData(cardData);
+    const dateContainer = document.getElementById(`date-container`);
+    const dateInput = document.getElementById(`date-input`);
+    if (dateInput) {
+      dateContainer.style.display = isChecked ? 'block' : 'none';
+      dateInput.disabled = !isChecked;
+      if (isChecked) {
+        const today = new Date();
+        today.setDate(today.getDate() + 1);
+        const tomorrowISOString = today.toISOString().split('.')[0];
+        dateInput.setAttribute('min', tomorrowISOString);
+        dateInput.value = tomorrowISOString;
+      }
+    }
   }
 }
 
@@ -641,8 +655,8 @@ function getCardData(id) {
   const checkbox = card.querySelector('input[name="interrapidisimo"]');
   
   if (checkbox && checkbox.checked) {
-    const dateElement = card.querySelector('.fecha');
-    const date = dateElement ? dateElement.textContent.trim() : '';
+    const dateElement = document.getElementById('date-input');
+    const date = dateElement ? dateElement.value.replace('T', ' ').replace(/\:\d+$/, '') : '';
     const listGuidesElement = card.querySelector('[data-guides]');
     const listGuides = listGuidesElement ? JSON.parse(listGuidesElement.dataset.guides) : [];
     const branchCode = card.dataset.branch_code;
@@ -687,8 +701,9 @@ function disableCheckboxesAndReturnActiveData(checkboxes) {
 
 const sendCorrespondence = (activeCardData) => {
   const jsonData = JSON.stringify(activeCardData, null, 2);
+  console.log(jsonData);
 
-  fetch('/inter/recogidaesporadica?mode=test', {
+  fetch('/inter/recogidaesporadica', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -696,6 +711,7 @@ const sendCorrespondence = (activeCardData) => {
     body: jsonData,
   })
   .then(response => {
+    console.log(response);
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
@@ -762,7 +778,9 @@ function handleDocumentChange() {
   const checkboxes = document.querySelectorAll('input[name="interrapidisimo"]');
   const atLeastOneChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
   const correspondenceButton = document.getElementById('correspondence-button');
+  const dateContainer = document.getElementById(`date-container`);
   correspondenceButton.style.display = atLeastOneChecked ? 'block' : 'none';
+  dateContainer.style.display = atLeastOneChecked ? 'block' : 'none';
 }
 
 document.addEventListener('change', handleDocumentChange);
@@ -777,7 +795,7 @@ function handleDocumentClick(event) {
     const listGuides = listGuidesElement ? JSON.parse(listGuidesElement.dataset.guides) : [];
     const branchCode = card.dataset.branch_code;
 
-    fetch('/inter/planilladeenvios?mode=test', {
+    fetch('/inter/planilladeenvios', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
