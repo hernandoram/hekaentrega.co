@@ -2183,7 +2183,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
         admin: true,
         type: "Individual",
       };
-      avisar("Se enviará mensaje al usuario", text);
+      Toast.fire("Se enviará mensaje al usuario", text, "info");
       if (extraData.seguimiento) {
         extraData.seguimiento.push(solucion);
       } else {
@@ -2251,11 +2251,11 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
             .doc(id_heka)
             .delete();
           boton_solucion.html("Solucionada");
-          avisar(
+          Toast.fire(
             "Guía Gestionada",
             "La guía " +
               data.numeroGuia +
-              " ha sido actualizada exitósamente como solucionada"
+              " ha sido actualizada exitósamente como solucionada", "success"
           );
         });
     }

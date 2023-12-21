@@ -11828,7 +11828,8 @@ export default [
     "ciudad": "URAMITA",
     "departamento": "ANTIOQUIA",
     "dane_ciudad": "05842000",
-    "nombreAveo": "URAMITA(ANTIOQUIA)"
+    "nombreAveo": "URAMITA(ANTIOQUIA)",
+    "tipo_distribucion": "ENTREGA A DOMICILIO"
   },
   {
     "ciudad": "URRAO",
@@ -13929,7 +13930,8 @@ export default [
     "ciudad": "MONTECRISTO",
     "departamento": "BOLIVAR",
     "dane_ciudad": "13458000",
-    "nombreAveo": "MONTECRISTO(BOLIVAR)"
+    "nombreAveo": "MONTECRISTO(BOLIVAR)",
+    "tipo_distribucion": "ENTREGA A DOMICILIO"
   },
   {
     "ciudad": "PINILLOS",
