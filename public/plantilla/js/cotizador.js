@@ -3099,6 +3099,12 @@ class CalcularCostoDeEnvio {
 
   async cotizarEnvia(origen, destino) {
     console.log("Cotizando envía");
+
+    if (destino ==="13188000"){
+      return console.log("No hay disponibilidad")
+    }
+
+    
     const data = {
       ciudad_origen: origen,
       ciudad_destino: destino,
