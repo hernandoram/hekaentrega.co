@@ -761,8 +761,11 @@ async function detallesTransportadoras(data) {
       cotizacionAveo,
     });
 
-    if (data.sumar_envio || data.type === "PAGO DESTINO") {
+    if (!cotizacion.flete || cotizacion.empty) continue;
+
+    if (data.sumar_envio || data.type === CONTRAENTREGA) {
       cotizacion.sumarCostoDeEnvio = cotizacion.valor;
+
       if (transp === "INTERRAPIDISIMO") {
         const minimoEnvio = transportadora.valorMinimoEnvio(
           cotizacion.kgTomado
@@ -774,9 +777,6 @@ async function detallesTransportadoras(data) {
     }
 
     cotizacion.debe = data.debe;
-
-    if (!cotizacion.flete || cotizacion.empty) continue;
-
     let descuento;
     if (cotizacion.descuento) {
       const percent = Math.round(
@@ -2854,9 +2854,11 @@ class CalcularCostoDeEnvio {
       comision_heka = 1;
       constante_heka = this.precios.constante_convencional;
     }
+
     this.sobreflete_heka =
       this.set_sobreflete_heka ||
       Math.ceil((valor * comision_heka) / 100) + constante_heka;
+
     if (this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
     if (this.aveo) this.intoAveo(this.precio);
     if (this.envia) this.intoEnvia(this.precio);
@@ -2869,12 +2871,12 @@ class CalcularCostoDeEnvio {
     )
       this.sobreflete_heka += 1000;
 
-    // let total = this.sobreflete + this.seguroMercancia + this.sobreflete_heka + this.sobreflete_oficina;
-
-    // if(ControlUsuario.esPuntoEnvio) this.comision_punto = Math.floor(datos_personalizados.comision_punto * total / 100);
-
-    // total += this.comision_punto;
-
+    //* TEMPORAL: cuando el typo de envio es contraentrega y la transportadora es envía, el 'sobreflete_heka'
+    //* pasa a ser cero, hasta que se genere la estrategia de comisión heka
+    if(this.type === CONTRAENTREGA && this.envia) {
+      this.sobreflete_heka = 0;
+    }
+    
     const respuesta =
       this.sobreflete +
       this.seguroMercancia +
@@ -3037,6 +3039,34 @@ class CalcularCostoDeEnvio {
     if (ciudadBloqueada && !this.isOficina && (this.type === "PAGO CONTRAENTREGA" || this.type == "PAGO DESTINO")) return 0;
 
     const pagoContraentrega = this.convencional ? "FALSE" : "TRUE";
+
+    
+    //#region SOLICITUD PASADA AL BACK
+    const data = {
+      dane_ciudadR,
+      dane_ciudadD,
+      peso: this.kgTomado,
+      seguro: this.seguro,
+      pagoContraentrega
+    }
+    /* Request de solicitud al back
+    let resBack = await fetch(
+      "/inter/cotizar",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "Application/json"
+        }
+      }
+    )
+    .then((data) => {
+      return data.json()
+    })
+    .catch((err) => err);
+    */
+    //#endregion
+
     let res = await fetch(
       url +
       7986 +
@@ -3057,7 +3087,6 @@ class CalcularCostoDeEnvio {
     })
     .catch((err) => err);
 
-    console.log(res);
     if (res.message || res.Message) return 0;
     let mensajeria = res.filter((d) => {
       let Convencional = false;
