@@ -780,7 +780,7 @@ const handleCorrespondenceButtonClick = () => {
   }
 }
 
-document.getElementById('correspondence-button').addEventListener('click', handleCorrespondenceButtonClick);
+document.getElementById('correspondence-button')?.addEventListener('click', handleCorrespondenceButtonClick);
 
 function handleDocumentChange() {
   const checkboxes = document.querySelectorAll('input[name="interrapidisimo"]');
