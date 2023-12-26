@@ -14,7 +14,9 @@ const bloqueo_direcciones_inter = [
   "13810011",
   "68298002",
 ];
-const bloqueo_direcciones_envia = ["97666000", "52427000"];
+const bloqueo_direcciones_envia = ["97666000", "52427000", "13188000"];
+
+
 // Objeto principal en que se basa la transportadora a ser utilizada
 let transportadoras = {
   SERVIENTREGA: {
@@ -3132,6 +3134,9 @@ class CalcularCostoDeEnvio {
 
   async cotizarEnvia(origen, destino) {
     console.log("Cotizando envía");
+
+  
+    
     const data = {
       ciudad_origen: origen,
       ciudad_destino: destino,

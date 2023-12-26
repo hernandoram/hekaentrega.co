@@ -152,6 +152,12 @@
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Documentos</span></a>
         </li>
+        <!-- JOSE -->
+        <!-- <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Acá podras tener acceso a todos tus documentos">
+          <a class="nav-link" href="#" onclick="mostrar('guias_individuales')">
+            <i class="fas fa-fw fa-truck"></i>
+            <span>Buscar guias</span></a>
+        </li> -->
 
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Descargar manifiestos para envía o interrapidísimo">
           <a class="nav-link" href="#manifiestos">
@@ -1130,6 +1136,10 @@
 
           </div>
          
+               
+          <div class="container-fluid" id="guias_individuales">
+       Soy Jose, nuevo panel
+          </div>
 
           <div class="container-fluid" id="historial_guias_antiguo" style="display: none;">
             <h3 class="m-0 font-weight-bold text-primary">Historial de guías</h3>
@@ -1297,7 +1307,17 @@
                 <div class="col-sm-6">
                   <h6>Fecha final</h6>
                   <input type="date" class="form-control form-control-user"  id="docs-fecha-final"  required>
-              </div>            
+              </div>      
+              <div class="col-sm-6 mt-3 mb-sm-0">
+                <h6>Filtrar por transportadora</h6>
+                <select id="filtro-documentos" class="form-control">
+                  <option value="Todos">Todos</option>
+                  <option value="SERVIENTREGA">SERVIENTREGA</option>
+                  <option value="COORDINADORA">COORDINADORA</option>
+                  <option value="INTERRAPIDISIMO">INTERRAPIDISIMO</option>
+                  <option value="ENVIA">ENVIA</option>
+                </select>
+              </div>      
               <button  onclick="actualizarHistorialDeDocumentos()" 
               class="btn btn-primary btn-user btn-block" style="margin-top: 20px;" id="btn-historial-docs">
                 Buscar
@@ -1308,8 +1328,29 @@
             <h6 class="text-danger">SIN DATOS EXISTENTES PARA TU BÚSQUEDA</h6>
             </div>
             <div class="card-shadow mb-4" style="display: none;" id="historial-docs">
+              <div class="mx-4" id="date-container">
+                <label for="date-input">Seleccione Fecha y Hora de su recolección:</label>
+                <input type="datetime-local" id="date-input" class="form-control fecha-input" disabled>
+              </div>
+              <button id="correspondence-button" type="button" class="btn btn-primary mx-4 mt-2">Enviar Correspondencia</button>
+              <!-- Modal -->
+              <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="successModalLabel"></h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body"></div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal" data-toggle="modal" data-target="#successModal">Cerrar</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div class="row card-body" id="body-documentos">
-                
               </div>
             </div>
             
