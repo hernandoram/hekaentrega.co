@@ -1,3 +1,36 @@
+// MANEJADOR DE FILTROS
+const choices = new Choices("#activador_busq_callcenter", {
+  removeItemButton: true,
+});
+
+$("#filtrado-callcenter").on("change", function () {
+  // $("#input-filtrado-callcenter").prop("disabled", true);
+  if ($("#filtrado-callcenter").val() == "CENTRO-COSTO") {
+    $("#input-filtrado-callcenter").prop(
+      "placeholder",
+      "Escriba los centros de costo separados por comas (,)"
+    );
+    $("#input-filtrado-callcenter").prop("disabled", false);
+    $("#input-filtrado-callcenter").val("");
+    choices.enable();
+  } else if ($("#filtrado-callcenter").val() == "GUIAS") {
+    $("#input-filtrado-callcenter").prop(
+      "placeholder",
+      "Escriba las guias separados por comas (,)"
+    );
+    $("#input-filtrado-callcenter").prop("disabled", false);
+    $("#input-filtrado-callcenter").val("");
+    choices.disable();
+  } else {
+    $("#input-filtrado-callcenter").prop("placeholder", "");
+    $("#input-filtrado-callcenter").prop("disabled", true);
+    $("#input-filtrado-callcenter").val("");
+    choices.enable();
+  }
+});
+
+/////////////////////////////////
+
 document
   .getElementById("btn-revisar-callcenter")
   .addEventListener("click", (e) => {
@@ -8,9 +41,8 @@ document
     if (
       administracion &&
       novedades_transportadora &&
-      filtro_callcenter !== "CENTRO-COSTO"
+      filtro_callcenter === ""
     ) {
-      console.log("Buscando novedades");
       revisarNovedadesCallcenter(novedades_transportadora);
     } else {
       if (administracion && !$("#filtrado-callcenter").val()) {
@@ -21,9 +53,6 @@ document
         );
         return;
       }
-
-      console.log("Busqueda natural");
-      //    esta funcion hay que copiarla y estructurarla para callcenter
       revisarMovimientosGuiasCallcenter(administracion);
     }
   });
@@ -41,8 +70,7 @@ function revisarNovedadesCallcenter(transportadora) {
     .firestore()
     .collectionGroup("estadoGuias")
     .where("enNovedad", "==", true)
-    .where("transportadora", "==", transportadora)
-    // .limit(10)
+    .where("transportadora", "in", transportadora)
     .get()
     .then((q) => {
       let contador = 0;
@@ -88,39 +116,13 @@ function revisarMovimientosGuiasCallcenter(admin, seguimiento, id_heka, guia) {
   ).classList;
   cargadorClass.remove("d-none");
 
-  if (($("#filtrado-callcenter").val() === "GUIAS" || guia) && admin) {
-    let filtrado = guia || $("#input-filtrado-callcenter").val().split(",");
-    console.log(filtrado);
-    if (typeof filtrado == "object") {
-      filtrado.forEach((v, i) => {
-        firebase
-          .firestore()
-          .collectionGroup("estadoGuias")
-          .where("numeroGuia", "==", v.trim())
-          .get()
-          .then((querySnapshot) => {
-            querySnapshot.size == 0
-              ? $("#cargador-callcenter").addClass("d-none")
-              : "";
-            querySnapshot.forEach((doc) => {
-              let path = doc.ref.path.split("/");
-              let data = doc.data();
-              consultarGuiaFbCallcenter(
-                path[1],
-                doc.id,
-                data,
-                "Consulta Personalizada",
-                i + 1,
-                filtrado.length
-              );
-            });
-          });
-      });
-    } else {
+  if ($("#filtrado-callcenter").val() === "GUIAS" && admin) {
+    let filtrado = $("#input-filtrado-callcenter").val().split(",");
+    filtrado.forEach((v, i) => {
       firebase
         .firestore()
         .collectionGroup("estadoGuias")
-        .where("numeroGuia", "==", filtrado)
+        .where("numeroGuia", "==", v.trim())
         .get()
         .then((querySnapshot) => {
           querySnapshot.size == 0
@@ -133,119 +135,84 @@ function revisarMovimientosGuiasCallcenter(admin, seguimiento, id_heka, guia) {
               path[1],
               doc.id,
               data,
-              "Solucionar Novedad"
+              "Consulta Personalizada",
+              i + 1,
+              filtrado.length
             );
           });
-        });
-    }
-  } else if (admin) {
-    if (
+        })
+    });
+  } else if (
       $("#filtrado-callcenter").val() === "CENTRO-COSTO" &&
-      $("#activador_busq_callcenter").val()
+      $("#activador_busq_callcenter").val().length && admin
     ) {
-      filtro = $("#input-filtrado-callcenter").val();
+      filtro = $("#input-filtrado-callcenter").val().split(",");
       toggle = "==";
       buscador = "centro_de_costo";
       transportadora = $("#activador_busq_callcenter").val();
-      firebase
-        .firestore()
-        .collectionGroup("estadoGuias")
-        .where(buscador, toggle, filtro)
-        .where("enNovedad", "==", true)
-        .where("transportadora", "==", transportadora)
-        .get()
-        .then((querySnapshot) => {
-          let contador = 0;
-          let size = querySnapshot.size;
-          querySnapshot.forEach((doc) => {
-            let path = doc.ref.path.split("/");
-            let dato = doc.data();
-            contador++;
-            consultarGuiaFbCallcenter(
-              path[1],
-              doc.id,
-              dato,
-              dato.centro_de_costo,
-              contador,
-              size
-            );
-            // console.log(doc.data());
+      filtro.forEach((v, i) => {
+        firebase
+          .firestore()
+          .collectionGroup("estadoGuias")
+          .where(buscador, toggle, v)
+          .where("enNovedad", "==", true)
+          .where("transportadora", "in", transportadora)
+          .get()
+          .then((querySnapshot) => {
+            querySnapshot.size == 0
+            ? $("#cargador-callcenter").addClass("d-none")
+            : "";
+            let contador = 0;
+            let size = querySnapshot.size;
+            querySnapshot.forEach((doc) => {
+              let path = doc.ref.path.split("/");
+              let dato = doc.data();
+              contador++;
+              consultarGuiaFbCallcenter(
+                path[1],
+                doc.id,
+                dato,
+                dato.centro_de_costo,
+                contador,
+                size
+              );
+              // console.log(doc.data());
+            });
           });
-        });
+      });
     } else {
-      filtro = $("#input-filtrado-callcenter").val();
+      filtro = $("#input-filtrado-callcenter").val().split(",");
       toggle = "==";
       buscador = "centro_de_costo";
-      firebase
-        .firestore()
-        .collectionGroup("estadoGuias")
-        .where(buscador, toggle, filtro)
-        .where("enNovedad", "==", true)
-        .get()
-        .then((querySnapshot) => {
-          let contador = 0;
-          let size = querySnapshot.size;
-          querySnapshot.forEach((doc) => {
-            let path = doc.ref.path.split("/");
-            let dato = doc.data();
-            contador++;
-            consultarGuiaFbCallcenter(
-              path[1],
-              doc.id,
-              dato,
-              dato.centro_de_costo,
-              contador,
-              size
-            );
-            // console.log(doc.data());
+      filtro.forEach((v, i) => {
+        firebase
+          .firestore()
+          .collectionGroup("estadoGuias")
+          .where(buscador, toggle, v)
+          .where("enNovedad", "==", true)
+          .get()
+          .then((querySnapshot) => {
+            querySnapshot.size == 0
+            ? $("#cargador-callcenter").addClass("d-none")
+            : "";
+            let contador = 0;
+            let size = querySnapshot.size;
+            querySnapshot.forEach((doc) => {
+              let path = doc.ref.path.split("/");
+              let dato = doc.data();
+              contador++;
+              consultarGuiaFbCallcenter(
+                path[1],
+                doc.id,
+                dato,
+                dato.centro_de_costo,
+                contador,
+                size
+              );
+            });
           });
-        });
+      });
     }
-  } else {
-    if (
-      (document.getElementById("visor_callcenter").innerHTML == "" &&
-        seguimiento == "once") ||
-      !seguimiento
-    ) {
-      firebase
-        .firestore()
-        .collection("usuarios")
-        .doc(localStorage.user_id)
-        .collection("estadoGuias")
-        // .orderBy("estado")
-        .where("mostrar_usuario", "==", true)
-        // .limit(10)
-        .get()
-        .then((querySnapshot) => {
-          let contador = 0;
-          let size = querySnapshot.size;
-          console.log(size);
-          if (!querySnapshot.size) {
-            return cargadorClass.add("d-none");
-          }
-          $("#visor_callcenter").html("");
-          const guias_actualizadas = revisarTiempoGuiasActualizadas();
-          querySnapshot.forEach((doc) => {
-            let dato = doc.data();
-            contador++;
-            console.log(dato);
-            consultarGuiaFbCallcenter(
-              user_id,
-              doc.id,
-              dato,
-              "Posibles Novedades",
-              contador,
-              size
-            );
-            if (!guias_actualizadas) actualizarEstadoGuia(dato.numeroGuia);
-          });
-
-          actualizarEstadosEnNovedad();
-        });
-    } else {
-      cargadorClass.add("d-none");
-    }
-  }
 }
 
 function consultarGuiaFbCallcenter(
@@ -273,7 +240,9 @@ function consultarGuiaFbCallcenter(
       .then(() => {
         if (contador == total_consulta) {
           $("#cargador-callcenter").addClass("d-none");
-          let table = $("#tabla-estadoGuiasCallcenter-" + usuario.replace(/\s/g, ""));
+          let table = $(
+            "#tabla-estadoGuiasCallcenter-" + usuario.replace(/\s/g, "")
+          );
 
           table = table.DataTable();
         }
@@ -334,7 +303,10 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
   //
 
   table.classList.add("table");
-  table.setAttribute("id", "tabla-estadoGuiasCallcenter-" + usuario.replace(/\s/g, ""));
+  table.setAttribute(
+    "id",
+    "tabla-estadoGuiasCallcenter-" + usuario.replace(/\s/g, "")
+  );
   thead.classList.add("text-light", "bg-primary");
   const classHead = "text-nowrap";
   thead.innerHTML = `<tr>
@@ -358,16 +330,22 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
             
         </tr>`;
 
-  encabezado.setAttribute("href", "#estadoGuiasCallcenter-" + usuario.replace(/\s/g, ""));
+  encabezado.setAttribute(
+    "href",
+    "#estadoGuiasCallcenter-" + usuario.replace(/\s/g, "")
+  );
   encabezado.setAttribute(
     "aria-controls",
     "estadoGuiasCallcenter-" + usuario.replace(/\s/g, "")
   );
   encabezado.textContent = usuario;
-  cuerpo.setAttribute("id", "estadoGuiasCallcenter-" + usuario.replace(/\s/g, ""));
+  cuerpo.setAttribute(
+    "id",
+    "estadoGuiasCallcenter-" + usuario.replace(/\s/g, "")
+  );
   cuerpo.setAttribute("data-usuario", usuario.replace(/\s/g, ""));
 
-  tr.setAttribute("id", "estadoGuia" + data.numeroGuia);
+  tr.setAttribute("id", "estadoGuiaCallcenter" + data.numeroGuia);
 
   //Si parece una novedad, el texto lo pinta de rojo
   const momento_novedad = buscarMomentoNovedad(
@@ -396,9 +374,8 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
   let btnGestionar,
     btn_solucionar = "";
   //Según el tipo de usuario, cambia el botón que realiza la gestión
-  if (administracion) {
-    btnGestionar = "Revisar";
-    btn_solucionar = `
+  btnGestionar = "Revisar";
+  btn_solucionar = `
                 <button class="btn btn-${
                   extraData.novedad_solucionada ? "secondary" : "success"
                 } m-2" 
@@ -410,13 +387,7 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
                     }
                 </button>
             `;
-  } else {
-    btnGestionar =
-      extraData.novedad_solucionada ||
-      extraData.transportadora === "INTERRAPIDISIMO"
-        ? "Revisar"
-        : "Gestionar";
-  }
+
   tr.innerHTML = `
             <td>
                 <div class="d-flex align-items-center">
@@ -443,9 +414,7 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
             <td class="text-danger">${ultimo_movimiento.novedad}</td>
             <td>${data.transportadora || "Servientrega"}</td>
             <td>${
-              momento_novedad.fechaMov
-                ? momento_novedad.fechaMov
-                : "No aplica"
+              momento_novedad.fechaMov ? momento_novedad.fechaMov : "No aplica"
             }</td>
 
             <td class="text-center">
@@ -510,12 +479,17 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
         `;
 
   //si existe la guía en la ventana mostrada la sustituye
-  if (document.querySelector("#estadoGuia" + data.numeroGuia)) {
-    document.querySelector("#estadoGuia" + data.numeroGuia).innerHTML = "";
-    document.querySelector("#estadoGuia" + data.numeroGuia).innerHTML =
-      tr.innerHTML;
+  if (document.querySelector("#estadoGuiaCallcenter" + data.numeroGuia)) {
+    document.querySelector(
+      "#estadoGuiaCallcenter" + data.numeroGuia
+    ).innerHTML = "";
+    document.querySelector(
+      "#estadoGuiaCallcenter" + data.numeroGuia
+    ).innerHTML = tr.innerHTML;
   } else if (
-    document.querySelector("#estadoGuiasCallcenter-" + usuario.replace(/\s/g, ""))
+    document.querySelector(
+      "#estadoGuiasCallcenter-" + usuario.replace(/\s/g, "")
+    )
   ) {
     // console.log(document.querySelector("#estadoGuias-" + usuario.replace(/\s/g, "")).querySelector("tbody"))
     $("#tabla-estadoGuiasCallcenter-" + usuario.replace(/\s/g, ""))
@@ -573,18 +547,18 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
     const resp = await actualizarEstadoGuia(data.numeroGuia, id_user, true);
     console.log(resp);
     if (resp.guias_est_actualizado === 1 && resp.guias_con_errores === 0) {
-      avisar(
+      Toast.fire(
         "Guía actualizada",
-        "La guía Número " + data.numeroGuia + " ha sido actualizada"
+        "La guía Número " + data.numeroGuia + " ha sido actualizada","success"
       );
     } else if (
       resp.guias_est_actualizado === 0 &&
       resp.guias_con_errores === 1
     ) {
-      avisar(
+      Toast.fire(
         "Guía no actualizada",
         "La guía Número " + data.numeroGuia + " no ha sido actualizada",
-        "aviso"
+        "error"
       );
     }
 
@@ -598,29 +572,33 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
                 Cargando...
             `);
 
-    const referenciaGuia = firebase
-      .firestore()
-      .collection("usuarios")
-      .doc(id_user)
-      .collection("guias")
-      .doc(id_heka);
-
-    let { value: text } = await Swal.fire({
-      title: "Respuesta",
-      html: `
-                    <textarea placeholder="Escribe tu mensaje" id="respuesta-novedad" class="form-control"></textarea>
-                    <div id="posibles-respuestas"></div>
-                `,
-      inputPlaceholder: "Escribe tu mensaje",
-      inputAttributes: {
-        "aria-label": "Escribe tu respuesta",
-      },
-      didOpen: respondiendoNovedad,
-      preConfirm: () => document.getElementById("respuesta-novedad").value,
+    let { value: respuestaSeller } = await Swal.fire({
+      title: "Respuesta llamada",
+      input: "textarea",
       showCancelButton: true,
+      confirmButtonText: "Continuar",
+      cancelButtonText: `Cancelar`,
     });
+    let text;
+    if (respuestaSeller) {
+      let { value: res } = await Swal.fire({
+        title: "Respuesta",
+        html: `
+                      <textarea placeholder="Escribe tu mensaje" id="respuesta-novedad" class="form-control"></textarea>
+                      <div id="posibles-respuestas"></div>
+                  `,
+        inputPlaceholder: "Escribe tu mensaje",
+        inputAttributes: {
+          "aria-label": "Escribe tu respuesta",
+        },
+        didOpen: respondiendoNovedad,
+        preConfirm: () => document.getElementById("respuesta-novedad").value,
+        showCancelButton: true,
+      });
+      text = res;
+    }
 
-    if (text == undefined) {
+    if (text == undefined || respuestaSeller == undefined) {
       boton_solucion.html(html_btn);
     } else if (text) {
       text = text.trim();
@@ -631,11 +609,15 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
           data.transportadora +
           '" responde lo siguiente:</b> ' +
           text.trim(),
+        respuestaSeller:
+          "<b>El destinatario responde lo siguiente: </b> " +
+          respuestaSeller.trim(),
         fecha: new Date(),
+        gestionada: "Callcenter",
         admin: true,
         type: "Individual",
       };
-      avisar("Se enviará mensaje al usuario", text);
+      Toast.fire("Se enviará mensaje al usuario", text, "info");
       if (extraData.seguimiento) {
         extraData.seguimiento.push(solucion);
       } else {
@@ -657,6 +639,13 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
       } else {
         listaRespuestasNovedad[mensajePreguardado].cantidad++;
       }
+
+      const referenciaGuia = firebase
+        .firestore()
+        .collection("usuarios")
+        .doc(id_user)
+        .collection("guias")
+        .doc(id_heka);
 
       // Para guardar una nueva estructura de mensaje
       db.collection("infoHeka")
@@ -703,11 +692,11 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
             .doc(id_heka)
             .delete();
           boton_solucion.html("Solucionada");
-          avisar(
+          Toast.fire(
             "Guía Gestionada",
             "La guía " +
               data.numeroGuia +
-              " ha sido actualizada exitósamente como solucionada"
+              " ha sido actualizada exitósamente como solucionada", "success"
           );
         });
     }
