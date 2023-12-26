@@ -3363,22 +3363,37 @@ function revisarGuiaUser(id_heka) {
     });
 }
 
-document.getElementById('btn-revisar-novedades').addEventListener('click', (e) => {
-  e.preventDefault();
-  const novedades_transportadora = $('#activador_busq_novedades').val();
-  if (administracion && novedades_transportadora) {
-    console.log('Buscando novedades');
-    revisarNovedades(novedades_transportadora);
-  } else {
-    if (administracion && !$('#filtrado-novedades-guias').val() && !$('#filtrado-novedades-usuario').val()) {
-      swal.fire('No permitido', 'Recuerda por favor filtrar por guía o por usuario para esta opción', 'error');
-      return;
+document
+  .getElementById("btn-revisar-novedades")
+  .addEventListener("click", (e) => {
+    e.preventDefault();
+    const novedades_transportadora = $("#activador_busq_novedades").val();
+    
+    if (administracion && novedades_transportadora) {
+      console.log("Buscando novedades");
+      revisarNovedades(novedades_transportadora);
+    } else {
+      if (
+        administracion &&
+        !$("#filtrado-novedades-guias").val() &&
+        !$("#filtrado-novedades-usuario").val()
+      ) {
+        swal.fire(
+          "No permitido",
+          "Recuerda por favor filtrar por guía o por usuario para esta opción",
+          "error"
+        );
+        return;
+      }
+
+      console.log("Busqueda natural");
+      revisarMovimientosGuias(administracion);
     }
 
     console.log('Busqueda natural');
     revisarMovimientosGuias(administracion);
   }
-});
+);
 
 let inputExcelDoc = document.getElementById('excelDocSoluciones');
 let excelDocSoluciones = document.getElementById('descargarExcelNovedades');
