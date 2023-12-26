@@ -191,6 +191,7 @@
           </div>
         </li>
 
+
         <!-- Sidebar Toggler (Sidebar) -->
         <div class="text-center d-none d-md-inline">
           <button class="rounded-circle border-0" id="sidebarToggle"></button>
@@ -1306,7 +1307,17 @@
                 <div class="col-sm-6">
                   <h6>Fecha final</h6>
                   <input type="date" class="form-control form-control-user"  id="docs-fecha-final"  required>
-              </div>            
+              </div>      
+              <div class="col-sm-6 mt-3 mb-sm-0">
+                <h6>Filtrar por transportadora</h6>
+                <select id="filtro-documentos" class="form-control">
+                  <option value="Todos">Todos</option>
+                  <option value="SERVIENTREGA">SERVIENTREGA</option>
+                  <option value="COORDINADORA">COORDINADORA</option>
+                  <option value="INTERRAPIDISIMO">INTERRAPIDISIMO</option>
+                  <option value="ENVIA">ENVIA</option>
+                </select>
+              </div>      
               <button  onclick="actualizarHistorialDeDocumentos()" 
               class="btn btn-primary btn-user btn-block" style="margin-top: 20px;" id="btn-historial-docs">
                 Buscar
@@ -1317,8 +1328,29 @@
             <h6 class="text-danger">SIN DATOS EXISTENTES PARA TU BÚSQUEDA</h6>
             </div>
             <div class="card-shadow mb-4" style="display: none;" id="historial-docs">
+              <div class="mx-4" id="date-container">
+                <label for="date-input">Seleccione Fecha y Hora de su recolección:</label>
+                <input type="datetime-local" id="date-input" class="form-control fecha-input" disabled>
+              </div>
+              <button id="correspondence-button" type="button" class="btn btn-primary mx-4 mt-2">Enviar Correspondencia</button>
+              <!-- Modal -->
+              <div class="modal fade" id="successModal" tabindex="-1" role="dialog" aria-labelledby="successModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="successModalLabel"></h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body"></div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal" data-toggle="modal" data-target="#successModal">Cerrar</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div class="row card-body" id="body-documentos">
-                
               </div>
             </div>
             
@@ -1796,55 +1828,29 @@
     
   </div>  
 
-  <div class="chat-absolute d-none" >
+  <div class="chat-absolute d-none" id="chat-notificaciones">
     <div class="row justify-content-end mr-0">
         <div class="col-md-5">
             <div class="panel panel-primary">
                 <div class="panel-heading d-flex justify-content-end" id="accordion">
-                    <div class="btn-group pull-right">
-                        <a class="btn btn-default bg-primary text-white" data-toggle="collapse" data-parent="#accordion" href="#collapseOne">
-                            Tienes un mensaje
-                        </a>
+                    <div class="btn-group pull-right" id="button-dimensions-chat">
+                        <div class="btn text-white openButton" id="text-modal" data-parent="#accordion">
+                            Tienes <span id="message-number"></span> mensajes
+                        </div>
                     </div>
                 </div>
-            <div class="panel-collapse collapse" id="collapseOne">
+           <div class="panel-collapse collapse panel-chat" id="collapseOne">
                 <div class="panel-body">
-                    <ul class="chat">
-                        <li class="left clearfix"><span class="chat-img pull-left">
-                            <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />
-                        </span>
-                            <div class="chat-body clearfix">
-                                <div class="header">
-                                    <strong class="primary-font">Jack Sparrow</strong> <small class="pull-right text-muted">
-                                        <span class="glyphicon glyphicon-time"></span>12 mins ago</small>
-                                </div>
-                                <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
-                                    dolor, quis ullamcorper ligula sodales.
-                                </p>
-                            </div>
-                        </li>
-                                        <li class="left clearfix"><span class="chat-img pull-left">
-                            <img src="http://placehold.it/50/55C1E7/fff&text=U" alt="User Avatar" class="img-circle" />
-                        </span>
-                            <div class="chat-body clearfix">
-                                <div class="header">
-                                    <strong class="primary-font">Jack Sparrow</strong> <small class="pull-right text-muted">
-                                        <span class="glyphicon glyphicon-time"></span>14 mins ago</small>
-                                </div>
-                                <p>
-                                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Curabitur bibendum ornare
-                                    dolor, quis ullamcorper ligula sodales.
-                                </p>
-                            </div>
-                        </li>
-                    </ul>
-                </div>  
+                  <div id="items-chat-notification" class="chat pr-5 pt-4" >
+                            
+                        </div>
+                  </div>  
             </div>
             </div>
         </div>
     </div>
 </div>
+
 
   <div class="w-100 position-absolute d-none align-items-center justify-content-center"
   style="top: 0; background-color: rgba(0,0,0,0.2); height: 100vh"

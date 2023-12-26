@@ -38,6 +38,9 @@
   
   <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.css">
+  <script src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.js"></script>
+
   <!-- Cargando el splider js y css -->
   <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@2.4.21/dist/js/splide.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@2.4.21/dist/css/splide.min.css">
@@ -114,6 +117,20 @@
           <a class="nav-link" href="#historial_guias">
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Guias</span></a>
+        </li>
+
+        <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Espacio para cosultar tus novedades">
+          <a class="nav-link" href="#centro_notificaciones" onclick="revisarMovimientosGuias(false, 'once')">
+            <span class="badge badge-counter icon-notificacion-novedad d-none">
+              <i class="fa fa-exclamation-circle"></i>
+            </span>
+            <i class="fas fa-fw fa-exclamation"></i>
+            <span>Notificaciones</span></a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#callcenter">
+            <i class="fas fa-fw fa-file-alt"></i>
+            <span>Callcenter</span></a>
         </li>
 
         <li class="nav-item">
@@ -352,7 +369,7 @@
                           <div class="col-sm-6">
                             <h6>Correo electrónico*</h6>
                             <input type="email"  class="form-control form-control-user"
-                            name="correo" id="actualizar_correo"
+                            name="correo" id="actualizar_correo" readonly
                                 aria-describedby="emailHelp" >
                           </div>
                       </div>
@@ -1482,6 +1499,62 @@
             <div id="visor_novedades"></div>
           </div>
 
+          <div class="container-fluid" id="callcenter" style="display: none;">
+            <div class="card mt-1">
+              <div class="card-body">
+                <form enctype="multipart/form-data" id="form-callcenter">
+                  <div class="form-group">
+                    <div class="input-group mb-3">
+                      <select name="filtrado-callcenter" class="form-control" id="filtrado-callcenter">
+                        <option value="">Elije filtro...</option>
+                        <option value="CENTRO-COSTO">Centros de costo</option>
+                        <option value="GUIAS">Guias</option>
+                      </select>
+                      <input type="text" class="form-control" disabled id="input-filtrado-callcenter" aria-describedby="btn-revisar-callcenter">
+                      <div class="col-4"> 
+                        <select name="activador_busq_callcenter"  id="activador_busq_callcenter" placeholder="Selecciona transportadora..." multiple class="form-control" style="max-width: 30%;">
+                          <option value="INTERRAPIDISIMO">Interrapidísimo</option>
+                          <option value="SERVIENTREGA">Servientrega</option>
+                          <option value="ENVIA">Envía</option>
+                          <option value="COORDINADORA">Coordinadora</option>
+                      </select> 
+                      </div>
+                    </div>
+                    <div class="input-group d-none">
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="cargar_gest-callcenter" accept=".xlsx" name="documento" lang="es">
+                        <label class="custom-file-label" for="cargar_gest-callcenter">Seleccionar Archivo</label>
+                      </div>
+                      <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="btn_descargar_gest-callcenter">Descargar gestiones</button>
+                      </div>
+                    </div>
+
+                  
+                    <div class="btn-group col-12">
+                      <button type="button" id="btn-vaciar-consulta-callcenter" 
+                      class="btn btn-secondary mt-4">Limpiar Consulta</button>
+                      <button type="button" id="btn-revisar-callcenter"
+                       class="btn btn-primary mt-4">Revisar Movimientos</button>
+                    </div>
+                    
+        
+                  </div>
+                </form>
+                
+                
+                
+              </div>
+            </div>
+            
+            <div class="d-flex justify-content-center">
+              <div class="lds-ellipsis mt-4 d-none" id="cargador-callcenter"><div></div>
+              <div></div><div></div><div></div></div>
+            </div>
+            
+            <div id="visor_callcenter"></div>
+          </div>
+
           <div class="container-fluid" id="pagos" style="display: none;">
             <div class="card mt-3">
               <div class="card-body">
@@ -1948,24 +2021,25 @@
                 <form class="row" id="form-centro_notificaciones">
                   <div class="form-group col-12">
                     <label for="nombre-centro_notificaciones">Nombre</label>
-                    <input type="text" class="form-control" id="nombre-centro_notificaciones" name="name" required>
+                    <input type="text" required class="form-control" id="nombre-centro_notificaciones" name="name" required>
                   </div>
 
                   <div class="col-sm-3 mb-3 mb-sm-0">
                     <label for="fechaI-centro_notificaciones">Fecha inicio</label>
-                    <input type="date" class="form-control form-control-user"  id="fechaI-centro_notificaciones" name="startDate">
+                    <input type="date" required class="form-control form-control-user"  id="fechaI-centro_notificaciones" name="startDate">
                   </div>
                   <div class="col-sm-3">
                     <label for="fechaF-centro_notificaciones">Fecha final</label>
-                    <input type="date" class="form-control form-control-user"  id="fechaF-centro_notificaciones" name="endDate">
+                    <input type="date" required class="form-control form-control-user"  id="fechaF-centro_notificaciones" name="endDate">
                   </div>
 
                   <div class="form-group col-md-3">
                     <label for="type-centro_notificaciones">Tipo notificación</label>
-                    <select class="custom-select" id="type-centro_notificaciones" name="type" required>
+                    <select class="custom-select" required id="type-centro_notificaciones" name="type" required>
                       <option selected value>-- Tipo notificación --</option>
                       <option value="alerta">Alerta</option>
                       <option value="estatica">Estática</option>
+                      <option value="mensaje">Mensaje</option>
                     </select>
                   </div>
                   
@@ -1991,21 +2065,21 @@
 </div>
 <div class="form-group col-3">
   <label for="seraBorrable">Será eliminable?</label>
-  <select class="custom-select" id="seraBorrable" name="allowDelete">
+  <select class="custom-select" required id="seraBorrable" name="allowDelete">
     <option value="true">Si</option>
     <option value="false">No</option>
   </select>
 </div>
 <div class="form-group col-3">
   <label for="notificacionVisible">Está activo?</label>
-  <select class="custom-select" id="notificacionVisible" name="active">
+  <select class="custom-select" required id="notificacionVisible" name="active">
     <option value="true">Si</option>
     <option value="false">No</option>
   </select>
 </div>
 <div class="form-group col-3">
   <label for="notificacionVisible">Será global?</label>
-  <select class="custom-select" id="notificacionGlobal" name="isGlobal">
+  <select class="custom-select" required id="notificacionGlobal" name="isGlobal">
     <option value="true">Si</option>
     <option value="false" >No</option>
   </select>
@@ -2041,7 +2115,7 @@
               </div>
             </div>
 
-            <div class="card my-3">
+            <div class="card my-3  d-none" id="seccion-notificaciones">
               <div class="card-body">
                 <h3 class="card-title">
                   Notificaciones presentes
@@ -2337,6 +2411,7 @@
     </script>
     
     <script src="js/render.js"></script>
+    <script src="js/callcenter/callcenter.js"></script>
     <script src="js/cargadorDeDatos.js"></script>
     <script src="js/consultarCiudades.js" type="module"></script>
     <script src="js/usuarios.js"></script>

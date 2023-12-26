@@ -24,24 +24,22 @@ const estadosGuia = {
 let novedadesExcelData = [];
 const dominiosFlexii = ["flexii.co", "www.flexi.co"];
 
-hostnameReader()
-function hostnameReader(){
-  const hostname = window.location.host
-  const element = document.getElementById("copyrightWord")
-  const brandName = document.getElementById("brandName")
-  let brandNameContent = "HEKA"
-  let elementContent = "Heka Entrega"
-  if(dominiosFlexii.includes(hostname)) {
-    brandNameContent = "FLEXII"
-    elementContent = "Flexii"
+hostnameReader();
+function hostnameReader() {
+  const hostname = window.location.host;
+  const element = document.getElementById("copyrightWord");
+  const brandName = document.getElementById("brandName");
+  let brandNameContent = "HEKA";
+  let elementContent = "Heka Entrega";
+  if (dominiosFlexii.includes(hostname)) {
+    brandNameContent = "FLEXII";
+    elementContent = "Flexii";
   }
-  console.log(element)
-  console.log(brandName)
-  if(element) element.innerHTML = elementContent
-  if(brandName) brandName.innerHTML = brandNameContent
-
+  console.log(element);
+  console.log(brandName);
+  if (element) element.innerHTML = elementContent;
+  if (brandName) brandName.innerHTML = brandNameContent;
 }
-
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -75,14 +73,18 @@ function mostrar(id) {
       item.parents(".nav-item").addClass("active");
       if (item.hasClass("collapse-item")) item.addClass("active");
 
-      const idxNoti = listaNotificacionesAlerta.findIndex(n => n.ubicacion === id);
+      const idxNoti = listaNotificacionesAlerta.findIndex(
+        (n) => n.ubicacion === id
+      );
 
-      if(idxNoti !== -1) {
+      if (idxNoti !== -1) {
         const notificacionAMostrar = listaNotificacionesAlerta[idxNoti];
-        mostrarNotificacionAlertaUsuario(notificacionAMostrar, notificacionAMostrar.id);
+        mostrarNotificacionAlertaUsuario(
+          notificacionAMostrar,
+          notificacionAMostrar.id
+        );
         listaNotificacionesAlerta.splice(idxNoti, 1);
       }
-
     } else if (
       window.top[id].classList[0] == "container" ||
       window.top[id].nodeName == "BODY"
@@ -448,7 +450,11 @@ function mostrarDocumentos(id, data, tipo_aviso) {
             }</h6>
             
             <span class='text-center'>${
-             data.generacion_automatizada == null ? "Automatica" : data.generacion_automatizada? "Automatica":"Manual"
+              data.generacion_automatizada == null
+                ? "Automatica"
+                : data.generacion_automatizada
+                ? "Automatica"
+                : "Manual"
             }</span>
 
             <div class="card-body">
@@ -472,9 +478,11 @@ function mostrarDocumentos(id, data, tipo_aviso) {
                                 data-mostrar="texto">Id Guias Generadas: <br><small class="text-break">${
                                   data.guias
                                 }</small> </p>
-                                <p class="${data.codigo_sucursal? "":"d-none"}">Bodega: <small>${
-                                  data.codigo_sucursal
-                                }</small></p>     
+                                <p class="${
+                                  data.codigo_sucursal ? "" : "d-none"
+                                }">Bodega: <small>${
+    data.codigo_sucursal
+  }</small></p>     
                                 <p>Tipo: <small class="text-break">${
                                   data.type || "PAGO CONTRAENTREGA"
                                 }</small></p>
@@ -558,90 +566,266 @@ function genFecha(direccion, milliseconds) {
 }
 
 //Retorna una tabla de documentos filtrados
-function mostrarDocumentosUsuario(id, data) {
-  return `<div class="col-sm-6 col-lg-4 mb-4">
-        <div class="card border-bottom-info shadow h-100 py-2" id="${id}">
-            <h6 class='text-center card-header'>${
-              data.transportadora || "Servientrega"
-            }</h6>
+function renderUserDocumentCard(id, data) {
+  const isInterrapidisimo = data.transportadora && data.transportadora.toUpperCase() === "INTERRAPIDISIMO";
+  const checkboxInput = isInterrapidisimo
+    ? `<input type="checkbox" id="checkbox-interrapidisimo-${id}" name="interrapidisimo" value="${id}" ${data.idRecogida ? 'disabled' : ''}>`
+    : '';
 
-            <div class="card-body">
-            <h5 class="card-title font-weight-bold text-info text-uppercase mb-2">${
-              data.nombre_usuario
-            }</h5>
-            <div class="row no-gutters align-items-center">
-                <div class="col mr-2">
-                    <div class="row no-gutters align-items-center">
-                        <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800 w-100">
-                            <p class="text-truncate"
-                            style="cursor: zoom-in"
-                            data-mostrar="texto">Id Guias Generadas: <br><small class="text-break">${
-                              data.guias
-                            }</small> </p>
-                            <p>Tipo: <small class="text-break">${
-                              data.type || "PAGO CONTRAENTREGA"
-                            }</span></p>
-                            <p>Fecha: <small>${data.fecha}</small></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-auto">
-                    <i class="fa fa-file fa-2x text-gray-300" data-id_guia="${id}" 
-                    data-guias="${data.guias}" data-nombre_guias="${
-    data.nombre_guias
-  }"
-                    data-nombre_relacion="${data.nombre_relacion}"
-                    data-user="${data.id_user}" data-funcion="descargar-docs" 
-                    id="descargar-docs${id}"></i>
+  const idRecogicaInfo = data.idRecogida ? `<p>Id Recogida: <small class="text-break">${data.idRecogida}</small></p>` : '';
 
-                    <span class="badge-pill badge-primary float-right">${
-                      data.guias.length
-                    }</span>
+  return `
+    <div class="col-sm-6 col-lg-4 mb-4">
+      <div class="card border-bottom-info shadow h-100 py-2" id="${id}" data-branch_code="${data.codigo_sucursal || ''}">
+        <h6 class='text-center card-header'>
+          ${data.transportadora || "Servientrega"}
+          ${checkboxInput}
+        </h6>
+
+        <div class="card-body">
+          <h5 class="card-title font-weight-bold text-info text-uppercase mb-2">${data.nombre_usuario}</h5>
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="row no-gutters align-items-center">
+                <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800 w-100">
+                  <p class="text-truncate" style="cursor: zoom-in" data-display="text">
+                    Id Guias Generadas: <br>
+                    <small class="text-break" data-guides="[${data.guias.join(', ')}]">${data.guias}</small>
+                    ${idRecogicaInfo}
+                  </p>
+                  <p>Tipo: <small class="text-break">${data.type || "PAGO CONTRAENTREGA"}</span></p>
+                  <p>Fecha: <small class="fecha">${data.fecha}</small></p>
                 </div>
+              </div>
             </div>
-                <div class="row" data-guias="${data.guias.toString()}" data-id_guia="${id}" data-user="${
-    data.id_user
-  }" data-nombre="${data.nombre_usuario}">
-                    <div class="d-none">
-                        <button class="col-12 btn btn-info mb-2" 
-                        type="button" id="boton-descargar-guias${id}" disabled>
-                            Descargar Guías
-                        </button>
-                        <button class="col btn btn-info mb-2" 
-                        type="button" id="boton-descargar-relacion_envio${id}" disabled>
-                            Descargar Manifiesto
-                        </button>
-                        <button class="col-12 btn btn-info mb-2" 
-                        type="button" id="boton-generar-rotulo${id}">Genera Rótulo</button>
-                    </div>
-                    <div class="col-12 dropdown">
-                        <button class="col-12 btn btn-info dropdown-toggle text-truncate" title="Subir documentos" type="button" id="acciones-documento${id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Descargar
-                        </button>
-                        ${
-                           datos_usuario.type !=="NATURAL-FLEXII"?
-                           `
-                           <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
-                           <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-guias${id}">Guías</label>
-                           <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-relacion_envio${id}">Manifiesto</label>
-                           <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-generar-rotulo${id}">Rótulos</label>
-                       </div>
-                           `:`
-                           <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
-
-                           <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-generar-rotulo${id}">Guía</label>
-                           </div>
-
-                           `
-                        }
-
-                
-                    </div>
-                </div>
+            <div class="col-auto">
+              <i class="fa fa-file fa-2x text-gray-300" data-id_guia="${id}" 
+                data-guides="${data.guias}" data-guide_name="${data.nombre_guias}"
+                data-related_name="${data.nombre_relacion}" data-user="${data.id_user}" 
+                data-action="download-docs" id="descargar-docs${id}"></i>
+              <span class="badge-pill badge-primary float-right">${data.guias.length}</span>
             </div>
+          </div>
+          <div class="row" data-guides="${data.guias.toString()}" data-id_guia="${id}" data-user="${data.id_user}" data-name="${data.nombre_usuario}">
+            <div class="d-none">
+              <button class="col-12 btn btn-info mb-2" type="button" id="boton-descargar-guias${id}" disabled>
+                Descargar Guías
+              </button>
+              <button class="col btn btn-info mb-2" type="button" id="boton-descargar-relacion_envio${id}" disabled>
+                Descargar Manifiesto
+              </button>
+              <button class="col-12 btn btn-info mb-2" type="button" id="boton-generar-rotulo${id}">Genera Rótulo</button>
+            </div>
+            <div class="col-12 dropdown">
+              <button class="col-12 btn btn-info dropdown-toggle text-truncate" title="Subir documentos" 
+                type="button" id="acciones-documento${id}" data-toggle="dropdown" 
+                aria-haspopup="true" aria-expanded="false">
+                Descargar
+              </button>
+              <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
+                <label class="dropdown-item form-control" data-action="upload-documents" for="boton-descargar-guias${id}">Guías</label>
+                <label class="dropdown-item form-control" data-action="upload-documents" data-is-interrapidisimo="${isInterrapidisimo}" for="boton-descargar-relacion_envio${isInterrapidisimo ? '_inter' : ''}${id}" id="${id}">Manifiesto</label>
+                <label class="dropdown-item form-control" data-action="upload-documents" for="boton-generar-rotulo${id}">Rótulos</label>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>`;
 }
+
+function handleCheckboxChange(event) {
+  if (event.target.type === 'checkbox' && event.target.name === 'interrapidisimo') {
+    const isChecked = event.target.checked;
+    const id = event.target.value;
+    const cardData = getCardData(id);
+    storeCardData(cardData);
+    const dateContainer = document.getElementById(`date-container`);
+    const dateInput = document.getElementById(`date-input`);
+    if (dateInput) {
+      dateContainer.style.display = isChecked ? 'block' : 'none';
+      dateInput.disabled = !isChecked;
+      if (isChecked) {
+        const today = new Date();
+        today.setDate(today.getDate() + 1);
+        const tomorrowISOString = today.toISOString().split('.')[0];
+        dateInput.setAttribute('min', tomorrowISOString);
+        dateInput.value = tomorrowISOString;
+      }
+    }
+  }
+}
+
+document.addEventListener('change', handleCheckboxChange);
+
+function getCardData(id) {
+  const card = document.getElementById(id);
+  const checkbox = card.querySelector('input[name="interrapidisimo"]');
+  
+  if (checkbox && checkbox.checked) {
+    const dateElement = document.getElementById('date-input');
+    const date = dateElement ? dateElement.value.replace('T', ' ').replace(/\:\d+$/, '') : '';
+    const listGuidesElement = card.querySelector('[data-guides]');
+    const listGuides = listGuidesElement ? JSON.parse(listGuidesElement.dataset.guides) : [];
+    const branchCode = card.dataset.branch_code;
+    return { id, date, listGuides, branchCode };
+  }
+
+  return null;
+}
+
+function storeCardData(cardData) {
+  if (cardData) {
+    if (!window.activeCardData) {
+      window.activeCardData = [];
+    }
+    const index = window.activeCardData.findIndex(data => data.id === cardData.id);
+
+    if (index !== -1) {
+      window.activeCardData[index] = cardData;
+    } else {
+      window.activeCardData.push(cardData);
+    }
+  }
+}
+
+function disableCheckboxesAndReturnActiveData(checkboxes) {
+  const activeCardData = [];
+
+  checkboxes.forEach(checkbox => {
+    const id = checkbox.value;
+    const cardData = getCardData(id);
+    if (cardData && cardData.branchCode) {
+      checkbox.checked = false;
+      checkbox.disabled = true;
+      const correspondenceButton = document.getElementById('correspondence-button');
+      correspondenceButton.style.display = 'none';
+      activeCardData.push(cardData);
+    }
+  });
+
+  return activeCardData;
+}
+
+const sendCorrespondence = (activeCardData) => {
+  const jsonData = JSON.stringify(activeCardData, null, 2);
+  console.log(jsonData);
+
+  fetch('/inter/recogidaesporadica', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: jsonData,
+  })
+  .then(response => {
+    console.log(response);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    correspondenceSentSuccessfully = true;
+
+    const successModal = document.getElementById('successModal');
+    if (successModal) {
+      const titleElement = successModal.querySelector('.modal-title');
+      const bodyElement = successModal.querySelector('.modal-body');
+      titleElement.textContent = data.title || 'Operación exitosa';
+      bodyElement.textContent = data.message || 'Su correspondencia fue creada con éxito';
+
+      $(successModal).modal('show');
+      $(successModal).on('shown.bs.modal', function () {
+        setTimeout(function () {
+          $(successModal).modal('hide');
+        }, 2000);
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error during POST:', error);
+
+    const errorModal = document.getElementById('successModal');
+    if (errorModal) {
+      const titleElement = errorModal.querySelector('.modal-title');
+      const bodyElement = errorModal.querySelector('.modal-body');
+      titleElement.textContent = 'Error';
+      bodyElement.textContent = error.message || 'Error en la solicitud';
+
+      $(errorModal).modal('show');
+      $(errorModal).on('shown.bs.modal', function () {
+        setTimeout(function () {
+          $(errorModal).modal('hide');
+        }, 2000);
+      });
+    }
+  })
+  .finally(() => {
+    this.disabled = false;
+  });
+}
+
+const handleCorrespondenceButtonClick = () => {
+  this.disabled = true;
+
+  const checkboxes = document.querySelectorAll('input[name="interrapidisimo"]');
+  const activeCardData = disableCheckboxesAndReturnActiveData(checkboxes);
+
+  if (activeCardData.length > 0) {
+    sendCorrespondence(activeCardData);
+  } else {
+    console.log('No cards are active.');
+    this.disabled = false;
+  }
+}
+
+document.getElementById('correspondence-button')?.addEventListener('click', handleCorrespondenceButtonClick);
+
+function handleDocumentChange() {
+  const checkboxes = document.querySelectorAll('input[name="interrapidisimo"]');
+  const atLeastOneChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+  const correspondenceButton = document.getElementById('correspondence-button');
+  const dateContainer = document.getElementById(`date-container`);
+  correspondenceButton.style.display = atLeastOneChecked ? 'block' : 'none';
+  dateContainer.style.display = atLeastOneChecked ? 'block' : 'none';
+}
+
+document.addEventListener('change', handleDocumentChange);
+
+function handleDocumentClick(event) {
+  const target = event.target;
+
+  if ( target.dataset.isInterrapidisimo === 'true') {
+    const id = target.id;
+    const card = document.getElementById(id);
+    const listGuidesElement = card.querySelector('[data-guides]');
+    const listGuides = listGuidesElement ? JSON.parse(listGuidesElement.dataset.guides) : [];
+    const branchCode = card.dataset.branch_code;
+
+    fetch('/inter/planilladeenvios', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: id,
+        listGuides: listGuides,
+        branchCode: branchCode,
+      }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      const url = data?.response?.urlDocument;
+      if (url) {
+        window.open(url, '_blank');
+      }
+    })
+    .catch(error => console.error('Error durante la solicitud:', error));
+  }
+}
+
+document.addEventListener('click', handleDocumentClick);
 
 //Actiualiza todos los inputs de fechas que hay en el documento
 for (let input_fecha of document.querySelectorAll('[type="date"]')) {
@@ -675,28 +859,27 @@ function activarBotonesDeGuias(id, data, activate_once) {
     $("#restaurar_guia" + id).on("click", async function (a) {
       console.log(data);
       usuarioAltDoc(data.id_user)
-          .collection("guias")
-          .doc(id)
-          .update({
-            deleted: false,
-            estadoActual: data.estadoAnterior,
-            seguimiento_finalizado: false,
-            estadoAnterior: data.estadoActual,
-          })
-          .then((res) => {
-            avisar(
-              "Guia Restaurada",
-              "La guia Número " + id + " Ha sido restaurada",
-              "alerta"
-            );
-            // $("#enviar-documentos").prop("disabled", false);
-            // row.remove();
-          })
-          .catch((error) => {
-            console.error("Error removing document: ", error);
-            // $("#enviar-documentos").prop("disabled", false);
-          });
-      
+        .collection("guias")
+        .doc(id)
+        .update({
+          deleted: false,
+          estadoActual: data.estadoAnterior,
+          seguimiento_finalizado: false,
+          estadoAnterior: data.estadoActual,
+        })
+        .then((res) => {
+          avisar(
+            "Guia Restaurada",
+            "La guia Número " + id + " Ha sido restaurada",
+            "alerta"
+          );
+          // $("#enviar-documentos").prop("disabled", false);
+          // row.remove();
+        })
+        .catch((error) => {
+          console.error("Error removing document: ", error);
+          // $("#enviar-documentos").prop("disabled", false);
+        });
     });
 
     $("#eliminar_guia" + id).on("click", async function (e) {
@@ -916,10 +1099,9 @@ function activarBotonesDeGuias(id, data, activate_once) {
       }
     });
 
-
     $("#generar_guiaflexii" + id).click(function () {
       let id = this.getAttribute("data-id");
-      console.log("generando guía "+id);
+      console.log("generando guía " + id);
       const guiaPunto = this.getAttribute("data-punto");
       if (guiaPunto) {
         imprimirRotuloPunto(id);
@@ -935,10 +1117,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
             });
           });
       }
-
     });
-
-
 
     $("#crear_sticker" + id).click(crearStickerParticular);
 
@@ -974,8 +1153,7 @@ function crearStickerParticular() {
   const id_user = this.getAttribute("data-id_user");
   console.log(id_heka);
 
-  generarSticker(id_user, id_heka)
-  .then((res) => {
+  generarSticker(id_user, id_heka).then((res) => {
     Toast.fire(res);
     actualizarHistorialDeDocumentos();
   });
@@ -983,54 +1161,54 @@ function crearStickerParticular() {
 
 async function generarSticker(id_user, id_heka) {
   return await usuarioAltDoc(id_user)
-  .collection("guias")
-  .doc(id_heka)
-  .get()
-  .then(async (doc) => {
-    if (doc.exists) {
-      const data = doc.data();
-      const para_crear = {
-        numeroGuia: data.numeroGuia,
-        id_heka: data.id_heka,
-        id_archivoCargar: data.id_archivoCargar, // paraservientrega (no es tan necesario)
-        prueba: data.prueba,
-        url: data.urlGuia,
-        oficina: data.oficina,
-        type: data.type,
-      };
-
-      let has_sticker;
-
-      if (data.transportadora === "INTERRAPIDISIMO") {
-        has_sticker = await generarStickerGuiaInterrapidisimo(para_crear);
-      } else if (data.transportadora === "SERVIENTREGA") {
-        has_sticker = await guardarStickerGuiaServientrega(para_crear);
-      } else if (data.transportadora === "ENVIA") {
-        has_sticker = await guardarStickerGuiaEnvia(para_crear);
-      } else if (data.transportadora === "COORDINADORA") {
-        has_sticker = await guardarStickerGuiaCoordinadora(para_crear);
-      } else {
-        has_sticker = await guardarStickerGuiaAveo(para_crear);
-      }
-
-      try {
-        if (!has_sticker) throw "No se creó el sticker";
-
-        return await doc.ref.update({ has_sticker }).then(() => {
-          return {
-            icon: "success",
-            text: "Sticker de guía creado exitósamente",
-          };
-        });
-      } catch (e) {
-        console.log(e);
-        return {
-          icon: "error",
-          text: "Lo siento, hubo un error para guardar el sticker",
+    .collection("guias")
+    .doc(id_heka)
+    .get()
+    .then(async (doc) => {
+      if (doc.exists) {
+        const data = doc.data();
+        const para_crear = {
+          numeroGuia: data.numeroGuia,
+          id_heka: data.id_heka,
+          id_archivoCargar: data.id_archivoCargar, // paraservientrega (no es tan necesario)
+          prueba: data.prueba,
+          url: data.urlGuia,
+          oficina: data.oficina,
+          type: data.type,
         };
+
+        let has_sticker;
+
+        if (data.transportadora === "INTERRAPIDISIMO") {
+          has_sticker = await generarStickerGuiaInterrapidisimo(para_crear);
+        } else if (data.transportadora === "SERVIENTREGA") {
+          has_sticker = await guardarStickerGuiaServientrega(para_crear);
+        } else if (data.transportadora === "ENVIA") {
+          has_sticker = await guardarStickerGuiaEnvia(para_crear);
+        } else if (data.transportadora === "COORDINADORA") {
+          has_sticker = await guardarStickerGuiaCoordinadora(para_crear);
+        } else {
+          has_sticker = await guardarStickerGuiaAveo(para_crear);
+        }
+
+        try {
+          if (!has_sticker) throw "No se creó el sticker";
+
+          return await doc.ref.update({ has_sticker }).then(() => {
+            return {
+              icon: "success",
+              text: "Sticker de guía creado exitósamente",
+            };
+          });
+        } catch (e) {
+          console.log(e);
+          return {
+            icon: "error",
+            text: "Lo siento, hubo un error para guardar el sticker",
+          };
+        }
       }
-    }
-  });
+    });
 }
 
 function editarGuiaCreada() {
@@ -1413,38 +1591,41 @@ function mostrarNotificacion(data, type, id) {
 function mostrarNotificacionEstaticaUsuario(noti, id) {
   if (noti.startDate > new Date().getTime()) return;
 
-  const nuevoMostrador = '<div class="mostrador-notificacion-estatica mb-3"></div>';
+  const nuevoMostrador =
+    '<div class="mostrador-notificacion-estatica mb-3"></div>';
   let parent;
-  if(noti.ubicacion) {
+  if (noti.ubicacion) {
     parent = $("#" + noti.ubicacion);
   } else {
-    parent = $(".container-fluid")
+    parent = $(".container-fluid");
   }
-  
-  if(!parent.has(".mostrador-notificacion-estatica").length) {
+
+  if (!parent.has(".mostrador-notificacion-estatica").length) {
     parent.prepend(nuevoMostrador);
   }
-  
+
   $(".mostrador-notificacion-estatica").each((i, mostrador) => {
     const alerta = document.createElement("div");
     const buttonCloseAlert = document.createElement("button");
-  
+
     alerta.setAttribute("class", `alert alert-${noti.icon[1]}`);
     alerta.setAttribute("role", "alert");
-  
+
     buttonCloseAlert.innerHTML = '<span aria-hidden="true">&times;</span>';
     buttonCloseAlert.classList.add("close");
     buttonCloseAlert.setAttribute("type", "button");
     buttonCloseAlert.setAttribute("data-dismiss", "alert");
     buttonCloseAlert.setAttribute("data-notification", id);
     buttonCloseAlert.setAttribute("aria-label", "close");
-    buttonCloseAlert.addEventListener("click", () => eliminarNotificacionparaUsuario(id));
-  
+    buttonCloseAlert.addEventListener("click", () =>
+      eliminarNotificacionparaUsuario(id)
+    );
+
     mostrador.append(alerta);
-  
+
     if (noti.allowDelete) alerta.appendChild(buttonCloseAlert);
     $(alerta).append(noti.mensaje);
-  
+
     // buttonCloseAlert.onclick = () => eliminarNotificacion(id);
   });
 }
@@ -1462,7 +1643,7 @@ async function mostrarNotificacionAlertaUsuario(noti, id) {
     opciones.cancelButtonText = "No volver a ver";
   }
 
-  if(noti.imageUrl) {
+  if (noti.imageUrl) {
     opciones.imageUrl = noti.imageUrl;
     opciones.imageAlt = "Imagen notificación";
   }
@@ -1485,11 +1666,13 @@ function eliminarNotificacionDinamica(id) {
   db.collection("centro_notificaciones").doc(id).delete();
 }
 function eliminarNotificacionparaUsuario(id) {
-  console.log(id)
-  const userid= localStorage.getItem("user_id");
-  db.collection("centro_notificaciones").doc(id).update({
-    usuarios: firebase.firestore.FieldValue.arrayRemove(userid)
-  });
+  console.log(id);
+  const userid = localStorage.getItem("user_id");
+  db.collection("centro_notificaciones")
+    .doc(id)
+    .update({
+      usuarios: firebase.firestore.FieldValue.arrayRemove(userid),
+    });
 }
 
 function userClickNotification(data) {
@@ -1815,9 +1998,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
             <td class="text-danger">${ultimo_movimiento.novedad}</td>
             <td>${data.transportadora || "Servientrega"}</td>
             <td>${
-              momento_novedad.fechaMov
-                ? momento_novedad.fechaMov
-                : "No aplica"
+              momento_novedad.fechaMov ? momento_novedad.fechaMov : "No aplica"
             }</td>
 
             <td class="text-center">
@@ -2004,10 +2185,11 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
           '" responde lo siguiente:</b> ' +
           text.trim(),
         fecha: new Date(),
+        gestionada: "Logistica",
         admin: true,
         type: "Individual",
       };
-      avisar("Se enviará mensaje al usuario", text);
+      Toast.fire("Se enviará mensaje al usuario", text, "info");
       if (extraData.seguimiento) {
         extraData.seguimiento.push(solucion);
       } else {
@@ -2075,11 +2257,11 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
             .doc(id_heka)
             .delete();
           boton_solucion.html("Solucionada");
-          avisar(
+          Toast.fire(
             "Guía Gestionada",
             "La guía " +
               data.numeroGuia +
-              " ha sido actualizada exitósamente como solucionada"
+              " ha sido actualizada exitósamente como solucionada", "success"
           );
         });
     }
@@ -2161,20 +2343,20 @@ function mostrarPosiblesRespuestasNovedad(domResp, textarea, mensaje = "") {
  * Función encargada de traducir el historial de movimiento de las guías para generar una segunda versión
  * De manera que si no tiene esa segunda versión, el fron la traduzca por completo para que se adapte a la nueva
  * con la intención de migrar toda las guías de a poco hacia una nueva versión que tenga una lectura más globalizada
- * @param {*} guia 
+ * @param {*} guia
  * @returns la guía cuyo historial de movimientos ya se encuentre traducido o la guía sin editar en caso que ya se encuentre en la versión 2
  */
 function generarSegundaVersionMovimientoGuias(guia) {
-  if(guia.version === 2) return guia; // Sigifica que la guía que se está tratando de leer está en su segunda versión, por lo que no es necesario traducir
+  if (guia.version === 2) return guia; // Sigifica que la guía que se está tratando de leer está en su segunda versión, por lo que no es necesario traducir
 
   guia.version = 2;
   const movTrad = traducirMovimientoGuia(guia.transportadora);
 
-  if(!guia.movimientos) return guia;
+  if (!guia.movimientos) return guia;
 
   guia.movimientosV1 = guia.movimientos;
 
-  guia.movimientos = guia.movimientos.map(mov => {
+  guia.movimientos = guia.movimientos.map((mov) => {
     const titulos = Object.keys(movTrad);
     const res = {};
     titulos.forEach((t) => (res[t] = mov[movTrad[t]]));
@@ -2187,12 +2369,16 @@ function generarSegundaVersionMovimientoGuias(guia) {
 // Function que devuelve un objeto con las "keys" que se prentan por cada transportadora para describir los movimientos
 function traducirMovimientoGuia(transportadora) {
   let traductor = new Object({
-    novedad: "Está presente cuando existe una novedad, si no hay simplemente se genera un string vacío",
+    novedad:
+      "Está presente cuando existe una novedad, si no hay simplemente se genera un string vacío",
     fechaMov: "La fecha en la que se efectuó dicho movimiento",
     observacion: "Algún detalle sobre el mmovimiento",
-    descripcionMov: "Una descripción que otorga la transportadora al actualizar un estado",
-    ubicacion: "El lugar en que se dió a cabo del movimiento (normalmente lo usa servientrega)",
-    tipoMotivo: "el tipo de motivo por el cual se determina la novedad (usado por servientrega)"
+    descripcionMov:
+      "Una descripción que otorga la transportadora al actualizar un estado",
+    ubicacion:
+      "El lugar en que se dió a cabo del movimiento (normalmente lo usa servientrega)",
+    tipoMotivo:
+      "el tipo de motivo por el cual se determina la novedad (usado por servientrega)",
   });
 
   switch (transportadora) {
@@ -2203,7 +2389,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "observacion",
         descripcionMov: "estado",
         ubicacion: "ciudad",
-        tipoMotivo: "TipoMov"
+        tipoMotivo: "TipoMov",
       };
     case "TCC":
       return {
@@ -2212,7 +2398,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "descripcion",
         descripcionMov: "estado",
         ubicacion: "ciudad",
-        tipoMotivo: "TipoMov"
+        tipoMotivo: "TipoMov",
       };
     case "INTERRAPIDISIMO":
       return {
@@ -2221,7 +2407,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "Motivo",
         descripcionMov: "Descripcion Estado",
         ubicacion: "Ciudad",
-        tipoMotivo: "TipoMov"
+        tipoMotivo: "TipoMov",
       };
     case "COORDINADORA":
       return {
@@ -2230,7 +2416,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "descripcion",
         descripcionMov: "descripcion",
         ubicacion: "Ciudad",
-        tipoMotivo: "TipoMov"
+        tipoMotivo: "TipoMov",
       };
     default:
       return {
@@ -2239,7 +2425,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "DesTipoMov",
         descripcionMov: "NomMov",
         ubicacion: "OriMov",
-        tipoMotivo: "TipoMov"
+        tipoMotivo: "TipoMov",
       };
   }
 }
@@ -2278,11 +2464,13 @@ function revisarNovedadV1(mov, transp) {
   }
 }
 
-
 function revisarNovedad(mov, transp) {
-  switch(transp) {
-    case "INTERRAPIDISIMO": case "ENVIA": case "TCC": case "COORDINADORA":
-      return !!mov.novedad
+  switch (transp) {
+    case "INTERRAPIDISIMO":
+    case "ENVIA":
+    case "TCC":
+    case "COORDINADORA":
+      return !!mov.novedad;
 
     default: // La transportadora por defecto es SERVIENTREGA
       if (listaNovedadesServientrega.length) {
@@ -2294,7 +2482,19 @@ function revisarNovedad(mov, transp) {
 }
 
 //dataN = data de la novedad, dataG = data de la guía
-function gestionarNovedadModal(dataN, dataG) {
+async function gestionarNovedadModal(dataN, dataG) {
+  console.log(dataG);
+  console.time("nueva consulta seguimiento")
+  const dataF = await firebase
+  .firestore()
+  .collection("usuarios")
+  .doc(dataG.id_user)
+  .collection("guias")
+  .doc(dataG.id_heka)
+  .get()
+  dataG = dataF.data()
+  console.timeEnd("nueva consulta seguimiento")
+  console.log(dataG);
   generarSegundaVersionMovimientoGuias(dataN); // Para que la lectura siempre esté adaptad aa la nueva versión
   // console.log(dataN.numeroGuia);
   // console.log(dataG)
@@ -2474,9 +2674,7 @@ function gestionarNovedadModal(dataN, dataG) {
       let enNovedad = revisarNovedad(mov, dataN.transportadora);
       const btnGuardarComoNovedad =
         guardarComoNovedad && mov.novedad
-          ? `<button class='btn btn-sm ml-2 btn-outline-danger registrar-novedad' data-novedad='${
-              mov.novedad
-            }'>Registrar novedad</button>`
+          ? `<button class='btn btn-sm ml-2 btn-outline-danger registrar-novedad' data-novedad='${mov.novedad}'>Registrar novedad</button>`
           : "";
 
       li.innerHTML = `
@@ -2522,6 +2720,9 @@ function gestionarNovedadModal(dataN, dataG) {
                 <div class="d-flexd-flex flex-column w-100">
                 <small class="d-flex justify-content-between">
                     <h6>${genFecha("LR", seg.fecha.toMillis())}</h6>
+                    <h6><b>${
+                      seg.gestionada && administracion ? seg.gestionada : ""
+                    }</b></h6>
                     <h6>${
                       seg.fecha
                         .toDate()
@@ -2529,6 +2730,11 @@ function gestionarNovedadModal(dataN, dataG) {
                         .match(/\d\d:\d\d/)[0]
                     }</h6>
                 </small>
+                <p>${
+                  seg.respuestaSeller && administracion
+                    ? seg.respuestaSeller
+                    : ""
+                }</p>
                 <p>
                     ${seg.gestion}
                 </p>
