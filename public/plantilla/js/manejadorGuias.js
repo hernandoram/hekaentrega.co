@@ -706,13 +706,13 @@ function crearDocumentos(e, dt, node, config) {
   let tipos_diferentes = revisarCompatibilidadGuiasSeleccionadas(arrGuias);
   const guia_automatizada = ['automatico', 'automaticoEmp'].includes(transportadoras[arrGuias[0].transportadora].sistema());
   //Si no corresponden, arroja una excepción
-  if (tipos_diferentes) {
+  if (tipos_diferentes.error) {
     node.prop('disabled', false);
 
     return Swal.fire({
       icon: 'error',
       title: '!No se pudo procesar la información!',
-      html: tipos_diferentes,
+      html: tipos_diferentes.text,
     });
   }
 
@@ -838,20 +838,28 @@ function crearDocumentos(e, dt, node, config) {
 los documentos cuenten con las mismas carácterísticas para no generar futuros errores
 y me devuelve el mensaje con el error*/
 function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
-  let mensaje;
+  const mensaje = {
+    error: false,
+    text: "",
+    causa: ""
+  };
   const diferentes = arrGuias.some((v, i, arr) => {
     const generacion_automatizada = ['automatico', 'automaticoEmp'].includes(transportadoras[v.transportadora].sistema());
     if (v.type != arr[i ? i - 1 : i].type) {
-      mensaje = 'Los tipos de guías empacadas no coinciden.';
+      mensaje.causa = "TIPO";
+      mensaje.text = 'Los tipos de guías empacadas no coinciden.';
       return true;
     } else if (v.transportadora != arr[i ? i - 1 : i].transportadora) {
-      mensaje = 'Las transportadoras empacadas no coinciden.';
+      mensaje.causa = "TRANSPORTADORA";
+      mensaje.text = 'Las transportadoras empacadas no coinciden.';
       return true;
     } else if (v.codigo_sucursal != arr[i ? i - 1 : i].codigo_sucursal && v.transportadora == 'INTERRAPIDISIMO') {
-      mensaje = 'Para empacar guías de interrapidísimo, es necesario que todas las guías pertenezcan a la misma bodega.';
+      mensaje.causa = "COD-SUCURSAL";
+      mensaje.text = 'Para empacar guías de interrapidísimo, es necesario que todas las guías pertenezcan a la misma bodega.';
       return true;
     } else if (generacion_automatizada && !v.numeroGuia) {
-      mensaje =
+      mensaje.causa = "AUTOMATICA-GUIA"
+      mensaje.text =
         'Para el modo automático de guías, es necesario que todas las empacadas contengan el número de guía de la transportadora. <br/> Se recomienda desactivar el sistema automatizado para generar guias (que se encuentra en el cotizador), de esta forma, se le será permitido crear el documento con la guía nro. ' +
         v.id_heka;
 
@@ -865,21 +873,29 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
 
       const cantidad = guias.length;
 
-      mensaje =
+      mensaje.causa = "STICKER";
+      mensaje.text =
         'Por alguna razón, la(s) guía(s) ' +
         guias +
         ' no fue(ron) creada(s) completamente, para finalizar el proceso correcto, ' +
         "presione <i class='fa fa-stamp rounded'></i> o intente clonar la guía para generarle el documento correctamente.";
       let match = cantidad > 1 ? /\(|\)/g : /\(\w+\)/g;
-      mensaje = mensaje.replace(match, '');
+      mensaje.text = mensaje.text.replace(match, '');
       return true;
     } else if (ControlUsuario.esPuntoEnvio && v.id_user != arr[i ? i - 1 : i].id_user) {
-      mensaje = 'Los usuarios empacadas no coinciden.';
+      mensaje.causa = "USUARIO-OFFY";
+      mensaje.text = 'Los usuarios empacadas no coinciden.';
+      return true;
+    } else if (!generacion_automatizada && v.id_tipo_entrega !== arr[i ? i - 1 : i].id_tipo_entrega) {
+      mensaje.causa = "TIPO-ENTREGA";
+      mensaje.text = "Si se intentan generar guías manuales, se debe seleccionar el mismo tipo de entrega (dirección u oficina) en el mismo conjunto de guías a procesar.";
       return true;
     }
 
     return false;
   });
+
+  if(mensaje.text) mensaje.error = true;
 
   return mensaje;
 }
@@ -2077,7 +2093,7 @@ function descargarExcelInter(JSONData, ReportTitle, type) {
     ['ID DESTINATARIO', '_idDestinatario'],
     ['NOMBRE DESTINATARIO', '_nombreD'],
     ['APELLIDO1 DESTINATARIO', '_apellidoD'],
-    ['APELLIDO2 DESTINATARIO', ''],
+    ['APELLIDO2 DESTINATARIO', '-'],
     ['TELEFONO DESTINATARIO', 'telefonoD'],
     ['DIRECCION DESTINATARIO', 'direccionD'],
     ['CODIGO CIUDAD DESTINO', 'dane_ciudadD'],
