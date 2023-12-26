@@ -4095,7 +4095,7 @@ async function generarGuiaInterrapidisimo(datos) {
       body: JSON.stringify(datos),
     },
     3, // maxRetries
-    2 // segundos
+    20 // segundos
   )
     .then((d) => {
       if (d.status === 500)
