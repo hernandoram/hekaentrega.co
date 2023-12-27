@@ -2272,7 +2272,6 @@ function cargarUsuariosFrecuentes(personas) {
 }
 
 function enviarUsuarioFrecuente() {
-  console.log("hola");
   //inputs importantes
   const guardarUsuario = document.getElementById("guardarUsuario");
   const modificarUser = document.getElementById("modificarUser");
@@ -2526,6 +2525,9 @@ function verificarSelectorEntregaOficina(e) {
         .val("Oficina principal interrapidisimo");
     } else {
       inpDir.prop("disabled", false).val("");
+      inputBarrio
+      .prop("disabled", false)
+      .val("");
     }
   }
 }
