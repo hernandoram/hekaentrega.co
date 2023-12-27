@@ -4087,15 +4087,13 @@ async function guardarStickerGuiaServientrega(data) {
 
 //función para consultar la api en el back para crear guiade inter rapidisimo.
 async function generarGuiaInterrapidisimo(datos) {
-  let respuesta = await fetchWithRetry(
+  let respuesta = await fetch(
     "/inter/crearGuia",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(datos),
     },
-    3, // maxRetries
-    20 // segundos
   )
     .then((d) => {
       if (d.status === 500)
