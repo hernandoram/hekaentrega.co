@@ -162,18 +162,16 @@ function revisarMovimientosGuiasCallcenter(admin, seguimiento, id_heka, guia) {
             querySnapshot.size == 0
             ? $("#cargador-callcenter").addClass("d-none")
             : "";
-            let contador = 0;
             let size = querySnapshot.size;
             querySnapshot.forEach((doc) => {
               let path = doc.ref.path.split("/");
               let dato = doc.data();
-              contador++;
               consultarGuiaFbCallcenter(
                 path[1],
                 doc.id,
                 dato,
                 dato.centro_de_costo,
-                contador,
+                i + 1,
                 size
               );
               // console.log(doc.data());
@@ -195,18 +193,16 @@ function revisarMovimientosGuiasCallcenter(admin, seguimiento, id_heka, guia) {
             querySnapshot.size == 0
             ? $("#cargador-callcenter").addClass("d-none")
             : "";
-            let contador = 0;
             let size = querySnapshot.size;
             querySnapshot.forEach((doc) => {
               let path = doc.ref.path.split("/");
               let dato = doc.data();
-              contador++;
               consultarGuiaFbCallcenter(
                 path[1],
                 doc.id,
                 dato,
                 dato.centro_de_costo,
-                contador,
+                i + 1,
                 size
               );
             });
