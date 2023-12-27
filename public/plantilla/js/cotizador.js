@@ -14,7 +14,9 @@ const bloqueo_direcciones_inter = [
   "13810011",
   "68298002",
 ];
-const bloqueo_direcciones_envia = ["97666000", "52427000"];
+const bloqueo_direcciones_envia = ["97666000", "52427000", "13188000"];
+
+
 // Objeto principal en que se basa la transportadora a ser utilizada
 let transportadoras = {
   SERVIENTREGA: {
@@ -2270,7 +2272,6 @@ function cargarUsuariosFrecuentes(personas) {
 }
 
 function enviarUsuarioFrecuente() {
-  console.log("hola");
   //inputs importantes
   const guardarUsuario = document.getElementById("guardarUsuario");
   const modificarUser = document.getElementById("modificarUser");
@@ -2524,6 +2525,9 @@ function verificarSelectorEntregaOficina(e) {
         .val("Oficina principal interrapidisimo");
     } else {
       inpDir.prop("disabled", false).val("");
+      inputBarrio
+      .prop("disabled", false)
+      .val("");
     }
   }
 }
@@ -3132,6 +3136,9 @@ class CalcularCostoDeEnvio {
 
   async cotizarEnvia(origen, destino) {
     console.log("Cotizando envía");
+
+  
+    
     const data = {
       ciudad_origen: origen,
       ciudad_destino: destino,
@@ -4082,15 +4089,13 @@ async function guardarStickerGuiaServientrega(data) {
 
 //función para consultar la api en el back para crear guiade inter rapidisimo.
 async function generarGuiaInterrapidisimo(datos) {
-  let respuesta = await fetchWithRetry(
+  let respuesta = await fetch(
     "/inter/crearGuia",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(datos),
     },
-    3, // maxRetries
-    2 // segundos
   )
     .then((d) => {
       if (d.status === 500)

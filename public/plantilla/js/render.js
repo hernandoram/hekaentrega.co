@@ -566,91 +566,266 @@ function genFecha(direccion, milliseconds) {
 }
 
 //Retorna una tabla de documentos filtrados
-function mostrarDocumentosUsuario(id, data) {
-  return `<div class="col-sm-6 col-lg-4 mb-4">
-        <div class="card border-bottom-info shadow h-100 py-2" id="${id}">
-            <h6 class='text-center card-header'>${
-              data.transportadora || "Servientrega"
-            }</h6>
+function renderUserDocumentCard(id, data) {
+  const isInterrapidisimo = data.transportadora && data.transportadora.toUpperCase() === "INTERRAPIDISIMO";
+  const checkboxInput = isInterrapidisimo
+    ? `<input type="checkbox" id="checkbox-interrapidisimo-${id}" name="interrapidisimo" value="${id}" ${data.idRecogida ? 'disabled' : ''}>`
+    : '';
 
-            <div class="card-body">
-            <h5 class="card-title font-weight-bold text-info text-uppercase mb-2">${
-              data.nombre_usuario
-            }</h5>
-            <div class="row no-gutters align-items-center">
-                <div class="col mr-2">
-                    <div class="row no-gutters align-items-center">
-                        <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800 w-100">
-                            <p class="text-truncate"
-                            style="cursor: zoom-in"
-                            data-mostrar="texto">Id Guias Generadas: <br><small class="text-break">${
-                              data.guias
-                            }</small> </p>
-                            <p>Tipo: <small class="text-break">${
-                              data.type || "PAGO CONTRAENTREGA"
-                            }</span></p>
-                            <p>Fecha: <small>${data.fecha}</small></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-auto">
-                    <i class="fa fa-file fa-2x text-gray-300" data-id_guia="${id}" 
-                    data-guias="${data.guias}" data-nombre_guias="${
-    data.nombre_guias
-  }"
-                    data-nombre_relacion="${data.nombre_relacion}"
-                    data-user="${data.id_user}" data-funcion="descargar-docs" 
-                    id="descargar-docs${id}"></i>
+  const idRecogicaInfo = data.idRecogida ? `<p>Id Recogida: <small class="text-break">${data.idRecogida}</small></p>` : '';
 
-                    <span class="badge-pill badge-primary float-right">${
-                      data.guias.length
-                    }</span>
+  return `
+    <div class="col-sm-6 col-lg-4 mb-4">
+      <div class="card border-bottom-info shadow h-100 py-2" id="${id}" data-branch_code="${data.codigo_sucursal || ''}">
+        <h6 class='text-center card-header'>
+          ${data.transportadora || "Servientrega"}
+          ${checkboxInput}
+        </h6>
+
+        <div class="card-body">
+          <h5 class="card-title font-weight-bold text-info text-uppercase mb-2">${data.nombre_usuario}</h5>
+          <div class="row no-gutters align-items-center">
+            <div class="col mr-2">
+              <div class="row no-gutters align-items-center">
+                <div class="h6 mb-0 mr-3 font-weight-bold text-gray-800 w-100">
+                  <p class="text-truncate" style="cursor: zoom-in" data-display="text">
+                    Id Guias Generadas: <br>
+                    <small class="text-break" data-guides="[${data.guias.join(', ')}]">${data.guias}</small>
+                    ${idRecogicaInfo}
+                  </p>
+                  <p>Tipo: <small class="text-break">${data.type || "PAGO CONTRAENTREGA"}</span></p>
+                  <p>Fecha: <small class="fecha">${data.fecha}</small></p>
                 </div>
+              </div>
             </div>
-                <div class="row" data-guias="${data.guias.toString()}" data-id_guia="${id}" data-user="${
-    data.id_user
-  }" data-nombre="${data.nombre_usuario}">
-                    <div class="d-none">
-                        <button class="col-12 btn btn-info mb-2" 
-                        type="button" id="boton-descargar-guias${id}" disabled>
-                            Descargar Guías
-                        </button>
-                        <button class="col btn btn-info mb-2" 
-                        type="button" id="boton-descargar-relacion_envio${id}" disabled>
-                            Descargar Manifiesto
-                        </button>
-                        <button class="col-12 btn btn-info mb-2" 
-                        type="button" id="boton-generar-rotulo${id}">Genera Rótulo</button>
-                    </div>
-                    <div class="col-12 dropdown">
-                        <button class="col-12 btn btn-info dropdown-toggle text-truncate" title="Subir documentos" type="button" id="acciones-documento${id}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                            Descargar
-                        </button>
-                        ${
-                          datos_usuario.type !== "NATURAL-FLEXII"
-                            ? `
-                           <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
-                           <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-guias${id}">Guías</label>
-                           <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-descargar-relacion_envio${id}">Manifiesto</label>
-                           <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-generar-rotulo${id}">Rótulos</label>
-                       </div>
-                           `
-                            : `
-                           <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
-
-                           <label class="dropdown-item form-control" data-funcion="cargar-documentos" for="boton-generar-rotulo${id}">Guía</label>
-                           </div>
-
-                           `
-                        }
-
-                
-                    </div>
-                </div>
+            <div class="col-auto">
+              <i class="fa fa-file fa-2x text-gray-300" data-id_guia="${id}" 
+                data-guides="${data.guias}" data-guide_name="${data.nombre_guias}"
+                data-related_name="${data.nombre_relacion}" data-user="${data.id_user}" 
+                data-action="download-docs" id="descargar-docs${id}"></i>
+              <span class="badge-pill badge-primary float-right">${data.guias.length}</span>
             </div>
+          </div>
+          <div class="row" data-guides="${data.guias.toString()}" data-id_guia="${id}" data-user="${data.id_user}" data-name="${data.nombre_usuario}">
+            <div class="d-none">
+              <button class="col-12 btn btn-info mb-2" type="button" id="boton-descargar-guias${id}" disabled>
+                Descargar Guías
+              </button>
+              <button class="col btn btn-info mb-2" type="button" id="boton-descargar-relacion_envio${id}" disabled>
+                Descargar Manifiesto
+              </button>
+              <button class="col-12 btn btn-info mb-2" type="button" id="boton-generar-rotulo${id}">Genera Rótulo</button>
+            </div>
+            <div class="col-12 dropdown">
+              <button class="col-12 btn btn-info dropdown-toggle text-truncate" title="Subir documentos" 
+                type="button" id="acciones-documento${id}" data-toggle="dropdown" 
+                aria-haspopup="true" aria-expanded="false">
+                Descargar
+              </button>
+              <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
+                <label class="dropdown-item form-control" data-action="upload-documents" for="boton-descargar-guias${id}">Guías</label>
+                <label class="dropdown-item form-control" data-action="upload-documents" data-is-interrapidisimo="${isInterrapidisimo}" for="boton-descargar-relacion_envio${isInterrapidisimo ? '_inter' : ''}${id}" id="${id}">Manifiesto</label>
+                <label class="dropdown-item form-control" data-action="upload-documents" for="boton-generar-rotulo${id}">Rótulos</label>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>`;
 }
+
+function handleCheckboxChange(event) {
+  if (event.target.type === 'checkbox' && event.target.name === 'interrapidisimo') {
+    const isChecked = event.target.checked;
+    const id = event.target.value;
+    const cardData = getCardData(id);
+    storeCardData(cardData);
+    const dateContainer = document.getElementById(`date-container`);
+    const dateInput = document.getElementById(`date-input`);
+    if (dateInput) {
+      dateContainer.style.display = isChecked ? 'block' : 'none';
+      dateInput.disabled = !isChecked;
+      if (isChecked) {
+        const today = new Date();
+        today.setDate(today.getDate() + 1);
+        const tomorrowISOString = today.toISOString().split('.')[0];
+        dateInput.setAttribute('min', tomorrowISOString);
+        dateInput.value = tomorrowISOString;
+      }
+    }
+  }
+}
+
+document.addEventListener('change', handleCheckboxChange);
+
+function getCardData(id) {
+  const card = document.getElementById(id);
+  const checkbox = card.querySelector('input[name="interrapidisimo"]');
+  
+  if (checkbox && checkbox.checked) {
+    const dateElement = document.getElementById('date-input');
+    const date = dateElement ? dateElement.value.replace('T', ' ').replace(/\:\d+$/, '') : '';
+    const listGuidesElement = card.querySelector('[data-guides]');
+    const listGuides = listGuidesElement ? JSON.parse(listGuidesElement.dataset.guides) : [];
+    const branchCode = card.dataset.branch_code;
+    return { id, date, listGuides, branchCode };
+  }
+
+  return null;
+}
+
+function storeCardData(cardData) {
+  if (cardData) {
+    if (!window.activeCardData) {
+      window.activeCardData = [];
+    }
+    const index = window.activeCardData.findIndex(data => data.id === cardData.id);
+
+    if (index !== -1) {
+      window.activeCardData[index] = cardData;
+    } else {
+      window.activeCardData.push(cardData);
+    }
+  }
+}
+
+function disableCheckboxesAndReturnActiveData(checkboxes) {
+  const activeCardData = [];
+
+  checkboxes.forEach(checkbox => {
+    const id = checkbox.value;
+    const cardData = getCardData(id);
+    if (cardData && cardData.branchCode) {
+      checkbox.checked = false;
+      checkbox.disabled = true;
+      const correspondenceButton = document.getElementById('correspondence-button');
+      correspondenceButton.style.display = 'none';
+      activeCardData.push(cardData);
+    }
+  });
+
+  return activeCardData;
+}
+
+const sendCorrespondence = (activeCardData) => {
+  const jsonData = JSON.stringify(activeCardData, null, 2);
+  console.log(jsonData);
+
+  fetch('/inter/recogidaesporadica', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: jsonData,
+  })
+  .then(response => {
+    console.log(response);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response.json();
+  })
+  .then(data => {
+    correspondenceSentSuccessfully = true;
+
+    const successModal = document.getElementById('successModal');
+    if (successModal) {
+      const titleElement = successModal.querySelector('.modal-title');
+      const bodyElement = successModal.querySelector('.modal-body');
+      titleElement.textContent = data.title || 'Operación exitosa';
+      bodyElement.textContent = data.message || 'Su correspondencia fue creada con éxito';
+
+      $(successModal).modal('show');
+      $(successModal).on('shown.bs.modal', function () {
+        setTimeout(function () {
+          $(successModal).modal('hide');
+        }, 2000);
+      });
+    }
+  })
+  .catch(error => {
+    console.error('Error during POST:', error);
+
+    const errorModal = document.getElementById('successModal');
+    if (errorModal) {
+      const titleElement = errorModal.querySelector('.modal-title');
+      const bodyElement = errorModal.querySelector('.modal-body');
+      titleElement.textContent = 'Error';
+      bodyElement.textContent = error.message || 'Error en la solicitud';
+
+      $(errorModal).modal('show');
+      $(errorModal).on('shown.bs.modal', function () {
+        setTimeout(function () {
+          $(errorModal).modal('hide');
+        }, 2000);
+      });
+    }
+  })
+  .finally(() => {
+    this.disabled = false;
+  });
+}
+
+const handleCorrespondenceButtonClick = () => {
+  this.disabled = true;
+
+  const checkboxes = document.querySelectorAll('input[name="interrapidisimo"]');
+  const activeCardData = disableCheckboxesAndReturnActiveData(checkboxes);
+
+  if (activeCardData.length > 0) {
+    sendCorrespondence(activeCardData);
+  } else {
+    console.log('No cards are active.');
+    this.disabled = false;
+  }
+}
+
+document.getElementById('correspondence-button')?.addEventListener('click', handleCorrespondenceButtonClick);
+
+function handleDocumentChange() {
+  const checkboxes = document.querySelectorAll('input[name="interrapidisimo"]');
+  const atLeastOneChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+  const correspondenceButton = document.getElementById('correspondence-button');
+  const dateContainer = document.getElementById(`date-container`);
+  correspondenceButton.style.display = atLeastOneChecked ? 'block' : 'none';
+  dateContainer.style.display = atLeastOneChecked ? 'block' : 'none';
+}
+
+document.addEventListener('change', handleDocumentChange);
+
+function handleDocumentClick(event) {
+  const target = event.target;
+
+  if ( target.dataset.isInterrapidisimo === 'true') {
+    const id = target.id;
+    const card = document.getElementById(id);
+    const listGuidesElement = card.querySelector('[data-guides]');
+    const listGuides = listGuidesElement ? JSON.parse(listGuidesElement.dataset.guides) : [];
+    const branchCode = card.dataset.branch_code;
+
+    fetch('/inter/planilladeenvios', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: id,
+        listGuides: listGuides,
+        branchCode: branchCode,
+      }),
+    })
+    .then(response => response.json())
+    .then(data => {
+      const url = data?.response?.urlDocument;
+      if (url) {
+        window.open(url, '_blank');
+      }
+    })
+    .catch(error => console.error('Error durante la solicitud:', error));
+  }
+}
+
+document.addEventListener('click', handleDocumentClick);
 
 //Actiualiza todos los inputs de fechas que hay en el documento
 for (let input_fecha of document.querySelectorAll('[type="date"]')) {
