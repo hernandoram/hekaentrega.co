@@ -3507,6 +3507,16 @@ function crearGuia() {
         text: "Por favor espere mientras le generamos su nueva Guía",
         didOpen: () => {
           Swal.showLoading();
+
+          setTimeout(() => {
+            if (Swal.isVisible()) {
+              Swal.update({
+                text: "La creación de la guía se está demorando más de lo usual, hay problemas de conexión con la transportadora",
+              });
+
+              Swal.showLoading();
+            }
+          }, 10000);
         },
         allowOutsideClick: false,
         allowEnterKey: false,
@@ -4082,7 +4092,8 @@ async function guardarStickerGuiaServientrega(data) {
   return false;
 }
 
-//función para consultar la api en el back para crear guiade inter rapidisimo.
+//función para consultar la api en el back para crear guiade inter rapidisimo.}
+// IMPORTANTE!
 async function generarGuiaInterrapidisimo(datos) {
   let respuesta = await fetch("/inter/crearGuia", {
     method: "POST",
@@ -4140,8 +4151,6 @@ async function generarGuiaInterrapidisimo(datos) {
   respuesta.has_sticker = await generarStickerGuiaInterrapidisimo(respuesta);
 
   console.log("interrapidísimo => ", respuesta);
-
-  setTimeout(() => controller.abort(), 5000);
 
   return respuesta;
 }
