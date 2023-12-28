@@ -4104,7 +4104,7 @@ async function generarGuiaInterrapidisimo(datos) {
       if (d.status === 500)
         return {
           message:
-            "Ocurrió un error interno con la transportadora, por favor intente nuevamente.",
+            "Ocurrió un error  interno con la transportadora, por favor intente nuevamente.",
         };
 
       return d.json();
