@@ -1448,6 +1448,44 @@
           <div class="container-fluid" id="novedades" style="display: none;">
             <div class="card mt-1">
               <div class="card-body">
+
+                <form enctype="multipart/form-data" id="form-novedades">
+                  <div class="form-group">
+                    <div class="input-group mb-3">
+                      <input type="text" class="form-control" id="filtrado-novedades-guias" placeholder="Guía1, Guía2, etc..." 
+                        aria-label="Guias" aria-describedby="btn-revisar-novedades">
+                      <input type="text" class="form-control" id="filtrado-novedades-usuario" placeholder="Centro de costo" 
+                      aria-label="Usuario" aria-describedby="btn-revisar-novedades">
+                      <select name="activador_busq_novedades" class="form-control" id="activador_busq_novedades">
+                        <option value="">Buscar solo novedades</option>
+                        <option value="INTERRAPIDISIMO">Interrapidísimo</option>
+                        <option value="SERVIENTREGA">Servientrega</option>
+                        <option value="ENVIA">Envía</option>
+                        <option value="COORDINADORA">Coordinadora</option>
+                      </select>
+                    </div>
+                    <div class="input-group d-none">
+                      <div class="custom-file">
+                        <input type="file" class="custom-file-input" id="cargar_gest-novedades" accept=".xlsx" name="documento" lang="es">
+                        <label class="custom-file-label" for="cargar_gest-novedades">Seleccionar Archivo</label>
+                      </div>
+                      <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="btn_descargar_gest-novedades">Descargar gestiones</button>
+                      </div>
+                    </div>
+
+                  
+                    <div class="btn-group col-12">
+                      <button type="button" id="btn-vaciar-consulta" 
+                      class="btn btn-secondary mt-4">Limpiar Consulta</button>
+                      <button type="button" id="btn-revisar-novedades"
+                       class="btn btn-primary mt-4">Revisar Movimientos</button>
+                    </div>
+                  
+                  </div>
+                </form>
+
+<!-- 
                 <form enctype="multipart/form-data" id="form-novedades">
                   <div class="form-group">
                     
@@ -1459,7 +1497,7 @@
                       class="btn btn-primary mt-4">Consultar Novedades</button>
                     </div>
                   </div>
-                </form>
+                </form> -->
               </div>
             </div>
             <div class="d-flex justify-content-center">

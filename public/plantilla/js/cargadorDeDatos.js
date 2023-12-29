@@ -2336,3 +2336,4 @@ textModal.addEventListener("click", function () {
 });
 
 traerNoti();
+
