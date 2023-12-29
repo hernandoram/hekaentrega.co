@@ -3714,8 +3714,6 @@ function revisarNovedades(usertype, transportadora) {
   const cargadorClass = document.getElementById("cargador-novedades").classList;
   cargadorClass.remove("d-none");
 
-  //JOSEEE
-
   if (usertype == "administracion") {
     const usuarios = new Set();
     firebase
@@ -3763,7 +3761,7 @@ function revisarNovedades(usertype, transportadora) {
       .collectionGroup("estadoGuias")
       .where("enNovedad", "==", true)
       .where("transportadora", "==", transportadora)
-      .where("centro_de_costo", "==", "Sellercompradorseguro") // NOMBRE SELLER
+      .where("centro_de_costo", "==", datos_usuario.centro_de_costo) // NOMBRE SELLER
       .limit(10)
       .get()
       .then((q) => {
