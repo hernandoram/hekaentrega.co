@@ -3657,50 +3657,102 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
   }
 }
 
-function revisarNovedades(transportadora) {
+function revisarNovedades(usertype, transportadora) {
   novedadesExcelData = [];
+
+  console.log(usertype);
 
   const cargadorClass = document.getElementById("cargador-novedades").classList;
   cargadorClass.remove("d-none");
 
-  const usuarios = new Set();
-  firebase
-    .firestore()
-    .collectionGroup("estadoGuias")
-    .where("enNovedad", "==", true)
-    .where("transportadora", "==", transportadora)
-    // .limit(10)
-    .get()
-    .then((q) => {
-      let contador = 0;
-      let size = q.size;
-      console.log(size);
+  //JOSEEE
 
-      if (!size) cargadorClass.add("d-none");
+  if (usertype == "administracion") {
+    const usuarios = new Set();
+    firebase
+      .firestore()
+      .collectionGroup("estadoGuias")
+      .where("enNovedad", "==", true)
+      .where("transportadora", "==", transportadora)
+      .limit(10)
+      .get()
+      .then((q) => {
+        let contador = 0;
+        let size = q.size;
 
-      q.forEach((d) => {
-        let path = d.ref.path.split("/");
-        let dato = d.data();
-        contador++;
+        console.log("tamaño", size);
 
-        usuarios.add(path[1]);
+        if (!size) cargadorClass.add("d-none");
 
-        consultarGuiaFb(
-          path[1],
-          d.id,
-          dato,
-          dato.centro_de_costo,
-          contador,
-          size
-        );
+        q.forEach((d) => {
+          let path = d.ref.path.split("/");
+          let dato = d.data();
+          contador++;
+          console.log(dato);
+
+          usuarios.add(path[1]);
+
+          consultarGuiaFb(
+            path[1],
+            d.id,
+            dato,
+            dato.centro_de_costo,
+            contador,
+            size
+          );
+        });
+
+        // if (revisarTiempoGuiasActualizadas()) return;
+        // usuarios.forEach(actualizarEstadosEnNovedadUsuario);
+
+        // localStorage.last_update_novedad = new Date();
       });
 
-      if (revisarTiempoGuiasActualizadas()) return;
 
-      usuarios.forEach(actualizarEstadosEnNovedadUsuario);
 
-      localStorage.last_update_novedad = new Date();
-    });
+
+    } else {
+    const usuarios = new Set();
+    firebase
+      .firestore()
+      .collectionGroup("estadoGuias")
+      .where("enNovedad", "==", true)
+      .where("transportadora", "==", transportadora)
+      .where("centro_de_costo", "==", "Sellercompradorseguro") // NOMBRE SELLER
+      .limit(10)
+      .get()
+      .then((q) => {
+        let contador = 0;
+        let size = q.size;
+        console.log(size);
+
+        if (!size) cargadorClass.add("d-none");
+
+        q.forEach((d) => {
+          let path = d.ref.path.split("/");
+          let dato = d.data();
+          contador++;
+          console.log(dato);
+
+          usuarios.add(path[1]);
+
+          consultarGuiaFb(
+            path[1],
+            d.id,
+            dato,
+            dato.centro_de_costo,
+            contador,
+            size
+          );
+        });
+
+        if (revisarTiempoGuiasActualizadas()) return;
+
+        usuarios.forEach(actualizarEstadosEnNovedadUsuario);
+
+        localStorage.last_update_novedad = new Date();
+      });
+  }
 }
 
 async function actualizarEstadoGuia(numeroGuia, id_user = user_id, wait) {
@@ -3763,14 +3815,18 @@ document
 
     const novedades_transportadora = $("#activador_busq_novedades").val();
 
+    const userType = administracion ? "administracion" : "usuario";
+
+    let admin = userType === "administracion";
+
     // if (administracion && novedades_transportadora) {
-    if (administracion && novedades_transportadora) {
+    if (novedades_transportadora) {
       console.log("Buscando novedades");
-      revisarNovedades(novedades_transportadora);
+      revisarNovedades(userType, novedades_transportadora);
     } else {
       if (
         // administracion &&
-        administracion &&
+        admin &&
         !$("#filtrado-novedades-guias").val() &&
         !$("#filtrado-novedades-usuario").val()
       ) {
@@ -3783,13 +3839,12 @@ document
       }
 
       console.log("Busqueda natural");
-      revisarMovimientosGuias(administracion);
+      revisarMovimientosGuias(admin);
     }
 
     console.log("Busqueda natural");
-    revisarMovimientosGuias(administracion);
+    revisarMovimientosGuias(admin);
   });
-
 
 let inputExcelDoc = document.getElementById("excelDocSoluciones");
 let excelDocSoluciones = document.getElementById("descargarExcelNovedades");

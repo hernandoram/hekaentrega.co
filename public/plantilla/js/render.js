@@ -2087,7 +2087,6 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
     mensaje.innerHTML = "Tiempo óptimo de solución: 24 horas";
     cuerpo.append(mensaje, table);
     card.append(encabezado, cuerpo);
-    console.log(card);
     document.getElementById("visor_novedades").appendChild(card);
 
     //logica para borrar los elementos del localstorage
@@ -2098,15 +2097,12 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
 
     const filteredItems = keys.filter((key) => key.startsWith("tiempoguia"));
 
-    console.log(filteredItems);
 
     filteredItems.forEach((key) => {
       const value = localStorageItems.getItem(key);
       const fecha = new Date(value);
       const fechamil = fecha.getTime();
       const fechaactual = new Date();
-      console.log(fechaactual.getTime() - fechamil);
-
       if (21600000 - fechaactual.getTime() - fechamil >= 1) {
         localStorage.removeItem(key);
       }
