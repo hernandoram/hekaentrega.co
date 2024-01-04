@@ -63,6 +63,7 @@ const summernoteOptions = {
     ["font", ["fontsize", "fontname"]],
     ["color", ["color"]],
     ["paragraph", ["ul", "ol", "paragraph", "height", "fullscreen"]],
+    ["insert", ["link"]], // Agregado aquí
   ],
   lang: "es-ES",
 };

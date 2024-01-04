@@ -16,7 +16,6 @@ const bloqueo_direcciones_inter = [
 ];
 const bloqueo_direcciones_envia = ["97666000", "52427000", "13188000"];
 
-
 // Objeto principal en que se basa la transportadora a ser utilizada
 let transportadoras = {
   SERVIENTREGA: {
@@ -2525,9 +2524,7 @@ function verificarSelectorEntregaOficina(e) {
         .val("Oficina principal interrapidisimo");
     } else {
       inpDir.prop("disabled", false).val("");
-      inputBarrio
-      .prop("disabled", false)
-      .val("");
+      inputBarrio.prop("disabled", false).val("");
     }
   }
 }
@@ -3137,8 +3134,6 @@ class CalcularCostoDeEnvio {
   async cotizarEnvia(origen, destino) {
     console.log("Cotizando envía");
 
-  
-    
     const data = {
       ciudad_origen: origen,
       ciudad_destino: destino,
@@ -3512,6 +3507,16 @@ function crearGuia() {
         text: "Por favor espere mientras le generamos su nueva Guía",
         didOpen: () => {
           Swal.showLoading();
+
+          setTimeout(() => {
+            if (Swal.isVisible()) {
+              Swal.update({
+                text: "La creación de la guía se está demorando más de lo usual, hay problemas de conexión con la transportadora",
+              });
+
+              Swal.showLoading();
+            }
+          }, 10000);
         },
         allowOutsideClick: false,
         allowEnterKey: false,
@@ -4087,21 +4092,19 @@ async function guardarStickerGuiaServientrega(data) {
   return false;
 }
 
-//función para consultar la api en el back para crear guiade inter rapidisimo.
+//función para consultar la api en el back para crear guiade inter rapidisimo.}
+// IMPORTANTE!
 async function generarGuiaInterrapidisimo(datos) {
-  let respuesta = await fetch(
-    "/inter/crearGuia",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(datos),
-    },
-  )
+  let respuesta = await fetch("/inter/crearGuia", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(datos),
+  })
     .then((d) => {
       if (d.status === 500)
         return {
           message:
-            "Ocurrió un error interno con la transportadora, por favor intente nuevamente.",
+            "Ocurrió un error  interno con la transportadora, por favor intente nuevamente.",
         };
 
       return d.json();
@@ -4148,8 +4151,6 @@ async function generarGuiaInterrapidisimo(datos) {
   respuesta.has_sticker = await generarStickerGuiaInterrapidisimo(respuesta);
 
   console.log("interrapidísimo => ", respuesta);
-
-  setTimeout(() => controller.abort(), 5000);
 
   return respuesta;
 }
