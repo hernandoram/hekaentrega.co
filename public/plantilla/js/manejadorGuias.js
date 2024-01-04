@@ -2483,13 +2483,15 @@ function actualizarHistorialDeDocumentos(timeline) {
               if (datos_usuario.type == "NATURAL-FLEXII") {
                 generarGuiaFlexii(
                   this.parentNode.parentNode
-                    .getAttribute("data-guias")
+                    .getAttribute("data-guides")
                     .split(",")
                 );
               } else {
+                console.log("entrooooo")
+                console.log(this.parentNode.parentNode)
                 generarRotulo(
                   this.parentNode.parentNode
-                    .getAttribute("data-guias")
+                    .getAttribute("data-guides")
                     .split(",")
                 );
               }
