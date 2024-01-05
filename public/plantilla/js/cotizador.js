@@ -57,9 +57,9 @@ let transportadoras = {
     bloqueada: (data) => bloqueo_direcciones_inter.includes(data.dane_ciudadD),
     bloqueadaOfi: false,
     limitesValorDeclarado: (peso) => {
-      if (peso <= 2) return [15000, 30000000];
-      if (peso <= 5) return [30000, 30000000];
-      return [40000, 4540000];
+      if (peso <= 2) return [25000 , 5000000];
+      if (peso <= 5) return [40000 , 5000000];
+      return [50000 , 5000000];
     },
     habilitada: () => {
       const sist = datos_personalizados.sistema_interrapidisimo;
@@ -73,12 +73,12 @@ let transportadoras = {
     sistemaAutomatizado: () =>
       /^automatico/.test(datos_personalizados.sistema_interrapidisimo),
     valorMinimoEnvio: (kg) => {
-      if (kg == 1) {
-        return 15000;
+      if (kg <= 2) {
+        return 25000;
       } else if (kg >= 3 && kg <= 5) {
-        return 30000;
-      } else if (kg >= 6 && kg <= 37) {
         return 40000;
+      } else if (kg >= 6 && kg <= 37) {
+        return 50000;
       } else {
         return 0;
       }
