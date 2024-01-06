@@ -18,7 +18,7 @@ router.get("/utilidades/:numeroGuia", interRouter.utilidades);
 
 router.post("/crearGuia", interRouter.crearGuia);
 
-router.post("/recogidaesporadica", serviceInter.createSporadicCollections);
+router.post("/recogidaesporadica", serviceInter.createDirectSporadicCollections);
 
 router.post("/planilladeenvios", serviceInter.createSpreadsheet);
 
