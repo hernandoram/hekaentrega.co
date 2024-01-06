@@ -3565,8 +3565,13 @@ function crearGuia() {
         datos_a_enviar.pertenece_punto = true;
       }
 
-      if (datos_a_enviar.transportadora === "INTERRAPIDISIMO")
+      if (datos_a_enviar.transportadora === transportadoras.INTERRAPIDISIMO.cod) {
         datos_a_enviar.codigo_sucursal = bodega.codigo_sucursal_inter;
+
+        // Por ahora solo se presentará esta varialbe con interrapidísimo
+        // Ya que este permite filtrar la solicitud de recolección
+        datos_a_enviar.recoleccion_solicitada = false;
+      }
 
       datos_a_enviar.cuenta_responsable =
         transportadoras[datos_a_enviar.transportadora].getCuentaResponsable();
