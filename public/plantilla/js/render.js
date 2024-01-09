@@ -568,7 +568,8 @@ function genFecha(direccion, milliseconds) {
 //Retorna una tabla de documentos filtrados
 function renderUserDocumentCard(id, data) {
   const isInterrapidisimo = data.transportadora && data.transportadora.toUpperCase() === "INTERRAPIDISIMO";
-  const checkboxInput = isInterrapidisimo
+  // Ya no se va a usar el checkbox para solicitar recolección, será por selección de guías
+  const checkboxInput = isInterrapidisimo && false
     ? `<input type="checkbox" id="checkbox-interrapidisimo-${id}" name="interrapidisimo" value="${id}" ${data.idRecogida ? 'disabled' : ''}>`
     : '';
 
