@@ -8,14 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="">
   <meta name="author" content="">
-  <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
+  <link rel="shortcut icon" type="image/png" href="img/heka entrega.png" />
 
 
   <title id="pageTitle"></title>
 
   <!--autocompeltar-->
   <script type="text/javascript" src="https://www.aveonline.co/app/incluidos/jquery-1.9.1.min.js"></script>
-  <script type="text/javascript" src="https://www.aveonline.co/app/modulos/utilidades/jquery.autocomplete.min.js"></script>
+  <script type="text/javascript"
+    src="https://www.aveonline.co/app/modulos/utilidades/jquery.autocomplete.min.js"></script>
   <!-- Custom fonts for this template-->
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
   <link
@@ -29,13 +30,17 @@
 
 
   <!--Datatebles-->
-  <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/jq-3.3.1/dt-1.10.25/b-1.7.1/b-colvis-1.7.1/b-html5-1.7.1/datatables.min.css"/>
+  <link rel="stylesheet" type="text/css"
+    href="https://cdn.datatables.net/v/bs4/jq-3.3.1/dt-1.10.25/b-1.7.1/b-colvis-1.7.1/b-html5-1.7.1/datatables.min.css" />
   <!-- <link rel="stylesheet" type="text/css" href="vendor/datatables/dataTables.bootstrap4.min.css"> -->
+
+  <!--moments para gestionar rangos de fechas-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.19.3/moment.min.js"></script>
 
   <!--Cargador
   Para llamarlo, tengo que introducir <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div>-->
   <link rel="stylesheet" href="css/loader.css">
-  
+
   <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.css">
@@ -65,7 +70,7 @@
 
         <!-- Divider -->
         <hr class="sidebar-divider my-0">
-        
+
         <!-- Heading -->
         <div class="sidebar-heading">
           Usuarios
@@ -76,7 +81,7 @@
             <i class="fas fa-fw fa-users"></i>
             <span>Usuarios</span></a>
         </li>
-        
+
         <li class="nav-item">
           <a class="nav-link" href="#registrador" onclick="mostrar('registrador')">
             <i class="fas fa-fw fa-user-plus"></i>
@@ -91,7 +96,7 @@
             <i class="fas fa-fw fa-users"></i>
             <span>Oficinas</span></a>
         </li>
-        
+
         <!-- Divider -->
         <hr class="sidebar-divider">
 
@@ -134,9 +139,8 @@
         </li>
 
         <li class="nav-item">
-          <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseEstados" 
-          aria-expanded="true" 
-          aria-controls="collapseEstados">
+          <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapseEstados" aria-expanded="true"
+            aria-controls="collapseEstados">
             <i class="fas fa-fw fa-truck"></i>
             <span>Estados</span>
           </a>
@@ -151,15 +155,14 @@
 
         <!-- Divider -->
         <hr class="sidebar-divider">
-        
+
         <li class="nav-item">
-          <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePagos" aria-expanded="true"  aria-controls="collapsePagos">
+          <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapsePagos" aria-expanded="true"
+            aria-controls="collapsePagos">
             <i class="fas fa-fw fa-dollar-sign"></i>
             <span>Pagos</span>
           </a>
-          <div id="collapsePagos" class="collapse" 
-          aria-labelledby="headingTwo" 
-          data-parent="#accordionSidebar">
+          <div id="collapsePagos" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
             <div class="bg-white py-2 collapse-inner rounded">
               <h6 class="collapse-header">Gestor De Pagos:</h6>
               <a class="collapse-item" href="#pagos">Pagos</a>
@@ -181,35 +184,39 @@
 
       <!-- Content Wrapper -->
       <div id="content-wrapper" class="d-flex flex-column">
-    
+
         <div class="row">
-          <div  class="text-center bg-dark text-white col-sm">Area logística +57 <a class="text-white" href="https://wa.link/j8l2ku">321 336 1911</a></div>
-          <div  class="text-center bg-dark text-white col-sm">Gerencia +57 <a class="text-white" href="https://wa.link/jwryoa">312 463 8608</a></div>
-          <div class="text-center text-white bg-info col-sm">Saldo: <a class="text-white" id="saldo" href="https://wa.link/jwryoa"></a></div>
+          <div class="text-center bg-dark text-white col-sm">Area logística +57 <a class="text-white"
+              href="https://wa.link/j8l2ku">321 336 1911</a></div>
+          <div class="text-center bg-dark text-white col-sm">Gerencia +57 <a class="text-white"
+              href="https://wa.link/jwryoa">312 463 8608</a></div>
+          <div class="text-center text-white bg-info col-sm">Saldo: <a class="text-white" id="saldo"
+              href="https://wa.link/jwryoa"></a></div>
         </div>
         <!-- Topbar -->
         <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-            <!-- Sidebar Toggle (Topbar) -->
-            <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-              <i class="fa fa-bars"></i>
-            </button>
-            
+          <!-- Sidebar Toggle (Topbar) -->
+          <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+            <i class="fa fa-bars"></i>
+          </button>
 
-            <!-- Topbar Navbar -->
-            <ul class="navbar-nav ml-auto">
-              <li class="nav-item mx-1"  data-toggle="modal" data-target="#fechas_todas_guias"><i class="nav-link fa fa-file-download"></i></li>
-              
-              <!--Notifications-->
-              <li class="nav-item dropdown no-arrow mx-1">
-              <a class="nav-link dropdown-toggle" href="#" id="notificaciones" role="button" 
-              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+
+          <!-- Topbar Navbar -->
+          <ul class="navbar-nav ml-auto">
+            <li class="nav-item mx-1" data-toggle="modal" data-target="#fechas_todas_guias"><i
+                class="nav-link fa fa-file-download"></i></li>
+
+            <!--Notifications-->
+            <li class="nav-item dropdown no-arrow mx-1">
+              <a class="nav-link dropdown-toggle" href="#" id="notificaciones" role="button" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
                 <i class="fas fa-bell fa-fw"></i>
                 <!-- Counter - Alerts -->
                 <span class="badge badge-danger badge-counter d-none">0</span>
               </a>
               <!-- Dropdown - Alerts -->
-              <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in" 
-              aria-labelledby="notificaciones">
+              <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                aria-labelledby="notificaciones">
                 <h6 class="dropdown-header">
                   Centro de notificaciones
                 </h6>
@@ -217,76 +224,82 @@
                 <p class="dropdown-item text-center small text-gray-500" onclick="eliminarNotificaciones()">
                   Eliminar Todas las notificaciones (versión Prueba)</p>
               </div>
-              </li>
-              
-              <li class="nav-item dropdown no-arrow mx-1">
-                <a class="nav-link dropdown-toggle" href="#" id="notificaciones-novedades" role="button" 
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                  <i class="fas fa-exclamation fa-fw"></i>
-                  <!-- Counter - Alerts -->
-                  <span class="badge badge-danger badge-counter d-none">0</span>
-                </a>
-                <!-- Dropdown - Alerts -->
-                <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated-grow-in" 
-                aria-labelledby="notificaciones-novedades">
-                  <h6 class="dropdown-header">
-                    Centro de Soluciones de Novedades
-                  </h6>
-                  <div>
-                    <div id="mostrador-info-novedades"></div>
-                    <p class="dropdown-item text-center small text-gray-500" id="ver-novedades">
-                      Click para ver todas</p>
-                  </div>
-                </div>
-                </li>
+            </li>
 
-              <div class="topbar-divider d-none d-sm-block"></div>
-                
-              <!-- Nav Item - User Information -->
-              <li class="nav-item dropdown no-arrow">
-                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
-                  aria-haspopup="true" aria-expanded="false">
-                  <span id="usuario" class="mr-2 d-lg-inline text-gray-600 small">Administración Heka</span>
-                  <img class="img-profile rounded-circle" src="img/unnamed.png">
-                </a>
-                
-                <!-- Dropdown - User Information -->
-                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
-                  <a class="dropdown-item " href="#" data-toggle="modal" data-target="#cerrarSesionModal">
-                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                    Salir
-                  </a>
+            <li class="nav-item dropdown no-arrow mx-1">
+              <a class="nav-link dropdown-toggle" href="#" id="notificaciones-novedades" role="button"
+                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fas fa-exclamation fa-fw"></i>
+                <!-- Counter - Alerts -->
+                <span class="badge badge-danger badge-counter d-none">0</span>
+              </a>
+              <!-- Dropdown - Alerts -->
+              <div class="dropdown-list dropdown-menu dropdown-menu-right shadow animated-grow-in"
+                aria-labelledby="notificaciones-novedades">
+                <h6 class="dropdown-header">
+                  Centro de Soluciones de Novedades
+                </h6>
+                <div>
+                  <div id="mostrador-info-novedades"></div>
+                  <p class="dropdown-item text-center small text-gray-500" id="ver-novedades">
+                    Click para ver todas</p>
                 </div>
-              </li>
-            </ul>
+              </div>
+            </li>
+
+            <div class="topbar-divider d-none d-sm-block"></div>
+
+            <!-- Nav Item - User Information -->
+            <li class="nav-item dropdown no-arrow">
+              <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+                <span id="usuario" class="mr-2 d-lg-inline text-gray-600 small">Administración Heka</span>
+                <img class="img-profile rounded-circle" src="img/unnamed.png">
+              </a>
+
+              <!-- Dropdown - User Information -->
+              <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in" aria-labelledby="userDropdown">
+                <a class="dropdown-item " href="#" data-toggle="modal" data-target="#cerrarSesionModal">
+                  <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
+                  Salir
+                </a>
+              </div>
+            </li>
+          </ul>
         </nav>
         <!-- End of Topbar -->
 
         <!-- Main Content -->
-        <div id="content">     
+        <div id="content">
           <!-- Begin Page Content -->
           <div class="container-fluid" id="usuarios" style="display: none;">
             <a href="#manejo_usuarios" class="float-right mx-2">
               <i class="fa fa-cog"></i>
             </a>
 
-            <button class="btn btn-primary float-right" title="Descargar informe"  id="descargar-informe-usuarios">
+            <button class="btn btn-primary float-right" title="Descargar informe" id="descargar-informe-usuarios">
               <span class="d-none d-md-inline">Descargar informe</span> <i class="fa fa-download"></i>
             </button>
 
 
             <div class="row">
               <form class="input-group mb-3 col-12 offset-md-2 col-md-8" onsubmit="buscarUsuarios(event)">
-                <input type="text" class="form-control border-info" placeholder="Busca usuario por nombre, correo, dirección, número de documento o celular" id="buscador_usuarios-nombre">
+                <input type="text" class="form-control border-info"
+                  placeholder="Busca usuario por nombre, correo, dirección, número de documento o celular"
+                  id="buscador_usuarios-nombre">
                 <div class="input-group-append">
                   <input type="submit" class="btn btn-small btn-outline-info" value="buscar">
                 </div>
               </form>
             </div>
-            
+
             <div class="d-flex justify-content-center">
-              <div class="lds-ellipsis mt-4 d-none" id="cargador-usuarios"><div></div>
-              <div></div><div></div><div></div></div>
+              <div class="lds-ellipsis mt-4 d-none" id="cargador-usuarios">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
             </div>
             <div id="mostrador-usuarios" class="row"></div>
 
@@ -296,7 +309,7 @@
                 <div class="row">
                   <a class="btn btn-outline-primary btn-lg" href="javascript:volver2()">Volver</a>
                   <script>
-                  function volver2(){
+                    function volver2() {
                       document.getElementById("mostrador-usuarios").classList.remove("d-none");
                       document.getElementById("usuario-seleccionado").classList.add("d-none");
                     }
@@ -307,7 +320,8 @@
               <!-- Informacion personal -->
               <div class="card shadow mb-4">
                 <!-- Card Header - Accordion -->
-                <a href="#informacion-personal" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="informacion-personal">
+                <a href="#informacion-personal" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                  aria-expanded="true" aria-controls="informacion-personal">
                   <h6 class="m-0 font-weight-bold text-primary">Información Personal</h6>
                 </a>
                 <!-- Card Content - Collapse -->
@@ -317,120 +331,119 @@
                       <div class="form-group row">
                         <div class="col-sm-6 mb-3 mb-sm-0">
                           <h6>Nombres*</h6>
-                          <input type="text" class="form-control form-control-user"
-                          name="nombres" id="actualizar_nombres">
+                          <input type="text" class="form-control form-control-user" name="nombres"
+                            id="actualizar_nombres">
                         </div>
                         <div class="col-sm-6">
                           <h6>Apellidos*</h6>
-                          <input type="text" class="form-control form-control-user"
-                          name="apellidos" id="actualizar_apellidos">
-                        </div> 
+                          <input type="text" class="form-control form-control-user" name="apellidos"
+                            id="actualizar_apellidos">
+                        </div>
                       </div>
-      
+
                       <div class="form-group row">
                         <div class="col-sm-6 mb-3 mb-sm-0">
                           <h6>Tipo documento*</6>
-                          <h6></h6>
-                          
-                          <select  class="form-control form-control"
-                          name="tipo_documento" id="actualizar_tipo_documento" readonly>
-                            <option value="CC" selected>CC</option> 
-                            <option value="PASAPORTE">PASAPORTE</option>
-                            <option value="NIT(RUT)">NIT (RUT)</option>
-                            <option value="CE">Cédula extranjería</option>
-                          </select>
+                            <h6></h6>
+
+                            <select class="form-control form-control" name="tipo_documento"
+                              id="actualizar_tipo_documento" readonly>
+                              <option value="CC" selected>CC</option>
+                              <option value="PASAPORTE">PASAPORTE</option>
+                              <option value="NIT(RUT)">NIT (RUT)</option>
+                              <option value="CE">Cédula extranjería</option>
+                            </select>
                         </div>
                         <div class="col-sm-6">
                           <h6>Número identificación*</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="numero_documento" id="actualizar_numero_documento" readonly>
+                          <input type="number" class="form-control form-control-user" name="numero_documento"
+                            id="actualizar_numero_documento" readonly>
                         </div>
-                        
+
                       </div>
                       <div class="form-group row">
                         <div class="col-sm-6 mb-3 mb-sm-0">
                           <h6>Celular*</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="celular" id="actualizar_telefono">
+                          <input type="number" class="form-control form-control-user" name="celular"
+                            id="actualizar_telefono">
                         </div>
                         <div class="col-sm-6">
                           <h6>Celular #2</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="celular2" id="actualizar_celular">
+                          <input type="number" class="form-control form-control-user" name="celular2"
+                            id="actualizar_celular">
                         </div>
                       </div>
-      
+
                       <div class="form-group row">
-                          <div class="col-sm-6 mb-3 mb-sm-0">
-                            <h6>Centro de Costo*</h6>
-                            <input type="text"  class="form-control form-control-user"
-                            name="centro_de_costo" id="actualizar_centro_costo" readonly>
-                          </div>
-                          <div class="col-sm-6">
-                            <h6>Correo electrónico*</h6>
-                            <input type="email"  class="form-control form-control-user"
-                            name="correo" id="actualizar_correo" readonly
-                                aria-describedby="emailHelp" >
-                          </div>
+                        <div class="col-sm-6 mb-3 mb-sm-0">
+                          <h6>Centro de Costo*</h6>
+                          <input type="text" class="form-control form-control-user" name="centro_de_costo"
+                            id="actualizar_centro_costo" readonly>
+                        </div>
+                        <div class="col-sm-6">
+                          <h6>Correo electrónico*</h6>
+                          <input type="email" class="form-control form-control-user" name="correo"
+                            id="actualizar_correo" readonly aria-describedby="emailHelp">
+                        </div>
                       </div>
-      
+
                       <div class="form-group row">
                         <div class="col-sm-6 mb-3 mb-sm-0">
                           <h6>Código ingreso*</h6>
-                          <input type="text" class="form-control form-control-user"
-                          name="ingreso" id="actualizar_contraseña" readonly>
+                          <input type="text" class="form-control form-control-user" name="ingreso"
+                            id="actualizar_contraseña" readonly>
                         </div>
                         <div class="col-sm-6">
                           <h6>Contraseña*</h6>
-                          <input type="text" class="form-control form-control-user"
-                          name="con" id="actualizar_repetir_contraseña" readonly>
+                          <input type="text" class="form-control form-control-user" name="con"
+                            id="actualizar_repetir_contraseña" readonly>
                         </div>
                       </div>
 
                       <div class="form-group row">
                         <div class="col-sm-6">
                           <h6>Nombre de la empresa*</h6>
-                          <input type="text" class="form-control form-control-user"
-                          name="nombre_empresa" id="actualizar_nombre_empresa" >
+                          <input type="text" class="form-control form-control-user" name="nombre_empresa"
+                            id="actualizar_nombre_empresa">
                         </div>
                         <div class="col-sm-6">
                           <h6>Cosas que envía</h6>
-                          <input type="text" class="form-control form-control-user"
-                          name="objetos_envio" id="actualizar_objetos_envio" placeholder="objeto1,objeto2,etc..."  required>
+                          <input type="text" class="form-control form-control-user" name="objetos_envio"
+                            id="actualizar_objetos_envio" placeholder="objeto1,objeto2,etc..." required>
                         </div>
                       </div>
 
                       <div>
                         <h6 class="mt-2">Referido de</h6>
-                          <input type="text" class="form-control form-control-user"
-                          name="referidoDe" id="referidoDe" readonly>   
+                        <input type="text" class="form-control form-control-user" name="referidoDe" id="referidoDe"
+                          readonly>
 
-                          <h6 class="mt-2">Tipo Usuario</h6>
-                          <select  class="form-control form-control"
-                          name="type" id="actualizar_tipo_user">
+                        <h6 class="mt-2">Tipo Usuario</h6>
+                        <select class="form-control form-control" name="type" id="actualizar_tipo_user">
                           <option value="NATURAL" selected>Natural</option>
                           <option value="PUNTO">Punto</option>
                           <option value="NATURAL-FLEXII">Natural Flexii</option>
-                          </select>
-  
-                      </div>
-                        
+                        </select>
 
-                                                
+                      </div>
+
+
+
 
 
                       <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4 no-updte"
-                      onclick="actualizarInformacionPersonal()" value="Actualizar Datos Personales">
+                        onclick="actualizarInformacionPersonal()" value="Actualizar Datos Personales">
                     </form>
 
                   </div>
                 </div>
               </div>
-              
+
               <!-- Informacion bancaria -->
               <div class="card shadow mb-4">
                 <!-- Card Header - Accordion -->
-                <a href="#informacion-bancaria" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="informacion-bancaria">
+                <a href="#informacion-bancaria" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                  aria-expanded="true" aria-controls="informacion-bancaria">
                   <h6 class="m-0 font-weight-bold text-primary">Información Bancaria</h6>
                 </a>
                 <!-- Card Content - Collapse -->
@@ -440,81 +453,89 @@
                       <div class="form-group row">
                         <div class="col-sm-6 mb-3 mb-sm-0">
                           <h6>Banco*</6>
-                          <h6></h6>
-                          <select  class="form-control form-control"
-                          name="banco" id="actualizar_banco">
-                            <option value="Bancolombia(Desembolso: $0)">Bancolombia(Desembolso: $0)</option> 
-                            <option value="Nequi(desembolso: $0)">Nequi(desembolso: $0)</option>
-                            <option value="Banco de bogotá(Desembolso: $7.500)">Banco de bogotá(Desembolso: $7.500)</option>
-                            <option value="Banco popular(Desembolso: $7.500)">Banco popular(Desembolso: $7.500)</option>
-                            <option value="Itaú(Desembolso: $7.500)">Itaú(Desembolso: $7.500)</option>
-                            <option value="Citibank(Desembolso: $7.500)">Citibank(Desembolso: $7.500)</option>
-                            <option value="BBVA(Desembolso: $7.500)">BBVA(Desembolso: $7.500)</option>
-                            <option value="Colpatria(Desembolso: $7.500)">Colpatria(Desembolso: $7.500)</option>
-                            <option value="Banco de occidente(Desembolso: $7.500)">Banco de occidente(Desembolso: $7.500)</option>
-                            <option value="Banco caja social(Desembolso: $7.500)">Banco caja social(Desembolso: $7.500)</option>
-                            <option value="Banco Agrario(Desembolso: $7.500)">Banco Agrario(Desembolso: $7.500)</option>
-                            <option value="Banco davivienda(Desembolso: $7.500)">Banco davivienda(Desembolso: $7.500)</option>
-                            <option value="Banco Av Villas (Desembolso: $7.500)">Banco Av Villas (Desembolso: $7.500)</option>
-                            <option value="Banco Pichincha(Desembolso: $7.500)">Banco Pichincha(Desembolso: $7.500)</option>
-                            <option value="Bancoomeva(Desembolso: $7.500)">Bancoomeva(Desembolso: $7.500)</option>
-                            <option value="Banco Falabella (Desembolso: $7.500)">Banco Falabella (Desembolso: $7.500)</option>
-                            <option value="Daviplata (Desembolso: $7.500)">Daviplata (Desembolso: $7.500)</option>
-                          </select>
+                            <h6></h6>
+                            <select class="form-control form-control" name="banco" id="actualizar_banco">
+                              <option value="Bancolombia(Desembolso: $0)">Bancolombia(Desembolso: $0)</option>
+                              <option value="Nequi(desembolso: $0)">Nequi(desembolso: $0)</option>
+                              <option value="Banco de bogotá(Desembolso: $7.500)">Banco de bogotá(Desembolso: $7.500)
+                              </option>
+                              <option value="Banco popular(Desembolso: $7.500)">Banco popular(Desembolso: $7.500)
+                              </option>
+                              <option value="Itaú(Desembolso: $7.500)">Itaú(Desembolso: $7.500)</option>
+                              <option value="Citibank(Desembolso: $7.500)">Citibank(Desembolso: $7.500)</option>
+                              <option value="BBVA(Desembolso: $7.500)">BBVA(Desembolso: $7.500)</option>
+                              <option value="Colpatria(Desembolso: $7.500)">Colpatria(Desembolso: $7.500)</option>
+                              <option value="Banco de occidente(Desembolso: $7.500)">Banco de occidente(Desembolso:
+                                $7.500)</option>
+                              <option value="Banco caja social(Desembolso: $7.500)">Banco caja social(Desembolso:
+                                $7.500)</option>
+                              <option value="Banco Agrario(Desembolso: $7.500)">Banco Agrario(Desembolso: $7.500)
+                              </option>
+                              <option value="Banco davivienda(Desembolso: $7.500)">Banco davivienda(Desembolso: $7.500)
+                              </option>
+                              <option value="Banco Av Villas (Desembolso: $7.500)">Banco Av Villas (Desembolso: $7.500)
+                              </option>
+                              <option value="Banco Pichincha(Desembolso: $7.500)">Banco Pichincha(Desembolso: $7.500)
+                              </option>
+                              <option value="Bancoomeva(Desembolso: $7.500)">Bancoomeva(Desembolso: $7.500)</option>
+                              <option value="Banco Falabella (Desembolso: $7.500)">Banco Falabella (Desembolso: $7.500)
+                              </option>
+                              <option value="Daviplata (Desembolso: $7.500)">Daviplata (Desembolso: $7.500)</option>
+                            </select>
                         </div>
                         <div class="col-sm-6">
                           <h6>Nombre representante*</h6>
-                          <input type="text" class="form-control form-control-user"
-                          name="nombre_banco" id="actualizar_nombre_representante"  required>
+                          <input type="text" class="form-control form-control-user" name="nombre_banco"
+                            id="actualizar_nombre_representante" required>
                         </div>
                       </div>
-  
+
                       <div class="form-group row">
                         <div class="col-sm-6 mb-3 mb-sm-0">
                           <h6>Tipo de cuenta*</6>
-                          <h6></h6>
-                          
-                          <select  class="form-control form-control"
-                          name="tipo_de_cuenta" id="actualizar_tipo_de_cuenta">
-                            <option value="Ahorros">Ahorros</option> 
-                            <option value="Corriente">Corriente</option>
-                            
-                          </select>
+                            <h6></h6>
+
+                            <select class="form-control form-control" name="tipo_de_cuenta"
+                              id="actualizar_tipo_de_cuenta">
+                              <option value="Ahorros">Ahorros</option>
+                              <option value="Corriente">Corriente</option>
+
+                            </select>
                         </div>
-  
-  
+
+
                         <div class="col-sm-6">
                           <h6>Número de cuenta*</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="numero_cuenta" id="actualizar_numero_cuenta"  required>
+                          <input type="number" class="form-control form-control-user" name="numero_cuenta"
+                            id="actualizar_numero_cuenta" required>
                         </div>
-                        
+
                       </div>
-                      
+
                       <div class="form-group row">
                         <div class="col-sm-6 mb-3 mb-sm-0">
                           <h6>Tipo documento*</6>
-                          <h6></h6>
-                          
-                          <select  class="form-control form-control"
-                          name="tipo_documento_banco" id="actualizar_tipo_documento_banco">
-                            <option value="CC">CC</option> 
-                            <option value="NIT">NIT</option>
-                            <option value="PASAPORTE">PASAPORTE</option>
-                            <option value="Cédula extranjería">Cédula extranjería</option>
-                            
-                          </select>
+                            <h6></h6>
+
+                            <select class="form-control form-control" name="tipo_documento_banco"
+                              id="actualizar_tipo_documento_banco">
+                              <option value="CC">CC</option>
+                              <option value="NIT">NIT</option>
+                              <option value="PASAPORTE">PASAPORTE</option>
+                              <option value="Cédula extranjería">Cédula extranjería</option>
+
+                            </select>
                         </div>
                         <div class="col-sm-6">
                           <h6>número de identificación*</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="numero_iden_banco" id="actualizar_numero_identificacion_banco"  required>
+                          <input type="number" class="form-control form-control-user" name="numero_iden_banco"
+                            id="actualizar_numero_identificacion_banco" required>
                         </div>
-  
+
                       </div>
                       <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4 no-updte"
-                      onclick="actualizarInformacionBancaria()" value="Actualizar Datos Bancarios">
-                      
+                        onclick="actualizarInformacionBancaria()" value="Actualizar Datos Bancarios">
+
                     </form>
                   </div>
                 </div>
@@ -523,7 +544,8 @@
               <!-- Informacion Heka-->
               <div class="card shadow mb-4">
                 <!-- Card Header - Accordion -->
-                <a href="#informacion-heka" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="informacion-heka">
+                <a href="#informacion-heka" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                  aria-expanded="true" aria-controls="informacion-heka">
                   <h6 class="m-0 font-weight-bold text-primary">Información Heka</h6>
                 </a>
                 <!-- Card Content - Collapse -->
@@ -534,69 +556,69 @@
                       <div class="form-group row">
                         <div class="col-sm-4 mb-4">
                           <h6>0-3 Kg</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="costo_zonal1" id="actualizar_costo_zonal1">
+                          <input type="number" class="form-control form-control-user" name="costo_zonal1"
+                            id="actualizar_costo_zonal1">
                         </div>
                         <div class="col-sm-4">
                           <h6>3-8 Kg</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="costo_zonal2" id="actualizar_costo_zonal2">
-                        </div> 
+                          <input type="number" class="form-control form-control-user" name="costo_zonal2"
+                            id="actualizar_costo_zonal2">
+                        </div>
                         <div class="col-sm-4">
                           <h6>Kg adicional</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="costo_zonal3" id="actualizar_costo_zonal3">
-                        </div> 
+                          <input type="number" class="form-control form-control-user" name="costo_zonal3"
+                            id="actualizar_costo_zonal3">
+                        </div>
                       </div>
 
                       <h4 class="text-center">Costos de envío Nacional</h4>
                       <div class="form-group row">
                         <div class="col-sm-4 mb-4">
                           <h6>0-3 Kg</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="costo_nacional1" id="actualizar_costo_nacional1">
+                          <input type="number" class="form-control form-control-user" name="costo_nacional1"
+                            id="actualizar_costo_nacional1">
                         </div>
                         <div class="col-sm-4">
                           <h6>3-8 Kg</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="costo_nacional2" id="actualizar_costo_nacional2">
-                        </div> 
+                          <input type="number" class="form-control form-control-user" name="costo_nacional2"
+                            id="actualizar_costo_nacional2">
+                        </div>
                         <div class="col-sm-4">
                           <h6>Kg adicional</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="costo_nacional3" id="actualizar_costo_nacional3">
-                        </div> 
+                          <input type="number" class="form-control form-control-user" name="costo_nacional3"
+                            id="actualizar_costo_nacional3">
+                        </div>
                       </div>
 
                       <h4 class="text-center">Costos de envío Trayeto Especial</h4>
                       <div class="form-group row">
                         <div class="col-sm-4 mb-4">
                           <h6>0-3 Kg</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="costo_especial1" id="actualizar_costo_especial1">
+                          <input type="number" class="form-control form-control-user" name="costo_especial1"
+                            id="actualizar_costo_especial1">
                         </div>
                         <div class="col-sm-4">
                           <h6>3-8 Kg</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="costo_especial2" id="actualizar_costo_especial2">
-                        </div> 
+                          <input type="number" class="form-control form-control-user" name="costo_especial2"
+                            id="actualizar_costo_especial2">
+                        </div>
                         <div class="col-sm-4">
                           <h6>Kg adicional</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="costo_especial3" id="actualizar_costo_especial3">
-                        </div> 
+                          <input type="number" class="form-control form-control-user" name="costo_especial3"
+                            id="actualizar_costo_especial3">
+                        </div>
                       </div>
-                      
+
                       <div class="form-group row align-items-end">
                         <div class="col-sm-6 col-lg-4 mb-4 mb-sm-3">
                           <h6>porcentaje de Comisión Servientrega (%)</h6>
-                          <input type="number" class="form-control form-control-user" 
-                          step="any" name="comision_servi" id="actualizar_comision_servi">
+                          <input type="number" class="form-control form-control-user" step="any" name="comision_servi"
+                            id="actualizar_comision_servi">
                         </div>
                         <div class="col-sm-6 col-lg-4 mb-4 mb-sm-3">
                           <h6>Porcentaje de Comisión Heka (%)</h6>
-                          <input type="number" class="form-control form-control-user" 
-                          step="any" name="comision_heka" id="actualizar_comision_heka">
+                          <input type="number" class="form-control form-control-user" step="any" name="comision_heka"
+                            id="actualizar_comision_heka">
                         </div>
                         <div class="col mb-4 mb-sm-3" id="mostrador_saldo">
                           <h6>Saldo</h6>
@@ -604,57 +626,62 @@
                             <div class="input-group-prepend">
                               <span class="input-group-text" id="actualizar_saldo"></span>
                             </div>
-                            <input type="text" id="aumentar_saldo" class="form-control" placeholder="Aumentar Saldo" aria-label="Aumentar Saldo" aria-describedby="actualizar_saldo">
+                            <input type="text" id="aumentar_saldo" class="form-control" placeholder="Aumentar Saldo"
+                              aria-label="Aumentar Saldo" aria-describedby="actualizar_saldo">
                           </div>
                         </div>
                       </div>
-                      
-                      
+
+
                       <div class="form-group row align-items-end mb-4">
                         <div class="col-sm-4 mb-3">
                           <h6>Constante envío convencional</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="constante_convencional" id="actualizar_constante_convencional">
+                          <input type="number" class="form-control form-control-user" name="constante_convencional"
+                            id="actualizar_constante_convencional">
                         </div>
 
                         <div class="col-sm-4 mb-3">
                           <h6>Constante envío pago contraentrega</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="constante_pagoContraentrega" id="actualizar_constante_pagoContraentrega">
+                          <input type="number" class="form-control form-control-user" name="constante_pagoContraentrega"
+                            id="actualizar_constante_pagoContraentrega">
                         </div>
 
                         <div class="col-sm-4 mb-3">
                           <h6>Comisión punto envío</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="comision_punto" id="actualizar_comision_punto">
+                          <input type="number" class="form-control form-control-user" name="comision_punto"
+                            id="actualizar_comision_punto">
                         </div>
-                        
+
                         <div class="col-sm-4 mb-3">
                           <h6>Porcentaje de comisión para oficina flexii (%)</h6>
-                          <input type="number" class="form-control form-control-user"
-                          name="porcentaje_comsion_ofi" id="actualizar_pocentaje_comsion_ofi">
+                          <input type="number" class="form-control form-control-user" name="porcentaje_comsion_ofi"
+                            id="actualizar_pocentaje_comsion_ofi">
                         </div>
                       </div>
 
                       <div class="input-group mb-3">
-                        <input type="text" name="id_agente_aveo" id="id_agente_aveo" list="ids_agente_aveo" class="form-control" placeholder="Agente aveonline" aria-label="Agente aveonline" aria-describedby="crear_agente_aveo">
+                        <input type="text" name="id_agente_aveo" id="id_agente_aveo" list="ids_agente_aveo"
+                          class="form-control" placeholder="Agente aveonline" aria-label="Agente aveonline"
+                          aria-describedby="crear_agente_aveo">
                         <datalist id="ids_agente_aveo"></datalist>
                         <div class="input-group-append">
-                          <button class="btn btn-outline-secondary" type="button" id="listar_agentes_aveo" data-list="ids_agente_aveo">Listar agentes</button>
-                          <button class="btn btn-outline-secondary" type="button" id="crear_agente_aveo">Crear agente</button>
+                          <button class="btn btn-outline-secondary" type="button" id="listar_agentes_aveo"
+                            data-list="ids_agente_aveo">Listar agentes</button>
+                          <button class="btn btn-outline-secondary" type="button" id="crear_agente_aveo">Crear
+                            agente</button>
                         </div>
                       </div>
 
                       <div class="from-group row">
                         <div class="col-6 ">
                           <h6>Tope de ingreso por referido</h6>
-                          <input type="number" class="form-control form-control-user" 
-                          step="any" name="tope_referido" id="actualizar_tope_maximo_referido">
+                          <input type="number" class="form-control form-control-user" step="any" name="tope_referido"
+                            id="actualizar_tope_maximo_referido">
                         </div>
                         <div class="col-6">
                           <h6>Premio por referido</h6>
-                          <input type="number" class="form-control form-control-user" 
-                          step="any" name="premio_referido" id="actualizar_premio_por_referido">
+                          <input type="number" class="form-control form-control-user" step="any" name="premio_referido"
+                            id="actualizar_premio_por_referido">
                         </div>
                       </div>
 
@@ -662,12 +689,13 @@
                       <div class="from-group row">
                         <div class="col-12 my-2">
                           <label for="formula_devolucion">Fórmulas para costo de devolución</label>
-                          <textarea class="form-control" placeholder="TRANSPORTADORA1:F(Flete)+SF(Sobreflete)--TRANSPORTADORA2:CE(Costo de envío)+SM(Seguro de mercancía)"
-                          id="formula_devolucion" name="formula_devolucion"></textarea>
+                          <textarea class="form-control"
+                            placeholder="TRANSPORTADORA1:F(Flete)+SF(Sobreflete)--TRANSPORTADORA2:CE(Costo de envío)+SM(Seguro de mercancía)"
+                            id="formula_devolucion" name="formula_devolucion"></textarea>
                         </div>
                       </div>
 
-            
+
 
                       <div class="form-group row">
                         <div class="col-12">
@@ -699,7 +727,7 @@
                             <option value="inhabilitado">Inhabilitar</option>
                           </select>
                         </div>
-                        
+
                         <div class="col-sm-2 mt-2 text-sm-center">
                           <label for="sistema_coordinadora">Coordinadora</label>
                           <select class="form-control" id="sistema_coordinadora" name="sistema_coordinadora">
@@ -708,7 +736,7 @@
                             <option value="inhabilitado">Inhabilitar</option>
                           </select>
                         </div>
-                        
+
                         <div class="col-sm-2 mt-2 text-sm-center">
                           <label for="sistema_tcc">TCC</label>
                           <select class="form-control" id="sistema_tcc" name="sistema_tcc">
@@ -717,7 +745,7 @@
                             <option value="inhabilitado">Inhabilitar</option>
                           </select>
                         </div>
-                        
+
                         <div class="col-sm-2 mt-2 text-sm-center">
                           <label for="sistema_flexii">Flexii</label>
                           <select class="form-control" id="sistema_flexii" name="sistema_flexii">
@@ -743,7 +771,7 @@
                       </div>
 
                       <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4 no-updte"
-                      onclick="actualizarInformacionHeka()" value="Actualizar info heka" />
+                        onclick="actualizarInformacionHeka()" value="Actualizar info heka" />
                     </form>
 
                   </div>
@@ -753,31 +781,34 @@
               <!--BODEGAS-->
               <div class="card shadow mb-4">
                 <!-- Card Header - Accordion -->
-                <a href="#informacion-bodegas" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="informacion-bodegas">
+                <a href="#informacion-bodegas" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                  aria-expanded="true" aria-controls="informacion-bodegas">
                   <h6 class="m-0 font-weight-bold text-primary">Bodegas</h6>
                 </a>
                 <!-- Card Content - Collapse -->
                 <div class="collapse" id="informacion-bodegas">
                   <div class="card-body table-responsive">
                     <table id="tabla-bodegas" class="display table table-bordered table-hover" width="100%"></table>
-                    <button class="btn btn-outline-primary btn-block mt-3" id="actualizar-bodegas">Actualizar bodegas</button>
+                    <button class="btn btn-outline-primary btn-block mt-3" id="actualizar-bodegas">Actualizar
+                      bodegas</button>
                   </div>
                 </div>
               </div>
 
-                   <!--Referidos-->
-                   <div class="card shadow mb-4">
-                    <!-- Card Header - Accordion -->
-                    <a href="#informacion-referidos" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="informacion-bodegas">
-                      <h6 class="m-0 font-weight-bold text-primary">Referidos</h6>
-                    </a>
-                    <!-- Card Content - Collapse -->
-                    <div class="collapse" id="informacion-referidos">
-                      <div class="card-body table-responsive">
-                        <table id="tabla-referidos" class="display table table-bordered table-hover" width="100%"></table>
-                      </div>
-                    </div>
+              <!--Referidos-->
+              <div class="card shadow mb-4">
+                <!-- Card Header - Accordion -->
+                <a href="#informacion-referidos" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                  aria-expanded="true" aria-controls="informacion-bodegas">
+                  <h6 class="m-0 font-weight-bold text-primary">Referidos</h6>
+                </a>
+                <!-- Card Content - Collapse -->
+                <div class="collapse" id="informacion-referidos">
+                  <div class="card-body table-responsive">
+                    <table id="tabla-referidos" class="display table table-bordered table-hover" width="100%"></table>
                   </div>
+                </div>
+              </div>
 
             </div>
 
@@ -785,244 +816,274 @@
 
           <div class="container-fluid" id="registrador">
             <div class="card o-hidden border-0 shadow-lg my-2">
-                <div class="card-body p-0">
-                  
-                  <!-- Nested Row within Card Body -->
-                  <div class="row">
-                    <div class="col-lg-12">
-                      <div class="p-5">
-                        <div class="text-left" >
-                            <h2 > Crea un nuevo usuario</h2>
-                            </br>
-                        </div>
-                        <form class="user">
-                          <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
-                              <h6>Nombres*</h6>
-                              <input type="text" class="form-control form-control-user" id="CPNnombres" autocomplete="off" required>
-                            </div>
-                            <div class="col-sm-6">
-                              <h6>Apellidos*</h6>
-                              <input type="text" class="form-control form-control-user" id="CPNapellidos" autocomplete="off" required>
-                            </div> 
+              <div class="card-body p-0">
+
+                <!-- Nested Row within Card Body -->
+                <div class="row">
+                  <div class="col-lg-12">
+                    <div class="p-5">
+                      <div class="text-left">
+                        <h2> Crea un nuevo usuario</h2>
+                        </br>
+                      </div>
+                      <form class="user">
+                        <div class="form-group row">
+                          <div class="col-sm-6 mb-3 mb-sm-0">
+                            <h6>Nombres*</h6>
+                            <input type="text" class="form-control form-control-user" id="CPNnombres" autocomplete="off"
+                              required>
                           </div>
-          
-                          <div class="form-group row">
-                            <div class="col-md-2 mb-3 mb-sm-0">
-                              <h6>Tipo documento*</6>
+                          <div class="col-sm-6">
+                            <h6>Apellidos*</h6>
+                            <input type="text" class="form-control form-control-user" id="CPNapellidos"
+                              autocomplete="off" required>
+                          </div>
+                        </div>
+
+                        <div class="form-group row">
+                          <div class="col-md-2 mb-3 mb-sm-0">
+                            <h6>Tipo documento*</6>
                               <h6></h6>
-                              
-                              <select  class="form-control form-control" id="CPNtipo_documento">
-                                <option value="CC"selected>CC</option> 
+
+                              <select class="form-control form-control" id="CPNtipo_documento">
+                                <option value="CC" selected>CC</option>
                                 <option value="PASAPORTE">PASAPORTE</option>
                                 <option value="NIT(RUT)">NIT (RUT)</option>
                               </select>
-                            </div>
-                            <div class="col-md-5">
-                              <h6>Número identificación*</h6>
-                              <input type="text" class="form-control form-control-user" id="CPNnumero_documento" autocomplete="off" required>
-                              <p class="text-danger d-none" id="usuario-existente">¡El usuario ingresado ya existe!</p>
-                            </div>
-                            <div class="col-md mb-3 mb-sm-0">
-                              <h6>Centro de Costo*</h6>
-                              <input type="text" class="form-control form-control-user" id="CPNcentro_costo"  autocomplete="off" required>
-                              <p class="text-danger d-none" id="centro_costo-existente">¡El Centro de Costo ingresado ya existe!</p>
-                            </div>
-                            
                           </div>
-          
-                          <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
-                              <h6>Celular*</h6>
-                              <input type="number" class="form-control form-control-user" id="CPNtelefono" autocomplete="off" required>
-                            </div>
-                            <div class="col-sm-6">
-                              <h6>Celular #2</h6>
-                              <input type="number" class="form-control form-control-user" id="CPNcelular" autocomplete="off">
-                            </div>
+                          <div class="col-md-5">
+                            <h6>Número identificación*</h6>
+                            <input type="text" class="form-control form-control-user" id="CPNnumero_documento"
+                              autocomplete="off" required>
+                            <p class="text-danger d-none" id="usuario-existente">¡El usuario ingresado ya existe!</p>
                           </div>
-          
-                          <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
-                              <h6>Ciudad*</h6>
-                              <h6>**Elegir del menú desplegable**</h6>
-                              <input name=""  class="form-control form-control-user" id="CPNciudad" autocomplete="off" size="1"></input>
-                            </div>
-                            <div class="col-sm-6">
-                              <h6>Dirección de recogida*</h6>
+                          <div class="col-md mb-3 mb-sm-0">
+                            <h6>Centro de Costo*</h6>
+                            <input type="text" class="form-control form-control-user" id="CPNcentro_costo"
+                              autocomplete="off" required>
+                            <p class="text-danger d-none" id="centro_costo-existente">¡El Centro de Costo ingresado ya
+                              existe!</p>
+                          </div>
+
+                        </div>
+
+                        <div class="form-group row">
+                          <div class="col-sm-6 mb-3 mb-sm-0">
+                            <h6>Celular*</h6>
+                            <input type="number" class="form-control form-control-user" id="CPNtelefono"
+                              autocomplete="off" required>
+                          </div>
+                          <div class="col-sm-6">
+                            <h6>Celular #2</h6>
+                            <input type="number" class="form-control form-control-user" id="CPNcelular"
+                              autocomplete="off">
+                          </div>
+                        </div>
+
+                        <div class="form-group row">
+                          <div class="col-sm-6 mb-3 mb-sm-0">
+                            <h6>Ciudad*</h6>
+                            <h6>**Elegir del menú desplegable**</h6>
+                            <input name="" class="form-control form-control-user" id="CPNciudad" autocomplete="off"
+                              size="1"></input>
+                          </div>
+                          <div class="col-sm-6">
+                            <h6>Dirección de recogida*</h6>
                             </br>
-                              <input type="text" class="form-control form-control-user" id="CPNdireccion" autocomplete="off" required>
-                            </div>
-                            
+                            <input type="text" class="form-control form-control-user" id="CPNdireccion"
+                              autocomplete="off" required>
                           </div>
-          
-                          <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
-                              <h6>Barrio*</h6>
-                              <input type="text" class="form-control form-control-user" id="CPNbarrio" autocomplete="off" required>
-                            </div>
-                            <div class="col-sm-6">
-                              <h6>Nombre de la empresa*</h6>
-                              <input type="text" class="form-control form-control-user" id="CPNnombre_empresa" autocomplete="off" required>
-                            </div>
-                          </div>
-          
-                          <div class="form-group row">
-                              
-                              <div class="col-sm-6">
-                                <h6>Correo electrónico*</h6>
-                                <input type="email"  class="form-control form-control-user" id="CPNcorreo"
-                                    aria-describedby="emailHelp" autocomplete="off" required>
-                              </div>
-                              <div class="col">
-                                <h6>Cosas que envía</h6>
-                                <input type="text" class="form-control form-control-user" id="CPNobjetos_envio" placeholder="objeto1,objeto2,etc..." autocomplete="off" required>
-                              </div>
-                          </div>
-          
-                          <div class="form-group row">
-                            <div class="col-sm-6 mb-3 mb-sm-0">
-                              <h6>Contraseña*</h6>
-                              <input type="password" class="form-control form-control-user" id="CPNcontraseña" autocomplete="off"  required>
-                            </div>
-                            <div class="col-sm-6">
-                              <h6>Repetir contraseña*</h6>
-                              <input type="password" class="form-control form-control-user" id="CPNrepetir_contraseña" autocomplete="off" required>
-                            </div>
-                          </div>
-          
-                          <div class="form-check d-flex justify-content-between">
-                            <div>
 
-                              <input class="form-check-input" type="checkbox" name="CPNusuario_corporativo" 
+                        </div>
+
+                        <div class="form-group row">
+                          <div class="col-sm-6 mb-3 mb-sm-0">
+                            <h6>Barrio*</h6>
+                            <input type="text" class="form-control form-control-user" id="CPNbarrio" autocomplete="off"
+                              required>
+                          </div>
+                          <div class="col-sm-6">
+                            <h6>Nombre de la empresa*</h6>
+                            <input type="text" class="form-control form-control-user" id="CPNnombre_empresa"
+                              autocomplete="off" required>
+                          </div>
+                        </div>
+
+                        <div class="form-group row">
+
+                          <div class="col-sm-6">
+                            <h6>Correo electrónico*</h6>
+                            <input type="email" class="form-control form-control-user" id="CPNcorreo"
+                              aria-describedby="emailHelp" autocomplete="off" required>
+                          </div>
+                          <div class="col">
+                            <h6>Cosas que envía</h6>
+                            <input type="text" class="form-control form-control-user" id="CPNobjetos_envio"
+                              placeholder="objeto1,objeto2,etc..." autocomplete="off" required>
+                          </div>
+                        </div>
+
+                        <div class="form-group row">
+                          <div class="col-sm-6 mb-3 mb-sm-0">
+                            <h6>Contraseña*</h6>
+                            <input type="password" class="form-control form-control-user" id="CPNcontraseña"
+                              autocomplete="off" required>
+                          </div>
+                          <div class="col-sm-6">
+                            <h6>Repetir contraseña*</h6>
+                            <input type="password" class="form-control form-control-user" id="CPNrepetir_contraseña"
+                              autocomplete="off" required>
+                          </div>
+                        </div>
+
+                        <div class="form-check d-flex justify-content-between">
+                          <div>
+
+                            <input class="form-check-input" type="checkbox" name="CPNusuario_corporativo"
                               id="CPNusuario_corporativo" autocomplete="off">
-                              <label class="form-check-label" for="CPMusuario_corporativo">Usuario Corporativo</label>
-                            </div>
-                            <div>
+                            <label class="form-check-label" for="CPMusuario_corporativo">Usuario Corporativo</label>
+                          </div>
+                          <div>
 
-                              <input class="form-check-input" type="checkbox" id="CPNcheck_terminos_condiciones" 
-                               autocomplete="off"> <a href="/terminos.html">Acepto términos y condiciones</a>
+                            <input class="form-check-input" type="checkbox" id="CPNcheck_terminos_condiciones"
+                              autocomplete="off"> <a href="/terminos.html">Acepto términos y condiciones</a>
+                          </div>
+                          <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
+                        </div>
+
+                        <div class="form-group">
+                          <input type="checkbox" name="" id="checkbox-banco" onchange="pruebacheck()"> Registrar datos
+                          bancarios para el pago de envíos con recaudo
+                        </div>
+
+                        <div id="mostrar-ocultar-registro-bancario" style="display: none;">
+                          <h6 class="text-danger">DATOS BANCARIOS</h6>
+                          </br>
+                          <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                              <h6>Banco*</6>
+                                <h6></h6>
+                                <select class="form-control form-control" id="CPNbanco">
+                                  <option value="Bancolombia(Desembolso: $0)">Bancolombia(Desembolso: $0)</option>
+                                  <option value="Nequi(desembolso: $0)">Nequi(desembolso: $0)</option>
+                                  <option value="Banco de bogotá(Desembolso: $7.500)">Banco de bogotá(Desembolso:
+                                    $7.500)</option>
+                                  <option value="Banco popular(Desembolso: $7.500)">Banco popular(Desembolso: $7.500)
+                                  </option>
+                                  <option value="Itaú(Desembolso: $7.500)">Itaú(Desembolso: $7.500)</option>
+                                  <option value="Citibank(Desembolso: $7.500)">Citibank(Desembolso: $7.500)</option>
+                                  <option value="BBVA(Desembolso: $7.500)">BBVA(Desembolso: $7.500)</option>
+                                  <option value="Colpatria(Desembolso: $7.500)">Colpatria(Desembolso: $7.500)</option>
+                                  <option value="Banco de occidente(Desembolso: $7.500)">Banco de occidente(Desembolso:
+                                    $7.500)</option>
+                                  <option value="Banco caja social(Desembolso: $7.500)">Banco caja social(Desembolso:
+                                    $7.500)</option>
+                                  <option value="Banco Agrario(Desembolso: $7.500)">Banco Agrario(Desembolso: $7.500)
+                                  </option>
+                                  <option value="Banco davivienda(Desembolso: $7.500)">Banco davivienda(Desembolso:
+                                    $7.500)</option>
+                                  <option value="Banco Av Villas (Desembolso: $7.500)">Banco Av Villas (Desembolso:
+                                    $7.500)</option>
+                                  <option value="Banco Pichincha(Desembolso: $7.500)">Banco Pichincha(Desembolso:
+                                    $7.500)</option>
+                                  <option value="Bancoomeva(Desembolso: $7.500)">Bancoomeva(Desembolso: $7.500)</option>
+                                  <option value="Banco Falabella (Desembolso: $7.500)">Banco Falabella (Desembolso:
+                                    $7.500)</option>
+                                  <option value="Daviplata (Desembolso: $7.500)">Daviplata (Desembolso: $7.500)</option>
+                                </select>
                             </div>
-                            <div id="CPNdiv_terminos_condiciones" style="display: none;"></div>
+                            <div class="col-sm-6">
+                              <h6>Nombre representante*</h6>
+                              <input type="text" class="form-control form-control-user" id="CPNnombre_representante"
+                                autocomplete="off" required>
+                            </div>
                           </div>
 
-                          <div class="form-group">
-                            <input type="checkbox"  name="" id="checkbox-banco" onchange="pruebacheck()"> Registrar datos bancarios para el pago de envíos con recaudo
-                          </div>
-          
-                            <div id="mostrar-ocultar-registro-bancario" style="display: none;">
-                              <h6 class="text-danger">DATOS BANCARIOS</h6>
-                                </br>
-                              <div class="form-group row">
-                                <div class="col-sm-6 mb-3 mb-sm-0">
-                                  <h6>Banco*</6>
-                                  <h6></h6>
-                                  <select  class="form-control form-control" id="CPNbanco">
-                                    <option value="Bancolombia(Desembolso: $0)">Bancolombia(Desembolso: $0)</option> 
-                                    <option value="Nequi(desembolso: $0)">Nequi(desembolso: $0)</option>
-                                    <option value="Banco de bogotá(Desembolso: $7.500)">Banco de bogotá(Desembolso: $7.500)</option>
-                                    <option value="Banco popular(Desembolso: $7.500)">Banco popular(Desembolso: $7.500)</option>
-                                    <option value="Itaú(Desembolso: $7.500)">Itaú(Desembolso: $7.500)</option>
-                                    <option value="Citibank(Desembolso: $7.500)">Citibank(Desembolso: $7.500)</option>
-                                    <option value="BBVA(Desembolso: $7.500)">BBVA(Desembolso: $7.500)</option>
-                                    <option value="Colpatria(Desembolso: $7.500)">Colpatria(Desembolso: $7.500)</option>
-                                    <option value="Banco de occidente(Desembolso: $7.500)">Banco de occidente(Desembolso: $7.500)</option>
-                                    <option value="Banco caja social(Desembolso: $7.500)">Banco caja social(Desembolso: $7.500)</option>
-                                    <option value="Banco Agrario(Desembolso: $7.500)">Banco Agrario(Desembolso: $7.500)</option>
-                                    <option value="Banco davivienda(Desembolso: $7.500)">Banco davivienda(Desembolso: $7.500)</option>
-                                    <option value="Banco Av Villas (Desembolso: $7.500)">Banco Av Villas (Desembolso: $7.500)</option>
-                                    <option value="Banco Pichincha(Desembolso: $7.500)">Banco Pichincha(Desembolso: $7.500)</option>
-                                    <option value="Bancoomeva(Desembolso: $7.500)">Bancoomeva(Desembolso: $7.500)</option>
-                                    <option value="Banco Falabella (Desembolso: $7.500)">Banco Falabella (Desembolso: $7.500)</option>
-                                    <option value="Daviplata (Desembolso: $7.500)">Daviplata (Desembolso: $7.500)</option>
-                                  </select>
-                                </div>
-                                <div class="col-sm-6">
-                                  <h6>Nombre representante*</h6>
-                                  <input type="text" class="form-control form-control-user" id="CPNnombre_representante" autocomplete="off" required>
-                                </div>
-                              </div>
-          
-                              <div class="form-group row">
-                                <div class="col-sm-6 mb-3 mb-sm-0">
-                                  <h6>Tipo de cuenta*</6>
-                                  <h6></h6>
-                                  
-                                  <select  class="form-control form-control" id="CPNtipo_de_cuenta">
-                                    <option value="Ahorros">Ahorros</option> 
-                                    <option value="Corriente">Corriente</option>
-                                   
-                                  </select>
-                                </div>
-          
-          
-                                <div class="col-sm-6">
-                                  <h6>Número de cuenta*</h6>
-                                  <input type="number" class="form-control form-control-user" id="CPNnumero_cuenta" autocomplete="off" required>
-                                </div>
-                                
-                              </div>
-          
-                              <div class="form-group row">
-                                <div class="col-sm-6">
-                                  <h6>Confirmar número de cuenta*</h6>
-                                  <input type="number" class="form-control form-control-user" id="CPNconfirmar_numero_cuenta" autocomplete="off" required>
-                                </div>
-          
-          
-                                <div class="col-sm-6 mb-3 mb-sm-0">
-                                  <h6>Tipo documento*</6>
-                                  <h6></h6>
-                                  
-                                  <select  class="form-control form-control" id="CPNtipo_documento_banco">
-                                    <option value="CC">CC</option> 
-                                    <option value="NIT">NIT</option>
-                                    <option value="Cédula extranjería">Cédula extranjería</option>
-                                    
-                                  </select>
-                                </div>
-                                
-                              </div>
-          
-                              <div class="form-group row">
-                                <div class="col-sm-6">
-                                  <h6>número de identificación*</h6>
-                                  <input type="number" class="form-control form-control-user" id="CPNnumero_identificacion_banco" autocomplete="off" required>
-                                </div>
-          
-          
-                                <div class="col-sm-6">
-                                  <h6>Confirmar número de identificación*</h6>
-                                  <input type="number" class="form-control form-control-user" id="CPNconfirmar_numero_identificacion_banco" autocomplete="off" required>
-                                </div>
-                                
-                              </div>
+                          <div class="form-group row">
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                              <h6>Tipo de cuenta*</6>
+                                <h6></h6>
+
+                                <select class="form-control form-control" id="CPNtipo_de_cuenta">
+                                  <option value="Ahorros">Ahorros</option>
+                                  <option value="Corriente">Corriente</option>
+
+                                </select>
                             </div>
-          
-                        </form>
-                          <button id="registrar-nueva-cuenta" class="btn btn-primary btn-user btn-block" disabled>
-                            Registrar cuenta
-                          </button>
-                        
-                          <hr>
-                        
-                        <div id="error_crear_cuenta"></div>
-                        <hr>                       
-                      </div>
+
+
+                            <div class="col-sm-6">
+                              <h6>Número de cuenta*</h6>
+                              <input type="number" class="form-control form-control-user" id="CPNnumero_cuenta"
+                                autocomplete="off" required>
+                            </div>
+
+                          </div>
+
+                          <div class="form-group row">
+                            <div class="col-sm-6">
+                              <h6>Confirmar número de cuenta*</h6>
+                              <input type="number" class="form-control form-control-user"
+                                id="CPNconfirmar_numero_cuenta" autocomplete="off" required>
+                            </div>
+
+
+                            <div class="col-sm-6 mb-3 mb-sm-0">
+                              <h6>Tipo documento*</6>
+                                <h6></h6>
+
+                                <select class="form-control form-control" id="CPNtipo_documento_banco">
+                                  <option value="CC">CC</option>
+                                  <option value="NIT">NIT</option>
+                                  <option value="Cédula extranjería">Cédula extranjería</option>
+
+                                </select>
+                            </div>
+
+                          </div>
+
+                          <div class="form-group row">
+                            <div class="col-sm-6">
+                              <h6>número de identificación*</h6>
+                              <input type="number" class="form-control form-control-user"
+                                id="CPNnumero_identificacion_banco" autocomplete="off" required>
+                            </div>
+
+
+                            <div class="col-sm-6">
+                              <h6>Confirmar número de identificación*</h6>
+                              <input type="number" class="form-control form-control-user"
+                                id="CPNconfirmar_numero_identificacion_banco" autocomplete="off" required>
+                            </div>
+
+                          </div>
+                        </div>
+
+                      </form>
+                      <button id="registrar-nueva-cuenta" class="btn btn-primary btn-user btn-block" disabled>
+                        Registrar cuenta
+                      </button>
+
+                      <hr>
+
+                      <div id="error_crear_cuenta"></div>
+                      <hr>
                     </div>
                   </div>
                 </div>
+              </div>
             </div>
           </div>
-        
+
 
           <div class="container-fluid" id="oficinas" style="display: none;">
-            <button class="btn btn-primary float-right" title="Descargar informe"  id="descargar-informe-oficinas">
+            <button class="btn btn-primary float-right" title="Descargar informe" id="descargar-informe-oficinas">
               <span class="d-none d-md-inline">Descargar informe</span> <i class="fa fa-download"></i>
             </button>
             <div class="row" id="busqueda-oficinas">
               <form class="input-group mb-3 col-12 offset-md-2 col-md-8">
-                <input type="text" class="form-control border-info" placeholder="Digite el nombre de la oficina" id="buscador_oficinas-documento">
+                <input type="text" class="form-control border-info" placeholder="Digite el nombre de la oficina"
+                  id="buscador_oficinas-documento">
                 <!-- <input type="text" class="form-control border-info" placeholder="Dirección" id="buscador_oficinas-direccion"> -->
                 <!-- <input type="text" class="form-control border-info" placeholder="Nombre" id="buscador_oficinas-nombre"> -->
                 <div class="input-group-append">
@@ -1030,26 +1091,30 @@
                 </div>
               </form>
             </div>
-            
+
             <div class="d-flex justify-content-center">
-              <div class="lds-ellipsis mt-4 d-none" id="cargador-oficinas"><div></div>
-              <div></div><div></div><div></div></div>
+              <div class="lds-ellipsis mt-4 d-none" id="cargador-oficinas">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
             </div>
-            <div id="mostrador-oficinas" class="row" ></div>
+            <div id="mostrador-oficinas" class="row"></div>
 
 
-         
+
             <div id="oficina-seleccionada" class="d-none ">
               <div class="card-header text-center">
                 <div class="row">
                   <a class="btn btn-outline-primary btn-lg" href="javascript:volver()">Volver</a>
                   <script>
-                    function volver(){
+                    function volver() {
                       document.getElementById("mostrador-oficinas").classList.remove("d-none");
                       document.getElementById("busqueda-oficinas").classList.remove("d-none");
                       document.getElementById("descargar-informe-oficinas").classList.remove("d-none");
                       document.getElementById("oficina-seleccionada").classList.add("d-none");
-                
+
                     }
                   </script>
                 </div>
@@ -1060,116 +1125,110 @@
               <!-- Información oficina -->
               <div class="card shadow mb-4">
                 <!-- Card Header - Accordion -->
-                <a href="#informacion-oficina" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="informacion-personal">
+                <a href="#informacion-oficina" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                  aria-expanded="true" aria-controls="informacion-personal">
                   <h6 class="m-0 font-weight-bold text-primary">Información Oficina</h6>
                 </a>
                 <!-- Card Content - Collapse -->
-              <div class="collapse show" id="informacion-oficina">
-            <div class="card-body">
+                <div class="collapse show" id="informacion-oficina">
+                  <div class="card-body">
 
-              <form action="">
-              
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h6>Nombres*</h6>
-                    <input required type="text" class="form-control form-control-user"
-                    name="nombres" id="nombres-oficina">
+                    <form action="">
+
+                      <div class="form-group row">
+                        <div class="col-sm-6 mb-3 mb-sm-0">
+                          <h6>Nombres*</h6>
+                          <input required type="text" class="form-control form-control-user" name="nombres"
+                            id="nombres-oficina">
+                        </div>
+                        <div class="col-sm-6">
+                          <h6>Apellidos*</h6>
+                          <input required type="text" class="form-control form-control-user" name="apellidos"
+                            id="apellidos-oficina">
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <div class="col-sm-6 mb-3 mb-sm-0">
+                          <h6>Tipo documento*</6>
+                            <h6></h6>
+
+                            <select class="form-control form-control" name="tipo_documento" id="tipo-documento-oficina"
+                              readonly>
+                              <option value="CC" selected>CC</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-6">
+                          <h6>Número identificación*</h6>
+                          <input type="number" class="form-control form-control-user" name="numero_documento"
+                            id="no-documento-oficina" readonly>
+                        </div>
+
+                      </div>
+
+                      <div class="form-group row">
+                        <div class="col-sm-6 mb-3 mb-sm-0">
+                          <h6>Celular*</h6>
+                          <input required type="number" class="form-control form-control-user" name="celular"
+                            id="numero1">
+                        </div>
+                        <div class="col-sm-6">
+                          <h6>Celular #2</h6>
+                          <input type="number" class="form-control form-control-user" name="celular2" id="numero2">
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <div class="col-sm-6 mb-3 mb-sm-0">
+                          <h6>Correo*</h6>
+                          <input required type="mail" class="form-control form-control-user" id="correo-oficina">
+                        </div>
+                        <div class="col-sm-6">
+                          <h6>Nombre empresa*</h6>
+                          <input required type="text" class="form-control form-control-user" name="celular2"
+                            id="nombre-empresa-oficina">
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <div class="col-sm-6 mb-3 mb-sm-0">
+                          <h6>Ciudad*</h6>
+                          <input required type="text" class="form-control form-control-user" id="ciudad-oficina">
+                        </div>
+                        <div class="col-sm-6">
+                          <h6>Dirección*</h6>
+                          <input required type="text" class="form-control form-control-user" id="dirección-oficina">
+                        </div>
+                      </div>
+
+                      <div class="form-group row">
+                        <div class="col-sm-4 mb-3 mb-sm-0">
+                          <h6>Barrio*</h6>
+                          <input required type="text" class="form-control form-control-user" id="barrio-oficina">
+                        </div>
+                        <div class="col-sm-4">
+                          <h6>Con*</h6>
+                          <input required type="text" class="form-control form-control-user" id="con-oficina">
+                        </div>
+
+                        <div class="col-sm-4">
+                          <h6>Visible</h6>
+                          <select class="form-control form-control" id="visible-oficina">
+                            <!-- <option value="true" >Si</option>  -->
+                            <option value=true>Si</option>
+                            <option value=false>No</option>
+                          </select>
+                        </div>
+                      </div>
+                      <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4 no-updte"
+                        onclick="actualizarInformacionOficina()" value="Actualizar Datos Oficina">
+                    </form>
                   </div>
-                  <div class="col-sm-6">
-                    <h6>Apellidos*</h6>
-                    <input required type="text" class="form-control form-control-user"
-                    name="apellidos" id="apellidos-oficina">
-                  </div> 
+
+
+
+
                 </div>
-
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h6>Tipo documento*</6>
-                    <h6></h6>
-                    
-                    <select  class="form-control form-control"
-                    name="tipo_documento" id="tipo-documento-oficina" readonly>
-                      <option value="CC" selected>CC</option> 
-                    </select>
-                  </div>
-                  <div class="col-sm-6">
-                    <h6>Número identificación*</h6>
-                    <input type="number" class="form-control form-control-user"
-                    name="numero_documento" id="no-documento-oficina" readonly>
-                  </div>
-                  
-                </div>
-
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h6>Celular*</h6>
-                    <input required type="number" class="form-control form-control-user"
-                    name="celular" id="numero1">
-                  </div>
-                  <div class="col-sm-6">
-                    <h6>Celular #2</h6>
-                    <input type="number" class="form-control form-control-user"
-                    name="celular2" id="numero2">
-                  </div>
-                </div>
-
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h6>Correo*</h6>
-                    <input required type="mail" class="form-control form-control-user"
-                    id="correo-oficina">
-                  </div>
-                  <div class="col-sm-6">
-                    <h6>Nombre empresa*</h6>
-                    <input required type="text" class="form-control form-control-user"
-                    name="celular2" id="nombre-empresa-oficina">
-                  </div>
-                </div>
-
-                <div class="form-group row">
-                  <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h6>Ciudad*</h6>
-                    <input required type="text" class="form-control form-control-user"
-                    id="ciudad-oficina">
-                  </div>
-                  <div class="col-sm-6">
-                    <h6>Dirección*</h6>
-                    <input required type="text" class="form-control form-control-user"
-                    id="dirección-oficina">
-                  </div>
-                </div>
-
-                <div class="form-group row">
-                  <div class="col-sm-4 mb-3 mb-sm-0">
-                    <h6>Barrio*</h6>
-                    <input required type="text" class="form-control form-control-user"
-                    id="barrio-oficina">
-                  </div>
-                  <div class="col-sm-4">
-                    <h6>Con*</h6>
-                    <input required type="text" class="form-control form-control-user"
-                    id="con-oficina">
-                  </div>
-                  
-                  <div class="col-sm-4">
-                    <h6>Visible</h6>
-                    <select  class="form-control form-control"
-                    id="visible-oficina">
-                    <!-- <option value="true" >Si</option>  -->
-                    <option value=true >Si</option> 
-                    <option value=false >No</option> 
-                  </select>
-                </div>
-              </div>
-                <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4 no-updte"
-                onclick="actualizarInformacionOficina()" value="Actualizar Datos Oficina">
-              </form>
-              </div>
-
-
-
-              
-            </div>
 
 
 
@@ -1178,14 +1237,8 @@
               <!-- Informacion Heka-->
               <div class="card shadow mb-4">
                 <!-- Card Header - Accordion -->
-                <a
-                  href="#informacion-hekaOfi"
-                  class="d-block card-header py-3"
-                  data-toggle="collapse"
-                  role="button"
-                  aria-expanded="true"
-                  aria-controls="informacion-heka"
-                >
+                <a href="#informacion-hekaOfi" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                  aria-expanded="true" aria-controls="informacion-heka">
                   <h6 class="m-0 font-weight-bold text-primary">Información Heka</h6>
                 </a>
                 <!-- Card Content - Collapse -->
@@ -1196,43 +1249,33 @@
                       <div class="form-group row">
                         <div class="col-sm-4 mb-4">
                           <h6>Porcentaje comisión</h6>
-                          <input
-                            type="number"
-                            class="form-control form-control-user"
-                            max="100"
-                            id="porcentaje-comision-oficina"
-                          />
+                          <input type="number" class="form-control form-control-user" max="100"
+                            id="porcentaje-comision-oficina" />
                         </div>
                         <div class="col-sm-4">
                           <h6>Tipo de distribución</h6>
 
-                          <label><input type="checkbox" id="tipo-distribucion-direccion" value=0>Entrega en dirección </label>
+                          <label><input type="checkbox" id="tipo-distribucion-direccion" value=0>Entrega en dirección
+                          </label>
                           <br>
-                          <label><input type="checkbox" id="tipo-distribucion-oficina" value=0>Entrega en oficina </label>
+                          <label><input type="checkbox" id="tipo-distribucion-oficina" value=0>Entrega en oficina
+                          </label>
                         </div>
-                        
+
                         <div class="col-sm-4">
                           <h6>Comisión minima</h6>
-                          <input
-                            type="number"
-                            class="form-control form-control-user"
-                            id="comision-minima"
-                          />
+                          <input type="number" class="form-control form-control-user" id="comision-minima" />
                         </div>
                       </div>
 
-                      <input
-                        type="button"
-                        class="btn btn-outline-primary btn-lg btn-block mt-4 no-updte"
-                        onclick="actualizarInformacionHekaOficina()"
-                        value="Actualizar info heka"
-                      />
+                      <input type="button" class="btn btn-outline-primary btn-lg btn-block mt-4 no-updte"
+                        onclick="actualizarInformacionHekaOficina()" value="Actualizar info heka" />
                     </form>
                   </div>
                 </div>
               </div>
 
-              
+
             </div>
 
 
@@ -1248,35 +1291,36 @@
               <div class="form-group row mb-12">
                 <div class="col-sm-6 mb-3 mb-sm-0">
                   <h6>Fecha inicio</h6>
-                  <input type="date" class="form-control form-control-user"  id="docs-fecha-inicio" required>
+                  <input type="date" class="form-control form-control-user" id="docs-fecha-inicio" required>
                 </div>
                 <div class="col-sm-6">
                   <h6>Fecha final</h6>
-                  <input type="date" class="form-control form-control-user"  id="docs-fecha-final" required>
+                  <input type="date" class="form-control form-control-user" id="docs-fecha-final" required>
                 </div>
               </div>
-              
+
             </div>
 
-            <button id="buscador-documentos" class="mb-4 btn btn-primary btn-user btn-block" style="padding-bottom: 10px;" >
+            <button id="buscador-documentos" class="mb-4 btn btn-primary btn-user btn-block"
+              style="padding-bottom: 10px;">
               Buscar
-            </button> 
+            </button>
             <div class="row" id="mostrador-documentos"></div>
           </div>
-          
+
           <div class="container-fluid" id="historial_guias">
             <h2>Historial De Guías</h2>
             <div>
               <div class="form-group row mb-2">
                 <div class="col-sm-3 mb-3 mb-sm-0">
                   <label for="fechaI-hist_guias">Fecha inicio</label>
-                  <input type="date" class="form-control form-control-user"  id="fechaI-hist_guias">
+                  <input type="date" class="form-control form-control-user" id="fechaI-hist_guias">
                 </div>
                 <div class="col-sm-3">
                   <label for="fechaF-hist_guias">Fecha final</label>
-                  <input type="date" class="form-control form-control-user"  id="fechaF-hist_guias">
+                  <input type="date" class="form-control form-control-user" id="fechaF-hist_guias">
                 </div>
-                
+
                 <div class="col-sm-6">
                   <label for="num_guia-hist_guias">Número de guía</label>
                   <input type="text" class="form-control form-control-user" id="num_guia-hist_guias">
@@ -1286,7 +1330,7 @@
                   <input type="checkbox" name="guias_punto-hist_guias" id="guias_punto-hist_guias">
                   <label for="guias_punto-hist_guias">Guías de puntos</label>
                 </div>
-                
+
               </div>
 
               <div class="from-group row mb-3" id="filt_exp-hist_guias">
@@ -1295,7 +1339,7 @@
                   <label for="tipo_filt-hist_guias">Tipo filtro</label>
                   <select id="tipo_filt-hist_guias" class="form-control">
                     <option selected>--Seleccione tipo de filtro --</option>
-                    <option value="filt_1" >Usuario pagos</option>
+                    <option value="filt_1">Usuario pagos</option>
                     <option value="filt_2">Transportadora</option>
                     <option value="filt_3">Centro costo</option>
                     <option value="filt_4">Tipo de envío</option>
@@ -1309,7 +1353,7 @@
                     <option value="">Seleccione pagos</option>
                   </select>
                 </div>
-                
+
                 <div class="col-sm-6 filtro-gen d-none" id="filt_2-hist_guias">
                   <label for="filtro_transp-hist_guias">Transportadora</label>
                   <select id="filtro_transp-hist_guias" class="form-control">
@@ -1350,7 +1394,12 @@
               </div>
             </div>
             <div class="d-flex justify-content-center">
-              <div class="cargador d-none lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+              <div class="cargador d-none lds-ellipsis">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
             </div>
             <ul id="status-historial_guias"></ul>
             <div id="status_pagos-historial_guias"></div>
@@ -1368,20 +1417,24 @@
                 <form enctype="multipart/form-data" id="form-estado">
                   <div class="form-group">
                     <div class="custom-file mt-2">
-                      <input type="file" class="custom-file-input" id="cargar_estado" accept=".xlsx,.xls" name="documento" lang="es">
+                      <input type="file" class="custom-file-input" id="cargar_estado" accept=".xlsx,.xls"
+                        name="documento" lang="es">
                       <label class="custom-file-label" for="cargar_estado">Seleccionar Archivo</label>
                     </div>
 
-                    <input type="submit" id="btn_actualizador" 
-                    value="Actualizar" class="btn btn-primary mt-4 col-12">
+                    <input type="submit" id="btn_actualizador" value="Actualizar" class="btn btn-primary mt-4 col-12">
                   </div>
                 </form>
               </div>
             </div>
             <div class="text-center mt-4 d-none" id="cargador-actualizador">
               <h5>Cargando <span class="text-primary"></span> registros</h5>
-              <div class="lds-ellipsis"><div></div>
-              <div></div><div></div><div></div></div>
+              <div class="lds-ellipsis">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
             </div>
             <ul id="resultado-actualizador" class="mt-2"></ul>
           </div>
@@ -1392,10 +1445,10 @@
                 <form enctype="multipart/form-data" id="form-novedades">
                   <div class="form-group">
                     <div class="input-group mb-3">
-                      <input type="text" class="form-control" id="filtrado-novedades-guias" placeholder="Guía1, Guía2, etc..." 
-                        aria-label="Guias" aria-describedby="btn-revisar-novedades">
-                      <input type="text" class="form-control" id="filtrado-novedades-usuario" placeholder="Centro de costo" 
-                      aria-label="Usuario" aria-describedby="btn-revisar-novedades">
+                      <input type="text" class="form-control" id="filtrado-novedades-guias"
+                        placeholder="Guía1, Guía2, etc..." aria-label="Guias" aria-describedby="btn-revisar-novedades">
+                      <input type="text" class="form-control" id="filtrado-novedades-usuario"
+                        placeholder="Centro de costo" aria-label="Usuario" aria-describedby="btn-revisar-novedades">
                       <select name="activador_busq_novedades" class="form-control" id="activador_busq_novedades">
                         <option value="">Buscar solo novedades</option>
                         <option value="INTERRAPIDISIMO">Interrapidísimo</option>
@@ -1406,25 +1459,28 @@
                     </div>
                     <div class="input-group d-none">
                       <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="cargar_gest-novedades" accept=".xlsx" name="documento" lang="es">
+                        <input type="file" class="custom-file-input" id="cargar_gest-novedades" accept=".xlsx"
+                          name="documento" lang="es">
                         <label class="custom-file-label" for="cargar_gest-novedades">Seleccionar Archivo</label>
                       </div>
                       <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" id="btn_descargar_gest-novedades">Descargar gestiones</button>
+                        <button class="btn btn-outline-secondary" type="button"
+                          id="btn_descargar_gest-novedades">Descargar gestiones</button>
                       </div>
                     </div>
 
-                  
+
                     <div class="btn-group col-12">
-                      <button type="button" id="btn-vaciar-consulta" 
-                      class="btn btn-secondary mt-4">Limpiar Consulta</button>
-                      <button type="button" id="btn-revisar-novedades"
-                       class="btn btn-primary mt-4">Revisar Movimientos</button>
+                      <button type="button" id="btn-vaciar-consulta" class="btn btn-secondary mt-4">Limpiar
+                        Consulta</button>
+                      <button type="button" id="btn-revisar-novedades" class="btn btn-primary mt-4">Revisar
+                        Movimientos</button>
                     </div>
                     <div class="d-flex pt-5 mx-5 ">
                       <div class="flex-column mr-5" style="width: 35%;">
-                        <button class="btn btn-outline-danger w-100 mr-2" type="button" id="descargarExcelNovedades">Descargar Excel</button>
-                        <hr/>
+                        <button class="btn btn-outline-danger w-100 mr-2" type="button"
+                          id="descargarExcelNovedades">Descargar Excel</button>
+                        <hr />
                         <div class="d-flex">
                           <!-- <div class="col ml-2 pl-3" >
                             <div class="form-check px-2 ">
@@ -1441,61 +1497,71 @@
                               </label>
                             </div>
                           </div> -->
-                          <div class="col ml-2 pl-3" >
+                          <div class="col ml-2 pl-3">
                             <div class="form-check px-2 ">
                               <p class="pl-5">Filtros:</p>
-                              <input class="form-check-input" type="checkbox" value="INTERRAPIDISIMO" id="checkboxNovedadesInter" checked>
+                              <input class="form-check-input" type="checkbox" value="INTERRAPIDISIMO"
+                                id="checkboxNovedadesInter" checked>
                               <label class="form-check-label" for="defaultCheck1">
                                 INTERRAPIDISIMO
                               </label>
                             </div>
                             <div class="form-check px-2  ">
-                              <input class="form-check-input" type="checkbox" value="SERVIENTREGA" id="checkboxNovedadesServientrega" checked>
+                              <input class="form-check-input" type="checkbox" value="SERVIENTREGA"
+                                id="checkboxNovedadesServientrega" checked>
                               <label class="form-check-label" for="defaultCheck1">
                                 SERVIENTREGA
                               </label>
                             </div>
                             <div class="form-check px-2 ">
-                              <input class="form-check-input" type="checkbox" value="COORDINADORA" id="checkboxNovedadesCoordinadora" checked>
+                              <input class="form-check-input" type="checkbox" value="COORDINADORA"
+                                id="checkboxNovedadesCoordinadora" checked>
                               <label class="form-check-label" for="defaultCheck1">
                                 COORDINADORA
                               </label>
                             </div>
                             <div class="form-check px-2  ">
-                              <input class="form-check-input" type="checkbox" value="ENVIA" id="checkboxNovedadesEnvia" checked>
+                              <input class="form-check-input" type="checkbox" value="ENVIA" id="checkboxNovedadesEnvia"
+                                checked>
                               <label class="form-check-label" for="defaultCheck1">
                                 ENVIA
                               </label>
                             </div>
                           </div>
                         </div>
-      
+
                       </div>
-                      
+
                       <div class="input-group w-50 h-25" id="formExcelNovedades">
                         <div class="custom-file">
                           <input type="file" class="custom-file-input w-50" id="excelDocSoluciones" name="documento">
-                          <label id="excelDocSolucionesLabel" class="custom-file-label" for="excelDocSoluciones" data-browse="Buscar">Seleccionar Archivo</label>
+                          <label id="excelDocSolucionesLabel" class="custom-file-label" for="excelDocSoluciones"
+                            data-browse="Buscar">Seleccionar Archivo</label>
+                        </div>
+                        <div class="input-group-append w-25">
+                          <button class="btn btn-outline-secondary w-100" type="button"
+                            id="excelDocSolucionesBoton">Actualizar</button>
+                        </div>
+                      </div>
                     </div>
-                    <div class="input-group-append w-25">
-                      <button class="btn btn-outline-secondary w-100" type="button" id="excelDocSolucionesBoton" >Actualizar</button>
-                    </div>
-                  </div>
-                </div>
-                  
+
                   </div>
                 </form>
-                
-                
-                
+
+
+
               </div>
             </div>
-            
+
             <div class="d-flex justify-content-center">
-              <div class="lds-ellipsis mt-4 d-none" id="cargador-novedades"><div></div>
-              <div></div><div></div><div></div></div>
+              <div class="lds-ellipsis mt-4 d-none" id="cargador-novedades">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
             </div>
-            
+
             <div id="visor_novedades"></div>
           </div>
 
@@ -1510,48 +1576,88 @@
                         <option value="CENTRO-COSTO">Centros de costo</option>
                         <option value="GUIAS">Guias</option>
                       </select>
-                      <input type="text" class="form-control" disabled id="input-filtrado-callcenter" aria-describedby="btn-revisar-callcenter">
-                      <div class="col-4"> 
-                        <select name="activador_busq_callcenter"  id="activador_busq_callcenter" placeholder="Selecciona transportadora..." multiple class="form-control" style="max-width: 30%;">
+                      <input type="text" class="form-control" disabled id="input-filtrado-callcenter"
+                        aria-describedby="btn-revisar-callcenter">
+                      <div class="col-4">
+                        <select name="activador_busq_callcenter" id="activador_busq_callcenter"
+                          placeholder="Selecciona transportadora..." multiple class="form-control"
+                          style="max-width: 30%;">
                           <option value="INTERRAPIDISIMO">Interrapidísimo</option>
                           <option value="SERVIENTREGA">Servientrega</option>
                           <option value="ENVIA">Envía</option>
                           <option value="COORDINADORA">Coordinadora</option>
-                      </select> 
+                        </select>
                       </div>
                     </div>
                     <div class="input-group d-none">
                       <div class="custom-file">
-                        <input type="file" class="custom-file-input" id="cargar_gest-callcenter" accept=".xlsx" name="documento" lang="es">
+                        <input type="file" class="custom-file-input" id="cargar_gest-callcenter" accept=".xlsx"
+                          name="documento" lang="es">
                         <label class="custom-file-label" for="cargar_gest-callcenter">Seleccionar Archivo</label>
                       </div>
                       <div class="input-group-append">
-                        <button class="btn btn-outline-secondary" type="button" id="btn_descargar_gest-callcenter">Descargar gestiones</button>
+                        <button class="btn btn-outline-secondary" type="button"
+                          id="btn_descargar_gest-callcenter">Descargar gestiones</button>
                       </div>
                     </div>
 
-                  
+
                     <div class="btn-group col-12">
-                      <button type="button" id="btn-vaciar-consulta-callcenter" 
-                      class="btn btn-secondary mt-4">Limpiar Consulta</button>
-                      <button type="button" id="btn-revisar-callcenter"
-                       class="btn btn-primary mt-4">Revisar Movimientos</button>
+                      <button type="button" id="btn-vaciar-consulta-callcenter" class="btn btn-secondary mt-4">Limpiar
+                        Consulta</button>
+                      <button type="button" id="btn-revisar-callcenter" class="btn btn-primary mt-4">Revisar
+                        Movimientos</button>
                     </div>
-                    
-        
+                    <div class="d-flex col-11 pt-5 mx-5 align-items-end">
+                      <div class="col-sm-2 mb-3 mb-sm-0">
+                        <h6>Fecha inicio</h6>
+                        <input type="date" class="form-control form-control-user" id="informe-callcenter-fecha-inicio"
+                          required>
+                      </div>
+                      <div class="col-sm-2 mb-3 mb-sm-0">
+                        <h6>Fecha final</h6>
+                        <input type="date" class="form-control form-control-user" id="informe-callcenter-fecha-final"
+                          required>
+                      </div>
+                      <select name="filtro-transportadoras-informe" class="form-control col-sm-2" id="filtro-transportadoras-informe">
+                        <option value="">Elije transportadora...</option>
+                        <option value="INTERRAPIDISIMO">Interrapidísimo</option>
+                        <option value="SERVIENTREGA">Servientrega</option>
+                        <option value="ENVIA">Envía</option>
+                        <option value="COORDINADORA">Coordinadora</option>
+                      </select>
+                      <div class="col-sm-3 h-75">
+                        <button class="btn btn-outline-danger h-75 w-100 " type="button"
+                          id="descargarInformeCallcenter">Descargar Informe</button>
+                      </div>
+                      <div class="form-check px-2 mx-3 mb-2">
+                        <input class="form-check-input" type="checkbox" value="DESCARGAR-GESTIONADAS"
+                          id="checkboxInformeGestionadas">
+                        <label class="form-check-label" for="defaultCheck1">
+                          Descargar las guias gestionadas
+                        </label>
+                      </div>
+                    </div>
+
+
+
                   </div>
                 </form>
-                
-                
-                
+
+
+
               </div>
             </div>
-            
+
             <div class="d-flex justify-content-center">
-              <div class="lds-ellipsis mt-4 d-none" id="cargador-callcenter"><div></div>
-              <div></div><div></div><div></div></div>
+              <div class="lds-ellipsis mt-4 d-none" id="cargador-callcenter">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
             </div>
-            
+
             <div id="visor_callcenter"></div>
           </div>
 
@@ -1572,7 +1678,7 @@
                       <input type="checkbox" name="activador_filtro_fecha" id="activador_filtro_fecha">
                       <label for="activador_filtro_fecha">Activar Filtrado por fecha</label>
                     </div>
-                      
+
                     <div class="row">
                       <div id="fecha-pagos" class="col-md-6 mt-2" style="display: none;">
                         <div class="form-group row mb-3">
@@ -1606,51 +1712,60 @@
                       </div>
                       <div class="col-12 d-flex justify-content-around flex-wrap align-items-end m-2">
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1" name="filtro-trasnportadoras" value="SERVIENTREGA">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1"
+                            name="filtro-trasnportadoras" value="SERVIENTREGA">
                           <label class="form-check-label" for="filtro-trasnportadora1">Servientrega</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2" name="filtro-trasnportadoras" value="ENVIA">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2"
+                            name="filtro-trasnportadoras" value="ENVIA">
                           <label class="form-check-label" for="filtro-trasnportadora2">Envía</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora3" name="filtro-trasnportadoras" value="TCC">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora3"
+                            name="filtro-trasnportadoras" value="TCC">
                           <label class="form-check-label" for="filtro-trasnportadora3">TCC</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora4" name="filtro-trasnportadoras" value="INTERRAPIDISIMO">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora4"
+                            name="filtro-trasnportadoras" value="INTERRAPIDISIMO">
                           <label class="form-check-label" for="filtro-trasnportadora4">Inter Rapidísimo</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora5" name="filtro-trasnportadoras" value="COORDINADORA">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora5"
+                            name="filtro-trasnportadoras" value="COORDINADORA">
                           <label class="form-check-label" for="filtro-trasnportadora5">Coordinadora</label>
                         </div>
                       </div>
                     </div>
 
                     <div class="btn-group col-12">
-                      <input type="button" id="btn-revisar_pagos" 
-                      value="Revisar Pagos" class="btn btn-primary mt-4 text-truncate">
-                      
-                      <button type="button" id="btn-descargar_facturas" 
-                      value="Revisar Pagos" class="btn btn-secondary mt-4 text-truncate">
+                      <input type="button" id="btn-revisar_pagos" value="Revisar Pagos"
+                        class="btn btn-primary mt-4 text-truncate">
+
+                      <button type="button" id="btn-descargar_facturas" value="Revisar Pagos"
+                        class="btn btn-secondary mt-4 text-truncate">
                         Informe facturas
                       </button>
-                      
-                      <input type="submit" id="btn-cargar_pagos" 
-                      value="Cargar Pagos" class="btn btn-primary mt-4 text-truncate d-none">
+
+                      <input type="submit" id="btn-cargar_pagos" value="Cargar Pagos"
+                        class="btn btn-primary mt-4 text-truncate d-none">
                     </div>
                   </div>
                 </form>
               </div>
             </div>
             <div class="d-flex justify-content-center">
-              <div class="lds-ellipsis mt-4 d-none" id="cargador-pagos"><div></div>
-              <div></div><div></div><div></div></div>
+              <div class="lds-ellipsis mt-4 d-none" id="cargador-pagos">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
             </div>
             <div id="visor_pagos"></div>
           </div>
-          
+
           <div class="container-fluid" id="gestionar_pagos" style="display: none;">
             <div class="card mt-3">
               <div class="card-body">
@@ -1659,20 +1774,23 @@
 
                     <h2>Filtrado</h2>
                     <div class="col-md-6 mt-2">
-                      <input type="checkbox" name="activador_filtro_fecha-gestionar_pagos" id="activador_filtro_fecha-gestionar_pagos">
+                      <input type="checkbox" name="activador_filtro_fecha-gestionar_pagos"
+                        id="activador_filtro_fecha-gestionar_pagos">
                       <label for="activador_filtro_fecha-gestionar_pagos">Activar Filtrado por fecha</label>
                     </div>
-                      
+
                     <div class="row">
                       <div id="fecha-gestionar_pagos" class="col-md-6 mt-2" style="display: none;">
                         <div class="form-group row mb-3">
                           <div class="col-sm-6 mb-3 mb-sm-0">
                             <h6>Fecha inicio</h6>
-                            <input id="filtro-fechaI-gestionar_pagos" type="date" class="form-control form-control-user">
+                            <input id="filtro-fechaI-gestionar_pagos" type="date"
+                              class="form-control form-control-user">
                           </div>
                           <div class="col-sm-6">
                             <h6>Fecha final</h6>
-                            <input id="filtro-fechaF-gestionar_pagos" type="date" class="form-control form-control-user">
+                            <input id="filtro-fechaF-gestionar_pagos" type="date"
+                              class="form-control form-control-user">
                           </div>
                         </div>
                       </div>
@@ -1684,7 +1802,8 @@
 
                       <div class="col-6 col-md-4 mt-2">
                         <h6>Por Usuario</h6>
-                        <input type="text" name="centro_de_costo" class="form-control" id="filtro-usuario-gestionar_pagos">
+                        <input type="text" name="centro_de_costo" class="form-control"
+                          id="filtro-usuario-gestionar_pagos">
                       </div>
 
                       <div class="col mt-2">
@@ -1695,7 +1814,7 @@
                           <option value="PERSONAL">Personal</option>
                         </select>
                       </div>
-                      
+
                       <div class="col mt-2">
                         <h6>Por fecha de pago</h6>
                         <select id="filtro_tipo_pagos-gestionar_pagos" class="form-control filtro-pagos">
@@ -1708,47 +1827,61 @@
 
                       <div class="col-12 d-flex justify-content-around flex-wrap align-items-end m-2">
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1-gestionar_pagos" name="filtro-transportadoras" value="SERVIENTREGA">
-                          <label class="form-check-label" for="filtro-trasnportadora1-gestionar_pagos">Servientrega</label>
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora1-gestionar_pagos"
+                            name="filtro-transportadoras" value="SERVIENTREGA">
+                          <label class="form-check-label"
+                            for="filtro-trasnportadora1-gestionar_pagos">Servientrega</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2-gestionar_pagos" name="filtro-transportadoras" value="ENVIA">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora2-gestionar_pagos"
+                            name="filtro-transportadoras" value="ENVIA">
                           <label class="form-check-label" for="filtro-trasnportadora2-gestionar_pagos">Envía</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora3-gestionar_pagos" name="filtro-transportadoras" value="TCC">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora3-gestionar_pagos"
+                            name="filtro-transportadoras" value="TCC">
                           <label class="form-check-label" for="filtro-trasnportadora3-gestionar_pagos">TCC</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora4-gestionar_pagos" name="filtro-transportadoras" value="INTERRAPIDISIMO">
-                          <label class="form-check-label" for="filtro-trasnportadora4-gestionar_pagos">Inter Rapidísimo</label>
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora4-gestionar_pagos"
+                            name="filtro-transportadoras" value="INTERRAPIDISIMO">
+                          <label class="form-check-label" for="filtro-trasnportadora4-gestionar_pagos">Inter
+                            Rapidísimo</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora5-gestionar_pagos" name="filtro-transportadoras" value="COORDINADORA">
-                          <label class="form-check-label" for="filtro-trasnportadora5-gestionar_pagos">Coordinadora</label>
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora5-gestionar_pagos"
+                            name="filtro-transportadoras" value="COORDINADORA">
+                          <label class="form-check-label"
+                            for="filtro-trasnportadora5-gestionar_pagos">Coordinadora</label>
                         </div>
                       </div>
 
                       <div class="col-12 d-flex justify-content-center form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="filtro_deudor-gestionar_pagos" name="filtro-negativos">
-                        <label class="form-check-label" for="filtro_deudor-gestionar_pagos">Mostrar los saldos negativos</label>
+                        <input class="form-check-input" type="checkbox" id="filtro_deudor-gestionar_pagos"
+                          name="filtro-negativos">
+                        <label class="form-check-label" for="filtro_deudor-gestionar_pagos">Mostrar los saldos
+                          negativos</label>
                       </div>
                     </div>
 
                     <div class="btn-group col-12">
-                      <button type="button" id="btn-gestionar_pagos" 
-                      value="Pagar" class="btn btn-outline-secondary mt-4 text-truncate">Gestionar pagos</button>
+                      <button type="button" id="btn-gestionar_pagos" value="Pagar"
+                        class="btn btn-outline-secondary mt-4 text-truncate">Gestionar pagos</button>
                     </div>
                   </div>
                 </form>
               </div>
             </div>
             <div class="d-flex justify-content-center">
-              <div class="lds-ellipsis mt-4 d-none" id="cargador-gestionar_pagos"><div></div>
-              <div></div><div></div><div></div></div>
+              <div class="lds-ellipsis mt-4 d-none" id="cargador-gestionar_pagos">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
             </div>
             <div id="visor_gestionar_pagos">
-              
+
             </div>
             <div class="mt-3" id="errores-gestionar_pagos">
             </div>
@@ -1760,25 +1893,31 @@
                 <form enctype="multipart/form-data" id="form-cargador_pagos">
                   <div class="form-group">
                     <div class="custom-file mt-2 mb-4">
-                      <input type="file" class="custom-file-input" id="cargar_cargador_pagos" accept=".xlsx,.xls" name="documento" lang="es">
+                      <input type="file" class="custom-file-input" id="cargar_cargador_pagos" accept=".xlsx,.xls"
+                        name="documento" lang="es">
                       <label class="custom-file-label" for="cargar_cargador_pagos">Seleccionar Archivo</label>
                     </div>
 
                     <div class="btn-group col-12">
-                      <button type="button" id="btn-cargar_cargador_pagos" 
-                      value="Cargar" class="btn btn-outline-secondary mt-4 text-truncate">Cargar</button>
+                      <button type="button" id="btn-cargar_cargador_pagos" value="Cargar"
+                        class="btn btn-outline-secondary mt-4 text-truncate">Cargar</button>
                     </div>
                   </div>
                 </form>
               </div>
             </div>
-            <div class="justify-content-center align-items-center d-none" style="display: flex;" id="cargador-cargador_pagos">
+            <div class="justify-content-center align-items-center d-none" style="display: flex;"
+              id="cargador-cargador_pagos">
               <h5>Cargando <span class="counter"></span> de <span class="f"></span></h5>
-              <div class="lds-ellipsis"><div></div>
-              <div></div><div></div><div></div></div>
+              <div class="lds-ellipsis">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
             </div>
             <div id="visor_cargador_pagos">
-              
+
             </div>
             <div class="mt-3" id="errores-cargador_pagos">
             </div>
@@ -1787,21 +1926,26 @@
           <div class="container-fluid" id="deudas" style="display: none;">
             <input id="filter-user-deudas" class="form-control" type="text" placeholder="seller1, seller2, etc...">
             <div id="cargador-deudas" class="d-flex justify-content-center">
-              <div class="d-none lds-ellipsis"><div></div><div></div><div></div><div></div></div>
+              <div class="d-none lds-ellipsis">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
             </div>
             <div id="visor-deudas"></div>
           </div>
-          
+
           <div class="container-fluid" id="movimientos" style="display: none;">
             <div>
               <div class="form-group row mb-3">
                 <div class="col-sm-6 mb-3 mb-sm-0">
                   <h6>Fecha inicio</h6>
-                  <input type="date" class="form-control form-control-user"  id="movs-fecha-inicio" required>
+                  <input type="date" class="form-control form-control-user" id="movs-fecha-inicio" required>
                 </div>
                 <div class="col-sm-6">
                   <h6>Fecha final</h6>
-                  <input type="date" class="form-control form-control-user"  id="movs-fecha-final" required>
+                  <input type="date" class="form-control form-control-user" id="movs-fecha-final" required>
                 </div>
               </div>
               <button id="filtrador-movimientos" class="mb-4 btn btn-primary btn-user btn-block">
@@ -1824,20 +1968,25 @@
                 <form enctype="multipart/form-data" id="form-utilidades">
                   <div class="form-group">
                     <div class="custom-file mt-2">
-                      <input type="file" class="custom-file-input" id="cargar_utilidades" accept=".xlsx" name="documento" lang="es">
+                      <input type="file" class="custom-file-input" id="cargar_utilidades" accept=".xlsx"
+                        name="documento" lang="es">
                       <label class="custom-file-label" for="cargar_utilidades">Seleccionar Archivo</label>
                     </div>
 
-                    <input type="submit" id="btn_actualizador_utilidades" 
-                    value="Actualizar" class="btn btn-primary mt-4 col-12">
+                    <input type="submit" id="btn_actualizador_utilidades" value="Actualizar"
+                      class="btn btn-primary mt-4 col-12">
                   </div>
                 </form>
               </div>
             </div>
             <div class="text-center mt-4 d-none" id="cargador-utilidades">
               <h5>Cargando <span class="text-primary"></span> registros</h5>
-              <div class="lds-ellipsis"><div></div>
-              <div></div><div></div><div></div></div>
+              <div class="lds-ellipsis">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
             </div>
 
             <ul id="resultado-utilidades" class="mt-2"></ul>
@@ -1858,7 +2007,7 @@
 
                       <select class="custom-select" id="lista-manejo_usuarios"></select>
                     </div>
-                    
+
                     <div class="form-group mb-3 col-6 d-none">
                       <label for="nuevo-manejo_usuarios">Nombre del usuario</label>
                       <input class="form-control" id="nuevo-manejo_usuarios" />
@@ -1867,7 +2016,7 @@
                   </div>
 
                   <div class="row" id="mostrador-manejo_usuarios">
-                    
+
                   </div>
 
                 </form>
@@ -1885,7 +2034,7 @@
               <div class="card-body row" id="visor-mensajeria">
                 <h3 class="card-title">
                   Registro estados
-                  
+
                   <small>
                     <i class="fa fa-edit text-primary d-none" style="cursor: pointer" data-action="editar"></i>
                     <i class="fa fa-check text-success d-none" style="cursor: pointer" data-action="guardar"></i>
@@ -1898,7 +2047,7 @@
                   </select>
                 </div>
                 <form class="row">
-  
+
                   <div class="form-group col-12">
                     <label for="novedad-mensajeria">Novedad</label>
                     <input type="text" class="form-control" disabled id="novedad-mensajeria" name="novedad">
@@ -1907,17 +2056,20 @@
                     <label for="mensaje-mensajeria">Mensaje</label>
                     <input type="text" class="form-control" disabled id="mensaje-mensajeria" name="mensaje">
                   </div>
-  
+
                   <div class="form-group col-md-2 d-flex align-items-center">
                     <div class="custom-control custom-switch">
-                      <input type="checkbox" class="custom-control-input" id="notificar_ws-mensajeria" value="1" name="notificar_ws">
-                      <label class="custom-control-label" for="notificar_ws-mensajeria">Notificar novedad WhatsApp</label>
+                      <input type="checkbox" class="custom-control-input" id="notificar_ws-mensajeria" value="1"
+                        name="notificar_ws">
+                      <label class="custom-control-label" for="notificar_ws-mensajeria">Notificar novedad
+                        WhatsApp</label>
                     </div>
                   </div>
-                  
+
                   <div class="form-group col-md-2 d-flex align-items-center">
                     <div class="custom-control custom-switch">
-                      <input type="checkbox" class="custom-control-input" id="esNovedad-mensajeria" value="1" name="esNovedad">
+                      <input type="checkbox" class="custom-control-input" id="esNovedad-mensajeria" value="1"
+                        name="esNovedad">
                       <label class="custom-control-label" for="esNovedad-mensajeria">Es novedad</label>
                     </div>
                   </div>
@@ -1930,12 +2082,13 @@
                       <option value="DEVUELTA">DEVUELTA</option>
                       <option value="OTRA">OTRA</option> -->
                     </select>
-                    <div >
-                      <input type="text" class="form-control mt-3 d-none"  id="nueva-categoria">
-                      <button id="crear-categoria-boton" class="d-none btn mt-3 btn-primary w-100">Crear Categoria</button>
+                    <div>
+                      <input type="text" class="form-control mt-3 d-none" id="nueva-categoria">
+                      <button id="crear-categoria-boton" class="d-none btn mt-3 btn-primary w-100">Crear
+                        Categoria</button>
                     </div>
                   </div>
-  
+
                   <div class="form-group col-md-3">
                     <label for="transportadora-mensajeria">Transportadora</label>
                     <select class="custom-select" id="transportadora-mensajeria" name="transportadora" disabled>
@@ -1946,7 +2099,7 @@
                       <option value="COORDINADORA">Coordinadora</option>
                     </select>
                   </div>
-                  
+
                   <div class="form-group col-md-3">
                     <label for="formulario-mensajeria">Formulario asociado</label>
                     <select class="custom-select" name="formulario" id="formulario-mensajeria" disabled>
@@ -1963,31 +2116,37 @@
                 <h3 class="card-title">
                   Formulario
                   <small>
-                    <i class="fa fa-edit text-primary mx-2 d-none" style="cursor: pointer" data-action="editar-form" title="Editar formulario"></i>
-                    <i class="fa fa-plus text-primary mx-2 d-none" style="cursor: pointer" data-action="agregar-campo" title="Agregar campo"></i>
+                    <i class="fa fa-edit text-primary mx-2 d-none" style="cursor: pointer" data-action="editar-form"
+                      title="Editar formulario"></i>
+                    <i class="fa fa-plus text-primary mx-2 d-none" style="cursor: pointer" data-action="agregar-campo"
+                      title="Agregar campo"></i>
                     <!-- <i class="fa fa-check text-success mx-2 d-none" style="cursor: pointer" data-action="guardar-form"></i> -->
-                    <i class="fa fa-eye text-primary mx-2 d-none" style="cursor: pointer" data-action="ver-form" title="Visualizar formulario"></i>
+                    <i class="fa fa-eye text-primary mx-2 d-none" style="cursor: pointer" data-action="ver-form"
+                      title="Visualizar formulario"></i>
                   </small>
                 </h3>
 
                 <form id="editor_form-mensajeria">
                   <div class="form-group">
                     <h5 for="titulo-mensajeria">Titulo*</h5>
-                    <input placeholder="Este campo sirve para identificar el formulario en el panel de mensajería" type="text" class="form-control" id="titulo-mensajeria" required name="titulo">
+                    <input placeholder="Este campo sirve para identificar el formulario en el panel de mensajería"
+                      type="text" class="form-control" id="titulo-mensajeria" required name="titulo">
 
                   </div>
 
                   <h5>Respuesta usuario*</h5>
-                  
+
                   <div id="campos_form-mensajeria"></div>
-                  
+
                   <div class="form-group">
-                    <label for="descripcion-mensajeria"><h5>
-                      Respuesta construida*
-                    </h5>
-                  </label>
+                    <label for="descripcion-mensajeria">
+                      <h5>
+                        Respuesta construida*
+                      </h5>
+                    </label>
                     <div id="variables"></div>
-                    <textarea class="form-control" id="descripcion-mensajeria" placeholder="Mensaje que será enviado a la administración" name="descripcion" required></textarea>
+                    <textarea class="form-control" id="descripcion-mensajeria"
+                      placeholder="Mensaje que será enviado a la administración" name="descripcion" required></textarea>
                   </div>
                   <div class="d-flex justify-content-end">
                     <button data-action="guardar-form" class="btn btn-small btn-outline-info">Guardar cambios</button>
@@ -1995,7 +2154,7 @@
                 </form>
 
                 <form id="render_form-mensajeria">
-                  
+
                 </form>
               </div>
             </div>
@@ -2017,20 +2176,23 @@
                   <select class="custom-select" id="selectorNotificacion" name="selector">
                   </select>
                 </div>
-                
+
                 <form class="row" id="form-centro_notificaciones">
                   <div class="form-group col-12">
                     <label for="nombre-centro_notificaciones">Nombre</label>
-                    <input type="text" required class="form-control" id="nombre-centro_notificaciones" name="name" required>
+                    <input type="text" required class="form-control" id="nombre-centro_notificaciones" name="name"
+                      required>
                   </div>
 
                   <div class="col-sm-3 mb-3 mb-sm-0">
                     <label for="fechaI-centro_notificaciones">Fecha inicio</label>
-                    <input type="date" required class="form-control form-control-user"  id="fechaI-centro_notificaciones" name="startDate">
+                    <input type="date" required class="form-control form-control-user" id="fechaI-centro_notificaciones"
+                      name="startDate">
                   </div>
                   <div class="col-sm-3">
                     <label for="fechaF-centro_notificaciones">Fecha final</label>
-                    <input type="date" required class="form-control form-control-user"  id="fechaF-centro_notificaciones" name="endDate">
+                    <input type="date" required class="form-control form-control-user" id="fechaF-centro_notificaciones"
+                      name="endDate">
                   </div>
 
                   <div class="form-group col-md-3">
@@ -2042,7 +2204,7 @@
                       <option value="mensaje">Mensaje</option>
                     </select>
                   </div>
-                  
+
                   <div class="form-group col-md-3">
                     <label for="ubicacion-centro_notificaciones">Ubicación</label>
                     <select class="custom-select" id="ubicacion-centro_notificaciones" name="ubicacion">
@@ -2058,57 +2220,61 @@
                   </div>
 
 
-<div class="form-group col-3">
-  <label for="imageUrl-centro_notificaciones">Seleccione imágen</label>
-  <select class="custom-select" id="imageUrl-centro_notificaciones" name="imageUrl">
-  </select>
-</div>
-<div class="form-group col-3">
-  <label for="seraBorrable">Será eliminable?</label>
-  <select class="custom-select" required id="seraBorrable" name="allowDelete">
-    <option value="true">Si</option>
-    <option value="false">No</option>
-  </select>
-</div>
-<div class="form-group col-3">
-  <label for="notificacionVisible">Está activo?</label>
-  <select class="custom-select" required id="notificacionVisible" name="active">
-    <option value="true">Si</option>
-    <option value="false">No</option>
-  </select>
-</div>
-<div class="form-group col-3">
-  <label for="notificacionVisible">Será global?</label>
-  <select class="custom-select" required id="notificacionGlobal" name="isGlobal">
-    <option value="true">Si</option>
-    <option value="false" >No</option>
-  </select>
-</div>
+                  <div class="form-group col-3">
+                    <label for="imageUrl-centro_notificaciones">Seleccione imágen</label>
+                    <select class="custom-select" id="imageUrl-centro_notificaciones" name="imageUrl">
+                    </select>
+                  </div>
+                  <div class="form-group col-3">
+                    <label for="seraBorrable">Será eliminable?</label>
+                    <select class="custom-select" required id="seraBorrable" name="allowDelete">
+                      <option value="true">Si</option>
+                      <option value="false">No</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-3">
+                    <label for="notificacionVisible">Está activo?</label>
+                    <select class="custom-select" required id="notificacionVisible" name="active">
+                      <option value="true">Si</option>
+                      <option value="false">No</option>
+                    </select>
+                  </div>
+                  <div class="form-group col-3">
+                    <label for="notificacionVisible">Será global?</label>
+                    <select class="custom-select" required id="notificacionGlobal" name="isGlobal">
+                      <option value="true">Si</option>
+                      <option value="false">No</option>
+                    </select>
+                  </div>
 
-<div id="mostradorUsuariosNoti" class="col-12 d-flex flex-wrap gap-10 d-none">
-  <input id="inputMostradorUserNoti" class="d-none form-control" type="text" placeholder="Busca un usuario!">
-  <div id="mostradorUsuariosNotiUsers" class="col-12 d-flex flex-wrap gap-10 d-none">
+                  <div id="mostradorUsuariosNoti" class="col-12 d-flex flex-wrap gap-10 d-none">
+                    <input id="inputMostradorUserNoti" class="d-none form-control" type="text"
+                      placeholder="Busca un usuario!">
+                    <div id="mostradorUsuariosNotiUsers" class="col-12 d-flex flex-wrap gap-10 d-none">
 
-  </div>
-  <div id="botones-inputusernoti" class="d-none">
-    <button class="btn btn-primary" disabled>Anterior</button>
-    <button class="btn btn-primary">Siguiente</button>
-  </div>
-</div>
+                    </div>
+                    <div id="botones-inputusernoti" class="d-none">
+                      <button class="btn btn-primary" disabled>Anterior</button>
+                      <button class="btn btn-primary">Siguiente</button>
+                    </div>
+                  </div>
 
                   <div class="col-12 text-center">
-                    <img src="https://placeholder.pics/svg/300/DEDEDE/555555/previsualizador" id="preview-centro_notificaciones" class="m-auto" alt="">
+                    <img src="https://placeholder.pics/svg/300/DEDEDE/555555/previsualizador"
+                      id="preview-centro_notificaciones" class="m-auto" alt="">
                   </div>
 
                   <div class="custom-file mt-2">
-                    <input type="file" class="custom-file-input" id="cargar_imagen-centro_notificaciones" accept=".jpg,.jpeg,.png" lang="es">
+                    <input type="file" class="custom-file-input" id="cargar_imagen-centro_notificaciones"
+                      accept=".jpg,.jpeg,.png" lang="es">
                     <label class="custom-file-label" for="cargar_imagen-centro_notificaciones">Carga tu imágen</label>
                   </div>
-                  
+
                   <div class="form-group col-12">
                     <label for="mensaje-centro_notificaciones">Mensaje</label>
-                    <textarea class="form-control summernote" name="mensaje" id="mensaje-centro_notificaciones"></textarea>
-                  </div>                
+                    <textarea class="form-control summernote" name="mensaje"
+                      id="mensaje-centro_notificaciones"></textarea>
+                  </div>
 
                   <button class="btn btn-primary" id="generar-notificacion" type="submit">Generar notificación</button>
                 </form>
@@ -2120,7 +2286,7 @@
                 <h3 class="card-title">
                   Notificaciones presentes
                 </h3>
-                
+
                 <div id="visor-centro_notificaciones" class="row">
                   <!-- MOSTADOR DE NOTIFICACIONES ACTIVAS -->
                 </div>
@@ -2145,12 +2311,12 @@
                 <label for="ciudad-ciudades">Ciudad</label>
                 <input type="text" class="form-control" id="ciudad-ciudades" name="ciudad" required>
               </div>
-              
+
               <div class="form-group col-md-4">
                 <label for="departamento-ciudades">Departamento</label>
                 <input type="text" class="form-control" id="departamento-ciudades" name="departamento" required>
               </div>
-              
+
               <div class="form-group col-12">
                 <label for="nombre-ciudades">nombre</label>
                 <input type="text" class="form-control" id="nombre-ciudades" name="nombre">
@@ -2158,9 +2324,10 @@
 
               <div class="form-group col-md-3">
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="transportadorasEntregan" value="SERVIENTREGA" id="transp1-ciudades">
+                  <input class="form-check-input" type="checkbox" name="transportadorasEntregan" value="SERVIENTREGA"
+                    id="transp1-ciudades">
                   <label class="form-check-label" for="transp1-ciudades">
-                    SERVIENTREGA 
+                    SERVIENTREGA
                   </label>
                   <i class="fa fa-cog text-primary ml-2 detalles-transp-ciudades"></i>
                 </div>
@@ -2168,7 +2335,8 @@
 
               <div class="form-group col-md-3">
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="transportadorasEntregan" value="INTERRAPIDISIMO" id="transp2-ciudades">
+                  <input class="form-check-input" type="checkbox" name="transportadorasEntregan" value="INTERRAPIDISIMO"
+                    id="transp2-ciudades">
                   <label class="form-check-label" for="transp2-ciudades">
                     INTERRAPIDISIMO
                   </label>
@@ -2178,7 +2346,8 @@
 
               <div class="form-group col-md-3">
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="transportadorasEntregan" value="ENVIA" id="transp3-ciudades">
+                  <input class="form-check-input" type="checkbox" name="transportadorasEntregan" value="ENVIA"
+                    id="transp3-ciudades">
                   <label class="form-check-label" for="transp3-ciudades">
                     ENVIA
                   </label>
@@ -2188,7 +2357,8 @@
 
               <div class="form-group col-md-3">
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="transportadorasEntregan" value="COORDINADORA" id="transp4-ciudades">
+                  <input class="form-check-input" type="checkbox" name="transportadorasEntregan" value="COORDINADORA"
+                    id="transp4-ciudades">
                   <label class="form-check-label" for="transp4-ciudades">
                     COORDINADORA
                   </label>
@@ -2201,7 +2371,8 @@
 
             <div class="card shadow my-3">
               <!-- Card Header - Accordion -->
-              <a href="#estadisticas-ciudades" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true">
+              <a href="#estadisticas-ciudades" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                aria-expanded="true">
                 <h6 class="m-0 font-weight-bold text-primary">Estadísticas</h6>
               </a>
               <!-- Card Content - Collapse -->
@@ -2209,8 +2380,8 @@
               </div>
             </div>
           </div>
-  
-        </div>   
+
+        </div>
         <!-- Footer -->
         <footer class="sticky-footer bg-white">
           <div class="container my-auto">
@@ -2224,32 +2395,33 @@
       <!-- End of Content Wrapper -->
     </div>
     <!-- End of Page Wrapper -->
-<!-------------------------------------------------------------------------------------------------------------------------->
+    <!-------------------------------------------------------------------------------------------------------------------------->
 
 
     <!-- Scroll to Top Button-->
     <a class="scroll-to-top rounded" href="#wrapper">
-    <i class="fas fa-angle-up"></i>
+      <i class="fas fa-angle-up"></i>
     </a>
 
     <!-- Logout Modal-->
     <div class="modal fade" id="cerrarSesionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true" style="padding-top: 100px;">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content" style="margin:0px; padding: 32px;">
-        <h5 class="modal-title" id="exampleModalLabel">¿Quieres cerrar la sesión de Heka?</h5>
-        <div class="modal-body">Puedes volver a iniciar sesión en cualquier momento.</div>
+      aria-hidden="true" style="padding-top: 100px;">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content" style="margin:0px; padding: 32px;">
+          <h5 class="modal-title" id="exampleModalLabel">¿Quieres cerrar la sesión de Heka?</h5>
+          <div class="modal-body">Puedes volver a iniciar sesión en cualquier momento.</div>
 
-        <div class="d-flex flex-column justify-content-between">
-          <a class="btn btn-primary mb-2" href="index.html" onclick="cerrarSession()">Cerrar sesión</a>
-          <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+          <div class="d-flex flex-column justify-content-between">
+            <a class="btn btn-primary mb-2" href="index.html" onclick="cerrarSession()">Cerrar sesión</a>
+            <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
+          </div>
         </div>
       </div>
     </div>
-    </div>
 
     <!-- Modal De Selección de rango para descargar guías -->
-    <div class="modal fade" id="fechas_todas_guias" tabindex="-1" aria-labelledby="fechas_guias_modal" aria-hidden="true">
+    <div class="modal fade" id="fechas_todas_guias" tabindex="-1" aria-labelledby="fechas_guias_modal"
+      aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -2262,25 +2434,26 @@
             <div class="form-group row mb-3">
               <div class="col-sm-6 mb-3 mb-sm-0">
                 <h6>Fecha inicio</h6>
-                <input type="date" class="form-control form-control-user"  id="guias-fechaI-modal" required>
+                <input type="date" class="form-control form-control-user" id="guias-fechaI-modal" required>
               </div>
               <div class="col-sm-6">
                 <h6>Fecha final</h6>
-                <input type="date" class="form-control form-control-user"  id="guias-fechaF-modal" required>
+                <input type="date" class="form-control form-control-user" id="guias-fechaF-modal" required>
               </div>
             </div>
           </div>
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
             <button type="button" onclick="descargarHistorialGuias()" data-dismiss="modal"
-            id="descargar_historial_guias" class="btn btn-primary">Descargar Historial</button>
+              id="descargar_historial_guias" class="btn btn-primary">Descargar Historial</button>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Modal gestion novedades (sera controlado por javascript render.js)-->
-    <div class="modal fade" id="modal-gestionarNovedad" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="titulo-gestionarNovedad" aria-hidden="true">
+    <div class="modal fade" id="modal-gestionarNovedad" data-backdrop="static" data-keyboard="false" tabindex="-1"
+      aria-labelledby="titulo-gestionarNovedad" aria-hidden="true">
       <div class="modal-dialog modal-xl">
         <div class="modal-content">
           <div class="modal-header">
@@ -2299,7 +2472,7 @@
           </div>
         </div>
       </div>
-    </div> 
+    </div>
 
     <!--Avisos-->
     <div class="d-none" id="aviso" style="position: fixed; top: 10px; right: 10px; cursor: pointer; z-index: 1;">
@@ -2317,9 +2490,10 @@
         </div>
       </div>
     </div>
-    
+
     <!--Modal para ver detalles de notificaciones-->
-    <div class="modal fade" id="modal-detallesNotificacion" data-backdrop="static" tabindex="-1" aria-labelledby="titulo-detallesNotificacion" aria-hidden="true">
+    <div class="modal fade" id="modal-detallesNotificacion" data-backdrop="static" tabindex="-1"
+      aria-labelledby="titulo-detallesNotificacion" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
@@ -2334,14 +2508,15 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-primary" data-dismiss="modal" id="revisar-detallesNotificacion">Revisar</button>
+            <button type="button" class="btn btn-primary" data-dismiss="modal"
+              id="revisar-detallesNotificacion">Revisar</button>
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
           </div>
         </div>
       </div>
-    </div> 
-    
-    
+    </div>
+
+
     <!-- FIREBASE -->
     <!-- The core Firebase JS SDK is always required and must be listed first -->
     <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js"></script>
@@ -2350,25 +2525,26 @@
     <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-storage.js"></script>
-    
-    
+
+
     <!-- index.js -->
-<!--     
+    <!--     
       <script src="../../index.js" ></script> -->
-   
-    
+
+
     <!-- Bootstrap core JavaScript-->
     <script src="vendor/jquery/jquery.min.js"></script>
-    <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jq-3.3.1/jszip-2.5.0/dt-1.10.25/b-1.7.1/b-colvis-1.7.1/b-html5-1.7.1/datatables.min.js"></script>
+    <script type="text/javascript"
+      src="https://cdn.datatables.net/v/bs4/jq-3.3.1/jszip-2.5.0/dt-1.10.25/b-1.7.1/b-colvis-1.7.1/b-html5-1.7.1/datatables.min.js"></script>
     <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bs-custom-file-input/dist/bs-custom-file-input.min.js"></script>
-    
+
     <!-- Core plugin JavaScript-->
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
 
     <script src="assets/libs/summernote/summernote-bs4.min.js"></script>
     <script src="assets/libs/summernote/lang/summernote-es-ES.min.js"></script>
-    
+
     <!-- main.js -->
     <!-- <script src="js/main.js"></script> -->
     <!-- Custom scripts for all pages-->
@@ -2393,23 +2569,23 @@
         bsCustomFileInput.init();
       });
 
-      function convertirMiles(n){
+      function convertirMiles(n) {
         let entero = Math.floor(n);
         let number_inv = entero.toString().split("").reverse();
         let response = []
-        for(let i = 0; i < number_inv.length; i++){
+        for (let i = 0; i < number_inv.length; i++) {
           response.push(number_inv[i]);
-          if((i+1) % 3 == 0){
-            if(i+1 != number_inv.length){
-                response.push(".")
-            }   
+          if ((i + 1) % 3 == 0) {
+            if (i + 1 != number_inv.length) {
+              response.push(".")
+            }
           }
-        }  
+        }
         return response.reverse().join("");
       };
 
     </script>
-    
+
     <script src="js/render.js"></script>
     <script src="js/callcenter/callcenter.js"></script>
     <script src="js/cargadorDeDatos.js"></script>
@@ -2419,7 +2595,6 @@
     <script src="js/adminPlatform.js" type="module"></script>
     <script src="js/hostNameReader.js"></script>
 
-  </body>
-  
-</html>
+</body>
 
+</html>

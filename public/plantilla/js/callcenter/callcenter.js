@@ -29,7 +29,126 @@ $("#filtrado-callcenter").on("change", function () {
   }
 });
 
+// genFecha()
+// console.log(Date.parse('2024-01-08'.replace(/\-/g, '/')))
+
 /////////////////////////////////
+
+let diasEntreFechas = function (inicio, final) {
+  let dia_actual = inicio;
+  let fechas = [];
+  while (dia_actual.isSameOrBefore(final)) {
+    fechas.push(dia_actual.format('YYYY-MM-DD'));
+    dia_actual.add(1, 'days');
+  }
+  return fechas;
+};
+
+
+async function GuardarDatosInforme(dataInforme) {
+  // SE REVISA SI EL DOC EXISTE
+  const id = Date.parse(genFecha().replace(/\-/g, '/'))
+  let docRef = firebase.firestore().collection('informesHeka').doc(id.toString());
+  docRef.get().then(async (doc) => {
+    // SI NO EXISTE EL DOCUMENTO LO CREA
+    if (!doc.exists) {
+      let startData = {
+        timedate: id,
+        fecha: genFecha(),
+        callcenter: []
+      };
+      await docRef.set(startData).then(console.log("se creo correctamente"))
+    }
+    // UNA VEZ CREADO SUBE LA DATA DEL MOVIMIENTO PARA POSTERIORMENTE SER USADO DESCARGANDO EL EXCEL
+    await docRef.update({
+      callcenter: firebase.firestore.FieldValue.arrayUnion(dataInforme)
+    })
+      .then(console.log("se actualizo correctamente"))
+  })
+}
+
+async function DescargarInformeCallcenter() {
+  const transportadoraFiltrada = $('#filtro-transportadoras-informe').val();
+  const checkboxInformeGestionadas = document.getElementById("checkboxInformeGestionadas").checked
+  let desde = moment(value('informe-callcenter-fecha-inicio'));
+  let hasta = moment(value('informe-callcenter-fecha-final'));
+  let results = diasEntreFechas(desde, hasta);
+  let dataExcel = []
+  let ultimaConsulta = results.length - 1
+  
+  await results.forEach(async (date, i) => {
+    const id = Date.parse(date.replace(/\-/g, '/'))
+    // Obtenemos la referencia del doc en Firebase
+    let docRef = firebase.firestore().collection('informesHeka').doc(id.toString());
+    // Actualizamos el doc en Firebase
+    await docRef.get().then(function (doc) {
+      if (doc.exists) {
+        let arrayUpdated = doc.data().callcenter.filter(data => {
+          if (transportadoraFiltrada == "" && data.descargada == checkboxInformeGestionadas) {
+            dataExcel.push(data)
+            data.descargada = true
+          }
+          else if (data.transportadora == transportadoraFiltrada && data.descargada == checkboxInformeGestionadas) {
+            dataExcel.push(data)
+            data.descargada = true
+          }
+          return data
+        })
+        if (arrayUpdated.length) {
+          docRef.update({ callcenter: arrayUpdated }).then(console.log("se actualizo correctamente"))
+        }
+      } else {
+        console.log("No se encontró el documento");
+      }
+    }
+    ).then(()=>{
+    if(ultimaConsulta === i){
+
+      if (!dataExcel.length) {
+        Toast.fire(
+          "No hay informacion para descargar", "Intenta consultar otra fecha o transportadora", "error"
+          );
+          return false
+        }
+        let arrData = typeof dataExcel != 'object' ? JSON.parse(dataExcel) : dataExcel;
+        
+        let encabezado = [
+        ['NUMERO GUIA', '_numGuia'],
+        ['TRANSPORTADORA', '_Transportadora'],
+        ["SOLICITUD", "_solicitud"],
+        
+      ];
+    
+      let newDoc = arrData.map((dat, i) => {
+        let d = new Object();
+    
+        encabezado.forEach(([headExcel, fromData]) => {
+          if (fromData === '_numGuia') {
+            fromData = dat.guia;
+          }
+    
+          if (fromData === "_solicitud") {
+            fromData = dat.resTransportadora;
+          }
+          
+          if (fromData === '_Transportadora') {
+            fromData = dat.transportadora;
+          }
+          
+          d[headExcel] = dat[fromData] || fromData;
+        });
+        return d;
+      });
+      
+      crearExcel(newDoc, 'Informe Callcenter ' + value('informe-callcenter-fecha-inicio') + " hasta " + value('informe-callcenter-fecha-final'));
+    }
+    }) 
+  });
+}
+
+$("#descargarInformeCallcenter").click(() => {
+  DescargarInformeCallcenter()
+});
 
 document
   .getElementById("btn-revisar-callcenter")
@@ -37,7 +156,6 @@ document
     e.preventDefault();
     const novedades_transportadora = $("#activador_busq_callcenter").val();
     const filtro_callcenter = $("#filtrado-callcenter").val();
-
     if (
       administracion &&
       novedades_transportadora &&
@@ -143,76 +261,73 @@ function revisarMovimientosGuiasCallcenter(admin, seguimiento, id_heka, guia) {
         })
     });
   } else if (
-      $("#filtrado-callcenter").val() === "CENTRO-COSTO" &&
-      $("#activador_busq_callcenter").val().length && admin
-    ) {
-      filtro = $("#input-filtrado-callcenter").val().split(",");
-      toggle = "==";
-      buscador = "centro_de_costo";
-      transportadora = $("#activador_busq_callcenter").val();
-      filtro.forEach((v, i) => {
-        firebase
-          .firestore()
-          .collectionGroup("estadoGuias")
-          .where(buscador, toggle, v)
-          .where("enNovedad", "==", true)
-          .where("transportadora", "in", transportadora)
-          .get()
-          .then((querySnapshot) => {
-            querySnapshot.size == 0
+    $("#filtrado-callcenter").val() === "CENTRO-COSTO" &&
+    $("#activador_busq_callcenter").val().length && admin
+  ) {
+    console.log("entre al que no era")
+    filtro = $("#input-filtrado-callcenter").val().split(",");
+    toggle = "==";
+    buscador = "centro_de_costo";
+    transportadora = $("#activador_busq_callcenter").val();
+    filtro.forEach((v, i) => {
+      firebase
+        .firestore()
+        .collectionGroup("estadoGuias")
+        .where(buscador, toggle, v)
+        .where("enNovedad", "==", true)
+        .where("transportadora", "in", transportadora)
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.size == 0
             ? $("#cargador-callcenter").addClass("d-none")
             : "";
-            let contador = 0;
-            let size = querySnapshot.size;
-            querySnapshot.forEach((doc) => {
-              let path = doc.ref.path.split("/");
-              let dato = doc.data();
-              contador++;
-              consultarGuiaFbCallcenter(
-                path[1],
-                doc.id,
-                dato,
-                dato.centro_de_costo,
-                contador,
-                size
-              );
-              // console.log(doc.data());
-            });
+          let size = querySnapshot.size;
+          querySnapshot.forEach((doc) => {
+            let path = doc.ref.path.split("/");
+            let dato = doc.data();
+            consultarGuiaFbCallcenter(
+              path[1],
+              doc.id,
+              dato,
+              dato.centro_de_costo,
+              i + 1,
+              size
+            );
+            // console.log(doc.data());
           });
-      });
-    } else {
-      filtro = $("#input-filtrado-callcenter").val().split(",");
-      toggle = "==";
-      buscador = "centro_de_costo";
-      filtro.forEach((v, i) => {
-        firebase
-          .firestore()
-          .collectionGroup("estadoGuias")
-          .where(buscador, toggle, v)
-          .where("enNovedad", "==", true)
-          .get()
-          .then((querySnapshot) => {
-            querySnapshot.size == 0
+        });
+    });
+  } else {
+    console.log("entre al que era")
+    filtro = $("#input-filtrado-callcenter").val().split(",");
+    filtro.forEach((v, i) => {
+      firebase
+        .firestore()
+        .collectionGroup("estadoGuias")
+        .where("centro_de_costo", "==", v.trim())
+        .where("enNovedad", "==", true)
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.size == 0
             ? $("#cargador-callcenter").addClass("d-none")
             : "";
-            let contador = 0;
-            let size = querySnapshot.size;
-            querySnapshot.forEach((doc) => {
-              let path = doc.ref.path.split("/");
-              let dato = doc.data();
-              contador++;
-              consultarGuiaFbCallcenter(
-                path[1],
-                doc.id,
-                dato,
-                dato.centro_de_costo,
-                contador,
-                size
-              );
-            });
+          let size = querySnapshot.size;
+          querySnapshot.forEach((doc) => {
+            let path = doc.ref.path.split("/");
+            let dato = doc.data();
+            console.log(dato)
+            consultarGuiaFbCallcenter(
+              path[1],
+              doc.id,
+              dato,
+              dato.centro_de_costo,
+              i + 1,
+              size
+            );
           });
-      });
-    }
+        });
+    });
+  }
 }
 
 function consultarGuiaFbCallcenter(
@@ -376,15 +491,13 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
   //Según el tipo de usuario, cambia el botón que realiza la gestión
   btnGestionar = "Revisar";
   btn_solucionar = `
-                <button class="btn btn-${
-                  extraData.novedad_solucionada ? "secondary" : "success"
-                } m-2" 
+                <button class="btn btn-${extraData.novedad_solucionada ? "secondary" : "success"
+    } m-2" 
                 id="solucionar-guia-callcenter-${data.numeroGuia}">
-                    ${
-                      extraData.novedad_solucionada
-                        ? "Solucionada"
-                        : "Solucionar"
-                    }
+                    ${extraData.novedad_solucionada
+      ? "Solucionada"
+      : "Solucionar"
+    }
                 </button>
             `;
 
@@ -392,18 +505,15 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
             <td>
                 <div class="d-flex align-items-center">
                     ${data.numeroGuia}
-                    <i id="actualizar-guia-callcenter-${
-                      data.numeroGuia
-                    }" class="fa fa-sync ml-1 text-primary" title="Actualizar guía ${
-    data.numeroGuia
-  }" style="cursor: pointer"></i>
+                    <i id="actualizar-guia-callcenter-${data.numeroGuia
+    }" class="fa fa-sync ml-1 text-primary" title="Actualizar guía ${data.numeroGuia
+    }" style="cursor: pointer"></i>
                 </div>
             </td>
 
             <td class="row justify-content-center">
-                <button class="btn btn-${
-                  extraData.novedad_solucionada ? "secondary" : "primary"
-                } m-2 " 
+                <button class="btn btn-${extraData.novedad_solucionada ? "secondary" : "primary"
+    } m-2 " 
                 id="gestionar-guia-${data.numeroGuia}"
                 data-toggle="modal" data-target="#modal-gestionarNovedad"}>
                     ${btnGestionar}
@@ -413,9 +523,8 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
 
             <td class="text-danger">${ultimo_movimiento.novedad}</td>
             <td>${data.transportadora || "Servientrega"}</td>
-            <td>${
-              momento_novedad.fechaMov ? momento_novedad.fechaMov : "No aplica"
-            }</td>
+            <td>${momento_novedad.fechaMov ? momento_novedad.fechaMov : "No aplica"
+    }</td>
 
             <td class="text-center">
                 <span class="badge badge-danger p-2 my-auto">
@@ -426,17 +535,16 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
             <td class="text-center">
                 <span class="badge badge-danger p-2 my-auto">
                     ${diferenciaDeTiempo(
-                      millis_ultimo_seguimiento,
-                      new Date()
-                    )} días
+      millis_ultimo_seguimiento,
+      new Date()
+    )} días
                 </span>
             </td>
 
             <td>${data.fechaEnvio}</td>
             <td>${data.estadoActual}</td>
-            <td style="min-width:200px; max-width:250px">${
-              extraData.nombreD
-            }</td>
+            <td style="min-width:200px; max-width:250px">${extraData.nombreD
+    }</td>
 
             <!-- Dirección del destinatario-->
             <td style="min-width:250px; max-width:300px">
@@ -445,15 +553,13 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
             
             <td>    
                 <a href="https://api.whatsapp.com/send?phone=57${extraData.telefonoD
-                  .toString()
-                  .replace(/\s/g, "")}" target="_blank">${
-    extraData.telefonoD
-  }</a>, 
+      .toString()
+      .replace(/\s/g, "")}" target="_blank">${extraData.telefonoD
+    }</a>, 
                 <a href="https://api.whatsapp.com/send?phone=57${extraData.celularD
-                  .toString()
-                  .replace(/\s/g, "")}" target="_blank">${
-    extraData.celularD
-  }</a>
+      .toString()
+      .replace(/\s/g, "")}" target="_blank">${extraData.celularD
+    }</a>
             </td>
             
             <td>${extraData.ciudadD} / ${extraData.departamentoD}</td>
@@ -465,16 +571,15 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
             <td style="min-width:250px; max-width:300px">
                 ${ultimo_seguimiento.gestion || "No aplica"}
             </td>
-            <td>${
-              ultimo_seguimiento.fecha
-                ? genFecha("LR", ultimo_seguimiento.fecha.toMillis()) +
-                  " " +
-                  ultimo_seguimiento.fecha
-                    .toDate()
-                    .toString()
-                    .match(/\d\d:\d\d/)[0]
-                : "No aplica"
-            }</td>
+            <td>${ultimo_seguimiento.fecha
+      ? genFecha("LR", ultimo_seguimiento.fecha.toMillis()) +
+      " " +
+      ultimo_seguimiento.fecha
+        .toDate()
+        .toString()
+        .match(/\d\d:\d\d/)[0]
+      : "No aplica"
+    }</td>
             
         `;
 
@@ -549,7 +654,7 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
     if (resp.guias_est_actualizado === 1 && resp.guias_con_errores === 0) {
       Toast.fire(
         "Guía actualizada",
-        "La guía Número " + data.numeroGuia + " ha sido actualizada","success"
+        "La guía Número " + data.numeroGuia + " ha sido actualizada", "success"
       );
     } else if (
       resp.guias_est_actualizado === 0 &&
@@ -580,6 +685,7 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
       cancelButtonText: `Cancelar`,
     });
     let text;
+    let resTransportadora
     if (respuestaSeller) {
       let { value: res } = await Swal.fire({
         title: "Respuesta",
@@ -596,13 +702,31 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
         showCancelButton: true,
       });
       text = res;
+      if (text) {
+        let { value: resT } = await Swal.fire({
+          title: "Gestion para transportadora",
+          input: "textarea",
+          showCancelButton: true,
+          confirmButtonText: "Continuar",
+          cancelButtonText: `Cancelar`,
+        });
+        resTransportadora = resT
+      }
     }
 
-    if (text == undefined || respuestaSeller == undefined) {
+
+    if (text == undefined || respuestaSeller == undefined || resTransportadora == undefined) {
       boton_solucion.html(html_btn);
     } else if (text) {
       text = text.trim();
-
+      const dataInforme = {
+        centro_de_costo: extraData.centro_de_costo,
+        guia: extraData.numeroGuia,
+        transportadora: data.transportadora,
+        fecha: new Date(),
+        resTransportadora: resTransportadora.trim(),
+        descargada: false
+      }
       const solucion = {
         gestion:
           '<b>La transportadora "' +
@@ -624,8 +748,6 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
         extraData.seguimiento = new Array(solucion);
       }
 
-      console.log(extraData);
-      console.log(solucion);
 
       const mensajePreguardado = listaRespuestasNovedad.findIndex(
         (l) => l.mensaje.toLowerCase() == text.toLowerCase()
@@ -675,6 +797,8 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
               text.trim(),
             href: "novedades",
           });
+          console.log("debe entrar a informe")
+          GuardarDatosInforme(dataInforme)
 
           boton_solucion.html("Solucionada");
         });
@@ -695,8 +819,8 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
           Toast.fire(
             "Guía Gestionada",
             "La guía " +
-              data.numeroGuia +
-              " ha sido actualizada exitósamente como solucionada", "success"
+            data.numeroGuia +
+            " ha sido actualizada exitósamente como solucionada", "success"
           );
         });
     }
