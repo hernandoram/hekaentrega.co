@@ -47,7 +47,7 @@ let diasEntreFechas = function (inicio, final) {
 
 async function GuardarDatosInforme(dataInforme) {
   // SE REVISA SI EL DOC EXISTE
-  const id = Date.parse('2024-01-02'.replace(/\-/g, '/'))
+  const id = Date.parse(genFecha().replace(/\-/g, '/'))
   let docRef = firebase.firestore().collection('informesHeka').doc(id.toString());
   docRef.get().then(async (doc) => {
     // SI NO EXISTE EL DOCUMENTO LO CREA
@@ -301,15 +301,13 @@ function revisarMovimientosGuiasCallcenter(admin, seguimiento, id_heka, guia) {
     console.log("entre al que era")
     filtro = $("#input-filtrado-callcenter").val().split(",");
     filtro.forEach((v, i) => {
-      console.log(v.trim())
       firebase
         .firestore()
         .collectionGroup("estadoGuias")
-        .where("centro_de_costo", "==", "SellerJOYSTORE")
+        .where("centro_de_costo", "==", v.trim())
         .where("enNovedad", "==", true)
         .get()
         .then((querySnapshot) => {
-          console.log(querySnapshot.size)
           querySnapshot.size == 0
             ? $("#cargador-callcenter").addClass("d-none")
             : "";
