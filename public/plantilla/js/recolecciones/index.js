@@ -1,6 +1,6 @@
 import { firestore } from "../config/firebase.js";
 import CreateModal from "../utils/modal.js";
-import { cardBodegaRecoleccion, formRecoleccion } from "./views.js";
+import { cardBodegaRecoleccion, formRecoleccion, cardBodegaRecoleccionSolicitada } from "./views.js";
 
 const db = firestore;
 
@@ -13,15 +13,22 @@ const POSTURL = "/inter/recogidaesporadica?mode=test";
 let recoleccionesPendientes; // Lugar donde se almacena todo el conjunto de recolecciones
 
 const elListaSucursales = $("#lista-recolecciones");
+const elListaSucursalesRealizadas = $("#lista-recolecciones-realizadas");
 const elRevisarRecolecciones = $("#revisar-recolecciones");
+const elRevisarRecoleccionesRealizadas = $("#revisar-recolecciones-realizadas");
 
 elRevisarRecolecciones.on("click", mostrarListaRecolecciones);
+elRevisarRecoleccionesRealizadas.on(
+  "click",
+  mostrarListaRecoleccionesRealizadas
+);
 
-async function llenarRecoleccionesPendientes() {
+async function llenarRecoleccionesPendientes(solicitar) {
   await db
     .collectionGroup("guias")
     .where("recoleccion_esporadica", "==", 1)
-    .where("recoleccion_solicitada", "==", false)
+
+    .where("recoleccion_solicitada", "==", solicitar)
     .where("transportadora", "==", "INTERRAPIDISIMO")
     .limit(200)
     .get()
@@ -47,7 +54,7 @@ async function llenarRecoleccionesPendientes() {
 
 async function mostrarListaRecolecciones() {
   console.log("cargando recolecciones");
-  await llenarRecoleccionesPendientes();
+  await llenarRecoleccionesPendientes(false);
   const recolecciones = Object.values(recoleccionesPendientes);
 
   console.log(recolecciones);
@@ -59,6 +66,20 @@ async function mostrarListaRecolecciones() {
 
   activarAcciones(elListaSucursales);
 }
+async function mostrarListaRecoleccionesRealizadas() {
+  console.log("cargando recolecciones realizadas");
+  await llenarRecoleccionesPendientes(true);
+  const recolecciones = Object.values(recoleccionesPendientes);
+
+  console.log(recolecciones);
+  elListaSucursalesRealizadas.html("");
+
+  recolecciones.forEach((r) => {
+    elListaSucursalesRealizadas.append(() => cardBodegaRecoleccionSolicitada(r));
+  });
+
+  activarAcciones(elListaSucursalesRealizadas);
+}
 
 function activarAcciones(container) {
   const els = $("[data-action]", container);
@@ -68,6 +89,17 @@ function activarAcciones(container) {
 
 function formSolicitarRecoleccion(e) {
   e.preventDefault();
+
+  // Obtén una referencia al modal
+  const modal = e.target.closest(".modal");
+
+  // Oculta el modal
+  $(modal).modal("hide");
+
+  // Elimina el modal del DOM después de que se haya ocultado
+  $(modal).on("hidden.bs.modal", function () {
+    $(this).remove();
+  });
 
   const target = e.target;
   const formData = new FormData(target);
@@ -100,9 +132,15 @@ function formSolicitarRecoleccion(e) {
   consulta.ids_heka = ids_heka;
   consulta.numerosGuia = numerosGuia;
 
-  console.log(consulta);
+  fetchRecoleccion(consulta).catch((error) => console.error(error));
 
-  fetchRecoleccion(consulta);
+  Swal.fire({
+    title: "Recolección solicitada con exito!",
+    text: `Las guias del han sido solicitadas para recolección!`,
+    icon: "success",
+  });
+
+  mostrarListaRecolecciones();
 }
 
 const acciones = {

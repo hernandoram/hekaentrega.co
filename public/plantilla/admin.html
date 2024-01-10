@@ -84,8 +84,6 @@
         </li>
 
         <!-- Divider -->
-        <hr class="sidebar-divider">
-
         <li class="nav-item">
           <a class="nav-link" href="#oficinas" onclick="mostrar('oficinas')">
             <i class="fas fa-fw fa-users"></i>
@@ -131,6 +129,12 @@
           <a class="nav-link" href="#callcenter">
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Callcenter</span></a>
+        </li>
+        
+        <li class="nav-item">
+          <a class="nav-link" href="#recolecciones">
+            <i class="fas fa-fw fa-truck"></i>
+            <span>Recolecciones Inter</span></a>
         </li>
 
         <li class="nav-item">
@@ -2211,9 +2215,15 @@
           </div>
 
           <div class="container-fluid" id="recolecciones">
-            <h2>Solicitud de recolección <i class="fa fa-sync text-primary" title="Cargar Solicitudes" data-toggle="tooltip" id="revisar-recolecciones"></i></h2>
+            <h2>Solicitud de recolección Inter</h2>
 
-            <ul class="list-group list-group-horizontal flex-wrap mx-auto justify-content-center" id="lista-recolecciones">
+            <h3>Guías por solicitar <i class="fa fa-sync text-primary" title="Cargar Solicitudes" data-toggle="tooltip" id="revisar-recolecciones"></i></h3>
+            
+            
+            <ul class="list-group list-group-horizontal flex-wrap mx-auto my-4" id="lista-recolecciones">
+            </ul>
+            <h3>Guías solicitadas <i class="fa fa-sync text-primary" title="Cargar Solicitudes" data-toggle="tooltip" id="revisar-recolecciones-realizadas"></i></h3>
+            <ul class="list-group list-group-horizontal flex-wrap mx-auto my-4" id="lista-recolecciones-realizadas">
             </ul>
           </div>
   
