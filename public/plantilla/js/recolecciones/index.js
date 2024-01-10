@@ -1,6 +1,10 @@
 import { firestore } from "../config/firebase.js";
 import CreateModal from "../utils/modal.js";
-import { cardBodegaRecoleccion, formRecoleccion, cardBodegaRecoleccionSolicitada } from "./views.js";
+import {
+  cardBodegaRecoleccion,
+  formRecoleccion,
+  cardBodegaRecoleccionSolicitada,
+} from "./views.js";
 
 const db = firestore;
 
@@ -71,11 +75,33 @@ async function mostrarListaRecoleccionesRealizadas() {
   await llenarRecoleccionesPendientes(true);
   const recolecciones = Object.values(recoleccionesPendientes);
 
+  const recoleccionesSolicitadas = recolecciones.flatMap(({ guias }) =>
+    guias.map(
+      ({
+        numeroGuia,
+        centro_de_costo,
+        codigo_sucursal,
+        fecha_recoleccion,
+        radicado_recoleccion,
+      }) => ({
+        numeroGuia,
+        centro_de_costo,
+        codigo_sucursal,
+        fecha_recoleccion,
+        radicado_recoleccion,
+      })
+    )
+  );
+
+  console.log(recoleccionesSolicitadas);
   console.log(recolecciones);
+
   elListaSucursalesRealizadas.html("");
 
   recolecciones.forEach((r) => {
-    elListaSucursalesRealizadas.append(() => cardBodegaRecoleccionSolicitada(r));
+    elListaSucursalesRealizadas.append(() =>
+      cardBodegaRecoleccionSolicitada(r)
+    );
   });
 
   activarAcciones(elListaSucursalesRealizadas);
@@ -178,14 +204,14 @@ async function fetchRecoleccion(data) {
     },
   });
   const body = await response.json();
-  console.log(body, guias);
+  const radicado = body.response.idRecogica;
 
-  await guiasSolicitadas(guias);
+  await guiasSolicitadas(guias, radicado);
 
   return body;
 }
 
-async function guiasSolicitadas(data) {
+async function guiasSolicitadas(data, radicado) {
   await db
     .collectionGroup("guias")
     .where("recoleccion_esporadica", "==", 1)
@@ -198,6 +224,9 @@ async function guiasSolicitadas(data) {
         const guia = doc.data();
         console.log(doc.id);
         guia.recoleccion_solicitada = true;
+        guia.fecha_recoleccion = new Date().toISOString();
+        guia.radicado_recoleccion = radicado;
+
         doc.ref.update(guia);
       });
     });
