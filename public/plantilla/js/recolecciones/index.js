@@ -3,7 +3,7 @@ import CreateModal from "../utils/modal.js";
 import {
   cardBodegaRecoleccion,
   formRecoleccion,
-  cardBodegaRecoleccionSolicitada,
+  recoleccionSolicitada,
 } from "./views.js";
 
 const db = firestore;
@@ -20,12 +20,27 @@ const elListaSucursales = $("#lista-recolecciones");
 const elListaSucursalesRealizadas = $("#lista-recolecciones-realizadas");
 const elRevisarRecolecciones = $("#revisar-recolecciones");
 const elRevisarRecoleccionesRealizadas = $("#revisar-recolecciones-realizadas");
+const section = document.getElementById("mostrador-guias-solicitadas");
+const inputField = document.getElementById("filtrar-guias-recolectadas");
 
 elRevisarRecolecciones.on("click", mostrarListaRecolecciones);
 elRevisarRecoleccionesRealizadas.on(
   "click",
   mostrarListaRecoleccionesRealizadas
 );
+
+inputField.addEventListener("input", function () {
+  const filterValue = this.value.toLowerCase();
+
+  const tableRows = document.querySelectorAll(
+    "#lista-recolecciones-realizadas tr"
+  );
+  console.log(tableRows);
+  tableRows.forEach((row) => {
+    const rowText = row.textContent.toLowerCase();
+    row.style.display = rowText.includes(filterValue) ? "" : "none";
+  });
+});
 
 async function llenarRecoleccionesPendientes(solicitar) {
   await db
@@ -72,6 +87,7 @@ async function mostrarListaRecolecciones() {
 }
 async function mostrarListaRecoleccionesRealizadas() {
   console.log("cargando recolecciones realizadas");
+  section.classList.remove("d-none");
   await llenarRecoleccionesPendientes(true);
   const recolecciones = Object.values(recoleccionesPendientes);
 
@@ -98,10 +114,8 @@ async function mostrarListaRecoleccionesRealizadas() {
 
   elListaSucursalesRealizadas.html("");
 
-  recolecciones.forEach((r) => {
-    elListaSucursalesRealizadas.append(() =>
-      cardBodegaRecoleccionSolicitada(r)
-    );
+  recoleccionesSolicitadas.forEach((r) => {
+    elListaSucursalesRealizadas.append(() => recoleccionSolicitada(r));
   });
 
   activarAcciones(elListaSucursalesRealizadas);

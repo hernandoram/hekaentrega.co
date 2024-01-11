@@ -39,19 +39,14 @@ export const formRecoleccion = (data) => {
 };
 
 
-export const cardBodegaRecoleccionSolicitada = (data) => {
+export const recoleccionSolicitada = (data) => {
   return `
-        <li class="list-group-item"><span class="mr-2">
-        <h5 class="card-title font-weight-bold text-info text-uppercase mb-2">${
-          data.centro_de_costo
-        }</h5>
-            <p>Sucursal: ${data.codigo_sucursal}</p> 
-            <p>ID Usuario: ${data.id_user}</p> 
-
-            <p class="text-truncate"
-            data-mostrar="texto">Id Guias Generadas: <br><small class="text-break">${data.guias.map(
-              (guia) => `<span>${guia.numeroGuia}  </span>`
-            )}</small> </p>
-        </li>
-    `;
+    <tr>
+      <td>${data.numeroGuia}</td>
+      <td>${data.centro_de_costo}</td>
+      <td>${data.fecha_recoleccion}</td>
+      <td>${data.codigo_sucursal}</td>
+      <td>${data.radicado_recoleccion}</td>
+    </tr>
+  `;
 };

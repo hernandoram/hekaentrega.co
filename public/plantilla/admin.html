@@ -2223,8 +2223,25 @@
             <ul class="list-group list-group-horizontal flex-wrap mx-auto my-4" id="lista-recolecciones">
             </ul>
             <h3>Guías solicitadas <i class="fa fa-sync text-primary" title="Cargar Solicitudes" data-toggle="tooltip" id="revisar-recolecciones-realizadas"></i></h3>
-            <ul class="list-group list-group-horizontal flex-wrap mx-auto my-4" id="lista-recolecciones-realizadas">
-            </ul>
+
+            <section class="d-none mt-4" id="mostrador-guias-solicitadas">
+
+              <input type="text" class="form-control border-info mb-3" id="filtrar-guias-recolectadas" placeholder="Filtra por número de guia o seller, fecha solicitud, código sucursal o radicado recolección">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">No guía</th>
+                    <th scope="col">Seller</th>
+                    <th scope="col">Fecha Solicitud</th>
+                    <th scope="col">Sucursal</th>
+                    <th scope="col">Radicado recolección</th>
+                  </tr>
+              </thead>
+              <tbody id="lista-recolecciones-realizadas" >
+                
+              </tbody>
+            </table>
+          </section>
           </div>
   
         </div>   
