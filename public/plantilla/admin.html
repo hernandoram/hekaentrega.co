@@ -89,8 +89,6 @@
         </li>
 
         <!-- Divider -->
-        <hr class="sidebar-divider">
-
         <li class="nav-item">
           <a class="nav-link" href="#oficinas" onclick="mostrar('oficinas')">
             <i class="fas fa-fw fa-users"></i>
@@ -136,6 +134,12 @@
           <a class="nav-link" href="#callcenter">
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Callcenter</span></a>
+        </li>
+        
+        <li class="nav-item">
+          <a class="nav-link" href="#recolecciones">
+            <i class="fas fa-fw fa-truck"></i>
+            <span>Recolecciones Inter</span></a>
         </li>
 
         <li class="nav-item">
@@ -2381,7 +2385,37 @@
             </div>
           </div>
 
-        </div>
+          <div class="container-fluid" id="recolecciones">
+            <h2>Solicitud de recolección Inter</h2>
+
+            <h3>Guías por solicitar <i class="fa fa-sync text-primary" title="Cargar Solicitudes" data-toggle="tooltip" id="revisar-recolecciones"></i></h3>
+            
+            
+            <ul class="list-group list-group-horizontal flex-wrap mx-auto my-4" id="lista-recolecciones">
+            </ul>
+            <h3>Guías solicitadas <i class="fa fa-sync text-primary" title="Cargar Solicitudes" data-toggle="tooltip" id="revisar-recolecciones-realizadas"></i></h3>
+
+            <section class="d-none mt-4" id="mostrador-guias-solicitadas">
+
+              <input type="text" class="form-control border-info mb-3" id="filtrar-guias-recolectadas" placeholder="Filtra por número de guia o seller, fecha solicitud, código sucursal o radicado recolección">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th scope="col">No guía</th>
+                    <th scope="col">Seller</th>
+                    <th scope="col">Fecha Solicitud</th>
+                    <th scope="col">Sucursal</th>
+                    <th scope="col">Radicado recolección</th>
+                  </tr>
+                </thead>
+              <tbody id="lista-recolecciones-realizadas" >
+                
+              </tbody>
+              </table>
+            </section>
+          </div>
+  
+        </div>   
         <!-- Footer -->
         <footer class="sticky-footer bg-white">
           <div class="container my-auto">
