@@ -49,7 +49,6 @@ async function llenarRecoleccionesPendientes(solicitar) {
 
     .where("recoleccion_solicitada", "==", solicitar)
     .where("transportadora", "==", "INTERRAPIDISIMO")
-    .limit(200)
     .get()
     .then((querySnapshot) => {
       recoleccionesPendientes = {};
@@ -115,6 +114,7 @@ async function mostrarListaRecoleccionesRealizadas() {
   elListaSucursalesRealizadas.html("");
 
   recoleccionesSolicitadas.forEach((r) => {
+    r.fechaFormateada = formatearFecha(r.fecha_recoleccion); // Asume que r.fecha es la fecha que quieres formatear
     elListaSucursalesRealizadas.append(() => recoleccionSolicitada(r));
   });
 
@@ -190,8 +190,7 @@ const acciones = {
     const datos_recoleccion = recoleccionesPendientes[codigo_sucursal];
 
     const m = new CreateModal({
-      title:
-        "Solicitud de recolección para: " + datos_recoleccion.centro_de_costo,
+      title: "Solicitud de recolección para: la sucursal " + codigo_sucursal,
     });
 
     m.init = formRecoleccion(datos_recoleccion);
@@ -244,4 +243,17 @@ async function guiasSolicitadas(data, radicado) {
         doc.ref.update(guia);
       });
     });
+}
+
+function formatearFecha(fecha) {
+  const fechaObj = new Date(fecha);
+
+  const dia = fechaObj.getDate().toString().padStart(2, "0");
+  const mes = (fechaObj.getMonth() + 1).toString().padStart(2, "0"); // Los meses en JavaScript empiezan en 0
+  const año = fechaObj.getFullYear();
+
+  const hora = fechaObj.getHours().toString().padStart(2, "0");
+  const minutos = fechaObj.getMinutes().toString().padStart(2, "0");
+
+  return `${dia}/${mes}/${año} ${hora}:${minutos}`;
 }
