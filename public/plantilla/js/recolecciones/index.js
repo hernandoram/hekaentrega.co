@@ -8,7 +8,7 @@ import {
 
 const db = firestore;
 
-const POSTURL = "/inter/recogidaesporadica?mode=test";
+const POSTURL = "/inter/recogidaesporadica"; // para activar el modo test: ?mode=test
 
 /*{
     id_sucusal1: {..., guias: []}
