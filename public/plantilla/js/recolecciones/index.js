@@ -49,7 +49,6 @@ async function llenarRecoleccionesPendientes(solicitar) {
 
     .where("recoleccion_solicitada", "==", solicitar)
     .where("transportadora", "==", "INTERRAPIDISIMO")
-    .limit(200)
     .get()
     .then((querySnapshot) => {
       recoleccionesPendientes = {};

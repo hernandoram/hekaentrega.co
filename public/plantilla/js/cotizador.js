@@ -1860,6 +1860,14 @@ function detalles_cotizacion(datos) {
 
 const opciones = [];
 
+const sellers = [
+  "SellerWiland",
+  "Seller1891tattoosupply",
+  "SellerElectrovariedadesEYMce",
+  "SellerNICE",
+  "SellerMerakiJSLSAS"
+];
+
 //M edevuelve el html del último formulario del cotizador
 function finalizarCotizacion(datos) {
   let div_principal = document.createElement("DIV"),
@@ -1892,8 +1900,9 @@ function finalizarCotizacion(datos) {
             <label for="check-crear_pedido" class="form-check-label">Crear en forma de pedido</label>
         </div>
     `;
-
-  if (datos.transportadora !== "SERVIENTREGA" && datos.transportadora !== "INTERRAPIDISIMO" ) {
+    
+    
+    if (datos.transportadora !== "SERVIENTREGA"  && !sellers.includes(datos_usuario.centro_de_costo)) {
     solicitud_recoleccion = `
         <div class="alert alert-danger col-12">
             <h3 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, enviar la solicitud al correo <a href="mailto:atencion@hekaentrega.co">atencion@hekaentrega.co</a>.</small></h3>
