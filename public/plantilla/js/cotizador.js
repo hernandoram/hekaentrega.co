@@ -691,7 +691,7 @@ async function detallesTransportadoras(data) {
   const detallesTransp = $("#nav-contentTransportadoras");
   const result = $("#result_cotizacion");
   const button = $("#boton_cotizar");
-  const factor_conversor = 1000;
+  const FACHADA_FLETE = 1000;
   button.addClass("disabled");
   result.after(
     '<div id="cargador_cotizacion" class="d-flex justify-content-center align-items-center"><h3>Cargando</h3> <div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>'
@@ -711,6 +711,10 @@ async function detallesTransportadoras(data) {
 
   //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
   for (let transp in transportadoras) {
+    // Este factor será usado para hacer variaciones de precios entre 
+    // flete trasportadora y sobreflete heka para intercambiar valores
+    let factor_conversor = 0;
+
     let seguro = data.seguro,
       recaudo = data.valor;
     let transportadora = transportadoras[transp];
@@ -773,6 +777,13 @@ async function detallesTransportadoras(data) {
         const diferenciaMinima = minimoEnvio - cotizacion.valor;
         if (diferenciaMinima > 0)
           cotizacion.sumarCostoDeEnvio = diferenciaMinima;
+        
+        //Se le resta 1000 para evitar que se cruce con el valor constante que se añade sobre "this.sobreflete_heka += 1000"
+        const diferenciaActualRecaudoEnvio = cotizacion.valor - cotizacion.costoEnvio - 1000;
+        if(diferenciaActualRecaudoEnvio > 0) {
+          factor_conversor = diferenciaActualRecaudoEnvio;
+          cotizacion.set_sobreflete_heka = cotizacion.sobreflete_heka + diferenciaActualRecaudoEnvio;
+        }
       }
     }
 
@@ -795,6 +806,10 @@ async function detallesTransportadoras(data) {
       ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA"].includes(transp) &&
       data.type === PAGO_CONTRAENTREGA
     ) {
+      factor_conversor = FACHADA_FLETE;
+    }
+    
+    if(factor_conversor > 0) {
       sobreFleteHekaEdit -= factor_conversor;
       fleteConvertido += factor_conversor;
     }
