@@ -780,7 +780,7 @@ async function detallesTransportadoras(data) {
         
         //Se le resta 1000 para evitar que se cruce con el valor constante que se añade sobre "this.sobreflete_heka += 1000"
         const diferenciaActualRecaudoEnvio = cotizacion.valor - cotizacion.costoEnvio - 1000;
-        if(diferenciaActualRecaudoEnvio > 0) {
+        if(diferenciaActualRecaudoEnvio > 0 && data.type === CONTRAENTREGA) {
           factor_conversor = diferenciaActualRecaudoEnvio;
           cotizacion.set_sobreflete_heka = cotizacion.sobreflete_heka + diferenciaActualRecaudoEnvio;
         }
