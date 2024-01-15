@@ -7,6 +7,50 @@ const db = firebase.firestore();
 const storage = firebase.storage();
 global.XMLHttpRequest = require("xhr2");
 
+async function createDirectSporadicCollections(req, res) {
+  const data = req.body;
+  const query = req.query || null;
+  const objetoEjemploLlegada = {
+    ids_heka: [], // Lista de ids heka referenciados al usuario
+    numerosGuia: [], // Lista de los número de guía provistos por la transportadora 
+    id_user: "",  // Id del usuario que solicita recolección
+    idSucursalCliente: 2901, // Código de sucursal de interrapidísimo
+    fechaRecogida: "DateTime 2023-10-17 14:00" // Fecha en que se solicita la recolección
+  }
+
+  try {
+    const build = buildDirectData(data);
+    console.log(build);
+    createBuild(build, query.mode)
+      .then((response) => {
+        
+        db.collection("SolicitudRecolecciones").add({...data,
+          fechaSolicitud: new Date(),
+          transportadora: "INTERRAPIDISIMO",
+          respuesta: response
+        });
+  
+        res.status(200).send({
+          'code': 200,
+          'response': {
+            'idRecogica': response.idRecogida
+          }
+        });
+      })
+      .catch(e => {
+        res.status(400).send({
+          'code': 400,
+          'response': e
+        });
+      });      
+  } catch (e) {
+    return res.status(409).send({
+      'code': 409,
+      'response': {"message": e.message}
+    })
+  }
+}
+
 async function createSporadicCollections(req, res) {
   const data = req.body;
   const query = req.query || null;
@@ -70,10 +114,23 @@ async function buildData(data) {
   return build;
 }
 
+function buildDirectData(data) {
+  const build =  {
+    IdClienteCredito: CredencialesEmpresa.idCliente,
+    listaNumPreenvios: data.numerosGuia,
+    IdSucursalCliente: data.idSucursalCliente,
+    fechaRecogida: data.fechaRecogida
+  };
+
+  return build;
+  
+}
+
 function createBuild(build, mode) {
   return new Promise(async (resolve, reject) => {
     if(mode == 'test') {
-      return resolve(testMode(build));
+      const resConstruct = testMode(build);
+      return resolve(resConstruct);
     }
 
     request.post(CredencialesEmpresa.endpointv2 + "/Recogida/InsertarRecogidaCliente", {
@@ -105,7 +162,8 @@ function testMode(build) {
     "preenviosAsociados": build.listaNumPreenvios,
     "mensajePreenviosNoIncluidos": "",
     "preenviosNoIncluidos": [],
-    "mensajeCantidaMaximaPreenvios": ""
+    "mensajeCantidaMaximaPreenvios": "",
+    modoPruebaHeka: true
   }
 }
 
@@ -218,6 +276,6 @@ async function saveFileStorage(base64, path) {
 }
 
 module.exports = {
-  createSporadicCollections,
+  createDirectSporadicCollections,
   createSpreadsheet
 }
