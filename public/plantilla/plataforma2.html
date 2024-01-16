@@ -84,6 +84,9 @@
   <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
   <link rel="stylesheet" href="./css/userPlatform.css">
 
+  <link rel="stylesheet" href="../css/styling.css">
+
+
   <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
 
 </head>
@@ -349,31 +352,67 @@
             </div>
       
             
-            <div class="row estadisticas">
-              <div class="col-12 col-md-5">
+            <section class="row">
+
+              <div class="col-12 col-md-6">
                 <div class="card m-2">
                   <div class="card-body row" id="Usuario">
-                    <div class="col-7" >
-                      <h5 class="card-title" >Hola, <span class="mostrar-nombre_completo"></span></h5>
-                      <h5 class="text-danger">
-                        Novedades: 
-                        <span class="mostrar-cantidad_novedades"></span>
-                        <a class="btn btn-outline-danger btn-sm ver-novedades" href="#historial_guias">Revisar</a>
-                      </h5>
-                      
-                    
+                      <h5 class="text-primary">Novedades</h5>
+                      <p>Consulta aquí el estado en el que se encuentran tus novedades</p>
+                      <h5 class="text-primary"><span class="mostrar-nombre_completo"></span> este es el estado de tus novedades</h5>
 
-                    </div>
-                    <div class="col-5 imagen-estadisticas">
-                      <img src="recursos/pagos.png" class="pr-1" alt="">
-                    </div>
+
+                      <section id="mostrador-novedades">
+
+                      </section>
+
+
+                        <div id="mostrador-noNovedades" class="w-75 rounded py-3 px-2 d-none" style="color: #00B047; background-color: #e4ffe3;">
+                          <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g clip-path="url(#clip0_11_334)">
+                            <path d="M8 15.5C6.14348 15.5 4.36301 14.7625 3.05025 13.4497C1.7375 12.137 1 10.3565 1 8.5C1 6.64348 1.7375 4.86301 3.05025 3.55025C4.36301 2.2375 6.14348 1.5 8 1.5C9.85652 1.5 11.637 2.2375 12.9497 3.55025C14.2625 4.86301 15 6.64348 15 8.5C15 10.3565 14.2625 12.137 12.9497 13.4497C11.637 14.7625 9.85652 15.5 8 15.5ZM8 16.5C10.1217 16.5 12.1566 15.6571 13.6569 14.1569C15.1571 12.6566 16 10.6217 16 8.5C16 6.37827 15.1571 4.34344 13.6569 2.84315C12.1566 1.34285 10.1217 0.5 8 0.5C5.87827 0.5 3.84344 1.34285 2.34315 2.84315C0.842855 4.34344 0 6.37827 0 8.5C0 10.6217 0.842855 12.6566 2.34315 14.1569C3.84344 15.6571 5.87827 16.5 8 16.5Z" fill="#00B047"/>
+                            <path d="M10.97 5.47L10.95 5.492L7.47697 9.917L5.38397 7.823C5.2418 7.69052 5.05375 7.6184 4.85945 7.62183C4.66515 7.62525 4.47976 7.70397 4.34235 7.84138C4.20494 7.97879 4.12623 8.16418 4.1228 8.35848C4.11937 8.55278 4.19149 8.74083 4.32397 8.883L6.96997 11.53C7.04125 11.6012 7.12614 11.6572 7.21956 11.6949C7.31298 11.7325 7.41302 11.7509 7.51372 11.7491C7.61442 11.7472 7.71371 11.7251 7.80567 11.684C7.89763 11.6429 7.98038 11.5837 8.04897 11.51L12.041 6.52C12.1769 6.37733 12.2512 6.1869 12.2479 5.98987C12.2445 5.79284 12.1637 5.60505 12.023 5.46709C11.8823 5.32914 11.693 5.25211 11.4959 5.25265C11.2988 5.2532 11.1099 5.33127 10.97 5.47Z" fill="#00B047"/>
+                            </g>
+                            <defs>
+                            <clipPath id="clip0_11_334">
+                            <rect width="16" height="16" fill="white" transform="translate(0 0.5)"/>
+                            </clipPath>
+                            </defs>
+                            </svg>
+                            
+                          ¡Felicidades! No tienes novedades por gestionar
+                        </div> 
+                        
+                        
+                        <div id="mostrador-SiNovedades" class="w-75 rounded py-3 px-2 d-none" style="color: #FFB800; background-color: #ffeab5;">
+                          <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <g clip-path="url(#clip0_11_334)">
+                            <path d="M8 15.5C6.14348 15.5 4.36301 14.7625 3.05025 13.4497C1.7375 12.137 1 10.3565 1 8.5C1 6.64348 1.7375 4.86301 3.05025 3.55025C4.36301 2.2375 6.14348 1.5 8 1.5C9.85652 1.5 11.637 2.2375 12.9497 3.55025C14.2625 4.86301 15 6.64348 15 8.5C15 10.3565 14.2625 12.137 12.9497 13.4497C11.637 14.7625 9.85652 15.5 8 15.5ZM8 16.5C10.1217 16.5 12.1566 15.6571 13.6569 14.1569C15.1571 12.6566 16 10.6217 16 8.5C16 6.37827 15.1571 4.34344 13.6569 2.84315C12.1566 1.34285 10.1217 0.5 8 0.5C5.87827 0.5 3.84344 1.34285 2.34315 2.84315C0.842855 4.34344 0 6.37827 0 8.5C0 10.6217 0.842855 12.6566 2.34315 14.1569C3.84344 15.6571 5.87827 16.5 8 16.5Z" fill="#00B047"/>
+                            <path d="M10.97 5.47L10.95 5.492L7.47697 9.917L5.38397 7.823C5.2418 7.69052 5.05375 7.6184 4.85945 7.62183C4.66515 7.62525 4.47976 7.70397 4.34235 7.84138C4.20494 7.97879 4.12623 8.16418 4.1228 8.35848C4.11937 8.55278 4.19149 8.74083 4.32397 8.883L6.96997 11.53C7.04125 11.6012 7.12614 11.6572 7.21956 11.6949C7.31298 11.7325 7.41302 11.7509 7.51372 11.7491C7.61442 11.7472 7.71371 11.7251 7.80567 11.684C7.89763 11.6429 7.98038 11.5837 8.04897 11.51L12.041 6.52C12.1769 6.37733 12.2512 6.1869 12.2479 5.98987C12.2445 5.79284 12.1637 5.60505 12.023 5.46709C11.8823 5.32914 11.693 5.25211 11.4959 5.25265C11.2988 5.2532 11.1099 5.33127 10.97 5.47Z" fill="#00B047"/>
+                            </g>
+                            <defs>
+                            <clipPath id="clip0_11_334">
+                            <rect width="16" height="16" fill="white" transform="translate(0 0.5)"/>
+                            </clipPath>
+                            </defs>
+                            </svg>
+                            
+                            Tienes           <span class="mostrar-cantidad_novedades"></span>
+                            novedades pendientes por gestionar                        </div>
+
+                      
+                        <a  class="btn w-100 bg-primary text-white mt-3" href="#historial_guias">
+                        Revisar
+                      </a>
+                      
+                 
                   </div>
                 </div>
               </div>
-              <div class="col-12 col-md-7">
+              <div class="col-12 col-md-6">
                 <div class="card m-2">
                   <div class="card-body row">
-                    <div class="col-7">
+                    <div>
                       <h5 class="card-title">
                         Total en la billetera 
                         <input type="date" id="fecha_cargue-pagos_pendientes" class="form-control form-control-sm w-50 d-none">
@@ -396,14 +435,12 @@
                         <li class="list-group-item">No hay información para mostrar</li>
                       </ul>
                     </div>
-                    <div class="col-5 imagen-estadisticas">
-                      <img src="recursos/pagos.png" alt="">
-                    </div>
+         
                   </div>
                 </div>
               </div>
+            </section>
 
-            </div>
 
             <div class="cuerpo_carousel my-3">
 
