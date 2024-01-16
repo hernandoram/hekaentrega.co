@@ -81,6 +81,8 @@ function mostrarNovedades(numeroNovedades) {
   if (numeroNovedades > 0) {
     mostradorNoNovedades.classList.add("d-none");
     mostradorSiNovedades.classList.remove("d-none");
+    $(".mostrar-cantidad_novedades").text(numeroNovedades);
+
   } else {
     mostradorNoNovedades.classList.remove("d-none");
     mostradorSiNovedades.classList.add("d-none");
@@ -97,7 +99,6 @@ async function cargarNovedades() {
 
       mostrarNovedades(querySnapshot.size);
 
-      $(".mostrar-cantidad_novedades").text(querySnapshot.size);
       const novedades = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();

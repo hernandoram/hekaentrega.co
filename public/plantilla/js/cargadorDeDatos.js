@@ -151,9 +151,15 @@ async function cargarPagoSolicitado() {
   const data = await ref.get().then((d) => d.data().diarioSolicitado);
   const centro_de_costo = datos_usuario.centro_de_costo;
   const soliciado = data.includes(centro_de_costo);
-  $("#saldo-solicitado").text(
-    soliciado ? "Pago solicitado ✅" : "Pago aún no solicitado ❌"
-  );
+
+  if (soliciado){
+    $("#mostrador-saldoSolicitado").removeClass("d-none");
+    $("#mostrador-saldoNoSolicitado").addClass("d-none");
+  } else {
+    $("#mostrador-saldoNoSolicitado").removeClass("d-none");
+    $("#mostrador-saldoSolicitado").addClass("d-none");
+  }
+
 }
 
 async function listarNovedadesServientrega() {
@@ -1760,6 +1766,7 @@ async function obtenerFacturaRegistradaPorGuia(numeroGuia) {
   return guiasEstablecidas.get(numeroGuia);
 }
 
+
 function mostrarPagosUsuario(data) {
   $("#visor-pagos").DataTable({
     data: data,
@@ -1905,19 +1912,26 @@ function mostrarPagosUsuario(data) {
   });
 }
 
-$("#calcular-pagos_pendientes").click(pagosPendientesParaUsuario);
+
+$("#fecha_cargue-pagos_pendientes").change(pagosPendientesParaUsuario);
+
 $("#solicitar-pagos_pendientes").click(solicitarPagosPendientesUs);
 $(".mostrar-saldo_pendiente + i").click(showHidePagosPendientesUsuario);
 let saldo_pendiente = 0;
+
+function prueba(){
+  console.log("HOLAA")
+}
+
 async function pagosPendientesParaUsuario() {
+
   const viewer = $(".mostrar-saldo_pendiente");
   const details = $("#detalles_pagos-home");
-  const filtroFecha = $("#fecha_cargue-pagos_pendientes");
   viewer.text("Calculando...");
   saldo_pendiente = 0;
 
   // Cómputo para calcular hasta el último viernes
-  const fecha = new Date(filtroFecha.val());
+  const fecha = new Date($("#fecha_cargue-pagos_pendientes").val());
   const diaSemana = fecha.getDay();
   const diaEnMilli = 8.64e7;
 
