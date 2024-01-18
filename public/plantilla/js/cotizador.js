@@ -14,7 +14,7 @@ const bloqueo_direcciones_inter = [
   "13810011",
   "68298002",
 ];
-const bloqueo_direcciones_envia = ["97666000", "52427000", "13188000"];
+const bloqueo_direcciones_envia = ["97666000", "52427000", "13188000", "94343000","27580000"];
 
 // Objeto principal en que se basa la transportadora a ser utilizada
 let transportadoras = {

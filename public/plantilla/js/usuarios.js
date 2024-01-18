@@ -721,9 +721,12 @@ async function buscarUsuarios(e) {
   // if(value("buscador_usuarios-id")){
   //     busqueda = ["==", value("buscador_usuarios-id")];
   // }
-  const nombreInpOriginal = value("buscador_usuarios-nombre").trim();
+  const nombreInpOriginal = value("buscador_usuarios-nombre")
+    .toLowerCase()
+    .trim();
   const nombreInp = value("buscador_usuarios-nombre").toLowerCase().trim();
   const reference = firebase.firestore().collection("usuarios");
+
   const casesToSearch = [
     "centro_de_costo",
     "numero_documento",
@@ -944,7 +947,6 @@ function seleccionarUsuario(id) {
         if (doc.data().ingreso === doc.data().con) {
           document.getElementById("actualizar_correo").readOnly = false;
         } else {
-  
           document.getElementById("actualizar_correo").readOnly = true;
         }
 

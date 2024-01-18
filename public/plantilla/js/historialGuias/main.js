@@ -15,14 +15,11 @@ btnActvSearch.click(toggleBuscador);
 btnSearch.click(consultarHistorialGuias);
 
 const id_user = localStorage.user_id;
-const guiasRef = db.collection("usuarios").doc(id_user)
-.collection("guias");
-
+const guiasRef = db.collection("usuarios").doc(id_user).collection("guias");
 
 const historial = new SetHistorial();
 historial.includeFilters();
 globalThis.h = historial;
-
 
 let historialConsultado;
 const fechas = new Watcher();
@@ -30,111 +27,125 @@ fechas.watch(renderInfoFecha);
 
 consultarHistorialGuias();
 async function consultarHistorialGuias() {
-    const fecha_inicio = new Date(inpFechaInicio.val()).setHours(0) + 8.64e7;
-    const fecha_final = new Date(inpFechaFinal.val()).setHours(0) + (2 * 8.64e7);
+  const fecha_inicio = new Date(inpFechaInicio.val()).setHours(0) + 8.64e7;
+  const fecha_final = new Date(inpFechaFinal.val()).setHours(0) + 2 * 8.64e7;
 
-    fechas.change([fecha_inicio, fecha_final, inpNumeroGuia.val()]);
-    historial.clean(defFiltrado.novedad);
+  fechas.change([fecha_inicio, fecha_final, inpNumeroGuia.val()]);
+  historial.clean(defFiltrado.novedad);
 
-    if(historialConsultado) historialConsultado();
+  if (historialConsultado) historialConsultado();
 
-    let reference = ControlUsuario.esPuntoEnvio
-    ? db.collectionGroup("guias")
-    .where("id_punto", "==", user_id) 
+  let reference = ControlUsuario.esPuntoEnvio
+    ? db.collectionGroup("guias").where("id_punto", "==", user_id)
     : guiasRef;
 
-    if(inpNumeroGuia.val()) {
-        reference = reference
-        .where("numeroGuia", "==", inpNumeroGuia.val());
-    } else {
-        reference = reference
-        .orderBy("timeline", "desc")
-        .startAt(fecha_final).endAt(fecha_inicio)
-    }
+  if (inpNumeroGuia.val()) {
+    reference = reference.where("numeroGuia", "==", inpNumeroGuia.val());
+  } else {
+    reference = reference
+      .orderBy("timeline", "desc")
+      .startAt(fecha_final)
+      .endAt(fecha_inicio);
+  }
 
-    historialConsultado = reference
-    .onSnapshot(snapshot => {
-        snapshot.docChanges().forEach(change => {
-            const data = change.doc.data();
-            const id = data.id_heka;
-            data.row_id = "historial-guias-row-" + id;
-            
-            data.mostrar_transp = data.oficina 
-            ? data.transportadora + "-Flexii"
-            : data.transportadora;
+  historialConsultado = reference.onSnapshot((snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      const data = change.doc.data();
+      const id = data.id_heka;
+      data.row_id = "historial-guias-row-" + id;
 
-            historial.guiasNeutras.add(id);
+      data.mostrar_transp = data.oficina
+        ? data.transportadora + "-Flexii"
+        : data.transportadora;
 
-            if(change.type === "added" || change.type === "modified") {
-                historial.add(data);
-            }
+      historial.guiasNeutras.add(id);
 
-            if(inpNumeroGuia.val()) {
-                const filt = defineFilter(data);
-                $(`[data-filter="${filt}"]`).click();
-            }
+      if (change.type === "added" || change.type === "modified") {
+        historial.add(data);
+      }
 
-        });
-        console.log(historial.filtrador);
-        historial.filter(historial.filtrador);
-        // historial.render();
+      if (inpNumeroGuia.val()) {
+        const filt = defineFilter(data);
+        $(`[data-filter="${filt}"]`).click();
+      }
     });
-    
-  
+    console.log(historial.filtrador);
+    historial.filter(historial.filtrador);
+    // historial.render();
+  });
+}
+
+function mostrarNovedades(numeroNovedades) {
+  const mostradorNoNovedades = document.getElementById("mostrador-noNovedades");
+  const mostradorSiNovedades = document.getElementById("mostrador-SiNovedades");
+  if (numeroNovedades > 0) {
+    mostradorNoNovedades.classList.add("d-none");
+    mostradorSiNovedades.classList.remove("d-none");
+    $(".mostrar-cantidad_novedades").text(numeroNovedades);
+
+  } else {
+    mostradorNoNovedades.classList.remove("d-none");
+    mostradorSiNovedades.classList.add("d-none");
+  }
 }
 
 cargarNovedades();
 async function cargarNovedades() {
-    const novedades = await guiasRef.where("enNovedad", "==", true)
-    .get().then(querySnapshot => {
-        console.log(querySnapshot.size);
-        $(".mostrar-cantidad_novedades").text(querySnapshot.size);
-        const novedades = [];
-        querySnapshot.forEach(doc => {
-            const data = doc.data();
+  const novedades = await guiasRef
+    .where("enNovedad", "==", true)
+    .get()
+    .then((querySnapshot) => {
+      console.log(querySnapshot.size);
 
-            const id = data.id_heka;
-            data.row_id = "historial-guias-row-" + id;
+      mostrarNovedades(querySnapshot.size);
 
-            data.mostrar_transp = data.oficina 
-            ? data.transportadora + "-Flexii"
-            : data.transportadora
+      const novedades = [];
+      querySnapshot.forEach((doc) => {
+        const data = doc.data();
 
-            data.deleted ? historial.delete(id) : historial.add(data);
+        const id = data.id_heka;
+        data.row_id = "historial-guias-row-" + id;
 
-            if(!data.deleted) novedades.push(data);
-        })
+        data.mostrar_transp = data.oficina
+          ? data.transportadora + "-Flexii"
+          : data.transportadora;
 
-        listaNovedadesEncontradas = novedades;
-        mostrarAlertaNovedades({
-            contador: novedades.length
-        });
+        data.deleted ? historial.delete(id) : historial.add(data);
 
+        if (!data.deleted) novedades.push(data);
+      });
+
+      listaNovedadesEncontradas = novedades;
+      mostrarAlertaNovedades({
+        contador: novedades.length,
+      });
     });
 
-    historial.filter(historial.filtrador);   
+  historial.filter(historial.filtrador);
 }
 
 let texto_inicial_alerta = alerta.html();
 function mostrarAlertaNovedades(obj) {
-    if(!obj.contador) return;
+  if (!obj.contador) return;
 
-    alerta.removeClass("d-none");
-    const exp = /\{(\w+)\}/g;
-    let nuevo_texto = texto_inicial_alerta; 
+  alerta.removeClass("d-none");
+  const exp = /\{(\w+)\}/g;
+  let nuevo_texto = texto_inicial_alerta;
 
-    let x;
-    while(x = exp.exec(texto_inicial_alerta)) {
-        nuevo_texto = nuevo_texto.replace(x[0], obj[x[1]]);
-    }
+  let x;
+  while ((x = exp.exec(texto_inicial_alerta))) {
+    nuevo_texto = nuevo_texto.replace(x[0], obj[x[1]]);
+  }
 
-    alerta.html(nuevo_texto);
-    $(".ver-novedades").on("click", () => $("#filter_novedad-guias_hist").click());
+  alerta.html(nuevo_texto);
+  $(".ver-novedades").on("click", () =>
+    $("#filter_novedad-guias_hist").click()
+  );
 }
 
 function toggleBuscador() {
-    const cont = $("#filtrado-guias_hist");
-    cont.toggle("fast");
+  const cont = $("#filtrado-guias_hist");
+  cont.toggle("fast");
 }
 
 globalThis.historialGuias = consultarHistorialGuias;
