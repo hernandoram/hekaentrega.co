@@ -13817,7 +13817,8 @@ export default [
     "ciudad": "LLORO",
     "departamento": "CHOCO",
     "dane_ciudad": "27413000",
-    "nombreAveo": "LLORO(CHOCO)"
+    "nombreAveo": "LLORO(CHOCO)",
+    "tipo_distribucion": "ENTREGA A DOMICILIO"
   },
   {
     "ciudad": "MEDIO ATRATO",
@@ -41206,7 +41207,8 @@ export default [
     "dane_ciudad": "44035001",
     "nombreAveo": "CUESTECITAS(LA GUAJIRA)",
     "departamento": "LA GUAJIRA",
-    "ciudad": "CUESTECITAS"
+    "ciudad": "CUESTECITAS",
+    "tipo_distribucion": "ENTREGA A DOMICILIO",
   },
   {
     "idAveo": 4935,

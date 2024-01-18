@@ -15,6 +15,9 @@ const bloqueo_direcciones_inter = [
   "68298002",
 ];
 const bloqueo_direcciones_envia = ["97666000", "52427000", "13188000", "94343000","27580000"];
+const bloqueo_direcciones_servientrega = [
+  "27430000" // MEDIO BAUDO
+];
 
 // Objeto principal en que se basa la transportadora a ser utilizada
 let transportadoras = {
@@ -27,7 +30,7 @@ let transportadoras = {
     limitesPeso: [3, 80],
     limitesLongitud: [1, 150],
     limitesRecaudo: [5000, 2000000],
-    bloqueada: () => false,
+    bloqueada: (data) => bloqueo_direcciones_servientrega.includes(data.dane_ciudadD),
     bloqueadaOfi: false,
     limitesValorDeclarado: (valor) => {
       return [5000, 300000000];
