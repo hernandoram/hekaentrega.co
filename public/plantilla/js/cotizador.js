@@ -16,7 +16,7 @@ const bloqueo_direcciones_inter = [
 ];
 const bloqueo_direcciones_envia = ["97666000", "52427000", "13188000", "94343000","27580000"];
 const bloqueo_direcciones_servientrega = [
-  "27430000" // MEDIO BAUDO
+  "05842000" // URAMITA
 ];
 
 // Objeto principal en que se basa la transportadora a ser utilizada

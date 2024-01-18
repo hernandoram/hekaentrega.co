@@ -13830,7 +13830,8 @@ export default [
     "ciudad": "MEDIO BAUDO",
     "departamento": "CHOCO",
     "dane_ciudad": "27430000",
-    "nombreAveo": "PUERTO MELUK(CHOCO)"
+    "nombreAveo": "PUERTO MELUK(CHOCO)",
+    "tipo_distribucion": "ENTREGA A DOMICILIO"
   },
   {
     "ciudad": "MEDIO SAN JUAN",
