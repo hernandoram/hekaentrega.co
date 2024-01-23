@@ -709,22 +709,41 @@ function mostrarOficina(id) {
     });
 }
 
+const botonBusquedaGeneral = document.getElementById("busquedaGeneral");
+const botonBusquedaEspecializada = document.getElementById(
+  "busquedaEspecializada"
+);
+
+botonBusquedaGeneral.onclick = function (e) {
+  // Aquí va el código que quieres que se ejecute cuando se haga clic en el botón de búsqueda general
+  console.log("Botón de búsqueda general clickeado");
+
+  buscarUsuarios(e, true);
+};
+
+botonBusquedaEspecializada.onclick = function (e) {
+  // Aquí va el código que quieres que se ejecute cuando se haga clic en el botón de búsqueda especializada
+  console.log("Botón de búsqueda especializada clickeado");
+  buscarUsuarios(e, false);
+};
+
 //esta funcion utilizara a otra para retornarme informacion basica del usuario
-async function buscarUsuarios(e) {
+async function buscarUsuarios(e, esGeneral) {
   console.log("buscando usuarios");
-  console.log(this, e);
+
   e.preventDefault();
+
   const mostrador = document.getElementById("mostrador-usuarios");
   mostrador.innerHTML = "";
   document.getElementById("cargador-usuarios").classList.remove("d-none");
-  // let busqueda = ["!=", ""];
-  // if(value("buscador_usuarios-id")){
-  //     busqueda = ["==", value("buscador_usuarios-id")];
-  // }
-  const nombreInpOriginal = value("buscador_usuarios-nombre")
-    .toLowerCase()
-    .trim();
+
+  let nombreInpOriginal = value("buscador_usuarios-nombre").trim();
+  if (esGeneral) {
+    nombreInpOriginal = nombreInpOriginal.toLowerCase();
+  }
+
   const nombreInp = value("buscador_usuarios-nombre").toLowerCase().trim();
+
   const reference = firebase.firestore().collection("usuarios");
 
   const casesToSearch = [
