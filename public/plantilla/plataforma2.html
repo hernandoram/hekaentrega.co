@@ -429,14 +429,48 @@
 
                       <p class="mt-3" id="infoExtra-usuario"></p>
 
-                      <p class="card-text mb-0"><b>
-
+                    <p class="card-text mb-0" data-toggle="modal" data-target="#modalHistorialPagos"><b>
                         <span class="mostrar-saldo_pendiente">Sin información</span> <i class="fa fa-caret-down"></i>
                       </b>
                     </p>
                       
+                    <div class="modal fade" id="modalHistorialPagos">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <!-- Modal Header -->
+                          <div class="modal-header">
+                            <h4 class="modal-title">Historial de pagos</h4>
+                            
+                            <button type="button" class="close" data-dismiss="modal">&times;</button>
+                          </div>
+                          <!-- Modal body -->
+                          <div class="modal-body">
+                            <input type="number" class="form-control" id="inputBusquedaGuia" placeholder="Busque con el número de guía">
 
-                      <ul class="list-group position-absolute d-none" id="detalles_pagos-home" style="max-height: 50vh; z-index: 2; overflow: auto;">
+                            <table class="table table-striped mt-5">
+
+                              <thead>
+                                <tr class="text-center">
+                                  <th scope="col">Guia</th>
+                                  <th scope="col">Valor</th>
+                                </tr>
+                              </thead>
+                              <tbody id="mostrador-historial">
+
+                              </tbody>
+
+                            </table>
+                          </div>
+                          <!-- Modal footer -->
+                          <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                      <ul class="list-group position-absolute d-none" id="detalles_pagos-home" style="max-height: 50vh; z-index: 2; overflow: auto; width: 60%;">
+                        <li>Buscador</li>
                         <li class="list-group-item">No hay información para mostrar</li>
                       </ul>
                     </h5>

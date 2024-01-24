@@ -152,14 +152,13 @@ async function cargarPagoSolicitado() {
   const centro_de_costo = datos_usuario.centro_de_costo;
   const soliciado = data.includes(centro_de_costo);
 
-  if (soliciado){
+  if (soliciado) {
     $("#mostrador-saldoSolicitado").removeClass("d-none");
     $("#mostrador-saldoNoSolicitado").addClass("d-none");
   } else {
     $("#mostrador-saldoNoSolicitado").removeClass("d-none");
     $("#mostrador-saldoSolicitado").addClass("d-none");
   }
-
 }
 
 async function listarNovedadesServientrega() {
@@ -1766,7 +1765,6 @@ async function obtenerFacturaRegistradaPorGuia(numeroGuia) {
   return guiasEstablecidas.get(numeroGuia);
 }
 
-
 function mostrarPagosUsuario(data) {
   $("#visor-pagos").DataTable({
     data: data,
@@ -1912,19 +1910,17 @@ function mostrarPagosUsuario(data) {
   });
 }
 
-
 $("#fecha_cargue-pagos_pendientes").change(pagosPendientesParaUsuario);
 
 $("#solicitar-pagos_pendientes").click(solicitarPagosPendientesUs);
 $(".mostrar-saldo_pendiente + i").click(showHidePagosPendientesUsuario);
 let saldo_pendiente = 0;
 
-function prueba(){
-  console.log("HOLAA")
+function prueba() {
+  console.log("HOLAA");
 }
 
 async function pagosPendientesParaUsuario() {
-
   const viewer = $(".mostrar-saldo_pendiente");
   const details = $("#detalles_pagos-home");
   viewer.text("Calculando...");
@@ -1951,6 +1947,7 @@ async function pagosPendientesParaUsuario() {
     "title",
     "Se han cargado los pagos que corresponden a la fecha del " + fechaFinal
   );
+  let guias = [];
 
   await firebase
     .firestore()
@@ -1962,17 +1959,34 @@ async function pagosPendientesParaUsuario() {
     .then((querySnapshot) => {
       saldo_pendiente = 0;
       details.html("");
+
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         const saldo = data["TOTAL A PAGAR"];
-
+        guias.push(data);
         saldo_pendiente += saldo;
-        details.append(
-          `<li class="list-group-item">${data.GUIA} ---> ${convertirMoneda(
-            saldo
-          )}</li>`
-        );
       });
+    })
+    .then(() => {
+      console.log(guias);
+
+      const mostradorHistorial = document.getElementById("mostrador-historial");
+
+ 
+      guias.forEach((guia) => {
+        mostradorHistorial.innerHTML += 
+          `<tr class="text-center"><td>${guia.GUIA}</td><td>${convertirMoneda(
+            guia["TOTAL A PAGAR"]
+          )}</td></tr>`;
+      });
+
+    //  guias.forEach((guia) => {
+    //     details.append(
+    //       `<li class="list-group-item">${guia.GUIA} ---> ${convertirMoneda(
+    //         guia["TOTAL A PAGAR"]
+    //       )}</li>`
+    //     );
+    //   });
     });
 
   viewer.text(convertirMoneda(saldo_pendiente));
@@ -2190,6 +2204,7 @@ async function solicitarPagosPendientesUs() {
 }
 
 function showHidePagosPendientesUsuario(e) {
+
   $(e.target).toggleClass("fa-caret-down");
   $(e.target).toggleClass("fa-caret-up");
   $("#detalles_pagos-home").toggleClass("d-none");
