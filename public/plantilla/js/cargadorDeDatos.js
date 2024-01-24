@@ -1915,9 +1915,6 @@ $("#fecha_cargue-pagos_pendientes").change(pagosPendientesParaUsuario);
 $("#solicitar-pagos_pendientes").click(solicitarPagosPendientesUs);
 let saldo_pendiente = 0;
 
-function prueba() {
-  console.log("HOLAA");
-}
 let guiasPagos = [];
 
 

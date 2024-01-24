@@ -10,13 +10,12 @@ const db = firestore;
 
 const POSTURL = "/inter/recogidaesporadica"; // para activar el modo test: ?mode=test
 
-
 const sellers = [
   "SellerWiland",
   "Seller1891tattoosupply",
   "SellerElectrovariedadesEYMce",
   "SellerNICE",
-  "SellerMerakiJSLSAS"
+  "SellerMerakiJSLSAS",
 ];
 
 /*{
@@ -52,9 +51,6 @@ inputField.addEventListener("input", function () {
 });
 
 async function llenarRecoleccionesPendientes(solicitar) {
-
-
-
   await db
     .collectionGroup("guias")
     .where("recoleccion_esporadica", "==", 1)
@@ -68,10 +64,9 @@ async function llenarRecoleccionesPendientes(solicitar) {
       querySnapshot.forEach((doc) => {
         const guia = doc.data();
 
-        if (recoleccionesPendientes[guia.codigo_sucursal] ) {
+        if (recoleccionesPendientes[guia.codigo_sucursal]) {
           recoleccionesPendientes[guia.codigo_sucursal].guias.push(guia);
         } else {
-
           recoleccionesPendientes[guia.codigo_sucursal] = {
             codigo_sucursal: guia.codigo_sucursal,
             centro_de_costo: guia.centro_de_costo,
@@ -87,8 +82,9 @@ async function mostrarListaRecolecciones() {
   console.log("cargando recolecciones");
   await llenarRecoleccionesPendientes(false);
   let recolecciones = Object.values(recoleccionesPendientes);
-  //recolecciones = recolecciones.filter((guia) => sellers.includes(guia.centro_de_costo));
-
+  recolecciones = recolecciones.filter((guia) =>
+    sellers.includes(guia.centro_de_costo)
+  );
 
   console.log(recolecciones);
   elListaSucursales.html("");
@@ -232,7 +228,9 @@ async function fetchRecoleccion(data) {
     },
   });
   const body = await response.json();
-  const radicado = body.response.idRecogica;
+  const radicado = body.response.idRecogica || body.response.ExceptionDate;
+
+  console.log(body);
 
   await guiasSolicitadas(guias, radicado);
 
@@ -240,24 +238,25 @@ async function fetchRecoleccion(data) {
 }
 
 async function guiasSolicitadas(data, radicado) {
-  await db
-    .collectionGroup("guias")
-    .where("recoleccion_esporadica", "==", 1)
-    .where("numeroGuia", "in", data)
-    .where("transportadora", "==", "INTERRAPIDISIMO")
-    .get()
-    .then((querySnapshot) => {
-      console.log(querySnapshot.size);
-      querySnapshot.forEach((doc) => {
-        const guia = doc.data();
-        console.log(doc.id);
-        guia.recoleccion_solicitada = true;
-        guia.fecha_recoleccion = new Date().toISOString();
-        guia.radicado_recoleccion = radicado;
+  for (const numeroGuia of data) {
+    await db
+      .collectionGroup("guias")
+      .where("recoleccion_esporadica", "==", 1)
+      .where("numeroGuia", "==", numeroGuia)
+      .where("transportadora", "==", "INTERRAPIDISIMO")
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const guia = doc.data();
+          console.log(doc.id);
+          guia.recoleccion_solicitada = true;
+          guia.fecha_recoleccion = new Date().toISOString();
+          guia.radicado_recoleccion = radicado;
 
-        doc.ref.update(guia);
+          doc.ref.update(guia);
+        });
       });
-    });
+  }
 }
 
 function formatearFecha(fecha) {
