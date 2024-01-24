@@ -1913,12 +1913,13 @@ function mostrarPagosUsuario(data) {
 $("#fecha_cargue-pagos_pendientes").change(pagosPendientesParaUsuario);
 
 $("#solicitar-pagos_pendientes").click(solicitarPagosPendientesUs);
-$(".mostrar-saldo_pendiente + i").click(showHidePagosPendientesUsuario);
 let saldo_pendiente = 0;
 
 function prueba() {
   console.log("HOLAA");
 }
+let guiasPagos = [];
+
 
 async function pagosPendientesParaUsuario() {
   const viewer = $(".mostrar-saldo_pendiente");
@@ -1947,7 +1948,6 @@ async function pagosPendientesParaUsuario() {
     "title",
     "Se han cargado los pagos que corresponden a la fecha del " + fechaFinal
   );
-  let guias = [];
 
   await firebase
     .firestore()
@@ -1963,19 +1963,19 @@ async function pagosPendientesParaUsuario() {
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         const saldo = data["TOTAL A PAGAR"];
-        guias.push(data);
+        guiasPagos.push(data);
         saldo_pendiente += saldo;
       });
     })
     .then(() => {
-      console.log(guias);
+      console.log(guiasPagos);
 
       const mostradorHistorial = document.getElementById("mostrador-historial");
 
  
-      guias.forEach((guia) => {
+      guiasPagos.forEach((guia) => {
         mostradorHistorial.innerHTML += 
-          `<tr class="text-center"><td>${guia.GUIA}</td><td>${convertirMoneda(
+          `<tr><td>${guia.GUIA}</td><td>${convertirMoneda(
             guia["TOTAL A PAGAR"]
           )}</td></tr>`;
       });
@@ -1991,6 +1991,22 @@ async function pagosPendientesParaUsuario() {
 
   viewer.text(convertirMoneda(saldo_pendiente));
 }
+
+const inputBusquedaGuia = document.getElementById("inputBusquedaGuia");
+const mostradorHistorial = document.getElementById("mostrador-historial");
+
+inputBusquedaGuia.addEventListener('input', (e) => {
+  const searchTerm = e.target.value;
+
+  console.log(searchTerm)
+  mostradorHistorial.innerHTML = "";
+
+  guiasPagos.filter(g => g.GUIA.includes(searchTerm)).forEach(g => {
+    mostradorHistorial.innerHTML += `<tr><td>${g.GUIA}</td><td>${convertirMoneda(g["TOTAL A PAGAR"])}</td></tr>`;
+  });
+});
+
+
 
 function obtenerMensajeDesembolso() {
   const mensajes2 =
@@ -2203,12 +2219,6 @@ async function solicitarPagosPendientesUs() {
   }
 }
 
-function showHidePagosPendientesUsuario(e) {
-
-  $(e.target).toggleClass("fa-caret-down");
-  $(e.target).toggleClass("fa-caret-up");
-  $("#detalles_pagos-home").toggleClass("d-none");
-}
 
 function descargarExcelPagosAdmin(datos) {
   console.log(datos);

@@ -429,9 +429,8 @@
 
                       <p class="mt-3" id="infoExtra-usuario"></p>
 
-                    <p class="card-text mb-0" data-toggle="modal" data-target="#modalHistorialPagos"><b>
-                        <span class="mostrar-saldo_pendiente">Sin información</span> <i class="fa fa-caret-down"></i>
-                      </b>
+                    <p class="card-text mb-0 border rounded mb-2" data-toggle="modal" data-target="#modalHistorialPagos"><b>
+                        <button class="mostrar-saldo_pendiente btn btn-link">Sin información</button></b>
                     </p>
                       
                     <div class="modal fade" id="modalHistorialPagos">
@@ -447,10 +446,10 @@
                           <div class="modal-body">
                             <input type="number" class="form-control" id="inputBusquedaGuia" placeholder="Busque con el número de guía">
 
-                            <table class="table table-striped mt-5">
+                            <table class="table table-striped mt-4">
 
                               <thead>
-                                <tr class="text-center">
+                                <tr>
                                   <th scope="col">Guia</th>
                                   <th scope="col">Valor</th>
                                 </tr>
