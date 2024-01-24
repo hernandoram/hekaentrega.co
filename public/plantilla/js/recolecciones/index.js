@@ -10,6 +10,15 @@ const db = firestore;
 
 const POSTURL = "/inter/recogidaesporadica"; // para activar el modo test: ?mode=test
 
+
+const sellers = [
+  "SellerWiland",
+  "Seller1891tattoosupply",
+  "SellerElectrovariedadesEYMce",
+  "SellerNICE",
+  "SellerMerakiJSLSAS"
+];
+
 /*{
     id_sucusal1: {..., guias: []}
     id_sucusal2: {...}
@@ -43,6 +52,9 @@ inputField.addEventListener("input", function () {
 });
 
 async function llenarRecoleccionesPendientes(solicitar) {
+
+
+
   await db
     .collectionGroup("guias")
     .where("recoleccion_esporadica", "==", 1)
@@ -56,9 +68,10 @@ async function llenarRecoleccionesPendientes(solicitar) {
       querySnapshot.forEach((doc) => {
         const guia = doc.data();
 
-        if (recoleccionesPendientes[guia.codigo_sucursal]) {
+        if (recoleccionesPendientes[guia.codigo_sucursal] ) {
           recoleccionesPendientes[guia.codigo_sucursal].guias.push(guia);
         } else {
+
           recoleccionesPendientes[guia.codigo_sucursal] = {
             codigo_sucursal: guia.codigo_sucursal,
             centro_de_costo: guia.centro_de_costo,
@@ -73,7 +86,9 @@ async function llenarRecoleccionesPendientes(solicitar) {
 async function mostrarListaRecolecciones() {
   console.log("cargando recolecciones");
   await llenarRecoleccionesPendientes(false);
-  const recolecciones = Object.values(recoleccionesPendientes);
+  let recolecciones = Object.values(recoleccionesPendientes);
+  recolecciones = recolecciones.filter((guia) => sellers.includes(guia.centro_de_costo));
+
 
   console.log(recolecciones);
   elListaSucursales.html("");
