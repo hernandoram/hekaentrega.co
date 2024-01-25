@@ -429,9 +429,15 @@
 
                       <p class="mt-3" id="infoExtra-usuario"></p>
 
-                    <p class="card-text mb-0 border rounded mb-2" data-toggle="modal" data-target="#modalHistorialPagos"><b>
-                        <button class="mostrar-saldo_pendiente btn btn-link">Sin información</button></b>
+                    <p class="card-text mb-0 border rounded mb-2 py-2 px-2" data-toggle="modal" data-target="#modalHistorialPagos">
+                      <b class="mostrar-saldo_pendiente">
+                        Sin información
+                    </b>
+
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="m19.6 21l-6.3-6.3q-.75.6-1.725.95T9.5 16q-2.725 0-4.612-1.888T3 9.5q0-2.725 1.888-4.612T9.5 3q2.725 0 4.613 1.888T16 9.5q0 1.1-.35 2.075T14.7 13.3l6.3 6.3zM9.5 14q1.875 0 3.188-1.312T14 9.5q0-1.875-1.312-3.187T9.5 5Q7.625 5 6.313 6.313T5 9.5q0 1.875 1.313 3.188T9.5 14"/></svg>
+
                     </p>
+                    
                       
                     <div class="modal fade" id="modalHistorialPagos">
                       <div class="modal-dialog">
@@ -444,11 +450,14 @@
                           </div>
                           <!-- Modal body -->
                           <div class="modal-body">
-                            <input type="number" class="form-control" id="inputBusquedaGuia" placeholder="Busque con el número de guía">
+                            
+                            <h5 class="text-center" id="modalHistorialPago-mensajeNoHayGuias">Aún no tienes guías con pago pendiente</h5>
+                            
+                            <input type="number" class="form-control d-none" id="inputBusquedaGuia" placeholder="Busque con el número de guía">
+                            
+                            <table class="table table-striped mt-4 d-none" id="modalHistorialPago-tituloTabla">
 
-                            <table class="table table-striped mt-4">
-
-                              <thead>
+                              <thead >
                                 <tr>
                                   <th scope="col">Guia</th>
                                   <th scope="col">Valor</th>
