@@ -47,6 +47,9 @@ let diasEntreFechas = function (inicio, final) {
 
 async function GuardarDatosInforme(dataInforme) {
   // SE REVISA SI EL DOC EXISTE
+  if (dataInforme.resTransportadora == ""){
+    return false
+  }
   const id = Date.parse(genFecha().replace(/\-/g, '/'))
   let docRef = firebase.firestore().collection('informesHeka').doc(id.toString());
   docRef.get().then(async (doc) => {
@@ -69,6 +72,8 @@ async function GuardarDatosInforme(dataInforme) {
 
 async function DescargarInformeCallcenter() {
   const transportadoraFiltrada = $('#filtro-transportadoras-informe').val();
+  const sellersFiltrada = $('#filtro-seller-informe').val().split(",");
+  console.log(sellersFiltrada)
   const checkboxInformeGestionadas = document.getElementById("checkboxInformeGestionadas").checked
   let desde = moment(value('informe-callcenter-fecha-inicio'));
   let hasta = moment(value('informe-callcenter-fecha-final'));
@@ -84,11 +89,14 @@ async function DescargarInformeCallcenter() {
     await docRef.get().then(function (doc) {
       if (doc.exists) {
         let arrayUpdated = doc.data().callcenter.filter(data => {
-          if (transportadoraFiltrada == "" && data.descargada == checkboxInformeGestionadas) {
+          if (sellersFiltrada.includes(data.centro_de_costo) && data.descargada == checkboxInformeGestionadas) {
             dataExcel.push(data)
             data.descargada = true
           }
           else if (data.transportadora == transportadoraFiltrada && data.descargada == checkboxInformeGestionadas) {
+            dataExcel.push(data)
+            data.descargada = true
+          }else if(transportadoraFiltrada == "" && sellersFiltrada == "" && data.descargada == checkboxInformeGestionadas) {
             dataExcel.push(data)
             data.descargada = true
           }
@@ -715,7 +723,7 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
     }
 
 
-    if (text == undefined || respuestaSeller == undefined || resTransportadora == undefined) {
+    if (text == undefined || respuestaSeller == undefined) {
       boton_solucion.html(html_btn);
     } else if (text) {
       text = text.trim();
