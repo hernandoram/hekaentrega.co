@@ -147,13 +147,21 @@ async function cargarDatosUsuario() {
 }
 
 async function cargarPagoSolicitado() {
+  console.warn("Cargando pago");
   const ref = db.collection("infoHeka").doc("manejoUsuarios");
   const data = await ref.get().then((d) => d.data().diarioSolicitado);
+
+  console.log(data);
   const centro_de_costo = datos_usuario.centro_de_costo;
   const soliciado = data.includes(centro_de_costo);
-  $("#saldo-solicitado").text(
-    soliciado ? "Pago solicitado ✅" : "Pago aún no solicitado ❌"
-  );
+
+  if (soliciado) {
+    $("#mostrador-saldoSolicitado").removeClass("d-none");
+    $("#mostrador-saldoNoSolicitado").addClass("d-none");
+  } else {
+    $("#mostrador-saldoNoSolicitado").removeClass("d-none");
+    $("#mostrador-saldoSolicitado").addClass("d-none");
+  }
 }
 
 async function listarNovedadesServientrega() {
@@ -1905,19 +1913,21 @@ function mostrarPagosUsuario(data) {
   });
 }
 
-$("#calcular-pagos_pendientes").click(pagosPendientesParaUsuario);
+$("#fecha_cargue-pagos_pendientes").change(pagosPendientesParaUsuario);
+
 $("#solicitar-pagos_pendientes").click(solicitarPagosPendientesUs);
-$(".mostrar-saldo_pendiente + i").click(showHidePagosPendientesUsuario);
 let saldo_pendiente = 0;
+
+let guiasPagos = [];
+
 async function pagosPendientesParaUsuario() {
   const viewer = $(".mostrar-saldo_pendiente");
   const details = $("#detalles_pagos-home");
-  const filtroFecha = $("#fecha_cargue-pagos_pendientes");
   viewer.text("Calculando...");
   saldo_pendiente = 0;
 
   // Cómputo para calcular hasta el último viernes
-  const fecha = new Date(filtroFecha.val());
+  const fecha = new Date($("#fecha_cargue-pagos_pendientes").val());
   const diaSemana = fecha.getDay();
   const diaEnMilli = 8.64e7;
 
@@ -1948,38 +1958,74 @@ async function pagosPendientesParaUsuario() {
     .then((querySnapshot) => {
       saldo_pendiente = 0;
       details.html("");
+
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         const saldo = data["TOTAL A PAGAR"];
-
+        guiasPagos.push(data);
         saldo_pendiente += saldo;
-        details.append(
-          `<li class="list-group-item">${data.GUIA} ---> ${convertirMoneda(
-            saldo
-          )}</li>`
-        );
       });
+    })
+    .then(() => {
+      console.log(guiasPagos);
+
+      const mostradorHistorial = document.getElementById("mostrador-historial");
+      let mensajeNoHayGuias = document.getElementById("modalHistorialPago-mensajeNoHayGuias");
+      const tituloTabla = document.getElementById(
+        "modalHistorialPago-tituloTabla"
+      );
+      let inputBusquedaGuia2 = document.getElementById("inputBusquedaGuia");
+
+      if (guiasPagos.length > 1) {
+        tituloTabla.classList.remove("d-none");
+       mensajeNoHayGuias.classList.add("d-none");
+       inputBusquedaGuia2.classList.remove("d-none");
+
+      }else{
+        mensajeNoHayGuias.classList.remove("d-none");
+
+      }
+
+      guiasPagos.forEach((guia) => {
+        mostradorHistorial.innerHTML += `<tr><td>${
+          guia.GUIA
+        }</td><td>${convertirMoneda(guia["TOTAL A PAGAR"])}</td></tr>`;
+      });
+
+      //  guias.forEach((guia) => {
+      //     details.append(
+      //       `<li class="list-group-item">${guia.GUIA} ---> ${convertirMoneda(
+      //         guia["TOTAL A PAGAR"]
+      //       )}</li>`
+      //     );
+      //   });
     });
 
   viewer.text(convertirMoneda(saldo_pendiente));
 }
 
+const inputBusquedaGuia = document.getElementById("inputBusquedaGuia");
+const mostradorHistorial = document.getElementById("mostrador-historial");
+
+inputBusquedaGuia.addEventListener("input", (e) => {
+  const searchTerm = e.target.value;
+
+  console.log(searchTerm);
+  mostradorHistorial.innerHTML = "";
+
+  guiasPagos
+    .filter((g) => g.GUIA.includes(searchTerm))
+    .forEach((g) => {
+      mostradorHistorial.innerHTML += `<tr><td>${
+        g.GUIA
+      }</td><td>${convertirMoneda(g["TOTAL A PAGAR"])}</td></tr>`;
+    });
+});
+
 function obtenerMensajeDesembolso() {
   const mensajes2 =
     "<h2> Pago solicitado ✅</h2>  <br/>  Si solicitaste tu pago entre las 8 am - 6 pm lo recibirás al siguiente día habil, si realizas la solicitud fuera de ese horario, el pago llegará al segundo día hábil. <br/> e el pago se realizará durante el transcurso del día, sin un horario específico, ya que está programado.";
   return mensajes2;
-  // const mensajes = ["Pago solicitado  ✅ ",
-  //  "Tu pago ya fue solicitado, esta listo para desembolso en en el próximo día de pago, ya que nuestros días de pago son de lunes a viernes 😊",
-  //   "Tu pago ya fue solicitado, esta listo para desembolso en MÁS de 24 horas, puesto que nuestros horarios de pago son de 8:00 am a 6:00 pm de Lunes a Viernes 😊"];
-  // const lunJue = [8, 18, 0]; // hora inicial, hora final, index mensaje
-  // const vieSab = [8, 13, 1];
-  // const mensajeHor = [[0, 0, 3], lunJue, lunJue, lunJue, lunJue, vieSab, vieSab];
-  // const hora = new Date().getHours();
-  // const dia = new Date().getDay();
-  // const horario = mensajeHor[dia];
-  // const [hi, hf, i] = horario;
-
-  // return hi <= hora && hf > hora ? mensajes[i] : mensajes[mensajes.length - 1];
 }
 const datosUsuario = localStorage.getItem("user_id");
 
@@ -2173,12 +2219,6 @@ async function solicitarPagosPendientesUs() {
 
     Swal.fire("Pago solicitado con éxito.", "", "success");
   }
-}
-
-function showHidePagosPendientesUsuario(e) {
-  $(e.target).toggleClass("fa-caret-down");
-  $(e.target).toggleClass("fa-caret-up");
-  $("#detalles_pagos-home").toggleClass("d-none");
 }
 
 function descargarExcelPagosAdmin(datos) {

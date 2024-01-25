@@ -14,7 +14,10 @@ const bloqueo_direcciones_inter = [
   "13810011",
   "68298002",
 ];
-const bloqueo_direcciones_envia = ["97666000", "52427000", "13188000"];
+const bloqueo_direcciones_envia = ["97666000", "52427000", "13188000", "94343000","27580000"];
+const bloqueo_direcciones_servientrega = [
+  "05842000" // URAMITA
+];
 
 // Objeto principal en que se basa la transportadora a ser utilizada
 let transportadoras = {
@@ -27,7 +30,7 @@ let transportadoras = {
     limitesPeso: [3, 80],
     limitesLongitud: [1, 150],
     limitesRecaudo: [5000, 2000000],
-    bloqueada: () => false,
+    bloqueada: (data) => bloqueo_direcciones_servientrega.includes(data.dane_ciudadD),
     bloqueadaOfi: false,
     limitesValorDeclarado: (valor) => {
       return [5000, 300000000];
@@ -780,7 +783,7 @@ async function detallesTransportadoras(data) {
         
         //Se le resta 1000 para evitar que se cruce con el valor constante que se añade sobre "this.sobreflete_heka += 1000"
         const diferenciaActualRecaudoEnvio = cotizacion.valor - cotizacion.costoEnvio - 1000;
-        if(diferenciaActualRecaudoEnvio > 0) {
+        if(diferenciaActualRecaudoEnvio > 0 && data.type === CONTRAENTREGA) {
           factor_conversor = diferenciaActualRecaudoEnvio;
           cotizacion.set_sobreflete_heka = cotizacion.sobreflete_heka + diferenciaActualRecaudoEnvio;
         }
@@ -1875,6 +1878,14 @@ function detalles_cotizacion(datos) {
 
 const opciones = [];
 
+const sellers = [
+  "SellerWiland",
+  "Seller1891tattoosupply",
+  "SellerElectrovariedadesEYMce",
+  "SellerNICE",
+  "SellerMerakiJSLSAS"
+];
+
 //M edevuelve el html del último formulario del cotizador
 function finalizarCotizacion(datos) {
   let div_principal = document.createElement("DIV"),
@@ -1907,8 +1918,9 @@ function finalizarCotizacion(datos) {
             <label for="check-crear_pedido" class="form-check-label">Crear en forma de pedido</label>
         </div>
     `;
-
-  if (datos.transportadora !== "SERVIENTREGA" && datos.transportadora !== "INTERRAPIDISIMO" ) {
+    
+    
+    if (datos.transportadora !== "SERVIENTREGA"  && !sellers.includes(datos_usuario.centro_de_costo)) {
     solicitud_recoleccion = `
         <div class="alert alert-danger col-12">
             <h3 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, enviar la solicitud al correo <a href="mailto:atencion@hekaentrega.co">atencion@hekaentrega.co</a>.</small></h3>
