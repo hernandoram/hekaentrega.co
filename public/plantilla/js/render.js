@@ -792,8 +792,6 @@ function handleDocumentChange() {
   dateContainer.style.display = atLeastOneChecked ? 'block' : 'none';
 }
 
-document.addEventListener('change', handleDocumentChange);
-
 function handleDocumentClick(event) {
   const target = event.target;
 

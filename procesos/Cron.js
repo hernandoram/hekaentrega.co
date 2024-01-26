@@ -18,12 +18,20 @@ cron.schedule("0 0 * * 0", () => {
     let d = new Date();
     console.log("Se vana a ctualizar los movimientos semanales de las guías: ", d);
 
+    const messageActualizacionSolicitudPagos = "";
+
     // Reiniciar limitador de pagos diarios
     firebase.firestore().collection("infoHeka").doc("manejoUsuarios")
-        .update({ limitadosDiario: [] });
+        .update({ limitadosDiario: [] })
+        .then(() => {
+            messageActualizacionSolicitudPagos = "Actualización de la lista de limitados diario vaciada correctamente"
+        })
+        .catch(e => {
+            messageActualizacionSolicitudPagos = "Error al actulizar los limitados diarios: " + e.message;
+        })
 
     actualizarMovimientosSemanales().then((detalles) => {
-        console.log(detalles);
+        detalles.mensajeLimpiezaLimitadosDiario = messageActualizacionSolicitudPagos;
         detalles.actualización_semanal = true;
         firebase.firestore().collection("reporte").add(detalles);
     });
