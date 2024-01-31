@@ -14,9 +14,16 @@ const bloqueo_direcciones_inter = [
   "13810011",
   "68298002",
 ];
-const bloqueo_direcciones_envia = ["97666000", "52427000", "13188000", "94343000","27580000"];
+const bloqueo_direcciones_envia = [
+  "97666000",
+  "52427000",
+  "13188000",
+  "94343000",
+  "27580000",
+  "27372000",
+];
 const bloqueo_direcciones_servientrega = [
-  "05842000" // URAMITA
+  "05842000", // URAMITA
 ];
 
 // Objeto principal en que se basa la transportadora a ser utilizada
@@ -30,7 +37,8 @@ let transportadoras = {
     limitesPeso: [3, 80],
     limitesLongitud: [1, 150],
     limitesRecaudo: [5000, 2000000],
-    bloqueada: (data) => bloqueo_direcciones_servientrega.includes(data.dane_ciudadD),
+    bloqueada: (data) =>
+      bloqueo_direcciones_servientrega.includes(data.dane_ciudadD),
     bloqueadaOfi: false,
     limitesValorDeclarado: (valor) => {
       return [5000, 300000000];
@@ -60,9 +68,9 @@ let transportadoras = {
     bloqueada: (data) => bloqueo_direcciones_inter.includes(data.dane_ciudadD),
     bloqueadaOfi: false,
     limitesValorDeclarado: (peso) => {
-      if (peso <= 2) return [25000 , 5000000];
-      if (peso <= 5) return [40000 , 5000000];
-      return [50000 , 5000000];
+      if (peso <= 2) return [25000, 5000000];
+      if (peso <= 5) return [40000, 5000000];
+      return [50000, 5000000];
     },
     habilitada: () => {
       const sist = datos_personalizados.sistema_interrapidisimo;
@@ -714,7 +722,7 @@ async function detallesTransportadoras(data) {
 
   //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
   for (let transp in transportadoras) {
-    // Este factor será usado para hacer variaciones de precios entre 
+    // Este factor será usado para hacer variaciones de precios entre
     // flete trasportadora y sobreflete heka para intercambiar valores
     let factor_conversor = 0;
 
@@ -780,12 +788,14 @@ async function detallesTransportadoras(data) {
         const diferenciaMinima = minimoEnvio - cotizacion.valor;
         if (diferenciaMinima > 0)
           cotizacion.sumarCostoDeEnvio = diferenciaMinima;
-        
+
         //Se le resta 1000 para evitar que se cruce con el valor constante que se añade sobre "this.sobreflete_heka += 1000"
-        const diferenciaActualRecaudoEnvio = cotizacion.valor - cotizacion.costoEnvio - 1000;
-        if(diferenciaActualRecaudoEnvio > 0 && data.type === CONTRAENTREGA) {
+        const diferenciaActualRecaudoEnvio =
+          cotizacion.valor - cotizacion.costoEnvio - 1000;
+        if (diferenciaActualRecaudoEnvio > 0 && data.type === CONTRAENTREGA) {
           factor_conversor = diferenciaActualRecaudoEnvio;
-          cotizacion.set_sobreflete_heka = cotizacion.sobreflete_heka + diferenciaActualRecaudoEnvio;
+          cotizacion.set_sobreflete_heka =
+            cotizacion.sobreflete_heka + diferenciaActualRecaudoEnvio;
         }
       }
     }
@@ -811,8 +821,8 @@ async function detallesTransportadoras(data) {
     ) {
       factor_conversor = FACHADA_FLETE;
     }
-    
-    if(factor_conversor > 0) {
+
+    if (factor_conversor > 0) {
       sobreFleteHekaEdit -= factor_conversor;
       fleteConvertido += factor_conversor;
     }
@@ -1883,7 +1893,7 @@ const sellers = [
   "Seller1891tattoosupply",
   "SellerElectrovariedadesEYMce",
   "SellerNICE",
-  "SellerMerakiJSLSAS"
+  "SellerMerakiJSLSAS",
 ];
 
 //M edevuelve el html del último formulario del cotizador
@@ -1918,9 +1928,11 @@ function finalizarCotizacion(datos) {
             <label for="check-crear_pedido" class="form-check-label">Crear en forma de pedido</label>
         </div>
     `;
-    
-    
-    if (datos.transportadora !== "SERVIENTREGA"  && !sellers.includes(datos_usuario.centro_de_costo)) {
+
+  if (
+    datos.transportadora !== "SERVIENTREGA" &&
+    !sellers.includes(datos_usuario.centro_de_costo)
+  ) {
     solicitud_recoleccion = `
         <div class="alert alert-danger col-12">
             <h3 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, enviar la solicitud al correo <a href="mailto:atencion@hekaentrega.co">atencion@hekaentrega.co</a>.</small></h3>
@@ -2544,14 +2556,20 @@ function verificarSelectorEntregaOficina(e) {
   } else if (codTransp === "INTERRAPIDISIMO") {
     const inpDir = $("#direccionD");
     const inputBarrio = $("#barrioD");
+    const observaciones = $("#observaciones");
     if (select.value == "2") {
       inpDir.prop("disabled", true).val("Oficina principal interrapidisimo");
       inputBarrio
         .prop("disabled", true)
         .val("Oficina principal interrapidisimo");
+
+      observaciones
+        .prop("disabled", true)
+        .val("Oficina principal interrapidisimo");
     } else {
       inpDir.prop("disabled", false).val("");
       inputBarrio.prop("disabled", false).val("");
+      observaciones.prop("disabled", false).val("");
     }
   }
 }
@@ -3592,7 +3610,9 @@ function crearGuia() {
         datos_a_enviar.pertenece_punto = true;
       }
 
-      if (datos_a_enviar.transportadora === transportadoras.INTERRAPIDISIMO.cod) {
+      if (
+        datos_a_enviar.transportadora === transportadoras.INTERRAPIDISIMO.cod
+      ) {
         datos_a_enviar.codigo_sucursal = bodega.codigo_sucursal_inter;
 
         // Por ahora solo se presentará esta varialbe con interrapidísimo

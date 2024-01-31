@@ -82,9 +82,6 @@ async function mostrarListaRecolecciones() {
   console.log("cargando recolecciones");
   await llenarRecoleccionesPendientes(false);
   let recolecciones = Object.values(recoleccionesPendientes);
-  recolecciones = recolecciones.filter((guia) =>
-    sellers.includes(guia.centro_de_costo)
-  );
 
   console.log(recolecciones);
   elListaSucursales.html("");
