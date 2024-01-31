@@ -1930,9 +1930,7 @@ function finalizarCotizacion(datos) {
     `;
 
   if (
-    datos.transportadora !== "SERVIENTREGA" &&
-    !sellers.includes(datos_usuario.centro_de_costo)
-  ) {
+    datos.transportadora !== "SERVIENTREGA" &&  datos.transportadora !== "INTERRAPIDISIMO"  ) {
     solicitud_recoleccion = `
         <div class="alert alert-danger col-12">
             <h3 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, enviar la solicitud al correo <a href="mailto:atencion@hekaentrega.co">atencion@hekaentrega.co</a>.</small></h3>
