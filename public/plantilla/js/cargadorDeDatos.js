@@ -155,6 +155,8 @@ async function cargarPagoSolicitado() {
   const centro_de_costo = datos_usuario.centro_de_costo;
   const soliciado = data.includes(centro_de_costo);
 
+  console.log(soliciado);
+
   if (soliciado) {
     $("#mostrador-saldoSolicitado").removeClass("d-none");
     $("#mostrador-saldoNoSolicitado").addClass("d-none");
