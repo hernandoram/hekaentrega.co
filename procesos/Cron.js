@@ -1,5 +1,5 @@
 const cron = require('node-cron');
-const {actualizarMovimientos, actualizarMovimientosSemanales, ocultarOficinas} = require("../controllers/seguimientos");
+const { actualizarMovimientos, actualizarMovimientosSemanales, ocultarOficinas } = require("../controllers/seguimientos");
 var firebase = require("../keys/firebase");
 
 cron.schedule("00 */6 * * *", () => {

@@ -3372,56 +3372,7 @@ function modificarDatosDeTransportadorasAveo(res) {
     }
   });
 }
-async function fetchWithRetry(url, options, maxRetries, segundos) {
-  console.log("número maximo de retrys: ", maxRetries, segundos);
-  console.log("segundos para rehacer la petición: ", segundos);
 
-  for (let i = 0; i < maxRetries; i++) {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    setTimeout(() => controller.abort(), segundos * 1000); // SEGUNDOSSSS
-
-    try {
-      let response = await fetch(url, { ...options, signal }); // Asociar la señal con la solicitud fetch
-
-      console.log(`intento ${i + 1}`);
-
-      if (i === 0) {
-        Swal.fire({
-          title: "Creando Guía",
-          text: `Estamos conectandonos con la transportadora, por favor espere un momento`,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-          allowOutsideClick: false,
-          allowEnterKey: false,
-          showConfirmButton: false,
-          allowEscapeKey: true,
-        });
-      } else {
-        Swal.fire({
-          title: "Creando Guía",
-          text: `Intento de conexión No. ${i + 1}`,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-          allowOutsideClick: false,
-          allowEnterKey: false,
-          showConfirmButton: false,
-          allowEscapeKey: true,
-        });
-      }
-
-      return response;
-    } catch (error) {
-      if (error.name === "AbortError") {
-        console.log("La solicitud se ha agotado, reintentando...");
-        continue; // Si la solicitud se agotó, reintenta
-      }
-      if (i === maxRetries - 1) throw error; // Si es el último intento, lanza el error
-    }
-  }
-}
 
 // Para enviar la guia generada a firestore
 function crearGuia() {
@@ -3560,7 +3511,9 @@ function crearGuia() {
 
               Swal.showLoading();
             }
-          }, 10000);
+          }, 60000);
+
+          
         },
         allowOutsideClick: false,
         allowEnterKey: false,

@@ -696,25 +696,20 @@ function despliegueReferidos(referidos) {
 
     <div class="card-body">
     <div class="row no-gutters align-items-center">
-    <div class="h7 font-weight-bold text-primary text-uppercase mb-2">${
-      referido.nombreApellido
-    }</div>
+    <div class="h7 font-weight-bold text-primary text-uppercase mb-2">${referido.nombreApellido
+      }</div>
     <div class="row no-gutters align-items-center">
     <div class="h6 mb-0 mr-3 font-weight-bold">
-        <p>Número de envíos: <small>${
-          referido.cantidadEnvios < 10 ? referido.cantidadEnvios : "10"
-        }</small></p>       
+        <p>Número de envíos: <small>${referido.cantidadEnvios < 10 ? referido.cantidadEnvios : "10"
+      }</small></p>       
     </div>
     <div>
     
     </div>
-    <button class="btn btn-primary text-centered" id="btn-${
-      referido.sellerReferido
-    }" ${
-      referido.cantidadEnvios < 10 ? "disabled" : ""
-    }  onclick="agregarSaldo('${referido.cantidadEnvios}','${
-      referido.sellerReferente
-    }' , '${referido.sellerReferido}')">Reclamar recompensa</button>
+    <button class="btn btn-primary text-centered" id="btn-${referido.sellerReferido
+      }" ${referido.cantidadEnvios < 10 ? "disabled" : ""
+      }  onclick="agregarSaldo('${referido.cantidadEnvios}','${referido.sellerReferente
+      }' , '${referido.sellerReferido}')">Reclamar recompensa</button>
 </div>
 
     </div>
@@ -885,7 +880,7 @@ function cargarPagos() {
             if (
               data.TRANSPORTADORA &&
               transportadoras.indexOf(data.TRANSPORTADORA.toLowerCase()) !=
-                -1 &&
+              -1 &&
               transportadoras.length != 0
             ) {
               permitir_transportadora = true;
@@ -936,8 +931,8 @@ function cargarPagos() {
           if (numero_flotante) {
             alert(
               "He registrado " +
-                numero_flotante +
-                " fila(s) con números decimales y los he transformado en enteros, revíselo con cuidado"
+              numero_flotante +
+              " fila(s) con números decimales y los he transformado en enteros, revíselo con cuidado"
             );
           }
           // se insertan los datos filtrados
@@ -1044,9 +1039,9 @@ function cargarPagos() {
 
               const respuestaMensaje = await fetch(
                 "/mensajeria/sendMessage?number=57" +
-                  numero +
-                  "&message=" +
-                  mensaje
+                numero +
+                "&message=" +
+                mensaje
               ).then((d) => d.json());
 
               if (respuestaMensaje.success) {
@@ -1129,8 +1124,8 @@ function cargarPagos() {
                   guia.setAttribute(
                     "data-ERROR",
                     "La Guía " +
-                      identificador +
-                      " ya se encuentra registrada en la base de datos, verifique que ya ha sido pagada."
+                    identificador +
+                    " ya se encuentra registrada en la base de datos, verifique que ya ha sido pagada."
                   );
                   guia.classList.add("text-success");
 
@@ -1211,23 +1206,18 @@ function cargarPagos() {
 
                   if (docBank) {
                     bank_info.innerHTML = `<div class="dropdown">
-                  <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdown-${
-                    doc.data().centro_de_costo
-                  }" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdown-${doc.data().centro_de_costo
+                      }" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Información Bancaria
                   </button>
-                  <div class="dropdown-menu" aria-labelledby="dropdown-${
-                    doc.data().centro_de_costo
-                  }">
+                  <div class="dropdown-menu" aria-labelledby="dropdown-${doc.data().centro_de_costo
+                      }">
                     <h6 class="dropdown-item">${docBank.banco}</h6>
-                    <h6 class="dropdown-item">Representante: ${
-                      docBank.nombre_banco
-                    }</h6>
-                    <h6 class="dropdown-item">${docBank.tipo_de_cuenta}: ${
-                      docBank.numero_cuenta
-                    }</h6>
-                      <h6 class="dropdown-item">${
-                        docBank.tipo_documento_banco
+                    <h6 class="dropdown-item">Representante: ${docBank.nombre_banco
+                      }</h6>
+                    <h6 class="dropdown-item">${docBank.tipo_de_cuenta}: ${docBank.numero_cuenta
+                      }</h6>
+                      <h6 class="dropdown-item">${docBank.tipo_documento_banco
                       } - ${docBank.numero_iden_banco}</h6>
                 </div>`;
                     usuario.insertBefore(bank_info, usuario.firstChild);
@@ -1610,8 +1600,8 @@ function mostrarPagos(datos) {
   // <h2 class="text-right mt-4" id="total_pagos" data-total="${total}">Total:  $${convertirMiles(total)}</h2>
   document.getElementById("visor_pagos").innerHTML += `
     <h2 class="text-right mt-4" id="total_pagos" data-total="0">Total:  $${convertirMiles(
-      0
-    )}</h2>
+    0
+  )}</h2>
   `;
 
   visor_pagos
@@ -1668,8 +1658,8 @@ function mostrarPagosAdmin(datos) {
   // <h2 class="text-right mt-4" id="total_pagos" data-total="${total}">Total:  $${convertirMiles(total)}</h2>
   document.getElementById("visor_pagos").innerHTML += `
     <h2 class="text-right mt-4" id="total_pagos" data-total="0">Total:  $${convertirMiles(
-      0
-    )}</h2>
+    0
+  )}</h2>
   `;
 
   visor_pagos
@@ -1825,8 +1815,8 @@ function mostrarPagosUsuario(data) {
               .before(
                 //Ingresa la siguiente fila antes de cada grupo para que el usuario identifique el segmento en el que se encuentra
                 '<tr class="group text-center text-primary"><td colspan="8">Pagos Realizados el ' +
-                  group +
-                  "</td></tr>"
+                group +
+                "</td></tr>"
               );
 
             last = group;
@@ -1855,8 +1845,8 @@ function mostrarPagosUsuario(data) {
         <tr>
             <td colspan="4"></td>
             <td colspan="2"><h4>$${convertirMiles(
-              pageTotal
-            )} (total: $${convertirMiles(total)})</h4></td>
+        pageTotal
+      )} (total: $${convertirMiles(total)})</h4></td>
         </tr>
         `);
       $(api.column(4).footer()).html(
@@ -1900,12 +1890,12 @@ function mostrarPagosUsuario(data) {
           //finalmente agrega el option para pder filtrar por fecha
           select.append(
             '<option value="' +
-              d +
-              '">' +
-              d +
-              " - Total pagado: $" +
-              convertirMiles(sum) +
-              "</option>"
+            d +
+            '">' +
+            d +
+            " - Total pagado: $" +
+            convertirMiles(sum) +
+            "</option>"
           );
         });
 
@@ -1950,6 +1940,7 @@ async function pagosPendientesParaUsuario() {
     "Se han cargado los pagos que corresponden a la fecha del " + fechaFinal
   );
 
+
   await firebase
     .firestore()
     .collection("pendientePorPagar")
@@ -1960,6 +1951,7 @@ async function pagosPendientesParaUsuario() {
     .then((querySnapshot) => {
       saldo_pendiente = 0;
       details.html("");
+      guiasPagos = [];
 
       querySnapshot.forEach((doc) => {
         const data = doc.data();
@@ -1978,20 +1970,25 @@ async function pagosPendientesParaUsuario() {
       );
       let inputBusquedaGuia2 = document.getElementById("inputBusquedaGuia");
 
-      if (guiasPagos.length > 1) {
-        tituloTabla.classList.remove("d-none");
-       mensajeNoHayGuias.classList.add("d-none");
-       inputBusquedaGuia2.classList.remove("d-none");
+      mostradorHistorial.innerHTML = "";
 
-      }else{
+
+      if (guiasPagos.length > 0) {
+        tituloTabla.classList.remove("d-none");
+        mensajeNoHayGuias.classList.add("d-none");
+        inputBusquedaGuia2.classList.remove("d-none");
+
+      } else {
         mensajeNoHayGuias.classList.remove("d-none");
+        tituloTabla.classList.add("d-none");
+        inputBusquedaGuia2.classList.add("d-none");
+
 
       }
 
       guiasPagos.forEach((guia) => {
-        mostradorHistorial.innerHTML += `<tr><td>${
-          guia.GUIA
-        }</td><td>${convertirMoneda(guia["TOTAL A PAGAR"])}</td></tr>`;
+        mostradorHistorial.innerHTML += `<tr><td>${guia.GUIA
+          }</td><td>${convertirMoneda(guia["TOTAL A PAGAR"])}</td></tr>`;
       });
 
       //  guias.forEach((guia) => {
@@ -2001,15 +1998,18 @@ async function pagosPendientesParaUsuario() {
       //       )}</li>`
       //     );
       //   });
+
+      viewer.text(convertirMoneda(saldo_pendiente));
+
     });
 
-  viewer.text(convertirMoneda(saldo_pendiente));
 }
 
 const inputBusquedaGuia = document.getElementById("inputBusquedaGuia");
-const mostradorHistorial = document.getElementById("mostrador-historial");
 
 inputBusquedaGuia.addEventListener("input", (e) => {
+  const mostradorHistorial = document.getElementById("mostrador-historial");
+
   const searchTerm = e.target.value;
 
   console.log(searchTerm);
@@ -2018,9 +2018,8 @@ inputBusquedaGuia.addEventListener("input", (e) => {
   guiasPagos
     .filter((g) => g.GUIA.includes(searchTerm))
     .forEach((g) => {
-      mostradorHistorial.innerHTML += `<tr><td>${
-        g.GUIA
-      }</td><td>${convertirMoneda(g["TOTAL A PAGAR"])}</td></tr>`;
+      mostradorHistorial.innerHTML += `<tr><td>${g.GUIA
+        }</td><td>${convertirMoneda(g["TOTAL A PAGAR"])}</td></tr>`;
     });
 });
 
@@ -2325,11 +2324,10 @@ function llenarItemsChat(notificaciones) {
     const isLastItem = index === notificaciones.length - 1;
     const itemChat = `
       <div class="${isLastItem ? "d-flex align-items-end" : ""}">
-       ${
-         isLastItem
-           ? '<img src= "../img/logoNuevo.jpeg" class="imgchat" alt="user-img">'
-           : ""
-       }
+       ${isLastItem
+        ? '<img src= "../img/logoNuevo.jpeg" class="imgchat" alt="user-img">'
+        : ""
+      }
       <div class="${isLastItem ? "last-item" : ""} item-chat">
           <div class="header">
             <strong class="primary-font">${notificacion.name}</strong>
