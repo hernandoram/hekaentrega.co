@@ -2071,7 +2071,7 @@ async function solicitarPagosPendientesUs() {
   if (!hayPagoAnterior.some(Boolean))
     return Swal.fire(
       "Se ha detectado que no hay registro de pago previo.",
-      "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico atencion@hekaentrega.co esto se realiza con la finalidad de validación de datos.",
+      "Por favor, para poder continuar, es necesario que nos envíes tu RUT a el correo electrónico atencion@hekaentrega.co esto se realiza con la finalidad de validación de datos.",
       "error"
     );
 
