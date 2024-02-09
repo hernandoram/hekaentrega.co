@@ -682,8 +682,29 @@ function agregarNotasDeExepcionAlCotizador() {
   return mensaje;
 }
 
+function cardNoCobertura(transportadora,transp){
+  return `<li style="cursor:pointer;" class="list-group-item list-group-item-action shadow-sm mb-2 border border-${
+    transportadora.color
+  }" 
+      id="list-transportadora-${transp}-list" 
+      data-transp="${transp}"
+      aria-controls="list-transportadora-${transp}"
+      >
+          <div class="row container" >
+              <img src="${transportadora.logoPath}" 
+              class="col" style="max-height:120px; max-width:fit-content"
+              alt="logo-${transportadora.nombre}">
+              <div class="col mt-3 mt-sm-0 order-1 order-sm-0">
+                  <h5 class="text-left">${transportadora.nombre}</h5>
+                  <h3 class="text-center mt-4"><b>No hay cobertura para este destino</b></h3>
+              </div>
+          </div>
+      </li>`
+}
+
 //Para llenar los diversos precios de las transportadoras que funcionarán con el cotizador
 async function detallesTransportadoras(data) {
+  console.log(data)
   let encabezados = "",
     detalles = "";
   let corredor = 0;
@@ -765,7 +786,14 @@ async function detallesTransportadoras(data) {
       cotizacionAveo,
     });
 
-    if (!cotizacion.flete || cotizacion.empty) continue;
+    console.log(cotizacion)
+
+    if (!cotizacion.flete || cotizacion.empty) {
+      const card = cardNoCobertura(transportadora,transp)
+      encabezados += card
+      mostradorTransp.append(card);
+      continue
+    };
 
     if (data.sumar_envio || data.type === CONTRAENTREGA) {
       cotizacion.sumarCostoDeEnvio = cotizacion.valor;
