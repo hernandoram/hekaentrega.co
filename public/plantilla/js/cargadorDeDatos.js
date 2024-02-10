@@ -2030,7 +2030,24 @@ function obtenerMensajeDesembolso() {
 }
 const datosUsuario = localStorage.getItem("user_id");
 
-console.log(datosUsuario);
+
+async function crearLogPago(estado, fecha, valorPago) {
+  // const ref2 = db.collection("acciones").doc(datos_usuario.centro_de_costo).collection("pagos");
+  const ref2 = db.collection("usuarios").doc(localStorage.user_id).collection("acciones");
+
+
+  console.warn("Creando log de pago", estado, fecha, valorPago);
+  // Crear un nuevo documento con los datos del pago
+  const pago = {
+    Estado: estado,
+    Tipo: "Pago",
+    Fecha: fecha,
+    'Valor del pago': valorPago
+  };
+
+  // Agregar el documento a la colección
+  await ref2.add(pago);
+}
 
 async function solicitarPagosPendientesUs() {
   const datosUsuario = localStorage.getItem("user_id");
@@ -2045,6 +2062,8 @@ async function solicitarPagosPendientesUs() {
   const mensajeDesembolso = obtenerMensajeDesembolso();
   const minimo_diario = 3000000;
   const ref = db.collection("infoHeka").doc("manejoUsuarios");
+
+
   const data = await ref.get().then((d) => d.data());
 
   const transportadoras = [
@@ -2095,6 +2114,7 @@ async function solicitarPagosPendientesUs() {
       showCancelButton: false,
       confirmButtonText: "Aceptar",
     });
+
   }
 
   if (saldo_pendiente < 0) {
@@ -2176,6 +2196,8 @@ async function solicitarPagosPendientesUs() {
       fechaSolicitud.push(fechaEnviada);
 
     await ref.update({ limitadosDiario, diarioSolicitado, fechaSolicitud });
+    await crearLogPago("Saldo solicitado con éxito", new Date(), saldo_pendiente);
+
     Swal.fire("Pago solicitado con éxito.", "", "success");
   } else {
     const mensaje =
@@ -2217,6 +2239,8 @@ async function solicitarPagosPendientesUs() {
     // }
 
     // console.log(actualizacion);
+
+
 
     Swal.fire("Pago solicitado con éxito.", "", "success");
   }
