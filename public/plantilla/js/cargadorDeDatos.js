@@ -2240,6 +2240,7 @@ async function solicitarPagosPendientesUs() {
 
     // console.log(actualizacion);
 
+    await crearLogPago("Saldo solicitado con éxito", new Date(), saldo_pendiente);
 
 
     Swal.fire("Pago solicitado con éxito.", "", "success");
