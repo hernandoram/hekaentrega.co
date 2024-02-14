@@ -3554,7 +3554,6 @@ function crearGuia() {
       datos_a_enviar.timeline = new Date().getTime();
 
       if (datos_usuario.type !== "PUNTO") datos_a_enviar.id_user = user_id;
-      datos_a_enviar.staging = checkCreacionPedido;
 
       if (datos_usuario.type === "PUNTO") {
         datos_a_enviar.id_punto = user_id;
@@ -3584,6 +3583,7 @@ function crearGuia() {
       // boton_final_cotizador.remove()
 
       if (checkCreacionPedido) {
+        datos_a_enviar.estadoActual = estadosGuia.pedido;
         enviar_firestore(datos_a_enviar).then(mostrarResultado);
       } else {
         creacionDirecta(datos_a_enviar).then(mostrarResultado);
@@ -3693,7 +3693,7 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
   }
 
   let generarGuia;
-  const stagingPrevio = datos.staging;
+  const stagingPrevio = datos.estadoActual === estadosGuia.pedido;;
   referenciaNuevaGuia =
     referenciaNuevaGuia ||
     usuarioAltDoc(datos.id_user).collection("guias").doc(datos.id_heka);
@@ -3720,7 +3720,6 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
     datos.has_sticker = resGuia.has_sticker || false;
     //y creo el documento de firebase
     if (resGuia.numeroGuia) {
-      datos.staging = false; // true: creación de pedido, false: creación directa
       datos.estadoActual = estadosGuia.generada;
       datos.numeroGuia = datos.numeroGuia.toString();
       datos.fecha_aceptada = genFecha();
@@ -3818,7 +3817,12 @@ async function obtenerIdHeka() {
 async function enviar_firestore(datos) {
   console.log(datos);
   let firestore = firebase.firestore();
-  const id_heka = datos.id_heka ? datos.id_heka : await obtenerIdHeka();
+  
+  if(!datos.id_heka) {
+    datos.id_heka = await obtenerIdHeka();
+  }
+
+  const id_heka = datos.id_heka
 
   datos.seguimiento_finalizado = false;
   datos.fecha = genFecha();
@@ -4023,7 +4027,6 @@ async function generarGuiaServientrega(datos) {
           ciudadD: data.querySelector("Des_Ciudad").textContent,
           id_archivoCargar: data.querySelector("Id_ArchivoCargar").textContent,
           prueba: datos.centro_de_costo == "SellerNuevo" ? true : false,
-          staging: false,
         };
       } else {
         //En caso contrario retorna el error devuelto por el webservice
@@ -4151,7 +4154,6 @@ async function generarGuiaInterrapidisimo(datos) {
   respuesta.numeroGuia = respuesta.numeroPreenvio;
   respuesta.id_heka = datos.id_heka;
   respuesta.prueba = datos.prueba;
-  respuesta.staging = false;
   respuesta.has_sticker = await generarStickerGuiaInterrapidisimo(respuesta);
 
   console.log("interrapidísimo => ", respuesta);
