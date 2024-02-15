@@ -24,6 +24,7 @@ const bloqueo_direcciones_envia = [
 ];
 const bloqueo_direcciones_servientrega = [
   "05842000", // URAMITA
+  "99624000" // SANTA ROSALIA(VICHADA)
 ];
 
 // Objeto principal en que se basa la transportadora a ser utilizada
