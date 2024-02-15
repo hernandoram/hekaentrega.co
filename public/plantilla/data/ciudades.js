@@ -13782,7 +13782,8 @@ export default [
     "ciudad": "BOJAYA",
     "departamento": "CHOCO",
     "dane_ciudad": "27099000",
-    "nombreAveo": "BELLAVISTA(CHOCO)"
+    "nombreAveo": "BELLAVISTA(CHOCO)",
+    "tipo_distribucion": "ENTREGA A DOMICILIO",
   },
   {
     "ciudad": "CANTON DE SAN PABLO",
