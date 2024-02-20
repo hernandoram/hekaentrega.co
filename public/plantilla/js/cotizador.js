@@ -1932,7 +1932,8 @@ function finalizarCotizacion(datos) {
     "SellerVeryNiceCompras",
     "SellerG-KKids",
     "SellerVALENTINOSSTORE",
-    "SellerNuevo"
+    "SellerNuevo",
+    "Sellerprobando"
   ];
   const showCheckPedido = usuariosTemporalesPedido.includes(datos_usuario.centro_de_costo);
   // Una vez que se pruebe la funcionnalidad y como de adaptan los usuarios ELIMINAR el d-none 
