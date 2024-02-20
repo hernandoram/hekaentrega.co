@@ -1814,6 +1814,7 @@ function seleccionarTransportadora(e) {
 
 //Me devuelveun html con los detalles de la cotización que ya están implícitos en los datos ingresados
 function detalles_cotizacion(datos) {
+  console.log(datos);
   return new DOMParser().parseFromString(
     `
         <div class="mb-4 card">
@@ -1899,6 +1900,7 @@ const sellers = [
 
 //M edevuelve el html del último formulario del cotizador
 function finalizarCotizacion(datos) {
+  console.log(datos);
   let div_principal = document.createElement("DIV"),
     crearNodo = (str) => new DOMParser().parseFromString(str, "text/html").body;
 
@@ -1930,7 +1932,8 @@ function finalizarCotizacion(datos) {
     "SellerVeryNiceCompras",
     "SellerG-KKids",
     "SellerVALENTINOSSTORE",
-    "SellerNuevo"
+    "SellerNuevo",
+    "Sellerprobando"
   ];
   const showCheckPedido = usuariosTemporalesPedido.includes(datos_usuario.centro_de_costo);
   // Una vez que se pruebe la funcionnalidad y como de adaptan los usuarios ELIMINAR el d-none 
@@ -1943,7 +1946,9 @@ function finalizarCotizacion(datos) {
     `;
 
   if (
-    datos.transportadora !== "SERVIENTREGA" &&  datos.transportadora !== "INTERRAPIDISIMO"  ) {
+    datos.transportadora !== "SERVIENTREGA" &&
+    datos.transportadora !== "INTERRAPIDISIMO"
+  ) {
     solicitud_recoleccion = `
         <div class="alert alert-danger col-12">
             <h3 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, enviar la solicitud al correo <a href="mailto:atencion@hekaentrega.co">atencion@hekaentrega.co</a>.</small></h3>
@@ -1976,8 +1981,22 @@ function finalizarCotizacion(datos) {
     
                 <select class="custom-select" id="entrega_en_oficina" name="entrega_en_oficina">
                     <option value="">Seleccione</option>
-                    <option value="1">Entrega en dirección</option>
-                    <option value="2">Entrega en oficina</option>
+                    ${
+                      datos.transportadora === "INTERRAPIDISIMO" &&
+                      ["05360000", "47189000", "08758000"].includes(
+                        datos.dane_ciudadD
+                      )
+                        ? `
+                       
+                        <option value="2">Entrega en oficina</option>
+                      
+                        `
+                        : `
+                  
+                  <option value="1">Entrega en dirección</option>
+                  <option value="2">Entrega en oficina</option>
+                  `
+                    }
                 </select>
             </div>`;
     }
@@ -3386,7 +3405,6 @@ function modificarDatosDeTransportadorasAveo(res) {
   });
 }
 
-
 // Para enviar la guia generada a firestore
 function crearGuia() {
   enviarUsuarioFrecuente();
@@ -3525,8 +3543,6 @@ function crearGuia() {
               Swal.showLoading();
             }
           }, 60000);
-
-          
         },
         allowOutsideClick: false,
         allowEnterKey: false,
