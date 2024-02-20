@@ -10,11 +10,16 @@ const inpBuscadorCiudades = $("#buscador-ciudades");
 const form = $("#form-ciudades");
 const htmlEstadisticas = $("#estadisticas-ciudades");
 
-const restriccionesContendor = $("#restricciones-ciudades");
-
 const botonAgregarRestriccion = $("#boton-agregar-restriccion");
 
 const detallesTransp = $(".detalles-transp-ciudades");
+
+const selectTransportadora = $("#transportadora-restricciones");
+
+let restringirEnvioOficina = document.getElementById("restringirEnvioOficina");
+let restringirEnvioDireccion = document.getElementById(
+  "restringirEnvioDireccion"
+);
 
 //#region EVENTOS
 inpBuscadorCiudades.on("input", seleccionarCiudad);
@@ -24,6 +29,7 @@ detallesTransp.on("click", detallesTransportadora);
 
 let listaciudades = [],
   ciudadActual;
+
 async function obtenerCiudades() {
   if (!listaciudades.length)
     listaciudades = await fetch(pathCiudadesLista)
@@ -46,7 +52,8 @@ async function renderListaCiudades() {
 async function seleccionarCiudad(e) {
   const dane = e.target.value;
   if (!dane) return;
-
+  restringirEnvioOficina.checked = false;
+  restringirEnvioDireccion.checked = false;
   // Recodar arreglar la estructura del API
   const ciudad = await fetch(pathCiudadDane + "/" + dane)
     .then((d) => d.json())
@@ -132,6 +139,22 @@ function actualizarCiudad(e) {
   }
 
   console.log(structure);
+}
+
+selectTransportadora.on("change", (e) => {
+  restringirEnvioOficina.checked = false;
+  restringirEnvioDireccion.checked = false;
+});
+
+botonAgregarRestriccion.on("click", agregarRestriccion);
+
+function agregarRestriccion() {
+  const reference = "";
+
+  console.log(restringirEnvioOficina.checked, restringirEnvioDireccion.checked);
+
+  console.log(selectTransportadora.val());
+  console.log(ciudadActual);
 }
 
 export { renderListaCiudades };
