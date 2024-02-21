@@ -1,5 +1,5 @@
 const cron = require('node-cron');
-const {actualizarMovimientos, actualizarMovimientosSemanales, ocultarOficinas} = require("../controllers/seguimientos");
+const { actualizarMovimientos, actualizarMovimientosSemanales, ocultarOficinas } = require("../controllers/seguimientos");
 var firebase = require("../keys/firebase");
 
 cron.schedule("00 */6 * * *", () => {
@@ -18,7 +18,7 @@ cron.schedule("0 0 * * 0", () => {
     let d = new Date();
     console.log("Se vana a ctualizar los movimientos semanales de las guías: ", d);
 
-    const messageActualizacionSolicitudPagos = "";
+    let messageActualizacionSolicitudPagos = "";
 
     // Reiniciar limitador de pagos diarios
     firebase.firestore().collection("infoHeka").doc("manejoUsuarios")
@@ -28,7 +28,7 @@ cron.schedule("0 0 * * 0", () => {
         })
         .catch(e => {
             messageActualizacionSolicitudPagos = "Error al actulizar los limitados diarios: " + e.message;
-        })
+        });
 
     actualizarMovimientosSemanales().then((detalles) => {
         detalles.mensajeLimpiezaLimitadosDiario = messageActualizacionSolicitudPagos;

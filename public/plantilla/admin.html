@@ -801,6 +801,21 @@
                 </div>
               </div>
 
+                <!--Referidos-->
+                <div class="card shadow mb-4">
+                  <!-- Card Header - Accordion -->
+                  <a href="#informacion-Pagos" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                    aria-expanded="true" aria-controls="informacion-bodegas">
+                    <h6 class="m-0 font-weight-bold text-primary">Pagos</h6>
+                  </a>
+                  <!-- Card Content - Collapse -->
+                  <div class="collapse" id="informacion-Pagos">
+                    <div class="card-body table-responsive">
+                      <table id="tabla-acciones" class="display table table-bordered table-hover" width="100%"></table>
+                    </div>
+                  </div>
+                </div>
+
               <!--Referidos-->
               <div class="card shadow mb-4">
                 <!-- Card Header - Accordion -->
@@ -2384,6 +2399,50 @@
               </a>
               <!-- Card Content - Collapse -->
               <div class="collapse row p-3" id="estadisticas-ciudades">
+              </div>
+            </div>
+
+
+            <div class="card shadow my-3">
+              <!-- Card Header - Accordion -->
+              <a href="#restricciones-ciudades" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                aria-expanded="true">
+                <h6 class="m-0 font-weight-bold text-primary">Restricciones <span id="nombre-ciudad-restricciones"></span></h6>
+              </a>
+              <!-- Card Content - Collapse -->
+              <div class="collapse p-3" id="restricciones-ciudades">
+
+<div class="row">
+
+                <div class="col">
+                  <p class="mb-0">
+                    Seleccione la transportadora
+                  </p>
+                  <select class="form-select"  aria-label="Default select example" id="transportadora-restricciones">
+                    <option value="INTERRAPIDISIMO">INTERRAPIDISIMO</option>
+                    <option value="SERVIENTREGA">SERVIENTREGA</option>
+                    <option value="ENVIA">ENVIA</option>
+                    <option value="COORDINADORA">COORDINADORA</option>
+                  </select>
+                </div>
+
+                <div class="col">
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="restringirEnvioOficina">
+                    <label class="form-check-label" for="restringirEnvioOficina">
+                      Restringir envío oficina
+                    </label>
+                  </div>
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="restringirEnvioDireccion">
+                    <label class="form-check-label" for="restringirEnvioDireccion">
+                      Restringir envío dirección
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+                <button class="btn btn-primary mt-3" id="boton-agregar-restriccion">Agregar restricción</button>
               </div>
             </div>
           </div>
