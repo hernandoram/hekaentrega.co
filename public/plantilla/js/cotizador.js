@@ -694,7 +694,7 @@ function agregarNotasDeExepcionAlCotizador() {
   return mensaje;
 }
 
-function cardNoCobertura(transportadora,transp){
+function cardNoCobertura(transportadora,transp,NoCobertura){
   return `<li style="cursor:pointer;" class="list-group-item list-group-item-action shadow-sm mb-2 border border-${
     transportadora.color
   }" 
@@ -708,7 +708,7 @@ function cardNoCobertura(transportadora,transp){
               alt="logo-${transportadora.nombre}">
               <div class="col mt-3 mt-sm-0 order-1 order-sm-0">
                   <h5 class="text-left">${transportadora.nombre}</h5>
-                  <h3 class="text-center mt-4"><b>No hay cobertura para este destino</b></h3>
+                  <h3 class="text-center mt-4"><b>${NoCobertura?'No hay cobertura para este destino':'Error al cotizar, intenta de nuevo'}</b></h3>
               </div>
           </div>
       </li>`
@@ -800,8 +800,8 @@ async function detallesTransportadoras(data) {
 
     console.log(cotizacion)
 
-    if (!cotizacion.flete || cotizacion.empty) {
-      const card = cardNoCobertura(transportadora,transp)
+    if (!cotizacion.flete || cotizacion.empty || cotizacion.NoCobertura) {
+      const card = cardNoCobertura(transportadora,transp,cotizacion.NoCobertura)
       encabezados += card
       mostradorTransp.append(card);
       continue
@@ -3039,6 +3039,10 @@ class CalcularCostoDeEnvio {
           dataObj.dane_ciudadR,
           dataObj.dane_ciudadD
         );
+        if (respuestaCotizacion == 'No hay Cobertura'){
+          this.NoCobertura = true
+          break
+        }
         if (!respuestaCotizacion) {
           this.empty = true;
           break;
@@ -3187,13 +3191,22 @@ class CalcularCostoDeEnvio {
         "/" +
         pagoContraentrega
     )
-      .then((data) => {
+      .then(async(data) => {
+        console.log(data.status)
+        if (data.status == 417){
+          const text = await data.text();
+          console.log(text);
+          if (text === "El destino no es válido para envíos con contra pago y pago en casa."){
+            throw Error ('No hay Cobertura')
+          }
+        }
         return data.json();
       })
       .catch((err) => {
         return err;
       });
-
+    console.log(res)
+    if (res.message == 'No hay Cobertura') return res.message
     if (res.message || res.Message) return 0;
     let mensajeria = res.filter((d) => {
       let Convencional = false;
@@ -3260,7 +3273,11 @@ class CalcularCostoDeEnvio {
       .catch((d) => ({ respuesta: "Error del servidor" }));
 
     console.log(response);
-    if (response.respuesta) {
+    if (response.response == 'No hay cobertura' && !response.errorServidor){
+      this.NoCobertura = true
+      return "No hay cobertura"
+    }
+    if (response.response && response.errorServidor) {
       this.empty = true;
       return false;
     }
@@ -3309,6 +3326,7 @@ class CalcularCostoDeEnvio {
     console.log(response);
     if (!response || response.respuesta) {
       this.empty = true;
+      this.NoCobertura = true
       return false;
     }
 
@@ -3366,6 +3384,7 @@ class CalcularCostoDeEnvio {
 
     if (response.message || response.Message) {
       this.empty = true;
+      this.NoCobertura = true;
       console.log("ERROR EN SERVIENTREGA", response);
       return false;
     }
