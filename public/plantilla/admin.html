@@ -2410,10 +2410,14 @@
                 <h6 class="m-0 font-weight-bold text-primary">Restricciones <span id="nombre-ciudad-restricciones"></span></h6>
               </a>
               <!-- Card Content - Collapse -->
-              <div class="collapse p-3" id="restricciones-ciudades">
+              <div class="collapse p-3 " id="restricciones-ciudades">
 
-<div class="row">
+                <p class="text-center" id="noCiudadEscogida">Selecciona una ciudad para agregarle restricciones</p>
 
+              <section class="d-none" id="agregar-restricciones">
+
+
+              <div class="row">
                 <div class="col">
                   <p class="mb-0">
                     Seleccione la transportadora
@@ -2426,6 +2430,14 @@
                   </select>
                 </div>
 
+                <div class="col">
+                  <p class="mb-0">
+                    Seleccione el tipo de usuario
+                  </p>
+                  <select class="form-select"  aria-label="Default select example" id="tipoUsuario-restricciones">
+                  <option value="Todos">Todos</option>
+                  </select>
+                </div>
                 <div class="col">
                   <div class="form-check">
                     <input class="form-check-input" type="checkbox" value="" id="restringirEnvioOficina">
@@ -2443,7 +2455,32 @@
               </div>
 
                 <button class="btn btn-primary mt-3" id="boton-agregar-restriccion">Agregar restricción</button>
+                
+                
+                <div class="mt-2">
+                  <h5>Restricciones actuales</h5>
+
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th>Tipo usuario</th>
+                        <th>Transportadora</th>
+                        <th>Restricción tipo envio</th>
+                        <th>Eliminar restricción</th>
+                      </tr>
+                    </thead>
+                    
+                  </table>
+
+
+                  <p class="text-center d-none" id="mensaje-noRestriccion">Esta ciudad aún no tiene restricciones</p>
+                  
+                </div>
+
+              </section>
+
               </div>
+
             </div>
           </div>
 

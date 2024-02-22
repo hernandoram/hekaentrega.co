@@ -5,6 +5,9 @@ import {
 } from "../config/api.js";
 import CreateModal from "../utils/modal.js";
 import { estadisticasTempl, transportadoraTempl } from "./views.js";
+
+const db = firebase.firestore();
+
 const dtListCiudades = $("#list_buscador-ciudades");
 const inpBuscadorCiudades = $("#buscador-ciudades");
 const form = $("#form-ciudades");
@@ -21,10 +24,17 @@ let restringirEnvioDireccion = document.getElementById(
   "restringirEnvioDireccion"
 );
 
+const tipoUsuarioRestricciones = document.getElementById(
+  "tipoUsuario-restricciones"
+);
+
 //#region EVENTOS
 inpBuscadorCiudades.on("input", seleccionarCiudad);
 form.on("submit", actualizarCiudad);
 detallesTransp.on("click", detallesTransportadora);
+
+botonAgregarRestriccion.on("click", agregarRestriccion);
+
 //#endregion
 
 let listaciudades = [],
@@ -80,8 +90,12 @@ async function estadisticasCiudad(dane) {
 }
 
 async function restriccionesCiudad(ciudad) {
+  // Render
+  const noCiudadEscogida = document.querySelector("#noCiudadEscogida");
+  const agregarRestricciones = document.querySelector("#agregar-restricciones");
+  noCiudadEscogida.classList.add("d-none");
+  agregarRestricciones.classList.remove("d-none");
   const nombreCiudad = document.querySelector("#nombre-ciudad-restricciones");
-
   nombreCiudad.textContent = `en ${ciudad.nombre}`;
 }
 
@@ -149,12 +163,20 @@ selectTransportadora.on("change", (e) => {
 botonAgregarRestriccion.on("click", agregarRestriccion);
 
 function agregarRestriccion() {
-  const reference = "";
+  const reference = db
+    .collection("ciudades")
+    .doc(ciudadActual.dane_ciudad)
+    .collection("restricciones");
 
-  console.log(restringirEnvioOficina.checked, restringirEnvioDireccion.checked);
+  const restriccion = {
+    tipoUsuario: tipoUsuarioRestricciones.value,
+    transportadora: selectTransportadora.val(),
+    oficina: restringirEnvioOficina.checked,
+    direccion: restringirEnvioDireccion.checked,
+  }
 
-  console.log(selectTransportadora.val());
-  console.log(ciudadActual);
+  console.log(restriccion)
+
 }
 
 export { renderListaCiudades };
