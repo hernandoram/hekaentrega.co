@@ -57,7 +57,7 @@ export function defineFilter(data) {
 
     if (data.enNovedad) {
         filter = defFiltrado.novedad;
-    } else if (data.estadoActual === defFiltrado.pedido) {
+    } else if (data.staging) {
         filter = defFiltrado.pedido;
     } else if(!data.debe && data.type !== "CONVENCIONAL") {
         filter = defFiltrado.pagada

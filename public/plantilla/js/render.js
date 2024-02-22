@@ -1015,10 +1015,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
         .doc(id)
         .get()
         .then((doc) => {
-          const data = doc.data();
-          delete data.id_heka; // Para que se crear una guía diferente con exactamente los mismo datos
-
-          enviar_firestore(data).then((res) => {
+          enviar_firestore(doc.data()).then((res) => {
             if (res.icon === "success") {
               Swal.fire({
                 icon: "success",

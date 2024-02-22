@@ -123,7 +123,6 @@ async function DescargarInformeCallcenter() {
         let encabezado = [
         ['NUMERO GUIA', '_numGuia'],
         ['TRANSPORTADORA', '_Transportadora'],
-        ['CENTRO DE COSTO','_CentroCosto'],
         ["SOLICITUD", "_solicitud"],
         
       ];
@@ -134,10 +133,6 @@ async function DescargarInformeCallcenter() {
         encabezado.forEach(([headExcel, fromData]) => {
           if (fromData === '_numGuia') {
             fromData = dat.guia;
-          }
-
-          if (fromData === '_CentroCosto') {
-            fromData = dat.centro_de_costo;
           }
     
           if (fromData === "_solicitud") {
