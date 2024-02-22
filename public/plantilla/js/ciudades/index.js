@@ -101,14 +101,15 @@ async function restriccionesCiudad(ciudad) {
   renderRestricciones(ciudad.dane_ciudad);
 }
 
-function renderRestricciones(dane_ciudad) {
+function renderRestricciones() {
   let restricciones = [];
   const listaRestricciones = document.querySelector("#lista-restricciones");
   const mensajenoRestriccion = document.querySelector("#mensaje-noRestriccion");
+  const tablaRestricciones = document.querySelector("#tabla-restricciones");
 
   const reference = db
     .collection("ciudades")
-    .doc(dane_ciudad)
+    .doc(ciudadActual.dane_ciudad)
     .collection("restricciones");
 
   reference
@@ -116,12 +117,17 @@ function renderRestricciones(dane_ciudad) {
     .then((querySnapshot) => {
       restricciones = [];
       querySnapshot.forEach((doc) => {
-        restricciones.push(doc.data());
+        let restriccion = doc.data();
+        restriccion.id = doc.id;
+        restricciones.push(restriccion);
       });
     })
     .then(() => {
       console.log(restricciones);
       if (restricciones.length > 0) {
+        mensajenoRestriccion.classList.add("d-none");
+        tablaRestricciones.classList.remove("d-none");
+
         listaRestricciones.innerHTML = restricciones
           .map(
             (restriccion) => `
@@ -129,12 +135,34 @@ function renderRestricciones(dane_ciudad) {
           <td>${restriccion.tipoUsuario}</td>
           <td>${restriccion.transportadora}</td>
           <td>${restriccion.oficina ? "Oficina" : "Dirección"}</td>
-          <td><button class="btn btn-danger">Eliminar</button></td>
+          <td><button class="btn btn-danger" data-id="${
+            restriccion.id
+          }">Eliminar</button></td>
         </tr>
       `
           )
           .join("");
+
+        document.querySelectorAll(".btn-danger").forEach((button) => {
+          button.addEventListener("click", function (event) {
+            const id = event.target.getAttribute("data-id");
+            console.log(id);
+            db.collection("ciudades")
+              .doc(ciudadActual.dane_ciudad)
+              .collection("restricciones")
+              .doc(id)
+              .delete()
+              .then(() => {
+                swal.fire("Documento eliminado con éxito!");
+                renderRestricciones();
+              })
+              .catch((error) => {
+                swal.fire("Error eliminando el documento: ", error);
+              });
+          });
+        });
       } else {
+        tablaRestricciones.classList.add("d-none");
         mensajenoRestriccion.classList.remove("d-none");
       }
     });
@@ -226,6 +254,7 @@ function agregarRestriccion() {
         "La restricción ha sido agregada",
         "success"
       );
+      renderRestricciones();
     })
     .catch((e) =>
       swal.fire(
