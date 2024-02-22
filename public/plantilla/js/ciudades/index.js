@@ -97,6 +97,47 @@ async function restriccionesCiudad(ciudad) {
   agregarRestricciones.classList.remove("d-none");
   const nombreCiudad = document.querySelector("#nombre-ciudad-restricciones");
   nombreCiudad.textContent = `en ${ciudad.nombre}`;
+
+  renderRestricciones(ciudad.dane_ciudad);
+}
+
+function renderRestricciones(dane_ciudad) {
+  let restricciones = [];
+  const listaRestricciones = document.querySelector("#lista-restricciones");
+  const mensajenoRestriccion = document.querySelector("#mensaje-noRestriccion");
+
+  const reference = db
+    .collection("ciudades")
+    .doc(dane_ciudad)
+    .collection("restricciones");
+
+  reference
+    .get()
+    .then((querySnapshot) => {
+      restricciones = [];
+      querySnapshot.forEach((doc) => {
+        restricciones.push(doc.data());
+      });
+    })
+    .then(() => {
+      console.log(restricciones);
+      if (restricciones.length > 0) {
+        listaRestricciones.innerHTML = restricciones
+          .map(
+            (restriccion) => `
+        <tr>
+          <td>${restriccion.tipoUsuario}</td>
+          <td>${restriccion.transportadora}</td>
+          <td>${restriccion.oficina ? "Oficina" : "Dirección"}</td>
+          <td><button class="btn btn-danger">Eliminar</button></td>
+        </tr>
+      `
+          )
+          .join("");
+      } else {
+        mensajenoRestriccion.classList.remove("d-none");
+      }
+    });
 }
 
 function renderFormValues(data, form) {
@@ -173,10 +214,26 @@ function agregarRestriccion() {
     transportadora: selectTransportadora.val(),
     oficina: restringirEnvioOficina.checked,
     direccion: restringirEnvioDireccion.checked,
-  }
+  };
 
-  console.log(restriccion)
-
+  reference
+    .doc(`${restriccion.tipoUsuario}${restriccion.transportadora}`)
+    .set(restriccion)
+    .then(() => {
+      console.log("Restricción agregada");
+      swal.fire(
+        "Restricción agregada",
+        "La restricción ha sido agregada",
+        "success"
+      );
+    })
+    .catch((e) =>
+      swal.fire(
+        "Error al agregar restricción",
+        "La restricción no ha sido agregada",
+        "success"
+      )
+    );
 }
 
 export { renderListaCiudades };
