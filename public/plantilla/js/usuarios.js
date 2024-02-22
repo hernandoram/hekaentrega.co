@@ -90,8 +90,8 @@ class MensajeError {
             .parent()
             .append(
               '<p class="mensaje-error text-danger mt-2 text-center">' +
-              mensaje +
-              "</p>"
+                mensaje +
+                "</p>"
             );
         }
         $("#registrar-nueva-cuenta").prop("disabled", true);
@@ -120,8 +120,8 @@ class MensajeError {
           .parent()
           .append(
             '<p class="mensaje-error text-danger mt-2 text-center">' +
-            message +
-            "</p>"
+              message +
+              "</p>"
           );
       }
       $("#registrar-nueva-cuenta").prop("disabled", true);
@@ -479,9 +479,9 @@ function nuevaCuenta() {
                       avisar(
                         "¡Cuenta creada con éxito!",
                         "User_id = " +
-                        user +
-                        "\n Puede ingresar con: " +
-                        value("CPNnumero_documento"),
+                          user +
+                          "\n Puede ingresar con: " +
+                          value("CPNnumero_documento"),
                         "",
                         "admin.html"
                       );
@@ -588,7 +588,7 @@ async function verificarExistencia(administracion) {
         if (
           sellerFb &&
           sellerFb.toString().toLowerCase() ==
-          centro_de_costo.toLowerCase().replace(/[^A-Za-z1-9\-]/g, "")
+            centro_de_costo.toLowerCase().replace(/[^A-Za-z1-9\-]/g, "")
         ) {
           document.getElementById("registrar-nueva-cuenta").disabled = true;
           existe_centro_costo = true;
@@ -962,8 +962,6 @@ function seleccionarUsuario(id) {
         const datos_personalizados = data.datos_personalizados;
         const bodegas = data.bodegas;
 
-        console.log(acciones)
-
         console.log(doc.data());
         if (doc.data().ingreso === doc.data().con) {
           document.getElementById("actualizar_correo").readOnly = false;
@@ -988,71 +986,6 @@ function seleccionarUsuario(id) {
     .catch((error) => {
       console.log("Error getting document:", error);
     });
-
-
-  const ref2 = firebase
-    .firestore().collection("usuarios").doc(id).collection("acciones").get()
-
-  let acciones = [];
-
-  ref2.then((querySnapshot) => {
-    querySnapshot.forEach((doc) => {
-      acciones.push(doc.data());
-    });
-  }).then(() => {
-    acciones.forEach(accion => {
-      // Convertir el Timestamp a un objeto Date
-      const fecha = new Date(accion.Fecha.seconds * 1000);
-
-      // Formatear la fecha
-      const opciones = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
-      const fechaFormateada = fecha.toLocaleString('es-ES', opciones);
-
-      const valorPagoFormateado = accion['Valor del pago'].toLocaleString('es-CO', { style: 'currency', currency: 'COP' });
-
-
-      accion['Valor del pago'] = valorPagoFormateado;
-
-      // Reemplazar la fecha en la acción
-      accion.Fecha = fechaFormateada;
-    });
-
-    console.log(acciones);
-    const table = $("#tabla-acciones").DataTable({
-      destroy: true,
-      data: acciones,
-      columns: [
-        {
-          data: "Estado",
-          title: "Estado",
-          defaultContent: "",
-        },
-        {
-          data: "Fecha",
-          title: "Fecha",
-          defaultContent: "",
-        },
-        {
-          data: "Valor del pago",
-          title: "Valor del pago",
-          defaultContent: "",
-        },
-      ],
-      language: {
-        url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
-      },
-      scrollX: true,
-      scrollCollapse: true,
-      lengthMenu: [
-        [5, 10, 25, 30],
-        [5, 10, 25, 30],
-      ],
-    });
-
-    if (!acciones || !acciones.length) table.clear();
-  });
-
-
 }
 
 // esta funcion solo llena los datos solicitados en los inputs
@@ -1231,31 +1164,36 @@ function editarBodegaUsuarioAdm(e) {
     <form action="#" id="editar-bodega-${data.id}" class="m-2 text-left">
         <div class="form-group">
         <label for="ciudad-bodega">Ciudad</label>
-        <input type="text" value="${data.ciudad
-    }" class="form-control" id="ciudad-bodega" name="ciudad">
+        <input type="text" value="${
+          data.ciudad
+        }" class="form-control" id="ciudad-bodega" name="ciudad">
         </div>
         
         <div class="form-group">
         <label for="barrio-bodega">Barrio de la bodega</label>
-        <input type="text" value="${data.barrio
-    }" class="form-control" id="barrio-bodega" name="barrio">
+        <input type="text" value="${
+          data.barrio
+        }" class="form-control" id="barrio-bodega" name="barrio">
         </div>
     
         <div class="form-group">
         <label for="direccion-bodega">Dirección de la bodega</label>
-        <input type="text" value="${data.direccion
-    }" class="form-control" id="direccion-bodega" name="direccion">
+        <input type="text" value="${
+          data.direccion
+        }" class="form-control" id="direccion-bodega" name="direccion">
         </div>
         
         <div class="form-group">
         <label for="cod_suc_inter-bodega">Código sucursal para inter</label>
-        <input type="text" value="${data.codigo_sucursal_inter || ""
-    }" class="form-control" id="cod_suc_inter-bodega" name="codigo_sucursal_inter">
+        <input type="text" value="${
+          data.codigo_sucursal_inter || ""
+        }" class="form-control" id="cod_suc_inter-bodega" name="codigo_sucursal_inter">
         </div>
 
         <div class="custom-control custom-switch">
-            <input type="checkbox" class="custom-control-input" id="inactiva-bodega" ${data.inactiva ? "checked" : ""
-    } name="inactiva">
+            <input type="checkbox" class="custom-control-input" id="inactiva-bodega" ${
+              data.inactiva ? "checked" : ""
+            } name="inactiva">
             <label class="custom-control-label" for="inactiva-bodega">Desactivar bodega.</label>
         </div>
 
@@ -1299,10 +1237,13 @@ function editarBodegaUsuarioAdm(e) {
       centro: value("actualizar_centro_costo"),
     };
 
-    let textoACopiar = `${datos.centro} \t ${datos.numero_documento} \t ${datos.nombres
-      } ${datos.apellidos} \t ${datos.celular || datos.celular2} \t ${data.direccion
-      } ${data.barrio} \t ${data.ciudad} \t ${datos.correo} \t  ${datos.nombres
-      } ${datos.apellidos}`;
+    let textoACopiar = `${datos.centro} \t ${datos.numero_documento} \t ${
+      datos.nombres
+    } ${datos.apellidos} \t ${datos.celular || datos.celular2} \t ${
+      data.direccion
+    } ${data.barrio} \t ${data.ciudad} \t ${datos.correo} \t  ${
+      datos.nombres
+    } ${datos.apellidos}`;
 
     console.log(textoACopiar);
 
@@ -1310,9 +1251,9 @@ function editarBodegaUsuarioAdm(e) {
       avisar(
         "Información copiada con éxito",
         "Se ha copiado la información de la bodega a cargo de " +
-        datos.nombres +
-        " " +
-        datos.apellidos
+          datos.nombres +
+          " " +
+          datos.apellidos
       );
     });
   });
@@ -1385,9 +1326,9 @@ function actualizarInformacionPersonal() {
       avisar(
         "Actualización de Datos exitosa",
         "Se han registrado cambios en información personal para: " +
-        datos.nombres.split(" ")[0] +
-        " " +
-        datos.apellidos.split(" ")[0]
+          datos.nombres.split(" ")[0] +
+          " " +
+          datos.apellidos.split(" ")[0]
       );
     });
 }
@@ -1434,9 +1375,9 @@ function actualizarInformacionOficina() {
       avisar(
         "Actualización de Datos exitosa",
         "Se han registrado cambios en la oficina para: " +
-        datos.nombres.split(" ")[0] +
-        " " +
-        datos.apellidos.split(" ")[0]
+          datos.nombres.split(" ")[0] +
+          " " +
+          datos.apellidos.split(" ")[0]
       );
     });
 }
@@ -1472,9 +1413,9 @@ async function actualizarInformacionHekaOficina() {
       avisar(
         "Actualización de Datos exitosa",
         "Se han registrado de información Heka en la oficina para " +
-        value("nombres-oficina") +
-        " " +
-        value("apellidos-oficina")
+          value("nombres-oficina") +
+          " " +
+          value("apellidos-oficina")
       );
     });
 }
@@ -1503,7 +1444,7 @@ function actualizarInformacionBancaria() {
       avisar(
         "Actualización de Datos exitosa",
         "Se han registrado cambios en información Bancaria para id: " +
-        value("actualizar_numero_documento")
+          value("actualizar_numero_documento")
       );
     });
 }
@@ -1660,8 +1601,8 @@ async function actualizarInformacionHeka() {
       avisar(
         "Actualización de Datos exitosa",
         "Se han registrado cambios en los costos de envíos para id: " +
-        value("actualizar_numero_documento") +
-        mensaje
+          value("actualizar_numero_documento") +
+          mensaje
       );
     });
 }
@@ -1851,9 +1792,9 @@ async function verMovimientos(usuario, fechaI, fechaF) {
 
           lista_detalles.push(
             "El saldo del cliente a la fecha era de: $" +
-            convertirMiles(saldo_momento) +
-            " Y debió haber sido de: $" +
-            convertirMiles(saldo_momento_legal)
+              convertirMiles(saldo_momento) +
+              " Y debió haber sido de: $" +
+              convertirMiles(saldo_momento_legal)
           );
           tablaMovimientos(data2);
           firebase
@@ -1866,9 +1807,9 @@ async function verMovimientos(usuario, fechaI, fechaF) {
                 const datos = doc.data().datos_personalizados;
                 lista_detalles.push(
                   "El saldo Actual del cliente es: $" +
-                  convertirMiles(datos.saldo) +
-                  " Y debería ser de: $" +
-                  convertirMiles(saldo_legal)
+                    convertirMiles(datos.saldo) +
+                    " Y debería ser de: $" +
+                    convertirMiles(saldo_legal)
                 );
                 console.log(
                   "Saldos coinciden? => ",

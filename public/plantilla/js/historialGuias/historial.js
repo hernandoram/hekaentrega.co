@@ -623,7 +623,7 @@ async function aceptarPedido(e, dt, node, config) {
     loader.end();
   };
 
-  $(".res-creacion", api.table().node()).remove();
+  // Cargador.fire("Creando guías", "Estamos generando las guías solicitadas, esto podría demorar unos minutos, por favor espere.")
 
   const selectedRows = api.rows(".selected");
   let datas = selectedRows.data();
@@ -720,7 +720,7 @@ async function aceptarPedido(e, dt, node, config) {
 
   errores.forEach(({ row, mensaje, icon, color, id }) => {
     $(row).after(
-      `<tr class="res-creacion"><td colspan='${columnasEnPedidos}' class='${color} action'><i class='fa fa-${icon} mr-2'></i>${mensaje}</td></tr>`
+      `<tr><td colspan='${columnasEnPedidos}' class='${color} action'><i class='fa fa-${icon} mr-2'></i>${mensaje}</td></tr>`
     );
   });
 }

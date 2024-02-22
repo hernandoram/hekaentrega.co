@@ -25,15 +25,8 @@ exports.consultarGuiaApi = async (req, res) => {
 
     const docMovimiento = await buscarGuia(n, _collEstadoGuia);
 
-    if (!docMovimiento) return res.status(500).send({});
+    if (!docMovimiento) return res.send("GUIA NO ENCONTRADA");
     let movimientosEncontrado = docMovimiento.data();
-
-    const docGuide = await searchCollection('guias', 'id_heka', movimientosEncontrado.id_heka);
-    const dataGuide = docGuide.data();
-    const dataUser = {
-      cel: dataGuide.telefonoD,
-      email: dataGuide.correoD
-    }
     let ciudadOrigen = busqueda.find(
       (element) => element.dane_ciudad === movimientosEncontrado.daneOrigen
     );
@@ -79,7 +72,6 @@ exports.consultarGuiaApi = async (req, res) => {
       ciudadOrigen: ciudadDestino.nombre,
       formularioStr: JSON.stringify(formularioNovedad),
       novedadDireccion: novedadDireccion,
-      dataUser
     };
 
     res.status(200).send({
@@ -97,19 +89,6 @@ async function buscarGuia(numeroGuia, coll) {
   return await db
     .collectionGroup(coll)
     .where("numeroGuia", "==", numeroGuia)
-    .limit(1)
-    .get()
-    .then((querySnapshot) => {
-      const doc = querySnapshot.docs[0];
-
-      return doc;
-    });
-}
-
-async function searchCollection(collection, field, value) {
-  return await db
-    .collectionGroup(collection)
-    .where(field, "==", value)
     .limit(1)
     .get()
     .then((querySnapshot) => {

@@ -1,7 +1,6 @@
 import CreateModal from "../utils/modal.js";
 import { verificador, ChangeElementContenWhileLoading, enviarNotificacion } from "../utils/functions.js";
 
-
 const formNuevaBodega = `
 <form action="#" id="nueva-bodega">
     <div class="form-group">
@@ -31,26 +30,25 @@ const formNuevaBodega = `
 let modalNuevaBodega;
 
 function agregarBodega() {
-    const swalID = Swal.mixin({
-        onBeforeOpen: (modal) => {
-          modal.setAttribute('id', 'optimizado');
-        }
-      });
-      swalID.fire({
+    modalNuevaBodega = new CreateModal({
         title: "<h4 class='text-center'>Nueva bodega</h4>",
-        confirmButtonText: "Crear Bodega",
-        html:formNuevaBodega,
-        position:"relative",
-    }).then((result) => {
-        if (result.isConfirmed) {
-          let form = document.getElementById("nueva-bodega")
-          agregarNuevaBodega(form);
-        }
+        btnContinueText: "Crear Bodega",
+        btnContinueIsSubmit: true,
+        id: "optimizado"
     });
+    modalNuevaBodega.init = formNuevaBodega;
 
-    console.log(document.getElementById("ciudad-bodega"))
+    const form = modalNuevaBodega.modal.querySelector("form");
     consultarCiudades(document.getElementById("ciudad-bodega"));
     
+    modalNuevaBodega.onSubmit = e => {
+        form.requestSubmit();
+    };
+
+    $(form).on("submit", e => {
+        e.preventDefault();
+        agregarNuevaBodega(e.target);
+    });
 }
 
 async function agregarNuevaBodega(form) {
@@ -61,6 +59,7 @@ async function agregarNuevaBodega(form) {
     const ciudadBodega = form.ciudad;
     const idInpCiudad = ciudadBodega.getAttribute("id");
     let bodegas = datos_usuario.bodegasCompletas;
+    const btnContinue = modalNuevaBodega.btnContinue;
 
 
     if (datos_usuario.type === "NATURAL-FLEXII" && !ciudadesFlexxi.includes(ciudadBodega.value)) {
@@ -71,6 +70,7 @@ async function agregarNuevaBodega(form) {
     }
 
 
+    const trigger = new ChangeElementContenWhileLoading(btnContinue);
 
 
     form.checkValidity();
@@ -107,6 +107,7 @@ async function agregarNuevaBodega(form) {
 
     if(!newcity.nombre) newcity.nombre = "Bodega-"+id;
 
+    trigger.init();
 
     bodegas ? bodegas.push(newcity) 
     : bodegas = new Array(newcity);
@@ -129,6 +130,8 @@ async function agregarNuevaBodega(form) {
 
     Toast.fire(ready);
     
+    modalNuevaBodega.close();
+    trigger.end();
 }
 
 async function notificarNuevaCiudad(newCity) {

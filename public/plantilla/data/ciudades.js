@@ -4133,7 +4133,7 @@ export default [
     "tiempoentrega_comercial": 1,
     "tiempoentrega_comercial_minutos": "NORMAL",
     "restriccion_fisica": "PESO: 50 kgs LARGO: 100 cms ANCHO: 100 cms ALTO: 100 cms",
-    "tipo_distribucion": "ENTREGA A DOMICILIO",
+    "tipo_distribucion": "ENTREGA EN OFICINA",
     "forma_pago": "C.O.D.",
     "nombreAveo": "GUASCA(CUNDINAMARCA)"
   },
@@ -13589,8 +13589,7 @@ export default [
     "ciudad": "TANGUA",
     "departamento": "NARIÑO",
     "dane_ciudad": "52788000",
-    "nombreAveo": "TANGUA(NARINO)",
-    "tipo_distribucion": "ENTREGA A DOMICILIO",
+    "nombreAveo": "TANGUA(NARINO)"
   },
   {
     "ciudad": "TUMACO",
@@ -13782,8 +13781,7 @@ export default [
     "ciudad": "BOJAYA",
     "departamento": "CHOCO",
     "dane_ciudad": "27099000",
-    "nombreAveo": "BELLAVISTA(CHOCO)",
-    "tipo_distribucion": "ENTREGA A DOMICILIO",
+    "nombreAveo": "BELLAVISTA(CHOCO)"
   },
   {
     "ciudad": "CANTON DE SAN PABLO",

@@ -8,9 +8,7 @@ const { estadosGuia, detectaNovedadEnElHistorialDeEstados, modificarEstadoGuia }
 exports.cotizar = async (req, res) => {
     const {type} = req.params;
     const body = req.body;
-    const respuestasNoCobertura = ["Ciudad Destino no existe",
-    "Por problemas de orden publico no hay acceso a esta poblacion. Esperamos poder normalizar pronto nuestra operacion en la medida que las condiciones sociales nos lo permitan.",
-    "Ciudad Destino sin Cubrimiento"]
+    console.log("CREDENCIALES => ", credentials);
     const esPagoContraentrega = type === "PAGO CONTRAENTREGA";
 
     // si es de pago a destino, el código de cuenta pasa a ser 7
@@ -48,6 +46,7 @@ exports.cotizar = async (req, res) => {
         }
     }
 
+    console.log(data);
 
     const response = await fetch(credentials.endpoint + "/Liquidacion", {
         method: "POST",
@@ -56,15 +55,10 @@ exports.cotizar = async (req, res) => {
         },
         body: JSON.stringify(data)
     })
-    .then(async d => {
-        const response = await d.json()
-        console.log("respuesta envia => ", response);
-        if(d.status >= 400) {
-            if(respuestasNoCobertura.includes(response.respuesta)) return {response: "No hay cobertura",errorServidor:false}
-            else return {respuesta: "Error de servidor",errorServidor:true}
-
-        }
-        return response;
+    .then(d => {
+        console.log("status => ", d.status);
+        if(d.status >= 400) return {respuesta: "Error de servidor"}
+        return d.json();
     })
     .catch(e => {
         console.log(e.message);

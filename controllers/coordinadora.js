@@ -50,7 +50,7 @@ exports.cotizar = async (req, res) => {
 
     const structure = maquetador.maqueta("COTIZADOR").fill(peticion);
 
-    console.log("ESTRUCTURA COORDI  ", structure)
+
     try {
         const response = await fetch(v15.endpoint, {
             method: "POST",
@@ -77,7 +77,7 @@ exports.cotizar = async (req, res) => {
         if(responseJson) {
             responseJson = normalizarValoresNumericos(responseJson.Cotizador_cotizarResult);
         }
-        console.log(responseJson)
+    
         console.log(response);
     
         res.send(responseJson || {

@@ -218,16 +218,10 @@ async function createSpreadsheet(req, res) {
             }
           });
         }).catch(e => {
-          res.status(400).send({
-            'code': 400,
-            'response': {"message": e.Message}
-          });
+          throw new Exception(e);
         });
       }).catch(e => {
-        res.status(400).send({
-          'code': 400,
-          'response': {"message": e.Message}
-        });
+        throw new Exception(e);
       });
     } catch (error) {
       res.status(400).send({
@@ -235,8 +229,6 @@ async function createSpreadsheet(req, res) {
         'response': {"message": 'Hubo un problema con el proceso, contacte el adminitrador para mas detalles'}
       });
     }
-
-    
   } 
 }
 
