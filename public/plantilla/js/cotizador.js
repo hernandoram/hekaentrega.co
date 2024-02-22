@@ -14,9 +14,17 @@ const bloqueo_direcciones_inter = [
   "13810011",
   "68298002",
 ];
-const bloqueo_direcciones_envia = ["97666000", "52427000", "13188000", "94343000","27580000"];
+const bloqueo_direcciones_envia = [
+  "97666000",
+  "52427000",
+  "13188000",
+  "94343000",
+  "27580000",
+  "27372000",
+];
 const bloqueo_direcciones_servientrega = [
-  "05842000" // URAMITA
+  "05842000", // URAMITA
+  "99624000" // SANTA ROSALIA(VICHADA)
 ];
 
 // Objeto principal en que se basa la transportadora a ser utilizada
@@ -30,7 +38,8 @@ let transportadoras = {
     limitesPeso: [3, 80],
     limitesLongitud: [1, 150],
     limitesRecaudo: [5000, 2000000],
-    bloqueada: (data) => bloqueo_direcciones_servientrega.includes(data.dane_ciudadD),
+    bloqueada: (data) =>
+      bloqueo_direcciones_servientrega.includes(data.dane_ciudadD),
     bloqueadaOfi: false,
     limitesValorDeclarado: (valor) => {
       return [5000, 300000000];
@@ -60,9 +69,9 @@ let transportadoras = {
     bloqueada: (data) => bloqueo_direcciones_inter.includes(data.dane_ciudadD),
     bloqueadaOfi: false,
     limitesValorDeclarado: (peso) => {
-      if (peso <= 2) return [25000 , 5000000];
-      if (peso <= 5) return [40000 , 5000000];
-      return [50000 , 5000000];
+      if (peso <= 2) return [25000, 5000000];
+      if (peso <= 5) return [40000, 5000000];
+      return [50000, 5000000];
     },
     habilitada: () => {
       const sist = datos_personalizados.sistema_interrapidisimo;
@@ -685,7 +694,7 @@ function agregarNotasDeExepcionAlCotizador() {
   return mensaje;
 }
 
-function cardNoCobertura(transportadora,transp){
+function cardNoCobertura(transportadora,transp,NoCobertura){
   return `<li style="cursor:pointer;" class="list-group-item list-group-item-action shadow-sm mb-2 border border-${
     transportadora.color
   }" 
@@ -699,7 +708,7 @@ function cardNoCobertura(transportadora,transp){
               alt="logo-${transportadora.nombre}">
               <div class="col mt-3 mt-sm-0 order-1 order-sm-0">
                   <h5 class="text-left">${transportadora.nombre}</h5>
-                  <h3 class="text-center mt-4"><b>No hay cobertura para este destino</b></h3>
+                  <h3 class="text-center mt-4"><b>${NoCobertura?'No hay cobertura para este destino':'Error al cotizar, intenta de nuevo'}</b></h3>
               </div>
           </div>
       </li>`
@@ -735,7 +744,7 @@ async function detallesTransportadoras(data) {
 
   //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
   for (let transp in transportadoras) {
-    // Este factor será usado para hacer variaciones de precios entre 
+    // Este factor será usado para hacer variaciones de precios entre
     // flete trasportadora y sobreflete heka para intercambiar valores
     let factor_conversor = 0;
 
@@ -791,8 +800,8 @@ async function detallesTransportadoras(data) {
 
     console.log(cotizacion)
 
-    if (!cotizacion.flete || cotizacion.empty) {
-      const card = cardNoCobertura(transportadora,transp)
+    if (!cotizacion.flete || cotizacion.empty || cotizacion.NoCobertura) {
+      const card = cardNoCobertura(transportadora,transp,cotizacion.NoCobertura)
       encabezados += card
       mostradorTransp.append(card);
       continue
@@ -808,12 +817,14 @@ async function detallesTransportadoras(data) {
         const diferenciaMinima = minimoEnvio - cotizacion.valor;
         if (diferenciaMinima > 0)
           cotizacion.sumarCostoDeEnvio = diferenciaMinima;
-        
+
         //Se le resta 1000 para evitar que se cruce con el valor constante que se añade sobre "this.sobreflete_heka += 1000"
-        const diferenciaActualRecaudoEnvio = cotizacion.valor - cotizacion.costoEnvio - 1000;
-        if(diferenciaActualRecaudoEnvio > 0 && data.type === CONTRAENTREGA) {
+        const diferenciaActualRecaudoEnvio =
+          cotizacion.valor - cotizacion.costoEnvio - 1000;
+        if (diferenciaActualRecaudoEnvio > 0 && data.type === CONTRAENTREGA) {
           factor_conversor = diferenciaActualRecaudoEnvio;
-          cotizacion.set_sobreflete_heka = cotizacion.sobreflete_heka + diferenciaActualRecaudoEnvio;
+          cotizacion.set_sobreflete_heka =
+            cotizacion.sobreflete_heka + diferenciaActualRecaudoEnvio;
         }
       }
     }
@@ -839,8 +850,8 @@ async function detallesTransportadoras(data) {
     ) {
       factor_conversor = FACHADA_FLETE;
     }
-    
-    if(factor_conversor > 0) {
+
+    if (factor_conversor > 0) {
       sobreFleteHekaEdit -= factor_conversor;
       fleteConvertido += factor_conversor;
     }
@@ -1831,6 +1842,7 @@ function seleccionarTransportadora(e) {
 
 //Me devuelveun html con los detalles de la cotización que ya están implícitos en los datos ingresados
 function detalles_cotizacion(datos) {
+  console.log(datos);
   return new DOMParser().parseFromString(
     `
         <div class="mb-4 card">
@@ -1911,11 +1923,12 @@ const sellers = [
   "Seller1891tattoosupply",
   "SellerElectrovariedadesEYMce",
   "SellerNICE",
-  "SellerMerakiJSLSAS"
+  "SellerMerakiJSLSAS",
 ];
 
 //M edevuelve el html del último formulario del cotizador
 function finalizarCotizacion(datos) {
+  console.log(datos);
   let div_principal = document.createElement("DIV"),
     crearNodo = (str) => new DOMParser().parseFromString(str, "text/html").body;
 
@@ -1940,15 +1953,30 @@ function finalizarCotizacion(datos) {
 </div>`;
   let entrega_en_oficina = "";
 
+  const usuariosTemporalesPedido = [
+    "SellerLabodegadelcalzado",
+    "SellerBousni",
+    "SellerYussboreal",
+    "SellerVeryNiceCompras",
+    "SellerG-KKids",
+    "SellerVALENTINOSSTORE",
+    "SellerNuevo",
+    "Sellerprobando"
+  ];
+  const showCheckPedido = usuariosTemporalesPedido.includes(datos_usuario.centro_de_costo);
+  // Una vez que se pruebe la funcionnalidad y como de adaptan los usuarios ELIMINAR el d-none 
+  // con las variables que lo configuran (usuariosTemporalesPedido, showCheckPedido)
   const checkCreacionPedido = `
-        <div class="col-sm-6 mb-2 form-check d-none">
+        <div class="col-sm-6 mb-2 form-check ${showCheckPedido ? "" : "d-none"}">
             <input type="checkbox" id="check-crear_pedido" class="form-check-input">
             <label for="check-crear_pedido" class="form-check-label">Crear en forma de pedido</label>
         </div>
     `;
-    
-    
-    if (datos.transportadora !== "SERVIENTREGA"  && !sellers.includes(datos_usuario.centro_de_costo)) {
+
+  if (
+    datos.transportadora !== "SERVIENTREGA" &&
+    datos.transportadora !== "INTERRAPIDISIMO"
+  ) {
     solicitud_recoleccion = `
         <div class="alert alert-danger col-12">
             <h3 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, enviar la solicitud al correo <a href="mailto:atencion@hekaentrega.co">atencion@hekaentrega.co</a>.</small></h3>
@@ -1981,8 +2009,22 @@ function finalizarCotizacion(datos) {
     
                 <select class="custom-select" id="entrega_en_oficina" name="entrega_en_oficina">
                     <option value="">Seleccione</option>
-                    <option value="1">Entrega en dirección</option>
-                    <option value="2">Entrega en oficina</option>
+                    ${
+                      datos.transportadora === "INTERRAPIDISIMO" &&
+                      ["05360000", "47189000", "08758000"].includes(
+                        datos.dane_ciudadD
+                      )
+                        ? `
+                       
+                        <option value="2">Entrega en oficina</option>
+                      
+                        `
+                        : `
+                  
+                  <option value="1">Entrega en dirección</option>
+                  <option value="2">Entrega en oficina</option>
+                  `
+                    }
                 </select>
             </div>`;
     }
@@ -2572,14 +2614,20 @@ function verificarSelectorEntregaOficina(e) {
   } else if (codTransp === "INTERRAPIDISIMO") {
     const inpDir = $("#direccionD");
     const inputBarrio = $("#barrioD");
+    const observaciones = $("#observaciones");
     if (select.value == "2") {
       inpDir.prop("disabled", true).val("Oficina principal interrapidisimo");
       inputBarrio
         .prop("disabled", true)
         .val("Oficina principal interrapidisimo");
+
+      observaciones
+        .prop("disabled", true)
+        .val("Oficina principal interrapidisimo");
     } else {
       inpDir.prop("disabled", false).val("");
       inputBarrio.prop("disabled", false).val("");
+      observaciones.prop("disabled", false).val("");
     }
   }
 }
@@ -2991,6 +3039,10 @@ class CalcularCostoDeEnvio {
           dataObj.dane_ciudadR,
           dataObj.dane_ciudadD
         );
+        if (respuestaCotizacion == 'No hay Cobertura'){
+          this.NoCobertura = true
+          break
+        }
         if (!respuestaCotizacion) {
           this.empty = true;
           break;
@@ -3139,13 +3191,22 @@ class CalcularCostoDeEnvio {
         "/" +
         pagoContraentrega
     )
-      .then((data) => {
+      .then(async(data) => {
+        console.log(data.status)
+        if (data.status == 417){
+          const text = await data.text();
+          console.log(text);
+          if (text === "El destino no es válido para envíos con contra pago y pago en casa."){
+            throw Error ('No hay Cobertura')
+          }
+        }
         return data.json();
       })
       .catch((err) => {
         return err;
       });
-
+    console.log(res)
+    if (res.message == 'No hay Cobertura') return res.message
     if (res.message || res.Message) return 0;
     let mensajeria = res.filter((d) => {
       let Convencional = false;
@@ -3212,7 +3273,11 @@ class CalcularCostoDeEnvio {
       .catch((d) => ({ respuesta: "Error del servidor" }));
 
     console.log(response);
-    if (response.respuesta) {
+    if (response.response == 'No hay cobertura' && !response.errorServidor){
+      this.NoCobertura = true
+      return "No hay cobertura"
+    }
+    if (response.response && response.errorServidor) {
       this.empty = true;
       return false;
     }
@@ -3261,6 +3326,7 @@ class CalcularCostoDeEnvio {
     console.log(response);
     if (!response || response.respuesta) {
       this.empty = true;
+      this.NoCobertura = true
       return false;
     }
 
@@ -3318,6 +3384,7 @@ class CalcularCostoDeEnvio {
 
     if (response.message || response.Message) {
       this.empty = true;
+      this.NoCobertura = true;
       console.log("ERROR EN SERVIENTREGA", response);
       return false;
     }
@@ -3383,56 +3450,6 @@ function modificarDatosDeTransportadorasAveo(res) {
       transportadoras[t].logoPath = res[t].logoTransportadora;
     }
   });
-}
-async function fetchWithRetry(url, options, maxRetries, segundos) {
-  console.log("número maximo de retrys: ", maxRetries, segundos);
-  console.log("segundos para rehacer la petición: ", segundos);
-
-  for (let i = 0; i < maxRetries; i++) {
-    const controller = new AbortController();
-    const signal = controller.signal;
-    setTimeout(() => controller.abort(), segundos * 1000); // SEGUNDOSSSS
-
-    try {
-      let response = await fetch(url, { ...options, signal }); // Asociar la señal con la solicitud fetch
-
-      console.log(`intento ${i + 1}`);
-
-      if (i === 0) {
-        Swal.fire({
-          title: "Creando Guía",
-          text: `Estamos conectandonos con la transportadora, por favor espere un momento`,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-          allowOutsideClick: false,
-          allowEnterKey: false,
-          showConfirmButton: false,
-          allowEscapeKey: true,
-        });
-      } else {
-        Swal.fire({
-          title: "Creando Guía",
-          text: `Intento de conexión No. ${i + 1}`,
-          didOpen: () => {
-            Swal.showLoading();
-          },
-          allowOutsideClick: false,
-          allowEnterKey: false,
-          showConfirmButton: false,
-          allowEscapeKey: true,
-        });
-      }
-
-      return response;
-    } catch (error) {
-      if (error.name === "AbortError") {
-        console.log("La solicitud se ha agotado, reintentando...");
-        continue; // Si la solicitud se agotó, reintenta
-      }
-      if (i === maxRetries - 1) throw error; // Si es el último intento, lanza el error
-    }
-  }
 }
 
 // Para enviar la guia generada a firestore
@@ -3572,7 +3589,7 @@ function crearGuia() {
 
               Swal.showLoading();
             }
-          }, 10000);
+          }, 60000);
         },
         allowOutsideClick: false,
         allowEnterKey: false,
@@ -3613,14 +3630,15 @@ function crearGuia() {
       datos_a_enviar.timeline = new Date().getTime();
 
       if (datos_usuario.type !== "PUNTO") datos_a_enviar.id_user = user_id;
-      datos_a_enviar.staging = checkCreacionPedido;
 
       if (datos_usuario.type === "PUNTO") {
         datos_a_enviar.id_punto = user_id;
         datos_a_enviar.pertenece_punto = true;
       }
 
-      if (datos_a_enviar.transportadora === transportadoras.INTERRAPIDISIMO.cod) {
+      if (
+        datos_a_enviar.transportadora === transportadoras.INTERRAPIDISIMO.cod
+      ) {
         datos_a_enviar.codigo_sucursal = bodega.codigo_sucursal_inter;
 
         // Por ahora solo se presentará esta varialbe con interrapidísimo
@@ -3641,6 +3659,7 @@ function crearGuia() {
       // boton_final_cotizador.remove()
 
       if (checkCreacionPedido) {
+        datos_a_enviar.estadoActual = estadosGuia.pedido;
         enviar_firestore(datos_a_enviar).then(mostrarResultado);
       } else {
         creacionDirecta(datos_a_enviar).then(mostrarResultado);
@@ -3750,7 +3769,7 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
   }
 
   let generarGuia;
-  const stagingPrevio = datos.staging;
+  const stagingPrevio = datos.estadoActual === estadosGuia.pedido;;
   referenciaNuevaGuia =
     referenciaNuevaGuia ||
     usuarioAltDoc(datos.id_user).collection("guias").doc(datos.id_heka);
@@ -3777,7 +3796,6 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
     datos.has_sticker = resGuia.has_sticker || false;
     //y creo el documento de firebase
     if (resGuia.numeroGuia) {
-      datos.staging = false; // true: creación de pedido, false: creación directa
       datos.estadoActual = estadosGuia.generada;
       datos.numeroGuia = datos.numeroGuia.toString();
       datos.fecha_aceptada = genFecha();
@@ -3875,7 +3893,12 @@ async function obtenerIdHeka() {
 async function enviar_firestore(datos) {
   console.log(datos);
   let firestore = firebase.firestore();
-  const id_heka = datos.id_heka ? datos.id_heka : await obtenerIdHeka();
+  
+  if(!datos.id_heka) {
+    datos.id_heka = await obtenerIdHeka();
+  }
+
+  const id_heka = datos.id_heka
 
   datos.seguimiento_finalizado = false;
   datos.fecha = genFecha();
@@ -4080,7 +4103,6 @@ async function generarGuiaServientrega(datos) {
           ciudadD: data.querySelector("Des_Ciudad").textContent,
           id_archivoCargar: data.querySelector("Id_ArchivoCargar").textContent,
           prueba: datos.centro_de_costo == "SellerNuevo" ? true : false,
-          staging: false,
         };
       } else {
         //En caso contrario retorna el error devuelto por el webservice
@@ -4208,7 +4230,6 @@ async function generarGuiaInterrapidisimo(datos) {
   respuesta.numeroGuia = respuesta.numeroPreenvio;
   respuesta.id_heka = datos.id_heka;
   respuesta.prueba = datos.prueba;
-  respuesta.staging = false;
   respuesta.has_sticker = await generarStickerGuiaInterrapidisimo(respuesta);
 
   console.log("interrapidísimo => ", respuesta);
