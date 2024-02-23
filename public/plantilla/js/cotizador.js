@@ -2026,17 +2026,15 @@ function finalizarCotizacion(datos) {
             </div>
           `;
 
-
-          console.log(entrega_en_oficina)
+          console.log(entrega_en_oficina);
         }
-      });
 
-    let detalles = detalles_cotizacion(datos),
-      boton_regresar =
-        crearNodo(`<a class="btn btn-outline-primary btn-block mb-3" href="#cotizar_envio" onclick="regresar()">
+        let detalles = detalles_cotizacion(datos),
+          boton_regresar =
+            crearNodo(`<a class="btn btn-outline-primary btn-block mb-3" href="#cotizar_envio" onclick="regresar()">
             Regresar
             </a>`),
-      input_producto = crearNodo(`<div class="row">
+          input_producto = crearNodo(`<div class="row">
             <div class="col-md-6 mb-3 mb-sm-0">
                 <h6>producto <span>(Lo que se va a enviar)</span></h6>
                 <input id="producto" class="form-control form-control-user detect-errors" 
@@ -2051,10 +2049,10 @@ function finalizarCotizacion(datos) {
                 name="referencia" type="text" maxlength="40">
             </div>
         </div>`),
-      directionNode = mostrarDirecciones(datos),
-      input_buscar_usuario =
-        datos_usuario.type === "PUNTO"
-          ? `
+          directionNode = mostrarDirecciones(datos),
+          input_buscar_usuario =
+            datos_usuario.type === "PUNTO"
+              ? `
             <div class="col-sm-6 mb-3 mb-sm-0">
                 <h5>Cliente</h5>
                 <div class="input-group mb-3">
@@ -2077,8 +2075,8 @@ function finalizarCotizacion(datos) {
                 </div>
             </div>
         `
-          : "",
-      datos_remitente = crearNodo(`
+              : "",
+          datos_remitente = crearNodo(`
         <div class="card card-shadow m-6 mt-5" id="informacion-personal">
             <div class="card-header">
                 <h4 class="m-0 font-weight-bold text-primary text-center">Datos de ${
@@ -2103,16 +2101,16 @@ function finalizarCotizacion(datos) {
             </div>
         </div>
         `),
-      notas_oficina = datos.oficina
-        ? `
+          notas_oficina = datos.oficina
+            ? `
             <div class="text-muted border-left-primary m-2">
                 <h6 class="ml-2">
                     <span><b>Nota:</b> Por ahora FLEXII solo cuenta con entregas en oficina. !Esperamos incluir pronto las entregas a domicilio!</span>
                 </h6>
             </div>
         `
-        : "",
-      datos_destinatario = crearNodo(`
+            : "",
+          datos_destinatario = crearNodo(`
         <div class="card card-shadow m-6 mt-5">
             <div class="card-header py-3">
                 <h4 class="m-0 font-weight-bold text-primary text-center">Datos del Destinatario</h4>
@@ -2210,22 +2208,24 @@ function finalizarCotizacion(datos) {
             </form>
         </div>
         `),
-      boton_crear = crearNodo(`<button type="button" id="boton_final_cotizador" 
+          boton_crear =
+            crearNodo(`<button type="button" id="boton_final_cotizador" 
             class="btn btn-success btn-block mt-5" title="Crear guía" onclick="crearGuia()">Crear guía</button>`);
 
-    if (!directionNode) return;
-    div_principal.append(
-      boton_regresar,
-      detalles,
-      input_producto,
-      datos_remitente,
-      datos_destinatario,
-      boton_crear
-    );
-    creador.innerHTML = "";
-    creador.innerHTML = div_principal.innerHTML;
-    location.href = "#crear_guia";
-    scrollTo(0, 0);
+        if (!directionNode) return;
+        div_principal.append(
+          boton_regresar,
+          detalles,
+          input_producto,
+          datos_remitente,
+          datos_destinatario,
+          boton_crear
+        );
+        creador.innerHTML = "";
+        creador.innerHTML = div_principal.innerHTML;
+        location.href = "#crear_guia";
+        scrollTo(0, 0);
+      });
 
     const cambiadorDeDireccion = $("#moderador_direccionR");
     cambiadorDeDireccion.on("change", cambiarDirecion);
