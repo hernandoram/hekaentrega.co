@@ -24,7 +24,7 @@ const bloqueo_direcciones_envia = [
 ];
 const bloqueo_direcciones_servientrega = [
   "05842000", // URAMITA
-  "99624000" // SANTA ROSALIA(VICHADA)
+  "99624000", // SANTA ROSALIA(VICHADA)
 ];
 
 // Objeto principal en que se basa la transportadora a ser utilizada
@@ -1933,13 +1933,17 @@ function finalizarCotizacion(datos) {
     "SellerG-KKids",
     "SellerVALENTINOSSTORE",
     "SellerNuevo",
-    "Sellerprobando"
+    "Sellerprobando",
   ];
-  const showCheckPedido = usuariosTemporalesPedido.includes(datos_usuario.centro_de_costo);
-  // Una vez que se pruebe la funcionnalidad y como de adaptan los usuarios ELIMINAR el d-none 
+  const showCheckPedido = usuariosTemporalesPedido.includes(
+    datos_usuario.centro_de_costo
+  );
+  // Una vez que se pruebe la funcionnalidad y como de adaptan los usuarios ELIMINAR el d-none
   // con las variables que lo configuran (usuariosTemporalesPedido, showCheckPedido)
   const checkCreacionPedido = `
-        <div class="col-sm-6 mb-2 form-check ${showCheckPedido ? "" : "d-none"}">
+        <div class="col-sm-6 mb-2 form-check ${
+          showCheckPedido ? "" : "d-none"
+        }">
             <input type="checkbox" id="check-crear_pedido" class="form-check-input">
             <label for="check-crear_pedido" class="form-check-label">Crear en forma de pedido</label>
         </div>
@@ -1971,43 +1975,68 @@ function finalizarCotizacion(datos) {
             </select>
         </div>`;
   } else {
-    if (
-      datos.transportadora === "INTERRAPIDISIMO" ||
-      datos.transportadora === "SERVIENTREGA"
-    ) {
-      entrega_en_oficina = `
-            <div class="col-sm-2">
-                <h5>Tipo de entrega</h5>
-    
-                <select class="custom-select" id="entrega_en_oficina" name="entrega_en_oficina">
-                    <option value="">Seleccione</option>
-                    ${
-                      datos.transportadora === "INTERRAPIDISIMO" &&
-                      ["05360000", "47189000", "08758000"].includes(
-                        datos.dane_ciudadD
-                      )
-                        ? `
-                       
-                        <option value="2">Entrega en oficina</option>
-                      
-                        `
-                        : `
-                  
-                  <option value="1">Entrega en dirección</option>
-                  <option value="2">Entrega en oficina</option>
-                  `
-                    }
-                </select>
-            </div>`;
-    }
-  }
+    const reference = db
+      .collection("ciudades")
+      .doc(datos.dane_ciudadD)
+      .collection("restricciones");
 
-  let detalles = detalles_cotizacion(datos),
-    boton_regresar =
-      crearNodo(`<a class="btn btn-outline-primary btn-block mb-3" href="#cotizar_envio" onclick="regresar()">
+    const restricciones = [];
+
+    reference
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          let restriccion = doc.data();
+          restriccion.id = doc.id;
+          restricciones.push(restriccion);
+        });
+      })
+      .then(() => {
+        console.log(restricciones);
+
+        const restriccionActual = restricciones.find(
+          (restriccion) => restriccion.transportadora === datos.transportadora
+        );
+
+        if (
+          datos.transportadora === "INTERRAPIDISIMO" ||
+          datos.transportadora === "SERVIENTREGA"
+        ) {
+          let opciones;
+          if (restriccionActual) {
+            if (restriccionActual.oficina) {
+              opciones = `<option value="1">Entrega en dirección</option>`;
+            } else if (restriccionActual.direccion) {
+              opciones = `<option value="2">Entrega en oficina</option>`;
+            }
+          } else {
+            opciones = `
+              <option value="1">Entrega en dirección</option>
+              <option value="2">Entrega en oficina</option>
+            `;
+          }
+
+          entrega_en_oficina = `
+            <div class="col-sm-2">
+              <h5>Tipo de entrega</h5>
+              <select class="custom-select" id="entrega_en_oficina" name="entrega_en_oficina">
+                <option value="">Seleccione</option>
+                ${opciones}
+              </select>
+            </div>
+          `;
+
+
+          console.log(entrega_en_oficina)
+        }
+      });
+
+    let detalles = detalles_cotizacion(datos),
+      boton_regresar =
+        crearNodo(`<a class="btn btn-outline-primary btn-block mb-3" href="#cotizar_envio" onclick="regresar()">
             Regresar
             </a>`),
-    input_producto = crearNodo(`<div class="row">
+      input_producto = crearNodo(`<div class="row">
             <div class="col-md-6 mb-3 mb-sm-0">
                 <h6>producto <span>(Lo que se va a enviar)</span></h6>
                 <input id="producto" class="form-control form-control-user detect-errors" 
@@ -2022,10 +2051,10 @@ function finalizarCotizacion(datos) {
                 name="referencia" type="text" maxlength="40">
             </div>
         </div>`),
-    directionNode = mostrarDirecciones(datos),
-    input_buscar_usuario =
-      datos_usuario.type === "PUNTO"
-        ? `
+      directionNode = mostrarDirecciones(datos),
+      input_buscar_usuario =
+        datos_usuario.type === "PUNTO"
+          ? `
             <div class="col-sm-6 mb-3 mb-sm-0">
                 <h5>Cliente</h5>
                 <div class="input-group mb-3">
@@ -2048,8 +2077,8 @@ function finalizarCotizacion(datos) {
                 </div>
             </div>
         `
-        : "",
-    datos_remitente = crearNodo(`
+          : "",
+      datos_remitente = crearNodo(`
         <div class="card card-shadow m-6 mt-5" id="informacion-personal">
             <div class="card-header">
                 <h4 class="m-0 font-weight-bold text-primary text-center">Datos de ${
@@ -2074,16 +2103,16 @@ function finalizarCotizacion(datos) {
             </div>
         </div>
         `),
-    notas_oficina = datos.oficina
-      ? `
+      notas_oficina = datos.oficina
+        ? `
             <div class="text-muted border-left-primary m-2">
                 <h6 class="ml-2">
                     <span><b>Nota:</b> Por ahora FLEXII solo cuenta con entregas en oficina. !Esperamos incluir pronto las entregas a domicilio!</span>
                 </h6>
             </div>
         `
-      : "",
-    datos_destinatario = crearNodo(`
+        : "",
+      datos_destinatario = crearNodo(`
         <div class="card card-shadow m-6 mt-5">
             <div class="card-header py-3">
                 <h4 class="m-0 font-weight-bold text-primary text-center">Datos del Destinatario</h4>
@@ -2181,78 +2210,79 @@ function finalizarCotizacion(datos) {
             </form>
         </div>
         `),
-    boton_crear = crearNodo(`<button type="button" id="boton_final_cotizador" 
+      boton_crear = crearNodo(`<button type="button" id="boton_final_cotizador" 
             class="btn btn-success btn-block mt-5" title="Crear guía" onclick="crearGuia()">Crear guía</button>`);
 
-  if (!directionNode) return;
-  div_principal.append(
-    boton_regresar,
-    detalles,
-    input_producto,
-    datos_remitente,
-    datos_destinatario,
-    boton_crear
-  );
-  creador.innerHTML = "";
-  creador.innerHTML = div_principal.innerHTML;
-  location.href = "#crear_guia";
-  scrollTo(0, 0);
+    if (!directionNode) return;
+    div_principal.append(
+      boton_regresar,
+      detalles,
+      input_producto,
+      datos_remitente,
+      datos_destinatario,
+      boton_crear
+    );
+    creador.innerHTML = "";
+    creador.innerHTML = div_principal.innerHTML;
+    location.href = "#crear_guia";
+    scrollTo(0, 0);
 
-  const cambiadorDeDireccion = $("#moderador_direccionR");
-  cambiadorDeDireccion.on("change", cambiarDirecion);
-  cambiarDirecion.bind(cambiadorDeDireccion[0])();
+    const cambiadorDeDireccion = $("#moderador_direccionR");
+    cambiadorDeDireccion.on("change", cambiarDirecion);
+    cambiarDirecion.bind(cambiadorDeDireccion[0])();
 
-  $("#entrega_en_oficina").on("change", verificarSelectorEntregaOficina);
+    $("#entrega_en_oficina").on("change", verificarSelectorEntregaOficina);
 
-  if (datos_usuario.type === "PUNTO")
-    $("#buscador_usuario-guia").click(buscarUsuario);
+    if (datos_usuario.type === "PUNTO")
+      $("#buscador_usuario-guia").click(buscarUsuario);
 
-  restringirCaracteresEspecialesEnInput();
-  let informacion = document.getElementById("informacion-personal");
-  document.getElementById("producto").addEventListener("blur", () => {
-    let normalmente_envia = false;
-    for (let product of datos_usuario.objetos_envio) {
-      product = product.toLowerCase();
-      if (value("producto").trim().toLowerCase() == product) {
-        normalmente_envia = true;
+    restringirCaracteresEspecialesEnInput();
+    let informacion = document.getElementById("informacion-personal");
+    document.getElementById("producto").addEventListener("blur", () => {
+      let normalmente_envia = false;
+      for (let product of datos_usuario.objetos_envio) {
+        product = product.toLowerCase();
+        if (value("producto").trim().toLowerCase() == product) {
+          normalmente_envia = true;
+        }
       }
-    }
-    let aviso = document.getElementById("aviso-producto");
-    if (!normalmente_envia) {
-      aviso.innerHTML =
-        'No se registra en lo que normalmente envías: <b>"' +
-        datos_usuario.objetos_envio.join(", ") +
-        '".</b> \r si deseas continuar de todos modos, solo ignora este mensaje';
-      aviso.classList.remove("d-none");
-    } else {
-      aviso.classList.add("d-none");
-    }
-  });
-
-  const ciudad = document.getElementById("ciudadDestinoUsuario");
-
-  const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
-    "plantillasUsuariosFrecuentes"
-  );
-
-  opciones.length = 0;
-
-  referenciaUsuariosFrecuentes
-    .where("ciudad", "==", ciudad.value)
-    .get()
-    .then((querySnapshot) => {
-      querySnapshot.forEach((document) => {
-        const data = document.data();
-        data.id = document.id;
-        console.log(data);
-
-        opciones.push(data);
-      });
-    })
-    .then(() => {
-      console.log(opciones);
-      cargarUsuariosFrecuentes(opciones);
+      let aviso = document.getElementById("aviso-producto");
+      if (!normalmente_envia) {
+        aviso.innerHTML =
+          'No se registra en lo que normalmente envías: <b>"' +
+          datos_usuario.objetos_envio.join(", ") +
+          '".</b> \r si deseas continuar de todos modos, solo ignora este mensaje';
+        aviso.classList.remove("d-none");
+      } else {
+        aviso.classList.add("d-none");
+      }
     });
+
+    const ciudad = document.getElementById("ciudadDestinoUsuario");
+
+    const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
+      "plantillasUsuariosFrecuentes"
+    );
+
+    opciones.length = 0;
+
+    referenciaUsuariosFrecuentes
+      .where("ciudad", "==", ciudad.value)
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((document) => {
+          const data = document.data();
+          data.id = document.id;
+          console.log(data);
+
+          opciones.push(data);
+        });
+      })
+      .then(() => {
+        console.log(opciones);
+        cargarUsuariosFrecuentes(opciones);
+      });
+  }
 }
 
 //jose
@@ -3722,7 +3752,7 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
   }
 
   let generarGuia;
-  const stagingPrevio = datos.estadoActual === estadosGuia.pedido;;
+  const stagingPrevio = datos.estadoActual === estadosGuia.pedido;
   referenciaNuevaGuia =
     referenciaNuevaGuia ||
     usuarioAltDoc(datos.id_user).collection("guias").doc(datos.id_heka);
@@ -3846,12 +3876,12 @@ async function obtenerIdHeka() {
 async function enviar_firestore(datos) {
   console.log(datos);
   let firestore = firebase.firestore();
-  
-  if(!datos.id_heka) {
+
+  if (!datos.id_heka) {
     datos.id_heka = await obtenerIdHeka();
   }
 
-  const id_heka = datos.id_heka
+  const id_heka = datos.id_heka;
 
   datos.seguimiento_finalizado = false;
   datos.fecha = genFecha();
