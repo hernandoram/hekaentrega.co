@@ -28,6 +28,10 @@ const tipoUsuarioRestricciones = document.getElementById(
   "tipoUsuario-restricciones"
 );
 
+const tipoEnvioRestricciones = document.getElementById(
+  "tipoEnvio-restricciones"
+);
+
 //#region EVENTOS
 inpBuscadorCiudades.on("input", seleccionarCiudad);
 form.on("submit", actualizarCiudad);
@@ -134,6 +138,7 @@ function renderRestricciones() {
         <tr>
           <td>${restriccion.tipoUsuario}</td>
           <td>${restriccion.transportadora}</td>
+          <td>${restriccion.tipoEnvio}</td>
           <td>${restriccion.oficina ? "Oficina" : "Dirección"}</td>
           <td><button class="btn btn-danger" data-id="${
             restriccion.id
@@ -239,6 +244,7 @@ function agregarRestriccion() {
 
   const restriccion = {
     tipoUsuario: tipoUsuarioRestricciones.value,
+    tipoEnvio: tipoEnvioRestricciones.value,
     transportadora: selectTransportadora.val(),
     oficina: restringirEnvioOficina.checked,
     direccion: restringirEnvioDireccion.checked,

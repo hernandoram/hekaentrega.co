@@ -1995,7 +1995,11 @@ function finalizarCotizacion(datos) {
         console.log(restricciones);
 
         const restriccionActual = restricciones.find(
-          (restriccion) => restriccion.transportadora === datos.transportadora
+          (restriccion) =>
+            restriccion.transportadora === datos.transportadora &&
+            restriccion.tipoEnvio === datos.type &&
+            (restriccion.tipoUsuario === datos_usuario.type ||
+              restriccion.tipoUsuario === "TODOS")
         );
 
         if (
