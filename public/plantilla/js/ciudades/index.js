@@ -251,7 +251,13 @@ function agregarRestriccion() {
   };
 
   reference
-    .doc(`${restriccion.tipoUsuario}${restriccion.transportadora}`)
+    .doc(
+      `${restriccion.tipoUsuario}_${restriccion.transportadora}_${
+        restriccion.tipoEnvio
+      }_${
+        restriccion.oficina ? "OFICINA-RESTRINGIDA" : "DIRECCIÓN-RESTRINGUIDA"
+      }`
+    )
     .set(restriccion)
     .then(() => {
       console.log("Restricción agregada");
