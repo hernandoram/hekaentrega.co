@@ -24,7 +24,8 @@ const bloqueo_direcciones_envia = [
 ];
 const bloqueo_direcciones_servientrega = [
   "05842000", // URAMITA
-  "99624000" // SANTA ROSALIA(VICHADA)
+  "99624000", // SANTA ROSALIA(VICHADA)
+  "47001006" // GUACHACA(MAGDALENA)
 ];
 
 // Objeto principal en que se basa la transportadora a ser utilizada

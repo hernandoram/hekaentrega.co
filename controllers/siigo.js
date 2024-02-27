@@ -39,6 +39,9 @@ const crearFactura = async (req, res) => {
           branch_office: 0 // siempre cero
         },
         seller: Cr.id_vendedor, // id del vendedor (hram) /users
+        mail: {
+            send: true
+        },
         observations: "Observaciones",
         items: [
           {
@@ -80,7 +83,8 @@ const commonGet = async (path, token) => {
         method: "GET",
         "headers": {
             "Content-Type": "Application/json",
-            Authorization: token
+            Authorization: token,
+            "Partner-Id": Cr.partnerId
         }
     })
     .then(d => {

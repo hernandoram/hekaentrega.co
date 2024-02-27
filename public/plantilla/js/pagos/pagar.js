@@ -862,6 +862,8 @@ class Empaquetado {
 
             if(resFact.error) throw new Error(resFact.message);
 
+            if(!resFact.id) throw new Error(JSON.stringify(resFact));
+
             await this.guardarPaquetePagado(resFact);
 
             terminar(true);
