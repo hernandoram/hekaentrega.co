@@ -5,6 +5,9 @@ import {
 } from "../config/api.js";
 import CreateModal from "../utils/modal.js";
 import { estadisticasTempl, transportadoraTempl } from "./views.js";
+
+const db = firebase.firestore();
+
 const dtListCiudades = $("#list_buscador-ciudades");
 const inpBuscadorCiudades = $("#buscador-ciudades");
 const form = $("#form-ciudades");
@@ -21,10 +24,21 @@ let restringirEnvioDireccion = document.getElementById(
   "restringirEnvioDireccion"
 );
 
+const tipoUsuarioRestricciones = document.getElementById(
+  "tipoUsuario-restricciones"
+);
+
+const tipoEnvioRestricciones = document.getElementById(
+  "tipoEnvio-restricciones"
+);
+
 //#region EVENTOS
 inpBuscadorCiudades.on("input", seleccionarCiudad);
 form.on("submit", actualizarCiudad);
 detallesTransp.on("click", detallesTransportadora);
+
+botonAgregarRestriccion.on("click", agregarRestriccion);
+
 //#endregion
 
 let listaciudades = [],
@@ -80,9 +94,83 @@ async function estadisticasCiudad(dane) {
 }
 
 async function restriccionesCiudad(ciudad) {
+  // Render
+  const noCiudadEscogida = document.querySelector("#noCiudadEscogida");
+  const agregarRestricciones = document.querySelector("#agregar-restricciones");
+  noCiudadEscogida.classList.add("d-none");
+  agregarRestricciones.classList.remove("d-none");
   const nombreCiudad = document.querySelector("#nombre-ciudad-restricciones");
-
   nombreCiudad.textContent = `en ${ciudad.nombre}`;
+
+  renderRestricciones(ciudad.dane_ciudad);
+}
+
+function renderRestricciones() {
+  let restricciones = [];
+  const listaRestricciones = document.querySelector("#lista-restricciones");
+  const mensajenoRestriccion = document.querySelector("#mensaje-noRestriccion");
+  const tablaRestricciones = document.querySelector("#tabla-restricciones");
+
+  const reference = db
+    .collection("ciudades")
+    .doc(ciudadActual.dane_ciudad)
+    .collection("restricciones");
+
+  reference
+    .get()
+    .then((querySnapshot) => {
+      restricciones = [];
+      querySnapshot.forEach((doc) => {
+        let restriccion = doc.data();
+        restriccion.id = doc.id;
+        restricciones.push(restriccion);
+      });
+    })
+    .then(() => {
+      console.log(restricciones);
+      if (restricciones.length > 0) {
+        mensajenoRestriccion.classList.add("d-none");
+        tablaRestricciones.classList.remove("d-none");
+
+        listaRestricciones.innerHTML = restricciones
+          .map(
+            (restriccion) => `
+        <tr>
+          <td>${restriccion.tipoUsuario}</td>
+          <td>${restriccion.transportadora}</td>
+          <td>${restriccion.tipoEnvio}</td>
+          <td>${restriccion.oficina ? "Oficina" : "Dirección"}</td>
+          <td><button class="btn btn-danger" data-id="${
+            restriccion.id
+          }">Eliminar</button></td>
+        </tr>
+      `
+          )
+          .join("");
+
+        document.querySelectorAll(".btn-danger").forEach((button) => {
+          button.addEventListener("click", function (event) {
+            const id = event.target.getAttribute("data-id");
+            console.log(id);
+            db.collection("ciudades")
+              .doc(ciudadActual.dane_ciudad)
+              .collection("restricciones")
+              .doc(id)
+              .delete()
+              .then(() => {
+                swal.fire("Documento eliminado con éxito!");
+                renderRestricciones();
+              })
+              .catch((error) => {
+                swal.fire("Error eliminando el documento: ", error);
+              });
+          });
+        });
+      } else {
+        tablaRestricciones.classList.add("d-none");
+        mensajenoRestriccion.classList.remove("d-none");
+      }
+    });
 }
 
 function renderFormValues(data, form) {
@@ -149,12 +237,38 @@ selectTransportadora.on("change", (e) => {
 botonAgregarRestriccion.on("click", agregarRestriccion);
 
 function agregarRestriccion() {
-  const reference = "";
+  const reference = db
+    .collection("ciudades")
+    .doc(ciudadActual.dane_ciudad)
+    .collection("restricciones");
 
-  console.log(restringirEnvioOficina.checked, restringirEnvioDireccion.checked);
+  const restriccion = {
+    tipoUsuario: tipoUsuarioRestricciones.value,
+    tipoEnvio: tipoEnvioRestricciones.value,
+    transportadora: selectTransportadora.val(),
+    oficina: restringirEnvioOficina.checked,
+    direccion: restringirEnvioDireccion.checked,
+  };
 
-  console.log(selectTransportadora.val());
-  console.log(ciudadActual);
+  reference
+    .doc(`${restriccion.tipoUsuario}${restriccion.transportadora}`)
+    .set(restriccion)
+    .then(() => {
+      console.log("Restricción agregada");
+      swal.fire(
+        "Restricción agregada",
+        "La restricción ha sido agregada",
+        "success"
+      );
+      renderRestricciones();
+    })
+    .catch((e) =>
+      swal.fire(
+        "Error al agregar restricción",
+        "La restricción no ha sido agregada",
+        "success"
+      )
+    );
 }
 
 export { renderListaCiudades };

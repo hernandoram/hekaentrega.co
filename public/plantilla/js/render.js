@@ -625,7 +625,6 @@ function renderUserDocumentCard(id, data) {
               </button>
               <div class="dropdown-menu" aria-labelledby="acciones-documento${id}">
                 <label class="dropdown-item form-control" data-action="upload-documents" for="boton-descargar-guias${id}">Guías</label>
-                <label class="dropdown-item form-control" data-action="upload-documents" data-is-interrapidisimo="${isInterrapidisimo}" for="boton-descargar-relacion_envio${isInterrapidisimo ? '_inter' : ''}${id}" id="${id}">Manifiesto</label>
                 <label class="dropdown-item form-control" data-action="upload-documents" for="boton-generar-rotulo${id}">Rótulos</label>
               </div>
             </div>
