@@ -11919,7 +11919,8 @@ export default [
     "ciudad": "CRAVO NORTE",
     "departamento": "ARAUCA",
     "dane_ciudad": "81220000",
-    "nombreAveo": "CRAVO NORTE(ARAUCA)"
+    "nombreAveo": "CRAVO NORTE(ARAUCA)",
+    "tipo_distribucion": "ENTREGA A DOMICILIO"
   },
   {
     "ciudad": "PUERTO RONDON",
@@ -13845,7 +13846,8 @@ export default [
     "ciudad": "NOVITA",
     "departamento": "CHOCO",
     "dane_ciudad": "27491000",
-    "nombreAveo": "NOVITA(CHOCO)"
+    "nombreAveo": "NOVITA(CHOCO)",
+    "tipo_distribucion": "ENTREGA A DOMICILIO"
   },
   {
     "ciudad": "NUQUI",
