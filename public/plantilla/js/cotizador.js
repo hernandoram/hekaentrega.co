@@ -2045,7 +2045,7 @@ function finalizarCotizacion(datos) {
                 <input id="producto" class="form-control form-control-user detect-errors" 
                 name="producto" type="text" maxlength="40"
                 placeholder="Introduce el contenido de tu envío">
-                <p id="aviso-producto" class="text-danger d-none m-2"></p>
+                <p id="aviso-producto" class="text-warning d-none m-2"></p>
             </div>
             <div class="col-md-6 mb-3 mb-sm-0">
                 <h6>Referencia <span>(Opcional)</span></h6>
@@ -2230,63 +2230,65 @@ function finalizarCotizacion(datos) {
         creador.innerHTML = div_principal.innerHTML;
         location.href = "#crear_guia";
         scrollTo(0, 0);
-      });
-
-    const cambiadorDeDireccion = $("#moderador_direccionR");
-    cambiadorDeDireccion.on("change", cambiarDirecion);
-    cambiarDirecion.bind(cambiadorDeDireccion[0])();
-
-    $("#entrega_en_oficina").on("change", verificarSelectorEntregaOficina);
-
-    if (datos_usuario.type === "PUNTO")
-      $("#buscador_usuario-guia").click(buscarUsuario);
-
-    restringirCaracteresEspecialesEnInput();
-    let informacion = document.getElementById("informacion-personal");
-    document.getElementById("producto").addEventListener("blur", () => {
-      let normalmente_envia = false;
-      for (let product of datos_usuario.objetos_envio) {
-        product = product.toLowerCase();
-        if (value("producto").trim().toLowerCase() == product) {
-          normalmente_envia = true;
-        }
-      }
-      let aviso = document.getElementById("aviso-producto");
-      if (!normalmente_envia) {
-        aviso.innerHTML =
-          'No se registra en lo que normalmente envías: <b>"' +
-          datos_usuario.objetos_envio.join(", ") +
-          '".</b> \r si deseas continuar de todos modos, solo ignora este mensaje';
-        aviso.classList.remove("d-none");
-      } else {
-        aviso.classList.add("d-none");
-      }
-    });
-
-    const ciudad = document.getElementById("ciudadDestinoUsuario");
-
-    const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
-      "plantillasUsuariosFrecuentes"
-    );
-
-    opciones.length = 0;
-
-    referenciaUsuariosFrecuentes
-      .where("ciudad", "==", ciudad.value)
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach((document) => {
-          const data = document.data();
-          data.id = document.id;
-          console.log(data);
-
-          opciones.push(data);
+        
+        const cambiadorDeDireccion = $("#moderador_direccionR");
+        cambiadorDeDireccion.on("change", cambiarDirecion);
+        
+        cambiarDirecion.bind(cambiadorDeDireccion[0])();
+    
+        $("#entrega_en_oficina").on("change", verificarSelectorEntregaOficina);
+    
+        if (datos_usuario.type === "PUNTO")
+          $("#buscador_usuario-guia").click(buscarUsuario);
+    
+        restringirCaracteresEspecialesEnInput();
+        let informacion = document.getElementById("informacion-personal");
+        document.getElementById("producto").addEventListener("blur", () => {
+          let normalmente_envia = false;
+          for (let product of datos_usuario.objetos_envio) {
+            product = product.toLowerCase();
+            if (value("producto").trim().toLowerCase() == product) {
+              normalmente_envia = true;
+            }
+          }
+          let aviso = document.getElementById("aviso-producto");
+          if (!normalmente_envia) {
+            aviso.innerHTML =
+              'No se registra en lo que normalmente envías: <b>"' +
+              datos_usuario.objetos_envio.join(", ") +
+              '".</b> \r si deseas continuar de todos modos, solo ignora este mensaje';
+            aviso.classList.remove("d-none");
+          } else {
+            aviso.classList.add("d-none");
+          }
         });
-      })
-      .then(() => {
-        console.log(opciones);
-        cargarUsuariosFrecuentes(opciones);
+    
+        const ciudad = document.getElementById("ciudadDestinoUsuario");
+    
+        const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
+          "plantillasUsuariosFrecuentes"
+        );
+    
+        opciones.length = 0;
+    
+        referenciaUsuariosFrecuentes
+          .where("ciudad", "==", ciudad.value)
+          .get()
+          .then((querySnapshot) => {
+            querySnapshot.forEach((document) => {
+              const data = document.data();
+              data.id = document.id;
+              console.log(data);
+    
+              opciones.push(data);
+            });
+          })
+          .then(() => {
+            console.log(opciones);
+            cargarUsuariosFrecuentes(opciones);
+          });
       });
+
   }
 }
 
