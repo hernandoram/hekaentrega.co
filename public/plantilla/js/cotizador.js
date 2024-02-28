@@ -25,7 +25,7 @@ const bloqueo_direcciones_envia = [
 const bloqueo_direcciones_servientrega = [
   "05842000", // URAMITA
   "99624000", // SANTA ROSALIA(VICHADA)
-  "47001006" // GUACHACA(MAGDALENA)
+  "47001006", // GUACHACA(MAGDALENA)
 ];
 
 // Objeto principal en que se basa la transportadora a ser utilizada
@@ -1935,6 +1935,7 @@ function finalizarCotizacion(datos) {
     "SellerVALENTINOSSTORE",
     "SellerNuevo",
     "Sellerprobando",
+    "SellerWitotoAccesoriosYArtesanias-0",
   ];
   const showCheckPedido = usuariosTemporalesPedido.includes(
     datos_usuario.centro_de_costo
@@ -2230,17 +2231,17 @@ function finalizarCotizacion(datos) {
         creador.innerHTML = div_principal.innerHTML;
         location.href = "#crear_guia";
         scrollTo(0, 0);
-        
+
         const cambiadorDeDireccion = $("#moderador_direccionR");
         cambiadorDeDireccion.on("change", cambiarDirecion);
-        
+
         cambiarDirecion.bind(cambiadorDeDireccion[0])();
-    
+
         $("#entrega_en_oficina").on("change", verificarSelectorEntregaOficina);
-    
+
         if (datos_usuario.type === "PUNTO")
           $("#buscador_usuario-guia").click(buscarUsuario);
-    
+
         restringirCaracteresEspecialesEnInput();
         let informacion = document.getElementById("informacion-personal");
         document.getElementById("producto").addEventListener("blur", () => {
@@ -2262,15 +2263,15 @@ function finalizarCotizacion(datos) {
             aviso.classList.add("d-none");
           }
         });
-    
+
         const ciudad = document.getElementById("ciudadDestinoUsuario");
-    
+
         const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
           "plantillasUsuariosFrecuentes"
         );
-    
+
         opciones.length = 0;
-    
+
         referenciaUsuariosFrecuentes
           .where("ciudad", "==", ciudad.value)
           .get()
@@ -2279,7 +2280,7 @@ function finalizarCotizacion(datos) {
               const data = document.data();
               data.id = document.id;
               console.log(data);
-    
+
               opciones.push(data);
             });
           })
@@ -2288,7 +2289,6 @@ function finalizarCotizacion(datos) {
             cargarUsuariosFrecuentes(opciones);
           });
       });
-
   }
 }
 
