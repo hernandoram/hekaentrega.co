@@ -11,6 +11,7 @@ const {
   generada,
   neutro,
   eliminada,
+  anulada,
 } = defFiltrado;
 
 const container = $("#historial_guias");
@@ -21,6 +22,7 @@ container.append(htmlTable);
 
 const typesGenerales = [
   neutro,
+  anulada,
   eliminada,
   novedad,
   proceso,
@@ -35,7 +37,7 @@ const columns = [
     data: null,
     title: "Acciones",
     render: accionesDeFila,
-    types: typesGenerales.slice(1),
+    types: typesGenerales.slice(2),
   },
   // {data: null, title: "Empaque", render: accionEmpaque, types: [generada]},
   {
@@ -56,14 +58,14 @@ const columns = [
     title: "# Guía",
     defaultContent: "",
     saveInExcel: true,
-    types: [novedad, proceso, pagada, finalizada, generada, neutro, eliminada],
+    types: [novedad, proceso, pagada, finalizada, generada, neutro, eliminada,anulada],
   },
   {
     data: "estado",
     title: "Estado",
     defaultContent: "",
     saveInExcel: true,
-    types: [novedad, proceso, pagada, finalizada, neutro, eliminada],
+    types: [novedad, proceso, pagada, finalizada, neutro, eliminada,anulada],
   },
   {
     data: "mostrar_transp",
@@ -732,6 +734,7 @@ function accionesDeFila(datos, type, row) {
     const generacion_automatizada = ["automatico", "automaticoEmp"].includes(
       transportadoras[datos.transportadora || "SERVIENTREGA"].sistema()
     );
+    console.log("datos anuladas -->",datos)
     const showCloneAndDelete = datos.enviado ? "" : "";
     const showDownloadAndRotulo = !datos.enviado ? "d-none" : "";
     const showMovements = datos.numeroGuia && datos.estado ? "" : "d-none";
@@ -804,6 +807,13 @@ function accionesDeFila(datos, type, row) {
             <i class="fas fa-trash"></i>
         </button>`;
 
+    const btnAnular = `<button class="btn btn-danger btn-circle btn-sm mx-1 action" data-id="${id}" 
+        id="anular_guia${id}" data-costo_envio="${datos.costo_envio}"
+        data-placement="right"
+        title="Anular Guía">
+          <i class="fas fa-ban"></i>
+        </button>`;
+
     const btnActualizar = `<button class="btn btn-circle btn-primary btn-sm mx-1 action data-id="${id}" id="actualizar-guia${id}">
         <i class="fa fa-sync" title="Actualizar guía ${id}" style="cursor: pointer"></i>
         </button>`;
@@ -839,7 +849,7 @@ function accionesDeFila(datos, type, row) {
       }
     } else {
       if (datos.enviado && !datos.enNovedad) {
-        buttons += btnDownloadDocs + btnRotulo;
+        buttons += btnDownloadDocs + btnRotulo + btnAnular;
       }
     }
 

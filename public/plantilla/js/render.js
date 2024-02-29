@@ -18,6 +18,7 @@ const estadosGuia = {
   proceso: "TRANSITO",
   empacada: "EMPACADA",
   eliminada: "ELIMINADA",
+  anulada: "ANULADA",
   neutro: "NEUTRO", // formalmente ninguna guía debería ener registraod este estado
 };
 
@@ -900,7 +901,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
     let revisar = actv.getAttribute("data-enviado");
     let when = actv.getAttribute("data-activate");
     let operador = when != "after" ? revisar != "true" : revisar == "true";
-
+    
     if (operador || estado_prueba) {
       actv.removeAttribute("disabled");
     } else {
@@ -1049,6 +1050,70 @@ function activarBotonesDeGuias(id, data, activate_once) {
           "La guía Número " + id + " no ha sido actualizada",
           "aviso"
         );
+      }
+    });
+
+    $("#anular_guia" + id).on("click", async function (e) {   
+      let confirmacion
+      let { value: motAnulacion } = await Swal.fire({
+        title: "Motivo de la anulacion",
+        input: "textarea",
+        showCancelButton: true,
+        confirmButtonText: "Continuar",
+        cancelButtonText: `Cancelar`,
+      });
+      if (motAnulacion){
+        const resp = await Swal.fire({
+          title: "¡ATENCIÓN",
+          text:
+            "Estás a punto de anular la guía Nro. " +
+            id +
+            ", Si la anulas, no lo va a poder recuperar y Heka no podra gestionar nada relacionado a esta guia ¿Desea continuar?",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonText: "¡Si! continuar 👍",
+          cancelButtonText: "¡No, me equivoqué!",
+        });
+        confirmacion = resp.isConfirmed;
+      }
+      console.log(motAnulacion)
+      if (
+        confirmacion && motAnulacion
+      ) {
+        $("#enviar-documentos").prop("disabled", true);
+        usuarioAltDoc(data.id_user)
+          .collection("guias")
+          .doc(id)
+          .update({
+            fecha_anulada: new Date(),
+            estadoActual: estadosGuia.anulada,
+            seguimiento_finalizado: true,
+            motivoAnulacion:motAnulacion,
+            estadoAnterior: data.estadoActual,
+          })
+          .then((res) => {
+            avisar(
+              "Guia Anulada",
+              "La guia Número " + id + " Ha sido anulada",
+              "alerta"
+            );
+            $("#enviar-documentos").prop("disabled", false);
+            // row.remove();
+          })
+          .catch((error) => {
+            avisar(
+              "Error al anula",
+              "Hubo un error al anula la guia, intentelo mas tarde",
+              "alerta"
+            );
+            $("#enviar-documentos").prop("disabled", false);
+          });
+      } else {
+        // avisar(
+        //   "No permitido",
+        //   "La guia Número " + id + " no puede ser eliminada",
+        //   "advertencia"
+        // );
       }
     });
 
