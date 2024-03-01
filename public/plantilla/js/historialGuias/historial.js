@@ -37,7 +37,7 @@ const columns = [
     data: null,
     title: "Acciones",
     render: accionesDeFila,
-    types: typesGenerales.slice(2),
+    types: typesGenerales.slice(1),
   },
   // {data: null, title: "Empaque", render: accionEmpaque, types: [generada]},
   {
@@ -61,11 +61,32 @@ const columns = [
     types: [novedad, proceso, pagada, finalizada, generada, neutro, eliminada,anulada],
   },
   {
+    data: "estadoActual",
+    title: "Estado",
+    defaultContent: "",
+    saveInExcel: true,
+    types: [anulada],
+  },
+  {
+    data: "estadoAnterior",
+    title: "Estado anterior",
+    defaultContent: "",
+    saveInExcel: false,
+    types: [anulada],
+  },
+  {
+    data: "motivoAnulacion",
+    title: "Motivo de anulacion",
+    defaultContent: "",
+    saveInExcel: true,
+    types: [anulada],
+  },
+  {
     data: "estado",
     title: "Estado",
     defaultContent: "",
     saveInExcel: true,
-    types: [novedad, proceso, pagada, finalizada, neutro, eliminada,anulada],
+    types: [novedad, proceso, pagada, finalizada, neutro, eliminada],
   },
   {
     data: "mostrar_transp",
@@ -136,14 +157,14 @@ const columns = [
     data: "ciudadD",
     title: "Ciudad",
     defaultContent: "",
-    types: typesGenerales,
+    types: typesGenerales.slice(2),
     saveInExcel: true,
   },
   {
     data: "fecha",
     title: "Fecha",
     defaultContent: "",
-    types: typesGenerales,
+    types: typesGenerales.slice(2),
     saveInExcel: true,
   },
   {
@@ -157,21 +178,21 @@ const columns = [
 
       return value;
     },
-    types: typesGenerales,
+    types: typesGenerales.slice(2),
     saveInExcel: true,
   },
   {
     data: "valor",
     title: "Recaudo",
     defaultContent: "",
-    types: typesGenerales,
+    types: typesGenerales.slice(2),
     saveInExcel: true,
   },
   {
     data: "costo_envio",
     title: "Costo de envío",
     defaultContent: "",
-    types: typesGenerales,
+    types: typesGenerales.slice(2),
     saveInExcel: true,
   },
   {
@@ -179,14 +200,14 @@ const columns = [
     title: "Ganancia",
     defaultContent: "No aplica",
     visible: ControlUsuario.esPuntoEnvio,
-    types: typesGenerales,
+    types: typesGenerales.slice(2),
     saveInExcel: ControlUsuario.esPuntoEnvio,
   },
   {
     data: "referencia",
     title: "Referencia",
     defaultContent: "No aplica",
-    types: typesGenerales,
+    types: typesGenerales.slice(2),
     saveInExcel: true,
   },
 ];
@@ -819,21 +840,24 @@ function accionesDeFila(datos, type, row) {
         </button>`;
 
     //Bottón para re crear el sticker de guía.
+    buttons += `
+    <button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
+    id="ver_detalles${id}" data-toggle="modal" data-target="#modal-detallesGuias"
+    data-placement="right"
+    title="Detalles">
+    <i class="fas fa-search-plus"></i>
+    </button>
+    `;
+    if (datos.estadoActual == anulada){
+      buttons += "</div>";
+      return buttons;
+    }
     if (
       (datos.numeroGuia && !datos.has_sticker && generacion_automatizada) ||
       estado_prueba
     ) {
       buttons += btnCrearSticker;
     }
-
-    buttons += `
-            <button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
-            id="ver_detalles${id}" data-toggle="modal" data-target="#modal-detallesGuias"
-            data-placement="right"
-            title="Detalles">
-                <i class="fas fa-search-plus"></i>
-            </button>
-        `;
 
     //Botón para ver movimientos
     if (datos.numeroGuia && datos.estado) {
