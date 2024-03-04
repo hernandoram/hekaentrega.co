@@ -391,6 +391,11 @@ exports.crearGuia = (req, res) => {
             } catch (e) {
                 console.log("Error al comprobar => ", e);
                 
+                // en caso de que no se pueda converir a JSON, se devuelve el texto directo al front
+                body = {
+                    error: true,
+                    message: body
+                }
             }
         }
         // db.collection("errores")
