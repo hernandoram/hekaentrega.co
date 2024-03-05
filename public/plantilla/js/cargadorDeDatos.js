@@ -2137,29 +2137,7 @@ async function solicitarPagosPendientesUs() {
 
   if (diarioSolicitado.includes(datos_usuario.centro_de_costo))
     return Swal.fire("", mensajeDesembolso, "info");
-
-  let fechaActual = new Date();
-
-  // Definir opciones de formato
-  const opcionesFormato = {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    weekday: "long",
-    hour: "numeric",
-    minute: "numeric",
-    second: "numeric",
-    hour12: true,
-  };
-
-  // Formatear la fecha actual
-  const fechaFormateada = fechaActual.toLocaleDateString(
-    "es-ES",
-    opcionesFormato
-  );
-
-  const fechaEnviada = `${datos_usuario.centro_de_costo} solicito el pago el <br> ${fechaFormateada}`;
-
+    
   if (saldo_pendiente < minimo_diario) {
     const mensaje =
       "Estás a punto de solicitar pago con un monto inferior a " +
@@ -2231,7 +2209,6 @@ async function solicitarPagosPendientesUs() {
 
     if (!diarioSolicitado.includes(datos_usuario.centro_de_costo)) {
       diarioSolicitado.push(datos_usuario.centro_de_costo);
-      console.log(fechaEnviada);
       await ref.update({ diarioSolicitado });
     }
 
@@ -2240,6 +2217,8 @@ async function solicitarPagosPendientesUs() {
     // }
 
     // console.log(actualizacion);
+
+    //paso las ward clausules se solcita pago
 
     await crearLogPago(
       "Saldo solicitado con éxito",
