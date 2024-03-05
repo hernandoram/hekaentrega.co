@@ -14,7 +14,7 @@ const checkEditPlant = $("#actv_editar_plantilla-cotizador");
 const contEditPlant = $("#cont_act_plant-cotizador");
 const btnCotizar = $("#boton_cotizar_2");
 
-const referenciaListaPlantillas = usuarioAltDoc().collection("plantillasCotizador");
+const referenciaListaPlantillas = firebase.firestore().collection("usuarios").doc(user_id).collection("plantillasCotizador");
 
 
 const listaPlantilla = new Map();

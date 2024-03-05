@@ -1,35 +1,93 @@
 let user_id = localStorage.user_id,
   usuarioDoc;
-const usuarioAltDoc = (id) =>
-  firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(id || user_id);
 
-if (localStorage.getItem("acceso_admin")) {
-  window.onload = () => revisarNotificaciones();
-  listarNovedadesServientrega();
-  listarSugerenciaMensajesNovedad();
-  $("#descargar-informe-usuarios").click(descargarInformeUsuariosAdm);
-} else if (localStorage.user_id) {
-  window.onload = () => {
+let usuarioAltDoc;
+
+console.log(user_id);
+
+const urlToken = new URLSearchParams(window.location.search);
+const tokenUser = urlToken.get("token");
+
+async function validateToken(token) {
+  if (token) {
+    console.log(token);
+
+    try {
+      const response = await fetch(
+        `${"https://apidev.hekaentrega.co"}/api/v1/user/validate/token?token=${token}`
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      if (
+        !data ||
+        !data.response ||
+        !data.response.user ||
+        !data.response.user.document
+      ) {
+        throw new Error("Invalid API response");
+      }
+      user_document = data.response.user.document;
+
+      console.error(user_document);
+
+      const querySnapshot = await firebase
+        .firestore()
+        .collection("usuarios")
+        .where("numero_documento", "==", user_document.toString())
+        .get();
+
+      if (querySnapshot.empty) {
+        throw new Error("No documents found.");
+      }
+
+      const doc = querySnapshot.docs[0];
+      console.log(doc.id);
+      localStorage.setItem("user_id", doc.id);
+
+      user_id = doc.id;
+    } catch (error) {
+      console.error("Error en la solicitud GET:", error);
+      throw error;
+    }
+  }
+}
+
+validateToken(tokenUser).then(() => {
+  usuarioAltDoc = (id) =>
+    firebase
+      .firestore()
+      .collection("usuarios")
+      .doc(user_id || id);
+
+  if (localStorage.getItem("acceso_admin")) {
+    revisarNotificaciones();
+    listarNovedadesServientrega();
+    listarSugerenciaMensajesNovedad();
+    $("#descargar-informe-usuarios").click(descargarInformeUsuariosAdm);
+  } else if (localStorage.user_id) {
+    console.log("HOLA", user_id);
     usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
     cargarDatosUsuario().then(() => {
       revisarNotificaciones();
       cargarPagoSolicitado();
     });
-  };
-} else {
-  alert("La sesión ha expirado, por favor inicia sesión nuevamente");
-  location.href = "ingreso.html";
-}
-
-window.addEventListener("storage", (e) => {
-  const { key, newValue } = e;
-
-  if (!key || (key === "user_id" && newValue && newValue !== user_id)) {
-    location.reload();
+  } else {
+    alert("La sesión ha expirado, por favor inicia sesión nuevamente");
+    location.href = "ingreso.html";
   }
+
+  window.addEventListener("storage", (e) => {
+    const { key, newValue } = e;
+
+    if (!key || (key === "user_id" && newValue && newValue !== user_id)) {
+      location.reload();
+    }
+  });
+}).catch(error => {
+  console.error("Error en validateToken:", error);
 });
 
 //Administradara datos basicos del usuario que ingresa
