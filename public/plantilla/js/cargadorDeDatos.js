@@ -149,13 +149,19 @@ async function cargarDatosUsuario() {
 async function cargarPagoSolicitado() {
   console.warn("Cargando pago");
   const ref = db.collection("infoHeka").doc("manejoUsuarios");
-  const data = await ref.get().then((d) => d.data().diarioSolicitado);
+  const { diarioSolicitado, limitadosDiario } = await ref
+    .get()
+    .then((d) => d.data());
 
-  console.log(data);
+  console.log(diarioSolicitado, limitadosDiario);
+
   const centro_de_costo = datos_usuario.centro_de_costo;
-  const soliciado = data.includes(centro_de_costo);
+  const soliciado = diarioSolicitado.includes(centro_de_costo);
+
+  const limitado = limitadosDiario.includes(centro_de_costo);
 
   console.log("pago solicitado", soliciado);
+  console.log("limitado", limitado);
 
   if (soliciado) {
     $("#mostrador-saldoSolicitado").removeClass("d-none");
@@ -163,6 +169,11 @@ async function cargarPagoSolicitado() {
   } else {
     $("#mostrador-saldoNoSolicitado").removeClass("d-none");
     $("#mostrador-saldoSolicitado").addClass("d-none");
+  }
+
+  if (limitado) {
+    document.getElementById("pago-solicitado").innerText =
+      "Has excedido el cupo de pagos por esta semana";
   }
 }
 
@@ -2137,7 +2148,7 @@ async function solicitarPagosPendientesUs() {
 
   if (diarioSolicitado.includes(datos_usuario.centro_de_costo))
     return Swal.fire("", mensajeDesembolso, "info");
-    
+
   if (saldo_pendiente < minimo_diario) {
     const mensaje =
       "Estás a punto de solicitar pago con un monto inferior a " +
