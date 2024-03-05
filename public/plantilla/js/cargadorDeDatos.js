@@ -173,7 +173,7 @@ async function cargarPagoSolicitado() {
 
   if (limitado) {
     document.getElementById("pago-solicitado").innerText =
-      "Has excedido el cupo de pagos por esta semana";
+      "Límite de pagos semanales alcanzado.";
   }
 }
 
