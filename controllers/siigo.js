@@ -1,6 +1,9 @@
 const fetch = require("node-fetch");
 const { estandarizarFecha } = require("../extends/funciones");
 
+const firebase = require("../keys/firebase");
+const db = firebase.firestore();
+
 const Cr = require("../keys/siigo");
 
 const auth = async (req, res, next) => {
@@ -73,6 +76,10 @@ const crearFactura = async (req, res) => {
         },
         "body": JSON.stringify(data)
     }).then(d => d.json())
+
+
+    await db.collection("seguimientoSiigo")
+    .add({data, respuesta, fecha, numero_documento});
 
     res.send(respuesta);
 }
