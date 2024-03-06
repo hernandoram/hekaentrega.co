@@ -1,23 +1,22 @@
 let user_id = localStorage.user_id,
   usuarioDoc;
 
-let usuarioAltDoc;
-
-console.log(user_id);
-
 const urlToken = new URLSearchParams(window.location.search);
-const tokenUser = urlToken.get("token");
+const tokenUser = urlToken.get("token") || localStorage.getItem("token");
 
 async function validateToken(token) {
-  if (token) {
-    console.log(token);
-
+  if (!token) {
+    redirectLogin();
+  } else {
     try {
       const response = await fetch(
         `${"https://apidev.hekaentrega.co"}/api/v1/user/validate/token?token=${token}`
       );
 
+      console.log(response);
+
       if (!response.ok) {
+        redirectLogin();
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
@@ -31,8 +30,6 @@ async function validateToken(token) {
       }
       user_document = data.response.user.document;
 
-      console.error(user_document);
-
       const querySnapshot = await firebase
         .firestore()
         .collection("usuarios")
@@ -44,8 +41,8 @@ async function validateToken(token) {
       }
 
       const doc = querySnapshot.docs[0];
-      console.log(doc.id);
       localStorage.setItem("user_id", doc.id);
+      localStorage.setItem("token", token);
 
       user_id = doc.id;
     } catch (error) {
@@ -55,40 +52,45 @@ async function validateToken(token) {
   }
 }
 
-validateToken(tokenUser).then(() => {
-  usuarioAltDoc = (id) =>
-    firebase
-      .firestore()
-      .collection("usuarios")
-      .doc(user_id || id);
+function redirectLogin() {
+  alert("La sesión ha expirado, por favor inicia sesión nuevamente");
+  location.href = "http://localhost:3232/ingreso";
+}
 
-  if (localStorage.getItem("acceso_admin")) {
-    revisarNotificaciones();
-    listarNovedadesServientrega();
-    listarSugerenciaMensajesNovedad();
-    $("#descargar-informe-usuarios").click(descargarInformeUsuariosAdm);
-  } else if (localStorage.user_id) {
-    console.log("HOLA", user_id);
-    usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
-    cargarDatosUsuario().then(() => {
+validateToken(tokenUser)
+  .then(() => {
+    if (localStorage.getItem("acceso_admin")) {
       revisarNotificaciones();
-      cargarPagoSolicitado();
-    });
-  } else {
-    alert("La sesión ha expirado, por favor inicia sesión nuevamente");
-    location.href = "ingreso.html";
-  }
-
-  window.addEventListener("storage", (e) => {
-    const { key, newValue } = e;
-
-    if (!key || (key === "user_id" && newValue && newValue !== user_id)) {
-      location.reload();
+      listarNovedadesServientrega();
+      listarSugerenciaMensajesNovedad();
+      $("#descargar-informe-usuarios").click(descargarInformeUsuariosAdm);
+    } else if (user_id && localStorage.getItem("token")) {
+      usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
+      cargarDatosUsuario().then(() => {
+        revisarNotificaciones();
+        cargarPagoSolicitado();
+      });
+    } else {
+      redirectLogin();
     }
+
+    window.addEventListener("storage", (e) => {
+      const { key, newValue } = e;
+
+      if (!key || (key === "user_id" && newValue && newValue !== user_id)) {
+        location.reload();
+      }
+    });
+  })
+  .catch((error) => {
+    console.error("Error en validateToken:", error);
   });
-}).catch(error => {
-  console.error("Error en validateToken:", error);
-});
+
+const usuarioAltDoc = (id) =>
+  firebase
+    .firestore()
+    .collection("usuarios")
+    .doc(user_id || id);
 
 //Administradara datos basicos del usuario que ingresa
 let datos_usuario = {},
@@ -2304,8 +2306,29 @@ function descargarExcelPagosAdmin(datos) {
   console.log("Funciona?");
 }
 
-function cerrarSession() {
+async function cerrarSession() {
+  await deleteUserToken();
   localStorage.clear();
+  location.href = "http://localhost:3232/ingreso";
+}
+
+async function deleteUserToken() {
+  const url = `${"https://apidev.hekaentrega.co"}/api/v1/user/logout/${localStorage.getItem(
+    "token"
+  )}`;
+
+  console.log(url);
+  try {
+    const response = await fetch(url, { method: "DELETE" });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    console.log("User token deleted successfully");
+  } catch (error) {
+    console.error("Error deleting user token:", error);
+  }
 }
 
 const inputFlexii = document.querySelector("#inputIDGuiaFlexii");
