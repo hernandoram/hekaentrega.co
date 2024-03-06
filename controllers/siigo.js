@@ -156,4 +156,26 @@ const impuestos = async (req, res) => {
     res.send(respuesta);
 }
 
-module.exports = { auth, crearFactura, tipoDocumentos, usuarios, tiposPago, pdfFacturaVenta, impuestos }
+const clientes = async (req, res) => {
+    const path = "/v1/customers";
+
+    const token = req.access_token;
+
+    const respuesta = await commonGet(path, token);
+
+    res.send(respuesta);
+}
+
+const verFactura = async (req, res) => {
+    const path = "/v1/invoices" 
+    +"/"+ req.params.idFactura;
+
+    const token = req.access_token;
+
+    const respuesta = await commonGet(path, token);
+
+    res.send(respuesta);
+}
+
+
+module.exports = { auth, crearFactura, tipoDocumentos, usuarios, tiposPago, pdfFacturaVenta, impuestos, clientes, verFactura }
