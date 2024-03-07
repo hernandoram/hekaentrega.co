@@ -695,6 +695,8 @@ function agregarNotasDeExepcionAlCotizador() {
   return mensaje;
 }
 
+let configuracionesDestinoActual = [];
+
 //Para llenar los diversos precios de las transportadoras que funcionarán con el cotizador
 async function detallesTransportadoras(data) {
   let encabezados = "",
@@ -712,6 +714,8 @@ async function detallesTransportadoras(data) {
   const isIndex = document
     .getElementById("cotizar_envio")
     .getAttribute("data-index");
+
+  configuracionesDestinoActual = await cargarConfiguracionesCiudad(data.dane_ciudadD);
 
   if (!isIndex && data.type === PAGO_CONTRAENTREGA && data.peso <= 5) {
     oficinas = await detallesOficinas(data.ciudadD);
@@ -731,7 +735,12 @@ async function detallesTransportadoras(data) {
     let seguro = data.seguro,
       recaudo = data.valor;
     let transportadora = transportadoras[transp];
-    if (transportadora.bloqueada(data)) continue;
+    const configuracionCiudad = obtenerConfiguracionCiudad(transp, data.type);
+    console.log("Configuración para ciudad, transportadora y tipo de envío: ", configuracionCiudad);
+    if (
+      transportadora.bloqueada(data) 
+      || (configuracionCiudad && !configuracionCiudad.tipo_distribucion.length)
+    ) continue;
 
     if (!cotizacionAveo && transp === "TCC") {
       cotizacionAveo = await cotizarAveonline(typeToAve, {
@@ -986,6 +995,42 @@ async function detallesTransportadoras(data) {
 
   /* Devuelve el html en dos manera, con la lista, y con los detalles particulares */
   return [encabezados, detalles];
+}
+
+// Configuraciones de la ciudad
+async function cargarConfiguracionesCiudad(dane_ciudad) {
+  const reference = db
+    .collection("ciudades")
+    .doc(dane_ciudad)
+    .collection("config_ciudad");
+
+  const configuraciones = await reference
+  .where("activa", "==", true)
+  .get().then(q => {
+    const result = [];
+
+    q.forEach(d => {
+      result.push(d.data());
+    });
+
+    return result;
+  })
+
+
+  return configuraciones;
+}
+
+function obtenerConfiguracionCiudad(transportadora, tipoEnvio) {
+  const tipoUsuario = datos_usuario.type;
+
+  const paraTransportadora = configuracionesDestinoActual.filter(c => transportadora === c.transportadora);
+  const paraTipoEnvio = paraTransportadora.filter(c => tipoEnvio === c.tipoEnvio);
+  const paraUsuario = paraTipoEnvio.filter(c => ["TODOS", tipoUsuario].includes(c.tipoUsuario));
+
+  if(!paraUsuario.length) return null;
+  if(paraUsuario.length > 1) return paraUsuario.find(c => tipoUsuario === c.tipoUsuario);
+
+  return paraUsuario[0];
 }
 
 // ESTADÍSTICAS

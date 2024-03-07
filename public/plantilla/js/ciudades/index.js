@@ -17,7 +17,7 @@ const botonAgregarRestriccion = $("#boton-agregar-restriccion");
 
 const detallesTransp = $(".detalles-transp-ciudades");
 
-const selectTransportadora = $("#transportadora-restricciones");
+const selectTransportadora = $("#transportadora-configuraciones");
 
 let restringirEnvioOficina = document.getElementById("restringirEnvioOficina");
 let restringirEnvioDireccion = document.getElementById(
@@ -25,11 +25,11 @@ let restringirEnvioDireccion = document.getElementById(
 );
 
 const tipoUsuarioRestricciones = document.getElementById(
-  "tipoUsuario-restricciones"
+  "tipoUsuario-configuraciones"
 );
 
 const tipoEnvioRestricciones = document.getElementById(
-  "tipoEnvio-restricciones"
+  "tipoEnvio-configuraciones"
 );
 
 //#region EVENTOS
@@ -96,50 +96,58 @@ async function estadisticasCiudad(dane) {
 async function restriccionesCiudad(ciudad) {
   // Render
   const noCiudadEscogida = document.querySelector("#noCiudadEscogida");
-  const agregarRestricciones = document.querySelector("#agregar-restricciones");
+  const agregarRestricciones = document.querySelector("#agregar-configuraciones");
   noCiudadEscogida.classList.add("d-none");
   agregarRestricciones.classList.remove("d-none");
-  const nombreCiudad = document.querySelector("#nombre-ciudad-restricciones");
+  const nombreCiudad = document.querySelector("#nombre-ciudad-configuraciones");
   nombreCiudad.textContent = `en ${ciudad.nombre}`;
 
   renderRestricciones(ciudad.dane_ciudad);
 }
 
+const tipos_distribucion = [null, "Entrega en dirección", "Entrega en oficina"]
+
 function renderRestricciones() {
-  let restricciones = [];
-  const listaRestricciones = document.querySelector("#lista-restricciones");
+  let configuraciones = [];
+  const listaRestricciones = document.querySelector("#lista-configuraciones");
   const mensajenoRestriccion = document.querySelector("#mensaje-noRestriccion");
-  const tablaRestricciones = document.querySelector("#tabla-restricciones");
+  const tablaRestricciones = document.querySelector("#tabla-configuraciones");
 
   const reference = db
     .collection("ciudades")
     .doc(ciudadActual.dane_ciudad)
-    .collection("restricciones");
+    .collection("config_ciudad");
 
   reference
     .get()
     .then((querySnapshot) => {
-      restricciones = [];
+      configuraciones = [];
       querySnapshot.forEach((doc) => {
         let restriccion = doc.data();
         restriccion.id = doc.id;
-        restricciones.push(restriccion);
+        configuraciones.push(restriccion);
       });
     })
     .then(() => {
-      console.log(restricciones);
-      if (restricciones.length > 0) {
+      console.log(configuraciones);
+      if (configuraciones.length > 0) {
         mensajenoRestriccion.classList.add("d-none");
         tablaRestricciones.classList.remove("d-none");
 
-        listaRestricciones.innerHTML = restricciones
+        listaRestricciones.innerHTML = configuraciones
           .map(
             (restriccion) => `
         <tr>
           <td>${restriccion.tipoUsuario}</td>
           <td>${restriccion.transportadora}</td>
           <td>${restriccion.tipoEnvio}</td>
-          <td>${restriccion.oficina ? "Oficina" : "Dirección"}</td>
+          <td>${
+            restriccion.tipo_distribucion.length 
+            ? restriccion.tipo_distribucion.map(d => tipos_distribucion[d]).join(", ")
+            : "NO CUENTRA CON TIPO DE ENTREGA"  
+          }
+          </td>
+          <td>${restriccion.descripcion}</td>
           <td><button class="btn btn-danger" data-id="${
             restriccion.id
           }">Eliminar</button></td>
@@ -154,7 +162,7 @@ function renderRestricciones() {
             console.log(id);
             db.collection("ciudades")
               .doc(ciudadActual.dane_ciudad)
-              .collection("restricciones")
+              .collection("config_ciudad")
               .doc(id)
               .delete()
               .then(() => {
@@ -234,15 +242,14 @@ selectTransportadora.on("change", (e) => {
   restringirEnvioDireccion.checked = false;
 });
 
-botonAgregarRestriccion.on("click", agregarRestriccion);
 
 function agregarRestriccion() {
   const reference = db
     .collection("ciudades")
     .doc(ciudadActual.dane_ciudad)
-    .collection("restricciones");
+    .collection("config_ciudad");
 
-  const restriccion = {
+  const restriccionV1 = {
     tipoUsuario: tipoUsuarioRestricciones.value,
     tipoEnvio: tipoEnvioRestricciones.value,
     transportadora: selectTransportadora.val(),
@@ -250,12 +257,12 @@ function agregarRestriccion() {
     direccion: restringirEnvioDireccion.checked,
   };
 
+  const restriccion = dataFromForm(document.getElementById("form_agregar-configuraciones"));
+
   reference
     .doc(
-      `${restriccion.tipoUsuario}_${restriccion.transportadora}_${
-        restriccion.tipoEnvio
-      }_${
-        restriccion.oficina ? "OFICINA-RESTRINGIDA" : "DIRECCIÓN-RESTRINGUIDA"
+      `${restriccion.tipoUsuario}-${restriccion.transportadora}-${
+        restriccion.tipoEnvio.split(" ").join("_")
       }`
     )
     .set(restriccion)
@@ -275,6 +282,18 @@ function agregarRestriccion() {
         "success"
       )
     );
+}
+
+function dataFromForm(form) {
+  const formData = new FormData(form);
+  const data = Object.fromEntries(formData.entries());
+  // Asiganmos los tipos de distribución
+  data.tipo_distribucion = formData.getAll("tipo_distribucion");
+
+  // Convertimos el check "activa" a booleano
+  data.activa = Boolean(data.activa);
+
+  return data;
 }
 
 export { renderListaCiudades };
