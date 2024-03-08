@@ -1,6 +1,8 @@
 let user_id = localStorage.user_id,
   usuarioDoc;
 
+let auxManejadorGuias = false;
+
 const urlToken = new URLSearchParams(window.location.search);
 const tokenUser = urlToken.get("token") || localStorage.getItem("token");
 
@@ -20,15 +22,20 @@ async function validateToken(token) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
+
+      console.log(data);
       if (
         !data ||
         !data.response ||
         !data.response.user ||
         !data.response.user.document
       ) {
+        redirectLogin();
         throw new Error("Invalid API response");
       }
       user_document = data.response.user.document;
+
+      const tipoUsuario = data.response.user.role[0];
 
       const querySnapshot = await firebase
         .firestore()
@@ -36,11 +43,22 @@ async function validateToken(token) {
         .where("numero_documento", "==", user_document.toString())
         .get();
 
+      if (tipoUsuario === "manager") {
+        localStorage.setItem("acceso_admin", true);
+      }
+
+      if (tipoUsuario === "seller") {
+        localStorage.removeItem("acceso_admin");
+      }
+
       if (querySnapshot.empty) {
+        redirectLogin();
         throw new Error("No documents found.");
       }
 
       const doc = querySnapshot.docs[0];
+
+      console.log(doc.data());
       localStorage.setItem("user_id", doc.id);
       localStorage.setItem("token", token);
 
@@ -59,12 +77,16 @@ function redirectLogin() {
 
 validateToken(tokenUser)
   .then(() => {
+    console.log(localStorage.getItem("acceso_admin"));
+
     if (localStorage.getItem("acceso_admin")) {
+      console.warn("Bienvenido administrador");
       revisarNotificaciones();
       listarNovedadesServientrega();
       listarSugerenciaMensajesNovedad();
       $("#descargar-informe-usuarios").click(descargarInformeUsuariosAdm);
-    } else if (user_id && localStorage.getItem("token")) {
+      auxManejadorGuias = true;
+    } else if (user_id) {
       usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
       cargarDatosUsuario().then(() => {
         revisarNotificaciones();
@@ -73,18 +95,18 @@ validateToken(tokenUser)
     } else {
       redirectLogin();
     }
-
-    window.addEventListener("storage", (e) => {
-      const { key, newValue } = e;
-
-      if (!key || (key === "user_id" && newValue && newValue !== user_id)) {
-        location.reload();
-      }
-    });
   })
   .catch((error) => {
     console.error("Error en validateToken:", error);
   });
+
+window.addEventListener("storage", (e) => {
+  const { key, newValue } = e;
+
+  if (!key || (key === "user_id" && newValue && newValue !== user_id)) {
+    location.reload();
+  }
+});
 
 const usuarioAltDoc = (id) =>
   firebase
@@ -2308,7 +2330,7 @@ function descargarExcelPagosAdmin(datos) {
 
 async function cerrarSession() {
   await deleteUserToken();
-  localStorage.clear();
+  await localStorage.clear();
   location.href = "http://localhost:3232/ingreso";
 }
 
