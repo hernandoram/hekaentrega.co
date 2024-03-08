@@ -11,6 +11,7 @@ const {
   generada,
   neutro,
   eliminada,
+  anulada,
 } = defFiltrado;
 
 const container = $("#historial_guias");
@@ -21,6 +22,7 @@ container.append(htmlTable);
 
 const typesGenerales = [
   neutro,
+  anulada,
   eliminada,
   novedad,
   proceso,
@@ -56,7 +58,28 @@ const columns = [
     title: "# Guía",
     defaultContent: "",
     saveInExcel: true,
-    types: [novedad, proceso, pagada, finalizada, generada, neutro, eliminada],
+    types: [novedad, proceso, pagada, finalizada, generada, neutro, eliminada,anulada],
+  },
+  {
+    data: "estadoActual",
+    title: "Estado",
+    defaultContent: "",
+    saveInExcel: true,
+    types: [anulada],
+  },
+  {
+    data: "estadoAnterior",
+    title: "Estado anterior",
+    defaultContent: "",
+    saveInExcel: false,
+    types: [anulada],
+  },
+  {
+    data: "motivoAnulacion",
+    title: "Motivo de anulacion",
+    defaultContent: "",
+    saveInExcel: true,
+    types: [anulada],
   },
   {
     data: "estado",
@@ -134,14 +157,14 @@ const columns = [
     data: "ciudadD",
     title: "Ciudad",
     defaultContent: "",
-    types: typesGenerales,
+    types: typesGenerales.slice(2),
     saveInExcel: true,
   },
   {
     data: "fecha",
     title: "Fecha",
     defaultContent: "",
-    types: typesGenerales,
+    types: typesGenerales.slice(2),
     saveInExcel: true,
   },
   {
@@ -155,21 +178,21 @@ const columns = [
 
       return value;
     },
-    types: typesGenerales,
+    types: typesGenerales.slice(2),
     saveInExcel: true,
   },
   {
     data: "valor",
     title: "Recaudo",
     defaultContent: "",
-    types: typesGenerales,
+    types: typesGenerales.slice(2),
     saveInExcel: true,
   },
   {
     data: "costo_envio",
     title: "Costo de envío",
     defaultContent: "",
-    types: typesGenerales,
+    types: typesGenerales.slice(2),
     saveInExcel: true,
   },
   {
@@ -177,14 +200,14 @@ const columns = [
     title: "Ganancia",
     defaultContent: "No aplica",
     visible: ControlUsuario.esPuntoEnvio,
-    types: typesGenerales,
+    types: typesGenerales.slice(2),
     saveInExcel: ControlUsuario.esPuntoEnvio,
   },
   {
     data: "referencia",
     title: "Referencia",
     defaultContent: "No aplica",
-    types: typesGenerales,
+    types: typesGenerales.slice(2),
     saveInExcel: true,
   },
 ];
@@ -732,6 +755,7 @@ function accionesDeFila(datos, type, row) {
     const generacion_automatizada = ["automatico", "automaticoEmp"].includes(
       transportadoras[datos.transportadora || "SERVIENTREGA"].sistema()
     );
+    console.log("datos anuladas -->",datos)
     const showCloneAndDelete = datos.enviado ? "" : "";
     const showDownloadAndRotulo = !datos.enviado ? "d-none" : "";
     const showMovements = datos.numeroGuia && datos.estado ? "" : "d-none";
@@ -804,26 +828,36 @@ function accionesDeFila(datos, type, row) {
             <i class="fas fa-trash"></i>
         </button>`;
 
+    const btnAnular = `<button class="btn btn-danger btn-circle btn-sm mx-1 action" data-id="${id}" 
+        id="anular_guia${id}" data-costo_envio="${datos.costo_envio}"
+        data-placement="right"
+        title="Anular Guía">
+          <i class="fas fa-ban"></i>
+        </button>`;
+
     const btnActualizar = `<button class="btn btn-circle btn-primary btn-sm mx-1 action data-id="${id}" id="actualizar-guia${id}">
         <i class="fa fa-sync" title="Actualizar guía ${id}" style="cursor: pointer"></i>
         </button>`;
 
     //Bottón para re crear el sticker de guía.
+    buttons += `
+    <button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
+    id="ver_detalles${id}" data-toggle="modal" data-target="#modal-detallesGuias"
+    data-placement="right"
+    title="Detalles">
+    <i class="fas fa-search-plus"></i>
+    </button>
+    `;
+    if (datos.estadoActual == anulada){
+      buttons += "</div>";
+      return buttons;
+    }
     if (
       (datos.numeroGuia && !datos.has_sticker && generacion_automatizada) ||
       estado_prueba
     ) {
       buttons += btnCrearSticker;
     }
-
-    buttons += `
-            <button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
-            id="ver_detalles${id}" data-toggle="modal" data-target="#modal-detallesGuias"
-            data-placement="right"
-            title="Detalles">
-                <i class="fas fa-search-plus"></i>
-            </button>
-        `;
 
     //Botón para ver movimientos
     if (datos.numeroGuia && datos.estado) {
@@ -839,7 +873,7 @@ function accionesDeFila(datos, type, row) {
       }
     } else {
       if (datos.enviado && !datos.enNovedad) {
-        buttons += btnDownloadDocs + btnRotulo;
+        buttons += btnDownloadDocs + btnRotulo + btnAnular;
       }
     }
 

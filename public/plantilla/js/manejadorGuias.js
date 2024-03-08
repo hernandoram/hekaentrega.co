@@ -4565,6 +4565,8 @@ async function historialGuiasAdmin(e) {
       },
       visible: false,
     },
+    { data: "estadoActual", title: "Estado Actual", defaultContent: "---", visible: false },
+    { data: "motivoAnulacion", title: "Motivo de anulacion", defaultContent: "---", visible: false },
   ];
 
   const idTabla = "#tabla-" + finalId;

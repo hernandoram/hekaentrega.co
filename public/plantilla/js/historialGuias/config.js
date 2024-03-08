@@ -46,6 +46,12 @@ export const filters = [
         description: "Muestran aquellas guías que fueron eliminadas.",
         dataFilter: defFiltrado.eliminada,
     },
+    {
+        id: "Anuladas",
+        name: "Anuladas",
+        description: "Muestran aquellas guías que fueron anuladas.",
+        dataFilter: defFiltrado.anulada,
+    },
 ];
 
 //Devuelve un string con el tipo de filtrado según la guía
@@ -61,6 +67,8 @@ export function defineFilter(data) {
         filter = defFiltrado.pedido;
     } else if(!data.debe && data.type !== "CONVENCIONAL") {
         filter = defFiltrado.pagada
+    }else if(data.estadoActual === defFiltrado.anulada) {
+        filter = defFiltrado.anulada;
     } else if(data.estadoActual === defFiltrado.eliminada) {
         filter = defFiltrado.eliminada;
     } else if (data.seguimiento_finalizado) {
