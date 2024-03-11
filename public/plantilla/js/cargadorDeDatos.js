@@ -64,6 +64,7 @@ async function validateToken(token) {
 
       user_id = doc.id;
     } catch (error) {
+      redirectLogin();
       console.error("Error en la solicitud GET:", error);
       throw error;
     }
