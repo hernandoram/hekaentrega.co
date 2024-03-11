@@ -144,7 +144,7 @@ function renderRestricciones() {
           <td>${
             restriccion.tipo_distribucion.length 
             ? restriccion.tipo_distribucion.map(d => tipos_distribucion[d]).join(", ")
-            : "NO CUENTRA CON TIPO DE ENTREGA"  
+            : "SIN TIPO DISTRIBUCIÓN (BLOQUEADA)"  
           }
           </td>
           <td>${restriccion.descripcion}</td>

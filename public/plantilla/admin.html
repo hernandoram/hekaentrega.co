@@ -2351,50 +2351,6 @@
                 <input type="text" class="form-control" id="nombre-ciudades" name="nombre">
               </div>
 
-              <div class="form-group col-md-3">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="transportadorasEntregan" value="SERVIENTREGA"
-                    id="transp1-ciudades">
-                  <label class="form-check-label" for="transp1-ciudades">
-                    SERVIENTREGA
-                  </label>
-                  <i class="fa fa-cog text-primary ml-2 detalles-transp-ciudades"></i>
-                </div>
-              </div>
-
-              <div class="form-group col-md-3">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="transportadorasEntregan" value="INTERRAPIDISIMO"
-                    id="transp2-ciudades">
-                  <label class="form-check-label" for="transp2-ciudades">
-                    INTERRAPIDISIMO
-                  </label>
-                  <i class="fa fa-cog text-primary ml-2"></i>
-                </div>
-              </div>
-
-              <div class="form-group col-md-3">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="transportadorasEntregan" value="ENVIA"
-                    id="transp3-ciudades">
-                  <label class="form-check-label" for="transp3-ciudades">
-                    ENVIA
-                  </label>
-                  <i class="fa fa-cog text-primary ml-2"></i>
-                </div>
-              </div>
-
-              <div class="form-group col-md-3">
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" name="transportadorasEntregan" value="COORDINADORA"
-                    id="transp4-ciudades">
-                  <label class="form-check-label" for="transp4-ciudades">
-                    COORDINADORA
-                  </label>
-                  <i class="fa fa-cog text-primary ml-2"></i>
-                </div>
-              </div>
-
               <button class="btn btn-primary" type="submit">Actualizar</button>
             </form>
 
@@ -2446,7 +2402,7 @@
                   
                   <div class="form-group col-md col-4 mb-3">
                     <label for="tipoEnvio-configuraciones">Seleccione el tipo de envío</label>
-                    <select class="form-control"  aria-label="Default select example" id="tipoEnvio-configuraciones" name="tipoEnvio">
+                    <select class="custom-select"  aria-label="Default select example" id="tipoEnvio-configuraciones" name="tipoEnvio">
                       <option value="PAGO CONTRAENTREGA">Pago contraentrega</option>
                       <option value="PAGO DESTINO">Pago destino</option>
                       <option value="CONVENCIONAL">Convencional</option>

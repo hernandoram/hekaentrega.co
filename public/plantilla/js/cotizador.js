@@ -757,11 +757,11 @@ async function detallesTransportadoras(data) {
       recaudo = data.valor;
     let transportadora = transportadoras[transp];
     const configuracionCiudad = obtenerConfiguracionCiudad(transp, data.type);
-    console.log("Configuración para ciudad, transportadora y tipo de envío: ", configuracionCiudad);
-    if (
-      transportadora.bloqueada(data) 
-      || (configuracionCiudad && !configuracionCiudad.tipo_distribucion.length)
-    ) {
+
+    if(configuracionCiudad)
+      console.log("Configuración para ciudad, transportadora y tipo de envío: ", configuracionCiudad);
+
+    if(configuracionCiudad && !configuracionCiudad.tipo_distribucion.length) {
       const card = cardNoCobertura(
         transportadora,
         transp,
@@ -771,6 +771,12 @@ async function detallesTransportadoras(data) {
       );
       encabezados += card;
       mostradorTransp.append(card);
+      continue;
+    }
+
+    if (
+      transportadora.bloqueada(data)
+    ) {
       continue;
     }
 
