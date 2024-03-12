@@ -428,7 +428,7 @@ exports.crearStickerGuia = (req, res) => {
                 res.send(base64);
             }
         } catch (e) {
-            console.error("No se pudo generar el Pdf de la guía: " + req.params.id);
+            console.error("No se pudo generar el Pdf de la guía: " + req.params.id, body);
             res.send(body);
         }
     })
