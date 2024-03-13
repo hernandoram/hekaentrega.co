@@ -2020,26 +2020,8 @@ function finalizarCotizacion(datos) {
 </div>`;
   let entrega_en_oficina = "";
 
-  const usuariosTemporalesPedido = [
-    "SellerLabodegadelcalzado",
-    "SellerBousni",
-    "SellerYussboreal",
-    "SellerVeryNiceCompras",
-    "SellerG-KKids",
-    "SellerVALENTINOSSTORE",
-    "SellerNuevo",
-    "Sellerprobando",
-    "SellerWitotoAccesoriosYArtesanias-0",
-  ];
-  const showCheckPedido = usuariosTemporalesPedido.includes(
-    datos_usuario.centro_de_costo
-  );
-  // Una vez que se pruebe la funcionnalidad y como de adaptan los usuarios ELIMINAR el d-none
-  // con las variables que lo configuran (usuariosTemporalesPedido, showCheckPedido)
   const checkCreacionPedido = `
-        <div class="col-sm-6 mb-2 form-check ${
-          showCheckPedido ? "" : "d-none"
-        }">
+        <div class="col-sm-6 mb-2 form-check">
             <input type="checkbox" id="check-crear_pedido" class="form-check-input">
             <label for="check-crear_pedido" class="form-check-label">Crear en forma de pedido</label>
         </div>
