@@ -3200,7 +3200,7 @@ class CalcularCostoDeEnvio {
       return 0;
 
     const pagoContraentrega = this.convencional ? "FALSE" : "TRUE";
-
+    const errorNoCobertura="El destino no es válido para envíos con contra pago y pago en casa."
     //#region SOLICITUD PASADA AL BACK
     const data = {
       dane_ciudadR,
@@ -3246,10 +3246,9 @@ class CalcularCostoDeEnvio {
       .then(async (data) => {
         if (data.status == 417) {
           const text = await data.text();
-          console.log(text);
+          
           if (
-            text ===
-            "El destino no es válido para envíos con contra pago y pago en casa."
+            text.includes(errorNoCobertura)
           ) {
             throw Error("No hay Cobertura");
           }
