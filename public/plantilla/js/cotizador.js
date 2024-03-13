@@ -2028,8 +2028,8 @@ function finalizarCotizacion(datos) {
     `;
 
   if (
-    datos.transportadora !== "SERVIENTREGA" &&
-    datos.transportadora !== "INTERRAPIDISIMO"
+    datos.transportadora !== "SERVIENTREGA" 
+    // && datos.transportadora !== "INTERRAPIDISIMO"
   ) {
     solicitud_recoleccion = `
         <div class="alert alert-danger col-12">
