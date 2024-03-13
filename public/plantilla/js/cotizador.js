@@ -695,6 +695,29 @@ function agregarNotasDeExepcionAlCotizador() {
   return mensaje;
 }
 
+let configuracionesDestinoActual = [];
+function cardNoCobertura(transportadora, transp, message) {
+  return `<li style="cursor:pointer;" class="list-group-item list-group-item-action shadow-sm mb-2 border border-${
+    transportadora.color
+  }" 
+      id="list-transportadora-${transp}-list" 
+      data-transp="${transp}"
+      aria-controls="list-transportadora-${transp}"
+      >
+          <div class="row container" >
+              <img src="${transportadora.logoPath}" 
+              class="col" style="max-height:120px; max-width:fit-content"
+              alt="logo-${transportadora.nombre}">
+              <div class="col mt-3 mt-sm-0 order-1 order-sm-0">
+                  <h5 class="text-left">${transportadora.nombre}</h5>
+                  <h3 class="text-center mt-4"><b>${
+                    message
+                  }</b></h3>
+              </div>
+          </div>
+      </li>`;
+}
+
 //Para llenar los diversos precios de las transportadoras que funcionarán con el cotizador
 async function detallesTransportadoras(data) {
   let encabezados = "",
@@ -712,6 +735,8 @@ async function detallesTransportadoras(data) {
   const isIndex = document
     .getElementById("cotizar_envio")
     .getAttribute("data-index");
+
+  configuracionesDestinoActual = await cargarConfiguracionesCiudad(data.dane_ciudadD);
 
   if (!isIndex && data.type === PAGO_CONTRAENTREGA && data.peso <= 5) {
     oficinas = await detallesOficinas(data.ciudadD);
@@ -731,7 +756,29 @@ async function detallesTransportadoras(data) {
     let seguro = data.seguro,
       recaudo = data.valor;
     let transportadora = transportadoras[transp];
-    if (transportadora.bloqueada(data)) continue;
+    const configuracionCiudad = obtenerConfiguracionCiudad(transp, data.type);
+
+    if(configuracionCiudad)
+      console.log("Configuración para ciudad, transportadora y tipo de envío: ", configuracionCiudad);
+
+    if(configuracionCiudad && !configuracionCiudad.tipo_distribucion.length) {
+      const card = cardNoCobertura(
+        transportadora,
+        transp,
+        configuracionCiudad?.descripcion
+        ? configuracionCiudad.descripcion
+        : "No hay cobertura para este destino"
+      );
+      encabezados += card;
+      mostradorTransp.append(card);
+      continue;
+    }
+
+    if (
+      transportadora.bloqueada(data)
+    ) {
+      continue;
+    }
 
     if (!cotizacionAveo && transp === "TCC") {
       cotizacionAveo = await cotizarAveonline(typeToAve, {
@@ -778,7 +825,18 @@ async function detallesTransportadoras(data) {
       cotizacionAveo,
     });
 
-    if (!cotizacion.flete || cotizacion.empty) continue;
+    if (!cotizacion.flete || cotizacion.empty || cotizacion.NoCobertura) {
+      const card = cardNoCobertura(
+        transportadora,
+        transp,
+        cotizacion.NoCobertura
+        ? "No hay cobertura para este destino"
+        : "Error al cotizar, intenta de nuevo"
+      );
+      encabezados += card;
+      mostradorTransp.append(card);
+      continue;
+    }
 
     if (data.sumar_envio || data.type === CONTRAENTREGA) {
       cotizacion.sumarCostoDeEnvio = cotizacion.valor;
@@ -986,6 +1044,42 @@ async function detallesTransportadoras(data) {
 
   /* Devuelve el html en dos manera, con la lista, y con los detalles particulares */
   return [encabezados, detalles];
+}
+
+// Configuraciones de la ciudad
+async function cargarConfiguracionesCiudad(dane_ciudad) {
+  const reference = db
+    .collection("ciudades")
+    .doc(dane_ciudad)
+    .collection("config_ciudad");
+
+  const configuraciones = await reference
+  .where("activa", "==", true)
+  .get().then(q => {
+    const result = [];
+
+    q.forEach(d => {
+      result.push(d.data());
+    });
+
+    return result;
+  })
+
+
+  return configuraciones;
+}
+
+function obtenerConfiguracionCiudad(transportadora, tipoEnvio) {
+  const tipoUsuario = datos_usuario.type;
+
+  const paraTransportadora = configuracionesDestinoActual.filter(c => transportadora === c.transportadora);
+  const paraTipoEnvio = paraTransportadora.filter(c => tipoEnvio === c.tipoEnvio);
+  const paraUsuario = paraTipoEnvio.filter(c => ["TODOS", tipoUsuario].includes(c.tipoUsuario));
+
+  if(!paraUsuario.length) return null;
+  if(paraUsuario.length > 1) return paraUsuario.find(c => tipoUsuario === c.tipoUsuario);
+
+  return paraUsuario[0];
 }
 
 // ESTADÍSTICAS
@@ -1926,26 +2020,8 @@ function finalizarCotizacion(datos) {
 </div>`;
   let entrega_en_oficina = "";
 
-  const usuariosTemporalesPedido = [
-    "SellerLabodegadelcalzado",
-    "SellerBousni",
-    "SellerYussboreal",
-    "SellerVeryNiceCompras",
-    "SellerG-KKids",
-    "SellerVALENTINOSSTORE",
-    "SellerNuevo",
-    "Sellerprobando",
-    "SellerWitotoAccesoriosYArtesanias-0",
-  ];
-  const showCheckPedido = usuariosTemporalesPedido.includes(
-    datos_usuario.centro_de_costo
-  );
-  // Una vez que se pruebe la funcionnalidad y como de adaptan los usuarios ELIMINAR el d-none
-  // con las variables que lo configuran (usuariosTemporalesPedido, showCheckPedido)
   const checkCreacionPedido = `
-        <div class="col-sm-6 mb-2 form-check ${
-          showCheckPedido ? "" : "d-none"
-        }">
+        <div class="col-sm-6 mb-2 form-check">
             <input type="checkbox" id="check-crear_pedido" class="form-check-input">
             <label for="check-crear_pedido" class="form-check-label">Crear en forma de pedido</label>
         </div>
@@ -1976,320 +2052,287 @@ function finalizarCotizacion(datos) {
                 ).filter(Boolean)}
             </select>
         </div>`;
-  } else {
-    const reference = db
-      .collection("ciudades")
-      .doc(datos.dane_ciudadD)
-      .collection("restricciones");
+  }
 
-    const restricciones = [];
+  console.log(configuracionesDestinoActual);
 
-    reference
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          let restriccion = doc.data();
-          restriccion.id = doc.id;
-          restricciones.push(restriccion);
-        });
-      })
-      .then(() => {
-        console.log(restricciones);
+  const configuracionCiudadActual = obtenerConfiguracionCiudad(datos.transportadora, datos.type);
 
-        const restriccionActual = restricciones.find(
-          (restriccion) =>
-            restriccion.transportadora === datos.transportadora &&
-            restriccion.tipoEnvio === datos.type &&
-            (restriccion.tipoUsuario === datos_usuario.type ||
-              restriccion.tipoUsuario === "TODOS")
-        );
+  const tiposEntregasDisponible = [null, '<option value="1">Entrega en dirección</option>', '<option value="2">Entrega en oficina</option>'];
+  if (
+    datos.transportadora === "INTERRAPIDISIMO" ||
+    datos.transportadora === "SERVIENTREGA"
+  ) {
+    let opciones = tiposEntregasDisponible;
+    if (configuracionCiudadActual) {
+      opciones = configuracionCiudadActual.tipo_distribucion.map(dist => tiposEntregasDisponible[dist]);
+    }
 
-        if (
-          datos.transportadora === "INTERRAPIDISIMO" ||
-          datos.transportadora === "SERVIENTREGA"
-        ) {
-          let opciones;
-          if (restriccionActual) {
-            if (restriccionActual.oficina) {
-              opciones = `<option value="1">Entrega en dirección</option>`;
-            } else if (restriccionActual.direccion) {
-              opciones = `<option value="2">Entrega en oficina</option>`;
-            }
-          } else {
-            opciones = `
-              <option value="1">Entrega en dirección</option>
-              <option value="2">Entrega en oficina</option>
-            `;
-          }
+    entrega_en_oficina = `
+      <div class="col-sm-2">
+        <h5>Tipo de entrega</h5>
+        <select class="custom-select" id="entrega_en_oficina" name="entrega_en_oficina">
+          <option value="">Seleccione</option>
+          ${opciones.filter(Boolean).join("")}
+        </select>
+      </div>
+    `;
 
-          entrega_en_oficina = `
-            <div class="col-sm-2">
-              <h5>Tipo de entrega</h5>
-              <select class="custom-select" id="entrega_en_oficina" name="entrega_en_oficina">
-                <option value="">Seleccione</option>
-                ${opciones}
-              </select>
-            </div>
-          `;
+  }
 
-          console.log(entrega_en_oficina);
-        }
+  let detalles = detalles_cotizacion(datos),
+    boton_regresar =
+      crearNodo(`<a class="btn btn-outline-primary btn-block mb-3" href="#cotizar_envio" onclick="regresar()">
+      Regresar
+      </a>`),
+    input_producto = crearNodo(`<div class="row">
+      <div class="col-md-6 mb-3 mb-sm-0">
+          <h6>producto <span>(Lo que se va a enviar)</span></h6>
+          <input id="producto" class="form-control form-control-user detect-errors" 
+          name="producto" type="text" maxlength="40"
+          placeholder="Introduce el contenido de tu envío">
+          <p id="aviso-producto" class="text-warning d-none m-2"></p>
+      </div>
+      <div class="col-md-6 mb-3 mb-sm-0">
+          <h6>Referencia <span>(Opcional)</span></h6>
+          <input id="referencia" class="form-control form-control-user detect-errors" 
+          placeholder="Clasificación de manejo personal"
+          name="referencia" type="text" maxlength="40">
+      </div>
+  </div>`),
+    directionNode = mostrarDirecciones(datos),
+    input_buscar_usuario =
+      datos_usuario.type === "PUNTO"
+        ? `
+      <div class="col-sm-6 mb-3 mb-sm-0">
+          <h5>Cliente</h5>
+          <div class="input-group mb-3">
+              <input id="numero_documento_usuario" type="number" class="form-control form-control-user" required="">  
 
-        let detalles = detalles_cotizacion(datos),
-          boton_regresar =
-            crearNodo(`<a class="btn btn-outline-primary btn-block mb-3" href="#cotizar_envio" onclick="regresar()">
-            Regresar
-            </a>`),
-          input_producto = crearNodo(`<div class="row">
-            <div class="col-md-6 mb-3 mb-sm-0">
-                <h6>producto <span>(Lo que se va a enviar)</span></h6>
-                <input id="producto" class="form-control form-control-user detect-errors" 
-                name="producto" type="text" maxlength="40"
-                placeholder="Introduce el contenido de tu envío">
-                <p id="aviso-producto" class="text-warning d-none m-2"></p>
-            </div>
-            <div class="col-md-6 mb-3 mb-sm-0">
-                <h6>Referencia <span>(Opcional)</span></h6>
-                <input id="referencia" class="form-control form-control-user detect-errors" 
-                placeholder="Clasificación de manejo personal"
-                name="referencia" type="text" maxlength="40">
-            </div>
-        </div>`),
-          directionNode = mostrarDirecciones(datos),
-          input_buscar_usuario =
-            datos_usuario.type === "PUNTO"
-              ? `
-            <div class="col-sm-6 mb-3 mb-sm-0">
-                <h5>Cliente</h5>
-                <div class="input-group mb-3">
-                    <input id="numero_documento_usuario" type="number" class="form-control form-control-user" required="">  
+              <div class="input-group-append">
+                  <button id="buscador_usuario-guia" class="btn btn-outline-primary btn-small"><i class="fa fa-search"></i></button>
+                  <button data-toggle="modal" data-target="#modal-usuario_punto" 
+                  id="crear_usuario-guia" 
+                  class="btn btn-outline-primary btn-small">
+                      <i class="fa fa-plus"></i>
+                  </button>
+              </div>
+          </div>
+      </div>
+      <div class="col-sm-6 mb-3 mb-sm-0">
+          <div class="card card-shadow" >
+              <div class="card-body" id="presentacion-cliente">
+              </div>
+          </div>
+      </div>
+  `
+        : "",
+    datos_remitente = crearNodo(`
+  <div class="card card-shadow m-6 mt-5" id="informacion-personal">
+      <div class="card-header">
+          <h4 class="m-0 font-weight-bold text-primary text-center">Datos de ${
+            datos_usuario.nombre_completo
+          }</h4>
+      </div>
+      <div class="card-body row">
+          <div class="col-sm-6 mb-3 mb-sm-0">
+              <h5>Nombre del Remitente</h5>
+              <input id="actualizar_nombreR" type="text" class="form-control form-control-user" value="${
+                datos_usuario.nombre_completo
+              }" ${readonly && "readonly"} required="">  
+          </div>
+          <div class="col-sm-6 mb-3 mb-sm-0">
+              <h5>Celular del remitente</h5>
+              <input id="actualizar_celularR"  type="text" class="form-control form-control-user" value="${
+                datos_usuario.celular
+              }" ${readonly && "readonly"} required="">  
+          </div>
+          ${directionNode}
+          ${input_buscar_usuario}
+      </div>
+  </div>
+  `),
+    notas_oficina = datos.oficina
+      ? `
+      <div class="text-muted border-left-primary m-2">
+          <h6 class="ml-2">
+              <span><b>Nota:</b> Por ahora FLEXII solo cuenta con entregas en oficina. !Esperamos incluir pronto las entregas a domicilio!</span>
+          </h6>
+      </div>
+  `
+      : "",
+    datos_destinatario = crearNodo(`
+  <div class="card card-shadow m-6 mt-5">
+      <div class="card-header py-3">
+          <h4 class="m-0 font-weight-bold text-primary text-center">Datos del Destinatario</h4>
+      </div>
 
-                    <div class="input-group-append">
-                        <button id="buscador_usuario-guia" class="btn btn-outline-primary btn-small"><i class="fa fa-search"></i></button>
-                        <button data-toggle="modal" data-target="#modal-usuario_punto" 
-                        id="crear_usuario-guia" 
-                        class="btn btn-outline-primary btn-small">
-                            <i class="fa fa-plus"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6 mb-3 mb-sm-0">
-                <div class="card card-shadow" >
-                    <div class="card-body" id="presentacion-cliente">
-                    </div>
-                </div>
-            </div>
-        `
-              : "",
-          datos_remitente = crearNodo(`
-        <div class="card card-shadow m-6 mt-5" id="informacion-personal">
-            <div class="card-header">
-                <h4 class="m-0 font-weight-bold text-primary text-center">Datos de ${
-                  datos_usuario.nombre_completo
-                }</h4>
-            </div>
-            <div class="card-body row">
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h5>Nombre del Remitente</h5>
-                    <input id="actualizar_nombreR" type="text" class="form-control form-control-user" value="${
-                      datos_usuario.nombre_completo
-                    }" ${readonly && "readonly"} required="">  
-                </div>
-                <div class="col-sm-6 mb-3 mb-sm-0">
-                    <h5>Celular del remitente</h5>
-                    <input id="actualizar_celularR"  type="text" class="form-control form-control-user" value="${
-                      datos_usuario.celular
-                    }" ${readonly && "readonly"} required="">  
-                </div>
-                ${directionNode}
-                ${input_buscar_usuario}
-            </div>
+
+   <div class="card cotizador-beta" id="opciones-cotizador">
+      <div class="card-body">
+
+        <div class="row">    
+          <div class="form-group col-md">
+            <label for="list_bodegas-cotizador">
+              Clientes Frecuentes
+              <i class="fa fa-question-circle" data-toggle="tooltip" title='Puedes listar clientes frecuentes para una creación de guía más oportuna'></i> 
+            </label>
+            <select type="text" class="form-control"
+            id="list_clientesFrecuentes" >
+            <option value="">Seleccione</option>
+          </select>
+          </div>
         </div>
-        `),
-          notas_oficina = datos.oficina
-            ? `
-            <div class="text-muted border-left-primary m-2">
-                <h6 class="ml-2">
-                    <span><b>Nota:</b> Por ahora FLEXII solo cuenta con entregas en oficina. !Esperamos incluir pronto las entregas a domicilio!</span>
-                </h6>
-            </div>
-        `
-            : "",
-          datos_destinatario = crearNodo(`
-        <div class="card card-shadow m-6 mt-5">
-            <div class="card-header py-3">
-                <h4 class="m-0 font-weight-bold text-primary text-center">Datos del Destinatario</h4>
-            </div>
 
-
-         <div class="card cotizador-beta" id="opciones-cotizador">
-            <div class="card-body">
-
-              <div class="row">    
-                <div class="form-group col-md">
-                  <label for="list_bodegas-cotizador">
-                    Clientes Frecuentes
-                    <i class="fa fa-question-circle" data-toggle="tooltip" title='Puedes listar clientes frecuentes para una creación de guía más oportuna'></i> 
-                  </label>
-                  <select type="text" class="form-control"
-                  id="list_clientesFrecuentes" >
-                  <option value="">Seleccione</option>
-                </select>
-                </div>
-              </div>
-
-              <div class="row">
-                <div class="col-sm-6 text-center d-none" id="cont_act_plant-cotizador">
-                  <input type="checkbox" id="actv_editar_plantilla-cotizador">
-                  <label for="actv_editar_plantilla-cotizador">
-                    Cambiar datos de la <b>plantilla</b>
-                    <i class="fa fa-question-circle" data-toggle="tooltip" title='Si marcas la opción, se editará la información guardada previamente al presionar el botón "Cotizar envío"'></i> 
-                  </label>
-                </div>
-
-              </div>
-            </div>
-            
+        <div class="row">
+          <div class="col-sm-6 text-center d-none" id="cont_act_plant-cotizador">
+            <input type="checkbox" id="actv_editar_plantilla-cotizador">
+            <label for="actv_editar_plantilla-cotizador">
+              Cambiar datos de la <b>plantilla</b>
+              <i class="fa fa-question-circle" data-toggle="tooltip" title='Si marcas la opción, se editará la información guardada previamente al presionar el botón "Cotizar envío"'></i> 
+            </label>
           </div>
 
-            <form id="datos-destinatario">
-                <div class="card-body row">
-                    <div class="col-lg-6 mb-3 mb-2">
-                        <h5>Nombre del Destinatario</h5>
-                        <input type="text" name="nombreD" id="nombreD" class="form-control form-control-user" value="" placeholder="Nombre" required="">
-                    </div>
-                    <div class="col-lg-6 mb-3 mb-2">
-                        <div class="row align-items-center">
-                            <div class="col-sm-8 mb-2">
-                                <label for="identificacionD">Documento de identificación</label>
-                                <input type="number" id="identificacionD" required="" class="form-control form-control-user detect-errors" value="" placeholder="ej. 123456789" required="">
-                            </div>
-                            <div class="col mb-2">
-                                <label for="tipo-doc-dest" class="col-form-label">Tipo De Documento</label>
-                                <select class="custom-select" form="datos-destinatario" required="" id="tipo-doc-dest">
-                                    <option value="">Seleccione</option>
-                                    <option value="1">NIT</option>
-                                    <option value="2">CC</option>
-                                </select>
-                            </div>
-                        
-                        </div>
-                    </div>
-                    ${entrega_en_oficina}
-                    <div class="col-sm-${
-                      entrega_en_oficina ? "5" : "6"
-                    } mb-3 mb-2">
-                        <h5>Dirección del Destinatario</h5>
-                        <input type="text" id="direccionD" class="form-control form-control-user" value="" placeholder="Dirección-Conjunto-Apartemento" required="">
-                    </div>
-                    <div class="col-sm-${
-                      entrega_en_oficina ? "5" : "6"
-                    } mb-3 mb-2">
-                        <h5>Barrio del Destinatario</h5>
-                        <input type="text" id="barrioD" class="form-control form-control-user detect-errors" value="" placeholder="Barrio" required="">
-                    </div>
-                    <div class="col-sm-6 mb-3 mb-2">
-                        <h5>Celular del Destinatario</h5>
-                        <input type="number" id="telefonoD" class="form-control form-control-user detect-errors" 
-                        value="" placeholder="Celular" required="" maxlengt="10">
-                    </div>
-                    <div class="col-sm-6 mb-3 mb-2">
-                        <h5>Otro celular del Destinatario</h5>
-                        <input type="number" id="celularD" class="form-control form-control-user detect-errors" value="" placeholder="celular">
-                    </div>
-                    <div class="col-sm-6 mb-3 mb-2">
-                        <h5>Email</h5>
-                        <input type="email" id="correoD" class="form-control form-control-user" value="" placeholder="nombre@ejemplo.com">
-                    </div>
-                    <div class="col-sm-6 mb-3 mb-2">
-                        <h5>Observaciones Adicionales</h5>
-                        <input type="text" id="observaciones" class="form-control form-control-user detect-errors" value="" placeholder="Observaciones Adicionales">
-                    </div>
-                    ${solicitud_recoleccion}
-                    ${clientes}
-                    ${modificarCliente}
-                    ${checkCreacionPedido}
-                </div>
-            </form>
         </div>
-        `),
-          boton_crear =
-            crearNodo(`<button type="button" id="boton_final_cotizador" 
-            class="btn btn-success btn-block mt-5" title="Crear guía" onclick="crearGuia()">Crear guía</button>`);
+      </div>
+      
+    </div>
 
-        if (!directionNode) return;
-        div_principal.append(
-          boton_regresar,
-          detalles,
-          input_producto,
-          datos_remitente,
-          datos_destinatario,
-          boton_crear
-        );
-        creador.innerHTML = "";
-        creador.innerHTML = div_principal.innerHTML;
-        location.href = "#crear_guia";
-        scrollTo(0, 0);
+      <form id="datos-destinatario">
+          <div class="card-body row">
+              <div class="col-lg-6 mb-3 mb-2">
+                  <h5>Nombre del Destinatario</h5>
+                  <input type="text" name="nombreD" id="nombreD" class="form-control form-control-user" value="" placeholder="Nombre" required="">
+              </div>
+              <div class="col-lg-6 mb-3 mb-2">
+                  <div class="row align-items-center">
+                      <div class="col-sm-8 mb-2">
+                          <label for="identificacionD">Documento de identificación</label>
+                          <input type="number" id="identificacionD" required="" class="form-control form-control-user detect-errors" value="" placeholder="ej. 123456789" required="">
+                      </div>
+                      <div class="col mb-2">
+                          <label for="tipo-doc-dest" class="col-form-label">Tipo De Documento</label>
+                          <select class="custom-select" form="datos-destinatario" required="" id="tipo-doc-dest">
+                              <option value="">Seleccione</option>
+                              <option value="1">NIT</option>
+                              <option value="2">CC</option>
+                          </select>
+                      </div>
+                  
+                  </div>
+              </div>
+              ${entrega_en_oficina}
+              <div class="col-sm-${
+                entrega_en_oficina ? "5" : "6"
+              } mb-3 mb-2">
+                  <h5>Dirección del Destinatario</h5>
+                  <input type="text" id="direccionD" class="form-control form-control-user" value="" placeholder="Dirección-Conjunto-Apartemento" required="">
+              </div>
+              <div class="col-sm-${
+                entrega_en_oficina ? "5" : "6"
+              } mb-3 mb-2">
+                  <h5>Barrio del Destinatario</h5>
+                  <input type="text" id="barrioD" class="form-control form-control-user detect-errors" value="" placeholder="Barrio" required="">
+              </div>
+              <div class="col-sm-6 mb-3 mb-2">
+                  <h5>Celular del Destinatario</h5>
+                  <input type="number" id="telefonoD" class="form-control form-control-user detect-errors" 
+                  value="" placeholder="Celular" required="" maxlengt="10">
+              </div>
+              <div class="col-sm-6 mb-3 mb-2">
+                  <h5>Otro celular del Destinatario</h5>
+                  <input type="number" id="celularD" class="form-control form-control-user detect-errors" value="" placeholder="celular">
+              </div>
+              <div class="col-sm-6 mb-3 mb-2">
+                  <h5>Email</h5>
+                  <input type="email" id="correoD" class="form-control form-control-user" value="" placeholder="nombre@ejemplo.com">
+              </div>
+              <div class="col-sm-6 mb-3 mb-2">
+                  <h5>Observaciones Adicionales</h5>
+                  <input type="text" id="observaciones" class="form-control form-control-user detect-errors" value="" placeholder="Observaciones Adicionales">
+              </div>
+              ${solicitud_recoleccion}
+              ${clientes}
+              ${modificarCliente}
+              ${checkCreacionPedido}
+          </div>
+      </form>
+  </div>
+  `),
+    boton_crear =
+      crearNodo(`<button type="button" id="boton_final_cotizador" 
+      class="btn btn-success btn-block mt-5" title="Crear guía" onclick="crearGuia()">Crear guía</button>`);
 
-        const cambiadorDeDireccion = $("#moderador_direccionR");
-        cambiadorDeDireccion.on("change", cambiarDirecion);
+  if (!directionNode) return;
+  div_principal.append(
+    boton_regresar,
+    detalles,
+    input_producto,
+    datos_remitente,
+    datos_destinatario,
+    boton_crear
+  );
+  creador.innerHTML = "";
+  creador.innerHTML = div_principal.innerHTML;
+  location.href = "#crear_guia";
+  scrollTo(0, 0);
 
-        cambiarDirecion.bind(cambiadorDeDireccion[0])();
+  const cambiadorDeDireccion = $("#moderador_direccionR");
+  cambiadorDeDireccion.on("change", cambiarDirecion);
 
-        $("#entrega_en_oficina").on("change", verificarSelectorEntregaOficina);
+  cambiarDirecion.bind(cambiadorDeDireccion[0])();
 
-        if (datos_usuario.type === "PUNTO")
-          $("#buscador_usuario-guia").click(buscarUsuario);
+  $("#entrega_en_oficina").on("change", verificarSelectorEntregaOficina);
 
-        restringirCaracteresEspecialesEnInput();
-        let informacion = document.getElementById("informacion-personal");
-        document.getElementById("producto").addEventListener("blur", () => {
-          let normalmente_envia = false;
-          for (let product of datos_usuario.objetos_envio) {
-            product = product.toLowerCase();
-            if (value("producto").trim().toLowerCase() == product) {
-              normalmente_envia = true;
-            }
-          }
-          let aviso = document.getElementById("aviso-producto");
-          if (!normalmente_envia) {
-            aviso.innerHTML =
-              'No se registra en lo que normalmente envías: <b>"' +
-              datos_usuario.objetos_envio.join(", ") +
-              '".</b> \r si deseas continuar de todos modos, solo ignora este mensaje';
-            aviso.classList.remove("d-none");
-          } else {
-            aviso.classList.add("d-none");
-          }
-        });
+  if (datos_usuario.type === "PUNTO")
+    $("#buscador_usuario-guia").click(buscarUsuario);
 
-        const ciudad = document.getElementById("ciudadDestinoUsuario");
+  restringirCaracteresEspecialesEnInput();
+  let informacion = document.getElementById("informacion-personal");
+  document.getElementById("producto").addEventListener("blur", () => {
+    let normalmente_envia = false;
+    for (let product of datos_usuario.objetos_envio) {
+      product = product.toLowerCase();
+      if (value("producto").trim().toLowerCase() == product) {
+        normalmente_envia = true;
+      }
+    }
+    let aviso = document.getElementById("aviso-producto");
+    if (!normalmente_envia) {
+      aviso.innerHTML =
+        'No se registra en lo que normalmente envías: <b>"' +
+        datos_usuario.objetos_envio.join(", ") +
+        '".</b> \r si deseas continuar de todos modos, solo ignora este mensaje';
+      aviso.classList.remove("d-none");
+    } else {
+      aviso.classList.add("d-none");
+    }
+  });
 
-        const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
-          "plantillasUsuariosFrecuentes"
-        );
+  const ciudad = document.getElementById("ciudadDestinoUsuario");
 
-        opciones.length = 0;
+  const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
+    "plantillasUsuariosFrecuentes"
+  );
 
-        referenciaUsuariosFrecuentes
-          .where("ciudad", "==", ciudad.value)
-          .get()
-          .then((querySnapshot) => {
-            querySnapshot.forEach((document) => {
-              const data = document.data();
-              data.id = document.id;
-              console.log(data);
+  opciones.length = 0;
 
-              opciones.push(data);
-            });
-          })
-          .then(() => {
-            console.log(opciones);
-            cargarUsuariosFrecuentes(opciones);
-          });
+  referenciaUsuariosFrecuentes
+    .where("ciudad", "==", ciudad.value)
+    .get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach((document) => {
+        const data = document.data();
+        data.id = document.id;
+        console.log(data);
+
+        opciones.push(data);
       });
-  }
+    })
+    .then(() => {
+      console.log(opciones);
+      cargarUsuariosFrecuentes(opciones);
+    });
 }
 
 //jose
@@ -3048,6 +3091,10 @@ class CalcularCostoDeEnvio {
           dataObj.dane_ciudadR,
           dataObj.dane_ciudadD
         );
+        if (respuestaCotizacion == "No hay Cobertura") {
+          this.NoCobertura = true;
+          break;
+        }
         if (!respuestaCotizacion) {
           this.empty = true;
           break;
@@ -3153,7 +3200,7 @@ class CalcularCostoDeEnvio {
       return 0;
 
     const pagoContraentrega = this.convencional ? "FALSE" : "TRUE";
-
+    const errorNoCobertura="El destino no es válido para envíos con contra pago y pago en casa."
     //#region SOLICITUD PASADA AL BACK
     const data = {
       dane_ciudadR,
@@ -3196,13 +3243,22 @@ class CalcularCostoDeEnvio {
         "/" +
         pagoContraentrega
     )
-      .then((data) => {
+      .then(async (data) => {
+        if (data.status == 417) {
+          const text = await data.text();
+          
+          if (
+            text.includes(errorNoCobertura)
+          ) {
+            throw Error("No hay Cobertura");
+          }
+        }
         return data.json();
       })
       .catch((err) => {
         return err;
       });
-
+    if (res.message == "No hay Cobertura") return res.message;
     if (res.message || res.Message) return 0;
     let mensajeria = res.filter((d) => {
       let Convencional = false;
@@ -3268,8 +3324,11 @@ class CalcularCostoDeEnvio {
       .then((d) => d.json())
       .catch((d) => ({ respuesta: "Error del servidor" }));
 
-    console.log(response);
-    if (response.respuesta) {
+    if (response.response == "No hay cobertura" && !response.errorServidor) {
+      this.NoCobertura = true;
+      return "No hay cobertura";
+    }
+    if (response.response && response.errorServidor) {
       this.empty = true;
       return false;
     }
@@ -3316,8 +3375,8 @@ class CalcularCostoDeEnvio {
       .catch((d) => ({ respuesta: "Error del servidor" }));
 
     console.log(response);
-    if (!response || response.respuesta) {
-      this.empty = true;
+    if (!response || response.message) {
+      this.NoCobertura = true
       return false;
     }
 
@@ -3375,6 +3434,7 @@ class CalcularCostoDeEnvio {
 
     if (response.message || response.Message) {
       this.empty = true;
+      this.NoCobertura = true;
       console.log("ERROR EN SERVIENTREGA", response);
       return false;
     }
