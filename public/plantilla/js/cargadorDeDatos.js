@@ -73,7 +73,7 @@ async function validateToken(token) {
 
 function redirectLogin() {
   alert("La sesión ha expirado, por favor inicia sesión nuevamente");
-  location.href = "http://localhost:3232/ingreso";
+  location.href = "https://dev.hekaentrega.co/ingreso";
 }
 
 validateToken(tokenUser)
@@ -2332,7 +2332,7 @@ function descargarExcelPagosAdmin(datos) {
 async function cerrarSession() {
   await deleteUserToken();
   await localStorage.clear();
-  location.href = "http://localhost:3232/ingreso";
+  location.href = "https://dev.hekaentrega.co/ingreso";
 }
 
 async function deleteUserToken() {
