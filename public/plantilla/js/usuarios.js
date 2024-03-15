@@ -1359,7 +1359,7 @@ function limpiarFormulario(parent, query) {
     });
 }
 
-function actualizarInformacionPersonal() {
+async function actualizarInformacionPersonal() {
   let datos = {
     nombres: value("actualizar_nombres"),
     apellidos: value("actualizar_apellidos"),
@@ -1370,11 +1370,43 @@ function actualizarInformacionPersonal() {
     objetos_envio: value("actualizar_objetos_envio").split(","),
     numero_documento: value("actualizar_numero_documento"),
     type: value("actualizar_tipo_user"),
+    con: value("actualizar_repetir_contraseña"),
+    ingreso: value("actualizar_contraseña")
   };
+  const token = localStorage.getItem("token")
 
   let id_usuario = document
     .getElementById("usuario-seleccionado")
     .getAttribute("data-id");
+  console.log(id_usuario)
+  console.log(token)
+
+  const myHeaders = new Headers();
+  myHeaders.append("Authorization", "Bearer " + token);
+  const userData = fetch("https://apidev.hekaentrega.co/api/v1/user?idFirebase="+id_usuario, {
+    method: "GET",
+    headers: myHeaders,
+    redirect: "follow"
+  }).then(async (response) => {
+    const data = await response.json()
+    const mongoId=data.response._id
+    const updateBody =JSON.stringify( {
+      "name": value("actualizar_nombres"),
+      "last_name": value("actualizar_apellidos"),
+      "phone": value("actualizar_telefono"),
+      "alternative_phone": value("actualizar_celular"),
+      "email": value("actualizar_correo"),
+      "type_document": value("actualizar_tipo_documento"),
+      "document": value("actualizar_numero_documento"),
+      "password": value("actualizar_repetir_contraseña")
+    })
+    fetch("https://apidev.hekaentrega.co/api/v1/user/"+mongoId, {
+    method: "PATCH",
+    headers: {"Content-type": "application/json"},
+    redirect: "follow",
+    body: updateBody
+  })
+  })
 
   firebase
     .firestore()
