@@ -12,7 +12,7 @@ async function validateToken(token) {
   } else {
     try {
       const response = await fetch(
-        `${"https://apidev.hekaentrega.co"}/api/v1/user/validate/token?token=${token}`
+        `${"https://api.hekaentrega.co/"}/api/v1/user/validate/token?token=${token}`
       );
 
       console.log(response);
@@ -73,7 +73,7 @@ async function validateToken(token) {
 
 function redirectLogin() {
   alert("La sesión ha expirado, por favor inicia sesión nuevamente");
-  location.href = "https://dev.hekaentrega.co/ingreso";
+  location.href = "https://hekaentrega.co/ingreso";
 }
 
 validateToken(tokenUser)
@@ -2332,11 +2332,11 @@ function descargarExcelPagosAdmin(datos) {
 async function cerrarSession() {
   await deleteUserToken();
   await localStorage.clear();
-  location.href = "https://dev.hekaentrega.co/ingreso";
+  location.href = "https://hekaentrega.co/ingreso";
 }
 
 async function deleteUserToken() {
-  const url = `${"https://apidev.hekaentrega.co"}/api/v1/user/logout/${localStorage.getItem(
+  const url = `${"https://api.hekaentrega.co/"}/api/v1/user/logout/${localStorage.getItem(
     "token"
   )}`;
 
