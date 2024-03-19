@@ -32,9 +32,11 @@ export function llenarBodegasCotizador() {
   bodegasWtch.watch((info) => {
     if (!info) return;
 
+
     console.log(info);
 
     bodegasEl.html("");
+
 
     const opciones = info.map((bodega) => {
       const bodegaEl = `<option value="${bodega.ciudad}">${bodega.nombre}</option>`;
