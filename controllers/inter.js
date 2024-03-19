@@ -417,14 +417,19 @@ exports.crearStickerGuia = (req, res) => {
     }, (error, response, body) => {
         if(error) res.send("Hubo un error => "+error);
 
-        let base64 = JSON.parse(body);
-        
-        let segmentar = parseInt(req.query.segmentar);
-        if(segmentar) {
-            const segementado = Math.min(segmentar, 1000000)
-            res.json(extsFunc.segmentarString(base64, segementado))
-        } else {
-            res.send(base64);
+        try {
+            let base64 = JSON.parse(body);
+            
+            let segmentar = parseInt(req.query.segmentar);
+            if(segmentar) {
+                const segementado = Math.min(segmentar, 1000000)
+                res.json(extsFunc.segmentarString(base64, segementado))
+            } else {
+                res.send(base64);
+            }
+        } catch (e) {
+            console.error("No se pudo generar el Pdf de la guía: " + req.params.id, body);
+            res.send(body);
         }
     })
 };
