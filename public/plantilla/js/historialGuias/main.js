@@ -54,9 +54,14 @@ async function consultarHistorialGuias() {
       const id = data.id_heka;
       data.row_id = "historial-guias-row-" + id;
 
-      data.mostrar_transp = data.oficina
-        ? data.transportadora + "-Flexii"
-        : data.transportadora;
+      // Se va amostrar la transportadora según ciertas condiciones
+      // Si existe el valor transpVisible, ya esta hace el trabajo
+      // De otra forma, se tomará en cuenta según si la guía es para oficina o es natural
+      data.mostrar_transp = data.transpVisible 
+        ? data.transpVisible 
+        : data.oficina
+          ? data.transportadora + "-Flexii"
+          : data.transportadora;
 
       historial.guiasNeutras.add(id);
 
@@ -106,9 +111,14 @@ async function cargarNovedades() {
         const id = data.id_heka;
         data.row_id = "historial-guias-row-" + id;
 
-        data.mostrar_transp = data.oficina
-          ? data.transportadora + "-Flexii"
-          : data.transportadora;
+        // Se va amostrar la transportadora según ciertas condiciones
+        // Si existe el valor transpVisible, ya esta hace el trabajo
+        // De otra forma, se tomará en cuenta según si la guía es para oficina o es natural
+        data.mostrar_transp = data.transpVisible 
+          ? data.transpVisible 
+          : data.oficina
+            ? data.transportadora + "-Flexii"
+            : data.transportadora;
 
         data.deleted ? historial.delete(id) : historial.add(data);
 

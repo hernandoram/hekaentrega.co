@@ -51,115 +51,135 @@ async function cotizadorFlexii() {
   console.log(datoscoti)
   
   // validad obejeto datoscorti != ""
+  //Si todos los campos no estan vacios
   if (
-    true
+    !datoscoti.dane_ciudadR ||
+    !datoscoti.dane_ciudadD ||
+    !/^.+\(.+\)$/.test(datoscoti.ciudadR) ||
+    !/^.+\(.+\)$/.test(datoscoti.ciudadD)
   ) {
-    //Si todos los campos no estan vacios
-    if (
-      !datoscoti.dane_ciudadR ||
-      !datoscoti.dane_ciudadD ||
-      !/^.+\(.+\)$/.test(datoscoti.ciudadR) ||
-      !/^.+\(.+\)$/.test(datoscoti.ciudadD)
-    ) {
-      alert(
-        "Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable"
-      );
-      verificador(["ciudadR", "ciudadD"], true);
-    } else if (
-      datoscoti.seguro <
-        transportadoras[codTransp].limitesValorDeclarado(datoscoti.peso)[0] ||
-        datoscoti.seguro >
-        transportadoras[codTransp].limitesValorDeclarado(datoscoti.peso)[1]
-    ) {
-      // Si el valor del recaudo excede el limite permitido
-      alert(
-        "Ups! el valor declarado en base a " +
-          value("Kilos") +
-          "Kg no puede ser menor a $" +
-          convertirMiles(
-            transportadoras[codTransp].limitesValorDeclarado(value("Kilos"))[0]
-          ) +
-          ", ni mayor a $" +
-          convertirMiles(
-            transportadoras[codTransp].limitesValorDeclarado(value("Kilos"))[1]
-          )
-      );
-      verificador("seguro-mercancia", true);
-    } else if (datoscoti.ancho <
-        transportadoras[codTransp].limitesLongitud[0] ||
-        datoscoti.largo <
-        transportadoras[codTransp].limitesLongitud[0] ||
-        datoscoti.alto < transportadoras[codTransp].limitesLongitud[0] ||
-        datoscoti.ancho >
-        transportadoras[codTransp].limitesLongitud[1] ||
-        datoscoti.largo >
-        transportadoras[codTransp].limitesLongitud[1] ||
-        datoscoti.alto > transportadoras[codTransp].limitesLongitud[1]
-    ) {
-      // Si el valor de las dimensiones exceden el limite permitido
-      alert(
-        "Alguno de los valores ingresados en la dimensiones no es válido, Por favor verifique que no sean menor a 1cm, o mayor a 150cm"
-      );
-      verificador(
-        ["dimension-alto", "dimension-largo", "dimension-ancho"],
-        true
-      );
-    } else {
-      //Si todo esta Correcto...
-      verificador();
-      const loader = new ChangeElementContenWhileLoading("#boton_cotizar_2,#boton_cotizar");
-      loader.init();
-
-      let mostrador = document.getElementById("result_cotizacion");
-      mostrador.style.display = "block";
-      let respuesta = await responseFlexii(datoscoti);
-      // funcion que lee respuesta del api e inserta card
-      mostrador.innerHTML = respuesta
-      loader.end();
-
-      // ***** Agregando los datos que se van a enviar para crear guia ******* //
-      datos_a_enviar.ciudadR = ciudadR.dataset.ciudad;
-      datos_a_enviar.ciudadD = ciudadD.dataset.ciudad;
-      datos_a_enviar.departamentoD = ciudadD.dataset.departamento;
-      datos_a_enviar.departamentoR = ciudadR.dataset.departamento;
-      datos_a_enviar.alto = datoscoti.alto;
-      datos_a_enviar.ancho = datoscoti.ancho;
-      datos_a_enviar.largo = datoscoti.largo;
-      // datos_a_enviar.valor = 0;
-      // datos_a_enviar.seguro = value("seguro-mercancia");
-      datos_a_enviar.correoR = datos_usuario.correo || "notiene@gmail.com";
-
-      if (ControlUsuario.esPuntoEnvio) {
-        datos_a_enviar.centro_de_costo_punto = datos_usuario.centro_de_costo;
-      } else {
-        datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo;
-      }
-
-      // if(estado_prueba) datos_a_enviar.prueba = true;
-
-      $("#botonFinalizarCoti").click((e)=>finalizarCotizacionFlexii(e))
-      // finalizarCotizacionFlexii()
-
-      if (!isIndex) guardarCotizacion();
-
-      location.href = "#result_cotizacion";
-
-    }
-  } else {
-    //si todos los campos estan vacios
     alert(
-      "Ups! ha habido un error inesperado, por favor, verifique que los campos no estén vacíos"
+      "Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable"
     );
-    verificador([
-      "ciudadR",
-      "ciudadD",
-      "Kilos",
-      "valor-a-recaudar",
-      "dimension-alto",
-      "dimension-largo",
-      "dimension-ancho",
-    ]);
+    verificador(["ciudadR", "ciudadD"], true);
+  } else if (
+    !ciudadesFlexxi.includes(datoscoti.ciudadR)
+  ) {
+    Swal.fire(
+      "Ciudad Remitente no válida",
+      "La ciudad ingresada en el origen no dipone de punto activo Flexii",
+      "error"
+    );
+    verificador(["ciudadR"], true);
+  } else if (
+    datoscoti.seguro <
+      transportadoras[codTransp].limitesValorDeclarado(datoscoti.peso)[0] ||
+      datoscoti.seguro >
+      transportadoras[codTransp].limitesValorDeclarado(datoscoti.peso)[1]
+  ) {
+    // Si el valor del recaudo excede el limite permitido
+    alert(
+      "Ups! el valor declarado en base a " +
+        value("Kilos") +
+        "Kg no puede ser menor a $" +
+        convertirMiles(
+          transportadoras[codTransp].limitesValorDeclarado(value("Kilos"))[0]
+        ) +
+        ", ni mayor a $" +
+        convertirMiles(
+          transportadoras[codTransp].limitesValorDeclarado(value("Kilos"))[1]
+        )
+    );
+    verificador("seguro-mercancia", true);
+  } else if (datoscoti.ancho <
+      transportadoras[codTransp].limitesLongitud[0] ||
+      datoscoti.largo <
+      transportadoras[codTransp].limitesLongitud[0] ||
+      datoscoti.alto < transportadoras[codTransp].limitesLongitud[0] ||
+      datoscoti.ancho >
+      transportadoras[codTransp].limitesLongitud[1] ||
+      datoscoti.largo >
+      transportadoras[codTransp].limitesLongitud[1] ||
+      datoscoti.alto > transportadoras[codTransp].limitesLongitud[1]
+  ) {
+    // Si el valor de las dimensiones exceden el limite permitido
+    alert(
+      "Alguno de los valores ingresados en la dimensiones no es válido, Por favor verifique que no sean menor a 1cm, o mayor a 150cm"
+    );
+    verificador(
+      ["dimension-alto", "dimension-largo", "dimension-ancho"],
+      true
+    );
+  } else {
+    //Si todo esta Correcto...
+    verificador();
+    const loader = new ChangeElementContenWhileLoading("#boton_cotizar_2,#boton_cotizar");
+    loader.init();
+
+    let mostrador = document.getElementById("result_cotizacion");
+    mostrador.style.display = "block";
+    let respuesta = await responseFlexii(datoscoti);
+    // funcion que lee respuesta del api e inserta card
+    mostrador.innerHTML = respuesta
+    loader.end();
+
+    // ***** Agregando los datos que se van a enviar para crear guia ******* //
+    datos_a_enviar.ciudadR = ciudadR.dataset.ciudad;
+    datos_a_enviar.ciudadD = ciudadD.dataset.ciudad;
+    datos_a_enviar.departamentoD = ciudadD.dataset.departamento;
+    datos_a_enviar.departamentoR = ciudadR.dataset.departamento;
+    datos_a_enviar.alto = datoscoti.alto;
+    datos_a_enviar.ancho = datoscoti.ancho;
+    datos_a_enviar.largo = datoscoti.largo;
+    // datos_a_enviar.valor = 0;
+    // datos_a_enviar.seguro = value("seguro-mercancia");
+    datos_a_enviar.correoR = datos_usuario.correo || "notiene@gmail.com";
+
+    if (ControlUsuario.esPuntoEnvio) {
+      datos_a_enviar.centro_de_costo_punto = datos_usuario.centro_de_costo;
+    } else {
+      datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo;
+    }
+
+    // if(estado_prueba) datos_a_enviar.prueba = true;
+
+    $("#botonFinalizarCoti").click((e)=>finalizarCotizacionFlexii(e))
+    // finalizarCotizacionFlexii()
+
+    if (!isIndex) guardarCotizacion();
+
+    location.href = "#result_cotizacion";
+
   }
+}
+
+/** Función que recibe como parámetro los datos de cotización y el tipo
+ * Para luego revisar entre las estadísticas por orden de la mejor a la peor transportadora para la transacción,
+ * si la primera transportadora en su momento genera error, va hacia la segunda y así sucesivamente para trata de "siempre"
+ * repsonde una cotización
+ */
+async function cotizarMejorTransportadora(datos, type) {
+  // Se debe restablece cuando se vayan a utilizar las estadísticas
+  const transportadoras = await transportadoraPorEstadistica(datos.dane_ciudadD);
+
+  console.log(transportadoras);
+  // const transportadoras = ["COORDINADORA", "INTERRAPIDISIMO", "SERVIENTREGA", "ENVIA"]
+  // .sort(() => getRandomInt(2) - 1);
+
+  datos.transpDeseada = transportadoras[0];
+
+  while(transportadoras.length > 0) {
+    const tSeleccionada = transportadoras.shift();
+    const cotizacion = await cotizarApi(datos, tSeleccionada, type);
+
+    if(!cotizacion.error) return cotizacion;
+  }
+
+  return {
+    error: true,
+    body: "No disponibilidad para el destino seleccionado."
+  };
+
 }
 
 async function cotizarApi(datos, transportadora,type){
@@ -169,7 +189,7 @@ async function cotizarApi(datos, transportadora,type){
     {
       method: 'POST',
       headers: {
-        'Authentication': 'nk58Yq6Y1GUFbaaRkdMFuwmDLxO2',
+        'Authentication': user_id,
         'Content-Type': 'application/json'
       },
       body:JSON.stringify({
@@ -182,21 +202,14 @@ async function cotizarApi(datos, transportadora,type){
         "idDaneCiudadOrigen": datos.dane_ciudadR,
         "idDaneCiudadDestino": datos.dane_ciudadD,
         "tipo": type,
+        "fleteFlexiiAdicional": true, // Debe ir en tru para activar la comisión Flexii
         sumarCostoEnvio: !!datos.sumar_envio
       })
     }).then(httpResponse => httpResponse.json()
-    )
-    console.log("COTIZACION PURA" , cotizacion)
-    let detalles = cotizacion.body.detalles
-    let ResultadoValorAdicional= Math.trunc((detalles.costoDevolucion*3)/7)
-    let datosModificados = {
-       ResultadoValorAdicional : Math.trunc((detalles.costoDevolucion*3)/7),
-       FleteConValorAdicional : detalles.flete + ResultadoValorAdicional,
-       ComisionHekaOrigianl : detalles.comision_heka,
-    }
-    cotizacion.body.detalles = {...detalles,...datosModificados}
-    cotizacion.body.detalles.comision_heka += ResultadoValorAdicional
-    cotizacion.body.costoEnvio += ResultadoValorAdicional 
+    );
+
+    console.log("COTIZACION PURA" , cotizacion);
+
     return cotizacion
   } catch (error) {
     console.log(error)
@@ -290,18 +303,17 @@ async function responseFlexii(datos) {
     datos_a_enviar.debe = false;
   }
 
-  const codTransp = ["COORDINADORA"];
-  const tSeleccionada = codTransp[getRandomInt(codTransp.length)];
-
-  const cotizacion = await cotizarApi(datos, tSeleccionada, type);
+  const cotizacion = await cotizarMejorTransportadora(datos, type);
 
   if(cotizacion.error) {
     console.log(cotizacion);
-    Swal.fire("Error Cod. " + tSeleccionada.substring(0,4), cotizacion.body.message || cotizacion.body, "error");
+    Swal.fire("Error Cod. " + datos.transpDeseada?.substring(0,4), cotizacion.body.message || cotizacion.body, "error");
     return "";
   }
   
   const result_cotizacion = cotizacion.body;
+  const transp = result_cotizacion.transportadora;
+
   console.log(result_cotizacion)
   datoscoti.cotizacion = result_cotizacion
   //Lleno algunos campos de los datos de cotizacióm
@@ -322,48 +334,6 @@ export function finalizarCotizacionFlexii() {
   console.log(datos_a_enviar)
   console.log(datos_personalizados)
   console.log("oprimio boton")
-  // const isOficina = !!this.getAttribute("data-office");
-  // const nOffice = this.getAttribute("data-id");
-  // const oficina = oficinas[nOffice];
-  // const seleccionado = isOficina ? "OFICINA" : type;
-  const isIndex = document
-    .getElementById("cotizar_envio")
-    .getAttribute("data-index");
-
-  // delete datos_a_enviar.oficina;
-  // delete datos_a_enviar.datos_oficina;
-  // delete datos_a_enviar.id_oficina;
-
-
-  if (isIndex) {
-    location.href = "ingreso.html";
-  }
-
-  // if (isOficina) {
-  //   if (verificarAntesSeleccionarOficina(oficina, result_cotizacion)) return;
-  //   const porc_comison = datos_personalizados.porcentaje_comsion_ofi
-  //     ? datos_personalizados.porcentaje_comsion_ofi
-  //     : oficina.configuracion.porcentaje_comsion;
-
-  //   console.log(porc_comison);
-  //   const sobreflete_ofi = (result_cotizacion.valor * porc_comison) / 100;
-  //   result_cotizacion.sobreflete_oficina = Math.max(
-  //     sobreflete_ofi,
-  //     oficina.configuracion.comision_minima
-  //   );
-
-  //   const sistFlexi = datos_personalizados.sistema_flexii;
-  //   const actvFlexi = sistFlexi && sistFlexi !== "inhabilitado";
-
-  //   if (!actvFlexi)
-  //     return Swal.fire({
-  //       icon: "error",
-  //       html: `Actualmente no tienes habilitado el envío por flexii, 
-  //           si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/8m9ovw">312 463 8608</a>`,
-  //     });
-  // }
-
-
 
   if (datos_a_enviar.debe)
     datos_a_enviar.debe = -datoscoti.costo_envio;
@@ -378,56 +348,81 @@ export function finalizarCotizacionFlexii() {
     });
   }
 
-  //Muestra algún dato relevante en un modal
-  // Swal.fire({
-  //   icon: "info",
-  //   title: "Tener en cuenta con " + transp,
-  //   html: transportadoras[transp].observaciones(result_cotizacion),
-  //   width: "50em",
-  //   customClass: {
-  //     cancelButton: "btn btn-secondary m-2",
-  //     confirmButton: "btn btn-primary m-2",
-  //   },
-  //   showCancelButton: true,
-  //   showCloseButton: true,
-  //   cancelButtonText: "Cancelar",
-  //   confirmButtonText: "Continuar",
-  //   buttonsStyling: false,
-  // })
-
     //continúa si el cliente termina seleccionando la transportadora
-      datos_a_enviar.detalles = datoscoti.cotizacion.detalles
-      datos_a_enviar.peso = datoscoti.peso;
-      datos_a_enviar.costo_envio = datoscoti.costo_envio;
-      datos_a_enviar.valor = datoscoti.valor;
-      datos_a_enviar.seguro = datoscoti.valorSeguro;
-      datos_a_enviar.type = datoscoti.type;
-      datos_a_enviar.dane_ciudadR = datoscoti.dane_ciudadR;
-      datos_a_enviar.dane_ciudadD = datoscoti.dane_ciudadD;
-      datos_a_enviar.transportadora = datoscoti.cotizacion.transportadora;
+    datos_a_enviar.detalles = datoscoti.cotizacion.detalles
+    datos_a_enviar.peso = datoscoti.peso;
+    datos_a_enviar.costo_envio = datoscoti.costo_envio;
+    datos_a_enviar.valor = datoscoti.valor;
+    datos_a_enviar.seguro = datoscoti.valorSeguro;
+    datos_a_enviar.type = datoscoti.type;
+    datos_a_enviar.dane_ciudadR = datoscoti.dane_ciudadR;
+    datos_a_enviar.dane_ciudadD = datoscoti.dane_ciudadD;
+    datos_a_enviar.transportadora = datoscoti.cotizacion.transportadora;
 
-      
-      if (isIndex) {
-        location.href = "ingreso.html";
-      } else if (
-        !datos_a_enviar.debe &&
-        !datos_personalizados.actv_credit &&
-        datos_a_enviar.costo_envio > datos_personalizados.saldo &&
-        datos_a_enviar.type !== CONTRAENTREGA
-      ) {
-        /* Si el usuario no tiene el crédito activo, la guía que quiere crear
-                muestra que debe saldo y se verifica que el costo del envío excede el saldo
-                Arroja la excepción*/
-        Swal.fire(
-          "¡No permitido!",
-          `Lo sentimos, en este momento, el costo de envío excede el saldo
-                que tienes actualmente, por lo tanto este metodo de envío no estará 
-                permitido hasta que recargues tu saldo. Puedes comunicarte con la asesoría logística para conocer los pasos
-                a seguir para recargar tu saldo.`
-        );
-      } else {
+    // Siempre colocamos esta variable como "FLEXII", para que directamente sobre el historial se pueda ver
+    // la información, sin pasar por ningún condicional
+    datos_a_enviar.transpVisible = "FLEXII";
+    
+    // Para identificar concretamente las guías generadar por la metodología flexii, de otro tipo de metodología de cotización
+    datos_a_enviar.origenGeneracionGuia = "FLEXII";
+    
+    if (
+      !datos_a_enviar.debe &&
+      !datos_personalizados.actv_credit &&
+      datos_a_enviar.costo_envio > datos_personalizados.saldo &&
+      datos_a_enviar.type !== CONTRAENTREGA
+    ) {
+      /* Si el usuario no tiene el crédito activo, la guía que quiere crear
+              muestra que debe saldo y se verifica que el costo del envío excede el saldo
+              Arroja la excepción*/
+      Swal.fire(
+        "¡No permitido!",
+        `Lo sentimos, en este momento, el costo de envío excede el saldo
+              que tienes actualmente, por lo tanto este metodo de envío no estará 
+              permitido hasta que recargues tu saldo. Puedes comunicarte con la asesoría logística para conocer los pasos
+              a seguir para recargar tu saldo.`
+      );
+    } else {
 
-        finalizarCotizacion(datos_a_enviar);
-      }
+      finalizarCotizacion(datos_a_enviar);
+    }
+}
+//#endregion
+
+
+//#region ESTADITICAS
+/** Tiene como propçosito mostrar en orden descendente las transportadoras con mayor efectividad de entrega 
+ * [0: mejor transpotadora, .... n: Peor transportadora]
+*/
+async function transportadoraPorEstadistica(dane_ciudad) {
+  const estadisticas = await obtenerEstadisticasCiudad(dane_ciudad);
+
+  estadisticas.sort((a,b) => calculaPrecision(b) - calculaPrecision(a));
+  console.log("Luego del orden: ", estadisticas)
+
+  return estadisticas.map(est => est.transportadora);
+}
+
+async function obtenerEstadisticasCiudad(dane_ciudad) {
+  return await db
+  .collection("ciudades")
+  .doc(dane_ciudad)
+  .collection("estadisticasEntrega")
+  .get()
+  .then(q => {
+    const result = [];
+    q.forEach(d => result.push(d.data()));
+
+    return result;
+  })
+
+}
+
+function calculaPrecision(estadistica) {
+  const precision = Math.round(
+    (estadistica.entregas / estadistica.envios) * 100
+  );
+
+  return isNaN(precision) ? 0 : precision;
 }
 //#endregion

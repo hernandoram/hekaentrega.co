@@ -27,7 +27,7 @@ export function detallesFlexii(objData) {
         <div class="card my-3 shadow-sm">
           <div class="card-body">
             <h5 class="card-title">Costo Flexii</h5>
-            <p class="card-text d-flex justify-content-between">Comisión heka <b>$${convertirMiles(objData.sobrefleteHeka)}</b></p>
+            <p class="card-text d-flex justify-content-between">Comisión Flexii <b>$${convertirMiles(objData.sobrefleteHeka)}</b></p>
           </div>
         </div>
   
