@@ -1897,7 +1897,7 @@ function seleccionarTransportadora(e) {
   //Detalles del costo de Envío
   datos_a_enviar.detalles = result_cotizacion.getDetails;
 
-  datos_a_enviar.transpVisible = transportadora;
+  datos_a_enviar.transpVisible = transp;
 
 
   if (isOficina) {
@@ -1906,7 +1906,7 @@ function seleccionarTransportadora(e) {
         oficinas[nOffice]
       ));
 
-    datos_a_enviar.transpVisible = transportadora + "-FLEXII";
+    datos_a_enviar.transpVisible = transp + "-FLEXII";
     datos_a_enviar.id_oficina = datos_a_enviar.datos_oficina.id_oficina;
   }
   console.log(datos_a_enviar);

@@ -153,7 +153,6 @@ async function cargarPagoSolicitado() {
     .get()
     .then((d) => d.data());
 
-  console.log(diarioSolicitado, limitadosDiario);
 
   const centro_de_costo = datos_usuario.centro_de_costo;
   const soliciado = diarioSolicitado.includes(centro_de_costo);

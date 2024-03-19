@@ -755,7 +755,6 @@ function accionesDeFila(datos, type, row) {
     const generacion_automatizada = ["automatico", "automaticoEmp"].includes(
       transportadoras[datos.transportadora || "SERVIENTREGA"].sistema()
     );
-    console.log("datos anuladas -->",datos)
     const showCloneAndDelete = datos.enviado ? "" : "";
     const showDownloadAndRotulo = !datos.enviado ? "d-none" : "";
     const showMovements = datos.numeroGuia && datos.estado ? "" : "d-none";

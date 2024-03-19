@@ -32,8 +32,6 @@ export function llenarBodegasCotizador() {
     bodegasWtch.watch(info => {
         if(!info) return;
 
-        console.log(info)
-
         bodegasEl.html("");
 
         const opciones = info.map(bodega => {
