@@ -5306,3 +5306,11 @@ function descargarInformeExcel(datosDescarga, informeJson, title) {
 
   crearExcel(data, title);
 }
+
+
+let botonIninicarSesionUsarioToken = document.getElementById("iniciar-sesion-usuario-token");
+
+
+botonIninicarSesionUsarioToken.addEventListener('click', function() {
+  window.open('https://www.google.com', '_blank');
+});
