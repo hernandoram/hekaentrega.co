@@ -3229,9 +3229,6 @@ class CalcularCostoDeEnvio {
         }
       }
     )
-    .then((data) => {
-      return data.json()
-    })
     .catch((err) => err);
     
     //#endregion
