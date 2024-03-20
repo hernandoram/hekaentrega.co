@@ -12,7 +12,7 @@ async function validateToken(token) {
   } else {
     try {
       const response = await fetch(
-        `${"https://api.hekaentrega.co/"}/api/v1/user/validate/token?token=${token}`
+        `${"https://api.hekaentrega.co"}/api/v1/user/validate/token?token=${token}`
       );
 
       console.log(response);
@@ -2335,7 +2335,7 @@ async function cerrarSession() {
 }
 
 async function deleteUserToken() {
-  const url = `${"https://api.hekaentrega.co/"}/api/v1/user/logout/${localStorage.getItem(
+  const url = `${"https://api.hekaentrega.co"}/api/v1/user/logout/${localStorage.getItem(
     "token"
   )}`;
 
