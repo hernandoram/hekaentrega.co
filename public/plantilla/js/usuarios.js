@@ -1383,7 +1383,7 @@ async function actualizarInformacionPersonal() {
 
   const myHeaders = new Headers();
   myHeaders.append("Authorization", "Bearer " + token);
-  const userData = fetch("https://apidev.hekaentrega.co/api/v1/user?idFirebase="+id_usuario, {
+  const userData = fetch("https://api.hekaentrega.co/api/v1/user?idFirebase="+id_usuario, {
     method: "GET",
     headers: myHeaders,
     redirect: "follow"
@@ -1400,7 +1400,7 @@ async function actualizarInformacionPersonal() {
       "document": value("actualizar_numero_documento"),
       "password": value("actualizar_repetir_contraseña")
     })
-    fetch("https://apidev.hekaentrega.co/api/v1/user/"+mongoId, {
+    fetch("https://api.hekaentrega.co/api/v1/user/"+mongoId, {
     method: "PATCH",
     headers: {"Content-type": "application/json"},
     redirect: "follow",
