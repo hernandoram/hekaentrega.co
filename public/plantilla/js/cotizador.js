@@ -748,7 +748,7 @@ async function detallesTransportadoras(data) {
   const soloEntreganEnDireccion = ["ENVIA", "COORDINADORA"];
 
   //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
-  for (let transp in transportadoras) {
+  await Promise.all(Object.keys(transportadoras).map(async (transp) => {
     // Este factor será usado para hacer variaciones de precios entre
     // flete trasportadora y sobreflete heka para intercambiar valores
     let factor_conversor = 0;
@@ -771,13 +771,13 @@ async function detallesTransportadoras(data) {
       );
       encabezados += card;
       mostradorTransp.append(card);
-      continue;
+      return null;
     }
 
     if (
       transportadora.bloqueada(data)
     ) {
-      continue;
+      return null;
     }
 
     if (!cotizacionAveo && transp === "TCC") {
@@ -801,7 +801,7 @@ async function detallesTransportadoras(data) {
       seguro = recaudo ? recaudo : seguro;
     }
 
-    if (data.peso > transportadora.limitesPeso[1]) continue;
+    if (data.peso > transportadora.limitesPeso[1]) return null;
     let valor = Math.max(
       seguro,
       transportadora.limitesValorDeclarado(data.peso)[0]
@@ -835,7 +835,7 @@ async function detallesTransportadoras(data) {
       );
       encabezados += card;
       mostradorTransp.append(card);
-      continue;
+      return null;
     }
 
     if (data.sumar_envio || data.type === CONTRAENTREGA) {
@@ -1029,7 +1029,9 @@ async function detallesTransportadoras(data) {
     if (!isIndex) mostrarEstadisticas(data.dane_ciudadD, transp);
 
     corredor++;
-  }
+
+    return cotizacion;
+  }));
 
   button.removeClass("disabled");
 
@@ -3096,6 +3098,7 @@ class CalcularCostoDeEnvio {
           dataObj.dane_ciudadR,
           dataObj.dane_ciudadD
         );
+        console.log(respuestaCotizacion);
         if (respuestaCotizacion == "No hay Cobertura") {
           this.NoCobertura = true;
           break;
@@ -3205,7 +3208,8 @@ class CalcularCostoDeEnvio {
       return 0;
 
     const pagoContraentrega = this.convencional ? "FALSE" : "TRUE";
-    const errorNoCobertura="El destino no es válido para envíos con contra pago y pago en casa."
+    const errorNoCobertura="El destino no es válido para envíos con contra pago y pago en casa.";
+
     //#region SOLICITUD PASADA AL BACK
     const data = {
       dane_ciudadR,
@@ -3214,8 +3218,8 @@ class CalcularCostoDeEnvio {
       seguro: this.seguro,
       pagoContraentrega,
     };
-    /* Request de solicitud al back
-    let resBack = await fetch(
+    // Request de solicitud al back
+    const backPromise = fetch(
       "/inter/cotizar",
       {
         method: "POST",
@@ -3229,10 +3233,10 @@ class CalcularCostoDeEnvio {
       return data.json()
     })
     .catch((err) => err);
-    */
+    
     //#endregion
 
-    let res = await fetch(
+    const frontPromise = fetch(
       url +
         7986 +
         "/" +
@@ -3247,7 +3251,11 @@ class CalcularCostoDeEnvio {
         genFecha("LR") +
         "/" +
         pagoContraentrega
-    )
+    );
+
+    const cotizacionHibrida = Promise.any([backPromise, frontPromise]);
+
+    let res = await cotizacionHibrida
       .then(async (data) => {
         if (data.status == 417) {
           const text = await data.text();
@@ -3348,12 +3356,13 @@ class CalcularCostoDeEnvio {
 
   intoCoord(cotizacion) {
     if (!cotizacion) cotizacion = this.precio;
+
     this.kg = cotizacion.peso_liquidado;
     this.total_flete = cotizacion.flete_fijo;
     this.sobreflete = this.convencional
       ? 0
       : Math.round(Math.max(this.valor * 0.0265, 4300));
-    this.seguroMercancia = cotizacion.flete_variable;
+    this.seguroMercancia = Math.round(cotizacion.flete_variable);
     this.tiempo = cotizacion.dias_entrega;
   }
 

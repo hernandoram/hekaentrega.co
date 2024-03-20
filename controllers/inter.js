@@ -298,7 +298,7 @@ exports.cotizar = async (req, res) => {
 
     console.log(urlRequest);
 
-    let cotizacion = await fetch(urlRequest)
+    let cotizacion = await requestP(urlRequest)
     .then(d => d.json())
     .catch(err => err);
 
