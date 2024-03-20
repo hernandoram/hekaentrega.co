@@ -4892,89 +4892,93 @@ async function generarGuiaFlexii(id_guias) {
 
         let logo = "img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg";
 
-    const nombres = data.oficina
-      ? data.datos_oficina.nombre_completo
-      : data.nombreD;
-    const direccion = data.oficina
-      ? data.datos_oficina.direccion
-      : data.direccionD;
-    const ciudad = data.oficina
-      ? data.datos_oficina.ciudad
-      : `${data.ciudadD}(${data.departamentoD})`;
-    const celular = data.oficina ? data.datos_oficina.celular : celularD;
-    const urlQR = `https://flexii.co/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia`
-   
-    urlsQR.push({
-      id_heka: guiaImprimir.id_heka,
-      id_user: guiaImprimir.id_user,
-      urlQR,
-    });
         if (data.oficina) {
           logo = "img/logo-flexi.png";
         }
+        
         const celularD =
           data.celularD != data.telefonoD
             ? data.celularD + " - " + data.telefonoD
             : data.telefonoD;
 
+        const nombres = data.oficina
+          ? data.datos_oficina.nombre_completo
+          : data.nombreD;
+        const direccion = data.oficina
+          ? data.datos_oficina.direccion
+          : data.direccionD;
+        const ciudad = data.oficina
+          ? data.datos_oficina.ciudad
+          : `${data.ciudadD}(${data.departamentoD})`;
+        const celular = data.oficina ? data.datos_oficina.celular : celularD;
+        const urlQR = `https://flexii.co/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia`
+      
+        urlsQR.push({
+          id_heka: guiaImprimir.id_heka,
+          id_user: guiaImprimir.id_user,
+          urlQR,
+        });
+        
+
         let header = `
-   <div>
-   <table class="table table-bordered">
-    <thead>
-      <tr>
-        <th scope="col"><img src="img/logo-flexi.png" height="80px"/></th>
-        <th scope="col">RECIBE: ${data.nombreD} </th>
-        <th scope="col">Fecha: ${data.fecha}</th>
-        <th scope="col">Id.:  ${data.id_heka}</th>
-        <th scope="col">Guia:  ${data.numeroGuia || "No aplica"}</th>
-        <th scope="col">Transportadora: ${data.transportadora}</th>
-      </tr>
-    </thead>
-   </table>
-   <p> El usuario deja constancia expresa de que acepta y tiene conocimiento del contrato publicado en la pagina web Flexii ,como remitente declara que este envío no contiene dinero en efectivo, joyas, objetos o fines prohibidos por la ley, y exime a Flexii y la transportadora asignada de toda responsabilidad. </p>
-   </div>
-   `;
+        <div>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th scope="col"><img src="img/logo-flexi.png" height="80px"/></th>
+              <th scope="col">RECIBE: ${data.nombreD} </th>
+              <th scope="col">Fecha: ${data.fecha}</th>
+              <th scope="col">Id.:  ${data.id_heka}</th>
+              <th scope="col">Guia:  ${data.numeroGuia || "No aplica"}</th>
+              <th scope="col">Transportadora: ${data.transportadora}</th>
+            </tr>
+          </thead>
+        </table>
+        <p> El usuario deja constancia expresa de que acepta y tiene conocimiento del contrato publicado en la pagina web Flexii ,como remitente declara que este envío no contiene dinero en efectivo, joyas, objetos o fines prohibidos por la ley, y exime a Flexii y la transportadora asignada de toda responsabilidad. </p>
+        </div>
+        `;
 
         let body = `
 
-   <table class="table table-bordered">
+        <table class="table table-bordered">
 
-  <tbody>
-      <td >
-        DATOS REMITENTE  <br/>
-        Remitente: ${data.id_heka} <br/>
-        Nombre: ${data.nombreR} <br/>
-        Ciudad: ${data.ciudadR} <br/>
-        Dirección: ${data.direccionR} <br/>
-        Cel/Tel: ${data.celularR}</td>
+        <tbody>
+            <td >
+              DATOS REMITENTE  <br/>
+              Remitente: ${data.id_heka} <br/>
+              Nombre: ${data.nombreR} <br/>
+              Ciudad: ${data.ciudadR} <br/>
+              Dirección: ${data.direccionR} <br/>
+              Cel/Tel: ${data.celularR}</td>
 
-      <td>DATOS DESTINO <br/>
-        Nombre: ${nombres}<br/>
-        Ciudad: ${ciudad} <br/>
-        Dirección: ${direccion} <br/>
-        Cel/Tel: ${celular}</td>
-      <th >Firma de quien recibe:</th>
+            <td>DATOS DESTINO <br/>
+              Nombre: ${nombres}<br/>
+              Ciudad: ${ciudad} <br/>
+              Dirección: ${direccion} <br/>
+              Cel/Tel: ${celular}</td>
+            <th >Firma de quien recibe:</th>
 
-      </tr>
-      <tr>
-      <th class="text-center">Escanea el qr </br></br>
-      <div class="qr-code d-flex justify-content-center" id="qrcode-${urlQR}"></div>
-      </th>
-      <td>
-          Peso real: ${data.peso} kg<br/>
-          Contenido: ${data.dice_contener}<br/>
-          Costo envío: ${data.valor} <br/>
-      </td>
+            </tr>
+            <tr>
+            <th class="text-center">Escanea el qr </br></br>
+            <div class="qr-code d-flex justify-content-center" id="qrcode-${urlQR}"></div>
+            </th>
+            <td>
+                Peso real: ${data.peso} kg<br/>
+                Contenido: ${data.dice_contener}<br/>
+                Costo envío: ${data.valor} <br/>
+            </td>
 
-            <th >Valor cobro destino: ${data.valor}</th>
+                  <th >Valor cobro destino: ${data.valor}</th>
 
-    </tr>
+          </tr>
 
 
-  </tbody>
-</table>
+        </tbody>
+      </table>
 
-   `;
+        `;
+
         div.innerHTML += header + body;
         tbody.appendChild(tr);
       }
