@@ -1,28 +1,105 @@
 let user_id = localStorage.user_id,
   usuarioDoc;
-const usuarioAltDoc = (id) =>
-  firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(id || user_id);
 
-if (localStorage.getItem("acceso_admin")) {
-  window.onload = () => revisarNotificaciones();
-  listarNovedadesServientrega();
-  listarSugerenciaMensajesNovedad();
-  $("#descargar-informe-usuarios").click(descargarInformeUsuariosAdm);
-} else if (localStorage.user_id) {
-  window.onload = () => {
-    usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
-    cargarDatosUsuario().then(() => {
-      revisarNotificaciones();
-      cargarPagoSolicitado();
-    });
-  };
-} else {
-  alert("La sesión ha expirado, por favor inicia sesión nuevamente");
-  location.href = "ingreso.html";
+let auxManejadorGuias = false;
+
+const urlToken = new URLSearchParams(window.location.search);
+const tokenUser = urlToken.get("token") || localStorage.getItem("token");
+
+async function validateToken(token) {
+  if (!token) {
+    redirectLogin();
+  } else {
+    try {
+      const response = await fetch(
+        `${"https://api.hekaentrega.co/"}/api/v1/user/validate/token?token=${token}`
+      );
+
+      console.log(response);
+
+      if (!response.ok) {
+        redirectLogin();
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+
+      console.log(data);
+      if (
+        !data ||
+        !data.response ||
+        !data.response.user ||
+        !data.response.user.document
+      ) {
+        redirectLogin();
+        throw new Error("Invalid API response");
+      }
+      user_document = data.response.user.document;
+
+      const tipoUsuario = data.response.user.role[0];
+
+      const querySnapshot = await firebase
+        .firestore()
+        .collection("usuarios")
+        .where("numero_documento", "==", user_document.toString())
+        .get();
+
+      if (tipoUsuario === "manager") {
+        localStorage.setItem("acceso_admin", true);
+      }
+
+      if (tipoUsuario === "seller") {
+        localStorage.removeItem("acceso_admin");
+      }
+
+      if (querySnapshot.empty) {
+        redirectLogin();
+        throw new Error("No documents found.");
+      }
+
+      const doc = querySnapshot.docs[0];
+
+      console.log(doc.data());
+      localStorage.setItem("user_id", doc.id);
+      localStorage.setItem("token", token);
+
+      user_id = doc.id;
+    } catch (error) {
+      redirectLogin();
+      console.error("Error en la solicitud GET:", error);
+      throw error;
+    }
+  }
 }
+
+function redirectLogin() {
+  alert("La sesión ha expirado, por favor inicia sesión nuevamente");
+  location.href = "https://hekaentrega.co/ingreso";
+}
+
+validateToken(tokenUser)
+  .then(() => {
+    console.log(localStorage.getItem("acceso_admin"));
+
+    if (localStorage.getItem("acceso_admin")) {
+      console.warn("Bienvenido administrador");
+      revisarNotificaciones();
+      listarNovedadesServientrega();
+      listarSugerenciaMensajesNovedad();
+      $("#descargar-informe-usuarios").click(descargarInformeUsuariosAdm);
+      auxManejadorGuias = true;
+    } else if (user_id) {
+      usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
+      cargarDatosUsuario().then(() => {
+        revisarNotificaciones();
+        cargarPagoSolicitado();
+      });
+    } else {
+      redirectLogin();
+    }
+  })
+  .catch((error) => {
+    console.error("Error en validateToken:", error);
+  });
 
 window.addEventListener("storage", (e) => {
   const { key, newValue } = e;
@@ -31,6 +108,12 @@ window.addEventListener("storage", (e) => {
     location.reload();
   }
 });
+
+const usuarioAltDoc = (id) =>
+  firebase
+    .firestore()
+    .collection("usuarios")
+    .doc(user_id || id);
 
 //Administradara datos basicos del usuario que ingresa
 let datos_usuario = {},
@@ -2245,8 +2328,29 @@ function descargarExcelPagosAdmin(datos) {
   console.log("Funciona?");
 }
 
-function cerrarSession() {
-  localStorage.clear();
+async function cerrarSession() {
+  await deleteUserToken();
+  await localStorage.clear();
+  location.href = "https://hekaentrega.co/ingreso";
+}
+
+async function deleteUserToken() {
+  const url = `${"https://api.hekaentrega.co/"}/api/v1/user/logout/${localStorage.getItem(
+    "token"
+  )}`;
+
+  console.log(url);
+  try {
+    const response = await fetch(url, { method: "DELETE" });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    console.log("User token deleted successfully");
+  } catch (error) {
+    console.error("Error deleting user token:", error);
+  }
 }
 
 const inputFlexii = document.querySelector("#inputIDGuiaFlexii");
