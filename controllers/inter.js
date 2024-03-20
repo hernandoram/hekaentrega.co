@@ -298,8 +298,11 @@ exports.cotizar = async (req, res) => {
 
     console.log(urlRequest);
 
-    let cotizacion = await fetch(urlRequest)
-    .then(d => d.json())
+    let cotizacion = await requestP(urlRequest)
+    .then(d => {
+        console.log("Result Cotización Inter: ", d);
+        return JSON.parse(d)
+    })
     .catch(err => err);
 
     console.log(cotizacion);

@@ -4917,24 +4917,6 @@ async function generarGuiaFlexii(id_guias) {
             ? data.celularD + " - " + data.telefonoD
             : data.telefonoD;
 
-        const nombres = data.oficina
-          ? data.datos_oficina.nombre_completo
-          : data.nombreD;
-        const direccion = data.oficina
-          ? data.datos_oficina.direccion
-          : data.direccionD;
-        const ciudad = data.oficina
-          ? data.datos_oficina.ciudad
-          : `${data.ciudadD}(${data.departamentoD})`;
-        const celular = data.oficina ? data.datos_oficina.celular : celularD;
-        const urlQR = `http://localhost:6200/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia`;
-
-        urlsQR.push({
-          id_heka: guiaImprimir.id_heka,
-          id_user: guiaImprimir.id_user,
-          urlQR,
-        });
-
         let header = `
    <div>
    <table class="table table-bordered">
