@@ -2809,7 +2809,7 @@ if(document.getElementById('verificarUsuarioComun')){
        if(data==undefined | data=="Comun"){
          
        }else{
-        window.alert('Tu usuario no tiene acceso a plataformas corporativas HEKA');
+        alert('Tu usuario no tiene acceso a plataformas corporativas HEKA');
         window.location.href="/"; 
        }
         
@@ -2820,7 +2820,7 @@ if(document.getElementById('verificarUsuarioComun')){
 
 
     }else{
-      window.alert('La sesión ha expirado, por favor inicia sesión nuevamente');
+      alert('La sesión ha expirado, por favor inicia sesión nuevamente');
     window.location.href="/"; 
     
     }
