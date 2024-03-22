@@ -1,6 +1,6 @@
 let filtroPagos;
 
-console.warn(administracion)
+console.warn(administracion);
 if (administracion && auxManejadorGuias) {
   if (localStorage.getItem("acceso_admin")) {
     if (location.hash === "#documentos") {
@@ -4565,8 +4565,18 @@ async function historialGuiasAdmin(e) {
       },
       visible: false,
     },
-    { data: "estadoActual", title: "Estado Actual", defaultContent: "---", visible: false },
-    { data: "motivoAnulacion", title: "Motivo de anulacion", defaultContent: "---", visible: false },
+    {
+      data: "estadoActual",
+      title: "Estado Actual",
+      defaultContent: "---",
+      visible: false,
+    },
+    {
+      data: "motivoAnulacion",
+      title: "Motivo de anulacion",
+      defaultContent: "---",
+      visible: false,
+    },
   ];
 
   const idTabla = "#tabla-" + finalId;
@@ -4892,23 +4902,23 @@ async function generarGuiaFlexii(id_guias) {
 
         let logo = "img/WhatsApp Image 2020-09-12 at 9.11.53 PM.jpeg";
 
-    const nombres = data.oficina
-      ? data.datos_oficina.nombre_completo
-      : data.nombreD;
-    const direccion = data.oficina
-      ? data.datos_oficina.direccion
-      : data.direccionD;
-    const ciudad = data.oficina
-      ? data.datos_oficina.ciudad
-      : `${data.ciudadD}(${data.departamentoD})`;
-    const celular = data.oficina ? data.datos_oficina.celular : celularD;
-    const urlQR = `https://flexii.co/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia`
-   
-    urlsQR.push({
-      id_heka: guiaImprimir.id_heka,
-      id_user: guiaImprimir.id_user,
-      urlQR,
-    });
+        const nombres = data.oficina
+          ? data.datos_oficina.nombre_completo
+          : data.nombreD;
+        const direccion = data.oficina
+          ? data.datos_oficina.direccion
+          : data.direccionD;
+        const ciudad = data.oficina
+          ? data.datos_oficina.ciudad
+          : `${data.ciudadD}(${data.departamentoD})`;
+        const celular = data.oficina ? data.datos_oficina.celular : celularD;
+        const urlQR = `https://flexii.co/ingreso.html?idguia=${guiaImprimir.id_heka}&iduser=${guiaImprimir.id_user}#flexii-guia`;
+
+        urlsQR.push({
+          id_heka: guiaImprimir.id_heka,
+          id_user: guiaImprimir.id_user,
+          urlQR,
+        });
         if (data.oficina) {
           logo = "img/logo-flexi.png";
         }
@@ -5307,10 +5317,56 @@ function descargarInformeExcel(datosDescarga, informeJson, title) {
   crearExcel(data, title);
 }
 
+let botonIninicarSesionUsarioToken = document.getElementById(
+  "iniciar-sesion-usuario-token"
+);
 
-let botonIninicarSesionUsarioToken = document.getElementById("iniciar-sesion-usuario-token");
+botonIninicarSesionUsarioToken.addEventListener("click", async function () {
+  // Mostrar animación de carga
+  botonIninicarSesionUsarioToken.innerHTML = "Cargando...";
+  const tokenAdmin = localStorage.getItem("token");
 
+  let tokenUser =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NWYwY2VlN2M5Zjk4MjNhNjQxYWM1NzIiLCJuYW1lIjoiSm9zZWVlIiwibGFzdF9uYW1lIjoiTHVpcyBQcm9iYW5kbyIsImVtYWlsIjoiY2FsbGVAZ21haWwuY29tIiwicm9sZSI6WyJzZWxsZXIiXSwiaWF0IjoxNzExMTIwODA4fQ.To3AI2MfmLuycw6s24doaq1yJgV3MJ1KCt52S9qdKr8";
 
-botonIninicarSesionUsarioToken.addEventListener('click', function() {
-  window.open('https://www.google.com', '_blank');
+  const data = {
+    email: value("actualizar_correo"),
+  };
+
+  fetch("https://apidev.hekaentrega.co/api/v1/user/login/uli", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${tokenAdmin}`,
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      console.log(data);
+      tokenUser = data.response.token;
+
+      if (data.statusCode === 403) {
+        throw new Error("Invalid API response");
+      }
+
+      // Copiar la URL al portapapeles
+      navigator.clipboard
+        .writeText(`http://localhost:6200/plataforma2.html?token=${tokenUser}`)
+        .then(function () {
+          // Cambiar el texto del botón a 'URL copiada correctamente'
+          botonIninicarSesionUsarioToken.innerHTML =
+            "URL copiada correctamente";
+
+          setTimeout(() => {
+            botonIninicarSesionUsarioToken.innerHTML =
+              "Ingresar al usuario";
+          }, 5000);
+        });
+    })
+    .catch((error) => {
+      botonIninicarSesionUsarioToken.innerHTML =
+        "Error de credenciales, cierra sesión e intenta de nuevo";
+      console.error("Error:", error);
+    });
 });

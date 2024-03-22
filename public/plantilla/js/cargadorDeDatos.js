@@ -12,7 +12,7 @@ async function validateToken(token) {
   } else {
     try {
       const response = await fetch(
-        `${"https://api.hekaentrega.co"}/api/v1/user/validate/token?token=${token}`
+        `${"https://apidev.hekaentrega.co"}/api/v1/user/validate/token?token=${token}`
       );
 
       console.log(response);
@@ -235,7 +235,6 @@ async function cargarPagoSolicitado() {
   const { diarioSolicitado, limitadosDiario } = await ref
     .get()
     .then((d) => d.data());
-
 
   const centro_de_costo = datos_usuario.centro_de_costo;
   const soliciado = diarioSolicitado.includes(centro_de_costo);
