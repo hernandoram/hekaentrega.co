@@ -1922,7 +1922,7 @@ function detalles_cotizacion(datos) {
         <div class="mb-4 card">
             <div class="card-header py-3">
                 <h4 class="m-0 font-weight-bold text-primary text-center">Datos de envío - ${
-                  datos.transportadora
+                  datos.transpVisible
                 } (${datos.type})</h4>
             </div>
             <div class="card-body row">
