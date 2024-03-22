@@ -140,7 +140,7 @@
             <i class="fas fa-fw fa-file-alt"></i>
             <span>Callcenter</span></a>
         </li>
-        
+
         <li class="nav-item">
           <a class="nav-link" href="#recolecciones">
             <i class="fas fa-fw fa-truck"></i>
@@ -293,16 +293,16 @@
 
             <div class="row mb-3">
               <form class="input-group col-12 offset-md-2 col-md-8">
-                  <input type="text" class="form-control border-info"
-                      placeholder="Criterio de búsqueda"
-                      id="buscador_usuarios-nombre"
-                      title="Puedes buscar por nombre, correo, dirección, número de documento o celular.">
-                  <div class="input-group-append buscadorUsuarios-botones">
-                    <button id="busquedaEspecializada" class="btn btn-small btn-outline-info">Busqueda especilizada</button>
-                    <button id="busquedaGeneral" class="btn btn-small btn-outline-info">Busqueda general</button>
-                  </div>
+                <input type="text" class="form-control border-info" placeholder="Criterio de búsqueda"
+                  id="buscador_usuarios-nombre"
+                  title="Puedes buscar por nombre, correo, dirección, número de documento o celular.">
+                <div class="input-group-append buscadorUsuarios-botones">
+                  <button id="busquedaEspecializada" class="btn btn-small btn-outline-info">Busqueda
+                    especilizada</button>
+                  <button id="busquedaGeneral" class="btn btn-small btn-outline-info">Busqueda general</button>
+                </div>
               </form>
-          </div>
+            </div>
 
             <div class="d-flex justify-content-center">
               <div class="lds-ellipsis mt-4 d-none" id="cargador-usuarios">
@@ -386,44 +386,50 @@
                       </div>
 
                       <div class="form-group row">
+                        <div class="col-sm-6">
+                          <h6>Contacto</h6>
+                          <input type="number" class="form-control form-control-user" name="contacto"
+                            id="actualizar_contacto" aria-describedby="emailHelp">
+                        </div>
                         <div class="col-sm-6 mb-3 mb-sm-0">
                           <h6>Centro de Costo*</h6>
                           <input type="text" class="form-control form-control-user" name="centro_de_costo"
                             id="actualizar_centro_costo" readonly>
                         </div>
+                      </div>
+
+                      <div class="form-group row">
                         <div class="col-sm-6">
                           <h6>Correo electrónico*</h6>
                           <input type="email" class="form-control form-control-user" name="correo"
                             id="actualizar_correo" aria-describedby="emailHelp">
                         </div>
-                      </div>
-
-                      <div class="form-group row">
                         <div class="col-sm-6 mb-3 mb-sm-0">
                           <h6>Código ingreso*</h6>
                           <input type="text" class="form-control form-control-user" name="ingreso"
                             id="actualizar_contraseña" readonly>
                         </div>
+                      </div>
+
+                      <div class="form-group row">
                         <div class="col-sm-6">
                           <h6>Contraseña*</h6>
                           <input type="text" class="form-control form-control-user" name="con"
                             id="actualizar_repetir_contraseña" readonly>
                         </div>
-                      </div>
-
-                      <div class="form-group row">
                         <div class="col-sm-6">
                           <h6>Nombre de la empresa*</h6>
                           <input type="text" class="form-control form-control-user" name="nombre_empresa"
                             id="actualizar_nombre_empresa">
                         </div>
-                        <div class="col-sm-6">
+                      </div>
+                      <div class="form-group row">
+                        <div class="col-sm-12">
                           <h6>Cosas que envía</h6>
                           <input type="text" class="form-control form-control-user" name="objetos_envio"
                             id="actualizar_objetos_envio" placeholder="objeto1,objeto2,etc..." required>
                         </div>
                       </div>
-
                       <div>
                         <h6 class="mt-2">Referido de</h6>
                         <input type="text" class="form-control form-control-user" name="referidoDe" id="referidoDe"
@@ -808,20 +814,20 @@
                 </div>
               </div>
 
-                <!--Referidos-->
-                <div class="card shadow mb-4">
-                  <!-- Card Header - Accordion -->
-                  <a href="#informacion-Pagos" class="d-block card-header py-3" data-toggle="collapse" role="button"
-                    aria-expanded="true" aria-controls="informacion-bodegas">
-                    <h6 class="m-0 font-weight-bold text-primary">Historial de solicitudes</h6>
-                  </a>
-                  <!-- Card Content - Collapse -->
-                  <div class="collapse" id="informacion-Pagos">
-                    <div class="card-body table-responsive">
-                      <table id="tabla-acciones" class="display table table-bordered table-hover" width="100%"></table>
-                    </div>
+              <!--Referidos-->
+              <div class="card shadow mb-4">
+                <!-- Card Header - Accordion -->
+                <a href="#informacion-Pagos" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                  aria-expanded="true" aria-controls="informacion-bodegas">
+                  <h6 class="m-0 font-weight-bold text-primary">Historial de solicitudes</h6>
+                </a>
+                <!-- Card Content - Collapse -->
+                <div class="collapse" id="informacion-Pagos">
+                  <div class="card-body table-responsive">
+                    <table id="tabla-acciones" class="display table table-bordered table-hover" width="100%"></table>
                   </div>
                 </div>
+              </div>
 
               <!--Referidos-->
               <div class="card shadow mb-4">
@@ -1647,8 +1653,10 @@
                         <input type="date" class="form-control form-control-user" id="informe-callcenter-fecha-final"
                           required>
                       </div>
-                      <input type="text" name="filtro-seller-informe" class="form-control col-sm-2 mx-3 mb-sm-0" id="filtro-seller-informe" placeholder="Elije tus centros de costo...">
-                      <select name="filtro-transportadoras-informe" class="form-control col-sm-2" id="filtro-transportadoras-informe">
+                      <input type="text" name="filtro-seller-informe" class="form-control col-sm-2 mx-3 mb-sm-0"
+                        id="filtro-seller-informe" placeholder="Elije tus centros de costo...">
+                      <select name="filtro-transportadoras-informe" class="form-control col-sm-2"
+                        id="filtro-transportadoras-informe">
                         <option value="">Elije transportadora...</option>
                         <option value="INTERRAPIDISIMO">Interrapidísimo</option>
                         <option value="SERVIENTREGA">Servientrega</option>
@@ -2370,107 +2378,116 @@
               <!-- Card Header - Accordion -->
               <a href="#configuraciones-ciudades" class="d-block card-header py-3" data-toggle="collapse" role="button"
                 aria-expanded="true">
-                <h6 class="m-0 font-weight-bold text-primary">Configuraciones <span id="nombre-ciudad-configuraciones"></span></h6>
+                <h6 class="m-0 font-weight-bold text-primary">Configuraciones <span
+                    id="nombre-ciudad-configuraciones"></span></h6>
               </a>
               <!-- Card Content - Collapse -->
               <div class="collapse p-3 " id="configuraciones-ciudades">
 
                 <p class="text-center" id="noCiudadEscogida">Selecciona una ciudad para agregarle configuraciones</p>
 
-              <section class="d-none" id="agregar-configuraciones">
+                <section class="d-none" id="agregar-configuraciones">
 
 
-                <form class="row" id="form_agregar-configuraciones">
-                  <div class="form-group col-md col-4 mb-3">
-                    <label for="transportadora-configuraciones">Seleccione la transportadora</label>
-                    <select class="form-control" name="transportadora" aria-label="Default select example" id="transportadora-configuraciones">
-                      <option value="INTERRAPIDISIMO">INTERRAPIDISIMO</option>
-                      <option value="SERVIENTREGA">SERVIENTREGA</option>
-                      <option value="ENVIA">ENVIA</option>
-                      <option value="COORDINADORA">COORDINADORA</option>
-                    </select>
-                  </div>
-                  
-                  <div class="form-group col-md col-4 mb-3">
-                    <label for="tipoUsuario-configuraciones">Seleccione el tipo de usuario</label>
-                    <select class="form-control" name="tipoUsuario" aria-label="Default select example" id="tipoUsuario-configuraciones">
-                      <option value="TODOS">Todos</option>
-                      <option value="NATURAL">Natural</option>
-                      <option value="NATURAL-FLEXII">Natural Flexii</option>
+                  <form class="row" id="form_agregar-configuraciones">
+                    <div class="form-group col-md col-4 mb-3">
+                      <label for="transportadora-configuraciones">Seleccione la transportadora</label>
+                      <select class="form-control" name="transportadora" aria-label="Default select example"
+                        id="transportadora-configuraciones">
+                        <option value="INTERRAPIDISIMO">INTERRAPIDISIMO</option>
+                        <option value="SERVIENTREGA">SERVIENTREGA</option>
+                        <option value="ENVIA">ENVIA</option>
+                        <option value="COORDINADORA">COORDINADORA</option>
                       </select>
-                  </div>
-                  
-                  <div class="form-group col-md col-4 mb-3">
-                    <label for="tipoEnvio-configuraciones">Seleccione el tipo de envío</label>
-                    <select class="custom-select"  aria-label="Default select example" id="tipoEnvio-configuraciones" name="tipoEnvio">
-                      <option value="PAGO CONTRAENTREGA">Pago contraentrega</option>
-                      <option value="PAGO DESTINO">Pago destino</option>
-                      <option value="CONVENCIONAL">Convencional</option>
+                    </div>
+
+                    <div class="form-group col-md col-4 mb-3">
+                      <label for="tipoUsuario-configuraciones">Seleccione el tipo de usuario</label>
+                      <select class="form-control" name="tipoUsuario" aria-label="Default select example"
+                        id="tipoUsuario-configuraciones">
+                        <option value="TODOS">Todos</option>
+                        <option value="NATURAL">Natural</option>
+                        <option value="NATURAL-FLEXII">Natural Flexii</option>
                       </select>
-                    </select>
-                  </div>
-
-                  <div class="col">
-                    <p class="mb-0">Tipo distribución</p>
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="1" name="tipo_distribucion" id="restringirEnvioDireccion">
-                      <label class="form-check-label" for="restringirEnvioDireccion">
-                        Entrega dirección
-                      </label>
                     </div>
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" value="2" name="tipo_distribucion" id="restringirEnvioOficina">
-                      <label class="form-check-label" for="restringirEnvioOficina">
-                        Entrega oficina
-                      </label>
+
+                    <div class="form-group col-md col-4 mb-3">
+                      <label for="tipoEnvio-configuraciones">Seleccione el tipo de envío</label>
+                      <select class="custom-select" aria-label="Default select example" id="tipoEnvio-configuraciones"
+                        name="tipoEnvio">
+                        <option value="PAGO CONTRAENTREGA">Pago contraentrega</option>
+                        <option value="PAGO DESTINO">Pago destino</option>
+                        <option value="CONVENCIONAL">Convencional</option>
+                      </select>
+                      </select>
                     </div>
-                  </div>
 
-                  <div class="form-group col d-flex align-items-center">
-                    <div class="custom-control custom-switch">
-                      <input type="checkbox" class="custom-control-input" id="activar-configuraciones" value="true" name="activa" checked>
-                      <label class="custom-control-label" for="activar-configuraciones">Activar configuración</label>
+                    <div class="col">
+                      <p class="mb-0">Tipo distribución</p>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="1" name="tipo_distribucion"
+                          id="restringirEnvioDireccion">
+                        <label class="form-check-label" for="restringirEnvioDireccion">
+                          Entrega dirección
+                        </label>
+                      </div>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="2" name="tipo_distribucion"
+                          id="restringirEnvioOficina">
+                        <label class="form-check-label" for="restringirEnvioOficina">
+                          Entrega oficina
+                        </label>
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div class="form-group col-12">
-                    <label for="descripcion-configuraciones">Descripción</label>
-                    <textarea class="form-control" id="descripcion-configuraciones" name="descripcion"></textarea>
 
-                  </div>
+                    <div class="form-group col d-flex align-items-center">
+                      <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="activar-configuraciones" value="true"
+                          name="activa" checked>
+                        <label class="custom-control-label" for="activar-configuraciones">Activar configuración</label>
+                      </div>
+                    </div>
 
-                  <button type="button" class="btn btn-primary mt-3 col-md-12" id="boton-agregar-restriccion">Agregar configuracion</button>
-                </form>
+                    <div class="form-group col-12">
+                      <label for="descripcion-configuraciones">Descripción</label>
+                      <textarea class="form-control" id="descripcion-configuraciones" name="descripcion"></textarea>
 
-                
-                
-                <div class="mt-4">
-                  <h5>Configuraciones actuales</h5>
+                    </div>
 
-                  <table class="table" id="tabla-configuraciones">
-                    <thead>
-                      <tr>
-                        <th>Tipo usuario</th>
+                    <button type="button" class="btn btn-primary mt-3 col-md-12" id="boton-agregar-restriccion">Agregar
+                      configuracion</button>
+                  </form>
 
-                        
-                        <th>Transportadora</th>
-                        <th>Tipo Envio</th>
-                        <th>Restricción tipo envio</th>
-                        <th>Descripción</th>
-                        <th>Eliminar restricción</th>
-                      </tr>
-                    </thead>
-                    <tbody id="lista-configuraciones">
+
+
+                  <div class="mt-4">
+                    <h5>Configuraciones actuales</h5>
+
+                    <table class="table" id="tabla-configuraciones">
+                      <thead>
+                        <tr>
+                          <th>Tipo usuario</th>
+
+
+                          <th>Transportadora</th>
+                          <th>Tipo Envio</th>
+                          <th>Restricción tipo envio</th>
+                          <th>Descripción</th>
+                          <th>Eliminar restricción</th>
+                        </tr>
+                      </thead>
+                      <tbody id="lista-configuraciones">
                       </tbody>
-                    
-                  </table>
+
+                    </table>
 
 
-                  <p class="text-center d-none" id="mensaje-noRestriccion">Esta ciudad aún no tiene configuraciones</p>
-                  
-                </div>
+                    <p class="text-center d-none" id="mensaje-noRestriccion">Esta ciudad aún no tiene configuraciones
+                    </p>
 
-              </section>
+                  </div>
+
+                </section>
 
               </div>
 
@@ -2480,18 +2497,22 @@
           <div class="container-fluid" id="recolecciones">
             <h2>Solicitud de recolección Inter</h2>
 
-            <h3>Guías por solicitar <i class="fa fa-sync text-primary" title="Cargar Solicitudes" data-toggle="tooltip" id="revisar-recolecciones"></i></h3>
-            
-            
-            <ul class="list-group list-group-horizontal flex-wrap mx-auto my-4 d-flex flex-wrap" id="lista-recolecciones">
+            <h3>Guías por solicitar <i class="fa fa-sync text-primary" title="Cargar Solicitudes" data-toggle="tooltip"
+                id="revisar-recolecciones"></i></h3>
+
+
+            <ul class="list-group list-group-horizontal flex-wrap mx-auto my-4 d-flex flex-wrap"
+              id="lista-recolecciones">
             </ul>
 
 
-            <h3>Guías solicitadas <i class="fa fa-sync text-primary" title="Cargar Solicitudes" data-toggle="tooltip" id="revisar-recolecciones-realizadas"></i></h3>
+            <h3>Guías solicitadas <i class="fa fa-sync text-primary" title="Cargar Solicitudes" data-toggle="tooltip"
+                id="revisar-recolecciones-realizadas"></i></h3>
 
             <section class="d-none mt-4 " id="mostrador-guias-solicitadas">
 
-              <input type="text" class="form-control border-info mb-3" id="filtrar-guias-recolectadas" placeholder="Filtra por número de guia o seller, fecha solicitud, código sucursal o radicado recolección">
+              <input type="text" class="form-control border-info mb-3" id="filtrar-guias-recolectadas"
+                placeholder="Filtra por número de guia o seller, fecha solicitud, código sucursal o radicado recolección">
               <table class="table">
                 <thead>
                   <tr>
@@ -2502,14 +2523,14 @@
                     <th scope="col">Radicado recolección</th>
                   </tr>
                 </thead>
-              <tbody id="lista-recolecciones-realizadas" >
-                
-              </tbody>
+                <tbody id="lista-recolecciones-realizadas">
+
+                </tbody>
               </table>
             </section>
           </div>
-  
-        </div>   
+
+        </div>
         <!-- Footer -->
         <footer class="sticky-footer bg-white">
           <div class="container my-auto">
