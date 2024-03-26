@@ -1389,6 +1389,7 @@ async function actualizarInformacionPersonal() {
     correo: value("actualizar_correo"),
     objetos_envio: value("actualizar_objetos_envio").split(","),
     numero_documento: value("actualizar_numero_documento"),
+    contacto: value("actualizar_contacto"),
     type: value("actualizar_tipo_user"),
     con: value("actualizar_repetir_contraseña"),
     ingreso: value("actualizar_contraseña"),
