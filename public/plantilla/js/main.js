@@ -2853,7 +2853,7 @@ if(document.getElementById('verificarUsuarioComun')){
   
   
       }else{
-        window.alert('La sesión ha expirado, por favor inicia sesión nuevamente');
+        alert('La sesión ha expirado, por favor inicia sesión nuevamente');
       window.location.href="/"; 
       
       }
