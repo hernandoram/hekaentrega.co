@@ -1,3 +1,6 @@
+const PROD_API_URL = "https://api.hekaentrega.co"; //"https://apidev.hekaentrega.co" o esta
+//const PROD_API_URL = "https://apidev.hekaentrega.co"; //comentar o descomentar segun el ambiente
+
 let user_id = localStorage.user_id,
   usuarioDoc;
 
@@ -12,7 +15,7 @@ async function validateToken(token) {
   } else {
     try {
       const response = await fetch(
-        `${"https://api.hekaentrega.co"}/api/v1/user/validate/token?token=${token}`
+        `${PROD_API_URL}/api/v1/user/validate/token?token=${token}`
       );
 
       console.log(response);
@@ -2334,7 +2337,7 @@ async function cerrarSession() {
 }
 
 async function deleteUserToken() {
-  const url = `${"https://api.hekaentrega.co"}/api/v1/user/logout/${localStorage.getItem(
+  const url = `${PROD_API_URL}/api/v1/user/logout/${localStorage.getItem(
     "token"
   )}`;
 
