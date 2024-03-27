@@ -92,7 +92,17 @@ async function actualizarGuia(id_user, id_heka, obj) {
 async function crearGuiaTransportadora(guide) {
     switch(guide.transportadora) {
         case "INTERRAPIDISIMO": 
-        return creacionGuia(guide)
+            const dataInter = await creacionGuia(guide);
+            dataInter.numeroGuia = dataInter.numeroPreenvio;
+            if(!dataInter.numeroGuia) {
+                return {
+                    error: true,
+                    // Message Es el devuelto por la transportadora y message, es el devuelto internamente
+                    message: dataInter.Message || dataInter.message
+                }
+            }
+
+        return dataInter
 
         default:
             return {

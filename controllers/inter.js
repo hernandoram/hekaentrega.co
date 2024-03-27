@@ -278,7 +278,6 @@ function getCredentials(cuenta_responsable, prueba) {
 }
 
 async function creacionGuia(guia) {
-    console.log(guia);
     const credentials = getCredentials(guia.cuenta_responsable, guia.prueba);
     const url =  credentials.endpoint;
     const nombreTipoEnvio = guia.peso < 3 ? "PAQUETE PEQUEÑO" : "PAQUETE";
@@ -349,6 +348,8 @@ async function creacionGuia(guia) {
                 .add({type: "INTER", data, respuesta})
             }
 
+            body = respuesta;
+
         } catch (e) {
             console.log("Error al comprobar => ", e);
             
@@ -359,6 +360,8 @@ async function creacionGuia(guia) {
             }
         }
     }
+
+
 
     return body;
 }
