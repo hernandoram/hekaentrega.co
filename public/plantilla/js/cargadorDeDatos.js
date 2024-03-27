@@ -1,5 +1,5 @@
 const PROD_API_URL = "https://api.hekaentrega.co"; //"https://apidev.hekaentrega.co" o esta
-//const PROD_API_URL = "https://apidev.hekaentrega.co"; //comentar o descomentar segun el ambiente
+// const PROD_API_URL = "https://apidev.hekaentrega.co"; //comentar o descomentar segun el ambiente
 
 let user_id = localStorage.user_id,
   usuarioDoc;
