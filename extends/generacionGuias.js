@@ -79,14 +79,19 @@ async function getGuideToCreate(id_user, id_heka) {
     .then(d => d.data());
 }
 
-async function actualizarGuia(id_user, id_heka, obj) {
-    const {numeroGuia, has_sticker} = obj;
-    
+/**
+ * Functión que actualiza los datos de la guía de un usuario
+ * @param {string} id_user El id del usuario en firebase
+ * @param {string} id_heka El id generado por heka
+ * @param {*} obj El objeto con la informació que será actualizada en la guías del usuario
+ * @returns una promesa
+ */
+async function actualizarGuia(id_user, id_heka, obj) {    
     return db.collection("usuarios")
     .doc(id_user)
     .collection("guias")
     .doc(id_heka)
-    .update({numeroGuia, has_sticker});
+    .update(obj);
 }
 //#endregion
 
@@ -218,7 +223,8 @@ async function intentarCrearGuiaEnCola(queue) {
         // Se almacena el mensaje que se va a actualizar
         controlBaseGuia.messages = firebase.firestore.FieldValue.arrayUnion({
             message: "La guia número " + responseCreation.numeroGuia + " ha sido creada exitósamente",
-            fecha: fechaActualizacion
+            fecha: estandarizarFecha(fechaActualizacion, "DD-MM-YYYY HH:mm"),
+            timeline: fechaActualizacion.getTime()
         });
     }
 
