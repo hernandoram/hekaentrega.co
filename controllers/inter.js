@@ -329,6 +329,7 @@ async function creacionGuia(guia) {
     }
 
     const body = await requestP(url + "/InsertarAdmision", {
+        method: "POST",
         headers: {
             "x-app-signature": credentials.x_app_signature,
             "x-app-security_token":  credentials.x_app_security_token,
