@@ -1117,6 +1117,8 @@ function activarBotonesDeGuias(id, data, activate_once) {
       }
     });
 
+    $("#errores_guia" + id).click(erroresColaGuias);
+
     $("#clonar_guia" + id).on("click", () => {
       Swal.fire({
         title: "Clonando",
@@ -3349,6 +3351,108 @@ function verDetallesGuia() {
         width: "80%",
       });
     });
+}
+
+function erroresColaGuias() {
+  let id = this.getAttribute("data-id");
+  console.log(id);
+  db.collection("colaCreacionGuias")
+  .doc(id)
+  .get()
+  .then((doc) => {
+    let html = "<div>";
+    
+    if(doc.exists) {
+      let data = doc.data();
+
+      switch(data.status) {
+        case "ENQUEUE": 
+        // cuando la guía se ha pueso en cola
+          let informacionEnqueue  = "<div class='m-2'>";
+          informacionEnqueue += `<p>Se ha añadido tu guía a la lista de espera, pronto será procesada.</p>`
+  
+          informacionEnqueue += "</div></div>";
+          html += informacionEnqueue;
+        break;
+        case "SUCCESS": 
+        // Cuando la creación de guías ha sido generada exitósamente
+          let informacionSuccess  = "<div class='m-2'>";
+          informacionSuccess += `<p>La guía se ha creado exitosamente.</p>`
+  
+          informacionSuccess += "</div></div>";
+          html += informacionSuccess;
+        break;
+        case "ERROR": 
+        // Cuando la creación de guías ha superado el máximo de reintentos con error
+          let informacionErr  = "<div class='m-2'>";
+          informacionErr += `<p class="text-danger ">La guía ha superado el máximo de reintentos asignados, por favor verificar si los datos ingresados son correcos o contactarse con el ÁREA LOGÍSTICO.</p>`
+  
+          informacionErr += "</div></div>";
+          html += informacionErr;
+        break;
+
+        default:
+          // Estado no controlado
+          let informacionDefaul  = "<div class='m-2'>";
+          informacionDefaul += `<p>Se ha añadido tu guía a la lista de espera, por favor comunicarse con ÁREA LOGÍSTICO. ESTADO:</p>` + data.status;
+  
+          informacionDefaul += "</div></div>";
+          html += informacionDefaul;
+      }
+
+      if(data.messages){
+        // Si tiene mensajes, se muestra una tabla con los mismos
+        const filasErrores = data.messages.map((m, i) => {
+          return `
+          <tr>
+            <th scope="row">${i + 1}</th>
+            
+            <td>${m.message}</td>
+            <td>${m.fecha}</td>
+
+          </tr>
+          `;
+        });
+        
+        let informacionErrores  = "<div class='my-2 table-responsive'>";
+        informacionErrores += `
+        <table class="table" style="min-width: 600px">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col" class="text-truncate">Intentos</th>
+              <th scope="col">Respuesta Transportadora</th>
+              <th scope="col">Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filasErrores.join("")}
+          </tbody>
+        </table>`
+
+
+
+        informacionErrores += "</div></div>";
+        html += informacionErrores;
+      }
+
+    } else {
+      let informacionSinEstado  = "<div class='m-2'>";
+      informacionSinEstado += `<p>Esta guía aun no ha sido procesada.</p>`
+
+      informacionSinEstado += "</div></div>";
+      html += informacionSinEstado;
+    }    
+    
+
+    
+
+    html += "</div>";
+    Swal.fire({
+      title: "Detalles de Errores de la Guía",
+      html,
+      width: "80%",
+    });
+  });
 }
 
 function createModal() {

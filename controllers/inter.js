@@ -277,41 +277,8 @@ function getCredentials(cuenta_responsable, prueba) {
     }
 }
 
-// FUNCIONES A EXPORTAR 
-exports.cotizar = async (req, res) => {
-    const {dane_ciudadD, dane_ciudadR, peso, seguro, pagoContraentrega} = req.body;
-    const fecha = extsFunc.estandarizarFecha(new Date(), "DD-MM-YYYY");
-
-    const urlRequest = CredencialesEmpresa.endpointcotizar
-        + CredencialesEmpresa.idCliente 
-        + "/" 
-        + dane_ciudadR 
-        + "/" 
-        + dane_ciudadD 
-        + "/" 
-        + peso 
-        + "/" 
-        + seguro 
-        + "/1/" 
-        + fecha
-        + "/" + pagoContraentrega;
-
-    console.log(urlRequest);
-
-    let cotizacion = await requestP(urlRequest)
-    .then(d => {
-        console.log("Result Cotización Inter: ", d);
-        return JSON.parse(d)
-    })
-    .catch(err => err);
-
-    console.log(cotizacion);
-
-    res.json(cotizacion);
-}
-
-exports.crearGuia = (req, res) => {
-    const guia = req.body;
+async function creacionGuia(guia) {
+    console.log(guia);
     const credentials = getCredentials(guia.cuenta_responsable, guia.prueba);
     const url =  credentials.endpoint;
     const nombreTipoEnvio = guia.peso < 3 ? "PAQUETE PEQUEÑO" : "PAQUETE";
@@ -360,51 +327,82 @@ exports.crearGuia = (req, res) => {
         }, //Enviar solo si el servicio es id 16 RapiRadicado
         "Observaciones": guia.id_heka + " - " + guia.dice_contener
     }
-    console.log(JSON.stringify(data), null, "\t");
 
-    // db.collection("errores")
-    // .add({identificador:guia.dice_contener ,type: "InterLogs", data, respuesta: "", momento: Date.now(),Fase:"inicio", tiempo: tiempoInicial-Date.now()});
-
-    request.post(url + "/InsertarAdmision", {
+    const body = await requestP(url + "/InsertarAdmision", {
         headers: {
             "x-app-signature": credentials.x_app_signature,
             "x-app-security_token":  credentials.x_app_security_token,
             "Content-type": "application/json"
         },
         body: JSON.stringify(data)
-    }, (error, response, body) => {
-        // db.collection("errores")
-        // .add({identificador:guia.dice_contener ,type: "InterLogs", data, respuesta: body, momento: Date.now(),Fase:"respuesta",tiempo: tiempoInicial-Date.now()});
-        if(error) res.send({
-            error: true,
-            message: "Hubo un error " + error,
-            detalles: error
-        });
+    })
+    .then(d => JSON.parse(d))
+    .catch(e => ({error: true, message: e.message}));
+    
+    if(typeof body === "string") {
+        try {
+            const respuesta = JSON.parse(body);
+            if(!respuesta.idPreenvio) {
+                console.log("error");
+                db.collection("errores")
+                .add({type: "INTER", data, respuesta})
+            }
 
-        console.log("Body: ", body);
-        if(typeof body === "string") {
-            try {
-                const respuesta = JSON.parse(body);
-                if(!respuesta.idPreenvio) {
-                    console.log("error");
-                    db.collection("errores")
-                    .add({type: "INTER", data, respuesta})
-                }
-
-            } catch (e) {
-                console.log("Error al comprobar => ", e);
-                
-                // en caso de que no se pueda converir a JSON, se devuelve el texto directo al front
-                body = {
-                    error: true,
-                    message: body
-                }
+        } catch (e) {
+            console.log("Error al comprobar => ", e);
+            
+            // en caso de que no se pueda converir a JSON, se devuelve el texto directo al front
+            body = {
+                error: true,
+                message: body
             }
         }
-        // db.collection("errores")
-        // .add({identificador:guia.dice_contener ,type: "InterLogs", data, respuesta: body, momento: Date.now(),Fase:"final",tiempo: tiempoInicial-Date.now()});
-        res.json(body);
+    }
+
+    return body;
+}
+
+// FUNCIONES A EXPORTAR 
+exports.creacionGuia = creacionGuia;
+
+exports.cotizar = async (req, res) => {
+    const {dane_ciudadD, dane_ciudadR, peso, seguro, pagoContraentrega} = req.body;
+    const fecha = extsFunc.estandarizarFecha(new Date(), "DD-MM-YYYY");
+
+    const urlRequest = CredencialesEmpresa.endpointcotizar
+        + CredencialesEmpresa.idCliente 
+        + "/" 
+        + dane_ciudadR 
+        + "/" 
+        + dane_ciudadD 
+        + "/" 
+        + peso 
+        + "/" 
+        + seguro 
+        + "/1/" 
+        + fecha
+        + "/" + pagoContraentrega;
+
+    console.log(urlRequest);
+
+    let cotizacion = await requestP(urlRequest)
+    .then(d => {
+        console.log("Result Cotización Inter: ", d);
+        return JSON.parse(d)
     })
+    .catch(err => err);
+
+    console.log(cotizacion);
+
+    res.json(cotizacion);
+}
+
+exports.crearGuia = (req, res) => {
+    const guia = req.body;
+    
+    creacionGuia(guia)
+    .then(d => res.send(d))
+    .catch(e => res.send({error: true, message: e.message}));
 };
 
 exports.crearStickerGuia = (req, res) => {
