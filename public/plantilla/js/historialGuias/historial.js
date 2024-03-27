@@ -20,6 +20,9 @@ const buscador = $("#filtrado-guias_hist");
 buscador.after(filtersHtml);
 container.append(htmlTable);
 
+// TODO: Para cuando sea 100% Efectivo se debe eliminar junto con las condiciones que la acompañan
+const usuariosHabilitadosParaCola = ["SellerNuevo2"];
+
 const typesGenerales = [
   neutro,
   anulada,
@@ -230,6 +233,9 @@ const table = $("#tabla-historial-guias").DataTable({
   initComplete: agregarFuncionalidadesTablaPedidos,
   drawCallback: renderizadoDeTablaHistorialGuias,
 });
+
+const refColaCreacionGuias = db.collection("colaCreacionGuias");
+
 
 globalThis.filtrador = new Watcher(pedido);
 
@@ -663,6 +669,7 @@ async function aceptarPedido(e, dt, node, config) {
     c.types.includes(pedido)
   ).length;
   let i = 0;
+  let activadoEncolamiento = true;
   for await (let guia of datas.toArray()) {
     const row = nodos[i];
     const errorFabricado = {
@@ -685,7 +692,13 @@ async function aceptarPedido(e, dt, node, config) {
       allowEscapeKey: true,
     });
 
-    const respuesta = await crearGuiaTransportadora(guia);
+    const generaEnCola = guia.transportadora === "INTERRAPIDISIMO" && guia.type !== "CONVENCIONAL" && usuariosHabilitadosParaCola.includes(datos_usuario.centro_de_costo);
+
+    if(!activadoEncolamiento && generaEnCola) activadoEncolamiento = generaEnCola;
+
+    const respuesta = generaEnCola ? 
+      await encolarCreacionGuia(guia)
+      : await crearGuiaTransportadora(guia)
 
     // const respuesta = errorFabricado.error ? errorFabricado : await crearGuiaTransportadora(guia);
     let icon, color;
@@ -697,18 +710,21 @@ async function aceptarPedido(e, dt, node, config) {
     } else {
       icon = "exclamation-circle";
       color = "text-danger";
-      errores.push({
-        row,
-        mensaje: respuesta.message,
-        icon,
-        color,
-        id: guia.id_heka,
-      });
     }
+    
+    errores.push({
+      row,
+      mensaje: respuesta.message,
+      icon,
+      color,
+      id: guia.id_heka,
+    });
     i++;
   }
 
-  if (!errores.length) $("#filter_listado-guias_hist").click();
+  const existeError = errores.some(err => err.color === "text-danger");
+
+  if (!existeError && !activadoEncolamiento) $("#filter_listado-guias_hist").click();
 
   finalizar();
 
@@ -717,7 +733,7 @@ async function aceptarPedido(e, dt, node, config) {
     title: "¡Proceso terminado!",
   });
 
-  if (errores.length) {
+  if (existeError) {
     Swal.fire({
       title: "No todas las guías fueron creadas de forma exitosa",
       html: `
@@ -742,7 +758,7 @@ async function aceptarPedido(e, dt, node, config) {
   }
 
   errores.forEach(({ row, mensaje, icon, color, id }) => {
-    $(row).after(
+    $("#" + row.id).after(
       `<tr class="res-creacion"><td colspan='${columnasEnPedidos}' class='${color} action'><i class='fa fa-${icon} mr-2'></i>${mensaje}</td></tr>`
     );
   });
@@ -810,6 +826,13 @@ function accionesDeFila(datos, type, row) {
         data-placement="right"
         title="Clonar Guía">
             <i class="fas fa-clone"></i>
+        </button>`;
+
+    const btnErrors = `<button class="btn btn-warning btn-circle btn-sm mx-1 action ${showCloneAndDelete}" data-id="${id}" 
+        id="errores_guia${id}" data-funcion="activar-desactivar" data-costo_envio="${datos.costo_envio}"
+        data-placement="right"
+        title="Errores Guía">
+        <i class="fas fa-exclamation-triangle"></i>
         </button>`;
 
     const btnRestore = `<button class="btn btn-success btn-circle btn-sm mx-1 action ${showCloneAndDelete}" data-id="${id}" 
@@ -880,9 +903,15 @@ function accionesDeFila(datos, type, row) {
     if (filtrado === pedido) {
       buttons += btnClone;
     }
+
+    if (filtrado === pedido && usuariosHabilitadosParaCola.includes(datos_usuario.centro_de_costo)){
+      buttons += btnErrors;
+    }
+    
     if (!datos.estado && datos.estadoActual !== eliminada) {
       buttons += btnDelete;
     }
+
 
     if (datos.estadoActual == eliminada && datos.estadoAnterior) {
       buttons += btnRestore;
@@ -964,4 +993,55 @@ async function empacarMasivo(data, empacar) {
 
   await Promise.all(enviado);
   return lista.length;
+}
+
+async function encolarCreacionGuia(guia) {
+  const refColaNueva = refColaCreacionGuias.doc(guia.id_heka);
+
+  const colaExistente = await refColaNueva
+  .get()
+  .then(d => {
+    if(d.exists) {
+      return d.data();
+    }
+
+    return null
+  });
+
+  const fechaSolicitud = new Date();
+  console.log(colaExistente);
+
+  try {
+    if(colaExistente) {
+      await refColaNueva.update({
+        status: "ENQUEUE",
+        timestamp: fechaSolicitud,
+        intentos: 0
+      });
+      
+      return {
+        error: false,
+        message: "Se ha restablecido el reintento por cola para la guía."
+      }
+    } else {
+      await refColaNueva.set({
+        id_heka: guia.id_heka,
+        id_user: user_id,
+        status: "ENQUEUE",
+        fechaSolicitud,
+        timestamp: fechaSolicitud,
+        intentos: 0
+      });
+      
+      return {
+        error: false,
+        message: "Se ha creado una nueva cola exitósamente, estaremos trabajando intentando crear su guía."
+      }
+    }
+  } catch (e) {
+    return {
+      error: true,
+      message: "Error trantando de ingresar la guía a una cola " + e.message
+    }
+  }
 }
