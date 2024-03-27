@@ -1,6 +1,7 @@
 const { creacionGuia } = require("../controllers/inter");
 const firebase = require("../keys/firebase");
 const { estandarizarFecha } = require("./funciones");
+const { estadosGuia } = require("./manejadorMovimientosGuia");
 const db = firebase.firestore();
 
 const estadosCola = {
@@ -90,6 +91,14 @@ async function actualizarGuia(id_user, id_heka, obj) {
 //#endregion
 
 async function crearGuiaTransportadora(guide) {
+    // si ya tiene número de guía, no se debe reejecutar la creación de guías
+    if(guide.numeroGuia) {
+        return {
+            error: true,
+            message: "La guía ya tiene un número de guía asignado: " + guide.numeroGuia
+        }
+    }
+
     switch(guide.transportadora) {
         case "INTERRAPIDISIMO": 
             const dataInter = await creacionGuia(guide);
@@ -172,6 +181,12 @@ async function intentarCrearGuiaEnCola(queue) {
         ultimaActualizacion: fechaActualizacion,
     };
 
+    if(guideToCreate.numeroGuia) {
+        // Se asiga el estado de cancelado, debido a que ya tiene un numero de guía otorgado por la transportadora
+        // Entonces, se marca como cancelada en la cola para que no se vuelva a ejecutar
+        controlBaseGuia.status = estadosCola.cancelada;
+    }
+
     if(responseCreation.error) {
         // guardar el último error en cola y el mensaje en la guía encolada
 
@@ -188,7 +203,9 @@ async function intentarCrearGuiaEnCola(queue) {
     } else {
         // actualizar la guía, guardar última satisfactoria, y el mensaje en cola de la creación satisfactoria
         await actualizarGuia(id_user, id_heka, {
-            numeroGuia: responseCreation.numeroGuia,
+            numeroGuia: responseCreation.numeroGuia.toString(), // El número de guía siempre se guarda en string
+            estadoActual: estadosGuia.generada, // Se marca la guía como generada
+            fecha_aceptada: estandarizarFecha(fechaActualizacion, "DD-MM-YYYY HH:mm"), // Se inserta la fecha en la que fue aceptada
             has_sticker: false // TODO: hay que arreglar para asignar también el sticker de la guía
         });
 
@@ -199,7 +216,7 @@ async function intentarCrearGuiaEnCola(queue) {
         // Se cambia el estado de proceso de creación para marcarlo como exitoso
         controlBaseGuia.status = estadosCola.exito;
         // Se almacena el mensaje que se va a actualizar
-        controlBaseGuia.message = firebase.firestore.FieldValue.arrayUnion({
+        controlBaseGuia.messages = firebase.firestore.FieldValue.arrayUnion({
             message: "La guia número " + responseCreation.numeroGuia + " ha sido creada exitósamente",
             fecha: fechaActualizacion
         });
