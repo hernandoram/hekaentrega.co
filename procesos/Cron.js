@@ -1,6 +1,7 @@
 const cron = require('node-cron');
 const { actualizarMovimientos, actualizarMovimientosSemanales, ocultarOficinas } = require("../controllers/seguimientos");
 var firebase = require("../keys/firebase");
+const { processCreationGuides } = require('../extends/generacionGuias');
 
 cron.schedule("00 */6 * * *", () => {
     let d = new Date();
@@ -39,4 +40,9 @@ cron.schedule("0 0 * * 0", () => {
 
 cron.schedule("0 0 * * 0", () => {
     ocultarOficinas();
+});
+
+cron.schedule("*/5 * * * *", () => {
+    // Se Revisarán las guías que están en cola para intentar crear todas las pendientes
+    processCreationGuides();
 });
