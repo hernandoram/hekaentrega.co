@@ -9,6 +9,8 @@ let auxManejadorGuias = false;
 const urlToken = new URLSearchParams(window.location.search);
 const tokenUser = urlToken.get("token") || localStorage.getItem("token");
 
+console.warn("HOLA!, HOLA!, HOLA!")
+
 async function validateToken(token) {
   if (!token) {
     redirectLogin();
