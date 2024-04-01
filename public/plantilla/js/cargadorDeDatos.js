@@ -1,5 +1,5 @@
-const PROD_API_URL = "https://api.hekaentrega.co"; //"https://apidev.hekaentrega.co" o esta
-// const PROD_API_URL = "https://apidev.hekaentrega.co"; //comentar o descomentar segun el ambiente
+//const PROD_API_URL = "https://api.hekaentrega.co"; //"https://apidev.hekaentrega.co" o esta
+const PROD_API_URL = "https://apidev.hekaentrega.co"; //comentar o descomentar segun el ambiente
 
 let user_id = localStorage.user_id,
   usuarioDoc;
@@ -31,19 +31,19 @@ async function validateToken(token) {
         !data ||
         !data.response ||
         !data.response.user ||
-        !data.response.user.document
+        !data.response.user.idFirebase
       ) {
         redirectLogin();
         throw new Error("Invalid API response");
       }
-      user_document = data.response.user.document;
+      let user_id_firebase = data.response.user.idFirebase;
 
       const tipoUsuario = data.response.user.role[0];
 
-      const querySnapshot = await firebase
+      const user = await firebase
         .firestore()
         .collection("usuarios")
-        .where("numero_documento", "==", user_document.toString())
+        .doc(user_id_firebase)
         .get();
 
       if (tipoUsuario === "manager") {
@@ -54,18 +54,16 @@ async function validateToken(token) {
         localStorage.removeItem("acceso_admin");
       }
 
-      if (querySnapshot.empty) {
+      if (!user.exists) {
         redirectLogin();
         throw new Error("No documents found.");
       }
 
-      const doc = querySnapshot.docs[0];
-
-      console.log(doc.data());
-      localStorage.setItem("user_id", doc.id);
+      console.log(user.data());
+      localStorage.setItem("user_id", user.id);
       localStorage.setItem("token", token);
 
-      user_id = doc.id;
+      user_id = user.id;
     } catch (error) {
       redirectLogin();
       console.error("Error en la solicitud GET:", error);
@@ -76,7 +74,7 @@ async function validateToken(token) {
 
 function redirectLogin() {
   alert("La sesión ha expirado, por favor inicia sesión nuevamente");
-  location.href = "https://hekaentrega.co/ingreso";
+  //  location.href = "https://hekaentrega.co/ingreso";
 }
 
 validateToken(tokenUser)
