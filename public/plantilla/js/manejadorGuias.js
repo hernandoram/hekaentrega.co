@@ -1,7 +1,6 @@
 let filtroPagos;
 
-console.warn(administracion);
-if (administracion && auxManejadorGuias) {
+if (administracion) {
   if (localStorage.getItem("acceso_admin")) {
     if (location.hash === "#documentos") {
       cargarDocumentos("important");
