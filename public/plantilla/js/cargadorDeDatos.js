@@ -87,30 +87,30 @@ function redirectLogin() {
   alert("La sesión ha expirado, por favor inicia sesión nuevamente");
   location.href = "https://hekaentrega.co/ingreso";
 }
+(async () => {
+  validateToken(tokenUser)
+    .then(() => {
+      console.log(localStorage.getItem("acceso_admin"));
 
-validateToken(tokenUser)
-  .then(() => {
-    console.log(localStorage.getItem("acceso_admin"));
-
-    if (localStorage.getItem("acceso_admin")) {
-      console.warn("Bienvenido administrador");
-      revisarNotificaciones();
-      listarNovedadesServientrega();
-      listarSugerenciaMensajesNovedad();
-      $("#descargar-informe-usuarios").click(descargarInformeUsuariosAdm);
-    } else if (user_id) {
-      usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
-      cargarDatosUsuario().then(() => {
+      if (localStorage.getItem("acceso_admin")) {
         revisarNotificaciones();
-        cargarPagoSolicitado();
-      });
-    } else {
-      redirectLogin();
-    }
-  })
-  .catch((error) => {
-    console.error("Error en validateToken:", error);
-  });
+        listarNovedadesServientrega();
+        listarSugerenciaMensajesNovedad();
+        $("#descargar-informe-usuarios").click(descargarInformeUsuariosAdm);
+      } else if (user_id) {
+        usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
+        cargarDatosUsuario().then(() => {
+          revisarNotificaciones();
+          cargarPagoSolicitado();
+        });
+      } else {
+        redirectLogin();
+      }
+    })
+    .catch((error) => {
+      console.error("Error en validateToken:", error);
+    });
+})();
 
 window.addEventListener("storage", (e) => {
   const { key, newValue } = e;
