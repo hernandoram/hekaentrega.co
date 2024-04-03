@@ -1,54 +1,31 @@
 let filtroPagos;
 
 if (administracion) {
-  if (localStorage.getItem("acceso_admin")) {
-    if (location.hash === "#documentos") {
-      cargarDocumentos("important");
-    }
-
-    $("#buscador-documentos").on("click", () => {
-      cargarDocumentos("fecha");
-    });
-
-    $('[href="#documentos"]').on("click", () => {
-      cargarDocumentos("important");
-    });
-
-    document
-      .getElementById("btn_actualizador")
-      .addEventListener("click", (e) => {
-        e.preventDefault();
-        actualizarEstado();
-      });
-
-    $("#btn_actualizador_utilidades").click(executeUtils);
-
-    document
-      .getElementById("btn-cargar_pagos")
-      .addEventListener("click", (e) => {
-        e.preventDefault();
-        cargarPagos();
-      });
-
-    cargarFiltroDePagosPersonalizados();
-  } else {
-    let inputs = document.querySelectorAll("input");
-    let botones = document.querySelectorAll("button");
-    for (let inp of inputs) {
-      inp.disabled = true;
-    }
-
-    for (let boton of botones) {
-      boton.disabled = true;
-    }
-
-    avisar(
-      "Acceso Denegado",
-      "No tienes acceso a esta plataforma, espera unos segundos o da click en este mensaje y serás redirigido",
-      "advertencia",
-      "plataforma2.html"
-    );
+  if (location.hash === "#documentos") {
+    cargarDocumentos("important");
   }
+
+  $("#buscador-documentos").on("click", () => {
+    cargarDocumentos("fecha");
+  });
+
+  $('[href="#documentos"]').on("click", () => {
+    cargarDocumentos("important");
+  });
+
+  document.getElementById("btn_actualizador").addEventListener("click", (e) => {
+    e.preventDefault();
+    actualizarEstado();
+  });
+
+  $("#btn_actualizador_utilidades").click(executeUtils);
+
+  document.getElementById("btn-cargar_pagos").addEventListener("click", (e) => {
+    e.preventDefault();
+    cargarPagos();
+  });
+
+  cargarFiltroDePagosPersonalizados();
 }
 
 $(document).ready(() => {

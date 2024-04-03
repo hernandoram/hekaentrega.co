@@ -1,5 +1,6 @@
 //const PROD_API_URL = "https://api.hekaentrega.co"; //"https://apidev.hekaentrega.co" o esta
 const PROD_API_URL = "https://apidev.hekaentrega.co"; //comentar o descomentar segun el ambiente
+const PROD_API_URL_PLATFORM2 = "http://localhost:3232"; //comentar o descomentar segun el ambiente
 
 const versionSoftware = "1.0.0";
 
@@ -84,8 +85,14 @@ async function validateToken(token) {
 }
 
 function redirectLogin() {
-  alert("La sesión ha expirado, por favor inicia sesión nuevamente");
-  location.href = "https://hekaentrega.co/ingreso";
+  Swal.fire({
+    title: "Error!",
+    text: "La sesión ha expirado, por favor inicia sesión nuevamente",
+    icon: "error",
+    confirmButtonText: "OK",
+  }).then(() => {
+    location.href = `${PROD_API_URL_PLATFORM2}/ingreso`;
+  });
 }
 (async () => {
   validateToken(tokenUser)
@@ -111,6 +118,31 @@ function redirectLogin() {
       console.error("Error en validateToken:", error);
     });
 })();
+
+async function cerrarSession() {
+  await deleteUserToken();
+  await localStorage.clear();
+  location.href = `${PROD_API_URL_PLATFORM2}/ingreso`;
+}
+
+async function deleteUserToken() {
+  const url = `${PROD_API_URL}/api/v1/user/logout/${localStorage.getItem(
+    "token"
+  )}`;
+
+  console.log(url);
+  try {
+    const response = await fetch(url, { method: "DELETE" });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    console.log("User token deleted successfully");
+  } catch (error) {
+    console.error("Error deleting user token:", error);
+  }
+}
 
 window.addEventListener("storage", (e) => {
   const { key, newValue } = e;
@@ -2336,31 +2368,6 @@ async function solicitarPagosPendientesUs() {
 function descargarExcelPagosAdmin(datos) {
   console.log(datos);
   console.log("Funciona?");
-}
-
-async function cerrarSession() {
-  await deleteUserToken();
-  await localStorage.clear();
-  location.href = "https://hekaentrega.co/ingreso";
-}
-
-async function deleteUserToken() {
-  const url = `${PROD_API_URL}/api/v1/user/logout/${localStorage.getItem(
-    "token"
-  )}`;
-
-  console.log(url);
-  try {
-    const response = await fetch(url, { method: "DELETE" });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    console.log("User token deleted successfully");
-  } catch (error) {
-    console.error("Error deleting user token:", error);
-  }
 }
 
 const inputFlexii = document.querySelector("#inputIDGuiaFlexii");
