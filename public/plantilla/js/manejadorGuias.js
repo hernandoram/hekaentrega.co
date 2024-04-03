@@ -24,7 +24,7 @@ if (administracion) {
     e.preventDefault();
     cargarPagos();
   });
-
+  
   cargarFiltroDePagosPersonalizados();
 }
 
