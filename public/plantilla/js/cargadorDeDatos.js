@@ -76,6 +76,13 @@ async function validateToken(token) {
       localStorage.setItem("user_id", user.id);
       localStorage.setItem("token", token);
 
+      // Si tiene la variable token en la url, es porque recien ingresa
+      // Así que una vez se almacena en el loca storage y se confirma el token
+      // Se procede a recargar la página, quitando dicho token de la URL
+      if(urlToken.get("token")) {
+        location.replace(location.href.split("?")[0]);
+      }
+
       user_id = user.id;
     } catch (error) {
       redirectLogin();
