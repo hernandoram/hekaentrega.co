@@ -697,9 +697,7 @@ function agregarNotasDeExepcionAlCotizador() {
 
 let configuracionesDestinoActual = [];
 function cardNoCobertura(transportadora, transp, message) {
-  return `<li style="cursor:pointer;" class="list-group-item list-group-item-action shadow-sm mb-2 border border-${
-    transportadora.color
-  }" 
+  return `<li style="cursor:pointer;" class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
       id="list-transportadora-${transp}-list" 
       data-transp="${transp}"
       aria-controls="list-transportadora-${transp}"
@@ -710,9 +708,7 @@ function cardNoCobertura(transportadora, transp, message) {
               alt="logo-${transportadora.nombre}">
               <div class="col mt-3 mt-sm-0 order-1 order-sm-0">
                   <h5 class="text-left">${transportadora.nombre}</h5>
-                  <h3 class="text-center mt-4"><b>${
-                    message
-                  }</b></h3>
+                  <h3 class="text-center mt-4"><b>${message}</b></h3>
               </div>
           </div>
       </li>`;
@@ -736,7 +732,9 @@ async function detallesTransportadoras(data) {
     .getElementById("cotizar_envio")
     .getAttribute("data-index");
 
-  configuracionesDestinoActual = await cargarConfiguracionesCiudad(data.dane_ciudadD);
+  configuracionesDestinoActual = await cargarConfiguracionesCiudad(
+    data.dane_ciudadD
+  );
 
   if (!isIndex && data.type === PAGO_CONTRAENTREGA && data.peso <= 5) {
     oficinas = await detallesOficinas(data.ciudadD);
@@ -748,150 +746,155 @@ async function detallesTransportadoras(data) {
   const soloEntreganEnDireccion = ["ENVIA", "COORDINADORA"];
 
   //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
-  await Promise.all(Object.keys(transportadoras).map(async (transp) => {
-    // Este factor será usado para hacer variaciones de precios entre
-    // flete trasportadora y sobreflete heka para intercambiar valores
-    let factor_conversor = 0;
+  await Promise.all(
+    Object.keys(transportadoras).map(async (transp) => {
+      // Este factor será usado para hacer variaciones de precios entre
+      // flete trasportadora y sobreflete heka para intercambiar valores
+      let factor_conversor = 0;
 
-    let seguro = data.seguro,
-      recaudo = data.valor;
-    let transportadora = transportadoras[transp];
-    const configuracionCiudad = obtenerConfiguracionCiudad(transp, data.type);
+      let seguro = data.seguro,
+        recaudo = data.valor;
+      let transportadora = transportadoras[transp];
+      const configuracionCiudad = obtenerConfiguracionCiudad(transp, data.type);
 
-    if(configuracionCiudad)
-      console.log("Configuración para ciudad, transportadora y tipo de envío: ", configuracionCiudad);
+      if (configuracionCiudad)
+        console.log(
+          "Configuración para ciudad, transportadora y tipo de envío: ",
+          configuracionCiudad
+        );
 
-    if(configuracionCiudad && !configuracionCiudad.tipo_distribucion.length) {
-      const card = cardNoCobertura(
-        transportadora,
-        transp,
-        configuracionCiudad?.descripcion
-        ? configuracionCiudad.descripcion
-        : "No hay cobertura para este destino"
-      );
-      encabezados += card;
-      mostradorTransp.append(card);
-      return null;
-    }
+      if (
+        configuracionCiudad &&
+        !configuracionCiudad.tipo_distribucion.length
+      ) {
+        const card = cardNoCobertura(
+          transportadora,
+          transp,
+          configuracionCiudad?.descripcion
+            ? configuracionCiudad.descripcion
+            : "No hay cobertura para este destino"
+        );
+        encabezados += card;
+        mostradorTransp.append(card);
+        return null;
+      }
 
-    if (
-      transportadora.bloqueada(data)
-    ) {
-      return null;
-    }
+      if (transportadora.bloqueada(data)) {
+        return null;
+      }
 
-    if (!cotizacionAveo && transp === "TCC") {
-      cotizacionAveo = await cotizarAveonline(typeToAve, {
-        origen: data.ave_ciudadR,
-        destino: data.ave_ciudadD,
-        valorRecaudo: recaudo,
-        alto: data.alto,
-        largo: data.largo,
-        ancho: data.ancho,
-        peso: value("Kilos"),
-        valorDeclarado: seguro,
-        type: typeToAve,
-      });
+      if (!cotizacionAveo && transp === "TCC") {
+        cotizacionAveo = await cotizarAveonline(typeToAve, {
+          origen: data.ave_ciudadR,
+          destino: data.ave_ciudadD,
+          valorRecaudo: recaudo,
+          alto: data.alto,
+          largo: data.largo,
+          ancho: data.ancho,
+          peso: value("Kilos"),
+          valorDeclarado: seguro,
+          type: typeToAve,
+        });
 
-      if (!cotizacionAveo.error)
-        modificarDatosDeTransportadorasAveo(cotizacionAveo);
-    }
+        if (!cotizacionAveo.error)
+          modificarDatosDeTransportadorasAveo(cotizacionAveo);
+      }
 
-    if (transp === "SERVIENTREGA" || transp === "INTERRAPIDISIMO") {
-      seguro = recaudo ? recaudo : seguro;
-    }
+      if (transp === "SERVIENTREGA" || transp === "INTERRAPIDISIMO") {
+        seguro = recaudo ? recaudo : seguro;
+      }
 
-    if (data.peso > transportadora.limitesPeso[1]) return null;
-    let valor = Math.max(
-      seguro,
-      transportadora.limitesValorDeclarado(data.peso)[0]
-    );
-    if (data.type === "PAGO DESTINO") valor = 0;
-    let cotizador = new CalcularCostoDeEnvio(valor, data.type);
-
-    if (["ENVIA", "COORDINADORA"].includes(transp)) {
-      cotizador.valor = recaudo;
-      cotizador.seguro = Math.max(
+      if (data.peso > transportadora.limitesPeso[1]) return null;
+      let valor = Math.max(
         seguro,
         transportadora.limitesValorDeclarado(data.peso)[0]
       );
-    }
+      if (data.type === "PAGO DESTINO") valor = 0;
+      let cotizador = new CalcularCostoDeEnvio(valor, data.type);
 
-    cotizador.kg_min = transportadora.limitesPeso[0];
-
-    const cotizacion = await cotizador.putTransp(transp, {
-      dane_ciudadR: data.dane_ciudadR,
-      dane_ciudadD: data.dane_ciudadD,
-      cotizacionAveo,
-    });
-
-    if (!cotizacion.flete || cotizacion.empty || cotizacion.NoCobertura) {
-      const card = cardNoCobertura(
-        transportadora,
-        transp,
-        cotizacion.NoCobertura
-        ? "No hay cobertura para este destino"
-        : "Error al cotizar, intenta de nuevo"
-      );
-      encabezados += card;
-      mostradorTransp.append(card);
-      return null;
-    }
-
-    if (data.sumar_envio || data.type === CONTRAENTREGA) {
-      cotizacion.sumarCostoDeEnvio = cotizacion.valor;
-
-      if (transp === "INTERRAPIDISIMO") {
-        const minimoEnvio = transportadora.valorMinimoEnvio(
-          cotizacion.kgTomado
+      if (["ENVIA", "COORDINADORA"].includes(transp)) {
+        cotizador.valor = recaudo;
+        cotizador.seguro = Math.max(
+          seguro,
+          transportadora.limitesValorDeclarado(data.peso)[0]
         );
-        const diferenciaMinima = minimoEnvio - cotizacion.valor;
-        if (diferenciaMinima > 0)
-          cotizacion.sumarCostoDeEnvio = diferenciaMinima;
+      }
 
-        //Se le resta 1000 para evitar que se cruce con el valor constante que se añade sobre "this.sobreflete_heka += 1000"
-        const diferenciaActualRecaudoEnvio =
-          cotizacion.valor - cotizacion.costoEnvio - 1000;
-        if (diferenciaActualRecaudoEnvio > 0 && data.type === CONTRAENTREGA) {
-          factor_conversor = diferenciaActualRecaudoEnvio;
-          cotizacion.set_sobreflete_heka =
-            cotizacion.sobreflete_heka + diferenciaActualRecaudoEnvio;
+      cotizador.kg_min = transportadora.limitesPeso[0];
+
+      const cotizacion = await cotizador.putTransp(transp, {
+        dane_ciudadR: data.dane_ciudadR,
+        dane_ciudadD: data.dane_ciudadD,
+        cotizacionAveo,
+      });
+
+      if (!cotizacion.flete || cotizacion.empty || cotizacion.NoCobertura) {
+        const card = cardNoCobertura(
+          transportadora,
+          transp,
+          cotizacion.NoCobertura
+            ? "No hay cobertura para este destino"
+            : "Error al cotizar, intenta de nuevo"
+        );
+        encabezados += card;
+        mostradorTransp.append(card);
+        return null;
+      }
+
+      if (data.sumar_envio || data.type === CONTRAENTREGA) {
+        cotizacion.sumarCostoDeEnvio = cotizacion.valor;
+
+        if (transp === "INTERRAPIDISIMO") {
+          const minimoEnvio = transportadora.valorMinimoEnvio(
+            cotizacion.kgTomado
+          );
+          const diferenciaMinima = minimoEnvio - cotizacion.valor;
+          if (diferenciaMinima > 0)
+            cotizacion.sumarCostoDeEnvio = diferenciaMinima;
+
+          //Se le resta 1000 para evitar que se cruce con el valor constante que se añade sobre "this.sobreflete_heka += 1000"
+          const diferenciaActualRecaudoEnvio =
+            cotizacion.valor - cotizacion.costoEnvio - 1000;
+          if (diferenciaActualRecaudoEnvio > 0 && data.type === CONTRAENTREGA) {
+            factor_conversor = diferenciaActualRecaudoEnvio;
+            cotizacion.set_sobreflete_heka =
+              cotizacion.sobreflete_heka + diferenciaActualRecaudoEnvio;
+          }
         }
       }
-    }
 
-    cotizacion.debe = data.debe;
-    let descuento;
-    if (cotizacion.descuento) {
-      const percent = Math.round(
-        ((cotizacion.costoEnvioPrev - cotizacion.costoEnvio) * 100) /
-          cotizacion.costoEnvioPrev
-      );
-      descuento = percent + " %";
-    }
+      cotizacion.debe = data.debe;
+      let descuento;
+      if (cotizacion.descuento) {
+        const percent = Math.round(
+          ((cotizacion.costoEnvioPrev - cotizacion.costoEnvio) * 100) /
+            cotizacion.costoEnvioPrev
+        );
+        descuento = percent + " %";
+      }
 
-    //Para cargar el sobreflete heka antes;
-    cotizacion.costoEnvio;
+      //Para cargar el sobreflete heka antes;
+      cotizacion.costoEnvio;
 
-    let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
-    let fleteConvertido = cotizacion.flete;
-    if (
-      ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA"].includes(transp) &&
-      data.type === PAGO_CONTRAENTREGA
-    ) {
-      factor_conversor = FACHADA_FLETE;
-    }
+      let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
+      let fleteConvertido = cotizacion.flete;
+      if (
+        ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA"].includes(transp) &&
+        data.type === PAGO_CONTRAENTREGA
+      ) {
+        factor_conversor = FACHADA_FLETE;
+      }
 
-    if (factor_conversor > 0) {
-      sobreFleteHekaEdit -= factor_conversor;
-      fleteConvertido += factor_conversor;
-    }
+      if (factor_conversor > 0) {
+        sobreFleteHekaEdit -= factor_conversor;
+        fleteConvertido += factor_conversor;
+      }
 
-    if (!transportadora.cotizacion) transportadora.cotizacion = new Object();
-    transportadora.cotizacion[data.type] = cotizacion;
+      if (!transportadora.cotizacion) transportadora.cotizacion = new Object();
+      transportadora.cotizacion[data.type] = cotizacion;
 
-    const precioPuntoEnvio = ControlUsuario.esPuntoEnvio
-      ? `
+      const precioPuntoEnvio = ControlUsuario.esPuntoEnvio
+        ? `
             <div class="card my-3 shadow-sm">
                 <div class="card-body">
                     <h5 class="card-title">Comisión Punto</h5>
@@ -901,11 +904,11 @@ async function detallesTransportadoras(data) {
                 </div>
             </div>
         `
-      : "";
+        : "";
 
-    const encabezado = `<li style="cursor:pointer;" class="list-group-item list-group-item-action shadow-sm mb-2 border border-${
-      transportadora.color
-    }" 
+      const encabezado = `<li style="cursor:pointer;" class="list-group-item list-group-item-action shadow-sm mb-2 border border-${
+        transportadora.color
+      }" 
         id="list-transportadora-${transp}-list" 
         data-transp="${transp}"
         data-type="${data.type}"
@@ -917,8 +920,8 @@ async function detallesTransportadoras(data) {
                 alt="logo-${transportadora.nombre}">
                 <div class="col-12 col-sm-6 mt-3 mt-sm-0 order-1 order-sm-0">
                     <h5>${transportadora.nombre} <span class="badge badge-${
-      transportadora.color
-    } p-2">${transp === "TCC" ? "Próximamente" : ""}</span></h5>
+        transportadora.color
+      } p-2">${transp === "TCC" ? "Próximamente" : ""}</span></h5>
                     <h6>tiempo de entrega: ${
                       cotizacion.tiempo || datos_de_cotizacion.tiempo
                     } Días</h6>
@@ -941,13 +944,13 @@ async function detallesTransportadoras(data) {
             <p class="text-center mb-0 mt-2 d-none d-sm-block">Costo de envío para ${
               data.type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"
             }: <b>$${convertirMiles(
-      data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor
-    )}</b></p>
+        data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor
+      )}</b></p>
             <p class="mb-0 d-sm-none">${
               data.type == "CONVENCIONAL" ? "Valor declarado" : "Recaudo"
             }: <b>$${convertirMiles(
-      data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor
-    )}</b></p>
+        data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor
+      )}</b></p>
             
             <p class="mb-0 text-center">
                 <span class="estadisticas position-relative"></span>
@@ -961,7 +964,7 @@ async function detallesTransportadoras(data) {
 
         </li>`;
 
-    const detalle = `<div class="tab-pane fade 
+      const detalle = `<div class="tab-pane fade 
         ${!corredor && !oficinas.length ? "show active" : ""}" 
         id="list-transportadora-${transp}" aria-labelledby="list-transportadora-${transp}-list">
             <div class="card">
@@ -1019,19 +1022,20 @@ async function detallesTransportadoras(data) {
             </div>
         </div>`;
 
-    encabezados += encabezado;
-    detalles += detalle;
-    mostradorTransp.append(encabezado);
-    detallesTransp.append(detalle);
+      encabezados += encabezado;
+      detalles += detalle;
+      mostradorTransp.append(encabezado);
+      detallesTransp.append(detalle);
 
-    $(`#ver-detalles-${transp}`).click(verDetallesTransportadora);
-    $(`#list-transportadora-${transp}-list`).click(seleccionarTransportadora);
-    if (!isIndex) mostrarEstadisticas(data.dane_ciudadD, transp);
+      $(`#ver-detalles-${transp}`).click(verDetallesTransportadora);
+      $(`#list-transportadora-${transp}-list`).click(seleccionarTransportadora);
+      if (!isIndex) mostrarEstadisticas(data.dane_ciudadD, transp);
 
-    corredor++;
+      corredor++;
 
-    return cotizacion;
-  }));
+      return cotizacion;
+    })
+  );
 
   button.removeClass("disabled");
 
@@ -1056,17 +1060,17 @@ async function cargarConfiguracionesCiudad(dane_ciudad) {
     .collection("config_ciudad");
 
   const configuraciones = await reference
-  .where("activa", "==", true)
-  .get().then(q => {
-    const result = [];
+    .where("activa", "==", true)
+    .get()
+    .then((q) => {
+      const result = [];
 
-    q.forEach(d => {
-      result.push(d.data());
+      q.forEach((d) => {
+        result.push(d.data());
+      });
+
+      return result;
     });
-
-    return result;
-  })
-
 
   return configuraciones;
 }
@@ -1074,12 +1078,19 @@ async function cargarConfiguracionesCiudad(dane_ciudad) {
 function obtenerConfiguracionCiudad(transportadora, tipoEnvio) {
   const tipoUsuario = datos_usuario.type;
 
-  const paraTransportadora = configuracionesDestinoActual.filter(c => transportadora === c.transportadora);
-  const paraTipoEnvio = paraTransportadora.filter(c => tipoEnvio === c.tipoEnvio);
-  const paraUsuario = paraTipoEnvio.filter(c => ["TODOS", tipoUsuario].includes(c.tipoUsuario));
+  const paraTransportadora = configuracionesDestinoActual.filter(
+    (c) => transportadora === c.transportadora
+  );
+  const paraTipoEnvio = paraTransportadora.filter(
+    (c) => tipoEnvio === c.tipoEnvio
+  );
+  const paraUsuario = paraTipoEnvio.filter((c) =>
+    ["TODOS", tipoUsuario].includes(c.tipoUsuario)
+  );
 
-  if(!paraUsuario.length) return null;
-  if(paraUsuario.length > 1) return paraUsuario.find(c => tipoUsuario === c.tipoUsuario);
+  if (!paraUsuario.length) return null;
+  if (paraUsuario.length > 1)
+    return paraUsuario.find((c) => tipoUsuario === c.tipoUsuario);
 
   return paraUsuario[0];
 }
@@ -1901,7 +1912,6 @@ function seleccionarTransportadora(e) {
 
   datos_a_enviar.transpVisible = transp;
 
-
   if (isOficina) {
     (datos_a_enviar.oficina = true),
       (datos_a_enviar.datos_oficina = tomarDetallesImportantesOficina(
@@ -2035,8 +2045,8 @@ function finalizarCotizacion(datos) {
     `;
 
   if (
-    datos.transportadora !== "SERVIENTREGA" 
-    // && datos.transportadora !== "INTERRAPIDISIMO"
+    datos.transportadora !== "SERVIENTREGA" &&
+    datos.transportadora !== "INTERRAPIDISIMO"
   ) {
     solicitud_recoleccion = `
         <div class="alert alert-danger col-12">
@@ -2063,16 +2073,25 @@ function finalizarCotizacion(datos) {
 
   console.log(configuracionesDestinoActual);
 
-  const configuracionCiudadActual = obtenerConfiguracionCiudad(datos.transportadora, datos.type);
+  const configuracionCiudadActual = obtenerConfiguracionCiudad(
+    datos.transportadora,
+    datos.type
+  );
 
-  const tiposEntregasDisponible = [null, '<option value="1">Entrega en dirección</option>', '<option value="2">Entrega en oficina</option>'];
+  const tiposEntregasDisponible = [
+    null,
+    '<option value="1">Entrega en dirección</option>',
+    '<option value="2">Entrega en oficina</option>',
+  ];
   if (
     datos.transportadora === "INTERRAPIDISIMO" ||
     datos.transportadora === "SERVIENTREGA"
   ) {
     let opciones = tiposEntregasDisponible;
     if (configuracionCiudadActual) {
-      opciones = configuracionCiudadActual.tipo_distribucion.map(dist => tiposEntregasDisponible[dist]);
+      opciones = configuracionCiudadActual.tipo_distribucion.map(
+        (dist) => tiposEntregasDisponible[dist]
+      );
     }
 
     entrega_en_oficina = `
@@ -2084,7 +2103,6 @@ function finalizarCotizacion(datos) {
         </select>
       </div>
     `;
-
   }
 
   let detalles = detalles_cotizacion(datos),
@@ -2229,15 +2247,11 @@ function finalizarCotizacion(datos) {
                   </div>
               </div>
               ${entrega_en_oficina}
-              <div class="col-sm-${
-                entrega_en_oficina ? "5" : "6"
-              } mb-3 mb-2">
+              <div class="col-sm-${entrega_en_oficina ? "5" : "6"} mb-3 mb-2">
                   <h5>Dirección del Destinatario</h5>
                   <input type="text" id="direccionD" class="form-control form-control-user" value="" placeholder="Dirección-Conjunto-Apartemento" required="">
               </div>
-              <div class="col-sm-${
-                entrega_en_oficina ? "5" : "6"
-              } mb-3 mb-2">
+              <div class="col-sm-${entrega_en_oficina ? "5" : "6"} mb-3 mb-2">
                   <h5>Barrio del Destinatario</h5>
                   <input type="text" id="barrioD" class="form-control form-control-user detect-errors" value="" placeholder="Barrio" required="">
               </div>
@@ -2266,8 +2280,7 @@ function finalizarCotizacion(datos) {
       </form>
   </div>
   `),
-    boton_crear =
-      crearNodo(`<button type="button" id="boton_final_cotizador" 
+    boton_crear = crearNodo(`<button type="button" id="boton_final_cotizador" 
       class="btn btn-success btn-block mt-5" title="Crear guía" onclick="crearGuia()">Crear guía</button>`);
 
   if (!directionNode) return;
@@ -3208,7 +3221,8 @@ class CalcularCostoDeEnvio {
       return 0;
 
     const pagoContraentrega = this.convencional ? "FALSE" : "TRUE";
-    const errorNoCobertura="El destino no es válido para envíos con contra pago y pago en casa.";
+    const errorNoCobertura =
+      "El destino no es válido para envíos con contra pago y pago en casa.";
 
     //#region SOLICITUD PASADA AL BACK
     const data = {
@@ -3219,18 +3233,14 @@ class CalcularCostoDeEnvio {
       pagoContraentrega,
     };
     // Request de solicitud al back
-    const backPromise = fetch(
-      "/inter/cotizar",
-      {
-        method: "POST",
-        body: JSON.stringify(data),
-        headers: {
-          "Content-Type": "Application/json"
-        }
-      }
-    )
-    .catch((err) => err);
-    
+    const backPromise = fetch("/inter/cotizar", {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "Application/json",
+      },
+    }).catch((err) => err);
+
     //#endregion
 
     const frontPromise = fetch(
@@ -3256,10 +3266,8 @@ class CalcularCostoDeEnvio {
       .then(async (data) => {
         if (data.status == 417) {
           const text = await data.text();
-          
-          if (
-            text.includes(errorNoCobertura)
-          ) {
+
+          if (text.includes(errorNoCobertura)) {
             throw Error("No hay Cobertura");
           }
         }
@@ -3387,7 +3395,7 @@ class CalcularCostoDeEnvio {
 
     console.log(response);
     if (!response || response.message) {
-      this.NoCobertura = true
+      this.NoCobertura = true;
       return false;
     }
 
