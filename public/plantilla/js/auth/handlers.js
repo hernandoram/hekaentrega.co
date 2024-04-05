@@ -111,7 +111,7 @@ console.log(idguia, iduser);
 function redirectIfAuthenticated() {
   if (localStorage.getItem("acceso_admin")) {
     location.href = "admin.html";
-  } else if (localStorage.getItem("user_id")&&idguia&&iduser) {
+  } else if (localStorage.getItem("user_id") && idguia && iduser) {
     location.href = `plataforma2.html?idguia=${idguia}&iduser=${iduser}#flexii-guia`;
   } else if (localStorage.getItem("user_id")) {
     location.href = "plataforma2.html";
@@ -151,33 +151,7 @@ function agregarObjetoDeEnvio(e) {
 
 // función que será utilizada para validar diariamente la contraseña del sistema administrativo
 async function ValidarAccesoAdmin() {
-  const ref = usuarioAltDoc(user_id); // referencia de firebase contenida en cargadorDeDatos.js
-
-  const ultimoAcceso = localStorage.getItem("last_connection") ?? 0;
-  const cod_ingreso = localStorage.getItem("user_login");
-  const accesoActual = Date.now();
-  const horasDeterminadas = 12 * 3.6e6;
-
-  if (ultimoAcceso === 0) {
-    localStorage.setItem("last_connection", accesoActual);
-    return true;
-  }
-
-  if (accesoActual - ultimoAcceso > horasDeterminadas) {
-    const data = await ref.get().then((d) => d.data());
-
-    if (data.ingreso !== cod_ingreso) {
-      localStorage.clear();
-      await Swal.fire(
-        "Sesión expirada",
-        "Su sesión ha expirado, por favor inicie sesion nuevamente.",
-        "error"
-      );
-      location.href = "/";
-    }
-  }
-
-  localStorage.setItem("last_connection", accesoActual);
+  console.log("Validando acceso admin");
 }
 
 export {
