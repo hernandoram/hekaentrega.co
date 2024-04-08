@@ -96,13 +96,9 @@ async function actualizarGuia(id_user, id_heka, obj) {
 //#endregion
 
 async function crearGuiaTransportadora(guide) {
-    // si ya tiene número de guía, no se debe reejecutar la creación de guías
-    if(guide.numeroGuia) {
-        return {
-            error: true,
-            message: "La guía ya tiene un número de guía asignado: " + guide.numeroGuia
-        }
-    }
+    const motivoCancelacion = analizarCancelacionCreacionCola(guide);
+
+    if(motivoCancelacion !== null) return motivoCancelacion;
 
     switch(guide.transportadora) {
         case "INTERRAPIDISIMO": 
@@ -124,6 +120,40 @@ async function crearGuiaTransportadora(guide) {
                 message: "Transportadora aún no disponible para procesar creación por cola"
             }
     }
+}
+
+function analizarCancelacionCreacionCola(guide) {
+    
+    /** guide.cancelarCreacionPersistente = true
+     * Es un flag que sería utilizado más adelante para evitar reprocesar errores controlados
+     * que no tienen nada que ver con la transportadora y que siempre va a ser el mismo resulta
+     * para evitar intertar crear guías sin necesidad de...
+    */
+   
+    // si ya tiene número de guía, no se debe reejecutar la creación de guías
+    if(guide.numeroGuia) {
+        // Se asigna el estado de cancelado, debido a que ya tiene un numero de guía otorgado por la transportadora
+        guide.cancelarCreacionPersistente = true;
+        return {
+            error: true,
+            message: "La guía ya tiene un número de guía asignado: " + guide.numeroGuia
+        }
+    }
+    
+    // Si la guía no está en proceso, no se debería intentar el trabajo de creación por cola
+    if(guide.estadoActual !== estadosGuia.proceso) {
+        // Se asigna el estado de cancelado, debido a que por alguna causa la guía ya no está en pedido
+        // Ej. se eliminó desde pedidos y ya no es necesario crear
+        guide.cancelarCreacionPersistente = true;
+        return {
+            error: true,
+            message: "No se permite crear guías para cuado el estado sea: " + guide.estadoActual
+        }
+    }
+
+
+    // Se retorna nulo porque no encuentra un motivo para cancelar la creación por cola
+    return null;
 }
 
 // esta función me toma un arreglo de strings, junto con la refenrecia de FB, y lo guarda en una collectio indexada
@@ -161,6 +191,9 @@ async function guardarDocumentoSegmentado(base64Segmentada, referencia) {
 
 async function intentarCrearGuiaEnCola(queue) {
     const fechaActualizacion = new Date();
+
+    // Espacio para que la hora de actualización corresponda a Colombia, restando así cinco horas
+    fechaActualizacion.setHours(fechaActualizacion.getHours() - 5);
     
     const {id_user, id_heka, intentos} = queue;
 
@@ -186,8 +219,12 @@ async function intentarCrearGuiaEnCola(queue) {
         ultimaActualizacion: fechaActualizacion,
     };
 
-    if(guideToCreate.numeroGuia) {
-        // Se asiga el estado de cancelado, debido a que ya tiene un numero de guía otorgado por la transportadora
+    /* Esto se dispara cuando en algún lado del proceso, se detecta que la guía no debe ser creada
+     * Casos conocidos:
+     * 1. La guía ya ha sido creada por algún otro medio
+     * 2. la guía no se encuentra en la pestaña de pedido
+    */ 
+    if(guideToCreate.cancelarCreacionPersistente) {
         // Entonces, se marca como cancelada en la cola para que no se vuelva a ejecutar
         controlBaseGuia.status = estadosCola.cancelada;
     }

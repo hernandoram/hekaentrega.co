@@ -280,12 +280,21 @@ async function cargarDatosUsuario() {
   content.show("fast");
 }
 
+/* Variable vinculada estrechamente con usuariosHabilitadosParaCola, presente en historial.js.
+Una vez se compruebe la funcnionalidad correcta de esta implementación, se puede eliminar esta variable
+junto a las funcionalidades adicionales que la acompañen
+*/
+const usuarioParaColaInfoHeka = [];
 async function cargarPagoSolicitado() {
   console.warn("Cargando pago");
   const ref = db.collection("infoHeka").doc("manejoUsuarios");
-  const { diarioSolicitado, limitadosDiario } = await ref
+  const { diarioSolicitado, limitadosDiario, colaProcesarGuias } = await ref
     .get()
     .then((d) => d.data());
+
+  // Llenamos esta variable con los usuario habilitados para crear guías en cola
+  if(colaProcesarGuias && colaProcesarGuias.length)
+    usuarioParaColaInfoHeka.push(...colaProcesarGuias);
 
   const centro_de_costo = datos_usuario.centro_de_costo;
   const soliciado = diarioSolicitado.includes(centro_de_costo);
