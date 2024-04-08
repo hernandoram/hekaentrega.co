@@ -21,7 +21,8 @@ buscador.after(filtersHtml);
 container.append(htmlTable);
 
 // TODO: Para cuando sea 100% Efectivo se debe eliminar junto con las condiciones que la acompañan
-const usuariosHabilitadosParaCola = ["SellerNuevo2"];
+// usuarioParaColaInfoHeka presente en cargadorDeDatos.js, eliminar también una vez se compruebe la implementación
+const usuariosHabilitadosParaCola = usuarioParaColaInfoHeka;
 
 const typesGenerales = [
   neutro,
