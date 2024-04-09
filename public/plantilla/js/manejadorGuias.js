@@ -4835,6 +4835,212 @@ async function generarRotulo(id_guias) {
   }, 500);
 }
 
+async function generarRotuloNew(id_guias) {
+  let div = document.createElement("div");
+  let guias = new Array();
+  for (let id of id_guias) {
+    let x = usuarioDoc
+      .collection("guias")
+      .doc(id)
+      .get()
+      .then((d) => d.data());
+    guias.push(x);
+  }
+
+  let data_guias = await Promise.all(guias);
+  console.log(data_guias);
+
+  const createRow = (valueLeft, valueRight) => {
+    const tr = document.createElement("tr");
+    const td1 = document.createElement("td");
+    const td2 = document.createElement("td");
+
+    td1.innerHTML = valueLeft;
+    td2.innerHTML = valueRight;
+
+    tr.append(td1, td2);
+    return {tr, td1, td2}
+
+  }
+
+  const insertRow = (table, valueLeft, valueRight) => {
+    const newRow = createRow(valueLeft, valueRight);
+    table.appendChild(newRow.tr);
+  }
+
+  data_guias.forEach((guia, i, self) => {
+    // Creamos la tabla pricipal
+    const table = document.createElement("table");
+    const tbody = document.createElement("tbody");
+    table.setAttribute("class", "table table-bordered");
+
+    const textoCantidadPaquetes = `Paquete ${i+1} de ${self.length}`;
+  
+    const encabezado = createRow(`<b>${guia.transportadora}</b>`, "<b>Flexii S.A.S.</b> <br/> GUÍA DE TRANSPORTE | A | Crédito");
+    tbody.appendChild(encabezado.tr);
+
+    insertRow(tbody, genFecha(), textoCantidadPaquetes);
+
+    // Se generan las filas comunes
+    const rowCiudades = createRow(`Origen: <b>${guia.ciudadR}</b>`, `Destino: <b>${guia.ciudadD}</b>`);
+    const rowDestinatarioRemitente = createRow(`De: <b>${guia.nombreR}</b>`, `Para: <b>${guia.nombreD}</b>`);
+    const rowDireccion = createRow(`${guia.direccionD}`, `${guia.observaciones}`);
+    const rowContacto = createRow(`Tel: <b>${guia.celularD}</b>`, `Tel: <b>${guia.telefonoD}</b>`);
+    const rowIdentificacion = createRow(`Cuenta: <b>-No registra</b>`, `CC/NIT: <b>${guia.identificacionD}</b>`);
+    
+    // Se inserta el primer empaquetaod de filas
+    tbody.appendChild(rowCiudades.tr);
+    tbody.appendChild(rowDestinatarioRemitente.tr);
+    tbody.appendChild(rowDireccion.tr);
+    tbody.appendChild(rowContacto.tr);
+    tbody.appendChild(rowIdentificacion.tr);
+
+    const volumen = guia.alto * guia.ancho * guia.largo;
+    const tablaDetalles = `
+      <table class="w-100 m-0">
+        <tr>
+          <th>Peso</th>
+          <th>Vol</th>
+          <th>Declarado</th>
+        </tr>
+        <tr>
+          <td>${guia.peso}</td>
+          <td>${volumen}</td>
+          <td>${convertirMoneda(guia.seguro)}</td>
+        </tr>
+      </table>
+    `
+    const rowMedidas = createRow(tablaDetalles, `<h3>${guia.numeroGuia}</h3>`);
+    rowMedidas.td1.classList.add("p-1");
+    tbody.appendChild(rowMedidas.tr);
+    
+
+    const textoDiceContener = `Cont: ${guia.dice_contener}`;
+    const barCodeRow = `
+      <tr>
+        <td>${textoDiceContener}</td>
+        <td rowspan="3" class="align-content-center text-center">
+          <img alt='Código de barras' height="100px"
+          src='https://barcode.tec-it.com/barcode.ashx?data=${guia.numeroGuia}&code=Code25IL'/>
+        </td>
+      </tr>
+      <tr><td><h1>PARA COBRO ${convertirMoneda(guia.costo_envio)}</h1></td></tr>
+      <tr><td>Fecha: ${genFecha()}</td></tr>
+    `;
+    tbody.innerHTML += barCodeRow;
+
+    tbody.appendChild(rowMedidas.tr);
+
+
+    // Se inserta el segundo empaquetaod de filas
+    tbody.appendChild(rowCiudades.tr);
+    tbody.appendChild(rowDestinatarioRemitente.tr);
+    tbody.appendChild(rowDireccion.tr);
+
+    // Se cambia el contanido, quitando el primer número y el número de identificación en la siguiente fila
+    rowContacto.td1.innerHTML = `Cuenta: <b>-No registra</b>`;
+    tbody.appendChild(rowContacto.tr);
+    const rowResumen = createRow(textoCantidadPaquetes, textoDiceContener);
+    tbody.appendChild(rowResumen.tr);
+
+    const tablaFinal = `
+      <table class="w-100 m-0">
+        <tr>
+          <th colspan="10">El destinatario recibe a conformidad</th>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td colspan="2">DÍA</td>
+          <td colspan="2">MES</td>
+          <td colspan="2">AÑO</td>
+          <td colspan="2">HORA</td>
+          <td colspan="2">MIN</td>
+        </tr>
+      </table>
+    `
+    const finalRow = createRow(tablaFinal, "");
+    finalRow.td1.classList.add("p-1");
+    tbody.appendChild(finalRow.tr);
+
+    /*
+    const celularD =
+      data.celularD != data.telefonoD
+        ? data.celularD + " - " + data.telefonoD
+        : data.telefonoD;
+
+    const nombres = data.oficina
+      ? data.datos_oficina.nombre_completo
+      : data.nombreD;
+    const direccion = data.oficina
+      ? data.datos_oficina.direccion
+      : data.direccionD;
+    const ciudad = data.oficina
+      ? data.datos_oficina.ciudad
+      : `${data.ciudadD}(${data.departamentoD})`;
+    const celular = data.oficina ? data.datos_oficina.celular : celularD;
+
+    let imgs = `<td><div class="align-items-center d-flex flex-column">
+            <img src="${logo}" width="100px">
+            <img src="${src_logo_transp}" width="100px">
+        </div></td>`;
+    let infoRem = `<td>
+        <h2>Datos Del Remitente</h2>
+            <h5 class="text-dark">ID: <strong>${data.id_heka}</strong></h5>
+            <h5 class="text-dark">Nombre: <strong>${data.nombreR}</strong></h5>
+            <h5 class="text-dark">Dirección: <strong>${data.direccionR}</strong></h5>
+            <h5 class="text-dark">Ciudad:  <strong>${data.ciudadR}(${data.departamentoR})</strong>  </h5>
+            <h5 class="text-dark">Celular:  <strong>${data.celularR}</strong></h5>
+            <h5 class="text-dark">Contenido:  <strong>${data.dice_contener}</strong></h5>
+        </td>`;
+
+    let infoDest = `<td>
+            <h2>Datos Del Destinatario</h2>
+            <h5 class="text-dark">Número de Guía: <strong>${data.numeroGuia}</strong></h5>
+            <h5 class="text-dark">Nombre: <strong>${nombres}</strong></h5>
+            <h5 class="text-dark">Dirección: <strong>${direccion}</strong></h5>
+            <h5 class="text-dark">Ciudad:  <strong>${ciudad}</strong>  </h5>
+            <h5 class="text-dark">Celular:  <strong>${celular}</strong></h5>
+            <h5 class="text-dark">Valor asegurado:  <strong>${data.seguro}</strong></h5>
+        </td>`;
+
+    tr.innerHTML = imgs + infoRem + infoDest;
+    */
+    table.appendChild(tbody);
+    div.appendChild(table);
+    
+  });
+
+  w = window.open();
+  w.document.write(`<html><head>
+        <meta charset="utf-8">
+
+        <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
+
+        <link href="css/sb-admin-2.min.css" rel="stylesheet">
+
+        <title>Rótulo Heka</title>
+    </head><body>`);
+  w.document.write(div.innerHTML);
+  w.document.write("</body></html>");
+  // w.document.close();
+  w.focus();
+  setTimeout(() => {
+    w.print();
+    // w.close();
+  }, 500);
+}
+
 async function generarGuiaFlexii(id_guias) {
   let div = document.createElement("div");
   let table = document.createElement("table");
