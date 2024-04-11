@@ -64,6 +64,7 @@ async function llenarRecoleccionesPendientes(solicitar) {
       querySnapshot.forEach((doc) => {
         const guia = doc.data();
 
+        if (guia.numeroGuia === undefined) return;
         if (recoleccionesPendientes[guia.codigo_sucursal]) {
           recoleccionesPendientes[guia.codigo_sucursal].guias.push(guia);
         } else {
@@ -83,7 +84,7 @@ async function mostrarListaRecolecciones() {
   await llenarRecoleccionesPendientes(false);
   let recolecciones = Object.values(recoleccionesPendientes);
 
-  console.log(recolecciones);
+  console.warn(recolecciones);
   elListaSucursales.html("");
 
   recolecciones.forEach((r) => {
@@ -225,9 +226,8 @@ async function fetchRecoleccion(data) {
     },
   });
   const body = await response.json();
-  const radicado = body.response.idRecogica || body.response.ExceptionDate;
-
-  console.log(body);
+  console.warn(body);
+  const radicado = body.response.idRecogica;
 
   await guiasSolicitadas(guias, radicado);
 
