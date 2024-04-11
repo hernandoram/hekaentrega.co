@@ -994,6 +994,7 @@ function seleccionarUsuario(id) {
     .collection("usuarios")
     .doc(id)
     .collection("acciones")
+    .orderBy("Fecha", "desc")
     .get();
 
   let acciones = [];

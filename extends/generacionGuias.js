@@ -141,7 +141,7 @@ function analizarCancelacionCreacionCola(guide) {
     }
     
     // Si la guía no está en proceso, no se debería intentar el trabajo de creación por cola
-    if(guide.estadoActual !== estadosGuia.proceso) {
+    if(guide.estadoActual !== estadosGuia.pedido) {
         // Se asigna el estado de cancelado, debido a que por alguna causa la guía ya no está en pedido
         // Ej. se eliminó desde pedidos y ya no es necesario crear
         guide.cancelarCreacionPersistente = true;
