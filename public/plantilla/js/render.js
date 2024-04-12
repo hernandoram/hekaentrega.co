@@ -243,6 +243,7 @@ function avisar(title, content, type, redirigir, tiempo = 5000) {
     "border-left-primary"
   );
   aviso.classList.remove("d-none");
+  aviso.style.zIndex = 1000;
   aviso.style.opacity = 1;
 
   titulo.style.cursor = "default";
@@ -1638,7 +1639,7 @@ function mostrarNotificacion(data, type, id) {
 
   info.setAttribute("class", "small text-gray-500");
   mensaje.style.display = "-webkit-box";
-  mensaje.style.overflow = "hidden";
+  mensaje.style.overflowWrap = "anywhere";
   mensaje.style.webkitLineClamp = "4";
   mensaje.style.webkitBoxOrient = "vertical";
   mensaje.innerHTML = data.mensaje;
@@ -1657,6 +1658,7 @@ function mostrarNotificacion(data, type, id) {
       .doc(id)
       .delete()
       .then(() => {
+        avisar("Notificación eliminada", "La notificación ha sido eliminada");
         console.log("Se ha eliminado una notificación con id: " + id);
       });
   });

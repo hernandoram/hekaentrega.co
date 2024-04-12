@@ -947,7 +947,6 @@ function seleccionarUsuario(id) {
   let contenedor = document.getElementById("usuario-seleccionado");
   let mostrador = document.getElementById("mostrador-usuarios");
   contenedor.setAttribute("data-id", id);
-  contenedor.classList.remove("d-none");
   mostrador.classList.add("d-none");
 
   firebase
@@ -956,7 +955,9 @@ function seleccionarUsuario(id) {
     .doc(id)
     .get()
     .then((doc) => {
-      if (doc.exists) {
+      console.log(doc.exists)
+      if (doc.exists === true) {
+        contenedor.classList.remove("d-none");
         const data = doc.data();
         const datos_bancarios = data.datos_bancarios;
         const datos_personalizados = data.datos_personalizados;
@@ -982,6 +983,12 @@ function seleccionarUsuario(id) {
         // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
         //Hasta que todos los usuario futuramente tengan el doc "heka"
         // $("#habilitar_servientrega").prop("checked", true);
+        avisar(
+          "Usuario no encontrado",
+          "El seller con el ID " + id + " no existe en la base de datos",
+          "alerta"
+        );
+        contenedor.classList.add("d-none");
         console.log("No such document!");
       }
     })
