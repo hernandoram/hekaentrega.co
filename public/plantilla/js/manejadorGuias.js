@@ -4717,7 +4717,7 @@ function filtrarPorpagosHistGuiasAdm(e, editor, button, config) {
   editor.draw();
 }
 
-async function generarRotulo(id_guias) {
+async function generarRotuloAnt(id_guias) {
   let div = document.createElement("div");
   let table = document.createElement("table");
   let tbody = document.createElement("tbody");
@@ -4835,7 +4835,7 @@ async function generarRotulo(id_guias) {
   }, 500);
 }
 
-async function generarRotuloNew(id_guias) {
+async function generarRotulo(id_guias) {
   let div = document.createElement("div");
   let guias = new Array();
   for (let id of id_guias) {
@@ -4848,7 +4848,6 @@ async function generarRotuloNew(id_guias) {
   }
 
   let data_guias = await Promise.all(guias);
-  console.log(data_guias);
 
   const createRow = (valueLeft, valueRight) => {
     const tr = document.createElement("tr");
@@ -4872,20 +4871,36 @@ async function generarRotuloNew(id_guias) {
     // Creamos la tabla pricipal
     const table = document.createElement("table");
     const tbody = document.createElement("tbody");
-    table.setAttribute("class", "table table-bordered");
+    table.setAttribute("class", "table page-printer");
+
+    // Constantes que se diferencian cuando es para una oficina o para un usuario natural
+    const nombres = guia.oficina
+      ? guia.datos_oficina.nombre_completo
+      : guia.nombreD;
+    const direccion = guia.oficina
+      ? guia.datos_oficina.direccion
+      : guia.direccionD;
+    const ciudad = guia.oficina
+      ? guia.datos_oficina.ciudad
+      : `${guia.ciudadD}(${guia.departamentoD})`;
+    const celularD = guia.oficina ? guia.datos_oficina.celular : guia.celularD;
+    const telefonoD = guia.oficina ? guia.datos_oficina.celular : guia.telefonoD;
+    const empresa = guia.oficina ? "<b>Flexii S.A.S.</b>" : "<b>HEKA S.A.S.</b>";
 
     const textoCantidadPaquetes = `Paquete ${i+1} de ${self.length}`;
   
-    const encabezado = createRow(`<b>${guia.transportadora}</b>`, "<b>Flexii S.A.S.</b> <br/> GUÍA DE TRANSPORTE | A | Crédito");
+    const encabezado = createRow(`<b>${guia.transportadora}</b>`, empresa);
+    encabezado.td1.style.border = "none";
+    encabezado.td2.style.border = "none";
     tbody.appendChild(encabezado.tr);
 
     insertRow(tbody, genFecha(), textoCantidadPaquetes);
 
     // Se generan las filas comunes
-    const rowCiudades = createRow(`Origen: <b>${guia.ciudadR}</b>`, `Destino: <b>${guia.ciudadD}</b>`);
-    const rowDestinatarioRemitente = createRow(`De: <b>${guia.nombreR}</b>`, `Para: <b>${guia.nombreD}</b>`);
-    const rowDireccion = createRow(`${guia.direccionD}`, `${guia.observaciones}`);
-    const rowContacto = createRow(`Tel: <b>${guia.celularD}</b>`, `Tel: <b>${guia.telefonoD}</b>`);
+    const rowCiudades = createRow(`Origen: <b>${guia.ciudadR}</b>`, `Destino: <b>${ciudad}</b>`);
+    const rowDestinatarioRemitente = createRow(`De: <b>${guia.nombreR}</b>`, `Para: <b>${nombres}</b>`);
+    const rowDireccion = createRow(`${direccion}`, `${guia.observaciones}`);
+    const rowContacto = createRow(`Tel: <b>${celularD}</b>`, `Tel: <b>${telefonoD}</b>`);
     const rowIdentificacion = createRow(`Cuenta: <b>-No registra</b>`, `CC/NIT: <b>${guia.identificacionD}</b>`);
     
     // Se inserta el primer empaquetaod de filas
@@ -4973,49 +4988,6 @@ async function generarRotuloNew(id_guias) {
     finalRow.td1.classList.add("p-1");
     tbody.appendChild(finalRow.tr);
 
-    /*
-    const celularD =
-      data.celularD != data.telefonoD
-        ? data.celularD + " - " + data.telefonoD
-        : data.telefonoD;
-
-    const nombres = data.oficina
-      ? data.datos_oficina.nombre_completo
-      : data.nombreD;
-    const direccion = data.oficina
-      ? data.datos_oficina.direccion
-      : data.direccionD;
-    const ciudad = data.oficina
-      ? data.datos_oficina.ciudad
-      : `${data.ciudadD}(${data.departamentoD})`;
-    const celular = data.oficina ? data.datos_oficina.celular : celularD;
-
-    let imgs = `<td><div class="align-items-center d-flex flex-column">
-            <img src="${logo}" width="100px">
-            <img src="${src_logo_transp}" width="100px">
-        </div></td>`;
-    let infoRem = `<td>
-        <h2>Datos Del Remitente</h2>
-            <h5 class="text-dark">ID: <strong>${data.id_heka}</strong></h5>
-            <h5 class="text-dark">Nombre: <strong>${data.nombreR}</strong></h5>
-            <h5 class="text-dark">Dirección: <strong>${data.direccionR}</strong></h5>
-            <h5 class="text-dark">Ciudad:  <strong>${data.ciudadR}(${data.departamentoR})</strong>  </h5>
-            <h5 class="text-dark">Celular:  <strong>${data.celularR}</strong></h5>
-            <h5 class="text-dark">Contenido:  <strong>${data.dice_contener}</strong></h5>
-        </td>`;
-
-    let infoDest = `<td>
-            <h2>Datos Del Destinatario</h2>
-            <h5 class="text-dark">Número de Guía: <strong>${data.numeroGuia}</strong></h5>
-            <h5 class="text-dark">Nombre: <strong>${nombres}</strong></h5>
-            <h5 class="text-dark">Dirección: <strong>${direccion}</strong></h5>
-            <h5 class="text-dark">Ciudad:  <strong>${ciudad}</strong>  </h5>
-            <h5 class="text-dark">Celular:  <strong>${celular}</strong></h5>
-            <h5 class="text-dark">Valor asegurado:  <strong>${data.seguro}</strong></h5>
-        </td>`;
-
-    tr.innerHTML = imgs + infoRem + infoDest;
-    */
     table.appendChild(tbody);
     div.appendChild(table);
     
@@ -5028,6 +5000,15 @@ async function generarRotuloNew(id_guias) {
         <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
 
         <link href="css/sb-admin-2.min.css" rel="stylesheet">
+        <style>
+          .table td, .table th {
+            border: 1px solid black;
+          }
+
+          .page-printer {
+            break-before: page;
+          }
+        </style>
 
         <title>Rótulo Heka</title>
     </head><body>`);

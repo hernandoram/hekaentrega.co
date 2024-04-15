@@ -856,7 +856,7 @@ class Empaquetado {
             .catch(e => {
                 return {
                     error: true,
-                    message: "Error al crear la factura con siigo"
+                    message: "Error al crear la factura con siigo " + e.message
                 }
             });
 
