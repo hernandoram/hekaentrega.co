@@ -4939,7 +4939,7 @@ async function generarRotulo(id_guias) {
           src='https://barcode.tec-it.com/barcode.ashx?data=${guia.numeroGuia}&code=Code25IL'/>
         </td>
       </tr>
-      <tr><td><h1>PARA COBRO ${convertirMoneda(guia.costo_envio)}</h1></td></tr>
+      <tr><td><h1>PARA COBRO ${convertirMoneda(guia.valor)}</h1></td></tr>
       <tr><td>Fecha: ${genFecha()}</td></tr>
     `;
     tbody.innerHTML += barCodeRow;
