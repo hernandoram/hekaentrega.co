@@ -2732,7 +2732,6 @@ function actualizarHistorialDeDocumentos(timeline) {
                     .split(",")
                 );
               } else {
-                console.log("entrooooo");
                 console.log(this.parentNode.parentNode);
                 generarRotulo(
                   this.parentNode.parentNode
