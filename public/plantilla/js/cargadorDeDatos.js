@@ -164,7 +164,7 @@ const usuarioAltDoc = (id) =>
   firebase
     .firestore()
     .collection("usuarios")
-    .doc(user_id || id);
+    .doc(id || user_id);
 
 //Administradara datos basicos del usuario que ingresa
 let datos_usuario = {},
@@ -192,12 +192,39 @@ const ciudadesFlexxi = ["BOGOTA(CUNDINAMARCA)", "TUMACO(NARIÑO)"];
 const bodegasWtch = new Watcher();
 
 class ControlUsuario {
+  static dataCompleted = new Watcher(null);
+
+  static loader = null
+
   static get esPuntoEnvio() {
     return datos_usuario.type === "PUNTO";
   }
 
   static get esUsuarioPunto() {
     return datos_usuario.type === "USUARIO-PUNTO";
+  }
+
+  /** Promesa encargada de validad que ya se han cargado todos los datos del usuario correctamente
+   * Utiliza un loader al estilo "singleton", que devuelve una única promesa, que se resuelve cuando el 
+   * observador "dataCompleted" se dispara con el valor "true" y se rechaza cuando la misma variable devuelve false
+   * @returns {Promise}
+   */
+  static get hasLoaded() {
+    if(ControlUsuario.loader === null) {
+      // En caso de que no exista una promesa activa, la crea
+      ControlUsuario.loader = new Promise((res, rej) => {
+        // Luego genera el observador que una vez reciba true o false, resolverá la promesa
+        ControlUsuario.dataCompleted.watch(dataCorrectlyLoaded => {
+          if(dataCorrectlyLoaded === true) {
+            res("La información del usuario ha sido cargada correctamente");
+          }else if(dataCorrectlyLoaded === false) {
+            rej("Hubo un error al cargar los datos del usuario");
+          }
+        });
+      });
+    }
+
+    return ControlUsuario.loader;
   }
 }
 const puntoEnvio = () => datos_usuario.type === "PUNTO";
@@ -263,6 +290,9 @@ async function cargarDatosUsuario() {
   //  console.log( datos_usuario)
 
   limitarAccesoSegunTipoUsuario();
+   // Esto para que la clase estática encargada de cosas particulares del usuario pueda mostrar que ya está
+  // el cargue de información del usuario ha sido correcta
+  ControlUsuario.dataCompleted.change(true);
 
   //Se enlistan las novedades de servientrega
   showPercentage.text(percentage());
