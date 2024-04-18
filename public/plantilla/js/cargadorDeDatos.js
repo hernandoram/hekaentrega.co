@@ -2380,6 +2380,8 @@ async function solicitarPagosPendientesUs() {
 
     Swal.fire("Pago solicitado con éxito.", "", "success");
   }
+
+  pagosPendientesParaUsuario();
 }
 
 function descargarExcelPagosAdmin(datos) {

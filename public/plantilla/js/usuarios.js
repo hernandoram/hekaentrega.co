@@ -947,7 +947,6 @@ function seleccionarUsuario(id) {
   let contenedor = document.getElementById("usuario-seleccionado");
   let mostrador = document.getElementById("mostrador-usuarios");
   contenedor.setAttribute("data-id", id);
-  contenedor.classList.remove("d-none");
   mostrador.classList.add("d-none");
 
   firebase
@@ -956,7 +955,9 @@ function seleccionarUsuario(id) {
     .doc(id)
     .get()
     .then((doc) => {
-      if (doc.exists) {
+      console.log(doc.exists)
+      if (doc.exists === true) {
+        contenedor.classList.remove("d-none");
         const data = doc.data();
         const datos_bancarios = data.datos_bancarios;
         const datos_personalizados = data.datos_personalizados;
@@ -982,6 +983,12 @@ function seleccionarUsuario(id) {
         // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
         //Hasta que todos los usuario futuramente tengan el doc "heka"
         // $("#habilitar_servientrega").prop("checked", true);
+        avisar(
+          "Usuario no encontrado",
+          "El seller con el ID " + id + " no existe en la base de datos",
+          "alerta"
+        );
+        contenedor.classList.add("d-none");
         console.log("No such document!");
       }
     })
@@ -995,6 +1002,7 @@ function seleccionarUsuario(id) {
     .doc(id)
     .collection("acciones")
     .orderBy("Fecha", "desc")
+    .limit(30)
     .get();
 
   let acciones = [];
@@ -1009,6 +1017,7 @@ function seleccionarUsuario(id) {
       acciones.forEach((accion) => {
         // Convertir el Timestamp a un objeto Date
         const fecha = new Date(accion.Fecha.seconds * 1000);
+        accion.timeline = fecha.getTime(); // Para que la tabla me muestre por orden de fecha
 
         // Formatear la fecha
         const opciones = {
@@ -1019,7 +1028,7 @@ function seleccionarUsuario(id) {
           minute: "2-digit",
           hour12: true
         };
-        const fechaFormateada = fecha.toLocaleString("es-ES", opciones);
+        const fechaFormateada = fecha.toLocaleString("es-CO", opciones);
 
         const valorPagoFormateado = accion["Valor del pago"].toLocaleString(
           "es-CO",
@@ -1036,7 +1045,14 @@ function seleccionarUsuario(id) {
       const table = $("#tabla-acciones").DataTable({
         destroy: true,
         data: acciones,
+        order: [[1]],
         columns: [
+          {
+            data: "timeline",
+            title: "Orden",
+            defaultContent: "",
+            visible: false
+          },
           {
             data: "Estado",
             title: "Estado",
@@ -1050,7 +1066,7 @@ function seleccionarUsuario(id) {
           {
             data: "Valor del pago",
             title: "Valor del pago",
-            defaultContent: ""
+            defaultContent: "",
           }
         ],
         language: {

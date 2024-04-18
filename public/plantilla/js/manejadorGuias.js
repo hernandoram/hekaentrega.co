@@ -4716,7 +4716,7 @@ function filtrarPorpagosHistGuiasAdm(e, editor, button, config) {
   editor.draw();
 }
 
-async function generarRotulo(id_guias) {
+async function generarRotuloAnt(id_guias) {
   let div = document.createElement("div");
   let table = document.createElement("table");
   let tbody = document.createElement("tbody");
@@ -4821,6 +4821,193 @@ async function generarRotulo(id_guias) {
         <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
 
         <link href="css/sb-admin-2.min.css" rel="stylesheet">
+
+        <title>Rótulo Heka</title>
+    </head><body>`);
+  w.document.write(div.innerHTML);
+  w.document.write("</body></html>");
+  // w.document.close();
+  w.focus();
+  setTimeout(() => {
+    w.print();
+    // w.close();
+  }, 500);
+}
+
+async function generarRotulo(id_guias) {
+  let div = document.createElement("div");
+  let guias = new Array();
+  for (let id of id_guias) {
+    let x = usuarioDoc
+      .collection("guias")
+      .doc(id)
+      .get()
+      .then((d) => d.data());
+    guias.push(x);
+  }
+
+  let data_guias = await Promise.all(guias);
+
+  const createRow = (valueLeft, valueRight) => {
+    const tr = document.createElement("tr");
+    const td1 = document.createElement("td");
+    const td2 = document.createElement("td");
+
+    td1.innerHTML = valueLeft;
+    td2.innerHTML = valueRight;
+
+    tr.append(td1, td2);
+    return {tr, td1, td2}
+
+  }
+
+  const insertRow = (table, valueLeft, valueRight) => {
+    const newRow = createRow(valueLeft, valueRight);
+    table.appendChild(newRow.tr);
+  }
+
+  data_guias.forEach((guia, i, self) => {
+    // Creamos la tabla pricipal
+    const table = document.createElement("table");
+    const tbody = document.createElement("tbody");
+    table.setAttribute("class", "table page-printer");
+
+    // Constantes que se diferencian cuando es para una oficina o para un usuario natural
+    const nombres = guia.oficina
+      ? guia.datos_oficina.nombre_completo
+      : guia.nombreD;
+    const direccion = guia.oficina
+      ? guia.datos_oficina.direccion
+      : guia.direccionD;
+    const ciudad = guia.oficina
+      ? guia.datos_oficina.ciudad
+      : `${guia.ciudadD}(${guia.departamentoD})`;
+    const celularD = guia.oficina ? guia.datos_oficina.celular : guia.celularD;
+    const telefonoD = guia.oficina ? guia.datos_oficina.celular : guia.telefonoD;
+    const empresa = guia.oficina ? "<b>Flexii S.A.S.</b>" : "<b>HEKA S.A.S.</b>";
+
+    const textoCantidadPaquetes = `Paquete ${i+1} de ${self.length}`;
+  
+    const encabezado = createRow(`<b>${guia.transportadora}</b>`, empresa);
+    encabezado.td1.style.border = "none";
+    encabezado.td2.style.border = "none";
+    tbody.appendChild(encabezado.tr);
+
+    insertRow(tbody, genFecha(), textoCantidadPaquetes);
+
+    // Se generan las filas comunes
+    const rowCiudades = createRow(`Origen: <b>${guia.ciudadR}</b>`, `Destino: <b>${ciudad}</b>`);
+    const rowDestinatarioRemitente = createRow(`De: <b>${guia.nombreR}</b>`, `Para: <b>${nombres}</b>`);
+    const rowDireccion = createRow(`${direccion}`, `${guia.observaciones}`);
+    const rowContacto = createRow(`Tel: <b>${celularD}</b>`, `Tel: <b>${telefonoD}</b>`);
+    const rowIdentificacion = createRow(`Cuenta: <b>-No registra</b>`, `CC/NIT: <b>${guia.identificacionD}</b>`);
+    
+    // Se inserta el primer empaquetaod de filas
+    tbody.appendChild(rowCiudades.tr);
+    tbody.appendChild(rowDestinatarioRemitente.tr);
+    tbody.appendChild(rowDireccion.tr);
+    tbody.appendChild(rowContacto.tr);
+    tbody.appendChild(rowIdentificacion.tr);
+
+    const volumen = guia.alto * guia.ancho * guia.largo;
+    const tablaDetalles = `
+      <table class="w-100 m-0">
+        <tr>
+          <th>Peso</th>
+          <th>Vol</th>
+          <th>Declarado</th>
+        </tr>
+        <tr>
+          <td>${guia.peso}</td>
+          <td>${volumen}</td>
+          <td>${convertirMoneda(guia.seguro)}</td>
+        </tr>
+      </table>
+    `
+    const rowMedidas = createRow(tablaDetalles, `<h3>${guia.numeroGuia}</h3>`);
+    rowMedidas.td1.classList.add("p-1");
+    tbody.appendChild(rowMedidas.tr);
+    
+
+    const textoDiceContener = `Cont: ${guia.dice_contener}`;
+    const barCodeRow = `
+      <tr>
+        <td>${textoDiceContener}</td>
+        <td rowspan="3" class="align-content-center text-center">
+          <img alt='Código de barras' height="100px"
+          src='https://barcode.tec-it.com/barcode.ashx?data=${guia.numeroGuia}&code=Code25IL'/>
+        </td>
+      </tr>
+      <tr><td><h1>PARA COBRO ${convertirMoneda(guia.valor)}</h1></td></tr>
+      <tr><td>Fecha: ${genFecha()}</td></tr>
+    `;
+    tbody.innerHTML += barCodeRow;
+
+    tbody.appendChild(rowMedidas.tr);
+
+
+    // Se inserta el segundo empaquetaod de filas
+    tbody.appendChild(rowCiudades.tr);
+    tbody.appendChild(rowDestinatarioRemitente.tr);
+    tbody.appendChild(rowDireccion.tr);
+
+    // Se cambia el contanido, quitando el primer número y el número de identificación en la siguiente fila
+    rowContacto.td1.innerHTML = `Cuenta: <b>-No registra</b>`;
+    tbody.appendChild(rowContacto.tr);
+    const rowResumen = createRow(textoCantidadPaquetes, textoDiceContener);
+    tbody.appendChild(rowResumen.tr);
+
+    const tablaFinal = `
+      <table class="w-100 m-0">
+        <tr>
+          <th colspan="10">El destinatario recibe a conformidad</th>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td colspan="2">DÍA</td>
+          <td colspan="2">MES</td>
+          <td colspan="2">AÑO</td>
+          <td colspan="2">HORA</td>
+          <td colspan="2">MIN</td>
+        </tr>
+      </table>
+    `
+    const finalRow = createRow(tablaFinal, "");
+    finalRow.td1.classList.add("p-1");
+    tbody.appendChild(finalRow.tr);
+
+    table.appendChild(tbody);
+    div.appendChild(table);
+    
+  });
+
+  w = window.open();
+  w.document.write(`<html><head>
+        <meta charset="utf-8">
+
+        <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
+
+        <link href="css/sb-admin-2.min.css" rel="stylesheet">
+        <style>
+          .table td, .table th {
+            border: 1px solid black;
+          }
+
+          .page-printer {
+            break-before: page;
+          }
+        </style>
 
         <title>Rótulo Heka</title>
     </head><body>`);
