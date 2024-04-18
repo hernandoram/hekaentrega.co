@@ -1848,7 +1848,16 @@
         </div>
         <div class="modal-body">
           <div class="container-fluid" id="contenedor-usuario_punto">
-            <form id="register-form" name="usuario" action="#">
+            <div class="align-items-center d-flex flex-column m-2 ">
+              <div class="p-2 border border-rounded text-center">
+                <div class="qr-code" id="qrcode-registro-usuario_punto"></div>
+                <a class="btn btn-primary mt-2" id="btn-registro-usuario_punto" target="_blank" href="https://www.hekaentrega.co/registro?referer=VVNVQVJJTy1QVU5UTw==">Registro manual</a>
+              </div>
+            </div>
+            <!-- Se ha desahilitado el formulario, para que funcione el registro de usuarios por redirección.
+              bien sea mostrando el qr de la url o el link para la redirección
+            -->
+            <form id="register-form" class="d-none" name="usuario" action="#">
               <div class="step-view">
                   <!-- INFORMACIÓN BÁSICA -->
                   <div class="step active">
@@ -2051,6 +2060,10 @@
       $(function () {
         $('[data-toggle="popover"]').popover()
       });
+
+      // Asiganmos al nuevo Qr el redirector del botón para que se registre externo
+      const url = $("#btn-registro-usuario_punto").prop("href");
+      new QRCode("qrcode-registro-usuario_punto", url);
 
     </script>
 
