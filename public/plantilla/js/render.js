@@ -6,7 +6,7 @@ var firebaseConfig = {
   storageBucket: "hekaapp-23c89.appspot.com",
   messagingSenderId: "539740310887",
   appId: "1:539740310887:web:66f9ab535d18addeb173c2",
-  measurementId: "G-47CYMPHNRM",
+  measurementId: "G-47CYMPHNRM"
 };
 
 const estadosGuia = {
@@ -19,7 +19,7 @@ const estadosGuia = {
   empacada: "EMPACADA",
   eliminada: "ELIMINADA",
   anulada: "ANULADA",
-  neutro: "NEUTRO", // formalmente ninguna guía debería ener registraod este estado
+  neutro: "NEUTRO" // formalmente ninguna guía debería ener registraod este estado
 };
 
 let novedadesExcelData = [];
@@ -764,9 +764,9 @@ const sendCorrespondence = (activeCardData) => {
   fetch("/inter/recogidaesporadica", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     },
-    body: jsonData,
+    body: jsonData
   })
     .then((response) => {
       console.log(response);
@@ -861,13 +861,13 @@ function handleDocumentClick(event) {
     fetch("/inter/planilladeenvios", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({
         id: id,
         listGuides: listGuides,
-        branchCode: branchCode,
-      }),
+        branchCode: branchCode
+      })
     })
       .then((response) => response.json())
       .then((data) => {
@@ -902,7 +902,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
     let revisar = actv.getAttribute("data-enviado");
     let when = actv.getAttribute("data-activate");
     let operador = when != "after" ? revisar != "true" : revisar == "true";
-    
+
     if (operador || estado_prueba) {
       actv.removeAttribute("disabled");
     } else {
@@ -920,7 +920,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
           deleted: false,
           estadoActual: data.estadoAnterior,
           seguimiento_finalizado: false,
-          estadoAnterior: data.estadoActual,
+          estadoAnterior: data.estadoActual
         })
         .then((res) => {
           avisar(
@@ -944,7 +944,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
         return await Swal.fire({
           title: "¡ATENCIÓN",
           text: "Está guia no se puede eliminar",
-          icon: "warning",
+          icon: "warning"
           // showCancelButton: true,
           // confirmButtonText: '¡Si! continuar 👍',
           // cancelButtonText: "¡No, me equivoqué!"
@@ -960,7 +960,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
         icon: "warning",
         showCancelButton: true,
         confirmButtonText: "¡Si! continuar 👍",
-        cancelButtonText: "¡No, me equivoqué!",
+        cancelButtonText: "¡No, me equivoqué!"
       });
 
       const confirmacion = resp.isConfirmed;
@@ -981,7 +981,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
             fecha_eliminada: new Date(),
             estadoActual: estadosGuia.eliminada,
             seguimiento_finalizado: true,
-            estadoAnterior: data.estadoActual,
+            estadoAnterior: data.estadoActual
           })
           .then((res) => {
             console.log(res);
@@ -1054,16 +1054,16 @@ function activarBotonesDeGuias(id, data, activate_once) {
       }
     });
 
-    $("#anular_guia" + id).on("click", async function (e) {   
-      let confirmacion
+    $("#anular_guia" + id).on("click", async function (e) {
+      let confirmacion;
       let { value: motAnulacion } = await Swal.fire({
         title: "Motivo de la anulacion",
         input: "textarea",
         showCancelButton: true,
         confirmButtonText: "Continuar",
-        cancelButtonText: `Cancelar`,
+        cancelButtonText: `Cancelar`
       });
-      if (motAnulacion){
+      if (motAnulacion) {
         const resp = await Swal.fire({
           title: "¡ATENCIÓN",
           text:
@@ -1073,14 +1073,12 @@ function activarBotonesDeGuias(id, data, activate_once) {
           icon: "warning",
           showCancelButton: true,
           confirmButtonText: "¡Si! continuar 👍",
-          cancelButtonText: "¡No, me equivoqué!",
+          cancelButtonText: "¡No, me equivoqué!"
         });
         confirmacion = resp.isConfirmed;
       }
-      console.log(motAnulacion)
-      if (
-        confirmacion && motAnulacion
-      ) {
+      console.log(motAnulacion);
+      if (confirmacion && motAnulacion) {
         $("#enviar-documentos").prop("disabled", true);
         usuarioAltDoc(data.id_user)
           .collection("guias")
@@ -1089,8 +1087,8 @@ function activarBotonesDeGuias(id, data, activate_once) {
             fecha_anulada: new Date(),
             estadoActual: estadosGuia.anulada,
             seguimiento_finalizado: true,
-            motivoAnulacion:motAnulacion,
-            estadoAnterior: data.estadoActual,
+            motivoAnulacion: motAnulacion,
+            estadoAnterior: data.estadoActual
           })
           .then((res) => {
             avisar(
@@ -1130,7 +1128,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
         allowOutsideClick: false,
         allowEnterKey: false,
         showConfirmButton: false,
-        allowEscapeKey: true,
+        allowEscapeKey: true
       });
       usuarioAltDoc(data.id_user)
         .collection("guias")
@@ -1149,7 +1147,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
                 timer: 6000,
                 showCancelButton: true,
                 confirmButtonText: "Si, ir al cotizador.",
-                cancelButtonText: "No, ver el historial.",
+                cancelButtonText: "No, ver el historial."
               }).then((res) => {
                 if (res.isConfirmed) {
                   location.href = "plataforma2.html";
@@ -1162,7 +1160,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
               Swal.fire({
                 icon: res.icon,
                 title: res.title,
-                html: res.mensaje,
+                html: res.mensaje
               });
             }
           });
@@ -1257,7 +1255,7 @@ async function actualizarEstadoGuia(numeroGuia, id_user = user_id, wait) {
   return await fetch("/procesos/actualizarEstados/numeroGuia", {
     method: "POST",
     headers: { "Content-Type": "Application/json" },
-    body: JSON.stringify({ user_id: id_user, argumento: numeroGuia, wait }),
+    body: JSON.stringify({ user_id: id_user, argumento: numeroGuia, wait })
   }).then((d) => d.json());
 }
 
@@ -1271,7 +1269,7 @@ function crearStickerParticular() {
     allowOutsideClick: false,
     allowEnterKey: false,
     showConfirmButton: false,
-    allowEscapeKey: true,
+    allowEscapeKey: true
   });
   const id_heka = this.getAttribute("data-id");
   const id_user = this.getAttribute("data-id_user");
@@ -1298,7 +1296,7 @@ async function generarSticker(id_user, id_heka) {
           prueba: data.prueba,
           url: data.urlGuia,
           oficina: data.oficina,
-          type: data.type,
+          type: data.type
         };
 
         let has_sticker;
@@ -1321,14 +1319,14 @@ async function generarSticker(id_user, id_heka) {
           return await doc.ref.update({ has_sticker }).then(() => {
             return {
               icon: "success",
-              text: "Sticker de guía creado exitósamente",
+              text: "Sticker de guía creado exitósamente"
             };
           });
         } catch (e) {
           console.log(e);
           return {
             icon: "error",
-            text: "Lo siento, hubo un error para guardar el sticker",
+            text: "Lo siento, hubo un error para guardar el sticker"
           };
         }
       }
@@ -1457,7 +1455,7 @@ function verificador(arr, scroll, mensaje) {
 
       input.focus();
       primerInput.scrollIntoView({
-        behavior: "smooth",
+        behavior: "smooth"
       });
     }
   }
@@ -1760,7 +1758,7 @@ async function mostrarNotificacionAlertaUsuario(noti, id) {
 
   const opciones = {
     icon: noti.icon[0],
-    html: noti.mensaje,
+    html: noti.mensaje
   };
 
   if (noti.allowDelete) {
@@ -1796,7 +1794,7 @@ function eliminarNotificacionparaUsuario(id) {
   db.collection("centro_notificaciones")
     .doc(id)
     .update({
-      usuarios: firebase.firestore.FieldValue.arrayRemove(userid),
+      usuarios: firebase.firestore.FieldValue.arrayRemove(userid)
     });
 }
 
@@ -1902,7 +1900,7 @@ async function restaurarSaldoGuia(trg, data) {
     title: "¡Atención!",
     text: "Al restaurar va a revertir el movimiento ocasionado, si el movimiento involucra una guía, dicha guía será eliminada del usuario, ¿deseas continuar?",
     showConfirmButton: true,
-    showCancelButton: true,
+    showCancelButton: true
   });
 
   if (!efectuarRestauracion.isConfirmed) return;
@@ -1955,7 +1953,7 @@ async function restaurarSaldoGuia(trg, data) {
     medio: "Administración",
     numeroGuia: movimiento.numeroGuia || "",
 
-    type: "RESTAURADO",
+    type: "RESTAURADO"
   };
 
   console.log(detalles_saldo);
@@ -2240,6 +2238,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
 
   $("#gestionar-guia-" + data.numeroGuia).click(() => {
     extraData.id_heka = id_heka;
+    console.warn(data, extraData);
     gestionarNovedadModal(data, extraData);
   });
 
@@ -2291,11 +2290,11 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
                 `,
       inputPlaceholder: "Escribe tu mensaje",
       inputAttributes: {
-        "aria-label": "Escribe tu respuesta",
+        "aria-label": "Escribe tu respuesta"
       },
       didOpen: respondiendoNovedad,
       preConfirm: () => document.getElementById("respuesta-novedad").value,
-      showCancelButton: true,
+      showCancelButton: true
     });
 
     if (text == undefined) {
@@ -2312,7 +2311,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
         fecha: new Date(),
         gestionada: "Logistica",
         admin: true,
-        type: "Individual",
+        type: "Individual"
       };
       Toast.fire("Se enviará mensaje al usuario", text, "info");
       if (extraData.seguimiento) {
@@ -2331,7 +2330,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
       if (mensajePreguardado == -1) {
         listaRespuestasNovedad.push({
           cantidad: 1,
-          mensaje: text,
+          mensaje: text
         });
       } else {
         listaRespuestasNovedad[mensajePreguardado].cantidad++;
@@ -2345,7 +2344,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
       referenciaGuia
         .update({
           seguimiento: extraData.seguimiento,
-          novedad_solucionada: true,
+          novedad_solucionada: true
         })
         .then(() => {
           firebase
@@ -2363,7 +2362,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
               extraData.numeroGuia +
               ": " +
               text.trim(),
-            href: "novedades",
+            href: "novedades"
           });
 
           boton_solucion.html("Solucionada");
@@ -2373,7 +2372,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
       // return
       referenciaGuia
         .update({
-          novedad_solucionada: true,
+          novedad_solucionada: true
         })
         .then(() => {
           firebase
@@ -2504,7 +2503,7 @@ function traducirMovimientoGuia(transportadora) {
     ubicacion:
       "El lugar en que se dió a cabo del movimiento (normalmente lo usa servientrega)",
     tipoMotivo:
-      "el tipo de motivo por el cual se determina la novedad (usado por servientrega)",
+      "el tipo de motivo por el cual se determina la novedad (usado por servientrega)"
   });
 
   switch (transportadora) {
@@ -2515,7 +2514,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "observacion",
         descripcionMov: "estado",
         ubicacion: "ciudad",
-        tipoMotivo: "TipoMov",
+        tipoMotivo: "TipoMov"
       };
     case "TCC":
       return {
@@ -2524,7 +2523,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "descripcion",
         descripcionMov: "estado",
         ubicacion: "ciudad",
-        tipoMotivo: "TipoMov",
+        tipoMotivo: "TipoMov"
       };
     case "INTERRAPIDISIMO":
       return {
@@ -2533,7 +2532,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "Motivo",
         descripcionMov: "Descripcion Estado",
         ubicacion: "Ciudad",
-        tipoMotivo: "TipoMov",
+        tipoMotivo: "TipoMov"
       };
     case "COORDINADORA":
       return {
@@ -2542,7 +2541,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "descripcion",
         descripcionMov: "descripcion",
         ubicacion: "Ciudad",
-        tipoMotivo: "TipoMov",
+        tipoMotivo: "TipoMov"
       };
     default:
       return {
@@ -2551,7 +2550,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "DesTipoMov",
         descripcionMov: "NomMov",
         ubicacion: "OriMov",
-        tipoMotivo: "TipoMov",
+        tipoMotivo: "TipoMov"
       };
   }
 }
@@ -2910,14 +2909,14 @@ async function gestionarNovedadModal(dataN, dataG) {
         if (dataG.seguimiento) {
           dataG.seguimiento.push({
             gestion: $(idSolucion).val(),
-            fecha: new Date(),
+            fecha: new Date()
           });
         } else {
           dataG.seguimiento = [
             {
               gestion: $(idSolucion).val(),
-              fecha: new Date(),
-            },
+              fecha: new Date()
+            }
           ];
         }
 
@@ -2927,7 +2926,7 @@ async function gestionarNovedadModal(dataN, dataG) {
           .doc(dataG.id_heka)
           .update({
             seguimiento: dataG.seguimiento,
-            novedad_solucionada: false,
+            novedad_solucionada: false
           })
           .then(() => {
             localStorage.setItem("tiempoguia" + noguia, new Date());
@@ -2967,7 +2966,7 @@ async function gestionarNovedadModal(dataN, dataG) {
                 user_id: user_id,
                 seguimiento: dataG.seguimiento,
                 usuario: datos_usuario.centro_de_costo,
-                visible_admin: true,
+                visible_admin: true
               });
             btn_solucionar.text("Enviar Solución");
           })
@@ -2989,12 +2988,12 @@ function registrarNovedad() {
   db.collection("infoHeka")
     .doc("novedadesRegistradas")
     .update({
-      SERVIENTREGA: firebase.firestore.FieldValue.arrayUnion(novedad),
+      SERVIENTREGA: firebase.firestore.FieldValue.arrayUnion(novedad)
     })
     .then(() => {
       Toast.fire({
         icon: "success",
-        title: "Novedad registrada",
+        title: "Novedad registrada"
       });
     });
 }
@@ -3063,7 +3062,7 @@ function enviarNotificacion(options) {
     allowDelete: "bool: para permitirle al usuario eliminarla o no",
     deleteAfterWatch:
       "boll para que se auto elimine luego que el usuario la observe",
-    isGlobal: "Bool: para indicar si es una notificación global",
+    isGlobal: "Bool: para indicar si es una notificación global"
   };
 
   let fecha = genFecha("ltr").replace(/\-/g, "/");
@@ -3074,7 +3073,7 @@ function enviarNotificacion(options) {
   fecha += ` - ${hora}:${minutos}`;
   let notificacion = {
     fecha,
-    timeline: new Date().getTime(),
+    timeline: new Date().getTime()
   };
 
   for (let option in options) {
@@ -3172,8 +3171,8 @@ async function actualizarSaldo(data) {
       RESTAURADO:
         "Cuando se retorna un saldo descontado de una guía en concreto",
       CANJEADO: "Cuando admin retorna un saldo deudor",
-      REFERIDO: "Cuando el user reclama un saldo de referido",
-    },
+      REFERIDO: "Cuando el user reclama un saldo de referido"
+    }
   };
 
   return await firebase
@@ -3181,7 +3180,7 @@ async function actualizarSaldo(data) {
     .collection("usuarios")
     .doc(data.user_id)
     .update({
-      "datos_personalizados.saldo": data.saldo,
+      "datos_personalizados.saldo": data.saldo
     })
     .then(() => {
       firebase
@@ -3207,7 +3206,7 @@ async function actualizarSaldo(data) {
                   user: data.user_id,
                   medio: data.medio,
                   guia: data.guia,
-                  momento: data.momento,
+                  momento: data.momento
                 });
             });
         });
@@ -3225,6 +3224,7 @@ function verDetallesGuia() {
     .get()
     .then((doc) => {
       let data = doc.data();
+      console.warn(data);
       const oficina = data.datos_oficina;
       const mostrar_oficina = oficina ? "" : "d-none";
       let html = "<div>";
@@ -3250,6 +3250,7 @@ function verDetallesGuia() {
           "costo_envio",
           "telefonoD",
           "celularD",
+          "id_tipo_entrega"
         ],
         [
           "Identificador Guía",
@@ -3272,7 +3273,8 @@ function verDetallesGuia() {
           "Costo del envío",
           "Celular",
           "Celular 2",
-        ],
+          "tipo entrega"
+        ]
       ];
 
       let informacionGuia = "<div class='card my-2'>";
@@ -3284,8 +3286,16 @@ function verDetallesGuia() {
         "<h3 class='card-header'>Datos del destinatario</h3><div class='card-body row m-0'>";
 
       mostrador[0].forEach((v, n) => {
-        const info = data[v] || "No registra";
+        let info = data[v] || "No registra";
         const titulo = mostrador[1][n];
+
+        if (v === "id_tipo_entrega") {
+          if (info === 1) {
+            info = "dirección";
+          } else if (info === 2) {
+            info = "Oficina";
+          }
+        }
 
         const element =
           "<p class='col-12 col-sm-6 text-left'>" +
@@ -3317,7 +3327,7 @@ function verDetallesGuia() {
             "Barrio",
             "Ciudad",
             "Celular",
-            "Correo",
+            "Correo"
           ],
           [
             oficina.nombre_completo,
@@ -3325,8 +3335,8 @@ function verDetallesGuia() {
             oficina.barrio,
             oficina.ciudad,
             oficina.celular,
-            oficina.correo,
-          ],
+            oficina.correo
+          ]
         ];
 
         datos_oficina[0].forEach((titulo, i) => {
@@ -3350,7 +3360,7 @@ function verDetallesGuia() {
       Swal.fire({
         title: "Detalles de Guía",
         html,
-        width: "80%",
+        width: "80%"
       });
     });
 }
@@ -3359,53 +3369,55 @@ function erroresColaGuias() {
   let id = this.getAttribute("data-id");
   console.log(id);
   db.collection("colaCreacionGuias")
-  .doc(id)
-  .get()
-  .then((doc) => {
-    let html = "<div>";
-    
-    if(doc.exists) {
-      let data = doc.data();
+    .doc(id)
+    .get()
+    .then((doc) => {
+      let html = "<div>";
 
-      switch(data.status) {
-        case "ENQUEUE": 
-        // cuando la guía se ha pueso en cola
-          let informacionEnqueue  = "<div class='m-2'>";
-          informacionEnqueue += `<p>Se ha añadido tu guía a la lista de espera, pronto será procesada.</p>`
-  
-          informacionEnqueue += "</div></div>";
-          html += informacionEnqueue;
-        break;
-        case "SUCCESS": 
-        // Cuando la creación de guías ha sido generada exitósamente
-          let informacionSuccess  = "<div class='m-2'>";
-          informacionSuccess += `<p>La guía se ha creado exitosamente.</p>`
-  
-          informacionSuccess += "</div></div>";
-          html += informacionSuccess;
-        break;
-        case "ERROR": 
-        // Cuando la creación de guías ha superado el máximo de reintentos con error
-          let informacionErr  = "<div class='m-2'>";
-          informacionErr += `<p class="text-danger ">La guía ha superado el máximo de reintentos asignados, por favor verificar si los datos ingresados son correcos o contactarse con el ÁREA LOGÍSTICO.</p>`
-  
-          informacionErr += "</div></div>";
-          html += informacionErr;
-        break;
+      if (doc.exists) {
+        let data = doc.data();
 
-        default:
-          // Estado no controlado
-          let informacionDefaul  = "<div class='m-2'>";
-          informacionDefaul += `<p>Se ha añadido tu guía a la lista de espera, por favor comunicarse con ÁREA LOGÍSTICO. ESTADO:</p>` + data.status;
-  
-          informacionDefaul += "</div></div>";
-          html += informacionDefaul;
-      }
+        switch (data.status) {
+          case "ENQUEUE":
+            // cuando la guía se ha pueso en cola
+            let informacionEnqueue = "<div class='m-2'>";
+            informacionEnqueue += `<p>Se ha añadido tu guía a la lista de espera, pronto será procesada.</p>`;
 
-      if(data.messages){
-        // Si tiene mensajes, se muestra una tabla con los mismos
-        const filasErrores = data.messages.map((m, i) => {
-          return `
+            informacionEnqueue += "</div></div>";
+            html += informacionEnqueue;
+            break;
+          case "SUCCESS":
+            // Cuando la creación de guías ha sido generada exitósamente
+            let informacionSuccess = "<div class='m-2'>";
+            informacionSuccess += `<p>La guía se ha creado exitosamente.</p>`;
+
+            informacionSuccess += "</div></div>";
+            html += informacionSuccess;
+            break;
+          case "ERROR":
+            // Cuando la creación de guías ha superado el máximo de reintentos con error
+            let informacionErr = "<div class='m-2'>";
+            informacionErr += `<p class="text-danger ">La guía ha superado el máximo de reintentos asignados, por favor verificar si los datos ingresados son correcos o contactarse con el ÁREA LOGÍSTICO.</p>`;
+
+            informacionErr += "</div></div>";
+            html += informacionErr;
+            break;
+
+          default:
+            // Estado no controlado
+            let informacionDefaul = "<div class='m-2'>";
+            informacionDefaul +=
+              `<p>Se ha añadido tu guía a la lista de espera, por favor comunicarse con ÁREA LOGÍSTICO. ESTADO:</p>` +
+              data.status;
+
+            informacionDefaul += "</div></div>";
+            html += informacionDefaul;
+        }
+
+        if (data.messages) {
+          // Si tiene mensajes, se muestra una tabla con los mismos
+          const filasErrores = data.messages.map((m, i) => {
+            return `
           <tr>
             <th scope="row">${i + 1}</th>
             
@@ -3414,10 +3426,10 @@ function erroresColaGuias() {
 
           </tr>
           `;
-        });
-        
-        let informacionErrores  = "<div class='my-2 table-responsive'>";
-        informacionErrores += `
+          });
+
+          let informacionErrores = "<div class='my-2 table-responsive'>";
+          informacionErrores += `
         <table class="table" style="min-width: 600px">
           <thead class="thead-light">
             <tr>
@@ -3429,32 +3441,26 @@ function erroresColaGuias() {
           <tbody>
             ${filasErrores.join("")}
           </tbody>
-        </table>`
+        </table>`;
 
+          informacionErrores += "</div></div>";
+          html += informacionErrores;
+        }
+      } else {
+        let informacionSinEstado = "<div class='m-2'>";
+        informacionSinEstado += `<p>Esta guía aun no ha sido procesada.</p>`;
 
-
-        informacionErrores += "</div></div>";
-        html += informacionErrores;
+        informacionSinEstado += "</div></div>";
+        html += informacionSinEstado;
       }
 
-    } else {
-      let informacionSinEstado  = "<div class='m-2'>";
-      informacionSinEstado += `<p>Esta guía aun no ha sido procesada.</p>`
-
-      informacionSinEstado += "</div></div>";
-      html += informacionSinEstado;
-    }    
-    
-
-    
-
-    html += "</div>";
-    Swal.fire({
-      title: "Detalles de Errores de la Guía",
-      html,
-      width: "80%",
+      html += "</div>";
+      Swal.fire({
+        title: "Detalles de Errores de la Guía",
+        html,
+        width: "80%"
+      });
     });
-  });
 }
 
 function createModal() {
@@ -3497,12 +3503,12 @@ function organizarPostPlantillaMensaje(number, params) {
   return {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "application/json"
     },
     body: JSON.stringify({
       number,
-      params,
-    }),
+      params
+    })
   };
 }
 
@@ -3514,7 +3520,7 @@ const Toast = Swal.mixin({
   didOpen: (toast) => {
     toast.addEventListener("mouseenter", Swal.stopTimer);
     toast.addEventListener("mouseleave", Swal.resumeTimer);
-  },
+  }
 });
 
 const Cargador = Swal.mixin({
@@ -3524,7 +3530,7 @@ const Cargador = Swal.mixin({
   allowOutsideClick: false,
   allowEnterKey: false,
   showConfirmButton: false,
-  allowEscapeKey: true,
+  allowEscapeKey: true
 });
 
 //guar la base64 en el path (ruta) ingresado. devuelve true si fue guardado con éxito, caso contrario devuelve false
@@ -3628,7 +3634,7 @@ function convertirMoneda(
   return new Intl.NumberFormat(locales, {
     style: "currency",
     currency,
-    minimumFractionDigits,
+    minimumFractionDigits
   }).format(number);
 }
 
@@ -3871,6 +3877,6 @@ medidasCtrl.setBooleans = [
     operator: "regExp",
     message: 'Debe ser un número entero, caracter "{forbidden}" eliminado',
     forbid: /[^\d]/g,
-    sustitute: "",
-  },
+    sustitute: ""
+  }
 ];
