@@ -4787,6 +4787,7 @@ async function generarRotuloAnt(id_guias) {
             <h5 class="text-dark">Contenido:  <strong>${data.dice_contener}</strong></h5>
         </td>`;
 
+
     let infoDest = `<td>
             <h2>Datos Del Destinatario</h2>
             <h5 class="text-dark">Número de Guía: <strong>${data.numeroGuia}</strong></h5>
