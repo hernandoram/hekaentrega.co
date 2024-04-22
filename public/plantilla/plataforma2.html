@@ -165,7 +165,7 @@
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Descargar manifiestos para envía o interrapidísimo">
           <a class="nav-link" href="#estados">
             <i class="fas fa-fw fa-truck"></i>
-            <span>Estados</span></a>
+            <span>Movimientos</span></a>
         </li>
 
         <li class="nav-item" data-toggle="tooltip" data-placement="right" title="Descargar manifiestos para envía o interrapidísimo">
@@ -1569,6 +1569,51 @@
               </div>
             </div>
             
+          </div>
+
+
+          <div class="container-fluid" id="estados" style="display: none;">
+            <div class="card mt-1">
+              <div class="card-body">
+                <form enctype="multipart/form-data" id="form-novedades">
+                  <div class="form-group">
+                    <div class="input-group mb-3">
+                      <input type="text" class="form-control" id="filtrado-novedades-guias"
+                        placeholder="Guía1, Guía2, etc..." aria-label="Guias" aria-describedby="btn-revisar-novedades">
+                      <select name="activador_busq_novedades" class="form-control" id="activador_busq_novedades">
+                        <option value="">Buscar solo novedades</option>
+                        <option value="INTERRAPIDISIMO">Interrapidísimo</option>
+                        <option value="SERVIENTREGA">Servientrega</option>
+                        <option value="ENVIA">Envía</option>
+                        <option value="COORDINADORA">Coordinadora</option>
+                      </select>
+                    </div>
+
+                    <div class="btn-group col-12">
+                      <button type="button" id="btn-vaciar-consulta" class="btn btn-secondary mt-4">Limpiar
+                        Consulta</button>
+                      <button type="button" id="btn-revisar-novedades-user" class="btn btn-primary mt-4">Revisar
+                        Movimientos</button>
+                    </div>
+
+                  </div>
+                </form>
+
+
+
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-center">
+              <div class="lds-ellipsis mt-4 d-none" id="cargador-novedades">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+              </div>
+            </div>
+
+            <div id="visor_novedades"></div>
           </div>
 
 

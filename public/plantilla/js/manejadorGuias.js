@@ -3635,6 +3635,52 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
   }
 }
 
+function revisarMovimientosGuiasUser(novedades_transportadora) {
+  novedadesExcelData = [];
+  filtro = datos_usuario.centro_de_costo;
+  (toggle = "=="), (buscador = "centro_de_costo");
+  const cargadorClass = document.getElementById("cargador-novedades").classList;
+  cargadorClass.remove("d-none");
+
+  const filtroTransp = novedades_transportadora;
+  firebase
+    .firestore()
+    .collectionGroup("estadoGuias")
+    .where(buscador, toggle, filtro)
+    .get()
+    .then((querySnapshot) => {
+      let contador = 0;
+      let size = querySnapshot.size;
+      let filteredOutCount = 0;
+      querySnapshot.forEach((doc) => {
+        let path = doc.ref.path.split("/");
+        let dato = doc.data();
+
+        if (filtroTransp && dato.transportadora !== filtroTransp) {
+          filteredOutCount++;
+          if (filteredOutCount === size) {
+            // Todos los documentos han sido excluidos por el filtro
+            cargadorClass.add("d-none");
+          }
+          return;
+        }
+        contador++;
+        consultarGuiaFb(
+          path[1],
+          doc.id,
+          dato,
+          dato.centro_de_costo,
+          contador,
+          size
+        );
+        // console.log(doc.data());
+      });
+    })
+    .then(() => {
+      cargadorClass.add("d-none");
+    });
+}
+
 function revisarNovedades(transportadora) {
   novedadesExcelData = [];
 
@@ -3733,6 +3779,20 @@ function revisarGuiaUser(id_heka) {
       cargadorClass.add("d-none");
     });
 }
+
+document
+  .getElementById("btn-revisar-novedades-user")
+  .addEventListener("click", (e) => {
+    e.preventDefault();
+    const inputGuia = $("#filtrado-novedades-guias").val();
+    const novedades_transportadora = $("#activador_busq_novedades").val();
+
+    if (inputGuia) {
+      revisarNovedades(inputGuia, novedades_transportadora);
+    } else {
+      revisarMovimientosGuiasUser(novedades_transportadora);
+    }
+  });
 
 document
   .getElementById("btn-revisar-novedades")
