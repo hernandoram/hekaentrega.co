@@ -5516,10 +5516,10 @@ botonIninicarSesionUsarioToken.addEventListener("click", async function () {
 
       // Copiar la URL al portapapeles
       navigator.clipboard
-        .writeText(
-          `https://admin.hekaentrega.co/plataforma2.html?token=${tokenUser}`
-        )
-        // .writeText(`http://localhost:6200/plataforma2.html?token=${tokenUser}`)
+        // .writeText(
+        //   `https://admin.hekaentrega.co/plataforma2.html?token=${tokenUser}`
+        // )
+         .writeText(`http://localhost:6200/plataforma2.html?token=${tokenUser}`)
         .then(function () {
           // Cambiar el texto del botón a 'URL copiada correctamente'
           botonIninicarSesionUsarioToken.innerHTML =
