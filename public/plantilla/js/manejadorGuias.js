@@ -3781,20 +3781,6 @@ function revisarGuiaUser(id_heka) {
 }
 
 document
-  .getElementById("btn-revisar-novedades-user")
-  .addEventListener("click", (e) => {
-    e.preventDefault();
-    const inputGuia = $("#filtrado-novedades-guias").val();
-    const novedades_transportadora = $("#activador_busq_novedades").val();
-
-    if (inputGuia) {
-      revisarNovedades(inputGuia, novedades_transportadora);
-    } else {
-      revisarMovimientosGuiasUser(novedades_transportadora);
-    }
-  });
-
-document
   .getElementById("btn-revisar-novedades")
   .addEventListener("click", (e) => {
     e.preventDefault();
@@ -3824,6 +3810,22 @@ document
     console.log("Busqueda natural");
     revisarMovimientosGuias(administracion);
   });
+
+
+document
+  .getElementById("btn-revisar-novedades-user")
+  .addEventListener("click", (e) => {
+    e.preventDefault();
+    const inputGuia = $("#filtrado-novedades-guias").val();
+    const novedades_transportadora = $("#activador_busq_novedades").val();
+
+    if (inputGuia) {
+      revisarNovedades(inputGuia, novedades_transportadora);
+    } else {
+      revisarMovimientosGuiasUser(novedades_transportadora);
+    }
+  });
+
 
 let inputExcelDoc = document.getElementById("excelDocSoluciones");
 let excelDocSoluciones = document.getElementById("descargarExcelNovedades");
