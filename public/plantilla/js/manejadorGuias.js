@@ -2736,7 +2736,9 @@ function actualizarHistorialDeDocumentos(timeline) {
                 generarRotulo(
                   this.parentNode.parentNode
                     .getAttribute("data-guides")
-                    .split(",")
+                    .split(","), // La lista de guías del documento
+                  this.parentNode.parentNode
+                  .getAttribute("data-user") // El usuario asociado a dicho conjunto de guías
                 );
               }
             });
@@ -4943,11 +4945,19 @@ async function generarRotuloAnt(id_guias) {
   }, 500);
 }
 
-async function generarRotulo(id_guias) {
+/** Función encargada de generar documentos tipo rótulo
+ * Función que recibe como parámetro una lista de guías sobre las que se va a generar el rótulo
+ * y un usuario a quién pertenecen dichas guías, en caso de que no se reciba dicho parámetro, 
+ * se sobre entenderá que las guías pertenecen al usuario logueado
+ * @param {[string]} id_guias - La lista de guías sobre las que se va a generar el rótulo
+ * @param {string} id_user - El id del usuario a quién pertenecen todas las guías, si es diferente al que está
+ * logueado, es porque el usuario es de tipo punto
+ */
+async function generarRotulo(id_guias, id_user) {
   let div = document.createElement("div");
   let guias = new Array();
   for (let id of id_guias) {
-    let x = usuarioDoc
+    let x = usuarioAltDoc(id_user)
       .collection("guias")
       .doc(id)
       .get()

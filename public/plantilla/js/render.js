@@ -1215,7 +1215,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
           .get()
           .then((querySnapshot) => {
             querySnapshot.forEach((doc) => {
-              generarRotulo(doc.data().guias);
+              generarRotulo(doc.data().guias, doc.data().id_user);
             });
           });
       }
