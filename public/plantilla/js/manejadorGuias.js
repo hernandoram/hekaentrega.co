@@ -5554,7 +5554,7 @@ function descargarInformeExcel(datosDescarga, informeJson, title) {
   crearExcel(data, title);
 }
 
-let botonIninicarSesionUsarioToken = document.getElementById(
+const botonIninicarSesionUsarioToken = document.getElementById(
   "iniciar-sesion-usuario-token"
 );
 
