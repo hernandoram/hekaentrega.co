@@ -3522,7 +3522,7 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
           .firestore()
           .collectionGroup("estadoGuias")
           .where("numeroGuia", "==", v.trim())
-          .get()
+          .where.get()
           .then((querySnapshot) => {
             querySnapshot.size == 0
               ? $("#cargador-novedades").addClass("d-none")
@@ -3636,6 +3636,9 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
 }
 
 function revisarMovimientosGuiaIndividualUser(inputGuia) {
+  filtro = datos_usuario.centro_de_costo;
+  (toggle = "=="), (buscador = "centro_de_costo");
+
   let filtrado = inputGuia.split(",");
   if (typeof filtrado == "object") {
     filtrado.forEach((v, i) => {
@@ -3643,6 +3646,8 @@ function revisarMovimientosGuiaIndividualUser(inputGuia) {
         .firestore()
         .collectionGroup("estadoGuias")
         .where("numeroGuia", "==", v.trim())
+        .where(buscador, toggle, filtro)
+
         .get()
         .then((querySnapshot) => {
           querySnapshot.size == 0
