@@ -3635,6 +3635,52 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
   }
 }
 
+function revisarMovimientosGuiaIndividualUser(inputGuia) {
+  let filtrado = inputGuia.split(",");
+  if (typeof filtrado == "object") {
+    filtrado.forEach((v, i) => {
+      firebase
+        .firestore()
+        .collectionGroup("estadoGuias")
+        .where("numeroGuia", "==", v.trim())
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.size == 0
+            ? $("#cargador-novedades").addClass("d-none")
+            : "";
+          querySnapshot.forEach((doc) => {
+            let path = doc.ref.path.split("/");
+            let data = doc.data();
+            consultarGuiaFb(
+              path[1],
+              doc.id,
+              data,
+              "Consulta Personalizada",
+              i + 1,
+              filtrado.length
+            );
+          });
+        });
+    });
+  } else {
+    firebase
+      .firestore()
+      .collectionGroup("estadoGuias")
+      .where("numeroGuia", "==", filtrado)
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.size == 0
+          ? $("#cargador-novedades").addClass("d-none")
+          : "";
+        querySnapshot.forEach((doc) => {
+          let path = doc.ref.path.split("/");
+          let data = doc.data();
+          consultarGuiaFb(path[1], doc.id, data, "Solucionar Novedad");
+        });
+      });
+  }
+}
+
 function revisarMovimientosGuiasUser(novedades_transportadora) {
   novedadesExcelData = [];
   filtro = datos_usuario.centro_de_costo;
@@ -3817,7 +3863,7 @@ document
     const novedades_transportadora = $("#activador_busq_novedades").val();
 
     if (inputGuia) {
-      revisarNovedades(inputGuia, novedades_transportadora);
+      revisarMovimientosGuiaIndividualUser(inputGuia);
     } else {
       revisarMovimientosGuiasUser(novedades_transportadora);
     }
