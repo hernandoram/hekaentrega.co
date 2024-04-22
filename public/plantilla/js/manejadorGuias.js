@@ -3647,6 +3647,7 @@ function revisarMovimientosGuiasUser(novedades_transportadora) {
     .firestore()
     .collectionGroup("estadoGuias")
     .where(buscador, toggle, filtro)
+    .limit(30)
     .get()
     .then((querySnapshot) => {
       let contador = 0;
@@ -3802,15 +3803,11 @@ document
         );
         return;
       }
-
-      console.log("Busqueda natural");
-      revisarMovimientosGuias(administracion);
     }
 
     console.log("Busqueda natural");
     revisarMovimientosGuias(administracion);
   });
-
 
 document
   .getElementById("btn-revisar-novedades-user")
@@ -3825,7 +3822,6 @@ document
       revisarMovimientosGuiasUser(novedades_transportadora);
     }
   });
-
 
 let inputExcelDoc = document.getElementById("excelDocSoluciones");
 let excelDocSoluciones = document.getElementById("descargarExcelNovedades");
@@ -5562,9 +5558,12 @@ let botonIninicarSesionUsarioToken = document.getElementById(
   "iniciar-sesion-usuario-token"
 );
 
+
 botonIninicarSesionUsarioToken.addEventListener("click", async function () {
   // Mostrar animación de carga
   botonIninicarSesionUsarioToken.innerHTML = "Cargando...";
+
+  
   const tokenAdmin = localStorage.getItem("token");
 
   let tokenUser;
