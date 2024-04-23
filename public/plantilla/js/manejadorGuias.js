@@ -5015,6 +5015,10 @@ async function generarRotulo(id_guias, id_user) {
             border: 1px solid black;
           }
 
+          .table {
+            color: black;
+          }
+
           .page-printer {
             break-before: page;
           }
