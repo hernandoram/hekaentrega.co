@@ -164,7 +164,7 @@ const usuarioAltDoc = (id) =>
   firebase
     .firestore()
     .collection("usuarios")
-    .doc(user_id || id);
+    .doc(id || user_id);
 
 //Administradara datos basicos del usuario que ingresa
 let datos_usuario = {},
@@ -192,12 +192,39 @@ const ciudadesFlexxi = ["BOGOTA(CUNDINAMARCA)", "TUMACO(NARIÑO)"];
 const bodegasWtch = new Watcher();
 
 class ControlUsuario {
+  static dataCompleted = new Watcher(null);
+
+  static loader = null
+
   static get esPuntoEnvio() {
     return datos_usuario.type === "PUNTO";
   }
 
   static get esUsuarioPunto() {
     return datos_usuario.type === "USUARIO-PUNTO";
+  }
+
+  /** Promesa encargada de validad que ya se han cargado todos los datos del usuario correctamente
+   * Utiliza un loader al estilo "singleton", que devuelve una única promesa, que se resuelve cuando el 
+   * observador "dataCompleted" se dispara con el valor "true" y se rechaza cuando la misma variable devuelve false
+   * @returns {Promise}
+   */
+  static get hasLoaded() {
+    if(ControlUsuario.loader === null) {
+      // En caso de que no exista una promesa activa, la crea
+      ControlUsuario.loader = new Promise((res, rej) => {
+        // Luego genera el observador que una vez reciba true o false, resolverá la promesa
+        ControlUsuario.dataCompleted.watch(dataCorrectlyLoaded => {
+          if(dataCorrectlyLoaded === true) {
+            res("La información del usuario ha sido cargada correctamente");
+          }else if(dataCorrectlyLoaded === false) {
+            rej("Hubo un error al cargar los datos del usuario");
+          }
+        });
+      });
+    }
+
+    return ControlUsuario.loader;
   }
 }
 const puntoEnvio = () => datos_usuario.type === "PUNTO";
@@ -263,6 +290,9 @@ async function cargarDatosUsuario() {
   //  console.log( datos_usuario)
 
   limitarAccesoSegunTipoUsuario();
+   // Esto para que la clase estática encargada de cosas particulares del usuario pueda mostrar que ya está
+  // el cargue de información del usuario ha sido correcta
+  ControlUsuario.dataCompleted.change(true);
 
   //Se enlistan las novedades de servientrega
   showPercentage.text(percentage());
@@ -272,7 +302,7 @@ async function cargarDatosUsuario() {
   showPercentage.text(percentage());
 
   // console.log(location);
-  if (location.hash === "") {
+  if (["", "#", "#home"].includes(location.hash)) {
     pagosPendientesParaUsuario();
   }
 
@@ -2184,7 +2214,7 @@ inputBusquedaGuia.addEventListener("input", (e) => {
 
 function obtenerMensajeDesembolso() {
   const mensajes2 =
-    "<h2> Pago solicitado ✅</h2>  <br/>  Si solicitaste tu pago entre las 8 am - 6 pm lo recibirás al siguiente día habil, si realizas la solicitud fuera de ese horario, el pago llegará al segundo día hábil. <br/> e el pago se realizará durante el transcurso del día, sin un horario específico, ya que está programado.";
+    "<h2> Pago solicitado ✅</h2>  <br/>  Si solicitaste tu pago entre las 8 am - 6 pm lo recibirás al siguiente día habil, si realizas la solicitud fuera de ese horario, el pago llegará al segundo día hábil. <br/> El pago se realizará durante el transcurso del día, sin un horario específico, ya que está programado.";
   return mensajes2;
 }
 const datosUsuario = localStorage.getItem("user_id");
@@ -2209,61 +2239,9 @@ async function crearLogPago(estado, fecha, valorPago) {
   await ref2.add(pago);
 }
 
-async function solicitarPagosPendientesUs() {
-  const datosUsuario = localStorage.getItem("user_id");
-
-  console.log(datosUsuario);
-
-  // if(datosUsuario == "zGR9EbRKEQGRxIMfKiu4"){
-  //   return Swal.fire(" Desactivación Temporal de la Función de Solicitar Pagos", "Hemos desactivado temporalmente la función de solicitar pagos. Estamos trabajando en la solución y te mantendremos informado.", "error");
-
-  // }
-
-  const mensajeDesembolso = obtenerMensajeDesembolso();
-  const minimo_diario = 3000000;
-  const ref = db.collection("infoHeka").doc("manejoUsuarios");
-
-  const data = await ref.get().then((d) => d.data());
-
-  const transportadoras = [
-    "SERVIENTREGA",
-    "ENVIA",
-    "TCC",
-    "INTERRAPIDISIMO",
-    "COORDINADORA",
-  ];
-  const verPago = (t) =>
-    db
-      .collection("pagos")
-      .doc(t)
-      .collection("pagos")
-      .where("REMITENTE", "==", datos_usuario.centro_de_costo)
-      .limit(1)
-      .get()
-      .then((q) => !!q.docs[0]);
-
-  const hayPagoAnterior = await Promise.all(transportadoras.map(verPago));
-
-  console.log(hayPagoAnterior);
-
-  if (!hayPagoAnterior.some(Boolean))
-    return Swal.fire(
-      "Se ha detectado que no hay registro de pago previo.",
-      "Por favor, para poder continuar, es necesario que nos envíes tu RUT a el correo electrónico atencion@hekaentrega.co esto se realiza con la finalidad de validación de datos y facturación electrónica.",
-      "error"
-    );
-
-  if (!data) return;
-
-  const { limitadosDiario, diarioSolicitado } = data;
-
-  if (!datos_usuario.datos_bancarios)
-    return Swal.fire(
-      "No puede solicitar pagos",
-      "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico atencion@hekaentrega.co esto se realiza con la finalidad de validación de datos. Adicional debes registrar datos bancarios para tener donde realizar el deposito del dinero.",
-      "error"
-    );
-
+async function solicitarPagosPendientesUs(e) {
+  
+  // Se realizan primeros las validaciones que dependen de la información universal
   if (saldo_pendiente == 0) {
     const mensaje = "No puedes solicitar tu pago ya que no tienes saldo";
     return Swal.fire({
@@ -2287,14 +2265,74 @@ async function solicitarPagosPendientesUs() {
     });
   }
 
-  if (diarioSolicitado.includes(datos_usuario.centro_de_costo))
-    return Swal.fire("", mensajeDesembolso, "info");
+  // Cargador para el botón de solicitud
+  const loader = new ChangeElementContenWhileLoading(e.target);
+  loader.init();
 
+  const mensajeDesembolso = obtenerMensajeDesembolso();
+  const minimo_diario = 3000000;
+  const ref = db.collection("infoHeka").doc("manejoUsuarios");
+
+  // Se genera un Swal para que cuando se cierre automáticamente retorne el botón a su estado original
+  const SwalMessage = Swal.mixin({
+    didClose: () => {
+      loader.end();
+    }
+  });
+
+  const data = await ref.get().then((d) => d.data());
+
+  const transportadoras = [
+    "SERVIENTREGA",
+    "ENVIA",
+    "TCC",
+    "INTERRAPIDISIMO",
+    "COORDINADORA",
+  ];
+  const verPago = (t) =>
+    db
+      .collection("pagos")
+      .doc(t)
+      .collection("pagos")
+      .where("REMITENTE", "==", datos_usuario.centro_de_costo)
+      .limit(1)
+      .get()
+      .then((q) => !!q.docs[0]);
+
+  const hayPagoAnterior = await Promise.all(transportadoras.map(verPago));
+
+  // Primero validamos que no sea la primera vez que va a consultar pago para solicitarle los datos bancarios
+  if (!hayPagoAnterior.some(Boolean))
+    return SwalMessage.fire(
+      "Se ha detectado que no hay registro de pago previo.",
+      "Por favor, para poder continuar, es necesario que nos envíes tu RUT a el correo electrónico atencion@hekaentrega.co esto se realiza con la finalidad de validación de datos y facturación electrónica.",
+      "error"
+    );
+
+  // En caso de que haya error en la solicitud
+  if (!data) return loader.end();
+
+  // Obtenemos en donde se va a ingresar su centro de costo
+  const { limitadosDiario, diarioSolicitado } = data;
+
+  // porque de alguna forma no tiene datos bancarios ingresados
+  if (!datos_usuario.datos_bancarios)
+    return SwalMessage.fire(
+      "No puede solicitar pagos",
+      "Por favor, para poder continuar, es necesario que nos envíes tu RUT (En caso de no contar con RUT la cedula en foto legible o PDF) a el correo electrónico atencion@hekaentrega.co esto se realiza con la finalidad de validación de datos. Adicional debes registrar datos bancarios para tener donde realizar el deposito del dinero.",
+      "error"
+    );
+
+  if (diarioSolicitado.includes(datos_usuario.centro_de_costo))
+    return SwalMessage.fire("", mensajeDesembolso, "info");
+
+  // cuando el saldo es inferior al límite requerido, el pago se limita a una sola vez en la semana
   if (saldo_pendiente < minimo_diario) {
     const mensaje =
       "Estás a punto de solicitar pago con un monto inferior a " +
-      minimo_diario +
+      convertirMoneda(minimo_diario) +
       " por lo tanto podrá solicitarlo una vez a la semana.<br> ¿Estás seguro de solicitar el pago?";
+
     const resp = await Swal.fire({
       icon: "warning",
       title: "Solicitando pago",
@@ -2304,14 +2342,12 @@ async function solicitarPagosPendientesUs() {
       confirmButtonText: "Si",
     });
 
-    if (!resp.isConfirmed) return;
-
-    if (!data) return;
+    if (!resp.isConfirmed) return loader.end();
 
     const usuario = datos_usuario.centro_de_costo;
 
     if (limitadosDiario.includes(usuario)) {
-      Swal.fire(
+      SwalMessage.fire(
         "Has excedido el cupo de pagos por esta semana.",
         "Error solicitando pago",
         "error"
@@ -2323,19 +2359,8 @@ async function solicitarPagosPendientesUs() {
 
     if (!diarioSolicitado.includes(usuario)) diarioSolicitado.push(usuario);
 
-    // const actualizacion = {
-    //   diarioSolicitado: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo),
-    //   limitadosDiario: firebase.firestore.FieldValue.arrayUnion(datos_usuario.centro_de_costo)
-    // }
-
     await ref.update({ limitadosDiario, diarioSolicitado });
-    await crearLogPago(
-      "Saldo solicitado con éxito",
-      new Date(),
-      saldo_pendiente
-    );
-
-    Swal.fire("Pago solicitado con éxito.", "", "success");
+   
   } else {
     const mensaje =
       "Estás a punto de solicitar pago con un monto superior a " +
@@ -2351,37 +2376,26 @@ async function solicitarPagosPendientesUs() {
       confirmButtonText: "Si",
     });
 
-    if (!resp.isConfirmed) return;
+    if (!resp.isConfirmed) return loader.end();
 
-    // const data = await ref.get().then(d => d.data());
-    if (!data) return;
-
-    console.log(datos_usuario.centro_de_costo);
-    // return;
-
+    // Solo se actualiza cuando ya no se había solicitado antes
     if (!diarioSolicitado.includes(datos_usuario.centro_de_costo)) {
       diarioSolicitado.push(datos_usuario.centro_de_costo);
       await ref.update({ diarioSolicitado });
     }
 
-    // const actualizacion = {
-    //   diarioSolicitado: firebase.firestore.FieldValue.arrayUnion("prueba"),
-    // }
-
-    // console.log(actualizacion);
-
-    //paso las ward clausules se solcita pago
-
-    await crearLogPago(
-      "Saldo solicitado con éxito",
-      new Date(),
-      saldo_pendiente
-    );
-
-    Swal.fire("Pago solicitado con éxito.", "", "success");
   }
+  
+  // Registramos los logs de todos los pagos que han sido solicitados
+  await crearLogPago(
+    "Saldo solicitado con éxito",
+    new Date(),
+    saldo_pendiente
+  );
 
-  pagosPendientesParaUsuario();
+  SwalMessage.fire("Pago solicitado con éxito.", "", "success");
+
+  cargarPagoSolicitado();
 }
 
 function descargarExcelPagosAdmin(datos) {

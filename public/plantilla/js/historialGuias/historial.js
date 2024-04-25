@@ -769,6 +769,7 @@ function accionesDeFila(datos, type, row) {
   if (type === "display" || type === "filter") {
     const filtrado = defineFilter(row);
     const id = datos.id_heka;
+    const {id_user} = datos;
     const generacion_automatizada = ["automatico", "automaticoEmp"].includes(
       transportadoras[datos.transportadora || "SERVIENTREGA"].sistema()
     );
@@ -866,7 +867,7 @@ function accionesDeFila(datos, type, row) {
     buttons += `
     <button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
     id="ver_detalles${id}" data-toggle="modal" data-target="#modal-detallesGuias"
-    data-placement="right"
+    data-placement="right" data-id_user="${id_user}"
     title="Detalles">
     <i class="fas fa-search-plus"></i>
     </button>
@@ -1027,7 +1028,7 @@ async function encolarCreacionGuia(guia) {
     } else {
       await refColaNueva.set({
         id_heka: guia.id_heka,
-        id_user: user_id,
+        id_user: guia.id_user,
         status: "ENQUEUE",
         fechaSolicitud,
         timestamp: fechaSolicitud,

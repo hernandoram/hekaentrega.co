@@ -1,5 +1,5 @@
 {
-  "name": "HEKA_ENTREGA_WEB_SERVICE",
+  "name": "@hekaentrega/web-service",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",

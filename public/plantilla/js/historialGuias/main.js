@@ -33,6 +33,11 @@ async function consultarHistorialGuias() {
   fechas.change([fecha_inicio, fecha_final, inpNumeroGuia.val()]);
   historial.clean(defFiltrado.novedad);
 
+  // Esto se encarga de esperar que la información del usuario sea cargada correctamente 
+  // para saber el tipo de usuario para poder realizar la consulta necesaria
+  if(ControlUsuario.dataCompleted.value !== true)
+    await ControlUsuario.hasLoaded;
+
   if (historialConsultado) historialConsultado();
 
   let reference = ControlUsuario.esPuntoEnvio
