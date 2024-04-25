@@ -3612,18 +3612,36 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
           }
           $("#visor_novedades").html("");
           const guias_actualizadas = revisarTiempoGuiasActualizadas();
+          const novedades_transportadora = $("#activador_busq_novedades").val();
+
           querySnapshot.forEach((doc) => {
             let dato = doc.data();
             contador++;
             console.log(dato);
-            consultarGuiaFb(
-              user_id,
-              doc.id,
-              dato,
-              "Posibles Novedades",
-              contador,
-              size
-            );
+
+            if (novedades_transportadora) {
+              if (dato.transportadora === novedades_transportadora) {
+                consultarGuiaFb(
+                  user_id,
+                  doc.id,
+                  dato,
+                  "Posibles Novedades",
+                  contador,
+                  size
+                );
+              } else {
+                return $("#cargador-novedades").addClass("d-none");
+              }
+            } else {
+              consultarGuiaFb(
+                user_id,
+                doc.id,
+                dato,
+                "Posibles Novedades",
+                contador,
+                size
+              );
+            }
             if (!guias_actualizadas) actualizarEstadoGuia(dato.numeroGuia);
           });
 
@@ -3870,7 +3888,7 @@ document
     if (inputGuia) {
       revisarMovimientosGuiaIndividualUser(inputGuia);
     } else {
-      revisarMovimientosGuiasUser(novedades_transportadora);
+      revisarMovimientosGuias(false);
     }
   });
 
