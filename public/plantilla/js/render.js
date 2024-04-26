@@ -2040,7 +2040,14 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
     "aria-controls",
     "estadoGuias-" + usuario.replace(/\s/g, "")
   );
-  encabezado.textContent = usuario;
+
+  const location = window.location.pathname;
+  if (location === "/plataforma2.html") {
+    encabezado.textContent = "Respuesta Busqueda Novedades";
+  } else {
+    encabezado.textContent = usuario;
+  }
+
   cuerpo.setAttribute("id", "estadoGuias-" + usuario.replace(/\s/g, ""));
   cuerpo.setAttribute("data-usuario", usuario.replace(/\s/g, ""));
 

@@ -24,7 +24,7 @@ if (administracion) {
     e.preventDefault();
     cargarPagos();
   });
-  
+
   cargarFiltroDePagosPersonalizados();
 }
 
@@ -87,7 +87,7 @@ async function historialGuiasAntiguo() {
             const dataIdUser = id_user ? `data-id_user="${id_user}"` : "";
             const generacion_automatizada = [
               "automatico",
-              "automaticoEmp",
+              "automaticoEmp"
             ].includes(
               transportadoras[datos.transportadora || "SERVIENTREGA"].sistema()
             );
@@ -185,7 +185,7 @@ async function historialGuiasAntiguo() {
             return buttons;
           }
           return datos;
-        },
+        }
       },
       { data: "id_heka", title: "Id", defaultContent: "" },
       { data: "numeroGuia", title: "Guía transportadora", defaultContent: "" },
@@ -194,7 +194,7 @@ async function historialGuiasAntiguo() {
         data: "mostrar_transp",
         orderable: false,
         title: "Transportadora",
-        defaultContent: "",
+        defaultContent: ""
       },
       { data: "type", title: "Tipo", defaultContent: "" },
       { data: "nombreD", title: "Destinatario", defaultContent: "" },
@@ -224,7 +224,7 @@ async function historialGuiasAntiguo() {
           }
 
           return valor;
-        },
+        }
       },
       { data: "celularD", title: "only movil", visible: false },
       { data: "ciudadD", title: "Ciudad", defaultContent: "" },
@@ -239,32 +239,32 @@ async function historialGuiasAntiguo() {
           }
 
           return value;
-        },
+        }
       },
       {
         data: "valor",
         title: "Recaudo",
-        defaultContent: "",
+        defaultContent: ""
       },
       {
         data: "costo_envio",
         title: "Costo de envío",
-        defaultContent: "",
+        defaultContent: ""
       },
       {
         data: "detalles.comision_punto",
         title: "Ganancia",
         defaultContent: "No aplica",
-        visible: ControlUsuario.esPuntoEnvio,
+        visible: ControlUsuario.esPuntoEnvio
       },
       {
         data: "referencia",
         title: "Referencia",
-        defaultContent: "No aplica",
-      },
+        defaultContent: "No aplica"
+      }
     ],
     language: {
-      url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
+      url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
     },
     dom: "Bfrtip",
     buttons: [
@@ -273,19 +273,19 @@ async function historialGuiasAntiguo() {
         text: "Descargar excel",
         filename: "Historial Guías",
         exportOptions: {
-          columns: [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 15],
-        },
+          columns: [1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 13, 15]
+        }
       },
       {
         text: "Descargar guías",
         className: "btn btn-primary",
-        action: descargarGuiasParticulares,
+        action: descargarGuiasParticulares
       },
       {
         text: "Crear Documentos",
         className: "btn btn-success",
-        action: crearDocumentos,
-      },
+        action: crearDocumentos
+      }
     ],
     scrollY: "50vh",
     scrollX: true,
@@ -293,10 +293,10 @@ async function historialGuiasAntiguo() {
     paging: false,
     lengthMenu: [
       [-1, 10, 25, 50, 100],
-      ["Todos", 10, 25, 50, 100],
+      ["Todos", 10, 25, 50, 100]
     ],
     initComplete: funcionalidadesHistorialGuias,
-    drawCallback: renderizadoDeTablaHistorialGuias,
+    drawCallback: renderizadoDeTablaHistorialGuias
   });
 
   document.getElementById("cargador-guias").classList.remove("d-none");
@@ -451,12 +451,12 @@ function seleccionarFilaHistorialGuias(e) {
   } else if (cant >= limit) {
     Toast.fire({
       icon: "warning",
-      title: "Solo puedes seleccionar " + limit + " guías por documento.",
+      title: "Solo puedes seleccionar " + limit + " guías por documento."
     });
   } else {
     Toast.fire({
       icon: "error",
-      title: "Esta guía ya ha sido enviada",
+      title: "Esta guía ya ha sido enviada"
     });
   }
 }
@@ -471,7 +471,7 @@ function renderizadoDeTablaHistorialGuias(config) {
     finalizada: 0,
     "en proceso": 0,
     pagada: 0,
-    anulada: 0,
+    anulada: 0
   };
 
   data.each((data, i) => {
@@ -560,7 +560,7 @@ function clasificarHistorialGuias(data) {
     "RECIBIDO DEL CLIENTE",
     "Enviado",
     "",
-    undefined,
+    undefined
   ];
   const estAnuladas = ["Documento Anulado", "Anulada"];
 
@@ -601,7 +601,7 @@ async function descargarGuiasParticulares(e, dt, node, config) {
   if (!selectedRows.data().length) {
     return Toast.fire({
       icon: "error",
-      text: "No hay guías Seleccionadas.",
+      text: "No hay guías Seleccionadas."
     });
   }
 
@@ -611,7 +611,7 @@ async function descargarGuiasParticulares(e, dt, node, config) {
     icon: "warning",
     showCancelButton: true,
     confirmButtonText: "¡Si! continuar 👍",
-    cancelButtonText: "¡No, déjame pensarlo!",
+    cancelButtonText: "¡No, déjame pensarlo!"
   });
 
   console.log(respuestaUsuario);
@@ -688,7 +688,7 @@ function crearDocumentos(e, dt, node, config) {
 
     return Toast.fire({
       icon: "error",
-      text: "No hay guías Seleccionadas.",
+      text: "No hay guías Seleccionadas."
     });
   }
 
@@ -715,7 +715,7 @@ function crearDocumentos(e, dt, node, config) {
       ciudadD,
       nombreD,
       direccionD,
-      codigo_sucursal,
+      codigo_sucursal
     } = data;
 
     arrGuias.push({
@@ -738,7 +738,7 @@ function crearDocumentos(e, dt, node, config) {
       ciudadD,
       nombreD,
       direccionD,
-      codigo_sucursal,
+      codigo_sucursal
     });
 
     // $(nodo).removeClass("selected bg-gray-300");
@@ -756,7 +756,7 @@ function crearDocumentos(e, dt, node, config) {
     return Swal.fire({
       icon: "error",
       title: "!No se pudo procesar la información!",
-      html: tipos_diferentes.text,
+      html: tipos_diferentes.text
     });
   }
 
@@ -770,7 +770,7 @@ function crearDocumentos(e, dt, node, config) {
     allowOutsideClick: false,
     allowEnterKey: false,
     showConfirmButton: false,
-    allowEscapeKey: true,
+    allowEscapeKey: true
   });
   let documentReference = firebase.firestore().collection("documentos");
   //corresponde al nuevo documento creado
@@ -790,7 +790,7 @@ function crearDocumentos(e, dt, node, config) {
       codigo_sucursal: arrGuias[0].codigo_sucursal
         ? arrGuias[0].codigo_sucursal
         : "",
-      generacion_automatizada: guia_automatizada,
+      generacion_automatizada: guia_automatizada
     })
     .then(async (docRef) => {
       if (noNotificarGuia == undefined) {
@@ -816,7 +816,7 @@ function crearDocumentos(e, dt, node, config) {
         await crearManifiestoAveonline(arrGuias, {
           id_user,
           prueba: estado_prueba,
-          id_doc: docRef.id,
+          id_doc: docRef.id
         });
       } else if (generacion_automatizada) {
         if (
@@ -827,7 +827,7 @@ function crearDocumentos(e, dt, node, config) {
           await actualizarEstadoGuiasDocCreado(arrGuias);
           Toast.fire({
             icon: "success",
-            text: "¡Documento creado exitósamente!",
+            text: "¡Documento creado exitósamente!"
           });
           actualizarHistorialDeDocumentos();
           location.href = "#documentos";
@@ -836,7 +836,7 @@ function crearDocumentos(e, dt, node, config) {
           await crearManifiestoServientrega(arrGuias, {
             id_user,
             prueba: estado_prueba,
-            id_doc: docRef.id,
+            id_doc: docRef.id
           });
           arrGuias.forEach(notificarPedidoCreado);
         }
@@ -846,7 +846,7 @@ function crearDocumentos(e, dt, node, config) {
           .update({
             descargar_guias: false,
             descargar_relacion_envio: false,
-            important: true,
+            important: true
           })
           .then(() => {
             actualizarEstadoGuiasDocCreado(arrGuias);
@@ -856,7 +856,7 @@ function crearDocumentos(e, dt, node, config) {
               text:
                 "Las Guías " +
                 guias +
-                " Serán procesadas por un asesor, y en apróximadamente 10 minutos los documentos serán subidos.",
+                " Serán procesadas por un asesor, y en apróximadamente 10 minutos los documentos serán subidos."
             });
           });
 
@@ -872,7 +872,7 @@ function crearDocumentos(e, dt, node, config) {
             usuario: datos_usuario.nombre_completo,
             timeline: new Date().getTime(),
             type: "documento",
-            visible_admin: true,
+            visible_admin: true
           })
           .then(() => {
             actualizarHistorialDeDocumentos();
@@ -896,7 +896,7 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
   const mensaje = {
     error: false,
     text: "",
-    causa: "",
+    causa: ""
   };
   const diferentes = arrGuias.some((v, i, arr) => {
     const generacion_automatizada = ["automatico", "automaticoEmp"].includes(
@@ -976,7 +976,7 @@ async function actualizarEstadoGuiasDocCreado(arrGuias) {
       .update({
         enviado: true,
         estado: "Enviado",
-        estadoActual: estadosGuia.empacada,
+        estadoActual: estadosGuia.empacada
       })
       .then(() => {
         const link =
@@ -994,7 +994,7 @@ async function actualizarEstadoGuiasDocCreado(arrGuias) {
             id_heka: guia.id_heka,
             numeroGuia: guia.numeroGuia,
             transportadora: guia.transportadora,
-            mensaje: "Se ha creado una nueva guía que se dirige a tu oficina.",
+            mensaje: "Se ha creado una nueva guía que se dirige a tu oficina."
           });
         }
       });
@@ -1012,7 +1012,7 @@ function notificarPedidoCreado(guia) {
     ciudadR,
     nombreD,
     ciudadD,
-    direccionD,
+    direccionD
   } = guia;
   const plantilla = [
     transportadora,
@@ -1023,7 +1023,7 @@ function notificarPedidoCreado(guia) {
     ciudadR,
     nombreD,
     ciudadD,
-    direccionD.trim(),
+    direccionD.trim()
   ].map((p) => ({ default: p }));
 
   if (guia.numeroGuia && !noNotificarGuia) {
@@ -1072,14 +1072,14 @@ async function crearManifiestoServientrega(arrGuias, vinculo) {
   let base64 = await fetch("/servientrega/generarManifiesto", {
     method: "POST",
     headers: { "Content-type": "application/json" },
-    body: JSON.stringify({ arrGuias, vinculo }),
+    body: JSON.stringify({ arrGuias, vinculo })
   })
     .then((data) => data.text())
     .catch((error) => {
       console.log(error);
       Swal.fire({
         icon: "error",
-        text: "Hubo un error al crear los documentos: " + error.message,
+        text: "Hubo un error al crear los documentos: " + error.message
       });
 
       return "error";
@@ -1127,12 +1127,12 @@ async function crearManifiestoServientrega(arrGuias, vinculo) {
     Swal.fire({
       icon: "warning",
       title: "Obeservaciones",
-      html: mensaje,
+      html: mensaje
     });
   } else {
     Toast.fire({
       icon: "success",
-      html: "¡Documento creado exitósamente!",
+      html: "¡Documento creado exitósamente!"
     });
   }
 
@@ -1159,14 +1159,14 @@ async function crearManifiestoAveonline(arrGuias, vinculo) {
   let res = await fetch("/aveo/generarManifiesto", {
     method: "POST",
     headers: { "Content-type": "application/json" },
-    body: JSON.stringify({ arrGuias, vinculo }),
+    body: JSON.stringify({ arrGuias, vinculo })
   })
     .then((data) => data.json())
     .catch((error) => {
       console.log(error);
       Swal.fire({
         icon: "error",
-        text: "Hubo un error al crear los documentos: " + error.message,
+        text: "Hubo un error al crear los documentos: " + error.message
       });
 
       return "error";
@@ -1184,12 +1184,12 @@ async function crearManifiestoAveonline(arrGuias, vinculo) {
     Swal.fire({
       icon: "warning",
       title: "Obeservaciones",
-      html: mensaje,
+      html: mensaje
     });
   } else {
     Toast.fire({
       icon: "success",
-      html: "¡Documento creado exitósamente!",
+      html: "¡Documento creado exitósamente!"
     });
   }
 
@@ -1298,12 +1298,12 @@ function cargarDocumentos(filter) {
         [
           "Guías / Documentos",
           counter_guias + " / " + querySnapshot.size,
-          "file-alt",
+          "file-alt"
         ],
         ["Pago Contraentrega", counter_pagoContraentrega, "hand-holding-usd"],
         ["Convencional", counter_convencional, "hand-holding"],
         ["Interrapidísimo", counter_inter, "truck"],
-        ["Servientrega", counter_servi, "truck"],
+        ["Servientrega", counter_servi, "truck"]
       ]);
 
       filtrarDocsPorUsuarioAdmin(users);
@@ -1412,7 +1412,7 @@ function cambiarRelevanciaDeDocumento(e) {
       " este documento al inicio?",
     showCancelButton: true,
     cancelButtonText: '<i class="fa fa-thumbs-down"></i>',
-    confirmButtonText: '<i class="fa fa-thumbs-up"></i> Si',
+    confirmButtonText: '<i class="fa fa-thumbs-up"></i> Si'
   }).then((result) => {
     console.log(result);
     if (!result.isConfirmed) return;
@@ -1501,16 +1501,16 @@ function showStatistics(query, arr, insertAfter) {
     easing: "ease",
     classes: {
       prev: "splide__arrow--prev ml-n3 bg-transparent",
-      next: "splide__arrow--next mr-n3 bg-transparent",
+      next: "splide__arrow--next mr-n3 bg-transparent"
     },
     breakpoints: {
       640: {
-        perPage: 2,
+        perPage: 2
       },
       380: {
-        perPage: 1,
-      },
-    },
+        perPage: 1
+      }
+    }
   }).mount();
 }
 
@@ -1658,7 +1658,7 @@ function descargarExcelServi(JSONData, ReportTitle, type) {
     ["Nombre contacto remitente", "nombreR"],
     ["Correo electrónico del remitente", "correoR"],
     ["Numero de telefono movil del remitente.", "celularR"],
-    ["Valor a cobrar por el Producto", "valor"],
+    ["Valor a cobrar por el Producto", "valor"]
   ];
 
   if (type == "CONVENCIONAL") {
@@ -1714,7 +1714,7 @@ async function subirExcelNovedades() {
   console.log(data.get("documento"));
   fetch("/excel_to_json", {
     method: "POST",
-    body: data,
+    body: data
   })
     .then(async (res) => {
       if (!res.ok) {
@@ -1761,14 +1761,14 @@ async function subirExcelNovedades() {
             if (anteriorSeguimiento.gestion == respAnt) {
               errActualizarNovedades.push({
                 guia: numGuia,
-                error: "Ultima respuesta duplicada",
+                error: "Ultima respuesta duplicada"
               });
               respuestaRepetida = true;
             }
           } else if (!respuesta) {
             errActualizarNovedades.push({
               guia: numGuia,
-              error: "No se encontro la informacion necesaria",
+              error: "No se encontro la informacion necesaria"
             });
           }
           if (errActualizarNovedades.length == tamaño) {
@@ -1782,7 +1782,7 @@ async function subirExcelNovedades() {
                 actualizadasCorrectamente +
                 " de " +
                 tamaño +
-                ".",
+                "."
             }).then((result) => {
               if (result.isConfirmed) {
                 errActualizarNovedades = [];
@@ -1801,14 +1801,14 @@ async function subirExcelNovedades() {
                 respuesta.trim(),
               fecha: new Date(),
               admin: true,
-              type: "Masivo",
+              type: "Masivo"
             };
             console.log(anteriorSeguimiento);
 
             await referenciaGuia
               .update({
                 seguimiento: firebase.firestore.FieldValue.arrayUnion(solucion),
-                novedad_solucionada: true,
+                novedad_solucionada: true
               })
               .then(() => {
                 console.log("todo nice");
@@ -1829,13 +1829,13 @@ async function subirExcelNovedades() {
                     numGuia +
                     ": " +
                     respuesta.trim(),
-                  href: "novedades",
+                  href: "novedades"
                 });
               })
               .catch((err) => {
                 errActualizarNovedades.push({
                   guia: numGuia,
-                  error: err.message,
+                  error: err.message
                 });
               })
               .finally(() => {
@@ -1852,7 +1852,7 @@ async function subirExcelNovedades() {
                       actualizadasCorrectamente +
                       " de " +
                       tamaño +
-                      ".",
+                      "."
                   }).then((result) => {
                     if (result.isConfirmed) {
                       errActualizarNovedades = [];
@@ -1871,7 +1871,7 @@ async function subirExcelNovedades() {
       Swal.fire({
         icon: "error",
         title: "Error al subir excel",
-        text: err.message,
+        text: err.message
       });
     });
 }
@@ -1881,14 +1881,14 @@ function descargarInformeNovedades(data) {
     return Swal.fire({
       icon: "error",
       title: "Oops...",
-      text: "No hay datos que descargar!",
+      text: "No hay datos que descargar!"
     });
   }
   let arrData = typeof data != "object" ? JSON.parse(data) : data;
 
   let encabezado = [
     ["NUMERO DE GUIA", "_guia"],
-    ["ERROR", "_error"],
+    ["ERROR", "_error"]
   ];
 
   let newDoc = arrData.map((dat, i) => {
@@ -1947,7 +1947,7 @@ function informeNovedadesCallcenter(JSONData) {
           : "",
         transportadora: extraData.transportadora,
         Novedad: dataMovimientos[indexUltimaNovedad]["Motivo"],
-        fechaMov: dataMovimientos[indexUltimaNovedad]["Fecha Cambio Estado"],
+        fechaMov: dataMovimientos[indexUltimaNovedad]["Fecha Cambio Estado"]
       };
       interArr.push(dataFinal);
     } else if (extraData.transportadora == "SERVIENTREGA") {
@@ -1964,7 +1964,7 @@ function informeNovedadesCallcenter(JSONData) {
           : "",
         transportadora: extraData.transportadora,
         Novedad: dataMovimientos[indexUltimaNovedad].NomConc,
-        fechaMov: dataMovimientos[indexUltimaNovedad].FecMov,
+        fechaMov: dataMovimientos[indexUltimaNovedad].FecMov
       };
       serviArr.push(dataFinal);
     } else if (extraData.transportadora == "ENVIA") {
@@ -1981,7 +1981,7 @@ function informeNovedadesCallcenter(JSONData) {
           : "",
         transportadora: extraData.transportadora,
         Novedad: dataMovimientos[indexUltimaNovedad].novedad,
-        fechaMov: dataMovimientos[indexUltimaNovedad].fechaMov,
+        fechaMov: dataMovimientos[indexUltimaNovedad].fechaMov
       };
       enviaArr.push(dataFinal);
     } else if (extraData.transportadora == "COORDINADORA") {
@@ -1998,7 +1998,7 @@ function informeNovedadesCallcenter(JSONData) {
           : "",
         transportadora: extraData.transportadora,
         Novedad: dataMovimientos[indexUltimaNovedad].descripcion,
-        fechaMov: dataMovimientos[indexUltimaNovedad].fecha_completa,
+        fechaMov: dataMovimientos[indexUltimaNovedad].fecha_completa
       };
       cordiArr.push(dataFinal);
     }
@@ -2021,7 +2021,7 @@ function informeNovedadesCallcenter(JSONData) {
     return Swal.fire({
       icon: "error",
       title: "Oops...",
-      text: "No hay datos que descargar!",
+      text: "No hay datos que descargar!"
     });
   }
   let arrData =
@@ -2037,7 +2037,7 @@ function informeNovedadesCallcenter(JSONData) {
     ["TRANSPORTADORA", "_Transportadora"],
     // ["SOLICITUD", "_solicitud"],
     ["NOVEDAD", "_novedad"],
-    ["FECHA MOVIMIENTO", "_fechaMov"],
+    ["FECHA MOVIMIENTO", "_fechaMov"]
   ];
 
   let newDoc = arrData.map((dat, i) => {
@@ -2124,7 +2124,7 @@ function informeNovedadesLogistica(JSONData) {
         transportadora: extraData.transportadora,
         nombreMov: dataMovimientos["Descripcion Estado"],
         mensajeMov: dataMovimientos["Motivo"],
-        fechaMov: dataMovimientos["Fecha Cambio Estado"],
+        fechaMov: dataMovimientos["Fecha Cambio Estado"]
       };
       interArr.push(dataFinal);
     } else if (extraData.transportadora == "SERVIENTREGA") {
@@ -2138,7 +2138,7 @@ function informeNovedadesLogistica(JSONData) {
         transportadora: extraData.transportadora,
         nombreMov: dataMovimientos.NomMov,
         mensajeMov: dataMovimientos.NomConc,
-        fechaMov: dataMovimientos.FecMov,
+        fechaMov: dataMovimientos.FecMov
       };
       serviArr.push(dataFinal);
     } else if (extraData.transportadora == "ENVIA") {
@@ -2152,7 +2152,7 @@ function informeNovedadesLogistica(JSONData) {
         transportadora: extraData.transportadora,
         nombreMov: dataMovimientos.novedad,
         mensajeMov: dataMovimientos.aclaracion,
-        fechaMov: dataMovimientos.fechaMov,
+        fechaMov: dataMovimientos.fechaMov
       };
       enviaArr.push(dataFinal);
     } else if (extraData.transportadora == "COORDINADORA") {
@@ -2166,7 +2166,7 @@ function informeNovedadesLogistica(JSONData) {
         transportadora: extraData.transportadora,
         nombreMov: dataMovimientos.descripcion,
         mensajeMov: dataMovimientos.codigo_novedad,
-        fechaMov: data.data.fecha,
+        fechaMov: data.data.fecha
       };
       cordiArr.push(dataFinal);
     }
@@ -2189,7 +2189,7 @@ function informeNovedadesLogistica(JSONData) {
     return Swal.fire({
       icon: "error",
       title: "Oops...",
-      text: "No hay datos que descargar!",
+      text: "No hay datos que descargar!"
     });
   }
   let arrData =
@@ -2207,7 +2207,7 @@ function informeNovedadesLogistica(JSONData) {
     ["MENSAJE MOVIMIENTO", "_mensajeMov"],
     ["FECHA MOVIMIENTO", "_fechaMov"],
     ["RESPUESTA TRANSPORTADORA", ""],
-    ["ACTUALIZAR", "SI"],
+    ["ACTUALIZAR", "SI"]
   ];
 
   let newDoc = arrData.map((dat, i) => {
@@ -2265,7 +2265,7 @@ function descargarExcelNovedades() {
     return Swal.fire({
       icon: "error",
       title: "Oops...",
-      text: "No hay datos que descargar!",
+      text: "No hay datos que descargar!"
     });
   }
   informeNovedadesLogistica(JSONData);
@@ -2301,7 +2301,7 @@ function descargarExcelInter(JSONData, ReportTitle, type) {
     ["PESO", "peso"],
     ["VALOR COMERCIAL", "valor"],
     ["NO PEDIDO", ""],
-    ["DIRECCION AGENCIA DESTINO", ""],
+    ["DIRECCION AGENCIA DESTINO", ""]
   ];
   let encabezado = [
     ["NUMERO GUIA", ""],
@@ -2321,7 +2321,7 @@ function descargarExcelInter(JSONData, ReportTitle, type) {
     ["NO PEDIDO", ""],
     ["DIRECCION AGENCIA DESTINO", ""],
     ["FOLIO", ""],
-    ["CODIGO RADICADO", ""],
+    ["CODIGO RADICADO", ""]
   ];
 
   let newDoc = arrData.map((dat, i) => {
@@ -2521,7 +2521,7 @@ function subirDocumentos() {
           text: "Se ha detectado archivos en este documentos, recuerde que al subir un documento, sutituirá el anterior del mismo. ¿Desea continuar?",
           showCancelButton: true,
           cancelButtonText: "¡No!, perdón",
-          confirmButtonText: "Si, sustituir 😎",
+          confirmButtonText: "Si, sustituir 😎"
         }).then((response) => {
           if (!response.isConfirmed) {
             continuar = false;
@@ -2555,7 +2555,7 @@ function subirDocumentos() {
           .then((querySnapshot) => {
             firebase.firestore().collection("documentos").doc(id_doc).update({
               descargar_relacion_envio: true,
-              nombre_relacion,
+              nombre_relacion
             });
             return true;
           });
@@ -2570,7 +2570,7 @@ function subirDocumentos() {
             firebase.firestore().collection("documentos").doc(id_doc).update({
               descargar_guias: true,
               nombre_guias,
-              important: !relacion_enviada,
+              important: !relacion_enviada
             });
             return true;
           });
@@ -2587,7 +2587,7 @@ function subirDocumentos() {
           text: "¿Deseas eliminar la notificación?",
           showCancelButton: true,
           cancelButtonText: "no, gracias",
-          confirmButtonText: "si, por favor",
+          confirmButtonText: "si, por favor"
         }).then((response) => {
           if (response.isConfirmed) {
             db.collection("notificaciones")
@@ -2822,7 +2822,7 @@ function descargarManifiesto(doc) {
   } else if (["ENVIA", "COORDINADORA"].includes(doc.data().transportadora)) {
     Swal.fire({
       icon: "info",
-      text: 'Para descargar los manifiestos de coordinadora o envía, debe ingresar a "Manifiestos", buscar filtrando por fecha, seleccionar la transportadora y las guías que desea gestionar para crearlo.',
+      text: 'Para descargar los manifiestos de coordinadora o envía, debe ingresar a "Manifiestos", buscar filtrando por fecha, seleccionar la transportadora y las guías que desea gestionar para crearlo.'
     });
   } else if (doc.data().nro_manifiesto) {
     const idEmpresa = doc.data().idEmpresa || 0;
@@ -2943,7 +2943,7 @@ function actualizarNumGuia(id_doc, id_user, numero_guias) {
     console.log(data.get("documento"));
     fetch("/excel_to_json", {
       method: "POST",
-      body: data,
+      body: data
     })
       .then(async (res) => {
         if (!res.ok) {
@@ -2981,14 +2981,14 @@ function actualizarNumGuia(id_doc, id_user, numero_guias) {
             .update({
               numeroGuia: data["Número de Guia"].toString(),
               estado: data["Estado Envío"],
-              seguimiento_finalizado: false,
+              seguimiento_finalizado: false
             });
         });
         Swal.fire({
           icon: "success",
           title: "Numero de guia actualizado correctamente",
           showConfirmButton: false,
-          timer: 1500,
+          timer: 1500
         });
         resolve(true);
       })
@@ -2996,7 +2996,7 @@ function actualizarNumGuia(id_doc, id_user, numero_guias) {
         Swal.fire({
           icon: "error",
           title: "Error al actualizar guia",
-          text: err.message,
+          text: err.message
         });
         reject(false);
       });
@@ -3011,7 +3011,7 @@ function actualizarEstado() {
   console.log(data.get("documento"));
   fetch("/excel_to_json", {
     method: "POST",
-    body: data,
+    body: data
   })
     .then((res) => {
       if (!res.ok) {
@@ -3049,7 +3049,7 @@ function actualizarEstado() {
               estado_envio: dato["Estado Envío"],
               mensaje_mov: dato["Mensaje Mov"],
               fecha_ult_mov: dato["Fecha Ult Mov"],
-              nombre_centro_costo: dato["Nombre Centro Costo"],
+              nombre_centro_costo: dato["Nombre Centro Costo"]
             };
             if (x.id_guia && x.numero_guia_servientrega) {
               const id = x.id_guia.toString();
@@ -3069,7 +3069,7 @@ function actualizarEstado() {
                         .update({
                           numeroGuia,
                           estado: x.estado_envio,
-                          seguimiento_finalizado: false,
+                          seguimiento_finalizado: false
                         })
                         .then(() => {
                           // console.log(id + " Actualizada exitósamente");
@@ -3159,7 +3159,7 @@ async function executeUtils(e) {
   console.log(data.get("documento"));
   const arrData = await fetch("/excel_to_json", {
     method: "POST",
-    body: data,
+    body: data
   })
     .then((res) => res.json())
     .catch((err) => {
@@ -3461,7 +3461,7 @@ function cargarNovedades() {
   console.log(data.get("documento"));
   fetch("/excel_to_json", {
     method: "POST",
-    body: data,
+    body: data
   })
     .then((res) => {
       if (!res.ok) {
@@ -3479,7 +3479,7 @@ function cargarNovedades() {
               id_heka: data["NUMERO DOCUMENTO CLIENTE4"],
               centro_de_costo: data["CENTRO COSTO CLIENTE"] || "SCC",
               novedades: [data["NOVEDAD"]],
-              fechas_novedades: [data["FECHA NOVEDAD"]],
+              fechas_novedades: [data["FECHA NOVEDAD"]]
             };
 
             let i = 1;
@@ -3524,7 +3524,7 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
           .firestore()
           .collectionGroup("estadoGuias")
           .where("numeroGuia", "==", v.trim())
-          .get()
+          .where.get()
           .then((querySnapshot) => {
             querySnapshot.size == 0
               ? $("#cargador-novedades").addClass("d-none")
@@ -3614,18 +3614,36 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
           }
           $("#visor_novedades").html("");
           const guias_actualizadas = revisarTiempoGuiasActualizadas();
+          const novedades_transportadora = $("#activador_busq_novedades").val();
+
           querySnapshot.forEach((doc) => {
             let dato = doc.data();
             contador++;
             console.log(dato);
-            consultarGuiaFb(
-              user_id,
-              doc.id,
-              dato,
-              "Posibles Novedades",
-              contador,
-              size
-            );
+
+            if (novedades_transportadora) {
+              if (dato.transportadora === novedades_transportadora) {
+                consultarGuiaFb(
+                  user_id,
+                  doc.id,
+                  dato,
+                  "Posibles Novedades",
+                  contador,
+                  size
+                );
+              } else {
+                return $("#cargador-novedades").addClass("d-none");
+              }
+            } else {
+              consultarGuiaFb(
+                user_id,
+                doc.id,
+                dato,
+                "Posibles Novedades",
+                contador,
+                size
+              );
+            }
             if (!guias_actualizadas) actualizarEstadoGuia(dato.numeroGuia);
           });
 
@@ -3635,6 +3653,104 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
       cargadorClass.add("d-none");
     }
   }
+}
+
+function revisarMovimientosGuiaIndividualUser(inputGuia) {
+  filtro = datos_usuario.centro_de_costo;
+  (toggle = "=="), (buscador = "centro_de_costo");
+
+  let filtrado = inputGuia.split(",");
+  if (typeof filtrado == "object") {
+    filtrado.forEach((v, i) => {
+      firebase
+        .firestore()
+        .collectionGroup("estadoGuias")
+        .where("numeroGuia", "==", v.trim())
+        .where(buscador, toggle, filtro)
+
+        .get()
+        .then((querySnapshot) => {
+          querySnapshot.size == 0
+            ? $("#cargador-novedades").addClass("d-none")
+            : "";
+          querySnapshot.forEach((doc) => {
+            let path = doc.ref.path.split("/");
+            let data = doc.data();
+            consultarGuiaFb(
+              path[1],
+              doc.id,
+              data,
+              "Consulta Personalizada",
+              i + 1,
+              filtrado.length
+            );
+          });
+        });
+    });
+  } else {
+    firebase
+      .firestore()
+      .collectionGroup("estadoGuias")
+      .where("numeroGuia", "==", filtrado)
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.size == 0
+          ? $("#cargador-novedades").addClass("d-none")
+          : "";
+        querySnapshot.forEach((doc) => {
+          let path = doc.ref.path.split("/");
+          let data = doc.data();
+          consultarGuiaFb(path[1], doc.id, data, "Solucionar Novedad");
+        });
+      });
+  }
+}
+
+function revisarMovimientosGuiasUser(novedades_transportadora) {
+  novedadesExcelData = [];
+  filtro = datos_usuario.centro_de_costo;
+  (toggle = "=="), (buscador = "centro_de_costo");
+  const cargadorClass = document.getElementById("cargador-novedades").classList;
+  cargadorClass.remove("d-none");
+
+  const filtroTransp = novedades_transportadora;
+  firebase
+    .firestore()
+    .collectionGroup("estadoGuias")
+    .where(buscador, toggle, filtro)
+    .limit(30)
+    .get()
+    .then((querySnapshot) => {
+      let contador = 0;
+      let size = querySnapshot.size;
+      let filteredOutCount = 0;
+      querySnapshot.forEach((doc) => {
+        let path = doc.ref.path.split("/");
+        let dato = doc.data();
+
+        if (filtroTransp && dato.transportadora !== filtroTransp) {
+          filteredOutCount++;
+          if (filteredOutCount === size) {
+            // Todos los documentos han sido excluidos por el filtro
+            cargadorClass.add("d-none");
+          }
+          return;
+        }
+        contador++;
+        consultarGuiaFb(
+          path[1],
+          doc.id,
+          dato,
+          dato.centro_de_costo,
+          contador,
+          size
+        );
+        // console.log(doc.data());
+      });
+    })
+    .then(() => {
+      cargadorClass.add("d-none");
+    });
 }
 
 function revisarNovedades(transportadora) {
@@ -3688,7 +3804,7 @@ async function actualizarEstadoGuia(numeroGuia, id_user = user_id, wait) {
   return await fetch("/procesos/actualizarEstados/numeroGuia", {
     method: "POST",
     headers: { "Content-Type": "Application/json" },
-    body: JSON.stringify({ user_id: id_user, argumento: numeroGuia, wait }),
+    body: JSON.stringify({ user_id: id_user, argumento: numeroGuia, wait })
   }).then((d) => d.json());
 }
 
@@ -3715,7 +3831,7 @@ function actualizarEstadosEnNovedadUsuario(user_id) {
   fetch("/procesos/actualizarEstados/novedad", {
     method: "POST",
     headers: { "Content-Type": "Application/json" },
-    body: JSON.stringify({ user_id }),
+    body: JSON.stringify({ user_id })
   });
 }
 
@@ -3758,13 +3874,24 @@ document
         );
         return;
       }
-
-      console.log("Busqueda natural");
-      revisarMovimientosGuias(administracion);
     }
 
     console.log("Busqueda natural");
     revisarMovimientosGuias(administracion);
+  });
+
+document
+  .getElementById("btn-revisar-novedades-user")
+  .addEventListener("click", (e) => {
+    e.preventDefault();
+    const inputGuia = $("#filtrado-novedades-guias").val();
+    const novedades_transportadora = $("#activador_busq_novedades").val();
+
+    if (inputGuia) {
+      revisarMovimientosGuiaIndividualUser(inputGuia);
+    } else {
+      revisarMovimientosGuias(false);
+    }
   });
 
 let inputExcelDoc = document.getElementById("excelDocSoluciones");
@@ -3804,8 +3931,8 @@ function consultarGuia(
     method: "POST",
     body: JSON.stringify(data),
     headers: {
-      "Content-Type": "application/json",
-    },
+      "Content-Type": "application/json"
+    }
   })
     .then((res) => res.json())
     .then((data) => {
@@ -3818,7 +3945,7 @@ function consultarGuia(
             fechaEnvio: data.querySelector("FecEnv").textContent,
             numeroGuia: data.querySelector("NumGui").textContent,
             estadoActual: data.querySelector("EstAct").textContent,
-            movimientos: [],
+            movimientos: []
           };
           data.querySelectorAll("InformacionMov").forEach((mov) => {
             informacion.movimientos.push({
@@ -3827,7 +3954,7 @@ function consultarGuia(
               descripcion: mov.querySelector("DesMov").textContent,
               idViewCliente: mov.querySelector("IdViewCliente").textContent,
               tipoMov: mov.querySelector("TipoMov").textContent,
-              DesTipoMov: mov.querySelector("DesTipoMov").textContent,
+              DesTipoMov: mov.querySelector("DesTipoMov").textContent
             });
           });
 
@@ -3988,7 +4115,7 @@ function consolidadorTotales(query, saldo) {
 
   let mostrador = [
     ["Actualmente Debe", deuda, "search-dollar"],
-    ["Deuda sumada", "", "dollar-sign"],
+    ["Deuda sumada", "", "dollar-sign"]
   ];
   firebase
     .firestore()
@@ -4045,7 +4172,7 @@ function consolidadorTotales(query, saldo) {
         user_id: query.replace("#deudas-", ""),
         guia: "",
         medio: "Administración " + localStorage.user_id,
-        type: "CANJEADO",
+        type: "CANJEADO"
       };
 
       let btn_saldar = `<button
@@ -4123,7 +4250,7 @@ async function saldar(checked, momento_saldado) {
         await reference.collection("guias").doc(id_heka).update({
           user_debe: 0,
           momento_saldado,
-          dinero_saldado: deuda,
+          dinero_saldado: deuda
         });
 
         deudaGuias += parseInt(deuda);
@@ -4179,11 +4306,11 @@ function revisarGuiasSaldas() {
         destroy: true,
         language: {
           url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
-          emptyTable: "Aún no tienes guías saldadas.",
+          emptyTable: "Aún no tienes guías saldadas."
         },
         lengthMenu: [
           [10, 25, 50, 100, -1],
-          [10, 25, 50, 100, "Todos"],
+          [10, 25, 50, 100, "Todos"]
         ],
         columnDefs: [{ className: "cell-border" }],
         columns: [
@@ -4191,7 +4318,7 @@ function revisarGuiasSaldas() {
           { data: "fecha", title: "Fecha creación" },
           { data: "fecha_saldada", title: "Fecha Saldada" },
           { data: "type", title: "Tipo Guía" },
-          { data: "dinero_saldado", title: "Cant. Saldada" },
+          { data: "dinero_saldado", title: "Cant. Saldada" }
         ],
         fixedHeader: { footer: true },
         drawCallback: function (settings) {
@@ -4230,7 +4357,7 @@ function revisarGuiasSaldas() {
           $(api.column(3).footer()).html(
             `$${convertirMiles(pageTotal)} (${convertirMiles(total)} : total)`
           );
-        },
+        }
       });
       $("#cargador-deudas").children().addClass("d-none");
     });
@@ -4450,14 +4577,14 @@ async function historialGuiasAdmin(e) {
       data: "categoria",
       title: "Categoría",
       defaultContent: "NaN",
-      visible: false,
+      visible: false
     },
     { data: "estado", title: "Estado", defaultContent: "" },
     { data: "centro_de_costo", title: "Centro de Costo" },
     {
       data: "transpToShow",
       title: "Transportadora",
-      defaultContent: "Servientrega",
+      defaultContent: "Servientrega"
     },
     { data: "type", title: "Tipo", defaultContent: "Pago contraentrega" },
     { data: "alto", title: "Alto", visible: false },
@@ -4467,7 +4594,7 @@ async function historialGuiasAdmin(e) {
     { data: "detalles.comision_heka", title: "Comisión Heka" },
     {
       data: "detalles.comision_trasportadora",
-      title: "Comisión Transportadora",
+      title: "Comisión Transportadora"
     },
     { data: "detalles.flete", title: "Flete" },
     { data: "detalles.recaudo", title: "Recaudo" },
@@ -4477,7 +4604,7 @@ async function historialGuiasAdmin(e) {
       data: "detalles.costoDevolucion",
       title: "Costo devolución",
       defaultContent: "---",
-      visible: false,
+      visible: false
     },
     { data: "fecha", title: "Fecha" },
     {
@@ -4493,42 +4620,42 @@ async function historialGuiasAdmin(e) {
           return -content + '<span class="sr-only"> Por pagar</span>';
 
         return -content;
-      },
+      }
     },
     {
       data: "cuenta_responsable",
       title: "Cuenta responsable",
-      defaultContent: "Personal",
+      defaultContent: "Personal"
     },
     {
       data: "ciudadR",
       title: "Ciudad remitente",
       defaultContent: "---",
-      visible: false,
+      visible: false
     },
     {
       data: "ciudadD",
       title: "Ciudad destino",
       defaultContent: "---",
-      visible: false,
+      visible: false
     },
     {
       data: "departamentoD",
       title: "Despartamento destino",
       defaultContent: "---",
-      visible: false,
+      visible: false
     },
     {
       data: "direccionD",
       title: "Dirección",
       defaultContent: "---",
-      visible: false,
+      visible: false
     },
     {
       data: "dice_contener",
       title: "Contenido",
       defaultContent: "---",
-      visible: false,
+      visible: false
     },
     {
       data: "id_tipo_entrega",
@@ -4540,20 +4667,20 @@ async function historialGuiasAdmin(e) {
           "no aplica"
         );
       },
-      visible: false,
+      visible: false
     },
     {
       data: "estadoActual",
       title: "Estado Actual",
       defaultContent: "---",
-      visible: false,
+      visible: false
     },
     {
       data: "motivoAnulacion",
       title: "Motivo de anulacion",
       defaultContent: "---",
-      visible: false,
-    },
+      visible: false
+    }
   ];
 
   const idTabla = "#tabla-" + finalId;
@@ -4565,18 +4692,18 @@ async function historialGuiasAdmin(e) {
         {
           data: "detalles.comision_punto",
           title: "Comisión Punto",
-          defaultContent: "No aplica",
+          defaultContent: "No aplica"
         },
         {
           data: "centro_de_costo_punto",
           title: "Punto",
-          defaultContent: "No aplica",
+          defaultContent: "No aplica"
         },
         {
           data: "info_user.celular",
           title: "Celular Usuario",
-          defaultContent: "No aplica",
-        },
+          defaultContent: "No aplica"
+        }
       ]
     );
 
@@ -4602,7 +4729,7 @@ async function historialGuiasAdmin(e) {
     destroy: true,
     language: {
       url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
-      emptyTable: "Aún no tienes guías saldadas.",
+      emptyTable: "Aún no tienes guías saldadas."
     },
     columns: columnas,
     dom: "Bfrtip",
@@ -4613,9 +4740,9 @@ async function historialGuiasAdmin(e) {
         filename: nombre,
         title: encabezado,
         exportOptions: {
-          columns: ":visible",
-        },
-      },
+          columns: ":visible"
+        }
+      }
     ],
     initComplete: function () {
       const api = this.api();
@@ -4642,7 +4769,7 @@ async function historialGuiasAdmin(e) {
           boton.textContent = val.textContent;
           tabla.before(boton);
         });
-    },
+    }
     // action: function() {}
   });
 
@@ -4787,7 +4914,6 @@ async function generarRotuloAnt(id_guias) {
             <h5 class="text-dark">Contenido:  <strong>${data.dice_contener}</strong></h5>
         </td>`;
 
-
     let infoDest = `<td>
             <h2>Datos Del Destinatario</h2>
             <h5 class="text-dark">Número de Guía: <strong>${data.numeroGuia}</strong></h5>
@@ -4810,7 +4936,7 @@ async function generarRotuloAnt(id_guias) {
     filename: "myfile.pdf",
     image: { type: "jpeg", quality: 0.98 },
     html2canvas: { scale: 2 },
-    pagebreak: { mode: "avoid-all" },
+    pagebreak: { mode: "avoid-all" }
     // jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
 
@@ -4868,14 +4994,13 @@ async function generarRotulo(id_guias, id_user) {
     td2.innerHTML = valueRight;
 
     tr.append(td1, td2);
-    return {tr, td1, td2}
-
-  }
+    return { tr, td1, td2 };
+  };
 
   const insertRow = (table, valueLeft, valueRight) => {
     const newRow = createRow(valueLeft, valueRight);
     table.appendChild(newRow.tr);
-  }
+  };
 
   data_guias.forEach((guia, i, self) => {
     // Creamos la tabla pricipal
@@ -4894,11 +5019,15 @@ async function generarRotulo(id_guias, id_user) {
       ? guia.datos_oficina.ciudad
       : `${guia.ciudadD}(${guia.departamentoD})`;
     const celularD = guia.oficina ? guia.datos_oficina.celular : guia.celularD;
-    const telefonoD = guia.oficina ? guia.datos_oficina.celular : guia.telefonoD;
-    const empresa = guia.oficina ? "<b>Flexii S.A.S.</b>" : "<b>HEKA S.A.S.</b>";
+    const telefonoD = guia.oficina
+      ? guia.datos_oficina.celular
+      : guia.telefonoD;
+    const empresa = guia.oficina
+      ? "<b>Flexii S.A.S.</b>"
+      : "<b>HEKA S.A.S.</b>";
 
-    const textoCantidadPaquetes = `Paquete ${i+1} de ${self.length}`;
-  
+    const textoCantidadPaquetes = `Paquete ${i + 1} de ${self.length}`;
+
     const encabezado = createRow(`<b>${guia.transportadora}</b>`, empresa);
     encabezado.td1.style.border = "none";
     encabezado.td2.style.border = "none";
@@ -4907,12 +5036,24 @@ async function generarRotulo(id_guias, id_user) {
     insertRow(tbody, genFecha(), textoCantidadPaquetes);
 
     // Se generan las filas comunes
-    const rowCiudades = createRow(`Origen: <b>${guia.ciudadR}</b>`, `Destino: <b>${ciudad}</b>`);
-    const rowDestinatarioRemitente = createRow(`De: <b>${guia.nombreR}</b>`, `Para: <b>${nombres}</b>`);
+    const rowCiudades = createRow(
+      `Origen: <b>${guia.ciudadR}</b>`,
+      `Destino: <b>${ciudad}</b>`
+    );
+    const rowDestinatarioRemitente = createRow(
+      `De: <b>${guia.nombreR}</b>`,
+      `Para: <b>${nombres}</b>`
+    );
     const rowDireccion = createRow(`${direccion}`, `${guia.observaciones}`);
-    const rowContacto = createRow(`Tel: <b>${celularD}</b>`, `Tel: <b>${telefonoD}</b>`);
-    const rowIdentificacion = createRow(`Cuenta: <b>-No registra</b>`, `CC/NIT: <b>${guia.identificacionD}</b>`);
-    
+    const rowContacto = createRow(
+      `Tel: <b>${celularD}</b>`,
+      `Tel: <b>${telefonoD}</b>`
+    );
+    const rowIdentificacion = createRow(
+      `Cuenta: <b>-No registra</b>`,
+      `CC/NIT: <b>${guia.identificacionD}</b>`
+    );
+
     // Se inserta el primer empaquetaod de filas
     tbody.appendChild(rowCiudades.tr);
     tbody.appendChild(rowDestinatarioRemitente.tr);
@@ -4934,11 +5075,10 @@ async function generarRotulo(id_guias, id_user) {
           <td>${convertirMoneda(guia.seguro)}</td>
         </tr>
       </table>
-    `
+    `;
     const rowMedidas = createRow(tablaDetalles, `<h3>${guia.numeroGuia}</h3>`);
     rowMedidas.td1.classList.add("p-1");
     tbody.appendChild(rowMedidas.tr);
-    
 
     const textoDiceContener = `Cont: ${guia.dice_contener}`;
     const barCodeRow = `
@@ -4946,7 +5086,9 @@ async function generarRotulo(id_guias, id_user) {
         <td>${textoDiceContener}</td>
         <td rowspan="3" class="align-content-center text-center">
           <img alt='Código de barras' height="100px"
-          src='https://barcode.tec-it.com/barcode.ashx?data=${guia.numeroGuia}&code=Code25IL'/>
+          src='https://barcode.tec-it.com/barcode.ashx?data=${
+            guia.numeroGuia
+          }&code=Code25IL'/>
         </td>
       </tr>
       <tr><td><h1>PARA COBRO ${convertirMoneda(guia.valor)}</h1></td></tr>
@@ -4955,7 +5097,6 @@ async function generarRotulo(id_guias, id_user) {
     tbody.innerHTML += barCodeRow;
 
     tbody.appendChild(rowMedidas.tr);
-
 
     // Se inserta el segundo empaquetaod de filas
     tbody.appendChild(rowCiudades.tr);
@@ -4993,14 +5134,13 @@ async function generarRotulo(id_guias, id_user) {
           <td colspan="2">MIN</td>
         </tr>
       </table>
-    `
+    `;
     const finalRow = createRow(tablaFinal, "");
     finalRow.td1.classList.add("p-1");
     tbody.appendChild(finalRow.tr);
 
     table.appendChild(tbody);
     div.appendChild(table);
-    
   });
 
   w = window.open();
@@ -5103,7 +5243,7 @@ async function generarGuiaFlexii(id_guias) {
         urlsQR.push({
           id_heka: guiaImprimir.id_heka,
           id_user: guiaImprimir.id_user,
-          urlQR,
+          urlQR
         });
 
         let header = `
@@ -5300,8 +5440,8 @@ function agregarFilaGuiasInter() {
         transportadora: "Fecha creación",
         fecha: "Fecha Saldada",
         type: "Tipo Guía",
-        valor: "Cant. Saldada",
-      },
+        valor: "Cant. Saldada"
+      }
     ])
     .draw();
 }
@@ -5310,11 +5450,11 @@ function incializarTablaTablaGuiasInter() {
   const tabla = $("#tabla-manifiestos").DataTable({
     destroy: true,
     language: {
-      url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
+      url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
     },
     lengthMenu: [
       [10, 25, 50, 100, -1],
-      [10, 25, 50, 100, "Todos"],
+      [10, 25, 50, 100, "Todos"]
     ],
     columnDefs: [
       {
@@ -5337,8 +5477,8 @@ function incializarTablaTablaGuiasInter() {
           }
           return result;
         },
-        targets: 5,
-      },
+        targets: 5
+      }
     ],
     columns: [
       { data: "id_heka", title: "# Guía Heka" },
@@ -5351,11 +5491,11 @@ function incializarTablaTablaGuiasInter() {
       { data: "ciudadD", title: "Ciudad Dest." },
       { data: "seguro", title: "Seguro" },
       { data: "valor", title: "Recaudo" },
-      { data: "costo_envio", title: "Costo de envío" },
+      { data: "costo_envio", title: "Costo de envío" }
     ],
     scrollY: "50vh",
     scrollX: true,
-    initComplete: funcionalidadesTablaHistorialGuiasInter,
+    initComplete: funcionalidadesTablaHistorialGuiasInter
   });
 
   const btn_crear_manifiesto = $("#crear-manifiesto-manifiestos");
@@ -5431,13 +5571,13 @@ async function imprimirManifiestoEnvia(guias) {
   if (!guias || !guias.length)
     return new Toast({
       icon: "error",
-      title: "Debes seleccionar las guías antes de crear la relación",
+      title: "Debes seleccionar las guías antes de crear la relación"
     });
 
   await fetch("/envia/imprimirManifiesto/", {
     method: "POST",
     headers: { "Content-Type": "Application/json" },
-    body: JSON.stringify(guias),
+    body: JSON.stringify(guias)
   })
     .then((d) => d.text())
     .then((d) => {
@@ -5450,7 +5590,7 @@ function imprimirManifiestoInter(numeroGuias) {
   if (!numeroGuias || !numeroGuias.length)
     return new Toast({
       icon: "error",
-      title: "Debes seleccionar las guías antes de crear la relación",
+      title: "Debes seleccionar las guías antes de crear la relación"
     });
 
   open("/inter/imprimirManifiesto/" + numeroGuias, "_blank");
@@ -5466,7 +5606,7 @@ function descargarInformeExcel(datosDescarga, informeJson, title) {
     nombre_empresa: "Nombre de la empresa",
     "datos_bancarios.banco": "Banco",
     "datos_personalizados.sistema_envia": "Sistema envia",
-    "datos_personalizados.sistema_tcc": "Sistema tcc",
+    "datos_personalizados.sistema_tcc": "Sistema tcc"
   };
 
   const normalizeObject = (campo, obj) => {
@@ -5496,57 +5636,3 @@ function descargarInformeExcel(datosDescarga, informeJson, title) {
 
   crearExcel(data, title);
 }
-
-let botonIninicarSesionUsarioToken = document.getElementById(
-  "iniciar-sesion-usuario-token"
-);
-
-botonIninicarSesionUsarioToken.addEventListener("click", async function () {
-  // Mostrar animación de carga
-  botonIninicarSesionUsarioToken.innerHTML = "Cargando...";
-  const tokenAdmin = localStorage.getItem("token");
-
-  let tokenUser;
-  const data = {
-    email: value("actualizar_correo"),
-  };
-
-  fetch(PROD_API_URL + "/api/v1/user/login/uli", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${tokenAdmin}`,
-    },
-    body: JSON.stringify(data),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      console.log(data);
-      tokenUser = data.response.token;
-
-      if (data.statusCode === 403) {
-        throw new Error("Invalid API response");
-      }
-
-      // Copiar la URL al portapapeles
-      navigator.clipboard
-        .writeText(
-          `https://admin.hekaentrega.co/plataforma2.html?token=${tokenUser}`
-        )
-        // .writeText(`http://localhost:6200/plataforma2.html?token=${tokenUser}`)
-        .then(function () {
-          // Cambiar el texto del botón a 'URL copiada correctamente'
-          botonIninicarSesionUsarioToken.innerHTML =
-            "URL copiada correctamente";
-
-          setTimeout(() => {
-            botonIninicarSesionUsarioToken.innerHTML = "Ingresar al usuario";
-          }, 5000);
-        });
-    })
-    .catch((error) => {
-      botonIninicarSesionUsarioToken.innerHTML =
-        "Error de credenciales, cierra sesión e intenta de nuevo";
-      console.error("Error:", error);
-    });
-});
