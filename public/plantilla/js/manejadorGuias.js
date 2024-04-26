@@ -3524,7 +3524,7 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
           .firestore()
           .collectionGroup("estadoGuias")
           .where("numeroGuia", "==", v.trim())
-          .where.get()
+          .get()
           .then((querySnapshot) => {
             querySnapshot.size == 0
               ? $("#cargador-novedades").addClass("d-none")
