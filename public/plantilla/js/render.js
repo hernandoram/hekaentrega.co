@@ -217,7 +217,7 @@ function tablaDeGuias(id, datos) {
     datos.celularD
   }</a>
             </td>
-            <td>${datos.transportadora || "SERVIENTREGA"}</td>
+            <td>${datos.transportadora || "SERVIENTREGA "} </td>
             <td>${datos.type || "Pago Contraentrega"}</td>
             <td>${datos.fecha}</td>
             <td>${datos.ciudadD}</td>

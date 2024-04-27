@@ -2737,8 +2737,7 @@ function actualizarHistorialDeDocumentos(timeline) {
                   this.parentNode.parentNode
                     .getAttribute("data-guides")
                     .split(","), // La lista de guías del documento
-                  this.parentNode.parentNode
-                  .getAttribute("data-user") // El usuario asociado a dicho conjunto de guías
+                  this.parentNode.parentNode.getAttribute("data-user") // El usuario asociado a dicho conjunto de guías
                 );
               }
             });
@@ -3876,9 +3875,22 @@ document
       }
     }
 
-    console.log("Busqueda natural");
+    console.warn("Busqueda natural");
     revisarMovimientosGuias(administracion);
   });
+
+const bt_limpiar_novedades = document.getElementById(
+  "btn-vaciar-consulta-novedades"
+);
+
+bt_limpiar_novedades.addEventListener("click", () => {
+  console.log("limpiando");
+  novedadesExcelData = [];
+  $("#visor_novedades").html("");
+});
+alert("hola");
+
+
 
 document
   .getElementById("btn-revisar-novedades-user")
@@ -3894,11 +3906,16 @@ document
     }
   });
 
+
+
+
 let inputExcelDoc = document.getElementById("excelDocSoluciones");
 let excelDocSoluciones = document.getElementById("descargarExcelNovedades");
 let excelDocSolucionesBoton = document.getElementById(
   "excelDocSolucionesBoton"
 );
+
+
 
 inputExcelDoc?.addEventListener("change", (e) => {
   let label = document.getElementById("excelDocSolucionesLabel");
@@ -3912,11 +3929,6 @@ excelDocSoluciones?.addEventListener("click", (e) => {
 excelDocSolucionesBoton?.addEventListener("click", async (e) => {
   e.preventDefault();
   subirExcelNovedades();
-});
-
-$("#btn-vaciar-consulta").click(() => {
-  novedadesExcelData = [];
-  $("#visor_novedades").html("");
 });
 
 //No está en funcionamiento, pero puede servir
@@ -4965,7 +4977,7 @@ async function generarRotuloAnt(id_guias) {
 
 /** Función encargada de generar documentos tipo rótulo
  * Función que recibe como parámetro una lista de guías sobre las que se va a generar el rótulo
- * y un usuario a quién pertenecen dichas guías, en caso de que no se reciba dicho parámetro, 
+ * y un usuario a quién pertenecen dichas guías, en caso de que no se reciba dicho parámetro,
  * se sobre entenderá que las guías pertenecen al usuario logueado
  * @param {[string]} id_guias - La lista de guías sobre las que se va a generar el rótulo
  * @param {string} id_user - El id del usuario a quién pertenecen todas las guías, si es diferente al que está
