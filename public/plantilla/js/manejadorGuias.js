@@ -3888,7 +3888,6 @@ bt_limpiar_novedades.addEventListener("click", () => {
   novedadesExcelData = [];
   $("#visor_novedades").html("");
 });
-alert("hola");
 
 
 
