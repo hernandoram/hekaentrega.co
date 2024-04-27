@@ -3889,32 +3889,12 @@ bt_limpiar_novedades.addEventListener("click", () => {
   $("#visor_novedades").html("");
 });
 
-
-
-document
-  .getElementById("btn-revisar-novedades-user")
-  .addEventListener("click", (e) => {
-    e.preventDefault();
-    const inputGuia = $("#filtrado-novedades-guias").val();
-    const novedades_transportadora = $("#activador_busq_novedades").val();
-
-    if (inputGuia) {
-      revisarMovimientosGuiaIndividualUser(inputGuia);
-    } else {
-      revisarMovimientosGuias(false);
-    }
-  });
-
-
-
-
 let inputExcelDoc = document.getElementById("excelDocSoluciones");
 let excelDocSoluciones = document.getElementById("descargarExcelNovedades");
 let excelDocSolucionesBoton = document.getElementById(
   "excelDocSolucionesBoton"
 );
-
-
+console.warn(inputExcelDoc, excelDocSoluciones, excelDocSolucionesBoton);
 
 inputExcelDoc?.addEventListener("change", (e) => {
   let label = document.getElementById("excelDocSolucionesLabel");
@@ -5647,3 +5627,5 @@ function descargarInformeExcel(datosDescarga, informeJson, title) {
 
   crearExcel(data, title);
 }
+
+
