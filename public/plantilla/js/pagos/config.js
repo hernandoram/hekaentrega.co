@@ -75,6 +75,7 @@ const codigos_banco_siigo = {
     "UALA": 1804,
     "BANCO BTG PACTUAL": 1805,
     "RAPPIPAY ": 1811,
+    "LULO BANK S.A.": 1070,
 }
 
 export const codigos_banco = {
