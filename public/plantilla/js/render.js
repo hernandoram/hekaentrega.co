@@ -890,6 +890,7 @@ for (let input_fecha of document.querySelectorAll('[type="date"]')) {
 //Activa los inputs y btones de cada guia que no haya sido enviada
 function activarBotonesDeGuias(id, data, activate_once) {
   console.log(data.estadoActual);
+
   let activos = document.querySelectorAll(
     '[data-funcion="activar-desactivar"]'
   );
