@@ -3851,12 +3851,13 @@ function revisarGuiaUser(id_heka) {
     });
 }
 
-document
-  .getElementById("btn-revisar-novedades")
-  .addEventListener("click", (e) => {
+const btn_revisar_novedades = document.getElementById("btn-revisar-novedades");
+
+if(btn_revisar_novedades) {
+  btn_revisar_novedades.addEventListener("click", (e) => {
     e.preventDefault();
     const novedades_transportadora = $("#activador_busq_novedades").val();
-
+  
     if (administracion && novedades_transportadora) {
       console.log("Buscando novedades");
       revisarNovedades(novedades_transportadora);
@@ -3874,27 +3875,30 @@ document
         return;
       }
     }
-
+  
     console.warn("Busqueda natural");
     revisarMovimientosGuias(administracion);
   });
+}
+
 
 const bt_limpiar_novedades = document.getElementById(
   "btn-vaciar-consulta-novedades"
 );
 
-bt_limpiar_novedades.addEventListener("click", () => {
-  console.log("limpiando");
-  novedadesExcelData = [];
-  $("#visor_novedades").html("");
-});
+if(bt_limpiar_novedades) {
+  bt_limpiar_novedades.addEventListener("click", () => {
+    console.log("limpiando");
+    novedadesExcelData = [];
+    $("#visor_novedades").html("");
+  });
+}
 
 let inputExcelDoc = document.getElementById("excelDocSoluciones");
 let excelDocSoluciones = document.getElementById("descargarExcelNovedades");
 let excelDocSolucionesBoton = document.getElementById(
   "excelDocSolucionesBoton"
 );
-console.warn(inputExcelDoc, excelDocSoluciones, excelDocSolucionesBoton);
 
 inputExcelDoc?.addEventListener("change", (e) => {
   let label = document.getElementById("excelDocSolucionesLabel");

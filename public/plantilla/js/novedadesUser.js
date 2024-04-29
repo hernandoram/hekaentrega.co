@@ -5,8 +5,6 @@ const bt_limpiar_novedades_user = document.getElementById(
   "btn-vaciar-consulta-user"
 );
 
-console.warn(revisarNovedadesUser, bt_limpiar_novedades_user);
-
 revisarNovedadesUser.addEventListener("click", (e) => {
   e.preventDefault();
   const inputGuia = $("#filtrado-novedades-guias").val();
