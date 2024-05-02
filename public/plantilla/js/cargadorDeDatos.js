@@ -729,6 +729,7 @@ function descargarInformeUsuariosAdm(e) {
     "bodega_principal.direccion": "Dirección",
     "bodega_principal.ciudad": "Ciudad",
     "bodega_principal.departamento": "Departamento",
+    "fecha_creacion": "Fecha Creación"
   };
 
   const normalizeObject = (campo, obj) => {
@@ -737,7 +738,10 @@ function descargarInformeUsuariosAdm(e) {
   };
 
   const transformDatos = (obj) => {
-    const res = {};
+    const res = {
+      "Cosas que envía": "",
+      "Fecha Creación": "No registra"
+    };
 
     obj.bodega_principal = {};
     if (obj.bodegas && obj.bodegas.length) {
@@ -766,6 +770,15 @@ function descargarInformeUsuariosAdm(e) {
     }
 
     if (obj.objetos_envio) res["Cosas que envía"] = obj.objetos_envio.join();
+    if (obj.fecha_creacion) res["Fecha Creación"] = obj.fecha_creacion.toDate()
+      .toLocaleString("es-CO", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true
+      });
 
     return res;
   };
