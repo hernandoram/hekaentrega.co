@@ -885,6 +885,8 @@ async function detallesTransportadoras(data) {
         factor_conversor = FACHADA_FLETE;
       }
 
+      
+      factor_conversor += cotizacion.comisionHekaAdicional; // Para los precios antiguos, esto devolvería cero
       if (factor_conversor > 0) {
         sobreFleteHekaEdit -= factor_conversor;
         fleteConvertido += factor_conversor;
@@ -2797,6 +2799,8 @@ class CalcularCostoDeEnvio {
     this._alto = parseInt(value("dimension-alto"));
     this._ancho = parseInt(value("dimension-ancho"));
     this._largo = parseInt(value("dimension-largo"));
+    this.comisionHekaAdicionalFija = 0;
+    this.comisionHekaAdicionalAbierto = false; // Para evitar que se presenten bucles en cálculos
   }
 
   set alto(number) {
@@ -2879,10 +2883,10 @@ class CalcularCostoDeEnvio {
   }
 
   get costoDevolucion() {
-    if (this.costoDevolucionFormulado(datos_personalizados.formula_devolucion))
-      return this.costoDevolucionFormulado(
-        datos_personalizados.formula_devolucion
-      );
+    const costoDevolucionPersonalizado = this.costoDevolucionFormulado(datos_personalizados.formula_devolucion);
+
+    if (costoDevolucionPersonalizado)
+      return parseInt(costoDevolucionPersonalizado);
 
     if (this.isOficina) return this.flete * 2 + 1000;
 
@@ -2912,6 +2916,27 @@ class CalcularCostoDeEnvio {
     return resultado;
   }
 
+  /* Se valida que tipo de precios se están manejando para saber si se le debe sumar un porcentaje adicional
+    Al sobreflete de heka
+  */
+  get comisionHekaAdicional() {
+    // Se analiza esto para calcular el adicional una sola vez, y luego devolver el ya establecido
+    if(this.comisionHekaAdicionalAbierto || this.comisionHekaAdicionalFija) return this.comisionHekaAdicionalFija;
+    
+    // Se activa el flag, para que cuando entre mientras se recalcula evite llegar hasta aquí nuevamente y re-activar el flujo
+    this.comisionHekaAdicionalAbierto = true;
+
+    if(this.precios.version === 2) {
+      // Si correponde a la nueva versión, devuelve este calculo, para sumar la sobre flete heka
+      this.comisionHekaAdicionalFija = parseInt(this.costoDevolucion * 2 / 8);
+    } else {
+      this.comisionHekaAdicionalFija = 0; // Si se va a manejar la versión de siempre, este valor devuelve cero, porque no va a sumar nada
+    }
+
+    this.comisionHekaAdicionalAbierto = false;
+    return this.comisionHekaAdicionalFija;
+  }
+
   get getDetails() {
     console.groupCollapsed("Detalles de Cotización");
     console.log("Valor ingresado =>", this.valor);
@@ -2935,7 +2960,8 @@ class CalcularCostoDeEnvio {
       total: this.costoEnvio,
       recaudo: this.valor,
       seguro: this.seguro,
-      costoDevolucion: this.costoDevolucion,
+      costoDevolucion: this.precios.version === 2 ? 0 : this.costoDevolucion, // Con la versión 2 el costo de devolución pasa a ser cero
+      versionCotizacion: this.precios.version // 1: cotizador convencional. 2: cotizador especial (no cobra devoluciones)
     };
 
     if (this.aveo) {
@@ -3028,7 +3054,7 @@ class CalcularCostoDeEnvio {
 
     this.sobreflete_heka =
       this.set_sobreflete_heka ||
-      Math.ceil((valor * comision_heka) / 100) + constante_heka;
+      Math.ceil((valor * comision_heka) / 100) + constante_heka + this.comisionHekaAdicional;
 
     if (this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
     if (this.aveo) this.intoAveo(this.precio);
