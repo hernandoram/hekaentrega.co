@@ -3230,10 +3230,15 @@ function verDetallesGuia() {
     .collection("guias")
     .doc(id)
     .get()
-    .then((doc) => {
+    .then(async (doc) => {
       let data = doc.data();
-      console.warn(data);
+
       const oficina = data.datos_oficina;
+      data.recogida_oficina = false;
+
+      console.warn(data);
+      console.warn(data.recogida_oficina);
+
       const mostrar_oficina = oficina ? "" : "d-none";
       let html = "<div>";
       let mostrador = [
@@ -3258,7 +3263,8 @@ function verDetallesGuia() {
           "costo_envio",
           "telefonoD",
           "celularD",
-          "id_tipo_entrega"
+          "id_tipo_entrega",
+          "recogida_oficina"
         ],
         [
           "Identificador Guía",
@@ -3281,7 +3287,8 @@ function verDetallesGuia() {
           "Costo del envío",
           "Celular",
           "Celular 2",
-          "tipo entrega"
+          "tipo entrega",
+          "Listo para recoger en oficina"
         ]
       ];
 
@@ -3293,32 +3300,44 @@ function verDetallesGuia() {
       informacionDestinatario +=
         "<h3 class='card-header'>Datos del destinatario</h3><div class='card-body row m-0'>";
 
-      mostrador[0].forEach((v, n) => {
-        let info = data[v] || "No registra";
-        const titulo = mostrador[1][n];
+    for (let n = 0; n < mostrador[0].length; n++) {
+  let v = mostrador[0][n];
+  let info = data[v] || "No registra";
+  const titulo = mostrador[1][n];
 
-        if (v === "id_tipo_entrega") {
-          if (info === 1) {
-            info = "dirección";
-          } else if (info === 2) {
-            info = "Oficina";
-          }
-        }
+  const isPosibleToBeForOfficeForRecolection =
+  data.transportadora === "SERVIENTREGA" &&
+  data.id_tipo_entrega === 2 &&
+  data.estadoTransportadora === "EN PROCESAMIENTO";
 
-        const element =
-          "<p class='col-12 col-sm-6 text-left'>" +
-          titulo +
-          ": <b>" +
-          info +
-          "</b></p>";
-        switch (v[v.length - 1]) {
-          case "D":
-            informacionDestinatario += element;
-            break;
-          default:
-            informacionGuia += element;
-        }
-      });
+  if (v === "recogida_oficina" && isPosibleToBeForOfficeForRecolection) {
+
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    info = isPosibleToBeForOfficeForRecolection ? "si" : "no";
+    console.warn(info)
+  }
+  if (v === "id_tipo_entrega") {
+    if (info === 1) {
+      info = "dirección";
+    } else if (info === 2) {
+      info = "Oficina";
+    }
+  }
+
+  const element =
+    "<p class='col-12 col-sm-6 text-left'>" +
+    titulo +
+    ": <b>" +
+    info +
+    "</b></p>";
+  switch (v[v.length - 1]) {
+    case "D":
+      informacionDestinatario += element;
+      break;
+    default:
+      informacionGuia += element;
+  }
+}
 
       informacionGuia += "</div></div>";
       informacionDestinatario += "</div></div>";
