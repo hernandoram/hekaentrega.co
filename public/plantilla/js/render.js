@@ -2246,7 +2246,6 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
 
   $("#gestionar-guia-" + data.numeroGuia).click(() => {
     extraData.id_heka = id_heka;
-    console.warn(data, extraData);
     gestionarNovedadModal(data, extraData);
   });
 
@@ -3236,8 +3235,6 @@ function verDetallesGuia() {
       const oficina = data.datos_oficina;
       data.recogida_oficina = false;
 
-      console.warn(data);
-      console.warn(data.recogida_oficina);
 
       const mostrar_oficina = oficina ? "" : "d-none";
       let html = "<div>";
@@ -3302,23 +3299,26 @@ function verDetallesGuia() {
 
       let novedades = [
         "ENTREGAS OFIC  C.O.D. Y/O LPC EMPRESARIO",
+        "ENTREGAS OFIC C.O.D. Y/O LPC EMPRESARIO",
         "C.O.D RECLAMO OFICINA",
         "EMPRESARIO SATELITE ENTREGA EN OFICINA",
-        "EMPRESARIO SATELITE ENTREGA EN DOMICILIO"
+        "EMPRESARIO SATELITE ENTREGA EN DOMICILIO",
+        "EMPRESARIO SATELITE ENTREGA EN OFICINA"
       ];
 
       let novedadDevolucion = "NO RECLAMO EN OFICINA";
 
       for (let n = 0; n < mostrador[0].length; n++) {
         let v = mostrador[0][n];
-        let info = data[v] || "No registra";
-        const titulo = mostrador[1][n];
         if (
-          !data.transportadora === "SERVIENTREGA" &&
+          data.transportadora !== "SERVIENTREGA" &&
           v === "recogida_oficina"
         ) {
           continue;
         }
+        let info = data[v] || "No registra";
+        const titulo = mostrador[1][n];
+ 
 
         const isPosibleToBeForOfficeForRecolection =
           data.transportadora === "SERVIENTREGA" &&
@@ -3337,10 +3337,8 @@ function verDetallesGuia() {
               const readyForRecolection = movimientos.some((mov) =>
                 novedades.includes(mov.novedad)
               );
-              console.warn(readyForRecolection);
               info = readyForRecolection ? "si" : "no";
             }
-            console.warn(info);
           });
         }
         if (v === "id_tipo_entrega") {
@@ -3420,7 +3418,6 @@ function verDetallesGuia() {
 }
 
 async function traerMovimientosGuia(numeroGuia) {
-  console.warn("Traer movimientos de guía", numeroGuia);
   const querySnapshot = await firebase
     .firestore()
     .collection("usuarios")
