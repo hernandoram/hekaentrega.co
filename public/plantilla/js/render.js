@@ -3288,7 +3288,7 @@ function verDetallesGuia() {
           "Celular",
           "Celular 2",
           "tipo entrega",
-          "Listo para recoger en oficina"
+          "En oficina, disponible para reclamar"
         ]
       ];
 
@@ -3300,44 +3300,71 @@ function verDetallesGuia() {
       informacionDestinatario +=
         "<h3 class='card-header'>Datos del destinatario</h3><div class='card-body row m-0'>";
 
-    for (let n = 0; n < mostrador[0].length; n++) {
-  let v = mostrador[0][n];
-  let info = data[v] || "No registra";
-  const titulo = mostrador[1][n];
+      let novedades = [
+        "ENTREGAS OFIC  C.O.D. Y/O LPC EMPRESARIO",
+        "C.O.D RECLAMO OFICINA",
+        "EMPRESARIO SATELITE ENTREGA EN OFICINA",
+        "EMPRESARIO SATELITE ENTREGA EN DOMICILIO"
+      ];
 
-  const isPosibleToBeForOfficeForRecolection =
-  data.transportadora === "SERVIENTREGA" &&
-  data.id_tipo_entrega === 2 &&
-  data.estadoTransportadora === "EN PROCESAMIENTO";
+      let novedadDevolucion = "NO RECLAMO EN OFICINA";
 
-  if (v === "recogida_oficina" && isPosibleToBeForOfficeForRecolection) {
+      for (let n = 0; n < mostrador[0].length; n++) {
+        let v = mostrador[0][n];
+        let info = data[v] || "No registra";
+        const titulo = mostrador[1][n];
+        if (
+          !data.transportadora === "SERVIENTREGA" &&
+          v === "recogida_oficina"
+        ) {
+          continue;
+        }
 
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    info = isPosibleToBeForOfficeForRecolection ? "si" : "no";
-    console.warn(info)
-  }
-  if (v === "id_tipo_entrega") {
-    if (info === 1) {
-      info = "dirección";
-    } else if (info === 2) {
-      info = "Oficina";
-    }
-  }
+        const isPosibleToBeForOfficeForRecolection =
+          data.transportadora === "SERVIENTREGA" &&
+          data.id_tipo_entrega === 2 &&
+          data.estadoTransportadora === "EN PROCESAMIENTO";
 
-  const element =
-    "<p class='col-12 col-sm-6 text-left'>" +
-    titulo +
-    ": <b>" +
-    info +
-    "</b></p>";
-  switch (v[v.length - 1]) {
-    case "D":
-      informacionDestinatario += element;
-      break;
-    default:
-      informacionGuia += element;
-  }
-}
+        if (v === "recogida_oficina" && isPosibleToBeForOfficeForRecolection) {
+          await traerMovimientosGuia(data.numeroGuia).then((movimientos) => {
+            console.log(movimientos);
+            const devuelto = movimientos.some(
+              (mov) => mov.novedad === novedadDevolucion
+            );
+            if (devuelto) {
+              info = "en devolución";
+            } else {
+              const readyForRecolection = movimientos.some((mov) =>
+                novedades.includes(mov.novedad)
+              );
+              console.warn(readyForRecolection);
+              info = readyForRecolection ? "si" : "no";
+            }
+            console.warn(info);
+          });
+        }
+        if (v === "id_tipo_entrega") {
+          if (info === 1) {
+            info = "dirección";
+          } else if (info === 2) {
+            info = "Oficina";
+          }
+        }
+
+        const element =
+          "<p class='col-12 col-sm-6 text-left'>" +
+          titulo +
+          ": <b>" +
+          info +
+          "</b></p>";
+        switch (v[v.length - 1]) {
+          case "D":
+            informacionDestinatario += element;
+            break;
+          default:
+            informacionGuia += element;
+        }
+      }
 
       informacionGuia += "</div></div>";
       informacionDestinatario += "</div></div>";
@@ -3390,6 +3417,24 @@ function verDetallesGuia() {
         width: "80%"
       });
     });
+}
+
+async function traerMovimientosGuia(numeroGuia) {
+  console.warn("Traer movimientos de guía", numeroGuia);
+  const querySnapshot = await firebase
+    .firestore()
+    .collection("usuarios")
+    .doc(localStorage.user_id)
+    .collection("estadoGuias")
+    .where("numeroGuia", "==", numeroGuia)
+    .get();
+
+  let movimientos;
+  querySnapshot.forEach((doc) => {
+    let dato = doc.data();
+    movimientos = dato.movimientos;
+  });
+  return movimientos;
 }
 
 function erroresColaGuias() {

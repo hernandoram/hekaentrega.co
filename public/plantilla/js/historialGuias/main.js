@@ -57,17 +57,17 @@ async function consultarHistorialGuias() {
     snapshot.docChanges().forEach((change) => {
       const data = change.doc.data();
 
-      const isPosibleToBeForOfficeForRecolection =
-        data.transportadora === "SERVIENTREGA" &&
-        data.id_tipo_entrega === 2 &&
-        data.estadoTransportadora === "EN PROCESAMIENTO";
+      // const isPosibleToBeForOfficeForRecolection =
+      //   data.transportadora === "SERVIENTREGA" &&
+      //   data.id_tipo_entrega === 2 &&
+      //   data.estadoTransportadora === "EN PROCESAMIENTO";
 
-      if (isPosibleToBeForOfficeForRecolection) {
-        data.estadoTransportadora = data.estadoTransportadora.concat(
-          " Listo para recolección en oficina"
-        );
-        data.estado = data.estado.concat(" Listo para recolección en oficina");
-      }
+      // if (isPosibleToBeForOfficeForRecolection) {
+      //   data.estadoTransportadora = data.estadoTransportadora.concat(
+      //     " Listo para recolección en oficina"
+      //   );
+      //   data.estado = data.estado.concat(" Listo para recolección en oficina");
+      // }
 
       const id = data.id_heka;
       data.row_id = "historial-guias-row-" + id;
