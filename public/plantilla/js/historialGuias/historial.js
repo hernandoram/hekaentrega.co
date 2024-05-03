@@ -852,6 +852,7 @@ function accionesDeFila(datos, type, row) {
             <i class="fas fa-trash"></i>
         </button>`;
 
+    // Botón para anular, cancelado sobre el usuario
     const btnAnular = `<button class="btn btn-danger btn-circle btn-sm mx-1 action" data-id="${id}" 
         id="anular_guia${id}" data-costo_envio="${datos.costo_envio}"
         data-placement="right"
@@ -897,7 +898,7 @@ function accionesDeFila(datos, type, row) {
       }
     } else {
       if (datos.enviado && !datos.enNovedad) {
-        buttons += btnDownloadDocs + btnRotulo + btnAnular;
+        buttons += btnDownloadDocs + btnRotulo;
       }
     }
 

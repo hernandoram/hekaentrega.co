@@ -3765,7 +3765,8 @@ class DetectorErroresInput {
           message = boolTaken.message;
 
           const character =
-            type === "string" ? forbid : this.value.match(forbid)[0];
+            type === "string" ? forbid : 
+            type === "number" ? Number(this.value) : this.value.match(forbid)[0];
 
           if (boolTaken.removeAccents)
             this.value = this.removeAccents(this.value);
@@ -3949,3 +3950,13 @@ medidasCtrl.setBooleans = [
     sustitute: ""
   }
 ];
+
+
+const seguroMercanciaCtrl = new DetectorErroresInput("#seguro-mercancia").init("change");
+seguroMercanciaCtrl.setConfig = { className: "text-warning" };
+
+seguroMercanciaCtrl.insertBoolean = {
+  operator: ">",
+  message: 'Incrementar el valor asegurado también incrementará el costo del envío.',
+  forbid: 25000
+}
