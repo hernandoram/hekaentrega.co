@@ -76,7 +76,7 @@ async function validateToken(token) {
       localStorage.setItem("user_id", user.id);
       localStorage.setItem("token", token);
 
-      const cambiarPorcentajesCotizacion = true;
+      const cambiarPorcentajesCotizacion = data.response.user.user_type !== 1; // El 1 es el usuario con el cotizador que siempre ha existido, 2: Referencia al nuevo cotizador
       // Según la condición dada, se cambiarán los porcentajes de cotización por defecto para una nueva modalidad
       if(cambiarPorcentajesCotizacion) datos_personalizados = datos_personalizados_2;
 
