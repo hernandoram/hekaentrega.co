@@ -548,7 +548,7 @@ function agregarFuncionalidadesTablaPedidos() {
 }
 
 function renderizadoDeTablaHistorialGuias(config) {
-  console.count("renderizando tabla");
+  console.warn("renderizando tabla");
   const api = this.api();
   const data = this.api().data();
   const erroresSticker = [];

@@ -890,6 +890,7 @@ for (let input_fecha of document.querySelectorAll('[type="date"]')) {
 //Activa los inputs y btones de cada guia que no haya sido enviada
 function activarBotonesDeGuias(id, data, activate_once) {
   console.log(data.estadoActual);
+
   let activos = document.querySelectorAll(
     '[data-funcion="activar-desactivar"]'
   );
@@ -2245,7 +2246,6 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
 
   $("#gestionar-guia-" + data.numeroGuia).click(() => {
     extraData.id_heka = id_heka;
-    console.warn(data, extraData);
     gestionarNovedadModal(data, extraData);
   });
 
@@ -3229,10 +3229,13 @@ function verDetallesGuia() {
     .collection("guias")
     .doc(id)
     .get()
-    .then((doc) => {
+    .then(async (doc) => {
       let data = doc.data();
-      console.warn(data);
+
       const oficina = data.datos_oficina;
+      data.recogida_oficina = false;
+
+
       const mostrar_oficina = oficina ? "" : "d-none";
       let html = "<div>";
       let mostrador = [
@@ -3257,7 +3260,8 @@ function verDetallesGuia() {
           "costo_envio",
           "telefonoD",
           "celularD",
-          "id_tipo_entrega"
+          "id_tipo_entrega",
+          "recogida_oficina"
         ],
         [
           "Identificador Guía",
@@ -3280,7 +3284,8 @@ function verDetallesGuia() {
           "Costo del envío",
           "Celular",
           "Celular 2",
-          "tipo entrega"
+          "tipo entrega",
+          "En oficina, disponible para reclamar"
         ]
       ];
 
@@ -3292,10 +3297,50 @@ function verDetallesGuia() {
       informacionDestinatario +=
         "<h3 class='card-header'>Datos del destinatario</h3><div class='card-body row m-0'>";
 
-      mostrador[0].forEach((v, n) => {
+      let novedades = [
+        "ENTREGAS OFIC  C.O.D. Y/O LPC EMPRESARIO",
+        "ENTREGAS OFIC C.O.D. Y/O LPC EMPRESARIO",
+        "C.O.D RECLAMO OFICINA",
+        "EMPRESARIO SATELITE ENTREGA EN OFICINA",
+        "EMPRESARIO SATELITE ENTREGA EN DOMICILIO",
+        "EMPRESARIO SATELITE ENTREGA EN OFICINA"
+      ];
+
+      let novedadDevolucion = "NO RECLAMO EN OFICINA";
+
+      for (let n = 0; n < mostrador[0].length; n++) {
+        let v = mostrador[0][n];
+        if (
+          data.transportadora !== "SERVIENTREGA" &&
+          v === "recogida_oficina"
+        ) {
+          continue;
+        }
         let info = data[v] || "No registra";
         const titulo = mostrador[1][n];
+ 
 
+        const isPosibleToBeForOfficeForRecolection =
+          data.transportadora === "SERVIENTREGA" &&
+          data.id_tipo_entrega === 2 &&
+          data.estadoTransportadora === "EN PROCESAMIENTO";
+
+        if (v === "recogida_oficina" && isPosibleToBeForOfficeForRecolection) {
+          await traerMovimientosGuia(data.numeroGuia).then((movimientos) => {
+            console.log(movimientos);
+            const devuelto = movimientos.some(
+              (mov) => mov.novedad === novedadDevolucion
+            );
+            if (devuelto) {
+              info = "en devolución";
+            } else {
+              const readyForRecolection = movimientos.some((mov) =>
+                novedades.includes(mov.novedad)
+              );
+              info = readyForRecolection ? "si" : "no";
+            }
+          });
+        }
         if (v === "id_tipo_entrega") {
           if (info === 1) {
             info = "dirección";
@@ -3317,7 +3362,7 @@ function verDetallesGuia() {
           default:
             informacionGuia += element;
         }
-      });
+      }
 
       informacionGuia += "</div></div>";
       informacionDestinatario += "</div></div>";
@@ -3370,6 +3415,23 @@ function verDetallesGuia() {
         width: "80%"
       });
     });
+}
+
+async function traerMovimientosGuia(numeroGuia) {
+  const querySnapshot = await firebase
+    .firestore()
+    .collection("usuarios")
+    .doc(localStorage.user_id)
+    .collection("estadoGuias")
+    .where("numeroGuia", "==", numeroGuia)
+    .get();
+
+  let movimientos;
+  querySnapshot.forEach((doc) => {
+    let dato = doc.data();
+    movimientos = dato.movimientos;
+  });
+  return movimientos;
 }
 
 function erroresColaGuias() {
