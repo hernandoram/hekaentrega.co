@@ -33,9 +33,9 @@ async function consultarHistorialGuias() {
   fechas.change([fecha_inicio, fecha_final, inpNumeroGuia.val()]);
   historial.clean(defFiltrado.novedad);
 
-  // Esto se encarga de esperar que la información del usuario sea cargada correctamente 
+  // Esto se encarga de esperar que la información del usuario sea cargada correctamente
   // para saber el tipo de usuario para poder realizar la consulta necesaria
-  if(ControlUsuario.dataCompleted.value !== true)
+  if (ControlUsuario.dataCompleted.value !== true)
     await ControlUsuario.hasLoaded;
 
   if (historialConsultado) historialConsultado();
@@ -56,17 +56,30 @@ async function consultarHistorialGuias() {
   historialConsultado = reference.onSnapshot((snapshot) => {
     snapshot.docChanges().forEach((change) => {
       const data = change.doc.data();
+
+      // const isPosibleToBeForOfficeForRecolection =
+      //   data.transportadora === "SERVIENTREGA" &&
+      //   data.id_tipo_entrega === 2 &&
+      //   data.estadoTransportadora === "EN PROCESAMIENTO";
+
+      // if (isPosibleToBeForOfficeForRecolection) {
+      //   data.estadoTransportadora = data.estadoTransportadora.concat(
+      //     " Listo para recolección en oficina"
+      //   );
+      //   data.estado = data.estado.concat(" Listo para recolección en oficina");
+      // }
+
       const id = data.id_heka;
       data.row_id = "historial-guias-row-" + id;
 
       // Se va amostrar la transportadora según ciertas condiciones
       // Si existe el valor transpVisible, ya esta hace el trabajo
       // De otra forma, se tomará en cuenta según si la guía es para oficina o es natural
-      data.mostrar_transp = data.transpVisible 
-        ? data.transpVisible 
+      data.mostrar_transp = data.transpVisible
+        ? data.transpVisible
         : data.oficina
-          ? data.transportadora + "-Flexii"
-          : data.transportadora;
+        ? data.transportadora + "-Flexii"
+        : data.transportadora;
 
       historial.guiasNeutras.add(id);
 
@@ -92,7 +105,6 @@ function mostrarNovedades(numeroNovedades) {
     mostradorNoNovedades.classList.add("d-none");
     mostradorSiNovedades.classList.remove("d-none");
     $(".mostrar-cantidad_novedades").text(numeroNovedades);
-
   } else {
     mostradorNoNovedades.classList.remove("d-none");
     mostradorSiNovedades.classList.add("d-none");
@@ -119,11 +131,11 @@ async function cargarNovedades() {
         // Se va amostrar la transportadora según ciertas condiciones
         // Si existe el valor transpVisible, ya esta hace el trabajo
         // De otra forma, se tomará en cuenta según si la guía es para oficina o es natural
-        data.mostrar_transp = data.transpVisible 
-          ? data.transpVisible 
+        data.mostrar_transp = data.transpVisible
+          ? data.transpVisible
           : data.oficina
-            ? data.transportadora + "-Flexii"
-            : data.transportadora;
+          ? data.transportadora + "-Flexii"
+          : data.transportadora;
 
         data.deleted ? historial.delete(id) : historial.add(data);
 
@@ -132,7 +144,7 @@ async function cargarNovedades() {
 
       listaNovedadesEncontradas = novedades;
       mostrarAlertaNovedades({
-        contador: novedades.length,
+        contador: novedades.length
       });
     });
 
