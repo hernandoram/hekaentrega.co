@@ -1,6 +1,6 @@
 import { ChangeElementContenWhileLoading, segmentarArreglo } from "../utils/functions.js";
 import Stepper from "../utils/stepper.js";
-import { checkShowNegativos, camposExcel, formularioPrincipal, inpFiltCuentaResp, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor, codigos_banco, inpFiltGuia, errorContainer } from "./config.js";
+import { checkShowNegativos, camposExcel, formularioPrincipal, inpFiltEspecial, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor, codigos_banco, inpFiltGuia, errorContainer } from "./config.js";
 import { comprobarGuiaPagada, guiaExiste } from './comprobadores.js';
 import { defFiltrado as estadosGlobalGuias } from "../historialGuias/config.js";
 import AnotacionesPagos from "./AnotacionesPagos.js";
@@ -829,7 +829,12 @@ class Empaquetado {
 
         const comprobar = await Swal.fire(swalObj);
 
-        if(!comprobar.isConfirmed) return terminar();
+        if(!comprobar.isConfirmed) {
+            terminar();
+            reporteFinalFactura.error = true; // Se marca como error por finalización del proceso manual
+            reporteFinalFactura.message = "Cancelado manual.";
+            return reporteFinalFactura;
+        } 
 
         const comision_heka_total = userRef.comision_heka_total;
         
@@ -841,7 +846,9 @@ class Empaquetado {
         const numero_documento = userRef.numero_documento;
 
         if(!comision_heka_total) {
-            Toast.fire("No hay comisión para facturar", "", "error");
+            reporteFinalFactura.error = true; // Se marca como error por finalización por falta de la comisión heka
+            reporteFinalFactura.message = "No hay comisión para facturar";
+            Toast.fire(reporteFinalFactura.message, "", "error");
             terminar();
             return reporteFinalFactura;
         }
@@ -1099,15 +1106,15 @@ async function consultarPendientes(e) {
             respuesta = respuesta.concat(data);
         }
 
-        if(inpFiltCuentaResp.val()) {
-            respuesta = respuesta.filter(guia => guia["CUENTA RESPONSABLE"] === inpFiltCuentaResp.val());
+        if(inpFiltEspecial.val()) {
+            respuesta = respuesta.filter(guia => guia[camposExcel.filtro_especial] === inpFiltEspecial.val());
         }
 
-    } else if(inpFiltCuentaResp.val()) {
+    } else if(inpFiltEspecial.val()) {
         if(transpSelected.length) {
             reference = reference.where("TRANSPORTADORA", "in", transpSelected)
         }
-        const data = await reference.where("CUENTA RESPONSABLE", "==", inpFiltCuentaResp.val())
+        const data = await reference.where(camposExcel.filtro_especial, "==", inpFiltEspecial.val())
         .get().then(handlerInformation);
 
         respuesta = respuesta.concat(data);

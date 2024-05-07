@@ -4381,7 +4381,16 @@ async function cargarFiltroDePagosPersonalizados() {
 
   listaOpciones.unshift('<option value="">Seleccione pagos</option>');
 
+  // Aquí se listará sobre el html la lista de los pagos configurados
   $(".filtro-pagos").html(listaOpciones);
+
+  // Se buscan los elemento de filtrado especial y se registran sobre el html
+  const opcionesFiltroEspecial = filtroPagos.filtroEspecial.map(
+    (c, i) => `<option value="${c}">${c}</option>`
+  );
+  opcionesFiltroEspecial.unshift('<option value="">-- Seleccione --</option>');
+
+  $("#filtro_especial-gestionar_pagos").html(opcionesFiltroEspecial);
 
   return filtroPagos;
 }

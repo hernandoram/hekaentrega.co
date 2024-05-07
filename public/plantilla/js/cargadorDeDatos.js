@@ -1825,9 +1825,9 @@ function mostrarPagosAdmin(datos) {
 
   datos
     .sort((a, b) => {
-      if (a["REMITENTE"] > b["REMITENTE"]) {
+      if (a["REMITENTE"].toUpperCase() > b["REMITENTE"].toUpperCase()) {
         return 1;
-      } else if (a["REMITENTE"] < b["REMITENTE"]) {
+      } else if (a["REMITENTE"].toUpperCase() < b["REMITENTE"].toUpperCase()) {
         return -1;
       } else {
         return 0;

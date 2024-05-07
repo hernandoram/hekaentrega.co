@@ -8,7 +8,7 @@ export const btnGestionar = $("#btn-gestionar_gestionar_pagos");
 export const checkFiltFecha = $("#fecha-gestionar_pagos");
 export const inpFiltGuia = $("#filtro_guia-gestionar_pagos");
 export const inpFiltUsuario = $("#filtro-usuario-gestionar_pagos");
-export const inpFiltCuentaResp = $("#filtro-cuenta_responsable-gestionar_pagos");
+export const inpFiltEspecial = $("#filtro_especial-gestionar_pagos");
 export const inpFiltnumeroGuia = $("#filtro-guia-gestionar_pagos");
 export const selFiltDiaPago = $("#filtro_tipo_pagos-gestionar_pagos");
 export const checkShowNegativos = $("#filtro_deudor-gestionar_pagos");
@@ -23,7 +23,8 @@ export const camposExcel = {
     comision_heka: "COMISION HEKA",
     envio_total: "ENVÍO TOTAL",
     total_pagar: "TOTAL A PAGAR",
-    fecha: "FECHA"
+    fecha: "FECHA",
+    filtro_especial: "filtro_especial"
 }
 
 const codigos_banco_siigo = {
