@@ -76,6 +76,10 @@ async function validateToken(token) {
       localStorage.setItem("user_id", user.id);
       localStorage.setItem("token", token);
 
+      const cambiarPorcentajesCotizacion = data.response.user.user_type !== 1; // El 1 es el usuario con el cotizador que siempre ha existido, 2: Referencia al nuevo cotizador
+      // Según la condición dada, se cambiarán los porcentajes de cotización por defecto para una nueva modalidad
+      if(cambiarPorcentajesCotizacion) datos_personalizados = datos_personalizados_2;
+
       // Si tiene la variable token en la url, es porque recien ingresa
       // Así que una vez se almacena en el loca storage y se confirma el token
       // Se procede a recargar la página, quitando dicho token de la URL
@@ -166,26 +170,42 @@ const usuarioAltDoc = (id) =>
     .collection("usuarios")
     .doc(id || user_id);
 
+// Datos importantes para los porcentajes que comisión que funcionará para los usuarios viejos en su mayoría
+const datos_personalizados_1 = {
+  version: 1, // Para indicar que los precios que se están manejando son los que siempre han existido
+  costo_zonal1: 8650,
+  costo_zonal2: 13300,
+  costo_zonal3: 2800,
+  costo_nacional1: 11500,
+  costo_nacional2: 20400,
+  costo_nacional3: 3400,
+  costo_especial1: 25550,
+  costo_especial2: 39000,
+  costo_especial3: 6300,
+  comision_servi: 3.1,
+  comision_heka: 1.5,
+  constante_convencional: 800,
+  constante_pagoContraentrega: 1700,
+  comision_punto: 10,
+  saldo: 0,
+}
+
+// Datos importantes para los porcentajes de comisión para usuarios nuevos, 
+// o usuarios que en su defecto se ha decidido que comenzarán a utilizar estos valores de cotización
+const datos_personalizados_2 = {
+  version: 2, // Para validar que la configuración que se está usando es la nueva y generar una condiciones que cambien con respecto al orginal
+  comision_servi: 3.1,
+  comision_heka: 1.5,
+  constante_convencional: 800,
+  constante_pagoContraentrega: 1700,
+  comision_punto: 10,
+  saldo: 0
+}
+
 //Administradara datos basicos del usuario que ingresa
 let datos_usuario = {},
   //Almacena los costos de envios (nacional, urbano...) y el porcentaje de comision
-  datos_personalizados = {
-    costo_zonal1: 8650,
-    costo_zonal2: 13300,
-    costo_zonal3: 2800,
-    costo_nacional1: 11500,
-    costo_nacional2: 20400,
-    costo_nacional3: 3400,
-    costo_especial1: 25550,
-    costo_especial2: 39000,
-    costo_especial3: 6300,
-    comision_servi: 3.1,
-    comision_heka: 1.5,
-    constante_convencional: 800,
-    constante_pagoContraentrega: 1700,
-    comision_punto: 10,
-    saldo: 0,
-  };
+  datos_personalizados = datos_personalizados_1;
 
 const ciudadesFlexxi = ["BOGOTA(CUNDINAMARCA)", "TUMACO(NARIÑO)"];
 
