@@ -4,7 +4,8 @@ import {
   cardBodegaRecoleccion,
   formRecoleccion,
   recoleccionSolicitada,
-  formEliminarGuiasRecoleccion
+  formEliminarGuiasRecoleccion,
+  formEliminarGuiaIndividual
 } from "./views.js";
 
 const db = firestore;
@@ -42,10 +43,9 @@ elRevisarRecoleccionesRealizadas.on(
   mostrarListaRecoleccionesRealizadas
 );
 
-console.log(eliminarGuiasIndividualesButton);
-
 eliminarGuiasIndividualesButton.addEventListener(
   "click",
+  openModalEliminarGuia
 );
 
 inputField.addEventListener("input", function () {
@@ -91,7 +91,18 @@ async function llenarRecoleccionesPendientes(solicitar) {
 }
 
 function openModalEliminarGuia() {
-  alert("hola");
+  const m = new CreateModal({
+    title: "Eliminar guía",
+    btnContinueText: "Eliminar",
+    btnContinueColor: "red"
+  });
+
+  m.init = formEliminarGuiaIndividual();
+  const form = $("form", m.modal);
+  const inputGuia = $("#numeroGuia", form);
+
+  form.on("submit", (e) => eliminarGuias(e, inputGuia[0].value, true));
+  m.onSubmit = () => form.submit();
 }
 
 async function mostrarListaRecolecciones() {
@@ -155,7 +166,7 @@ function activarAcciones(container) {
   });
 }
 
-async function eliminarGuias(e, data) {
+async function eliminarGuias(e, data, isIndividual) {
   e.preventDefault();
 
   console.log(data);
@@ -181,7 +192,11 @@ async function eliminarGuias(e, data) {
     }
   });
 
-  await guiasParaQuitarRecoleccion(data.guias);
+  if (isIndividual) {
+    await guiasParaQuitarRecoleccion(data, true);
+  } else {
+    await guiasParaQuitarRecoleccion(data.guias, false);
+  }
 
   // Cierra el mensaje de Swal
   Swal.close();
@@ -258,7 +273,7 @@ const acciones = {
     m.init = formEliminarGuiasRecoleccion(datos_recoleccion);
     const form = $("form", m.modal);
 
-    form.on("submit", (e) => eliminarGuias(e, datos_recoleccion));
+    form.on("submit", (e) => eliminarGuias(e, datos_recoleccion, false));
     m.onSubmit = () => form.submit();
   },
   solicitarRecoleccion: (e) => {
@@ -324,8 +339,15 @@ async function guiasSolicitadas(data, radicado) {
   }
 }
 
-async function guiasParaQuitarRecoleccion(data) {
-  const guias = data.map((guia) => guia.numeroGuia);
+async function guiasParaQuitarRecoleccion(data, isIndividual) {
+  console.log(data);
+  let guias;
+  if (isIndividual) {
+    guias = [data];
+  } else {
+    guias = data.map((guia) => guia.numeroGuia);
+  }
+
   for (const numeroGuia of guias) {
     await db
       .collectionGroup("guias")
@@ -334,6 +356,12 @@ async function guiasParaQuitarRecoleccion(data) {
       .where("transportadora", "==", "INTERRAPIDISIMO")
       .get()
       .then((querySnapshot) => {
+        if (querySnapshot.empty)
+          return Swal.fire({
+            title: "Error",
+            text: `La guía no existe o no se encuentra en la lista de recolecciones pendientes.`,
+            icon: "error"
+          });
         querySnapshot.forEach((doc) => {
           const guia = doc.data();
           guia.recoleccion_esporadica = 0; // Cambia recoleccion_esporadica a 0

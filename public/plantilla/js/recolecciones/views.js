@@ -55,6 +55,16 @@ export const formEliminarGuiasRecoleccion = (data) => {
         </form>
     `;
 };
+export const formEliminarGuiaIndividual = () => {
+  return `
+        <form>
+            <div class="mb-3">
+                <label for="numeroGuia">Introduce el número de la guía que deseas eliminar:</label>
+                <input type="text" id="numeroGuia" name="numeroGuia" required class="form-control">
+            </div>
+        </form>
+    `;
+};
 
 export const recoleccionSolicitada = (data) => {
   return `
