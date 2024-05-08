@@ -32,10 +32,20 @@ const elRevisarRecoleccionesRealizadas = $("#revisar-recolecciones-realizadas");
 const section = document.getElementById("mostrador-guias-solicitadas");
 const inputField = document.getElementById("filtrar-guias-recolectadas");
 
+const eliminarGuiasIndividualesButton = document.querySelector(
+  "#eliminar-guia-individual"
+);
+
 elRevisarRecolecciones.on("click", mostrarListaRecolecciones);
 elRevisarRecoleccionesRealizadas.on(
   "click",
   mostrarListaRecoleccionesRealizadas
+);
+
+console.log(eliminarGuiasIndividualesButton);
+
+eliminarGuiasIndividualesButton.addEventListener(
+  "click",
 );
 
 inputField.addEventListener("input", function () {
@@ -78,6 +88,10 @@ async function llenarRecoleccionesPendientes(solicitar) {
         }
       });
     });
+}
+
+function openModalEliminarGuia() {
+  alert("hola");
 }
 
 async function mostrarListaRecolecciones() {
@@ -168,8 +182,6 @@ async function eliminarGuias(e, data) {
   });
 
   await guiasParaQuitarRecoleccion(data.guias);
-
-
 
   // Cierra el mensaje de Swal
   Swal.close();

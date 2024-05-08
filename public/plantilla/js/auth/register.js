@@ -129,7 +129,7 @@ async function registrarNuevoUsuario(toSend, data, noSearch) {
 
   if (newUser.error) throw new Error(newUser.message);
 
-  if (data.referidoDe) {
+  if   (data.referidoDe) {
     let datosReferido = {
       sellerReferido: data.centro_de_costo,
       sellerReferente: data.referidoDe,
