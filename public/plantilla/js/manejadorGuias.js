@@ -4440,6 +4440,7 @@ async function historialGuiasAdmin(e) {
   let data = [];
   const manejarInformacion = (querySnapshot) => {
     const s = querySnapshot.size;
+    console.warn("numero de guias generadas encontrados ", s);
 
     querySnapshot.forEach((doc) => {
       const guia = doc.data();

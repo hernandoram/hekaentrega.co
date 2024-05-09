@@ -955,7 +955,7 @@ function seleccionarUsuario(id) {
     .doc(id)
     .get()
     .then((doc) => {
-      console.log(doc.exists)
+      console.log(doc.exists);
       if (doc.exists === true) {
         contenedor.classList.remove("d-none");
         const data = doc.data();
@@ -1066,7 +1066,7 @@ function seleccionarUsuario(id) {
           {
             data: "Valor del pago",
             title: "Valor del pago",
-            defaultContent: "",
+            defaultContent: ""
           }
         ],
         language: {
@@ -1423,7 +1423,7 @@ async function actualizarInformacionPersonal() {
   myHeaders.append("Authorization", "Bearer " + token);
 
   const userData = fetch(
-    PROD_API_URL + "/api/v1/user?idFirebase=" + id_usuario,
+    PROD_API_URL + "/api/v1/user?idFirebase=" + id_usuario + "&limit=1",
     {
       method: "GET",
       headers: myHeaders,
@@ -1431,12 +1431,13 @@ async function actualizarInformacionPersonal() {
     }
   ).then(async (response) => {
     const data = await response.json();
+    console.log(data);
     const mongoId = data.response._id;
     const updateBody = JSON.stringify({
       name: value("actualizar_nombres"),
       last_name: value("actualizar_apellidos"),
-      phone: value("actualizar_telefono"),
-      alternative_phone: value("actualizar_celular"),
+      phone: Number(value("actualizar_telefono")),
+      alternative_phone:Number (value("actualizar_celular")),
       email: value("actualizar_correo"),
       type_document: value("actualizar_tipo_documento"),
       document: value("actualizar_numero_documento"),
