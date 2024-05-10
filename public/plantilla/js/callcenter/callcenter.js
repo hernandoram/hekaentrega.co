@@ -527,7 +527,7 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
             <td class="row justify-content-center">
                 <button class="btn btn-${extraData.novedad_solucionada ? "secondary" : "primary"
     } m-2 " 
-                id="gestionar-guia-${data.numeroGuia}"
+                id="gestionar-guia-callcenter-${data.numeroGuia}"
                 data-toggle="modal" data-target="#modal-gestionarNovedad"}>
                     ${btnGestionar}
                 </button>
@@ -652,12 +652,12 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
     });
   }
 
-  $("#gestionar-guia-" + data.numeroGuia).click(() => {
-    extraData.id_heka = id_heka;
-    gestionarNovedadModal(data, extraData);
-  });
-
   const boton_solucion = $("#solucionar-guia-callcenter-" + data.numeroGuia);
+
+  $("#gestionar-guia-callcenter-" + data.numeroGuia).click(() => {
+    extraData.id_heka = id_heka;
+    gestionarNovedadModal(data, extraData, boton_solucion);
+  });
 
   const boton_actualizar = $("#actualizar-guia-callcenter-" + data.numeroGuia);
 

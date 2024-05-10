@@ -2244,12 +2244,13 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
     });
   }
 
+  const boton_solucion = $("#solucionar-guia-" + data.numeroGuia);
+
   $("#gestionar-guia-" + data.numeroGuia).click(() => {
     extraData.id_heka = id_heka;
-    gestionarNovedadModal(data, extraData);
+    gestionarNovedadModal(data, extraData, boton_solucion);
   });
 
-  const boton_solucion = $("#solucionar-guia-" + data.numeroGuia);
 
   const boton_actualizar = $("#actualizar-guia-" + data.numeroGuia);
 
@@ -2613,8 +2614,8 @@ function revisarNovedad(mov, transp) {
   }
 }
 
-//dataN = data de la novedad, dataG = data de la guía
-async function gestionarNovedadModal(dataN, dataG) {
+//dataN = data de la novedad, dataG = data de la guía, botonSolucionarExterno: Un botón de admin que generar sus acciones y es pasado hacia adentro
+async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
   console.log(dataG);
   console.time("nueva consulta seguimiento");
   const dataF = await firebase
@@ -2984,6 +2985,13 @@ async function gestionarNovedadModal(dataN, dataG) {
     });
   } else {
     $(".registrar-novedad").click(registrarNovedad);
+
+    // Agregamos el botón de afuera dentro del diálogo por intento de practicidad
+    botonSolucionarExterno
+    .clone(true) // Para heredar la funcionalidad de donde proviene
+    .addClass("col-12") // Para que se adapte al estilo del dialogo
+    .attr("id", "") // Limpiamos el id para evitar problemas con el dom
+    .appendTo(info_gen);
   }
 }
 
