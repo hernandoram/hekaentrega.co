@@ -284,8 +284,7 @@ exports.actualizarReferidoPorGuiaEntregada = async (data, nuevosDatos) => {
       cantidadEnvios: firebase.firestore.FieldValue.increment(1),
       guiasEntregadas: firebase.firestore.FieldValue.arrayUnion(numeroGuia)
     });
-  
-  }
+}
 
 exports.estadosFinalizacion = {
     entregados: estadosEntregado,

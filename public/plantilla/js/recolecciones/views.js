@@ -11,6 +11,12 @@ export const cardBodegaRecoleccion = (data) => {
             data-mostrar="texto">Id Guias Generadas: <br><small class="text-wrap">${data.guias.map(
               (guia) => `<span>${guia.numeroGuia}  </span>`
             )}</small> </p>
+            
+            <button class="btn btn-danger" data-action="eliminarGuiasRecoleccion" data-codigo_sucursal="${
+              data.codigo_sucursal
+            }">
+                Eliminar Guías de Recolección
+            </button>
             <button class="btn btn-primary" data-action="solicitarRecoleccion" data-codigo_sucursal="${
               data.codigo_sucursal
             }">
@@ -19,6 +25,8 @@ export const cardBodegaRecoleccion = (data) => {
                   data.guias.length
                 }</span>
             </button>
+
+
         </div>
     `;
 };
@@ -38,6 +46,25 @@ export const formRecoleccion = (data) => {
     `;
 };
 
+export const formEliminarGuiasRecoleccion = (data) => {
+  return `
+        <form>
+            <div class="mb-3">
+                <label>Está seguro que desea eliminar las ${data.guias.length} guías de recolección de la sucursal ${data.codigo_sucursal}? </label>
+            </div>
+        </form>
+    `;
+};
+export const formEliminarGuiaIndividual = () => {
+  return `
+        <form>
+            <div class="mb-3">
+                <label for="numeroGuia">Introduce el número de la guía que deseas eliminar:</label>
+                <input type="text" id="numeroGuia" name="numeroGuia" required class="form-control">
+            </div>
+        </form>
+    `;
+};
 
 export const recoleccionSolicitada = (data) => {
   return `
