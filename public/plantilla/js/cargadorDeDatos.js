@@ -221,10 +221,19 @@ botonDesbloqueo.addEventListener("click", desbloquearBilletera);
 
 renderBilletera()
 
+const randomNum = Math.floor(Math.random() * 9000) + 1000;
 
 function desbloquearBilletera(){
-  mostrarBilletera = true;
-  renderBilletera()
+  const inputCodigo = document.querySelector("#codigo-desbloqueo-billetera");
+
+  console.warn(randomNum);
+
+  inputCodigo.classList.remove("d-none");
+
+  if(inputCodigo.value == randomNum){
+    mostrarBilletera = true;
+    renderBilletera()
+  }
 }
 
 function renderBilletera(){
