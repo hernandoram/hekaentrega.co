@@ -1008,18 +1008,28 @@ function notificarPedidoCreado(guia) {
     dice_contener,
     valor,
     nombre_empresa,
-    nombreR,
+    nombreR, 
+    info_user,
     ciudadR,
     nombreD,
     ciudadD,
     direccionD
   } = guia;
+
+  let nombreVisualRemitente = nombre_empresa || nombreR;
+  
+  // Este objeto solo está presente cuando la guía fue creada por un usuario de tipo punto
+  // En este caso "info_user" corresponde al nombre del usuario que solicitó al punto generar el envío
+  if(info_user) {
+    nombreVisualRemitente = info_user.nombre_completo;
+  }
+
   const plantilla = [
     transportadora,
     numeroGuia,
     dice_contener,
     valor.toString(),
-    nombre_empresa || nombreR,
+    nombreVisualRemitente,
     ciudadR,
     nombreD,
     ciudadD,
@@ -4609,6 +4619,18 @@ async function historialGuiasAdmin(e) {
       data: "detalles.costoDevolucion",
       title: "Costo devolución",
       defaultContent: "---",
+      visible: false
+    },
+    {
+      data: "detalles.comision_adicional",
+      title: "Comisión Heka Adicional",
+      defaultContent: 0,
+      visible: false
+    },
+    {
+      data: "detalles.cobraDevolucion",
+      title: "Cobra devolución",
+      render: (content) => content === false ? "NO" : "SI",
       visible: false
     },
     { data: "fecha", title: "Fecha" },
