@@ -208,18 +208,35 @@ let datos_usuario = {},
   datos_personalizados = datos_personalizados_1;
 
 //TODO
-datos_usuario.mostrarBilletera = true;
+datos_usuario.mostrarBilletera = false;
 
 let mostrarBilletera = datos_usuario.mostrarBilletera;
 
 const infoBilletera= document.getElementById("informacion-billetera");
-if(!mostrarBilletera){
-  
-}else{
-  infoBilletera.classList.remove("d-none");
+const desbloqueoBilletera = document.querySelector("#desbloquear-billetera");
+
+const botonDesbloqueo = document.querySelector("#desbloquear-billetera-boton")
+
+botonDesbloqueo.addEventListener("click", desbloquearBilletera);
+
+renderBilletera()
+
+
+function desbloquearBilletera(){
+  mostrarBilletera = true;
+  renderBilletera()
 }
 
-console.warn(mostrarBilletera)
+function renderBilletera(){
+  if(mostrarBilletera){
+    infoBilletera.classList.remove("d-none");
+    desbloqueoBilletera.classList.add("d-none");
+  }else{
+    infoBilletera.classList.add("d-none");
+    desbloqueoBilletera.classList.remove("d-none");
+  }
+}
+
 
 const ciudadesFlexxi = ["BOGOTA(CUNDINAMARCA)", "TUMACO(NARIÑO)"];
 
@@ -2238,12 +2255,8 @@ async function pagosPendientesParaUsuario() {
       //     );
       //   });
 
-      if (mostrarBilletera) {
         viewer.text(convertirMoneda(saldo_pendiente));
-      }else{
-        
-        viewer.text("desbloquear billetera");
-      }
+
     });
 }
 
