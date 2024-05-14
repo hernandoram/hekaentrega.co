@@ -3,7 +3,7 @@ const PROD_API_URL = "https://api.hekaentrega.co"; //comentar o descomentar segu
 // const PROD_API_URL_PLATFORM2 = "http://localhost:3232"; //comentar o descomentar segun el ambiente
 const PROD_API_URL_PLATFORM2 = "http://hekaentrega.co"; //comentar o descomentar segun el ambiente
 
-const versionSoftware = "1.0.1";
+const versionSoftware = "1.0.2: contraseña para pagos";
 
 console.warn("Versión del software: " + versionSoftware);
 
@@ -83,7 +83,7 @@ async function validateToken(token) {
       // Si tiene la variable token en la url, es porque recien ingresa
       // Así que una vez se almacena en el loca storage y se confirma el token
       // Se procede a recargar la página, quitando dicho token de la URL
-      if(urlToken.get("token")) {
+      if (urlToken.get("token")) {
         location.replace(location.href.split("?")[0]);
       }
 
@@ -101,7 +101,7 @@ function redirectLogin() {
     title: "Error!",
     text: "La sesión ha expirado, por favor inicia sesión nuevamente",
     icon: "error",
-    confirmButtonText: "OK",
+    confirmButtonText: "OK"
   }).then(() => {
     location.href = `${PROD_API_URL_PLATFORM2}/ingreso`;
   });
@@ -187,10 +187,10 @@ const datos_personalizados_1 = {
   constante_convencional: 800,
   constante_pagoContraentrega: 1700,
   comision_punto: 10,
-  saldo: 0,
-}
+  saldo: 0
+};
 
-// Datos importantes para los porcentajes de comisión para usuarios nuevos, 
+// Datos importantes para los porcentajes de comisión para usuarios nuevos,
 // o usuarios que en su defecto se ha decidido que comenzarán a utilizar estos valores de cotización
 const datos_personalizados_2 = {
   version: 2, // Para validar que la configuración que se está usando es la nueva y generar una condiciones que cambien con respecto al orginal
@@ -200,12 +200,26 @@ const datos_personalizados_2 = {
   constante_pagoContraentrega: 1700,
   comision_punto: 10,
   saldo: 0
-}
+};
 
 //Administradara datos basicos del usuario que ingresa
 let datos_usuario = {},
   //Almacena los costos de envios (nacional, urbano...) y el porcentaje de comision
   datos_personalizados = datos_personalizados_1;
+
+//TODO
+datos_usuario.mostrarBilletera = true;
+
+let mostrarBilletera = datos_usuario.mostrarBilletera;
+
+const infoBilletera= document.getElementById("informacion-billetera");
+if(!mostrarBilletera){
+  
+}else{
+  infoBilletera.classList.remove("d-none");
+}
+
+console.warn(mostrarBilletera)
 
 const ciudadesFlexxi = ["BOGOTA(CUNDINAMARCA)", "TUMACO(NARIÑO)"];
 
@@ -214,7 +228,7 @@ const bodegasWtch = new Watcher();
 class ControlUsuario {
   static dataCompleted = new Watcher(null);
 
-  static loader = null
+  static loader = null;
 
   static get esPuntoEnvio() {
     return datos_usuario.type === "PUNTO";
@@ -225,19 +239,19 @@ class ControlUsuario {
   }
 
   /** Promesa encargada de validad que ya se han cargado todos los datos del usuario correctamente
-   * Utiliza un loader al estilo "singleton", que devuelve una única promesa, que se resuelve cuando el 
+   * Utiliza un loader al estilo "singleton", que devuelve una única promesa, que se resuelve cuando el
    * observador "dataCompleted" se dispara con el valor "true" y se rechaza cuando la misma variable devuelve false
    * @returns {Promise}
    */
   static get hasLoaded() {
-    if(ControlUsuario.loader === null) {
+    if (ControlUsuario.loader === null) {
       // En caso de que no exista una promesa activa, la crea
       ControlUsuario.loader = new Promise((res, rej) => {
         // Luego genera el observador que una vez reciba true o false, resolverá la promesa
-        ControlUsuario.dataCompleted.watch(dataCorrectlyLoaded => {
-          if(dataCorrectlyLoaded === true) {
+        ControlUsuario.dataCompleted.watch((dataCorrectlyLoaded) => {
+          if (dataCorrectlyLoaded === true) {
             res("La información del usuario ha sido cargada correctamente");
-          }else if(dataCorrectlyLoaded === false) {
+          } else if (dataCorrectlyLoaded === false) {
             rej("Hubo un error al cargar los datos del usuario");
           }
         });
@@ -310,7 +324,7 @@ async function cargarDatosUsuario() {
   //  console.log( datos_usuario)
 
   limitarAccesoSegunTipoUsuario();
-   // Esto para que la clase estática encargada de cosas particulares del usuario pueda mostrar que ya está
+  // Esto para que la clase estática encargada de cosas particulares del usuario pueda mostrar que ya está
   // el cargue de información del usuario ha sido correcta
   ControlUsuario.dataCompleted.change(true);
 
@@ -343,7 +357,7 @@ async function cargarPagoSolicitado() {
     .then((d) => d.data());
 
   // Llenamos esta variable con los usuario habilitados para crear guías en cola
-  if(colaProcesarGuias && colaProcesarGuias.length)
+  if (colaProcesarGuias && colaProcesarGuias.length)
     usuarioParaColaInfoHeka.push(...colaProcesarGuias);
 
   const centro_de_costo = datos_usuario.centro_de_costo;
@@ -420,7 +434,7 @@ async function consultarDatosDeUsuario() {
         type: datos.type || "NATURAL",
         nombre_empresa: datos.nombre_empresa,
         datos_bancarios,
-        bodegas,
+        bodegas
       };
 
       if (datos_usuario.type === "NATURAL-FLEXII") {
@@ -458,7 +472,7 @@ function limitarAccesoSegunTipoUsuario() {
       "documentos",
       "manifiestos",
       "crear_guia",
-      "deudas",
+      "deudas"
     ];
   }
 
@@ -475,7 +489,7 @@ function mostrarDatosUsuario(datos) {
     ".mostrar-nombre_completo",
     ".mostrar-nombre_empresa",
     ".mostrar-numero_documento",
-    ".mostrar-tipo_documento",
+    ".mostrar-tipo_documento"
   ];
   mostradores.forEach((mostrador) => {
     const campo = mostrador.replace(".mostrar-", "");
@@ -563,7 +577,7 @@ function mostrarDatosBancarios(datos) {
     ".mostrar-numero_cuenta",
     ".mostrar-nombre_banco",
     ".mostrar-tipo_documento_banco",
-    ".mostrar-numero_iden_banco",
+    ".mostrar-numero_iden_banco"
   ];
   mostradores.forEach((mostrador) => {
     const campo = mostrador.replace(".mostrar-", "");
@@ -638,7 +652,7 @@ function agregarDatosBancarios(informacion) {
   usuarioDoc.update({ datos_bancarios }).then(() => {
     Toast.fire({
       icon: "success",
-      title: "Datos bancarios agregados correctamente.",
+      title: "Datos bancarios agregados correctamente."
     });
   });
 }
@@ -749,7 +763,7 @@ function descargarInformeUsuariosAdm(e) {
     "bodega_principal.direccion": "Dirección",
     "bodega_principal.ciudad": "Ciudad",
     "bodega_principal.departamento": "Departamento",
-    "fecha_creacion": "Fecha Creación"
+    fecha_creacion: "Fecha Creación"
   };
 
   const normalizeObject = (campo, obj) => {
@@ -790,15 +804,17 @@ function descargarInformeUsuariosAdm(e) {
     }
 
     if (obj.objetos_envio) res["Cosas que envía"] = obj.objetos_envio.join();
-    if (obj.fecha_creacion) res["Fecha Creación"] = obj.fecha_creacion.toDate()
-      .toLocaleString("es-CO", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true
-      });
+    if (obj.fecha_creacion)
+      res["Fecha Creación"] = obj.fecha_creacion
+        .toDate()
+        .toLocaleString("es-CO", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true
+        });
 
     return res;
   };
@@ -836,7 +852,7 @@ function limitarSeleccionGuias(limit = 50) {
         Toast.fire({
           icon: "error",
           text:
-            "Puede seleccionar como máximo " + limit + " guías por documento",
+            "Puede seleccionar como máximo " + limit + " guías por documento"
         });
       }
     });
@@ -962,7 +978,7 @@ function agregarSaldo(envios, referente, referido) {
         if (doc.data().sellerReferido == referido) {
           console.log(doc.data());
           doc.ref.update({
-            reclamado: true,
+            reclamado: true
           });
         }
       });
@@ -997,7 +1013,7 @@ function reclamarReferido(referido, referente) {
     guia: null,
     medio: `Usuario reclama saldo del referido ${referido}`,
     numeroGuia: null,
-    type: "REFERIDO",
+    type: "REFERIDO"
   };
 
   let recibidoReferidos;
@@ -1031,14 +1047,14 @@ function reclamarReferido(referido, referente) {
       // Creamos un nuevo objeto con los datos anteriores y el nuevo valor
       const nuevosDatosPersonalizados = {
         ...datos.datos_personalizados, // Mantenemos las propiedades anteriores
-        recibidoReferidos: recibidoReferidos, // Agregamos la nueva propiedad con su valor
+        recibidoReferidos: recibidoReferidos // Agregamos la nueva propiedad con su valor
       };
 
       console.log(nuevosDatosPersonalizados);
 
       // Actualizamos el documento con los nuevos datos
       return firebase.firestore().collection("usuarios").doc(userid).update({
-        datos_personalizados: nuevosDatosPersonalizados,
+        datos_personalizados: nuevosDatosPersonalizados
       });
     })
 
@@ -1066,7 +1082,7 @@ function cargarPagos() {
   console.log(data.get("documento"));
   fetch("/excel_to_json", {
     method: "POST",
-    body: data,
+    body: data
   })
     .then((res) => {
       if (!res.ok) {
@@ -1231,7 +1247,7 @@ function cargarPagos() {
 
                     timeline: new Date().getTime(),
                     comprobante_bancario: comprobante_bancario || "SCB",
-                    cuenta_responsable: celda[8].textContent || "SCR",
+                    cuenta_responsable: celda[8].textContent || "SCR"
                   })
                   .then(() => {
                     firebase
@@ -1270,7 +1286,7 @@ function cargarPagos() {
                   text:
                     'Se ha enviado el siguiente mensaje al usuario: "' +
                     mensaje +
-                    '"',
+                    '"'
                 });
               } else {
                 Swal.fire({
@@ -1279,7 +1295,7 @@ function cargarPagos() {
                     "No se ha podido enviar el siguiente mensaje al usuario: " +
                     mensaje +
                     " - Razón: " +
-                    respuestaMensaje.message,
+                    respuestaMensaje.message
                 });
               }
 
@@ -1608,7 +1624,7 @@ $("#btn-revisar_pagos").click(async (e) => {
       "ENVIA",
       "TCC",
       "INTERRAPIDISIMO",
-      "COORDINADORA",
+      "COORDINADORA"
     ];
   }
 
@@ -1705,7 +1721,7 @@ async function consultarFacturasGuardadasAdmin() {
       CEDULA: identificacion,
       TERCERO: nombre_completo,
       FACTURA: f.num_factura,
-      "Fecha elaboración": strFecha,
+      "Fecha elaboración": strFecha
     };
 
     return jsonArchivo;
@@ -1898,7 +1914,7 @@ function mostrarPagosAdmin(datos) {
 
 const paqueteGuiasPagadas = {
   guias: new Map(),
-  facturas: new Map(),
+  facturas: new Map()
 };
 
 function activarBotonesVisorPagos() {
@@ -1978,7 +1994,7 @@ async function obtenerFacturaRegistradaPorGuia(numeroGuia) {
   guiasPagadas.forEach((g) => {
     paqueteGuiasPagadas.guias.set(g, {
       idFactura,
-      comision_heka: paquete.comision_heka,
+      comision_heka: paquete.comision_heka
     });
   });
 
@@ -1990,11 +2006,11 @@ function mostrarPagosUsuario(data) {
     data: data,
     destroy: true,
     language: {
-      url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
+      url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
     },
     lengthMenu: [
       [-1, 10, 25, 50, 100],
-      ["Todos", 10, 25, 50, 100],
+      ["Todos", 10, 25, 50, 100]
     ],
     columnDefs: [{ className: "cell-border" }],
     columns: [
@@ -2006,7 +2022,7 @@ function mostrarPagosUsuario(data) {
       { data: "TOTAL A PAGAR", title: "Total a Pagar" },
       { data: "COMISION HEKA", title: "Comisión Heka", defaultContent: "" },
       { data: "referencia", title: "Referencia", defaultContent: "No aplica" },
-      { data: "momento", title: "Momento", visible: false },
+      { data: "momento", title: "Momento", visible: false }
     ],
     dom: "Bfrtip",
     buttons: [
@@ -2015,9 +2031,9 @@ function mostrarPagosUsuario(data) {
         text: "Descargar",
         filename: "Repote pagos",
         exportOptions: {
-          columns: ":visible",
-        },
-      },
+          columns: ":visible"
+        }
+      }
     ],
     //Es importante organizarlo por fecha de manera específica, para poder segmentarlo
     order: [[8, "desc"]],
@@ -2126,7 +2142,7 @@ function mostrarPagosUsuario(data) {
 
       $("#visor-pagos_info").removeClass("dataTables_info");
       $("#visor-pagos_info").addClass("text-center");
-    },
+    }
   });
 }
 
@@ -2222,7 +2238,12 @@ async function pagosPendientesParaUsuario() {
       //     );
       //   });
 
-      viewer.text(convertirMoneda(saldo_pendiente));
+      if (mostrarBilletera) {
+        viewer.text(convertirMoneda(saldo_pendiente));
+      }else{
+        
+        viewer.text("desbloquear billetera");
+      }
     });
 }
 
@@ -2265,7 +2286,7 @@ async function crearLogPago(estado, fecha, valorPago) {
     Estado: estado,
     Tipo: "Pago",
     Fecha: fecha,
-    "Valor del pago": valorPago,
+    "Valor del pago": valorPago
   };
 
   // Agregar el documento a la colección
@@ -2273,7 +2294,6 @@ async function crearLogPago(estado, fecha, valorPago) {
 }
 
 async function solicitarPagosPendientesUs(e) {
-  
   // Se realizan primeros las validaciones que dependen de la información universal
   if (saldo_pendiente == 0) {
     const mensaje = "No puedes solicitar tu pago ya que no tienes saldo";
@@ -2282,7 +2302,7 @@ async function solicitarPagosPendientesUs(e) {
       title: "No tienes saldo",
       html: mensaje,
       showCancelButton: false,
-      confirmButtonText: "Aceptar",
+      confirmButtonText: "Aceptar"
     });
   }
 
@@ -2294,7 +2314,7 @@ async function solicitarPagosPendientesUs(e) {
       title: "Solicitando pago",
       html: mensaje,
       showCancelButton: false,
-      confirmButtonText: "Aceptar",
+      confirmButtonText: "Aceptar"
     });
   }
 
@@ -2320,7 +2340,7 @@ async function solicitarPagosPendientesUs(e) {
     "ENVIA",
     "TCC",
     "INTERRAPIDISIMO",
-    "COORDINADORA",
+    "COORDINADORA"
   ];
   const verPago = (t) =>
     db
@@ -2372,7 +2392,7 @@ async function solicitarPagosPendientesUs(e) {
       html: mensaje,
       showCancelButton: true,
       cancelButtonText: "No",
-      confirmButtonText: "Si",
+      confirmButtonText: "Si"
     });
 
     if (!resp.isConfirmed) return loader.end();
@@ -2393,7 +2413,6 @@ async function solicitarPagosPendientesUs(e) {
     if (!diarioSolicitado.includes(usuario)) diarioSolicitado.push(usuario);
 
     await ref.update({ limitadosDiario, diarioSolicitado });
-   
   } else {
     const mensaje =
       "Estás a punto de solicitar pago con un monto superior a " +
@@ -2406,7 +2425,7 @@ async function solicitarPagosPendientesUs(e) {
       html: mensaje,
       showCancelButton: true,
       cancelButtonText: "No",
-      confirmButtonText: "Si",
+      confirmButtonText: "Si"
     });
 
     if (!resp.isConfirmed) return loader.end();
@@ -2416,15 +2435,10 @@ async function solicitarPagosPendientesUs(e) {
       diarioSolicitado.push(datos_usuario.centro_de_costo);
       await ref.update({ diarioSolicitado });
     }
-
   }
-  
+
   // Registramos los logs de todos los pagos que han sido solicitados
-  await crearLogPago(
-    "Saldo solicitado con éxito",
-    new Date(),
-    saldo_pendiente
-  );
+  await crearLogPago("Saldo solicitado con éxito", new Date(), saldo_pendiente);
 
   SwalMessage.fire("Pago solicitado con éxito.", "", "success");
 
@@ -2465,26 +2479,26 @@ botonInputFlexii.onclick = function () {
               if (doc.data().id_punto == id_punto) {
                 return Swal.fire({
                   icon: "success",
-                  text: "Esta guía ya está registrada en tu punto",
+                  text: "Esta guía ya está registrada en tu punto"
                 });
               }
               if (doc.data().id_punto !== id_punto) {
                 return Swal.fire({
                   icon: "success",
-                  text: "Esta guía ya está registrada en otro punto",
+                  text: "Esta guía ya está registrada en otro punto"
                 });
               }
               doc.ref.update({ id_punto: id_punto });
               return Swal.fire({
                 icon: "success",
-                text: "Guía registrada con éxito",
+                text: "Guía registrada con éxito"
               });
             });
           });
       } else {
         return Swal.fire({
           icon: "error",
-          text: "No tienes permisos para registrar guías",
+          text: "No tienes permisos para registrar guías"
         }).then(() => {
           window.location.replace("/plataforma2.html");
         });
