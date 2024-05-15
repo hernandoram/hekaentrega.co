@@ -1721,12 +1721,18 @@
                       </div>
                     </div>
 
-                    <div class="custom-control custom-switch text-center m-2">
-                      <input type="checkbox" class="custom-control-input" id="switch-habilitar-filtrado-pagos">
-                      <label class="custom-control-label" for="switch-habilitar-filtrado-pagos">Habilitar busqueda avanzada</label>
+                    <div class="d-none text-center" id="interfaz-pagos">
+
+                      <div class="custom-control custom-switch text-center m-2">
+                        <input type="checkbox" class="custom-control-input" id="switch-habilitar-filtrado-pagos">
+                        <label class="custom-control-label" for="switch-habilitar-filtrado-pagos">Habilitar busqueda avanzada</label>
+                      </div>
+                      <input type="button" id="btn-revisar_pagos" 
+                      value="Revisar Pagos" class="btn btn-primary mt-4">
                     </div>
-                    <input type="button" id="btn-revisar_pagos" 
-                    value="Revisar Pagos" class="btn btn-primary mt-4">
+                    <div class="text-center" id="no-interfaz-pagos">
+                      Por favor, desbloquea tu billetera verificando tu identidad. Tu seguridad es nuestra prioridad.
+                    </div>
                   </div>
                 </form>
               </div>

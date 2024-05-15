@@ -1408,9 +1408,13 @@ async function actualizarInformacionPersonal() {
     numero_documento: value("actualizar_numero_documento"),
     contacto: value("actualizar_contacto"),
     type: value("actualizar_tipo_user"),
+
+    blockWallet:value("actualizar_bloqueo_billetera"),
+    
     con: value("actualizar_repetir_contraseña"),
     ingreso: value("actualizar_contraseña")
   };
+
   const token = localStorage.getItem("token");
 
   let id_usuario = document
@@ -1441,7 +1445,10 @@ async function actualizarInformacionPersonal() {
       email: value("actualizar_correo"),
       type_document: value("actualizar_tipo_documento"),
       document: value("actualizar_numero_documento"),
-      type: document.getElementById("actualizar_tipo_user").value
+      type: document.getElementById("actualizar_tipo_user").value,
+
+      blockWallet:value("actualizar_bloqueo_billetera"),
+    
     });
     myHeaders.append("Content-type", "application/json");
     fetch(PROD_API_URL + "/api/v1/user/" + mongoId, {

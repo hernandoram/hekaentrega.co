@@ -212,40 +212,45 @@ datos_usuario.mostrarBilletera = false;
 
 let mostrarBilletera = datos_usuario.mostrarBilletera;
 
-const infoBilletera= document.getElementById("informacion-billetera");
-const desbloqueoBilletera = document.querySelector("#desbloquear-billetera");
-
-const botonDesbloqueo = document.querySelector("#desbloquear-billetera-boton")
+const botonDesbloqueo = document.querySelector("#desbloquear-billetera-boton");
 
 botonDesbloqueo.addEventListener("click", desbloquearBilletera);
 
-renderBilletera()
+renderBilletera();
 
 const randomNum = Math.floor(Math.random() * 9000) + 1000;
 
-function desbloquearBilletera(){
+function desbloquearBilletera() {
   const inputCodigo = document.querySelector("#codigo-desbloqueo-billetera");
 
   console.warn(randomNum);
 
   inputCodigo.classList.remove("d-none");
 
-  if(inputCodigo.value == randomNum){
+  if (inputCodigo.value == randomNum) {
     mostrarBilletera = true;
-    renderBilletera()
+    renderBilletera();
   }
 }
 
-function renderBilletera(){
-  if(mostrarBilletera){
+function renderBilletera() {
+  const infoBilletera = document.getElementById("informacion-billetera");
+  const desbloqueoBilletera = document.querySelector("#desbloquear-billetera");
+  const interfazPagos = document.getElementById("interfaz-pagos");
+  const noInterfazPagos = document.getElementById("no-interfaz-pagos");
+
+  if (mostrarBilletera) {
     infoBilletera.classList.remove("d-none");
+    interfazPagos.classList.remove("d-none");
     desbloqueoBilletera.classList.add("d-none");
-  }else{
+    noInterfazPagos.classList.add("d-none");
+  } else {
     infoBilletera.classList.add("d-none");
+    interfazPagos.classList.add("d-none");
     desbloqueoBilletera.classList.remove("d-none");
+    noInterfazPagos.classList.remove("d-none");
   }
 }
-
 
 const ciudadesFlexxi = ["BOGOTA(CUNDINAMARCA)", "TUMACO(NARIÑO)"];
 
@@ -2264,8 +2269,7 @@ async function pagosPendientesParaUsuario() {
       //     );
       //   });
 
-        viewer.text(convertirMoneda(saldo_pendiente));
-
+      viewer.text(convertirMoneda(saldo_pendiente));
     });
 }
 
@@ -2380,7 +2384,7 @@ async function solicitarPagosPendientesUs(e) {
   if (!hayPagoAnterior.some(Boolean))
     return SwalMessage.fire(
       "Se ha detectado que no hay registro de pago previo.",
-      "Por favor, para poder continuar, es necesario que nos envíes tu RUT a el correo electrónico atencion@hekaentrega.co esto se realiza con la finalidad de validación de datos y facturación electrónica.",
+      "Por favor, para poder continuar, es necesario que nos envíes tu documento de identidad o RUT en pdf al correo electrónico atencion@hekaentrega.co esto se realiza con la finalidad de validación de datos y facturación electrónica.",
       "error"
     );
 
