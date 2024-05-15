@@ -75,8 +75,13 @@ async function validateToken(token) {
       }
 
       console.log(user.data());
-      mostrarBilletera= user.data().blockedWallet;
-      renderBilletera()
+
+      
+      if (tipoUsuario === "seller") {
+        mostrarBilletera= user.data().blockedWallet;
+        renderBilletera()
+      }
+  
       localStorage.setItem("user_id", user.id);
       localStorage.setItem("token", token);
 
@@ -93,8 +98,8 @@ async function validateToken(token) {
 
       user_id = user.id;
     } catch (error) {
-      redirectLogin();
       console.error("Error en la solicitud GET:", error);
+      redirectLogin();
       throw error;
     }
   }
