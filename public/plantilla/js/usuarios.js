@@ -1104,7 +1104,7 @@ function mostrarDatosPersonales(data, info) {
       "nombre-usuario",
       data.nombres.split(" ")[0] + " " + data.apellidos.split(" ")[0]
     );
-    if (data.blockWallet) {
+    if (data.blockedWallet === true) {
       document.querySelector("#actualizar_bloqueo_billetera").value = true;
     } else {
       document.querySelector("#actualizar_bloqueo_billetera").value = false;
@@ -1419,13 +1419,19 @@ async function actualizarInformacionPersonal() {
     ingreso: value("actualizar_contraseña")
   };
 
+  let billetera= value("actualizar_bloqueo_billetera")
+
+  if (billetera=== "true"){
+    billetera= true
+  }else{
+    billetera= false
+  }
+
   const token = localStorage.getItem("token");
 
   let id_usuario = document
     .getElementById("usuario-seleccionado")
     .getAttribute("data-id");
-  console.log(id_usuario);
-  console.log(token);
 
   const myHeaders = new Headers();
   myHeaders.append("Authorization", "Bearer " + token);
@@ -1450,7 +1456,7 @@ async function actualizarInformacionPersonal() {
       type_document: value("actualizar_tipo_documento"),
       document: value("actualizar_numero_documento"),
       type: document.getElementById("actualizar_tipo_user").value,
-      blockedWallet: Boolean(value("actualizar_bloqueo_billetera"))
+      blockedWallet: billetera
     });
 
     myHeaders.append("Content-type", "application/json");

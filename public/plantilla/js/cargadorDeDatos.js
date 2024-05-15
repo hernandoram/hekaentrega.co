@@ -10,6 +10,8 @@ console.warn("Versión del software: " + versionSoftware);
 let user_id = localStorage.user_id,
   usuarioDoc;
 
+let mostrarBilletera =  false;
+
 const urlToken = new URLSearchParams(window.location.search);
 const tokenUser = urlToken.get("token") || localStorage.getItem("token");
 
@@ -73,6 +75,8 @@ async function validateToken(token) {
       }
 
       console.log(user.data());
+      mostrarBilletera= user.data().blockedWallet;
+      renderBilletera()
       localStorage.setItem("user_id", user.id);
       localStorage.setItem("token", token);
 
@@ -207,22 +211,18 @@ let datos_usuario = {},
   //Almacena los costos de envios (nacional, urbano...) y el porcentaje de comision
   datos_personalizados = datos_personalizados_1;
 
-//TODO
-datos_usuario.mostrarBilletera = false;
-
-let mostrarBilletera = datos_usuario.mostrarBilletera;
 
 const botonDesbloqueo = document.querySelector("#desbloquear-billetera-boton");
 
 botonDesbloqueo.addEventListener("click", desbloquearBilletera);
 
-renderBilletera();
 
 const randomNum = Math.floor(Math.random() * 9000) + 1000;
 
 let mensajeEnviado = false;
 const sendMessage = async (message) => {
   setTimeout(() => {
+    // TODO
     console.log(message);
     mensajeEnviado = true;
   }, 200);
@@ -248,16 +248,19 @@ function renderBilletera() {
   const interfazPagos = document.getElementById("interfaz-pagos");
   const noInterfazPagos = document.getElementById("no-interfaz-pagos");
 
+  console.warn(mostrarBilletera)
+
   if (mostrarBilletera) {
-    infoBilletera.classList.remove("d-none");
-    interfazPagos.classList.remove("d-none");
-    desbloqueoBilletera.classList.add("d-none");
-    noInterfazPagos.classList.add("d-none");
-  } else {
     infoBilletera.classList.add("d-none");
     interfazPagos.classList.add("d-none");
     desbloqueoBilletera.classList.remove("d-none");
     noInterfazPagos.classList.remove("d-none");
+  } else {
+    infoBilletera.classList.remove("d-none");
+    interfazPagos.classList.remove("d-none");
+    desbloqueoBilletera.classList.add("d-none");
+    noInterfazPagos.classList.add("d-none");
+   
   }
 }
 
