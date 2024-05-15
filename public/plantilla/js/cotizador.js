@@ -1125,19 +1125,23 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
   );
 
   //mostramos la cantidad de estrellas correspondientes al porcentaje
-  contenedor.html(llenarEstrellas(porcentaje));
-  contenedor.append("<small>(" + porcentaje + "% de efectividad)</small>");
-  contenedor.append(`<span 
-        class='detalles rounded bg-light w-100 position-absolute' 
-        style='
-            cursor:pointer; opacity:0; top:0; left: 0;
-            transition: opacity 300ms
-        ' 
-        onmouseenter='(() => this.style.opacity=0.7)()' 
-        onmouseleave='(() => this.style.opacity=0)()'
-    >
-        Ver referencia
-    </span>`);
+  // contenedor.html(llenarEstrellas(porcentaje));
+  // contenedor.append("<small>(" + porcentaje + "% de efectividad)</small>");
+  // contenedor.append(`<span 
+  //       class='detalles rounded bg-light w-100 position-absolute' 
+  //       style='
+  //           cursor:pointer; opacity:0; top:0; left: 0;
+  //           transition: opacity 300ms
+  //       ' 
+  //       onmouseenter='(() => this.style.opacity=0.7)()' 
+  //       onmouseleave='(() => this.style.opacity=0)()'
+  //   >
+  //       Ver referencia
+  //   </span>`);
+
+    contenedor.append("<small>Tipos de pago disponibles</small>");
+
+
 
   //PRAR REORGANIZAR LAS TRANSPORTADORAS DESDE LA MEJOR
 
@@ -2114,19 +2118,34 @@ function finalizarCotizacion(datos) {
       </a>`),
     input_producto = crearNodo(`<div class="row">
       <div class="col-md-6 mb-3 mb-sm-0">
-          <h6>producto <span>(Lo que se va a enviar)</span></h6>
+          <h6>Que producto vas a enviar:</h6>
           <input id="producto" class="form-control form-control-user detect-errors" 
           name="producto" type="text" maxlength="40"
           placeholder="Introduce el contenido de tu envío">
           <p id="aviso-producto" class="text-warning d-none m-2"></p>
       </div>
       <div class="col-md-6 mb-3 mb-sm-0">
-          <h6>Referencia <span>(Opcional)</span></h6>
+          <h6>Bríndanos mas información de tu producto:</h6>
           <input id="referencia" class="form-control form-control-user detect-errors" 
-          placeholder="Clasificación de manejo personal"
+          placeholder="Cantidad, talla, color, etc"
           name="referencia" type="text" maxlength="40">
       </div>
-  </div>`),
+  </div>
+  <div class="row mt-3">
+      <div class="col-md-6 mb-3 mb-sm-0">
+          <h6>Como va empacado el producto que vas a enviar:</h6>
+          <input id="empaque" class="form-control form-control-user detect-errors" 
+          name="empaque" type="text" maxlength="40"
+          placeholder="Un empaque azul, con dimensiones X Y Z">
+          <p id="empaque-producto" class="text-warning d-none m-2"></p>
+      </div>
+      <div class="col-md-6 mb-3 mb-sm-0">
+          <h6>Imagen de referencia del producto enviado <span>(Opcional)</span></h6>
+          <input class="form-control" type="file" id="formFile">
+      </div>
+  </div>
+  
+  `),
     directionNode = mostrarDirecciones(datos),
     input_buscar_usuario =
       datos_usuario.type === "PUNTO"
@@ -2357,7 +2376,6 @@ function finalizarCotizacion(datos) {
     });
 }
 
-//jose
 function cargarUsuariosFrecuentes(personas) {
   const selectClientes = document.getElementById("list_clientesFrecuentes");
 
@@ -3616,9 +3634,11 @@ function crearGuia() {
     );
     const checkCreacionPedido = $("#check-crear_pedido").prop("checked");
 
-    if (value("producto") == "") {
+    const informacionProducto= `${value("producto")} - REFERENCIA ${value("referencia")} - EMPAQUE ${value("empaque")}`;
+
+    if (value("producto") == "" || value("referencia") == "" ||value("empaque") == "") {
       renovarSubmit(boton_final_cotizador, textoBtn);
-      alert("Recuerde llenar también lo que contine su envío");
+      alert("Recuerde llenar también lo que contine su envío, la referencia y el empaque");
       scrollTo({
         top: document.getElementById("producto").parentNode.offsetTop - 60,
         left: document.getElementById("producto").parentNode.offsetLeft,
@@ -3717,7 +3737,7 @@ function crearGuia() {
       datos_a_enviar.celularD = value("celularD") || value("telefonoD");
       datos_a_enviar.correoD = value("correoD").trim() || "notiene@gmail.com";
       datos_a_enviar.tipo_doc_dest = value("tipo-doc-dest");
-      datos_a_enviar.dice_contener = value("producto").trim();
+      datos_a_enviar.dice_contener = informacionProducto.trim();
       datos_a_enviar.referencia = value("referencia").trim();
       datos_a_enviar.observaciones = value("observaciones");
       datos_a_enviar.recoleccion_esporadica = recoleccion;
