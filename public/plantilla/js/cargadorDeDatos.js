@@ -220,16 +220,25 @@ renderBilletera();
 
 const randomNum = Math.floor(Math.random() * 9000) + 1000;
 
-function desbloquearBilletera() {
+let mensajeEnviado = false;
+const sendMessage = async (message) => {
+  setTimeout(() => {
+    console.log(message);
+    mensajeEnviado = true;
+  }, 200);
+};
+
+async function desbloquearBilletera() {
   const inputCodigo = document.querySelector("#codigo-desbloqueo-billetera");
 
-  console.warn(randomNum);
-
-  inputCodigo.classList.remove("d-none");
-
-  if (inputCodigo.value == randomNum) {
-    mostrarBilletera = true;
-    renderBilletera();
+  if (!mensajeEnviado) {
+    await sendMessage(randomNum);
+    inputCodigo.classList.remove("d-none");
+  } else {
+    if (inputCodigo.value == randomNum) {
+      mostrarBilletera = true;
+      renderBilletera();
+    }
   }
 }
 
@@ -2384,7 +2393,7 @@ async function solicitarPagosPendientesUs(e) {
   if (!hayPagoAnterior.some(Boolean))
     return SwalMessage.fire(
       "Se ha detectado que no hay registro de pago previo.",
-      "Por favor, para poder continuar, es necesario que nos envíes tu documento de identidad o RUT en pdf al correo electrónico atencion@hekaentrega.co esto se realiza con la finalidad de validación de datos y facturación electrónica.",
+      "Por favor, para poder continuar es necesario que nos envíes el documento de identidad o RUT en PDF de la persona registrada en la plataforma al correo electrónico atencion@hekaentrega.co , esto se realiza con la finalidad de validación de datos y facturación electrónica.",
       "error"
     );
 

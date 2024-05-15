@@ -1104,6 +1104,11 @@ function mostrarDatosPersonales(data, info) {
       "nombre-usuario",
       data.nombres.split(" ")[0] + " " + data.apellidos.split(" ")[0]
     );
+    if (data.blockWallet) {
+      document.querySelector("#actualizar_bloqueo_billetera").value = true;
+    } else {
+      document.querySelector("#actualizar_bloqueo_billetera").value = false;
+    }
   } else if (info == "heka") {
     $("#aumentar_saldo").val("");
     $("#informacion-heka")
@@ -1167,7 +1172,6 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
         referidos.push(doc.data());
-        console.log(referidos);
       });
     })
     .finally(() => {
@@ -1409,8 +1413,8 @@ async function actualizarInformacionPersonal() {
     contacto: value("actualizar_contacto"),
     type: value("actualizar_tipo_user"),
 
-    blockWallet:value("actualizar_bloqueo_billetera"),
-    
+    blockWallet: value("actualizar_bloqueo_billetera"),
+
     con: value("actualizar_repetir_contraseña"),
     ingreso: value("actualizar_contraseña")
   };
@@ -1441,15 +1445,14 @@ async function actualizarInformacionPersonal() {
       name: value("actualizar_nombres"),
       last_name: value("actualizar_apellidos"),
       phone: Number(value("actualizar_telefono")),
-      alternative_phone:Number (value("actualizar_celular")),
+      alternative_phone: Number(value("actualizar_celular")),
       email: value("actualizar_correo"),
       type_document: value("actualizar_tipo_documento"),
       document: value("actualizar_numero_documento"),
       type: document.getElementById("actualizar_tipo_user").value,
-
-      blockWallet:value("actualizar_bloqueo_billetera"),
-    
+      blockedWallet: Boolean(value("actualizar_bloqueo_billetera"))
     });
+
     myHeaders.append("Content-type", "application/json");
     fetch(PROD_API_URL + "/api/v1/user/" + mongoId, {
       method: "PATCH",
