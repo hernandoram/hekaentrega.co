@@ -715,8 +715,17 @@ function crearDocumentos(e, dt, node, config) {
       ciudadD,
       nombreD,
       direccionD,
-      codigo_sucursal
+      codigo_sucursal,
+      info_user
     } = data;
+
+    let nombreResponsable = nombre_empresa || nombreR;
+
+    // Este objeto solo está presente cuando la guía fue creada por un usuario de tipo punto
+    // En este caso "info_user" corresponde al nombre del usuario que solicitó al punto generar el envío
+    if(info_user) {
+      nombreResponsable = info_user.nombre_completo;
+    }
 
     arrGuias.push({
       numeroGuia,
@@ -738,7 +747,8 @@ function crearDocumentos(e, dt, node, config) {
       ciudadD,
       nombreD,
       direccionD,
-      codigo_sucursal
+      codigo_sucursal,
+      nombreResponsable
     });
 
     // $(nodo).removeClass("selected bg-gray-300");
@@ -1007,29 +1017,19 @@ function notificarPedidoCreado(guia) {
     numeroGuia,
     dice_contener,
     valor,
-    nombre_empresa,
-    nombreR, 
-    info_user,
+    nombreResponsable,
     ciudadR,
     nombreD,
     ciudadD,
     direccionD
   } = guia;
-
-  let nombreVisualRemitente = nombre_empresa || nombreR;
   
-  // Este objeto solo está presente cuando la guía fue creada por un usuario de tipo punto
-  // En este caso "info_user" corresponde al nombre del usuario que solicitó al punto generar el envío
-  if(info_user) {
-    nombreVisualRemitente = info_user.nombre_completo;
-  }
-
   const plantilla = [
     transportadora,
     numeroGuia,
     dice_contener,
     valor.toString(),
-    nombreVisualRemitente,
+    nombreResponsable,
     ciudadR,
     nombreD,
     ciudadD,
@@ -4416,6 +4416,24 @@ function cambiarFiltroHistGuiasAdmin(e) {
   target.removeClass("d-none");
 }
 
+const opcionesAccionesGuiasAdmin = [{
+  titulo: "Anular Guía", // Título que se muestra cuando se mos el mouse encima del botón
+  icon: "ban", // Ícono del botón
+  color: "danger", // Color del botón (relacionado con bootstrap)
+  id: "anular_guia", // Id del botón que se combian con el id heka de la guía
+  visible: (data) => false, // Para saber si el botón será visible o no, para la guía dada
+  accion: anularGuia // Función que será ejecutada al hacer click en el botón
+}, {
+  titulo: "Botón de prueba",
+  icon: "stamp",
+  color: "warning",
+  id: "prueba",
+  visible: (data) => true,
+  accion: (guia) => console.log(guia)
+}];
+
+
+
 async function historialGuiasAdmin(e) {
   const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
   const htmlStatus = $("#status-historial_guias");
@@ -4426,7 +4444,6 @@ async function historialGuiasAdmin(e) {
   });
   categorias = listacategorias || [];
 
-  console.log(categorias);
 
   const finalId = e.id.split("-")[1];
   let fechaI = document.querySelector("#fechaI-" + finalId).value;
@@ -4566,7 +4583,7 @@ async function historialGuiasAdmin(e) {
   } else if (tipoFiltro === "filt_5") {
     await referenceAlt.where("debe", "<", 0).get().then(manejarInformacion);
   } else {
-    // await reference
+    // await reference.limit(1)
     // .get().then(manejarInformacion);
 
     await recursividadPorReferencia(
@@ -4586,6 +4603,28 @@ async function historialGuiasAdmin(e) {
 
   // data= [{nombre: "nombre", apellido: "apellido"}]
   const columnas = [
+    {
+      data: null,
+      title: "Acciones",
+      visible: false,
+      render: (datos, type, row) => {
+        if (type === "display" || type === "filter") {
+          const {id_heka} = datos;
+          return opcionesAccionesGuiasAdmin
+          .filter(btn => btn.visible(datos))
+          .map((ac, i) => `
+            <button class="btn btn-${ac.color} btn-circle btn-sm mx-1 action" data-id="${id_heka}"
+            data-action="${ac.id}"
+            data-placement="right"
+            id="${ac.id}-${id_heka}" title="${ac.titulo}">
+              <i class="fas fa-${ac.icon}"></i>
+            </button>
+          `).join("")
+        }
+
+        return datos;
+      }
+    },
     { data: "id_heka", title: "# Guía Heka" },
     { data: "numeroGuia", title: "# Guía Servientrega", defaultContent: "" },
     {
@@ -4791,12 +4830,14 @@ async function historialGuiasAdmin(e) {
             column.visible(!column.visible());
             $(badge).toggleClass("badge-info");
             $(badge).toggleClass("badge-secondary");
+            if(badge.textContent.trim() === "Acciones") api.draw();
           });
 
           boton.textContent = val.textContent;
           tabla.before(boton);
         });
-    }
+    },
+    rowCallback: activarAccionesGuiasAdmin
     // action: function() {}
   });
 
@@ -4811,6 +4852,21 @@ async function historialGuiasAdmin(e) {
   });
 
   $("#historial_guias .cargador").addClass("d-none");
+}
+
+function activarAccionesGuiasAdmin(row, data) {
+  opcionesAccionesGuiasAdmin.forEach((opt, i) => {
+    const button = $(`[data-action='${opt.id}']`, row);
+    const accion = opt.accion.bind(button, data);
+
+    // button.off("click", button.data()._this);
+
+    // button.on("click",{
+    //   '_this':this,
+    //   data
+    // }, accion);
+
+  });
 }
 
 async function recursividadPorReferencia(ref, handler, limitePaginacion, next) {
@@ -4856,6 +4912,66 @@ function descargarInformeGuiasAdmin(columnas, guias, nombre) {
   });
 
   descargarInformeExcel(columnasParaExcel, guias, nombre);
+}
+
+async function anularGuia(data) {
+  let confirmacion;
+  let { value: motAnulacion } = await Swal.fire({
+    title: "Motivo de la anulacion",
+    input: "textarea",
+    showCancelButton: true,
+    confirmButtonText: "Continuar",
+    cancelButtonText: `Cancelar`
+  });
+  if (motAnulacion) {
+    const resp = await Swal.fire({
+      title: "¡ATENCIÓN",
+      text:
+        "Estás a punto de anular la guía Nro. " +
+        data.id_heka +
+        ", Si la anulas, no lo va a poder recuperar y Heka no podra gestionar nada relacionado a esta guia ¿Desea continuar?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "¡Si! continuar 👍",
+      cancelButtonText: "¡No, me equivoqué!"
+    });
+    confirmacion = resp.isConfirmed;
+  }
+
+  console.log(motAnulacion);
+  if (confirmacion && motAnulacion) {
+    usuarioAltDoc(data.id_user)
+      .collection("guias")
+      .doc(data.id_heka)
+      .update({
+        fecha_anulada: new Date(),
+        estadoActual: estadosGuia.anulada,
+        seguimiento_finalizado: true,
+        motivoAnulacion: motAnulacion,
+        estadoAnterior: data.estadoActual
+      })
+      .then((res) => {
+        avisar(
+          "Guia Anulada",
+          "La guia Número " + id + " Ha sido anulada",
+          "alerta"
+        );
+        // row.remove();
+      })
+      .catch((error) => {
+        avisar(
+          "Error al anula",
+          "Hubo un error al anula la guia, intentelo mas tarde",
+          "alerta"
+        );
+      });
+  } else {
+    // avisar(
+    //   "No permitido",
+    //   "La guia Número " + id + " no puede ser eliminada",
+    //   "advertencia"
+    // );
+  }
 }
 
 function filtrarPorpagosHistGuiasAdm(e, editor, button, config) {
