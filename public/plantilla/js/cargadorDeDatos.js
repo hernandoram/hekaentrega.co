@@ -241,7 +241,7 @@ async function desbloquearBilletera() {
     inputCodigo.classList.remove("d-none");
   } else {
     if (inputCodigo.value == randomNum) {
-      mostrarBilletera = true;
+      mostrarBilletera = false;
       renderBilletera();
     }
   }
@@ -253,9 +253,9 @@ function renderBilletera() {
   const interfazPagos = document.getElementById("interfaz-pagos");
   const noInterfazPagos = document.getElementById("no-interfaz-pagos");
 
-  console.warn(mostrarBilletera)
+  console.warn("bloquear billetera: " + mostrarBilletera)
 
-  if (mostrarBilletera) {
+if (mostrarBilletera) {
     infoBilletera.classList.add("d-none");
     interfazPagos.classList.add("d-none");
     desbloqueoBilletera.classList.remove("d-none");
