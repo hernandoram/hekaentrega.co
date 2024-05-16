@@ -4417,19 +4417,25 @@ function cambiarFiltroHistGuiasAdmin(e) {
 }
 
 const opcionesAccionesGuiasAdmin = [{
-  titulo: "Anular Guía", // Título que se muestra cuando se mos el mouse encima del botón
-  icon: "ban", // Ícono del botón
-  color: "danger", // Color del botón (relacionado con bootstrap)
-  id: "anular_guia", // Id del botón que se combian con el id heka de la guía
-  visible: (data) => false, // Para saber si el botón será visible o no, para la guía dada
-  accion: anularGuia // Función que será ejecutada al hacer click en el botón
+  titulo: "Botón de prueba", // Título que se muestra cuando se mos el mouse encima del botón
+  icon: "question", // Ícono del botón
+  color: "primary", // Color del botón (relacionado con bootstrap)
+  id: "prueba_hist", // Id del botón que se combian con el id heka de la guía
+  visible: (guia) => false, // Para saber si el botón será visible o no, para la guía dada
+  accion: function (guia) { // Función que será ejecutada al hacer click en el botón
+    // La functionalidad que se vaya a activar, cuenta con datos de la guía para que puedan
+    console.log("Información de la guía: ", guia);
+
+    // "this" haría referencia al botón que se acciona en forma de Jquery
+    console.log("Botón de prueba:" , this);
+  } 
 }, {
-  titulo: "Botón de prueba",
-  icon: "stamp",
-  color: "warning",
-  id: "prueba",
+  titulo: "Anular Guía",
+  icon: "ban",
+  color: "danger",
+  id: "anular_guia",
   visible: (data) => true,
-  accion: (guia) => console.log(guia)
+  accion: anularGuia
 }];
 
 
@@ -4607,23 +4613,7 @@ async function historialGuiasAdmin(e) {
       data: null,
       title: "Acciones",
       visible: false,
-      render: (datos, type, row) => {
-        if (type === "display" || type === "filter") {
-          const {id_heka} = datos;
-          return opcionesAccionesGuiasAdmin
-          .filter(btn => btn.visible(datos))
-          .map((ac, i) => `
-            <button class="btn btn-${ac.color} btn-circle btn-sm mx-1 action" data-id="${id_heka}"
-            data-action="${ac.id}"
-            data-placement="right"
-            id="${ac.id}-${id_heka}" title="${ac.titulo}">
-              <i class="fas fa-${ac.icon}"></i>
-            </button>
-          `).join("")
-        }
-
-        return datos;
-      }
+      render: renderizarBotonesAdmin
     },
     { data: "id_heka", title: "# Guía Heka" },
     { data: "numeroGuia", title: "# Guía Servientrega", defaultContent: "" },
@@ -4854,18 +4844,37 @@ async function historialGuiasAdmin(e) {
   $("#historial_guias .cargador").addClass("d-none");
 }
 
+/** Encargada de mostrar la lista de los botones en {@link opcionesAccionesGuiasAdmin} sobre cada fila de las guías */
+function renderizarBotonesAdmin(datos, type, row) {
+  if (type === "display" || type === "filter") {
+    const {id_heka} = datos;
+
+    const buttons = opcionesAccionesGuiasAdmin
+    .filter(btn => btn.visible(datos)) // Se filtran aquellas que colocamos como visibles
+    .map((ac, i) => `
+      <button class="btn btn-${ac.color} btn-circle btn-sm mx-1 action" data-id="${id_heka}"
+      data-action="${ac.id}"
+      data-placement="right"
+      id="${ac.id}-${id_heka}" title="${ac.titulo}">
+        <i class="fas fa-${ac.icon}"></i>
+      </button>
+    `).join("");
+
+    return `<div class="d-flex justify-content-around align-items-center">${buttons}</div>`;
+  }
+
+  return datos;
+}
+
+/** Funcion que, una vez cargado los botones en el DOM del historial de guías de admin, activa la funcionalidad expuesta sobre dicho botón */
 function activarAccionesGuiasAdmin(row, data) {
   opcionesAccionesGuiasAdmin.forEach((opt, i) => {
     const button = $(`[data-action='${opt.id}']`, row);
-    const accion = opt.accion.bind(button, data);
-
-    // button.off("click", button.data()._this);
-
-    // button.on("click",{
-    //   '_this':this,
-    //   data
-    // }, accion);
-
+    
+    if(!button.data("hasAssignedEvent")) {
+      button.on("click", opt.accion.bind(button, data));
+      button.data("hasAssignedEvent", true);
+    }
   });
 }
 
