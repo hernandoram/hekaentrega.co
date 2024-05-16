@@ -743,7 +743,7 @@ async function detallesTransportadoras(data) {
 
   const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
   let cotizacionAveo;
-  const soloEntreganEnDireccion = ["ENVIA", "COORDINADORA"];
+  const soloEntreganEnDireccion = ["ENVIA"];
 
   //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
   await Promise.all(
