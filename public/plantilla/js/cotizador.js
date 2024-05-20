@@ -716,6 +716,7 @@ function cardNoCobertura(transportadora, transp, message) {
 
 //Para llenar los diversos precios de las transportadoras que funcionarán con el cotizador
 async function detallesTransportadoras(data) {
+  const tipoPago= data.type;
   let encabezados = "",
     detalles = "";
   let corredor = 0;
@@ -1031,7 +1032,7 @@ async function detallesTransportadoras(data) {
 
       $(`#ver-detalles-${transp}`).click(verDetallesTransportadora);
       $(`#list-transportadora-${transp}-list`).click(seleccionarTransportadora);
-      if (!isIndex) mostrarEstadisticas(data.dane_ciudadD, transp);
+      if (!isIndex && tipoPago === "PAGO CONTRAENTREGA") mostrarEstadisticas(data.dane_ciudadD, transp);
 
       corredor++;
 
@@ -1139,7 +1140,19 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
   //       Ver referencia
   //   </span>`);
 
-    contenedor.append("<small>Tipos de pago disponibles</small>");
+let detallesPagos;
+
+switch(transportadora) {
+  case 'COORDINADORA':
+    detallesPagos = 'Efectivo, a crédito, adelantado, por transferencia (QR)';
+    break;
+  default:
+    detallesPagos = 'Efectivo';
+}
+
+
+  
+    contenedor.append(`<small>Tipos de pago disponibles: ${detallesPagos}.</small>`);
 
 
 
