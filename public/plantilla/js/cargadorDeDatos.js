@@ -1,5 +1,7 @@
 //const PROD_API_URL = "https://api.hekaentrega.co"; //"https://apidev.hekaentrega.co" o esta
 const PROD_API_URL = "https://api.hekaentrega.co"; //comentar o descomentar segun el ambiente
+const TEST_API_URL = "https://apidev.hekaentrega.co"; //comentar o descomentar segun el ambiente
+
 // const PROD_API_URL_PLATFORM2 = "http://localhost:3232"; //comentar o descomentar segun el ambiente
 const PROD_API_URL_PLATFORM2 = "http://hekaentrega.co"; //comentar o descomentar segun el ambiente
 
@@ -230,13 +232,14 @@ const sendMessage = async (message) => {
     email: `${datos_usuario.correo}`
   };
 
-  console.warn(data)
+  const token = localStorage.getItem("token");
+  console.warn(data, token);
 
   fetch(`${PROD_API_URL}/api/v1/tools/code-message`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `${localStorage.getItem("token")}`
+      Authorization: `Bearer ${token}`
     },
     body: JSON.stringify(data)
   })
