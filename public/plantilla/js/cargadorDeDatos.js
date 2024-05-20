@@ -244,7 +244,10 @@ const sendMessage = async (message) => {
     body: JSON.stringify(data)
   })
     .then((response) => response.json())
-    .then((data) => console.log(data))
+    .then((data) => {
+      mensajeEnviado = true;
+      console.log(data);
+    })
     .catch((error) => console.error("Error:", error));
 };
 
