@@ -2137,7 +2137,7 @@ function finalizarCotizacion(datos) {
       <div class="col-md-6 mb-3 mb-sm-0">
           <h6>Bríndanos mas información de tu producto:</h6>
           <input id="referencia" class="form-control form-control-user detect-errors" 
-          placeholder="Cantidad, talla, color, etc"
+          placeholder="Referencia, cantidad, talla, color, etc"
           name="referencia" type="text" maxlength="40">
       </div>
   </div>
@@ -2149,7 +2149,7 @@ function finalizarCotizacion(datos) {
           placeholder="Un empaque azul, con dimensiones X Y Z">
           <p id="empaque-producto" class="text-warning d-none m-2"></p>
       </div>
-      <div class="col-md-6 mb-3 mb-sm-0">
+      <div class="col-md-6 mb-3 mb-sm-0 d-none">
           <h6>Imagen de referencia del producto enviado <span>(Opcional)</span></h6>
           <input class="form-control" type="file" id="formFile">
       </div>
