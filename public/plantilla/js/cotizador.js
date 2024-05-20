@@ -3676,9 +3676,9 @@ function crearGuia() {
     );
     const checkCreacionPedido = $("#check-crear_pedido").prop("checked");
 
-    const informacionProducto = `${value("producto")} - REFERENCIA ${value(
+    const informacionProducto = `${value("producto")} - Ref ${value(
       "referencia"
-    )} - EMPAQUE ${value("empaque")}`;
+    )} - Empaque ${value("empaque")}`;
 
     if (
       value("producto") == "" ||
