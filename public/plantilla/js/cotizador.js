@@ -886,7 +886,9 @@ async function detallesTransportadoras(data) {
         factor_conversor = FACHADA_FLETE;
       }
 
-      factor_conversor += cotizacion.comisionHekaAdicional; // Para los precios antiguos, esto devolvería cero
+      // Se procura sumar esta comisión adicional sobre el flete (visual) que se muestra sobre el cotizador
+      // Pero no se retorna a la comisión heka, ya que se guarda por aparte
+      fleteConvertido += cotizacion.comisionHekaAdicional; // Para los precios antiguos, esto devolvería cero
       if (factor_conversor > 0) {
         sobreFleteHekaEdit -= factor_conversor;
         fleteConvertido += factor_conversor;
@@ -2910,6 +2912,29 @@ class CalcularCostoDeEnvio {
     return resultado;
   }
 
+  // Corresponde a lo que realmete cobra la transportadora en caso de una devolución
+  get costoDevolucionOriginal() {
+    const costoDevolucionPersonalizado = this.costoDevolucionFormulado(datos_personalizados.formula_devolucion);
+
+    if (costoDevolucionPersonalizado)
+      return parseInt(costoDevolucionPersonalizado);
+
+    if (this.isOficina) return this.flete * 2 + 1000;
+
+    switch (this.codTransp) {
+      case transportadoras.SERVIENTREGA.cod:
+      case transportadoras.INTERRAPIDISIMO.cod:
+        return this.flete + this.seguroMercancia + this.sobreflete;
+
+      case transportadoras.ENVIA.cod:
+      case transportadoras.COORDINADORA.cod:
+        return (this.flete + this.seguroMercancia) * 2;
+    }
+
+    return 0 // Nunca debería devolver esto
+  }
+
+  // corresponde a lo que cobre Heka naturalmente
   get costoDevolucion() {
     const costoDevolucionPersonalizado = this.costoDevolucionFormulado(
       datos_personalizados.formula_devolucion
@@ -2959,7 +2984,7 @@ class CalcularCostoDeEnvio {
 
     if (this.precios.version === 2) {
       // Si correponde a la nueva versión, devuelve este calculo, para sumar la sobre flete heka
-      this.comisionHekaAdicionalFija = parseInt((this.costoDevolucion * 2) / 8);
+      this.comisionHekaAdicionalFija = parseInt(this.costoDevolucionOriginal * 2 / 8);
     } else {
       this.comisionHekaAdicionalFija = 0; // Si se va a manejar la versión de siempre, este valor devuelve cero, porque no va a sumar nada
     }
@@ -2985,13 +3010,15 @@ class CalcularCostoDeEnvio {
       peso_real: this.kg,
       flete: this.flete,
       comision_heka: this.sobreflete_heka,
+      comision_adicional: this.comisionHekaAdicional,
       comision_trasportadora: this.sobreflete + this.seguroMercancia,
       peso_liquidar: this.kgTomado,
       peso_con_volumen: this.pesoVolumen,
       total: this.costoEnvio,
       recaudo: this.valor,
       seguro: this.seguro,
-      costoDevolucion: this.precios.version === 2 ? 0 : this.costoDevolucion, // Con la versión 2 el costo de devolución pasa a ser cero
+      costoDevolucion: this.precios.version === 2 ? this.costoDevolucionOriginal : this.costoDevolucion, // Con la versión 2 se guarda en el costo de devolución original de la transportadora, salvaguardando un avariable que indicará si se paga o no
+      cobraDevolucion: this.precios.version === 1, // Variable para dientificar si se cobra o no devolución sobre la guía (Solo se le cobraría devolución a la versión 1)
       versionCotizacion: this.precios.version // 1: cotizador convencional. 2: cotizador especial (no cobra devoluciones)
     };
 
