@@ -917,6 +917,54 @@ async function detallesTransportadoras(data) {
         //   cotizacion.valor - cotizacion.costoEnvio
         // )}</b></h6>
 
+        
+  let detallesPagos;
+
+  switch (transp) {
+    case "COORDINADORA":
+      detallesPagos = ` 
+     <ul class="list-unstyled">
+      <li class="d-flex align-items-center">
+          <span class="mr-2">
+              <img src="https://img.icons8.com/ios-filled/50/000000/cash-in-hand.png" alt="Pago en efectivo" width="24">
+          </span>
+          <span>Pago en efectivo</span>
+      </li>
+      <li class="d-flex align-items-center">
+          <span class="mr-2">
+              <img src="https://img.icons8.com/ios-filled/50/000000/qr-code.png" alt="Pago por transferencia (QR)" width="24">
+          </span>
+          <span>Pago por transferencia (QR)</span>
+      </li>
+      <li class="d-flex align-items-center">
+          <span class="mr-2">
+              <img src="https://img.icons8.com/ios-filled/50/000000/credit-card.png" alt="Pago a crédito" width="24">
+          </span>
+          <span>Pago a crédito</span>
+      </li>
+      <li class="d-flex align-items-center">
+          <span class="mr-2">
+              <img src="https://img.icons8.com/ios-filled/50/000000/pay.png" alt="Pago adelantado" width="24">
+          </span>
+          <span>Pago adelantado</span>
+      </li>
+  </ul>
+`;
+      break;
+    default:
+      detallesPagos = `
+      <ul class="list-unstyled">
+      <li class="d-flex align-items-center mb-2">
+          <span class="mr-2">
+              <img src="https://img.icons8.com/ios-filled/50/000000/cash-in-hand.png" alt="Pago en efectivo" width="24">
+          </span>
+          <span>Pago en efectivo</span>
+      </li>
+      </ul>
+
+      `
+      ;
+  }
       const encabezado = `<li style="cursor:pointer;" class="list-group-item list-group-item-action shadow-sm mb-2 border border-${
         transportadora.color
       }" 
@@ -939,6 +987,8 @@ async function detallesTransportadoras(data) {
                       cotizacion.tiempo || datos_de_cotizacion.tiempo
                     } Días</p>
 
+            
+
                     <p class="d-sm-block mb-0">Costo de envío para ${
                       data.type == "CONVENCIONAL"
                         ? "Valor declarado"
@@ -951,6 +1001,12 @@ async function detallesTransportadoras(data) {
                 cotizacion.seguro
               )}</b></p>
 
+              ${cotizacion.type ==="PAGO CONTRAENTREGA"?
+              `
+              <h5 class="text-success mb-0 mt-2"><b>Tipo de pagos a destinatario</b></h5>
+              ${detallesPagos}
+              `
+              : ""}
                 </div>
                 <div class="col d-flex flex-column justify-content-around">
 
@@ -1174,19 +1230,6 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
   //       Ver referencia
   //   </span>`);
 
-  let detallesPagos;
-
-  switch (transportadora) {
-    case "COORDINADORA":
-      detallesPagos = "Efectivo, a crédito, adelantado, por transferencia (QR)";
-      break;
-    default:
-      detallesPagos = "Efectivo";
-  }
-
-  contenedor.append(
-    `<small>Tipos de pago disponibles: ${detallesPagos}.</small>`
-  );
 
   //PRAR REORGANIZAR LAS TRANSPORTADORAS DESDE LA MEJOR
 
