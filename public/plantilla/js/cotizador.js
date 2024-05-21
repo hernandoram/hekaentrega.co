@@ -968,9 +968,9 @@ async function detallesTransportadoras(data) {
                   </div>
                 </div>
                 
-                <span class="btn btn-outline-primary badge badge-pill ${
+                <span class="descuento-span w-100 badge badge-pill ${
                   !descuento && "d-none"
-                }">Descuento del ${descuento}</span>
+                }">${descuento} de descuento </span>
               </div>
               
               <small id="ver-detalles-${transp}" class="detalles border border-dark rounded p-3 text-center">
