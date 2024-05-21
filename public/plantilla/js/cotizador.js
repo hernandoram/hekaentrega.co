@@ -871,7 +871,7 @@ async function detallesTransportadoras(data) {
           ((cotizacion.costoEnvioPrev - cotizacion.costoEnvio) * 100) /
             cotizacion.costoEnvioPrev
         );
-        descuento = percent + " %";
+        descuento = percent ;
       }
 
       //Para cargar el sobreflete heka antes;
@@ -964,17 +964,17 @@ async function detallesTransportadoras(data) {
               
                   <div class="text-end">
                     <h4><b>$${convertirMiles( cotizacion.costoEnvio )} </b></h4>
-                    <p>con nosotros</p>
+                    <span>con nosotros</span>
                   </div>
                 </div>
                 
                 <span class="descuento-span w-100 badge badge-pill ${
-                  !descuento && "d-none"
-                }">${descuento} de descuento </span>
+                  !descuento || descuento <= 0 ? "d-none": ""
+                }">${descuento} % de descuento </span>
               </div>
               
               <small id="ver-detalles-${transp}" class="detalles border border-dark rounded p-3 text-center">
-                    Detalles</small>
+                    <b>Ver detalles</b></small>
                     </div>
             </div>
 
