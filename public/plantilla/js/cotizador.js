@@ -704,7 +704,7 @@ function cardNoCobertura(transportadora, transp, message) {
       >
           <div class="row container" >
               <img src="${transportadora.logoPath}" 
-              class="col" style="max-height:120px; max-width:fit-content"
+              class="col" style="max-height:120px; max-width:120px"
               alt="logo-${transportadora.nombre}">
               <div class="col mt-3 mt-sm-0 order-1 order-sm-0">
                   <h5 class="text-left">${transportadora.nombre}</h5>
@@ -910,6 +910,13 @@ async function detallesTransportadoras(data) {
         `
         : "";
 
+        // <h6 class="d-none ${
+        //   data.type == "CONVENCIONAL" ? "" : "mb-1 d-sm-block"
+        // }">
+        // El Valor consignado a tu cuenta será: <b>$${convertirMiles(
+        //   cotizacion.valor - cotizacion.costoEnvio
+        // )}</b></h6>
+
       const encabezado = `<li style="cursor:pointer;" class="list-group-item list-group-item-action shadow-sm mb-2 border border-${
         transportadora.color
       }" 
@@ -920,36 +927,61 @@ async function detallesTransportadoras(data) {
         >
             <div class="row" >
                 <img src="${transportadora.logoPath}" 
-                class="col" style="max-height:120px; max-width:fit-content"
+                class="col" style="max-height:120px; max-width:120px"
                 alt="logo-${transportadora.nombre}">
-                <div class="col-12 col-sm-6 mt-3 mt-sm-0 order-1 order-sm-0">
-                    <h5>${transportadora.nombre} <span class="badge badge-${
+                <div class="col-8 col-sm-6 mt-3 mt-sm-0 order-1 order-sm-0">
+                    <h5><b>${
+                      transportadora.nombre
+                    } </b><span class="badge badge-${
         transportadora.color
       } p-2">${transp === "TCC" ? "Próximamente" : ""}</span></h5>
-                    <h6>tiempo de entrega: ${
+                    <p class="mb-0">Tiempo de entrega: ${
                       cotizacion.tiempo || datos_de_cotizacion.tiempo
-                    } Días</h6>
-                    <h6 class="d-none ${
-                      data.type == "CONVENCIONAL" ? "" : "mb-1 d-sm-block"
-                    }">
-                    El Valor consignado a tu cuenta será: <b>$${convertirMiles(
-                      cotizacion.valor - cotizacion.costoEnvio
-                    )}</b></h6>
-                </div>
-                <div class="col d-flex flex-column justify-content-around">
-                    <small id="ver-detalles-${transp}" class="detalles btn btn-outline-primary badge badge-pill">
-                    Detalles</small>
-                    <span class="badge text-danger mt-1 ml-2 p-1 ${
-                      !descuento && "d-none"
-                    }">Descuento del ${descuento}</span>
-                    <h5><b>$${convertirMiles(cotizacion.costoEnvio)} </b></h5>
-                </div>
-            </div>
-            <p class="text-center mb-0 mt-2 d-none d-sm-block">Costo de envío para ${
-              data.type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"
-            }: <b>$${convertirMiles(
+                    } Días</p>
+
+                    <p class="d-sm-block mb-0">Costo de envío para ${
+                      data.type == "CONVENCIONAL"
+                        ? "Valor declarado"
+                        : "recaudo"
+                    }: <b>$${convertirMiles(
         data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor
       )}</b></p>
+
+              <p class="d-sm-block mb-0">Costo de envío para valor declarado: <b>$${convertirMiles(
+                cotizacion.seguro
+              )}</b></p>
+
+                </div>
+                <div class="col d-flex flex-column justify-content-around">
+
+                <div
+                class="border border-success rounded p-3 mb-2"
+              >
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <p>Total</p>
+                  </div>
+              
+                  <div class="text-end">
+                    <h4><b>$${convertirMiles( cotizacion.costoEnvio )} </b></h4>
+                    <p>con nosotros</p>
+                  </div>
+                </div>
+                
+                <span class="btn btn-outline-primary badge badge-pill ${
+                  !descuento && "d-none"
+                }">Descuento del ${descuento}</span>
+              </div>
+              
+              <small id="ver-detalles-${transp}" class="detalles border border-dark rounded p-3 text-center">
+                    Detalles</small>
+                    </div>
+            </div>
+
+
+      
+            </div>
+ 
             <p class="mb-0 d-sm-none">${
               data.type == "CONVENCIONAL" ? "Valor declarado" : "Recaudo"
             }: <b>$${convertirMiles(
@@ -1406,7 +1438,7 @@ function mostrarOficinas(oficinas) {
         >
             <div class="row">
                 <img src="./img/logo-flexi.png" 
-                class="col" style="max-height:120px; max-width:fit-content"
+                class="col" style="max-height:120px; max-width:120px"
                 alt="logo-OFFY">
                 <div class="col-12 col-sm-6 mt-3 mt-sm-0 order-1 order-sm-0">
                     <h5>Flexii <span class="badge badge-primary p-2" data-change="nombre_ofi">${oficina.nombre_empresa}</span></h5>
@@ -2914,7 +2946,9 @@ class CalcularCostoDeEnvio {
 
   // Corresponde a lo que realmete cobra la transportadora en caso de una devolución
   get costoDevolucionOriginal() {
-    const costoDevolucionPersonalizado = this.costoDevolucionFormulado(datos_personalizados.formula_devolucion);
+    const costoDevolucionPersonalizado = this.costoDevolucionFormulado(
+      datos_personalizados.formula_devolucion
+    );
 
     if (costoDevolucionPersonalizado)
       return parseInt(costoDevolucionPersonalizado);
@@ -2931,7 +2965,7 @@ class CalcularCostoDeEnvio {
         return (this.flete + this.seguroMercancia) * 2;
     }
 
-    return 0 // Nunca debería devolver esto
+    return 0; // Nunca debería devolver esto
   }
 
   // corresponde a lo que cobre Heka naturalmente
@@ -2984,7 +3018,9 @@ class CalcularCostoDeEnvio {
 
     if (this.precios.version === 2) {
       // Si correponde a la nueva versión, devuelve este calculo, para sumar la sobre flete heka
-      this.comisionHekaAdicionalFija = parseInt(this.costoDevolucionOriginal * 2 / 8);
+      this.comisionHekaAdicionalFija = parseInt(
+        (this.costoDevolucionOriginal * 2) / 8
+      );
     } else {
       this.comisionHekaAdicionalFija = 0; // Si se va a manejar la versión de siempre, este valor devuelve cero, porque no va a sumar nada
     }
@@ -3017,7 +3053,10 @@ class CalcularCostoDeEnvio {
       total: this.costoEnvio,
       recaudo: this.valor,
       seguro: this.seguro,
-      costoDevolucion: this.precios.version === 2 ? this.costoDevolucionOriginal : this.costoDevolucion, // Con la versión 2 se guarda en el costo de devolución original de la transportadora, salvaguardando un avariable que indicará si se paga o no
+      costoDevolucion:
+        this.precios.version === 2
+          ? this.costoDevolucionOriginal
+          : this.costoDevolucion, // Con la versión 2 se guarda en el costo de devolución original de la transportadora, salvaguardando un avariable que indicará si se paga o no
       cobraDevolucion: this.precios.version === 1, // Variable para dientificar si se cobra o no devolución sobre la guía (Solo se le cobraría devolución a la versión 1)
       versionCotizacion: this.precios.version // 1: cotizador convencional. 2: cotizador especial (no cobra devoluciones)
     };

@@ -1446,6 +1446,7 @@ async function actualizarInformacionPersonal() {
   ).then(async (response) => {
     const data = await response.json();
     console.log(data);
+    
     const mongoId = data.response._id;
     const updateBody = JSON.stringify({
       name: value("actualizar_nombres"),
