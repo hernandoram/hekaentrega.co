@@ -3113,8 +3113,7 @@ class CalcularCostoDeEnvio {
     this.sobreflete_heka =
       this.set_sobreflete_heka ||
       Math.ceil((valor * comision_heka) / 100) +
-        constante_heka +
-        this.comisionHekaAdicional;
+        constante_heka;
 
     if (this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
     if (this.aveo) this.intoAveo(this.precio);
@@ -3138,6 +3137,7 @@ class CalcularCostoDeEnvio {
       this.sobreflete +
       this.seguroMercancia +
       this.sobreflete_heka +
+      this.comisionHekaAdicional +
       this.sobreflete_oficina;
     return respuesta;
   }
