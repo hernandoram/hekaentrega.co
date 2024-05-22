@@ -410,10 +410,16 @@
               </div>
               <div class="col-12 col-md-6">
                 <div class="card m-2">
-                  <div class="card-body ">
-                    <div>
+                  <div class="card-body" id="mostrar-billetera">
 
-                      <h5 class="text-primary">Tu billetera</h5>
+                    
+                    
+                    
+                    <h5 class="text-primary">Tu billetera</h5>
+                    
+                  <div class="d-none" id="informacion-billetera">
+
+                      
 
                       <p>Gestiona los pagos de tus guías aquí</p>
 
@@ -520,17 +526,31 @@
 
 
                       <p class="card-text mb-0"><span id="saldo-solicitado"></span></p>
-              
-                    </div>
          
 
                       
                     <button id="solicitar-pagos_pendientes"  class="btn w-100 bg-primary text-white mt-3" href="#historial_guias">
                       Solicitar Pago
                     </button>
+
                   </div>
-                </div>
+
+                  <div id="desbloquear-billetera">
+                    Por favor, desbloquea tu billetera verificando tu identidad. Tu seguridad es nuestra prioridad.
+                    <div>
+                      <input type="text" class="form-control mt-3 d-none" id="codigo-desbloqueo-billetera" placeholder="Código de desbloqueo">
+                    </div>
+
+                    <button id="desbloquear-billetera-boton"  class="btn w-100 bg-primary text-white mt-3">
+                      Desbloquear billetera
+                    </button>
+
+                  </div>
+
+                  </div>
+                  
               </div>
+            </div>
             </section>
 
 
@@ -766,7 +786,8 @@
                     <input type="number" class="form-control form-control-user only-integers" step="any" name="kilos" id="Kilos" min="1" max="25" required>  
                   </div>      
                   <div class="col mb-3 mb-sm-3">
-                    <h6>Valor Declarado <small class="popover-declarado"></small></h6>
+                    <h6 class="mb-0">Valor Declarado <small class="popover-declarado"></small></h6>
+                    <p class="mb-0">Valor a indemnizar en caso de pérdida, hurto, avería, etc.</p>
                     <input type="number" class="form-control form-control-user only-integers" 
                     id="seguro-mercancia" value="25000" step="1000" name="recaudo" min="5000" max="2000000">
                   </div>      
@@ -1701,12 +1722,18 @@
                       </div>
                     </div>
 
-                    <div class="custom-control custom-switch text-center m-2">
-                      <input type="checkbox" class="custom-control-input" id="switch-habilitar-filtrado-pagos">
-                      <label class="custom-control-label" for="switch-habilitar-filtrado-pagos">Habilitar busqueda avanzada</label>
+                    <div class="d-none text-center" id="interfaz-pagos">
+
+                      <div class="custom-control custom-switch text-center m-2">
+                        <input type="checkbox" class="custom-control-input" id="switch-habilitar-filtrado-pagos">
+                        <label class="custom-control-label" for="switch-habilitar-filtrado-pagos">Habilitar busqueda avanzada</label>
+                      </div>
+                      <input type="button" id="btn-revisar_pagos" 
+                      value="Revisar Pagos" class="btn btn-primary mt-4">
                     </div>
-                    <input type="button" id="btn-revisar_pagos" 
-                    value="Revisar Pagos" class="btn btn-primary mt-4">
+                    <div class="text-center" id="no-interfaz-pagos">
+                      Por favor, desbloquea tu billetera verificando tu identidad. Tu seguridad es nuestra prioridad.
+                    </div>
                   </div>
                 </form>
               </div>

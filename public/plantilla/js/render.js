@@ -2964,9 +2964,7 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
                   " (" +
                   datos_usuario.centro_de_costo +
                   ") Sugirió una solución para la guía " +
-                  dataN.numeroGuia +
-                  ": " +
-                  $(idSolucion).val(),
+                  dataN.numeroGuia,
                 hora: hora,
                 guia: dataN.numeroGuia,
                 id_heka: dataG.id_heka,
