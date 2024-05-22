@@ -742,7 +742,7 @@ function generarGuia(datos) {
                 }</Des_VlrCampoPersonalizado1>
                 
                 <Num_ValorLiquidado>0</Num_ValorLiquidado>
-                <Des_DiceContener>${datos.dice_contener}</Des_DiceContener>
+                <Des_DiceContener>${datos.dice_contener.slice(0, 50)}</Des_DiceContener>
                 <Des_TipoGuia>1</Des_TipoGuia>
                 <Num_VlrSobreflete>0</Num_VlrSobreflete>
                 <Num_VlrFlete>0</Num_VlrFlete>
