@@ -103,6 +103,7 @@ exports.crearGuia = async (req, res) => {
         guia.valor = undefined;
     } else {
         guia.forma_pago = 1;
+        guia.referencia = guia.referencia.slice(0,30); // La referencia con coordinadora no puede ser mayor a 30 
     }
 
     const {v16, nit, div} = credentials;
