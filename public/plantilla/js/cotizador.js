@@ -704,7 +704,7 @@ function cardNoCobertura(transportadora, transp, message) {
       >
           <div class="row container" >
               <img src="${transportadora.logoPath}" 
-              class="col" style="max-height:120px; max-width:120px"
+              class="col-md-1 col-sm-12" style="max-height:120px; max-width:120px"
               alt="logo-${transportadora.nombre}">
               <div class="col mt-3 mt-sm-0 order-1 order-sm-0">
                   <h5 class="text-left">${transportadora.nombre}</h5>
@@ -990,102 +990,72 @@ async function detallesTransportadoras(data) {
       `
       ;
   }
-      const encabezado = `<li style="cursor:pointer;" class="list-group-item list-group-item-action shadow-sm mb-2 border border-${
-        transportadora.color
-      }" 
-        id="list-transportadora-${transp}-list" 
-        data-transp="${transp}"
-        data-type="${data.type}"
-        aria-controls="list-transportadora-${transp}"
+      const encabezado = `<li 
+      style="cursor:pointer;" 
+      class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
+      id="list-transportadora-${transp}-list" 
+      data-transp="${transp}"
+      data-type="${data.type}"
+      aria-controls="list-transportadora-${transp}"
+    >
+      <div class="row">
+        <div class="col-lg-2 col-md-2 col-sm-12">
+    
+        <img 
+          src="${transportadora.logoPath}" 
+          style="max-height:120px; max-width:120px"
+          alt="logo-${transportadora.nombre}"
         >
-            <div class="row" >
-                <img src="${transportadora.logoPath}" 
-                class="col" style="max-height:120px; max-width:120px"
-                alt="logo-${transportadora.nombre}">
-                <div class="col-md-8 col-sm-12 mt-3 mt-sm-0 order-1 order-sm-0">
-                    <h5><b>${
-                      transportadora.nombre
-                    } </b><span class="badge badge-${
-        transportadora.color
-      } p-2">${transp === "TCC" ? "Próximamente" : ""}</span></h5>
-                    <p class="mb-0">Tiempo de entrega: ${
-                      cotizacion.tiempo || datos_de_cotizacion.tiempo
-                    } Días</p>
-
-            
-
-                    <p class="d-sm-block mb-0">Costo de envío para ${
-                      data.type == "CONVENCIONAL"
-                        ? "Valor declarado"
-                        : "recaudo"
-                    }: <b>$${convertirMiles(
-        data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor
-      )}</b></p>
-      
-      <p class="d-none ${
-          data.type == "CONVENCIONAL" ? "" : "mb-0 d-sm-block"
-        }">
-        El Valor consignado a tu cuenta será: <b>$${convertirMiles(
-          cotizacion.valor - cotizacion.costoEnvio
-        )}</b></p>
-
-      
-
-  <h5 class="text-danger ${
-    soloEntreganEnDireccion.includes(transp) ? "" : "d-none"
-  }">
-      Solo entrega en dirección
-  </h5>
-
-              ${cotizacion.type ==="PAGO CONTRAENTREGA"?
-              `
-              <h5 class="text-success mb-0 mt-2"><b>Tipo de pagos a destinatario</b></h5>
-              ${detallesPagos}
-              `
-              : ""}
-                </div>
-                <div class="col d-flex flex-column justify-content-around">
-
-                <div
-                class="border border-success rounded p-3 mb-2"
-              >
-                <div class="d-flex justify-content-between">
-                  <div>
-                    <p>Total</p>
-                  </div>
-              
-                  <div class="text-end">
-                    <h4><b>$${convertirMiles( cotizacion.costoEnvio )} </b></h4>
-                    <span>con nosotros</span>
-                  </div>
-                </div>
-                
-                <span class="descuento-span w-100 badge badge-pill ${
-                  !descuento || descuento <= 0 ? "d-none": ""
-                }">${descuento} % de descuento </span>
+      </div>
+    
+<div class="col-lg-7 col-md-7 col-sm-12 mt-3 mt-md-0 pl-md-3">
+          <h5>
+            <b>${transportadora.nombre}</b>
+            <span class="badge badge-${transportadora.color} p-2">${transp === "TCC" ? "Próximamente" : ""}</span>
+          </h5>
+          <p class="mb-0">Tiempo de entrega: ${cotizacion.tiempo || datos_de_cotizacion.tiempo} Días</p>
+          <p class="d-sm-block mb-0">
+            Costo de envío para ${data.type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"}: 
+            <b>$${convertirMiles(data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor)}</b>
+          </p>
+          <p class="d-none ${data.type == "CONVENCIONAL" ? "" : "mb-0 d-sm-block"}">
+            El Valor consignado a tu cuenta será: <b>$${convertirMiles(cotizacion.valor - cotizacion.costoEnvio)}</b>
+          </p>
+          <h5 class="text-danger ${soloEntreganEnDireccion.includes(transp) ? "" : "d-none"}">
+            Solo entrega en dirección
+          </h5>
+          ${cotizacion.type ==="PAGO CONTRAENTREGA" ?
+            `
+            <h5 class="text-success mb-0 mt-2"><b>Tipo de pagos a destinatario</b></h5>
+            ${detallesPagos}
+            `
+            : ""
+          }
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-12 d-flex flex-column justify-content-around mt-3 mt-md-0">
+          <div class="border border-success rounded p-3 mb-2">
+            <div class="d-flex justify-content-between">
+              <div>
+                <p>Total</p>
               </div>
-              
-              <small id="ver-detalles-${transp}" class="detalles border border-dark rounded p-3 text-center">
-                    <b>Ver detalles</b></small>
-                    </div>
+              <div class="text-end">
+                <h4><b>$${convertirMiles( cotizacion.costoEnvio )}</b></h4>
+                <span>con nosotros</span>
+              </div>
             </div>
-
-
-      
-            </div>
- 
-            <p class="mb-0 d-sm-none">${
-              data.type == "CONVENCIONAL" ? "Valor declarado" : "Recaudo"
-            }: <b>$${convertirMiles(
-        data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor
-      )}</b></p>
-            
-            <p class="mb-0 text-center">
-                <span class="estadisticas position-relative"></span>
-            </p>
-            
-
-        </li>`;
+            <span class="descuento-span w-100 badge badge-pill ${!descuento || descuento <= 0 ? "d-none": ""}">
+              ${descuento} % de descuento 
+            </span>
+          </div>
+          <small id="ver-detalles-${transp}" class="detalles border border-dark rounded p-3 text-center">
+            <b>Ver detalles</b>
+          </small>
+        </div>
+      </div>
+      <p class="mb-0 text-center">
+        <span class="estadisticas position-relative"></span>
+      </p>
+    </li>`;
 
       const detalle = `<div class="tab-pane fade 
         ${!corredor && !oficinas.length ? "show active" : ""}" 
