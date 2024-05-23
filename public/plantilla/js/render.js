@@ -3318,6 +3318,7 @@ function verDetallesGuia() {
       const oficina = data.datos_oficina;
       data.recogida_oficina = false;
 
+      debugger;
 
       const mostrar_oficina = oficina ? "" : "d-none";
       let html = "<div>";
@@ -3344,7 +3345,8 @@ function verDetallesGuia() {
           "telefonoD",
           "celularD",
           "id_tipo_entrega",
-          "recogida_oficina"
+          "recogida_oficina",
+          "empaqueDetalles"
         ],
         [
           "Identificador Guía",
@@ -3368,7 +3370,8 @@ function verDetallesGuia() {
           "Celular",
           "Celular 2",
           "tipo entrega",
-          "En oficina, disponible para reclamar"
+          "En oficina, disponible para reclamar",
+          "Detalles pedido"
         ]
       ];
 
