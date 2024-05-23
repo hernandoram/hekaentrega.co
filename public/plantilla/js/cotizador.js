@@ -3801,7 +3801,7 @@ function crearGuia() {
     ) {
       renovarSubmit(boton_final_cotizador, textoBtn);
       alert(
-        "Recuerde llenar también lo que contine su envío, la referencia y el empaque"
+        "Recuerde llenar también lo que contine su envío."
       );
       scrollTo({
         top: document.getElementById("producto").parentNode.offsetTop - 60,
