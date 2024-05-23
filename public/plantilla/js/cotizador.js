@@ -3860,7 +3860,7 @@ function crearGuia() {
       datos_a_enviar.nombre_empresa = datos_usuario.nombre_empresa || "";
       datos_a_enviar.celularR = value("actualizar_celularR").trim();
       datos_a_enviar.nombreD = value("nombreD").trim();
-      datos_a_enviar.identificacionD = value("identificacionD") || 123;
+      datos_a_enviar.identificacionD = value("identificacionD") ;
       datos_a_enviar.direccionD =
         value("direccionD").trim() +
         " " +
@@ -3874,6 +3874,9 @@ function crearGuia() {
       datos_a_enviar.dice_contener = informacionProducto.trim();
       datos_a_enviar.referencia = value("referencia").trim();
       datos_a_enviar.observaciones = value("observaciones");
+      
+      datos_a_enviar.empaqueDetalles = value("empaque").trim();
+
       datos_a_enviar.recoleccion_esporadica = recoleccion;
       datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`;
       datos_a_enviar.timeline = new Date().getTime();
