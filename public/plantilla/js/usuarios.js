@@ -1446,6 +1446,7 @@ async function actualizarInformacionPersonal() {
   ).then(async (response) => {
     const data = await response.json();
     console.log(data);
+    
     const mongoId = data.response._id;
     const updateBody = JSON.stringify({
       name: value("actualizar_nombres"),
@@ -1455,7 +1456,7 @@ async function actualizarInformacionPersonal() {
       email: value("actualizar_correo"),
       type_document: value("actualizar_tipo_documento"),
       document: value("actualizar_numero_documento"),
-      type: document.getElementById("actualizar_tipo_user").value,
+      type_account: document.getElementById("actualizar_tipo_user").value,
       blockedWallet: billetera
     });
 

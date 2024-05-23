@@ -704,7 +704,7 @@ function cardNoCobertura(transportadora, transp, message) {
       >
           <div class="row container" >
               <img src="${transportadora.logoPath}" 
-              class="col" style="max-height:120px; max-width:fit-content"
+              class="col-md-1 col-sm-12" style="max-height:120px; max-width:120px"
               alt="logo-${transportadora.nombre}">
               <div class="col mt-3 mt-sm-0 order-1 order-sm-0">
                   <h5 class="text-left">${transportadora.nombre}</h5>
@@ -713,6 +713,38 @@ function cardNoCobertura(transportadora, transp, message) {
           </div>
       </li>`;
 }
+
+//icons
+
+const iconEfectivePayment= `
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M4.00002 7.33334C3.86817 7.33334 3.73927 7.37244 3.62964 7.4457C3.52001 7.51895 3.43456 7.62307 3.3841 7.74489C3.33364 7.86671 3.32044 8.00075 3.34616 8.13007C3.37189 8.25939 3.43538 8.37818 3.52862 8.47141C3.62185 8.56465 3.74064 8.62814 3.86996 8.65387C3.99928 8.67959 4.13332 8.66639 4.25514 8.61593C4.37696 8.56547 4.48108 8.48002 4.55433 8.37039C4.62759 8.26076 4.66669 8.13186 4.66669 8.00001C4.66669 7.8232 4.59645 7.65363 4.47142 7.52861C4.3464 7.40358 4.17683 7.33334 4.00002 7.33334ZM12 7.33334C11.8682 7.33334 11.7393 7.37244 11.6296 7.4457C11.52 7.51895 11.4346 7.62307 11.3841 7.74489C11.3336 7.86671 11.3204 8.00075 11.3462 8.13007C11.3719 8.25939 11.4354 8.37818 11.5286 8.47141C11.6219 8.56465 11.7406 8.62814 11.87 8.65387C11.9993 8.67959 12.1333 8.66639 12.2551 8.61593C12.377 8.56547 12.4811 8.48002 12.5543 8.37039C12.6276 8.26076 12.6667 8.13186 12.6667 8.00001C12.6667 7.8232 12.5964 7.65363 12.4714 7.52861C12.3464 7.40358 12.1768 7.33334 12 7.33334ZM13.3334 3.33334H2.66669C2.13625 3.33334 1.62755 3.54406 1.25247 3.91913C0.877401 4.2942 0.666687 4.80291 0.666687 5.33334V10.6667C0.666687 11.1971 0.877401 11.7058 1.25247 12.0809C1.62755 12.456 2.13625 12.6667 2.66669 12.6667H13.3334C13.8638 12.6667 14.3725 12.456 14.7476 12.0809C15.1226 11.7058 15.3334 11.1971 15.3334 10.6667V5.33334C15.3334 4.80291 15.1226 4.2942 14.7476 3.91913C14.3725 3.54406 13.8638 3.33334 13.3334 3.33334ZM14 10.6667C14 10.8435 13.9298 11.0131 13.8048 11.1381C13.6797 11.2631 13.5102 11.3333 13.3334 11.3333H2.66669C2.48988 11.3333 2.32031 11.2631 2.19528 11.1381C2.07026 11.0131 2.00002 10.8435 2.00002 10.6667V5.33334C2.00002 5.15653 2.07026 4.98696 2.19528 4.86194C2.32031 4.73691 2.48988 4.66668 2.66669 4.66668H13.3334C13.5102 4.66668 13.6797 4.73691 13.8048 4.86194C13.9298 4.98696 14 5.15653 14 5.33334V10.6667ZM8.00002 6.00001C7.60446 6.00001 7.21778 6.11731 6.88888 6.33707C6.55998 6.55683 6.30364 6.86919 6.15226 7.23464C6.00089 7.6001 5.96128 8.00223 6.03845 8.39019C6.11562 8.77815 6.3061 9.13452 6.58581 9.41422C6.86551 9.69393 7.22188 9.88441 7.60984 9.96158C7.9978 10.0388 8.39993 9.99915 8.76539 9.84777C9.13084 9.69639 9.4432 9.44005 9.66296 9.11115C9.88272 8.78225 10 8.39557 10 8.00001C10 7.46958 9.78931 6.96087 9.41423 6.5858C9.03916 6.21072 8.53045 6.00001 8.00002 6.00001ZM8.00002 8.66668C7.86817 8.66668 7.73927 8.62758 7.62964 8.55432C7.52001 8.48107 7.43456 8.37695 7.3841 8.25513C7.33364 8.13332 7.32044 7.99927 7.34616 7.86995C7.37189 7.74063 7.43538 7.62184 7.52862 7.52861C7.62185 7.43537 7.74064 7.37188 7.86996 7.34615C7.99928 7.32043 8.13333 7.33363 8.25514 7.38409C8.37696 7.43455 8.48108 7.52 8.55433 7.62963C8.62759 7.73926 8.66669 7.86816 8.66669 8.00001C8.66669 8.17682 8.59645 8.34639 8.47142 8.47141C8.3464 8.59644 8.17683 8.66668 8.00002 8.66668Z" fill="#04AA5E"/>
+</svg>
+`;
+
+const qrPayment = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_3872_24832)">
+<path d="M5.33335 14H2.66669C2.48988 14 2.32031 13.9298 2.19528 13.8047C2.07026 13.6797 2.00002 13.5101 2.00002 13.3333V10.6667C2.00002 10.4898 1.92978 10.3203 1.80476 10.1953C1.67973 10.0702 1.51016 9.99999 1.33335 9.99999C1.15654 9.99999 0.986973 10.0702 0.861949 10.1953C0.736925 10.3203 0.666687 10.4898 0.666687 10.6667V13.3333C0.666687 13.8638 0.877401 14.3725 1.25247 14.7475C1.62755 15.1226 2.13625 15.3333 2.66669 15.3333H5.33335C5.51016 15.3333 5.67973 15.2631 5.80476 15.1381C5.92978 15.013 6.00002 14.8435 6.00002 14.6667C6.00002 14.4898 5.92978 14.3203 5.80476 14.1953C5.67973 14.0702 5.51016 14 5.33335 14ZM14.6667 9.99999C14.4899 9.99999 14.3203 10.0702 14.1953 10.1953C14.0703 10.3203 14 10.4898 14 10.6667V13.3333C14 13.5101 13.9298 13.6797 13.8048 13.8047C13.6797 13.9298 13.5102 14 13.3334 14H10.6667C10.4899 14 10.3203 14.0702 10.1953 14.1953C10.0703 14.3203 10 14.4898 10 14.6667C10 14.8435 10.0703 15.013 10.1953 15.1381C10.3203 15.2631 10.4899 15.3333 10.6667 15.3333H13.3334C13.8638 15.3333 14.3725 15.1226 14.7476 14.7475C15.1226 14.3725 15.3334 13.8638 15.3334 13.3333V10.6667C15.3334 10.4898 15.2631 10.3203 15.1381 10.1953C15.0131 10.0702 14.8435 9.99999 14.6667 9.99999ZM13.3334 0.666656H10.6667C10.4899 0.666656 10.3203 0.736894 10.1953 0.861919C10.0703 0.986943 10 1.15651 10 1.33332C10 1.51013 10.0703 1.6797 10.1953 1.80473C10.3203 1.92975 10.4899 1.99999 10.6667 1.99999H13.3334C13.5102 1.99999 13.6797 2.07023 13.8048 2.19525C13.9298 2.32028 14 2.48985 14 2.66666V5.33332C14 5.51013 14.0703 5.6797 14.1953 5.80473C14.3203 5.92975 14.4899 5.99999 14.6667 5.99999C14.8435 5.99999 15.0131 5.92975 15.1381 5.80473C15.2631 5.6797 15.3334 5.51013 15.3334 5.33332V2.66666C15.3334 2.13622 15.1226 1.62752 14.7476 1.25244C14.3725 0.87737 13.8638 0.666656 13.3334 0.666656ZM1.33335 5.99999C1.51016 5.99999 1.67973 5.92975 1.80476 5.80473C1.92978 5.6797 2.00002 5.51013 2.00002 5.33332V2.66666C2.00002 2.48985 2.07026 2.32028 2.19528 2.19525C2.32031 2.07023 2.48988 1.99999 2.66669 1.99999H5.33335C5.51016 1.99999 5.67973 1.92975 5.80476 1.80473C5.92978 1.6797 6.00002 1.51013 6.00002 1.33332C6.00002 1.15651 5.92978 0.986943 5.80476 0.861919C5.67973 0.736894 5.51016 0.666656 5.33335 0.666656H2.66669C2.13625 0.666656 1.62755 0.87737 1.25247 1.25244C0.877401 1.62752 0.666687 2.13622 0.666687 2.66666V5.33332C0.666687 5.51013 0.736925 5.6797 0.861949 5.80473C0.986973 5.92975 1.15654 5.99999 1.33335 5.99999ZM6.66669 3.33332H4.00002C3.82321 3.33332 3.65364 3.40356 3.52862 3.52859C3.40359 3.65361 3.33335 3.82318 3.33335 3.99999V6.66666C3.33335 6.84347 3.40359 7.01304 3.52862 7.13806C3.65364 7.26308 3.82321 7.33332 4.00002 7.33332H6.66669C6.8435 7.33332 7.01307 7.26308 7.13809 7.13806C7.26312 7.01304 7.33335 6.84347 7.33335 6.66666V3.99999C7.33335 3.82318 7.26312 3.65361 7.13809 3.52859C7.01307 3.40356 6.8435 3.33332 6.66669 3.33332ZM6.00002 5.99999H4.66669V4.66666H6.00002V5.99999ZM9.33335 7.33332H12C12.1768 7.33332 12.3464 7.26308 12.4714 7.13806C12.5964 7.01304 12.6667 6.84347 12.6667 6.66666V3.99999C12.6667 3.82318 12.5964 3.65361 12.4714 3.52859C12.3464 3.40356 12.1768 3.33332 12 3.33332H9.33335C9.15654 3.33332 8.98697 3.40356 8.86195 3.52859C8.73692 3.65361 8.66669 3.82318 8.66669 3.99999V6.66666C8.66669 6.84347 8.73692 7.01304 8.86195 7.13806C8.98697 7.26308 9.15654 7.33332 9.33335 7.33332ZM10 4.66666H11.3334V5.99999H10V4.66666ZM6.66669 8.66666H4.00002C3.82321 8.66666 3.65364 8.73689 3.52862 8.86192C3.40359 8.98694 3.33335 9.15651 3.33335 9.33332V12C3.33335 12.1768 3.40359 12.3464 3.52862 12.4714C3.65364 12.5964 3.82321 12.6667 4.00002 12.6667H6.66669C6.8435 12.6667 7.01307 12.5964 7.13809 12.4714C7.26312 12.3464 7.33335 12.1768 7.33335 12V9.33332C7.33335 9.15651 7.26312 8.98694 7.13809 8.86192C7.01307 8.73689 6.8435 8.66666 6.66669 8.66666ZM6.00002 11.3333H4.66669V9.99999H6.00002V11.3333ZM9.33335 10.6667C9.51016 10.6667 9.67973 10.5964 9.80476 10.4714C9.92978 10.3464 10 10.1768 10 9.99999C10.1768 9.99999 10.3464 9.92975 10.4714 9.80473C10.5964 9.6797 10.6667 9.51013 10.6667 9.33332C10.6667 9.15651 10.5964 8.98694 10.4714 8.86192C10.3464 8.73689 10.1768 8.66666 10 8.66666H9.33335C9.15654 8.66666 8.98697 8.73689 8.86195 8.86192C8.73692 8.98694 8.66669 9.15651 8.66669 9.33332V9.99999C8.66669 10.1768 8.73692 10.3464 8.86195 10.4714C8.98697 10.5964 9.15654 10.6667 9.33335 10.6667ZM12 8.66666C11.8232 8.66666 11.6536 8.73689 11.5286 8.86192C11.4036 8.98694 11.3334 9.15651 11.3334 9.33332V11.3333C11.1565 11.3333 10.987 11.4036 10.8619 11.5286C10.7369 11.6536 10.6667 11.8232 10.6667 12C10.6667 12.1768 10.7369 12.3464 10.8619 12.4714C10.987 12.5964 11.1565 12.6667 11.3334 12.6667H12C12.1768 12.6667 12.3464 12.5964 12.4714 12.4714C12.5964 12.3464 12.6667 12.1768 12.6667 12V9.33332C12.6667 9.15651 12.5964 8.98694 12.4714 8.86192C12.3464 8.73689 12.1768 8.66666 12 8.66666ZM9.33335 11.3333C9.2015 11.3333 9.07261 11.3724 8.96297 11.4457C8.85334 11.5189 8.76789 11.623 8.71743 11.7449C8.66698 11.8667 8.65377 12.0007 8.6795 12.13C8.70522 12.2594 8.76871 12.3782 8.86195 12.4714C8.95518 12.5646 9.07397 12.6281 9.20329 12.6538C9.33261 12.6796 9.46666 12.6664 9.58848 12.6159C9.71029 12.5655 9.81441 12.48 9.88767 12.3704C9.96092 12.2607 10 12.1318 10 12C10 11.8232 9.92978 11.6536 9.80476 11.5286C9.67973 11.4036 9.51016 11.3333 9.33335 11.3333Z" fill="#04AA5E"/>
+</g>
+<defs>
+<clipPath id="clip0_3872_24832">
+<rect width="16" height="16" fill="white"/>
+</clipPath>
+</defs>
+</svg>
+`;
+
+const creditPayment= `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M4.66665 10H6.66665C6.84346 10 7.01303 9.92977 7.13805 9.80475C7.26308 9.67972 7.33331 9.51015 7.33331 9.33334C7.33331 9.15653 7.26308 8.98696 7.13805 8.86194C7.01303 8.73692 6.84346 8.66668 6.66665 8.66668H4.66665C4.48984 8.66668 4.32027 8.73692 4.19524 8.86194C4.07022 8.98696 3.99998 9.15653 3.99998 9.33334C3.99998 9.51015 4.07022 9.67972 4.19524 9.80475C4.32027 9.92977 4.48984 10 4.66665 10ZM12.6666 3.33334H3.33331C2.80288 3.33334 2.29417 3.54406 1.9191 3.91913C1.54403 4.2942 1.33331 4.80291 1.33331 5.33334V11.3333C1.33331 11.8638 1.54403 12.3725 1.9191 12.7476C2.29417 13.1226 2.80288 13.3333 3.33331 13.3333H12.6666C13.1971 13.3333 13.7058 13.1226 14.0809 12.7476C14.4559 12.3725 14.6666 11.8638 14.6666 11.3333V5.33334C14.6666 4.80291 14.4559 4.2942 14.0809 3.91913C13.7058 3.54406 13.1971 3.33334 12.6666 3.33334ZM13.3333 11.3333C13.3333 11.5102 13.2631 11.6797 13.1381 11.8047C13.013 11.9298 12.8435 12 12.6666 12H3.33331C3.1565 12 2.98693 11.9298 2.86191 11.8047C2.73688 11.6797 2.66665 11.5102 2.66665 11.3333V7.33334H13.3333V11.3333ZM13.3333 6.00001H2.66665V5.33334C2.66665 5.15653 2.73688 4.98696 2.86191 4.86194C2.98693 4.73691 3.1565 4.66668 3.33331 4.66668H12.6666C12.8435 4.66668 13.013 4.73691 13.1381 4.86194C13.2631 4.98696 13.3333 5.15653 13.3333 5.33334V6.00001Z" fill="#04AA5E"/>
+</svg>
+`
+
+const adelantedPayment= `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M14.1466 8C14.4785 7.63491 14.6637 7.16004 14.6666 6.66667C14.6666 6.13623 14.4559 5.62753 14.0809 5.25245C13.7058 4.87738 13.1971 4.66667 12.6666 4.66667H9.21331C9.31981 4.36545 9.3526 4.04311 9.30893 3.72662C9.26526 3.41013 9.1464 3.10871 8.96231 2.84759C8.77822 2.58647 8.53426 2.37325 8.25084 2.22579C7.96742 2.07832 7.6528 2.0009 7.33331 2H3.33331C2.80288 2 2.29417 2.21071 1.9191 2.58579C1.54403 2.96086 1.33331 3.46957 1.33331 4C1.33625 4.49337 1.52145 4.96824 1.85331 5.33333C1.52534 5.70002 1.34402 6.17471 1.34402 6.66667C1.34402 7.15862 1.52534 7.63332 1.85331 8C1.52534 8.36668 1.34402 8.84138 1.34402 9.33333C1.34402 9.82529 1.52534 10.3 1.85331 10.6667C1.52145 11.0318 1.33625 11.5066 1.33331 12C1.33331 12.5304 1.54403 13.0391 1.9191 13.4142C2.29417 13.7893 2.80288 14 3.33331 14H12.6666C13.0518 13.9979 13.4282 13.8847 13.7506 13.6739C14.0729 13.4631 14.3276 13.1637 14.4839 12.8116C14.6402 12.4596 14.6915 12.0699 14.6317 11.6894C14.5719 11.3089 14.4034 10.9538 14.1466 10.6667C14.4746 10.3 14.6559 9.82529 14.6559 9.33333C14.6559 8.84138 14.4746 8.36668 14.1466 8ZM7.33331 12.6667H3.33331C3.1565 12.6667 2.98693 12.5964 2.86191 12.4714C2.73688 12.3464 2.66665 12.1768 2.66665 12C2.66665 11.8232 2.73688 11.6536 2.86191 11.5286C2.98693 11.4036 3.1565 11.3333 3.33331 11.3333H7.33331C7.51012 11.3333 7.67969 11.4036 7.80472 11.5286C7.92974 11.6536 7.99998 11.8232 7.99998 12C7.99998 12.1768 7.92974 12.3464 7.80472 12.4714C7.67969 12.5964 7.51012 12.6667 7.33331 12.6667ZM7.33331 10H3.33331C3.1565 10 2.98693 9.92976 2.86191 9.80474C2.73688 9.67971 2.66665 9.51014 2.66665 9.33333C2.66665 9.15652 2.73688 8.98695 2.86191 8.86193C2.98693 8.73691 3.1565 8.66667 3.33331 8.66667H7.33331C7.51012 8.66667 7.67969 8.73691 7.80472 8.86193C7.92974 8.98695 7.99998 9.15652 7.99998 9.33333C7.99998 9.51014 7.92974 9.67971 7.80472 9.80474C7.67969 9.92976 7.51012 10 7.33331 10ZM7.33331 7.33333H3.33331C3.1565 7.33333 2.98693 7.2631 2.86191 7.13807C2.73688 7.01305 2.66665 6.84348 2.66665 6.66667C2.66665 6.48986 2.73688 6.32029 2.86191 6.19526C2.98693 6.07024 3.1565 6 3.33331 6H7.33331C7.51012 6 7.67969 6.07024 7.80472 6.19526C7.92974 6.32029 7.99998 6.48986 7.99998 6.66667C7.99998 6.84348 7.92974 7.01305 7.80472 7.13807C7.67969 7.2631 7.51012 7.33333 7.33331 7.33333ZM7.33331 4.66667H3.33331C3.1565 4.66667 2.98693 4.59643 2.86191 4.4714C2.73688 4.34638 2.66665 4.17681 2.66665 4C2.66665 3.82319 2.73688 3.65362 2.86191 3.5286C2.98693 3.40357 3.1565 3.33333 3.33331 3.33333H7.33331C7.51012 3.33333 7.67969 3.40357 7.80472 3.5286C7.92974 3.65362 7.99998 3.82319 7.99998 4C7.99998 4.17681 7.92974 4.34638 7.80472 4.4714C7.67969 4.59643 7.51012 4.66667 7.33331 4.66667ZM13.1266 12.4733C13.0675 12.5357 12.9961 12.585 12.917 12.6183C12.8378 12.6516 12.7525 12.6681 12.6666 12.6667H9.21331C9.37318 12.2366 9.37318 11.7634 9.21331 11.3333H12.6666C12.8435 11.3333 13.013 11.4036 13.1381 11.5286C13.2631 11.6536 13.3333 11.8232 13.3333 12C13.3321 12.0887 13.3132 12.1762 13.2777 12.2575C13.2422 12.3388 13.1908 12.4121 13.1266 12.4733ZM13.1266 9.80667C13.0675 9.869 12.9961 9.91837 12.917 9.95165C12.8378 9.98493 12.7525 10.0014 12.6666 10H9.21331C9.37318 9.56993 9.37318 9.09674 9.21331 8.66667H12.6666C12.8435 8.66667 13.013 8.73691 13.1381 8.86193C13.2631 8.98695 13.3333 9.15652 13.3333 9.33333C13.3321 9.42201 13.3132 9.50955 13.2777 9.59083C13.2422 9.6721 13.1908 9.74548 13.1266 9.80667ZM13.1266 7.14C13.0675 7.20233 12.9961 7.2517 12.917 7.28499C12.8378 7.31827 12.7525 7.33473 12.6666 7.33333H9.21331C9.37318 6.90327 9.37318 6.43007 9.21331 6H12.6666C12.8435 6 13.013 6.07024 13.1381 6.19526C13.2631 6.32029 13.3333 6.48986 13.3333 6.66667C13.3321 6.75534 13.3132 6.84288 13.2777 6.92416C13.2422 7.00544 13.1908 7.07882 13.1266 7.14Z" fill="#04AA5E"/>
+</svg>
+`
+
+
 
 //Para llenar los diversos precios de las transportadoras que funcionarán con el cotizador
 async function detallesTransportadoras(data) {
@@ -744,7 +776,6 @@ async function detallesTransportadoras(data) {
 
   const typeToAve = data.sumar_envio ? "SUMAR ENVIO" : data.type;
   let cotizacionAveo;
-  const soloEntreganEnDireccion = ["ENVIA"];
 
   //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
   await Promise.all(
@@ -871,7 +902,7 @@ async function detallesTransportadoras(data) {
           ((cotizacion.costoEnvioPrev - cotizacion.costoEnvio) * 100) /
             cotizacion.costoEnvioPrev
         );
-        descuento = percent + " %";
+        descuento = percent ;
       }
 
       //Para cargar el sobreflete heka antes;
@@ -910,63 +941,121 @@ async function detallesTransportadoras(data) {
         `
         : "";
 
-      const encabezado = `<li style="cursor:pointer;" class="list-group-item list-group-item-action shadow-sm mb-2 border border-${
-        transportadora.color
-      }" 
-        id="list-transportadora-${transp}-list" 
-        data-transp="${transp}"
-        data-type="${data.type}"
-        aria-controls="list-transportadora-${transp}"
-        >
-            <div class="row" >
-                <img src="${transportadora.logoPath}" 
-                class="col" style="max-height:120px; max-width:fit-content"
-                alt="logo-${transportadora.nombre}">
-                <div class="col-12 col-sm-6 mt-3 mt-sm-0 order-1 order-sm-0">
-                    <h5>${transportadora.nombre} <span class="badge badge-${
-        transportadora.color
-      } p-2">${transp === "TCC" ? "Próximamente" : ""}</span></h5>
-                    <h6>tiempo de entrega: ${
-                      cotizacion.tiempo || datos_de_cotizacion.tiempo
-                    } Días</h6>
-                    <h6 class="d-none ${
-                      data.type == "CONVENCIONAL" ? "" : "mb-1 d-sm-block"
-                    }">
-                    El Valor consignado a tu cuenta será: <b>$${convertirMiles(
-                      cotizacion.valor - cotizacion.costoEnvio
-                    )}</b></h6>
-                </div>
-                <div class="col d-flex flex-column justify-content-around">
-                    <small id="ver-detalles-${transp}" class="detalles btn btn-outline-primary badge badge-pill">
-                    Detalles</small>
-                    <span class="badge text-danger mt-1 ml-2 p-1 ${
-                      !descuento && "d-none"
-                    }">Descuento del ${descuento}</span>
-                    <h5><b>$${convertirMiles(cotizacion.costoEnvio)} </b></h5>
-                </div>
-            </div>
-            <p class="text-center mb-0 mt-2 d-none d-sm-block">Costo de envío para ${
-              data.type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"
-            }: <b>$${convertirMiles(
-        data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor
-      )}</b></p>
-            <p class="mb-0 d-sm-none">${
-              data.type == "CONVENCIONAL" ? "Valor declarado" : "Recaudo"
-            }: <b>$${convertirMiles(
-        data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor
-      )}</b></p>
-            
-            <p class="mb-0 text-center">
-                <span class="estadisticas position-relative"></span>
-            </p>
-            
-            <h5 class="text-danger text-center ${
-              soloEntreganEnDireccion.includes(transp) ? "" : "d-none"
-            }">
-                Solo entrega en dirección
-            </h5>
+  let detallesPagos;
 
-        </li>`;
+  const soloEntreganEnDireccion = ["ENVIA"];
+
+  switch (transp) {
+    case "COORDINADORA":
+      detallesPagos = ` 
+     <ul class="list-unstyled">
+      <li class="d-flex align-items-center">
+          <span class="mr-2">
+          ${iconEfectivePayment}
+          </span>
+          <span>Pago en efectivo</span>
+      </li>
+      <li class="d-flex align-items-center">
+          <span class="mr-2">
+          ${qrPayment}
+          </span>
+          <span>Pago por transferencia (QR)</span>
+      </li>
+      <li class="d-flex align-items-center">
+          <span class="mr-2">
+        ${creditPayment}
+          </span>
+          <span>Pago a crédito</span>
+      </li>
+      <li class="d-flex align-items-center">
+          <span class="mr-2">
+          ${adelantedPayment}
+          </span>
+          <span>Pago adelantado</span>
+      </li>
+  </ul>
+`;
+      break;
+    default:
+      detallesPagos = `
+      <ul class="list-unstyled">
+      <li class="d-flex align-items-center mb-2">
+          <span class="mr-2">
+          ${iconEfectivePayment}
+          </span>
+          <span>Pago en efectivo</span>
+      </li>
+      </ul>
+
+      `
+      ;
+  }
+      const encabezado = `<li 
+      style="cursor:pointer;" 
+      class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
+      id="list-transportadora-${transp}-list" 
+      data-transp="${transp}"
+      data-type="${data.type}"
+      aria-controls="list-transportadora-${transp}"
+    >
+      <div class="row">
+        <div class="col-lg-2 col-md-2 col-sm-12">
+    
+        <img 
+          src="${transportadora.logoPath}" 
+          style="max-height:120px; max-width:120px"
+          alt="logo-${transportadora.nombre}"
+        >
+      </div>
+    
+<div class="col-lg-7 col-md-7 col-sm-12 mt-3 mt-md-0 pl-md-3">
+          <h5>
+            <b>${transportadora.nombre}</b>
+            <span class="badge badge-${transportadora.color} p-2">${transp === "TCC" ? "Próximamente" : ""}</span>
+          </h5>
+          <p class="mb-0">Tiempo de entrega: ${cotizacion.tiempo || datos_de_cotizacion.tiempo} Días</p>
+          <p class="d-sm-block mb-0">
+            Costo de envío para ${data.type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"}: 
+            <b>$${convertirMiles(data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor)}</b>
+          </p>
+          <p class="d-none ${data.type == "CONVENCIONAL" ? "" : "mb-0 d-sm-block"}">
+            El Valor consignado a tu cuenta será: <b>$${convertirMiles(cotizacion.valor - cotizacion.costoEnvio)}</b>
+          </p>
+          <h5 class="text-danger ${soloEntreganEnDireccion.includes(transp) ? "" : "d-none"}">
+            Solo entrega en dirección
+          </h5>
+          ${cotizacion.type ==="PAGO CONTRAENTREGA" ?
+            `
+            <h5 class="text-success mb-0 mt-2"><b>Tipo de pagos a destinatario</b></h5>
+            ${detallesPagos}
+            `
+            : ""
+          }
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-12 d-flex flex-column justify-content-around mt-3 mt-md-0">
+          <div class="border border-success rounded p-3 mb-2">
+            <div class="d-flex justify-content-between">
+              <div>
+                <p>Total</p>
+              </div>
+              <div class="text-end">
+                <h4><b>$${convertirMiles( cotizacion.costoEnvio )}</b></h4>
+                <span>con nosotros</span>
+              </div>
+            </div>
+            <span class="descuento-span w-100 badge badge-pill ${!descuento || descuento <= 0 ? "d-none": ""}">
+              ${descuento} % de descuento 
+            </span>
+          </div>
+          <small id="ver-detalles-${transp}" class="detalles border border-dark rounded p-3 text-center font-weight-bold">
+            Ver detalles
+          </small>
+        </div>
+      </div>
+      <p class="mb-0 text-center">
+        <span class="estadisticas position-relative"></span>
+      </p>
+    </li>`;
 
       const detalle = `<div class="tab-pane fade 
         ${!corredor && !oficinas.length ? "show active" : ""}" 
@@ -1142,19 +1231,6 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
   //       Ver referencia
   //   </span>`);
 
-  let detallesPagos;
-
-  switch (transportadora) {
-    case "COORDINADORA":
-      detallesPagos = "Efectivo, a crédito, adelantado, por transferencia (QR)";
-      break;
-    default:
-      detallesPagos = "Efectivo";
-  }
-
-  contenedor.append(
-    `<small>Tipos de pago disponibles: ${detallesPagos}.</small>`
-  );
 
   //PRAR REORGANIZAR LAS TRANSPORTADORAS DESDE LA MEJOR
 
@@ -1395,6 +1471,8 @@ function mostrarOficinas(oficinas) {
   const mostradorOffi = $("#mostrador-oficinas");
   const wrapper = mostradorOffi.children(".swiper-wrapper");
 
+
+
   oficinas.forEach((oficina, i) => {
     const visualizador = new DOMParser().parseFromString(
       `
@@ -1406,7 +1484,7 @@ function mostrarOficinas(oficinas) {
         >
             <div class="row">
                 <img src="./img/logo-flexi.png" 
-                class="col" style="max-height:120px; max-width:fit-content"
+                class="col" style="max-height:120px; max-width:120px"
                 alt="logo-OFFY">
                 <div class="col-12 col-sm-6 mt-3 mt-sm-0 order-1 order-sm-0">
                     <h5>Flexii <span class="badge badge-primary p-2" data-change="nombre_ofi">${oficina.nombre_empresa}</span></h5>
@@ -1414,6 +1492,8 @@ function mostrarOficinas(oficinas) {
                     <h6>Tiempo de entrega: <b data-change="tiempoEntrega"></b> Días</h6>
                     <h6 class="mb-1 d-none d-sm-block ver-pagoContraentrega">
                     El Valor consignado a tu cuenta será: <b data-change="valorConsignar"></b></h6>
+
+           
                 </div>
                 <div class="col d-flex flex-column justify-content-around">
                     <small data-id="${i}" class="detalles detalles-office-click btn btn-outline-primary badge badge-pill">Detalles</small>
@@ -2137,18 +2217,18 @@ function finalizarCotizacion(datos) {
           <p id="aviso-producto" class="text-warning d-none m-2"></p>
       </div>
       <div class="col-md-6 mb-3 mb-sm-0">
-          <h6>Bríndanos mas información de tu producto:</h6>
+          <h6>Bríndanos la referencia de tu producto (opcional):</h6>
           <input id="referencia" class="form-control form-control-user detect-errors" 
-          placeholder="Referencia, cantidad, talla, color, etc"
+          placeholder="Referencia"
           name="referencia" type="text" maxlength="40">
       </div>
   </div>
   <div class="row mt-3">
       <div class="col-md-6 mb-3 mb-sm-0">
-          <h6>Como va empacado el producto que vas a enviar:</h6>
+          <h6>Bríndanos mas información de tu producto y su empaque (opcional):</h6>
           <input id="empaque" class="form-control form-control-user detect-errors" 
           name="empaque" type="text" maxlength="40"
-          placeholder="Un empaque azul, con dimensiones X Y Z">
+          placeholder="Cantidad, talla, color, etc. Va en un empaque azul">
           <p id="empaque-producto" class="text-warning d-none m-2"></p>
       </div>
       <div class="col-md-6 mb-3 mb-sm-0 d-none">
@@ -2914,7 +2994,9 @@ class CalcularCostoDeEnvio {
 
   // Corresponde a lo que realmete cobra la transportadora en caso de una devolución
   get costoDevolucionOriginal() {
-    const costoDevolucionPersonalizado = this.costoDevolucionFormulado(datos_personalizados.formula_devolucion);
+    const costoDevolucionPersonalizado = this.costoDevolucionFormulado(
+      datos_personalizados.formula_devolucion
+    );
 
     if (costoDevolucionPersonalizado)
       return parseInt(costoDevolucionPersonalizado);
@@ -2931,7 +3013,7 @@ class CalcularCostoDeEnvio {
         return (this.flete + this.seguroMercancia) * 2;
     }
 
-    return 0 // Nunca debería devolver esto
+    return 0; // Nunca debería devolver esto
   }
 
   // corresponde a lo que cobre Heka naturalmente
@@ -2984,7 +3066,9 @@ class CalcularCostoDeEnvio {
 
     if (this.precios.version === 2) {
       // Si correponde a la nueva versión, devuelve este calculo, para sumar la sobre flete heka
-      this.comisionHekaAdicionalFija = parseInt(this.costoDevolucionOriginal * 2 / 8);
+      this.comisionHekaAdicionalFija = parseInt(
+        (this.costoDevolucionOriginal * 2) / 8
+      );
     } else {
       this.comisionHekaAdicionalFija = 0; // Si se va a manejar la versión de siempre, este valor devuelve cero, porque no va a sumar nada
     }
@@ -3017,7 +3101,10 @@ class CalcularCostoDeEnvio {
       total: this.costoEnvio,
       recaudo: this.valor,
       seguro: this.seguro,
-      costoDevolucion: this.precios.version === 2 ? this.costoDevolucionOriginal : this.costoDevolucion, // Con la versión 2 se guarda en el costo de devolución original de la transportadora, salvaguardando un avariable que indicará si se paga o no
+      costoDevolucion:
+        this.precios.version === 2
+          ? this.costoDevolucionOriginal
+          : this.costoDevolucion, // Con la versión 2 se guarda en el costo de devolución original de la transportadora, salvaguardando un avariable que indicará si se paga o no
       cobraDevolucion: this.precios.version === 1, // Variable para dientificar si se cobra o no devolución sobre la guía (Solo se le cobraría devolución a la versión 1)
       versionCotizacion: this.precios.version // 1: cotizador convencional. 2: cotizador especial (no cobra devoluciones)
     };
@@ -3676,18 +3763,15 @@ function crearGuia() {
     );
     const checkCreacionPedido = $("#check-crear_pedido").prop("checked");
 
-    const informacionProducto = `${value("producto")} - Ref ${value(
-      "referencia"
-    )} - Empaque ${value("empaque")}`;
+    const informacionProducto = `${value("producto")} ${value(
+      "referencia")? `- Ref ${value("referencia")} `: ""}`;
 
     if (
-      value("producto") == "" ||
-      value("referencia") == "" ||
-      value("empaque") == ""
+      value("producto") == ""
     ) {
       renovarSubmit(boton_final_cotizador, textoBtn);
       alert(
-        "Recuerde llenar también lo que contine su envío, la referencia y el empaque"
+        "Recuerde llenar también lo que contine su envío."
       );
       scrollTo({
         top: document.getElementById("producto").parentNode.offsetTop - 60,
@@ -3776,7 +3860,7 @@ function crearGuia() {
       datos_a_enviar.nombre_empresa = datos_usuario.nombre_empresa || "";
       datos_a_enviar.celularR = value("actualizar_celularR").trim();
       datos_a_enviar.nombreD = value("nombreD").trim();
-      datos_a_enviar.identificacionD = value("identificacionD") || 123;
+      datos_a_enviar.identificacionD = value("identificacionD") ;
       datos_a_enviar.direccionD =
         value("direccionD").trim() +
         " " +
@@ -3790,6 +3874,9 @@ function crearGuia() {
       datos_a_enviar.dice_contener = informacionProducto.trim();
       datos_a_enviar.referencia = value("referencia").trim();
       datos_a_enviar.observaciones = value("observaciones");
+      
+      datos_a_enviar.empaqueDetalles = value("empaque").trim();
+
       datos_a_enviar.recoleccion_esporadica = recoleccion;
       datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`;
       datos_a_enviar.timeline = new Date().getTime();
