@@ -3860,7 +3860,7 @@ function crearGuia() {
       datos_a_enviar.nombre_empresa = datos_usuario.nombre_empresa || "";
       datos_a_enviar.celularR = value("actualizar_celularR").trim();
       datos_a_enviar.nombreD = value("nombreD").trim();
-      datos_a_enviar.identificacionD = value("identificacionD") ;
+      datos_a_enviar.identificacionD = value("identificacionD") || 123;
       datos_a_enviar.direccionD =
         value("direccionD").trim() +
         " " +
