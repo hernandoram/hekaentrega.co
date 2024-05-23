@@ -1047,8 +1047,8 @@ async function detallesTransportadoras(data) {
               ${descuento} % de descuento 
             </span>
           </div>
-          <small id="ver-detalles-${transp}" class="detalles border border-dark rounded p-3 text-center">
-            <b>Ver detalles</b>
+          <small id="ver-detalles-${transp}" class="detalles border border-dark rounded p-3 text-center font-weight-bold">
+            Ver detalles
           </small>
         </div>
       </div>
