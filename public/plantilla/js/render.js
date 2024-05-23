@@ -2085,17 +2085,20 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
   if (administracion) {
     btnGestionar = "Revisar";
     btn_solucionar = `
-                <button class="btn btn-${
-                  extraData.novedad_solucionada ? "secondary" : "success"
-                } m-2" 
-                id="solucionar-guia-${data.numeroGuia}">
-                    ${
-                      extraData.novedad_solucionada
-                        ? "Solucionada"
-                        : "Solucionar"
-                    }
-                </button>
-            `;
+        <button class="btn btn-${
+          extraData.novedad_solucionada ? "secondary" : "success"
+        } m-2" 
+        id="solucionar-guia-${data.numeroGuia}">
+            ${
+              extraData.novedad_solucionada
+                ? "Solucionada"
+                : "Solucionar"
+            }
+        </button>
+        
+        <button class="btn btn-info m-2" 
+        id="implantar_estado-${data.numeroGuia}">Agregar estado</button>
+    `;
   } else {
     btnGestionar =
       extraData.novedad_solucionada ||
@@ -2104,94 +2107,91 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
         : "Gestionar";
   }
   tr.innerHTML = `
-            <td>
-                <div class="d-flex align-items-center">
-                    ${data.numeroGuia}
-                    <i id="actualizar-guia-${
-                      data.numeroGuia
-                    }" class="fa fa-sync ml-1 text-primary" title="Actualizar guía ${
-    data.numeroGuia
-  }" style="cursor: pointer"></i>
-                </div>
-            </td>
+      <td>
+        <div class="d-flex align-items-center">
+          ${data.numeroGuia}
+          <i id="actualizar-guia-${data.numeroGuia}" 
+          class="fa fa-sync ml-1 text-primary" title="Actualizar guía ${data.numeroGuia}" style="cursor: pointer"></i>
+        </div>
+      </td>
 
-            <td class="row justify-content-center">
-                <button class="btn btn-${
-                  extraData.novedad_solucionada ? "secondary" : "primary"
-                } m-2 " 
-                id="gestionar-guia-${data.numeroGuia}"
-                data-toggle="modal" data-target="#modal-gestionarNovedad"}>
-                    ${btnGestionar}
-                </button>
-                ${btn_solucionar}
-            </td>
+      <td class="row justify-content-center">
+          <button class="btn btn-${
+            extraData.novedad_solucionada ? "secondary" : "primary"
+          } m-2" 
+          id="gestionar-guia-${data.numeroGuia}"
+          data-toggle="modal" data-target="#modal-gestionarNovedad"}>
+            ${btnGestionar}
+          </button>
+          ${btn_solucionar}
+      </td>
 
-            <td class="text-danger">${ultimo_movimiento.novedad}</td>
-            <td>${data.transportadora || "Servientrega"}</td>
-            <td>${
-              momento_novedad.fechaMov ? momento_novedad.fechaMov : "No aplica"
-            }</td>
+      <td class="text-danger">${ultimo_movimiento.novedad}</td>
+      <td>${data.transportadora || "Servientrega"}</td>
+      <td>${
+        momento_novedad.fechaMov ? momento_novedad.fechaMov : "No aplica"
+      }</td>
 
-            <td class="text-center">
-                <span class="badge badge-danger p-2 my-auto">
-                    ${tiempo_en_novedad} días
-                </span>
-            </td>
+      <td class="text-center">
+        <span class="badge badge-danger p-2 my-auto">
+            ${tiempo_en_novedad} días
+        </span>
+      </td>
 
-            <td class="text-center">
-                <span class="badge badge-danger p-2 my-auto">
-                    ${diferenciaDeTiempo(
-                      millis_ultimo_seguimiento,
-                      new Date()
-                    )} días
-                </span>
-            </td>
+      <td class="text-center">
+          <span class="badge badge-danger p-2 my-auto">
+              ${diferenciaDeTiempo(
+                millis_ultimo_seguimiento,
+                new Date()
+              )} días
+          </span>
+      </td>
 
-            <td>${data.fechaEnvio}</td>
-            <td>${data.estadoActual}</td>
-            <td style="min-width:200px; max-width:250px">${
-              extraData.nombreD
-            }</td>
+      <td>${data.fechaEnvio}</td>
+      <td>${data.estadoActual}</td>
+      <td style="min-width:200px; max-width:250px">${
+        extraData.nombreD
+      }</td>
 
-            <!-- Dirección del destinatario-->
-            <td style="min-width:250px; max-width:300px">
-                <p>${extraData.direccionD}</p>
-            </td>
-            
-            <td>    
-                <a href="https://api.whatsapp.com/send?phone=57${extraData.telefonoD
-                  .toString()
-                  .replace(/\s/g, "")}" target="_blank">${
-    extraData.telefonoD
-  }</a>, 
-                <a href="https://api.whatsapp.com/send?phone=57${extraData.celularD
-                  .toString()
-                  .replace(/\s/g, "")}" target="_blank">${
-    extraData.celularD
-  }</a>
-            </td>
-            
-            <td>${extraData.ciudadD} / ${extraData.departamentoD}</td>
-            
-            <td>
-                ${ultimo_movimiento.descripcionMov}
-            </td>
-            
-            <td style="min-width:250px; max-width:300px">
-                ${ultimo_seguimiento.gestion || "No aplica"}
-            </td>
-            <td>${
-              ultimo_seguimiento.fecha
-                ? genFecha("LR", ultimo_seguimiento.fecha.toMillis()) +
-                  " " +
-                  ultimo_seguimiento.fecha
-                    .toDate()
-                    .toString()
-                    .match(/\d\d:\d\d/)[0]
-                : "No aplica"
-            }</td>
-            
-        `;
+      <!-- Dirección del destinatario-->
+      <td style="min-width:250px; max-width:300px">
+          <p>${extraData.direccionD}</p>
+      </td>
+      
+      <td>    
+          <a href="https://api.whatsapp.com/send?phone=57${extraData.telefonoD
+            .toString()
+            .replace(/\s/g, "")}" target="_blank">
+            ${extraData.telefonoD}
+          </a>, 
+          <a href="https://api.whatsapp.com/send?phone=57${extraData.celularD
+            .toString()
+            .replace(/\s/g, "")}" target="_blank">
+            ${extraData.celularD}
+          </a>
+      </td>
+      
+      <td>${extraData.ciudadD} / ${extraData.departamentoD}</td>
+      
+      <td>
+          ${ultimo_movimiento.descripcionMov}
+      </td>
+      
+      <td style="min-width:250px; max-width:300px">
+          ${ultimo_seguimiento.gestion || "No aplica"}
+      </td>
+      <td>${
+        ultimo_seguimiento.fecha
+          ? genFecha("LR", ultimo_seguimiento.fecha.toMillis()) +
+            " " +
+            ultimo_seguimiento.fecha
+              .toDate()
+              .toString()
+              .match(/\d\d:\d\d/)[0]
+          : "No aplica"
+      }</td>
+      
+  `;
 
   //si existe la guía en la ventana mostrada la sustituye
   if (document.querySelector("#estadoGuia" + data.numeroGuia)) {
@@ -2249,6 +2249,11 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
   $("#gestionar-guia-" + data.numeroGuia).click(() => {
     extraData.id_heka = id_heka;
     gestionarNovedadModal(data, extraData, boton_solucion);
+  });
+  
+  $("#implantar_estado-" + data.numeroGuia).click(() => {
+    extraData.id_heka = id_heka;
+    implantarEstadoNuevoAdm(extraData, data);
   });
 
 
@@ -2990,6 +2995,78 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
     .addClass("col-12") // Para que se adapte al estilo del dialogo
     .attr("id", "") // Limpiamos el id para evitar problemas con el dom
     .appendTo(info_gen);
+  }
+}
+
+async function implantarEstadoNuevoAdm(guia, estadosGuia) {
+  const {id_user, id_heka} = guia;
+  console.log(id_user, id_heka)
+  // Generamos la visa del formulario con lo que se reuqiere actualizar
+  const {value: formValue} = await Swal.fire({
+    title: "Actualizar estado de guía",
+    html: `
+    <form id="form-imp_estado" class="mx-1">
+      <div class="form-group">
+        <label for="estado-imp_estado">Nuevo estado <span class="text-primary">*</span></label>
+        <input type="text" class="form-control" id="estado-imp_estado" name="nuevoEstado" required>
+      </div>
+      <div class="form-group">
+        <label for="descripcion-imp_estado">Descripción <span class="text-primary">*</span></label>
+        <input type="text" class="form-control" id="descripcion-imp_estado" name="descripcionMov" required>
+      </div>
+      <div class="form-group">
+        <label for="observacion-imp_estado">Observación</label>
+        <textarea type="text" class="form-control" id="observacion-imp_estado" name="observacion"></textarea>
+      </div>
+    </form>
+    `,
+    preConfirm: (data) => {
+
+      console.log("preconfirm: ", data);
+      const form = document.getElementById("form-imp_estado");
+      if(!form.checkValidity()) return Swal.showValidationMessage("Recuerde llenar los campos obligatorios.");
+
+      const formData = new FormData(form);
+      return Object.fromEntries(formData);
+    },
+    confirmButtonText: "Actualizar"
+
+  });
+
+  if(!formValue) return;
+
+  const {nuevoEstado, descripcionMov, observacion} = formValue;
+
+  // Generamos el objeto de actualización de la guía
+  const actualizarGuia = {
+    estado: nuevoEstado,
+    seguimiento_finalizado: true, // Finalizamos el seguimiento para qeu no se vuelva a actualizar automáticamente
+    enNovedad: false // Por defecto, este tipo de actualizaciones quita cualquier novedad presente
+  }
+
+
+  // Generamos el objeto de actualización para los estados
+  const actualizarEstados = {
+    enNovedad: false, // Por defecto, este tipo de actualizaciones quita cualquier novedad presente
+    mostrar_usuario: false, // Para que una vez se actualice, el usuario normalment no lo vea en la lista de movimiento (a menos que la busque)
+    estadoActual: nuevoEstado, // Se actualiza el estado También sobre el historial de estados
+    movimientos: firebase.firestore.FieldValue.arrayUnion({ // Agregamos el nuevo estado sobre el historial de estados (despues de este no debería haber más)
+      descripcionMov, observacion, fechaMov: genFecha(),
+      novedad: "" // Se guarda vacío ya que este representa la descripción de una novedad que ha sido "quitada"
+    }),
+  }
+
+  // Actualizamos el estado de la guía
+  try {
+    const ref = db.collection("usuarios").doc(id_user);
+
+    await ref.collection("guias").doc(id_heka).update(actualizarGuia);
+    await ref.collection("estadoGuias").doc(id_heka).update(actualizarEstados);
+
+    Toast.fire("Estado generado correctamente", "", "success");
+
+  } catch (e) {
+    Toast.fire("Error actualizando estados", e.message, "error");
   }
 }
 
