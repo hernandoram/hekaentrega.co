@@ -219,7 +219,9 @@ let datos_usuario = {},
 
 const botonDesbloqueo = document.querySelector("#desbloquear-billetera-boton");
 
-botonDesbloqueo.addEventListener("click", desbloquearBilletera);
+if(botonDesbloqueo) {
+  botonDesbloqueo.addEventListener("click", desbloquearBilletera);
+}
 
 const randomNum = Math.floor(Math.random() * 9000) + 1000;
 
