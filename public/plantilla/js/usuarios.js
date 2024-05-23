@@ -1456,7 +1456,7 @@ async function actualizarInformacionPersonal() {
       email: value("actualizar_correo"),
       type_document: value("actualizar_tipo_documento"),
       document: value("actualizar_numero_documento"),
-      type: document.getElementById("actualizar_tipo_user").value,
+      type_account: document.getElementById("actualizar_tipo_user").value,
       blockedWallet: billetera
     });
 

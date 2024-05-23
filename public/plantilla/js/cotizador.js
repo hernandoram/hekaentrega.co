@@ -1002,7 +1002,7 @@ async function detallesTransportadoras(data) {
                 <img src="${transportadora.logoPath}" 
                 class="col" style="max-height:120px; max-width:120px"
                 alt="logo-${transportadora.nombre}">
-                <div class="col-8 col-sm-6 mt-3 mt-sm-0 order-1 order-sm-0">
+                <div class="col-md-8 col-sm-12 mt-3 mt-sm-0 order-1 order-sm-0">
                     <h5><b>${
                       transportadora.nombre
                     } </b><span class="badge badge-${
@@ -2247,18 +2247,18 @@ function finalizarCotizacion(datos) {
           <p id="aviso-producto" class="text-warning d-none m-2"></p>
       </div>
       <div class="col-md-6 mb-3 mb-sm-0">
-          <h6>Bríndanos mas información de tu producto:</h6>
+          <h6>Bríndanos la referencia de tu producto (opcional):</h6>
           <input id="referencia" class="form-control form-control-user detect-errors" 
-          placeholder="Referencia, cantidad, talla, color, etc"
+          placeholder="Referencia"
           name="referencia" type="text" maxlength="40">
       </div>
   </div>
   <div class="row mt-3">
       <div class="col-md-6 mb-3 mb-sm-0">
-          <h6>Como va empacado el producto que vas a enviar:</h6>
+          <h6>Bríndanos mas información de tu producto y su empaque (opcional):</h6>
           <input id="empaque" class="form-control form-control-user detect-errors" 
           name="empaque" type="text" maxlength="40"
-          placeholder="Un empaque azul, con dimensiones X Y Z">
+          placeholder="Cantidad, talla, color, etc. Va en un empaque azul">
           <p id="empaque-producto" class="text-warning d-none m-2"></p>
       </div>
       <div class="col-md-6 mb-3 mb-sm-0 d-none">
@@ -3793,14 +3793,11 @@ function crearGuia() {
     );
     const checkCreacionPedido = $("#check-crear_pedido").prop("checked");
 
-    const informacionProducto = `${value("producto")} - Ref ${value(
-      "referencia"
-    )} - Empaque ${value("empaque")}`;
+    const informacionProducto = `${value("producto")} ${value(
+      "referencia")? `- Ref ${value("referencia")} `: ""}`;
 
     if (
-      value("producto") == "" ||
-      value("referencia") == "" ||
-      value("empaque") == ""
+      value("producto") == ""
     ) {
       renovarSubmit(boton_final_cotizador, textoBtn);
       alert(
