@@ -88,7 +88,7 @@ async function validateToken(token) {
 
       const cambiarPorcentajesCotizacion = data.response.user.user_type !== 1; // El 1 es el usuario con el cotizador que siempre ha existido, 2: Referencia al nuevo cotizador
       // Según la condición dada, se cambiarán los porcentajes de cotización por defecto para una nueva modalidad
-      // if(cambiarPorcentajesCotizacion) datos_personalizados = datos_personalizados_2; // Desactivado temporalmente
+      if(cambiarPorcentajesCotizacion) datos_personalizados = datos_personalizados_2; // Desactivado temporalmente
 
       // Si tiene la variable token en la url, es porque recien ingresa
       // Así que una vez se almacena en el loca storage y se confirma el token
