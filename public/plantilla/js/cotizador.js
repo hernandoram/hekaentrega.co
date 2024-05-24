@@ -704,7 +704,7 @@ function cardNoCobertura(transportadora, transp, message) {
       >
           <div class="row container" >
               <img src="${transportadora.logoPath}" 
-              class="col-md-1 col-sm-12" style="max-height:120px; max-width:120px"
+              class="col-md-1 col-sm-12" style="max-height:120px; max-width:100px"
               alt="logo-${transportadora.nombre}">
               <div class="col mt-3 mt-sm-0 order-1 order-sm-0">
                   <h5 class="text-left">${transportadora.nombre}</h5>
@@ -1003,7 +1003,7 @@ async function detallesTransportadoras(data) {
     
         <img 
           src="${transportadora.logoPath}" 
-          style="max-height:120px; max-width:120px"
+          style="max-height:100px; max-width:120px"
           alt="logo-${transportadora.nombre}"
         >
       </div>
@@ -1039,8 +1039,8 @@ async function detallesTransportadoras(data) {
                 <p>Total</p>
               </div>
               <div class="text-end">
-                <h4><b>$${convertirMiles( cotizacion.costoEnvio )}</b></h4>
-                <span>con nosotros</span>
+                <h5><b>$${convertirMiles( cotizacion.costoEnvio )}</b></h5>
+                <small>con nosotros</small>
               </div>
             </div>
             <span class="descuento-span w-100 badge badge-pill ${!descuento || descuento <= 0 ? "d-none": ""}">
