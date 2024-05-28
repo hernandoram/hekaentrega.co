@@ -1786,9 +1786,6 @@ function eliminarNotificacion(id) {
   db.collection("notificaciones").doc(id).delete();
 }
 
-function eliminarNotificacionDinamica(id) {
-  db.collection("centro_notificaciones").doc(id).delete();
-}
 function eliminarNotificacionparaUsuario(id) {
   console.log(id);
   const userid = localStorage.getItem("user_id");
