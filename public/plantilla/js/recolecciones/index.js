@@ -65,7 +65,6 @@ async function llenarRecoleccionesPendientes(solicitar) {
   await db
     .collectionGroup("guias")
     .where("recoleccion_esporadica", "==", 1)
-
     .where("recoleccion_solicitada", "==", solicitar)
     .where("transportadora", "==", "INTERRAPIDISIMO")
     .get()

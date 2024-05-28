@@ -3,12 +3,13 @@ const fetch = require("node-fetch");
 const Cr = require("../keys/aveo");
 
 const firebase = require("../keys/firebase");
+
 const db = firebase.firestore();
+const referenceListado = db.collection("listaGuiasAveo");
 
 const funct = require("../extends/funciones");
 const { singleMessage } = require("../controllers/cellVoz");
 const guiasPorCrear = new Array();
-const referenceListado = db.collection("listaGuiasAveo");
 const {notificarGuiaOficina} = require("../extends/notificaciones");
 const { estadosGuia } = require("../extends/manejadorMovimientosGuia");
 
