@@ -2208,33 +2208,57 @@ function finalizarCotizacion(datos) {
       crearNodo(`<a class="btn btn-outline-primary btn-block mb-3" href="#cotizar_envio" onclick="regresar()">
       Regresar
       </a>`),
-    input_producto = crearNodo(`<div class="row">
+    input_producto = crearNodo(`
+    
+    <div class="card card-shadow m-6 mt-5">
+    <div class="card-header">
+      <h4 class="m-0 font-weight-bold text-primary text-center">
+        Datos del producto
+      </h4>
+    </div>
+  
+    <div class="card-body row">
       <div class="col-md-6 mb-3 mb-sm-0">
-          <h6>Que producto vas a enviar:</h6>
-          <input id="producto" class="form-control form-control-user detect-errors" 
-          name="producto" type="text" maxlength="40"
-          placeholder="Introduce el contenido de tu envío">
-          <p id="aviso-producto" class="text-warning d-none m-2"></p>
+        <h6>Qué producto vas a enviar:</h6>
+        <input
+          id="producto"
+          class="form-control form-control-user detect-errors"
+          name="producto"
+          type="text"
+          maxlength="40"
+          placeholder="Introduce el contenido de tu envío"
+        />
+        <p id="aviso-producto" class="text-warning d-none m-2"></p>
       </div>
       <div class="col-md-6 mb-3 mb-sm-0">
-          <h6>Bríndanos la referencia de tu producto (opcional):</h6>
-          <input id="referencia" class="form-control form-control-user detect-errors" 
+        <h6>Bríndanos la referencia de tu producto (opcional):</h6>
+        <input
+          id="referencia"
+          class="form-control form-control-user detect-errors"
           placeholder="Precauciones a tener en cuenta"
-          name="referencia" type="text" maxlength="40">
+          name="referencia"
+          type="text"
+          maxlength="40"
+        />
       </div>
-  </div>
-  <div class="row mt-3">
-      <div class="col-md-6 mb-3 mb-sm-0">
-          <h6>Bríndanos mas información de tu producto y su empaque (opcional):</h6>
-          <input id="empaque" class="form-control form-control-user detect-errors" 
-          name="empaque" type="text" maxlength="40"
-          placeholder="Cantidad, talla, color, etc. Va en un empaque azul">
+  
+      <div class="row mt-4">
+        <div class="col ml-3 ">
+          <h6>
+            Bríndanos mas información de tu producto y su empaque (opcional):
+          </h6>
+          <input
+            id="empaque"
+            class="form-control form-control-user detect-errors"
+            name="empaque"
+            type="text"
+            maxlength="40"
+            placeholder="Cantidad, talla, color, etc. Va en un empaque azul"
+          />
           <p id="empaque-producto" class="text-warning d-none m-2"></p>
+        </div>
       </div>
-      <div class="col-md-6 mb-3 mb-sm-0 d-none">
-          <h6>Imagen de referencia del producto enviado <span>(Opcional)</span></h6>
-          <input class="form-control" type="file" id="formFile">
-      </div>
+    </div>
   </div>
   
   `),
