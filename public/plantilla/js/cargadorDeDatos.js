@@ -728,8 +728,6 @@ function agregarDatosBancarios(informacion) {
     }
   }
 
-  return console.log(datos_bancarios);
-
   usuarioDoc.update({ datos_bancarios }).then(() => {
     Toast.fire({
       icon: "success",

@@ -2219,7 +2219,7 @@ function finalizarCotizacion(datos) {
       <div class="col-md-6 mb-3 mb-sm-0">
           <h6>Bríndanos la referencia de tu producto (opcional):</h6>
           <input id="referencia" class="form-control form-control-user detect-errors" 
-          placeholder="Referencia"
+          placeholder="Precauciones a tener en cuenta"
           name="referencia" type="text" maxlength="40">
       </div>
   </div>
@@ -2340,7 +2340,7 @@ function finalizarCotizacion(datos) {
           <div class="card-body row">
               <div class="col-lg-6 mb-3 mb-2">
                   <h5>Nombre del Destinatario</h5>
-                  <input type="text" name="nombreD" id="nombreD" class="form-control form-control-user" value="" placeholder="Nombre" required="">
+                  <input type="text" name="nombreD" id="nombreD" class="form-control form-control-user" value="" placeholder="Nombre de quien recibe" required="">
               </div>
               <div class="col-lg-6 mb-3 mb-2">
                   <div class="row align-items-center">
@@ -2362,20 +2362,20 @@ function finalizarCotizacion(datos) {
               ${entrega_en_oficina}
               <div class="col-sm-${entrega_en_oficina ? "5" : "6"} mb-3 mb-2">
                   <h5>Dirección del Destinatario</h5>
-                  <input type="text" id="direccionD" class="form-control form-control-user" value="" placeholder="Dirección-Conjunto-Apartemento" required="">
+                  <input type="text" id="direccionD" class="form-control form-control-user" value="" placeholder="Dirección de quien recibe" required="">
               </div>
               <div class="col-sm-${entrega_en_oficina ? "5" : "6"} mb-3 mb-2">
                   <h5>Barrio del Destinatario</h5>
-                  <input type="text" id="barrioD" class="form-control form-control-user detect-errors" value="" placeholder="Barrio" required="">
+                  <input type="text" id="barrioD" class="form-control form-control-user detect-errors" value="" placeholder="Barrio y punto de referencia en la dirección" required="">
               </div>
               <div class="col-sm-6 mb-3 mb-2">
                   <h5>Celular del Destinatario</h5>
                   <input type="number" id="telefonoD" class="form-control form-control-user detect-errors" 
-                  value="" placeholder="Celular" required="" maxlengt="10">
+                  value="" placeholder="Celular de quien recibe o WhatsApp" required="" maxlengt="10">
               </div>
               <div class="col-sm-6 mb-3 mb-2">
                   <h5>Otro celular del Destinatario</h5>
-                  <input type="number" id="celularD" class="form-control form-control-user detect-errors" value="" placeholder="celular">
+                  <input type="number" id="celularD" class="form-control form-control-user detect-errors" value="" placeholder="Celular de quien recibe o WhatsApp">
               </div>
               <div class="col-sm-6 mb-3 mb-2">
                   <h5>Email</h5>
