@@ -3369,10 +3369,6 @@ async function manejarNotificacionesMasivas() {
       if (!data.active) return;
       // return;
 
-      if (data.endDate < new Date().getTime()) {
-        eliminarNotificacionDinamica(doc.id);
-      }
-
       if (data.type === "estatica") {
         mostrarNotificacionEstaticaUsuario(data, doc.id);
       } else if (data.type === "alerta") {
