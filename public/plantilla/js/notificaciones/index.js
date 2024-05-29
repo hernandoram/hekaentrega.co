@@ -409,17 +409,25 @@ function mostrarNotificaciones() {
     .get()
     .then((q) => {
       visorNotificaciones.html("");
+      
+      if (q.size === 0) {
+        return;
+      }
+
       q.forEach((d) => {
         const data = d.data();
+
+        if (data.endDate < new Date().getTime()) {
+          alertarVencimientoNotificacion(data);
+        }
+
         data.id = d.id;
         data.startDate = convertirFecha(data.startDate);
         data.endDate = convertirFecha(data.endDate);
         visorNotificaciones.append(visualizarNotificacion(data));
         console.log(data);
 
-        if (q.size === 0) {
-          return;
-        }
+
         seccionNotificaciones.removeClass("d-none");
 
         if (
@@ -439,22 +447,6 @@ function mostrarNotificaciones() {
     .then(() => selectorNotificaciones(notificaciones));
 }
 
-function eliminarNotificaciones() {
-  fireRef
-    .get()
-    .then((q) => {
-      const batch = db.batch();
-
-      q.forEach((doc) => {
-        batch.delete(doc.ref);
-      });
-
-      return batch.commit();
-    })
-    .then(() => {
-      console.log("Todas las notificaciones han sido eliminadas");
-    });
-}
 
 function convertirFecha(inputfecha) {
   const fecha = new Date(inputfecha);
@@ -485,9 +477,21 @@ function selectorNotificaciones(notificaciones) {
   selectorNotificacion.selectedIndex = 0;
 }
 
-function activarAccion(el) {
-  const accion = el.attr("data-action");
-  el.on("click", acciones[accion]);
+function alertarVencimientoNotificacion(notificacion) {
+  const {name, endDate} = notificacion;
+  const strFecha = convertirFecha(endDate);
+
+  const message = `La notificación "${name}" ya se encuentra vencida desde la fecha ${strFecha}, por favor, elimínela o extienda la fecha de vencimiento.`;
+  
+  Swal.fire("Notificación vencida", message, "warning");
+}
+
+function activarAccion(els) {
+  els.each((i, el) => {
+    const accion = el.getAttribute("data-action");
+    console.log(el, accion);
+    el.addEventListener("click", acciones[accion]);
+  });
 }
 
 const acciones = {
@@ -500,5 +504,33 @@ const acciones = {
       .delete()
       .then(() => mostrarNotificaciones())
       .catch((e) => Toast.fire("Error al eliminar", e.message, "error"));
+  },
+  vistaPrevia: (e) => {
+    const target = e.target;
+    const id = target.parentNode.id;
+
+    fireRef
+    .doc(id)
+    .get()
+    .then(d => {
+      const data = d.data();
+      switch(data.type) {
+        case "alerta":
+          mostrarNotificacionAlertaUsuario(data, d.id);
+        break;
+        
+        case "estatica":
+          data.ubicacion = "visor-notificaciones_estaticas";
+          mostrarNotificacionEstaticaUsuario(data, d.id);
+          setTimeout(() => {
+            $(".mostrador-notificacion-estatica").remove();
+          }, 5000);
+        break;
+
+        default:
+          Swal.fire("No contemplado", "Tipo de alerta no contemplada para vista previa en admin", "warning");
+        break;
+      }
+    });
   },
 };

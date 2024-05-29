@@ -88,7 +88,7 @@ async function validateToken(token) {
 
       const cambiarPorcentajesCotizacion = data.response.user.user_type !== 1; // El 1 es el usuario con el cotizador que siempre ha existido, 2: Referencia al nuevo cotizador
       // Según la condición dada, se cambiarán los porcentajes de cotización por defecto para una nueva modalidad
-      // if(cambiarPorcentajesCotizacion) datos_personalizados = datos_personalizados_2; // Desactivado temporalmente
+      if(cambiarPorcentajesCotizacion) datos_personalizados = datos_personalizados_2; // Desactivado temporalmente
 
       // Si tiene la variable token en la url, es porque recien ingresa
       // Así que una vez se almacena en el loca storage y se confirma el token
@@ -805,7 +805,7 @@ function consultarInformacionBancariaUsuario() {
   $("#cargador-datos-bancarios").remove();
 }
 
-function descargarInformeUsuariosAdm(e) {
+async function descargarInformeUsuariosAdm(e) {
   const datosDescarga = {
     nombres: "Nombres",
     apellidos: "Apellidos",
@@ -871,33 +871,75 @@ function descargarInformeUsuariosAdm(e) {
     }
 
     if (obj.objetos_envio) res["Cosas que envía"] = obj.objetos_envio.join();
-    if (obj.fecha_creacion)
-      res["Fecha Creación"] = obj.fecha_creacion
-        .toDate()
-        .toLocaleString("es-CO", {
-          year: "numeric",
-          month: "long",
-          day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true
-        });
+    if (obj.fecha_creacion){
+      const {fecha_creacion} = obj;
+      const fechaFormateada = estandarizarFecha(fecha_creacion.toDate(), "DD/MM/YYYY HH:mm:ss");
+      const [soloFecha, soloHora] = fechaFormateada.split(" ");
+      
+      res["Fecha Creación"] = fechaFormateada;
+      res["Fecha Creación 2"] = soloFecha;
+      res["Hora Creación"] = soloHora;
+    }
 
     return res;
   };
 
   const loader = new ChangeElementContenWhileLoading(e.target);
   loader.init();
+  
+  const {value, isConfirmed} = await Swal.fire({
+    title: "Indique rango de fecha",
+    html: `
+    <form id="form_reporte-usuarios">
+      <div class="form-group">
+        <label for="fecha_inicio-rep_usuarios">Fecha inicio</label>
+        <input type="date" class="form-control" id="fecha_inicio-rep_usuarios">
+      </div>
+      
+      <div class="form-group">
+        <label for="fecha_fin-rep_usuarios">Fecha fin</label>
+        <input type="date" class="form-control" id="fecha_fin-rep_usuarios">
+      </div>   
+    </form>`,
+    
+    preConfirm: (data) => {
+
+      
+      const fecha_inicio = new Date($("#fecha_inicio-rep_usuarios").val()).setHours(0) + 8.64e7;
+      const fecha_final = new Date($("#fecha_fin-rep_usuarios").val()).setHours(0) + 2 * 8.64e7;
+
+      return [fecha_inicio, fecha_final];
+
+    },
+
+    didOpen: () => {
+      $("#fecha_inicio-rep_usuarios").val(genFecha());
+      $("#fecha_fin-rep_usuarios").val(genFecha());
+    },
+    showCancelButton: true,
+  });
+
+  if(!isConfirmed) {
+    loader.end();
+    return;
+  };
+
+  const [fecha_inicio, fecha_final] = value;
 
   db.collection("usuarios")
+  .orderBy("fecha_creacion", "desc")
     .get()
     .then((querySnapshot) => {
-      const data = [];
+      const result = [];
       querySnapshot.forEach((doc) => {
-        data.push(transformDatos(doc.data()));
+        const data = doc.data();
+        if(data.fecha_creacion && data.fecha_creacion.toMillis() > fecha_inicio && data.fecha_creacion.toMillis() < fecha_final) {
+          result.push(transformDatos(doc.data()));
+        }
       });
 
-      crearExcel(data, "informe Usuarios");
+      console.log(result);
+      crearExcel(result, "informe Usuarios");
       loader.end();
     });
 }
