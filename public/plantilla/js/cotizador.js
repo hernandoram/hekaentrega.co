@@ -2208,60 +2208,59 @@ function finalizarCotizacion(datos) {
       crearNodo(`<a class="btn btn-outline-primary btn-block mb-3" href="#cotizar_envio" onclick="regresar()">
       Regresar
       </a>`),
-    input_producto = crearNodo(`
-    
+    input_producto = crearNodo(` 
     <div class="card">
     
-    <div class="card-header">
-          <h4 class="m-0 font-weight-bold text-primary text-center">Datos del producto</h4>
+      <div class="card-header">
+        <h4 class="m-0 font-weight-bold text-primary text-center">Datos del producto</h4>
       </div>
-      
-  <div class="card-body">
-    <div class="row">
-      <div class="col-md-6 mb-3 mb-sm-0">
-        <h6>Qué producto vas a enviar:</h6>
-        <input
-          id="producto"
-          class="form-control form-control-user detect-errors"
-          name="producto"
-          type="text"
-          maxlength="40"
-          placeholder="Introduce el contenido de tu envío"
-        />
-        <p id="aviso-producto" class="text-warning d-none m-2"></p>
-      </div>
-      <div class="col-md-6 mb-3 mb-sm-0">
-        <h6>Bríndanos la referencia de tu producto (opcional):</h6>
-        <input
-          id="referencia"
-          class="form-control form-control-user detect-errors"
-          placeholder="Precauciones a tener en cuenta"
-          name="referencia"
-          type="text"
-          maxlength="40"
-        />
-      </div>
-  
-      <div class="row mt-4">
-        <div class=" ml-3">
-          <h6>
-            Bríndanos mas información de tu producto y su empaque (opcional):
-          </h6>
-          <input
-            id="empaque"
-            class="form-control form-control-user detect-errors"
-            name="empaque"
-            type="text"
-            maxlength="40"
-            placeholder="Cantidad, talla, color, etc. Va en un empaque azul"
-          />
-          <p id="empaque-producto" class="text-warning d-none m-2"></p>
-      </div>
-  </div>
-  </div>
-  </div>
+          
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6 mb-md-3 mb-2">
+            <h6>Qué producto vas a enviar:</h6>
+            <input
+              id="producto"
+              class="form-control form-control-user detect-errors"
+              name="producto"
+              type="text"
+              maxlength="40"
+              placeholder="Introduce el contenido de tu envío"
+            />
+            <p id="aviso-producto" class="text-warning d-none m-2"></p>
+          </div>
 
-  `),
+          <div class="col-md-6 mb-md-3 mb-2">
+            <h6>Bríndanos la referencia de tu producto (opcional):</h6>
+            <input
+              id="referencia"
+              class="form-control form-control-user detect-errors"
+              placeholder="Referencia"
+              name="referencia"
+              type="text"
+              maxlength="40"
+            />
+          </div>
+      
+          <div class="col-md-6 mb-md-3 mb-2">
+            <h6>
+              Bríndanos mas información de tu producto y su empaque (opcional):
+            </h6>
+            <input
+              id="empaque"
+              class="form-control form-control-user detect-errors"
+              name="empaque"
+              type="text"
+              maxlength="40"
+              placeholder="Cantidad, talla, color, etc. Va en un empaque azul"
+            />
+            <p id="empaque-producto" class="text-warning d-none m-2"></p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    `),
     directionNode = mostrarDirecciones(datos),
     input_buscar_usuario =
       datos_usuario.type === "PUNTO"
