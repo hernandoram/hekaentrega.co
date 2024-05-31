@@ -2219,30 +2219,43 @@ function finalizarCotizacion(datos) {
   <div class="card-body">
     <div class="row">
       <div class="col-md-6 mb-3 mb-sm-0">
-          <h6>Que producto vas a enviar:</h6>
-          <input id="producto" class="form-control form-control-user detect-errors" 
-          name="producto" type="text" maxlength="40"
-          placeholder="Introduce el contenido de tu envío">
-          <p id="aviso-producto" class="text-warning d-none m-2"></p>
+        <h6>Qué producto vas a enviar:</h6>
+        <input
+          id="producto"
+          class="form-control form-control-user detect-errors"
+          name="producto"
+          type="text"
+          maxlength="40"
+          placeholder="Introduce el contenido de tu envío"
+        />
+        <p id="aviso-producto" class="text-warning d-none m-2"></p>
       </div>
       <div class="col-md-6 mb-3 mb-sm-0">
-          <h6>Bríndanos la referencia de tu producto (opcional):</h6>
-          <input id="referencia" class="form-control form-control-user detect-errors" 
-          placeholder="Referencia"
-          name="referencia" type="text" maxlength="40">
+        <h6>Bríndanos la referencia de tu producto (opcional):</h6>
+        <input
+          id="referencia"
+          class="form-control form-control-user detect-errors"
+          placeholder="Precauciones a tener en cuenta"
+          name="referencia"
+          type="text"
+          maxlength="40"
+        />
       </div>
-  </div>
-  <div class="row mt-3">
-      <div class="col-md-6 mb-3 mb-sm-0">
-          <h6>Bríndanos mas información de tu producto y su empaque (opcional):</h6>
-          <input id="empaque" class="form-control form-control-user detect-errors" 
-          name="empaque" type="text" maxlength="40"
-          placeholder="Cantidad, talla, color, etc. Va en un empaque azul">
+  
+      <div class="row mt-4">
+        <div class=" ml-3">
+          <h6>
+            Bríndanos mas información de tu producto y su empaque (opcional):
+          </h6>
+          <input
+            id="empaque"
+            class="form-control form-control-user detect-errors"
+            name="empaque"
+            type="text"
+            maxlength="40"
+            placeholder="Cantidad, talla, color, etc. Va en un empaque azul"
+          />
           <p id="empaque-producto" class="text-warning d-none m-2"></p>
-      </div>
-      <div class="col-md-6 mb-3 mb-sm-0 d-none">
-          <h6>Imagen de referencia del producto enviado <span>(Opcional)</span></h6>
-          <input class="form-control" type="file" id="formFile">
       </div>
   </div>
   </div>
@@ -2351,7 +2364,7 @@ function finalizarCotizacion(datos) {
           <div class="card-body row">
               <div class="col-lg-6 mb-3 mb-2">
                   <h5>Nombre del Destinatario</h5>
-                  <input type="text" name="nombreD" id="nombreD" class="form-control form-control-user" value="" placeholder="Nombre" required="">
+                  <input type="text" name="nombreD" id="nombreD" class="form-control form-control-user" value="" placeholder="Nombre de quien recibe" required="">
               </div>
               <div class="col-lg-6 mb-3 mb-2">
                   <div class="row align-items-center">
@@ -2373,20 +2386,20 @@ function finalizarCotizacion(datos) {
               ${entrega_en_oficina}
               <div class="col-sm-${entrega_en_oficina ? "5" : "6"} mb-3 mb-2">
                   <h5>Dirección del Destinatario</h5>
-                  <input type="text" id="direccionD" class="form-control form-control-user" value="" placeholder="Dirección-Conjunto-Apartemento" required="">
+                  <input type="text" id="direccionD" class="form-control form-control-user" value="" placeholder="Dirección de quien recibe" required="">
               </div>
               <div class="col-sm-${entrega_en_oficina ? "5" : "6"} mb-3 mb-2">
                   <h5>Barrio del Destinatario</h5>
-                  <input type="text" id="barrioD" class="form-control form-control-user detect-errors" value="" placeholder="Barrio" required="">
+                  <input type="text" id="barrioD" class="form-control form-control-user detect-errors" value="" placeholder="Barrio y punto de referencia en la dirección" required="">
               </div>
               <div class="col-sm-6 mb-3 mb-2">
                   <h5>Celular del Destinatario</h5>
                   <input type="number" id="telefonoD" class="form-control form-control-user detect-errors" 
-                  value="" placeholder="Celular" required="" maxlengt="10">
+                  value="" placeholder="Celular de quien recibe o WhatsApp" required="" maxlengt="10">
               </div>
               <div class="col-sm-6 mb-3 mb-2">
                   <h5>Otro celular del Destinatario</h5>
-                  <input type="number" id="celularD" class="form-control form-control-user detect-errors" value="" placeholder="celular">
+                  <input type="number" id="celularD" class="form-control form-control-user detect-errors" value="" placeholder="Celular de quien recibe o WhatsApp">
               </div>
               <div class="col-sm-6 mb-3 mb-2">
                   <h5>Email</h5>

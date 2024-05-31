@@ -219,7 +219,7 @@ let datos_usuario = {},
 
 const botonDesbloqueo = document.querySelector("#desbloquear-billetera-boton");
 
-if(botonDesbloqueo) {
+if (botonDesbloqueo) {
   botonDesbloqueo.addEventListener("click", desbloquearBilletera);
 }
 
@@ -715,7 +715,19 @@ function agregarDatosBancarios(informacion) {
 
   datos_bancarios.fecha_agregado = new Date();
 
-  console.log(datos_bancarios);
+  // Verifica si alguno de los valores es una cadena vacía
+  for (let key in datos_bancarios) {
+    if (datos_bancarios[key] === "") {
+      // Muestra un alerta con SweetAlert
+      Swal.fire({
+        icon: "error",
+        title: "Importante",
+        text: `Es necesario que llenes todos los campos para registrar tu cuenta bancaria`
+      });
+      return;
+    }
+  }
+
   usuarioDoc.update({ datos_bancarios }).then(() => {
     Toast.fire({
       icon: "success",
