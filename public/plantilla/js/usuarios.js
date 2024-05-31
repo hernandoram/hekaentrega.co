@@ -1433,7 +1433,7 @@ async function actualizarInformacionPersonal() {
     objetos_envio: value("actualizar_objetos_envio").split(","),
     numero_documento: value("actualizar_numero_documento"),
     contacto: value("actualizar_contacto"),
-    type: value("actualizar_tipo_user"),
+    type: value("actualizar_tipo_user") || "NATURAL",
 
     blockWallet: value("actualizar_bloqueo_billetera"),
 

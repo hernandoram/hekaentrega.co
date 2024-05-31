@@ -2243,7 +2243,7 @@ function finalizarCotizacion(datos) {
       </div>
   
       <div class="row mt-4">
-        <div class="col ml-3 ">
+        <div class=" ml-3">
           <h6>
             Bríndanos mas información de tu producto y su empaque (opcional):
           </h6>
@@ -2256,10 +2256,6 @@ function finalizarCotizacion(datos) {
             placeholder="Cantidad, talla, color, etc. Va en un empaque azul"
           />
           <p id="empaque-producto" class="text-warning d-none m-2"></p>
-      </div>
-      <div class="col-md-6 mb-3 mb-sm-0 d-none">
-          <h6>Imagen de referencia del producto enviado <span>(Opcional)</span></h6>
-          <input class="form-control" type="file" id="formFile">
       </div>
   </div>
   </div>
