@@ -3314,8 +3314,6 @@ function verDetallesGuia() {
       const oficina = data.datos_oficina;
       data.recogida_oficina = false;
 
-      debugger;
-
       const mostrar_oficina = oficina ? "" : "d-none";
       let html = "<div>";
       let mostrador = [
