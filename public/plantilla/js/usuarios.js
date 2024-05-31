@@ -744,6 +744,8 @@ async function buscarUsuarios(e, esGeneral) {
 
   const nombreInp = value("buscador_usuarios-nombre").toLowerCase().trim();
 
+  const mayusNombreInp = nombreInp.toUpperCase();
+
   const reference = firebase.firestore().collection("usuarios");
 
   const casesToSearch = [
@@ -758,9 +760,9 @@ async function buscarUsuarios(e, esGeneral) {
 
   for await (let caso of casesToSearch) {
     especifico =
-      nombreInpOriginal &&
+      nombreInp &&
       (await reference
-        .where(caso, "==", nombreInpOriginal)
+        .where(caso, "==", nombreInp)
         .get()
         .then((querySnapshot) => {
           let bool;
@@ -768,16 +770,36 @@ async function buscarUsuarios(e, esGeneral) {
           querySnapshot.forEach((doc) => {
             if (doc.exists) {
               seleccionarUsuario(doc.id);
-
               document
                 .getElementById("cargador-usuarios")
                 .classList.add("d-none");
-
               bool = true;
             }
           });
           return bool;
         }));
+
+    if (!especifico && caso === "correo") {
+      especifico =
+        mayusNombreInp &&
+        (await reference
+          .where(caso, "==", mayusNombreInp)
+          .get()
+          .then((querySnapshot) => {
+            let bool;
+            if (!querySnapshot.size) return false;
+            querySnapshot.forEach((doc) => {
+              if (doc.exists) {
+                seleccionarUsuario(doc.id);
+                document
+                  .getElementById("cargador-usuarios")
+                  .classList.add("d-none");
+                bool = true;
+              }
+            });
+            return bool;
+          }));
+    }
 
     if (especifico) break;
   }

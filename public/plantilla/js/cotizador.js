@@ -2210,14 +2210,14 @@ function finalizarCotizacion(datos) {
       </a>`),
     input_producto = crearNodo(`
     
-    <div class="card card-shadow m-6 mt-5">
+    <div class="card">
+    
     <div class="card-header">
-      <h4 class="m-0 font-weight-bold text-primary text-center">
-        Datos del producto
-      </h4>
-    </div>
-  
-    <div class="card-body row">
+          <h4 class="m-0 font-weight-bold text-primary text-center">Datos del producto</h4>
+      </div>
+      
+  <div class="card-body">
+    <div class="row">
       <div class="col-md-6 mb-3 mb-sm-0">
         <h6>Qué producto vas a enviar:</h6>
         <input
@@ -2256,11 +2256,15 @@ function finalizarCotizacion(datos) {
             placeholder="Cantidad, talla, color, etc. Va en un empaque azul"
           />
           <p id="empaque-producto" class="text-warning d-none m-2"></p>
-        </div>
       </div>
-    </div>
+      <div class="col-md-6 mb-3 mb-sm-0 d-none">
+          <h6>Imagen de referencia del producto enviado <span>(Opcional)</span></h6>
+          <input class="form-control" type="file" id="formFile">
+      </div>
   </div>
-  
+  </div>
+  </div>
+
   `),
     directionNode = mostrarDirecciones(datos),
     input_buscar_usuario =
