@@ -2252,7 +2252,7 @@ function finalizarCotizacion(datos) {
               type="text"
               maxlength="40"
             />
-          </div>
+          </div>  
       
           <div class="col-md-6 mb-md-3 mb-2">
             <h6>
@@ -2269,6 +2269,13 @@ function finalizarCotizacion(datos) {
             <p id="empaque-producto" class="text-warning d-none m-2"></p>
           </div>
         </div>
+
+       <div class="form-check">
+  <input class="form-check-input" type="checkbox" id="check-objetos-frecuentes">
+  <label class="form-check-label" for="check-objetos-frecuentes">
+    Agregar a usuarios frecuentes
+  </label>
+</div>
         </div>
 
       </div>
