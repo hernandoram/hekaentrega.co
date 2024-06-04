@@ -2215,7 +2215,19 @@ function finalizarCotizacion(datos) {
         <h4 class="m-0 font-weight-bold text-primary text-center">Datos del producto</h4>
       </div>
           
-      <div class="card-body">
+ <div class="card-body">
+  <div class="row">    
+    <div class="form-group col-md">
+      <label for="list_bodegas-cotizador">
+        Clientes Frecuentes
+        <i class="fa fa-question-circle" data-toggle="tooltip" title='Puedes listar clientes frecuentes para una creación de guía más oportuna'></i> 
+      </label>
+      <select type="text" class="form-control">
+        <option value="">Seleccione</option>
+      </select>
+    </div>
+  </div>
+
         <div class="row">
           <div class="col-md-6 mb-md-3 mb-2">
             <h6>Qué producto vas a enviar:</h6>
@@ -2257,6 +2269,8 @@ function finalizarCotizacion(datos) {
             <p id="empaque-producto" class="text-warning d-none m-2"></p>
           </div>
         </div>
+        </div>
+
       </div>
 
     </div>
