@@ -5041,6 +5041,14 @@ async function crearNuevoObjeto() {
       .then(() => {
         console.log("Documento actualizado con ID:", selectItems.value);
         avisar("Operación exitosa", "Objeto frecuente modificado");
+
+        objetosFrecuentes = objetosFrecuentes.map((obj) => {
+          if (obj.id === selectItems.value) {
+            return { ...obj, ...nuevoObjeto };
+          } else {
+            return obj;
+          }
+        });
       })
       .catch((error) => {
         console.error("Error al actualizar el documento:", error);
