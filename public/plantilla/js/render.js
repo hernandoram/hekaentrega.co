@@ -4082,13 +4082,3 @@ medidasCtrl.setBooleans = [
     sustitute: ""
   }
 ];
-
-
-const seguroMercanciaCtrl = new DetectorErroresInput("#seguro-mercancia").init("change");
-seguroMercanciaCtrl.setConfig = { className: "text-warning" };
-
-seguroMercanciaCtrl.insertBoolean = {
-  operator: ">",
-  message: 'Incrementar el valor asegurado también incrementará el costo del envío.',
-  forbid: 25000
-}
