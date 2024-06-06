@@ -998,7 +998,7 @@ function seleccionarUsuario(id) {
         mostrarDatosPersonales(datos_bancarios, "bancaria");
         mostrarDatosPersonales(datos_personalizados, "heka");
         mostrarBodegasUsuarioAdm(bodegas);
-        mostrarObjetosFrecuentesAdm(doc.id)
+        mostrarObjetosFrecuentesAdm(doc.id);
       } else {
         // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
         //Hasta que todos los usuario futuramente tengan el doc "heka"
@@ -1180,26 +1180,44 @@ function mostrarDatosPersonales(data, info) {
   }
 }
 
+let selectControl = document.getElementById("selectControl");
+let nombreInput = document.getElementById("nombreInput");
+let referenciaInput = document.getElementById("referenciaInput");
+let descripcionEmpaqueInput = document.getElementById(
+  "descripcionEmpaqueInput"
+);
+
+let objetosFrecuentes = [];
+
+
 function mostrarObjetosFrecuentesAdm(id) {
-
-  const objetos= []
-
   firebase
-  .firestore()
-  .collection("usuarios")
-  .doc(id)
-  .collection("plantillasObjetosFrecuentes")
-  .get()
-  .then((querySnapshot) => {
-    querySnapshot.forEach((doc) => {
-      objetos.push(doc.data());
+    .firestore()
+    .collection("usuarios")
+    .doc(id)
+    .collection("plantillasObjetosFrecuentes")
+    .get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        const objeto = { id: doc.id, ...doc.data() };
+        objetosFrecuentes.push(objeto);
+      });
+    })
+    .finally(() => {
+      renderObjetosFrecuentes();
     });
-  }).finally(()=>{
-    console.warn(objetos)
-  })
 }
-function renderObjetosFrecuentes (objetos){
-  
+
+function renderObjetosFrecuentes() {
+  let selectControl = document.getElementById('selectControl');
+  selectControl.innerHTML = ''; // Limpiar las opciones existentes
+
+  objetosFrecuentes.forEach(objeto => {
+    let option = document.createElement('option');
+    option.value = objeto.id;
+    option.text = objeto.nombre;
+    selectControl.appendChild(option);
+  });
 }
 
 function mostrarReferidosUsuarioAdm(centro_costo) {
@@ -1460,12 +1478,12 @@ async function actualizarInformacionPersonal() {
     ingreso: value("actualizar_contraseña")
   };
 
-  let billetera= value("actualizar_bloqueo_billetera")
+  let billetera = value("actualizar_bloqueo_billetera");
 
-  if (billetera=== "true"){
-    billetera= true
-  }else{
-    billetera= false
+  if (billetera === "true") {
+    billetera = true;
+  } else {
+    billetera = false;
   }
 
   const token = localStorage.getItem("token");
@@ -1487,7 +1505,7 @@ async function actualizarInformacionPersonal() {
   ).then(async (response) => {
     const data = await response.json();
     console.log(data);
-    
+
     const mongoId = data.response._id;
     const updateBody = JSON.stringify({
       name: value("actualizar_nombres"),
