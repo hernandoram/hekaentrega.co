@@ -717,6 +717,7 @@ const botonBusquedaEspecializada = document.getElementById(
 botonBusquedaGeneral.onclick = function (e) {
   // Aquí va el código que quieres que se ejecute cuando se haga clic en el botón de búsqueda general
   console.log("Botón de búsqueda general clickeado");
+  e.preventDefault();
 
   buscarUsuarios(e, true);
 };
@@ -724,6 +725,8 @@ botonBusquedaGeneral.onclick = function (e) {
 botonBusquedaEspecializada.onclick = function (e) {
   // Aquí va el código que quieres que se ejecute cuando se haga clic en el botón de búsqueda especializada
   console.log("Botón de búsqueda especializada clickeado");
+  e.preventDefault();
+
   buscarUsuarios(e, false);
 };
 
@@ -1187,7 +1190,7 @@ let descripcionEmpaqueInput = document.getElementById(
   "descripcionEmpaqueInput"
 );
 
-let objetosFrecuentes = [];
+let objetosFrecuentes2 = [];
 
 
 function mostrarObjetosFrecuentesAdm(id) {
@@ -1200,7 +1203,7 @@ function mostrarObjetosFrecuentesAdm(id) {
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
         const objeto = { id: doc.id, ...doc.data() };
-        objetosFrecuentes.push(objeto);
+        objetosFrecuentes2.push(objeto);
       });
     })
     .finally(() => {
@@ -1212,7 +1215,7 @@ function renderObjetosFrecuentes() {
   let selectControl = document.getElementById('selectControl');
   selectControl.innerHTML = ''; // Limpiar las opciones existentes
 
-  objetosFrecuentes.forEach(objeto => {
+  objetosFrecuentes2.forEach(objeto => {
     let option = document.createElement('option');
     option.value = objeto.id;
     option.text = objeto.nombre;
