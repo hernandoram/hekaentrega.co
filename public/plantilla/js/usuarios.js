@@ -1184,14 +1184,8 @@ function mostrarDatosPersonales(data, info) {
 }
 
 let selectControl = document.getElementById("selectControl");
-let nombreInput = document.getElementById("nombreInput");
-let referenciaInput = document.getElementById("referenciaInput");
-let descripcionEmpaqueInput = document.getElementById(
-  "descripcionEmpaqueInput"
-);
 
 let objetosFrecuentes2 = [];
-
 
 function mostrarObjetosFrecuentesAdm(id) {
   firebase
@@ -1211,16 +1205,43 @@ function mostrarObjetosFrecuentesAdm(id) {
     });
 }
 
-function renderObjetosFrecuentes() {
-  let selectControl = document.getElementById('selectControl');
-  selectControl.innerHTML = ''; // Limpiar las opciones existentes
+selectControl.addEventListener("change", (e) => {
+  const value = e.target.value;
 
-  objetosFrecuentes2.forEach(objeto => {
-    let option = document.createElement('option');
+  const objeto = objetosFrecuentes2.find((objeto) => objeto.id === value);
+
+  let nombreInput = document.getElementById("nombreInput");
+  let referenciaInput = document.getElementById("referenciaInput");
+  let descripcionEmpaqueInput = document.getElementById(
+    "descripcionEmpaqueInput"
+  );
+
+  nombreInput.value = objeto.nombre;
+  referenciaInput.value = objeto.referencia;
+  descripcionEmpaqueInput.value = objeto.paquete;
+});
+
+function renderObjetosFrecuentes() {
+  let selectControl = document.getElementById("selectControl");
+  selectControl.innerHTML = ""; // Limpiar las opciones existentes
+
+  objetosFrecuentes2.forEach((objeto) => {
+    let option = document.createElement("option");
     option.value = objeto.id;
     option.text = objeto.nombre;
     selectControl.appendChild(option);
   });
+  const objeto = objetosFrecuentes2[0];
+
+  let nombreInput = document.getElementById("nombreInput");
+  let referenciaInput = document.getElementById("referenciaInput");
+  let descripcionEmpaqueInput = document.getElementById(
+    "descripcionEmpaqueInput"
+  );
+
+  nombreInput.value = objeto.nombre || "aún no hay objetos frecuentes";
+  referenciaInput.value = objeto.referencia || "";
+  descripcionEmpaqueInput.value = objeto.paquete|| "";
 }
 
 function mostrarReferidosUsuarioAdm(centro_costo) {
