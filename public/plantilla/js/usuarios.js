@@ -977,7 +977,6 @@ function seleccionarUsuario(id) {
     .doc(id)
     .get()
     .then((doc) => {
-      console.log(doc.exists);
       if (doc.exists === true) {
         contenedor.classList.remove("d-none");
         const data = doc.data();
@@ -998,9 +997,8 @@ function seleccionarUsuario(id) {
 
         mostrarDatosPersonales(datos_bancarios, "bancaria");
         mostrarDatosPersonales(datos_personalizados, "heka");
-
-        mostrarReferidosUsuarioAdm(data.centro_de_costo);
         mostrarBodegasUsuarioAdm(bodegas);
+        mostrarObjetosFrecuentesAdm(doc.id)
       } else {
         // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
         //Hasta que todos los usuario futuramente tengan el doc "heka"
@@ -1182,8 +1180,29 @@ function mostrarDatosPersonales(data, info) {
   }
 }
 
+function mostrarObjetosFrecuentesAdm(id) {
+
+  const objetos= []
+
+  firebase
+  .firestore()
+  .collection("usuarios")
+  .doc(id)
+  .collection("plantillasObjetosFrecuentes")
+  .get()
+  .then((querySnapshot) => {
+    querySnapshot.forEach((doc) => {
+      objetos.push(doc.data());
+    });
+  }).finally(()=>{
+    console.warn(objetos)
+  })
+}
+function renderObjetosFrecuentes (objetos){
+  
+}
+
 function mostrarReferidosUsuarioAdm(centro_costo) {
-  console.log(centro_costo);
   const referidos = [];
 
   firebase
