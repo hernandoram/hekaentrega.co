@@ -2815,7 +2815,7 @@ async function cargarObjetosFrecuentes() {
     .get()
     .then(async (querySnapshot) => {
       if (querySnapshot.empty) {
-       return subirObjetosEnvio(datos_usuario.objetos_envio);
+        return subirObjetosEnvio(datos_usuario.objetos_envio);
       }
       querySnapshot.forEach((document) => {
         const data = document.data();
@@ -2832,28 +2832,32 @@ async function cargarObjetosFrecuentes() {
     });
 }
 
-function subirObjetosEnvio(objetos) {
-
+async function subirObjetosEnvio(objetos) {
   const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
     "plantillasObjetosFrecuentes"
   );
 
-  objetos.forEach((objeto) => {
+  const objetosFrecuentes = [];
+
+  const promises = objetos.map((objeto) => {
     const nuevoObjeto = {
       nombre: objeto,
       referencia: "",
       paquete: ""
     };
 
-    referenciaUsuariosFrecuentes
+    return referenciaUsuariosFrecuentes
       .add(nuevoObjeto)
       .then((docRef) => {
-        console.log("Documento agregado con ID:", docRef.id);
-        objetosFrecuentes.push({ id: docRef.id, ...nuevoObjeto });
-        avisar("Operación exitosa", "Objeto frecuente agregado");
+        const objetoFrecuente = { id: docRef.id, ...nuevoObjeto };
+        objetosFrecuentes.push(objetoFrecuente);
+        return objetoFrecuente;
       })
       .catch((error) => {
         console.error("Error al agregar el documento:", error);
       });
   });
+
+  await Promise.all(promises);
+  return objetosFrecuentes;
 }

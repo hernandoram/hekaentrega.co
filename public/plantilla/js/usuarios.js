@@ -1188,6 +1188,7 @@ let selectControl = document.getElementById("selectControl");
 let objetosFrecuentes2 = [];
 
 function mostrarObjetosFrecuentesAdm(id) {
+  objetosFrecuentes2 = [];
   firebase
     .firestore()
     .collection("usuarios")
@@ -1200,7 +1201,7 @@ function mostrarObjetosFrecuentesAdm(id) {
         objetosFrecuentes2.push(objeto);
       });
     })
-    .finally(() => {
+    .then(() => {
       renderObjetosFrecuentes();
     });
 }
@@ -1231,7 +1232,7 @@ function renderObjetosFrecuentes() {
     option.text = objeto.nombre;
     selectControl.appendChild(option);
   });
-  const objeto = objetosFrecuentes2[0];
+  const objeto = objetosFrecuentes2[0] || {};
 
   let nombreInput = document.getElementById("nombreInput");
   let referenciaInput = document.getElementById("referenciaInput");
@@ -1241,7 +1242,7 @@ function renderObjetosFrecuentes() {
 
   nombreInput.value = objeto.nombre || "aún no hay objetos frecuentes";
   referenciaInput.value = objeto.referencia || "";
-  descripcionEmpaqueInput.value = objeto.paquete|| "";
+  descripcionEmpaqueInput.value = objeto.paquete || "";
 }
 
 function mostrarReferidosUsuarioAdm(centro_costo) {
