@@ -1423,6 +1423,11 @@ function limpiarFormulario(parent, query) {
 }
 
 async function actualizarInformacionPersonal() {
+  const tipoUsuario = document.querySelector("#actualizar_tipo_user").value;
+  
+  const type = tipoUsuario === "" ? "NATURAL" : tipoUsuario;
+
+
   let datos = {
     nombres: value("actualizar_nombres"),
     apellidos: value("actualizar_apellidos"),
@@ -1433,7 +1438,7 @@ async function actualizarInformacionPersonal() {
     objetos_envio: value("actualizar_objetos_envio").split(","),
     numero_documento: value("actualizar_numero_documento"),
     contacto: value("actualizar_contacto"),
-    type: value("actualizar_tipo_user") || "NATURAL",
+    type: type,
 
     blockWallet: value("actualizar_bloqueo_billetera"),
 
@@ -1441,12 +1446,12 @@ async function actualizarInformacionPersonal() {
     ingreso: value("actualizar_contraseña")
   };
 
-  let billetera= value("actualizar_bloqueo_billetera")
+  let billetera = value("actualizar_bloqueo_billetera");
 
-  if (billetera=== "true"){
-    billetera= true
-  }else{
-    billetera= false
+  if (billetera === "true") {
+    billetera = true;
+  } else {
+    billetera = false;
   }
 
   const token = localStorage.getItem("token");
@@ -1468,7 +1473,7 @@ async function actualizarInformacionPersonal() {
   ).then(async (response) => {
     const data = await response.json();
     console.log(data);
-    
+
     const mongoId = data.response._id;
     const updateBody = JSON.stringify({
       name: value("actualizar_nombres"),
@@ -1478,7 +1483,7 @@ async function actualizarInformacionPersonal() {
       email: value("actualizar_correo"),
       type_document: value("actualizar_tipo_documento"),
       document: value("actualizar_numero_documento"),
-      type_account: document.getElementById("actualizar_tipo_user").value,
+      type_account: type,
       blockedWallet: billetera
     });
 

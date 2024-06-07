@@ -2,7 +2,7 @@ export const defFiltrado = estadosGuia;
 
 export const filters = [
     {
-        name: "Pedidos",
+        name: "Por generar",
         description: "Aquellas guías registradas en la plataforma, pero no generadas aún con la transportadora.",
         dataFilter: defFiltrado.pedido
     },
