@@ -2712,3 +2712,23 @@ textModal.addEventListener("click", function () {
 });
 
 traerNoti();
+
+
+
+
+window.addEventListener('hashchange', function() {
+  if (window.location.hash === '#cotizar_envio') {
+    const bodegasUser=datos_usuario.bodegas;
+    
+    if(bodegasUser<=0){
+      Swal.fire({
+        icon: 'error',
+        title: 'No tienes bodegas registradas',
+        text: 'Por favor, registra una bodega para poder cotizar envíos'
+      }).then(() => {
+        window.location.replace("/plataforma2.html#bodegas");
+      });
+    }
+    
+  }
+});
