@@ -2820,8 +2820,6 @@ async function cargarObjetosFrecuentes() {
       querySnapshot.forEach((document) => {
         const data = document.data();
         data.id = document.id;
-        console.log(data);
-
         opciones.push(data);
       });
       return opciones;
