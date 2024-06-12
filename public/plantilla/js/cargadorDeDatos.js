@@ -7,6 +7,8 @@ const PROD_API_URL_PLATFORM2 = "http://hekaentrega.co"; //comentar o descomentar
 
 const versionSoftware = "1.0.2: contraseña para pagos";
 
+let objetosFrecuentes;
+
 console.warn("Versión del software: " + versionSoftware);
 
 let user_id = localStorage.user_id,
@@ -88,7 +90,8 @@ async function validateToken(token) {
 
       const cambiarPorcentajesCotizacion = data.response.user.user_type !== 1; // El 1 es el usuario con el cotizador que siempre ha existido, 2: Referencia al nuevo cotizador
       // Según la condición dada, se cambiarán los porcentajes de cotización por defecto para una nueva modalidad
-      if(cambiarPorcentajesCotizacion) datos_personalizados = datos_personalizados_2; // Desactivado temporalmente
+      if (cambiarPorcentajesCotizacion)
+        datos_personalizados = datos_personalizados_2; // Desactivado temporalmente
 
       // Si tiene la variable token en la url, es porque recien ingresa
       // Así que una vez se almacena en el loca storage y se confirma el token
@@ -388,7 +391,7 @@ async function cargarDatosUsuario() {
 
   mostrarReferidos(datos_usuario);
 
-  //  console.log( datos_usuario)
+  objetosFrecuentes = await cargarObjetosFrecuentes();
 
   limitarAccesoSegunTipoUsuario();
   // Esto para que la clase estática encargada de cosas particulares del usuario pueda mostrar que ya está
@@ -525,6 +528,7 @@ async function consultarDatosDeUsuario() {
   };
 
   usuarioDoc.onSnapshot(actualizador);
+
   return await usuarioDoc.get().then(actualizador);
 }
 
@@ -883,11 +887,14 @@ async function descargarInformeUsuariosAdm(e) {
     }
 
     if (obj.objetos_envio) res["Cosas que envía"] = obj.objetos_envio.join();
-    if (obj.fecha_creacion){
-      const {fecha_creacion} = obj;
-      const fechaFormateada = estandarizarFecha(fecha_creacion.toDate(), "DD/MM/YYYY HH:mm:ss");
+    if (obj.fecha_creacion) {
+      const { fecha_creacion } = obj;
+      const fechaFormateada = estandarizarFecha(
+        fecha_creacion.toDate(),
+        "DD/MM/YYYY HH:mm:ss"
+      );
       const [soloFecha, soloHora] = fechaFormateada.split(" ");
-      
+
       res["Fecha Creación"] = fechaFormateada;
       res["Fecha Creación 2"] = soloFecha;
       res["Hora Creación"] = soloHora;
@@ -898,8 +905,8 @@ async function descargarInformeUsuariosAdm(e) {
 
   const loader = new ChangeElementContenWhileLoading(e.target);
   loader.init();
-  
-  const {value, isConfirmed} = await Swal.fire({
+
+  const { value, isConfirmed } = await Swal.fire({
     title: "Indique rango de fecha",
     html: `
     <form id="form_reporte-usuarios">
@@ -913,39 +920,42 @@ async function descargarInformeUsuariosAdm(e) {
         <input type="date" class="form-control" id="fecha_fin-rep_usuarios">
       </div>   
     </form>`,
-    
-    preConfirm: (data) => {
 
-      
-      const fecha_inicio = new Date($("#fecha_inicio-rep_usuarios").val()).setHours(0) + 8.64e7;
-      const fecha_final = new Date($("#fecha_fin-rep_usuarios").val()).setHours(0) + 2 * 8.64e7;
+    preConfirm: (data) => {
+      const fecha_inicio =
+        new Date($("#fecha_inicio-rep_usuarios").val()).setHours(0) + 8.64e7;
+      const fecha_final =
+        new Date($("#fecha_fin-rep_usuarios").val()).setHours(0) + 2 * 8.64e7;
 
       return [fecha_inicio, fecha_final];
-
     },
 
     didOpen: () => {
       $("#fecha_inicio-rep_usuarios").val(genFecha());
       $("#fecha_fin-rep_usuarios").val(genFecha());
     },
-    showCancelButton: true,
+    showCancelButton: true
   });
 
-  if(!isConfirmed) {
+  if (!isConfirmed) {
     loader.end();
     return;
-  };
+  }
 
   const [fecha_inicio, fecha_final] = value;
 
   db.collection("usuarios")
-  .orderBy("fecha_creacion", "desc")
+    .orderBy("fecha_creacion", "desc")
     .get()
     .then((querySnapshot) => {
       const result = [];
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-        if(data.fecha_creacion && data.fecha_creacion.toMillis() > fecha_inicio && data.fecha_creacion.toMillis() < fecha_final) {
+        if (
+          data.fecha_creacion &&
+          data.fecha_creacion.toMillis() > fecha_inicio &&
+          data.fecha_creacion.toMillis() < fecha_final
+        ) {
           result.push(transformDatos(doc.data()));
         }
       });
@@ -2712,3 +2722,140 @@ textModal.addEventListener("click", function () {
 });
 
 traerNoti();
+
+let checkObjetosFrecuentes;
+
+let labelCheckObjetosFrecuentes;
+
+let selectItems;
+
+function selectores() {
+  checkObjetosFrecuentes = document.querySelector("#check-objetos-frecuentes");
+
+  labelCheckObjetosFrecuentes = document.querySelector(
+    "#check-objetos-frecuentes-label"
+  );
+
+  selectItems = document.querySelector("#select-productos-frecuentes");
+
+  selectItems.addEventListener("change", handleSelectItemsChange);
+}
+
+function handleSelectItemsChange(event) {
+  let valor = event.target.value;
+
+  if (valor === "") {
+    labelCheckObjetosFrecuentes.textContent = "Agregar a objetos frecuentes";
+    document.querySelector("#producto").value = "";
+    document.querySelector("#referencia").value = "";
+    document.querySelector("#empaque").value = "";
+  } else {
+    labelCheckObjetosFrecuentes.textContent = "Modificar objetos frecuentes";
+    const objetofrecuente = objetosFrecuentes.find((obj) => obj.id === valor);
+
+    document.querySelector("#producto").value = objetofrecuente.nombre;
+    document.querySelector("#referencia").value = objetofrecuente.referencia;
+    document.querySelector("#empaque").value = objetofrecuente.paquete;
+  }
+}
+
+async function crearNuevoObjeto() {
+  const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
+    "plantillasObjetosFrecuentes"
+  );
+
+  if (!checkObjetosFrecuentes.checked) {
+    return;
+  }
+
+  nuevoObjeto = {
+    nombre: document.querySelector("#producto").value,
+    referencia: document.querySelector("#referencia").value,
+    paquete: document.querySelector("#empaque").value
+  };
+
+  if (selectItems.value === "") {
+    referenciaUsuariosFrecuentes
+      .add(nuevoObjeto)
+      .then((docRef) => {
+        console.log("Documento agregado con ID:", docRef.id);
+        objetosFrecuentes.push({ id: docRef.id, ...nuevoObjeto });
+        avisar("Operación exitosa", "Objeto frecuente agregado");
+      })
+      .catch((error) => {
+        console.error("Error al agregar el documento:", error);
+      });
+  } else {
+    referenciaUsuariosFrecuentes
+      .doc(selectItems.value)
+      .set(nuevoObjeto)
+      .then(() => {
+        console.log("Documento actualizado con ID:", selectItems.value);
+        avisar("Operación exitosa", "Objeto frecuente modificado");
+
+        objetosFrecuentes = objetosFrecuentes.map((obj) => {
+          if (obj.id === selectItems.value) {
+            return { ...obj, ...nuevoObjeto };
+          } else {
+            return obj;
+          }
+        });
+      })
+      .catch((error) => {
+        console.error("Error al actualizar el documento:", error);
+      });
+  }
+}
+async function cargarObjetosFrecuentes() {
+  const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
+    "plantillasObjetosFrecuentes"
+  );
+  let opciones = [];
+  return referenciaUsuariosFrecuentes
+    .get()
+    .then(async (querySnapshot) => {
+      if (querySnapshot.empty) {
+        return subirObjetosEnvio(datos_usuario.objetos_envio);
+      }
+      querySnapshot.forEach((document) => {
+        const data = document.data();
+        data.id = document.id;
+        opciones.push(data);
+      });
+      return opciones;
+    })
+    .then((opciones) => {
+      console.warn(opciones);
+      return opciones;
+    });
+}
+
+async function subirObjetosEnvio(objetos) {
+  const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
+    "plantillasObjetosFrecuentes"
+  );
+
+  const objetosFrecuentes = [];
+
+  const promises = objetos.map((objeto) => {
+    const nuevoObjeto = {
+      nombre: objeto,
+      referencia: "",
+      paquete: ""
+    };
+
+    return referenciaUsuariosFrecuentes
+      .add(nuevoObjeto)
+      .then((docRef) => {
+        const objetoFrecuente = { id: docRef.id, ...nuevoObjeto };
+        objetosFrecuentes.push(objetoFrecuente);
+        return objetoFrecuente;
+      })
+      .catch((error) => {
+        console.error("Error al agregar el documento:", error);
+      });
+  });
+
+  await Promise.all(promises);
+  return objetosFrecuentes;
+}

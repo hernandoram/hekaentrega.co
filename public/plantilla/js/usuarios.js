@@ -717,6 +717,7 @@ const botonBusquedaEspecializada = document.getElementById(
 botonBusquedaGeneral.onclick = function (e) {
   // Aquí va el código que quieres que se ejecute cuando se haga clic en el botón de búsqueda general
   console.log("Botón de búsqueda general clickeado");
+  e.preventDefault();
 
   buscarUsuarios(e, true);
 };
@@ -724,6 +725,8 @@ botonBusquedaGeneral.onclick = function (e) {
 botonBusquedaEspecializada.onclick = function (e) {
   // Aquí va el código que quieres que se ejecute cuando se haga clic en el botón de búsqueda especializada
   console.log("Botón de búsqueda especializada clickeado");
+  e.preventDefault();
+
   buscarUsuarios(e, false);
 };
 
@@ -977,7 +980,6 @@ function seleccionarUsuario(id) {
     .doc(id)
     .get()
     .then((doc) => {
-      console.log(doc.exists);
       if (doc.exists === true) {
         contenedor.classList.remove("d-none");
         const data = doc.data();
@@ -998,9 +1000,8 @@ function seleccionarUsuario(id) {
 
         mostrarDatosPersonales(datos_bancarios, "bancaria");
         mostrarDatosPersonales(datos_personalizados, "heka");
-
-        mostrarReferidosUsuarioAdm(data.centro_de_costo);
         mostrarBodegasUsuarioAdm(bodegas);
+        mostrarObjetosFrecuentesAdm(doc.id);
       } else {
         // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
         //Hasta que todos los usuario futuramente tengan el doc "heka"
@@ -1182,8 +1183,69 @@ function mostrarDatosPersonales(data, info) {
   }
 }
 
+let selectControl = document.getElementById("selectControl");
+
+let objetosFrecuentes2 = [];
+
+function mostrarObjetosFrecuentesAdm(id) {
+  objetosFrecuentes2 = [];
+  firebase
+    .firestore()
+    .collection("usuarios")
+    .doc(id)
+    .collection("plantillasObjetosFrecuentes")
+    .get()
+    .then((querySnapshot) => {
+      querySnapshot.forEach((doc) => {
+        const objeto = { id: doc.id, ...doc.data() };
+        objetosFrecuentes2.push(objeto);
+      });
+    })
+    .then(() => {
+      renderObjetosFrecuentes();
+    });
+}
+
+selectControl.addEventListener("change", (e) => {
+  const value = e.target.value;
+
+  const objeto = objetosFrecuentes2.find((objeto) => objeto.id === value);
+
+  let nombreInput = document.getElementById("nombreInput");
+  let referenciaInput = document.getElementById("referenciaInput");
+  let descripcionEmpaqueInput = document.getElementById(
+    "descripcionEmpaqueInput"
+  );
+
+  nombreInput.value = objeto.nombre;
+  referenciaInput.value = objeto.referencia;
+  descripcionEmpaqueInput.value = objeto.paquete;
+});
+
+function renderObjetosFrecuentes() {
+  let selectControl = document.getElementById("selectControl");
+  selectControl.innerHTML = ""; // Limpiar las opciones existentes
+
+  objetosFrecuentes2.forEach((objeto) => {
+    let option = document.createElement("option");
+    option.value = objeto.id;
+    option.text = objeto.nombre;
+    selectControl.appendChild(option);
+  });
+  const objeto = objetosFrecuentes2[0] || {};
+
+  let nombreInput = document.getElementById("nombreInput");
+  let referenciaInput = document.getElementById("referenciaInput");
+  let descripcionEmpaqueInput = document.getElementById(
+    "descripcionEmpaqueInput"
+  );
+
+  nombreInput.value = objeto.nombre || "aún no hay objetos frecuentes";
+  referenciaInput.value = objeto.referencia || "";
+  descripcionEmpaqueInput.value = objeto.paquete || "";
+}
+
 function mostrarReferidosUsuarioAdm(centro_costo) {
-  console.log(centro_costo);
   const referidos = [];
 
   firebase

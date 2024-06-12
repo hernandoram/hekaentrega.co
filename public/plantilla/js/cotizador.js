@@ -716,7 +716,7 @@ function cardNoCobertura(transportadora, transp, message) {
 
 //icons
 
-const iconEfectivePayment= `
+const iconEfectivePayment = `
 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M4.00002 7.33334C3.86817 7.33334 3.73927 7.37244 3.62964 7.4457C3.52001 7.51895 3.43456 7.62307 3.3841 7.74489C3.33364 7.86671 3.32044 8.00075 3.34616 8.13007C3.37189 8.25939 3.43538 8.37818 3.52862 8.47141C3.62185 8.56465 3.74064 8.62814 3.86996 8.65387C3.99928 8.67959 4.13332 8.66639 4.25514 8.61593C4.37696 8.56547 4.48108 8.48002 4.55433 8.37039C4.62759 8.26076 4.66669 8.13186 4.66669 8.00001C4.66669 7.8232 4.59645 7.65363 4.47142 7.52861C4.3464 7.40358 4.17683 7.33334 4.00002 7.33334ZM12 7.33334C11.8682 7.33334 11.7393 7.37244 11.6296 7.4457C11.52 7.51895 11.4346 7.62307 11.3841 7.74489C11.3336 7.86671 11.3204 8.00075 11.3462 8.13007C11.3719 8.25939 11.4354 8.37818 11.5286 8.47141C11.6219 8.56465 11.7406 8.62814 11.87 8.65387C11.9993 8.67959 12.1333 8.66639 12.2551 8.61593C12.377 8.56547 12.4811 8.48002 12.5543 8.37039C12.6276 8.26076 12.6667 8.13186 12.6667 8.00001C12.6667 7.8232 12.5964 7.65363 12.4714 7.52861C12.3464 7.40358 12.1768 7.33334 12 7.33334ZM13.3334 3.33334H2.66669C2.13625 3.33334 1.62755 3.54406 1.25247 3.91913C0.877401 4.2942 0.666687 4.80291 0.666687 5.33334V10.6667C0.666687 11.1971 0.877401 11.7058 1.25247 12.0809C1.62755 12.456 2.13625 12.6667 2.66669 12.6667H13.3334C13.8638 12.6667 14.3725 12.456 14.7476 12.0809C15.1226 11.7058 15.3334 11.1971 15.3334 10.6667V5.33334C15.3334 4.80291 15.1226 4.2942 14.7476 3.91913C14.3725 3.54406 13.8638 3.33334 13.3334 3.33334ZM14 10.6667C14 10.8435 13.9298 11.0131 13.8048 11.1381C13.6797 11.2631 13.5102 11.3333 13.3334 11.3333H2.66669C2.48988 11.3333 2.32031 11.2631 2.19528 11.1381C2.07026 11.0131 2.00002 10.8435 2.00002 10.6667V5.33334C2.00002 5.15653 2.07026 4.98696 2.19528 4.86194C2.32031 4.73691 2.48988 4.66668 2.66669 4.66668H13.3334C13.5102 4.66668 13.6797 4.73691 13.8048 4.86194C13.9298 4.98696 14 5.15653 14 5.33334V10.6667ZM8.00002 6.00001C7.60446 6.00001 7.21778 6.11731 6.88888 6.33707C6.55998 6.55683 6.30364 6.86919 6.15226 7.23464C6.00089 7.6001 5.96128 8.00223 6.03845 8.39019C6.11562 8.77815 6.3061 9.13452 6.58581 9.41422C6.86551 9.69393 7.22188 9.88441 7.60984 9.96158C7.9978 10.0388 8.39993 9.99915 8.76539 9.84777C9.13084 9.69639 9.4432 9.44005 9.66296 9.11115C9.88272 8.78225 10 8.39557 10 8.00001C10 7.46958 9.78931 6.96087 9.41423 6.5858C9.03916 6.21072 8.53045 6.00001 8.00002 6.00001ZM8.00002 8.66668C7.86817 8.66668 7.73927 8.62758 7.62964 8.55432C7.52001 8.48107 7.43456 8.37695 7.3841 8.25513C7.33364 8.13332 7.32044 7.99927 7.34616 7.86995C7.37189 7.74063 7.43538 7.62184 7.52862 7.52861C7.62185 7.43537 7.74064 7.37188 7.86996 7.34615C7.99928 7.32043 8.13333 7.33363 8.25514 7.38409C8.37696 7.43455 8.48108 7.52 8.55433 7.62963C8.62759 7.73926 8.66669 7.86816 8.66669 8.00001C8.66669 8.17682 8.59645 8.34639 8.47142 8.47141C8.3464 8.59644 8.17683 8.66668 8.00002 8.66668Z" fill="#04AA5E"/>
 </svg>
@@ -734,17 +734,15 @@ const qrPayment = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" x
 </svg>
 `;
 
-const creditPayment= `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+const creditPayment = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M4.66665 10H6.66665C6.84346 10 7.01303 9.92977 7.13805 9.80475C7.26308 9.67972 7.33331 9.51015 7.33331 9.33334C7.33331 9.15653 7.26308 8.98696 7.13805 8.86194C7.01303 8.73692 6.84346 8.66668 6.66665 8.66668H4.66665C4.48984 8.66668 4.32027 8.73692 4.19524 8.86194C4.07022 8.98696 3.99998 9.15653 3.99998 9.33334C3.99998 9.51015 4.07022 9.67972 4.19524 9.80475C4.32027 9.92977 4.48984 10 4.66665 10ZM12.6666 3.33334H3.33331C2.80288 3.33334 2.29417 3.54406 1.9191 3.91913C1.54403 4.2942 1.33331 4.80291 1.33331 5.33334V11.3333C1.33331 11.8638 1.54403 12.3725 1.9191 12.7476C2.29417 13.1226 2.80288 13.3333 3.33331 13.3333H12.6666C13.1971 13.3333 13.7058 13.1226 14.0809 12.7476C14.4559 12.3725 14.6666 11.8638 14.6666 11.3333V5.33334C14.6666 4.80291 14.4559 4.2942 14.0809 3.91913C13.7058 3.54406 13.1971 3.33334 12.6666 3.33334ZM13.3333 11.3333C13.3333 11.5102 13.2631 11.6797 13.1381 11.8047C13.013 11.9298 12.8435 12 12.6666 12H3.33331C3.1565 12 2.98693 11.9298 2.86191 11.8047C2.73688 11.6797 2.66665 11.5102 2.66665 11.3333V7.33334H13.3333V11.3333ZM13.3333 6.00001H2.66665V5.33334C2.66665 5.15653 2.73688 4.98696 2.86191 4.86194C2.98693 4.73691 3.1565 4.66668 3.33331 4.66668H12.6666C12.8435 4.66668 13.013 4.73691 13.1381 4.86194C13.2631 4.98696 13.3333 5.15653 13.3333 5.33334V6.00001Z" fill="#04AA5E"/>
 </svg>
-`
+`;
 
-const adelantedPayment= `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+const adelantedPayment = `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M14.1466 8C14.4785 7.63491 14.6637 7.16004 14.6666 6.66667C14.6666 6.13623 14.4559 5.62753 14.0809 5.25245C13.7058 4.87738 13.1971 4.66667 12.6666 4.66667H9.21331C9.31981 4.36545 9.3526 4.04311 9.30893 3.72662C9.26526 3.41013 9.1464 3.10871 8.96231 2.84759C8.77822 2.58647 8.53426 2.37325 8.25084 2.22579C7.96742 2.07832 7.6528 2.0009 7.33331 2H3.33331C2.80288 2 2.29417 2.21071 1.9191 2.58579C1.54403 2.96086 1.33331 3.46957 1.33331 4C1.33625 4.49337 1.52145 4.96824 1.85331 5.33333C1.52534 5.70002 1.34402 6.17471 1.34402 6.66667C1.34402 7.15862 1.52534 7.63332 1.85331 8C1.52534 8.36668 1.34402 8.84138 1.34402 9.33333C1.34402 9.82529 1.52534 10.3 1.85331 10.6667C1.52145 11.0318 1.33625 11.5066 1.33331 12C1.33331 12.5304 1.54403 13.0391 1.9191 13.4142C2.29417 13.7893 2.80288 14 3.33331 14H12.6666C13.0518 13.9979 13.4282 13.8847 13.7506 13.6739C14.0729 13.4631 14.3276 13.1637 14.4839 12.8116C14.6402 12.4596 14.6915 12.0699 14.6317 11.6894C14.5719 11.3089 14.4034 10.9538 14.1466 10.6667C14.4746 10.3 14.6559 9.82529 14.6559 9.33333C14.6559 8.84138 14.4746 8.36668 14.1466 8ZM7.33331 12.6667H3.33331C3.1565 12.6667 2.98693 12.5964 2.86191 12.4714C2.73688 12.3464 2.66665 12.1768 2.66665 12C2.66665 11.8232 2.73688 11.6536 2.86191 11.5286C2.98693 11.4036 3.1565 11.3333 3.33331 11.3333H7.33331C7.51012 11.3333 7.67969 11.4036 7.80472 11.5286C7.92974 11.6536 7.99998 11.8232 7.99998 12C7.99998 12.1768 7.92974 12.3464 7.80472 12.4714C7.67969 12.5964 7.51012 12.6667 7.33331 12.6667ZM7.33331 10H3.33331C3.1565 10 2.98693 9.92976 2.86191 9.80474C2.73688 9.67971 2.66665 9.51014 2.66665 9.33333C2.66665 9.15652 2.73688 8.98695 2.86191 8.86193C2.98693 8.73691 3.1565 8.66667 3.33331 8.66667H7.33331C7.51012 8.66667 7.67969 8.73691 7.80472 8.86193C7.92974 8.98695 7.99998 9.15652 7.99998 9.33333C7.99998 9.51014 7.92974 9.67971 7.80472 9.80474C7.67969 9.92976 7.51012 10 7.33331 10ZM7.33331 7.33333H3.33331C3.1565 7.33333 2.98693 7.2631 2.86191 7.13807C2.73688 7.01305 2.66665 6.84348 2.66665 6.66667C2.66665 6.48986 2.73688 6.32029 2.86191 6.19526C2.98693 6.07024 3.1565 6 3.33331 6H7.33331C7.51012 6 7.67969 6.07024 7.80472 6.19526C7.92974 6.32029 7.99998 6.48986 7.99998 6.66667C7.99998 6.84348 7.92974 7.01305 7.80472 7.13807C7.67969 7.2631 7.51012 7.33333 7.33331 7.33333ZM7.33331 4.66667H3.33331C3.1565 4.66667 2.98693 4.59643 2.86191 4.4714C2.73688 4.34638 2.66665 4.17681 2.66665 4C2.66665 3.82319 2.73688 3.65362 2.86191 3.5286C2.98693 3.40357 3.1565 3.33333 3.33331 3.33333H7.33331C7.51012 3.33333 7.67969 3.40357 7.80472 3.5286C7.92974 3.65362 7.99998 3.82319 7.99998 4C7.99998 4.17681 7.92974 4.34638 7.80472 4.4714C7.67969 4.59643 7.51012 4.66667 7.33331 4.66667ZM13.1266 12.4733C13.0675 12.5357 12.9961 12.585 12.917 12.6183C12.8378 12.6516 12.7525 12.6681 12.6666 12.6667H9.21331C9.37318 12.2366 9.37318 11.7634 9.21331 11.3333H12.6666C12.8435 11.3333 13.013 11.4036 13.1381 11.5286C13.2631 11.6536 13.3333 11.8232 13.3333 12C13.3321 12.0887 13.3132 12.1762 13.2777 12.2575C13.2422 12.3388 13.1908 12.4121 13.1266 12.4733ZM13.1266 9.80667C13.0675 9.869 12.9961 9.91837 12.917 9.95165C12.8378 9.98493 12.7525 10.0014 12.6666 10H9.21331C9.37318 9.56993 9.37318 9.09674 9.21331 8.66667H12.6666C12.8435 8.66667 13.013 8.73691 13.1381 8.86193C13.2631 8.98695 13.3333 9.15652 13.3333 9.33333C13.3321 9.42201 13.3132 9.50955 13.2777 9.59083C13.2422 9.6721 13.1908 9.74548 13.1266 9.80667ZM13.1266 7.14C13.0675 7.20233 12.9961 7.2517 12.917 7.28499C12.8378 7.31827 12.7525 7.33473 12.6666 7.33333H9.21331C9.37318 6.90327 9.37318 6.43007 9.21331 6H12.6666C12.8435 6 13.013 6.07024 13.1381 6.19526C13.2631 6.32029 13.3333 6.48986 13.3333 6.66667C13.3321 6.75534 13.3132 6.84288 13.2777 6.92416C13.2422 7.00544 13.1908 7.07882 13.1266 7.14Z" fill="#04AA5E"/>
 </svg>
-`
-
-
+`;
 
 //Para llenar los diversos precios de las transportadoras que funcionarán con el cotizador
 async function detallesTransportadoras(data) {
@@ -904,7 +902,7 @@ async function detallesTransportadoras(data) {
           ((cotizacion.costoEnvioPrev - cotizacion.costoEnvio) * 100) /
             cotizacion.costoEnvioPrev
         );
-        descuento = percent ;
+        descuento = percent;
       }
 
       //Para cargar el sobreflete heka antes;
@@ -943,13 +941,13 @@ async function detallesTransportadoras(data) {
         `
         : "";
 
-  let detallesPagos;
+      let detallesPagos;
 
-  const soloEntreganEnDireccion = ["ENVIA"];
+      const soloEntreganEnDireccion = ["ENVIA"];
 
-  switch (transp) {
-    case "COORDINADORA":
-      detallesPagos = ` 
+      switch (transp) {
+        case "COORDINADORA":
+          detallesPagos = ` 
      <ul class="list-unstyled">
       <li class="d-flex align-items-center">
           <span class="mr-2">
@@ -977,9 +975,9 @@ async function detallesTransportadoras(data) {
       </li>
   </ul>
 `;
-      break;
-    default:
-      detallesPagos = `
+          break;
+        default:
+          detallesPagos = `
       <ul class="list-unstyled">
       <li class="d-flex align-items-center mb-2">
           <span class="mr-2">
@@ -989,12 +987,13 @@ async function detallesTransportadoras(data) {
       </li>
       </ul>
 
-      `
-      ;
-  }
+      `;
+      }
       const encabezado = `<li 
       style="cursor:pointer;" 
-      class="list-group-item list-group-item-action shadow-sm mb-2 border border-${transportadora.color}" 
+      class="list-group-item list-group-item-action shadow-sm mb-2 border border-${
+        transportadora.color
+      }" 
       id="list-transportadora-${transp}-list" 
       data-transp="${transp}"
       data-type="${data.type}"
@@ -1013,25 +1012,40 @@ async function detallesTransportadoras(data) {
 <div class="col-lg-7 col-md-7 col-sm-12 mt-3 mt-md-0 pl-md-3">
           <h5>
             <b>${transportadora.nombre}</b>
-            <span class="badge badge-${transportadora.color} p-2">${transp === "TCC" ? "Próximamente" : ""}</span>
+            <span class="badge badge-${transportadora.color} p-2">${
+        transp === "TCC" ? "Próximamente" : ""
+      }</span>
           </h5>
-          <p class="mb-0">Tiempo de entrega: ${cotizacion.tiempo || datos_de_cotizacion.tiempo} Días</p>
+          <p class="mb-0">Tiempo de entrega: ${
+            cotizacion.tiempo || datos_de_cotizacion.tiempo
+          } Días</p>
           <p class="d-sm-block mb-0">
-            Costo de envío para ${data.type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"}: 
-            <b>$${convertirMiles(data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor)}</b>
+            Costo de envío para ${
+              data.type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"
+            }: 
+            <b>$${convertirMiles(
+              data.type == "CONVENCIONAL" ? cotizacion.seguro : cotizacion.valor
+            )}</b>
           </p>
-          <p class="d-none ${data.type == "CONVENCIONAL" ? "" : "mb-0 d-sm-block"}">
-            El Valor consignado a tu cuenta será: <b>$${convertirMiles(cotizacion.valor - cotizacion.costoEnvio)}</b>
+          <p class="d-none ${
+            data.type == "CONVENCIONAL" ? "" : "mb-0 d-sm-block"
+          }">
+            El Valor consignado a tu cuenta será: <b>$${convertirMiles(
+              cotizacion.valor - cotizacion.costoEnvio
+            )}</b>
           </p>
-          <h5 class="text-danger ${soloEntreganEnDireccion.includes(transp) ? "" : "d-none"}">
+          <h5 class="text-danger ${
+            soloEntreganEnDireccion.includes(transp) ? "" : "d-none"
+          }">
             Solo entrega en dirección
           </h5>
-          ${cotizacion.type ==="PAGO CONTRAENTREGA" ?
-            `
+          ${
+            cotizacion.type === "PAGO CONTRAENTREGA"
+              ? `
             <h5 class="text-success mb-0 mt-2"><b>Tipo de pagos a destinatario</b></h5>
             ${detallesPagos}
             `
-            : ""
+              : ""
           }
         </div>
         <div class="col-lg-3 col-md-3 col-sm-12 d-flex flex-column justify-content-around mt-3 mt-md-0">
@@ -1041,11 +1055,13 @@ async function detallesTransportadoras(data) {
                 <p>Total</p>
               </div>
               <div class="text-end">
-                <h5><b>$${convertirMiles( cotizacion.costoEnvio )}</b></h5>
+                <h5><b>$${convertirMiles(cotizacion.costoEnvio)}</b></h5>
                 <small>con nosotros</small>
               </div>
             </div>
-            <span class="descuento-span w-100 badge badge-pill ${!descuento || descuento <= 0 ? "d-none": ""}">
+            <span class="descuento-span w-100 badge badge-pill ${
+              !descuento || descuento <= 0 ? "d-none" : ""
+            }">
               ${descuento} % de descuento 
             </span>
           </div>
@@ -1232,7 +1248,6 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
   //   >
   //       Ver referencia
   //   </span>`);
-
 
   //PRAR REORGANIZAR LAS TRANSPORTADORAS DESDE LA MEJOR
 
@@ -1472,8 +1487,6 @@ async function detallesOficinas(destino) {
 function mostrarOficinas(oficinas) {
   const mostradorOffi = $("#mostrador-oficinas");
   const wrapper = mostradorOffi.children(".swiper-wrapper");
-
-
 
   oficinas.forEach((oficina, i) => {
     const visualizador = new DOMParser().parseFromString(
@@ -2003,6 +2016,7 @@ function seleccionarTransportadora(e) {
         // </div>, "text/html`).body
       } else {
         finalizarCotizacion(datos_a_enviar);
+        selectores();
       }
     }
   });
@@ -2109,6 +2123,7 @@ const sellers = [
   "SellerNICE",
   "SellerMerakiJSLSAS"
 ];
+
 
 //M edevuelve el html del último formulario del cotizador
 function finalizarCotizacion(datos) {
@@ -2217,7 +2232,24 @@ function finalizarCotizacion(datos) {
         <h4 class="m-0 font-weight-bold text-primary text-center">Datos del producto</h4>
       </div>
           
-      <div class="card-body">
+ <div class="card-body">
+  <div class="row">    
+    <div class="form-group col-md">
+      <label for="list_bodegas-cotizador">
+        Productos Frecuentes
+        <i class="fa fa-question-circle" data-toggle="tooltip" title='Puedes listar productos frecuentes para una creación de guía más oportuna'></i> 
+      </label>
+      <select type="text" class="form-control" id= "select-productos-frecuentes">
+      <option value="">Seleccione</option>
+      ${objetosFrecuentes
+        ?.map(
+          (objeto) => `<option value="${objeto.id}">${objeto.nombre}</option>`
+        )
+        .join("")}
+      </select>
+    </div>
+  </div>
+
         <div class="row">
           <div class="col-md-6 mb-md-3 mb-2">
             <h6>Qué producto vas a enviar:</h6>
@@ -2242,7 +2274,7 @@ function finalizarCotizacion(datos) {
               type="text"
               maxlength="40"
             />
-          </div>
+          </div>  
       
           <div class="col-md-6 mb-md-3 mb-2">
             <h6>
@@ -2259,6 +2291,15 @@ function finalizarCotizacion(datos) {
             <p id="empaque-producto" class="text-warning d-none m-2"></p>
           </div>
         </div>
+
+       <div class="form-check">
+  <input class="form-check-input" type="checkbox" id="check-objetos-frecuentes">
+  <label class="form-check-label" for="check-objetos-frecuentes" id="check-objetos-frecuentes-label">
+    Agregar a objetos frecuentes
+  </label>
+</div>
+        </div>
+
       </div>
 
     </div>
@@ -2455,16 +2496,6 @@ function finalizarCotizacion(datos) {
         normalmente_envia = true;
       }
     }
-    let aviso = document.getElementById("aviso-producto");
-    if (!normalmente_envia) {
-      aviso.innerHTML =
-        'No se registra en lo que normalmente envías: <b>"' +
-        datos_usuario.objetos_envio.join(", ") +
-        '".</b> \r si deseas continuar de todos modos, solo ignora este mensaje';
-      aviso.classList.remove("d-none");
-    } else {
-      aviso.classList.add("d-none");
-    }
   });
 
   const ciudad = document.getElementById("ciudadDestinoUsuario");
@@ -2534,9 +2565,6 @@ function cargarUsuariosFrecuentes(personas) {
     const selectedPersona = personas.find(
       (persona) => persona.id === selectedValue
     );
-
-    console.log(selectedPersona);
-
     // Actualiza los valores de los inputs
     if (selectedPersona) {
       contenedorModificar.classList.remove("d-none");
@@ -3224,8 +3252,7 @@ class CalcularCostoDeEnvio {
 
     this.sobreflete_heka =
       this.set_sobreflete_heka ||
-      Math.ceil((valor * comision_heka) / 100) +
-        constante_heka;
+      Math.ceil((valor * comision_heka) / 100) + constante_heka;
 
     if (this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
     if (this.aveo) this.intoAveo(this.precio);
@@ -3720,8 +3747,9 @@ function modificarDatosDeTransportadorasAveo(res) {
 }
 
 // Para enviar la guia generada a firestore
-function crearGuia() {
-  enviarUsuarioFrecuente();
+async function crearGuia() {
+  await enviarUsuarioFrecuente();
+  await crearNuevoObjeto();
   let boton_final_cotizador = document.getElementById("boton_final_cotizador");
   const textoBtn = boton_final_cotizador.textContent;
   boton_final_cotizador.innerHTML =
@@ -3788,16 +3816,13 @@ function crearGuia() {
     );
     const checkCreacionPedido = $("#check-crear_pedido").prop("checked");
 
-    const informacionProducto = `${value("producto")} ${value(
-      "referencia")? `- Ref ${value("referencia")} `: ""}`;
+    const informacionProducto = `${value("producto")} ${
+      value("referencia") ? `- Ref ${value("referencia")} ` : ""
+    }`;
 
-    if (
-      value("producto") == ""
-    ) {
+    if (value("producto") == "") {
       renovarSubmit(boton_final_cotizador, textoBtn);
-      alert(
-        "Recuerde llenar también lo que contine su envío."
-      );
+      alert("Recuerde llenar también lo que contine su envío.");
       scrollTo({
         top: document.getElementById("producto").parentNode.offsetTop - 60,
         left: document.getElementById("producto").parentNode.offsetLeft,
@@ -3899,7 +3924,7 @@ function crearGuia() {
       datos_a_enviar.dice_contener = informacionProducto.trim();
       datos_a_enviar.referencia = value("referencia").trim();
       datos_a_enviar.observaciones = value("observaciones");
-      
+
       datos_a_enviar.empaqueDetalles = value("empaque").trim();
 
       datos_a_enviar.recoleccion_esporadica = recoleccion;
