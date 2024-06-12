@@ -2837,6 +2837,10 @@ async function subirObjetosEnvio(objetos) {
 
   const objetosFrecuentes = [];
 
+  if(!!objetos === false){
+    return
+  }
+
   const promises = objetos.map((objeto) => {
     const nuevoObjeto = {
       nombre: objeto,
