@@ -839,7 +839,7 @@ async function detallesTransportadoras(data) {
         seguro,
         transportadora.limitesValorDeclarado(data.peso)[0]
       );
-      if (data.type === "PAGO DESTINO") valor = 0;
+
       let cotizador = new CalcularCostoDeEnvio(valor, data.type);
 
       if (["ENVIA", "COORDINADORA"].includes(transp)) {
@@ -872,7 +872,9 @@ async function detallesTransportadoras(data) {
       }
 
       if (data.sumar_envio || data.type === CONTRAENTREGA) {
-        cotizacion.sumarCostoDeEnvio = cotizacion.valor;
+        // Cuanndo la guía en "PAGO DESTINO", no es necesario sumar nada, ya que la utilidad está en que no se le devuelve nada al cliente (exeptuando a inter, porque no nos dejó alternativa, sin embargo se proteje con la ganancia a Heka)
+        // En cambio la opción para sumar destino si sumaría el valor a recaudar que se ingrese, ya que la idea es que dicha cantidad quede intacta
+        cotizacion.sumarCostoDeEnvio = data.sumar_envio ? cotizacion.valor : 0;
 
         if (transp === "INTERRAPIDISIMO") {
           const minimoEnvio = transportadora.valorMinimoEnvio(
@@ -882,9 +884,9 @@ async function detallesTransportadoras(data) {
           if (diferenciaMinima > 0)
             cotizacion.sumarCostoDeEnvio = diferenciaMinima;
 
-          //Se le resta 1000 para evitar que se cruce con el valor constante que se añade sobre "this.sobreflete_heka += 1000"
+          //Se le resta 1000 [FACHADA_FLETE] para evitar que se cruce con el valor constante que se añade sobre "this.sobreflete_heka += 1000"
           const diferenciaActualRecaudoEnvio =
-            cotizacion.valor - cotizacion.costoEnvio - 1000;
+            cotizacion.valor - cotizacion.costoEnvio - FACHADA_FLETE;
           if (diferenciaActualRecaudoEnvio > 0 && data.type === CONTRAENTREGA) {
             factor_conversor = diferenciaActualRecaudoEnvio;
             cotizacion.set_sobreflete_heka =
@@ -2370,7 +2372,7 @@ function finalizarCotizacion(datos) {
       </div>
 
 
-   <div class="card cotizador-beta" id="opciones-cotizador">
+   <div class="card" id="opciones-cotizador">
       <div class="card-body">
 
         <div class="row">    
