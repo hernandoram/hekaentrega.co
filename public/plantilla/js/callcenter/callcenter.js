@@ -724,157 +724,154 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
   });
 
   boton_solucion.click(async () => {
-    const html_btn = boton_solucion.html();
-    boton_solucion.html(`
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                Cargando...
-            `);
-
-    let { value: respuestaSeller } = await Swal.fire({
-      title: "Respuesta llamada",
-      input: "textarea",
-      showCancelButton: true,
-      confirmButtonText: "Continuar",
-      cancelButtonText: `Cancelar`
-    });
-    let text;
-    let resTransportadora;
-    if (respuestaSeller) {
-      let { value: res } = await Swal.fire({
-        title: "Respuesta",
-        html: `
-                      <textarea placeholder="Escribe tu mensaje" id="respuesta-novedad" class="form-control"></textarea>
-                      <div id="posibles-respuestas"></div>
-                  `,
-        inputPlaceholder: "Escribe tu mensaje",
-        inputAttributes: {
-          "aria-label": "Escribe tu respuesta"
-        },
-        didOpen: respondiendoNovedad,
-        preConfirm: () => document.getElementById("respuesta-novedad").value,
-        showCancelButton: true
-      });
-      text = res;
-      if (text) {
-        let { value: resT } = await Swal.fire({
-          title: "Gestion para transportadora",
-          input: "textarea",
-          showCancelButton: true,
-          confirmButtonText: "Continuar",
-          cancelButtonText: `Cancelar`
-        });
-        resTransportadora = resT;
-      }
-    }
-
-    if (text == undefined || respuestaSeller == undefined) {
-      boton_solucion.html(html_btn);
-    } else if (text) {
-      text = text.trim();
-      const dataInforme = {
-        centro_de_costo: extraData.centro_de_costo,
-        guia: extraData.numeroGuia,
-        transportadora: data.transportadora,
-        fecha: new Date(),
-        resTransportadora: resTransportadora.trim(),
-        descargada: false
-      };
-      const solucion = {
-        gestion:
-          '<b>La transportadora "' +
-          data.transportadora +
-          '" responde lo siguiente:</b> ' +
-          text.trim(),
-        respuestaSeller:
-          "<b>El destinatario responde lo siguiente: </b> " +
-          respuestaSeller.trim(),
-        fecha: new Date(),
-        gestionada: "Callcenter",
-        admin: true,
-        type: "Individual"
-      };
-      Toast.fire("Se enviará mensaje al usuario", text, "info");
-      if (extraData.seguimiento) {
-        extraData.seguimiento.push(solucion);
-      } else {
-        extraData.seguimiento = new Array(solucion);
-      }
-
-      const mensajePreguardado = listaRespuestasNovedad.findIndex(
-        (l) => l.mensaje.toLowerCase() == text.toLowerCase()
-      );
-
-      if (mensajePreguardado == -1) {
-        listaRespuestasNovedad.push({
-          cantidad: 1,
-          mensaje: text
-        });
-      } else {
-        listaRespuestasNovedad[mensajePreguardado].cantidad++;
-      }
-
-      const referenciaGuia = firebase
-        .firestore()
-        .collection("usuarios")
-        .doc(id_user)
-        .collection("guias")
-        .doc(id_heka);
-
-      // Para guardar una nueva estructura de mensaje
-      db.collection("infoHeka")
-        .doc("respuestasNovedad")
-        .update({ respuestas: listaRespuestasNovedad });
-
-      referenciaGuia
-        .update({
-          seguimiento: extraData.seguimiento,
-          novedad_solucionada: true
-        })
-        .then(() => {
-          firebase
-            .firestore()
-            .collection("notificaciones")
-            .doc(id_heka)
-            .delete();
-
-          enviarNotificacion({
-            visible_user: true,
-            user_id: id_user,
-            id_heka: extraData.id_heka,
-            mensaje:
-              "Respuesta a Solución de la guía número " +
-              extraData.numeroGuia +
-              ": " +
-              text.trim(),
-            href: "novedades"
-          });
-          console.log("debe entrar a informe");
-          GuardarDatosInforme(dataInforme);
-
-          boton_solucion.html("Solucionada");
-        });
-    } else {
-      console.log("No se envió mensaje");
-      // return
-      referenciaGuia
-        .update({
-          novedad_solucionada: true
-        })
-        .then(() => {
-          firebase
-            .firestore()
-            .collection("notificaciones")
-            .doc(id_heka)
-            .delete();
-          boton_solucion.html("Solucionada");
-          Toast.fire(
-            "Guía Gestionada",
-            "La guía " +
-              data.numeroGuia +
-              " ha sido actualizada exitósamente como solucionada",
-            "success"
-          );
-        });
-    }
+    await gestionarRespuestaCallCenter(boton_solucion);
   });
+
+}
+
+async function gestionarRespuestaCallCenter(boton_solucion) {
+  const html_btn = boton_solucion.html();
+  boton_solucion.html(`
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              Cargando...
+          `);
+
+  let { value: respuestaSeller } = await Swal.fire({
+    title: "Respuesta llamada",
+    input: "textarea",
+    showCancelButton: true,
+    confirmButtonText: "Continuar",
+    cancelButtonText: `Cancelar`
+  });
+  let text;
+  let resTransportadora;
+  if (respuestaSeller) {
+    let { value: res } = await Swal.fire({
+      title: "Respuesta",
+      html: `
+                    <textarea placeholder="Escribe tu mensaje" id="respuesta-novedad" class="form-control"></textarea>
+                    <div id="posibles-respuestas"></div>
+                `,
+      inputPlaceholder: "Escribe tu mensaje",
+      inputAttributes: {
+        "aria-label": "Escribe tu respuesta"
+      },
+      didOpen: respondiendoNovedad,
+      preConfirm: () => document.getElementById("respuesta-novedad").value,
+      showCancelButton: true
+    });
+    text = res;
+    if (text) {
+      let { value: resT } = await Swal.fire({
+        title: "Gestion para transportadora",
+        input: "textarea",
+        showCancelButton: true,
+        confirmButtonText: "Continuar",
+        cancelButtonText: `Cancelar`
+      });
+      resTransportadora = resT;
+    }
+  }
+
+  if (text == undefined || respuestaSeller == undefined) {
+    boton_solucion.html(html_btn);
+  } else if (text) {
+    text = text.trim();
+    const dataInforme = {
+      centro_de_costo: extraData.centro_de_costo,
+      guia: extraData.numeroGuia,
+      transportadora: data.transportadora,
+      fecha: new Date(),
+      resTransportadora: resTransportadora.trim(),
+      descargada: false
+    };
+    const solucion = {
+      gestion:
+        '<b>La transportadora "' +
+        data.transportadora +
+        '" responde lo siguiente:</b> ' +
+        text.trim(),
+      respuestaSeller:
+        "<b>El destinatario responde lo siguiente: </b> " +
+        respuestaSeller.trim(),
+      fecha: new Date(),
+      gestionada: "Callcenter",
+      admin: true,
+      type: "Individual"
+    };
+    Toast.fire("Se enviará mensaje al usuario", text, "info");
+    if (extraData.seguimiento) {
+      extraData.seguimiento.push(solucion);
+    } else {
+      extraData.seguimiento = new Array(solucion);
+    }
+
+    const mensajePreguardado = listaRespuestasNovedad.findIndex(
+      (l) => l.mensaje.toLowerCase() == text.toLowerCase()
+    );
+
+    if (mensajePreguardado == -1) {
+      listaRespuestasNovedad.push({
+        cantidad: 1,
+        mensaje: text
+      });
+    } else {
+      listaRespuestasNovedad[mensajePreguardado].cantidad++;
+    }
+
+    const referenciaGuia = firebase
+      .firestore()
+      .collection("usuarios")
+      .doc(id_user)
+      .collection("guias")
+      .doc(id_heka);
+
+    // Para guardar una nueva estructura de mensaje
+    db.collection("infoHeka")
+      .doc("respuestasNovedad")
+      .update({ respuestas: listaRespuestasNovedad });
+
+    referenciaGuia
+      .update({
+        seguimiento: extraData.seguimiento,
+        novedad_solucionada: true
+      })
+      .then(() => {
+        firebase.firestore().collection("notificaciones").doc(id_heka).delete();
+
+        enviarNotificacion({
+          visible_user: true,
+          user_id: id_user,
+          id_heka: extraData.id_heka,
+          mensaje:
+            "Respuesta a Solución de la guía número " +
+            extraData.numeroGuia +
+            ": " +
+            text.trim(),
+          href: "novedades"
+        });
+        console.log("debe entrar a informe");
+        GuardarDatosInforme(dataInforme);
+
+        boton_solucion.html("Solucionada");
+      });
+  } else {
+    console.log("No se envió mensaje");
+    // return
+    referenciaGuia
+      .update({
+        novedad_solucionada: true
+      })
+      .then(() => {
+        firebase.firestore().collection("notificaciones").doc(id_heka).delete();
+        boton_solucion.html("Solucionada");
+        Toast.fire(
+          "Guía Gestionada",
+          "La guía " +
+            data.numeroGuia +
+            " ha sido actualizada exitósamente como solucionada",
+          "success"
+        );
+      });
+  }
 }
