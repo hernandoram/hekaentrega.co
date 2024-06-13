@@ -5150,11 +5150,23 @@ async function generarRotulo(id_guias, id_user) {
     table.appendChild(newRow.tr);
   };
 
+  const insertPage = (table) => {
+    const lastElement = div.lastChild;
+    let myParent = lastElement;
+    if(!lastElement || lastElement.childElementCount >= 2) {
+      myParent = document.createElement("div");
+      myParent.setAttribute("class", "page-printer");
+      div.appendChild(myParent);
+    }
+
+    myParent.appendChild(table);
+  }
+
   data_guias.forEach((guia, i, self) => {
     // Creamos la tabla pricipal
     const table = document.createElement("table");
     const tbody = document.createElement("tbody");
-    table.setAttribute("class", "table page-printer");
+    table.setAttribute("class", "table my-4");
 
     // Constantes que se diferencian cuando es para una oficina o para un usuario natural
     const nombres = guia.oficina
@@ -5172,7 +5184,9 @@ async function generarRotulo(id_guias, id_user) {
       : guia.telefonoD;
     const empresa = guia.oficina
       ? "<b>Flexii S.A.S.</b>"
-      : "<b>HEKA S.A.S.</b>";
+      : "<b>Heka Entrega</b>";
+
+    const nombreR = guia.info_user ? guia.info_user.nombre_completo : guia.nombreR
 
     const textoCantidadPaquetes = `Paquete ${i + 1} de ${self.length}`;
 
@@ -5189,7 +5203,7 @@ async function generarRotulo(id_guias, id_user) {
       `Destino: <b>${ciudad}</b>`
     );
     const rowDestinatarioRemitente = createRow(
-      `De: <b>${guia.nombreR}</b>`,
+      `De: <b>${nombreR}</b>`,
       `Para: <b>${nombres}</b>`
     );
     const rowDireccion = createRow(`${direccion}`, `${guia.observaciones}`);
@@ -5202,7 +5216,7 @@ async function generarRotulo(id_guias, id_user) {
       `CC/NIT: <b>${guia.identificacionD}</b>`
     );
 
-    // Se inserta el primer empaquetaod de filas
+    // Se inserta el primer empaquetado de filas
     tbody.appendChild(rowCiudades.tr);
     tbody.appendChild(rowDestinatarioRemitente.tr);
     tbody.appendChild(rowDireccion.tr);
@@ -5224,7 +5238,7 @@ async function generarRotulo(id_guias, id_user) {
         </tr>
       </table>
     `;
-    const rowMedidas = createRow(tablaDetalles, `<h3>${guia.numeroGuia}</h3>`);
+    const rowMedidas = createRow(tablaDetalles, `<h3 class="text-center">${guia.numeroGuia}</h3>`);
     rowMedidas.td1.classList.add("p-1");
     tbody.appendChild(rowMedidas.tr);
 
@@ -5239,23 +5253,23 @@ async function generarRotulo(id_guias, id_user) {
           }&code=Code25IL'/>
         </td>
       </tr>
-      <tr><td><h1>PARA COBRO ${convertirMoneda(guia.valor)}</h1></td></tr>
+      <tr><td><h3>PARA COBRO ${convertirMoneda(guia.valor)}</h3></td></tr>
       <tr><td>Fecha: ${genFecha()}</td></tr>
     `;
     tbody.innerHTML += barCodeRow;
 
-    tbody.appendChild(rowMedidas.tr);
+    // tbody.appendChild(rowMedidas.tr);
 
     // Se inserta el segundo empaquetaod de filas
-    tbody.appendChild(rowCiudades.tr);
-    tbody.appendChild(rowDestinatarioRemitente.tr);
-    tbody.appendChild(rowDireccion.tr);
+    // tbody.appendChild(rowCiudades.tr);
+    // tbody.appendChild(rowDestinatarioRemitente.tr);
+    // tbody.appendChild(rowDireccion.tr);
 
     // Se cambia el contanido, quitando el primer número y el número de identificación en la siguiente fila
     rowContacto.td1.innerHTML = `Cuenta: <b>-No registra</b>`;
-    tbody.appendChild(rowContacto.tr);
+    // tbody.appendChild(rowContacto.tr);
     const rowResumen = createRow(textoCantidadPaquetes, textoDiceContener);
-    tbody.appendChild(rowResumen.tr);
+    // tbody.appendChild(rowResumen.tr);
 
     const tablaFinal = `
       <table class="w-100 m-0">
@@ -5288,7 +5302,8 @@ async function generarRotulo(id_guias, id_user) {
     tbody.appendChild(finalRow.tr);
 
     table.appendChild(tbody);
-    div.appendChild(table);
+    // div.appendChild(table);
+    insertPage(table);
   });
 
   w = window.open();
