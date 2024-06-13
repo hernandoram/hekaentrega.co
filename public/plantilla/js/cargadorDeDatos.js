@@ -9,6 +9,8 @@ const versionSoftware = "1.0.2: contraseña para pagos";
 
 let objetosFrecuentes;
 
+let listaUsuarios=[];
+
 console.warn("Versión del software: " + versionSoftware);
 
 let user_id = localStorage.user_id,
@@ -57,6 +59,18 @@ async function validateToken(token) {
         localStorage.setItem("acceso_admin", true);
         console.warn("Bienvenido administrador");
         administracion = true;
+
+        try {
+          await firebase.firestore().collection("usuarios").get().then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+              listaUsuarios.push(doc.data().centro_de_costo);
+            });
+          }).then(() => {
+            console.warn(listaUsuarios);
+          });
+        } catch (error) {
+          console.log(error);
+        }
       }
 
       if (tipoUsuario === "seller") {
@@ -2837,8 +2851,8 @@ async function subirObjetosEnvio(objetos) {
 
   const objetosFrecuentes = [];
 
-  if(!!objetos === false){
-    return
+  if (!!objetos === false) {
+    return;
   }
 
   const promises = objetos.map((objeto) => {
