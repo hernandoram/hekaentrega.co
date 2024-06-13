@@ -1641,8 +1641,12 @@
                         <option value="CENTRO-COSTO">Centros de costo</option>
                         <option value="GUIAS">Guias</option>
                       </select>
-                      <input type="text" class="form-control" disabled id="input-filtrado-callcenter"
+                      <input class="form-control" list="sellersDatalist" disabled id="input-filtrado-callcenter"
                         aria-describedby="btn-revisar-callcenter">
+                        <datalist id="sellersDatalist">
+                        </datalist>
+
+
                       <div class="col-4">
                         <select name="activador_busq_callcenter" id="activador_busq_callcenter"
                           placeholder="Selecciona transportadora..." multiple class="form-control"

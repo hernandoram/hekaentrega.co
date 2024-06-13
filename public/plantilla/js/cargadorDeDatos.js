@@ -9,7 +9,7 @@ const versionSoftware = "1.0.2: contraseña para pagos";
 
 let objetosFrecuentes;
 
-let listaUsuarios=[];
+let listaUsuarios = [];
 
 console.warn("Versión del software: " + versionSoftware);
 
@@ -61,13 +61,24 @@ async function validateToken(token) {
         administracion = true;
 
         try {
-          await firebase.firestore().collection("usuarios").get().then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-              listaUsuarios.push(doc.data().centro_de_costo);
+          await firebase
+            .firestore()
+            .collection("usuarios")
+            .get()
+            .then((querySnapshot) => {
+              querySnapshot.forEach((doc) => {
+                listaUsuarios.push(doc.data().centro_de_costo);
+              });
+            })
+            .then(() => {
+              const sellerDatalist = document.getElementById("sellersDatalist");
+              listaUsuarios.forEach((user) => {
+                const option = document.createElement("option");
+                option.value = user; // Asumiendo que `user` es una cadena que representa el nombre del usuario
+                option.textContent = user; // Esto establece el texto que se muestra en la opción
+                sellerDatalist.appendChild(option);
+              });
             });
-          }).then(() => {
-            console.warn(listaUsuarios);
-          });
         } catch (error) {
           console.log(error);
         }
