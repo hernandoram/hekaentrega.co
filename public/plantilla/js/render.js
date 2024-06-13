@@ -1731,7 +1731,7 @@ function mostrarNotificacionEstaticaUsuario(noti, id) {
     parent.prepend(nuevoMostrador);
   }
 
-  $(".mostrador-notificacion-estatica").each((i, mostrador) => {
+  $(".mostrador-notificacion-estatica", parent).each((i, mostrador) => {
     const alerta = document.createElement("div");
     const buttonCloseAlert = document.createElement("button");
 
