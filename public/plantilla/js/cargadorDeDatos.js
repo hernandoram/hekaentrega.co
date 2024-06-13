@@ -7,6 +7,8 @@ const PROD_API_URL_PLATFORM2 = "http://hekaentrega.co"; //comentar o descomentar
 
 const versionSoftware = "1.0.2: contraseña para pagos";
 
+let objetosFrecuentes;
+
 console.warn("Versión del software: " + versionSoftware);
 
 let user_id = localStorage.user_id,
@@ -389,7 +391,7 @@ async function cargarDatosUsuario() {
 
   mostrarReferidos(datos_usuario);
 
-  //  console.log( datos_usuario)
+  objetosFrecuentes = await cargarObjetosFrecuentes();
 
   limitarAccesoSegunTipoUsuario();
   // Esto para que la clase estática encargada de cosas particulares del usuario pueda mostrar que ya está
@@ -527,6 +529,7 @@ async function consultarDatosDeUsuario() {
   };
 
   usuarioDoc.onSnapshot(actualizador);
+
   return await usuarioDoc.get().then(actualizador);
 }
 
@@ -2720,6 +2723,147 @@ textModal.addEventListener("click", function () {
 });
 
 traerNoti();
+
+let checkObjetosFrecuentes;
+
+let labelCheckObjetosFrecuentes;
+
+let selectItems;
+
+function selectores() {
+  checkObjetosFrecuentes = document.querySelector("#check-objetos-frecuentes");
+
+  labelCheckObjetosFrecuentes = document.querySelector(
+    "#check-objetos-frecuentes-label"
+  );
+
+  selectItems = document.querySelector("#select-productos-frecuentes");
+
+  selectItems.addEventListener("change", handleSelectItemsChange);
+}
+
+function handleSelectItemsChange(event) {
+  let valor = event.target.value;
+
+  if (valor === "") {
+    labelCheckObjetosFrecuentes.textContent = "Agregar a objetos frecuentes";
+    document.querySelector("#producto").value = "";
+    document.querySelector("#referencia").value = "";
+    document.querySelector("#empaque").value = "";
+  } else {
+    labelCheckObjetosFrecuentes.textContent = "Modificar objetos frecuentes";
+    const objetofrecuente = objetosFrecuentes.find((obj) => obj.id === valor);
+
+    document.querySelector("#producto").value = objetofrecuente.nombre;
+    document.querySelector("#referencia").value = objetofrecuente.referencia;
+    document.querySelector("#empaque").value = objetofrecuente.paquete;
+  }
+}
+
+async function crearNuevoObjeto() {
+  const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
+    "plantillasObjetosFrecuentes"
+  );
+
+  if (!checkObjetosFrecuentes.checked) {
+    return;
+  }
+
+  nuevoObjeto = {
+    nombre: document.querySelector("#producto").value,
+    referencia: document.querySelector("#referencia").value,
+    paquete: document.querySelector("#empaque").value
+  };
+
+  if (selectItems.value === "") {
+    referenciaUsuariosFrecuentes
+      .add(nuevoObjeto)
+      .then((docRef) => {
+        console.log("Documento agregado con ID:", docRef.id);
+        objetosFrecuentes.push({ id: docRef.id, ...nuevoObjeto });
+        avisar("Operación exitosa", "Objeto frecuente agregado");
+      })
+      .catch((error) => {
+        console.error("Error al agregar el documento:", error);
+      });
+  } else {
+    referenciaUsuariosFrecuentes
+      .doc(selectItems.value)
+      .set(nuevoObjeto)
+      .then(() => {
+        console.log("Documento actualizado con ID:", selectItems.value);
+        avisar("Operación exitosa", "Objeto frecuente modificado");
+
+        objetosFrecuentes = objetosFrecuentes.map((obj) => {
+          if (obj.id === selectItems.value) {
+            return { ...obj, ...nuevoObjeto };
+          } else {
+            return obj;
+          }
+        });
+      })
+      .catch((error) => {
+        console.error("Error al actualizar el documento:", error);
+      });
+  }
+}
+async function cargarObjetosFrecuentes() {
+  const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
+    "plantillasObjetosFrecuentes"
+  );
+  let opciones = [];
+  return referenciaUsuariosFrecuentes
+    .get()
+    .then(async (querySnapshot) => {
+      if (querySnapshot.empty) {
+        return subirObjetosEnvio(datos_usuario.objetos_envio);
+      }
+      querySnapshot.forEach((document) => {
+        const data = document.data();
+        data.id = document.id;
+        opciones.push(data);
+      });
+      return opciones;
+    })
+    .then((opciones) => {
+      console.warn(opciones);
+      return opciones;
+    });
+}
+
+async function subirObjetosEnvio(objetos) {
+  const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
+    "plantillasObjetosFrecuentes"
+  );
+
+  const objetosFrecuentes = [];
+
+  if(!!objetos === false){
+    return
+  }
+
+  const promises = objetos.map((objeto) => {
+    const nuevoObjeto = {
+      nombre: objeto,
+      referencia: "",
+      paquete: ""
+    };
+
+    return referenciaUsuariosFrecuentes
+      .add(nuevoObjeto)
+      .then((docRef) => {
+        const objetoFrecuente = { id: docRef.id, ...nuevoObjeto };
+        objetosFrecuentes.push(objetoFrecuente);
+        return objetoFrecuente;
+      })
+      .catch((error) => {
+        console.error("Error al agregar el documento:", error);
+      });
+  });
+
+  await Promise.all(promises);
+  return objetosFrecuentes;
+}
 
 window.addEventListener("hashchange", function () {
   if (window.location.hash === "#cotizar_envio") {

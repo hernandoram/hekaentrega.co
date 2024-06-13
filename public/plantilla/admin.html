@@ -418,6 +418,7 @@
                             id="actualizar_nombre_empresa">
                         </div>
                       </div>
+
                       <div class="form-group row">
                         <div class="col-sm-12">
                           <h6>Cosas que envía</h6>
@@ -817,6 +818,29 @@
                 </div>
               </div>
 
+
+                <!--OBJETOS FRECUENTES-->
+                <div class="card shadow mb-4">
+                  <!-- Card Header - Accordion -->
+                  <a href="#informacion-objetos" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                    aria-expanded="true" aria-controls="informacion-bodegas">
+                    <h6 class="m-0 font-weight-bold text-primary">Objetos Frecuentes</h6>
+                  </a>
+                  <!-- Card Content - Collapse -->
+                  <div class="collapse" id="informacion-objetos">
+                    <div class="card-body table-responsive">
+                      <select id="selectControl" class="form-control mb-3 w-100">
+                      </select>
+                      Nombre
+                      <input id="nombreInput" type="text" class="form-control mb-3" readonly value="Este usuario aún no tiene objetos frecuentes">
+                      Referencia
+                      <input id="referenciaInput" type="text" class="form-control mb-3" readonly value="Este usuario aún no tiene objetos frecuentes">
+                      Descripción y empaque
+                      <input id="descripcionEmpaqueInput" type="text" class="form-control mb-3" readonly value="Este usuario aún no tiene objetos frecuentes">
+                    </div>
+                  </div>
+                </div>
+
               <!--Referidos-->
               <div class="card shadow mb-4">
                 <!-- Card Header - Accordion -->
@@ -961,11 +985,6 @@
                             <h6>Correo electrónico*</h6>
                             <input type="email" class="form-control form-control-user" id="CPNcorreo"
                               aria-describedby="emailHelp" autocomplete="off" required>
-                          </div>
-                          <div class="col">
-                            <h6>Cosas que envía</h6>
-                            <input type="text" class="form-control form-control-user" id="CPNobjetos_envio"
-                              placeholder="objeto1,objeto2,etc..." autocomplete="off" required>
                           </div>
                         </div>
 

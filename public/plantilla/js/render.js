@@ -1641,6 +1641,9 @@ function mostrarNotificacion(data, type, id) {
   mensaje.style.overflowWrap = "anywhere";
   mensaje.style.webkitLineClamp = "4";
   mensaje.style.webkitBoxOrient = "vertical";
+  mensaje.style.whiteSpace = "pre-wrap";
+  mensaje.classList.add(["text-truncate"]);
+
   mensaje.innerHTML = data.mensaje;
   div_info.append(info, mensaje);
 
@@ -1672,7 +1675,7 @@ function mostrarNotificacion(data, type, id) {
           data.id_heka,
           data.guia
         );
-        mostrar("novedades");
+        mostrar("estados");
       } else {
         if (data.detalles) {
           console.log(data.detalles, data);
@@ -1728,7 +1731,7 @@ function mostrarNotificacionEstaticaUsuario(noti, id) {
     parent.prepend(nuevoMostrador);
   }
 
-  $(".mostrador-notificacion-estatica").each((i, mostrador) => {
+  $(".mostrador-notificacion-estatica", parent).each((i, mostrador) => {
     const alerta = document.createElement("div");
     const buttonCloseAlert = document.createElement("button");
 
@@ -1801,7 +1804,7 @@ function userClickNotification(data) {
   if (data.href === "novedades") {
     console.log(data);
     revisarGuiaUser(data.id_heka);
-    href = data.href;
+    href = "estados";
   } else {
     href = "documentos";
     actualizarHistorialDeDocumentos(data.timeline);

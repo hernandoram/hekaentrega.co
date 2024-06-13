@@ -216,6 +216,16 @@ const columns = [
   },
 ];
 
+ControlUsuario.hasLoaded.then(() => {
+  if(ControlUsuario.esPuntoEnvio) {
+    const columnsOfPunto = columns.filter(c => c.data === "detalles.comision_punto");
+    columnsOfPunto.forEach(c => {
+      c.visible = ControlUsuario.esPuntoEnvio;
+      c.saveInExcel = ControlUsuario.esPuntoEnvio;
+    });
+  }
+})
+
 const table = $("#tabla-historial-guias").DataTable({
   destroy: true,
   data: null,
