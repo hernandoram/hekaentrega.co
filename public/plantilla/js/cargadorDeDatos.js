@@ -2736,8 +2736,10 @@ function verificarBodegas(bodegasUser) {
         icon: "error",
         title: "No tienes bodegas registradas",
         text: "Por favor, registra una bodega para poder cotizar envíos"
-      }).then(() => {
-        window.location.replace("/plataforma2.html#bodegas");
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.replace("/plataforma2.html#bodegas");
+        }
       });
     }
   }
