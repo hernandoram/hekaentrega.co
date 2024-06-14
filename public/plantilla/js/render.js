@@ -2980,25 +2980,8 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
     });
   } else {
     $(".registrar-novedad").click(registrarNovedad);
-
-    const newTextAreaAndButton = $(`
-      <div class="col-12">
-      <textarea class="form-control m-2 col-12" id="textarea-${dataG.numeroGuia}"></textarea>
-      <button class="btn btn-success m-2 col-12" id="solucionar-guia-callcenter2-${dataG.numeroGuia}">
-      Solucionar
-      </button>
-      </div>
-      `);
-
-    const newButton = document.getElementById(`solucionar-guia-callcenter2-${dataG.numeroGuia}`)
-
-    // newButton.click(async () => {
-    //   alert("holaaa")
-    //   await gestionarRespuestaCallCenter2(newButton);
-    // });
-
-
-    info_gen.appendChild(newTextAreaAndButton[0]);
+    botonSolucionarExterno.addClass("col-12");
+    botonSolucionarExterno.appendTo(info_gen);
   }
 }
 

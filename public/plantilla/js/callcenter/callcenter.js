@@ -729,12 +729,16 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
 }
 
 async function gestionarRespuestaCallCenter(boton_solucion) {
+
+  $("#modal-gestionarNovedad").modal("hide")
+
   const html_btn = boton_solucion.html();
   boton_solucion.html(`
               <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
               Cargando...
           `);
 
+          
   let { value: respuestaSeller } = await Swal.fire({
     title: "Respuesta llamada",
     input: "textarea",
@@ -876,23 +880,4 @@ async function gestionarRespuestaCallCenter(boton_solucion) {
   }
 }
 
-async function gestionarRespuestaCallCenter2(boton_solucion) {
- // const html_btn = boton_solucion.html();
-  boton_solucion.html(`
-              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-              Cargando...
-          `);
-
-await Swal.close();
-
-setTimeout(() => {
-  Swal.fire({
-    title: "Respuesta llamada 2",
-    input: "text",
-    showCancelButton: true,
-    confirmButtonText: "Continuar",
-    cancelButtonText: "Cancelar"
-  });
-}, 100); 
-}
 
