@@ -71,6 +71,7 @@ async function validateToken(token) {
               });
             })
             .then(() => {
+              //list="sellersDatalist"
               const sellerDatalist = document.getElementById("sellersDatalist");
               listaUsuarios.forEach((user) => {
                 const option = document.createElement("option");
