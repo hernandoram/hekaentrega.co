@@ -726,7 +726,6 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
   boton_solucion.click(async () => {
     await gestionarRespuestaCallCenter(boton_solucion);
   });
-
 }
 
 async function gestionarRespuestaCallCenter(boton_solucion) {
@@ -760,6 +759,7 @@ async function gestionarRespuestaCallCenter(boton_solucion) {
       preConfirm: () => document.getElementById("respuesta-novedad").value,
       showCancelButton: true
     });
+
     text = res;
     if (text) {
       let { value: resT } = await Swal.fire({
@@ -875,3 +875,24 @@ async function gestionarRespuestaCallCenter(boton_solucion) {
       });
   }
 }
+
+async function gestionarRespuestaCallCenter2(boton_solucion) {
+ // const html_btn = boton_solucion.html();
+  boton_solucion.html(`
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              Cargando...
+          `);
+
+await Swal.close();
+
+setTimeout(() => {
+  Swal.fire({
+    title: "Respuesta llamada 2",
+    input: "text",
+    showCancelButton: true,
+    confirmButtonText: "Continuar",
+    cancelButtonText: "Cancelar"
+  });
+}, 100); 
+}
+

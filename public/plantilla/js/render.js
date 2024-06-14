@@ -2986,7 +2986,7 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
                     Solucionar
                 </button>`);
     newButton.click(async () => {
-      await gestionarRespuestaCallCenter(newButton);
+      await gestionarRespuestaCallCenter2(newButton);
     });
     info_gen.appendChild(newButton[0]);
   }
