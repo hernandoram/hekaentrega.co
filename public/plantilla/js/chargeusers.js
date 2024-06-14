@@ -34,6 +34,8 @@ const buscadorCallcenter = document.querySelector("#input-filtrado-callcenter");
 
 const buscadorPagos = document.querySelector("#filtro-pago-usuario")
 
+const buscadorUserEstados= document.querySelector("#filtrado-novedades-usuario")
+
 function CargarUsuarios(element) {
   element.addEventListener("click", () => {
     chargeUsers();
@@ -44,3 +46,4 @@ function CargarUsuarios(element) {
 CargarUsuarios(buscadorNombre);
 CargarUsuarios(buscadorCallcenter);
 CargarUsuarios(buscadorPagos);
+CargarUsuarios(buscadorUserEstados);
