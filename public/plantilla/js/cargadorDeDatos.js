@@ -59,30 +59,6 @@ async function validateToken(token) {
         localStorage.setItem("acceso_admin", true);
         console.warn("Bienvenido administrador");
         administracion = true;
-
-        try {
-          await firebase
-            .firestore()
-            .collection("usuarios")
-            .get()
-            .then((querySnapshot) => {
-              querySnapshot.forEach((doc) => {
-                listaUsuarios.push(doc.data().centro_de_costo);
-              });
-            })
-            .then(() => {
-              //list="sellersDatalist"
-              const sellerDatalist = document.getElementById("sellersDatalist");
-              listaUsuarios.forEach((user) => {
-                const option = document.createElement("option");
-                option.value = user; // Asumiendo que `user` es una cadena que representa el nombre del usuario
-                option.textContent = user; // Esto establece el texto que se muestra en la opción
-                sellerDatalist.appendChild(option);
-              });
-            });
-        } catch (error) {
-          console.log(error);
-        }
       }
 
       if (tipoUsuario === "seller") {
