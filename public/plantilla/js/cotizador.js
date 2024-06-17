@@ -1873,6 +1873,7 @@ function verificarAntesSeleccionarOficina(oficina, cotizacion) {
 //Selecciona la transportadora a utilizar
 function seleccionarTransportadora(e) {
   if (e.target.classList.contains("detalles")) return;
+  console.log(this);
   const transp = this.getAttribute("data-transp");
   const type = this.getAttribute("data-type");
   const isOficina = !!this.getAttribute("data-office");
@@ -1887,6 +1888,7 @@ function seleccionarTransportadora(e) {
   delete datos_a_enviar.datos_oficina;
   delete datos_a_enviar.id_oficina;
 
+  console.log(transp)
   let result_cotizacion = transportadoras[transp].cotizacion[seleccionado];
 
   if (isIndex) {
