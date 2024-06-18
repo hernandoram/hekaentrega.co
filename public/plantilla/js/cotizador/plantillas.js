@@ -29,7 +29,7 @@ checkActivarDestinoPlantilla.change(() => plantillasEl.change());
 const charger = new ChangeElementContenWhileLoading(btnCotizar);
 
 export function llenarBodegasCotizador() {
-  bodegasWtch.watch((info) => {
+  bodegasWtch.watchFromLast((info) => {
     if (!info) return;
 
 
