@@ -1,22 +1,19 @@
 import { v1 } from "../config/api.js";
 import { paymentAdmited } from "./constantes.js";
+import { TranslatorFromApi, translation } from "./translator.js";
 
 let datoscoti = {
   daneCityOrigin: "",
   daneCityDestination: "",
   typePayment: 1, // Falta asignarlo a la segunda carcasa del cotizador
-  declaredValue: parseInt(value("seguro-mercancia")),
-  weight: parseInt(value("Kilos")),
-  height: value("dimension-alto"),
-  long: value("dimension-largo"),
-  width: value("dimension-ancho"),
+  declaredValue: 90000,
+  weight: 1,
+  height: "1",
+  long: "1",
+  width: "1",
   withshippingCost: false, // Falta asignarlo a la segunda carcasa del cotizador
-  collectionValue: parseInt(value("seguro-mercancia")), // Falta asignarlo a la segunda carcasa del cotizador
+  collectionValue: 90000, // Falta asignarlo a la segunda carcasa del cotizador
 };
-const translation = {
-    typePayment: [null, PAGO_CONTRAENTREGA, CONTRAENTREGA, CONVENCIONAL]
-}
-
 export async function cotizadorApi() {
     let ciudadR = document.getElementById("ciudadR");
     let ciudadD = document.getElementById("ciudadD");
@@ -113,17 +110,15 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
     const detallesTransp = [];
     
     respuestaCotizacion.forEach((r, i) => {
-      const {entity, deliveryTime, declaredValue, valueDeposited, total} = r;
+      const {entity, deliveryTime, declaredValue, transportCollection, total} = r;
       const transp = entity.toUpperCase();
       const configTransp = transportadoras[transp];
       const color = configTransp.color;
       const type = translation.typePayment[datoscoti.typePayment];
       const pathLogo = configTransp.logoPath;
 
-      console.log(datoscoti, type);
-
       if (!configTransp.cotizacion) configTransp.cotizacion = new Object();
-        configTransp.cotizacion[type] = {...r, detalles: {}};
+        configTransp.cotizacion[type] = new TranslatorFromApi(datoscoti, r);
 
       // Muestra la lita de los tipo de pagos disponibles por transportadora cuando se trata de pago contraentrega
       const detallesPagos = `
@@ -162,10 +157,10 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
               <p class="mb-0">Tiempo de entrega: ${deliveryTime} Días</p>
               <p class="d-sm-block mb-0">
                 Costo de envío para ${type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"}: 
-                <b>$${convertirMiles(type == "CONVENCIONAL" ? declaredValue : valueDeposited)}</b>
+                <b>$${convertirMiles(type == "CONVENCIONAL" ? declaredValue : transportCollection)}</b>
               </p>
               <p class="d-none ${type == "CONVENCIONAL" ? "" : "mb-0 d-sm-block"}">
-                El Valor consignado a tu cuenta será: <b>$${convertirMiles(valueDeposited - total)}</b>
+                El Valor consignado a tu cuenta será: <b>$${convertirMiles(transportCollection - total)}</b>
               </p>
               <small class="text-warning">${r.annotations}</small>
               ${type ==="PAGO CONTRAENTREGA" ?
@@ -238,7 +233,7 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
                   r.transportCommission
                 )}</b></p>
                 <p class="card-text d-flex justify-content-between">Seguro mercancía <b>$${convertirMiles(
-                  r.transportCollection
+                  r.assured
                 )}</b></p>
               </div>
             </div>

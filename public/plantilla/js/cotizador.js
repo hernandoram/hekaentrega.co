@@ -1969,8 +1969,8 @@ function seleccionarTransportadora(e) {
       datos_a_enviar.valor = result_cotizacion.valor;
       datos_a_enviar.seguro = result_cotizacion.seguro;
       datos_a_enviar.type = type;
-      datos_a_enviar.dane_ciudadR = datos_de_cotizacion.dane_ciudadR;
-      datos_a_enviar.dane_ciudadD = datos_de_cotizacion.dane_ciudadD;
+      datos_a_enviar.dane_ciudadR = result_cotizacion.dane_ciudadR;
+      datos_a_enviar.dane_ciudadD = result_cotizacion.dane_ciudadD;
       datos_a_enviar.transportadora = transp;
 
       if (transp === "TCC") {
@@ -3303,6 +3303,8 @@ class CalcularCostoDeEnvio {
 
   async putTransp(transportadora, dataObj) {
     this.codTransp = transportadora;
+    this.dane_ciudadR = dataObj.dane_ciudadR;
+    this.dane_ciudadD = dataObj.dane_ciudadD;
     switch (transportadora) {
       case transportadoras.INTERRAPIDISIMO.cod:
         this.factor_de_conversion = 1 / 6000;
