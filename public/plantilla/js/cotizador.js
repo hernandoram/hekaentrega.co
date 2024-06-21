@@ -4827,7 +4827,7 @@ function observacionesServientrega(result_cotizacion) {
       c_destino.ciudad
     } disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`,
     `En caso de devolución pagarías: $${convertirMiles(
-      result_cotizacion.costoDevolucion
+      result_cotizacion.getDetails.cobraDevolucion ? result_cotizacion.costoDevolucion : 0
     )} (Aplica solo para envíos en pago contra entrega)`,
     "Las devoluciones con flexii se debe pagar envío ida y vuelta"
   ];
@@ -4856,7 +4856,7 @@ function observacionesInteRapidisimo(result_cotizacion) {
     "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
     "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
     "En caso de devolución pagarías: $" +
-      convertirMiles(result_cotizacion.costoDevolucion) +
+      convertirMiles(result_cotizacion.getDetails.cobraDevolucion ? result_cotizacion.costoDevolucion : 0) +
       " (Aplica solo para envíos en pago contra entrega)",
     "Las devoluciones con flexii se debe pagar envío ida y vuelta"
   ];
@@ -4885,7 +4885,7 @@ function observacionesEnvia(result_cotizacion) {
     "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
     "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
     `En caso de devolución pagarías: $${convertirMiles(
-      result_cotizacion.costoDevolucion
+      result_cotizacion.getDetails.cobraDevolucion ? result_cotizacion.costoDevolucion : 0
     )} (Aplica solo para envíos en pago contra entrega)`,
     "Las devoluciones con flexii se debe pagar envío ida y vuelta"
   ];

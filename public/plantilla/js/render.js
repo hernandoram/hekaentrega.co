@@ -4061,6 +4061,11 @@ class Watcher {
     this.watchers.push(fn);
   }
 
+  watchFromLast(fn) {
+    this.watchers.push(fn);
+    fn(this.value);
+  }
+
   init() {
     console.log("se Inició la función con =>", this.value);
   }

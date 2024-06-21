@@ -984,7 +984,7 @@ function seleccionarUsuario(id) {
         contenedor.classList.remove("d-none");
         const data = doc.data();
         const datos_bancarios = data.datos_bancarios;
-        const datos_personalizados = data.datos_personalizados;
+        const datos_personalizados = data.datos_personalizados ?? {};
         const bodegas = data.bodegas;
 
         console.log(acciones);
@@ -999,9 +999,21 @@ function seleccionarUsuario(id) {
         mostrarDatosPersonales(doc.data(), "personal");
 
         mostrarDatosPersonales(datos_bancarios, "bancaria");
-        mostrarDatosPersonales(datos_personalizados, "heka");
         mostrarBodegasUsuarioAdm(bodegas);
         mostrarObjetosFrecuentesAdm(doc.id);
+
+        getDataUserFromMongoByIdAdm(id)
+        .then((dataApi) => {
+          datos_personalizados.user_type = dataApi.response.user_type;
+
+          mostrarDatosPersonales(datos_personalizados, "heka");
+        })
+        .catch(() => {
+          // No se pudo cargar la información de mongo, pero básicamente se podrá la cargar la de heka, en caso de que exista
+          // Ya que aún, esta información no será actualizada en mongo, no afecta que una que otra ocasión no cargue
+          mostrarDatosPersonales(datos_personalizados, "heka");
+        });
+
       } else {
         // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
         //Hasta que todos los usuario futuramente tengan el doc "heka"
@@ -1565,6 +1577,28 @@ async function actualizarInformacionPersonal() {
       );
     });
   });
+}
+
+async function getDataUserFromMongoByIdAdm(id_usuario) {
+  const myHeaders = new Headers();
+  const token = localStorage.getItem("token");
+
+  myHeaders.append("Authorization", "Bearer " + token);
+
+  const userData = await fetch(
+    PROD_API_URL + "/api/v1/user?idFirebase=" + id_usuario + "&limit=1",
+    {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow"
+    }
+  ).then(async (response) => {
+    const data = await response.json();
+    console.log(data);
+    return data;
+  });
+
+  return userData;
 }
 
 function actualizarInformacionOficina() {
