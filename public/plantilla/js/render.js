@@ -2089,11 +2089,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
           extraData.novedad_solucionada ? "secondary" : "success"
         } m-2" 
         id="solucionar-guia-${data.numeroGuia}">
-            ${
-              extraData.novedad_solucionada
-                ? "Solucionada"
-                : "Solucionar"
-            }
+            ${extraData.novedad_solucionada ? "Solucionada" : "Solucionar"}
         </button>
         
         <button class="btn btn-info m-2" 
@@ -2106,12 +2102,20 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
         ? "Revisar"
         : "Gestionar";
   }
+
+  const movDate= new Date( momento_novedad.fechaMov);
+
+  const options = {day:"numeric", month:"long", year:"numeric", hour:"numeric", minute:"numeric", second:"numeric"}
+
+  const fechaFormateada2 = new Intl.DateTimeFormat("es-CO", options).format(movDate);
   tr.innerHTML = `
       <td>
         <div class="d-flex align-items-center">
           ${data.numeroGuia}
           <i id="actualizar-guia-${data.numeroGuia}" 
-          class="fa fa-sync ml-1 text-primary" title="Actualizar guía ${data.numeroGuia}" style="cursor: pointer"></i>
+          class="fa fa-sync ml-1 text-primary" title="Actualizar guía ${
+            data.numeroGuia
+          }" style="cursor: pointer"></i>
         </div>
       </td>
 
@@ -2129,7 +2133,9 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
       <td class="text-danger">${ultimo_movimiento.novedad}</td>
       <td>${data.transportadora || "Servientrega"}</td>
       <td>${
-        momento_novedad.fechaMov ? momento_novedad.fechaMov : "No aplica"
+        momento_novedad.fechaMov
+          ? fechaFormateada2
+          : "No aplica"
       }</td>
 
       <td class="text-center">
@@ -2140,18 +2146,13 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
 
       <td class="text-center">
           <span class="badge badge-danger p-2 my-auto">
-              ${diferenciaDeTiempo(
-                millis_ultimo_seguimiento,
-                new Date()
-              )} días
+              ${diferenciaDeTiempo(millis_ultimo_seguimiento, new Date())} días
           </span>
       </td>
 
       <td>${data.fechaEnvio}</td>
       <td>${data.estadoActual}</td>
-      <td style="min-width:200px; max-width:250px">${
-        extraData.nombreD
-      }</td>
+      <td style="min-width:200px; max-width:250px">${extraData.nombreD}</td>
 
       <!-- Dirección del destinatario-->
       <td style="min-width:250px; max-width:300px">
@@ -2233,7 +2234,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
 
     filteredItems.forEach((key) => {
       const value = localStorageItems.getItem(key);
-      const fecha = new Date(value);
+      const fecha = `${new Date(value)}`;
       const fechamil = fecha.getTime();
       const fechaactual = new Date();
       console.log(fechaactual.getTime() - fechamil);
@@ -2250,12 +2251,11 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
     extraData.id_heka = id_heka;
     gestionarNovedadModal(data, extraData, boton_solucion);
   });
-  
+
   $("#implantar_estado-" + data.numeroGuia).click(() => {
     extraData.id_heka = id_heka;
     implantarEstadoNuevoAdm(extraData, data);
   });
-
 
   const boton_actualizar = $("#actualizar-guia-" + data.numeroGuia);
 
@@ -2991,18 +2991,18 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
 
     // Agregamos el botón de afuera dentro del diálogo por intento de practicidad
     botonSolucionarExterno
-    .clone(true) // Para heredar la funcionalidad de donde proviene
-    .addClass("col-12") // Para que se adapte al estilo del dialogo
-    .attr("id", "") // Limpiamos el id para evitar problemas con el dom
-    .appendTo(info_gen);
+      .clone(true) // Para heredar la funcionalidad de donde proviene
+      .addClass("col-12") // Para que se adapte al estilo del dialogo
+      .attr("id", "") // Limpiamos el id para evitar problemas con el dom
+      .appendTo(info_gen);
   }
 }
 
 async function implantarEstadoNuevoAdm(guia, estadosGuia) {
-  const {id_user, id_heka} = guia;
-  console.log(id_user, id_heka)
+  const { id_user, id_heka } = guia;
+  console.log(id_user, id_heka);
   // Generamos la visa del formulario con lo que se reuqiere actualizar
-  const {value: formValue} = await Swal.fire({
+  const { value: formValue } = await Swal.fire({
     title: "Actualizar estado de guía",
     html: `
     <form id="form-imp_estado" class="mx-1">
@@ -3021,39 +3021,42 @@ async function implantarEstadoNuevoAdm(guia, estadosGuia) {
     </form>
     `,
     preConfirm: (data) => {
-
       const form = document.getElementById("form-imp_estado");
-      if(!form.checkValidity()) return Swal.showValidationMessage("Recuerde llenar los campos obligatorios.");
+      if (!form.checkValidity())
+        return Swal.showValidationMessage(
+          "Recuerde llenar los campos obligatorios."
+        );
 
       const formData = new FormData(form);
       return Object.fromEntries(formData);
     },
     confirmButtonText: "Actualizar"
-
   });
 
-  if(!formValue) return;
+  if (!formValue) return;
 
-  const {nuevoEstado, descripcionMov, observacion} = formValue;
+  const { nuevoEstado, descripcionMov, observacion } = formValue;
 
   // Generamos el objeto de actualización de la guía
   const actualizarGuia = {
     estado: nuevoEstado,
     seguimiento_finalizado: true, // Finalizamos el seguimiento para qeu no se vuelva a actualizar automáticamente
     enNovedad: false // Por defecto, este tipo de actualizaciones quita cualquier novedad presente
-  }
-
+  };
 
   // Generamos el objeto de actualización para los estados
   const actualizarEstados = {
     enNovedad: false, // Por defecto, este tipo de actualizaciones quita cualquier novedad presente
     mostrar_usuario: false, // Para que una vez se actualice, el usuario normalment no lo vea en la lista de movimiento (a menos que la busque)
     estadoActual: nuevoEstado, // Se actualiza el estado También sobre el historial de estados
-    movimientos: firebase.firestore.FieldValue.arrayUnion({ // Agregamos el nuevo estado sobre el historial de estados (despues de este no debería haber más)
-      descripcionMov, observacion, fechaMov: genFecha(),
+    movimientos: firebase.firestore.FieldValue.arrayUnion({
+      // Agregamos el nuevo estado sobre el historial de estados (despues de este no debería haber más)
+      descripcionMov,
+      observacion,
+      fechaMov: genFecha(),
       novedad: "" // Se guarda vacío ya que este representa la descripción de una novedad que ha sido "quitada"
-    }),
-  }
+    })
+  };
 
   // Actualizamos el estado de la guía
   try {
@@ -3063,7 +3066,6 @@ async function implantarEstadoNuevoAdm(guia, estadosGuia) {
     await ref.collection("estadoGuias").doc(id_heka).update(actualizarEstados);
 
     Toast.fire("Estado generado correctamente", "", "success");
-
   } catch (e) {
     Toast.fire("Error actualizando estados", e.message, "error");
   }
@@ -3401,7 +3403,6 @@ function verDetallesGuia() {
         }
         let info = data[v] || "No registra";
         const titulo = mostrador[1][n];
- 
 
         const isPosibleToBeForOfficeForRecolection =
           data.transportadora === "SERVIENTREGA" &&
@@ -3823,10 +3824,10 @@ const segmentarArreglo = (arr, rango) => {
 
 const estandarizarFecha = (date, specialFormat, parseHour) => {
   const fecha = new Date(date || new Date().getTime());
-  
-  if(isNaN(fecha.getTime())) return date;
-  
-  const norm = n => n < 10 ? "0" + n : n;
+
+  if (isNaN(fecha.getTime())) return date;
+
+  const norm = (n) => (n < 10 ? "0" + n : n);
   const format = {
     D: fecha.getDate(),
     DD: norm(fecha.getDate()),
@@ -3839,39 +3840,38 @@ const estandarizarFecha = (date, specialFormat, parseHour) => {
     m: fecha.getMinutes(),
     mm: norm(fecha.getMinutes()),
     s: fecha.getSeconds(),
-    ss: norm(fecha.getSeconds()),
-  }
+    ss: norm(fecha.getSeconds())
+  };
 
   let res = format.DD + "/" + format.MM + "/" + format.YYYY;
   let originalHour = parseInt(format.H);
-  if(parseHour) {
-    let h = originalHour
-    h = h ? h : 12 
-    const hourParser = h > 12 ? h - 12 : h
+  if (parseHour) {
+    let h = originalHour;
+    h = h ? h : 12;
+    const hourParser = h > 12 ? h - 12 : h;
     format.HH = norm(hourParser);
     format.H = hourParser;
   }
 
-  if(specialFormat) {
+  if (specialFormat) {
     res = "";
     const str = specialFormat.match(/(\w+)/g);
     const sign = specialFormat.match(/([^\w+])/g);
 
-    str.forEach((v,i) => {
+    str.forEach((v, i) => {
       res += format[v];
-      if(sign && sign[i]) {
+      if (sign && sign[i]) {
         res += sign[i];
       }
     });
 
-    if(parseHour) {
+    if (parseHour) {
       res += originalHour > 12 ? "p.m" : "a.m";
     }
-    
   }
 
   return res;
-}
+};
 
 class DetectorErroresInput {
   constructor(...selectors) {
@@ -3900,8 +3900,11 @@ class DetectorErroresInput {
           message = boolTaken.message;
 
           const character =
-            type === "string" ? forbid : 
-            type === "number" ? Number(this.value) : this.value.match(forbid)[0];
+            type === "string"
+              ? forbid
+              : type === "number"
+              ? Number(this.value)
+              : this.value.match(forbid)[0];
 
           if (boolTaken.removeAccents)
             this.value = this.removeAccents(this.value);
