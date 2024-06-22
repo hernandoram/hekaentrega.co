@@ -299,6 +299,22 @@
               </form>
             </div>
 
+
+            <table id="tablaUsers" class="d-none">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Nombre Seller</th>
+                  <th>Correo</th>
+                  <th>Telefono</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Los datos de las filas se llenarán aquí por DataTables -->
+              </tbody>
+            </table>
+
             <div class="d-flex justify-content-center">
               <div class="lds-ellipsis mt-4 d-none" id="cargador-usuarios">
                 <div></div>
@@ -2781,6 +2797,7 @@
     <script src="js/callcenter/callcenter.js"></script>
     <script src="js/cargadorDeDatos.js"></script>
     <script src="js/consultarCiudades.js" type="module"></script>
+    <script src="js/buscarUsuarios.js"></script>
     <script src="js/usuarios.js"></script>
     <script src="js/manejadorGuias.js"></script>
     <script src="js/adminPlatform.js" type="module"></script>

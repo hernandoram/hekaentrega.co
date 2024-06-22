@@ -719,7 +719,7 @@ botonBusquedaGeneral.onclick = function (e) {
   console.log("Botón de búsqueda general clickeado");
   e.preventDefault();
 
-  buscarUsuarios(e, true);
+  searchUsers(e, true);
 };
 
 botonBusquedaEspecializada.onclick = function (e) {
@@ -727,8 +727,10 @@ botonBusquedaEspecializada.onclick = function (e) {
   console.log("Botón de búsqueda especializada clickeado");
   e.preventDefault();
 
-  buscarUsuarios(e, false);
+  searchUsers(e, false);
 };
+
+
 
 //esta funcion utilizara a otra para retornarme informacion basica del usuario
 async function buscarUsuarios(e, esGeneral) {
