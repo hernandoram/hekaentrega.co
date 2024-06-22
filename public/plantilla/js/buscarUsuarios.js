@@ -52,7 +52,7 @@ async function buscarUsuarios2(esGeneral) {
           if (!querySnapshot.size) return false;
           querySnapshot.forEach((doc) => {
             if (doc.exists) {
-              userEncontrado = {...doc.data(), id : doc.id()};
+              userEncontrado = { ...doc.data(), id: doc.id() };
               //seleccionarUsuario(doc.id);
               bool = true;
             }
@@ -71,8 +71,7 @@ async function buscarUsuarios2(esGeneral) {
             if (!querySnapshot.size) return false;
             querySnapshot.forEach((doc) => {
               if (doc.exists) {
-                userEncontrado = {...doc.data(), id : doc.id()};
-                //seleccionarUsuario(doc.id);
+                userEncontrado = { ...doc.data(), id: doc.id };
                 bool = true;
               }
             });
@@ -84,8 +83,6 @@ async function buscarUsuarios2(esGeneral) {
   }
 
   if (especifico) return userEncontrado;
-
-  //Traer todos los usuarios
 }
 
 const filtrarUsuarios = async () => {
@@ -118,10 +115,10 @@ const filtrarUsuarios = async () => {
             (dir) => dir.codigo_sucursal_inter == nombreInp.trim()
           )
         ) {
-          usuariosFiltrados.push({ ...doc.data(), id: doc.id() });
+          usuariosFiltrados.push({ ...doc.data(), id: doc.id });
         }
       } else {
-        usuariosFiltrados.push({ ...doc.data(), id: doc.id() });
+        usuariosFiltrados.push({ ...doc.data(), id: doc.id });
       }
     });
   });
@@ -153,9 +150,7 @@ function generarTabla() {
           name: "Acciones",
           defaultContent: "N/A",
           render: function (data, type, row) {
-            return `<button class="accion-btn" data-id="' +
-              row.id +
-              '" id=${button - data.nombre}>Ver Más</button>`;
+            return `<button class="accion-btn" data-id="${row.id}" onclick="seleccionUsuario(this.getAttribute('data-id'))">Ver Más</button>`;
           },
           orderable: false
         }
@@ -163,4 +158,9 @@ function generarTabla() {
       data: Array.isArray(users) ? users : [users]
     });
   });
+}
+
+function seleccionUsuario(id){
+   //logica pa ver el user
+    alert(id)
 }
