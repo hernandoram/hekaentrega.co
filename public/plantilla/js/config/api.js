@@ -15,8 +15,11 @@ const v0 = {
     pathCotizador
 }
 
+const endpointV1 = "https://api.hekaentrega.co/Api/v1";
 const v1 = {
-    quoter: "https://api.hekaentrega.co/Api" + "/v1/shipping/quoter"
+    endpoint: endpointV1,
+    quoter: endpointV1 + "/shipping/quoter",
+    cities: endpointV1 + "/geolocation/city"
 }
 
 export {

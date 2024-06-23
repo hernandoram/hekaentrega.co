@@ -355,5 +355,3 @@ const exampleData = [
         "total": 17850
     }
 ]
-
-mostrarListaTransportadoras(exampleData);

@@ -1,3 +1,5 @@
+import { searchAndRenderCities, selectize } from "../consultarCiudades.js";
+
 const db = firebase.firestore();
 
 const bodegasEl = $("#list_bodegas-cotizador");
@@ -32,13 +34,10 @@ export function llenarBodegasCotizador() {
   bodegasWtch.watch((info) => {
     if (!info) return;
 
-
-    console.log(info);
-
     bodegasEl.html("");
 
-
     const opciones = info.map((bodega) => {
+      searchAndRenderCities(selectize.ciudadR, bodega.ciudad.split("(")[0]);
       const bodegaEl = `<option value="${bodega.ciudad}">${bodega.nombre}</option>`;
       return bodegaEl;
     });
@@ -61,6 +60,8 @@ export function llenarProductos(num) {
 
       opciones.push(`<option value="${d.id}">${data.nombre}</option>`);
       listaPlantilla.set(d.id, data);
+      searchAndRenderCities(selectize.ciudadD, data.ciudadD.split("(")[0]);
+
     });
 
     opciones.unshift(`<option value>Seleccione Plantilla</option>`);
@@ -146,24 +147,7 @@ function cambiarPlantillaCotizador(e) {
 }
 
 function llenarInputCiudad(inp, data) {
-  const dataSet = {
-    id: data.dane_ciudad,
-    ciudad: data.ciudad,
-    departamento: data.departamento,
-    dane_ciudad: data.dane_ciudad,
-  };
-
-  const info_servi = data.transportadoras["SERVIENTREGA"];
-  if (info_servi) {
-    dataSet.tipo_trayecto = info_servi.tipo_trayecto;
-    dataSet.frecuencia = info_servi.frecuencia;
-    dataSet.tipo_distribucion = info_servi.tipo_distribucion;
-  }
-
-  for (let d in dataSet) {
-    inp[0].dataset[d] = dataSet[d];
-  }
-  inp.val(data.nombre);
+  inp[0].selectize.setValue(data.dane_ciudad);
 }
 
 function limpiarInputCiudad(inp) {
