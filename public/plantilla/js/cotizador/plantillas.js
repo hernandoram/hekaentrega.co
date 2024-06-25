@@ -151,7 +151,7 @@ function llenarInputCiudad(inp, data) {
 }
 
 function limpiarInputCiudad(inp) {
-  inp.val("");
+  inp[0].selectize.clear();
   const atributos = [
     "id",
     "ciudad",

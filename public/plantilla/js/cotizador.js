@@ -2802,9 +2802,15 @@ function cambiarDirecion(e) {
 
 function verificarSelectorEntregaOficina(e) {
   const select = e.target;
-  const tipo_distribucion = ciudadD.dataset.tipo_distribucion;
-
+  
   if (codTransp === "SERVIENTREGA") {
+    // Esta parte quedaría cancelada, ya que los tipos de distribución ya se clasificaría por ciudad
+    // Cuando se realiza la búsqueda de la configuraciones que posee dicha ciudad
+    // Si se quiere restaurar, es propicio que se modifiquen las configuraciones de la ciudad, ya que desde
+    // la implementación del Api, ya no se usará el dataset del input
+
+    return;
+    const tipo_distribucion = ciudadD.dataset.tipo_distribucion;
     if (tipo_distribucion === "ENTREGA EN OFICINA" && select.value == "1") {
       swal.fire({
         icon: "warning",

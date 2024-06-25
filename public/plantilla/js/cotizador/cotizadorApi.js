@@ -1,4 +1,5 @@
 import { v1 } from "../config/api.js";
+import { selectize } from "../consultarCiudades.js";
 import { paymentAdmited } from "./constantes.js";
 import { TranslatorFromApi, translation } from "./translator.js";
 
@@ -15,12 +16,15 @@ let datoscoti = {
   collectionValue: 90000, // Falta asignarlo a la segunda carcasa del cotizador
 };
 export async function cotizadorApi() {
-    let ciudadR = document.getElementById("ciudadR");
-    let ciudadD = document.getElementById("ciudadD");
+    const controlCiudadR = selectize.ciudadR;
+    const controlCiudadD = selectize.ciudadD;
+
+    const ciudadR = controlCiudadR.options[controlCiudadR.getValue()];
+    ciudadD = controlCiudadD.options[controlCiudadD.getValue()];
    
     datoscoti = {
-        daneCityOrigin: ciudadR.dataset.dane_ciudad,
-        daneCityDestination: ciudadD.dataset.dane_ciudad,
+        daneCityOrigin: ciudadR.dane,
+        daneCityDestination: ciudadD.dane,
         typePayment: 1, // Falta asignarlo a la segunda carcasa del cotizador
         declaredValue: parseInt(value("seguro-mercancia")),
         weight: parseInt(value("Kilos")),
@@ -64,10 +68,10 @@ export async function cotizadorApi() {
     loader.end();
 
     // ***** Agregando los datos que se van a enviar para crear guia ******* //
-    datos_a_enviar.ciudadR = ciudadR.dataset.ciudad;
-    datos_a_enviar.ciudadD = ciudadD.dataset.ciudad;
-    datos_a_enviar.departamentoD = ciudadD.dataset.departamento;
-    datos_a_enviar.departamentoR = ciudadR.dataset.departamento;
+    datos_a_enviar.ciudadR = ciudadR.ciudad;
+    datos_a_enviar.ciudadD = ciudadD.ciudad;
+    datos_a_enviar.departamentoD = ciudadD.departamento;
+    datos_a_enviar.departamentoR = ciudadR.departamento;
     datos_a_enviar.alto = datoscoti.height;
     datos_a_enviar.ancho = datoscoti.width;
     datos_a_enviar.largo = datoscoti.long;
