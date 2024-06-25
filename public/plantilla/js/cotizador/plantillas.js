@@ -42,7 +42,7 @@ export function llenarBodegasCotizador() {
       return bodegaEl;
     });
 
-    opciones.unshift(`<option>Seleccione Bodega</option>`);
+    opciones.unshift(`<option value>Seleccione Bodega</option>`);
 
     bodegasEl.html(opciones.join(""));
   });
@@ -94,6 +94,8 @@ function setearCiudad(inp, data) {
 }
 
 function buscarCiudad(el, ciudad) {
+  if(!ciudad) return;
+
   charger.init();
   if (ciudadesTomadas.has(ciudad))
     return setearCiudad(el, ciudadesTomadas.get(ciudad));
@@ -113,6 +115,10 @@ function buscarCiudad(el, ciudad) {
 
 function cambiarPlantillaCotizador(e) {
   const val = e.target.value;
+
+  // Limpiamos los campos donde se ingresa la ciudad del destinatario y remitente
+  limpiarInputCiudad(inpCiudadR);
+  limpiarInputCiudad(inpCiudadD);
 
   formulario[0].reset();
   buscarCiudad(inpCiudadR, bodegasEl.val());
