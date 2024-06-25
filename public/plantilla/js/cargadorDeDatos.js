@@ -9,6 +9,8 @@ const versionSoftware = "1.0.2: contraseña para pagos";
 
 let objetosFrecuentes;
 
+let listaUsuarios = [];
+
 console.warn("Versión del software: " + versionSoftware);
 
 let user_id = localStorage.user_id,
@@ -2838,8 +2840,8 @@ async function subirObjetosEnvio(objetos) {
 
   const objetosFrecuentes = [];
 
-  if(!!objetos === false){
-    return
+  if (!!objetos === false) {
+    return;
   }
 
   const promises = objetos.map((objeto) => {
