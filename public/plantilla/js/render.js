@@ -2274,6 +2274,8 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
   });
 
   boton_solucion.click(async () => {
+    $("#modal-gestionarNovedad").modal("hide");
+
     const html_btn = boton_solucion.html();
     boton_solucion.html(`
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -2980,8 +2982,12 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
     });
   } else {
     $(".registrar-novedad").click(registrarNovedad);
-    botonSolucionarExterno.addClass("col-12");
-    botonSolucionarExterno.appendTo(info_gen);
+
+    botonSolucionarExterno
+    .clone(true) // Para heredar la funcionalidad de donde proviene
+    .addClass("col-12") // Para que se adapte al estilo del dialogo
+    .attr("id", "") // Limpiamos el id para evitar problemas con el dom
+    .appendTo(info_gen);
   }
 }
 
