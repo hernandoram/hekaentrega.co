@@ -15,8 +15,7 @@ export function cotizar(e) {
     if(datos_usuario.type == "NATURAL-FLEXII") {
       cotizadorFlexii();
     } else {
-      // cotizador();
-      cotizadorApi();
+      cotizador();
     }
 }
 
