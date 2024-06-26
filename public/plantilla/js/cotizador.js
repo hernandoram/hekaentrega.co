@@ -2847,6 +2847,25 @@ function verificarSelectorEntregaOficina(e) {
           tipo_distribucion +
           "."
       });
+
+
+      const inpDir = $("#direccionD");
+      const inputBarrio = $("#barrioD");
+      const observaciones = $("#observaciones");
+      if (select.value == "2") {
+        inpDir.prop("disabled", true).val("Oficina principal Servientrega");
+        inputBarrio
+          .prop("disabled", true)
+          .val("");
+  
+        observaciones
+          .prop("disabled", true)
+          .val("");
+      } else {
+        inpDir.prop("disabled", false).val("");
+        inputBarrio.prop("disabled", false).val("");
+        observaciones.prop("disabled", false).val("");
+      }
     }
   } else if (codTransp === "INTERRAPIDISIMO") {
     const inpDir = $("#direccionD");
