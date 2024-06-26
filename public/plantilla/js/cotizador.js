@@ -234,19 +234,23 @@ function ocultarCotizador() {
 let ciudadD;
 // Esta funcion verifica que los campos en el form esten llenados correctamente
 async function cotizador() {
-  let ciudadR = document.getElementById("ciudadR");
-  ciudadD = document.getElementById("ciudadD");
+  const controlCiudadR = document.getElementById("ciudadR").selectize;
+  const controlCiudadD = document.getElementById("ciudadD").selectize;
+
+  let ciudadR = controlCiudadR.options[controlCiudadR.getValue()];
+  ciudadD = controlCiudadD.options[controlCiudadD.getValue()];
+  
   let info_precio = new CalcularCostoDeEnvio();
   datos_a_enviar = new Object();
 
   console.log(info_precio);
   datos_de_cotizacion = {
-    ciudadR: value("ciudadR"),
-    ciudadD: value("ciudadD"),
-    dane_ciudadR: ciudadR.dataset.dane_ciudad,
-    dane_ciudadD: ciudadD.dataset.dane_ciudad,
-    ave_ciudadR: ciudadR.dataset.nombre_aveo,
-    ave_ciudadD: ciudadD.dataset.nombre_aveo,
+    ciudadD: `${ciudadD.ciudad}(${ciudadD.departamento})`, // Para mantener el formato de como se usaba antes
+    ciudadR: `${ciudadR.ciudad}(${ciudadR.departamento})`, // Para mantener el formato de como se usaba antes
+    dane_ciudadR: ciudadR.dane,
+    dane_ciudadD: ciudadD.dane,
+    ave_ciudadR: ciudadR.nombre_aveo,
+    ave_ciudadD: ciudadD.nombre_aveo,
     peso: value("Kilos"),
     seguro: value("seguro-mercancia"),
     recaudo: 0,
@@ -279,13 +283,12 @@ async function cotizador() {
   ) {
     //Si todos los campos no estan vacios
     if (
-      !ciudadR.dataset.dane_ciudad ||
-      !ciudadD.dataset.dane_ciudad ||
-      !/^.+\(.+\)$/.test(ciudadR.value) ||
-      !/^.+\(.+\)$/.test(ciudadD.value)
+      controlCiudadR.isInvalid || controlCiudadD.isInvalid
     ) {
-      alert(
-        "Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable"
+      Swal.fire(
+        "Error",
+        "Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable",
+        "error"
       );
       verificador(["ciudadR", "ciudadD"], true);
     } else if (
@@ -366,10 +369,10 @@ async function cotizador() {
         document.getElementById("boton_continuar").style.display = "none";
       }
       // ***** Agregando los datos que se van a enviar para crear guia ******* //
-      datos_a_enviar.ciudadR = ciudadR.dataset.ciudad;
-      datos_a_enviar.ciudadD = ciudadD.dataset.ciudad;
-      datos_a_enviar.departamentoD = ciudadD.dataset.departamento;
-      datos_a_enviar.departamentoR = ciudadR.dataset.departamento;
+      datos_a_enviar.ciudadR = ciudadR.ciudad;
+      datos_a_enviar.ciudadD = ciudadD.ciudad;
+      datos_a_enviar.departamentoD = ciudadD.departamento;
+      datos_a_enviar.departamentoR = ciudadR.departamento;
       datos_a_enviar.alto = value("dimension-alto");
       datos_a_enviar.ancho = value("dimension-ancho");
       datos_a_enviar.largo = value("dimension-largo");
@@ -1886,6 +1889,7 @@ function verificarAntesSeleccionarOficina(oficina, cotizacion) {
 //Selecciona la transportadora a utilizar
 function seleccionarTransportadora(e) {
   if (e.target.classList.contains("detalles")) return;
+  console.log(this);
   const transp = this.getAttribute("data-transp");
   const type = this.getAttribute("data-type");
   const isOficina = !!this.getAttribute("data-office");
@@ -1900,6 +1904,7 @@ function seleccionarTransportadora(e) {
   delete datos_a_enviar.datos_oficina;
   delete datos_a_enviar.id_oficina;
 
+  console.log(transp)
   let result_cotizacion = transportadoras[transp].cotizacion[seleccionado];
 
   if (isIndex) {
@@ -1980,8 +1985,8 @@ function seleccionarTransportadora(e) {
       datos_a_enviar.valor = result_cotizacion.valor;
       datos_a_enviar.seguro = result_cotizacion.seguro;
       datos_a_enviar.type = type;
-      datos_a_enviar.dane_ciudadR = datos_de_cotizacion.dane_ciudadR;
-      datos_a_enviar.dane_ciudadD = datos_de_cotizacion.dane_ciudadD;
+      datos_a_enviar.dane_ciudadR = result_cotizacion.dane_ciudadR;
+      datos_a_enviar.dane_ciudadD = result_cotizacion.dane_ciudadD;
       datos_a_enviar.transportadora = transp;
 
       if (transp === "TCC") {
@@ -2825,9 +2830,15 @@ function cambiarDirecion(e) {
 
 function verificarSelectorEntregaOficina(e) {
   const select = e.target;
-  const tipo_distribucion = ciudadD.dataset.tipo_distribucion;
-
+  
   if (codTransp === "SERVIENTREGA") {
+    // Esta parte quedaría cancelada, ya que los tipos de distribución ya se clasificaría por ciudad
+    // Cuando se realiza la búsqueda de la configuraciones que posee dicha ciudad
+    // Si se quiere restaurar, es propicio que se modifiquen las configuraciones de la ciudad, ya que desde
+    // la implementación del Api, ya no se usará el dataset del input
+
+    return;
+    const tipo_distribucion = ciudadD.dataset.tipo_distribucion;
     if (tipo_distribucion === "ENTREGA EN OFICINA" && select.value == "1") {
       swal.fire({
         icon: "warning",
@@ -3328,6 +3339,8 @@ class CalcularCostoDeEnvio {
 
   async putTransp(transportadora, dataObj) {
     this.codTransp = transportadora;
+    this.dane_ciudadR = dataObj.dane_ciudadR;
+    this.dane_ciudadD = dataObj.dane_ciudadD;
     switch (transportadora) {
       case transportadoras.INTERRAPIDISIMO.cod:
         this.factor_de_conversion = 1 / 6000;
@@ -4810,7 +4823,22 @@ function convertirMiles(n) {
 
 function observacionesServientrega(result_cotizacion) {
   console.log(result_cotizacion);
-  let c_destino = document.getElementById("ciudadD").dataset;
+  let c_destino = {
+    frecuencia: "N/A",
+    tipo_distribucion: "N/A"
+  };
+
+  // Estos elemantos fueron quitados por conexión con el api, qu emuestra las ciudades, y hast ahora, no parecen necesarios o útiles
+  // (Esperando confirmación)
+  const notasEliminadas = [
+    `Los envíos a ${
+      c_destino.ciudad
+    } frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span>`,
+    `Los envíos a ${
+      c_destino.ciudad
+    } disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`
+  ];
+
   let lists = [
     "Los tiempos de entrega son aproximados, no son exactos, ya que pueden suceder problemas operativos.",
     "El paquete deberá estar correctamente embalado, de lo contrario la transportadora no responderá por averías.",
@@ -4820,12 +4848,7 @@ function observacionesServientrega(result_cotizacion) {
     "Las recolecciones deberán ser solicitadas antes de las 10:00 am para que pasen el mismo día, en caso de ser solicitadas después de este horario quedaran automáticamente para el siguiente día.",
     "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
     "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero o la oficina donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
-    `Los envíos a ${
-      c_destino.ciudad
-    } frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span>`,
-    `Los envíos a ${
-      c_destino.ciudad
-    } disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`,
+    
     `En caso de devolución pagarías: $${convertirMiles(
       result_cotizacion.getDetails.cobraDevolucion ? result_cotizacion.costoDevolucion : 0
     )} (Aplica solo para envíos en pago contra entrega)`,

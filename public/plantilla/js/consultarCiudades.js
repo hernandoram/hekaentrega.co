@@ -1,4 +1,5 @@
 import ciudades from "../data/ciudades.js";
+import { v1 } from "./config/api.js";
 
 
 //Funcion de autocompletado de las ciudades en los inputs de ciudad (Solo funciona en este Script)
@@ -123,41 +124,124 @@ globalThis.consultarCiudades = (inp, cities = ciudades) => {
 
 autocomplete(document.getElementById("ciudadR-flexii"), ciudades);
 autocomplete(document.getElementById("ciudadD-flexii"), ciudades);
-autocomplete(document.getElementById("ciudadR"), ciudades);
-autocomplete(document.getElementById("ciudadD"), ciudades);
+// autocomplete(document.getElementById("ciudadR"), ciudades);
+// autocomplete(document.getElementById("ciudadD"), ciudades);
 autocomplete(document.getElementById("actualizar_ciudad"), ciudades);
 autocomplete(document.getElementById("CPNciudad"), ciudades);
 autocomplete(document.getElementById("CEdireccion"), ciudades);
 autocomplete(document.getElementById("ciudad-tienda"), ciudades);
 autocomplete(document.getElementById("ciudad-oficina"), ciudades);
 
+// Activando las funciones del Selectize
+const optionActivation = {
+  options: [],
+  optgroups: [],
+
+  load: function(query, callback) {
+    const clearCharger = () => $(".selectize-charger", this.$control).remove();
+
+    // El usuario tiene que ingresar al menos dos carácteres, para que comience la busqueda al api
+    // y se active este controlador
+    if(query.length < 3) {
+      clearCharger();
+      return;
+    }
+
+    const charger = `<small class="ml-3 selectize-charger">
+      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+      Cargando...
+    </small>`;
+
+    this.$control.append(charger);
+    
+    searchAndRenderCitiesOnLoad(this, query, callback)
+    .finally(() => clearCharger());
+
+  },
+  optgroupField: "departamento", // Para agrupar por departamente
+  labelField: "ciudad", // el label de lo que se le muestra al usuario por cada opción
+  valueField: "dane", // el valor que será guardado, una vez el lusuario seleccione dicha opción
+  searchField: ["ciudad"], // El criterio de filtrado para el input
+  sortField: 'ciudad' // Para organizar en orden alfabético por ciudad
+};
+
+const $ciudadR = $("#ciudadR");
+const $ciudadD = $("#ciudadD");
+$ciudadR.selectize(optionActivation);
+$ciudadD.selectize(optionActivation);
+
+// Los agrupamos todos en un objeto, para llamarlos individualmente en los módulos
+const selectize = {
+  ciudadR: $ciudadR[0].selectize,
+  ciudadD: $ciudadD[0].selectize
+}
+
+/**
+ * La función obtiene datos de la ciudad basándose en una consulta, consolidandolas de una forma que pueda
+ * ser utilizado fácilmente por la parametrización impuesta en la librería "selectize"
+ * @param elSelectize - Tiene que ser un elemento del tipo "selectize" para que pueda efectuar la agrupación
+ * por departamentos
+ * @param query - El parámetro "query" en la función "searchAndGroupCity" se utiliza para buscar
+ * ciudades según la entrada proporcionada por el usuario. La función obtiene datos de la ciudad desde
+ * un punto final API específico según la cadena de consulta proporcionada.
+ * @returns La función `searchAndGroupCity` devuelve una promesa que se resuelve en una serie de
+ * objetos que contienen información de la ciudad, como el nombre de la ciudad, el código dane y el
+ * departamento.
+*/
+async function searchAndGroupCity(elSelectize, query) {
+  return fetch(v1.cities + '?label=' + query)
+  .then(res => res.json())
+  .then(d => {
+    const ciudades = d.response.map(c => {
+      const dep = c.state.label;
+      if(!elSelectize.optgroups[dep]) {
+        elSelectize.addOptionGroup(dep, {label: dep, value: dep});
+      }
+
+      const response = {ciudad: c.label, dane: c.dane, departamento: dep};
+      return response;
+    });
+
+    return ciudades;
+  });
+}
+
+/**
+ * Utiliza la busqueda de ciudades para agrupar y finalmente renderizar las ciudades obtenidas del api 
+ * con los parámetros que ingresó el usuario
+ */
+async function searchAndRenderCitiesOnLoad(elSelectize, query, callback) {
+  return searchAndGroupCity(elSelectize, query)
+  .then(callback)
+  .catch(() => callback());
+}
+
+/** Esta función es más sitemática ( no sería activada por los usuarios), que consiste en
+ * precargar las ciudades ( por fuera de las configuraciones del selectize ), para que se actualicen desde afuera
+ * presenvando la busqueda y la configuración que utiliza el selectize de fondo
+ */
+async function searchAndRenderCities(elSelectize, query) {
+  if(elSelectize.loadedSearches[query])
+    return;
+
+  // Se marca lo que se está buscando para evitar que se consulte al api a cada momento
+  elSelectize.loadedSearches[query] = true;
+
+  searchAndGroupCity(elSelectize, query)
+  .then((cities) => {
+    cities.forEach(c => {
+      elSelectize.addOption(c);
+    });
+  })
+  .catch(e => {
+    cosole.log("No se han podido cargar las ciudades ", e.message);
+
+    // Si genera error la búsqueda, simplemente se elimina la propiedad
+    // para que cuando el cliente vuelva a ingresarla manual, trate de hacer la búsqueda nuevamente
+    delete elSelectize.loadedSearches[query];
+  });
+}
+
 export default autocomplete
 
-export {ciudades}
-
-function medidorDeBytesFirebase(entry) {
-  let size = 0;
-  if(!entry) return 0;
-  if(entry === null) return 1
-  switch(typeof entry) {
-      case "string":
-          return entry.length + 1
-      case "boolean":
-          return 1;
-      case "number":
-          return 8;
-      default:
-          if(entry.toDate instanceof Function) {
-              return 8
-          }
-
-          for(let c in entry) {
-              size += medidorDeBytesFirebase(entry[c]);
-              if(typeof c === "string") size += medidorDeBytesFirebase(c);
-          }
-          break;
-  }
-
-  console.log(entry, size);
-  return size;
-}
+export {ciudades, searchAndRenderCities, selectize}
