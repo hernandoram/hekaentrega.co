@@ -724,11 +724,11 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
   });
 
   boton_solucion.click(async () => {
-    await gestionarRespuestaCallCenter(boton_solucion);
+    await gestionarRespuestaCallCenter(boton_solucion, data, extraData, id_heka, id_user);
   });
 }
 
-async function gestionarRespuestaCallCenter(boton_solucion) {
+async function gestionarRespuestaCallCenter(boton_solucion, data, extraData, id_heka, id_user) {
 
   $("#modal-gestionarNovedad").modal("hide")
 
