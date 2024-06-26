@@ -178,7 +178,7 @@ function generarTabla() {
 function volver2() {
   document.getElementById("usuario-seleccionado").classList.add("d-none");
 
-  if (users.length > 1) {
+  if (users.length) {
     document.getElementById("tablaUsers").classList.remove("d-none");
     let wrapper = document.getElementById("tablaUsers_wrapper");
     wrapper.classList.remove("d-none");
