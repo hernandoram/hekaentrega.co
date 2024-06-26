@@ -130,6 +130,26 @@ function generarTabla() {
 
   $(document).ready(function () {
     $("#tablaUsers").DataTable({
+      columnDefs: [
+        {
+          targets: 0, // Corregido a 0 ya que "Acciones" es la primera columna
+          data: null,
+          name: "Acciones",
+          defaultContent: "N/A",
+          render: function (data, type, row) {
+            return (
+              `<button class="btn btn-primary me-2 accion-btn" data-id="${row.id}" onclick="seleccionarUsuario(this.getAttribute('data-id'))"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+</svg></button>` +
+              `<button class="btn btn-secondary accion-btn" data-id="${row.id}" onclick="manejarClickMovimientos('${row.id}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-graph-up" viewBox="0 0 16 16">
+  <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm14.5 1a.5.5 0 0 1 .5.5v11h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5h11ZM10 10h1V6h-1v4Zm-3 2h1V4h-1v8Zm-3-3h1V7H4v2Z"/>
+</svg></button>`
+            );
+          },
+          orderable: false,
+          width: "100%" // Ajusta el ancho según necesites
+        }
+      ],
       destroy: true,
       scrollX: true,
       responsive: true,
@@ -138,12 +158,9 @@ function generarTabla() {
           data: null,
           name: "Acciones",
           defaultContent: "N/A",
-          render: function (data, type, row) {
-            return `<button class="accion-btn" data-id="${row.id}" onclick="seleccionarUsuario(this.getAttribute('data-id'))">Ver Más</button>`;
-          },
-          orderable: false
-        },
-
+          orderable: false,
+          width: "20%"
+        }, // Columna de acciones ajustada
         { data: "nombres", name: "Nombre", defaultContent: "N/A" },
         {
           data: "centro_de_costo",
@@ -160,10 +177,25 @@ function generarTabla() {
 
 function volver2() {
   document.getElementById("usuario-seleccionado").classList.add("d-none");
-  
+
   if (users.length > 1) {
     document.getElementById("tablaUsers").classList.remove("d-none");
     let wrapper = document.getElementById("tablaUsers_wrapper");
     wrapper.classList.remove("d-none");
   }
+}
+
+function manejarClickMovimientos(id) {
+  // Suponiendo que genFecha y verMovimientos son funciones ya definidas en tu código
+  let fechaI = genFecha().split("-");
+  fechaI[1] -= 1;
+  fechaI = new Date(fechaI.join("-") + "::").getTime();
+  let fechaF = new Date(genFecha() + "::").getTime();
+  console.log(fechaI, fechaF);
+  verMovimientos(id, fechaI, fechaF + 8.64e7);
+
+  location.href = "#movimientos";
+
+  document.getElementById("nombre-usuario-movs").textContent =
+    users.find((user) => user.id == id).nombres;
 }
