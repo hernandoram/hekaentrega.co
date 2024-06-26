@@ -4,8 +4,11 @@ import { detallesFlexii } from "./views.js";
 //#region COTIZADOR FLEXII
 let datoscoti
 export async function cotizadorFlexii() {
-  let ciudadR = document.getElementById("ciudadR");
-  let ciudadD = document.getElementById("ciudadD");
+  const controlCiudadR = document.getElementById("ciudadR").selectize;
+  const controlCiudadD = document.getElementById("ciudadD").selectize;
+
+  let ciudadR = controlCiudadR.options[controlCiudadR.getValue()];
+  ciudadD = controlCiudadD.options[controlCiudadD.getValue()];
   
   datoscoti={
     // "peso": 1,
@@ -17,10 +20,10 @@ export async function cotizadorFlexii() {
     // "idDaneCiudadOrigen": "05001000",
     // "idDaneCiudadDestino": "05001000",
 
-    ciudadR: value("ciudadR"),
-    ciudadD: value("ciudadD"),
-    dane_ciudadR: ciudadR.dataset.dane_ciudad,
-    dane_ciudadD: ciudadD.dataset.dane_ciudad,
+    ciudadD: `${ciudadD.ciudad}(${ciudadD.departamento})`, // Para mantener el formato de como se usaba antes
+    ciudadR: `${ciudadR.ciudad}(${ciudadR.departamento})`, // Para mantener el formato de como se usaba antes
+    dane_ciudadR: ciudadR.dane,
+    dane_ciudadD: ciudadD.dane,
     peso: parseInt(value("Kilos")),
     valorSeguro: parseInt(value("seguro-mercancia")),
     valorRecaudo: parseInt(value("seguro-mercancia")),
@@ -34,14 +37,14 @@ export async function cotizadorFlexii() {
   // validad obejeto datoscorti != ""
   //Si todos los campos no estan vacios
   if (
-    !datoscoti.dane_ciudadR ||
-    !datoscoti.dane_ciudadD ||
-    !/^.+\(.+\)$/.test(datoscoti.ciudadR) ||
-    !/^.+\(.+\)$/.test(datoscoti.ciudadD)
+    controlCiudadR.isInvalid || controlCiudadD.isInvalid
   ) {
-    alert(
-      "Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable"
+    Swal.fire(
+      "Error",
+      "Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable",
+      "error"
     );
+
     verificador(["ciudadR", "ciudadD"], true);
   } else if (
     !ciudadesFlexxi.includes(datoscoti.ciudadR)
@@ -105,10 +108,10 @@ export async function cotizadorFlexii() {
     loader.end();
 
     // ***** Agregando los datos que se van a enviar para crear guia ******* //
-    datos_a_enviar.ciudadR = ciudadR.dataset.ciudad;
-    datos_a_enviar.ciudadD = ciudadD.dataset.ciudad;
-    datos_a_enviar.departamentoD = ciudadD.dataset.departamento;
-    datos_a_enviar.departamentoR = ciudadR.dataset.departamento;
+    datos_a_enviar.ciudadR = ciudadR.ciudad;
+    datos_a_enviar.ciudadD = ciudadD.ciudad;
+    datos_a_enviar.departamentoD = ciudadD.departamento;
+    datos_a_enviar.departamentoR = ciudadR.departamento;
     datos_a_enviar.alto = datoscoti.alto;
     datos_a_enviar.ancho = datoscoti.ancho;
     datos_a_enviar.largo = datoscoti.largo;

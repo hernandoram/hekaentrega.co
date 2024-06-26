@@ -1,4 +1,3 @@
-import { cotizadorApi } from "./cotizadorApi.js";
 import { cotizadorFlexii } from "./cotizadorFlexii.js";
 
 /**
@@ -13,10 +12,9 @@ export function cotizar(e) {
     // o el cotizador por defecto (que usa la forma convencional)
     console.log(e.target.classList)
     if(datos_usuario.type == "NATURAL-FLEXII") {
-        cotizadorFlexii();
+      cotizadorFlexii();
     } else {
       cotizador();
-      // cotizadorApi();
     }
 }
 
