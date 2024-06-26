@@ -730,8 +730,6 @@ botonBusquedaEspecializada.onclick = function (e) {
   searchUsers(e, false);
 };
 
-
-
 //esta funcion utilizara a otra para retornarme informacion basica del usuario
 async function buscarUsuarios(e, esGeneral) {
   console.log("buscando usuarios");
@@ -972,7 +970,13 @@ $("#buscador_usuarios-nombre, #buscador_usuarios-direccion").keyup((e) => {
 // esta funcion me busca el usuario seleccionado con informacion un poco mas detallada
 function seleccionarUsuario(id) {
   let contenedor = document.getElementById("usuario-seleccionado");
-  let mostrador = document.getElementById("mostrador-usuarios");
+  let mostrador = document.getElementById("tablaUsers");
+  const wrapper = document.getElementById("tablaUsers_wrapper");
+
+  if (wrapper) {
+    wrapper.classList.add("d-none");
+  }
+
   contenedor.setAttribute("data-id", id);
   mostrador.classList.add("d-none");
 
@@ -1005,17 +1009,16 @@ function seleccionarUsuario(id) {
         mostrarObjetosFrecuentesAdm(doc.id);
 
         getDataUserFromMongoByIdAdm(id)
-        .then((dataApi) => {
-          datos_personalizados.user_type = dataApi.response.user_type;
+          .then((dataApi) => {
+            datos_personalizados.user_type = dataApi.response.user_type;
 
-          mostrarDatosPersonales(datos_personalizados, "heka");
-        })
-        .catch(() => {
-          // No se pudo cargar la información de mongo, pero básicamente se podrá la cargar la de heka, en caso de que exista
-          // Ya que aún, esta información no será actualizada en mongo, no afecta que una que otra ocasión no cargue
-          mostrarDatosPersonales(datos_personalizados, "heka");
-        });
-
+            mostrarDatosPersonales(datos_personalizados, "heka");
+          })
+          .catch(() => {
+            // No se pudo cargar la información de mongo, pero básicamente se podrá la cargar la de heka, en caso de que exista
+            // Ya que aún, esta información no será actualizada en mongo, no afecta que una que otra ocasión no cargue
+            mostrarDatosPersonales(datos_personalizados, "heka");
+          });
       } else {
         // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
         //Hasta que todos los usuario futuramente tengan el doc "heka"
@@ -1500,9 +1503,8 @@ function limpiarFormulario(parent, query) {
 
 async function actualizarInformacionPersonal() {
   const tipoUsuario = document.querySelector("#actualizar_tipo_user").value;
-  
-  const type = tipoUsuario === "" ? "NATURAL" : tipoUsuario;
 
+  const type = tipoUsuario === "" ? "NATURAL" : tipoUsuario;
 
   let datos = {
     nombres: value("actualizar_nombres"),

@@ -1,19 +1,16 @@
 let users;
 
 async function searchUsers(esGeneral) {
-  const mostrador = document.getElementById("mostrador-usuarios");
-  mostrador.innerHTML = "";
   document.getElementById("cargador-usuarios").classList.remove("d-none");
 
   users = await buscarUsuarios2(esGeneral);
-  console.warn(users);
+
   if (!users) {
     users = await filtrarUsuarios();
     // renderizar usuarios en la tabla
   }
-  generarTabla();
-
   document.getElementById("cargador-usuarios").classList.add("d-none");
+  Array.isArray(users) ? generarTabla() : "";
 }
 
 async function buscarUsuarios2(esGeneral) {
@@ -52,8 +49,8 @@ async function buscarUsuarios2(esGeneral) {
           if (!querySnapshot.size) return false;
           querySnapshot.forEach((doc) => {
             if (doc.exists) {
-              userEncontrado = { ...doc.data(), id: doc.id() };
-              //seleccionarUsuario(doc.id);
+              userEncontrado = { ...doc.data(), id: doc.id };
+              seleccionarUsuario(doc.id);
               bool = true;
             }
           });
@@ -137,6 +134,16 @@ function generarTabla() {
       scrollX: true,
       responsive: true,
       columns: [
+        {
+          data: null,
+          name: "Acciones",
+          defaultContent: "N/A",
+          render: function (data, type, row) {
+            return `<button class="accion-btn" data-id="${row.id}" onclick="seleccionarUsuario(this.getAttribute('data-id'))">Ver Más</button>`;
+          },
+          orderable: false
+        },
+
         { data: "nombres", name: "Nombre", defaultContent: "N/A" },
         {
           data: "centro_de_costo",
@@ -144,23 +151,19 @@ function generarTabla() {
           defaultContent: "N/A"
         },
         { data: "correo", name: "Correo", defaultContent: "N/A" },
-        { data: "contacto", name: "Telefono", defaultContent: "N/A" },
-        {
-          data: null,
-          name: "Acciones",
-          defaultContent: "N/A",
-          render: function (data, type, row) {
-            return `<button class="accion-btn" data-id="${row.id}" onclick="seleccionUsuario(this.getAttribute('data-id'))">Ver Más</button>`;
-          },
-          orderable: false
-        }
+        { data: "contacto", name: "Telefono", defaultContent: "N/A" }
       ],
-      data: Array.isArray(users) ? users : [users]
+      data: users
     });
   });
 }
 
-function seleccionUsuario(id){
-   //logica pa ver el user
-    alert(id)
+function volver2() {
+  document.getElementById("usuario-seleccionado").classList.add("d-none");
+  
+  if (users.length > 1) {
+    document.getElementById("tablaUsers").classList.remove("d-none");
+    let wrapper = document.getElementById("tablaUsers_wrapper");
+    wrapper.classList.remove("d-none");
+  }
 }
