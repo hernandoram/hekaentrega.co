@@ -109,6 +109,26 @@ window.addEventListener("hashchange", () => {
   mostrar(window.location.hash.replace(/#/, ""));
 });
 
+
+
+function formateoDDMMYYYY(date) {
+  const movDate = new Date(date);
+
+  // Verificar si movDate es una fecha inválida
+  if (isNaN(movDate.getTime())) return "No aplica";
+
+  const options = {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric"
+  };
+
+  return new Intl.DateTimeFormat("es-CO", options).format(movDate);
+}
+
 //// funcion muestra el resultado de busqueda de guia por fecha
 function tablaDeGuias(id, datos) {
   return `<tr id="historial-guias-row${id}"
@@ -2103,11 +2123,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
         : "Gestionar";
   }
 
-  const movDate= new Date( momento_novedad.fechaMov);
-
-  const options = {day:"numeric", month:"long", year:"numeric", hour:"numeric", minute:"numeric", second:"numeric"}
-
-  const fechaFormateada2 = new Intl.DateTimeFormat("es-CO", options).format(movDate);
+const fechaFormateada2 = formateoDDMMYYYY(momento_novedad.fechaMov);
   tr.innerHTML = `
       <td>
         <div class="d-flex align-items-center">
@@ -2132,11 +2148,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
 
       <td class="text-danger">${ultimo_movimiento.novedad}</td>
       <td>${data.transportadora || "Servientrega"}</td>
-      <td>${
-        momento_novedad.fechaMov
-          ? fechaFormateada2
-          : "No aplica"
-      }</td>
+      <td>${momento_novedad.fechaMov ? fechaFormateada2 : "No aplica"}</td>
 
       <td class="text-center">
         <span class="badge badge-danger p-2 my-auto">
