@@ -115,7 +115,7 @@ function formateoDDMMYYYY(date) {
   const movDate = new Date(date);
 
   // Verificar si movDate es una fecha inválida
-  if (isNaN(movDate.getTime())) return "No aplica";
+  if (isNaN(movDate.getTime())) return date;
 
   const options = {
     day: "numeric",
