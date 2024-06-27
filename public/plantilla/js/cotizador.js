@@ -2832,6 +2832,25 @@ function verificarSelectorEntregaOficina(e) {
   const select = e.target;
   
   if (codTransp === "SERVIENTREGA") {
+    const inpDir = $("#direccionD");
+    const inputBarrio = $("#barrioD");
+    const observaciones = $("#observaciones");
+    if (select.value == "2") {
+      inpDir.prop("disabled", true).val("Oficina principal Servientrega");
+      inputBarrio
+        .prop("disabled", true)
+        .val("");
+
+      observaciones
+        .prop("disabled", true)
+        .val("");
+    } else {
+      inpDir.prop("disabled", false).val("");
+      inputBarrio.prop("disabled", false).val("");
+      observaciones.prop("disabled", false).val("");
+    }
+
+
     // Esta parte quedaría cancelada, ya que los tipos de distribución ya se clasificaría por ciudad
     // Cuando se realiza la búsqueda de la configuraciones que posee dicha ciudad
     // Si se quiere restaurar, es propicio que se modifiquen las configuraciones de la ciudad, ya que desde
@@ -2858,25 +2877,6 @@ function verificarSelectorEntregaOficina(e) {
           tipo_distribucion +
           "."
       });
-
-
-      const inpDir = $("#direccionD");
-      const inputBarrio = $("#barrioD");
-      const observaciones = $("#observaciones");
-      if (select.value == "2") {
-        inpDir.prop("disabled", true).val("Oficina principal Servientrega");
-        inputBarrio
-          .prop("disabled", true)
-          .val("");
-  
-        observaciones
-          .prop("disabled", true)
-          .val("");
-      } else {
-        inpDir.prop("disabled", false).val("");
-        inputBarrio.prop("disabled", false).val("");
-        observaciones.prop("disabled", false).val("");
-      }
     }
   } else if (codTransp === "INTERRAPIDISIMO") {
     const inpDir = $("#direccionD");
@@ -2885,10 +2885,10 @@ function verificarSelectorEntregaOficina(e) {
     if (select.value == "2") {
       inpDir.prop("disabled", true).val("Oficina principal interrapidisimo");
       inputBarrio
-        .prop("disabled", true)
+        .prop("disabled", true).val("");
 
       observaciones
-        .prop("disabled", true)
+        .prop("disabled", true).val("");
     } else {
       inpDir.prop("disabled", false).val("");
       inputBarrio.prop("disabled", false).val("");
