@@ -521,6 +521,7 @@ async function consultarDatosDeUsuario() {
       mostrarDatosPersonalizados(datos_personalizados);
       mostrarDatosBancarios(datos_bancarios);
 
+      verificarBodegas(bodegas)
       mostrarBodegas(bodegas);
 
       return datos_usuario;
@@ -2862,4 +2863,28 @@ async function subirObjetosEnvio(objetos) {
 
   await Promise.all(promises);
   return objetosFrecuentes;
+}
+
+window.addEventListener("hashchange", function () {
+  if (window.location.hash === "#cotizar_envio") {
+    const bodegasUser = datos_usuario.bodegas;
+
+    verificarBodegas(bodegasUser);
+  }
+});
+
+function verificarBodegas(bodegasUser) {
+  if (window.location.hash === "#cotizar_envio") {
+    if (bodegasUser <= 0) {
+      Swal.fire({
+        icon: "error",
+        title: "No tienes bodegas registradas",
+        text: "Por favor, registra una bodega para poder cotizar envíos"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.replace("/plataforma2.html#bodegas");
+        }
+      });
+    }
+  }
 }
