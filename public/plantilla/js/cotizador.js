@@ -2875,11 +2875,9 @@ function verificarSelectorEntregaOficina(e) {
       inpDir.prop("disabled", true).val("Oficina principal interrapidisimo");
       inputBarrio
         .prop("disabled", true)
-        .val("Oficina principal interrapidisimo");
 
       observaciones
         .prop("disabled", true)
-        .val("Oficina principal interrapidisimo");
     } else {
       inpDir.prop("disabled", false).val("");
       inputBarrio.prop("disabled", false).val("");
