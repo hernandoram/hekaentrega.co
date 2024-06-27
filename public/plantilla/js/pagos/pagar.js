@@ -17,13 +17,14 @@ btnGestionar.click(consultarPendientes);
  */
 class Empaquetado {
     constructor() {
-        this.pagosPorUsuario = {};
-        this.id = 1;
-        this.actual = 0;
-        this.usuarioActivo = "";
-        this.totalAPagar = 0;
-        this.guiasAnalizadas = 0;
-        this.pagado = 0;
+        this.pagosPorUsuario = {}; // Donde se empaquetan todos los usuarios y sus datos para pagos: {centro_de_costo: {...data}}
+        this.id = 1; // Id temporal en orden del usuario que sea insertado (permite conocer la posición del Stepper)
+        this.actual = 0; // El id sobre el que se encuentra posicionada la vista
+        this.usuarioActivo = ""; // Centro de costo del usuario activo
+        this.totalAPagar = 0; // Suma del total que se va a pagar a todos los usuarios presentes
+        this.guiasAnalizadas = 0; // La cantidad de guías que fueron analizadas correctamente
+        this.pagado = 0; // La catidad que ha sido pagada
+        this.pagoMasivoActivo = false; // Variable que indica si se está pagando de forma masiva "pagoMasivoExcel"
 
         this.stepper = new Stepper(); // Se carga un stteper vacío, que luego debería ser sustituido por el real
     }
@@ -644,7 +645,7 @@ class Empaquetado {
 
             await uploadTask;
             comprobante_bancario = await uploadTask.snapshot.ref.getDownloadURL();
-        } else {
+        } else if(!this.pagoMasivoActivo) {
             swalObj.title = "¡Falta el comprobante!";
             swalObj.confirmButtonText = '¡Sé lo que hago! 😠';
             swalObj.cancelButtonText = "no, perate! 😱";
@@ -766,19 +767,23 @@ class Empaquetado {
      * Contiene las siguientes propiedades:
      */
     async guardarPaquetePagado(factura) {
+        const hasError = resFact.error || !resFact.id;
+        const errorMessage = hasError ? resFact.message : JSON.stringify(resFact);
+
         const userRef = this.pagosPorUsuario[this.usuarioActivo];
-        const {guiasPagadas, pagoConcreto, comision_heka_total} = userRef;
+        const {guiasPagadas, pagoConcreto, comision_heka_total, numero_documento} = userRef;
         const {timeline, comprobante_bancario} = userRef.guias[0];
 
         const infoToSave = {
             guiasPagadas,
+            numero_documento, // Servirá para regenerar la factura en un futuro
             total_pagado: pagoConcreto,
-            comision_heka: comision_heka_total,
+            comision_heka: comision_heka_total, // Servirá para regenerar la factura en un futuro
             timeline,
             fecha: new Date(),
             comprobante_bancario,
-            id_factura: factura.id,
-            num_factura: factura.number,
+            id_factura: factura.id ?? "", // Si posee error, se guarda el paquete de pagos, pero sin id de factura, ni númeor de factura
+            num_factura: factura.number ?? 0, // Si posee error, se guarda el paquete de pagos, pero sin id de factura, ni númeor de factura
             centro_de_costo: this.usuarioActivo,
             id_user: userRef.id_user || ""
         }
@@ -786,7 +791,25 @@ class Empaquetado {
         console.log(infoToSave);
         // return;
 
-        await db.collection("paquetePagos").add(infoToSave)
+        if(!userRef.idPaquetePago) {
+            // Si la factura generada, ha producido un error o si va a ser guardada por primera vez (así no haya producido error)
+            // simplemente se agrega la información y se guarda el id del documento
+            // Para cuando se reintente, se rediriga al "else"
+            userRef.idPaquetePago = await db.collection("paquetePagos").add(infoToSave).then(d => d.id);
+
+            // Pese a que guardamos la información base para regenerar la factura, se notifica el error, para que se sepa que se debe reintentar de ser necesario
+            if(hasError) throw new Error("PAQUETE GUARDADO " + errorMessage);
+        } else {
+            // Si entra al else, pero persiste el error, se notifica y no se actualiza nada
+            if(hasError) throw new Error(errorMessage);
+            
+            // Si ha entrado aquí, es porque la información ya fue guardada previamente, pero se necesita actualizar los datos
+            // de la factura generada
+            await db.collection("paquetePagos").doc(/* id guardado en el if superior */).update({
+                id_factura: factura.id,
+                num_factura: factura.number
+            });
+        }
 
     }
 
@@ -827,14 +850,17 @@ class Empaquetado {
             buttons.attr("disabled", false);
         }
 
-        const comprobar = await Swal.fire(swalObj);
-
-        if(!comprobar.isConfirmed) {
-            terminar();
-            reporteFinalFactura.error = true; // Se marca como error por finalización del proceso manual
-            reporteFinalFactura.message = "Cancelado manual.";
-            return reporteFinalFactura;
-        } 
+        // El swagger se va a disparar solamente si el botón fue accionado de forma manual (no está activo el funcionamiento de cargue masivo)
+        if(!this.pagoMasivoActivo) {
+            const comprobar = await Swal.fire(swalObj);
+    
+            if(!comprobar.isConfirmed) {
+                terminar();
+                reporteFinalFactura.error = true; // Se marca como error por finalización del proceso manual
+                reporteFinalFactura.message = "Cancelado manual.";
+                return reporteFinalFactura;
+            } 
+        }
 
         const comision_heka_total = userRef.comision_heka_total;
         
@@ -848,12 +874,13 @@ class Empaquetado {
         if(!comision_heka_total) {
             reporteFinalFactura.error = true; // Se marca como error por finalización por falta de la comisión heka
             reporteFinalFactura.message = "No hay comisión para facturar";
-            Toast.fire(reporteFinalFactura.message, "", "error");
+            if(!this.pagoMasivoActivo) Toast.fire(reporteFinalFactura.message, "", "error");
             terminar();
             return reporteFinalFactura;
         }
 
         try {
+
             const resFact = await fetch("/siigo/crearFactura", {
                 method: "POST",
                 headers: {"Content-Type": "Application/json"},
@@ -867,18 +894,17 @@ class Empaquetado {
                 }
             });
 
-            if(resFact.error) throw new Error(resFact.message);
-
-            if(!resFact.id) throw new Error(JSON.stringify(resFact));
-
+            // Se guarda la iformación de las guías que ha sido pagadas
             await this.guardarPaquetePagado(resFact);
 
             terminar(true);
             
-            Toast.fire("Factura agregada correctamente.", "", "success");
+            if(!this.pagoMasivoActivo) Toast.fire("Factura agregada correctamente.", "", "success");
 
         } catch (e) {
-            Swal.fire("¡ERROR!", e.message, "error");
+            if(!this.pagoMasivoActivo) 
+                    Swal.fire("¡ERROR!", e.message, "error");
+
             terminar();
             reporteFinalFactura.error = true;
             reporteFinalFactura.message = e.message;
@@ -931,6 +957,14 @@ class Empaquetado {
 
         console.log(responseExcel);
 
+        this.pagoMasivoActivo = true; // Encendemos el switch de pagos masivos, ya que a este punto no ha habido errores de carga relevantes
+
+        Cargador.fire({
+            title: "Gestionando pagos masivos",
+            text: "Inicio del procesos de pagos masivos, se espera pagar $" + convertirMiles(this.totalAPagar) + " pesos.",
+            icon: "info"
+        });
+
         let contador = 0;
         // Comenzamos a iterar sobre cada fila del excel para revisar cada seller y proceder a pagar
         for await ( let ex of responseExcel ) {
@@ -962,6 +996,7 @@ class Empaquetado {
                 continue;
             }
 
+            // La validaciones básicas han sido procesadas correctamente
             this.stepper.moveTo(idxSeller);
 
             // Se procede a pagar, si no se paga de forma exitosa, o hay algún error, 
@@ -972,6 +1007,7 @@ class Empaquetado {
                 anotaciones.addError(`No todas las guias fueron pagadas para el usuario ${nombre_ben}`, undefined, opcionesBasicaBoton);
                 continue;
             }
+
             
             // Luego que el pago haya sido exitoso, se procede a facturar con la información paga
             const reporteFactura = await this.facturar();
@@ -981,10 +1017,12 @@ class Empaquetado {
                 continue;
             }
 
+            Swal.getHtmlContainer().innerText = `Se han pagado y facturado ${contador} usuarios de ${responseExcel.length}, una cantidad de ${convertirMiles(this.pagado)} sobre ${convertirMiles(this.totalAPagar)} pesos.`;
             contador++;
         }
 
         Swal.fire(`Se han pagado ${contador} usuario de los ${responseExcel.length} Obtenidos por el excel.`);
+        this.pagoMasivoActivo = false;
         loader.end();
     }
 
