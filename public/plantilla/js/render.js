@@ -109,6 +109,26 @@ window.addEventListener("hashchange", () => {
   mostrar(window.location.hash.replace(/#/, ""));
 });
 
+
+
+function formateoDDMMYYYY(date) {
+  const movDate = new Date(date);
+
+  // Verificar si movDate es una fecha inválida
+  if (isNaN(movDate.getTime())) return date;
+
+  const options = {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    second: "numeric"
+  };
+
+  return new Intl.DateTimeFormat("es-CO", options).format(movDate);
+}
+
 //// funcion muestra el resultado de busqueda de guia por fecha
 function tablaDeGuias(id, datos) {
   return `<tr id="historial-guias-row${id}"
@@ -2102,6 +2122,8 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
         ? "Revisar"
         : "Gestionar";
   }
+
+const fechaFormateada2 = formateoDDMMYYYY(momento_novedad.fechaMov);
   tr.innerHTML = `
       <td>
         <div class="d-flex align-items-center">
@@ -2126,9 +2148,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
 
       <td class="text-danger">${ultimo_movimiento.novedad}</td>
       <td>${data.transportadora || "Servientrega"}</td>
-      <td>${
-        momento_novedad.fechaMov ? momento_novedad.fechaMov : "No aplica"
-      }</td>
+      <td>${momento_novedad.fechaMov ? fechaFormateada2 : "No aplica"}</td>
 
       <td class="text-center">
         <span class="badge badge-danger p-2 my-auto">
@@ -2226,7 +2246,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
 
     filteredItems.forEach((key) => {
       const value = localStorageItems.getItem(key);
-      const fecha = new Date(value);
+      const fecha = `${new Date(value)}`;
       const fechamil = fecha.getTime();
       const fechaactual = new Date();
       console.log(fechaactual.getTime() - fechamil);
@@ -2984,10 +3004,10 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
     $(".registrar-novedad").click(registrarNovedad);
 
     botonSolucionarExterno
-    .clone(true) // Para heredar la funcionalidad de donde proviene
-    .addClass("col-12") // Para que se adapte al estilo del dialogo
-    .attr("id", "") // Limpiamos el id para evitar problemas con el dom
-    .appendTo(info_gen);
+      .clone(true) // Para heredar la funcionalidad de donde proviene
+      .addClass("col-12") // Para que se adapte al estilo del dialogo
+      .attr("id", "") // Limpiamos el id para evitar problemas con el dom
+      .appendTo(info_gen);
   }
 }
 
