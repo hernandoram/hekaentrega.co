@@ -189,7 +189,7 @@ const selectize = {
  * departamento.
 */
 async function searchAndGroupCity(elSelectize, query) {
-  return fetch(v1.cities + '?label=' + query)
+  return fetch(v1.cities + '?label=' + query + "&limit=25")
   .then(res => res.json())
   .then(d => {
     const ciudades = d.response.map(c => {
