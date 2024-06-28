@@ -791,7 +791,7 @@ class Empaquetado {
      */
     async guardarPaquetePagado(factura) {
         const hasError = factura.error || !factura.id;
-        const errorMessage = hasError ? factura.message : JSON.stringify(factura);
+        const errorMessage = factura.error ? factura.message : JSON.stringify(factura);
 
         const userRef = this.pagosPorUsuario[this.usuarioActivo];
         const {guiasPagadas, pagoConcreto, comision_heka_total, numero_documento} = userRef;
@@ -1040,7 +1040,7 @@ class Empaquetado {
                 continue;
             }
 
-            Swal.getHtmlContainer().innerText = `Se han pagado y facturado ${contador} usuarios de ${responseExcel.length}, una cantidad de ${convertirMiles(this.pagado)} sobre ${convertirMiles(this.totalAPagar)} pesos.`;
+            Swal.getHtmlContainer().innerText = `Se han pagado y facturado correctamente ${contador} usuarios de ${responseExcel.length}.`;
             contador++;
         }
 
