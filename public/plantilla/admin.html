@@ -288,12 +288,13 @@
 
             <div class="row mb-3">
               <form class="input-group col-12 offset-md-2 col-md-8">
-                <input type="text" class="form-control border-info" placeholder="Criterio de búsqueda"
+                <input list="sellersDatalist" class="form-control border-info" placeholder="Criterio de búsqueda"
                   id="buscador_usuarios-nombre"
-                  title="Puedes buscar por nombre, correo, dirección, número de documento o celular.">
+                  title="Puedes buscar por nombre, correo, dirección, número de documento o celular."
+                  >
                 <div class="input-group-append buscadorUsuarios-botones">
                   <button id="busquedaEspecializada" class="btn btn-small btn-outline-info">Busqueda
-                    especilizada</button>
+                    directa</button>
                   <button id="busquedaGeneral" class="btn btn-small btn-outline-info">Busqueda general</button>
                 </div>
               </form>
@@ -1530,7 +1531,7 @@
                     <div class="input-group mb-3">
                       <input type="text" class="form-control" id="filtrado-novedades-guias"
                         placeholder="Guía1, Guía2, etc..." aria-label="Guias" aria-describedby="btn-revisar-novedades">
-                      <input type="text" class="form-control" id="filtrado-novedades-usuario"
+                      <input list="sellersDatalist" class="form-control" id="filtrado-novedades-usuario"
                         placeholder="Centro de costo" aria-label="Usuario" aria-describedby="btn-revisar-novedades">
                       <select name="activador_busq_novedades" class="form-control" id="activador_busq_novedades">
                         <option value="">Buscar solo novedades</option>
@@ -1659,8 +1660,12 @@
                         <option value="CENTRO-COSTO">Centros de costo</option>
                         <option value="GUIAS">Guias</option>
                       </select>
-                      <input type="text" class="form-control" disabled id="input-filtrado-callcenter"
+                      <input class="form-control" list="sellersDatalist" disabled id="input-filtrado-callcenter"
                         aria-describedby="btn-revisar-callcenter">
+                        <datalist id="sellersDatalist">
+                        </datalist>
+
+
                       <div class="col-4">
                         <select name="activador_busq_callcenter" id="activador_busq_callcenter"
                           placeholder="Selecciona transportadora..." multiple class="form-control"
@@ -1781,7 +1786,7 @@
 
                       <div class="col-6 col-md-3 mt-2">
                         <h6>Por Usuario</h6>
-                        <input type="text" name="filtro-pago-usuario" class="form-control" id="filtro-pago-usuario">
+                        <input list="sellersDatalist" name="filtro-pago-usuario" class="form-control" id="filtro-pago-usuario">
                       </div>
 
                       <div class="col-6 col-md-3 mt-2">
@@ -2798,6 +2803,7 @@
     <script src="js/adminPlatform.js" type="module"></script>
     <script src="js/hostNameReader.js"></script>
     <script src="js/copyToClipboard.js"></script>
+    <script src="js/chargeusers.js"></script>
 
 </body>
 

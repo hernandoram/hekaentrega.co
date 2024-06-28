@@ -9,6 +9,8 @@ const versionSoftware = "1.0.2: contraseña para pagos";
 
 let objetosFrecuentes;
 
+let listaUsuarios = [];
+
 console.warn("Versión del software: " + versionSoftware);
 
 let user_id = localStorage.user_id,
@@ -521,6 +523,7 @@ async function consultarDatosDeUsuario() {
       mostrarDatosPersonalizados(datos_personalizados);
       mostrarDatosBancarios(datos_bancarios);
 
+      verificarBodegas(bodegas)
       mostrarBodegas(bodegas);
 
       return datos_usuario;
@@ -2837,8 +2840,8 @@ async function subirObjetosEnvio(objetos) {
 
   const objetosFrecuentes = [];
 
-  if(!!objetos === false){
-    return
+  if (!!objetos === false) {
+    return;
   }
 
   const promises = objetos.map((objeto) => {
@@ -2862,4 +2865,28 @@ async function subirObjetosEnvio(objetos) {
 
   await Promise.all(promises);
   return objetosFrecuentes;
+}
+
+window.addEventListener("hashchange", function () {
+  if (window.location.hash === "#cotizar_envio") {
+    const bodegasUser = datos_usuario.bodegas;
+
+    verificarBodegas(bodegasUser);
+  }
+});
+
+function verificarBodegas(bodegasUser) {
+  if (window.location.hash === "#cotizar_envio") {
+    if (bodegasUser <= 0) {
+      Swal.fire({
+        icon: "error",
+        title: "No tienes bodegas registradas",
+        text: "Por favor, registra una bodega para poder cotizar envíos"
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.replace("/plataforma2.html#bodegas");
+        }
+      });
+    }
+  }
 }

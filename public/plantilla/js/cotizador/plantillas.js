@@ -1,3 +1,5 @@
+import { searchAndRenderCities, selectize } from "../consultarCiudades.js";
+
 const db = firebase.firestore();
 
 const bodegasEl = $("#list_bodegas-cotizador");
@@ -32,18 +34,15 @@ export function llenarBodegasCotizador() {
   bodegasWtch.watchFromLast((info) => {
     if (!info) return;
 
-
-    console.log(info);
-
     bodegasEl.html("");
 
-
     const opciones = info.map((bodega) => {
+      searchAndRenderCities(selectize.ciudadR, bodega.ciudad.split("(")[0]);
       const bodegaEl = `<option value="${bodega.ciudad}">${bodega.nombre}</option>`;
       return bodegaEl;
     });
 
-    opciones.unshift(`<option>Seleccione Bodega</option>`);
+    opciones.unshift(`<option value>Seleccione Bodega</option>`);
 
     bodegasEl.html(opciones.join(""));
   });
@@ -61,6 +60,8 @@ export function llenarProductos(num) {
 
       opciones.push(`<option value="${d.id}">${data.nombre}</option>`);
       listaPlantilla.set(d.id, data);
+      searchAndRenderCities(selectize.ciudadD, data.ciudadD.split("(")[0]);
+
     });
 
     opciones.unshift(`<option value>Seleccione Plantilla</option>`);
@@ -93,6 +94,8 @@ function setearCiudad(inp, data) {
 }
 
 function buscarCiudad(el, ciudad) {
+  if(!ciudad) return;
+
   charger.init();
   if (ciudadesTomadas.has(ciudad))
     return setearCiudad(el, ciudadesTomadas.get(ciudad));
@@ -112,6 +115,10 @@ function buscarCiudad(el, ciudad) {
 
 function cambiarPlantillaCotizador(e) {
   const val = e.target.value;
+
+  // Limpiamos los campos donde se ingresa la ciudad del destinatario y remitente
+  limpiarInputCiudad(inpCiudadR);
+  limpiarInputCiudad(inpCiudadD);
 
   formulario[0].reset();
   buscarCiudad(inpCiudadR, bodegasEl.val());
@@ -146,28 +153,11 @@ function cambiarPlantillaCotizador(e) {
 }
 
 function llenarInputCiudad(inp, data) {
-  const dataSet = {
-    id: data.dane_ciudad,
-    ciudad: data.ciudad,
-    departamento: data.departamento,
-    dane_ciudad: data.dane_ciudad,
-  };
-
-  const info_servi = data.transportadoras["SERVIENTREGA"];
-  if (info_servi) {
-    dataSet.tipo_trayecto = info_servi.tipo_trayecto;
-    dataSet.frecuencia = info_servi.frecuencia;
-    dataSet.tipo_distribucion = info_servi.tipo_distribucion;
-  }
-
-  for (let d in dataSet) {
-    inp[0].dataset[d] = dataSet[d];
-  }
-  inp.val(data.nombre);
+  inp[0].selectize.setValue(data.dane_ciudad);
 }
 
 function limpiarInputCiudad(inp) {
-  inp.val("");
+  inp[0].selectize.clear();
   const atributos = [
     "id",
     "ciudad",
