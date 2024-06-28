@@ -16,8 +16,31 @@ btnGestionar.click(consultarPendientes);
  * Clase en cargada de manipular la información de pagos para almacenarla de manera organizada, por usuario
  */
 class Empaquetado {
+    /**
+     * @typedef PropertyUserPayment
+     * @type {object}
+     * @property {number} id - Corresponde a la posición en la que se encuentra el usuario (por orden de insersión)
+     * @property {string} id_user - El id del usuario con respecto a la base de datos
+     * @property {string} usuario - Especifica el centro de costo empleado para el usuario
+     * @property {Array<any>} guias - Lista de las guías que se le van a pagar al usuario
+     * @property {"POSITIVO"|"NEGATIVO"} condition - Filtrado especial para solo mostrar los usuarios que coincidan con esta condición
+     * @property {boolean} analizado - Para sabes si han sido analizadas todas la guía que le corresponden
+     * @property {number} pagoPendiente - La cantidad que se le va a pagar al usuario
+     * @property {Object} datos_bancarios - Donde se encuentran los datos bancarios del usuario
+     * @property {Array<string>} guiasPagadas - Los números de guía que han sido pagados
+     * @property {number}  pagoConcreto - La cantidad total que ha sido pagada al usuario
+     * @property {number}  comision_heka_total - La comisión heka total por el conjunto de pagos (servirá para facturar)
+     * @property {string}  numero_documento - Número de documento del usuario en cuestión (servirá para facturar)
+     * @property {string} idPaquetePago - Se almacena el id donde se guardo el conjuto de guía pagadas al usuario
+     */
+
+    /** Lugar donde se almacenan todos los procedimientos y pagos realizados sobre la lista de usuarios
+     * con la siguiente estructura, {centro_de_costo: {...data}} @type {Object.<string,PropertyUserPayment>} 
+    */
+    pagosPorUsuario = {}; 
+
     constructor() {
-        this.pagosPorUsuario = {}; // Donde se empaquetan todos los usuarios y sus datos para pagos: {centro_de_costo: {...data}}
+        // this.pagosPorUsuario["H"].condition = ""
         this.id = 1; // Id temporal en orden del usuario que sea insertado (permite conocer la posición del Stepper)
         this.actual = 0; // El id sobre el que se encuentra posicionada la vista
         this.usuarioActivo = ""; // Centro de costo del usuario activo
@@ -805,7 +828,7 @@ class Empaquetado {
             
             // Si ha entrado aquí, es porque la información ya fue guardada previamente, pero se necesita actualizar los datos
             // de la factura generada
-            await db.collection("paquetePagos").doc(/* id guardado en el if superior */).update({
+            await db.collection("paquetePagos").doc(userRef.idPaquetePago).update({
                 id_factura: factura.id,
                 num_factura: factura.number
             });
@@ -894,7 +917,7 @@ class Empaquetado {
                 }
             });
 
-            // Se guarda la iformación de las guías que ha sido pagadas
+            // Se guarda la información de las guías que ha sido pagadas
             await this.guardarPaquetePagado(resFact);
 
             terminar(true);
