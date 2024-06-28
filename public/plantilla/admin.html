@@ -308,19 +308,30 @@
                 <div></div>
               </div>
             </div>
-            <div id="mostrador-usuarios" class="row"></div>
+
+            
+            <table id="tablaUsers" class="d-none">
+              <thead>
+                <tr>
+                  <th>Acciones</th>
+                  <th>Nombre</th>
+                  <th>Nombre Seller</th>
+                  <th>Correo</th>
+                  <th>Telefono</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Los datos de las filas se llenarán aquí por DataTables -->
+              </tbody>
+            </table>
+
+
 
             <!--Usuario Seleccionado-->
             <div id="usuario-seleccionado" class="d-none">
               <div class="card-header text-center">
                 <div class="row">
                   <a class="btn btn-outline-primary btn-lg" href="javascript:volver2()">Volver</a>
-                  <script>
-                    function volver2() {
-                      document.getElementById("mostrador-usuarios").classList.remove("d-none");
-                      document.getElementById("usuario-seleccionado").classList.add("d-none");
-                    }
-                  </script>
                 </div>
                 <h3 id="nombre-usuario">Nombre Apellido</h3>
               </div>
@@ -2786,6 +2797,7 @@
     <script src="js/callcenter/callcenter.js"></script>
     <script src="js/cargadorDeDatos.js"></script>
     <script src="js/consultarCiudades.js" type="module"></script>
+    <script src="js/buscarUsuarios.js"></script>
     <script src="js/usuarios.js"></script>
     <script src="js/manejadorGuias.js"></script>
     <script src="js/adminPlatform.js" type="module"></script>
