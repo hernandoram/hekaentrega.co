@@ -790,8 +790,8 @@ class Empaquetado {
      * Contiene las siguientes propiedades:
      */
     async guardarPaquetePagado(factura) {
-        const hasError = resFact.error || !resFact.id;
-        const errorMessage = hasError ? resFact.message : JSON.stringify(resFact);
+        const hasError = factura.error || !factura.id;
+        const errorMessage = hasError ? factura.message : JSON.stringify(factura);
 
         const userRef = this.pagosPorUsuario[this.usuarioActivo];
         const {guiasPagadas, pagoConcreto, comision_heka_total, numero_documento} = userRef;
