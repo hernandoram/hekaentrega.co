@@ -32,7 +32,8 @@ exports.consultarGuiaApi = async (req, res) => {
     const dataGuide = docGuide.data();
     const dataUser = {
       cel: dataGuide.telefonoD,
-      email: dataGuide.correoD
+      email: dataGuide.correoD,
+      celSender: dataGuide.celularR
     }
     let ciudadOrigen = busqueda.find(
       (element) => element.dane_ciudad === movimientosEncontrado.daneOrigen
