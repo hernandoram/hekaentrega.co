@@ -16,7 +16,7 @@ router.get("/imprimirManifiesto/:guias", interRouter.imprimirManifiesto);
 
 router.get("/utilidades/:numeroGuia", interRouter.utilidades);
 
-router.post("/crearGuia", interRouter.crearGuia);
+router.get("/oficinas/:dane_ciudad", interRouter.consultarCentroServicios);
 
 router.post("/recogidaesporadica", serviceInter.createDirectSporadicCollections);
 
