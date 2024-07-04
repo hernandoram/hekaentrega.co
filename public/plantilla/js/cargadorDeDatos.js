@@ -485,7 +485,7 @@ function listarSugerenciaMensajesNovedad() {
 async function consultarDatosDeUsuario() {
   const actualizador = (doc) => {
     if (doc.exists) {
-      const datos = doc.data();
+      const datos = {...doc.data(), id: doc.id};
       const datos_bancarios = datos.datos_bancarios || null;
       const datos_personalizados = datos.datos_personalizados;
       let bodegas = datos.bodegas
@@ -558,7 +558,9 @@ function limitarAccesoSegunTipoUsuario() {
 
 function mostrarDatosUsuario(datos) {
   const referal = document.getElementById("referal");
-  referal.value = `https://www.hekaentrega.co/ingreso.html?rf=${datos.centro_de_costo}#registrar`;
+  referal.value = `https://dev.hekaentrega.co/registro?referrals=${datos.id}`;
+
+
   const mostradores = [
     ".mostrar-nombre_completo",
     ".mostrar-nombre_empresa",
