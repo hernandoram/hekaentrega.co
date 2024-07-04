@@ -18,7 +18,8 @@ exports.CredencialesEmpresa = {
     clave: "10724974190",
     endpoint: "https://www3.interrapidisimo.com/ApiVentaCredito/api/Admision",
     endpointv2: "https://www3.interrapidisimo.com/ApiVentaCredito/api",
-    endpointcotizar: "https://www3.interrapidisimo.com/ApiServInter/api/CotizadorCliente/ResultadoListaCotizarValidaContrapago/"
+    endpointcotizar: "https://www3.interrapidisimo.com/ApiServInter/api/CotizadorCliente/ResultadoListaCotizarValidaContrapago/",
+    endpointOficinas: "https://www3.interrapidisimo.com/Apicontroller/api/CentrosServicio/ObtenerCentrosServicioNacional"
 }
 //código sucursa prueba para cuenta empresa 48838
 

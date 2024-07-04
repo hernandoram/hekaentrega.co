@@ -366,6 +366,25 @@ async function creacionGuia(guia) {
     return body;
 }
 
+function comprimirCentroSerivciosInter(data) {
+    const centrosServicio = data.reduce((a,b) => {
+        const ref = a[b.CentroServicio.IdCentroServicio];
+        
+        if(ref) {
+            ref.Horario.push(b.Horario);
+        } else {
+            a[b.CentroServicio.IdCentroServicio] = b;
+            a[b.CentroServicio.IdCentroServicio].Horario = [b.Horario];
+        }
+
+        return a;
+    }, {});
+    
+    const res = Object.values(centrosServicio);
+
+    return res;
+}
+
 // FUNCIONES A EXPORTAR 
 exports.creacionGuia = creacionGuia;
 
@@ -466,6 +485,24 @@ exports.imprimirManifiesto = (req, res) => {
     }
 
     res.render("printManifiestoInter", {organizatorGuias, layout:"printer"});
+}
+
+exports.consultarCentroServicios = async (req, res) => {
+    const {dane_ciudad} = req.params;
+    const urlRequest = `${CredencialesEmpresa.endpointOficinas}/${dane_ciudad}`;
+    
+    const centroServicios = await requestP(urlRequest, {
+        headers: {
+            usuario: "admin"
+        },
+        json: true
+    })
+    .then(d => {
+        return d;
+    })
+    .catch(err => req.status(400).json({error: true, message: err.message}));
+
+    res.json(comprimirCentroSerivciosInter(centroServicios));
 }
 
 exports.utilidades = async (req, res) => {
