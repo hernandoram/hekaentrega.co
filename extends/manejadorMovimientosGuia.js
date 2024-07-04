@@ -282,6 +282,7 @@ exports.actualizarReferidoPorGuiaEntregada = async (data, nuevosDatos) => {
   
     await referidoRef.update({
       cantidadEnvios: firebase.firestore.FieldValue.increment(1),
+      enviosPorReclamar: firebase.firestore.FieldValue.increment(1),
       guiasEntregadas: firebase.firestore.FieldValue.arrayUnion(numeroGuia)
     });
 }
