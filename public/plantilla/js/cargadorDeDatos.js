@@ -1114,7 +1114,8 @@ function agregarSaldo(envios, referente, referido) {
         if (data.sellerReferido == referido) {
           doc.ref.update({
             enviosReclamados: (data.enviosReclamados || 0) + envios,
-            enviosPorReclamar: 0
+            enviosPorReclamar: 0,
+            cantidadReclamos: (data.cantidadReclamos || 0) + 1
           });
         }
       });

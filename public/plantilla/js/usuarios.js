@@ -1121,6 +1121,7 @@ function seleccionarUsuario(id) {
 
 // esta funcion solo llena los datos solicitados en los inputs
 function mostrarDatosPersonales(data, info) {
+  const centroCosto= data.centro_de_costo;
   limpiarFormulario("#informacion-" + info, "input,select");
   console.log(data);
 
@@ -1193,6 +1194,8 @@ function mostrarDatosPersonales(data, info) {
       $("#actv_credit").prop("checked", false);
     }
   }
+
+  mostrarReferidosUsuarioAdm(centroCosto)
 }
 
 let selectControl = document.getElementById("selectControl");
@@ -1258,6 +1261,7 @@ function renderObjetosFrecuentes() {
 }
 
 function mostrarReferidosUsuarioAdm(centro_costo) {
+  console.warn(centro_costo)
   const referidos = [];
 
   firebase
@@ -1290,7 +1294,22 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
             data: "cantidadEnvios",
             title: "Cantidad Envios",
             defaultContent: ""
-          }
+          },
+          {
+            data: "enviosPorReclamar",
+            title: "Envios por Reclamar",
+            defaultContent: "0"
+          },
+          {
+            data: "enviosReclamados",
+            title: "Envios Reclamados",
+            defaultContent: "0"
+          },
+          {
+            data: "cantidadReclamos",
+            title: "Cantidad Reclamos",
+            defaultContent: "0"
+          },
         ],
         language: {
           url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
