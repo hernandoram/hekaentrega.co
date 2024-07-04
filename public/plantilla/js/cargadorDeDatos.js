@@ -485,7 +485,7 @@ function listarSugerenciaMensajesNovedad() {
 async function consultarDatosDeUsuario() {
   const actualizador = (doc) => {
     if (doc.exists) {
-      const datos = {...doc.data(), id: doc.id};
+      const datos = { ...doc.data(), id: doc.id };
       const datos_bancarios = datos.datos_bancarios || null;
       const datos_personalizados = datos.datos_personalizados;
       let bodegas = datos.bodegas
@@ -523,7 +523,7 @@ async function consultarDatosDeUsuario() {
       mostrarDatosPersonalizados(datos_personalizados);
       mostrarDatosBancarios(datos_bancarios);
 
-      verificarBodegas(bodegas)
+      verificarBodegas(bodegas);
       mostrarBodegas(bodegas);
 
       return datos_usuario;
@@ -559,7 +559,6 @@ function limitarAccesoSegunTipoUsuario() {
 function mostrarDatosUsuario(datos) {
   const referal = document.getElementById("referal");
   referal.value = `https://dev.hekaentrega.co/registro?referrals=${datos.id}`;
-
 
   const mostradores = [
     ".mostrar-nombre_completo",
@@ -1069,7 +1068,7 @@ function despliegueReferidos(referidos) {
     <div class="row no-gutters align-items-center">
     <div class="h6 mb-0 mr-3 font-weight-bold">
         <p>Número de envíos: <small>${
-          referido.cantidadEnvios < 10 ? referido.cantidadEnvios : "10"
+          referido.enviosPorReclamar || 0
         }</small></p>       
     </div>
     <div>
@@ -1078,8 +1077,8 @@ function despliegueReferidos(referidos) {
     <button class="btn btn-primary text-centered" id="btn-${
       referido.sellerReferido
     }" ${
-      referido.cantidadEnvios < 10 ? "disabled" : ""
-    }  onclick="agregarSaldo('${referido.cantidadEnvios}','${
+      referido.cantidadEnvios < 1 ? "disabled" : ""
+    }  onclick="agregarSaldo('${referido.enviosPorReclamar || 0}','${
       referido.sellerReferente
     }' , '${referido.sellerReferido}')">Reclamar recompensa</button>
 </div>
@@ -1095,12 +1094,11 @@ function despliegueReferidos(referidos) {
 }
 function agregarSaldo(envios, referente, referido) {
   //referente
-  if (envios < 10) {
-    avisar(
+  if (envios < 1) {
+    return avisar(
       "Error",
       "Este referido aún no cumple con los requisitos para reclamar su recompensa"
     );
-    return;
   }
 
   firebase
@@ -1110,11 +1108,13 @@ function agregarSaldo(envios, referente, referido) {
     .get()
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
-        console.log(doc.data());
-        if (doc.data().sellerReferido == referido) {
-          console.log(doc.data());
+        const data = doc.data();
+
+        console.log(data);
+        if (data.sellerReferido == referido) {
           doc.ref.update({
-            reclamado: true
+            enviosReclamados: (data.enviosReclamados || 0) + envios,
+            enviosPorReclamar: 0
           });
         }
       });
