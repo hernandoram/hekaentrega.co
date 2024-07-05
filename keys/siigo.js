@@ -16,7 +16,7 @@ const credenciales = {
     access_key: "NmE5ZTdlODgtZDA2Ni00ODczLTk5MzQtYmU0OTEwNWFlNTc2OnJPYXo0Y20hM1A=",
     document_id: 23159,
     identificacion: 1072497419,
-    id_vendedor: 596,
+    id_vendedor: 953,
     id_tipo_pago: 17992, // Recarga sellers,
     idAutoRetencion: 27657, // Autorretencion 1.10%
     partnerId: "OFFYSAS" // Un nuevo header solicitado https://siigoapi.docs.apiary.io/#introduction/partner-id
