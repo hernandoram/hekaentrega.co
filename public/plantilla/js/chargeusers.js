@@ -11,7 +11,14 @@ async function chargeUsers() {
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
           listaUsuarios.push(doc.data().centro_de_costo);
-          displayUsers.push({...doc.data(), id: doc.id});
+          const primeraBodega = doc.data().bodegas
+            ? doc.data().bodegas[0]
+            : null;
+          displayUsers.push({
+            ...doc.data(),
+            id: doc.id,
+            bodega: primeraBodega?.ciudad || "Sin bodegas",
+          });
         });
       })
       .then(() => {
@@ -23,8 +30,8 @@ async function chargeUsers() {
           option.textContent = user; // Esto establece el texto que se muestra en la opción
           sellerDatalist.appendChild(option);
         });
-
-      });
+      })
+      .then(() => {});
   } catch (error) {
     console.log(error);
   }
@@ -46,8 +53,8 @@ function CargarUsuarios(element) {
     generarTabla(displayUsers);
   });
 }
-document.addEventListener('DOMContentLoaded', async () => {
-  if (window.location.hash === '#usuarios') {
+document.addEventListener("DOMContentLoaded", async () => {
+  if (window.location.hash === "#usuarios") {
     await chargeUsers();
     generarTabla(displayUsers);
   }

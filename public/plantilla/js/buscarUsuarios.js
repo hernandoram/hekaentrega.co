@@ -167,7 +167,8 @@ function generarTabla(users) {
           defaultContent: "N/A"
         },
         { data: "correo", name: "Correo", defaultContent: "N/A" },
-        { data: "contacto", name: "Telefono", defaultContent: "N/A" }
+        { data: "contacto", name: "Telefono", defaultContent: "N/A" },
+        { data: "bodega", name: "Bodega Principal", defaultContent: "N/A" }
       ],
       data: users,
     });
