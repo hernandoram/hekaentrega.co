@@ -1009,23 +1009,10 @@ function mostrarReferidos(datos) {
     .collection("usuarios")
     .doc(userid)
     .get()
-    .then((doc) => {
-      datos_saldo_usuario = doc.data().datos_personalizados;
-      topeUsuario = parseInt(datos_saldo_usuario.tope_referido) || 100000;
-      console.log(
-        "tope" + topeUsuario,
-        "recibo" + datos_saldo_usuario.recibidoReferidos
-      );
-      topeReferidos.innerHTML = `$${numberWithCommas(topeUsuario) || 100.0}`;
-
-      if (topeUsuario < datos_saldo_usuario.recibidoReferidos) {
-        throw new Error(
-          "Condición cumplida. No se ejecutará el resto de la función."
-        );
-      }
-    })
     .then(() => {
       let referidos = [];
+
+      console.warn(referidos);
 
       firebase
         .firestore()
@@ -1034,17 +1021,15 @@ function mostrarReferidos(datos) {
         .get()
         .then((querySnapshot) => {
           querySnapshot.forEach((doc) => {
-            if (doc.data().reclamado !== true) referidos.push(doc.data());
+            referidos.push(doc.data());
           });
         })
         .finally(() => {
-          if (referidos.length > 0) despliegueReferidos(referidos);
+          despliegueReferidos(referidos);
         });
     })
     .catch((err) => {
-      let mostradorReferidos = document.getElementById("mostrador-referidos");
-      mostradorReferidos.classList.remove("d-none");
-      mostradorReferidos.innerHTML = `<h3 class="text-center mt-2">¡Felicidades! Has reclamado todos los premios por referir usuarios que teníamos disponibles. ¡Gracias por tu apoyo!</h3>`;
+      console.warn(err);
     });
 }
 
@@ -1055,6 +1040,7 @@ function despliegueReferidos(referidos) {
   mostradorReferidos.classList.remove("d-none");
   tituloreferidos.classList.remove("d-none");
 
+  console.warn(referidos);
   for (referido of referidos) {
     const htmlCard = `
     <div class="col-md-4 mb-4" >
@@ -1077,7 +1063,10 @@ function despliegueReferidos(referidos) {
     <button class="btn btn-primary text-centered" id="btn-${
       referido.sellerReferido
     }" ${
-      referido.cantidadEnvios < 1 ? "disabled" : ""
+      typeof referido.enviosPorReclamar === "undefined" ||
+      referido.enviosPorReclamar === 0
+        ? "disabled"
+        : ""
     }  onclick="agregarSaldo('${referido.enviosPorReclamar || 0}','${
       referido.sellerReferente
     }' , '${referido.sellerReferido}')">Reclamar recompensa</button>
@@ -1092,8 +1081,7 @@ function despliegueReferidos(referidos) {
 
   //
 }
-function agregarSaldo(envios, referente, referido) {
-  //referente
+async function agregarSaldo(envios, referente, referido) {
   if (envios < 1) {
     return avisar(
       "Error",
@@ -1101,7 +1089,7 @@ function agregarSaldo(envios, referente, referido) {
     );
   }
 
-  firebase
+  await firebase
     .firestore()
     .collection("referidos")
     .where("sellerReferente", "==", referente)
@@ -1109,11 +1097,10 @@ function agregarSaldo(envios, referente, referido) {
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
         const data = doc.data();
-
-        console.log(data);
         if (data.sellerReferido == referido) {
           doc.ref.update({
-            enviosReclamados: (data.enviosReclamados || 0) + envios,
+            enviosReclamados:
+              (parseInt(data.enviosReclamados, 10) || 0) + parseInt(envios, 10),
             enviosPorReclamar: 0,
             cantidadReclamos: (data.cantidadReclamos || 0) + 1
           });
@@ -1121,7 +1108,9 @@ function agregarSaldo(envios, referente, referido) {
       });
     })
     .finally(() => {
-      reclamarReferido(referido, referente);
+      const saldoAReclamar = envios * 200;
+
+      reclamarReferido(referido, referente, saldoAReclamar);
 
       let boton = document.getElementById(`btn-${referido}`);
       boton.disabled = true;
@@ -1131,8 +1120,9 @@ function agregarSaldo(envios, referente, referido) {
 
 /**{@link genFecha}; */
 
-function reclamarReferido(referido, referente) {
-  console.log(referente);
+function reclamarReferido(referido, referente, saldoAReclamar) {
+  console.log(saldoAReclamar);
+
   let userid = localStorage.getItem("user_id");
   let fecha = genFecha();
   let datos_saldo_usuario = {};
