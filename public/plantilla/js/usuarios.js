@@ -979,6 +979,7 @@ function seleccionarUsuario(id) {
 
   contenedor.setAttribute("data-id", id);
   mostrador.classList.add("d-none");
+  $('#control-buttons').addClass('d-none');
 
   firebase
     .firestore()

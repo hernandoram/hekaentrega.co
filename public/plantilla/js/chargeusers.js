@@ -1,3 +1,4 @@
+let displayUsers = [];
 async function chargeUsers() {
   if (listaUsuarios.length > 0) {
     return;
@@ -6,11 +7,11 @@ async function chargeUsers() {
     await firebase
       .firestore()
       .collection("usuarios")
-      .limit(300)
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
           listaUsuarios.push(doc.data().centro_de_costo);
+          displayUsers.push({...doc.data(), id: doc.id});
         });
       })
       .then(() => {
@@ -22,6 +23,7 @@ async function chargeUsers() {
           option.textContent = user; // Esto establece el texto que se muestra en la opción
           sellerDatalist.appendChild(option);
         });
+
       });
   } catch (error) {
     console.log(error);
@@ -32,16 +34,24 @@ const buscadorNombre = document.querySelector("#buscador_usuarios-nombre");
 
 const buscadorCallcenter = document.querySelector("#input-filtrado-callcenter");
 
-const buscadorPagos = document.querySelector("#filtro-pago-usuario")
+const buscadorPagos = document.querySelector("#filtro-pago-usuario");
 
-const buscadorUserEstados= document.querySelector("#filtrado-novedades-usuario")
+const buscadorUserEstados = document.querySelector(
+  "#filtrado-novedades-usuario"
+);
 
 function CargarUsuarios(element) {
-  element.addEventListener("click", () => {
-    chargeUsers();
+  element.addEventListener("click", async () => {
+    await chargeUsers();
+    generarTabla(displayUsers);
   });
 }
-
+document.addEventListener('DOMContentLoaded', async () => {
+  if (window.location.hash === '#usuarios') {
+    await chargeUsers();
+    generarTabla(displayUsers);
+  }
+});
 
 CargarUsuarios(buscadorNombre);
 CargarUsuarios(buscadorCallcenter);

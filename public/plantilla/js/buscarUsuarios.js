@@ -1,4 +1,4 @@
-let users;
+let users = listaUsuarios;
 
 async function searchUsers(esGeneral) {
   document.getElementById("cargador-usuarios").classList.remove("d-none");
@@ -123,10 +123,11 @@ const filtrarUsuarios = async () => {
   return usuariosFiltrados;
 };
 
-function generarTabla() {
+function generarTabla(users) {
   $("#tablaUsers").removeClass("d-none");
+  $("#control-buttons").removeClass("d-none");
 
-  console.warn(users);
+  console.warn(users)
 
   $(document).ready(function () {
     $("#tablaUsers").DataTable({
@@ -170,7 +171,7 @@ function generarTabla() {
         { data: "correo", name: "Correo", defaultContent: "N/A" },
         { data: "contacto", name: "Telefono", defaultContent: "N/A" }
       ],
-      data: users
+      data: users,
     });
   });
 }
@@ -180,6 +181,8 @@ function volver2() {
 
   if (users.length) {
     document.getElementById("tablaUsers").classList.remove("d-none");
+    document.getElementById("control-buttons").classList.remove("d-none");
+    
     let wrapper = document.getElementById("tablaUsers_wrapper");
     wrapper.classList.remove("d-none");
   }
