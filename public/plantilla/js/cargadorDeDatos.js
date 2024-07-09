@@ -1107,10 +1107,10 @@ async function agregarSaldo(envios, referente, referido) {
         }
       });
     })
-    .finally(() => {
+    .finally(async () => {
       const saldoAReclamar = envios * 200;
 
-      reclamarReferido(referido, referente, saldoAReclamar);
+      await reclamarReferidoBilletera(referido, referente, saldoAReclamar);
 
       let boton = document.getElementById(`btn-${referido}`);
       boton.disabled = true;
@@ -1119,6 +1119,29 @@ async function agregarSaldo(envios, referente, referido) {
 }
 
 /**{@link genFecha}; */
+
+async function reclamarReferidoBilletera(referido, referente, saldoAReclamar) {
+  console.log(saldoAReclamar, referido, referente);
+  const ref = db.collection("pendientePorPagar");
+
+  const nuevoObjeto = {
+    "COMISION HEKA": 0,
+    "CUENTA RESPONSABLE": "EMPRESA",
+    "ENVÍO TOTAL": 0,
+    GUIA: `R${referido}-${new Date().getFullYear()}${String(
+      new Date().getMonth() + 1
+    ).padStart(2, "0")}${String(new Date().getDate()).padStart(2, "0")}-${
+      Math.floor(Math.random() * (99 - 10 + 1)) + 10
+    }`,
+    RECAUDO: 0,
+    REMITENTE: referente,
+    "TOTAL A PAGAR": saldoAReclamar,
+    TRANSPORTADORA: "REFERIDOS",
+    timeline: Date.now()
+  };
+
+  await ref.add(nuevoObjeto);
+}
 
 function reclamarReferido(referido, referente, saldoAReclamar) {
   console.log(saldoAReclamar);
