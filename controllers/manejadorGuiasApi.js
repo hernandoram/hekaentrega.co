@@ -17,7 +17,7 @@ exports.consultarGuiaApi = async (req, res) => {
 
   try {
 
-    const { lista, formularios } = await referenciaNovedades.get().then((d) => {
+    const { lista } = await referenciaNovedades.get().then((d) => {
       if (d.exists) return d.data();
 
       return {};
@@ -86,9 +86,8 @@ exports.consultarGuiaApi = async (req, res) => {
     res.status(200).send({
       guide,
       currentNovelty,
+      followUp: dataGuide.seguimiento.reverse()
     });
-
-    // res.render("productos", {productos, tienda: req.params.storeInfo});
   } catch (e) {
     res.status(500).send(e);
   }
