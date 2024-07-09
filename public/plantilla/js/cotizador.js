@@ -3619,9 +3619,15 @@ class CalcularCostoDeEnvio {
 
     this.kg = cotizacion.peso_liquidado;
     this.total_flete = cotizacion.flete_fijo;
+
+    /* El sobreflete de la transportadora se calcula de forma manual
+    La fórmula es el mayor valor entre 2,65% del valor de recaudo o 4300
+    A este primer resultado se le suma el 19% para sacar el sobreflete específico  
+    */
+    const sobreFleteCalculado = Math.max(this.valor * 0.0265, 4300);
     this.sobreflete = this.convencional
       ? 0
-      : Math.round(Math.max(this.valor * 0.0265, 4300));
+      : Math.round(sobreFleteCalculado + (sobreFleteCalculado * .19));
     this.seguroMercancia = Math.round(cotizacion.flete_variable);
     this.tiempo = cotizacion.dias_entrega;
   }
@@ -4868,8 +4874,7 @@ function observacionesServientrega(result_cotizacion) {
     
     `En caso de devolución pagarías: $${convertirMiles(
       result_cotizacion.getDetails.cobraDevolucion ? result_cotizacion.costoDevolucion : 0
-    )} (Aplica solo para envíos en pago contra entrega)`,
-    "Las devoluciones con flexii se debe pagar envío ida y vuelta"
+    )} (Aplica solo para envíos en pago contra entrega)`
   ];
 
   let ul = document.createElement("ul");
@@ -4897,8 +4902,7 @@ function observacionesInteRapidisimo(result_cotizacion) {
     "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
     "En caso de devolución pagarías: $" +
       convertirMiles(result_cotizacion.getDetails.cobraDevolucion ? result_cotizacion.costoDevolucion : 0) +
-      " (Aplica solo para envíos en pago contra entrega)",
-    "Las devoluciones con flexii se debe pagar envío ida y vuelta"
+      " (Aplica solo para envíos en pago contra entrega)"
   ];
 
   let ul = document.createElement("ul");
@@ -4926,8 +4930,7 @@ function observacionesEnvia(result_cotizacion) {
     "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
     `En caso de devolución pagarías: $${convertirMiles(
       result_cotizacion.getDetails.cobraDevolucion ? result_cotizacion.costoDevolucion : 0
-    )} (Aplica solo para envíos en pago contra entrega)`,
-    "Las devoluciones con flexii se debe pagar envío ida y vuelta"
+    )} (Aplica solo para envíos en pago contra entrega)`
   ];
 
   let ul = document.createElement("ul");
