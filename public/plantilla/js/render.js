@@ -2775,7 +2775,7 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
                 </div>
             `,
     gestionar = `
-                <div class="col mb-3">
+                <div class="col mb-3" id="contenedor-solucion_novedad">
                 ${mostrador_gestionar}
                 </div>
             `;
@@ -2793,8 +2793,8 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
             <div class="col-12">
             ${mensajeGetionada}
             <div class="btn-group mb-3 col-12" role="group">
-                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#historial-estados-gestionarNovedad" aria-expanded="false" aria-controls="historial-estados-gestionarNovedad">Historial Estados</button>
-                <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#seguimiento-gestionarNovedad" aria-expanded="false" aria-controls="seguimiento-gestionarNovedad">Seguimiento</button>
+                <button class="btn btn-primary" type="button" data-toggle="collapse" id="btn-historial-estados-gestionarNovedad" data-target="#historial-estados-gestionarNovedad" aria-expanded="false" aria-controls="historial-estados-gestionarNovedad">Historial Estados</button>
+                <button class="btn btn-primary" type="button" data-toggle="collapse" id="btn-seguimiento-gestionarNovedad" data-target="#seguimiento-gestionarNovedad" aria-expanded="false" aria-controls="seguimiento-gestionarNovedad">Seguimiento</button>
             </div></div>
             `,
       "text/html"
@@ -3000,6 +3000,8 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
           });
       }
     });
+
+    limitarAccesoSegunTipoUsuario();
   } else {
     $(".registrar-novedad").click(registrarNovedad);
 
