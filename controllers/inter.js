@@ -439,7 +439,10 @@ exports.crearStickerGuia = (req, res) => {
             "x-app-security_token": credentials.x_app_security_token
         }
     }, (error, response, body) => {
-        if(error) res.send("Hubo un error => "+error);
+        if(error) {
+            res.send("Hubo un error => "+error);
+            return;
+        }
 
         try {
             let base64 = JSON.parse(body);

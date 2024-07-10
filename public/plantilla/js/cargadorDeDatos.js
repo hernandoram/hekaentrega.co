@@ -309,6 +309,10 @@ class ControlUsuario {
   static get esUsuarioPunto() {
     return datos_usuario.type === "USUARIO-PUNTO";
   }
+  
+  static get esLoggy() {
+    return datos_usuario.type === "LOGGY";
+  }
 
   /** Promesa encargada de validad que ya se han cargado todos los datos del usuario correctamente
    * Utiliza un loader al estilo "singleton", que devuelve una única promesa, que se resuelve cuando el
@@ -547,6 +551,14 @@ function limitarAccesoSegunTipoUsuario() {
       "manifiestos",
       "crear_guia",
       "deudas"
+    ];
+  } else if (ControlUsuario.esLoggy) {
+    quitarVistas = [
+      "estados", // Usuario Loggy no podrá ver el panel de estados
+      "btn-seguimiento-gestionarNovedad",
+      "seguimiento-gestionarNovedad",
+      "contenedor-solucion_novedad",
+      "contenedor-mostrar-billetera"
     ];
   }
 

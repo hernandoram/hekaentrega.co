@@ -793,6 +793,7 @@ function accionesDeFila(datos, type, row) {
 
     const btnCrearSticker = `<button class="btn btn-warning btn-circle btn-sm mx-1 action" data-id="${id}"
         data-funcion="activar-desactivar"
+        data-id_user="${id_user}"
         data-placement="right"
         id="crear_sticker${id}" title="Crear Sticker de la guía">
             <i class="fas fa-stamp"></i>
