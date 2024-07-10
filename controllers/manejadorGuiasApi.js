@@ -84,12 +84,14 @@ exports.consultarGuiaApi = async (req, res) => {
     };
 
     const followUp = [];
-    dataGuide.seguimiento.forEach(element => {
-      followUp.push({
-        label: element.gestion,
-        date: formatTimestamp(element.fecha.seconds, element.fecha.nanoseconds),
+    if (dataGuide.seguimiento) {
+      dataGuide.seguimiento.forEach(element => {
+        followUp.push({
+          label: element.gestion,
+          date: formatTimestamp(element.fecha.seconds, element.fecha.nanoseconds),
+        });
       });
-    });
+    }
 
     res.status(200).send({
       guide,
@@ -97,6 +99,7 @@ exports.consultarGuiaApi = async (req, res) => {
       followUp: followUp.reverse()
     });
   } catch (e) {
+    console.log(e);
     res.status(500).send(e);
   }
 };
