@@ -36,8 +36,7 @@ function hostnameReader() {
     brandNameContent = "FLEXII";
     elementContent = "Flexii";
   }
-  console.log(element);
-  console.log(brandName);
+  
   if (element) element.innerHTML = elementContent;
   if (brandName) brandName.innerHTML = brandNameContent;
 }

@@ -1076,7 +1076,6 @@ function seleccionarUsuario(id) {
         accion.Fecha = fechaFormateada;
       });
 
-      console.log(acciones);
       const table = $("#tabla-acciones").DataTable({
         destroy: true,
         data: acciones,
@@ -1122,7 +1121,6 @@ function seleccionarUsuario(id) {
 // esta funcion solo llena los datos solicitados en los inputs
 function mostrarDatosPersonales(data, info) {
   limpiarFormulario("#informacion-" + info, "input,select");
-  console.log(data);
 
   if (!data) return;
 
@@ -1594,7 +1592,6 @@ async function getDataUserFromMongoByIdAdm(id_usuario) {
     }
   ).then(async (response) => {
     const data = await response.json();
-    console.log(data);
     return data;
   });
 
@@ -1763,8 +1760,6 @@ async function actualizarInformacionHeka() {
       datos[campo] = value;
     });
 
-  console.log(datos);
-
   let momento = new Date().getTime();
   let id_usuario = document
     .getElementById("usuario-seleccionado")
@@ -1792,22 +1787,30 @@ async function actualizarInformacionHeka() {
       medio: "Administrador: " + localStorage.user_id,
       type: "GENERAL"
     };
-    if (doc.exists && doc.data().datos_personalizados) {
-      const datos = doc.data().datos_personalizados;
-      exists = true;
-      let s = parseInt(datos.saldo || 0);
-      const afirmar_saldo_anterior = detalles.saldo_anterior;
-      detalles.saldo_anterior = s;
-      detalles.saldo = s + detalles.diferencia;
-      datos.saldo = s + detalles.diferencia;
 
-      if (afirmar_saldo_anterior != s) {
-        mensaje =
-          ". Se notó una discrepancia entre el saldo mostrado ($" +
+    if(!doc.exists) {
+      const message = "El usuario " + id_usuario + " no ha sido encontrado en la base de datos";
+      Toast.fire("Error", message, "error");
+      throw new Error(message);
+    }
+
+    const datos_personalizados = doc.data().datos_personalizados;
+    if (datos_personalizados) {
+      exists = true;
+      const saldoOriginalEncontrado = parseInt(datos_personalizados.saldo || 0);
+      const afirmar_saldo_anterior = detalles.saldo_anterior;
+      detalles.saldo_anterior = saldoOriginalEncontrado;
+      detalles.saldo = saldoOriginalEncontrado + detalles.diferencia;
+      datos.saldo = saldoOriginalEncontrado + detalles.diferencia;
+
+      if (afirmar_saldo_anterior !== saldoOriginalEncontrado) {
+        // Se muestra este mensaje porque se denotó que el saldo que se mostraba en la ventana adminitrativa
+        // por alguna causa ha cambiado, por lo que se toma el original que se encuentre en la base de datos
+        detalles.mensaje =
+          "Cambio administrativo, discrepancia, saldo mostrado: $" +
           convertirMiles(afirmar_saldo_anterior) +
-          ") y el encontrado en la base de datos, se modificó en base a: <b>$" +
-          convertirMiles(s) +
-          "</b>";
+          " - saldo real que prevalece: $" +
+          convertirMiles(saldoOriginalEncontrado);
       }
     }
 
@@ -1869,8 +1872,8 @@ async function actualizarInformacionHeka() {
       avisar(
         "Actualización de Datos exitosa",
         "Se han registrado cambios en los costos de envíos para id: " +
-          value("actualizar_numero_documento") +
-          mensaje
+          value("actualizar_numero_documento") + ". " +
+          saldo.mensaje
       );
     });
 }
