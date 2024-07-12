@@ -1086,7 +1086,6 @@ async function agregarSaldo(envios, referente, referido) {
     );
   }
 
-  let guiasEntregadas;
   await firebase
     .firestore()
     .collection("referidos")
@@ -1096,13 +1095,21 @@ async function agregarSaldo(envios, referente, referido) {
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         if (data.sellerReferido == referido) {
-          guiasEntregadas = data.guiasEntregadas;
+          const historialItem = {
+            guiasEntregadas: data.guiasEntregadas,
+            enviosReclamados: parseInt(envios, 10),
+            timestamp: new Date(), 
+            saldoReclamado: parseInt(envios, 10) * 200
+          };
           doc.ref.update({
             enviosReclamados:
               (parseInt(data.enviosReclamados, 10) || 0) + parseInt(envios, 10),
             enviosPorReclamar: 0,
             cantidadReclamos: (data.cantidadReclamos || 0) + 1,
-            guiasEntregadas: []
+            guiasEntregadas: [],
+            historialGuias: data.historialGuias
+              ? [...data.historialGuias, historialItem]
+              : [historialItem]
           });
         }
       });
@@ -1111,14 +1118,6 @@ async function agregarSaldo(envios, referente, referido) {
       const saldoAReclamar = envios * 200;
 
       await reclamarReferidoBilletera(referido, referente, saldoAReclamar);
-
-      await agregarAlHistorialReferidos(
-        referido,
-        referente,
-        guiasEntregadas,
-        saldoAReclamar
-      );
-
       let boton = document.getElementById(`btn-${referido}`);
       boton.disabled = true;
       avisar("Recompensa reclamada", "Recompensa reclamada con éxito!");
@@ -1150,25 +1149,6 @@ async function reclamarReferidoBilletera(referido, referente, saldoAReclamar) {
   await ref.add(nuevoObjeto);
 }
 
-async function agregarAlHistorialReferidos(
-  referido,
-  referente,
-  guiasEntregadas,
-  saldoAReclamar
-) {
-  const ref = db.collection("historialReclamoReferidos");
-  try {
-    await ref.add({
-      guiasEntregadas,
-      referido,
-      referente,
-      saldoAReclamar,
-      timeline: Date.now()
-    });
-  } catch (error) {
-    console.log(error);
-  }
-}
 
 function reclamarReferido(referido, referente, saldoAReclamar) {
   console.log(saldoAReclamar);
