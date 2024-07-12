@@ -1098,7 +1098,6 @@ async function agregarSaldo(envios, referente, referido) {
         if (data.sellerReferido == referido) {
           const historialItem = {
             guiasEntregadas: data.guiasEntregadas,
-            enviosReclamados: parseInt(envios, 10),
             timestamp: new Date(), 
             saldoReclamado: parseInt(envios, 10) * 200
           };

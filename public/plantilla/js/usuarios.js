@@ -1332,37 +1332,71 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
           drawCallback: function (settings) {
             // Añade el manejador de eventos cada vez que se dibuja la tabla
             $(".clickable-cantidad-reclamos")
-            .off("click")
-            .on("click", function () {
-              // Accede a la fila (tr) que contiene la celda clickeada
-              const row = $(this).closest("tr");
-              // Encuentra el contenido de la celda "Seller Referido" en la misma fila
-              let sellerReferido = row.find("td:eq(0)").text(); // Asumiendo que "Seller Referido" es la primera columna
-          
-              let transacciones = referidos.find(
-                (referido) => referido.sellerReferido === sellerReferido
-              );
-              
-              console.warn(transacciones, sellerReferido);
-              // Actualiza el título del modal con el nombre del "Seller Referido"
-              $("#modalReferidos .modal-title").text(
-                "Historial de Reclamos - " + sellerReferido
-              );
-          
-              // Muestra el modal
-              $("#modalReferidos").modal("show");
-          
-              if (!transacciones || !transacciones.length) {
-                $("#tabla-reclamos").DataTable().clear();
-                $("#modalHistorialReferidos-mensajeNoHayReferidos").addClass(
-                  "d-none"
+              .off("click")
+              .on("click", function () {
+                // Accede a la fila (tr) que contiene la celda clickeada
+                const row = $(this).closest("tr");
+                // Encuentra el contenido de la celda "Seller Referido" en la misma fila
+                let sellerReferido = row.find("td:eq(0)").text(); // Asumiendo que "Seller Referido" es la primera columna
+
+                let transacciones = referidos.find(
+                  (referido) => referido.sellerReferido === sellerReferido
+                ).historialGuias;
+
+                console.warn(transacciones);
+                // Actualiza el título del modal con el nombre del "Seller Referido"
+                $("#modalReferidos .modal-title").text(
+                  "Historial de Reclamos - " + sellerReferido
                 );
-              } else {
-                $("#modalHistorialReferidos-mensajeNoHayReferidos").removeClass(
-                  "d-none"
-                );
-              }
-            });
+
+                // Muestra el modal
+                $("#modalReferidos").modal("show");
+
+                if (
+                  !transacciones ||
+                  !transacciones.length ||
+                  transacciones === undefined
+                ) {
+                  $("#tabla-reclamos").DataTable().clear();
+                  $("#modalHistorialReferidos-mensajeNoHayReferidos").removeClass(
+                    "d-none"
+                  );
+                  $("#modalHistorialPagoRef").addClass("d-none");
+
+                } else {
+                  $("#modalHistorialReferidos-mensajeNoHayReferidos").addClass(
+                    "d-none"
+                  );
+
+                  $("#modalHistorialPagoRef").removeClass("d-none");
+
+                  // Limpiar el cuerpo de la tabla antes de agregar nuevos datos
+                  $("#mostrador-pagos-referidos").empty();
+
+                  // Iterar sobre el arreglo historialGuias
+                  transacciones.forEach((guia) => {
+                    console.warn(guia);
+                    // Convertir las guiasEntregadas de un arreglo a una cadena de texto
+                    let guiasEntregadasTexto = guia.guiasEntregadas.join(", ");
+
+                    // Convertir timestamp a una fecha legible
+                    let fecha = new Date(guia.timestamp.seconds * 1000); // Asumiendo que timestamp.seconds es en segundos
+                    let fechaReclamo = fecha.toLocaleDateString("es-ES"); // Formatear la fecha
+
+                    // Construir la fila de la tabla
+                    let fila = `<tr>
+                                <td>${guia.saldoReclamado}</td>
+                                <td>${guiasEntregadasTexto}</td>
+                                <td>${fechaReclamo}</td>
+                              </tr>`;
+
+                    console.warn(fila);
+
+                    // Agregar la fila al cuerpo de la tabla
+                    $("#mostrador-pagos-referidos").append(fila);
+                  });
+                }
+              });
           }
         });
       });
