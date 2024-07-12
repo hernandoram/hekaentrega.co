@@ -998,22 +998,25 @@ function seleccionarUsuario(id) {
 
         mostrarDatosPersonales(doc.data(), "personal");
 
+        mostrarReferidosUsuarioAdm(doc.data().centro_de_costo);
+
         mostrarDatosPersonales(datos_bancarios, "bancaria");
         mostrarBodegasUsuarioAdm(bodegas);
         mostrarObjetosFrecuentesAdm(doc.id);
 
         getDataUserFromMongoByIdAdm(id)
-        .then((dataApi) => {
-          datos_personalizados.user_type = dataApi.response.user_type;
+          .then((dataApi) => {
+            datos_personalizados.user_type = dataApi.response.user_type;
 
-          mostrarDatosPersonales(datos_personalizados, "heka");
-        })
-        .catch(() => {
-          // No se pudo cargar la información de mongo, pero básicamente se podrá la cargar la de heka, en caso de que exista
-          // Ya que aún, esta información no será actualizada en mongo, no afecta que una que otra ocasión no cargue
-          mostrarDatosPersonales(datos_personalizados, "heka");
-        });
-
+            mostrarDatosPersonales(datos_personalizados, "heka");
+            console.warn(datos_personalizados);
+          })
+          .catch(() => {
+            // No se pudo cargar la información de mongo, pero básicamente se podrá la cargar la de heka, en caso de que exista
+            // Ya que aún, esta información no será actualizada en mongo, no afecta que una que otra ocasión no cargue
+            mostrarDatosPersonales(datos_personalizados, "heka");
+            mostrarReferidosUsuarioAdm(doc.data().centro_de_costo);
+          });
       } else {
         // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
         //Hasta que todos los usuario futuramente tengan el doc "heka"
@@ -1121,7 +1124,7 @@ function seleccionarUsuario(id) {
 
 // esta funcion solo llena los datos solicitados en los inputs
 function mostrarDatosPersonales(data, info) {
-  const centroCosto= data.centro_de_costo;
+  const centroCosto = data.centro_de_costo;
   limpiarFormulario("#informacion-" + info, "input,select");
   console.log(data);
 
@@ -1194,8 +1197,6 @@ function mostrarDatosPersonales(data, info) {
       $("#actv_credit").prop("checked", false);
     }
   }
-
-  mostrarReferidosUsuarioAdm(centroCosto)
 }
 
 let selectControl = document.getElementById("selectControl");
@@ -1260,10 +1261,9 @@ function renderObjetosFrecuentes() {
   descripcionEmpaqueInput.value = objeto.paquete || "";
 }
 
-function mostrarReferidosUsuarioAdm(centro_costo) {
-  console.warn(centro_costo)
-  const referidos = [];
+let referidos = [];
 
+function mostrarReferidosUsuarioAdm(centro_costo) {
   firebase
     .firestore()
     .collection("referidos")
@@ -1275,51 +1275,95 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
       });
     })
     .finally(() => {
-      const table = $("#tabla-referidos").DataTable({
-        destroy: true,
-        data: referidos,
-        columns: [
-          {
-            data: "sellerReferido",
-            title: "Seller Referido",
-            defaultContent: ""
+      $(document).ready(function () {
+        const table = $("#tabla-referidos").DataTable({
+          destroy: true,
+          data: referidos,
+          columns: [
+            {
+              data: "sellerReferido",
+              title: "Seller Referido",
+              defaultContent: ""
+            },
+            {
+              data: "nombreApellido",
+              title: "Nombre Referido",
+              defaultContent: ""
+            },
+            { data: "celularReferido", title: "Celular", defaultContent: "" },
+            {
+              data: "cantidadEnvios",
+              title: "Cantidad Envios",
+              defaultContent: ""
+            },
+            {
+              data: "enviosPorReclamar",
+              title: "Envios por Reclamar",
+              defaultContent: "0"
+            },
+            {
+              data: "enviosReclamados",
+              title: "Envios Reclamados",
+              defaultContent: "0"
+            },
+            {
+              data: "cantidadReclamos",
+              title: "Cantidad Reclamos",
+              defaultContent: "0"
+            }
+          ],
+          language: {
+            url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
           },
-          {
-            data: "nombreApellido",
-            title: "Nombre Referido",
-            defaultContent: ""
-          },
-          { data: "celularReferido", title: "Celular", defaultContent: "" },
-          {
-            data: "cantidadEnvios",
-            title: "Cantidad Envios",
-            defaultContent: ""
-          },
-          {
-            data: "enviosPorReclamar",
-            title: "Envios por Reclamar",
-            defaultContent: "0"
-          },
-          {
-            data: "enviosReclamados",
-            title: "Envios Reclamados",
-            defaultContent: "0"
-          },
-          {
-            data: "cantidadReclamos",
-            title: "Cantidad Reclamos",
-            defaultContent: "0"
-          },
-        ],
-        language: {
-          url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
-        },
-        scrollX: true,
-        scrollCollapse: true,
-        lengthMenu: [
-          [5, 10, 25, 30],
-          [5, 10, 25, 30]
-        ]
+          scrollX: true,
+          scrollCollapse: true,
+          lengthMenu: [
+            [5, 10, 25, 30],
+            [5, 10, 25, 30]
+          ],
+          columnDefs: [
+            {
+              targets: [6], // Índice de la columna "Cantidad Reclamos"
+              createdCell: function (td, cellData, rowData, row, col) {
+                $(td).addClass("clickable-cantidad-reclamos"); // Añade una clase para identificar las celdas
+              }
+            }
+          ],
+          drawCallback: function (settings) {
+            // Añade el manejador de eventos cada vez que se dibuja la tabla
+            $(".clickable-cantidad-reclamos")
+              .off("click")
+              .on("click", function () {
+                // Accede a la fila (tr) que contiene la celda clickeada
+                var row = $(this).closest("tr");
+                // Encuentra el contenido de la celda "Seller Referido" en la misma fila
+                var sellerReferido = row.find("td:eq(0)").text(); // Asumiendo que "Seller Referido" es la primera columna
+
+                const transacciones = referidos.find(
+                  (referido) => referido.SellerReferido === sellerReferido
+                ).transacciones;
+
+                // Actualiza el título del modal con el nombre del "Seller Referido"
+                $("#modalReferidos .modal-title").text(
+                  "Historial de Reclamos - " + sellerReferido
+                );
+
+                // Muestra el modal
+                $("#modalReferidos").modal("show");
+
+                if (!transacciones || !transacciones.length) {
+                  $("#tabla-reclamos").DataTable().clear();
+                  $("#modalHistorialReferidos-mensajeNoHayReferidos").add(
+                    "d-none"
+                  );
+                } else {
+                  $("#modalHistorialReferidos-mensajeNoHayReferidos").remove(
+                    "d-none"
+                  );
+                }
+              });
+          }
+        });
       });
 
       if (!referidos || !referidos.length) table.clear();
@@ -1517,9 +1561,8 @@ function limpiarFormulario(parent, query) {
 
 async function actualizarInformacionPersonal() {
   const tipoUsuario = document.querySelector("#actualizar_tipo_user").value;
-  
-  const type = tipoUsuario === "" ? "NATURAL" : tipoUsuario;
 
+  const type = tipoUsuario === "" ? "NATURAL" : tipoUsuario;
 
   let datos = {
     nombres: value("actualizar_nombres"),

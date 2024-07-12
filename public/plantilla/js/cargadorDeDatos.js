@@ -391,7 +391,7 @@ async function cargarDatosUsuario() {
 
   datos_usuario = await consultarDatosDeUsuario();
 
-  mostrarReferidos(datos_usuario);
+  await mostrarReferidos(datos_usuario);
 
   objetosFrecuentes = await cargarObjetosFrecuentes();
 
@@ -999,20 +999,20 @@ function numberWithCommas(x) {
   return parts.join(".");
 }
 
-function mostrarReferidos(datos) {
+async function mostrarReferidos(datos) {
   let userid = localStorage.getItem("user_id");
 
-  firebase
+  await firebase
     .firestore()
     .collection("usuarios")
     .doc(userid)
     .get()
-    .then(() => {
+    .then(async () => {
       let referidos = [];
 
       console.warn(referidos);
 
-      firebase
+      await firebase
         .firestore()
         .collection("referidos")
         .where("sellerReferente", "==", datos.centro_de_costo)
@@ -1037,6 +1037,7 @@ function despliegueReferidos(referidos) {
 
   mostradorReferidos.classList.remove("d-none");
   tituloreferidos.classList.remove("d-none");
+  console.warn(referidos)
 
   for (referido of referidos) {
     const htmlCard = `

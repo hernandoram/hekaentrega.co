@@ -317,6 +317,7 @@
                   <a class="btn btn-outline-primary btn-lg" href="javascript:volver2()">Volver</a>
                   <script>
                     function volver2() {
+                      referidos = [];
                       document.getElementById("mostrador-usuarios").classList.remove("d-none");
                       document.getElementById("usuario-seleccionado").classList.add("d-none");
                     }
@@ -890,6 +891,41 @@
             
             </div>
 
+          </div>
+
+          <div class="modal fade" id="modalReferidos">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                  <h4 class="modal-title">Historial de Reclamos</h4>
+                  
+                  <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <!-- Modal body -->
+                <div class="modal-body">
+                  
+                  <h5 class="text-center d-none" id="modalHistorialReferidos-mensajeNoHayReferidos">Aún no hay transacciones</h5>
+                  <table class="table table-striped mt-4 d-none" id="modalHistorialPago-tituloTabla">
+
+                    <thead >
+                      <tr>
+                        <th scope="col">Guia</th>
+                        <th scope="col">Valor</th>
+                      </tr>
+                    </thead>
+                    <tbody id="mostrador-historial">
+
+                    </tbody>
+
+                  </table>
+                </div>
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="container-fluid" id="registrador">
