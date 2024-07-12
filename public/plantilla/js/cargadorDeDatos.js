@@ -1002,8 +1002,6 @@ function numberWithCommas(x) {
 function mostrarReferidos(datos) {
   let userid = localStorage.getItem("user_id");
 
-  const topeReferidos = document.getElementById("tope-referido");
-
   firebase
     .firestore()
     .collection("usuarios")
@@ -1040,7 +1038,6 @@ function despliegueReferidos(referidos) {
   mostradorReferidos.classList.remove("d-none");
   tituloreferidos.classList.remove("d-none");
 
-  console.warn(referidos);
   for (referido of referidos) {
     const htmlCard = `
     <div class="col-md-4 mb-4" >
@@ -1089,6 +1086,7 @@ async function agregarSaldo(envios, referente, referido) {
     );
   }
 
+  let guiasEntregadas;
   await firebase
     .firestore()
     .collection("referidos")
@@ -1098,11 +1096,13 @@ async function agregarSaldo(envios, referente, referido) {
       querySnapshot.forEach((doc) => {
         const data = doc.data();
         if (data.sellerReferido == referido) {
+          guiasEntregadas = data.guiasEntregadas;
           doc.ref.update({
             enviosReclamados:
               (parseInt(data.enviosReclamados, 10) || 0) + parseInt(envios, 10),
             enviosPorReclamar: 0,
-            cantidadReclamos: (data.cantidadReclamos || 0) + 1
+            cantidadReclamos: (data.cantidadReclamos || 0) + 1,
+            guiasEntregadas: []
           });
         }
       });
@@ -1111,6 +1111,13 @@ async function agregarSaldo(envios, referente, referido) {
       const saldoAReclamar = envios * 200;
 
       await reclamarReferidoBilletera(referido, referente, saldoAReclamar);
+
+      await agregarAlHistorialReferidos(
+        referido,
+        referente,
+        guiasEntregadas,
+        saldoAReclamar
+      );
 
       let boton = document.getElementById(`btn-${referido}`);
       boton.disabled = true;
@@ -1141,6 +1148,26 @@ async function reclamarReferidoBilletera(referido, referente, saldoAReclamar) {
   };
 
   await ref.add(nuevoObjeto);
+}
+
+async function agregarAlHistorialReferidos(
+  referido,
+  referente,
+  guiasEntregadas,
+  saldoAReclamar
+) {
+  const ref = db.collection("historialReclamoReferidos");
+  try {
+    await ref.add({
+      guiasEntregadas,
+      referido,
+      referente,
+      saldoAReclamar,
+      timeline: Date.now()
+    });
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 function reclamarReferido(referido, referente, saldoAReclamar) {
