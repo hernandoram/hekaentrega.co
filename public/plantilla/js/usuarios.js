@@ -1332,36 +1332,37 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
           drawCallback: function (settings) {
             // Añade el manejador de eventos cada vez que se dibuja la tabla
             $(".clickable-cantidad-reclamos")
-              .off("click")
-              .on("click", function () {
-                // Accede a la fila (tr) que contiene la celda clickeada
-                var row = $(this).closest("tr");
-                // Encuentra el contenido de la celda "Seller Referido" en la misma fila
-                var sellerReferido = row.find("td:eq(0)").text(); // Asumiendo que "Seller Referido" es la primera columna
-
-                const transacciones = referidos.find(
-                  (referido) => referido.SellerReferido === sellerReferido
-                ).transacciones;
-
-                // Actualiza el título del modal con el nombre del "Seller Referido"
-                $("#modalReferidos .modal-title").text(
-                  "Historial de Reclamos - " + sellerReferido
+            .off("click")
+            .on("click", function () {
+              // Accede a la fila (tr) que contiene la celda clickeada
+              const row = $(this).closest("tr");
+              // Encuentra el contenido de la celda "Seller Referido" en la misma fila
+              let sellerReferido = row.find("td:eq(0)").text(); // Asumiendo que "Seller Referido" es la primera columna
+          
+              let transacciones = referidos.find(
+                (referido) => referido.sellerReferido === sellerReferido
+              );
+              
+              console.warn(transacciones, sellerReferido);
+              // Actualiza el título del modal con el nombre del "Seller Referido"
+              $("#modalReferidos .modal-title").text(
+                "Historial de Reclamos - " + sellerReferido
+              );
+          
+              // Muestra el modal
+              $("#modalReferidos").modal("show");
+          
+              if (!transacciones || !transacciones.length) {
+                $("#tabla-reclamos").DataTable().clear();
+                $("#modalHistorialReferidos-mensajeNoHayReferidos").addClass(
+                  "d-none"
                 );
-
-                // Muestra el modal
-                $("#modalReferidos").modal("show");
-
-                if (!transacciones || !transacciones.length) {
-                  $("#tabla-reclamos").DataTable().clear();
-                  $("#modalHistorialReferidos-mensajeNoHayReferidos").add(
-                    "d-none"
-                  );
-                } else {
-                  $("#modalHistorialReferidos-mensajeNoHayReferidos").remove(
-                    "d-none"
-                  );
-                }
-              });
+              } else {
+                $("#modalHistorialReferidos-mensajeNoHayReferidos").removeClass(
+                  "d-none"
+                );
+              }
+            });
           }
         });
       });
