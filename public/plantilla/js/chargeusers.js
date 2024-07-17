@@ -37,7 +37,6 @@ async function chargeUsers() {
   }
 }
 
-const buscadorNombre = document.querySelector("#buscador_usuarios-nombre");
 
 const buscadorCallcenter = document.querySelector("#input-filtrado-callcenter");
 
@@ -60,7 +59,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-CargarUsuarios(buscadorNombre);
 CargarUsuarios(buscadorCallcenter);
 CargarUsuarios(buscadorPagos);
 CargarUsuarios(buscadorUserEstados);

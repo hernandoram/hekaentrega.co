@@ -709,26 +709,26 @@ function mostrarOficina(id) {
     });
 }
 
-const botonBusquedaGeneral = document.getElementById("busquedaGeneral");
-const botonBusquedaEspecializada = document.getElementById(
-  "busquedaEspecializada"
-);
+// const botonBusquedaGeneral = document.getElementById("busquedaGeneral");
+// const botonBusquedaEspecializada = document.getElementById(
+//   "busquedaEspecializada"
+// );
 
-botonBusquedaGeneral.onclick = function (e) {
-  // Aquí va el código que quieres que se ejecute cuando se haga clic en el botón de búsqueda general
-  console.log("Botón de búsqueda general clickeado");
-  e.preventDefault();
+// botonBusquedaGeneral.onclick = function (e) {
+//   // Aquí va el código que quieres que se ejecute cuando se haga clic en el botón de búsqueda general
+//   console.log("Botón de búsqueda general clickeado");
+//   e.preventDefault();
 
-  searchUsers(e, true);
-};
+//   searchUsers(e, true);
+// };
 
-botonBusquedaEspecializada.onclick = function (e) {
-  // Aquí va el código que quieres que se ejecute cuando se haga clic en el botón de búsqueda especializada
-  console.log("Botón de búsqueda especializada clickeado");
-  e.preventDefault();
+// botonBusquedaEspecializada.onclick = function (e) {
+//   // Aquí va el código que quieres que se ejecute cuando se haga clic en el botón de búsqueda especializada
+//   console.log("Botón de búsqueda especializada clickeado");
+//   e.preventDefault();
 
-  searchUsers(e, false);
-};
+//   searchUsers(e, false);
+// };
 
 //esta funcion utilizara a otra para retornarme informacion basica del usuario
 async function buscarUsuarios(e, esGeneral) {

@@ -166,6 +166,7 @@ function generarTabla(users) {
           name: "Nombre Seller",
           defaultContent: "N/A"
         },
+        { data: "numero_documento", name: "No Documento", defaultContent: "N/A" },
         { data: "correo", name: "Correo", defaultContent: "N/A" },
         { data: "contacto", name: "Telefono", defaultContent: "N/A" },
         { data: "bodega", name: "Bodega Principal", defaultContent: "N/A" }
