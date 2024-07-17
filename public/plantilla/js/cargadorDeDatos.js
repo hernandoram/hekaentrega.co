@@ -395,7 +395,7 @@ async function cargarDatosUsuario() {
 
   datos_usuario = await consultarDatosDeUsuario();
 
-  mostrarReferidos(datos_usuario);
+  await mostrarReferidos(datos_usuario);
 
   objetosFrecuentes = await cargarObjetosFrecuentes();
 
@@ -489,7 +489,7 @@ function listarSugerenciaMensajesNovedad() {
 async function consultarDatosDeUsuario() {
   const actualizador = (doc) => {
     if (doc.exists) {
-      const datos = doc.data();
+      const datos = { ...doc.data(), id: doc.id };
       const datos_bancarios = datos.datos_bancarios || null;
       const datos_personalizados = datos.datos_personalizados;
       let bodegas = datos.bodegas
@@ -527,7 +527,7 @@ async function consultarDatosDeUsuario() {
       mostrarDatosPersonalizados(datos_personalizados);
       mostrarDatosBancarios(datos_bancarios);
 
-      verificarBodegas(bodegas)
+      verificarBodegas(bodegas);
       mostrarBodegas(bodegas);
 
       return datos_usuario;
@@ -570,7 +570,8 @@ function limitarAccesoSegunTipoUsuario() {
 
 function mostrarDatosUsuario(datos) {
   const referal = document.getElementById("referal");
-  referal.value = `https://www.hekaentrega.co/ingreso.html?rf=${datos.centro_de_costo}#registrar`;
+  referal.value = `https://dev.hekaentrega.co/registro?referrals=${datos.id}`;
+
   const mostradores = [
     ".mostrar-nombre_completo",
     ".mostrar-nombre_empresa",
@@ -1010,52 +1011,35 @@ function numberWithCommas(x) {
   return parts.join(".");
 }
 
-function mostrarReferidos(datos) {
+async function mostrarReferidos(datos) {
   let userid = localStorage.getItem("user_id");
 
-  const topeReferidos = document.getElementById("tope-referido");
-
-  firebase
+  await firebase
     .firestore()
     .collection("usuarios")
     .doc(userid)
     .get()
-    .then((doc) => {
-      datos_saldo_usuario = doc.data().datos_personalizados;
-      topeUsuario = parseInt(datos_saldo_usuario.tope_referido) || 100000;
-      console.log(
-        "tope" + topeUsuario,
-        "recibo" + datos_saldo_usuario.recibidoReferidos
-      );
-      topeReferidos.innerHTML = `$${numberWithCommas(topeUsuario) || 100.0}`;
-
-      if (topeUsuario < datos_saldo_usuario.recibidoReferidos) {
-        throw new Error(
-          "Condición cumplida. No se ejecutará el resto de la función."
-        );
-      }
-    })
-    .then(() => {
+    .then(async () => {
       let referidos = [];
 
-      firebase
+      console.warn(referidos);
+
+      await firebase
         .firestore()
         .collection("referidos")
         .where("sellerReferente", "==", datos.centro_de_costo)
         .get()
         .then((querySnapshot) => {
           querySnapshot.forEach((doc) => {
-            if (doc.data().reclamado !== true) referidos.push(doc.data());
+            referidos.push(doc.data());
           });
         })
         .finally(() => {
-          if (referidos.length > 0) despliegueReferidos(referidos);
+          despliegueReferidos(referidos);
         });
     })
     .catch((err) => {
-      let mostradorReferidos = document.getElementById("mostrador-referidos");
-      mostradorReferidos.classList.remove("d-none");
-      mostradorReferidos.innerHTML = `<h3 class="text-center mt-2">¡Felicidades! Has reclamado todos los premios por referir usuarios que teníamos disponibles. ¡Gracias por tu apoyo!</h3>`;
+      console.warn(err);
     });
 }
 
@@ -1065,6 +1049,7 @@ function despliegueReferidos(referidos) {
 
   mostradorReferidos.classList.remove("d-none");
   tituloreferidos.classList.remove("d-none");
+  console.warn(referidos)
 
   for (referido of referidos) {
     const htmlCard = `
@@ -1079,7 +1064,7 @@ function despliegueReferidos(referidos) {
     <div class="row no-gutters align-items-center">
     <div class="h6 mb-0 mr-3 font-weight-bold">
         <p>Número de envíos: <small>${
-          referido.cantidadEnvios < 10 ? referido.cantidadEnvios : "10"
+          referido.enviosPorReclamar || 0
         }</small></p>       
     </div>
     <div>
@@ -1088,8 +1073,11 @@ function despliegueReferidos(referidos) {
     <button class="btn btn-primary text-centered" id="btn-${
       referido.sellerReferido
     }" ${
-      referido.cantidadEnvios < 10 ? "disabled" : ""
-    }  onclick="agregarSaldo('${referido.cantidadEnvios}','${
+      typeof referido.enviosPorReclamar === "undefined" ||
+      referido.enviosPorReclamar === 0
+        ? "disabled"
+        : ""
+    }  onclick="agregarSaldo('${referido.enviosPorReclamar || 0}','${
       referido.sellerReferente
     }' , '${referido.sellerReferido}')">Reclamar recompensa</button>
 </div>
@@ -1103,35 +1091,45 @@ function despliegueReferidos(referidos) {
 
   //
 }
-function agregarSaldo(envios, referente, referido) {
-  //referente
-  if (envios < 10) {
-    avisar(
+async function agregarSaldo(envios, referente, referido) {
+  if (envios < 1) {
+    return avisar(
       "Error",
       "Este referido aún no cumple con los requisitos para reclamar su recompensa"
     );
-    return;
   }
 
-  firebase
+  await firebase
     .firestore()
     .collection("referidos")
     .where("sellerReferente", "==", referente)
     .get()
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
-        console.log(doc.data());
-        if (doc.data().sellerReferido == referido) {
-          console.log(doc.data());
+        const data = doc.data();
+        if (data.sellerReferido == referido) {
+          const historialItem = {
+            guiasEntregadas: data.guiasEntregadas,
+            timestamp: new Date(), 
+            saldoReclamado: parseInt(envios, 10) * 200
+          };
           doc.ref.update({
-            reclamado: true
+            enviosReclamados:
+              (parseInt(data.enviosReclamados, 10) || 0) + parseInt(envios, 10),
+            enviosPorReclamar: 0,
+            cantidadReclamos: (data.cantidadReclamos || 0) + 1,
+            guiasEntregadas: [],
+            historialGuias: data.historialGuias
+              ? [...data.historialGuias, historialItem]
+              : [historialItem]
           });
         }
       });
     })
-    .finally(() => {
-      reclamarReferido(referido, referente);
+    .finally(async () => {
+      const saldoAReclamar = envios * 200;
 
+      await reclamarReferidoBilletera(referido, referente, saldoAReclamar);
       let boton = document.getElementById(`btn-${referido}`);
       boton.disabled = true;
       avisar("Recompensa reclamada", "Recompensa reclamada con éxito!");
@@ -1140,8 +1138,33 @@ function agregarSaldo(envios, referente, referido) {
 
 /**{@link genFecha}; */
 
-function reclamarReferido(referido, referente) {
-  console.log(referente);
+async function reclamarReferidoBilletera(referido, referente, saldoAReclamar) {
+  console.log(saldoAReclamar, referido, referente);
+  const ref = db.collection("pendientePorPagar");
+
+  const nuevoObjeto = {
+    "COMISION HEKA": 0,
+    "CUENTA RESPONSABLE": "EMPRESA",
+    "ENVÍO TOTAL": 0,
+    GUIA: `R${referido}-${new Date().getFullYear()}${String(
+      new Date().getMonth() + 1
+    ).padStart(2, "0")}${String(new Date().getDate()).padStart(2, "0")}-${
+      Math.floor(Math.random() * (99 - 10 + 1)) + 10
+    }`,
+    RECAUDO: 0,
+    REMITENTE: referente,
+    "TOTAL A PAGAR": saldoAReclamar,
+    TRANSPORTADORA: "REFERIDOS",
+    timeline: Date.now()
+  };
+
+  await ref.add(nuevoObjeto);
+}
+
+
+function reclamarReferido(referido, referente, saldoAReclamar) {
+  console.log(saldoAReclamar);
+
   let userid = localStorage.getItem("user_id");
   let fecha = genFecha();
   let datos_saldo_usuario = {};
