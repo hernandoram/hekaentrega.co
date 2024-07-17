@@ -1793,7 +1793,8 @@ $("#btn-revisar_pagos").click(async (e) => {
       "ENVIA",
       "TCC",
       "INTERRAPIDISIMO",
-      "COORDINADORA"
+      "COORDINADORA",
+      "REFERIDOS"
     ];
   }
 
