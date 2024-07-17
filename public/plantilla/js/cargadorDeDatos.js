@@ -83,7 +83,7 @@ async function validateToken(token) {
       console.log(user.data());
 
       if (tipoUsuario === "seller") {
-        mostrarBilletera = user.data().blockedWallet;
+        mostrarBilletera = user.data().blockedWallet || false;
         renderBilletera();
       }
 
@@ -437,13 +437,13 @@ async function cargarPagoSolicitado() {
     usuarioParaColaInfoHeka.push(...colaProcesarGuias);
 
   const centro_de_costo = datos_usuario.centro_de_costo;
-  const soliciado = diarioSolicitado.includes(centro_de_costo);
+  let soliciado = diarioSolicitado.includes(centro_de_costo);
 
-  const limitado = limitadosDiario.includes(centro_de_costo);
+  let limitado = limitadosDiario.includes(centro_de_costo);
 
   console.log("pago solicitado", soliciado);
   console.log("limitado", limitado);
-
+  
   if (soliciado) {
     $("#mostrador-saldoSolicitado").removeClass("d-none");
     $("#mostrador-saldoNoSolicitado").addClass("d-none");
@@ -2508,6 +2508,7 @@ async function solicitarPagosPendientesUs(e) {
 
   // Obtenemos en donde se va a ingresar su centro de costo
   const { limitadosDiario, diarioSolicitado } = data;
+
 
   // porque de alguna forma no tiene datos bancarios ingresados
   if (!datos_usuario.datos_bancarios)
