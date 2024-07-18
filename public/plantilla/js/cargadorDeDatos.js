@@ -570,7 +570,7 @@ function limitarAccesoSegunTipoUsuario() {
 
 function mostrarDatosUsuario(datos) {
   const referal = document.getElementById("referal");
-  referal.value = `https://dev.hekaentrega.co/registro?referrals=${datos.id}`;
+  referal.value = `https://hekaentrega.co/registro?referrals=${datos.id}`;
 
   const mostradores = [
     ".mostrar-nombre_completo",
