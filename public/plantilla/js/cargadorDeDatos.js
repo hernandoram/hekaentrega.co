@@ -1022,7 +1022,6 @@ async function mostrarReferidos(datos) {
     .then(async () => {
       let referidos = [];
 
-      console.warn(referidos);
 
       await firebase
         .firestore()
@@ -1049,7 +1048,6 @@ function despliegueReferidos(referidos) {
 
   mostradorReferidos.classList.remove("d-none");
   tituloreferidos.classList.remove("d-none");
-  console.warn(referidos)
 
   for (referido of referidos) {
     const htmlCard = `
@@ -2865,7 +2863,6 @@ async function cargarObjetosFrecuentes() {
       return opciones;
     })
     .then((opciones) => {
-      console.warn(opciones);
       return opciones;
     });
 }

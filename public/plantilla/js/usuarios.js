@@ -1009,7 +1009,6 @@ function seleccionarUsuario(id) {
             datos_personalizados.user_type = dataApi.response.user_type;
 
             mostrarDatosPersonales(datos_personalizados, "heka");
-            console.warn(datos_personalizados);
           })
           .catch(() => {
             // No se pudo cargar la información de mongo, pero básicamente se podrá la cargar la de heka, en caso de que exista
@@ -1340,7 +1339,6 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
                   (referido) => referido.sellerReferido === sellerReferido
                 ).historialGuias;
 
-                console.warn(transacciones);
                 // Actualiza el título del modal con el nombre del "Seller Referido"
                 $("#modalReferidos .modal-title").text(
                   "Historial de Reclamos - " + sellerReferido
@@ -1372,7 +1370,6 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
 
                   // Iterar sobre el arreglo historialGuias
                   transacciones.forEach((guia) => {
-                    console.warn(guia);
                     // Convertir las guiasEntregadas de un arreglo a una cadena de texto
                     let guiasEntregadasTexto = guia.guiasEntregadas.join(", ");
 
@@ -1387,7 +1384,6 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
                                 <td>${fechaReclamo}</td>
                               </tr>`;
 
-                    console.warn(fila);
 
                     // Agregar la fila al cuerpo de la tabla
                     $("#mostrador-pagos-referidos").append(fila);
