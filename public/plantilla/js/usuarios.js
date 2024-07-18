@@ -1123,7 +1123,6 @@ function seleccionarUsuario(id) {
 
 // esta funcion solo llena los datos solicitados en los inputs
 function mostrarDatosPersonales(data, info) {
-  const centroCosto = data.centro_de_costo;
   limpiarFormulario("#informacion-" + info, "input,select");
 
   if (!data) return;
@@ -1273,7 +1272,7 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
       });
     })
     .finally(() => {
-      $(document).ready(function () {
+      const table = $(document).ready(function () {
         const table = $("#tabla-referidos").DataTable({
           destroy: true,
           data: referidos,
