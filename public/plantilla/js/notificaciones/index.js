@@ -39,13 +39,13 @@ const summernoteOptions = {
     "Courier New",
     "Times New Roman",
     "Helvetica",
-    "Impact",
+    "Impact"
   ],
   styleTags: [
     "p",
     // {title: 'pequeña', tag: 'h6', value: 'h6'},
     { title: "Título", tag: "h4", value: "h4" },
-    { title: "Sub-título", tag: "h5", value: "h5" },
+    { title: "Sub-título", tag: "h5", value: "h5" }
   ],
   toolbar: [
     ["style", ["style"]],
@@ -57,15 +57,15 @@ const summernoteOptions = {
         "underline",
         "strikethrough",
         "superscript",
-        "subscript",
-      ],
+        "subscript"
+      ]
     ],
     ["font", ["fontsize", "fontname"]],
     ["color", ["color"]],
     ["paragraph", ["ul", "ol", "paragraph", "height", "fullscreen"]],
-    ["insert", ["link"]], // Agregado aquí
+    ["insert", ["link"]] // Agregado aquí
   ],
-  lang: "es-ES",
+  lang: "es-ES"
 };
 
 $("#mensaje-centro_notificaciones").summernote(summernoteOptions);
@@ -181,7 +181,7 @@ async function generarNotificacion(e) {
     timeline: new Date().getTime(),
     isGlobal: true,
     active: true,
-    allowDelete: true,
+    allowDelete: true
   };
 
   formData.delete("files");
@@ -259,7 +259,7 @@ reference
       centros.push({ id: doc.id, centro_de_costo: doc.data().centro_de_costo });
     });
   })
-  .then(() => {
+  .then(async () => {
     console.log(centros);
   });
 
@@ -409,7 +409,7 @@ function mostrarNotificaciones() {
     .get()
     .then((q) => {
       visorNotificaciones.html("");
-      
+
       if (q.size === 0) {
         return;
       }
@@ -425,7 +425,6 @@ function mostrarNotificaciones() {
         data.startDate = convertirFecha(data.startDate);
         data.endDate = convertirFecha(data.endDate);
         visorNotificaciones.append(visualizarNotificacion(data));
-
 
         seccionNotificaciones.removeClass("d-none");
 
@@ -445,7 +444,6 @@ function mostrarNotificaciones() {
     })
     .then(() => selectorNotificaciones(notificaciones));
 }
-
 
 function convertirFecha(inputfecha) {
   const fecha = new Date(inputfecha);
@@ -476,11 +474,11 @@ function selectorNotificaciones(notificaciones) {
 }
 
 function alertarVencimientoNotificacion(notificacion) {
-  const {name, endDate} = notificacion;
+  const { name, endDate } = notificacion;
   const strFecha = convertirFecha(endDate);
 
   const message = `La notificación "${name}" ya se encuentra vencida desde la fecha ${strFecha}, por favor, elimínela o extienda la fecha de vencimiento.`;
-  
+
   Swal.fire("Notificación vencida", message, "warning");
 }
 
@@ -507,27 +505,31 @@ const acciones = {
     const id = target.parentNode.id;
 
     fireRef
-    .doc(id)
-    .get()
-    .then(d => {
-      const data = d.data();
-      switch(data.type) {
-        case "alerta":
-          mostrarNotificacionAlertaUsuario(data, d.id);
-        break;
-        
-        case "estatica":
-          data.ubicacion = "visor-notificaciones_estaticas";
-          mostrarNotificacionEstaticaUsuario(data, d.id);
-          setTimeout(() => {
-            $(".mostrador-notificacion-estatica").remove();
-          }, 5000);
-        break;
+      .doc(id)
+      .get()
+      .then((d) => {
+        const data = d.data();
+        switch (data.type) {
+          case "alerta":
+            mostrarNotificacionAlertaUsuario(data, d.id);
+            break;
 
-        default:
-          Swal.fire("No contemplado", "Tipo de alerta no contemplada para vista previa en admin", "warning");
-        break;
-      }
-    });
-  },
+          case "estatica":
+            data.ubicacion = "visor-notificaciones_estaticas";
+            mostrarNotificacionEstaticaUsuario(data, d.id);
+            setTimeout(() => {
+              $(".mostrador-notificacion-estatica").remove();
+            }, 5000);
+            break;
+
+          default:
+            Swal.fire(
+              "No contemplado",
+              "Tipo de alerta no contemplada para vista previa en admin",
+              "warning"
+            );
+            break;
+        }
+      });
+  }
 };

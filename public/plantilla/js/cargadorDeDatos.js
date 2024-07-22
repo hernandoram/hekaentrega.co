@@ -2730,10 +2730,10 @@ function llenarItemsChat(notificaciones) {
 
 let isModalOpen = false;
 const modal = document.querySelector(".panel-collapse");
-const textModal = document.getElementById("text-modal");
 const buttonDimensionsChat = document.getElementById("button-dimensions-chat");
 const collapse = document.getElementById("collapseOne");
 
+const textModal = document.getElementById("text-modal");
 textModal.addEventListener("click", function () {
   isModalOpen = !isModalOpen;
   if (isModalOpen) {
@@ -2760,7 +2760,7 @@ textModal.addEventListener("click", function () {
     buttonDimensionsChat.style.width = "40%";
   }
   console.log(isModalOpen);
-});
+})
 
 traerNoti();
 

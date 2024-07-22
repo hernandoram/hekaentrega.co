@@ -24,16 +24,14 @@ async function chargeUsers() {
       })
       .then(() => {
         //list="sellersDatalist"
+        document.getElementById("loader-usuarios").classList.add("d-none");
         const sellerDatalist = document.getElementById("sellersDatalist");
         listaUsuarios.forEach((user) => {
           const option = document.createElement("option");
           option.value = user; // Asumiendo que `user` es una cadena que representa el nombre del usuario
           option.textContent = user; // Esto establece el texto que se muestra en la opción
           sellerDatalist.appendChild(option);
-          
         });
-
-        document.getElementById("loader-usuarios").classList.add("d-none");
 
       });
   } catch (error) {
@@ -61,6 +59,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     generarTabla(displayUsers);
   }
 });
+
+window.addEventListener("hashchange", async () => {
+  if (window.location.hash === "#usuarios") {
+    await chargeUsers();
+    generarTabla(displayUsers);
+  }
+});
+
 
 CargarUsuarios(buscadorCallcenter);
 CargarUsuarios(buscadorPagos);
