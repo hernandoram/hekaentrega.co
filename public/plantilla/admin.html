@@ -277,29 +277,6 @@
         <div id="content">
           <!-- Begin Page Content -->
           <div class="container-fluid" id="usuarios" style="display: none;">
-            <a href="#manejo_usuarios" class="float-right mx-2">
-              <i class="fa fa-cog"></i>
-            </a>
-
-            <button class="btn btn-primary float-right" title="Descargar informe" id="descargar-informe-usuarios">
-              <span class="d-none d-md-inline">Descargar informe</span> <i class="fa fa-download"></i>
-            </button>
-
-
-            <div class="row mb-3">
-              <form class="input-group col-12 offset-md-2 col-md-8">
-                <input list="sellersDatalist" class="form-control border-info" placeholder="Criterio de búsqueda"
-                  id="buscador_usuarios-nombre"
-                  title="Puedes buscar por nombre, correo, dirección, número de documento o celular."
-                  >
-                <div class="input-group-append buscadorUsuarios-botones">
-                  <button id="busquedaEspecializada" class="btn btn-small btn-outline-info">Busqueda
-                    directa</button>
-                  <button id="busquedaGeneral" class="btn btn-small btn-outline-info">Busqueda general</button>
-                </div>
-              </form>
-            </div>
-
             <div class="d-flex justify-content-center">
               <div class="lds-ellipsis mt-4 d-none" id="cargador-usuarios">
                 <div></div>
@@ -308,7 +285,41 @@
                 <div></div>
               </div>
             </div>
-            <div id="mostrador-usuarios" class="row"></div>
+
+            
+            <table id="tablaUsers" class="d-none table table-bordered">
+              <thead>
+                <tr>
+                  <th>Acciones</th>
+                  <th>Nombre</th>
+                  <th>Nombre Seller</th>
+                  <th>No Documento</th>
+                  <th>Correo</th>
+                  <th>Telefono</th>
+                  <th>Bodega principal</th>
+                </tr>
+              </thead>
+              <tbody>
+                <!-- Los datos de las filas se llenarán aquí por DataTables -->
+              </tbody>
+            </table>
+
+            
+
+            <div id="control-buttons" class="d-none">
+
+              <a href="#manejo_usuarios" class="mx-2">
+                <i class="fa fa-cog"></i>
+              </a>
+              
+              <button class="btn btn-primary" title="Descargar informe" id="descargar-informe-usuarios">
+                <span class="d-none d-md-inline">Descargar informe</span> <i class="fa fa-download"></i>
+              </button>
+            </div>
+
+
+
+              
 
             <!--Usuario Seleccionado-->
             <div id="usuario-seleccionado" class="d-none">
@@ -2824,6 +2835,7 @@
     <script src="js/callcenter/callcenter.js"></script>
     <script src="js/cargadorDeDatos.js"></script>
     <script src="js/consultarCiudades.js" type="module"></script>
+    <script src="js/buscarUsuarios.js"></script>
     <script src="js/usuarios.js"></script>
     <script src="js/manejadorGuias.js"></script>
     <script src="js/adminPlatform.js" type="module"></script>

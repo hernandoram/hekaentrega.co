@@ -709,26 +709,26 @@ function mostrarOficina(id) {
     });
 }
 
-const botonBusquedaGeneral = document.getElementById("busquedaGeneral");
-const botonBusquedaEspecializada = document.getElementById(
-  "busquedaEspecializada"
-);
+// const botonBusquedaGeneral = document.getElementById("busquedaGeneral");
+// const botonBusquedaEspecializada = document.getElementById(
+//   "busquedaEspecializada"
+// );
 
-botonBusquedaGeneral.onclick = function (e) {
-  // Aquí va el código que quieres que se ejecute cuando se haga clic en el botón de búsqueda general
-  console.log("Botón de búsqueda general clickeado");
-  e.preventDefault();
+// botonBusquedaGeneral.onclick = function (e) {
+//   // Aquí va el código que quieres que se ejecute cuando se haga clic en el botón de búsqueda general
+//   console.log("Botón de búsqueda general clickeado");
+//   e.preventDefault();
 
-  buscarUsuarios(e, true);
-};
+//   searchUsers(e, true);
+// };
 
-botonBusquedaEspecializada.onclick = function (e) {
-  // Aquí va el código que quieres que se ejecute cuando se haga clic en el botón de búsqueda especializada
-  console.log("Botón de búsqueda especializada clickeado");
-  e.preventDefault();
+// botonBusquedaEspecializada.onclick = function (e) {
+//   // Aquí va el código que quieres que se ejecute cuando se haga clic en el botón de búsqueda especializada
+//   console.log("Botón de búsqueda especializada clickeado");
+//   e.preventDefault();
 
-  buscarUsuarios(e, false);
-};
+//   searchUsers(e, false);
+// };
 
 //esta funcion utilizara a otra para retornarme informacion basica del usuario
 async function buscarUsuarios(e, esGeneral) {
@@ -970,9 +970,16 @@ $("#buscador_usuarios-nombre, #buscador_usuarios-direccion").keyup((e) => {
 // esta funcion me busca el usuario seleccionado con informacion un poco mas detallada
 function seleccionarUsuario(id) {
   let contenedor = document.getElementById("usuario-seleccionado");
-  let mostrador = document.getElementById("mostrador-usuarios");
+  let mostrador = document.getElementById("tablaUsers");
+  const wrapper = document.getElementById("tablaUsers_wrapper");
+
+  if (wrapper) {
+    wrapper.classList.add("d-none");
+  }
+
   contenedor.setAttribute("data-id", id);
   mostrador.classList.add("d-none");
+  $('#control-buttons').addClass('d-none');
 
   firebase
     .firestore()
