@@ -2410,23 +2410,25 @@ async function pagosPendientesParaUsuario() {
     });
 }
 
-const inputBusquedaGuia = document.getElementById("inputBusquedaGuia");
+document.addEventListener("DOMContentLoaded", function () {
+  const inputBusquedaGuia = document.getElementById("inputBusquedaGuia");
 
-inputBusquedaGuia.addEventListener("input", (e) => {
-  const mostradorHistorial = document.getElementById("mostrador-historial");
+  inputBusquedaGuia.addEventListener("input", (e) => {
+    const mostradorHistorial = document.getElementById("mostrador-historial");
 
-  const searchTerm = e.target.value;
+    const searchTerm = e.target.value;
 
-  console.log(searchTerm);
-  mostradorHistorial.innerHTML = "";
+    console.log(searchTerm);
+    mostradorHistorial.innerHTML = "";
 
-  guiasPagos
-    .filter((g) => g.GUIA.includes(searchTerm))
-    .forEach((g) => {
-      mostradorHistorial.innerHTML += `<tr><td>${
-        g.GUIA
-      }</td><td>${convertirMoneda(g["TOTAL A PAGAR"])}</td></tr>`;
-    });
+    guiasPagos
+      .filter((g) => g.GUIA.includes(searchTerm))
+      .forEach((g) => {
+        mostradorHistorial.innerHTML += `<tr><td>${
+          g.GUIA
+        }</td><td>${convertirMoneda(g["TOTAL A PAGAR"])}</td></tr>`;
+      });
+  });
 });
 
 function obtenerMensajeDesembolso() {
@@ -2615,7 +2617,52 @@ function descargarExcelPagosAdmin(datos) {
 }
 
 const inputFlexii = document.querySelector("#inputIDGuiaFlexii");
-const botonInputFlexii = document.querySelector("#boton-idPunto");
+document.addEventListener("DOMContentLoaded", function () {
+  const botonInputFlexii = document.querySelector("#boton-idPunto");
+  botonInputFlexii.onclick = function () {
+    db.collection("usuarios")
+      .doc(id_punto)
+      .get()
+      .then((doc) => {
+        if (doc.data().type === "PUNTO") {
+          db.collection("usuarios")
+            .doc(userquery)
+            .collection("guias")
+            .where("id_heka", "==", valorQuery)
+            .get()
+            .then((querySnapshot) => {
+              querySnapshot.forEach((doc) => {
+                console.log(doc.data());
+                if (doc.data().id_punto == id_punto) {
+                  return Swal.fire({
+                    icon: "success",
+                    text: "Esta guía ya está registrada en tu punto"
+                  });
+                }
+                if (doc.data().id_punto !== id_punto) {
+                  return Swal.fire({
+                    icon: "success",
+                    text: "Esta guía ya está registrada en otro punto"
+                  });
+                }
+                doc.ref.update({ id_punto: id_punto });
+                return Swal.fire({
+                  icon: "success",
+                  text: "Guía registrada con éxito"
+                });
+              });
+            });
+        } else {
+          return Swal.fire({
+            icon: "error",
+            text: "No tienes permisos para registrar guías"
+          }).then(() => {
+            window.location.replace("/plataforma2.html");
+          });
+        }
+      });
+  };
+});
 
 const urlParams = new URLSearchParams(window.location.search);
 const valorQuery = urlParams.get("idguia");
@@ -2625,50 +2672,6 @@ if (valorQuery) {
   inputFlexii.setAttribute("value", valorQuery);
 }
 let id_punto = localStorage.getItem("user_id");
-
-botonInputFlexii.onclick = function () {
-  db.collection("usuarios")
-    .doc(id_punto)
-    .get()
-    .then((doc) => {
-      if (doc.data().type === "PUNTO") {
-        db.collection("usuarios")
-          .doc(userquery)
-          .collection("guias")
-          .where("id_heka", "==", valorQuery)
-          .get()
-          .then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-              console.log(doc.data());
-              if (doc.data().id_punto == id_punto) {
-                return Swal.fire({
-                  icon: "success",
-                  text: "Esta guía ya está registrada en tu punto"
-                });
-              }
-              if (doc.data().id_punto !== id_punto) {
-                return Swal.fire({
-                  icon: "success",
-                  text: "Esta guía ya está registrada en otro punto"
-                });
-              }
-              doc.ref.update({ id_punto: id_punto });
-              return Swal.fire({
-                icon: "success",
-                text: "Guía registrada con éxito"
-              });
-            });
-          });
-      } else {
-        return Swal.fire({
-          icon: "error",
-          text: "No tienes permisos para registrar guías"
-        }).then(() => {
-          window.location.replace("/plataforma2.html");
-        });
-      }
-    });
-};
 
 const itemsChat = document.querySelector("#items-chat-notification");
 

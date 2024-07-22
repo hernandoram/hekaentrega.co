@@ -1,5 +1,6 @@
 let displayUsers = [];
 async function chargeUsers() {
+  document.getElementById("loader-usuarios").classList.remove("d-none");
   if (listaUsuarios.length > 0) {
     return;
   }
@@ -17,7 +18,7 @@ async function chargeUsers() {
           displayUsers.push({
             ...doc.data(),
             id: doc.id,
-            bodega: primeraBodega?.ciudad || "Sin bodegas",
+            bodega: primeraBodega?.ciudad || "Sin bodegas"
           });
         });
       })
@@ -29,14 +30,16 @@ async function chargeUsers() {
           option.value = user; // Asumiendo que `user` es una cadena que representa el nombre del usuario
           option.textContent = user; // Esto establece el texto que se muestra en la opción
           sellerDatalist.appendChild(option);
+          
         });
-      })
-      .then(() => {});
+
+        document.getElementById("loader-usuarios").classList.add("d-none");
+
+      });
   } catch (error) {
     console.log(error);
   }
 }
-
 
 const buscadorCallcenter = document.querySelector("#input-filtrado-callcenter");
 
