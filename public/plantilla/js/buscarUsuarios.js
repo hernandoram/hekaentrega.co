@@ -1,6 +1,7 @@
 let users = listaUsuarios;
 
 async function searchUsers(esGeneral) {
+
   document.getElementById("cargador-usuarios").classList.remove("d-none");
 
   users = await buscarUsuarios2(esGeneral);

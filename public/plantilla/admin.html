@@ -49,6 +49,13 @@
   <!-- Cargando el splider js y css -->
   <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@2.4.21/dist/js/splide.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@2.4.21/dist/css/splide.min.css">
+  <style>
+    .dots {
+      display: inline-block;
+      margin-left: 5px;
+    }
+  </style>
+  
 </head>
 
 <body class="bg-gradient-primary">
@@ -287,6 +294,12 @@
             </div>
 
             
+            <div id="loader-usuarios" class="d-none text-center">
+              <h1>
+                Cargando Usuarios<span class="dots">.</span>
+              </h1>
+            </div>
+
             <table id="tablaUsers" class="d-none table table-bordered">
               <thead>
                 <tr>
@@ -2798,6 +2811,15 @@
     <script src="js/hostNameReader.js"></script>
     <script src="js/copyToClipboard.js"></script>
     <script src="js/chargeusers.js"></script>
+    
+<script>
+  const dotsSpan = document.querySelector('.dots');
+  let dots = 1;
+  setInterval(() => {
+    dotsSpan.textContent = '.'.repeat(dots);
+    dots = dots % 3 + 1; // Ciclo a través de 1, 2, 3 y vuelve a 1
+  }, 500); // Cambia los puntos cada 500 milisegundos
+</script>
 
 </body>
 
