@@ -54,9 +54,9 @@ const mostrarioUsuario = (tipo, seller) => `
         <label for="usuario_pago-${tipo}_${seller}" class="w-100"
         data-usuario="${seller}" data-coleccion="${tipo}">
             <span>${seller}</span>
-            <span class="d-none fa fa-pen text-primary"></span>
-            <span class="d-none fa fa-trash text-danger"></span>
-            <span class="d-none fa fa-check text-success"></span>
+            <span class="d-none mx-1 fa fa-pen text-primary"></span>
+            <span class="d-none mx-1 fa fa-trash text-danger"></span>
+            <span class="d-none mx-1 fa fa-check text-success"></span>
         </label>
         <input type="text" class="form-control d-none" id="usuario_pago-${tipo}_${seller}" value="${seller}">
     </div>
@@ -65,7 +65,7 @@ const mostrarioUsuario = (tipo, seller) => `
 function mirarColeccion(e) {
     reset();
 
-    const { editar } = filtroPagos;
+    const { editar, eliminables } = filtroPagos;
     const collection = e.target.value;
     const mostrario = $("#mostrador-manejo_usuarios");
     valorseleccionado = collection;
@@ -78,16 +78,23 @@ function mirarColeccion(e) {
     console.log(listaUsuarios);
     mostrario.html(listaUsuarios.map(seller => mostrarioUsuario(collection, seller)));
     const puedeEditar = editar.includes(collection);
+    const puedeEliminar = eliminables.includes(collection);
 
     if(puedeEditar) {
-        $(".fa-pen", mostrario).removeClass("d-none");
+        const editarAction = $(".fa-pen", mostrario);
+        editarAction.removeClass("d-none");
         buttonAdd.removeClass("d-none")
+        editarAction.click(activarEditarUsuario);
+    }
+    
+    if(puedeEliminar) {
+        const eliminarAction = $(".fa-trash", mostrario);
+        eliminarAction.removeClass("d-none");
+        eliminarAction.click(eliminarDeLista);
     }
 
     btnDownload.removeClass("d-none");
 
-    $(".fa-trash", mostrario).click(eliminarDeLista);
-    $(".fa-pen", mostrario).click(activarEditarUsuario);
     $(".fa-check", mostrario).click(guardarEdicion);
 }
 
@@ -142,8 +149,6 @@ function activarEditarUsuario(e) {
     
     $(`#${id}`).toggleClass("d-none");
     btnGuardar.toggleClass("d-none");
-    $(".fa-trash", parent).toggleClass("d-none");
-
 }
 
 async function guardarEdicion(e) {

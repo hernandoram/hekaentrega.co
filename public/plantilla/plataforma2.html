@@ -280,10 +280,10 @@
                     <i class="fas fa-warehouse fa-sm fa-fw mr-2 text-gray-400"></i>
                     Bodegas
                   </a>
-                  <!-- <a class="dropdown-item" href="#referidos">
+                  <a class="dropdown-item" href="#referidos">
                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                     Referidos
-                  </a> -->
+                  </a>
                  
                   <a class="dropdown-item " href="#" data-toggle="modal" data-target="#cerrarSesionModal">
                     <i class="fas fa-power-off fa-sm fa-fw mr-2 text-gray-400"></i>
@@ -409,7 +409,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-12 col-md-6">
+              <div class="col-12 col-md-6" id="contenedor-mostrar-billetera">
                 <div class="card m-2">
                   <div class="card-body" id="mostrar-billetera">
 
@@ -1237,7 +1237,7 @@
             <div class="d-flex flex-column flex-lg-row" id="intro-referidos">
               <div class="pt-4">
                 <h7 class="text-primary">Recomiende a un amig@</h7>
-                <h2 class="text-dark"><b>Únase a nuestro Programa de Referidos y gane hasta <span id="tope-referido">$100.000</span></b></h2>
+                <h2 class="text-dark"><b>Únase a nuestro Programa de Referidos y gane más</b></h2>
                 <p>¿Conoce a alguien que sería ideal para utilizar Heka?</p>
                 <p>Recomiéndelos y <b>reciba una recompensa</b> por cada persona que se registre con su link y realice de forma exitosa un envío.</p>
                 <p>Puede referir a sus amigos, conocidos, compañeros de estudio, socios e incluso a sus familiares. ¡Tenemos muchas oportunidades esperándolos!</p>
@@ -1248,7 +1248,7 @@
           
 
             <div class="input-group">
-              <input type="text" id="referal" class="form-control" value="">
+              <input type="text" id="referal" class="form-control" value="" readonly>
               <div class="input-group-append">
                 <button class="btn btn-primary" type="button" onclick="copiarData()">Copiar</button>
               </div>
@@ -1346,24 +1346,6 @@
           </div>
 
           <div class="container-fluid" id="historial_guias" style="display: none;">
-            <div class="alert alert-success" id="senal2" role="alert">
-              <div class="d-flex justify-content-between">
-                <h4>¡Historial Actualizado! 6/03/2023</h4>
-                <a href="javascript:eliminarElemento()" style="cursor:pointer;">X</a>
-                <script>
-                  function eliminarElemento(){
-                      document.getElementById("senal2").classList.add("d-none");
-                    }
-                  </script>
-              </div>
-              <p class="mb-2">Gracias a algunas recomendaciones de usuarios, volvimos a la versión anterior del historial con los siguientes cambios:</p>
-
-              <p class="mb-2">✅ Ahora la creación de guías será exactamente igual a la anterior, las guías se crearán directamente sin hacer doble proceso.</p>
-              <p class="mb-2">✅ Las novedades se mantienen en el historial de guías.</p>
-              <p class="mb-2">✅ La pestaña de pedidos seguirá activa, sin embargo, ya no se utilizaría para generar envíos, solo para la implementación de una tienda que vendrá pronto. ((los envíos que estén en pedidos antes de la actualización podrás crearlos con normalidad))</p>
-              <p class="mb-2">✅ Ahora la búsqueda por fecha y guía funcionarán exactamente igual.</p>
-              <p class="mb-2"><b>NOTA:</b> Si antes de nuestra actualización tenias guías en pedidos, puedes crearlos normalmente.</p>
-            </div>
 
             <div class="alert alert-warning alert-dismissible fade show d-none" role="alert" id="alerta_novedad-guias_hist">
               <p>

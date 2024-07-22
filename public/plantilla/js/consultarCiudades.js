@@ -167,13 +167,17 @@ const optionActivation = {
 
 const $ciudadR = $("#ciudadR");
 const $ciudadD = $("#ciudadD");
-$ciudadR.selectize(optionActivation);
-$ciudadD.selectize(optionActivation);
+
+if($ciudadR.length)
+  $ciudadR.selectize(optionActivation);
+
+if($ciudadD.length)
+  $ciudadD.selectize(optionActivation);
 
 // Los agrupamos todos en un objeto, para llamarlos individualmente en los módulos
 const selectize = {
-  ciudadR: $ciudadR[0].selectize,
-  ciudadD: $ciudadD[0].selectize
+  ciudadR: $ciudadR.length ? $ciudadR[0].selectize : null,
+  ciudadD: $ciudadD.length ? $ciudadD[0].selectize : null
 }
 
 /**

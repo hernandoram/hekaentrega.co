@@ -425,7 +425,6 @@ function mostrarNotificaciones() {
         data.startDate = convertirFecha(data.startDate);
         data.endDate = convertirFecha(data.endDate);
         visorNotificaciones.append(visualizarNotificacion(data));
-        console.log(data);
 
 
         seccionNotificaciones.removeClass("d-none");
@@ -456,7 +455,6 @@ function convertirFecha(inputfecha) {
 
 function selectorNotificaciones(notificaciones) {
   selectorNotificacion.innerHTML = "";
-  console.log(notificaciones);
   let opciones = notificaciones
     .map((notificacion) => {
       return `<option value="${notificacion.id}">${notificacion.name}</option>`;
@@ -489,7 +487,6 @@ function alertarVencimientoNotificacion(notificacion) {
 function activarAccion(els) {
   els.each((i, el) => {
     const accion = el.getAttribute("data-action");
-    console.log(el, accion);
     el.addEventListener("click", acciones[accion]);
   });
 }

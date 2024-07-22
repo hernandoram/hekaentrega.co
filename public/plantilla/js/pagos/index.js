@@ -1,6 +1,6 @@
 import "./pagar.js";
 import AnotacionesPagos from "./AnotacionesPagos.js";
-import { comprobarGuiaPagada } from "./comprobadores.js";
+import { cantidadDeUsuariosPorCentroDeCosto, comprobarGuiaPagada } from "./comprobadores.js";
 import { ChangeElementContenWhileLoading, segmentarArreglo } from "../utils/functions.js";
 import { empaquetarGuias } from "./pagar.js";
 
@@ -80,22 +80,45 @@ async function cargarPagosPendientes(e) {
     
     const reference = referencePagos.doc(numeroGuia);
     
-    const revisarEnPagos = await comprobarGuiaPagada(guia);
     const erroresSubida = datosImportantesIncompletos(guia, datosDePago);
-
-    guia.timeline = new Date().getTime();
-
-    if(revisarEnPagos) {
-      anotaciones.addError("La guía "+numeroGuia+" ya ha sido pagada.");
-    } else if(erroresSubida) {
+    if(erroresSubida) {
       anotaciones.addError(erroresSubida);
-    } else {
-      await reference.set(guia)
-      .then(() => agregados ++)
-      .catch(e => anotaciones.addError(e.message));
+      i++;
+      continue;
     }
 
-    i++;
+    await comprobarGuiaPagada(guia)
+    .then(revisarEnPagos => {
+      if(revisarEnPagos)
+        throw new Error("La guía "+numeroGuia+" ya ha sido pagada.");
+
+      console.log("Esto non debería verse");
+      
+      return cantidadDeUsuariosPorCentroDeCosto(guia["REMITENTE"]);
+    })
+    .then(cantidadUsuarios => {
+      if(cantidadUsuarios === 0) // Debe existir el centro de costo
+        throw new Error("El centro de costo "+guia["REMITENTE"]+" no se encuentra en nuestra base de datos.");
+      
+      if(cantidadUsuarios > 1) // Debe existir únicamente un centro de costo, no debe haber ni más ni menos
+        throw new Error(`El centro de costo ${guia["REMITENTE"]} se encuentra repetido en nuestra base de datos (${cantidadUsuarios}), valide para saber que hacer con el usuario.`);
+
+      return true;
+    })
+    .then(success => {
+      if(success) {
+        guia.timeline = new Date().getTime();
+    
+        return reference.set(guia)
+        .then(() => agregados ++)
+        .catch(e => anotaciones.addError(e.message));
+      }
+    })
+    .catch(e => {
+      anotaciones.addError(e.message);
+    })
+    .finally(() => i++);
+
   }
 
   finalizarProceso({message: "Se han agregado " + agregados + " cargues correctamente", color: "success"});

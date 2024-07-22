@@ -1005,6 +1005,8 @@ function seleccionarUsuario(id) {
 
         mostrarDatosPersonales(doc.data(), "personal");
 
+        mostrarReferidosUsuarioAdm(doc.data().centro_de_costo);
+
         mostrarDatosPersonales(datos_bancarios, "bancaria");
         mostrarBodegasUsuarioAdm(bodegas);
         mostrarObjetosFrecuentesAdm(doc.id);
@@ -1019,6 +1021,7 @@ function seleccionarUsuario(id) {
             // No se pudo cargar la información de mongo, pero básicamente se podrá la cargar la de heka, en caso de que exista
             // Ya que aún, esta información no será actualizada en mongo, no afecta que una que otra ocasión no cargue
             mostrarDatosPersonales(datos_personalizados, "heka");
+            mostrarReferidosUsuarioAdm(doc.data().centro_de_costo);
           });
       } else {
         // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
@@ -1082,7 +1085,6 @@ function seleccionarUsuario(id) {
         accion.Fecha = fechaFormateada;
       });
 
-      console.log(acciones);
       const table = $("#tabla-acciones").DataTable({
         destroy: true,
         data: acciones,
@@ -1128,7 +1130,6 @@ function seleccionarUsuario(id) {
 // esta funcion solo llena los datos solicitados en los inputs
 function mostrarDatosPersonales(data, info) {
   limpiarFormulario("#informacion-" + info, "input,select");
-  console.log(data);
 
   if (!data) return;
 
@@ -1263,9 +1264,9 @@ function renderObjetosFrecuentes() {
   descripcionEmpaqueInput.value = objeto.paquete || "";
 }
 
-function mostrarReferidosUsuarioAdm(centro_costo) {
-  const referidos = [];
+let referidos = [];
 
+function mostrarReferidosUsuarioAdm(centro_costo) {
   firebase
     .firestore()
     .collection("referidos")
@@ -1277,36 +1278,127 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
       });
     })
     .finally(() => {
-      const table = $("#tabla-referidos").DataTable({
-        destroy: true,
-        data: referidos,
-        columns: [
-          {
-            data: "sellerReferido",
-            title: "Seller Referido",
-            defaultContent: ""
+      const table = $(document).ready(function () {
+        const table = $("#tabla-referidos").DataTable({
+          destroy: true,
+          data: referidos,
+          columns: [
+            {
+              data: "sellerReferido",
+              title: "Seller Referido",
+              defaultContent: ""
+            },
+            {
+              data: "nombreApellido",
+              title: "Nombre Referido",
+              defaultContent: ""
+            },
+            { data: "celularReferido", title: "Celular", defaultContent: "" },
+            {
+              data: "cantidadEnvios",
+              title: "Cantidad Envios",
+              defaultContent: ""
+            },
+            {
+              data: "enviosPorReclamar",
+              title: "Envios por Reclamar",
+              defaultContent: "0"
+            },
+            {
+              data: "enviosReclamados",
+              title: "Envios Reclamados",
+              defaultContent: "0"
+            },
+            {
+              data: "cantidadReclamos",
+              title: "Cantidad Reclamos",
+              defaultContent: "0"
+            }
+          ],
+          language: {
+            url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
           },
-          {
-            data: "nombreApellido",
-            title: "Nombre Referido",
-            defaultContent: ""
-          },
-          { data: "celularReferido", title: "Celular", defaultContent: "" },
-          {
-            data: "cantidadEnvios",
-            title: "Cantidad Envios",
-            defaultContent: ""
+          scrollX: true,
+          scrollCollapse: true,
+          lengthMenu: [
+            [5, 10, 25, 30],
+            [5, 10, 25, 30]
+          ],
+          columnDefs: [
+            {
+              targets: [6], // Índice de la columna "Cantidad Reclamos"
+              createdCell: function (td, cellData, rowData, row, col) {
+                $(td).addClass("clickable-cantidad-reclamos"); // Añade una clase para identificar las celdas
+              }
+            }
+          ],
+          drawCallback: function (settings) {
+            // Añade el manejador de eventos cada vez que se dibuja la tabla
+            $(".clickable-cantidad-reclamos")
+              .off("click")
+              .on("click", function () {
+                // Accede a la fila (tr) que contiene la celda clickeada
+                const row = $(this).closest("tr");
+                // Encuentra el contenido de la celda "Seller Referido" en la misma fila
+                let sellerReferido = row.find("td:eq(0)").text(); // Asumiendo que "Seller Referido" es la primera columna
+
+                let transacciones = referidos.find(
+                  (referido) => referido.sellerReferido === sellerReferido
+                ).historialGuias;
+
+                // Actualiza el título del modal con el nombre del "Seller Referido"
+                $("#modalReferidos .modal-title").text(
+                  "Historial de Reclamos - " + sellerReferido
+                );
+
+                // Muestra el modal
+                $("#modalReferidos").modal("show");
+
+                if (
+                  !transacciones ||
+                  !transacciones.length ||
+                  transacciones === undefined
+                ) {
+                  $("#tabla-reclamos").DataTable().clear();
+                  $("#modalHistorialReferidos-mensajeNoHayReferidos").removeClass(
+                    "d-none"
+                  );
+                  $("#modalHistorialPagoRef").addClass("d-none");
+
+                } else {
+                  $("#modalHistorialReferidos-mensajeNoHayReferidos").addClass(
+                    "d-none"
+                  );
+
+                  $("#modalHistorialPagoRef").removeClass("d-none");
+
+                  // Limpiar el cuerpo de la tabla antes de agregar nuevos datos
+                  $("#mostrador-pagos-referidos").empty();
+
+                  // Iterar sobre el arreglo historialGuias
+                  transacciones.forEach((guia) => {
+                    // Convertir las guiasEntregadas de un arreglo a una cadena de texto
+                    let guiasEntregadasTexto = guia.guiasEntregadas.join(", ");
+
+                    // Convertir timestamp a una fecha legible
+                    let fecha = new Date(guia.timestamp.seconds * 1000); // Asumiendo que timestamp.seconds es en segundos
+                    let fechaReclamo = fecha.toLocaleDateString("es-ES"); // Formatear la fecha
+
+                    // Construir la fila de la tabla
+                    let fila = `<tr>
+                                <td>${guia.saldoReclamado}</td>
+                                <td>${guiasEntregadasTexto}</td>
+                                <td>${fechaReclamo}</td>
+                              </tr>`;
+
+
+                    // Agregar la fila al cuerpo de la tabla
+                    $("#mostrador-pagos-referidos").append(fila);
+                  });
+                }
+              });
           }
-        ],
-        language: {
-          url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
-        },
-        scrollX: true,
-        scrollCollapse: true,
-        lengthMenu: [
-          [5, 10, 25, 30],
-          [5, 10, 25, 30]
-        ]
+        });
       });
 
       if (!referidos || !referidos.length) table.clear();
@@ -1599,7 +1691,6 @@ async function getDataUserFromMongoByIdAdm(id_usuario) {
     }
   ).then(async (response) => {
     const data = await response.json();
-    console.log(data);
     return data;
   });
 
@@ -1768,8 +1859,6 @@ async function actualizarInformacionHeka() {
       datos[campo] = value;
     });
 
-  console.log(datos);
-
   let momento = new Date().getTime();
   let id_usuario = document
     .getElementById("usuario-seleccionado")
@@ -1797,22 +1886,30 @@ async function actualizarInformacionHeka() {
       medio: "Administrador: " + localStorage.user_id,
       type: "GENERAL"
     };
-    if (doc.exists && doc.data().datos_personalizados) {
-      const datos = doc.data().datos_personalizados;
-      exists = true;
-      let s = parseInt(datos.saldo || 0);
-      const afirmar_saldo_anterior = detalles.saldo_anterior;
-      detalles.saldo_anterior = s;
-      detalles.saldo = s + detalles.diferencia;
-      datos.saldo = s + detalles.diferencia;
 
-      if (afirmar_saldo_anterior != s) {
-        mensaje =
-          ". Se notó una discrepancia entre el saldo mostrado ($" +
+    if(!doc.exists) {
+      const message = "El usuario " + id_usuario + " no ha sido encontrado en la base de datos";
+      Toast.fire("Error", message, "error");
+      throw new Error(message);
+    }
+
+    const datos_personalizados = doc.data().datos_personalizados;
+    if (datos_personalizados) {
+      exists = true;
+      const saldoOriginalEncontrado = parseInt(datos_personalizados.saldo || 0);
+      const afirmar_saldo_anterior = detalles.saldo_anterior;
+      detalles.saldo_anterior = saldoOriginalEncontrado;
+      detalles.saldo = saldoOriginalEncontrado + detalles.diferencia;
+      datos.saldo = saldoOriginalEncontrado + detalles.diferencia;
+
+      if (afirmar_saldo_anterior !== saldoOriginalEncontrado) {
+        // Se muestra este mensaje porque se denotó que el saldo que se mostraba en la ventana adminitrativa
+        // por alguna causa ha cambiado, por lo que se toma el original que se encuentre en la base de datos
+        detalles.mensaje =
+          "Cambio administrativo, discrepancia, saldo mostrado: $" +
           convertirMiles(afirmar_saldo_anterior) +
-          ") y el encontrado en la base de datos, se modificó en base a: <b>$" +
-          convertirMiles(s) +
-          "</b>";
+          " - saldo real que prevalece: $" +
+          convertirMiles(saldoOriginalEncontrado);
       }
     }
 
@@ -1874,8 +1971,8 @@ async function actualizarInformacionHeka() {
       avisar(
         "Actualización de Datos exitosa",
         "Se han registrado cambios en los costos de envíos para id: " +
-          value("actualizar_numero_documento") +
-          mensaje
+          value("actualizar_numero_documento") + ". " +
+          saldo.mensaje
       );
     });
 }
