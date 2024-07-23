@@ -979,14 +979,14 @@ function seleccionarUsuario(id) {
 
   contenedor.setAttribute("data-id", id);
   mostrador.classList.add("d-none");
-  $('#control-buttons').addClass('d-none');
+  $("#control-buttons").addClass("d-none");
 
   firebase
     .firestore()
     .collection("usuarios")
     .doc(id)
     .get()
-    .then((doc) => {
+    .then(async (doc) => {
       if (doc.exists === true) {
         contenedor.classList.remove("d-none");
         const data = doc.data();
@@ -1004,6 +1004,20 @@ function seleccionarUsuario(id) {
         // }
 
         mostrarDatosPersonales(doc.data(), "personal");
+
+        await firebase
+          .firestore()
+          .collection("referidos")
+          .where("sellerReferido", "==", doc.data().centro_de_costo)
+          .get()
+          .then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+              console.warn(doc.data());
+              const referidoDE = document.getElementById("referidoDe");
+              console.log(referidoDE, doc.data().sellerReferente);
+              referidoDE.value = doc.data().sellerReferente;
+            });
+          });
 
         mostrarReferidosUsuarioAdm(doc.data().centro_de_costo);
 
@@ -1361,11 +1375,10 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
                   transacciones === undefined
                 ) {
                   $("#tabla-reclamos").DataTable().clear();
-                  $("#modalHistorialReferidos-mensajeNoHayReferidos").removeClass(
-                    "d-none"
-                  );
+                  $(
+                    "#modalHistorialReferidos-mensajeNoHayReferidos"
+                  ).removeClass("d-none");
                   $("#modalHistorialPagoRef").addClass("d-none");
-
                 } else {
                   $("#modalHistorialReferidos-mensajeNoHayReferidos").addClass(
                     "d-none"
@@ -1392,7 +1405,6 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
                                 <td>${fechaReclamo}</td>
                               </tr>`;
 
-
                     // Agregar la fila al cuerpo de la tabla
                     $("#mostrador-pagos-referidos").append(fila);
                   });
@@ -1401,8 +1413,6 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
           }
         });
       });
-
-      if (!referidos || !referidos.length) table.clear();
     });
 }
 
@@ -1888,8 +1898,11 @@ async function actualizarInformacionHeka() {
       type: "GENERAL"
     };
 
-    if(!doc.exists) {
-      const message = "El usuario " + id_usuario + " no ha sido encontrado en la base de datos";
+    if (!doc.exists) {
+      const message =
+        "El usuario " +
+        id_usuario +
+        " no ha sido encontrado en la base de datos";
       Toast.fire("Error", message, "error");
       throw new Error(message);
     }
@@ -1972,7 +1985,8 @@ async function actualizarInformacionHeka() {
       avisar(
         "Actualización de Datos exitosa",
         "Se han registrado cambios en los costos de envíos para id: " +
-          value("actualizar_numero_documento") + ". " +
+          value("actualizar_numero_documento") +
+          ". " +
           saldo.mensaje
       );
     });
