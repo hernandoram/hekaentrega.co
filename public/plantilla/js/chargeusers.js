@@ -32,7 +32,6 @@ async function chargeUsers() {
           option.textContent = user; // Esto establece el texto que se muestra en la opción
           sellerDatalist.appendChild(option);
         });
-
       });
   } catch (error) {
     console.log(error);
@@ -47,26 +46,32 @@ const buscadorUserEstados = document.querySelector(
   "#filtrado-novedades-usuario"
 );
 
+async function loadUsers() {
+  if (displayUsers.length > 0) {
+    console.log("Users uploaded");
+  } else {
+    await chargeUsers();
+    generarTabla(displayUsers);
+  }
+}
+
 function CargarUsuarios(element) {
   element.addEventListener("click", async () => {
-    await chargeUsers();
-    generarTabla(displayUsers);
+    await loadUsers();
   });
 }
+
 document.addEventListener("DOMContentLoaded", async () => {
   if (window.location.hash === "#usuarios") {
-    await chargeUsers();
-    generarTabla(displayUsers);
+    await loadUsers();
   }
 });
 
 window.addEventListener("hashchange", async () => {
   if (window.location.hash === "#usuarios") {
-    await chargeUsers();
-    generarTabla(displayUsers);
+    await loadUsers();
   }
 });
-
 
 CargarUsuarios(buscadorCallcenter);
 CargarUsuarios(buscadorPagos);

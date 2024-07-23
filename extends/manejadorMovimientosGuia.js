@@ -20,7 +20,7 @@ const estadosTransportadora = {
         anulada: ["Documento Anulado"]
     },
     ENVIA: {
-        entregada: ["ENTREGADA DIGITALIZADA"],
+        entregada: ["ENTREGADA DIGITALIZADA"], // montar el resto de la entrega digitalizada "ENTREGADA DIGITALIZADA EN CALI"
         devuelta: ["DEVOLUCION"],
         anulada: []
     },
@@ -30,6 +30,7 @@ const estadosTransportadora = {
         anulada: []
     }
 }
+
 
 const estadosGenerales = Object.values(estadosTransportadora);
 
