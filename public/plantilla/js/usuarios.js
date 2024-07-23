@@ -1267,6 +1267,7 @@ function renderObjetosFrecuentes() {
 let referidos = [];
 
 function mostrarReferidosUsuarioAdm(centro_costo) {
+  referidos = [];
   firebase
     .firestore()
     .collection("referidos")
