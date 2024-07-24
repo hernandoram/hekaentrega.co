@@ -18,7 +18,8 @@ async function chargeUsers() {
           displayUsers.push({
             ...doc.data(),
             id: doc.id,
-            bodega: primeraBodega?.ciudad || "Sin bodegas"
+            bodega: primeraBodega?.ciudad || "Sin bodegas",
+            sucursal: primeraBodega?.codigo_sucursal_inter || "Sin código",
           });
         });
       })

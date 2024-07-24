@@ -1,7 +1,6 @@
 let users = listaUsuarios;
 
 async function searchUsers(esGeneral) {
-
   document.getElementById("cargador-usuarios").classList.remove("d-none");
 
   users = await buscarUsuarios2(esGeneral);
@@ -128,8 +127,6 @@ function generarTabla(users) {
   $("#tablaUsers").removeClass("d-none");
   $("#control-buttons").removeClass("d-none");
 
-  console.warn(users)
-
   $(document).ready(function () {
     $("#tablaUsers").DataTable({
       columnDefs: [
@@ -148,7 +145,7 @@ function generarTabla(users) {
 </svg></button>`
             );
           },
-          orderable: false,
+          orderable: false
         }
       ],
       destroy: true,
@@ -159,7 +156,7 @@ function generarTabla(users) {
           data: null,
           name: "Acciones",
           defaultContent: "N/A",
-          orderable: false,
+          orderable: false
         }, // Columna de acciones ajustada
         { data: "nombres", name: "Nombre", defaultContent: "N/A" },
         {
@@ -167,12 +164,17 @@ function generarTabla(users) {
           name: "Nombre Seller",
           defaultContent: "N/A"
         },
-        { data: "numero_documento", name: "No Documento", defaultContent: "N/A" },
+        {
+          data: "numero_documento",
+          name: "No Documento",
+          defaultContent: "N/A"
+        },
         { data: "correo", name: "Correo", defaultContent: "N/A" },
         { data: "contacto", name: "Telefono", defaultContent: "N/A" },
-        { data: "bodega", name: "Bodega Principal", defaultContent: "N/A" }
+        { data: "bodega", name: "Bodega Principal", defaultContent: "N/A" },
+        { data: "sucursal", name: "Código Sucursal", defaultContent: "N/A" }
       ],
-      data: users,
+      data: users
     });
   });
 }
@@ -183,7 +185,7 @@ function volver2() {
   if (users.length) {
     document.getElementById("tablaUsers").classList.remove("d-none");
     document.getElementById("control-buttons").classList.remove("d-none");
-    
+
     let wrapper = document.getElementById("tablaUsers_wrapper");
     wrapper.classList.remove("d-none");
   }
@@ -200,6 +202,7 @@ function manejarClickMovimientos(id) {
 
   location.href = "#movimientos";
 
-  document.getElementById("nombre-usuario-movs").textContent =
-    users.find((user) => user.id == id).nombres;
+  document.getElementById("nombre-usuario-movs").textContent = users.find(
+    (user) => user.id == id
+  ).nombres;
 }
