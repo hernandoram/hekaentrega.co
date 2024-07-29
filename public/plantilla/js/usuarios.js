@@ -967,8 +967,10 @@ $("#buscador_usuarios-nombre, #buscador_usuarios-direccion").keyup((e) => {
   filtrarBusquedaUsuarios(e);
 });
 
+let idUsuario = "";
 // esta funcion me busca el usuario seleccionado con informacion un poco mas detallada
 function seleccionarUsuario(id) {
+  idUsuario = id;
   let contenedor = document.getElementById("usuario-seleccionado");
   let mostrador = document.getElementById("tablaUsers");
   const wrapper = document.getElementById("tablaUsers_wrapper");
@@ -2213,4 +2215,118 @@ async function verMovimientos(usuario, fechaI, fechaF) {
   } catch (error) {
     console.log(error);
   }
+}
+
+const loadStats = document.getElementById("load-stats");
+const statsGlobales = document.getElementById("stats-globales");
+const loader = document.getElementById("loading-s");
+let guiasStats = [];
+
+loadStats.addEventListener("click", async () => {
+  if (guiasStats.length < 1) {
+    loader.classList.remove("d-none");
+    try {
+      console.warn("cargando stats...", idUsuario);
+      const querySnapshot = await firebase
+        .firestore()
+        .collection("usuarios")
+        .doc(idUsuario)
+        .collection("guias")
+        .get();
+
+      querySnapshot.forEach((doc) => {
+        guiasStats.push(doc.data());
+      });
+
+      loader.classList.add("d-none");
+      displayStats();
+    } catch (error) {
+      console.error("Error obteniendo las guías:", error);
+    }
+  } else {
+    console.log(guiasStats);
+    console.warn("usuarios ya cargados");
+  }
+});
+
+const estadosEntregados = [
+  "ENTREGADO",
+  "Entregado",
+  "Entrega Exitosa",
+  "Entregada",
+  "ENTREGADA DIGITALIZADA",
+  "ENTREGADA"
+];
+
+const estadosDevueltas = [
+  "ENTREGADO A REMITENTE",
+  "Devuelto al Remitente",
+  "DEVOLUCION",
+  "CERRADO POR INCIDENCIA, VER CAUSA"
+];
+const estadosTransportadora = {
+  INTERRAPIDISIMO: {
+    devuelta: [],
+    anulada: ["Documento Anulado"]
+  }
+};
+
+function displayStats() {
+  statsGlobales.classList.remove("d-none");
+  const noGlobal = document.querySelector("#noGuiasGoblales");
+  const noGuiasGoblalesEntregadas = document.getElementById(
+    "noGuiasGoblalesEntregadas"
+  );
+  const noGuiasGoblalesDevueltas = document.getElementById(
+    "noGuiasGoblalesDevueltas"
+  );
+
+  console.log(guiasStats);
+  const guiasEntregas = guiasStats.filter(
+    (guia) =>
+      guia.estado &&
+      (estadosEntregados.includes(guia.estado) ||
+        guia.estado.startsWith("ENTREGADA DIGITALIZADA"))
+  );
+
+  const guiasDevueltas = guiasStats.filter(
+    (guia) =>
+      guia.estado &&
+      (estadosDevueltas.includes(guia.estado) ||
+        guia.estado.startsWith("CERRADO POR INCIDENCIA"))
+  );
+
+  noGuiasGoblalesEntregadas.textContent = guiasEntregas.length;
+  noGuiasGoblalesDevueltas.textContent = guiasDevueltas.length;
+
+  noGlobal.textContent = guiasStats.length;
+}
+
+const startWeek = document.getElementById("startWeek");
+const endWeek = document.getElementById("endWeek");
+
+startWeek.addEventListener("change", () => {
+  const { startDate, endDate } = getWeekDates(startWeek.value);
+  console.warn(
+    `Start Date: ${startDate.toDateString()}, End Date: ${endDate.toDateString()}`
+  );
+});
+
+endWeek.addEventListener("change", () => {
+  const { startDate, endDate } = getWeekDates(endWeek.value);
+  console.warn(
+    `Start Date: ${startDate.toDateString()}, End Date: ${endDate.toDateString()}`
+  );
+});
+
+function getWeekDates(weekString) {
+  const [year, week] = weekString.split("-W").map(Number);
+  const firstDayOfYear = new Date(year, 0, 1);
+  const daysOffset = (week - 1) * 7;
+  const startDate = new Date(
+    firstDayOfYear.setDate(firstDayOfYear.getDate() + daysOffset)
+  );
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + 6);
+  return { startDate, endDate };
 }

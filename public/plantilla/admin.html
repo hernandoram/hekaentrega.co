@@ -343,6 +343,7 @@
                   <script>
                     function volver2() {
                       referidos = [];
+                      guiasStats=[];
                       document.getElementById("mostrador-usuarios").classList.remove("d-none");
                       document.getElementById("usuario-seleccionado").classList.add("d-none");
                     }
@@ -876,7 +877,7 @@
                   </div>
                 </div>
 
-              <!--Referidos-->
+              <!--Solicitudes-->
               <div class="card shadow mb-4">
                 <!-- Card Header - Accordion -->
                 <a href="#informacion-Pagos" class="d-block card-header py-3" data-toggle="collapse" role="button"
@@ -902,6 +903,58 @@
                 <div class="collapse" id="informacion-referidos">
                   <div class="card-body table-responsive">
                     <table id="tabla-referidos" class="display table table-bordered table-hover" width="100%"></table>
+                  </div>
+                </div>
+              </div>
+
+              
+              <!--Estadisticas-->
+              <div class="card shadow mb-4">
+                <!-- Card Header - Accordion -->
+                <a href="#estadisticas" id="load-stats" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                  aria-expanded="true" aria-controls="informacion-bodegas">
+                  <h6 class="m-0 font-weight-bold text-primary">Estadisticas</h6>
+                </a>
+                <!-- Card Content - Collapse -->
+                <div class="collapse" id="estadisticas">
+                  <div class="card-body table-responsive">
+                    <div id="loading-s">
+                      Cargando estadisticas...
+                    </div>
+                    <section id="stats-globales" class="d-none">
+                      <div class="container">
+                        <div class="row">
+                          <div class="col-md-4 col-12">
+                            <div>
+                              <label for="" class="sr-only">Estadisticas Gobales</label>
+
+                              <div
+                              id="chart-guias-globales"></div>
+
+
+                              <div>
+                                <p>Total Guías: <span id="noGuiasGoblales"></span></p>
+                                <p>Total Guías Entregadas: <span id="noGuiasGoblalesEntregadas"></span></p>
+                                <p>Total Guías Devueltas: <span id="noGuiasGoblalesDevueltas"></span></p>
+                              </div>
+
+                            </div>
+                          </div>
+                          <div class="col-md-4 col-12">
+                            <div class="form-group mb-2">
+                              <label for="startWeek" class="sr-only">Start Week</label>
+                              <input type="week" class="form-control" id="startWeek" placeholder="Start Week">
+                            </div>
+                          </div>
+                          <div class="col-md-4 col-12">
+                            <div class="form-group mx-sm-3 mb-2">
+                              <label for="endWeek" class="sr-only">End Week</label>
+                              <input type="week" class="form-control" id="endWeek" placeholder="End Week">
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
                   </div>
                 </div>
               </div>
@@ -2854,6 +2907,7 @@
     <script src="js/manejadorGuias.js"></script>
     <script src="js/adminPlatform.js" type="module"></script>
     <script src="js/hostNameReader.js"></script>
+    <script src="js/stats.js"></script>
     <script src="js/copyToClipboard.js"></script>
     <script src="js/chargeusers.js"></script>
     
