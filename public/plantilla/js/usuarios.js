@@ -2300,6 +2300,8 @@ function displayStats() {
   noGuiasGoblalesDevueltas.textContent = guiasDevueltas.length;
 
   noGlobal.textContent = guiasStats.length;
+
+  setWeekInputs();
 }
 
 const startWeek = document.getElementById("startWeek");
@@ -2307,16 +2309,84 @@ const endWeek = document.getElementById("endWeek");
 
 startWeek.addEventListener("change", () => {
   const { startDate, endDate } = getWeekDates(startWeek.value);
-  console.warn(
-    `Start Date: ${startDate.toDateString()}, End Date: ${endDate.toDateString()}`
+
+  const filteredGuiasStats = guiasStats.filter((guia) => {
+    const guiaDate = new Date(guia.fecha);
+    return guiaDate >= startDate && guiaDate <= endDate;
+  });
+
+  const noGuiasGoblales1 = document.getElementById("noGuiasGoblales1");
+  const noGuiasGoblalesEntregadas1 = document.getElementById(
+    "noGuiasGoblalesEntregadas1"
   );
+  const noGuiasGoblalesDevueltas1 = document.getElementById(
+    "noGuiasGoblalesDevueltas1"
+  );
+
+  const totalGuias = filteredGuiasStats.length;
+  const totalGuiasEntregadas = filteredGuiasStats.filter(
+    (guia) =>
+      guia.estado &&
+      (estadosEntregados.includes(guia.estado) ||
+        guia.estado.startsWith("ENTREGADA DIGITALIZADA"))
+  ).length;
+
+
+  const totalGuiasDevueltas = filteredGuiasStats.filter(
+    (guia) =>
+      guia.estado &&
+      (estadosDevueltas.includes(guia.estado) ||
+        guia.estado.startsWith("CERRADO POR INCIDENCIA"))
+  ).length;
+
+  noGuiasGoblales1.textContent = totalGuias;
+
+  noGuiasGoblalesEntregadas1.textContent = totalGuiasEntregadas;
+
+  noGuiasGoblalesDevueltas1.textContent = totalGuiasDevueltas;
+
+  console.log("Filtered guiasStats:", filteredGuiasStats);
 });
 
 endWeek.addEventListener("change", () => {
   const { startDate, endDate } = getWeekDates(endWeek.value);
-  console.warn(
-    `Start Date: ${startDate.toDateString()}, End Date: ${endDate.toDateString()}`
+  const filteredGuiasStats = guiasStats.filter((guia) => {
+    const guiaDate = new Date(guia.fecha);
+    return guiaDate >= startDate && guiaDate <= endDate;
+  });
+
+  const noGuiasGoblales1 = document.getElementById("noGuiasGoblales2");
+  const noGuiasGoblalesEntregadas1 = document.getElementById(
+    "noGuiasGoblalesEntregadas2"
   );
+  const noGuiasGoblalesDevueltas1 = document.getElementById(
+    "noGuiasGoblalesDevueltas2"
+  );
+
+  const totalGuias = filteredGuiasStats.length;
+  const totalGuiasEntregadas = filteredGuiasStats.filter(
+    (guia) =>
+      guia.estado &&
+      (estadosEntregados.includes(guia.estado) ||
+        guia.estado.startsWith("ENTREGADA DIGITALIZADA"))
+  ).length;
+
+  
+  const totalGuiasDevueltas = filteredGuiasStats.filter(
+    (guia) =>
+      guia.estado &&
+      (estadosDevueltas.includes(guia.estado) ||
+        guia.estado.startsWith("CERRADO POR INCIDENCIA"))
+  ).length;
+
+  noGuiasGoblales1.textContent = totalGuias;
+
+  noGuiasGoblalesEntregadas1.textContent = totalGuiasEntregadas;
+
+  noGuiasGoblalesDevueltas1.textContent = totalGuiasDevueltas;
+
+
+
 });
 
 function getWeekDates(weekString) {
@@ -2329,4 +2399,33 @@ function getWeekDates(weekString) {
   const endDate = new Date(startDate);
   endDate.setDate(startDate.getDate() + 6);
   return { startDate, endDate };
+}
+
+function getWeekNumber(d) {
+  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  var weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+  return [d.getUTCFullYear(), weekNo];
+}
+
+function setWeekInputs() {
+  const currentDate = new Date();
+  const [currentYear, currentWeek] = getWeekNumber(currentDate);
+
+  const previousDate = new Date(currentDate);
+  previousDate.setDate(currentDate.getDate() - 7);
+  const [previousYear, previousWeek] = getWeekNumber(previousDate);
+
+  const formatWeek = (year, week) =>
+    `${year}-W${week.toString().padStart(2, "0")}`;
+
+  document.getElementById("startWeek").value = formatWeek(
+    currentYear,
+    previousWeek
+  );
+  document.getElementById("endWeek").value = formatWeek(
+    previousYear,
+    currentWeek
+  );
 }
