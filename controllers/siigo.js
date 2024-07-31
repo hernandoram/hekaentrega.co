@@ -95,7 +95,6 @@ const commonGet = async (path, token) => {
         }
     })
     .then(d => {
-        console.log(d);
         return d.json()
     })
     .catch(d => {
@@ -171,11 +170,46 @@ const verFactura = async (req, res) => {
     +"/"+ req.params.idFactura;
 
     const token = req.access_token;
+    console.log(token);
 
     const respuesta = await commonGet(path, token);
 
     res.send(respuesta);
 }
 
+const buscarfacturaPorNombre = async (req, res) => {
+    console.log(req.body)
+    const {created_start, name} = req.body;
+    const path = "/v1/invoices" 
+    // const queryParams = `?created_start=${created_start}&name=${name}`;
+    const queryParams = `?created_start=${created_start}&name=${name}`;
+    
 
-module.exports = { auth, crearFactura, tipoDocumentos, usuarios, tiposPago, pdfFacturaVenta, impuestos, clientes, verFactura }
+    const token = req.access_token;
+
+    const respuesta = await commonGet(path+queryParams, token);
+
+    if(respuesta.Status === 400) {
+        const erroresCompacto = respuesta.Errors.map(e => e.Message).join("\n");
+        return res.status(400).send({
+            error: true,
+            message: erroresCompacto
+        })
+    }
+
+    if(!respuesta.results) {
+        return res.status(409).send(respuesta);
+    }
+
+    if(!respuesta.results.length) {
+        return res.status(417).send({
+            error: true,
+            message: "El nombre ingresado no se encuentra en la lista de facturas de siigo."
+        });
+    }
+
+    res.send(respuesta.results[0]); // Mandamos solo la primera información
+}
+
+
+module.exports = { auth, crearFactura, tipoDocumentos, usuarios, tiposPago, pdfFacturaVenta, impuestos, clientes, verFactura, buscarfacturaPorNombre }

@@ -539,6 +539,26 @@ async function consultarDatosDeUsuario() {
   return await usuarioDoc.get().then(actualizador);
 }
 
+const usuarioLimitacionesHistorialovedades = [
+  "SellerLauramarcelaceballosreyes",
+  "SellerJeffersonjesusmendozagallardo",
+  "SellerMichellramirez",
+  "SellerOlgamireyamartinez",
+  "SellerLuzojeda",
+  "Charlesaldaircontreras1",
+  "SellerKarenjulieth",
+  "SellerOmarsanchez",
+  "SellerYennysanchez",
+  "SellerAlinsonsanchez",
+  "SellerBelkisrios",
+  "SellerPaolaalejandratorres",
+  "SellerLinatorresbayona",
+  "SellerFrangergomeztorres",
+  "SellerBreisongomezhernandez",
+  "SellerHadeneduardorios",
+  "SellerSairricardosanchez",
+  "SellerSandralopez"
+]
 function limitarAccesoSegunTipoUsuario() {
   let quitarVistas = [];
 
@@ -559,6 +579,12 @@ function limitarAccesoSegunTipoUsuario() {
       "seguimiento-gestionarNovedad",
       "contenedor-solucion_novedad",
       "contenedor-mostrar-billetera"
+    ];
+  } else if (usuarioLimitacionesHistorialovedades.includes(datos_usuario.centro_de_costo)) {
+    quitarVistas = [
+      "btn-seguimiento-gestionarNovedad",
+      "seguimiento-gestionarNovedad",
+      "contenedor-solucion_novedad"
     ];
   }
 

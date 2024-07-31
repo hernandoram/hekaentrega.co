@@ -180,6 +180,7 @@
             <div class="bg-white py-2 collapse-inner rounded">
               <h6 class="collapse-header">Gestor De Pagos:</h6>
               <a class="collapse-item" href="#pagos">Pagos</a>
+              <a class="collapse-item" href="#pagos_facturacion">Facturación</a>
               <a class="collapse-item" href="#cargador_pagos">Cargador</a>
               <a class="collapse-item" href="#gestionar_pagos">Gestionar</a>
               <a class="collapse-item" href="#deudas" onclick="revisarDeudas()">Deudas</a>
@@ -1970,6 +1971,81 @@
               </div>
             </div>
             <div id="visor_pagos"></div>
+          </div>
+          
+          <div class="container-fluid" id="pagos_facturacion" style="display: none;">
+            <div class="card mt-3">
+              <div class="card-body">
+                <form enctype="multipart/form-data" id="form-pagos_facturacion">
+                  <h2>Filtrado</h2>
+                  <div class="row mt-2">
+                    <div id="fecha-pagos_facturacion" class="col-md-6">
+                      <div class="row mb-3">
+                        <div class="col-sm-6 mb-3 mb-sm-0">
+                          <label for="filtro-fechaI-pagos_facturacion">Fecha inicio</label>
+                          <input id="filtro-fechaI-pagos_facturacion" type="date" class="form-control form-control-user">
+                        </div>
+                        <div class="col-sm-6">
+                          <label for="filtro-fechaF-pagos_facturacion">Fecha final</label>
+                          <input id="filtro-fechaF-pagos_facturacion" type="date" class="form-control form-control-user">
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="col-sm-6 col-md">
+                      <label for="tipo_filt-pagos_facturacion">Tipo filtro</label>
+                      <select id="tipo_filt-pagos_facturacion" class="form-control">
+                        <option selected value>--Seleccione tipo de filtro --</option>
+                        <option value="filt_1">Usuarios</option>
+                        <option value="filt_2">Número documento</option>
+                        <option value="filt_3">Guía</option>
+                        <option value="filt_4">Número Factura</option>
+                      </select>
+                    </div>
+
+                    <div class="col-6 col-md filtro-gen d-none" id="filt_1-pagos_facturacion">
+                      <label for="filtro-pagos_facturacion-usuario">Usuarios</label>
+                      <input list="sellersDatalist" name="filtro-pagos_facturacion-usuario" multiple class="form-control" id="filtro-pagos_facturacion-usuario">
+                    </div>
+                    
+                    <div class="col-6 col-md filtro-gen d-none" id="filt_2-pagos_facturacion">
+                      <label for="filtro-pagos_facturacion-num_doc">Número Documento</label>
+                      <input list="sellersDatalist" name="filtro-pagos_facturacion-num_doc" multiple class="form-control" id="filtro-pagos_facturacion-num_doc">
+                    </div>
+
+                    <div class="col-6 col-md filtro-gen d-none" id="filt_3-pagos_facturacion">
+                      <label for="filtro-pagos_facturacion-guia">Guía</label>
+                      <input type="text" name="filtro-pagos_facturacion-guia" class="form-control" id="filtro-pagos_facturacion-guia">
+                    </div>
+                    
+                    <div class="col-6 col-md filtro-gen d-none" id="filt_4-pagos_facturacion">
+                      <label for="filtro-pagos_facturacion-num_fact">Número de Factura</label>
+                      <input type="text" name="filtro-pagos_facturacion-num_fact" class="form-control" id="filtro-pagos_facturacion-num_fact">
+                    </div>
+
+                    <div class="btn-group col-12">
+                      <button type="button" id="btn_historial-pagos_facturacion"
+                        class="btn btn-primary mt-4 text-truncate">
+                        Historial facturas
+                      </button>
+                      
+                      <button type="button" id="btn_descarga-pagos_facturacion"
+                        class="btn btn-secondary mt-4 text-truncate">
+                        Informe facturas
+                      </button>
+                    </div>
+                  </div>
+
+                </form>
+              </div>
+            </div>
+
+            <div class="card mt-2">
+              <div id="visor-pagos_facturacion" class="table-responsive card-body">
+                <table id="table-pagos_facturacion" class="table table-bordered w-100">
+                </table>
+              </div>
+            </div>
           </div>
 
           <div class="container-fluid" id="gestionar_pagos" style="display: none;">
