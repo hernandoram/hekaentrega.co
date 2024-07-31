@@ -1,5 +1,5 @@
 const express = require("express");
-const { auth, crearFactura, tipoDocumentos, usuarios, tiposPago, pdfFacturaVenta, impuestos, clientes, verFactura } = require("../controllers/siigo.js");
+const { auth, crearFactura, tipoDocumentos, usuarios, tiposPago, pdfFacturaVenta, impuestos, clientes, verFactura, buscarfacturaPorNombre } = require("../controllers/siigo.js");
 const router = express.Router();
 
 router.post("/crearFactura", auth, crearFactura);
@@ -11,5 +11,6 @@ router.get("/tiposPago", auth, tiposPago);
 router.get("/impuestos", auth, impuestos);
 router.get("/clientes", auth, clientes);
 router.get("/verFactura/:idFactura", auth, verFactura);
+router.post("/facturaPorNombre", auth, buscarfacturaPorNombre);
 
 module.exports = router;
