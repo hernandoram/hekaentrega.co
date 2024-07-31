@@ -2262,12 +2262,8 @@ const estadosDevueltas = [
   "DEVOLUCION",
   "CERRADO POR INCIDENCIA, VER CAUSA"
 ];
-const estadosTransportadora = {
-  INTERRAPIDISIMO: {
-    devuelta: [],
-    anulada: ["Documento Anulado"]
-  }
-};
+
+const estadoAnuladas = ["Documento Anulado"];
 
 function displayStats() {
   statsGlobales.classList.remove("d-none");
@@ -2278,6 +2274,9 @@ function displayStats() {
   const noGuiasGoblalesDevueltas = document.getElementById(
     "noGuiasGoblalesDevueltas"
   );
+
+  const guiasAnuladas =
+    guiasStats.filter((guia) => estadoAnuladas.includes(guia.estado)) || [];
 
   const guiasEntregas = guiasStats.filter(
     (guia) =>
@@ -2293,12 +2292,17 @@ function displayStats() {
         guia.estado.startsWith("CERRADO POR INCIDENCIA"))
   );
 
+  const guiasEnProceso =
+  guiasStats.length -
+    guiasEntregas.length -
+    guiasDevueltas.length -
+    guiasAnuladas.length;
+
   noGuiasGoblalesEntregadas.textContent = guiasEntregas.length;
   noGuiasGoblalesDevueltas.textContent = guiasDevueltas.length;
 
   noGlobal.textContent = guiasStats.length;
 
-  setWeekInputs();
   const chartGlobal = document.getElementById("chart-guias-globales");
 
   var options = {
@@ -2315,7 +2319,9 @@ function displayStats() {
         yValueFormatString: "#,##0.#",
         dataPoints: [
           { label: "Entregadas", y: guiasEntregas.length },
-          { label: "Devueltas", y: guiasDevueltas.length }
+          { label: "Devueltas", y: guiasDevueltas.length },
+          { label: "Anuladas", y: guiasAnuladas.length || 0 },
+          { label: "En Proceso", y: guiasEnProceso }
         ]
       }
     ]
@@ -2323,6 +2329,8 @@ function displayStats() {
 
   var chart = new CanvasJS.Chart(chartGlobal, options);
   chart.render();
+
+  setWeekInputs();
 }
 
 const startWeek = document.getElementById("startWeek");
@@ -2358,20 +2366,32 @@ function loadWeek1() {
         guia.estado.startsWith("CERRADO POR INCIDENCIA"))
   ).length;
 
+  const guiasAnuladas =
+    filteredGuiasStats.filter(
+      (guia) => guia.estado && estadoAnuladas.includes(guia.estado)
+    ).length || 0;
+
+  const guiasEnProceso =
+    filteredGuiasStats.length -
+    totalGuiasEntregadas -
+    totalGuiasDevueltas -
+    guiasAnuladas;
+
   noGuiasGoblales1.textContent = totalGuias;
 
   noGuiasGoblalesEntregadas1.textContent = totalGuiasEntregadas;
 
   noGuiasGoblalesDevueltas1.textContent = totalGuiasDevueltas;
 
-
-
   const chartLocal1 = document.getElementById("chart-guias-locales-1");
-
 
   var options;
 
-  if (totalGuiasEntregadas === 0 && totalGuiasDevueltas === 0) {
+  if (
+    totalGuiasEntregadas === 0 &&
+    totalGuiasDevueltas === 0 &&
+    guiasAnuladas === 0
+  ) {
     options = {
       title: {
         text: "No hay guías entregadas ni devueltas"
@@ -2384,9 +2404,7 @@ function loadWeek1() {
           legendText: "{label}",
           indexLabel: "{label} ({y})",
           yValueFormatString: "#,##0.#",
-          dataPoints: [
-            { label: "Total Guías", y: totalGuias }
-          ]
+          dataPoints: [{ label: "En Proceso", y: guiasEnProceso }]
         }
       ]
     };
@@ -2405,13 +2423,15 @@ function loadWeek1() {
           yValueFormatString: "#,##0.#",
           dataPoints: [
             { label: "Entregadas", y: totalGuiasEntregadas },
-            { label: "Devueltas", y: totalGuiasDevueltas }
+            { label: "Devueltas", y: totalGuiasDevueltas },
+            { label: "Anuladas", y: guiasAnuladas || 0 },
+            { label: "En proceso", y: guiasEnProceso }
           ]
         }
       ]
     };
   }
-  
+
   // Asumiendo que ya tienes el elemento del gráfico y CanvasJS incluido
   var chart = new CanvasJS.Chart(chartLocal1, options);
   chart.render();
@@ -2446,18 +2466,34 @@ function loadWeek2() {
         guia.estado.startsWith("CERRADO POR INCIDENCIA"))
   ).length;
 
+  const totalAnuladas =
+    filteredGuiasStats.filter(
+      (guia) => guia.estado && estadoAnuladas.includes(guia.estado)
+    ).length || 0;
+
+  const guiasEnProceso =
+    filteredGuiasStats.length -
+    totalGuiasEntregadas -
+    totalGuiasDevueltas -
+    totalAnuladas;
+
   noGuiasGoblales1.textContent = totalGuias;
 
   noGuiasGoblalesEntregadas1.textContent = totalGuiasEntregadas;
 
   noGuiasGoblalesDevueltas1.textContent = totalGuiasDevueltas;
 
-
   const chartLocal1 = document.getElementById("chart-guias-locales-2");
 
   var options;
 
-  if (totalGuiasEntregadas === 0 && totalGuiasDevueltas === 0) {
+  debugger;
+
+  if (
+    totalGuiasEntregadas === 0 &&
+    totalGuiasDevueltas === 0 &&
+    totalAnuladas === 0
+  ) {
     options = {
       title: {
         text: "No hay guías entregadas ni devueltas"
@@ -2470,9 +2506,7 @@ function loadWeek2() {
           legendText: "{label}",
           indexLabel: "{label} ({y})",
           yValueFormatString: "#,##0.#",
-          dataPoints: [
-            { label: "Total Guías", y: totalGuias }
-          ]
+          dataPoints: [{ label: "En Proceso", y: guiasEnProceso }]
         }
       ]
     };
@@ -2491,13 +2525,15 @@ function loadWeek2() {
           yValueFormatString: "#,##0.#",
           dataPoints: [
             { label: "Entregadas", y: totalGuiasEntregadas },
-            { label: "Devueltas", y: totalGuiasDevueltas }
+            { label: "Devueltas", y: totalGuiasDevueltas },
+            { label: "Anuladas", y: totalAnuladas },
+            { label: "En proceso", y: guiasEnProceso }
           ]
         }
       ]
     };
   }
-  
+
   // Asumiendo que ya tienes el elemento del gráfico y CanvasJS incluido
   var chart = new CanvasJS.Chart(chartLocal1, options);
   chart.render();
@@ -2547,8 +2583,8 @@ function setWeekInputs() {
   );
   const maxWeek = formatWeek(currentYear, currentWeek);
 
-  document.getElementById('endWeek').setAttribute('max', maxWeek);
-  document.getElementById('startWeek').setAttribute('max', maxWeek);
+  document.getElementById("endWeek").setAttribute("max", maxWeek);
+  document.getElementById("startWeek").setAttribute("max", maxWeek);
 
   loadWeek1();
   loadWeek2();
