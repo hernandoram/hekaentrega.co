@@ -2281,7 +2281,6 @@ function displayStats() {
     "noGuiasGoblalesDevueltas"
   );
 
-  console.log(guiasStats);
   const guiasEntregas = guiasStats.filter(
     (guia) =>
       guia.estado &&
