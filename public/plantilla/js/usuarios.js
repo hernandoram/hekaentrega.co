@@ -2226,7 +2226,6 @@ loadStats.addEventListener("click", async () => {
   if (guiasStats.length < 1) {
     loader.classList.remove("d-none");
     try {
-      console.warn("cargando stats...", idUsuario);
       const querySnapshot = await firebase
         .firestore()
         .collection("usuarios")
@@ -2244,7 +2243,6 @@ loadStats.addEventListener("click", async () => {
       console.error("Error obteniendo las guías:", error);
     }
   } else {
-    console.log(guiasStats);
     console.warn("usuarios ya cargados");
   }
 });
