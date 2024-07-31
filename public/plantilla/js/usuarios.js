@@ -2302,12 +2302,35 @@ function displayStats() {
   noGlobal.textContent = guiasStats.length;
 
   setWeekInputs();
+  const chartGlobal = document.getElementById("chart-guias-globales");
+
+  var options = {
+    title: {
+      text: "Estadisticas globales"
+    },
+    data: [
+      {
+        type: "pie",
+        startAngle: 45,
+        showInLegend: true,
+        legendText: "{label}",
+        indexLabel: "{label} ({y})",
+        yValueFormatString: "#,##0.#",
+        dataPoints: [
+          { label: "Entregadas", y: guiasEntregas.length },
+          { label: "Devueltas", y: guiasDevueltas.length }
+        ]
+      }
+    ]
+  };
+
+  var chart = new CanvasJS.Chart(chartGlobal, options);
+  chart.render();
 }
 
 const startWeek = document.getElementById("startWeek");
 const endWeek = document.getElementById("endWeek");
-
-startWeek.addEventListener("change", () => {
+function loadWeek1() {
   const { startDate, endDate } = getWeekDates(startWeek.value);
 
   const filteredGuiasStats = guiasStats.filter((guia) => {
@@ -2331,7 +2354,6 @@ startWeek.addEventListener("change", () => {
         guia.estado.startsWith("ENTREGADA DIGITALIZADA"))
   ).length;
 
-
   const totalGuiasDevueltas = filteredGuiasStats.filter(
     (guia) =>
       guia.estado &&
@@ -2345,10 +2367,59 @@ startWeek.addEventListener("change", () => {
 
   noGuiasGoblalesDevueltas1.textContent = totalGuiasDevueltas;
 
-  console.log("Filtered guiasStats:", filteredGuiasStats);
-});
 
-endWeek.addEventListener("change", () => {
+
+  const chartLocal1 = document.getElementById("chart-guias-locales-1");
+
+
+  var options;
+
+  if (totalGuiasEntregadas === 0 && totalGuiasDevueltas === 0) {
+    options = {
+      title: {
+        text: "No hay guías entregadas ni devueltas"
+      },
+      data: [
+        {
+          type: "pie",
+          startAngle: 45,
+          showInLegend: true,
+          legendText: "{label}",
+          indexLabel: "{label} ({y})",
+          yValueFormatString: "#,##0.#",
+          dataPoints: [
+            { label: "Total Guías", y: totalGuias }
+          ]
+        }
+      ]
+    };
+  } else {
+    options = {
+      title: {
+        text: "Estadísticas semana 1"
+      },
+      data: [
+        {
+          type: "pie",
+          startAngle: 45,
+          showInLegend: true,
+          legendText: "{label}",
+          indexLabel: "{label} ({y})",
+          yValueFormatString: "#,##0.#",
+          dataPoints: [
+            { label: "Entregadas", y: totalGuiasEntregadas },
+            { label: "Devueltas", y: totalGuiasDevueltas }
+          ]
+        }
+      ]
+    };
+  }
+  
+  // Asumiendo que ya tienes el elemento del gráfico y CanvasJS incluido
+  var chart = new CanvasJS.Chart(chartLocal1, options);
+  chart.render();
+}
+function loadWeek2() {
   const { startDate, endDate } = getWeekDates(endWeek.value);
   const filteredGuiasStats = guiasStats.filter((guia) => {
     const guiaDate = new Date(guia.fecha);
@@ -2371,7 +2442,6 @@ endWeek.addEventListener("change", () => {
         guia.estado.startsWith("ENTREGADA DIGITALIZADA"))
   ).length;
 
-  
   const totalGuiasDevueltas = filteredGuiasStats.filter(
     (guia) =>
       guia.estado &&
@@ -2386,8 +2456,58 @@ endWeek.addEventListener("change", () => {
   noGuiasGoblalesDevueltas1.textContent = totalGuiasDevueltas;
 
 
+  const chartLocal1 = document.getElementById("chart-guias-locales-2");
 
-});
+  var options;
+
+  if (totalGuiasEntregadas === 0 && totalGuiasDevueltas === 0) {
+    options = {
+      title: {
+        text: "No hay guías entregadas ni devueltas"
+      },
+      data: [
+        {
+          type: "pie",
+          startAngle: 45,
+          showInLegend: true,
+          legendText: "{label}",
+          indexLabel: "{label} ({y})",
+          yValueFormatString: "#,##0.#",
+          dataPoints: [
+            { label: "Total Guías", y: totalGuias }
+          ]
+        }
+      ]
+    };
+  } else {
+    options = {
+      title: {
+        text: "Estadísticas semana 2"
+      },
+      data: [
+        {
+          type: "pie",
+          startAngle: 45,
+          showInLegend: true,
+          legendText: "{label}",
+          indexLabel: "{label} ({y})",
+          yValueFormatString: "#,##0.#",
+          dataPoints: [
+            { label: "Entregadas", y: totalGuiasEntregadas },
+            { label: "Devueltas", y: totalGuiasDevueltas }
+          ]
+        }
+      ]
+    };
+  }
+  
+  // Asumiendo que ya tienes el elemento del gráfico y CanvasJS incluido
+  var chart = new CanvasJS.Chart(chartLocal1, options);
+  chart.render();
+}
+startWeek.addEventListener("change", () => loadWeek1());
+
+endWeek.addEventListener("change", () => loadWeek2());
 
 function getWeekDates(weekString) {
   const [year, week] = weekString.split("-W").map(Number);
@@ -2428,4 +2548,6 @@ function setWeekInputs() {
     previousYear,
     currentWeek
   );
+  loadWeek1();
+  loadWeek2();
 }
