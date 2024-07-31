@@ -102,7 +102,7 @@ async function obtenerDataFacturasAdmin() {
             reference = referenciaClave.where(
                 "centro_de_costo",
                 "==",
-                $("#filtro-pagos_facturacion-usuario").val()
+                $("#filtro-pagos_facturacion-usuario").val().trim()
             );
         break;
         
@@ -111,19 +111,20 @@ async function obtenerDataFacturasAdmin() {
             reference = referenceSorted.where(
                 "numero_documento",
                 "==",
-                $("#filtro-pagos_facturacion-num_doc").val()
+                $("#filtro-pagos_facturacion-num_doc").val().trim()
             );
         break;
 
         case "filt_3": {
-            const guia = $("#filtro-pagos_facturacion-guia").val();
+            const guia = $("#filtro-pagos_facturacion-guia").val().trim();
   
-            reference = referenceNatural.where("guiasPagadas", "array-includes", guia);
+            reference = referenceNatural.where("guiasPagadas", "array-contains", guia);
         }
         break;
 
         case "filt_4": {
             const numFact = $("#filtro-pagos_facturacion-num_fact").val().trim();
+            console.log(numFact);
   
             reference = referenceNatural.where("num_factura", "==", parseInt(numFact));
         }
