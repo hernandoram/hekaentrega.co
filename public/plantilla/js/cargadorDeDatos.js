@@ -309,7 +309,7 @@ class ControlUsuario {
   static get esUsuarioPunto() {
     return datos_usuario.type === "USUARIO-PUNTO";
   }
-  
+
   static get esLoggy() {
     return datos_usuario.type === "LOGGY";
   }
@@ -443,7 +443,7 @@ async function cargarPagoSolicitado() {
 
   console.log("pago solicitado", soliciado);
   console.log("limitado", limitado);
-  
+
   if (soliciado) {
     $("#mostrador-saldoSolicitado").removeClass("d-none");
     $("#mostrador-saldoNoSolicitado").addClass("d-none");
@@ -1022,7 +1022,6 @@ async function mostrarReferidos(datos) {
     .then(async () => {
       let referidos = [];
 
-
       await firebase
         .firestore()
         .collection("referidos")
@@ -1108,7 +1107,7 @@ async function agregarSaldo(envios, referente, referido) {
         if (data.sellerReferido == referido) {
           const historialItem = {
             guiasEntregadas: data.guiasEntregadas,
-            timestamp: new Date(), 
+            timestamp: new Date(),
             saldoReclamado: parseInt(envios, 10) * 200
           };
           doc.ref.update({
@@ -1139,16 +1138,17 @@ async function agregarSaldo(envios, referente, referido) {
 async function reclamarReferidoBilletera(referido, referente, saldoAReclamar) {
   console.log(saldoAReclamar, referido, referente);
   const ref = db.collection("pendientePorPagar");
+  const nombreGuia = `R${referido}-${new Date().getFullYear()}${String(
+    new Date().getMonth() + 1
+  ).padStart(2, "0")}${String(new Date().getDate()).padStart(2, "0")}-${
+    Math.floor(Math.random() * (99 - 10 + 1)) + 10
+  }`;
 
   const nuevoObjeto = {
     "COMISION HEKA": 0,
     "CUENTA RESPONSABLE": "EMPRESA",
     "ENVÍO TOTAL": 0,
-    GUIA: `R${referido}-${new Date().getFullYear()}${String(
-      new Date().getMonth() + 1
-    ).padStart(2, "0")}${String(new Date().getDate()).padStart(2, "0")}-${
-      Math.floor(Math.random() * (99 - 10 + 1)) + 10
-    }`,
+    GUIA: nombreGuia,
     RECAUDO: 0,
     REMITENTE: referente,
     "TOTAL A PAGAR": saldoAReclamar,
@@ -1156,9 +1156,8 @@ async function reclamarReferidoBilletera(referido, referente, saldoAReclamar) {
     timeline: Date.now()
   };
 
-  await ref.add(nuevoObjeto);
+  await ref.doc(nombreGuia).set(nuevoObjeto);
 }
-
 
 function reclamarReferido(referido, referente, saldoAReclamar) {
   console.log(saldoAReclamar);
@@ -2533,7 +2532,6 @@ async function solicitarPagosPendientesUs(e) {
   // Obtenemos en donde se va a ingresar su centro de costo
   const { limitadosDiario, diarioSolicitado } = data;
 
-
   // porque de alguna forma no tiene datos bancarios ingresados
   if (!datos_usuario.datos_bancarios)
     return SwalMessage.fire(
@@ -2760,7 +2758,7 @@ textModal.addEventListener("click", function () {
     buttonDimensionsChat.style.width = "40%";
   }
   console.log(isModalOpen);
-})
+});
 
 traerNoti();
 
