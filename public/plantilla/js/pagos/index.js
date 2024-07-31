@@ -3,6 +3,7 @@ import AnotacionesPagos from "./AnotacionesPagos.js";
 import { cantidadDeUsuariosPorCentroDeCosto, comprobarGuiaPagada } from "./comprobadores.js";
 import { ChangeElementContenWhileLoading, segmentarArreglo } from "../utils/functions.js";
 import { empaquetarGuias } from "./pagar.js";
+import { activarFunctionesFacturas } from "./facturacion.js";
 
 
 /*
@@ -226,7 +227,8 @@ let estadosEntregado = []; // Serán extraidos por el backend
 let estadosDevolucion = []; // Serán extraidos por el backend
 
 
-// #region Cargue hacia pagos directo del historial de guías
+// #region Cargue pagos directo
+// Cargue hacia pagos directo del historial de guías
 /**
  * Función encargada de solicitar directamente del historial de guías, las que entén listas para pagar y de esta forma pasarla a la lista
  * de pagos pendientes, sin ncesidad de tener que pasar por un excel
@@ -481,4 +483,9 @@ async function comprobarSegmentoGuias(segmento, logger) {
   })
 }
 
+//#endregion
+
+
+//#region Facturacion
+activarFunctionesFacturas();
 //#endregion

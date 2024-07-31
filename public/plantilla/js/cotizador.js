@@ -3031,6 +3031,12 @@ class CalcularCostoDeEnvio {
     return Math.max(this.pesoVolumen, this.kg);
   }
 
+  get versionCotizacion() {
+    // La versión 1 y 2 serán compatibles para el pago contraentrega pago contraentrega
+    // De otra forma, se tomará en cuenta la versión 1 solamente 
+    return this.type === PAGO_CONTRAENTREGA ? this.precios.version : 1;
+  }
+
   get flete() {
     if (this.total_flete) return this.total_flete;
     this.total_flete = this.revisadorInterno(
@@ -3145,7 +3151,7 @@ class CalcularCostoDeEnvio {
     // Se activa el flag, para que cuando entre mientras se recalcula evite llegar hasta aquí nuevamente y re-activar el flujo
     this.comisionHekaAdicionalAbierto = true;
 
-    if (this.precios.version === 2) {
+    if (this.versionCotizacion === 2) {
       // Si correponde a la nueva versión, devuelve este calculo, para sumar la sobre flete heka
       this.comisionHekaAdicionalFija = parseInt(
         (this.costoDevolucionOriginal * 2) / 8
@@ -3183,11 +3189,11 @@ class CalcularCostoDeEnvio {
       recaudo: this.valor,
       seguro: this.seguro,
       costoDevolucion:
-        this.precios.version === 2
+        this.versionCotizacion === 2
           ? this.costoDevolucionOriginal
           : this.costoDevolucion, // Con la versión 2 se guarda en el costo de devolución original de la transportadora, salvaguardando un avariable que indicará si se paga o no
-      cobraDevolucion: this.precios.version === 1, // Variable para dientificar si se cobra o no devolución sobre la guía (Solo se le cobraría devolución a la versión 1)
-      versionCotizacion: this.precios.version // 1: cotizador convencional. 2: cotizador especial (no cobra devoluciones)
+      cobraDevolucion: this.versionCotizacion === 1, // Variable para dientificar si se cobra o no devolución sobre la guía (Solo se le cobraría devolución a la versión 1)
+      versionCotizacion: this.versionCotizacion // 1: cotizador convencional. 2: cotizador especial (no cobra devoluciones)
     };
 
     if (this.aveo) {
