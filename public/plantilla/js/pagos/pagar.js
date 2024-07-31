@@ -773,10 +773,12 @@ class Empaquetado {
             diarioSolicitado: firebase.firestore.FieldValue.arrayRemove(usuario),
         }
     
-        refDiasPago.update(actualizacion);
-
+        await refDiasPago.update(actualizacion);
+        
         this.pagosPorUsuario[usuario].pagoConcreto = pagado;
         this.pagosPorUsuario[usuario].comision_heka_total = comision_heka;
+        
+        await this.guardarPaquetePagado(); // Para guardar el paquete sin que se facture
 
         terminar();
 
@@ -790,10 +792,16 @@ class Empaquetado {
      * Contiene las siguientes propiedades:
      */
     async guardarPaquetePagado(factura) {
-        const hasError = factura.error || !factura.id;
-        const errorMessage = factura.error ? factura.message : JSON.stringify(factura);
+        let hasError = false;
+        let errorMessage = "";
 
+        
         const userRef = this.pagosPorUsuario[this.usuarioActivo];
+        if(!userRef.numero_documento) {
+            const infoUser = await this.cargarInfoUsuario();
+            userRef.numero_documento = infoUser.numero_documento;
+        }
+
         const {guiasPagadas, pagoConcreto, comision_heka_total, numero_documento} = userRef;
         const {timeline, comprobante_bancario} = userRef.guias[0];
 
@@ -805,11 +813,28 @@ class Empaquetado {
             timeline,
             fecha: new Date(),
             comprobante_bancario,
-            id_factura: factura.id ?? "", // Si posee error, se guarda el paquete de pagos, pero sin id de factura, ni númeor de factura
-            num_factura: factura.number ?? 0, // Si posee error, se guarda el paquete de pagos, pero sin id de factura, ni númeor de factura
             centro_de_costo: this.usuarioActivo,
-            id_user: userRef.id_user || ""
+            id_user: userRef.id_user || "",
+            facturada: false
         }
+
+        const dataFactura = {
+            id_factura: "", // Si posee error, se guarda el paquete de pagos, pero sin id de factura, ni número de factura, ni nombre de factura
+            num_factura: 0, // Si posee error, se guarda el paquete de pagos, pero sin id de factura, ni número de factura, ni nombre de factura
+            nombre_factura: "", // Si posee error, se guarda el paquete de pagos, pero sin id de factura, ni número de factura, ni nombre de factura
+        }
+
+        if(factura) {
+            hasError = factura.error || !factura.id;
+            errorMessage = factura.error ? factura.message : JSON.stringify(factura);
+
+            dataFactura.id_factura = factura.id ?? ""; 
+            dataFactura.num_factura = factura.number ?? 0;
+            dataFactura.nombre_factura = factura.name ?? "";
+            dataFactura.facturada = true;
+        }
+
+        Object.assign(infoToSave, dataFactura);
 
         console.log(infoToSave);
         // return;
@@ -828,10 +853,7 @@ class Empaquetado {
             
             // Si ha entrado aquí, es porque la información ya fue guardada previamente, pero se necesita actualizar los datos
             // de la factura generada
-            await db.collection("paquetePagos").doc(userRef.idPaquetePago).update({
-                id_factura: factura.id,
-                num_factura: factura.number
-            });
+            await db.collection("paquetePagos").doc(userRef.idPaquetePago).update(dataFactura);
         }
 
     }

@@ -22,5 +22,5 @@ const credenciales = {
     partnerId: "OFFYSAS" // Un nuevo header solicitado https://siigoapi.docs.apiary.io/#introduction/partner-id
 }
 
-// module.exports = credencialesPrueba;
-module.exports = credenciales;
+module.exports = credencialesPrueba;
+// module.exports = credenciales;

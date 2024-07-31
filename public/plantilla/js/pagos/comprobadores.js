@@ -52,3 +52,12 @@ export async function guiaExiste(guia) {
         return guia;
     });
 }
+
+export async function cantidadFacturasencontradas(key, value) {
+    return await db.collection("paquetePagos")
+    .where(key, "==", value)
+    .get()
+    .then(querySnapshot => {
+        return querySnapshot.size;
+    });
+}
