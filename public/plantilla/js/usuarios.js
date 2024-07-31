@@ -2545,6 +2545,11 @@ function setWeekInputs() {
     previousYear,
     currentWeek
   );
+  const maxWeek = formatWeek(currentYear, currentWeek);
+
+  document.getElementById('endWeek').setAttribute('max', maxWeek);
+  document.getElementById('startWeek').setAttribute('max', maxWeek);
+
   loadWeek1();
   loadWeek2();
 }
