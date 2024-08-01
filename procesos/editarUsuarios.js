@@ -7,7 +7,7 @@ const ws = XLSX.readFile("../procesos/Para corregir en plataforma.xlsx");
 
 const usuarios =  XLSX.utils.sheet_to_json(ws.Sheets[ws.SheetNames[0]], {header: "A1"});
 
-editarUsuarios();
+// editarUsuarios();
 async function editarUsuarios() {
     const centrosDeCosto = usuarios.map(u => u.SELLER);
     let cantidad = usuarios.length;
