@@ -22,6 +22,9 @@
   <link
     href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
     rel="stylesheet">
+    <script type="text/javascript" src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>  
+    <script type="text/javascript" src="https://cdn.canvasjs.com/jquery.canvasjs.min.js"></script>
+    
 
   <!-- Custom styles for this template-->
   <link href="css/sb-admin-2.min.css" rel="stylesheet">
@@ -321,7 +324,7 @@
 
             
 
-            <div id="control-buttons" class="d-none">
+            <div id="control-buttons">
 
               <a href="#manejo_usuarios" class="mx-2">
                 <i class="fa fa-cog"></i>
@@ -340,14 +343,7 @@
             <div id="usuario-seleccionado" class="d-none">
               <div class="card-header text-center">
                 <div class="row">
-                  <a class="btn btn-outline-primary btn-lg" href="javascript:volver2()">Volver</a>
-                  <script>
-                    function volver2() {
-                      referidos = [];
-                      document.getElementById("mostrador-usuarios").classList.remove("d-none");
-                      document.getElementById("usuario-seleccionado").classList.add("d-none");
-                    }
-                  </script>
+                  <div class="btn btn-outline-primary btn-lg" id="volver2">Volver</div>
                 </div>
                 <h3 id="nombre-usuario">Nombre Apellido</h3>
               </div>
@@ -877,7 +873,7 @@
                   </div>
                 </div>
 
-              <!--Referidos-->
+              <!--Solicitudes-->
               <div class="card shadow mb-4">
                 <!-- Card Header - Accordion -->
                 <a href="#informacion-Pagos" class="d-block card-header py-3" data-toggle="collapse" role="button"
@@ -903,6 +899,73 @@
                 <div class="collapse" id="informacion-referidos">
                   <div class="card-body table-responsive">
                     <table id="tabla-referidos" class="display table table-bordered table-hover" width="100%"></table>
+                  </div>
+                </div>
+              </div>
+
+              
+              <!--Estadisticas-->
+              <div class="card shadow mb-4">
+                <!-- Card Header - Accordion -->
+                <a href="#estadisticas" id="load-stats" class="d-block card-header py-3" data-toggle="collapse" role="button"
+                  aria-expanded="true" aria-controls="informacion-bodegas">
+                  <h6 class="m-0 font-weight-bold text-primary">Estadisticas</h6>
+                </a>
+                <!-- Card Content - Collapse -->
+                <div class="collapse" id="estadisticas">
+                  <div class="card-body table-responsive">
+                    <div id="loading-s">
+                      Cargando estadisticas...
+                    </div>
+                    <section id="stats-globales" class="d-none">
+                      <div class="container">
+                        <div class="row">
+                          <div class="col-md-4 col-12">
+                            <div>
+                              <label for="" class="sr-only">Estadisticas Gobales</label>
+
+                              <div id="chart-guias-globales" style="height: 300px; width: 100%;"></div>
+
+                              <div>
+                                <p>Total Guías: <span id="noGuiasGoblales"></span></p>
+                                <p>Total Guías Entregadas: <span id="noGuiasGoblalesEntregadas"></span></p>
+                                <p>Total Guías Devueltas: <span id="noGuiasGoblalesDevueltas"></span></p>
+                              </div>
+
+                            </div>
+                          </div>
+                          <div class="col-md-4 col-12">
+                            <div class="form-group mb-2">
+                              <label for="startWeek" class="sr-only">Start Week</label>
+                              <input type="week" class="form-control" id="startWeek" placeholder="Start Week">
+                            </div>
+
+                            <div id="chart-guias-locales-1" style="height: 300px; width: 100%;"></div>
+
+                            <div>
+                              <p>Total Guías Semana 1: <span id="noGuiasGoblales1"></span></p>
+                              <p>Total Guías Entregadas 1: <span id="noGuiasGoblalesEntregadas1"></span></p>
+                              <p>Total Guías Devueltas 1: <span id="noGuiasGoblalesDevueltas1"></span></p>
+                            </div>
+                          </div>
+                          <div class="col-md-4 col-12">
+                            <div class="form-group mx-sm-3 mb-2">
+                              <label for="endWeek" class="sr-only">End Week</label>
+                              <input type="week" class="form-control" id="endWeek" placeholder="End Week">
+                            </div>
+
+                            <div id="chart-guias-locales-2" style="height: 300px; width: 100%;"></div>
+
+
+                            <div>
+                              <p>Total Guías Semana 2: <span id="noGuiasGoblales2"></span></p>
+                              <p>Total Guías Entregadas 2: <span id="noGuiasGoblalesEntregadas2"></span></p>
+                              <p>Total Guías Devueltas 2: <span id="noGuiasGoblalesDevueltas2"></span></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </section>
                   </div>
                 </div>
               </div>
@@ -2930,6 +2993,7 @@
     <script src="js/manejadorGuias.js"></script>
     <script src="js/adminPlatform.js" type="module"></script>
     <script src="js/hostNameReader.js"></script>
+    <script src="js/stats.js"></script>
     <script src="js/copyToClipboard.js"></script>
     <script src="js/chargeusers.js"></script>
     
