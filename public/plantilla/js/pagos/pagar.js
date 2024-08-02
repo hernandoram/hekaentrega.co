@@ -769,11 +769,15 @@ class Empaquetado {
             fetch("/mensajeria/ws/sendMessage/pagos_factura", organizarPostPlantillaMensaje(celular, parametros))
         }
 
-        const actualizacion = {
-            diarioSolicitado: firebase.firestore.FieldValue.arrayRemove(usuario),
+        
+        // Actualizamos la lista de los diarios solicitados solamente cuando la cantidad pagada sea mayor a cero
+        if(pagado > 0) {
+            const actualizacion = {
+                diarioSolicitado: firebase.firestore.FieldValue.arrayRemove(usuario),
+            }
+            
+            await refDiasPago.update(actualizacion);
         }
-    
-        await refDiasPago.update(actualizacion);
         
         this.pagosPorUsuario[usuario].pagoConcreto = pagado;
         this.pagosPorUsuario[usuario].comision_heka_total = comision_heka;
@@ -1004,11 +1008,13 @@ class Empaquetado {
 
         this.pagoMasivoActivo = true; // Encendemos el switch de pagos masivos, ya que a este punto no ha habido errores de carga relevantes
 
+        let wasInterrumpted = false; // Flag que permitirá interrumpir el proceso de forma manual
         Cargador.fire({
             title: "Gestionando pagos masivos",
-            text: "Inicio del procesos de pagos masivos, se espera pagar $" + convertirMiles(this.totalAPagar) + " pesos.",
-            icon: "info"
-        });
+            text: "Inicio del procesos de pagos masivos, se espera pagar $" + convertirMiles(this.totalAPagar) + " pesos, a " + responseExcel.length + " guías.",
+            icon: "info",
+            showCancelButton: true,
+        }).then(() => {wasInterrumpted = true;});
 
         let contador = 0;
         // Comenzamos a iterar sobre cada fila del excel para revisar cada seller y proceder a pagar
@@ -1016,6 +1022,7 @@ class Empaquetado {
             const nombre_ben = ex["Nombre Beneficiario"];
             const valorPagoExcel = ex.ValorTransaccion;
 
+            if(wasInterrumpted) break; // Cuando esto sea true, el proceso será interrumpido
             
             const idxSeller = this.usuarios.indexOf(nombre_ben);
 
@@ -1062,11 +1069,18 @@ class Empaquetado {
                 continue;
             }
 
-            Swal.getHtmlContainer().innerText = `Se han pagado y facturado correctamente ${contador} usuarios de ${responseExcel.length}.`;
+            if(Swal.isVisible())
+                Swal.getHtmlContainer().innerText = `Se han pagado y facturado correctamente ${contador} usuarios de ${responseExcel.length}.`;
+            
             contador++;
         }
 
-        Swal.fire(`Se han pagado ${contador} usuario de los ${responseExcel.length} Obtenidos por el excel.`);
+        if(wasInterrumpted) {    
+            Swal.fire("El proceso ha sido interrumpido manualmente", `Se han pagado ${contador} usuario de los ${responseExcel.length} Obtenidos por el excel.`, "warning");
+        } else {
+            Swal.fire(`Se han pagado ${contador} usuario de los ${responseExcel.length} Obtenidos por el excel.`);
+        }
+
         this.pagoMasivoActivo = false;
         loader.end();
     }
