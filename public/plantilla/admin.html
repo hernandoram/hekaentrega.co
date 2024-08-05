@@ -102,6 +102,12 @@
             <span>Oficinas</span></a>
         </li>
 
+
+        <li class="nav-item">
+          <a class="nav-link" href="#stats" onclick="mostrar('stats')">
+            <i class="fas fa-fw fa-users"></i>
+            <span>Stats</span></a>
+        </li>
         <!-- Divider -->
         <hr class="sidebar-divider">
 
@@ -1221,8 +1227,7 @@
               <form class="input-group mb-3 col-12 offset-md-2 col-md-8">
                 <input type="text" class="form-control border-info" placeholder="Digite el nombre de la oficina"
                   id="buscador_oficinas-documento">
-                <!-- <input type="text" class="form-control border-info" placeholder="Dirección" id="buscador_oficinas-direccion"> -->
-                <!-- <input type="text" class="form-control border-info" placeholder="Nombre" id="buscador_oficinas-nombre"> -->
+
                 <div class="input-group-append">
                   <button type="button" class="btn btn-small btn-outline-info" id="buscador-oficinas">Buscar</button>
                 </div>
@@ -1420,6 +1425,16 @@
 
 
           </div>
+
+          <div class="container-fluid" id="stats" style="display: none;">
+            <h1>Estadisticas</h1>
+            <p>Selecciona una semana para mostrar las estadisticas</p>
+
+            <div id="display-global-stats">
+
+            </div>
+          </div>
+
 
           <div class="container-fluid" id="documentos" style="display: none;">
             <h2>Documentos</h2>
