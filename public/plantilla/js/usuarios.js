@@ -2587,19 +2587,19 @@ function setWeekInputs() {
   loadWeek1();
   loadWeek2();
 }
-let weeklyStats;
+let weeklyStats = [];
 
 const startWeekInputGlobal = document.getElementById("startWeekGlobalStats");
 
 window.addEventListener("hashchange", async () => {
   if (window.location.hash === "#stats") {
-    setMaxDate()
+    setMaxDate();
   }
 });
 
 document.addEventListener("DOMContentLoaded", async () => {
   if (window.location.hash === "#stats") {
-    setMaxDate()
+    setMaxDate();
   }
 });
 
@@ -2618,4 +2618,29 @@ function setMaxDate() {
   const maxWeek = formatWeek(currentYear, currentWeek);
 
   startWeekInputGlobal.setAttribute("max", maxWeek);
+}
+
+async function loadGlobalStats() {
+  if (weeklyStats.lenght === 0) {
+    const week = startWeekInputGlobal.value;
+    const { startDate, endDate } = getWeekDates(week);
+
+    weeklyStats = await firebase
+      .firestore()
+      .collection("usuarios")
+      .doc(idUsuario)
+      .collection("guias")
+      .where("fecha", ">=", startDate)
+      .where("fecha", "<=", endDate)
+      .get()
+      .then((querySnapshot) => {
+        let guias = [];
+        querySnapshot.forEach((doc) => {
+          guias.push(doc.data());
+        });
+        return guias;
+      });
+  }else{
+    console.warn("Ya se cargaron las guías de la semana");
+  }
 }
