@@ -621,7 +621,7 @@ async function crearGuardarFactura(data) {
     loader.charger = loader.charger.replace("Cargando...", ""); // Para que solo quede la rueda dando vueltas sin las letras
     loader.init();
 
-    const resFact = crearFactura(numero_documento, comision_heka);
+    const resFact = await crearFactura(numero_documento, comision_heka);
 
     if(resFact.error) {
         Swal.fire("Error de comunicación", resFact.message, "error");

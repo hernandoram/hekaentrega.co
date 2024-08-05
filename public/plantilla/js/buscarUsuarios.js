@@ -179,7 +179,20 @@ function generarTabla(users) {
   });
 }
 
+volver2button = document.getElementById("volver2");
+
+volver2button.addEventListener("click", volver2);
+
 function volver2() {
+  referidos = [];
+  guiasStats = [];
+  console.warn(guiasStats);
+  statsGlobales.classList.add("d-none");
+  document.getElementById("load-stats").classList.add("collapsed");
+  document.getElementById("load-stats").setAttribute("aria-expanded", "false");
+  document.getElementById("estadisticas").classList.add("collapse");
+  document.getElementById("estadisticas").classList.remove("show");
+  
   document.getElementById("usuario-seleccionado").classList.add("d-none");
 
   if (users.length) {

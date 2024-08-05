@@ -967,8 +967,10 @@ $("#buscador_usuarios-nombre, #buscador_usuarios-direccion").keyup((e) => {
   filtrarBusquedaUsuarios(e);
 });
 
+let idUsuario = "";
 // esta funcion me busca el usuario seleccionado con informacion un poco mas detallada
 function seleccionarUsuario(id) {
+  idUsuario = id;
   let contenedor = document.getElementById("usuario-seleccionado");
   let mostrador = document.getElementById("tablaUsers");
   const wrapper = document.getElementById("tablaUsers_wrapper");
@@ -2213,4 +2215,377 @@ async function verMovimientos(usuario, fechaI, fechaF) {
   } catch (error) {
     console.log(error);
   }
+}
+
+const loadStats = document.getElementById("load-stats");
+const statsGlobales = document.getElementById("stats-globales");
+const loader = document.getElementById("loading-s");
+let guiasStats = [];
+
+loadStats.addEventListener("click", async () => {
+  if (guiasStats.length < 1) {
+    loader.classList.remove("d-none");
+    try {
+      const querySnapshot = await firebase
+        .firestore()
+        .collection("usuarios")
+        .doc(idUsuario)
+        .collection("guias")
+        .get();
+
+      querySnapshot.forEach((doc) => {
+        guiasStats.push(doc.data());
+      });
+
+      loader.classList.add("d-none");
+      displayStats();
+    } catch (error) {
+      console.error("Error obteniendo las guías:", error);
+    }
+  } else {
+    console.warn("usuarios ya cargados");
+  }
+});
+
+const estadosEntregados = [
+  "ENTREGADO",
+  "Entregado",
+  "Entrega Exitosa",
+  "Entregada",
+  "ENTREGADA DIGITALIZADA",
+  "ENTREGADA"
+];
+
+const estadosDevueltas = [
+  "ENTREGADO A REMITENTE",
+  "Devuelto al Remitente",
+  "DEVOLUCION",
+  "CERRADO POR INCIDENCIA, VER CAUSA"
+];
+
+const estadoAnuladas = ["Documento Anulado"];
+
+function displayStats() {
+  statsGlobales.classList.remove("d-none");
+  const noGlobal = document.querySelector("#noGuiasGoblales");
+  const noGuiasGoblalesEntregadas = document.getElementById(
+    "noGuiasGoblalesEntregadas"
+  );
+  const noGuiasGoblalesDevueltas = document.getElementById(
+    "noGuiasGoblalesDevueltas"
+  );
+
+  const guiasAnuladas =
+    guiasStats.filter((guia) => estadoAnuladas.includes(guia.estado)) || [];
+
+  const guiasEntregas = guiasStats.filter(
+    (guia) =>
+      guia.estado &&
+      (estadosEntregados.includes(guia.estado) ||
+        guia.estado.startsWith("ENTREGADA DIGITALIZADA"))
+  );
+
+  const guiasDevueltas = guiasStats.filter(
+    (guia) =>
+      guia.estado &&
+      (estadosDevueltas.includes(guia.estado) ||
+        guia.estado.startsWith("CERRADO POR INCIDENCIA"))
+  );
+
+  const guiasEnProceso =
+  guiasStats.length -
+    guiasEntregas.length -
+    guiasDevueltas.length -
+    guiasAnuladas.length;
+
+  noGuiasGoblalesEntregadas.textContent = guiasEntregas.length;
+  noGuiasGoblalesDevueltas.textContent = guiasDevueltas.length;
+
+  noGlobal.textContent = guiasStats.length;
+
+  const chartGlobal = document.getElementById("chart-guias-globales");
+
+  var options = {
+    title: {
+      text: "Estadisticas globales"
+    },
+    data: [
+      {
+        type: "pie",
+        startAngle: 45,
+        showInLegend: true,
+        legendText: "{label}",
+        indexLabel: "{label} ({y})",
+        yValueFormatString: "#,##0.#",
+        dataPoints: [
+          { label: "Entregadas", y: guiasEntregas.length },
+          { label: "Devueltas", y: guiasDevueltas.length },
+          { label: "Anuladas", y: guiasAnuladas.length || 0 },
+          { label: "En Proceso", y: guiasEnProceso }
+        ]
+      }
+    ]
+  };
+
+  var chart = new CanvasJS.Chart(chartGlobal, options);
+  chart.render();
+
+  setWeekInputs();
+}
+
+const startWeek = document.getElementById("startWeek");
+const endWeek = document.getElementById("endWeek");
+function loadWeek1() {
+  const { startDate, endDate } = getWeekDates(startWeek.value);
+
+  const filteredGuiasStats = guiasStats.filter((guia) => {
+    const guiaDate = new Date(guia.fecha);
+    return guiaDate >= startDate && guiaDate <= endDate;
+  });
+
+  const noGuiasGoblales1 = document.getElementById("noGuiasGoblales1");
+  const noGuiasGoblalesEntregadas1 = document.getElementById(
+    "noGuiasGoblalesEntregadas1"
+  );
+  const noGuiasGoblalesDevueltas1 = document.getElementById(
+    "noGuiasGoblalesDevueltas1"
+  );
+
+  const totalGuias = filteredGuiasStats.length;
+  const totalGuiasEntregadas = filteredGuiasStats.filter(
+    (guia) =>
+      guia.estado &&
+      (estadosEntregados.includes(guia.estado) ||
+        guia.estado.startsWith("ENTREGADA DIGITALIZADA"))
+  ).length;
+
+  const totalGuiasDevueltas = filteredGuiasStats.filter(
+    (guia) =>
+      guia.estado &&
+      (estadosDevueltas.includes(guia.estado) ||
+        guia.estado.startsWith("CERRADO POR INCIDENCIA"))
+  ).length;
+
+  const guiasAnuladas =
+    filteredGuiasStats.filter(
+      (guia) => guia.estado && estadoAnuladas.includes(guia.estado)
+    ).length || 0;
+
+  const guiasEnProceso =
+    filteredGuiasStats.length -
+    totalGuiasEntregadas -
+    totalGuiasDevueltas -
+    guiasAnuladas;
+
+  noGuiasGoblales1.textContent = totalGuias;
+
+  noGuiasGoblalesEntregadas1.textContent = totalGuiasEntregadas;
+
+  noGuiasGoblalesDevueltas1.textContent = totalGuiasDevueltas;
+
+  const chartLocal1 = document.getElementById("chart-guias-locales-1");
+
+  var options;
+
+  if (
+    totalGuiasEntregadas === 0 &&
+    totalGuiasDevueltas === 0 &&
+    guiasAnuladas === 0
+  ) {
+    options = {
+      title: {
+        text: "No hay guías entregadas ni devueltas"
+      },
+      data: [
+        {
+          type: "pie",
+          startAngle: 45,
+          showInLegend: true,
+          legendText: "{label}",
+          indexLabel: "{label} ({y})",
+          yValueFormatString: "#,##0.#",
+          dataPoints: [{ label: "En Proceso", y: guiasEnProceso }]
+        }
+      ]
+    };
+  } else {
+    options = {
+      title: {
+        text: "Estadísticas semana 1"
+      },
+      data: [
+        {
+          type: "pie",
+          startAngle: 45,
+          showInLegend: true,
+          legendText: "{label}",
+          indexLabel: "{label} ({y})",
+          yValueFormatString: "#,##0.#",
+          dataPoints: [
+            { label: "Entregadas", y: totalGuiasEntregadas },
+            { label: "Devueltas", y: totalGuiasDevueltas },
+            { label: "Anuladas", y: guiasAnuladas || 0 },
+            { label: "En proceso", y: guiasEnProceso }
+          ]
+        }
+      ]
+    };
+  }
+
+  // Asumiendo que ya tienes el elemento del gráfico y CanvasJS incluido
+  var chart = new CanvasJS.Chart(chartLocal1, options);
+  chart.render();
+}
+function loadWeek2() {
+  const { startDate, endDate } = getWeekDates(endWeek.value);
+  const filteredGuiasStats = guiasStats.filter((guia) => {
+    const guiaDate = new Date(guia.fecha);
+    return guiaDate >= startDate && guiaDate <= endDate;
+  });
+
+  const noGuiasGoblales1 = document.getElementById("noGuiasGoblales2");
+  const noGuiasGoblalesEntregadas1 = document.getElementById(
+    "noGuiasGoblalesEntregadas2"
+  );
+  const noGuiasGoblalesDevueltas1 = document.getElementById(
+    "noGuiasGoblalesDevueltas2"
+  );
+
+  const totalGuias = filteredGuiasStats.length;
+  const totalGuiasEntregadas = filteredGuiasStats.filter(
+    (guia) =>
+      guia.estado &&
+      (estadosEntregados.includes(guia.estado) ||
+        guia.estado.startsWith("ENTREGADA DIGITALIZADA"))
+  ).length;
+
+  const totalGuiasDevueltas = filteredGuiasStats.filter(
+    (guia) =>
+      guia.estado &&
+      (estadosDevueltas.includes(guia.estado) ||
+        guia.estado.startsWith("CERRADO POR INCIDENCIA"))
+  ).length;
+
+  const totalAnuladas =
+    filteredGuiasStats.filter(
+      (guia) => guia.estado && estadoAnuladas.includes(guia.estado)
+    ).length || 0;
+
+  const guiasEnProceso =
+    filteredGuiasStats.length -
+    totalGuiasEntregadas -
+    totalGuiasDevueltas -
+    totalAnuladas;
+
+  noGuiasGoblales1.textContent = totalGuias;
+
+  noGuiasGoblalesEntregadas1.textContent = totalGuiasEntregadas;
+
+  noGuiasGoblalesDevueltas1.textContent = totalGuiasDevueltas;
+
+  const chartLocal1 = document.getElementById("chart-guias-locales-2");
+
+  var options;
+
+  debugger;
+
+  if (
+    totalGuiasEntregadas === 0 &&
+    totalGuiasDevueltas === 0 &&
+    totalAnuladas === 0
+  ) {
+    options = {
+      title: {
+        text: "No hay guías entregadas ni devueltas"
+      },
+      data: [
+        {
+          type: "pie",
+          startAngle: 45,
+          showInLegend: true,
+          legendText: "{label}",
+          indexLabel: "{label} ({y})",
+          yValueFormatString: "#,##0.#",
+          dataPoints: [{ label: "En Proceso", y: guiasEnProceso }]
+        }
+      ]
+    };
+  } else {
+    options = {
+      title: {
+        text: "Estadísticas semana 2"
+      },
+      data: [
+        {
+          type: "pie",
+          startAngle: 45,
+          showInLegend: true,
+          legendText: "{label}",
+          indexLabel: "{label} ({y})",
+          yValueFormatString: "#,##0.#",
+          dataPoints: [
+            { label: "Entregadas", y: totalGuiasEntregadas },
+            { label: "Devueltas", y: totalGuiasDevueltas },
+            { label: "Anuladas", y: totalAnuladas },
+            { label: "En proceso", y: guiasEnProceso }
+          ]
+        }
+      ]
+    };
+  }
+
+  // Asumiendo que ya tienes el elemento del gráfico y CanvasJS incluido
+  var chart = new CanvasJS.Chart(chartLocal1, options);
+  chart.render();
+}
+startWeek.addEventListener("change", () => loadWeek1());
+
+endWeek.addEventListener("change", () => loadWeek2());
+
+function getWeekDates(weekString) {
+  const [year, week] = weekString.split("-W").map(Number);
+  const firstDayOfYear = new Date(year, 0, 1);
+  const daysOffset = (week - 1) * 7;
+  const startDate = new Date(
+    firstDayOfYear.setDate(firstDayOfYear.getDate() + daysOffset)
+  );
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + 6);
+  return { startDate, endDate };
+}
+
+function getWeekNumber(d) {
+  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+  var yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  var weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
+  return [d.getUTCFullYear(), weekNo];
+}
+
+function setWeekInputs() {
+  const currentDate = new Date();
+  const [currentYear, currentWeek] = getWeekNumber(currentDate);
+
+  const previousDate = new Date(currentDate);
+  previousDate.setDate(currentDate.getDate() - 7);
+  const [previousYear, previousWeek] = getWeekNumber(previousDate);
+
+  const formatWeek = (year, week) =>
+    `${year}-W${week.toString().padStart(2, "0")}`;
+
+  document.getElementById("startWeek").value = formatWeek(
+    currentYear,
+    previousWeek
+  );
+  document.getElementById("endWeek").value = formatWeek(
+    previousYear,
+    currentWeek
+  );
+  const maxWeek = formatWeek(currentYear, currentWeek);
+
+  document.getElementById("endWeek").setAttribute("max", maxWeek);
+  document.getElementById("startWeek").setAttribute("max", maxWeek);
+
+  loadWeek1();
+  loadWeek2();
 }

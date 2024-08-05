@@ -4612,7 +4612,7 @@ async function historialGuiasAdmin(e) {
       render: renderizarBotonesAdmin
     },
     { data: "id_heka", title: "# Guía Heka" },
-    { data: "numeroGuia", title: "# Guía Servientrega", defaultContent: "" },
+    { data: "numeroGuia", title: "# Guía transportadora", defaultContent: "" },
     {
       data: "categoria",
       title: "Categoría",
@@ -4643,20 +4643,17 @@ async function historialGuiasAdmin(e) {
     {
       data: "detalles.costoDevolucion",
       title: "Costo devolución",
-      defaultContent: "---",
-      visible: false
+      defaultContent: "---"
     },
     {
       data: "detalles.comision_adicional",
       title: "Comisión Heka Adicional",
-      defaultContent: 0,
-      visible: false
+      defaultContent: 0
     },
     {
       data: "detalles.cobraDevolucion",
       title: "Cobra devolución",
-      render: (content) => content === false ? "NO" : "SI",
-      visible: false
+      render: (content) => content === false ? "NO" : "SI"
     },
     { data: "fecha", title: "Fecha" },
     {
@@ -4672,12 +4669,14 @@ async function historialGuiasAdmin(e) {
           return -content + '<span class="sr-only"> Por pagar</span>';
 
         return -content;
-      }
+      },
+      visible: false
     },
     {
       data: "cuenta_responsable",
       title: "Cuenta responsable",
-      defaultContent: "Personal"
+      defaultContent: "Personal",
+      visible: false
     },
     {
       data: "ciudadR",
