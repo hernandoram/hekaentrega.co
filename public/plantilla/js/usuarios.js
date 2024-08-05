@@ -2619,15 +2619,16 @@ function setMaxDate() {
   startWeekInputGlobal.setAttribute("max", maxWeek);
 }
 
+// const week = startWeekInputGlobal.value;
+// const { startDate, endDate } = getWeekDates(week);
 async function loadGlobalStats() {
   setMaxDate();
-  console.log(weeklyStats.length)
+  console.log(weeklyStats.length);
   if (weeklyStats.length === 0) {
-    alert("GOLA")
-    const week = startWeekInputGlobal.value;
-    const { startDate, endDate } = getWeekDates(week);
     await historialGuiasAdmin2();
     console.warn(weeklyStats);
+
+    renderWeeklyStats();
   } else {
     console.warn("Ya se cargaron las guías de la semana");
   }
@@ -2745,4 +2746,10 @@ async function historialGuiasAdmin2() {
   }
 
   weeklyStats = data;
+}
+
+function renderWeeklyStats() {
+  const globalGuidesStats = document.getElementById("display-global-stats");
+
+  globalGuidesStats.classList.remove("d-none");
 }
