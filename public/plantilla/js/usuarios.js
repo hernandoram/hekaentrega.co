@@ -2593,13 +2593,13 @@ const startWeekInputGlobal = document.getElementById("startWeekGlobalStats");
 
 window.addEventListener("hashchange", async () => {
   if (window.location.hash === "#stats") {
-    setMaxDate();
+    await loadGlobalStats();
   }
 });
 
 document.addEventListener("DOMContentLoaded", async () => {
   if (window.location.hash === "#stats") {
-    setMaxDate();
+    await loadGlobalStats();
   }
 });
 
@@ -2609,7 +2609,6 @@ function setMaxDate() {
 
   const previousDate = new Date(currentDate);
   previousDate.setDate(currentDate.getDate() - 7);
-  const [previousYear, previousWeek] = getWeekNumber(previousDate);
 
   const formatWeek = (year, week) =>
     `${year}-W${week.toString().padStart(2, "0")}`;
@@ -2621,26 +2620,127 @@ function setMaxDate() {
 }
 
 async function loadGlobalStats() {
+  setMaxDate();
   if (weeklyStats.lenght === 0) {
     const week = startWeekInputGlobal.value;
     const { startDate, endDate } = getWeekDates(week);
-
-    weeklyStats = await firebase
-      .firestore()
-      .collection("usuarios")
-      .doc(idUsuario)
-      .collection("guias")
-      .where("fecha", ">=", startDate)
-      .where("fecha", "<=", endDate)
-      .get()
-      .then((querySnapshot) => {
-        let guias = [];
-        querySnapshot.forEach((doc) => {
-          guias.push(doc.data());
-        });
-        return guias;
-      });
-  }else{
+    await historialGuiasAdmin2();
+    console.warn(weeklyStats);
+  } else {
     console.warn("Ya se cargaron las guías de la semana");
   }
+}
+
+async function historialGuiasAdmin2() {
+  const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
+  const htmlStatus = $("#status-historial_guias");
+  const limiteConsulta = 5e3;
+
+  const { lista: listacategorias } = await referencia.get().then((d) => {
+    if (d.exists) return d.data();
+  });
+  categorias = listacategorias || [];
+
+  const week = startWeekInputGlobal.value;
+  const { startDate, endDate } = getWeekDates(week);
+
+  const fecha_inicio = new Date(startDate).setHours(0);
+  const fecha_final = new Date(endDate).setHours(0);
+  const filtroActual = null;
+  const tipoFiltro = "--Seleccione tipo de filtro --";
+  console.warn(fecha_inicio, fecha_final);
+
+  let data = [];
+  const manejarInformacion = (querySnapshot) => {
+    const s = querySnapshot.size;
+    console.warn("numero de guias generadas encontrados ", s);
+
+    querySnapshot.forEach((doc) => {
+      const guia = doc.data();
+
+      guia.transpToShow = doc.data().oficina
+        ? guia.transportadora + "-Flexii"
+        : guia.transportadora;
+
+      let tituloEncontrado = null;
+
+      tituloEncontrado = categorias.find(
+        (categoria) => categoria.novedad == guia.estado
+      )?.categoria;
+
+      if (tituloEncontrado !== null) {
+        guia.categoria = tituloEncontrado;
+      }
+
+      let condicion = true;
+
+      switch (tipoFiltro) {
+        case "filt_3":
+        case "filt_4":
+          condicion = guia.centro_de_costo
+            .toUpperCase()
+            .includes(filtroActual.toUpperCase());
+          break;
+
+        case "filt_5":
+          condicion =
+            !guia.deleted && // Se captura entre las que no fueron eliminadas
+            guia.deuda != 0 && // Solamente se va a tomar aquellas que no tengan deuda
+            guia.numeroGuia && // Debe también tener número de guía
+            guia.estado; // Debe tener un estado presente
+          break;
+
+        default:
+          condicion = true;
+      }
+
+      if (condicion) data.push(guia);
+    });
+  };
+
+  let reference = firebase.firestore().collectionGroup("guias");
+
+  reference = reference
+    .orderBy("timeline")
+    .startAt(fecha_inicio)
+    .endAt(fecha_final);
+
+  const referenceAlt = firebase.firestore().collectionGroup("guias");
+
+  if (tipoFiltro === "filt_1") {
+    const segementado = segmentarArreglo(filtroPagoSeleccionado, 10);
+    for await (const paquete of segementado) {
+      await reference
+        .where("centro_de_costo", "in", paquete)
+        .get()
+        .then(manejarInformacion);
+    }
+  } else if (tipoFiltro === "filt_2") {
+    await reference
+      .where("transportadora", "==", filtroTransp)
+      .get()
+      .then(manejarInformacion);
+  } else if (tipoFiltro === "filt_3") {
+    await reference
+      .where("centro_de_costo", "==", filtroActual)
+      .get()
+      .then(manejarInformacion);
+
+    // if(!data.length) await reference.get().then(manejarInformacion);
+  } else if (tipoFiltro === "filt_4") {
+    await reference
+      .where("type", "==", filtroActual)
+      .get()
+      .then(manejarInformacion);
+  } else if (tipoFiltro === "filt_5") {
+    await referenceAlt.where("debe", "<", 0).get().then(manejarInformacion);
+  } else {
+    await recursividadPorReferencia(
+      reference,
+      manejarInformacion,
+      limiteConsulta
+    );
+  }
+
+  weeklyStats = data;
 }
