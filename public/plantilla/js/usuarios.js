@@ -2293,7 +2293,7 @@ function displayStats() {
   );
 
   const guiasEnProceso =
-  guiasStats.length -
+    guiasStats.length -
     guiasEntregas.length -
     guiasDevueltas.length -
     guiasAnuladas.length;
@@ -2487,8 +2487,6 @@ function loadWeek2() {
 
   var options;
 
-  debugger;
-
   if (
     totalGuiasEntregadas === 0 &&
     totalGuiasDevueltas === 0 &&
@@ -2588,4 +2586,36 @@ function setWeekInputs() {
 
   loadWeek1();
   loadWeek2();
+}
+let weeklyStats;
+
+const startWeekInputGlobal = document.getElementById("startWeekGlobalStats");
+
+window.addEventListener("hashchange", async () => {
+  if (window.location.hash === "#stats") {
+    setMaxDate()
+  }
+});
+
+document.addEventListener("DOMContentLoaded", async () => {
+  if (window.location.hash === "#stats") {
+    setMaxDate()
+  }
+});
+
+function setMaxDate() {
+  const currentDate = new Date();
+  const [currentYear, currentWeek] = getWeekNumber(currentDate);
+
+  const previousDate = new Date(currentDate);
+  previousDate.setDate(currentDate.getDate() - 7);
+  const [previousYear, previousWeek] = getWeekNumber(previousDate);
+
+  const formatWeek = (year, week) =>
+    `${year}-W${week.toString().padStart(2, "0")}`;
+
+  startWeekInputGlobal.value = formatWeek(currentYear, currentWeek);
+  const maxWeek = formatWeek(currentYear, currentWeek);
+
+  startWeekInputGlobal.setAttribute("max", maxWeek);
 }
