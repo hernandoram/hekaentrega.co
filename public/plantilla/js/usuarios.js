@@ -2621,7 +2621,9 @@ function setMaxDate() {
 
 async function loadGlobalStats() {
   setMaxDate();
-  if (weeklyStats.lenght === 0) {
+  console.log(weeklyStats.length)
+  if (weeklyStats.length === 0) {
+    alert("GOLA")
     const week = startWeekInputGlobal.value;
     const { startDate, endDate } = getWeekDates(week);
     await historialGuiasAdmin2();
