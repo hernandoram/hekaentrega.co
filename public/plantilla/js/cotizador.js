@@ -2021,7 +2021,6 @@ function seleccionarTransportadora(e) {
         // </div>, "text/html`).body
       } else {
         finalizarCotizacion(datos_a_enviar);
-        selectores();
       }
     }
   });
@@ -2527,6 +2526,8 @@ function finalizarCotizacion(datos) {
       console.log(opciones);
       cargarUsuariosFrecuentes(opciones);
     });
+
+  selectores(); // Para que una vez se muestren los elementos de objetos frecuentes en el dom, tenerlos global
 }
 
 function cargarUsuariosFrecuentes(personas) {

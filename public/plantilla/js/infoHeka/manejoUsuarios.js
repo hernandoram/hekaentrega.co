@@ -168,7 +168,7 @@ async function guardarEdicion(e) {
     };
     await referencia.update(agregado);
 
-    Toast.fire("", "¡El usuario " + usuario + " ha sido aditado a "+nuevo+"!", "success");
+    Toast.fire("", "¡El usuario " + usuario + " ha sido editado a "+nuevo+"!", "success");
     cargarFiltroDePagosPersonalizados();
 
 }

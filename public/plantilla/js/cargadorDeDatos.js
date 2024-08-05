@@ -2569,6 +2569,12 @@ async function solicitarPagosPendientesUs(e) {
   if (diarioSolicitado.includes(datos_usuario.centro_de_costo))
     return SwalMessage.fire("", mensajeDesembolso, "info");
 
+  const usuario = datos_usuario.centro_de_costo;
+
+  const solicitudDePago = {
+    diarioSolicitado: firebase.firestore.FieldValue.arrayUnion(usuario)
+  };
+
   // cuando el saldo es inferior al límite requerido, el pago se limita a una sola vez en la semana
   if (saldo_pendiente < minimo_diario) {
     const mensaje =
@@ -2587,8 +2593,6 @@ async function solicitarPagosPendientesUs(e) {
 
     if (!resp.isConfirmed) return loader.end();
 
-    const usuario = datos_usuario.centro_de_costo;
-
     if (limitadosDiario.includes(usuario)) {
       SwalMessage.fire(
         "Has excedido el cupo de pagos por esta semana.",
@@ -2597,12 +2601,10 @@ async function solicitarPagosPendientesUs(e) {
       );
       return;
     } else {
-      limitadosDiario.push(usuario);
+      solicitudDePago.limitadosDiario = firebase.firestore.FieldValue.arrayUnion(usuario)
     }
 
-    if (!diarioSolicitado.includes(usuario)) diarioSolicitado.push(usuario);
-
-    await ref.update({ limitadosDiario, diarioSolicitado });
+    await ref.update(solicitudDePago);
   } else {
     const mensaje =
       "Estás a punto de solicitar pago con un monto superior a " +
@@ -2622,8 +2624,7 @@ async function solicitarPagosPendientesUs(e) {
 
     // Solo se actualiza cuando ya no se había solicitado antes
     if (!diarioSolicitado.includes(datos_usuario.centro_de_costo)) {
-      diarioSolicitado.push(datos_usuario.centro_de_costo);
-      await ref.update({ diarioSolicitado });
+      await ref.update(solicitudDePago);
     }
   }
 

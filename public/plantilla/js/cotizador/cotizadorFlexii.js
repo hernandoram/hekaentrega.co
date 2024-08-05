@@ -156,8 +156,10 @@ async function cotizarMejorTransportadora(datos, type) {
     const tSeleccionada = transportadoras.shift();
     const cotizacion = await cotizarApi(datos, tSeleccionada, type);
 
+    codTransp = tSeleccionada;
     if(!cotizacion.error) return cotizacion;
   }
+
 
   return {
     error: true,
