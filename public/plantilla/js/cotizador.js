@@ -239,7 +239,7 @@ async function cotizador() {
 
   let ciudadR = controlCiudadR.options[controlCiudadR.getValue()];
   ciudadD = controlCiudadD.options[controlCiudadD.getValue()];
-  
+
   let info_precio = new CalcularCostoDeEnvio();
   datos_a_enviar = new Object();
 
@@ -282,9 +282,7 @@ async function cotizador() {
     value("dimension-alto") != ""
   ) {
     //Si todos los campos no estan vacios
-    if (
-      controlCiudadR.isInvalid || controlCiudadD.isInvalid
-    ) {
+    if (controlCiudadR.isInvalid || controlCiudadD.isInvalid) {
       Swal.fire(
         "Error",
         "Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable",
@@ -1904,7 +1902,7 @@ function seleccionarTransportadora(e) {
   delete datos_a_enviar.datos_oficina;
   delete datos_a_enviar.id_oficina;
 
-  console.log(transp)
+  console.log(transp);
   let result_cotizacion = transportadoras[transp].cotizacion[seleccionado];
 
   if (isIndex) {
@@ -2127,7 +2125,6 @@ const sellers = [
   "SellerNICE",
   "SellerMerakiJSLSAS"
 ];
-
 
 //M edevuelve el html del último formulario del cotizador
 function finalizarCotizacion(datos) {
@@ -2831,26 +2828,21 @@ function cambiarDirecion(e) {
 
 function verificarSelectorEntregaOficina(e) {
   const select = e.target;
-  
+
   if (codTransp === "SERVIENTREGA") {
     const inpDir = $("#direccionD");
     const inputBarrio = $("#barrioD");
     const observaciones = $("#observaciones");
     if (select.value == "2") {
       inpDir.prop("disabled", true).val("Oficina principal Servientrega");
-      inputBarrio
-        .prop("disabled", true)
-        .val("");
+      inputBarrio.prop("disabled", true).val("");
 
-      observaciones
-        .prop("disabled", true)
-        .val("");
+      observaciones.prop("disabled", true).val("");
     } else {
       inpDir.prop("disabled", false).val("");
       inputBarrio.prop("disabled", false).val("");
       observaciones.prop("disabled", false).val("");
     }
-
 
     // Esta parte quedaría cancelada, ya que los tipos de distribución ya se clasificaría por ciudad
     // Cuando se realiza la búsqueda de la configuraciones que posee dicha ciudad
@@ -2885,11 +2877,9 @@ function verificarSelectorEntregaOficina(e) {
     const observaciones = $("#observaciones");
     if (select.value == "2") {
       inpDir.prop("disabled", true).val("Oficina principal interrapidisimo");
-      inputBarrio
-        .prop("disabled", true).val("");
+      inputBarrio.prop("disabled", true).val("");
 
-      observaciones
-        .prop("disabled", true).val("");
+      observaciones.prop("disabled", true).val("");
     } else {
       inpDir.prop("disabled", false).val("");
       inputBarrio.prop("disabled", false).val("");
@@ -3034,7 +3024,7 @@ class CalcularCostoDeEnvio {
 
   get versionCotizacion() {
     // La versión 1 y 2 serán compatibles para el pago contraentrega pago contraentrega
-    // De otra forma, se tomará en cuenta la versión 1 solamente 
+    // De otra forma, se tomará en cuenta la versión 1 solamente
     return this.type === PAGO_CONTRAENTREGA ? this.precios.version : 1;
   }
 
@@ -3634,7 +3624,7 @@ class CalcularCostoDeEnvio {
     const sobreFleteCalculado = Math.max(this.valor * 0.0265, 4300);
     this.sobreflete = this.convencional
       ? 0
-      : Math.round(sobreFleteCalculado + (sobreFleteCalculado * .19));
+      : Math.round(sobreFleteCalculado + sobreFleteCalculado * 0.19);
     this.seguroMercancia = Math.round(cotizacion.flete_variable);
     this.tiempo = cotizacion.dias_entrega;
   }
@@ -4012,7 +4002,20 @@ async function crearGuia() {
     }
   } else {
     alert("Por favor, verifique que los campos esenciales no estén vacíos");
-    verificador(["producto", "nombreD", "direccionD", "telefonoD"]);
+
+    const valor = document.getElementById("entrega_en_oficina").value;
+
+    if (valor === "2") {
+      verificador([
+        "producto",
+        "nombreD",
+        "direccionD",
+        "telefonoD",
+        "identificacionD"
+      ]);
+    } else {
+      verificador(["producto", "nombreD", "direccionD", "telefonoD"]);
+    }
 
     boton_final_cotizador.textContent = textoBtn;
     boton_final_cotizador.removeAttribute("disabled");
@@ -4878,9 +4881,11 @@ function observacionesServientrega(result_cotizacion) {
     "Las recolecciones deberán ser solicitadas antes de las 10:00 am para que pasen el mismo día, en caso de ser solicitadas después de este horario quedaran automáticamente para el siguiente día.",
     "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
     "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero o la oficina donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
-    
+
     `En caso de devolución pagarías: $${convertirMiles(
-      result_cotizacion.getDetails.cobraDevolucion ? result_cotizacion.costoDevolucion : 0
+      result_cotizacion.getDetails.cobraDevolucion
+        ? result_cotizacion.costoDevolucion
+        : 0
     )} (Aplica solo para envíos en pago contra entrega)`
   ];
 
@@ -4908,7 +4913,11 @@ function observacionesInteRapidisimo(result_cotizacion) {
     "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
     "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
     "En caso de devolución pagarías: $" +
-      convertirMiles(result_cotizacion.getDetails.cobraDevolucion ? result_cotizacion.costoDevolucion : 0) +
+      convertirMiles(
+        result_cotizacion.getDetails.cobraDevolucion
+          ? result_cotizacion.costoDevolucion
+          : 0
+      ) +
       " (Aplica solo para envíos en pago contra entrega)"
   ];
 
@@ -4936,7 +4945,9 @@ function observacionesEnvia(result_cotizacion) {
     "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
     "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
     `En caso de devolución pagarías: $${convertirMiles(
-      result_cotizacion.getDetails.cobraDevolucion ? result_cotizacion.costoDevolucion : 0
+      result_cotizacion.getDetails.cobraDevolucion
+        ? result_cotizacion.costoDevolucion
+        : 0
     )} (Aplica solo para envíos en pago contra entrega)`
   ];
 

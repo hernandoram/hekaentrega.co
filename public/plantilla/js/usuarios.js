@@ -2506,7 +2506,6 @@ function loadWeek2() {
 
   var options;
 
-  debugger;
 
   if (
     totalGuiasEntregadas === 0 &&
