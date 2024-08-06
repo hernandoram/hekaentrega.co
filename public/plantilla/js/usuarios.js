@@ -2642,8 +2642,7 @@ async function loadGlobalStats() {
 
 async function historialGuiasAdmin2() {
   const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
-  const htmlStatus = $("#status-historial_guias");
-  const limiteConsulta = 5e3;
+  const limiteConsulta = 10e3;
 
   const { lista: listacategorias } = await referencia.get().then((d) => {
     if (d.exists) return d.data();
@@ -2756,6 +2755,23 @@ async function historialGuiasAdmin2() {
 
 function renderWeeklyStats() {
   const globalGuidesStats = document.getElementById("display-global-stats");
+  const nombresEmpresas = weeklyStats.map((stat) => stat.nombre_empresa);
+
+  const conteoEmpresas = nombresEmpresas.reduce((acc, nombre) => {
+    acc[nombre] = (acc[nombre] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Convertir el objeto en un array de objetos con las propiedades nombre_empresa y no_envios
+  const standing = Object.entries(conteoEmpresas).map(
+    ([nombre_empresa, no_envios]) => ({
+      nombre_empresa,
+      no_envios
+    })
+  );
+  standing.sort((a, b) => b.no_envios - a.no_envios);
+
+  console.log(standing);
 
   globalGuidesStats.classList.remove("d-none");
 }
