@@ -4005,7 +4005,6 @@ async function crearGuia() {
 
     const valor = document.getElementById("entrega_en_oficina").value;
 
-    debugger;
     if (valor === "2") {
       verificador([
         "producto",
