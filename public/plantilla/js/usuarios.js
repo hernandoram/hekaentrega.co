@@ -2619,6 +2619,12 @@ function setMaxDate() {
   startWeekInputGlobal.setAttribute("max", maxWeek);
 }
 
+startWeekInputGlobal.addEventListener("change", async () => {
+  await historialGuiasAdmin2();
+
+  renderWeeklyStats();
+});
+
 // const week = startWeekInputGlobal.value;
 // const { startDate, endDate } = getWeekDates(week);
 async function loadGlobalStats() {
