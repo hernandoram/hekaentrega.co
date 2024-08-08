@@ -2627,7 +2627,12 @@ startWeekInputGlobal.addEventListener("change", async () => {
 
 // const week = startWeekInputGlobal.value;
 // const { startDate, endDate } = getWeekDates(week);
+
+const globalGuidesStats = document.getElementById("display-global-stats");
+
+
 async function loadGlobalStats() {
+
   setMaxDate();
   console.log(weeklyStats.length);
   if (weeklyStats.length === 0) {
@@ -2641,6 +2646,8 @@ async function loadGlobalStats() {
 }
 
 async function historialGuiasAdmin2() {
+
+  console.warn("buscando guias")
   const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
   const limiteConsulta = 10e3;
 
@@ -2658,6 +2665,8 @@ async function historialGuiasAdmin2() {
   const tipoFiltro = "--Seleccione tipo de filtro --";
   console.warn(fecha_inicio, fecha_final);
 
+  globalGuidesStats.classList.add("d-none");
+  $("#loading-global-stats").removeClass("d-none");
   let data = [];
   const manejarInformacion = (querySnapshot) => {
     const s = querySnapshot.size;
@@ -2754,7 +2763,8 @@ async function historialGuiasAdmin2() {
 }
 
 function renderWeeklyStats() {
-  const globalGuidesStats = document.getElementById("display-global-stats");
+
+
   const nombresEmpresas = weeklyStats.map((stat) => stat.nombre_empresa);
 
   const conteoEmpresas = nombresEmpresas.reduce((acc, nombre) => {
@@ -2774,4 +2784,50 @@ function renderWeeklyStats() {
   console.log(standing);
 
   globalGuidesStats.classList.remove("d-none");
+  $("#loading-global-stats").addClass("d-none");
+  const tablaGlobalStats = document.getElementById("tabla-global-stats");
+
+  if (tablaGlobalStats) {
+    // Agregar la posición (standing) a cada objeto en el array standing
+    standing.forEach((item, index) => {
+      item.standing = index + 1;
+    });
+
+    const table = $("#tabla-global-stats").DataTable({
+      destroy: true,
+      data: standing,
+      columns: [
+        {
+          data: "standing",
+          title: "Posición",
+          defaultContent: "N/A"
+        },
+        {
+          data: "nombre_empresa",
+          title: "Seller",
+          defaultContent: "Indeterminado"
+        },
+        {
+          data: "no_envios",
+          title: "Número de Envios esta Semana",
+          defaultContent: "Sin Envios"
+        }
+      ],
+      language: {
+        url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+      },
+      scrollX: true,
+      scrollCollapse: true,
+      lengthMenu: [
+        [5, 10, 25, 30],
+        [5, 10, 25, 30]
+      ],
+      pageLength: 30,
+      order: [[2, "desc"]] // Ordenar por la tercera columna (no_envios) de mayor a menor
+    });
+  } else {
+    console.error(
+      "El elemento con el ID 'tabla-global-stats' no existe en el DOM."
+    );
+  }
 }
