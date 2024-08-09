@@ -2630,9 +2630,7 @@ startWeekInputGlobal.addEventListener("change", async () => {
 
 const globalGuidesStats = document.getElementById("display-global-stats");
 
-
 async function loadGlobalStats() {
-
   setMaxDate();
   console.log(weeklyStats.length);
   if (weeklyStats.length === 0) {
@@ -2646,8 +2644,7 @@ async function loadGlobalStats() {
 }
 
 async function historialGuiasAdmin2() {
-
-  console.warn("buscando guias")
+  console.warn("buscando guias");
   const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
   const limiteConsulta = 10e3;
 
@@ -2763,8 +2760,6 @@ async function historialGuiasAdmin2() {
 }
 
 function renderWeeklyStats() {
-
-
   const nombresEmpresas = weeklyStats.map((stat) => stat.nombre_empresa);
 
   const conteoEmpresas = nombresEmpresas.reduce((acc, nombre) => {
@@ -2786,6 +2781,10 @@ function renderWeeklyStats() {
   globalGuidesStats.classList.remove("d-none");
   $("#loading-global-stats").addClass("d-none");
   const tablaGlobalStats = document.getElementById("tabla-global-stats");
+
+  const spanElement = document.querySelector(".total-guias-globales");
+
+  spanElement.textContent = weeklyStats.length;
 
   if (tablaGlobalStats) {
     // Agregar la posición (standing) a cada objeto en el array standing
