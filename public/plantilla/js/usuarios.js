@@ -1659,13 +1659,32 @@ async function actualizarInformacionPersonal() {
     console.log(data);
 
     const mongoId = data.response._id;
+
+
+    function mapTipoDocumento(tipo) {
+      const mapping = {
+        "CC": "CC",
+        "PASAPORTE": "PS",
+        "NIT(RUT)": "NIT",
+        "CE": "CE",
+        "PPT": "PPT",
+        "PEP": "PEP"
+      };
+      return mapping[tipo] || tipo;
+    }
+
+    const doc = value("actualizar_tipo_documento");
+
+    const mappedDoc = mapTipoDocumento(doc);
+
+
     const updateBody = JSON.stringify({
       name: value("actualizar_nombres"),
       last_name: value("actualizar_apellidos"),
       phone: Number(value("actualizar_telefono")),
       alternative_phone: Number(value("actualizar_celular")),
       email: value("actualizar_correo"),
-      type_document: value("actualizar_tipo_documento"),
+      type_document: mappedDoc,
       document: value("actualizar_numero_documento"),
       type_account: type,
       blockedWallet: billetera
