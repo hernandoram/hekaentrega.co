@@ -3794,7 +3794,7 @@ class CalcularCostoDeEnvio {
       tipo: this.type
     };    
 
-    const response = await fetch("Api/Cotizador", {
+    const response = await fetch("https://hekaentrega.co/Api/Cotizador", {
       method: "Post",
       headers: { "Content-Type": "Application/json" },
       body: JSON.stringify(data)
