@@ -27,7 +27,7 @@ async function validateToken(token) {
   } else {
     try {
       const response = await fetch(
-        `${PROD_API_URL}/api/v1/user/validate/token?token=${token}`
+        `${TEST_API_URL}/api/v1/user/validate/token?token=${token}`
       );
 
       console.log(response);
