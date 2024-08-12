@@ -723,7 +723,7 @@ function crearDocumentos(e, dt, node, config) {
 
     // Este objeto solo está presente cuando la guía fue creada por un usuario de tipo punto
     // En este caso "info_user" corresponde al nombre del usuario que solicitó al punto generar el envío
-    if(info_user) {
+    if (info_user) {
       nombreResponsable = info_user.nombre_completo;
     }
 
@@ -1023,7 +1023,7 @@ function notificarPedidoCreado(guia) {
     ciudadD,
     direccionD
   } = guia;
-  
+
   const plantilla = [
     transportadora,
     numeroGuia,
@@ -3859,11 +3859,11 @@ function revisarGuiaUser(id_heka) {
 
 const btn_revisar_novedades = document.getElementById("btn-revisar-novedades");
 
-if(btn_revisar_novedades) {
+if (btn_revisar_novedades) {
   btn_revisar_novedades.addEventListener("click", (e) => {
     e.preventDefault();
     const novedades_transportadora = $("#activador_busq_novedades").val();
-  
+
     if (administracion && novedades_transportadora) {
       console.log("Buscando novedades");
       revisarNovedades(novedades_transportadora);
@@ -3881,18 +3881,17 @@ if(btn_revisar_novedades) {
         return;
       }
     }
-  
+
     console.warn("Busqueda natural");
     revisarMovimientosGuias(administracion);
   });
 }
 
-
 const bt_limpiar_novedades = document.getElementById(
   "btn-vaciar-consulta-novedades"
 );
 
-if(bt_limpiar_novedades) {
+if (bt_limpiar_novedades) {
   bt_limpiar_novedades.addEventListener("click", () => {
     console.log("limpiando");
     novedadesExcelData = [];
@@ -4412,29 +4411,31 @@ function cambiarFiltroHistGuiasAdmin(e) {
   target.removeClass("d-none");
 }
 
-const opcionesAccionesGuiasAdmin = [{
-  titulo: "Botón de prueba", // Título que se muestra cuando se mos el mouse encima del botón
-  icon: "question", // Ícono del botón
-  color: "primary", // Color del botón (relacionado con bootstrap)
-  id: "prueba_hist", // Id del botón que se combian con el id heka de la guía
-  visible: (guia) => false, // Para saber si el botón será visible o no, para la guía dada
-  accion: function (guia) { // Función que será ejecutada al hacer click en el botón
-    // La functionalidad que se vaya a activar, cuenta con datos de la guía para que puedan
-    console.log("Información de la guía: ", guia);
+const opcionesAccionesGuiasAdmin = [
+  {
+    titulo: "Botón de prueba", // Título que se muestra cuando se mos el mouse encima del botón
+    icon: "question", // Ícono del botón
+    color: "primary", // Color del botón (relacionado con bootstrap)
+    id: "prueba_hist", // Id del botón que se combian con el id heka de la guía
+    visible: (guia) => false, // Para saber si el botón será visible o no, para la guía dada
+    accion: function (guia) {
+      // Función que será ejecutada al hacer click en el botón
+      // La functionalidad que se vaya a activar, cuenta con datos de la guía para que puedan
+      console.log("Información de la guía: ", guia);
 
-    // "this" haría referencia al botón que se acciona en forma de Jquery
-    console.log("Botón de prueba:" , this);
-  } 
-}, {
-  titulo: "Anular Guía",
-  icon: "ban",
-  color: "danger",
-  id: "anular_guia",
-  visible: (data) => true,
-  accion: anularGuia
-}];
-
-
+      // "this" haría referencia al botón que se acciona en forma de Jquery
+      console.log("Botón de prueba:", this);
+    }
+  },
+  {
+    titulo: "Anular Guía",
+    icon: "ban",
+    color: "danger",
+    id: "anular_guia",
+    visible: (data) => true,
+    accion: anularGuia
+  }
+];
 
 async function historialGuiasAdmin(e) {
   const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
@@ -4446,7 +4447,6 @@ async function historialGuiasAdmin(e) {
   });
   categorias = listacategorias || [];
 
-
   const finalId = e.id.split("-")[1];
   let fechaI = document.querySelector("#fechaI-" + finalId).value;
   let fechaF = document.querySelector("#fechaF-" + finalId).value;
@@ -4455,6 +4455,9 @@ async function historialGuiasAdmin(e) {
   const fecha_final = new Date(fechaF).setHours(0) + 2 * 8.64e7;
   const numeroGuia = document.querySelector("#num_guia-" + finalId).value;
   const tipoFiltro = $("#tipo_filt-hist_guias").val();
+  console.warn(tipoFiltro);
+  console.warn(fecha_inicio, fecha_final);
+
   const filtroCentroDeCosto = $("#filtro_pagos-" + finalId).val();
   const filtroTransp = $("#filtro_transp-" + finalId).val();
   const filtroActual = $("#" + tipoFiltro + "-hist_guias")
@@ -4653,7 +4656,7 @@ async function historialGuiasAdmin(e) {
     {
       data: "detalles.cobraDevolucion",
       title: "Cobra devolución",
-      render: (content) => content === false ? "NO" : "SI"
+      render: (content) => (content === false ? "NO" : "SI")
     },
     { data: "fecha", title: "Fecha" },
     {
@@ -4815,7 +4818,7 @@ async function historialGuiasAdmin(e) {
             column.visible(!column.visible());
             $(badge).toggleClass("badge-info");
             $(badge).toggleClass("badge-secondary");
-            if(badge.textContent.trim() === "Acciones") api.draw();
+            if (badge.textContent.trim() === "Acciones") api.draw();
           });
 
           boton.textContent = val.textContent;
@@ -4842,18 +4845,21 @@ async function historialGuiasAdmin(e) {
 /** Encargada de mostrar la lista de los botones en {@link opcionesAccionesGuiasAdmin} sobre cada fila de las guías */
 function renderizarBotonesAdmin(datos, type, row) {
   if (type === "display" || type === "filter") {
-    const {id_heka} = datos;
+    const { id_heka } = datos;
 
     const buttons = opcionesAccionesGuiasAdmin
-    .filter(btn => btn.visible(datos)) // Se filtran aquellas que colocamos como visibles
-    .map((ac, i) => `
+      .filter((btn) => btn.visible(datos)) // Se filtran aquellas que colocamos como visibles
+      .map(
+        (ac, i) => `
       <button class="btn btn-${ac.color} btn-circle btn-sm mx-1 action" data-id="${id_heka}"
       data-action="${ac.id}"
       data-placement="right"
       id="${ac.id}-${id_heka}" title="${ac.titulo}">
         <i class="fas fa-${ac.icon}"></i>
       </button>
-    `).join("");
+    `
+      )
+      .join("");
 
     return `<div class="d-flex justify-content-around align-items-center">${buttons}</div>`;
   }
@@ -4865,8 +4871,8 @@ function renderizarBotonesAdmin(datos, type, row) {
 function activarAccionesGuiasAdmin(row, data) {
   opcionesAccionesGuiasAdmin.forEach((opt, i) => {
     const button = $(`[data-action='${opt.id}']`, row);
-    
-    if(!button.data("hasAssignedEvent")) {
+
+    if (!button.data("hasAssignedEvent")) {
       button.on("click", opt.accion.bind(button, data));
       button.data("hasAssignedEvent", true);
     }
@@ -5152,14 +5158,14 @@ async function generarRotulo(id_guias, id_user) {
   const insertPage = (table) => {
     const lastElement = div.lastChild;
     let myParent = lastElement;
-    if(!lastElement || lastElement.childElementCount >= 2) {
+    if (!lastElement || lastElement.childElementCount >= 2) {
       myParent = document.createElement("div");
       myParent.setAttribute("class", "page-printer");
       div.appendChild(myParent);
     }
 
     myParent.appendChild(table);
-  }
+  };
 
   data_guias.forEach((guia, i, self) => {
     // Creamos la tabla pricipal
@@ -5185,7 +5191,9 @@ async function generarRotulo(id_guias, id_user) {
       ? "<b>Flexii S.A.S.</b>"
       : "<b>Heka Entrega</b>";
 
-    const nombreR = guia.info_user ? guia.info_user.nombre_completo : guia.nombreR
+    const nombreR = guia.info_user
+      ? guia.info_user.nombre_completo
+      : guia.nombreR;
 
     const textoCantidadPaquetes = `Paquete ${i + 1} de ${self.length}`;
 
@@ -5237,7 +5245,10 @@ async function generarRotulo(id_guias, id_user) {
         </tr>
       </table>
     `;
-    const rowMedidas = createRow(tablaDetalles, `<h3 class="text-center">${guia.numeroGuia}</h3>`);
+    const rowMedidas = createRow(
+      tablaDetalles,
+      `<h3 class="text-center">${guia.numeroGuia}</h3>`
+    );
     rowMedidas.td1.classList.add("p-1");
     tbody.appendChild(rowMedidas.tr);
 
@@ -5798,5 +5809,3 @@ function descargarInformeExcel(datosDescarga, informeJson, title) {
 
   crearExcel(data, title);
 }
-
-

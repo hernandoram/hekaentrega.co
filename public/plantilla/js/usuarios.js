@@ -2506,7 +2506,6 @@ function loadWeek2() {
 
   var options;
 
-
   if (
     totalGuiasEntregadas === 0 &&
     totalGuiasDevueltas === 0 &&
@@ -2606,4 +2605,247 @@ function setWeekInputs() {
 
   loadWeek1();
   loadWeek2();
+}
+let weeklyStats = [];
+
+const startWeekInputGlobal = document.getElementById("startWeekGlobalStats");
+
+window.addEventListener("hashchange", async () => {
+  if (window.location.hash === "#stats") {
+    await loadGlobalStats();
+  }
+});
+
+document.addEventListener("DOMContentLoaded", async () => {
+  if (window.location.hash === "#stats") {
+    await loadGlobalStats();
+  }
+});
+
+function setMaxDate() {
+  const currentDate = new Date();
+  const [currentYear, currentWeek] = getWeekNumber(currentDate);
+
+  const previousDate = new Date(currentDate);
+  previousDate.setDate(currentDate.getDate() - 7);
+
+  const formatWeek = (year, week) =>
+    `${year}-W${week.toString().padStart(2, "0")}`;
+
+  startWeekInputGlobal.value = formatWeek(currentYear, currentWeek);
+  const maxWeek = formatWeek(currentYear, currentWeek);
+
+  startWeekInputGlobal.setAttribute("max", maxWeek);
+}
+
+startWeekInputGlobal.addEventListener("change", async () => {
+  await historialGuiasAdmin2();
+
+  renderWeeklyStats();
+});
+
+// const week = startWeekInputGlobal.value;
+// const { startDate, endDate } = getWeekDates(week);
+
+const globalGuidesStats = document.getElementById("display-global-stats");
+
+async function loadGlobalStats() {
+  setMaxDate();
+  console.log(weeklyStats.length);
+  if (weeklyStats.length === 0) {
+    await historialGuiasAdmin2();
+    console.warn(weeklyStats);
+
+    renderWeeklyStats();
+  } else {
+    console.warn("Ya se cargaron las guías de la semana");
+  }
+}
+
+async function historialGuiasAdmin2() {
+  console.warn("buscando guias");
+  const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
+  const limiteConsulta = 10e3;
+
+  const { lista: listacategorias } = await referencia.get().then((d) => {
+    if (d.exists) return d.data();
+  });
+  categorias = listacategorias || [];
+
+  const week = startWeekInputGlobal.value;
+  const { startDate, endDate } = getWeekDates(week);
+
+  const fecha_inicio = new Date(startDate).setHours(0);
+  const fecha_final = new Date(endDate).setHours(0);
+  const filtroActual = null;
+  const tipoFiltro = "--Seleccione tipo de filtro --";
+  console.warn(fecha_inicio, fecha_final);
+
+  globalGuidesStats.classList.add("d-none");
+  $("#loading-global-stats").removeClass("d-none");
+  let data = [];
+  const manejarInformacion = (querySnapshot) => {
+    const s = querySnapshot.size;
+    console.warn("numero de guias generadas encontrados ", s);
+
+    querySnapshot.forEach((doc) => {
+      const guia = doc.data();
+
+      guia.transpToShow = doc.data().oficina
+        ? guia.transportadora + "-Flexii"
+        : guia.transportadora;
+
+      let tituloEncontrado = null;
+
+      tituloEncontrado = categorias.find(
+        (categoria) => categoria.novedad == guia.estado
+      )?.categoria;
+
+      if (tituloEncontrado !== null) {
+        guia.categoria = tituloEncontrado;
+      }
+
+      let condicion = true;
+
+      switch (tipoFiltro) {
+        case "filt_3":
+        case "filt_4":
+          condicion = guia.centro_de_costo
+            .toUpperCase()
+            .includes(filtroActual.toUpperCase());
+          break;
+
+        case "filt_5":
+          condicion =
+            !guia.deleted && // Se captura entre las que no fueron eliminadas
+            guia.deuda != 0 && // Solamente se va a tomar aquellas que no tengan deuda
+            guia.numeroGuia && // Debe también tener número de guía
+            guia.estado; // Debe tener un estado presente
+          break;
+
+        default:
+          condicion = true;
+      }
+
+      if (condicion) data.push(guia);
+    });
+  };
+
+  let reference = firebase.firestore().collectionGroup("guias");
+
+  reference = reference
+    .orderBy("timeline")
+    .startAt(fecha_inicio)
+    .endAt(fecha_final);
+
+  const referenceAlt = firebase.firestore().collectionGroup("guias");
+
+  if (tipoFiltro === "filt_1") {
+    const segementado = segmentarArreglo(filtroPagoSeleccionado, 10);
+    for await (const paquete of segementado) {
+      await reference
+        .where("centro_de_costo", "in", paquete)
+        .get()
+        .then(manejarInformacion);
+    }
+  } else if (tipoFiltro === "filt_2") {
+    await reference
+      .where("transportadora", "==", filtroTransp)
+      .get()
+      .then(manejarInformacion);
+  } else if (tipoFiltro === "filt_3") {
+    await reference
+      .where("centro_de_costo", "==", filtroActual)
+      .get()
+      .then(manejarInformacion);
+
+    // if(!data.length) await reference.get().then(manejarInformacion);
+  } else if (tipoFiltro === "filt_4") {
+    await reference
+      .where("type", "==", filtroActual)
+      .get()
+      .then(manejarInformacion);
+  } else if (tipoFiltro === "filt_5") {
+    await referenceAlt.where("debe", "<", 0).get().then(manejarInformacion);
+  } else {
+    await recursividadPorReferencia(
+      reference,
+      manejarInformacion,
+      limiteConsulta
+    );
+  }
+
+  weeklyStats = data;
+}
+
+function renderWeeklyStats() {
+  const nombresEmpresas = weeklyStats.map((stat) => stat.nombre_empresa);
+
+  const conteoEmpresas = nombresEmpresas.reduce((acc, nombre) => {
+    acc[nombre] = (acc[nombre] || 0) + 1;
+    return acc;
+  }, {});
+
+  // Convertir el objeto en un array de objetos con las propiedades nombre_empresa y no_envios
+  const standing = Object.entries(conteoEmpresas).map(
+    ([nombre_empresa, no_envios]) => ({
+      nombre_empresa,
+      no_envios
+    })
+  );
+  standing.sort((a, b) => b.no_envios - a.no_envios);
+
+  console.log(standing);
+
+  globalGuidesStats.classList.remove("d-none");
+  $("#loading-global-stats").addClass("d-none");
+  const tablaGlobalStats = document.getElementById("tabla-global-stats");
+
+  const spanElement = document.querySelector(".total-guias-globales");
+
+  spanElement.textContent = weeklyStats.length;
+
+  if (tablaGlobalStats) {
+    // Agregar la posición (standing) a cada objeto en el array standing
+    standing.forEach((item, index) => {
+      item.standing = index + 1;
+    });
+
+    const table = $("#tabla-global-stats").DataTable({
+      destroy: true,
+      data: standing,
+      columns: [
+        {
+          data: "standing",
+          title: "Posición",
+          defaultContent: "N/A"
+        },
+        {
+          data: "nombre_empresa",
+          title: "Seller",
+          defaultContent: "Indeterminado"
+        },
+        {
+          data: "no_envios",
+          title: "Número de Envios esta Semana",
+          defaultContent: "Sin Envios"
+        }
+      ],
+      language: {
+        url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+      },
+      scrollX: true,
+      scrollCollapse: true,
+      lengthMenu: [
+        [5, 10, 25, 30],
+        [5, 10, 25, 30]
+      ],
+      pageLength: 30,
+      order: [[2, "desc"]] // Ordenar por la tercera columna (no_envios) de mayor a menor
+    });
+  } else {
+    console.error(
+      "El elemento con el ID 'tabla-global-stats' no existe en el DOM."
+    );
+  }
 }
