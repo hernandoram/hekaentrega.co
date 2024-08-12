@@ -179,7 +179,46 @@ let transportadoras = {
     sistemaAutomatizado: () =>
       /^automatico/.test(datos_personalizados.sistema_coordinadora),
     valorMinimoEnvio: (kg) => 0
-  }
+  },
+  HEKA: {
+    cod: "HEKA",
+    nombre: "Heka entrega",
+    observaciones: observacionesInteRapidisimo,
+    logoPath: "img/logo-heka-dark.png",
+    color: "warning",
+    limitesPeso: [0.1, 160],
+    limitesLongitud: [1, 150],
+    limitesRecaudo: [10000, 3000000],
+    bloqueada: (data) => data.peso <= 100,
+    bloqueadaOfi: true,
+    limitesValorDeclarado: (peso) => {
+      if (peso <= 2) return [25000, 5000000];
+      if (peso <= 5) return [40000, 5000000];
+      return [50000, 5000000];
+    },
+    habilitada: () => {
+      const sist = datos_personalizados.sistema_heka;
+      return sist && sist !== "inhabilitado";
+    },
+    sistema: () => {
+      const sist = datos_personalizados.sistema_heka;
+      return sist;
+    },
+    getCuentaResponsable: () => "EMPRESA",
+    sistemaAutomatizado: () =>
+      /^automatico/.test(datos_personalizados.sistema_heka),
+    valorMinimoEnvio: (kg) => {
+      if (kg <= 2) {
+        return 25000;
+      } else if (kg >= 3 && kg <= 5) {
+        return 40000;
+      } else if (kg >= 6 && kg <= 37) {
+        return 50000;
+      } else {
+        return 0;
+      }
+    }
+  },
 };
 
 const configOficinaDefecto = {
@@ -843,7 +882,7 @@ async function detallesTransportadoras(data) {
 
       let cotizador = new CalcularCostoDeEnvio(valor, data.type);
 
-      if (["ENVIA", "COORDINADORA"].includes(transp)) {
+      if (["ENVIA", "COORDINADORA", "HEKA"].includes(transp)) {
         cotizador.valor = recaudo;
         cotizador.seguro = Math.max(
           seguro,
@@ -3280,6 +3319,7 @@ class CalcularCostoDeEnvio {
       Math.ceil((valor * comision_heka) / 100) + constante_heka;
 
     if (this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
+    if (this.codTransp === transportadoras.HEKA.cod) this.intoHeka(this.precio);
     if (this.aveo) this.intoAveo(this.precio);
     if (this.envia) this.intoEnvia(this.precio);
     if (this.coordinadora) this.intoCoord(this.precio);
@@ -3378,6 +3418,17 @@ class CalcularCostoDeEnvio {
         this.tiempo = respuestaCotizacion.TiempoEntrega;
         console.log("PRECIO", this.precio);
         this.intoInter(this.precio);
+
+        break;
+
+      case transportadoras.HEKA.cod:
+        this.factor_de_conversion = 1 / 6000;
+        this.kg_min = 0.1;
+        console.log("Llega a cotizar heka");
+        await this.cotizarHeka(
+          dataObj.dane_ciudadR,
+          dataObj.dane_ciudadD
+        );
 
         break;
 
@@ -3722,6 +3773,50 @@ class CalcularCostoDeEnvio {
     console.log("FINALIZÓ SERVIENTREGA");
     return true;
   }
+
+  async intoHeka(cotizacion, conv) {
+    if (!cotizacion) cotizacion = this.precio;
+    this.total_flete = cotizacion.valorFlete;
+    this.seguroMercancia = cotizacion.seguroMercancia;
+    this.sobreflete = cotizacion.sobreFlete;
+  }
+
+  async cotizarHeka(dane_ciudadR, dane_ciudadD) {
+    const data = {
+      peso: this.kg - 100,
+      alto: this.alto,
+      largo: this.largo,
+      ancho: this.ancho,
+      valorSeguro: this.seguro,
+      valorRecaudo: this.valor,
+      idDaneCiudadOrigen: dane_ciudadR,
+      idDaneCiudadDestino: dane_ciudadD,
+      tipo: this.type
+    };    
+
+    const response = await fetch("Api/Cotizador", {
+      method: "Post",
+      headers: { "Content-Type": "Application/json" },
+      body: JSON.stringify(data)
+    })
+      .then((R) => {
+        if(R.status !== 200) this.NoCobertura = true;
+        return R.json()
+      })
+      .catch((R) => ({ respuesta: "Error del servidor" }));
+
+    if (response.error) {
+      this.empty = true;
+      this.NoCobertura = true;
+      return false;
+    }
+
+    const conv = this.convencional;
+    this.precio = response.body;
+    this.intoHeka(response.body, conv);
+    return true;
+  }
+
 }
 
 function contizarEnviaPrueba() {
