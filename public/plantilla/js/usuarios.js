@@ -1616,11 +1616,36 @@ function actualizarBodegasAdm() {
     })
     .then(async () => {
       const notificaciones = await notificacionBodegas(bodegasInfo);
+      console.log(notificaciones);
     });
 }
 
 async function notificacionBodegas(bodegasInfo) {
-  bodegasInfo.forEach(async (bodega) => {});
+  bodegasInfo.forEach(async (bodega) => {
+    try {
+      await firebase
+        .firestore()
+        .collection("notificaciones")
+        .add({
+          icon: ["map-marker-alt", "primary"],
+          href: "novedades",
+          fecha: genFecha(),
+          mensaje: `Tu bodega con dirección ${bodega.direccion_completa} ha sido activada correctamente`,
+          user_id: idUsuario,
+          visible_user: true
+        });
+      console.log(
+        `Notificación creada para la bodega en ${bodega.ciudad} con dirección ${bodega.direccion_completa}`
+      );
+    } catch (error) {
+      console.error(
+        `Error al crear la notificación para la bodega en ${bodega.ciudad} con dirección ${bodega.direccion_completa}:`,
+        error
+      );
+    }
+  });
+
+  return "todo right";
 }
 
 function asignarValores(data, query) {
