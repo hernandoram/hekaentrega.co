@@ -1602,8 +1602,6 @@ function actualizarBodegasAdm() {
   });
   console.warn(bodegasInfo);
 
-  return;
-
   firebase
     .firestore()
     .collection("usuarios")
@@ -1615,7 +1613,14 @@ function actualizarBodegasAdm() {
         icon: "success",
         text: "Bodegas actualizadas correctamente."
       });
+    })
+    .then(async () => {
+      const notificaciones = await notificacionBodegas(bodegasInfo);
     });
+}
+
+async function notificacionBodegas(bodegasInfo) {
+  bodegasInfo.forEach(async (bodega) => {});
 }
 
 function asignarValores(data, query) {
