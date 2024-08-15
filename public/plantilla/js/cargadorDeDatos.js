@@ -557,8 +557,12 @@ const usuarioLimitacionesHistorialovedades = [
   "SellerBreisongomezhernandez",
   "SellerHadeneduardorios",
   "SellerSairricardosanchez",
-  "SellerSandralopez"
-]
+  "SellerSandralopez",
+  "Sellerjuliethbolivar",
+  "Sellercalzadobetss",
+  "Sellercristianandrade"
+];
+
 function limitarAccesoSegunTipoUsuario() {
   let quitarVistas = [];
 
