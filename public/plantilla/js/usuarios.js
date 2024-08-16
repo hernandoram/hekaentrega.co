@@ -1629,9 +1629,10 @@ async function notificacionBodegas(bodegasInfo) {
         .add({
           icon: ["map-marker-alt", "primary"],
           fecha: genFecha(),
-          mensaje: `Tu bodega con dirección ${bodega.direccion_completa} ha sido activada correctamente`,
+          mensaje: `Tu bodega de Interrapidisimo con dirección ${bodega.direccion_completa} ha sido activada correctamente`,
           user_id: idUsuario,
-          visible_user: true
+          visible_user: true,
+          timeline: new Date().getTime()
         });
       console.log(
         `Notificación creada para la bodega en ${bodega.ciudad} con dirección ${bodega.direccion_completa} ${idUsuario}`
