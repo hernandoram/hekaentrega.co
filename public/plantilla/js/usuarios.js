@@ -967,6 +967,7 @@ $("#buscador_usuarios-nombre, #buscador_usuarios-direccion").keyup((e) => {
   filtrarBusquedaUsuarios(e);
 });
 
+let userBodegas = [];
 let idUsuario = "";
 // esta funcion me busca el usuario seleccionado con informacion un poco mas detallada
 function seleccionarUsuario(id) {
@@ -999,6 +1000,8 @@ function seleccionarUsuario(id) {
         console.log(acciones);
 
         console.log(doc.data());
+
+        userBodegas = doc.data().bodegas;
         // if (doc.data().ingreso === doc.data().con) {
         //   document.getElementById("actualizar_correo").readOnly = false;
         // } else {
@@ -1566,11 +1569,38 @@ function editarBodegaUsuarioAdm(e) {
   });
 }
 
+function compareCodigoSucursalInter(arr1, arr2) {
+  const differences = [];
+  for (let i = 0; i < arr1.length; i++) {
+    const codigo1 = arr1[i].codigo_sucursal_inter;
+    const codigo2 = arr2[i].codigo_sucursal_inter;
+    if (codigo1 !== codigo2) {
+      differences.push({
+        index: i,
+        codigo_sucursal_inter_1: codigo1,
+        codigo_sucursal_inter_2: codigo2
+      });
+    }
+  }
+  return differences;
+}
+
 function actualizarBodegasAdm() {
   let id_usuario = document
     .getElementById("usuario-seleccionado")
     .getAttribute("data-id");
   const bodegas = $("#tabla-bodegas").DataTable().data().toArray();
+
+  const differences = compareCodigoSucursalInter(userBodegas, bodegas);
+  console.log(differences);
+
+  const bodegasInfo = differences.map((diff) => {
+    return {
+      direccion_completa: bodegas[diff.index].direccion_completa,
+      ciudad: bodegas[diff.index].ciudad
+    };
+  });
+  console.warn(bodegasInfo);
 
   firebase
     .firestore()
@@ -1583,7 +1613,39 @@ function actualizarBodegasAdm() {
         icon: "success",
         text: "Bodegas actualizadas correctamente."
       });
+    })
+    .then(async () => {
+      const notificaciones = await notificacionBodegas(bodegasInfo);
+      console.log(notificaciones);
     });
+}
+
+async function notificacionBodegas(bodegasInfo) {
+  bodegasInfo.forEach(async (bodega) => {
+    try {
+      await firebase
+        .firestore()
+        .collection("notificaciones")
+        .add({
+          icon: ["map-marker-alt", "primary"],
+          fecha: genFecha(),
+          mensaje: `Tu bodega de Interrapidisimo con dirección ${bodega.direccion_completa} ha sido activada correctamente`,
+          user_id: idUsuario,
+          visible_user: true,
+          timeline: new Date().getTime()
+        });
+      console.log(
+        `Notificación creada para la bodega en ${bodega.ciudad} con dirección ${bodega.direccion_completa} ${idUsuario}`
+      );
+    } catch (error) {
+      console.error(
+        `Error al crear la notificación para la bodega en ${bodega.ciudad} con dirección ${bodega.direccion_completa}:`,
+        error
+      );
+    }
+  });
+
+  return "todo right";
 }
 
 function asignarValores(data, query) {
@@ -1660,15 +1722,14 @@ async function actualizarInformacionPersonal() {
 
     const mongoId = data.response._id;
 
-
     function mapTipoDocumento(tipo) {
       const mapping = {
-        "CC": "CC",
-        "PASAPORTE": "PS",
+        CC: "CC",
+        PASAPORTE: "PS",
         "NIT(RUT)": "NIT",
-        "CE": "CE",
-        "PPT": "PPT",
-        "PEP": "PEP"
+        CE: "CE",
+        PPT: "PPT",
+        PEP: "PEP"
       };
       return mapping[tipo] || tipo;
     }
@@ -1676,7 +1737,6 @@ async function actualizarInformacionPersonal() {
     const doc = value("actualizar_tipo_documento");
 
     const mappedDoc = mapTipoDocumento(doc);
-
 
     const updateBody = JSON.stringify({
       name: value("actualizar_nombres"),
