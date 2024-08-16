@@ -21,6 +21,8 @@ let mostrarBilletera = false;
 const urlToken = new URLSearchParams(window.location.search);
 const tokenUser = urlToken.get("token") || localStorage.getItem("token");
 
+let mongoID;
+
 async function validateToken(token) {
   if (!token) {
     redirectLogin();
@@ -30,8 +32,6 @@ async function validateToken(token) {
         `${PROD_API_URL}/api/v1/user/validate/token?token=${token}`
       );
 
-      console.log(response);
-
       if (!response.ok) {
         redirectLogin();
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -39,6 +39,10 @@ async function validateToken(token) {
       const data = await response.json();
 
       console.log(data);
+
+      mongoID = data.response.user._id;
+
+      localStorage.setItem("mongo_id", mongoID);
       if (
         !data ||
         !data.response ||
@@ -558,7 +562,7 @@ const usuarioLimitacionesHistorialovedades = [
   "SellerHadeneduardorios",
   "SellerSairricardosanchez",
   "SellerSandralopez"
-]
+];
 function limitarAccesoSegunTipoUsuario() {
   let quitarVistas = [];
 
@@ -580,7 +584,9 @@ function limitarAccesoSegunTipoUsuario() {
       "contenedor-solucion_novedad",
       "contenedor-mostrar-billetera"
     ];
-  } else if (usuarioLimitacionesHistorialovedades.includes(datos_usuario.centro_de_costo)) {
+  } else if (
+    usuarioLimitacionesHistorialovedades.includes(datos_usuario.centro_de_costo)
+  ) {
     quitarVistas = [
       "btn-seguimiento-gestionarNovedad",
       "seguimiento-gestionarNovedad",
@@ -2601,7 +2607,8 @@ async function solicitarPagosPendientesUs(e) {
       );
       return;
     } else {
-      solicitudDePago.limitadosDiario = firebase.firestore.FieldValue.arrayUnion(usuario)
+      solicitudDePago.limitadosDiario =
+        firebase.firestore.FieldValue.arrayUnion(usuario);
     }
 
     await ref.update(solicitudDePago);
