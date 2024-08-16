@@ -1628,14 +1628,13 @@ async function notificacionBodegas(bodegasInfo) {
         .collection("notificaciones")
         .add({
           icon: ["map-marker-alt", "primary"],
-          href: "novedades",
           fecha: genFecha(),
           mensaje: `Tu bodega con dirección ${bodega.direccion_completa} ha sido activada correctamente`,
           user_id: idUsuario,
           visible_user: true
         });
       console.log(
-        `Notificación creada para la bodega en ${bodega.ciudad} con dirección ${bodega.direccion_completa}`
+        `Notificación creada para la bodega en ${bodega.ciudad} con dirección ${bodega.direccion_completa} ${idUsuario}`
       );
     } catch (error) {
       console.error(
