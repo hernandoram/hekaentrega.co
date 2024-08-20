@@ -73,6 +73,8 @@ export function defineFilter(data) {
         filter = defFiltrado.eliminada;
     } else if(data.estadoActual === defFiltrado.generada) {
         filter = defFiltrado.generada;
+    } else if(data.estadoActual === defFiltrado.proceso) {
+        filter = defFiltrado.proceso;
     } else if (data.seguimiento_finalizado) {
         filter = defFiltrado.finalizada;
     } else {
