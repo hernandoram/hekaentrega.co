@@ -1,11 +1,13 @@
 //const PROD_API_URL = "https://api.hekaentrega.co"; //"https://apidev.hekaentrega.co" o esta
-const PROD_API_URL = "https://api.hekaentrega.co"; //comentar o descomentar segun el ambiente
-const TEST_API_URL = "https://api.hekaentrega.co"; //comentar o descomentar segun el ambiente
+const PROD_API_URL = "https://apidev.hekaentrega.co"; //comentar o descomentar segun el ambiente
+//const TEST_API_URL = "https://apidev.hekaentrega.co"; //comentar o descomentar segun el ambiente
 
 // const PROD_API_URL_PLATFORM2 = "http://localhost:3232"; //comentar o descomentar segun el ambiente
 const PROD_API_URL_PLATFORM2 = "https://www.hekaentrega.co"; //comentar o descomentar segun el ambiente
 
-const versionSoftware = "1.0.2: contraseña para pagos";
+const bodegasBackPlataforma2 = true;
+
+const versionSoftware = "1.0.3: Migrando bodegas! ";
 
 let objetosFrecuentes;
 
@@ -21,7 +23,7 @@ let mostrarBilletera = false;
 const urlToken = new URLSearchParams(window.location.search);
 const tokenUser = urlToken.get("token") || localStorage.getItem("token");
 
-let mongoID;
+let mongoID; // id segunda BD
 
 async function validateToken(token) {
   if (!token) {
@@ -29,11 +31,12 @@ async function validateToken(token) {
   } else {
     try {
       const response = await fetch(
-        `${TEST_API_URL}/api/v1/user/validate/token?token=${token}`
+        `${PROD_API_URL}/api/v1/user/validate/token?token=${token}`
       );
 
+      console.warn(response);
       if (!response.ok) {
-        redirectLogin();
+        // redirectLogin();
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
@@ -225,6 +228,27 @@ const datos_personalizados_2 = {
 let datos_usuario = {},
   //Almacena los costos de envios (nacional, urbano...) y el porcentaje de comision
   datos_personalizados = datos_personalizados_1;
+
+async function getWarehouses() {
+  console.warn("Cargando bodegas desde plataforma 2");
+  const url = `${PROD_API_URL}/api/v1/warehouse?user=${mongoID}`;
+
+  let res;
+
+  try {
+    res = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+        "Content-Type": "application/json"
+      }
+    });
+    const {response} = await res.json();
+    return(response.rows);
+  } catch (error) {
+    console.error("Error en la solicitud GET:", error);
+  }
+}
 
 const botonDesbloqueo = document.querySelector("#desbloquear-billetera-boton");
 
@@ -491,14 +515,18 @@ function listarSugerenciaMensajesNovedad() {
 }
 
 async function consultarDatosDeUsuario() {
-  const actualizador = (doc) => {
+  const actualizador = async (doc) => {
     if (doc.exists) {
       const datos = { ...doc.data(), id: doc.id };
       const datos_bancarios = datos.datos_bancarios || null;
       const datos_personalizados = datos.datos_personalizados;
-      let bodegas = datos.bodegas
-        ? datos.bodegas.filter((b) => !b.inactiva)
-        : [];
+      let bodegas;
+
+      if (bodegasBackPlataforma2) {
+        bodegas = await getWarehouses();
+      } else {
+        bodegas = datos.bodegas ? datos.bodegas.filter((b) => !b.inactiva) : [];
+      }
 
       datos_usuario = {
         nombre_completo:

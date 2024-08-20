@@ -830,7 +830,9 @@ function crearDocumentos(e, dt, node, config) {
         });
       } else if (generacion_automatizada) {
         if (
-          ["INTERRAPIDISIMO", "ENVIA", "COORDINADORA", "HEKA"].includes(transportadora)
+          ["INTERRAPIDISIMO", "ENVIA", "COORDINADORA", "HEKA"].includes(
+            transportadora
+          )
         ) {
           // Con esta transportadora no creamos manifiestos de esta forma,
           //ya que el usuario los crea por su cuenta
@@ -3288,7 +3290,6 @@ function revisarNotificaciones() {
     .onSnapshot((snapshot) => {
       snapshot.docChanges().forEach((change) => {
         let notification = change.doc.data();
-        console.warn(notification);
         let identificador = change.doc.id;
         let mostrador, contador;
         if (
