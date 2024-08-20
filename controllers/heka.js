@@ -1,5 +1,5 @@
 const { transformarDatosDestinatario, segmentarString, estandarizarFecha } = require("../extends/funciones");
-const { estadosFinalizacion, modificarEstadoGuia, actualizarReferidoPorGuiaEntregada, obtenerGuiaPorNumero, obtenerEstadosGuiaPorId, crearOActualizarEstados, actualizarInfoGuia } = require("../extends/manejadorMovimientosGuia");
+const { estadosFinalizacion, modificarEstadoGuia, actualizarReferidoPorGuiaEntregada, obtenerGuiaPorNumero, obtenerEstadosGuiaPorId, crearOActualizarEstados, actualizarInfoGuia, atributosAdicionalesEnActualizacion } = require("../extends/manejadorMovimientosGuia");
 const fetch = require("node-fetch");
 
 const firebase = require("../keys/firebase");
