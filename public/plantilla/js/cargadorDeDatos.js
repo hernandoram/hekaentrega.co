@@ -359,7 +359,7 @@ const puntoEnvio = () => datos_usuario.type === "PUNTO";
 
 function revisarModoPrueba() {
   const paramFinded = new URLSearchParams(location.search.split("?")[1]).has(
-    "modoPrueba"
+    "estado_prueba"
   );
   if (paramFinded) localStorage.estado_prueba = paramFinded;
 

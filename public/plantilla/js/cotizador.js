@@ -189,24 +189,20 @@ let transportadoras = {
     limitesPeso: [0.1, 160],
     limitesLongitud: [1, 150],
     limitesRecaudo: [10000, 3000000],
-    bloqueada: (data) => data.peso <= 100,
+    bloqueada: (data) => !estado_prueba,
     bloqueadaOfi: true,
     limitesValorDeclarado: (peso) => {
       if (peso <= 2) return [25000, 5000000];
       if (peso <= 5) return [40000, 5000000];
       return [50000, 5000000];
     },
-    habilitada: () => {
-      const sist = datos_personalizados.sistema_heka;
-      return sist && sist !== "inhabilitado";
-    },
+    habilitada: () => estado_prueba,
     sistema: () => {
-      const sist = datos_personalizados.sistema_heka;
+      const sist = "automatico";
       return sist;
     },
     getCuentaResponsable: () => "EMPRESA",
-    sistemaAutomatizado: () =>
-      /^automatico/.test(datos_personalizados.sistema_heka),
+    sistemaAutomatizado: () => true,
     valorMinimoEnvio: (kg) => {
       if (kg <= 2) {
         return 25000;
@@ -3127,6 +3123,7 @@ class CalcularCostoDeEnvio {
 
       case transportadoras.ENVIA.cod:
       case transportadoras.COORDINADORA.cod:
+      case transportadoras.HEKA.cod:
         return (this.flete + this.seguroMercancia) * 2;
     }
 
@@ -3152,6 +3149,7 @@ class CalcularCostoDeEnvio {
       case transportadoras.ENVIA.cod:
         return (this.flete + this.seguroMercancia + 1000) * 2;
       case transportadoras.COORDINADORA.cod:
+      case transportadoras.HEKA.cod:
         return (this.flete + this.seguroMercancia + 1000) * 2;
     }
   }
@@ -3783,7 +3781,7 @@ class CalcularCostoDeEnvio {
 
   async cotizarHeka(dane_ciudadR, dane_ciudadD) {
     const data = {
-      peso: this.kg - 100,
+      peso: this.kg,
       alto: this.alto,
       largo: this.largo,
       ancho: this.ancho,
@@ -3794,7 +3792,10 @@ class CalcularCostoDeEnvio {
       tipo: this.type
     };    
 
-    const response = await fetch("https://hekaentrega.co/Api/Cotizador", {
+    const apiUrl = "https://hekaentrega.co/Api/Cotizador";
+    // const apiUrl = "http://localhost:6201/Api/Cotizador";
+
+    const response = await fetch(apiUrl, {
       method: "Post",
       headers: { "Content-Type": "Application/json" },
       body: JSON.stringify(data)
@@ -4227,6 +4228,8 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
     generarGuia = generarGuiaAveonline(datos);
   } else if (datos.transportadora === transportadoras.COORDINADORA.cod) {
     generarGuia = generarGuiaCoordinadora(datos);
+  } else if (datos.transportadora === transportadoras.HEKA.cod) {
+    generarGuia = generarGuiaHekaEntrega(datos);
   } else {
     return new Error(
       "Lo sentimos, esta transportadora no está optimizada para generar guías de manera automática."
@@ -4343,7 +4346,7 @@ async function enviar_firestore(datos) {
 
   const id_heka = datos.id_heka;
 
-  datos.seguimiento_finalizado = false;
+  datos.seguimiento_finalizado = ["HEKA"].includes(datos.transportadora) ?? false;
   datos.fecha = genFecha();
   datos.timeline = new Date().getTime();
 
@@ -4872,6 +4875,62 @@ async function generarGuiaCoordinadora(datos) {
 
 async function guardarStickerGuiaCoordinadora({ numeroGuia, id_heka }) {
   let path = "/coordinadora/obtenerStickerGuia";
+
+  let response = await fetch(path, {
+    method: "POST",
+    headers: { "Content-Type": "Application/json" },
+    body: JSON.stringify({ numeroGuia })
+  })
+    .then((data) => data.json())
+    .catch((error) =>
+      console.log(
+        "Hubo un error al consultar el documento de coordinadora => ",
+        error
+      )
+    );
+
+  if (response.error) return false;
+
+  console.log(response);
+  const base64GuiaSegmentada = response.base64GuiaSegmentada;
+  const referenciaSegmentar = firebase
+    .firestore()
+    .collection("base64StickerGuias")
+    .doc(id_heka)
+    .collection("guiaSegmentada");
+  return await guardarDocumentoSegmentado(
+    base64GuiaSegmentada,
+    referenciaSegmentar
+  );
+}
+
+async function generarGuiaHekaEntrega(datos) {
+  const response = await fetch("/procesos/crearGuia", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(datos)
+  }).then((d) => d.json());
+
+  if (response.error) {
+    return {
+      numeroGuia: 0,
+      message: response.body || response.message
+    };
+  }
+
+  res = {
+    numeroGuia: response.body.numeroGuia,
+    id_heka: datos.id_heka,
+    has_sticker: false
+  };
+
+  res.has_sticker = await guardarStickerGuiaHekaEntrega(res);
+
+  return res;
+}
+
+async function guardarStickerGuiaHekaEntrega({ numeroGuia, id_heka }) {
+  let path = "/procesos/obtenerStickerGuia";
 
   let response = await fetch(path, {
     method: "POST",

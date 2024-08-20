@@ -28,7 +28,12 @@ const estadosTransportadora = {
         entregada: ["ENTREGADA"],
         devuelta: ["CERRADO POR INCIDENCIA, VER CAUSA"],
         anulada: []
-    }
+    },
+    HEKA: {
+        entregada: ["ENTREGADA"],
+        devuelta: ["DEVUELTA"],
+        anulada: ["ANULADA"]
+    },
 }
 
 
@@ -366,4 +371,40 @@ exports.atributosAdicionalesEnActualizacion = (data, atributos) => {
     });
 
     return data;
+}
+
+
+exports.obtenerGuiaPorNumero = async (numeroGuia) => {
+    return db.collectionGroup("guias")
+    .where("numeroGuia", "==", numeroGuia)
+    .get()
+    .then(q => {
+      if(q.size) return q.docs[0].data();
+  
+      return null;
+    })
+}
+
+const refEstadosGuia = (id_user, id_heka) => {
+    return db.collection("usuarios").doc(id_user)
+    .collection("estadoGuias").doc(id_heka);
+}
+
+exports.obtenerEstadosGuiaPorId = async (id_user, id_heka) => {
+    return refEstadosGuia(id_user, id_heka).get()
+    .then(doc => doc.exists ? doc.data() : null);
+}
+
+exports.crearOActualizarEstados = async (id_user, id_heka, data, dataExistente = false) => {
+    if(dataExistente) {
+        return refEstadosGuia(id_user, id_heka).update(data);
+    } else {
+        return refEstadosGuia(id_user, id_heka).set(data);
+    }
+}
+
+exports.actualizarInfoGuia = async (id_user, id_heka, data) => {
+    return db.collection("usuarios").doc(id_user)
+    .collection("guias").doc(id_heka)
+    .update(data);
 }

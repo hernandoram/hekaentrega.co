@@ -1329,6 +1329,8 @@ async function generarSticker(id_user, id_heka) {
           has_sticker = await guardarStickerGuiaEnvia(para_crear);
         } else if (data.transportadora === "COORDINADORA") {
           has_sticker = await guardarStickerGuiaCoordinadora(para_crear);
+        } else if (data.transportadora === "HEKA") {
+          has_sticker = await guardarStickerGuiaHekaEntrega(para_crear);
         } else {
           has_sticker = await guardarStickerGuiaAveo(para_crear);
         }
@@ -3151,12 +3153,12 @@ function enviarNotificacion(options) {
     visible_user: false,
     visible_admin: false,
     visible_office: true,
-    icon: ["exclamation", "danger"],
+    icon: ["exclamation", "danger"], // El color e ícono que se muestra utilizando bootstrap para el color y fontAwesome para los icoos
     detalles: "arrErroresUsuario", //mostrar una lista de posibles causas
-    user_id: "vinculo.id_user",
-    office_id: "identificador de una oficina",
+    user_id: "vinculo.id_user", // El id del usuario a quién se le quiere mostrar la infnormación
+    office_id: "identificador de una oficina", // En caso de que se quiera notificar a una oficina
     mensaje: "Mensaje a mostrar en la notificación",
-    href: "id destino",
+    href: "id destino", // Si se requiere redirigir a alguna parte una vez se de click sobre la misma
     fecha: "dd/mm/aaaa",
     timeline: "new Date().getTime()", // ej. 125645584895
     type: "tipo de noticiación", // alerta, estatica, novedad, documento
