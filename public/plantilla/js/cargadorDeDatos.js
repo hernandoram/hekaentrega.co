@@ -1,9 +1,9 @@
 //const PROD_API_URL = "https://api.hekaentrega.co"; //"https://apidev.hekaentrega.co" o esta
 const PROD_API_URL = "https://api.hekaentrega.co"; //comentar o descomentar segun el ambiente
-const TEST_API_URL = "https://apidev.hekaentrega.co"; //comentar o descomentar segun el ambiente
+const TEST_API_URL = "https://api.hekaentrega.co"; //comentar o descomentar segun el ambiente
 
 // const PROD_API_URL_PLATFORM2 = "http://localhost:3232"; //comentar o descomentar segun el ambiente
-const PROD_API_URL_PLATFORM2 = "http://hekaentrega.co"; //comentar o descomentar segun el ambiente
+const PROD_API_URL_PLATFORM2 = "https://www.hekaentrega.co"; //comentar o descomentar segun el ambiente
 
 const versionSoftware = "1.0.2: contraseña para pagos";
 
@@ -21,16 +21,16 @@ let mostrarBilletera = false;
 const urlToken = new URLSearchParams(window.location.search);
 const tokenUser = urlToken.get("token") || localStorage.getItem("token");
 
+let mongoID;
+
 async function validateToken(token) {
   if (!token) {
     redirectLogin();
   } else {
     try {
       const response = await fetch(
-        `${PROD_API_URL}/api/v1/user/validate/token?token=${token}`
+        `${TEST_API_URL}/api/v1/user/validate/token?token=${token}`
       );
-
-      console.log(response);
 
       if (!response.ok) {
         redirectLogin();
@@ -39,6 +39,10 @@ async function validateToken(token) {
       const data = await response.json();
 
       console.log(data);
+
+      mongoID = data.response.user._id;
+
+      localStorage.setItem("mongo_id", mongoID);
       if (
         !data ||
         !data.response ||
@@ -584,7 +588,9 @@ function limitarAccesoSegunTipoUsuario() {
       "contenedor-solucion_novedad",
       "contenedor-mostrar-billetera"
     ];
-  } else if (usuarioLimitacionesHistorialovedades.includes(datos_usuario.centro_de_costo)) {
+  } else if (
+    usuarioLimitacionesHistorialovedades.includes(datos_usuario.centro_de_costo)
+  ) {
     quitarVistas = [
       "btn-seguimiento-gestionarNovedad",
       "seguimiento-gestionarNovedad",
@@ -2605,7 +2611,8 @@ async function solicitarPagosPendientesUs(e) {
       );
       return;
     } else {
-      solicitudDePago.limitadosDiario = firebase.firestore.FieldValue.arrayUnion(usuario)
+      solicitudDePago.limitadosDiario =
+        firebase.firestore.FieldValue.arrayUnion(usuario);
     }
 
     await ref.update(solicitudDePago);

@@ -3288,6 +3288,7 @@ function revisarNotificaciones() {
     .onSnapshot((snapshot) => {
       snapshot.docChanges().forEach((change) => {
         let notification = change.doc.data();
+        console.warn(notification);
         let identificador = change.doc.id;
         let mostrador, contador;
         if (
