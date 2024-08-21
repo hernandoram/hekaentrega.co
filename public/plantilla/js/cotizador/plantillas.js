@@ -37,7 +37,9 @@ export function llenarBodegasCotizador() {
     bodegasEl.html("");
 
     const opciones = info.map((bodega) => {
-      searchAndRenderCities(selectize.ciudadR, bodega.ciudad.split("(")[0]);
+      //, bodega.ciudad.split("(")[0]
+
+      searchAndRenderCities(selectize.ciudadR );
       const bodegaEl = `<option value="${bodega.ciudad}">${bodega.nombre}</option>`;
       return bodegaEl;
     });
