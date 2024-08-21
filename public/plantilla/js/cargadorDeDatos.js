@@ -123,7 +123,7 @@ function redirectLogin() {
     title: "Error!",
     text: "La sesión ha expirado, por favor inicia sesión nuevamente",
     icon: "error",
-    confirmButtonText: "OK"
+    confirmButtonText: "OK",
   }).then(() => {
     location.href = `${PROD_API_URL_PLATFORM2}/ingreso`;
   });
@@ -209,7 +209,7 @@ const datos_personalizados_1 = {
   constante_convencional: 800,
   constante_pagoContraentrega: 1700,
   comision_punto: 10,
-  saldo: 0
+  saldo: 0,
 };
 
 // Datos importantes para los porcentajes de comisión para usuarios nuevos,
@@ -221,7 +221,7 @@ const datos_personalizados_2 = {
   constante_convencional: 800,
   constante_pagoContraentrega: 1700,
   comision_punto: 10,
-  saldo: 0
+  saldo: 0,
 };
 
 //Administradara datos basicos del usuario que ingresa
@@ -235,16 +235,39 @@ async function getWarehouses() {
 
   let res;
 
+  //nombre y ciudad
   try {
     res = await fetch(url, {
       method: "GET",
       headers: {
         Authorization: `Bearer ${localStorage.getItem("token")}`,
-        "Content-Type": "application/json"
-      }
+        "Content-Type": "application/json",
+      },
     });
-    const {response} = await res.json();
-    return(response.rows);
+    const { response } = await res.json();
+
+    const bodegas = response.rows;
+
+
+    const newBodegas = bodegas.map((bodega) => {
+      return {
+        nombre: bodega.name,
+        inactiva: !bodega.status,
+        id: bodega._id,
+        direccion_completa: `${bodega.address}, ${bodega.neighborhood}, ${bodega.city.label}`,
+        direccion: bodega.address,
+        codigo_sucursal_inter:
+          bodega.conveyors.find(
+            (transportadora) => transportadora.id === "interrapidisimo"
+          )?.code || null,
+        ciudad: bodega.city.label,
+        barrio: bodega.neighborhood,
+      };
+    });
+
+    console.warn(bodegas,newBodegas);
+
+    return newBodegas;
   } catch (error) {
     console.error("Error en la solicitud GET:", error);
   }
@@ -264,7 +287,7 @@ const sendMessage = async (message) => {
     type: "code_access",
     code: message,
     number: `${datos_usuario.celular}`,
-    email: `${datos_usuario.correo}`
+    email: `${datos_usuario.correo}`,
   };
 
   const token = localStorage.getItem("token");
@@ -274,9 +297,9 @@ const sendMessage = async (message) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   })
     .then((response) => response.json())
     .then((data) => {
@@ -542,7 +565,7 @@ async function consultarDatosDeUsuario() {
         type: datos.type || "NATURAL",
         nombre_empresa: datos.nombre_empresa,
         datos_bancarios,
-        bodegas
+        bodegas,
       };
 
       if (datos_usuario.type === "NATURAL-FLEXII") {
@@ -592,7 +615,7 @@ const usuarioLimitacionesHistorialovedades = [
   "SellerSandralopez",
   "Sellerjuliethbolivar",
   "Sellercalzadobetss",
-  "Sellercristianandrade"
+  "Sellercristianandrade",
 ];
 
 function limitarAccesoSegunTipoUsuario() {
@@ -606,7 +629,7 @@ function limitarAccesoSegunTipoUsuario() {
       "documentos",
       "manifiestos",
       "crear_guia",
-      "deudas"
+      "deudas",
     ];
   } else if (ControlUsuario.esLoggy) {
     quitarVistas = [
@@ -614,7 +637,7 @@ function limitarAccesoSegunTipoUsuario() {
       "btn-seguimiento-gestionarNovedad",
       "seguimiento-gestionarNovedad",
       "contenedor-solucion_novedad",
-      "contenedor-mostrar-billetera"
+      "contenedor-mostrar-billetera",
     ];
   } else if (
     usuarioLimitacionesHistorialovedades.includes(datos_usuario.centro_de_costo)
@@ -622,7 +645,7 @@ function limitarAccesoSegunTipoUsuario() {
     quitarVistas = [
       "btn-seguimiento-gestionarNovedad",
       "seguimiento-gestionarNovedad",
-      "contenedor-solucion_novedad"
+      "contenedor-solucion_novedad",
     ];
   }
 
@@ -640,7 +663,7 @@ function mostrarDatosUsuario(datos) {
     ".mostrar-nombre_completo",
     ".mostrar-nombre_empresa",
     ".mostrar-numero_documento",
-    ".mostrar-tipo_documento"
+    ".mostrar-tipo_documento",
   ];
   mostradores.forEach((mostrador) => {
     const campo = mostrador.replace(".mostrar-", "");
@@ -728,7 +751,7 @@ function mostrarDatosBancarios(datos) {
     ".mostrar-numero_cuenta",
     ".mostrar-nombre_banco",
     ".mostrar-tipo_documento_banco",
-    ".mostrar-numero_iden_banco"
+    ".mostrar-numero_iden_banco",
   ];
   mostradores.forEach((mostrador) => {
     const campo = mostrador.replace(".mostrar-", "");
@@ -806,7 +829,7 @@ function agregarDatosBancarios(informacion) {
       Swal.fire({
         icon: "error",
         title: "Importante",
-        text: `Es necesario que llenes todos los campos para registrar tu cuenta bancaria`
+        text: `Es necesario que llenes todos los campos para registrar tu cuenta bancaria`,
       });
       return;
     }
@@ -815,7 +838,7 @@ function agregarDatosBancarios(informacion) {
   usuarioDoc.update({ datos_bancarios }).then(() => {
     Toast.fire({
       icon: "success",
-      title: "Datos bancarios agregados correctamente."
+      title: "Datos bancarios agregados correctamente.",
     });
   });
 }
@@ -926,7 +949,7 @@ async function descargarInformeUsuariosAdm(e) {
     "bodega_principal.direccion": "Dirección",
     "bodega_principal.ciudad": "Ciudad",
     "bodega_principal.departamento": "Departamento",
-    fecha_creacion: "Fecha Creación"
+    fecha_creacion: "Fecha Creación",
   };
 
   const normalizeObject = (campo, obj) => {
@@ -937,7 +960,7 @@ async function descargarInformeUsuariosAdm(e) {
   const transformDatos = (obj) => {
     const res = {
       "Cosas que envía": "",
-      "Fecha Creación": "No registra"
+      "Fecha Creación": "No registra",
     };
 
     obj.bodega_principal = {};
@@ -1014,7 +1037,7 @@ async function descargarInformeUsuariosAdm(e) {
       $("#fecha_inicio-rep_usuarios").val(genFecha());
       $("#fecha_fin-rep_usuarios").val(genFecha());
     },
-    showCancelButton: true
+    showCancelButton: true,
   });
 
   if (!isConfirmed) {
@@ -1063,7 +1086,7 @@ function limitarSeleccionGuias(limit = 50) {
         Toast.fire({
           icon: "error",
           text:
-            "Puede seleccionar como máximo " + limit + " guías por documento"
+            "Puede seleccionar como máximo " + limit + " guías por documento",
         });
       }
     });
@@ -1172,7 +1195,7 @@ async function agregarSaldo(envios, referente, referido) {
           const historialItem = {
             guiasEntregadas: data.guiasEntregadas,
             timestamp: new Date(),
-            saldoReclamado: parseInt(envios, 10) * 200
+            saldoReclamado: parseInt(envios, 10) * 200,
           };
           doc.ref.update({
             enviosReclamados:
@@ -1182,7 +1205,7 @@ async function agregarSaldo(envios, referente, referido) {
             guiasEntregadas: [],
             historialGuias: data.historialGuias
               ? [...data.historialGuias, historialItem]
-              : [historialItem]
+              : [historialItem],
           });
         }
       });
@@ -1217,7 +1240,7 @@ async function reclamarReferidoBilletera(referido, referente, saldoAReclamar) {
     REMITENTE: referente,
     "TOTAL A PAGAR": saldoAReclamar,
     TRANSPORTADORA: "REFERIDOS",
-    timeline: Date.now()
+    timeline: Date.now(),
   };
 
   await ref.doc(nombreGuia).set(nuevoObjeto);
@@ -1243,7 +1266,7 @@ function reclamarReferido(referido, referente, saldoAReclamar) {
     guia: null,
     medio: `Usuario reclama saldo del referido ${referido}`,
     numeroGuia: null,
-    type: "REFERIDO"
+    type: "REFERIDO",
   };
 
   let recibidoReferidos;
@@ -1277,14 +1300,14 @@ function reclamarReferido(referido, referente, saldoAReclamar) {
       // Creamos un nuevo objeto con los datos anteriores y el nuevo valor
       const nuevosDatosPersonalizados = {
         ...datos.datos_personalizados, // Mantenemos las propiedades anteriores
-        recibidoReferidos: recibidoReferidos // Agregamos la nueva propiedad con su valor
+        recibidoReferidos: recibidoReferidos, // Agregamos la nueva propiedad con su valor
       };
 
       console.log(nuevosDatosPersonalizados);
 
       // Actualizamos el documento con los nuevos datos
       return firebase.firestore().collection("usuarios").doc(userid).update({
-        datos_personalizados: nuevosDatosPersonalizados
+        datos_personalizados: nuevosDatosPersonalizados,
       });
     })
 
@@ -1312,7 +1335,7 @@ function cargarPagos() {
   console.log(data.get("documento"));
   fetch("/excel_to_json", {
     method: "POST",
-    body: data
+    body: data,
   })
     .then((res) => {
       if (!res.ok) {
@@ -1477,7 +1500,7 @@ function cargarPagos() {
 
                     timeline: new Date().getTime(),
                     comprobante_bancario: comprobante_bancario || "SCB",
-                    cuenta_responsable: celda[8].textContent || "SCR"
+                    cuenta_responsable: celda[8].textContent || "SCR",
                   })
                   .then(() => {
                     firebase
@@ -1516,7 +1539,7 @@ function cargarPagos() {
                   text:
                     'Se ha enviado el siguiente mensaje al usuario: "' +
                     mensaje +
-                    '"'
+                    '"',
                 });
               } else {
                 Swal.fire({
@@ -1525,7 +1548,7 @@ function cargarPagos() {
                     "No se ha podido enviar el siguiente mensaje al usuario: " +
                     mensaje +
                     " - Razón: " +
-                    respuestaMensaje.message
+                    respuestaMensaje.message,
                 });
               }
 
@@ -1855,7 +1878,7 @@ $("#btn-revisar_pagos").click(async (e) => {
       "TCC",
       "INTERRAPIDISIMO",
       "COORDINADORA",
-      "REFERIDOS"
+      "REFERIDOS",
     ];
   }
 
@@ -1952,7 +1975,7 @@ async function consultarFacturasGuardadasAdmin() {
       CEDULA: identificacion,
       TERCERO: nombre_completo,
       FACTURA: f.num_factura,
-      "Fecha elaboración": strFecha
+      "Fecha elaboración": strFecha,
     };
 
     return jsonArchivo;
@@ -2145,7 +2168,7 @@ function mostrarPagosAdmin(datos) {
 
 const paqueteGuiasPagadas = {
   guias: new Map(),
-  facturas: new Map()
+  facturas: new Map(),
 };
 
 function activarBotonesVisorPagos() {
@@ -2225,7 +2248,7 @@ async function obtenerFacturaRegistradaPorGuia(numeroGuia) {
   guiasPagadas.forEach((g) => {
     paqueteGuiasPagadas.guias.set(g, {
       idFactura,
-      comision_heka: paquete.comision_heka
+      comision_heka: paquete.comision_heka,
     });
   });
 
@@ -2237,11 +2260,11 @@ function mostrarPagosUsuario(data) {
     data: data,
     destroy: true,
     language: {
-      url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+      url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
     },
     lengthMenu: [
       [-1, 10, 25, 50, 100],
-      ["Todos", 10, 25, 50, 100]
+      ["Todos", 10, 25, 50, 100],
     ],
     columnDefs: [{ className: "cell-border" }],
     columns: [
@@ -2253,7 +2276,7 @@ function mostrarPagosUsuario(data) {
       { data: "TOTAL A PAGAR", title: "Total a Pagar" },
       { data: "COMISION HEKA", title: "Comisión Heka", defaultContent: "" },
       { data: "referencia", title: "Referencia", defaultContent: "No aplica" },
-      { data: "momento", title: "Momento", visible: false }
+      { data: "momento", title: "Momento", visible: false },
     ],
     dom: "Bfrtip",
     buttons: [
@@ -2262,9 +2285,9 @@ function mostrarPagosUsuario(data) {
         text: "Descargar",
         filename: "Repote pagos",
         exportOptions: {
-          columns: ":visible"
-        }
-      }
+          columns: ":visible",
+        },
+      },
     ],
     //Es importante organizarlo por fecha de manera específica, para poder segmentarlo
     order: [[8, "desc"]],
@@ -2373,7 +2396,7 @@ function mostrarPagosUsuario(data) {
 
       $("#visor-pagos_info").removeClass("dataTables_info");
       $("#visor-pagos_info").addClass("text-center");
-    }
+    },
   });
 }
 
@@ -2514,7 +2537,7 @@ async function crearLogPago(estado, fecha, valorPago) {
     Estado: estado,
     Tipo: "Pago",
     Fecha: fecha,
-    "Valor del pago": valorPago
+    "Valor del pago": valorPago,
   };
 
   // Agregar el documento a la colección
@@ -2530,7 +2553,7 @@ async function solicitarPagosPendientesUs(e) {
       title: "No tienes saldo",
       html: mensaje,
       showCancelButton: false,
-      confirmButtonText: "Aceptar"
+      confirmButtonText: "Aceptar",
     });
   }
 
@@ -2542,7 +2565,7 @@ async function solicitarPagosPendientesUs(e) {
       title: "Solicitando pago",
       html: mensaje,
       showCancelButton: false,
-      confirmButtonText: "Aceptar"
+      confirmButtonText: "Aceptar",
     });
   }
 
@@ -2558,7 +2581,7 @@ async function solicitarPagosPendientesUs(e) {
   const SwalMessage = Swal.mixin({
     didClose: () => {
       loader.end();
-    }
+    },
   });
 
   const data = await ref.get().then((d) => d.data());
@@ -2568,7 +2591,7 @@ async function solicitarPagosPendientesUs(e) {
     "ENVIA",
     "TCC",
     "INTERRAPIDISIMO",
-    "COORDINADORA"
+    "COORDINADORA",
   ];
   const verPago = (t) =>
     db
@@ -2610,7 +2633,7 @@ async function solicitarPagosPendientesUs(e) {
   const usuario = datos_usuario.centro_de_costo;
 
   const solicitudDePago = {
-    diarioSolicitado: firebase.firestore.FieldValue.arrayUnion(usuario)
+    diarioSolicitado: firebase.firestore.FieldValue.arrayUnion(usuario),
   };
 
   // cuando el saldo es inferior al límite requerido, el pago se limita a una sola vez en la semana
@@ -2626,7 +2649,7 @@ async function solicitarPagosPendientesUs(e) {
       html: mensaje,
       showCancelButton: true,
       cancelButtonText: "No",
-      confirmButtonText: "Si"
+      confirmButtonText: "Si",
     });
 
     if (!resp.isConfirmed) return loader.end();
@@ -2656,7 +2679,7 @@ async function solicitarPagosPendientesUs(e) {
       html: mensaje,
       showCancelButton: true,
       cancelButtonText: "No",
-      confirmButtonText: "Si"
+      confirmButtonText: "Si",
     });
 
     if (!resp.isConfirmed) return loader.end();
@@ -2700,26 +2723,26 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (doc.data().id_punto == id_punto) {
                   return Swal.fire({
                     icon: "success",
-                    text: "Esta guía ya está registrada en tu punto"
+                    text: "Esta guía ya está registrada en tu punto",
                   });
                 }
                 if (doc.data().id_punto !== id_punto) {
                   return Swal.fire({
                     icon: "success",
-                    text: "Esta guía ya está registrada en otro punto"
+                    text: "Esta guía ya está registrada en otro punto",
                   });
                 }
                 doc.ref.update({ id_punto: id_punto });
                 return Swal.fire({
                   icon: "success",
-                  text: "Guía registrada con éxito"
+                  text: "Guía registrada con éxito",
                 });
               });
             });
         } else {
           return Swal.fire({
             icon: "error",
-            text: "No tienes permisos para registrar guías"
+            text: "No tienes permisos para registrar guías",
           }).then(() => {
             window.location.replace("/plataforma2.html");
           });
@@ -2876,7 +2899,7 @@ async function crearNuevoObjeto() {
   nuevoObjeto = {
     nombre: document.querySelector("#producto").value,
     referencia: document.querySelector("#referencia").value,
-    paquete: document.querySelector("#empaque").value
+    paquete: document.querySelector("#empaque").value,
   };
 
   if (selectItems.value === "") {
@@ -2949,7 +2972,7 @@ async function subirObjetosEnvio(objetos) {
     const nuevoObjeto = {
       nombre: objeto,
       referencia: "",
-      paquete: ""
+      paquete: "",
     };
 
     return referenciaUsuariosFrecuentes
@@ -2982,7 +3005,7 @@ function verificarBodegas(bodegasUser) {
       Swal.fire({
         icon: "error",
         title: "No tienes bodegas registradas",
-        text: "Por favor, registra una bodega para poder cotizar envíos"
+        text: "Por favor, registra una bodega para poder cotizar envíos",
       }).then((result) => {
         if (result.isConfirmed) {
           window.location.replace("/plataforma2.html#bodegas");
