@@ -102,7 +102,6 @@ function buscarCiudad(el, ciudad) {
 
   charger.init();
   if (ciudadesTomadas.has(ciudad)) {
-    alert("ciudad tomada");
     return setearCiudad(el, ciudadesTomadas.get(ciudad));
   }
 

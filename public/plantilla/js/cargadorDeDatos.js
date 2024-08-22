@@ -260,7 +260,7 @@ async function getWarehouses() {
           bodega.conveyors.find(
             (transportadora) => transportadora.id === "interrapidisimo"
           )?.code || null,
-        ciudad: bodega.city.label,
+        ciudad: `${bodega.city.label}(${bodega.city.state.label})`,
         barrio: bodega.neighborhood,
       };
     });
