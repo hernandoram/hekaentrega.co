@@ -58,7 +58,8 @@ async function validateToken(token) {
 
       if (tipoUsuario === "manager") {
         if (window.location.pathname !== "/admin.html") {
-          redirectLogin();
+          //redirectLogin();
+          location.href = '/admin.html';
         }
         localStorage.setItem("acceso_admin", true);
         console.warn("Bienvenido administrador");
