@@ -288,7 +288,7 @@ function analizarRegistros(settings) {
         totalPagado += total_pagado;
         totalFacturado += comision_heka;
 
-        if(lastNumFact !== -1) {
+        if(lastNumFact > 0) {
             const difference = num_factura - lastNumFact;
 
             if(difference > 1) {
@@ -487,7 +487,9 @@ async function descargarInformeFacturas(e) {
         }
     }
 
-    const promiseFacturas = facturas.map(async (f) => {
+    const promiseFacturas = facturas
+    .filter(f => f.num_factura !== -1) // Quitamos los número de factura = -1 ya que son pagos que no ameritan facturación o no fueron facturados a propósito
+    .map(async (f) => {
       const id_user = f.id_user;
       if (!usuarioCargados.has(id_user)) {
         const respuestaUsuario = await db
