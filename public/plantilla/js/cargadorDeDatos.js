@@ -565,7 +565,8 @@ const usuarioLimitacionesHistorialovedades = [
   "SellerSandralopez",
   "Sellerjuliethbolivar",
   "Sellercalzadobetss",
-  "Sellercristianandrade"
+  "Sellercristianandrade",
+  "Sellerindustriaszamarith"
 ];
 
 function limitarAccesoSegunTipoUsuario() {

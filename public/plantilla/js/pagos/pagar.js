@@ -824,7 +824,8 @@ class Empaquetado {
 
         const dataFactura = {
             id_factura: "", // Si posee error, se guarda el paquete de pagos, pero sin id de factura, ni número de factura, ni nombre de factura
-            num_factura: 0, // Si posee error, se guarda el paquete de pagos, pero sin id de factura, ni número de factura, ni nombre de factura
+            // Cuando la comisión heka es cero no se factura, por ende "num_factura" se guarda en -1 por defecto
+            num_factura: comision_heka_total === 0 ? -1 : 0, // Si posee error, se guarda el paquete de pagos, pero sin id de factura, ni número de factura, ni nombre de factura
             nombre_factura: "", // Si posee error, se guarda el paquete de pagos, pero sin id de factura, ni número de factura, ni nombre de factura
         }
 
