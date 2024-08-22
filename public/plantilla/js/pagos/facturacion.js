@@ -472,7 +472,7 @@ async function descargarInformeFacturas(e) {
     const facturas = await obtenerDataFacturasAdmin();
     
     const facturasErroneas = facturas.filter(f => f.num_factura === 0);
-    if(facturasErroneas.length || true) {
+    if(facturasErroneas.length) {
         const resp = await Swal.fire({
             title: "Revisar Información",
             text: `Hemos detectado ${facturasErroneas.length} fectura sin consecutivo. ¿Desea validar Antes de descargar?`,
