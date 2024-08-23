@@ -5185,7 +5185,7 @@ async function generarRotulo(id_guias, id_user) {
     const ciudad = guia.oficina
       ? guia.datos_oficina.ciudad
       : `${guia.ciudadD}(${guia.departamentoD})`;
-    const celularD = guia.oficina ? guia.datos_oficina.celular : guia.celularD;
+    const celularR = guia.info_user ? guia.info_user.celular : guia.celularR;
     const telefonoD = guia.oficina
       ? guia.datos_oficina.celular
       : guia.telefonoD;
@@ -5217,7 +5217,7 @@ async function generarRotulo(id_guias, id_user) {
     );
     const rowDireccion = createRow(`${direccion}`, `${guia.observaciones}`);
     const rowContacto = createRow(
-      `Tel: <b>${celularD}</b>`,
+      `Tel: <b>${celularR}</b>`,
       `Tel: <b>${telefonoD}</b>`
     );
     const rowIdentificacion = createRow(
