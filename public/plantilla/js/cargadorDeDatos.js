@@ -1,3 +1,4 @@
+require('dotenv').config();
 //const PROD_API_URL = "https://api.hekaentrega.co"; //"https://apidev.hekaentrega.co" o esta
 const PROD_API_URL = process.env.ENVIRONMENT_NAME; //comentar o descomentar segun el ambiente
 //const TEST_API_URL = "https://apidev.hekaentrega.co"; //comentar o descomentar segun el ambiente
