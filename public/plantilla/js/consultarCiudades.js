@@ -238,7 +238,7 @@ async function searchAndRenderCities(elSelectize, query) {
     });
   })
   .catch(e => {
-    cosole.log("No se han podido cargar las ciudades ", e.message);
+    console.log("No se han podido cargar las ciudades ", e.message);
 
     // Si genera error la búsqueda, simplemente se elimina la propiedad
     // para que cuando el cliente vuelva a ingresarla manual, trate de hacer la búsqueda nuevamente

@@ -5,7 +5,7 @@ const fetch = require("node-fetch");
 const firebase = require("../keys/firebase");
 const db = firebase.firestore();
 
-const apiEndPoint = "https://hekaentrega.co/Api";
+const apiEndPoint = "https://admin.hekaentrega.co/Api";
 // const apiEndPoint = "http://localhost:6201/Api";
 
 let ciudades = [];
