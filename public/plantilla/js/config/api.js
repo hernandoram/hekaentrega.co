@@ -15,7 +15,8 @@ const v0 = {
     pathCotizador
 }
 
-const endpointV1 = "https://api.hekaentrega.co/Api/v1";
+// const endpointV1 = "https://api.hekaentrega.co/Api/v1";
+const endpointV1 = PROD_API_URL+"/Api/v1";
 const v1 = {
     endpoint: endpointV1,
     quoter: endpointV1 + "/shipping/quoter",

@@ -37,7 +37,9 @@ export function llenarBodegasCotizador() {
     bodegasEl.html("");
 
     const opciones = info.map((bodega) => {
-      searchAndRenderCities(selectize.ciudadR, bodega.ciudad.split("(")[0]);
+      //
+
+      searchAndRenderCities(selectize.ciudadR , bodega.ciudad.split("(")[0]);
       const bodegaEl = `<option value="${bodega.ciudad}">${bodega.nombre}</option>`;
       return bodegaEl;
     });
@@ -61,7 +63,6 @@ export function llenarProductos(num) {
       opciones.push(`<option value="${d.id}">${data.nombre}</option>`);
       listaPlantilla.set(d.id, data);
       searchAndRenderCities(selectize.ciudadD, data.ciudadD.split("(")[0]);
-
     });
 
     opciones.unshift(`<option value>Seleccione Plantilla</option>`);
@@ -76,6 +77,9 @@ export function llenarProductos(num) {
 const ciudadesTomadas = new Map();
 function cambiarBodegaCotizador(e) {
   const val = e.target.value;
+
+  console.warn(val);
+
   limpiarInputCiudad(inpCiudadR);
 
   const bodega = bodegasWtch.value.find((b) => b.ciudad == val);
@@ -94,11 +98,12 @@ function setearCiudad(inp, data) {
 }
 
 function buscarCiudad(el, ciudad) {
-  if(!ciudad) return;
+  if (!ciudad) return;
 
   charger.init();
-  if (ciudadesTomadas.has(ciudad))
+  if (ciudadesTomadas.has(ciudad)) {
     return setearCiudad(el, ciudadesTomadas.get(ciudad));
+  }
 
   db.collection("ciudades")
     .where("nombre", "==", ciudad)
@@ -107,6 +112,8 @@ function buscarCiudad(el, ciudad) {
     .then((q) => {
       q.forEach((doc) => {
         const data = doc.data();
+
+        console.warn(data)
         if (data.desactivada) return;
         setearCiudad(el, data);
       });

@@ -111,6 +111,12 @@
             <i class="fas fa-fw fa-users"></i>
             <span>Stats</span></a>
         </li>
+
+        <li class="nav-item">
+          <a class="nav-link" href="https://dev.hekaentrega.co/plataforma/estructura/bodegas">
+            <i class="fas fa-fw fa-flag"></i>
+            <span>Bodegas</span></a>
+        </li>
         <!-- Divider -->
         <hr class="sidebar-divider">
 
@@ -2940,6 +2946,13 @@
         </div>
       </div>
     </div>
+    <script>
+      // Inyectar las variables de entorno desde el backend al frontend
+      window.ENV = {
+        ENVIRONMENT_NAME: '${process.env.ENVIRONMENT_NAME}',
+        PROD_API_URL_PLATFORM2: '${process.env.PROD_API_URL_PLATFORM2}'
+      };
+    </script>
 
 
     <!-- FIREBASE -->
@@ -3010,7 +3023,7 @@
       };
 
     </script>
-
+    <script src="/config.js"></script>
     <script src="js/render.js"></script>
     <script src="js/callcenter/callcenter.js"></script>
     <script src="js/cargadorDeDatos.js"></script>
