@@ -34,7 +34,7 @@ botonIninicarSesionUsarioToken.addEventListener("click", async function () {
       if (window.location.hostname === "localhost") {
         urlBase = "http://localhost:6200";
       } else {
-        urlBase = "https://wwww.hekaentrega.co";
+        urlBase = "https://www.hekaentrega.co";
       }
       // Copiar la URL al portapapeles
       navigator.clipboard
