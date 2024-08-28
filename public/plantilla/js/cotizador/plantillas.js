@@ -64,15 +64,13 @@ export function llenarProductos(num) {
       const data = d.data();
       if (data.eliminada) return;
 
-      opciones.push(`<option value="${d.id}">${data.nombre}</option>`);
-      listaPlantilla.set(d.id, data);
-
       const ciudadBusqueda = ciudades.find(
         (ciudad) => ciudad.dane_ciudad === data.ciudadD
       );
-      if (!ciudadBusqueda) return;
 
-      console.warn(ciudadBusqueda);
+      if (!ciudadBusqueda) return;
+      opciones.push(`<option value="${d.id}">${data.nombre}</option>`);
+      listaPlantilla.set(d.id, { ...data, ciudad: ciudadBusqueda.nombreAveo });
 
       searchAndRenderCities(
         selectize.ciudadD,
@@ -119,6 +117,8 @@ function buscarCiudad(el, ciudad) {
   if (ciudadesTomadas.has(ciudad)) {
     return setearCiudad(el, ciudadesTomadas.get(ciudad));
   }
+
+  console.warn(ciudad);
 
   db.collection("ciudades")
     .where("nombre", "==", ciudad)
@@ -171,7 +171,7 @@ function cambiarPlantillaCotizador(e) {
   });
 
   if (checkActivarDestinoPlantilla[0].checked)
-    buscarCiudad(inpCiudadD, plantilla.ciudadD);
+    buscarCiudad(inpCiudadD, plantilla.ciudad);
 }
 
 function llenarInputCiudad(inp, data) {
