@@ -1,4 +1,4 @@
-const endpoint = "https://hekaentrega.co/Api";
+const endpoint = "https://admin.hekaentrega.co/Api";
 // const endpoint = "http://localhost:6201/Api";
 
 const pathCiudades = endpoint + "/Ciudades";

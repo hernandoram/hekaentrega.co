@@ -168,7 +168,7 @@ const actualizarMovimientosScrapp = async function(doc) {
 
 const actualizarMovimientos = async function(doc) {
     console.log(doc.data().numeroGuia);
-    const respuesta = await requestP.get(urlEstados + doc.data().numeroGuia)
+    const respuesta = await requestP.post(urlEstados + doc.data().numeroGuia)
     .then(res => JSON.parse(res))
     .catch(err => {
         return {

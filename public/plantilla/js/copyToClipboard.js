@@ -34,11 +34,11 @@ botonIninicarSesionUsarioToken.addEventListener("click", async function () {
       if (window.location.hostname === "localhost") {
         urlBase = "http://localhost:6200";
       } else {
-        urlBase = "https://admin.hekaentrega.co";
+        urlBase = "https://www.hekaentrega.co";
       }
       // Copiar la URL al portapapeles
       navigator.clipboard
-        .writeText(`${urlBase}/plataforma2.html?token=${tokenUser}`)
+        .writeText(`${urlBase}/ingreso?token=${tokenUser}`)
         .then(function () {
           // Cambiar el texto del botón a 'URL copiada correctamente'
           botonIninicarSesionUsarioToken.innerHTML =
