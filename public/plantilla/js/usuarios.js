@@ -188,7 +188,7 @@ function nuevaCuenta() {
     con: value("CPNcontraseña").replace(/\/|\s/g, ""),
     objetos_envio: value("CPNobjetos_envio")
       .split(",")
-      .map((s) => s.trim())
+      .map((s) => s.trim()),
   };
 
   let datos_relevantes = {
@@ -201,7 +201,7 @@ function nuevaCuenta() {
     objetos_envio: value("CPNobjetos_envio")
       .split(",")
       .map((s) => s.trim()),
-    fecha_creacion: new Date()
+    fecha_creacion: new Date(),
   };
 
   if (administracion) {
@@ -241,7 +241,7 @@ function nuevaCuenta() {
     tipo_de_cuenta: value("CPNtipo_de_cuenta"),
     numero_cuenta: value("CPNnumero_cuenta"),
     tipo_documento_banco: value("CPNtipo_documento_banco"),
-    numero_iden_banco: value("CPNnumero_identificacion_banco")
+    numero_iden_banco: value("CPNnumero_identificacion_banco"),
   };
 
   ///div datos bancarios
@@ -277,7 +277,7 @@ function nuevaCuenta() {
         : "CPNobjetos_envio";
       Toast.fire({
         icon: "error",
-        text: "Error: Ningún campo debe estar vacío."
+        text: "Error: Ningún campo debe estar vacío.",
       });
       inHTML(
         "error_crear_cuenta",
@@ -298,7 +298,7 @@ function nuevaCuenta() {
           "CPNcontraseña",
           "CPNrepetir_contraseña",
           "CPNobjetos_envio",
-          id_centro_costo
+          id_centro_costo,
         ],
         false,
         "Este campo no debería estar vacío."
@@ -353,7 +353,7 @@ function nuevaCuenta() {
                 "CPNconfirmar_numero_cuenta",
                 "CPNtipo_documento_banco",
                 "CPNnumero_identificacion_banco",
-                "CPNconfirmar_numero_identificacion_banco"
+                "CPNconfirmar_numero_identificacion_banco",
               ],
               false,
               "Este campo no debe estar vacío."
@@ -382,7 +382,7 @@ function nuevaCuenta() {
             verificador(
               [
                 "CPNnumero_identificacion_banco",
-                "CPNconfirmar_numero_identificacion_banco"
+                "CPNconfirmar_numero_identificacion_banco",
               ],
               "no-scroll"
             );
@@ -470,7 +470,7 @@ function nuevaCuenta() {
                         .set({
                           activar_saldo: true,
                           fecha: genFecha(),
-                          saldo: 0
+                          saldo: 0,
                         });
                     }
                   })
@@ -554,7 +554,7 @@ inpNombreEmpresa.insertBoolean = [
   "length",
   ">=",
   25,
-  "Has llegado al límite de carácteres."
+  "Has llegado al límite de carácteres.",
 ];
 
 let CpnKey = new MensajeError("#CPNcontraseña");
@@ -757,7 +757,7 @@ async function buscarUsuarios(e, esGeneral) {
     "celular",
     "celular2",
     "correo",
-    "direccion_completa"
+    "direccion_completa",
   ];
   let especifico;
 
@@ -939,12 +939,12 @@ function activadorGuiasAutomaticasDesdeAdmin(el) {
     db.collection("usuarios")
       .doc(id)
       .update({
-        generacion_automatizada: el.checked
+        generacion_automatizada: el.checked,
       })
       .then(
         Toast.fire({
           icon: "success",
-          text: "Usuario actualizado"
+          text: "Usuario actualizado",
         })
       );
   });
@@ -1027,7 +1027,6 @@ function seleccionarUsuario(id) {
         mostrarReferidosUsuarioAdm(doc.data().centro_de_costo);
 
         mostrarDatosPersonales(datos_bancarios, "bancaria");
-        mostrarBodegasUsuarioAdm(bodegas);
         mostrarObjetosFrecuentesAdm(doc.id);
 
         getDataUserFromMongoByIdAdm(id)
@@ -1089,7 +1088,7 @@ function seleccionarUsuario(id) {
           day: "numeric",
           hour: "2-digit",
           minute: "2-digit",
-          hour12: true
+          hour12: true,
         };
         const fechaFormateada = fecha.toLocaleString("es-CO", opciones);
 
@@ -1113,33 +1112,33 @@ function seleccionarUsuario(id) {
             data: "timeline",
             title: "Orden",
             defaultContent: "",
-            visible: false
+            visible: false,
           },
           {
             data: "Estado",
             title: "Estado",
-            defaultContent: ""
+            defaultContent: "",
           },
           {
             data: "Fecha",
             title: "Fecha",
-            defaultContent: ""
+            defaultContent: "",
           },
           {
             data: "Valor del pago",
             title: "Valor del pago",
-            defaultContent: ""
-          }
+            defaultContent: "",
+          },
         ],
         language: {
-          url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+          url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
         },
         scrollX: true,
         scrollCollapse: true,
         lengthMenu: [
           [5, 10, 25, 30],
-          [5, 10, 25, 30]
-        ]
+          [5, 10, 25, 30],
+        ],
       });
 
       if (!acciones || !acciones.length) table.clear();
@@ -1306,51 +1305,51 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
             {
               data: "sellerReferido",
               title: "Seller Referido",
-              defaultContent: ""
+              defaultContent: "",
             },
             {
               data: "nombreApellido",
               title: "Nombre Referido",
-              defaultContent: ""
+              defaultContent: "",
             },
             { data: "celularReferido", title: "Celular", defaultContent: "" },
             {
               data: "cantidadEnvios",
               title: "Cantidad Envios",
-              defaultContent: ""
+              defaultContent: "",
             },
             {
               data: "enviosPorReclamar",
               title: "Envios por Reclamar",
-              defaultContent: "0"
+              defaultContent: "0",
             },
             {
               data: "enviosReclamados",
               title: "Envios Reclamados",
-              defaultContent: "0"
+              defaultContent: "0",
             },
             {
               data: "cantidadReclamos",
               title: "Cantidad Reclamos",
-              defaultContent: "0"
-            }
+              defaultContent: "0",
+            },
           ],
           language: {
-            url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+            url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
           },
           scrollX: true,
           scrollCollapse: true,
           lengthMenu: [
             [5, 10, 25, 30],
-            [5, 10, 25, 30]
+            [5, 10, 25, 30],
           ],
           columnDefs: [
             {
               targets: [6], // Índice de la columna "Cantidad Reclamos"
               createdCell: function (td, cellData, rowData, row, col) {
                 $(td).addClass("clickable-cantidad-reclamos"); // Añade una clase para identificar las celdas
-              }
-            }
+              },
+            },
           ],
           drawCallback: function (settings) {
             // Añade el manejador de eventos cada vez que se dibuja la tabla
@@ -1415,50 +1414,11 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
                   });
                 }
               });
-          }
+          },
         });
       });
     });
 }
-
-function mostrarBodegasUsuarioAdm(bodegas) {
-  const table = $("#tabla-bodegas").DataTable({
-    destroy: true,
-    data: bodegas,
-    columns: [
-      { data: "id", title: "Nº", defaultContent: "" },
-      { data: "nombre", title: "Nombre", defaultContent: "" },
-      { data: "ciudad", title: "Ciudad", defaultContent: "" },
-      { data: "barrio", title: "Barrio", defaultContent: "" },
-      { data: "direccion", title: "Dirección", defaultContent: "" },
-      {
-        data: "inactiva",
-        title: "Estado",
-        defaultContent: "Activa",
-        render: function (content, type, data) {
-          if (type === "display" || type === "filter") {
-            return content ? "Inactiva" : "Activada";
-          }
-          return content;
-        }
-      }
-    ],
-    language: {
-      url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
-    },
-    scrollX: true,
-    scrollCollapse: true,
-    lengthMenu: [
-      [5, 10, 25, 30],
-      [5, 10, 25, 30]
-    ]
-  });
-
-  if (!bodegas || !bodegas.length) table.clear();
-}
-
-$("#tabla-bodegas").on("click", "tbody tr", editarBodegaUsuarioAdm);
-$("#actualizar-bodegas").click(actualizarBodegasAdm);
 
 function editarBodegaUsuarioAdm(e) {
   console.log(e);
@@ -1515,7 +1475,7 @@ function editarBodegaUsuarioAdm(e) {
   Swal.fire({
     titleText: data.nombre + " - " + data.ciudad.toLowerCase(),
     html,
-    showCancelButton: true
+    showCancelButton: true,
   }).then((res) => {
     if (res.isConfirmed) {
       const form = document.getElementById("editar-bodega-" + data.id);
@@ -1544,7 +1504,7 @@ function editarBodegaUsuarioAdm(e) {
       nombre_empresa: value("actualizar_nombre_empresa"),
       correo: value("actualizar_correo"),
       numero_documento: value("actualizar_numero_documento"),
-      centro: value("actualizar_centro_costo")
+      centro: value("actualizar_centro_costo"),
     };
 
     let textoACopiar = `${datos.centro} \t ${datos.numero_documento} \t ${
@@ -1578,46 +1538,11 @@ function compareCodigoSucursalInter(arr1, arr2) {
       differences.push({
         index: i,
         codigo_sucursal_inter_1: codigo1,
-        codigo_sucursal_inter_2: codigo2
+        codigo_sucursal_inter_2: codigo2,
       });
     }
   }
   return differences;
-}
-
-function actualizarBodegasAdm() {
-  let id_usuario = document
-    .getElementById("usuario-seleccionado")
-    .getAttribute("data-id");
-  const bodegas = $("#tabla-bodegas").DataTable().data().toArray();
-
-  const differences = compareCodigoSucursalInter(userBodegas, bodegas);
-  console.log(differences);
-
-  const bodegasInfo = differences.map((diff) => {
-    return {
-      direccion_completa: bodegas[diff.index].direccion_completa,
-      ciudad: bodegas[diff.index].ciudad
-    };
-  });
-  console.warn(bodegasInfo);
-
-  firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(id_usuario)
-    .update({ bodegas })
-    .then(() => {
-      mostrarBodegasUsuarioAdm(bodegas);
-      Toast.fire({
-        icon: "success",
-        text: "Bodegas actualizadas correctamente."
-      });
-    })
-    .then(async () => {
-      const notificaciones = await notificacionBodegas(bodegasInfo);
-      console.log(notificaciones);
-    });
 }
 
 async function notificacionBodegas(bodegasInfo) {
@@ -1632,7 +1557,7 @@ async function notificacionBodegas(bodegasInfo) {
           mensaje: `Tu bodega de Interrapidisimo con dirección ${bodega.direccion_completa} ha sido activada correctamente`,
           user_id: idUsuario,
           visible_user: true,
-          timeline: new Date().getTime()
+          timeline: new Date().getTime(),
         });
       console.log(
         `Notificación creada para la bodega en ${bodega.ciudad} con dirección ${bodega.direccion_completa} ${idUsuario}`
@@ -1689,7 +1614,7 @@ async function actualizarInformacionPersonal() {
     blockWallet: value("actualizar_bloqueo_billetera"),
 
     con: value("actualizar_repetir_contraseña"),
-    ingreso: value("actualizar_contraseña")
+    ingreso: value("actualizar_contraseña"),
   };
 
   let billetera = value("actualizar_bloqueo_billetera");
@@ -1714,7 +1639,7 @@ async function actualizarInformacionPersonal() {
     {
       method: "GET",
       headers: myHeaders,
-      redirect: "follow"
+      redirect: "follow",
     }
   ).then(async (response) => {
     const data = await response.json();
@@ -1729,7 +1654,7 @@ async function actualizarInformacionPersonal() {
         "NIT(RUT)": "NIT",
         CE: "CE",
         PPT: "PPT",
-        PEP: "PEP"
+        PEP: "PEP",
       };
       return mapping[tipo] || tipo;
     }
@@ -1747,7 +1672,7 @@ async function actualizarInformacionPersonal() {
       type_document: mappedDoc,
       document: value("actualizar_numero_documento"),
       type_account: type,
-      blockedWallet: billetera
+      blockedWallet: billetera,
     });
 
     myHeaders.append("Content-type", "application/json");
@@ -1755,7 +1680,7 @@ async function actualizarInformacionPersonal() {
       method: "PATCH",
       headers: myHeaders,
       redirect: "follow",
-      body: updateBody
+      body: updateBody,
     }).then(() => {
       avisar(
         "Actualización de Datos exitosa",
@@ -1779,7 +1704,7 @@ async function getDataUserFromMongoByIdAdm(id_usuario) {
     {
       method: "GET",
       headers: myHeaders,
-      redirect: "follow"
+      redirect: "follow",
     }
   ).then(async (response) => {
     const data = await response.json();
@@ -1813,7 +1738,7 @@ function actualizarInformacionOficina() {
       ", " +
       value("barrio-oficina") +
       ", " +
-      value("ciudad-oficina")
+      value("ciudad-oficina"),
   };
   console.log(aux);
   console.log(datos);
@@ -1854,7 +1779,7 @@ async function actualizarInformacionHekaOficina() {
   let datos = {
     porcentaje_comsion: value("porcentaje-comision-oficina"),
     tipo_distribucion: [checkbox1val, checkbox2val],
-    comision_minima: value("comision-minima")
+    comision_minima: value("comision-minima"),
   };
   console.log(datos);
 
@@ -1884,7 +1809,7 @@ function actualizarInformacionBancaria() {
     tipo_de_cuenta: value("actualizar_tipo_de_cuenta"),
     numero_cuenta: value("actualizar_numero_cuenta"),
     tipo_documento_banco: value("actualizar_tipo_documento_banco"),
-    numero_iden_banco: value("actualizar_numero_identificacion_banco")
+    numero_iden_banco: value("actualizar_numero_identificacion_banco"),
   };
 
   let id_usuario = document
@@ -1923,7 +1848,7 @@ async function actualizarInformacionHeka() {
     return Toast.fire({
       icon: "error",
       title: "Algo Falta 😓",
-      text: mensajeCuidado
+      text: mensajeCuidado,
     });
   }
   // Datos contabilidad
@@ -1932,7 +1857,7 @@ async function actualizarInformacionHeka() {
 
   let datos = {
     saldo: parseInt($("#actualizar_saldo").attr("data-saldo")),
-    fecha: genFecha()
+    fecha: genFecha(),
   };
 
   $("#informacion-heka")
@@ -1976,7 +1901,7 @@ async function actualizarInformacionHeka() {
       momento: momento,
       user_id: id_usuario,
       medio: "Administrador: " + localStorage.user_id,
-      type: "GENERAL"
+      type: "GENERAL",
     };
 
     if (!doc.exists) {
@@ -2054,7 +1979,7 @@ async function actualizarInformacionHeka() {
                   id2: docRef2.id,
                   user: saldo.user_id,
                   medio: "Administrador: " + localStorage.user_id,
-                  momento: momento
+                  momento: momento,
                 });
             });
         });
@@ -2071,59 +1996,6 @@ async function actualizarInformacionHeka() {
           saldo.mensaje
       );
     });
-}
-
-$("#crear_agente_aveo").click(crearAgenteAveonline);
-async function crearAgenteAveonline() {
-  const emiter = new ChangeElementContenWhileLoading(this);
-  const bodegas = $("#tabla-bodegas").DataTable().data().toArray();
-  const inputOptions = new Object();
-  emiter.init();
-
-  if (!bodegas.length) {
-    emiter.end();
-    return Toast.fire({
-      icon: "warning",
-      title: "No permitido",
-      text: "el usuario no tiene bodega para crear el agente de aveonline"
-    });
-  }
-
-  bodegas.forEach((b) => {
-    inputOptions[b.id] = b.nombre;
-  });
-
-  const { value: idSeleccionada } = await Swal.fire({
-    title: "Seleccione ciudad",
-    input: "select",
-    inputOptions,
-    showCancelButton: true,
-    confirmButtonText: "Crear agente"
-  });
-
-  if (!idSeleccionada) return emiter.end();
-
-  const { direccion, barrio, ciudad } = bodegas.filter(
-    (b) => b.id == idSeleccionada
-  )[0];
-
-  console.log(direccion, barrio, ciudad);
-  let queries = $("#informacion-personal form").serialize();
-  // Se codifica para que no se pierdan algunos valores como carácteres especiales
-  queries += `&barrio=${encodeURIComponent(barrio)}&ciudad=${encodeURIComponent(
-    ciudad
-  )}&direccion=${encodeURIComponent(direccion)}`;
-
-  const res = await fetch("/aveo/crearAgente?" + queries).then((d) => d.json());
-  console.log(res);
-  Toast.fire({
-    icon: res.status === "error" ? "error" : "success",
-    title: res.status,
-    text: res.message
-  });
-
-  $("#listar_agentes_aveo").click();
-  emiter.end();
 }
 
 async function consultarAgentesAveonline() {
@@ -2332,14 +2204,14 @@ const estadosEntregados = [
   "Entrega Exitosa",
   "Entregada",
   "ENTREGADA DIGITALIZADA",
-  "ENTREGADA"
+  "ENTREGADA",
 ];
 
 const estadosDevueltas = [
   "ENTREGADO A REMITENTE",
   "Devuelto al Remitente",
   "DEVOLUCION",
-  "CERRADO POR INCIDENCIA, VER CAUSA"
+  "CERRADO POR INCIDENCIA, VER CAUSA",
 ];
 
 const estadoAnuladas = ["Documento Anulado"];
@@ -2386,7 +2258,7 @@ function displayStats() {
 
   var options = {
     title: {
-      text: "Estadisticas globales"
+      text: "Estadisticas globales",
     },
     data: [
       {
@@ -2400,10 +2272,10 @@ function displayStats() {
           { label: "Entregadas", y: guiasEntregas.length },
           { label: "Devueltas", y: guiasDevueltas.length },
           { label: "Anuladas", y: guiasAnuladas.length || 0 },
-          { label: "En Proceso", y: guiasEnProceso }
-        ]
-      }
-    ]
+          { label: "En Proceso", y: guiasEnProceso },
+        ],
+      },
+    ],
   };
 
   var chart = new CanvasJS.Chart(chartGlobal, options);
@@ -2473,7 +2345,7 @@ function loadWeek1() {
   ) {
     options = {
       title: {
-        text: "No hay guías entregadas ni devueltas"
+        text: "No hay guías entregadas ni devueltas",
       },
       data: [
         {
@@ -2483,14 +2355,14 @@ function loadWeek1() {
           legendText: "{label}",
           indexLabel: "{label} ({y})",
           yValueFormatString: "#,##0.#",
-          dataPoints: [{ label: "En Proceso", y: guiasEnProceso }]
-        }
-      ]
+          dataPoints: [{ label: "En Proceso", y: guiasEnProceso }],
+        },
+      ],
     };
   } else {
     options = {
       title: {
-        text: "Estadísticas semana 1"
+        text: "Estadísticas semana 1",
       },
       data: [
         {
@@ -2504,10 +2376,10 @@ function loadWeek1() {
             { label: "Entregadas", y: totalGuiasEntregadas },
             { label: "Devueltas", y: totalGuiasDevueltas },
             { label: "Anuladas", y: guiasAnuladas || 0 },
-            { label: "En proceso", y: guiasEnProceso }
-          ]
-        }
-      ]
+            { label: "En proceso", y: guiasEnProceso },
+          ],
+        },
+      ],
     };
   }
 
@@ -2573,7 +2445,7 @@ function loadWeek2() {
   ) {
     options = {
       title: {
-        text: "No hay guías entregadas ni devueltas"
+        text: "No hay guías entregadas ni devueltas",
       },
       data: [
         {
@@ -2583,14 +2455,14 @@ function loadWeek2() {
           legendText: "{label}",
           indexLabel: "{label} ({y})",
           yValueFormatString: "#,##0.#",
-          dataPoints: [{ label: "En Proceso", y: guiasEnProceso }]
-        }
-      ]
+          dataPoints: [{ label: "En Proceso", y: guiasEnProceso }],
+        },
+      ],
     };
   } else {
     options = {
       title: {
-        text: "Estadísticas semana 2"
+        text: "Estadísticas semana 2",
       },
       data: [
         {
@@ -2604,10 +2476,10 @@ function loadWeek2() {
             { label: "Entregadas", y: totalGuiasEntregadas },
             { label: "Devueltas", y: totalGuiasDevueltas },
             { label: "Anuladas", y: totalAnuladas },
-            { label: "En proceso", y: guiasEnProceso }
-          ]
-        }
-      ]
+            { label: "En proceso", y: guiasEnProceso },
+          ],
+        },
+      ],
     };
   }
 
@@ -2850,7 +2722,7 @@ function renderWeeklyStats() {
   const standing = Object.entries(conteoEmpresas).map(
     ([nombre_empresa, no_envios]) => ({
       nombre_empresa,
-      no_envios
+      no_envios,
     })
   );
   standing.sort((a, b) => b.no_envios - a.no_envios);
@@ -2878,30 +2750,30 @@ function renderWeeklyStats() {
         {
           data: "standing",
           title: "Posición",
-          defaultContent: "N/A"
+          defaultContent: "N/A",
         },
         {
           data: "nombre_empresa",
           title: "Seller",
-          defaultContent: "Indeterminado"
+          defaultContent: "Indeterminado",
         },
         {
           data: "no_envios",
           title: "Número de Envios esta Semana",
-          defaultContent: "Sin Envios"
-        }
+          defaultContent: "Sin Envios",
+        },
       ],
       language: {
-        url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+        url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
       },
       scrollX: true,
       scrollCollapse: true,
       lengthMenu: [
         [5, 10, 25, 30],
-        [5, 10, 25, 30]
+        [5, 10, 25, 30],
       ],
       pageLength: 30,
-      order: [[2, "desc"]] // Ordenar por la tercera columna (no_envios) de mayor a menor
+      order: [[2, "desc"]], // Ordenar por la tercera columna (no_envios) de mayor a menor
     });
   } else {
     console.error(
