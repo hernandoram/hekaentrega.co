@@ -12,7 +12,7 @@ const bloqueo_direcciones_inter = [
   "73217001",
   "50711002",
   "13810011",
-  "68298002"
+  "68298002",
 ];
 const bloqueo_direcciones_envia = [
   "97666000",
@@ -20,12 +20,12 @@ const bloqueo_direcciones_envia = [
   "13188000",
   "94343000",
   "27580000",
-  "27372000"
+  "27372000",
 ];
 const bloqueo_direcciones_servientrega = [
   "05842000", // URAMITA
   "99624000", // SANTA ROSALIA(VICHADA)
-  "47001006" // GUACHACA(MAGDALENA)
+  "47001006", // GUACHACA(MAGDALENA)
 ];
 
 // Objeto principal en que se basa la transportadora a ser utilizada
@@ -56,7 +56,7 @@ let transportadoras = {
     getCuentaResponsable: () => "EMPRESA",
     sistemaAutomatizado: () =>
       /^automatico/.test(datos_personalizados.sistema_servientrega),
-    valorMinimoEnvio: (kg) => 0
+    valorMinimoEnvio: (kg) => 0,
   },
   INTERRAPIDISIMO: {
     cod: "INTERRAPIDISIMO",
@@ -95,7 +95,7 @@ let transportadoras = {
       } else {
         return 0;
       }
-    }
+    },
   },
   ENVIA: {
     cod: "ENVIA",
@@ -122,7 +122,7 @@ let transportadoras = {
     getCuentaResponsable: () => "EMPRESA",
     sistemaAutomatizado: () =>
       /^automatico/.test(datos_personalizados.sistema_envia),
-    valorMinimoEnvio: (kg) => 0
+    valorMinimoEnvio: (kg) => 0,
   },
   TCC: {
     cod: "TCC",
@@ -151,7 +151,7 @@ let transportadoras = {
     getCuentaResponsable: () => "EMPRESA",
     sistemaAutomatizado: () =>
       /^automatico/.test(datos_personalizados.sistema_tcc),
-    valorMinimoEnvio: (kg) => 0
+    valorMinimoEnvio: (kg) => 0,
   },
   COORDINADORA: {
     cod: "COORDINADORA",
@@ -178,7 +178,7 @@ let transportadoras = {
     getCuentaResponsable: () => "EMPRESA",
     sistemaAutomatizado: () =>
       /^automatico/.test(datos_personalizados.sistema_coordinadora),
-    valorMinimoEnvio: (kg) => 0
+    valorMinimoEnvio: (kg) => 0,
   },
   HEKA: {
     cod: "HEKA",
@@ -213,14 +213,14 @@ let transportadoras = {
       } else {
         return 0;
       }
-    }
+    },
   },
 };
 
 const configOficinaDefecto = {
   porcentaje_comsion: 3.9,
   tipo_distribucion: [1, 1], // 0: Entrega en dirección ; 1: Entrega en oficina
-  comision_minima: 3900
+  comision_minima: 3900,
 };
 
 const TIPOS_DIST_OFICINA = ["Entrega en dirección", "Entrega en oficina"];
@@ -243,7 +243,7 @@ function gestionarTransportadora() {
   Swal.fire({
     title: "Seleccione transportadora",
     showConfirmButton: false,
-    html
+    html,
   });
 }
 
@@ -297,7 +297,7 @@ async function cotizador() {
     // seguro_mercancia: info_precio.sobreflete_heka,
     ancho: value("dimension-ancho"),
     largo: value("dimension-largo"),
-    alto: value("dimension-alto")
+    alto: value("dimension-alto"),
   };
 
   document
@@ -443,7 +443,7 @@ async function cotizador() {
       "valor-a-recaudar",
       "dimension-alto",
       "dimension-largo",
-      "dimension-ancho"
+      "dimension-ancho",
     ]);
   }
 }
@@ -534,7 +534,7 @@ async function pagoContraentrega() {
     confirmButtonText: "Continuar",
     buttonsStyling: false,
     customClass: {
-      confirmButton: "btn btn-success"
+      confirmButton: "btn btn-success",
     },
     confirmButtonAriaLabel: "continuar",
     preConfirm: () => {
@@ -577,7 +577,7 @@ async function pagoContraentrega() {
 
       //me devuelve la clase del cotizador
       return cotizacion;
-    }
+    },
   }).then((result) => {
     return result.isConfirmed ? result : "";
   });
@@ -595,7 +595,7 @@ async function seleccionarTipoEnvio() {
     cancelButtonText: "Común",
     showDenyButton: true,
     denyButtonText: "Pago a destino",
-    denyButtonClass: "bg-success"
+    denyButtonClass: "bg-success",
   }).then((result) => {
     if (result.isConfirmed) {
       return "PAGO CONTRAENTREGA";
@@ -859,7 +859,7 @@ async function detallesTransportadoras(data) {
           ancho: data.ancho,
           peso: value("Kilos"),
           valorDeclarado: seguro,
-          type: typeToAve
+          type: typeToAve,
         });
 
         if (!cotizacionAveo.error)
@@ -891,7 +891,7 @@ async function detallesTransportadoras(data) {
       const cotizacion = await cotizador.putTransp(transp, {
         dane_ciudadR: data.dane_ciudadR,
         dane_ciudadD: data.dane_ciudadD,
-        cotizacionAveo
+        cotizacionAveo,
       });
 
       if (!cotizacion.flete || cotizacion.empty || cotizacion.NoCobertura) {
@@ -1327,7 +1327,7 @@ async function estEnvia(dane_ciudad) {
         posiblesNovedades: null,
         devoluciones: dev,
         entregas: entregas,
-        presentaronNovedad: 0
+        presentaronNovedad: 0,
       };
 
       conjuntoEstadisticasEnvia.set(dane_ciudad, estadistica);
@@ -1345,7 +1345,7 @@ function detallesEstadisticas(estadisticas) {
     posiblesNovedades,
     devoluciones,
     entregas,
-    presentaronNovedad
+    presentaronNovedad,
   } = estadisticas;
   const percentage = (val) => Math.round((val * 100) / envios);
   const mostrarNovedades = posiblesNovedades
@@ -1373,7 +1373,7 @@ function detallesEstadisticas(estadisticas) {
     `;
   Swal.fire({
     title: "Referencias de efectividad",
-    html
+    html,
   });
 
   new Chart(document.getElementById("estadisticasEntrega"), {
@@ -1385,11 +1385,11 @@ function detallesEstadisticas(estadisticas) {
           data: [
             percentage(entregas),
             percentage(devoluciones),
-            percentage(presentaronNovedad)
+            percentage(presentaronNovedad),
           ],
-          backgroundColor: ["#36b9cc", "#e74a3b", "#f6c23e"]
-        }
-      ]
+          backgroundColor: ["#36b9cc", "#e74a3b", "#f6c23e"],
+        },
+      ],
     },
 
     options: {
@@ -1401,10 +1401,10 @@ function detallesEstadisticas(estadisticas) {
             const label = chart.labels[i];
             const value = chart.datasets[0].data[i];
             return `${value}% en porcentaje de ${label}`;
-          }
-        }
-      }
-    }
+          },
+        },
+      },
+    },
   });
 }
 
@@ -1470,8 +1470,8 @@ async function detallesOficinas(destino) {
       apellidos: "ApellidoO",
       direccion_completa: "Kra 23 #40-40, los bellos, CALI (VALLE DEL CAUCA)",
       configuracion: {
-        porcentaje_comsion: 10
-      }
+        porcentaje_comsion: 10,
+      },
     },
     {
       nombre_empresa: "Oficina 1",
@@ -1487,9 +1487,9 @@ async function detallesOficinas(destino) {
       apellidos: "ApellidoO",
       direccion_completa: "Kra 23 #40-40, los bellos, CALI (VALLE DEL CAUCA)",
       configuracion: {
-        porcentaje_comsion: 5
-      }
-    }
+        porcentaje_comsion: 5,
+      },
+    },
   ];
 
   // if(!estado_prueba) return [];
@@ -1584,8 +1584,8 @@ function mostrarOficinas(oficinas) {
     pagination: {
       el: ".swiper-pagination",
       clickable: true,
-      type: "bullets"
-    }
+      type: "bullets",
+    },
   });
 
   return mostradorOffi;
@@ -1640,7 +1640,7 @@ async function cargarPreciosTransportadorasOficinas(data) {
         ancho: data.ancho,
         peso: value("Kilos"),
         valorDeclarado: seguro,
-        type: typeToAve
+        type: typeToAve,
       });
 
       if (!cotizacionAveo.error)
@@ -1663,7 +1663,7 @@ async function cargarPreciosTransportadorasOficinas(data) {
     const cotizacion = await cotizador.putTransp(transp, {
       dane_ciudadR: data.dane_ciudadR,
       dane_ciudadD: data.dane_ciudadD,
-      cotizacionAveo
+      cotizacionAveo,
     });
 
     if (data.type === "PAGO CONTRAENTREGA") {
@@ -1877,7 +1877,7 @@ function tomarDetallesImportantesOficina(oficina) {
     "tipo_documento",
     "nombres",
     "apellidos",
-    "correo"
+    "correo",
   ];
 
   const datos_obtenidos = new Object();
@@ -1903,7 +1903,8 @@ function verificarAntesSeleccionarOficina(oficina, cotizacion) {
     Toast.fire({
       icon: "error",
       title:
-        "La cantidad de kilos para las oficinas no debe ser mayor a " + maxKilos
+        "La cantidad de kilos para las oficinas no debe ser mayor a " +
+        maxKilos,
     });
     return true;
   }
@@ -1912,7 +1913,7 @@ function verificarAntesSeleccionarOficina(oficina, cotizacion) {
     Toast.fire({
       icon: "error",
       title:
-        "El valor de recaudo para las oficinas no debe ser mayor a " + maxRec
+        "El valor de recaudo para las oficinas no debe ser mayor a " + maxRec,
     });
     return true;
   }
@@ -1964,7 +1965,7 @@ function seleccionarTransportadora(e) {
       return Swal.fire({
         icon: "error",
         html: `Actualmente no tienes habilitado el envío por flexii, 
-            si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/8m9ovw">312 463 8608</a>`
+            si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/8m9ovw">312 463 8608</a>`,
       });
   }
 
@@ -1973,7 +1974,7 @@ function seleccionarTransportadora(e) {
 
   const swal_error = {
     icon: "error",
-    html: texto_tranp_no_disponible
+    html: texto_tranp_no_disponible,
   };
 
   if (!transportadoras[transp].habilitada()) {
@@ -1989,7 +1990,7 @@ function seleccionarTransportadora(e) {
   ) {
     return Toast.fire({
       icon: "error",
-      text: "El valor del recaudo no debe ser menor al costo del envío."
+      text: "El valor del recaudo no debe ser menor al costo del envío.",
     });
   }
 
@@ -2001,13 +2002,13 @@ function seleccionarTransportadora(e) {
     width: "50em",
     customClass: {
       cancelButton: "btn btn-secondary m-2",
-      confirmButton: "btn btn-primary m-2"
+      confirmButton: "btn btn-primary m-2",
     },
     showCancelButton: true,
     showCloseButton: true,
     cancelButtonText: "Cancelar",
     confirmButtonText: "Continuar",
-    buttonsStyling: false
+    buttonsStyling: false,
   }).then((result) => {
     console.log(result);
     //continúa si el cliente termina seleccionando la transportadora
@@ -2158,7 +2159,7 @@ const sellers = [
   "Seller1891tattoosupply",
   "SellerElectrovariedadesEYMce",
   "SellerNICE",
-  "SellerMerakiJSLSAS"
+  "SellerMerakiJSLSAS",
 ];
 
 //M edevuelve el html del último formulario del cotizador
@@ -2232,7 +2233,7 @@ function finalizarCotizacion(datos) {
   const tiposEntregasDisponible = [
     null,
     '<option value="1">Entrega en dirección</option>',
-    '<option value="2">Entrega en oficina</option>'
+    '<option value="2">Entrega en oficina</option>',
   ];
   if (
     datos.transportadora === "INTERRAPIDISIMO" ||
@@ -2677,7 +2678,7 @@ function enviarUsuarioFrecuente() {
     otroCelular: telefonoDestinatario.value,
     email: correoDestinatario.value,
     observaciones: observacionesDestinatario.value,
-    ciudad: ciudad.value
+    ciudad: ciudad.value,
   };
   const dataejemplo = {
     nombre: "Juan Pérez",
@@ -2689,7 +2690,7 @@ function enviarUsuarioFrecuente() {
     celular: "1234567890",
     otroCelular: "9876543210",
     email: "juan.perez@example.com",
-    observaciones: "Entregar por la puerta trasera"
+    observaciones: "Entregar por la puerta trasera",
   };
 
   console.log(opciones);
@@ -2734,7 +2735,7 @@ async function buscarUsuario(e) {
   datos_a_enviar.info_user = {
     centro_de_costo: null,
     numero_documento: null,
-    celular: null
+    celular: null,
   };
 
   presentacion.html("");
@@ -2763,7 +2764,7 @@ async function buscarUsuario(e) {
     numero_documento: usuario.numero_documento,
     celular: usuario.celular,
     nombre_completo:
-      usuario.nombres.split(" ")[0] + " " + usuario.apellidos.split(" ")[0]
+      usuario.nombres.split(" ")[0] + " " + usuario.apellidos.split(" ")[0],
   };
 
   presentacion.html(`
@@ -2787,7 +2788,7 @@ function mostrarDirecciones(datos) {
     text: "No existe una bodega habilitada para esta transportadora con la ciudad de remitente ingresada.",
     showCancelButton: true,
     cancelButtonText: "Cerrar",
-    confirmButtonText: "Ver bodegas"
+    confirmButtonText: "Ver bodegas",
   };
 
   if (!bodegas) {
@@ -2805,6 +2806,7 @@ function mostrarDirecciones(datos) {
   const small = document.createElement("small");
   const aggDireccion = document.createElement("p");
 
+  debugger;
   let direcciones = 0;
 
   respuesta.setAttribute("class", "col-12 mt-2");
@@ -2812,6 +2814,7 @@ function mostrarDirecciones(datos) {
   groupAppend.classList.add("input-group-append");
   input.classList.add("form-control");
   input.setAttribute("type", "text");
+
   input.setAttribute("id", "actualizar_direccionR");
   input.setAttribute("readonly", true);
   select.classList.add("custom-select");
@@ -2892,7 +2895,7 @@ function verificarSelectorEntregaOficina(e) {
         text:
           "Es probable que la ciudad a la que deseas realizar tu envío solo cuente con " +
           tipo_distribucion +
-          "."
+          ".",
       });
     } else if (
       tipo_distribucion === "ENTREGA A DOMICILIO" &&
@@ -2903,7 +2906,7 @@ function verificarSelectorEntregaOficina(e) {
         text:
           "Es probable que la ciudad a la que deseas realizar tu envío solo cuente con " +
           tipo_distribucion +
-          "."
+          ".",
       });
     }
   } else if (codTransp === "INTERRAPIDISIMO") {
@@ -2935,7 +2938,7 @@ function restringirCaracteresEspecialesEnInput() {
         'Se cambiará el carácter ingresado "{forbidden}" por "{sustitute}"',
       selector: "#direccionD",
       forbid: "#",
-      sustitute: "Nro "
+      sustitute: "Nro ",
     },
     {
       operator: "contains",
@@ -2943,15 +2946,15 @@ function restringirCaracteresEspecialesEnInput() {
         'Se cambiará el carácter ingresado "{forbidden}" por "{sustitute}".',
       selector: "#direccionD",
       forbid: "-",
-      sustitute: " "
+      sustitute: " ",
     },
     {
       operator: "regExp",
       message: 'El caracter "{forbidden}" no está permitido',
       forbid: /[^\wñÑ\s]/g,
       sustitute: "",
-      removeAccents: true
-    }
+      removeAccents: true,
+    },
   ];
 
   const nombreD = new DetectorErroresInput("#nombreD").init("input");
@@ -2961,7 +2964,7 @@ function restringirCaracteresEspecialesEnInput() {
     selector: "#nombreD",
     forbid: /[^\wñÑ\s-]/g,
     sustitute: "",
-    removeAccents: true
+    removeAccents: true,
   };
 }
 
@@ -3159,7 +3162,7 @@ class CalcularCostoDeEnvio {
       F: this.flete, // Para el flete devuelto en la cotización
       CE: this.costoEnvio, // EL costo del envío
       SM: this.seguroMercancia, // El seguro de mercancía
-      SF: this.sobreflete // El sobreflete
+      SF: this.sobreflete, // El sobreflete
     };
   }
 
@@ -3221,7 +3224,7 @@ class CalcularCostoDeEnvio {
           ? this.costoDevolucionOriginal
           : this.costoDevolucion, // Con la versión 2 se guarda en el costo de devolución original de la transportadora, salvaguardando un avariable que indicará si se paga o no
       cobraDevolucion: this.versionCotizacion === 1, // Variable para dientificar si se cobra o no devolución sobre la guía (Solo se le cobraría devolución a la versión 1)
-      versionCotizacion: this.versionCotizacion // 1: cotizador convencional. 2: cotizador especial (no cobra devoluciones)
+      versionCotizacion: this.versionCotizacion, // 1: cotizador convencional. 2: cotizador especial (no cobra devoluciones)
     };
 
     if (this.aveo) {
@@ -3423,10 +3426,7 @@ class CalcularCostoDeEnvio {
         this.factor_de_conversion = 1 / 6000;
         this.kg_min = 0.1;
         console.log("Llega a cotizar heka");
-        await this.cotizarHeka(
-          dataObj.dane_ciudadR,
-          dataObj.dane_ciudadD
-        );
+        await this.cotizarHeka(dataObj.dane_ciudadR, dataObj.dane_ciudadD);
 
         break;
 
@@ -3531,15 +3531,15 @@ class CalcularCostoDeEnvio {
       dane_ciudadD,
       peso: this.kgTomado,
       seguro: this.seguro,
-      pagoContraentrega
+      pagoContraentrega,
     };
     // Request de solicitud al back
     const backPromise = fetch("/inter/cotizar", {
       method: "POST",
       body: JSON.stringify(data),
       headers: {
-        "Content-Type": "Application/json"
-      }
+        "Content-Type": "Application/json",
+      },
     }).catch((err) => err);
 
     //#endregion
@@ -3630,7 +3630,7 @@ class CalcularCostoDeEnvio {
       alto: this.alto,
       peso: this.kg,
       declarado: this.seguro,
-      valorproducto: this.valor // si aplica pago contraentrega, aquí va
+      valorproducto: this.valor, // si aplica pago contraentrega, aquí va
     };
 
     console.log("enviando: ", data);
@@ -3638,7 +3638,7 @@ class CalcularCostoDeEnvio {
     const response = await fetch("envia/cotizar/" + this.type, {
       method: "Post",
       headers: { "Content-Type": "Application/json" },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     })
       .then((d) => d.json())
       .catch((d) => ({ respuesta: "Error del servidor" }));
@@ -3688,14 +3688,14 @@ class CalcularCostoDeEnvio {
       alto: this.alto,
       peso: this.kg,
       seguro: this.seguro,
-      valorProducto: this.valor
+      valorProducto: this.valor,
     };
 
     console.log(JSON.stringify(data));
     const response = await fetch("coordinadora/cotizar/" + this.type, {
       method: "Post",
       headers: { "Content-Type": "Application/json" },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     })
       .then((d) => d.json())
       .catch((d) => ({ respuesta: "Error del servidor" }));
@@ -3746,14 +3746,14 @@ class CalcularCostoDeEnvio {
       FormaPago: 2,
       TiempoEntrega: 1,
       // MEDIO DE TRANSPORTE COD 1 = TERRESTRE
-      MedioTransporte: 1
+      MedioTransporte: 1,
     };
     console.log("COTIZANDO SERVIENTREGA", data);
 
     const response = await fetch("servientrega/cotizar", {
       method: "Post",
       headers: { "Content-Type": "Application/json" },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     })
       .then((R) => R.json())
       .catch((R) => ({ respuesta: "Error del servidor" }));
@@ -3789,8 +3789,8 @@ class CalcularCostoDeEnvio {
       valorRecaudo: this.valor,
       idDaneCiudadOrigen: dane_ciudadR,
       idDaneCiudadDestino: dane_ciudadD,
-      tipo: this.type
-    };    
+      tipo: this.type,
+    };
 
     const apiUrl = "https://hekaentrega.co/Api/Cotizador";
     // const apiUrl = "http://localhost:6201/Api/Cotizador";
@@ -3798,11 +3798,11 @@ class CalcularCostoDeEnvio {
     const response = await fetch(apiUrl, {
       method: "Post",
       headers: { "Content-Type": "Application/json" },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     })
       .then((R) => {
-        if(R.status !== 200) this.NoCobertura = true;
-        return R.json()
+        if (R.status !== 200) this.NoCobertura = true;
+        return R.json();
       })
       .catch((R) => ({ respuesta: "Error del servidor" }));
 
@@ -3817,12 +3817,11 @@ class CalcularCostoDeEnvio {
     this.intoHeka(response.body, conv);
     return true;
   }
-
 }
 
 function contizarEnviaPrueba() {
   fetch("envia/cotizar/CONVENCIONAL", {
-    method: "Post"
+    method: "Post",
   })
     .then((d) => d.json())
     .then((d) => console.log(d));
@@ -3830,7 +3829,7 @@ function contizarEnviaPrueba() {
 
 function crearGuiaEnviaPrueba() {
   fetch("envia/crearGuia", {
-    method: "Post"
+    method: "Post",
   })
     .then((d) => d.json())
     .then((d) => console.log(d));
@@ -3844,7 +3843,7 @@ async function cotizarAveonline(type, params) {
     const cotizacion = await fetch(`${url}/${type}`, {
       method: "POST",
       headers: { "Content-type": "application/json" },
-      body: JSON.stringify(params)
+      body: JSON.stringify(params),
     }).then((d) => d.json());
     if (cotizacion.status === "error") return { error: true };
 
@@ -3858,7 +3857,7 @@ async function cotizarAveonline(type, params) {
     return {
       recaudo: params.valorRecaudo,
       ENVIA: envia,
-      TCC: tcc
+      TCC: tcc,
     };
   } catch (e) {
     console.log(e);
@@ -3895,7 +3894,7 @@ async function crearGuia() {
         timer: 6000,
         showCancelButton: true,
         confirmButtonText: "Si, ir al cotizador.",
-        cancelButtonText: "No, ver el historial."
+        cancelButtonText: "No, ver el historial.",
       }).then((res) => {
         if (res.isConfirmed) {
           location.href = "#cotizar_envio";
@@ -3908,7 +3907,7 @@ async function crearGuia() {
       Swal.fire({
         icon: res.icon,
         title: res.title,
-        html: res.mensaje
+        html: res.mensaje,
       });
 
       firebase.firestore().collection("errores").add({
@@ -3917,7 +3916,7 @@ async function crearGuia() {
         datos_usuario,
         momento: new Date().getTime(),
         fecha: new Date(),
-        respuesta: res
+        respuesta: res,
       });
     }
 
@@ -3955,7 +3954,7 @@ async function crearGuia() {
       scrollTo({
         top: document.getElementById("producto").parentNode.offsetTop - 60,
         left: document.getElementById("producto").parentNode.offsetLeft,
-        behavior: "smooth"
+        behavior: "smooth",
       });
     } else if (!validar_email(value("correoD")) && value("correoD")) {
       //Recordar que existe una funcion llamada "validar_email(email)" que es mas especifica.
@@ -4012,7 +4011,7 @@ async function crearGuia() {
           setTimeout(() => {
             if (Swal.isVisible()) {
               Swal.update({
-                text: "La creación de la guía se está demorando más de lo usual, hay problemas de conexión con la transportadora"
+                text: "La creación de la guía se está demorando más de lo usual, hay problemas de conexión con la transportadora",
               });
 
               Swal.showLoading();
@@ -4022,7 +4021,7 @@ async function crearGuia() {
         allowOutsideClick: false,
         allowEnterKey: false,
         showConfirmButton: false,
-        allowEscapeKey: true
+        allowEscapeKey: true,
       });
       let fecha = new Date(),
         mes = fecha.getMonth() + 1,
@@ -4107,7 +4106,7 @@ async function crearGuia() {
         "nombreD",
         "direccionD",
         "telefonoD",
-        "identificacionD"
+        "identificacionD",
       ]);
     } else {
       verificador(["producto", "nombreD", "direccionD", "telefonoD"]);
@@ -4208,7 +4207,7 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
       error: true,
       icon: "error",
       title: "¡Error con guía!",
-      message: "Problema de comunicación interno, ausencia de identificador."
+      message: "Problema de comunicación interno, ausencia de identificador.",
     };
   }
 
@@ -4261,7 +4260,7 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
                 error: true,
                 numeroGuia: 0,
                 message:
-                  "Lo sentimos, hubo un problema con conexión con nuestra base de datos, le recomendamos recargar la página."
+                  "Lo sentimos, hubo un problema con conexión con nuestra base de datos, le recomendamos recargar la página.",
               };
             });
       console.log(guia);
@@ -4269,7 +4268,7 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
     } else {
       return {
         error: true,
-        message: resGuia.error || resGuia.message
+        message: resGuia.error || resGuia.message,
       };
     }
     //Procuro devolver un objeto con el número de guía y el respectivo mensaje de erro si lo tiene
@@ -4280,14 +4279,14 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
     return {
       icon: "success",
       title: "¡Guía creada con éxito!",
-      message: "¡Guía con id: " + datos.id_heka + " creada con éxito!"
+      message: "¡Guía con id: " + datos.id_heka + " creada con éxito!",
     };
   } else {
     return {
       error: true,
       icon: "error",
       title: "¡Error con guía!",
-      message: respuesta.message
+      message: respuesta.message,
     };
   }
 }
@@ -4304,7 +4303,7 @@ async function creacionDirecta(guia) {
         mensaje:
           'Error: No se ha podido concretar la creación de guía, por favor intente nuevamente más tarde. "' +
           guiaGenerada.message +
-          '"'
+          '"',
       };
     }
   }
@@ -4346,7 +4345,8 @@ async function enviar_firestore(datos) {
 
   const id_heka = datos.id_heka;
 
-  datos.seguimiento_finalizado = ["HEKA"].includes(datos.transportadora) ?? false;
+  datos.seguimiento_finalizado =
+    ["HEKA"].includes(datos.transportadora) ?? false;
   datos.fecha = genFecha();
   datos.timeline = new Date().getTime();
 
@@ -4366,7 +4366,7 @@ async function enviar_firestore(datos) {
         icon: "success",
         title: "¡Guía creada con éxito!",
         mensaje: "¿Deseas crear otra guía?",
-        mensajeCorto: "¡Guía con id: " + id_heka + " creada con éxito!"
+        mensajeCorto: "¡Guía con id: " + id_heka + " creada con éxito!",
       };
     })
     .catch((err) => {
@@ -4378,7 +4378,7 @@ async function enviar_firestore(datos) {
           'No se ha podido concretar la creación de guía, por favor intente nuevamente más tarde. "' +
           err.message +
           '"',
-        mensajeCorto: err.message
+        mensajeCorto: err.message,
       };
       Swal.fire({
         icon: "error",
@@ -4386,7 +4386,7 @@ async function enviar_firestore(datos) {
         html:
           'Hemos detectado el siguiente error: "' +
           err.message +
-          "\". Si desconoce la posible causa, por favor comuniquese con asesoría logistica (<a href='https://wa.me/573213361911' target='_blank'>+57 321 3361911</a>) enviando un capture o detallando el mensaje expuesto. \nmuchas gracias por su colaboración y discupe las molestias causadas."
+          "\". Si desconoce la posible causa, por favor comuniquese con asesoría logistica (<a href='https://wa.me/573213361911' target='_blank'>+57 321 3361911</a>) enviando un capture o detallando el mensaje expuesto. \nmuchas gracias por su colaboración y discupe las molestias causadas.",
       }).then(() => {
         console.log("revisa que paso, algo salio mal => ", err);
       });
@@ -4430,7 +4430,7 @@ async function descontarSaldo(datos) {
             a seguir para recargar tu saldo.`,
       mensajeCorto: "El costo de envío excede el saldo que tienes actualmente",
       icon: "error",
-      title: "¡No permitido!"
+      title: "¡No permitido!",
     };
   }
 
@@ -4463,7 +4463,7 @@ async function descontarSaldo(datos) {
       datos_usuario.nombre_completo +
       ", Id: " +
       localStorage.user_id,
-    type: "DESCONTADO"
+    type: "DESCONTADO",
   };
 
   //***si se descuenta del saldo***
@@ -4499,12 +4499,12 @@ function notificarExcesoDeGasto() {
       "Su límite de gastos es de " + datos_personalizados.limit_credit,
       "Tenía un saldo de: " + datos_personalizados.saldo,
       "Sumando el envío realizado: " +
-        (datos_personalizados.saldo - datos_a_enviar.costo_envio)
+        (datos_personalizados.saldo - datos_a_enviar.costo_envio),
     ],
     icon: ["dollar-sign", "warning"],
     visible_admin: true,
     user_id,
-    href: "deudas"
+    href: "deudas",
   });
 }
 
@@ -4513,7 +4513,7 @@ async function generarGuiaServientrega(datos) {
   let res = await fetch("/servientrega/crearGuia", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(datos)
+    body: JSON.stringify(datos),
   })
     .then((res) => res.json())
     .then((xml) => {
@@ -4548,7 +4548,7 @@ async function generarGuiaServientrega(datos) {
           nombreD: data.querySelector("Nom_Contacto").textContent,
           ciudadD: data.querySelector("Des_Ciudad").textContent,
           id_archivoCargar: data.querySelector("Id_ArchivoCargar").textContent,
-          prueba: datos.centro_de_costo == "SellerNuevo" ? true : false
+          prueba: datos.centro_de_costo == "SellerNuevo" ? true : false,
         };
       } else {
         //En caso contrario retorna el error devuelto por el webservice
@@ -4557,7 +4557,7 @@ async function generarGuiaServientrega(datos) {
         console.log(data.querySelector("arrayGuias"));
         retorno = {
           numeroGuia: 0,
-          error: contenedorErrores.textContent
+          error: contenedorErrores.textContent,
         };
       }
 
@@ -4574,7 +4574,7 @@ async function generarGuiaServientrega(datos) {
         message:
           "Hubo un error al conectar con " +
           codTransp +
-          ", por favor, intente nuevamente más tarde."
+          ", por favor, intente nuevamente más tarde.",
       };
     });
 
@@ -4598,7 +4598,7 @@ async function guardarStickerGuiaServientrega(data) {
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
     }
   ).then((data) => data.json());
 
@@ -4627,13 +4627,13 @@ async function generarGuiaInterrapidisimo(datos) {
   let respuesta = await fetch("/inter/crearGuia", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(datos)
+    body: JSON.stringify(datos),
   })
     .then((d) => {
       if (d.status === 500)
         return {
           message:
-            "Ocurrió un error  interno con la transportadora, por favor intente nuevamente."
+            "Ocurrió un error  interno con la transportadora, por favor intente nuevamente.",
         };
 
       return d.json();
@@ -4642,13 +4642,13 @@ async function generarGuiaInterrapidisimo(datos) {
       console.log(err);
       analytics.logEvent("Error al crear guía interrapidísimo", {
         catch: err,
-        centro_de_costo: datos_usuario.centro_de_costo || "SCC"
+        centro_de_costo: datos_usuario.centro_de_costo || "SCC",
       });
       return {
         message:
           "Hubo un error al conectar con " +
           codTransp +
-          ", por favor, intente nuevamente más tarde."
+          ", por favor, intente nuevamente más tarde.",
       };
     });
 
@@ -4658,7 +4658,7 @@ async function generarGuiaInterrapidisimo(datos) {
       message:
         "Lo sentimos, " +
         codTransp +
-        " no ha respondido correctamente su solicitud"
+        " no ha respondido correctamente su solicitud",
     };
   }
 
@@ -4669,7 +4669,7 @@ async function generarGuiaInterrapidisimo(datos) {
 
     return {
       numeroGuia: 0,
-      message: respuesta.Message || respuesta.message
+      message: respuesta.Message || respuesta.message,
     };
   }
 
@@ -4727,20 +4727,20 @@ async function generarGuiaAveonline(datos) {
   const res = await fetch("/aveo/crearGuia", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(datos)
+    body: JSON.stringify(datos),
   }).then((d) => d.json());
 
   if (res.error) {
     return {
       numeroGuia: 0,
-      message: res.message
+      message: res.message,
     };
   }
   return {
     numeroGuia: "Generando...",
     id_heka: datos.id_heka,
     prueba: datos.prueba,
-    has_sticker: false
+    has_sticker: false,
   };
 }
 
@@ -4750,7 +4750,7 @@ async function guardarStickerGuiaAveo(data) {
   let base64GuiaSegmentada = await fetch(url, {
     method: "POST",
     headers: { "content-Type": "application/json" },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   })
     .then((data) => data.json())
     .catch((error) =>
@@ -4776,7 +4776,7 @@ async function generarGuiaEnvia(datos) {
   const response = await fetch("/envia/crearGuia", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(datos)
+    body: JSON.stringify(datos),
   }).then((d) => d.json());
 
   if (!response)
@@ -4785,20 +4785,20 @@ async function generarGuiaEnvia(datos) {
       message:
         "Lo sentimos, " +
         codTransp +
-        " no ha respondido correctamente su solicitud"
+        " no ha respondido correctamente su solicitud",
     };
 
   if (response.respuesta) {
     return {
       numeroGuia: 0,
-      message: response.respuesta
+      message: response.respuesta,
     };
   }
 
   res = {
     numeroGuia: response.guia,
     id_heka: datos.id_heka,
-    has_sticker: false
+    has_sticker: false,
   };
 
   // Para guardar la url en la que se encuentra alojada la guía inicialmente
@@ -4809,7 +4809,7 @@ async function generarGuiaEnvia(datos) {
 
   res.has_sticker = await guardarStickerGuiaEnvia({
     url: response.urlguia,
-    id_heka: datos.id_heka
+    id_heka: datos.id_heka,
   });
   return res;
 }
@@ -4826,7 +4826,7 @@ async function guardarStickerGuiaEnvia({ url, numeroGuia, id_heka }) {
   let base64GuiaSegmentada = await fetch(path, {
     method: "POST",
     headers: { "Content-Type": "Application/json" },
-    body: JSON.stringify({ url, numeroGuia })
+    body: JSON.stringify({ url, numeroGuia }),
   })
     .then((data) => data.json())
     .catch((error) =>
@@ -4852,20 +4852,20 @@ async function generarGuiaCoordinadora(datos) {
   const response = await fetch("/coordinadora/crearGuia", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(datos)
+    body: JSON.stringify(datos),
   }).then((d) => d.json());
 
   if (response.error) {
     return {
       numeroGuia: 0,
-      message: response.message
+      message: response.message,
     };
   }
 
   res = {
     numeroGuia: response.codigo_remision,
     id_heka: datos.id_heka,
-    has_sticker: false
+    has_sticker: false,
   };
 
   res.has_sticker = await guardarStickerGuiaCoordinadora(res);
@@ -4879,7 +4879,7 @@ async function guardarStickerGuiaCoordinadora({ numeroGuia, id_heka }) {
   let response = await fetch(path, {
     method: "POST",
     headers: { "Content-Type": "Application/json" },
-    body: JSON.stringify({ numeroGuia })
+    body: JSON.stringify({ numeroGuia }),
   })
     .then((data) => data.json())
     .catch((error) =>
@@ -4908,20 +4908,20 @@ async function generarGuiaHekaEntrega(datos) {
   const response = await fetch("/procesos/crearGuia", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(datos)
+    body: JSON.stringify(datos),
   }).then((d) => d.json());
 
   if (response.error) {
     return {
       numeroGuia: 0,
-      message: response.body || response.message
+      message: response.body || response.message,
     };
   }
 
   res = {
     numeroGuia: response.body.numeroGuia,
     id_heka: datos.id_heka,
-    has_sticker: false
+    has_sticker: false,
   };
 
   res.has_sticker = await guardarStickerGuiaHekaEntrega(res);
@@ -4935,7 +4935,7 @@ async function guardarStickerGuiaHekaEntrega({ numeroGuia, id_heka }) {
   let response = await fetch(path, {
     method: "POST",
     headers: { "Content-Type": "Application/json" },
-    body: JSON.stringify({ numeroGuia })
+    body: JSON.stringify({ numeroGuia }),
   })
     .then((data) => data.json())
     .catch((error) =>
@@ -4973,7 +4973,7 @@ async function guardarDocumentoSegmentado(base64Segmentada, referencia) {
       .doc(i.toString())
       .set({
         index: i,
-        segmento: base64Segmentada[i]
+        segmento: base64Segmentada[i],
       })
       .then(() => {
         return true;
@@ -5012,7 +5012,7 @@ function observacionesServientrega(result_cotizacion) {
   console.log(result_cotizacion);
   let c_destino = {
     frecuencia: "N/A",
-    tipo_distribucion: "N/A"
+    tipo_distribucion: "N/A",
   };
 
   // Estos elemantos fueron quitados por conexión con el api, qu emuestra las ciudades, y hast ahora, no parecen necesarios o útiles
@@ -5023,7 +5023,7 @@ function observacionesServientrega(result_cotizacion) {
     } frecuentan los días: <span class="text-primary text-capitalize">${c_destino.frecuencia.toLowerCase()}</span>`,
     `Los envíos a ${
       c_destino.ciudad
-    } disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`
+    } disponen de: <span class="text-primary text-capitalize">${c_destino.tipo_distribucion.toLowerCase()}</span>`,
   ];
 
   let lists = [
@@ -5040,7 +5040,7 @@ function observacionesServientrega(result_cotizacion) {
       result_cotizacion.getDetails.cobraDevolucion
         ? result_cotizacion.costoDevolucion
         : 0
-    )} (Aplica solo para envíos en pago contra entrega)`
+    )} (Aplica solo para envíos en pago contra entrega)`,
   ];
 
   let ul = document.createElement("ul");
@@ -5072,7 +5072,7 @@ function observacionesInteRapidisimo(result_cotizacion) {
           ? result_cotizacion.costoDevolucion
           : 0
       ) +
-      " (Aplica solo para envíos en pago contra entrega)"
+      " (Aplica solo para envíos en pago contra entrega)",
   ];
 
   let ul = document.createElement("ul");
@@ -5102,7 +5102,7 @@ function observacionesEnvia(result_cotizacion) {
       result_cotizacion.getDetails.cobraDevolucion
         ? result_cotizacion.costoDevolucion
         : 0
-    )} (Aplica solo para envíos en pago contra entrega)`
+    )} (Aplica solo para envíos en pago contra entrega)`,
   ];
 
   let ul = document.createElement("ul");

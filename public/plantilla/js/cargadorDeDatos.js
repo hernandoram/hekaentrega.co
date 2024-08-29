@@ -1,4 +1,3 @@
-
 //const PROD_API_URL = "https://api.hekaentrega.co"; //"https://apidev.hekaentrega.co" o esta
 const PROD_API_URL = window.ENV.ENVIRONMENT_NAME; //comentar o descomentar segun el ambiente
 //const TEST_API_URL = "https://apidev.hekaentrega.co"; //comentar o descomentar segun el ambiente
@@ -25,6 +24,8 @@ const urlToken = new URLSearchParams(window.location.search);
 const tokenUser = urlToken.get("token") || localStorage.getItem("token");
 
 let mongoID; // id segunda BD
+
+let nuevasBodegas;
 
 async function validateToken(token) {
   if (!token) {
@@ -63,7 +64,7 @@ async function validateToken(token) {
       if (tipoUsuario === "manager") {
         if (window.location.pathname !== "/admin.html") {
           //redirectLogin();
-          location.href = '/admin.html';
+          location.href = "/admin.html";
         }
         localStorage.setItem("acceso_admin", true);
         console.warn("Bienvenido administrador");
@@ -250,7 +251,6 @@ async function getWarehouses() {
 
     const bodegas = response.rows;
 
-
     const newBodegas = bodegas.map((bodega) => {
       return {
         nombre: bodega.name,
@@ -267,9 +267,13 @@ async function getWarehouses() {
       };
     });
 
-    console.warn(bodegas,newBodegas);
+    const bodegasActivas = newBodegas.filter((bodega) => !bodega.inactiva);
 
-    return newBodegas;
+    nuevasBodegas = bodegasActivas;
+
+    datos_usuario.bodegas = bodegasActivas;
+
+    return bodegasActivas;
   } catch (error) {
     console.error("Error en la solicitud GET:", error);
   }
@@ -617,9 +621,7 @@ function limitarAccesoSegunTipoUsuario() {
       "contenedor-solucion_novedad",
       "contenedor-mostrar-billetera",
     ];
-  } else if (
-    datos_usuario.type === "REFERIDO"
-  ) {
+  } else if (datos_usuario.type === "REFERIDO") {
     quitarVistas = [
       "btn-seguimiento-gestionarNovedad",
       "seguimiento-gestionarNovedad",
