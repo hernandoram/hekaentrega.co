@@ -310,7 +310,6 @@ async function processCreationGuides() {
     const inicioProceso = new Date().getTime();
     const isAvailableCreation = await availableCreation();
 
-    console.log("Disponible para crear", isAvailableCreation);
     if(!isAvailableCreation) return;
 
     try {
