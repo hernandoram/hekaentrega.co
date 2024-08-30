@@ -2258,7 +2258,18 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
 
   const boton_solucion = $("#solucionar-guia-" + data.numeroGuia);
 
-  $("#gestionar-guia-" + data.numeroGuia).click(() => {
+  $("#gestionar-guia-" + data.numeroGuia).click((e) => {
+    const id = e.target.id;
+
+    const match = id.match(/gestionar-guia-(\d+)$/);
+
+    if (match) {
+      const numeroFinal = match[1];
+      window.location.href = `https://www.hekaentrega.co/rastrea-tu-envio?guide=${numeroFinal}&admin=true`;
+    } else {
+      console.log("No se encontró un número en el ID");
+    }
+    return;
     extraData.id_heka = id_heka;
     gestionarNovedadModal(data, extraData, boton_solucion);
   });
