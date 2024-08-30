@@ -1001,7 +1001,8 @@ function seleccionarUsuario(id) {
 
         console.log(doc.data());
 
-        userBodegas = doc.data().bodegas;
+        const userFirebaseData = doc.data();
+
         // if (doc.data().ingreso === doc.data().con) {
         //   document.getElementById("actualizar_correo").readOnly = false;
         // } else {
@@ -1027,12 +1028,41 @@ function seleccionarUsuario(id) {
         mostrarReferidosUsuarioAdm(doc.data().centro_de_costo);
 
         mostrarDatosPersonales(datos_bancarios, "bancaria");
+
+        const fechaRegistroUsuario = document.getElementById(
+          "fecha_registro_usuario"
+        );
+
+        const fechaCreacion = userFirebaseData.fecha_creacion;
+
+        if (fechaCreacion && fechaCreacion.seconds !== undefined) {
+          const segundos = fechaCreacion.seconds;
+          const fecha = new Date(segundos * 1000);
+          const opciones = {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
+            hour12: true,
+          };
+          fechaRegistroUsuario.value = fecha.toLocaleDateString(
+            "es-CO",
+            opciones
+          );
+        } else {
+          alert("No se pudo cargar la fecha de registro del usuario");
+          fechaRegistroUsuario.value = "Seller Antiguo";
+        }
         mostrarObjetosFrecuentesAdm(doc.id);
 
         getDataUserFromMongoByIdAdm(id)
           .then((dataApi) => {
+            console.log(dataApi);
             datos_personalizados.user_type = dataApi.response.user_type;
 
+            userBodegas = doc.data().bodegas;
             mostrarDatosPersonales(datos_personalizados, "heka");
           })
           .catch(() => {
