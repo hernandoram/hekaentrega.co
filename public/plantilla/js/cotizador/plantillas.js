@@ -1,4 +1,8 @@
-import { searchAndRenderCities, selectize } from "../consultarCiudades.js";
+import {
+  searchAndRenderCities,
+  ciudades,
+  selectize,
+} from "../consultarCiudades.js";
 
 const db = firebase.firestore();
 
@@ -39,7 +43,7 @@ export function llenarBodegasCotizador() {
     const opciones = info.map((bodega) => {
       //
 
-      searchAndRenderCities(selectize.ciudadR , bodega.ciudad.split("(")[0]);
+      searchAndRenderCities(selectize.ciudadR, bodega.ciudad.split("(")[0]);
       const bodegaEl = `<option value="${bodega.ciudad}">${bodega.nombre}</option>`;
       return bodegaEl;
     });
@@ -60,9 +64,18 @@ export function llenarProductos(num) {
       const data = d.data();
       if (data.eliminada) return;
 
+      const ciudadBusqueda = ciudades.find(
+        (ciudad) => ciudad.dane_ciudad === data.ciudadD
+      );
+
+      if (!ciudadBusqueda) return;
       opciones.push(`<option value="${d.id}">${data.nombre}</option>`);
-      listaPlantilla.set(d.id, data);
-      searchAndRenderCities(selectize.ciudadD, data.ciudadD.split("(")[0]);
+      listaPlantilla.set(d.id, { ...data, ciudad: ciudadBusqueda.nombreAveo });
+
+      searchAndRenderCities(
+        selectize.ciudadD,
+        ciudadBusqueda.ciudad.split("(")[0]
+      );
     });
 
     opciones.unshift(`<option value>Seleccione Plantilla</option>`);
@@ -105,6 +118,8 @@ function buscarCiudad(el, ciudad) {
     return setearCiudad(el, ciudadesTomadas.get(ciudad));
   }
 
+  console.warn(ciudad);
+
   db.collection("ciudades")
     .where("nombre", "==", ciudad)
     .limit(3)
@@ -113,7 +128,7 @@ function buscarCiudad(el, ciudad) {
       q.forEach((doc) => {
         const data = doc.data();
 
-        console.warn(data)
+        console.warn(data);
         if (data.desactivada) return;
         setearCiudad(el, data);
       });
@@ -156,7 +171,7 @@ function cambiarPlantillaCotizador(e) {
   });
 
   if (checkActivarDestinoPlantilla[0].checked)
-    buscarCiudad(inpCiudadD, plantilla.ciudadD);
+    buscarCiudad(inpCiudadD, plantilla.ciudad);
 }
 
 function llenarInputCiudad(inp, data) {
