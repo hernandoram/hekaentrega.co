@@ -62,10 +62,13 @@ export function llenarProductos(num) {
 
     q.forEach((d) => {
       const data = d.data();
+      console.log(data);
       if (data.eliminada) return;
 
       const ciudadBusqueda = ciudades.find(
-        (ciudad) => ciudad.dane_ciudad === data.ciudadD
+        (ciudad) =>
+          ciudad.dane_ciudad === data.ciudadD ||
+          ciudad.nombreAveo === data.ciudadD
       );
 
       if (!ciudadBusqueda) return;
