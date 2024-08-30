@@ -234,7 +234,7 @@ let datos_usuario = {},
 
 async function getWarehouses() {
   console.warn("Cargando bodegas desde plataforma 2");
-  const url = `${PROD_API_URL}/api/v1/warehouse?user=${mongoID}&limit=100`;
+  const url = `${PROD_API_URL}/api/v1/warehouse?user=${mongoID}&limit=100&status=enabled`;
 
   let res;
 
