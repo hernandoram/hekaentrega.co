@@ -306,7 +306,6 @@ async function guardarDocumentoSegmentado(base64Segmentada, referencia) {
 }
 
 async function processCreationGuides() {
-    console.log("iniciando proceso de creación");
     const inicioProceso = new Date().getTime();
     const isAvailableCreation = await availableCreation();
 
