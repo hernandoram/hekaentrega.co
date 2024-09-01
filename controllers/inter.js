@@ -256,7 +256,8 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
                 entrega_oficina_notificada = true;
             }
 
-            est.novedad = [26, 39, 40, 7, 32, 10, 30 ,33].includes(est.idEstadoGuia) ? est.nombreEstado : "";
+            est.novedad = [26, 39, 40, 7, 32, 10, 30, 33].includes(est.idEstadoGuia) ? est.nombreEstado : "";
+            est.fechaEstado = extsFunc.estandarizarFecha(new Date(ultimoEstado.fechaEstado), "DD/MM/YYYY HH:mm")
             
             return est;
         });
@@ -273,7 +274,7 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
             nombreD: guia.nombreD,
             direccionD:  guia.direccionD,
             estadoActual,
-            fecha: extsFunc.estandarizarFecha(new Date(ultimoEstado.fechaEstado), "DD/MM/YYYY HH:mm"), //fecha del estado
+            fecha: ultimoEstado.fechaEstado,
             id_heka: doc.id,
             movimientos
         };
@@ -295,7 +296,7 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
             seguimiento_finalizado: finalizar_seguimiento, entrega_oficina_notificada
         });
     
-        const updte_estados = await actualizarEstado(doc, actualizaciones);
+        const updte_estados = await extsFunc.actualizarEstado(doc, actualizaciones);
     
         return [updte_estados.estado === "Est.A", updte_movs.estado === "Mov.A"];
     } catch (e) {
