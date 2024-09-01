@@ -169,11 +169,11 @@ const actualizarMovimientosScrapp = async function(doc) {
 const actualizarMovimientos = async function(docs) {
 
     try {
-        const credentials = getCredentials(guia.cuenta_responsable, guia.prueba);
+        const credentials = getCredentials("EMPRESA", false); // Para la actualidad todas las guía deben estar bajo las credenciales de empresa y esta funcionalidad, no estaría disponible para guías de usuarios de prueba
 
         const numerosGuia = docs.map(d => d.data().numeroGuia || undefined).filter(Boolean);
     
-        const resEstados = await requestP(url + "/ClientesCredito/ConsultarEstadosGuiasCliente", {
+        const resEstados = await requestP(credentials.endpoint + "/ClientesCredito/ConsultarEstadosGuiasCliente", {
             method: "POST",
             headers: {
                 "x-app-signature": credentials.x_app_signature,
@@ -201,8 +201,9 @@ const actualizarMovimientos = async function(docs) {
             actualizadas: 0,
         }];
 
-        for await (const numeroGuia of numerosGuia) {
-            const reporte = responseJson.find(rep => rep.codigo_remision == numeroGuia);
+        for await (const d of docs) {
+            const numeroGuia = d.data().numeroGuia;
+            const reporte = resEstados.listadoGuias.find(rep => rep.numeroGuia == numeroGuia);
 
             if(!reporte) continue;
 
@@ -221,7 +222,7 @@ const actualizarMovimientos = async function(docs) {
         return resultadoActualizacion;
 
 
-    } catch (e) {
+    } catch (error) {
         console.log(error);
         return [{
             estado: "Error",
