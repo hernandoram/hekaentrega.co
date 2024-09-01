@@ -161,7 +161,9 @@ async function actualizarMovimientosGuias(querySnapshot) {
         let faltantes = querySnapshot.size
 
         let acumuladosCoord = [];
-        const MAX_COORD = 50;
+        let acumuladosInter = [];
+        const MAX_LOTE = 50;
+        
         // throw "no babe"
 
         //Objeto que se va llenando paral luego mostrarme los detalles del proceso
@@ -189,8 +191,12 @@ async function actualizarMovimientosGuias(querySnapshot) {
                 let guia;
                 if(doc.data().transportadora === "INTERRAPIDISIMO") {
                     consulta.interrapidisimo ++;
-                    // continue;
-                    guia = interrapidisimoCtrl.actualizarMovimientos(doc);
+                    if(acumuladosInter.length < MAX_LOTE) {
+                        acumuladosInter.push(doc);
+                    } else {
+                        guia = interrapidisimoCtrl.actualizarMovimientos(acumuladosInter);
+                        acumuladosInter = [];
+                    }
                 } else if (doc.data().transportadora === "ENVIA") {
                     // continue;
                     consulta.envia++
@@ -201,7 +207,7 @@ async function actualizarMovimientosGuias(querySnapshot) {
                     // guia = aveoCtrl.actualizarMovimientos(doc);
                 } else if(doc.data().transportadora === "COORDINADORA") {
                     consulta.coordinadora ++;
-                    if(acumuladosCoord.length < MAX_COORD) {
+                    if(acumuladosCoord.length < MAX_LOTE) {
                         acumuladosCoord.push(doc);
                     } else {
                         guia = coordCtrl.actualizarMovimientos(acumuladosCoord);
@@ -233,6 +239,12 @@ async function actualizarMovimientosGuias(querySnapshot) {
 
         if(acumuladosCoord.length) {
             guia = coordCtrl.actualizarMovimientos(acumuladosCoord);
+
+            if(guia) resultado_guias.push(guia);
+        }
+        
+        if(acumuladosInter.length) {
+            guia = interrapidisimoCtrl.actualizarMovimientos(acumuladosInter);
 
             if(guia) resultado_guias.push(guia);
         }
