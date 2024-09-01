@@ -257,7 +257,7 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
             }
 
             est.novedad = [26, 39, 40, 7, 32, 10, 30, 33].includes(est.idEstadoGuia) ? est.nombreEstado : "";
-            est.fechaEstado = extsFunc.estandarizarFecha(new Date(ultimoEstado.fechaEstado), "DD/MM/YYYY HH:mm")
+            est.fechaEstado = extsFunc.estandarizarFecha(new Date(est.fechaEstado), "DD/MM/YYYY HH:mm");
             
             return est;
         });
