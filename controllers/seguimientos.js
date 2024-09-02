@@ -160,9 +160,11 @@ async function actualizarMovimientosGuias(querySnapshot) {
         console.log(querySnapshot.size);
         let faltantes = querySnapshot.size
 
+        const MAX_COORD = 50;
         let acumuladosCoord = [];
+
+        const MAX_INTER = 10; // El máximo impuesto por inter son 10
         let acumuladosInter = [];
-        const MAX_LOTE = 50;
         
         // throw "no babe"
 
@@ -191,7 +193,7 @@ async function actualizarMovimientosGuias(querySnapshot) {
                 let guia;
                 if(doc.data().transportadora === "INTERRAPIDISIMO") {
                     consulta.interrapidisimo ++;
-                    if(acumuladosInter.length < MAX_LOTE) {
+                    if(acumuladosInter.length < MAX_INTER) {
                         acumuladosInter.push(doc);
                     } else {
                         guia = interrapidisimoCtrl.actualizarMovimientos(acumuladosInter);
@@ -207,7 +209,7 @@ async function actualizarMovimientosGuias(querySnapshot) {
                     // guia = aveoCtrl.actualizarMovimientos(doc);
                 } else if(doc.data().transportadora === "COORDINADORA") {
                     consulta.coordinadora ++;
-                    if(acumuladosCoord.length < MAX_LOTE) {
+                    if(acumuladosCoord.length < MAX_COORD) {
                         acumuladosCoord.push(doc);
                     } else {
                         guia = coordCtrl.actualizarMovimientos(acumuladosCoord);
