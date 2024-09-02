@@ -139,6 +139,7 @@ function buscarCiudad(el, ciudad) {
 }
 
 function cambiarPlantillaCotizador(e) {
+  console.log(bodegasEl.val());
   const val = e.target.value;
 
   // Limpiamos los campos donde se ingresa la ciudad del destinatario y remitente
