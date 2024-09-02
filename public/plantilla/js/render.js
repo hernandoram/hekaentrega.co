@@ -6,7 +6,7 @@ var firebaseConfig = {
   storageBucket: "hekaapp-23c89.appspot.com",
   messagingSenderId: "539740310887",
   appId: "1:539740310887:web:66f9ab535d18addeb173c2",
-  measurementId: "G-47CYMPHNRM"
+  measurementId: "G-47CYMPHNRM",
 };
 
 const estadosGuia = {
@@ -19,7 +19,7 @@ const estadosGuia = {
   empacada: "EMPACADA",
   eliminada: "ELIMINADA",
   anulada: "ANULADA",
-  neutro: "NEUTRO" // formalmente ninguna guía debería ener registraod este estado
+  neutro: "NEUTRO", // formalmente ninguna guía debería ener registraod este estado
 };
 
 let novedadesExcelData = [];
@@ -36,7 +36,7 @@ function hostnameReader() {
     brandNameContent = "FLEXII";
     elementContent = "Flexii";
   }
-  
+
   if (element) element.innerHTML = elementContent;
   if (brandName) brandName.innerHTML = brandNameContent;
 }
@@ -108,8 +108,6 @@ window.addEventListener("hashchange", () => {
   mostrar(window.location.hash.replace(/#/, ""));
 });
 
-
-
 function formateoDDMMYYYY(date) {
   const movDate = new Date(date);
 
@@ -122,7 +120,7 @@ function formateoDDMMYYYY(date) {
     year: "numeric",
     hour: "numeric",
     minute: "numeric",
-    second: "numeric"
+    second: "numeric",
   };
 
   return new Intl.DateTimeFormat("es-CO", options).format(movDate);
@@ -783,9 +781,9 @@ const sendCorrespondence = (activeCardData) => {
   fetch("/inter/recogidaesporadica", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
-    body: jsonData
+    body: jsonData,
   })
     .then((response) => {
       console.log(response);
@@ -880,13 +878,13 @@ function handleDocumentClick(event) {
     fetch("/inter/planilladeenvios", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         id: id,
         listGuides: listGuides,
-        branchCode: branchCode
-      })
+        branchCode: branchCode,
+      }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -940,7 +938,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
           deleted: false,
           estadoActual: data.estadoAnterior,
           seguimiento_finalizado: false,
-          estadoAnterior: data.estadoActual
+          estadoAnterior: data.estadoActual,
         })
         .then((res) => {
           avisar(
@@ -964,7 +962,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
         return await Swal.fire({
           title: "¡ATENCIÓN",
           text: "Está guia no se puede eliminar",
-          icon: "warning"
+          icon: "warning",
           // showCancelButton: true,
           // confirmButtonText: '¡Si! continuar 👍',
           // cancelButtonText: "¡No, me equivoqué!"
@@ -980,7 +978,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
         icon: "warning",
         showCancelButton: true,
         confirmButtonText: "¡Si! continuar 👍",
-        cancelButtonText: "¡No, me equivoqué!"
+        cancelButtonText: "¡No, me equivoqué!",
       });
 
       const confirmacion = resp.isConfirmed;
@@ -1001,7 +999,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
             fecha_eliminada: new Date(),
             estadoActual: estadosGuia.eliminada,
             seguimiento_finalizado: true,
-            estadoAnterior: data.estadoActual
+            estadoAnterior: data.estadoActual,
           })
           .then((res) => {
             console.log(res);
@@ -1081,7 +1079,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
         input: "textarea",
         showCancelButton: true,
         confirmButtonText: "Continuar",
-        cancelButtonText: `Cancelar`
+        cancelButtonText: `Cancelar`,
       });
       if (motAnulacion) {
         const resp = await Swal.fire({
@@ -1093,7 +1091,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
           icon: "warning",
           showCancelButton: true,
           confirmButtonText: "¡Si! continuar 👍",
-          cancelButtonText: "¡No, me equivoqué!"
+          cancelButtonText: "¡No, me equivoqué!",
         });
         confirmacion = resp.isConfirmed;
       }
@@ -1108,7 +1106,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
             estadoActual: estadosGuia.anulada,
             seguimiento_finalizado: true,
             motivoAnulacion: motAnulacion,
-            estadoAnterior: data.estadoActual
+            estadoAnterior: data.estadoActual,
           })
           .then((res) => {
             avisar(
@@ -1148,7 +1146,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
         allowOutsideClick: false,
         allowEnterKey: false,
         showConfirmButton: false,
-        allowEscapeKey: true
+        allowEscapeKey: true,
       });
       usuarioAltDoc(data.id_user)
         .collection("guias")
@@ -1167,7 +1165,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
                 timer: 6000,
                 showCancelButton: true,
                 confirmButtonText: "Si, ir al cotizador.",
-                cancelButtonText: "No, ver el historial."
+                cancelButtonText: "No, ver el historial.",
               }).then((res) => {
                 if (res.isConfirmed) {
                   location.href = "plataforma2.html";
@@ -1180,7 +1178,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
               Swal.fire({
                 icon: res.icon,
                 title: res.title,
-                html: res.mensaje
+                html: res.mensaje,
               });
             }
           });
@@ -1275,7 +1273,7 @@ async function actualizarEstadoGuia(numeroGuia, id_user = user_id, wait) {
   return await fetch("/procesos/actualizarEstados/numeroGuia", {
     method: "POST",
     headers: { "Content-Type": "Application/json" },
-    body: JSON.stringify({ user_id: id_user, argumento: numeroGuia, wait })
+    body: JSON.stringify({ user_id: id_user, argumento: numeroGuia, wait }),
   }).then((d) => d.json());
 }
 
@@ -1289,7 +1287,7 @@ function crearStickerParticular() {
     allowOutsideClick: false,
     allowEnterKey: false,
     showConfirmButton: false,
-    allowEscapeKey: true
+    allowEscapeKey: true,
   });
   const id_heka = this.getAttribute("data-id");
   const id_user = this.getAttribute("data-id_user");
@@ -1316,7 +1314,7 @@ async function generarSticker(id_user, id_heka) {
           prueba: data.prueba,
           url: data.urlGuia,
           oficina: data.oficina,
-          type: data.type
+          type: data.type,
         };
 
         let has_sticker;
@@ -1341,14 +1339,14 @@ async function generarSticker(id_user, id_heka) {
           return await doc.ref.update({ has_sticker }).then(() => {
             return {
               icon: "success",
-              text: "Sticker de guía creado exitósamente"
+              text: "Sticker de guía creado exitósamente",
             };
           });
         } catch (e) {
           console.log(e);
           return {
             icon: "error",
-            text: "Lo siento, hubo un error para guardar el sticker"
+            text: "Lo siento, hubo un error para guardar el sticker",
           };
         }
       }
@@ -1477,7 +1475,7 @@ function verificador(arr, scroll, mensaje) {
 
       input.focus();
       primerInput.scrollIntoView({
-        behavior: "smooth"
+        behavior: "smooth",
       });
     }
   }
@@ -1783,7 +1781,7 @@ async function mostrarNotificacionAlertaUsuario(noti, id) {
 
   const opciones = {
     icon: noti.icon[0],
-    html: noti.mensaje
+    html: noti.mensaje,
   };
 
   if (noti.allowDelete) {
@@ -1816,7 +1814,7 @@ function eliminarNotificacionparaUsuario(id) {
   db.collection("centro_notificaciones")
     .doc(id)
     .update({
-      usuarios: firebase.firestore.FieldValue.arrayRemove(userid)
+      usuarios: firebase.firestore.FieldValue.arrayRemove(userid),
     });
 }
 
@@ -1922,7 +1920,7 @@ async function restaurarSaldoGuia(trg, data) {
     title: "¡Atención!",
     text: "Al restaurar va a revertir el movimiento ocasionado, si el movimiento involucra una guía, dicha guía será eliminada del usuario, ¿deseas continuar?",
     showConfirmButton: true,
-    showCancelButton: true
+    showCancelButton: true,
   });
 
   if (!efectuarRestauracion.isConfirmed) return;
@@ -1975,7 +1973,7 @@ async function restaurarSaldoGuia(trg, data) {
     medio: "Administración",
     numeroGuia: movimiento.numeroGuia || "",
 
-    type: "RESTAURADO"
+    type: "RESTAURADO",
   };
 
   console.log(detalles_saldo);
@@ -2124,7 +2122,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
         : "Gestionar";
   }
 
-const fechaFormateada2 = formateoDDMMYYYY(momento_novedad.fechaMov);
+  const fechaFormateada2 = formateoDDMMYYYY(momento_novedad.fechaMov);
   tr.innerHTML = `
       <td>
         <div class="d-flex align-items-center">
@@ -2260,7 +2258,18 @@ const fechaFormateada2 = formateoDDMMYYYY(momento_novedad.fechaMov);
 
   const boton_solucion = $("#solucionar-guia-" + data.numeroGuia);
 
-  $("#gestionar-guia-" + data.numeroGuia).click(() => {
+  $("#gestionar-guia-" + data.numeroGuia).click((e) => {
+    const id = e.target.id;
+
+    const match = id.match(/gestionar-guia-(\d+)$/);
+
+    if (match) {
+      const numeroFinal = match[1];
+      window.location.href = `https://www.hekaentrega.co/rastrea-tu-envio?guide=${numeroFinal}&admin=true`;
+    } else {
+      console.log("No se encontró un número en el ID");
+    }
+    return;
     extraData.id_heka = id_heka;
     gestionarNovedadModal(data, extraData, boton_solucion);
   });
@@ -2318,11 +2327,11 @@ const fechaFormateada2 = formateoDDMMYYYY(momento_novedad.fechaMov);
                 `,
       inputPlaceholder: "Escribe tu mensaje",
       inputAttributes: {
-        "aria-label": "Escribe tu respuesta"
+        "aria-label": "Escribe tu respuesta",
       },
       didOpen: respondiendoNovedad,
       preConfirm: () => document.getElementById("respuesta-novedad").value,
-      showCancelButton: true
+      showCancelButton: true,
     });
 
     if (text == undefined) {
@@ -2339,7 +2348,7 @@ const fechaFormateada2 = formateoDDMMYYYY(momento_novedad.fechaMov);
         fecha: new Date(),
         gestionada: "Logistica",
         admin: true,
-        type: "Individual"
+        type: "Individual",
       };
       Toast.fire("Se enviará mensaje al usuario", text, "info");
       if (extraData.seguimiento) {
@@ -2358,7 +2367,7 @@ const fechaFormateada2 = formateoDDMMYYYY(momento_novedad.fechaMov);
       if (mensajePreguardado == -1) {
         listaRespuestasNovedad.push({
           cantidad: 1,
-          mensaje: text
+          mensaje: text,
         });
       } else {
         listaRespuestasNovedad[mensajePreguardado].cantidad++;
@@ -2372,7 +2381,7 @@ const fechaFormateada2 = formateoDDMMYYYY(momento_novedad.fechaMov);
       referenciaGuia
         .update({
           seguimiento: extraData.seguimiento,
-          novedad_solucionada: true
+          novedad_solucionada: true,
         })
         .then(() => {
           firebase
@@ -2390,7 +2399,7 @@ const fechaFormateada2 = formateoDDMMYYYY(momento_novedad.fechaMov);
               extraData.numeroGuia +
               ": " +
               text.trim(),
-            href: "novedades"
+            href: "novedades",
           });
 
           boton_solucion.html("Solucionada");
@@ -2400,7 +2409,7 @@ const fechaFormateada2 = formateoDDMMYYYY(momento_novedad.fechaMov);
       // return
       referenciaGuia
         .update({
-          novedad_solucionada: true
+          novedad_solucionada: true,
         })
         .then(() => {
           firebase
@@ -2531,7 +2540,7 @@ function traducirMovimientoGuia(transportadora) {
     ubicacion:
       "El lugar en que se dió a cabo del movimiento (normalmente lo usa servientrega)",
     tipoMotivo:
-      "el tipo de motivo por el cual se determina la novedad (usado por servientrega)"
+      "el tipo de motivo por el cual se determina la novedad (usado por servientrega)",
   });
 
   switch (transportadora) {
@@ -2542,7 +2551,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "observacion",
         descripcionMov: "estado",
         ubicacion: "ciudad",
-        tipoMotivo: "TipoMov"
+        tipoMotivo: "TipoMov",
       };
     case "TCC":
       return {
@@ -2551,7 +2560,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "descripcion",
         descripcionMov: "estado",
         ubicacion: "ciudad",
-        tipoMotivo: "TipoMov"
+        tipoMotivo: "TipoMov",
       };
     case "INTERRAPIDISIMO":
       return {
@@ -2560,7 +2569,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "Motivo",
         descripcionMov: "Descripcion Estado",
         ubicacion: "Ciudad",
-        tipoMotivo: "TipoMov"
+        tipoMotivo: "TipoMov",
       };
     case "COORDINADORA":
       return {
@@ -2569,7 +2578,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "descripcion",
         descripcionMov: "descripcion",
         ubicacion: "Ciudad",
-        tipoMotivo: "TipoMov"
+        tipoMotivo: "TipoMov",
       };
     default:
       return {
@@ -2578,7 +2587,7 @@ function traducirMovimientoGuia(transportadora) {
         observacion: "DesTipoMov",
         descripcionMov: "NomMov",
         ubicacion: "OriMov",
-        tipoMotivo: "TipoMov"
+        tipoMotivo: "TipoMov",
       };
   }
 }
@@ -2937,14 +2946,14 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
         if (dataG.seguimiento) {
           dataG.seguimiento.push({
             gestion: $(idSolucion).val(),
-            fecha: new Date()
+            fecha: new Date(),
           });
         } else {
           dataG.seguimiento = [
             {
               gestion: $(idSolucion).val(),
-              fecha: new Date()
-            }
+              fecha: new Date(),
+            },
           ];
         }
 
@@ -2954,7 +2963,7 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
           .doc(dataG.id_heka)
           .update({
             seguimiento: dataG.seguimiento,
-            novedad_solucionada: false
+            novedad_solucionada: false,
           })
           .then(() => {
             localStorage.setItem("tiempoguia" + noguia, new Date());
@@ -2992,7 +3001,7 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
                 user_id: user_id,
                 seguimiento: dataG.seguimiento,
                 usuario: datos_usuario.centro_de_costo,
-                visible_admin: true
+                visible_admin: true,
               });
             btn_solucionar.text("Enviar Solución");
           })
@@ -3046,7 +3055,7 @@ async function implantarEstadoNuevoAdm(guia, estadosGuia) {
       const formData = new FormData(form);
       return Object.fromEntries(formData);
     },
-    confirmButtonText: "Actualizar"
+    confirmButtonText: "Actualizar",
   });
 
   if (!formValue) return;
@@ -3057,7 +3066,7 @@ async function implantarEstadoNuevoAdm(guia, estadosGuia) {
   const actualizarGuia = {
     estado: nuevoEstado,
     seguimiento_finalizado: true, // Finalizamos el seguimiento para qeu no se vuelva a actualizar automáticamente
-    enNovedad: false // Por defecto, este tipo de actualizaciones quita cualquier novedad presente
+    enNovedad: false, // Por defecto, este tipo de actualizaciones quita cualquier novedad presente
   };
 
   // Generamos el objeto de actualización para los estados
@@ -3070,8 +3079,8 @@ async function implantarEstadoNuevoAdm(guia, estadosGuia) {
       descripcionMov,
       observacion,
       fechaMov: genFecha(),
-      novedad: "" // Se guarda vacío ya que este representa la descripción de una novedad que ha sido "quitada"
-    })
+      novedad: "", // Se guarda vacío ya que este representa la descripción de una novedad que ha sido "quitada"
+    }),
   };
 
   // Actualizamos el estado de la guía
@@ -3095,12 +3104,12 @@ function registrarNovedad() {
   db.collection("infoHeka")
     .doc("novedadesRegistradas")
     .update({
-      SERVIENTREGA: firebase.firestore.FieldValue.arrayUnion(novedad)
+      SERVIENTREGA: firebase.firestore.FieldValue.arrayUnion(novedad),
     })
     .then(() => {
       Toast.fire({
         icon: "success",
-        title: "Novedad registrada"
+        title: "Novedad registrada",
       });
     });
 }
@@ -3169,7 +3178,7 @@ function enviarNotificacion(options) {
     allowDelete: "bool: para permitirle al usuario eliminarla o no",
     deleteAfterWatch:
       "boll para que se auto elimine luego que el usuario la observe",
-    isGlobal: "Bool: para indicar si es una notificación global"
+    isGlobal: "Bool: para indicar si es una notificación global",
   };
 
   let fecha = genFecha("ltr").replace(/\-/g, "/");
@@ -3180,7 +3189,7 @@ function enviarNotificacion(options) {
   fecha += ` - ${hora}:${minutos}`;
   let notificacion = {
     fecha,
-    timeline: new Date().getTime()
+    timeline: new Date().getTime(),
   };
 
   for (let option in options) {
@@ -3278,8 +3287,8 @@ async function actualizarSaldo(data) {
       RESTAURADO:
         "Cuando se retorna un saldo descontado de una guía en concreto",
       CANJEADO: "Cuando admin retorna un saldo deudor",
-      REFERIDO: "Cuando el user reclama un saldo de referido"
-    }
+      REFERIDO: "Cuando el user reclama un saldo de referido",
+    },
   };
 
   return await firebase
@@ -3287,7 +3296,7 @@ async function actualizarSaldo(data) {
     .collection("usuarios")
     .doc(data.user_id)
     .update({
-      "datos_personalizados.saldo": data.saldo
+      "datos_personalizados.saldo": data.saldo,
     })
     .then(() => {
       firebase
@@ -3313,7 +3322,7 @@ async function actualizarSaldo(data) {
                   user: data.user_id,
                   medio: data.medio,
                   guia: data.guia,
-                  momento: data.momento
+                  momento: data.momento,
                 });
             });
         });
@@ -3361,7 +3370,7 @@ function verDetallesGuia() {
           "celularD",
           "id_tipo_entrega",
           "recogida_oficina",
-          "empaqueDetalles"
+          "empaqueDetalles",
         ],
         [
           "Identificador Guía",
@@ -3386,8 +3395,8 @@ function verDetallesGuia() {
           "Celular 2",
           "tipo entrega",
           "En oficina, disponible para reclamar",
-          "Detalles pedido"
-        ]
+          "Detalles pedido",
+        ],
       ];
 
       let informacionGuia = "<div class='card my-2'>";
@@ -3404,7 +3413,7 @@ function verDetallesGuia() {
         "C.O.D RECLAMO OFICINA",
         "EMPRESARIO SATELITE ENTREGA EN OFICINA",
         "EMPRESARIO SATELITE ENTREGA EN DOMICILIO",
-        "EMPRESARIO SATELITE ENTREGA EN OFICINA"
+        "EMPRESARIO SATELITE ENTREGA EN OFICINA",
       ];
 
       let novedadDevolucion = "NO RECLAMO EN OFICINA";
@@ -3479,7 +3488,7 @@ function verDetallesGuia() {
             "Barrio",
             "Ciudad",
             "Celular",
-            "Correo"
+            "Correo",
           ],
           [
             oficina.nombre_completo,
@@ -3487,8 +3496,8 @@ function verDetallesGuia() {
             oficina.barrio,
             oficina.ciudad,
             oficina.celular,
-            oficina.correo
-          ]
+            oficina.correo,
+          ],
         ];
 
         datos_oficina[0].forEach((titulo, i) => {
@@ -3512,7 +3521,7 @@ function verDetallesGuia() {
       Swal.fire({
         title: "Detalles de Guía",
         html,
-        width: "80%"
+        width: "80%",
       });
     });
 }
@@ -3627,7 +3636,7 @@ function erroresColaGuias() {
       Swal.fire({
         title: "Detalles de Errores de la Guía",
         html,
-        width: "80%"
+        width: "80%",
       });
     });
 }
@@ -3672,12 +3681,12 @@ function organizarPostPlantillaMensaje(number, params) {
   return {
     method: "POST",
     headers: {
-      "Content-Type": "application/json"
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       number,
-      params
-    })
+      params,
+    }),
   };
 }
 
@@ -3689,7 +3698,7 @@ const Toast = Swal.mixin({
   didOpen: (toast) => {
     toast.addEventListener("mouseenter", Swal.stopTimer);
     toast.addEventListener("mouseleave", Swal.resumeTimer);
-  }
+  },
 });
 
 const Cargador = Swal.mixin({
@@ -3699,7 +3708,7 @@ const Cargador = Swal.mixin({
   allowOutsideClick: false,
   allowEnterKey: false,
   showConfirmButton: false,
-  allowEscapeKey: true
+  allowEscapeKey: true,
 });
 
 //guar la base64 en el path (ruta) ingresado. devuelve true si fue guardado con éxito, caso contrario devuelve false
@@ -3803,7 +3812,7 @@ function convertirMoneda(
   return new Intl.NumberFormat(locales, {
     style: "currency",
     currency,
-    minimumFractionDigits
+    minimumFractionDigits,
   }).format(number);
 }
 
@@ -3856,7 +3865,7 @@ const estandarizarFecha = (date, specialFormat, parseHour) => {
     m: fecha.getMinutes(),
     mm: norm(fecha.getMinutes()),
     s: fecha.getSeconds(),
-    ss: norm(fecha.getSeconds())
+    ss: norm(fecha.getSeconds()),
   };
 
   let res = format.DD + "/" + format.MM + "/" + format.YYYY;
@@ -4106,6 +4115,6 @@ medidasCtrl.setBooleans = [
     operator: "regExp",
     message: 'Debe ser un número entero, caracter "{forbidden}" eliminado',
     forbid: /[^\d]/g,
-    sustitute: ""
-  }
+    sustitute: "",
+  },
 ];
