@@ -2258,7 +2258,18 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
 
   const boton_solucion = $("#solucionar-guia-" + data.numeroGuia);
 
-  $("#gestionar-guia-" + data.numeroGuia).click(() => {
+  $("#gestionar-guia-" + data.numeroGuia).click((e) => {
+    /* const id = e.target.id;
+
+    const match = id.match(/gestionar-guia-(\d+)$/);
+
+    if (match) {
+      const numeroFinal = match[1];
+      window.location.href = `https://www.hekaentrega.co/rastrea-tu-envio?guide=${numeroFinal}&admin=true`;
+    } else {
+      console.log("No se encontró un número en el ID");
+    }
+    return; */
     extraData.id_heka = id_heka;
     gestionarNovedadModal(data, extraData, boton_solucion);
   });
@@ -2293,128 +2304,135 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
   });
 
   boton_solucion.click(async () => {
-    $("#modal-gestionarNovedad").modal("hide");
-
-    const html_btn = boton_solucion.html();
-    boton_solucion.html(`
-                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                Cargando...
-            `);
-
-    const referenciaGuia = firebase
-      .firestore()
-      .collection("usuarios")
-      .doc(id_user)
-      .collection("guias")
-      .doc(id_heka);
-
-    let { value: text } = await Swal.fire({
-      title: "Respuesta",
-      html: `
-                    <textarea placeholder="Escribe tu mensaje" id="respuesta-novedad" class="form-control"></textarea>
-                    <div id="posibles-respuestas"></div>
-                `,
-      inputPlaceholder: "Escribe tu mensaje",
-      inputAttributes: {
-        "aria-label": "Escribe tu respuesta",
-      },
-      didOpen: respondiendoNovedad,
-      preConfirm: () => document.getElementById("respuesta-novedad").value,
-      showCancelButton: true,
-    });
-
-    if (text == undefined) {
-      boton_solucion.html(html_btn);
-    } else if (text) {
-      text = text.trim();
-
-      const solucion = {
-        gestion:
-          '<b>La transportadora "' +
-          data.transportadora +
-          '" responde lo siguiente:</b> ' +
-          text.trim(),
-        fecha: new Date(),
-        gestionada: "Logistica",
-        admin: true,
-        type: "Individual",
-      };
-      Toast.fire("Se enviará mensaje al usuario", text, "info");
-      if (extraData.seguimiento) {
-        extraData.seguimiento.push(solucion);
-      } else {
-        extraData.seguimiento = new Array(solucion);
-      }
-
-      console.log(extraData);
-      console.log(solucion);
-
-      const mensajePreguardado = listaRespuestasNovedad.findIndex(
-        (l) => l.mensaje.toLowerCase() == text.toLowerCase()
+    if (data.enNovedad && !administracion) {
+      window.open(
+        `https://www.hekaentrega.co/rastrea-tu-envio?guide=${data.numeroGuia}&admin=true`,
+        "_blank"
       );
-
-      if (mensajePreguardado == -1) {
-        listaRespuestasNovedad.push({
-          cantidad: 1,
-          mensaje: text,
-        });
-      } else {
-        listaRespuestasNovedad[mensajePreguardado].cantidad++;
-      }
-
-      // Para guardar una nueva estructura de mensaje
-      db.collection("infoHeka")
-        .doc("respuestasNovedad")
-        .update({ respuestas: listaRespuestasNovedad });
-
-      referenciaGuia
-        .update({
-          seguimiento: extraData.seguimiento,
-          novedad_solucionada: true,
-        })
-        .then(() => {
-          firebase
-            .firestore()
-            .collection("notificaciones")
-            .doc(id_heka)
-            .delete();
-
-          enviarNotificacion({
-            visible_user: true,
-            user_id: id_user,
-            id_heka: extraData.id_heka,
-            mensaje:
-              "Respuesta a Solución de la guía número " +
-              extraData.numeroGuia +
-              ": " +
-              text.trim(),
-            href: "novedades",
-          });
-
-          boton_solucion.html("Solucionada");
-        });
     } else {
-      console.log("No se envió mensaje");
-      // return
-      referenciaGuia
-        .update({
-          novedad_solucionada: true,
-        })
-        .then(() => {
-          firebase
-            .firestore()
-            .collection("notificaciones")
-            .doc(id_heka)
-            .delete();
-          boton_solucion.html("Solucionada");
-          Toast.fire(
-            "Guía Gestionada",
-            "La guía " +
-              data.numeroGuia +
-              " ha sido actualizada exitósamente como solucionada",
-            "success"
-          );
-        });
+      $("#modal-gestionarNovedad").modal("hide");
+
+      const html_btn = boton_solucion.html();
+      boton_solucion.html(`
+                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  Cargando...
+              `);
+
+      const referenciaGuia = firebase
+        .firestore()
+        .collection("usuarios")
+        .doc(id_user)
+        .collection("guias")
+        .doc(id_heka);
+
+      let { value: text } = await Swal.fire({
+        title: "Respuesta",
+        html: `
+                      <textarea placeholder="Escribe tu mensaje" id="respuesta-novedad" class="form-control"></textarea>
+                      <div id="posibles-respuestas"></div>
+                  `,
+        inputPlaceholder: "Escribe tu mensaje",
+        inputAttributes: {
+          "aria-label": "Escribe tu respuesta",
+        },
+        didOpen: respondiendoNovedad,
+        preConfirm: () => document.getElementById("respuesta-novedad").value,
+        showCancelButton: true,
+      });
+
+      if (text == undefined) {
+        boton_solucion.html(html_btn);
+      } else if (text) {
+        text = text.trim();
+
+        const solucion = {
+          gestion:
+            '<b>La transportadora "' +
+            data.transportadora +
+            '" responde lo siguiente:</b> ' +
+            text.trim(),
+          fecha: new Date(),
+          gestionada: "Logistica",
+          admin: true,
+          type: "Individual",
+        };
+        Toast.fire("Se enviará mensaje al usuario", text, "info");
+        if (extraData.seguimiento) {
+          extraData.seguimiento.push(solucion);
+        } else {
+          extraData.seguimiento = new Array(solucion);
+        }
+
+        console.log(extraData);
+        console.log(solucion);
+
+        const mensajePreguardado = listaRespuestasNovedad.findIndex(
+          (l) => l.mensaje.toLowerCase() == text.toLowerCase()
+        );
+
+        if (mensajePreguardado == -1) {
+          listaRespuestasNovedad.push({
+            cantidad: 1,
+            mensaje: text,
+          });
+        } else {
+          listaRespuestasNovedad[mensajePreguardado].cantidad++;
+        }
+
+        // Para guardar una nueva estructura de mensaje
+        db.collection("infoHeka")
+          .doc("respuestasNovedad")
+          .update({ respuestas: listaRespuestasNovedad });
+
+        referenciaGuia
+          .update({
+            seguimiento: extraData.seguimiento,
+            novedad_solucionada: true,
+          })
+          .then(() => {
+            firebase
+              .firestore()
+              .collection("notificaciones")
+              .doc(id_heka)
+              .delete();
+
+            enviarNotificacion({
+              visible_user: true,
+              user_id: id_user,
+              id_heka: extraData.id_heka,
+              mensaje:
+                "Respuesta a Solución de la guía número " +
+                extraData.numeroGuia +
+                ": " +
+                text.trim(),
+              href: "novedades",
+            });
+
+            boton_solucion.html("Solucionada");
+          });
+      } else {
+        console.log("No se envió mensaje");
+        // return
+        referenciaGuia
+          .update({
+            novedad_solucionada: true,
+          })
+          .then(() => {
+            firebase
+              .firestore()
+              .collection("notificaciones")
+              .doc(id_heka)
+              .delete();
+            boton_solucion.html("Solucionada");
+            Toast.fire(
+              "Guía Gestionada",
+              "La guía " +
+                data.numeroGuia +
+                " ha sido actualizada exitósamente como solucionada",
+              "success"
+            );
+          });
+      }
     }
   });
 }

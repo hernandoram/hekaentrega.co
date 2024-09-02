@@ -3,6 +3,16 @@ const { actualizarMovimientos, actualizarMovimientosSemanales, ocultarOficinas }
 var firebase = require("../keys/firebase");
 const { processCreationGuides } = require('../extends/generacionGuias');
 
+/** ELIMINAR FRAGMENTO */
+actualizarMovimientos().then((detalles) => {
+    console.log(JSON.stringify(detalles));
+    detalles.usuariosAnalizados = detalles.usuarios.length;
+    delete detalles.usuarios;
+
+    firebase.firestore().collection("reporte").add(detalles);
+});
+/** FIN DE FRAGMENTO */
+
 cron.schedule("00 */6 * * *", () => {
     let d = new Date();
     console.log("Se vana a ctualizar los movimientos de las guías: ", d);
