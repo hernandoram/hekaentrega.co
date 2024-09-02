@@ -2259,7 +2259,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
   const boton_solucion = $("#solucionar-guia-" + data.numeroGuia);
 
   $("#gestionar-guia-" + data.numeroGuia).click((e) => {
-    const id = e.target.id;
+    /* const id = e.target.id;
 
     const match = id.match(/gestionar-guia-(\d+)$/);
 
@@ -2269,7 +2269,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
     } else {
       console.log("No se encontró un número en el ID");
     }
-    return;
+    return; */
     extraData.id_heka = id_heka;
     gestionarNovedadModal(data, extraData, boton_solucion);
   });
@@ -2304,7 +2304,8 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
   });
 
   boton_solucion.click(async () => {
-    $("#modal-gestionarNovedad").modal("hide");
+    window.open(`https://www.hekaentrega.co/rastrea-tu-envio?guide=${data.numeroGuia}&admin=true`, '_blank');
+    /* $("#modal-gestionarNovedad").modal("hide");
 
     const html_btn = boton_solucion.html();
     boton_solucion.html(`
@@ -2426,7 +2427,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
             "success"
           );
         });
-    }
+    } */
   });
 }
 
