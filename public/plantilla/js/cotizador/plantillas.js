@@ -102,7 +102,7 @@ function cambiarBodegaCotizador(e) {
   if (!bodega) return;
 
   //buscarCiudad(inpCiudadR, bodega.ciudad);
-  setearCiudad(inpCiudadR, bodega.dane_ciudad);
+  llenarInputCiudad(inp, data);
 }
 
 function setearCiudad(inp, data) {
