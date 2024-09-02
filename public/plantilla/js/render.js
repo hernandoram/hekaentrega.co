@@ -2304,7 +2304,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
   });
 
   boton_solucion.click(async () => {
-    if (data.enNovedad && administracion) {
+    if (data.enNovedad && !administracion) {
       window.open(`https://www.hekaentrega.co/rastrea-tu-envio?guide=${data.numeroGuia}&admin=true`, '_blank');
     }
     else {
