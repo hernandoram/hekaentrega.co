@@ -1,6 +1,6 @@
 // MANEJADOR DE FILTROS
 const choices = new Choices("#activador_busq_callcenter", {
-  removeItemButton: true
+  removeItemButton: true,
 });
 
 $("#filtrado-callcenter").on("change", function () {
@@ -60,14 +60,14 @@ async function GuardarDatosInforme(dataInforme) {
       let startData = {
         timedate: id,
         fecha: genFecha(),
-        callcenter: []
+        callcenter: [],
       };
       await docRef.set(startData).then(console.log("se creo correctamente"));
     }
     // UNA VEZ CREADO SUBE LA DATA DEL MOVIMIENTO PARA POSTERIORMENTE SER USADO DESCARGANDO EL EXCEL
     await docRef
       .update({
-        callcenter: firebase.firestore.FieldValue.arrayUnion(dataInforme)
+        callcenter: firebase.firestore.FieldValue.arrayUnion(dataInforme),
       })
       .then(console.log("se actualizo correctamente"));
   });
@@ -147,7 +147,7 @@ async function DescargarInformeCallcenter() {
             ["NUMERO GUIA", "_numGuia"],
             ["TRANSPORTADORA", "_Transportadora"],
             ["CENTRO DE COSTO", "_CentroCosto"],
-            ["SOLICITUD", "_solicitud"]
+            ["SOLICITUD", "_solicitud"],
           ];
 
           let newDoc = arrData.map((dat, i) => {
@@ -693,7 +693,18 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
 
   const boton_solucion = $("#solucionar-guia-callcenter-" + data.numeroGuia);
 
-  $("#gestionar-guia-callcenter-" + data.numeroGuia).click(() => {
+  $("#gestionar-guia-callcenter-" + data.numeroGuia).click((e) => {
+    const id = e.target.id;
+
+    const match = id.match(/gestionar-guia-(\d+)$/);
+
+    if (match) {
+      const numeroFinal = match[1];
+      window.location.href = `https://www.hekaentrega.co/rastrea-tu-envio?guide=${numeroFinal}&admin=true`;
+    } else {
+      console.log("No se encontró un número en el ID");
+    }
+    return;
     extraData.id_heka = id_heka;
     gestionarNovedadModal(data, extraData, boton_solucion);
   });
@@ -724,13 +735,24 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
   });
 
   boton_solucion.click(async () => {
-    await gestionarRespuestaCallCenter(boton_solucion, data, extraData, id_heka, id_user);
+    await gestionarRespuestaCallCenter(
+      boton_solucion,
+      data,
+      extraData,
+      id_heka,
+      id_user
+    );
   });
 }
 
-async function gestionarRespuestaCallCenter(boton_solucion, data, extraData, id_heka, id_user) {
-
-  $("#modal-gestionarNovedad").modal("hide")
+async function gestionarRespuestaCallCenter(
+  boton_solucion,
+  data,
+  extraData,
+  id_heka,
+  id_user
+) {
+  $("#modal-gestionarNovedad").modal("hide");
 
   const html_btn = boton_solucion.html();
   boton_solucion.html(`
@@ -738,13 +760,12 @@ async function gestionarRespuestaCallCenter(boton_solucion, data, extraData, id_
               Cargando...
           `);
 
-          
   let { value: respuestaSeller } = await Swal.fire({
     title: "Respuesta llamada",
     input: "textarea",
     showCancelButton: true,
     confirmButtonText: "Continuar",
-    cancelButtonText: `Cancelar`
+    cancelButtonText: `Cancelar`,
   });
   let text;
   let resTransportadora;
@@ -757,11 +778,11 @@ async function gestionarRespuestaCallCenter(boton_solucion, data, extraData, id_
                 `,
       inputPlaceholder: "Escribe tu mensaje",
       inputAttributes: {
-        "aria-label": "Escribe tu respuesta"
+        "aria-label": "Escribe tu respuesta",
       },
       didOpen: respondiendoNovedad,
       preConfirm: () => document.getElementById("respuesta-novedad").value,
-      showCancelButton: true
+      showCancelButton: true,
     });
 
     text = res;
@@ -771,7 +792,7 @@ async function gestionarRespuestaCallCenter(boton_solucion, data, extraData, id_
         input: "textarea",
         showCancelButton: true,
         confirmButtonText: "Continuar",
-        cancelButtonText: `Cancelar`
+        cancelButtonText: `Cancelar`,
       });
       resTransportadora = resT;
     }
@@ -787,7 +808,7 @@ async function gestionarRespuestaCallCenter(boton_solucion, data, extraData, id_
       transportadora: data.transportadora,
       fecha: new Date(),
       resTransportadora: resTransportadora.trim(),
-      descargada: false
+      descargada: false,
     };
     const solucion = {
       gestion:
@@ -801,7 +822,7 @@ async function gestionarRespuestaCallCenter(boton_solucion, data, extraData, id_
       fecha: new Date(),
       gestionada: "Callcenter",
       admin: true,
-      type: "Individual"
+      type: "Individual",
     };
     Toast.fire("Se enviará mensaje al usuario", text, "info");
     if (extraData.seguimiento) {
@@ -817,7 +838,7 @@ async function gestionarRespuestaCallCenter(boton_solucion, data, extraData, id_
     if (mensajePreguardado == -1) {
       listaRespuestasNovedad.push({
         cantidad: 1,
-        mensaje: text
+        mensaje: text,
       });
     } else {
       listaRespuestasNovedad[mensajePreguardado].cantidad++;
@@ -838,7 +859,7 @@ async function gestionarRespuestaCallCenter(boton_solucion, data, extraData, id_
     referenciaGuia
       .update({
         seguimiento: extraData.seguimiento,
-        novedad_solucionada: true
+        novedad_solucionada: true,
       })
       .then(() => {
         firebase.firestore().collection("notificaciones").doc(id_heka).delete();
@@ -852,7 +873,7 @@ async function gestionarRespuestaCallCenter(boton_solucion, data, extraData, id_
             extraData.numeroGuia +
             ": " +
             text.trim(),
-          href: "novedades"
+          href: "novedades",
         });
         console.log("debe entrar a informe");
         GuardarDatosInforme(dataInforme);
@@ -864,7 +885,7 @@ async function gestionarRespuestaCallCenter(boton_solucion, data, extraData, id_
     // return
     referenciaGuia
       .update({
-        novedad_solucionada: true
+        novedad_solucionada: true,
       })
       .then(() => {
         firebase.firestore().collection("notificaciones").doc(id_heka).delete();
@@ -879,5 +900,3 @@ async function gestionarRespuestaCallCenter(boton_solucion, data, extraData, id_
       });
   }
 }
-
-
