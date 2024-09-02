@@ -1052,7 +1052,6 @@ function seleccionarUsuario(id) {
             opciones
           );
         } else {
-          alert("No se pudo cargar la fecha de registro del usuario");
           fechaRegistroUsuario.value = "Seller Antiguo";
         }
         mostrarObjetosFrecuentesAdm(doc.id);
