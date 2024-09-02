@@ -166,96 +166,143 @@ const actualizarMovimientosScrapp = async function(doc) {
 }
 // Fin de las funciones inutilizadas
 
-const actualizarMovimientos = async function(doc) {
-    console.log(doc.data().numeroGuia);
-    const respuesta = await requestP.post(urlEstados + doc.data().numeroGuia)
-    .then(res => JSON.parse(res))
-    .catch(err => {
-        return {
-            error:true,
-            message: err.body
-        }
-    });
+const actualizarMovimientos = async function(docs) {
 
-    if(respuesta.error || !respuesta.length) {
-        const finalizar_seguimiento = doc.data().prueba ? true : false;
-        if(finalizar_seguimiento) {
-            await extsFunc.actualizarEstado(doc, {
-                estado: "Finalizado",
-                ultima_actualizacion: new Date(),
-                seguimiento_finalizado: finalizar_seguimiento
-            });
+    try {
+        const credentials = getCredentials("EMPRESA", false); // Para la actualidad todas las guía deben estar bajo las credenciales de empresa y esta funcionalidad, no estaría disponible para guías de usuarios de prueba
+
+        const numerosGuia = docs.map(d => d.data().numeroGuia || undefined).filter(Boolean);
+    
+        const resEstados = await requestP(credentials.endpoint + "/ClientesCredito/ConsultarEstadosGuiasCliente", {
+            method: "POST",
+            headers: {
+                "x-app-signature": credentials.x_app_signature,
+                "x-app-security_token":  credentials.x_app_security_token,
+                "Content-type": "application/json"
+            },
+            body: JSON.stringify({
+                IdCliente: credentials.idCliente,
+                numeroGuias: numerosGuia
+            })
+        })
+        .then(d => JSON.parse(d));
+
+        if(!resEstados.listadoGuias) throw new Error("La solicitud no devolvió ningún estado de las guías.");
+
+        if(resEstados.Message) throw new Error(resEstados.Message);
+
+        const resultadoActualizacion = [{
+            estado: "Est.M",
+            actualizadas: 0,
+            errores: 0,
+            causas: []
+        }, {
+            estado: "Mov.M",
+            actualizadas: 0,
+        }];
+
+        for await (const d of docs) {
+            const numeroGuia = d.data().numeroGuia;
+            const reporte = resEstados.listadoGuias.find(rep => rep.numeroGuia == numeroGuia);
+
+            if(!reporte) continue;
+
+            const [est, mov, error] = await actualizarMovimientoIndividual(d, reporte);
+
+            if(est) resultadoActualizacion[0].actualizadas++;
+            if(mov) resultadoActualizacion[1].actualizadas++;
+
+            if(error) {
+                resultadoActualizacion[0].errores++;
+                resultadoActualizacion[0].causas.push(error);
+            }
+
         }
-        
+
+        return resultadoActualizacion;
+
+
+    } catch (error) {
+        console.log(error);
         return [{
             estado: "Error",
-            guia: doc.id + " / " + doc.data().numeroGuia + " Hubo un error desconocido.",
-            causa: respuesta.message || "Error desconocido INTERRAPIDISMO"
-        }];
+            guia: "Segmento de guías: " + error.message,
+            causa: error.message || "Error desconocido INTERRAPIDISIMO"
+        }]
     }
+  
+}
 
-    const guia = doc.data();
 
-    let entrega_oficina_notificada = guia.entrega_oficina_notificada || false;
-    
-    const movimientos = respuesta[0].EstadosGuia.map(estado => {
-        const est = estado.EstadoGuia;
-        const movimiento = {
-            Ciudad: est.Ciudad,
-            "Descripcion Estado": est.DescripcionEstadoGuia,
-            "Fecha Cambio Estado": extsFunc.estandarizarFecha(est.FechaGrabacion, "MM/DD/YYYY HH:mm:ss"),
-            "Motivo": estado.Motivo.Descripcion || "",
-        }
+async function actualizarMovimientoIndividual(doc, respuesta) {
+    try {
+        const guia = doc.data();
+        const estadosGuia = respuesta.estadosGuia ?? [];
+        const estadosPreenvio = respuesta.estadosPreenvio ?? [];
 
-        console.log(est.DescripcionEstadoGuia);
-        if(est.DescripcionEstadoGuia == "Para Reclamar en Oficina" && !entrega_oficina_notificada) {
-            extsFunc.notificarEntregaEnOficina(guia);
-            entrega_oficina_notificada = true;
-        }
+        const movimientos = estadosPreenvio.concat(estadosGuia);
+        let finalizar_seguimiento = guia.prueba ? true : false;
+        let entrega_oficina_notificada = guia.entrega_oficina_notificada || false;
+
+        const gTime = (fecha) => new Date(fecha).getTime();
         
-        return movimiento;
-    });
-    
-    const ultimo_estado = movimientos[movimientos.length - 1];
-    let finalizar_seguimiento = doc.data().prueba ? true : false
-
-
-    const estado = {
-        entrega_oficina_notificada,
-        numeroGuia: respuesta[0].Guia.NumeroGuia.toString(), //guia devuelta por la transportadora
-        fechaEnvio: extsFunc.estandarizarFecha(respuesta[0].TrazaGuia["FechaAdmisionGuia"], "MM/DD/YYYY HH:mm:ss"), 
-        ciudadD: doc.data().ciudadD,
-        nombreD: doc.data().nombreD,
-        direccionD:  respuesta[0].Guia.DireccionDestinatario,
-        estadoActual: respuesta[0].TrazaGuia['DescripcionEstadoGuia'],
-        fecha: extsFunc.estandarizarFecha(ultimo_estado["Fecha Cambio Estado"], "MM/DD/YYYY HH:mm:ss"), //fecha del estado
-        id_heka: doc.id,
         movimientos
-    };
-    
-    updte_movs = await extsFunc.actualizarMovimientos(doc, estado);
-    
+        .sort((a,b) => {
+            return gTime(a.fechaEstado) - gTime(b.fechaEstado);
+        })
+        .map(est => {
+            if(est.nombreEstado === "Para Reclamar en Oficina" && !entrega_oficina_notificada) {
+                extsFunc.notificarEntregaEnOficina(guia);
+                entrega_oficina_notificada = true;
+            }
 
-    guia.estadoTransportadora = estado.estadoActual;
+            est.novedad = [26, 39, 40, 7, 32, 10, 30, 33].includes(est.idEstadoGuia) ? est.nombreEstado : "";
+            est.fechaEstado = extsFunc.estandarizarFecha(new Date(est.fechaEstado), "DD/MM/YYYY HH:mm");
             
-    // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
-    const actualizaciones = modificarEstadoGuia(guia);
+            return est;
+        });
 
-    actualizaciones.enNovedad = detectaNovedadEnElHistorialDeEstados(updte_movs);
-
-    // Esto me llena un arreglo de todas las novedades que han sido notificadas, para consultarlo y evitar duplicar notificaciones
-    actualizaciones.novedadesNotificadas = await notificarNovedadEncontrada(guia, estado.movimientos);
+        const primerEstado = movimientos[0];
+        const ultimoEstado = movimientos[movimientos.length - 1];
     
-    // Esto pasa una serie de argumentos, que detecta que haya alguna información para actualizar
-    // en caso de que los valores del segundo parametros sean falsos, undefined o null, no los toma en cuenta para actualizar
-    atributosAdicionalesEnActualizacion(actualizaciones, {
-        seguimiento_finalizado: finalizar_seguimiento, entrega_oficina_notificada
-    });
-
-    updte_estados = await extsFunc.actualizarEstado(doc, actualizaciones);
-
-    return [updte_estados, updte_movs];
+        const estadoActual = ultimoEstado.nombreEstado;
     
+        const estado = {
+            numeroGuia: respuesta.numeroGuia.toString(), //guia devuelta por la transportadora
+            fechaEnvio: primerEstado.fechaEstado,
+            ciudadD: primerEstado.nombreCiudadDestino,
+            nombreD: guia.nombreD,
+            direccionD:  guia.direccionD,
+            estadoActual,
+            fecha: ultimoEstado.fechaEstado,
+            id_heka: doc.id,
+            movimientos
+        };
+    
+        updte_movs = await extsFunc.actualizarMovimientos(doc, estado);
+
+        guia.estadoTransportadora = estadoActual;
+
+        // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
+        const actualizaciones = modificarEstadoGuia(guia);
+        actualizaciones.enNovedad = detectaNovedadEnElHistorialDeEstados(updte_movs);
+
+        // Esto me llena un arreglo de todas las novedades que han sido notificadas, para consultarlo y evitar duplicar notificaciones
+        actualizaciones.novedadesNotificadas = await notificarNovedadEncontrada(guia, estado.movimientos);
+    
+        // Esto pasa una serie de argumentos, que detecta que haya alguna información para actualizar
+        // en caso de que los valores del segundo parametros sean falsos, undefined o null, no los toma en cuenta para actualizar
+        atributosAdicionalesEnActualizacion(actualizaciones, {
+            seguimiento_finalizado: finalizar_seguimiento, entrega_oficina_notificada
+        });
+    
+        const updte_estados = await extsFunc.actualizarEstado(doc, actualizaciones);
+    
+        return [updte_estados.estado === "Est.A", updte_movs.estado === "Mov.A"];
+    } catch (e) {
+        console.log(e.message);
+        return [null, null, e.message];
+    }
 }
 
 const encontrarId_heka = async function(numeroGuia) {
@@ -327,7 +374,7 @@ async function creacionGuia(guia) {
         "Observaciones": guia.id_heka + " - " + guia.dice_contener
     }
 
-    const body = await requestP(url + "/InsertarAdmision", {
+    const body = await requestP(url + "/Admision/InsertarAdmision", {
         method: "POST",
         headers: {
             "x-app-signature": credentials.x_app_signature,
@@ -433,7 +480,7 @@ exports.crearStickerGuia = (req, res) => {
     const cuenta_responsable = req.query.cuenta_responsable;
     const credentials = getCredentials(cuenta_responsable, prueba);
     const url = credentials.endpoint;
-    request.get(url + "/ObtenerBase64PdfPreGuia/" + req.params.id, {
+    request.get(url + "/Admision/ObtenerBase64PdfPreGuia/" + req.params.id, {
         headers: {
             "x-app-signature": credentials.x_app_signature,
             "x-app-security_token": credentials.x_app_security_token
