@@ -22,6 +22,7 @@ class TranslatorFromApi {
         this.sobreflete = dataFromApi.transportCommission;
         this.seguroMercancia = dataFromApi.assured;
         this.transportadora = dataFromApi.entity.toUpperCase();
+        this.version = parseInt(dataFromApi.version);
     }
 
     get factorDeConversion() {
@@ -70,20 +71,20 @@ class TranslatorFromApi {
             peso_real: this.dataSentApi.weight,
             flete: this.flete,
             comision_heka: this.dataFromApi.hekaCommission,
-            comision_adicional: 0, // TODO: Esta información no la tenemos, pero para la V1 del cotizador sabemos que da cero (LO DEVOVERÁ EL API)
+            comision_adicional: this.dataFromApi.additional_commission,
             comision_trasportadora: this.sobreflete + this.seguroMercancia,
             peso_liquidar: this.kgTomado,
             peso_con_volumen: this.pesoVolumen,
             total: this.costoEnvio,
             recaudo: this.valor,
             seguro: this.seguro,
-            costoDevolucion: this.costoDevolucion, // TODO: Validar como tomaremos en cuenta los atributos de las devoluciones (LO DEVOVERÁ EL API)
-            cobraDevolucion: false, // TODO: Validar como tomaremos en cuenta los atributos de las devoluciones (LO DEVOVERÁ EL API)
-            versionCotizacion: 1 // TODO: Validar como tomar en cuenta la versión (técnicamente podemos tomarlo a partir de los datos de usuario, pero todo dependerá como conectaremos el cotizador) (LO DEVOVERÁ EL API)
+            costoDevolucion: this.version === 1 ? this.dataFromApi.costReturnHeka : this.dataFromApi.costReturn,
+            cobraDevolucion: this.version === 1,
+            versionCotizacion: this.version
         };
     
         if (ControlUsuario.esPuntoEnvio)
-            details.comision_punto = this.comision_punto; // TODO: posiblemente tenga que venir com orespuesta del api (LO DEVOVERÁ EL API)
+            details.comision_punto = this.dataFromApi.commissionPoint;
     
         if (this.sobreflete_oficina)
             details.sobreflete_oficina = this.sobreflete_oficina; // TODO: Falta validar cuando comience a migrar los temas de oficina
