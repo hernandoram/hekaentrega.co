@@ -129,11 +129,11 @@ exports.traducirMovimientoGuia = (transportadora) => {
         };
       case "INTERRAPIDISIMO":
         return {
-          novedad: "Motivo",
-          fechaMov: "Fecha Cambio Estado",
-          observacion: "Motivo",
-          descripcionMov: "Descripcion Estado",
-          ubicacion: "Ciudad",
+          novedad: "novedad",
+          fechaMov: "fechaEstado",
+          observacion: "nombreEstado",
+          descripcionMov: "nombreEstado",
+          ubicacion: null,
           tipoMotivo: null
         };
       case "COORDINADORA":

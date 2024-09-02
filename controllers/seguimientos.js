@@ -160,8 +160,12 @@ async function actualizarMovimientosGuias(querySnapshot) {
         console.log(querySnapshot.size);
         let faltantes = querySnapshot.size
 
-        let acumuladosCoord = [];
         const MAX_COORD = 50;
+        let acumuladosCoord = [];
+
+        const MAX_INTER = 10; // El máximo impuesto por inter son 10
+        let acumuladosInter = [];
+        
         // throw "no babe"
 
         //Objeto que se va llenando paral luego mostrarme los detalles del proceso
@@ -189,8 +193,12 @@ async function actualizarMovimientosGuias(querySnapshot) {
                 let guia;
                 if(doc.data().transportadora === "INTERRAPIDISIMO") {
                     consulta.interrapidisimo ++;
-                    // continue;
-                    guia = interrapidisimoCtrl.actualizarMovimientos(doc);
+                    if(acumuladosInter.length < MAX_INTER) {
+                        acumuladosInter.push(doc);
+                    } else {
+                        guia = interrapidisimoCtrl.actualizarMovimientos(acumuladosInter);
+                        acumuladosInter = [];
+                    }
                 } else if (doc.data().transportadora === "ENVIA") {
                     // continue;
                     consulta.envia++
@@ -233,6 +241,12 @@ async function actualizarMovimientosGuias(querySnapshot) {
 
         if(acumuladosCoord.length) {
             guia = coordCtrl.actualizarMovimientos(acumuladosCoord);
+
+            if(guia) resultado_guias.push(guia);
+        }
+        
+        if(acumuladosInter.length) {
+            guia = interrapidisimoCtrl.actualizarMovimientos(acumuladosInter);
 
             if(guia) resultado_guias.push(guia);
         }
