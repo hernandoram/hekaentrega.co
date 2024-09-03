@@ -233,6 +233,22 @@ const actualizarMovimientos = async function(docs) {
   
 }
 
+/** Función encargada de retornar lo que Heka considera como último estado de transportadora, para validar si se puede pagar o no, ignorando así estados que no sean relevantes como último estado
+ * @param {*} movimientos - La lista de estados que obtiene la transportadora
+ * @returns El último estado, procurando ignorar siempre los estados: "Archivada" y "Digitalizada" (16 y 13 respectivamente)
+ */
+function obtenerUltimoEstado(movimientos) {
+    let ultimoEstado;
+    let i = 1;
+    
+    do {
+        ultimoEstado = movimientos[movimientos.length - i];
+        i++;
+    }
+    while(ultimoEstado && [16, 13].includes(ultimoEstado.idEstadoGuia)); // Estos estado corresponden a "Archivada" y "Digitalizada", por lo que no serían tomados en cuenta internamente
+
+    return ultimoEstado;
+}
 
 async function actualizarMovimientoIndividual(doc, respuesta) {
     try {
@@ -263,7 +279,7 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
         });
 
         const primerEstado = movimientos[0];
-        const ultimoEstado = movimientos[movimientos.length - 1];
+        const ultimoEstado = obtenerUltimoEstado(movimientos);
     
         const estadoActual = ultimoEstado.nombreEstado;
     
