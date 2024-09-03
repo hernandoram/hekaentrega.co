@@ -11,6 +11,234 @@ const { notificarNovedadEncontrada } = require("../extends/notificaciones");
 const { estadosGuia, detectaNovedadEnElHistorialDeEstados, modificarEstadoGuia, atributosAdicionalesEnActualizacion } = require("../extends/manejadorMovimientosGuia");
 const db = firebase.firestore();
 
+const estadosLogisticos = {
+    1: {
+        id: 1,
+        nombre: "Admitida",
+        estadoActual: "Envío admitido",
+        observacion: "El envío se encuentra creado en sistema sin la recepción en centro logístico.",
+        mostrarObservacion: false
+    },
+    2: {
+        id: 2,
+        nombre: "Centro acopio",
+        estadoActual: "Ingresado a bodega",
+        observacion: "El envío ingresa a centro logístico bien sea de origen o de destino.",
+        mostrarObservacion: false
+    },
+    3: {
+        id: 3,
+        nombre: "Tránsito nacional",
+        estadoActual: "Viajando en ruta nacional",
+        observacion: "El envío es despachado a destino dentro de un operativo nacional.",
+        mostrarObservacion: false
+    },
+    4: {
+        id: 4,
+        nombre: "Tránsito regional",
+        estadoActual: "Viajando en ruta regional",
+        observacion: "El envío es despachado a un destino aledaño o al municipio de la misma RACOL.",
+        mostrarObservacion: false
+    },
+    5: {
+        id: 5,
+        nombre: "Reclame en oficina",
+        estadoActual: "Para Reclamar en Oficina",
+        observacion: "El envío se encuentra listo para ser reclamado en un punto de venta autorizado.",
+        mostrarObservacion: true
+    },
+    6: {
+        id: 6,
+        nombre: "Reparto",
+        estadoActual: "En distribución urbana",
+        observacion: "El envío se encuentra en estado de reparto dentro de la zona asignada.",
+        mostrarObservacion: false
+    },
+    7: {
+        id: 7,
+        nombre: "Intento de entrega",
+        estadoActual: "En Procesode Devolución",
+        observacion: "Cuando el intento de entrega es fallido, y el envío se encuentra en retorno a centro logístico.",
+        mostrarObservacion: false
+    },
+    8: {
+        id: 8,
+        nombre: "Telemercadeo",
+        estadoActual: "En confirmación telefónica",
+        observacion: "El envío se encuentra en telemercadeo para confirmación de información.",
+        mostrarObservacion: true
+    },
+    9: {
+        id: 9,
+        nombre: "Custodia",
+        estadoActual: "En bodega final/custodia",
+        observacion: "Envíos se encuentra en bodega de custodia en estado de espera de reclamación o confirmación de datos.",
+        mostrarObservacion: true
+    },
+    10: {
+        id: 10,
+        nombre: "Devolución ratificada",
+        estadoActual: "Devuelto al remitente",
+        observacion: "La entrega no es efectiva y el envío se encuentra en trayecto de devolución a su origen.",
+        mostrarObservacion: true
+    },
+    11: {
+        id: 11,
+        nombre: "Entregada",
+        estadoActual: "Entrega exitosa",
+        observacion: "El envío es entregado.",
+        mostrarObservacion: false
+    },
+    12: {
+        id: 12,
+        nombre: "Reenvio",
+        estadoActual: "Para nuevo intento de entrega",
+        observacion: "El envío es enviado nuevamente a distribución por intento fallido.",
+        mostrarObservacion: true
+    },
+    13: {
+        id: 13,
+        nombre: "Digitalizada",
+        estadoActual: "Prueba de Entrega",
+        observacion: "Indica que el soporte de la entrega se encuentra habilitado en el sistema.",
+        mostrarObservacion: false
+    },
+    14: {
+        id: 14,
+        nombre: "Indemnización",
+        estadoActual: "En investigación",
+        observacion: "El envío presenta un siniestro y se escala a nivel de investigación operacional.",
+        mostrarObservacion: false
+    },
+    15: {
+        id: 15,
+        nombre: "Anulada",
+        estadoActual: "Documento anulado",
+        observacion: "La guía generada es anulada del sistema.",
+        mostrarObservacion: true
+    },
+    16: {
+        id: 16,
+        nombre: "Archivada",
+        estadoActual: "Prueba de Entrega Archivada",
+        observacion: "La prueba de entrega está dentro del archivo central de operaciones como expediente de consulta.",
+        mostrarObservacion: false
+    },
+    17: {
+        id: 17,
+        nombre: "Disposición final",
+        estadoActual: "Disposición final",
+        observacion: "El estado del envío que después de un tiempo no es reclamado por remitente y destinatario y procede a proceso de destrucción o donación.",
+        mostrarObservacion: false
+    },
+    18: {
+        id: 18,
+        nombre: "Transito Urbano",
+        estadoActual: "Despachado para bodega",
+        observacion: "El envío se encuentra despachado del centro logístico al punto de venta solicitado.",
+        mostrarObservacion: false
+    },
+    21: {
+        id: 21,
+        nombre: "Incautado",
+        estadoActual: "Incautado por autoridades",
+        observacion: "El envío ha sido retenido por las autoridades y se encuentra en proceso de inspección.",
+        mostrarObservacion: false
+    },
+    22: {
+        id: 22,
+        nombre: "Pend Ing Custodia",
+        estadoActual: "Para bodega final/custodia",
+        observacion: "El envío que no se puede entregar en diferentes intentos de entrega o es rehusado por el destinatario debe pasar al área de custodia para su disposición.",
+        mostrarObservacion: false
+    },
+    23: {
+        id: 23,
+        nombre: "Físico Faltante",
+        estadoActual: "No Llegó el Envío Físico",
+        observacion: "Estado del envío que impone el cliente corporativo cuando existe una discrepancia entre las guías generadas y el envío físico.",
+        mostrarObservacion: false
+    },
+    24: {
+        id: 24,
+        nombre: "Caso Fortuito",
+        estadoActual: "Caso fortuito",
+        observacion: "Evento imprevisto que por su naturaleza no se puede resistir y puede generar avería parcial o total del envío.",
+        mostrarObservacion: false
+    },
+    25: {
+        id: 25,
+        nombre: "Facturado",
+        estadoActual: "Facturado",
+        observacion: "El Estado aplica para aquellos envíos que, sin gestión de origen o destino pasado el corte de facturación es incluido dentro de la liquidación.",
+        mostrarObservacion: false
+    },
+    26: {
+        id: 26,
+        nombre: "Nota crédito",
+        estadoActual: "Nota crédito",
+        observacion: "Estado que genera el proceso de control de cuentas cuando se debe realizar una reposición financiera al cliente por una desviación en la liquidación de su factura.",
+        mostrarObservacion: false
+    },
+    29: {
+        id: 29,
+        nombre: "Auditoría",
+        estadoActual: "En Auditoria en Terreno",
+        observacion: "Estado que indica que el envío está asignado a un auditor en terreno que verifica la información errada por la cual no se entregó.",
+        mostrarObservacion: false
+    },
+    30: {
+        id: 30,
+        nombre: "Devolución en espera confirmación cliente",
+        estadoActual: "Devolución por Confirmación del Cliente",
+        observacion: "Estado que indica que el cliente de origen confirma por telemercadeo que se debe hacer efectiva la devolución del envío.",
+        mostrarObservacion: false
+    },
+    31: {
+        id: 31,
+        nombre: "Distribución",
+        estadoActual: "En distribución urbana agencia",
+        observacion: "El envío se encuentra asignado para reparto en municipio o ciudad aledaña.",
+        mostrarObservacion: false
+    },
+    32: {
+        id: 32,
+        nombre: "Devolución Regional",
+        estadoActual: "Para devolver al Remitente",
+        observacion: "Estado del envío cuando se encuentra en centro logístico de destino y será próximo a despachar a origen.",
+        mostrarObservacion: false
+    },
+    34: {
+        id: 34,
+        nombre: "PreAnulado",
+        estadoActual: "Preanulado",
+        observacion: "El envío se encuentra notificado por el punto o cliente para ser anulado, y se encuentra en espera de la autorización del estado definitivo de anulación.",
+        mostrarObservacion: false
+    },
+    35: {
+        id: 35,
+        nombre: "En Inspección",
+        estadoActual: "En inspección",
+        observacion: "Envío en revisión por parte de las autoridades que por sospecha en su contenido no se puede movilizar.",
+        mostrarObservacion: false
+    },
+    39: {
+        id: 39,
+        nombre: "Recertificar",
+        estadoActual: "Recertificar",
+        observacion: "La prueba de entrega no cargó bien en sistema y se encuentra en proceso de nuevo cargue del comprobante.",
+        mostrarObservacion: false
+    },
+    40: {
+        id: 40,
+        nombre: "Envio Trocado",
+        estadoActual: "Envío trocado",
+        observacion: "El envío no corresponde al destino relacionado.",
+        mostrarObservacion: false
+    }
+}
+
+
 //FUNCIONES REGULARES
 // Estas funciones actualmente no están siendo utilizadas
 function retornarEstado() {
@@ -233,6 +461,22 @@ const actualizarMovimientos = async function(docs) {
   
 }
 
+/** Función encargada de retornar lo que Heka considera como último estado de transportadora, para validar si se puede pagar o no, ignorando así estados que no sean relevantes como último estado
+ * @param {*} movimientos - La lista de estados que obtiene la transportadora
+ * @returns El último estado, procurando ignorar siempre los estados: "Archivada" y "Digitalizada" (16 y 13 respectivamente)
+ */
+function obtenerUltimoEstado(movimientos) {
+    let ultimoEstado;
+    let i = 1;
+    
+    do {
+        ultimoEstado = movimientos[movimientos.length - i];
+        i++;
+    }
+    while(ultimoEstado && [16, 13].includes(ultimoEstado.idEstadoGuia)); // Estos estado corresponden a "Archivada" y "Digitalizada", por lo que no serían tomados en cuenta internamente
+
+    return ultimoEstado;
+}
 
 async function actualizarMovimientoIndividual(doc, respuesta) {
     try {
@@ -240,9 +484,37 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
         const estadosGuia = respuesta.estadosGuia ?? [];
         const estadosPreenvio = respuesta.estadosPreenvio ?? [];
 
+        let entrega_oficina_notificada = guia.entrega_oficina_notificada || false;
+
+        // Se utiliza el diccionario de estados provisto por interrapidísimo
+        estadosGuia.forEach(est => {
+            const estadoLogistico = estadosLogisticos[est.idEstadoGuia];
+            est.estadoActual = estadoLogistico ? estadoLogistico.estadoActual : est.nombreEstado;
+            est.novedad = ""; // Naturalmente no es un estado con novedad
+            est.observacion = est.nombreEstado;
+
+            const mostrarObservacionEstado = estadoLogistico && estadoLogistico.mostrarObservacion;
+            
+            if(mostrarObservacionEstado) {
+                est.observacion += " - " + estadoLogistico.observacion
+            }
+
+            if(est.estadoActual === "Para Reclamar en Oficina" && !entrega_oficina_notificada) {
+                extsFunc.notificarEntregaEnOficina(guia);
+                entrega_oficina_notificada = true;
+            }
+
+            // Desde aquí es que se detecta la novedad particular de la transportadora
+            if([26, 39, 40, 7, 32, 10, 30, 33].includes(est.idEstadoGuia)) {
+                est.novedad = mostrarObservacionEstado 
+                    ? estadoLogistico.observacion
+                    : estadoLogistico.estadoActual;
+            }
+
+        });
+
         const movimientos = estadosPreenvio.concat(estadosGuia);
         let finalizar_seguimiento = guia.prueba ? true : false;
-        let entrega_oficina_notificada = guia.entrega_oficina_notificada || false;
 
         const gTime = (fecha) => new Date(fecha).getTime();
         
@@ -251,21 +523,16 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
             return gTime(a.fechaEstado) - gTime(b.fechaEstado);
         })
         .map(est => {
-            if(est.nombreEstado === "Para Reclamar en Oficina" && !entrega_oficina_notificada) {
-                extsFunc.notificarEntregaEnOficina(guia);
-                entrega_oficina_notificada = true;
-            }
-
-            est.novedad = [26, 39, 40, 7, 32, 10, 30, 33].includes(est.idEstadoGuia) ? est.nombreEstado : "";
+            est.fechaEstadoOriginal = est.fechaEstado;
             est.fechaEstado = extsFunc.estandarizarFecha(new Date(est.fechaEstado), "DD/MM/YYYY HH:mm");
             
             return est;
         });
 
         const primerEstado = movimientos[0];
-        const ultimoEstado = movimientos[movimientos.length - 1];
+        const ultimoEstado = obtenerUltimoEstado(movimientos);
     
-        const estadoActual = ultimoEstado.nombreEstado;
+        const estadoActual = ultimoEstado.estadoActual ?? ultimoEstado.nombreEstado;
     
         const estado = {
             numeroGuia: respuesta.numeroGuia.toString(), //guia devuelta por la transportadora
