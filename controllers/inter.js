@@ -486,6 +486,13 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
 
         let entrega_oficina_notificada = guia.entrega_oficina_notificada || false;
 
+        // Transformando los estados de preenvío
+        estadosPreenvio.forEach(est => {
+            est.estadoActual = est.nombreEstado;
+            est.novedad = ""; // Naturalmente no es un estado con novedad
+            est.observacion = est.nombreEstado;
+        });
+
         // Se utiliza el diccionario de estados provisto por interrapidísimo
         estadosGuia.forEach(est => {
             const estadoLogistico = estadosLogisticos[est.idEstadoGuia];
@@ -548,11 +555,19 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
     
         updte_movs = await extsFunc.actualizarMovimientos(doc, estado);
 
-        guia.estadoTransportadora = estadoActual;
+        // Para que comience a tomarse más en cuenta cuando empiezan a ver estados de envío
+        // e ignorar los estados de preenvíos para el estado de la transportadora
+        guia.estadoTransportadora = estadosGuia.length ? estadoActual : "";
 
         // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
         const actualizaciones = modificarEstadoGuia(guia);
         actualizaciones.enNovedad = detectaNovedadEnElHistorialDeEstados(updte_movs);
+
+        // Para evitar que el seguimiento se finalice mientras exista novedad como por ejemplo.
+        // cuando una guía es devuelta
+        if(actualizaciones.enNovedad) {
+            actualizaciones.seguimiento_finalizado = false;
+        }
 
         // Esto me llena un arreglo de todas las novedades que han sido notificadas, para consultarlo y evitar duplicar notificaciones
         actualizaciones.novedadesNotificadas = await notificarNovedadEncontrada(guia, estado.movimientos);
