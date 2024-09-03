@@ -131,7 +131,7 @@ exports.traducirMovimientoGuia = (transportadora) => {
         return {
           novedad: "novedad",
           fechaMov: "fechaEstado",
-          observacion: "observaion",
+          observacion: "observacion",
           descripcionMov: "estadoActual",
           ubicacion: null,
           tipoMotivo: null
