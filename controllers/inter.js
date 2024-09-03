@@ -503,7 +503,7 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
                 extsFunc.notificarEntregaEnOficina(guia);
                 entrega_oficina_notificada = true;
             }
-            
+
             // Desde aquí es que se detecta la novedad particular de la transportadora
             if([26, 39, 40, 7, 32, 10, 30, 33].includes(est.idEstadoGuia)) {
                 est.novedad = mostrarObservacionEstado 
@@ -532,7 +532,7 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
         const primerEstado = movimientos[0];
         const ultimoEstado = obtenerUltimoEstado(movimientos);
     
-        const estadoActual = ultimoEstado.estadoActual;
+        const estadoActual = ultimoEstado.estadoActual ?? ultimoEstado.nombreEstado;
     
         const estado = {
             numeroGuia: respuesta.numeroGuia.toString(), //guia devuelta por la transportadora
