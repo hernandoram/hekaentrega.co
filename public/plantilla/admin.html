@@ -2776,9 +2776,9 @@
 
             <section class="d-none mt-4 " id="mostrador-guias-solicitadas">
 
-              <input type="text" class="form-control border-info mb-3" id="filtrar-guias-recolectadas"
-                placeholder="Filtra por número de guia o seller, fecha solicitud, código sucursal o radicado recolección">
-              <table class="table">
+              <p id="loadingMessage" class="text-center">Cargando ...</p>
+
+              <table  id="tablaRecolecciones" class="table table-bordered d-none">
                 <thead>
                   <tr>
                     <th scope="col">No guía</th>
@@ -2788,9 +2788,10 @@
                     <th scope="col">Radicado recolección</th>
                   </tr>
                 </thead>
-                <tbody id="lista-recolecciones-realizadas">
-
+                <tbody>
+                  <!-- Los datos de las filas se llenarán aquí por DataTables -->
                 </tbody>
+
               </table>
             </section>
           </div>

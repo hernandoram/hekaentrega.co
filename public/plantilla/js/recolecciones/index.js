@@ -5,7 +5,7 @@ import {
   formRecoleccion,
   recoleccionSolicitada,
   formEliminarGuiasRecoleccion,
-  formEliminarGuiaIndividual
+  formEliminarGuiaIndividual,
 } from "./views.js";
 
 const db = firestore;
@@ -17,7 +17,7 @@ const sellers = [
   "Seller1891tattoosupply",
   "SellerElectrovariedadesEYMce",
   "SellerNICE",
-  "SellerMerakiJSLSAS"
+  "SellerMerakiJSLSAS",
 ];
 
 /*{
@@ -27,7 +27,6 @@ const sellers = [
 let recoleccionesPendientes; // Lugar donde se almacena todo el conjunto de recolecciones
 
 const elListaSucursales = $("#lista-recolecciones");
-const elListaSucursalesRealizadas = $("#lista-recolecciones-realizadas");
 const elRevisarRecolecciones = $("#revisar-recolecciones");
 const elRevisarRecoleccionesRealizadas = $("#revisar-recolecciones-realizadas");
 const section = document.getElementById("mostrador-guias-solicitadas");
@@ -82,7 +81,7 @@ async function llenarRecoleccionesPendientes(solicitar) {
             codigo_sucursal: guia.codigo_sucursal,
             centro_de_costo: guia.centro_de_costo,
             id_user: guia.id_user,
-            guias: [guia]
+            guias: [guia],
           };
         }
       });
@@ -93,7 +92,7 @@ function openModalEliminarGuia() {
   const m = new CreateModal({
     title: "Eliminar guía",
     btnContinueText: "Eliminar",
-    btnContinueColor: "red"
+    btnContinueColor: "red",
   });
 
   m.init = formEliminarGuiaIndividual();
@@ -132,28 +131,57 @@ async function mostrarListaRecoleccionesRealizadas() {
         centro_de_costo,
         codigo_sucursal,
         fecha_recoleccion,
-        radicado_recoleccion
+        radicado_recoleccion,
       }) => ({
         numeroGuia,
         centro_de_costo,
         codigo_sucursal,
         fecha_recoleccion,
-        radicado_recoleccion
+        radicado_recoleccion,
       })
     )
   );
 
-  // console.log(recoleccionesSolicitadas);
+  console.log(recoleccionesSolicitadas);
   // console.log(recolecciones);
 
-  elListaSucursalesRealizadas.html("");
+  $("#loadingMessage").toggleClass("d-none");
 
-  recoleccionesSolicitadas.forEach((r) => {
-    r.fechaFormateada = formatearFecha(r.fecha_recoleccion); // Asume que r.fecha es la fecha que quieres formatear
-    elListaSucursalesRealizadas.append(() => recoleccionSolicitada(r));
+  $(document).ready(function () {
+    $("#tablaRecolecciones").removeClass("d-none");
+
+    $("#tablaRecolecciones").DataTable({
+      destroy: true,
+      scrollX: true,
+      responsive: true,
+      columns: [
+        { data: "numeroGuia", name: "No guía", defaultContent: "N/A" },
+        {
+          data: "centro_de_costo",
+          name: "Seller",
+          defaultContent: "N/A",
+        },
+        {
+          data: "codigo_sucursal",
+          name: "Sucursal",
+          defaultContent: "N/A",
+        },
+        {
+          data: "fecha_recoleccion",
+          name: "Fecha Solicitud",
+          defaultContent: "N/A",
+        },
+        {
+          data: "radicado_recoleccion",
+          name: "Radicado recolección",
+          defaultContent: "N/A",
+        },
+      ],
+      data: recoleccionesSolicitadas,
+    });
   });
 
-  activarAcciones(elListaSucursalesRealizadas);
+  // activarAcciones(elListaSucursalesRealizadas);
 }
 
 function activarAcciones(container) {
@@ -188,7 +216,7 @@ async function eliminarGuias(e, data, isIndividual) {
     html: '<div class="spinner-border text-primary" role="status"><span class="sr-only">Loading...</span></div>',
     onBeforeOpen: () => {
       Swal.showLoading();
-    }
+    },
   });
 
   if (isIndividual) {
@@ -223,7 +251,7 @@ function formSolicitarRecoleccion(e) {
     numerosGuia: [], // Lista de los número de guía provistos por la transportadora
     id_user: "", // Id del usuario que solicita recolección
     idSucursalCliente: null, // Código de sucursal de interrapidísimo
-    fechaRecogida: "" // Fecha en que se solicita la recolección
+    fechaRecogida: "", // Fecha en que se solicita la recolección
   };
 
   for (let key of formData.keys()) {
@@ -251,7 +279,7 @@ function formSolicitarRecoleccion(e) {
   Swal.fire({
     title: "Recolección solicitada con exito!",
     text: `Las guias del han sido solicitadas para recolección!`,
-    icon: "success"
+    icon: "success",
   });
 
   mostrarListaRecolecciones();
@@ -266,7 +294,7 @@ const acciones = {
     const m = new CreateModal({
       title: `¿Desea eliminar?`,
       btnContinueText: "Eliminar",
-      btnContinueColor: "red"
+      btnContinueColor: "red",
     });
 
     m.init = formEliminarGuiasRecoleccion(datos_recoleccion);
@@ -281,7 +309,7 @@ const acciones = {
     const datos_recoleccion = recoleccionesPendientes[codigo_sucursal];
 
     const m = new CreateModal({
-      title: "Solicitud de recolección para: la sucursal " + codigo_sucursal
+      title: "Solicitud de recolección para: la sucursal " + codigo_sucursal,
     });
 
     m.init = formRecoleccion(datos_recoleccion);
@@ -295,7 +323,7 @@ const acciones = {
 
     form.on("submit", formSolicitarRecoleccion);
     m.onSubmit = () => form.submit();
-  }
+  },
 };
 
 async function fetchRecoleccion(data) {
@@ -304,8 +332,8 @@ async function fetchRecoleccion(data) {
     method: "POST",
     body: JSON.stringify(data),
     headers: {
-      "Content-Type": "application/json"
-    }
+      "Content-Type": "application/json",
+    },
   });
   const body = await response.json();
   console.warn(body);
@@ -359,7 +387,7 @@ async function guiasParaQuitarRecoleccion(data, isIndividual) {
           return Swal.fire({
             title: "Error",
             text: `La guía no existe o no se encuentra en la lista de recolecciones pendientes.`,
-            icon: "error"
+            icon: "error",
           });
         querySnapshot.forEach((doc) => {
           const guia = doc.data();
