@@ -136,7 +136,7 @@ async function mostrarListaRecoleccionesRealizadas() {
         numeroGuia,
         centro_de_costo,
         codigo_sucursal,
-        fecha_recoleccion,
+        fecha_recoleccion: formatearFecha(fecha_recoleccion) || "N/A",
         radicado_recoleccion,
       })
     )
@@ -162,13 +162,13 @@ async function mostrarListaRecoleccionesRealizadas() {
           defaultContent: "N/A",
         },
         {
-          data: "codigo_sucursal",
-          name: "Sucursal",
+          data: "fecha_recoleccion",
+          name: "Fecha Solicitud",
           defaultContent: "N/A",
         },
         {
-          data: "fecha_recoleccion",
-          name: "Fecha Solicitud",
+          data: "codigo_sucursal",
+          name: "Sucursal",
           defaultContent: "N/A",
         },
         {
@@ -399,6 +399,9 @@ async function guiasParaQuitarRecoleccion(data, isIndividual) {
 }
 
 function formatearFecha(fecha) {
+  if (!fecha) {
+    return "No hay fecha";
+  }
   const fechaObj = new Date(fecha);
 
   const dia = fechaObj.getDate().toString().padStart(2, "0");
