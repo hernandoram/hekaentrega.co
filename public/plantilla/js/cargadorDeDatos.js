@@ -264,6 +264,7 @@ async function getWarehouses() {
           )?.code || null,
         ciudad: `${bodega.city.label}(${bodega.city.state.label})`,
         barrio: bodega.neighborhood,
+        dane_ciudad: bodega.city.dane,
       };
     });
 

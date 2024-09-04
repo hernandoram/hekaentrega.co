@@ -947,7 +947,7 @@ async function detallesTransportadoras(data) {
       let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
       let fleteConvertido = cotizacion.flete;
       if (
-        ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA"].includes(transp) &&
+        ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA", "SERVIENTREGA"].includes(transp) &&
         data.type === PAGO_CONTRAENTREGA
       ) {
         factor_conversor = FACHADA_FLETE;
@@ -1669,8 +1669,7 @@ async function cargarPreciosTransportadorasOficinas(data) {
     if (data.type === "PAGO CONTRAENTREGA") {
       const comision_heka = cotizacion.precios.comision_heka;
       const constante_heka = cotizacion.precios.constante_pagoContraentrega;
-      let variacion_comision_heka = 0;
-      if (transp !== "SERVIENTREGA") variacion_comision_heka = 1000;
+      let variacion_comision_heka = 1000;
       cotizacion.set_sobreflete_heka =
         Math.ceil((valorRecaudo * comision_heka) / 100) +
         constante_heka +
@@ -1750,7 +1749,7 @@ function cambiarPreciosOficinasPorTransportadora(target, cotizacion, oficinas) {
   let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
   let fleteConvertido = cotizacion.flete;
   if (
-    ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA"].includes(transp) &&
+    ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA", "SERVIENTREGA"].includes(transp) &&
     cotizacion.type === PAGO_CONTRAENTREGA
   ) {
     sobreFleteHekaEdit -= factor_conversor;
@@ -3328,7 +3327,7 @@ class CalcularCostoDeEnvio {
 
     if (
       !this.convencional &&
-      ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA"].includes(this.codTransp)
+      ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA", "SERVIENTREGA"].includes(this.codTransp)
     )
       this.sobreflete_heka += 1000;
 

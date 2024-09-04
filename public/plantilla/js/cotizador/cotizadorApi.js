@@ -99,7 +99,8 @@ async function cotizarApi(request) {
     const data = await fetch(v1.quoter, {
         method: "POST",
         headers: {
-            "Content-Type": "Application/json"
+          "Content-Type": "Application/json",
+          "Authentication": "bearer " + localStorage.getItem("token")
         },
         body: JSON.stringify(request)
     })
@@ -314,7 +315,12 @@ const exampleData = [
         "onlyToAddress": false,
         "assured": 0,
         "annotations": "El costo se calcula desde 3 kg para ofrecerte la mejor tarifa posible",
-        "total": 18075
+        "total": 18075,
+        "version": "1",
+        "costReturnHeka": 50000,
+        "costReturn": 0,
+        "additional_commission": 0,
+        "commissionPoint": 0
     },
     {
         "entity": "interrapidisimo",
@@ -328,7 +334,12 @@ const exampleData = [
         "onlyToAddress": false,
         "assured": 1000,
         "annotations": "",
-        "total": 16100
+        "total": 16100,
+        "version": "1",
+        "costReturnHeka": 50000,
+        "costReturn": 0,
+        "additional_commission": 0,
+        "commissionPoint": 0
     },
     {
         "entity": "envia",
@@ -342,20 +353,30 @@ const exampleData = [
         "onlyToAddress": true,
         "assured": 2250,
         "annotations": "",
-        "total": 19525
+        "total": 19525,
+        "version": "1",
+        "costReturnHeka": 50000,
+        "costReturn": 0,
+        "additional_commission": 0,
+        "commissionPoint": 0
     },
     {
-        "entity": "coordinadora",
-        "deliveryTime": "1",
-        "declaredValue": 25000,
-        "flete": 10975,
-        "valueDeposited": 7150,
-        "transportCommission": 4300,
-        "hekaCommission": 2075,
-        "transportCollection": 25000,
-        "onlyToAddress": true,
-        "assured": 500,
-        "annotations": "",
-        "total": 17850
-    }
+      "entity": "coordinadora",
+      "deliveryTime": "2",
+      "declaredValue": 25000,
+      "flete": 11650,
+      "valueDeposited": 80315,
+      "transportCommission": 4300,
+      "hekaCommission": 3200,
+      "transportCollection": 100000,
+      "onlyToAddress": true,
+      "assured": 535,
+      "annotations": "",
+      "total": 19685,
+      "version": "1",
+      "costReturnHeka": 50000,
+      "costReturn": 0,
+      "additional_commission": 0,
+      "commissionPoint": 0
+  }
 ]

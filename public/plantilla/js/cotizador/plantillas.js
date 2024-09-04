@@ -101,7 +101,8 @@ function cambiarBodegaCotizador(e) {
 
   if (!bodega) return;
 
-  buscarCiudad(inpCiudadR, bodega.ciudad);
+  //buscarCiudad(inpCiudadR, bodega.ciudad);
+  llenarInputCiudad(inpCiudadR, bodega);
 }
 
 function setearCiudad(inp, data) {
@@ -114,16 +115,18 @@ function setearCiudad(inp, data) {
 
 function buscarCiudad(el, ciudad) {
   if (!ciudad) return;
-
+  const ciudadString = ciudad.normalize("NFD") // Descompone los caracteres acentuados en sus partes (e.g., "á" -> "á")
+  .replace(/[\u0300-\u036f]/g, "") // Elimina los caracteres diacríticos (las tildes)
+  .toUpperCase()
   charger.init();
-  if (ciudadesTomadas.has(ciudad)) {
-    return setearCiudad(el, ciudadesTomadas.get(ciudad));
+  if (ciudadesTomadas.has(ciudadString)) {
+    return setearCiudad(el, ciudadesTomadas.get(ciudadString));
   }
 
-  console.warn(ciudad);
+  console.warn(ciudadString);
 
   db.collection("ciudades")
-    .where("nombre", "==", ciudad)
+    .where("nombre", "==", ciudadString)
     .limit(3)
     .get()
     .then((q) => {
@@ -138,6 +141,7 @@ function buscarCiudad(el, ciudad) {
 }
 
 function cambiarPlantillaCotizador(e) {
+  console.log(bodegasEl.val());
   const val = e.target.value;
 
   // Limpiamos los campos donde se ingresa la ciudad del destinatario y remitente

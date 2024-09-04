@@ -16,7 +16,7 @@ const estadosTransportadora = {
     },
     INTERRAPIDISIMO: {
         entregada: ["Entrega Exitosa", "Entregada"],
-        devuelta: ["Devuelto al Remitente"],
+        devuelta: ["Devuelto al remitente"],
         anulada: ["Documento Anulado"]
     },
     ENVIA: {
@@ -131,8 +131,8 @@ exports.traducirMovimientoGuia = (transportadora) => {
         return {
           novedad: "novedad",
           fechaMov: "fechaEstado",
-          observacion: "nombreEstado",
-          descripcionMov: "nombreEstado",
+          observacion: "observacion",
+          descripcionMov: "estadoActual",
           ubicacion: null,
           tipoMotivo: null
         };
@@ -222,12 +222,12 @@ exports.guiaEnNovedad = (movimientos, transp) => {
         case "INTERRAPIDISIMO": 
         // case "SERVIENTREGA":
             for (const mov of movimientos) {
-                const fechaMov = mov.fechaMov;
-                // const [soloFech, soloHr] = fechaMov.split(" ");
-                // const soleFechFormat = soloFech.split("/").reverse().join("-");
+                const fechaMov = mov.fechaMov; // Tomándolo con el siguiente formato DD/MM/AAAA HH:mm
+                const [soloFech, soloHr] = fechaMov.split(" ");
+                const soleFechFormat = soloFech.split("/").reverse().join("-");
 
-                // const fechaMovMill = new Date(soleFechFormat + " " + soloHr).getTime();
-                const fechaMovMill = new Date(fechaMov).getTime();
+                const fechaMovMill = new Date(soleFechFormat + " " + soloHr).getTime();
+                // const fechaMovMill = new Date(fechaMov).getTime();
                 const diferencia = fechaActual - fechaMovMill;
                 const novedadEncontrada = this.revisarNovedad(mov, transp);
                 
@@ -307,6 +307,7 @@ exports.modificarEstadoGuia = (guia) => {
     const estados = this.estadosGuia;
 
     const actualizaciones = {
+        enNovedad,
         estadoTransportadora: guia.estadoTransportadora,
         estado: estadoTransportadora,
         ultima_actualizacion: new Date(),
