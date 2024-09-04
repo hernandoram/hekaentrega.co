@@ -414,7 +414,8 @@ const actualizarMovimientos = async function(docs) {
             })
         })
         .then(d => JSON.parse(d));
-
+        
+        if(resEstados.error) throw new Error(resEstados.error);
         if(!resEstados.listadoGuias) throw new Error("La solicitud no devolvió ningún estado de las guías.");
 
         if(resEstados.Message) throw new Error(resEstados.Message);
