@@ -560,8 +560,8 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
         guia.estadoTransportadora = estadosGuia.length ? estadoActual : "";
 
         // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
+        guia.enNovedad = detectaNovedadEnElHistorialDeEstados(updte_movs);
         const actualizaciones = modificarEstadoGuia(guia);
-        actualizaciones.enNovedad = detectaNovedadEnElHistorialDeEstados(updte_movs);
 
         // Para evitar que el seguimiento se finalice mientras exista novedad como por ejemplo.
         // cuando una guía es devuelta

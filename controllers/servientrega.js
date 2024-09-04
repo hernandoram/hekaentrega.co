@@ -623,11 +623,11 @@ async function actualizarMovimientos(doc) {
             fue finalizado, y la fecha de actualización*/
             
             guia.estadoTransportadora = data.EstAct[0];
+            guia.enNovedad = detectaNovedadEnElHistorialDeEstados(upte_movs);
             
             // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
             const actualizaciones = modificarEstadoGuia(guia);
 
-            actualizaciones.enNovedad = detectaNovedadEnElHistorialDeEstados(upte_movs);
 
             // Esto me llena un arreglo de todas las novedades que han sido notificadas, para consultarlo y evitar duplicar notificaciones
             actualizaciones.novedadesNotificadas =
