@@ -232,13 +232,9 @@ exports.actualizarMovimientos = async (doc) => {
         
         guia.estadoTransportadora = estadoActual;
             
+        guia.enNovedad = detectaNovedadEnElHistorialDeEstados(updte_movs);
         // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
         const actualizaciones = modificarEstadoGuia(guia);
-
-        actualizaciones.enNovedad = detectaNovedadEnElHistorialDeEstados(updte_movs);
-
-        // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
-        modificarEstadoGuia(actualizaciones);
     
         const updte_estados = await actualizarEstado(doc, actualizaciones);
     

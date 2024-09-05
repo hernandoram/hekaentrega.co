@@ -372,11 +372,11 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
     
         
         guia.estadoTransportadora = estadoActual;
+        guia.enNovedad = novedad ? novedad.enNovedad : false;
             
         // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
         const actualizaciones = modificarEstadoGuia(guia);
 
-        actualizaciones.enNovedad = novedad ? novedad.enNovedad : false;
 
         console.log("Actualización generada => ", actualizaciones);
     

@@ -2305,9 +2305,11 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
 
   boton_solucion.click(async () => {
     if (data.enNovedad && !administracion) {
-      window.open(`https://www.hekaentrega.co/rastrea-tu-envio?guide=${data.numeroGuia}&admin=true`, '_blank');
-    }
-    else {
+      window.open(
+        `https://www.hekaentrega.co/rastrea-tu-envio?guide=${data.numeroGuia}&admin=true`,
+        "_blank"
+      );
+    } else {
       $("#modal-gestionarNovedad").modal("hide");
 
       const html_btn = boton_solucion.html();
@@ -2315,14 +2317,14 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
                   <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                   Cargando...
               `);
-  
+
       const referenciaGuia = firebase
         .firestore()
         .collection("usuarios")
         .doc(id_user)
         .collection("guias")
         .doc(id_heka);
-  
+
       let { value: text } = await Swal.fire({
         title: "Respuesta",
         html: `
@@ -2337,12 +2339,12 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
         preConfirm: () => document.getElementById("respuesta-novedad").value,
         showCancelButton: true,
       });
-  
+
       if (text == undefined) {
         boton_solucion.html(html_btn);
       } else if (text) {
         text = text.trim();
-  
+
         const solucion = {
           gestion:
             '<b>La transportadora "' +
@@ -2360,14 +2362,14 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
         } else {
           extraData.seguimiento = new Array(solucion);
         }
-  
+
         console.log(extraData);
         console.log(solucion);
-  
+
         const mensajePreguardado = listaRespuestasNovedad.findIndex(
           (l) => l.mensaje.toLowerCase() == text.toLowerCase()
         );
-  
+
         if (mensajePreguardado == -1) {
           listaRespuestasNovedad.push({
             cantidad: 1,
@@ -2376,12 +2378,12 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
         } else {
           listaRespuestasNovedad[mensajePreguardado].cantidad++;
         }
-  
+
         // Para guardar una nueva estructura de mensaje
         db.collection("infoHeka")
           .doc("respuestasNovedad")
           .update({ respuestas: listaRespuestasNovedad });
-  
+
         referenciaGuia
           .update({
             seguimiento: extraData.seguimiento,
@@ -2393,7 +2395,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
               .collection("notificaciones")
               .doc(id_heka)
               .delete();
-  
+
             enviarNotificacion({
               visible_user: true,
               user_id: id_user,
@@ -2405,7 +2407,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
                 text.trim(),
               href: "novedades",
             });
-  
+
             boton_solucion.html("Solucionada");
           });
       } else {
@@ -2432,8 +2434,6 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
           });
       }
     }
-    
-    
   });
 }
 
@@ -3347,6 +3347,8 @@ function verDetallesGuia() {
     .get()
     .then(async (doc) => {
       let data = doc.data();
+
+      console.warn(data);
 
       const oficina = data.datos_oficina;
       data.recogida_oficina = false;

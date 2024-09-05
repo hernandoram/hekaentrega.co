@@ -16,7 +16,7 @@ const estadosTransportadora = {
     },
     INTERRAPIDISIMO: {
         entregada: ["Entrega Exitosa", "Entregada"],
-        devuelta: ["Devuelto al Remitente"],
+        devuelta: ["Devuelto al remitente"],
         anulada: ["Documento Anulado"]
     },
     ENVIA: {
@@ -307,6 +307,7 @@ exports.modificarEstadoGuia = (guia) => {
     const estados = this.estadosGuia;
 
     const actualizaciones = {
+        enNovedad,
         estadoTransportadora: guia.estadoTransportadora,
         estado: estadoTransportadora,
         ultima_actualizacion: new Date(),
