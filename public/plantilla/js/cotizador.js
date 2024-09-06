@@ -946,7 +946,9 @@ async function detallesTransportadoras(data) {
       let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
       let fleteConvertido = cotizacion.flete;
       if (
-        ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA", "SERVIENTREGA"].includes(transp) &&
+        ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA", "SERVIENTREGA"].includes(
+          transp
+        ) &&
         data.type === PAGO_CONTRAENTREGA
       ) {
         factor_conversor = FACHADA_FLETE;
@@ -1748,7 +1750,9 @@ function cambiarPreciosOficinasPorTransportadora(target, cotizacion, oficinas) {
   let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
   let fleteConvertido = cotizacion.flete;
   if (
-    ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA", "SERVIENTREGA"].includes(transp) &&
+    ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA", "SERVIENTREGA"].includes(
+      transp
+    ) &&
     cotizacion.type === PAGO_CONTRAENTREGA
   ) {
     sobreFleteHekaEdit -= factor_conversor;
@@ -1935,6 +1939,8 @@ function seleccionarTransportadora(e) {
   delete datos_a_enviar.oficina;
   delete datos_a_enviar.datos_oficina;
   delete datos_a_enviar.id_oficina;
+
+  console.log(bodegaSeleccionada);
 
   console.log(transp);
   let result_cotizacion = transportadoras[transp].cotizacion[seleccionado];
@@ -3326,7 +3332,9 @@ class CalcularCostoDeEnvio {
 
     if (
       !this.convencional &&
-      ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA", "SERVIENTREGA"].includes(this.codTransp)
+      ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA", "SERVIENTREGA"].includes(
+        this.codTransp
+      )
     )
       this.sobreflete_heka += 1000;
 
