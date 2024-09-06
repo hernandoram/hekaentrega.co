@@ -946,7 +946,9 @@ async function detallesTransportadoras(data) {
       let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
       let fleteConvertido = cotizacion.flete;
       if (
-        ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA", "SERVIENTREGA"].includes(transp) &&
+        ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA", "SERVIENTREGA"].includes(
+          transp
+        ) &&
         data.type === PAGO_CONTRAENTREGA
       ) {
         factor_conversor = FACHADA_FLETE;
@@ -1748,7 +1750,9 @@ function cambiarPreciosOficinasPorTransportadora(target, cotizacion, oficinas) {
   let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
   let fleteConvertido = cotizacion.flete;
   if (
-    ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA", "SERVIENTREGA"].includes(transp) &&
+    ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA", "SERVIENTREGA"].includes(
+      transp
+    ) &&
     cotizacion.type === PAGO_CONTRAENTREGA
   ) {
     sobreFleteHekaEdit -= factor_conversor;
@@ -1935,6 +1939,34 @@ function seleccionarTransportadora(e) {
   delete datos_a_enviar.oficina;
   delete datos_a_enviar.datos_oficina;
   delete datos_a_enviar.id_oficina;
+
+  console.warn(window.bodegaSeleccionada.conveyors);
+
+  const estaHabilitada = window.bodegaSeleccionada.conveyors.find(
+    (conveyor) => conveyor.id.toUpperCase() === transp.toUpperCase()
+  );
+
+  if (!estaHabilitada) {
+    return Swal.fire({
+      title: "Transportadora no habilitada",
+      html: "Esta transportadora no está disponible para esta bodega. Ingresa a <a href='https://www.hekaentrega.co/plataforma/mis-bodegas' target='_blank'>Mis bodegas</a> y habilita la transportadora. Si habilitas Interrapidisimo, tarda de 5 a 8 días en activar la sucursal.",
+      icon: "warning",
+      confirmButtonText: "Aceptar",
+    });
+  }
+
+  if (transp === "INTERRAPIDISIMO" && estaHabilitada) {
+    const tieneCodigo = estaHabilitada.code ? true : false;
+
+    if (!tieneCodigo) {
+      return Swal.fire({
+        title: "Transportadora no habilitada",
+        text: "En este momento no cuentas con Interrapidisimo habilitada, se encuentra en proceso de creación de sucursal con el aliado, tan pronto esté lista te estaremos notificando.",
+        icon: "warning",
+        button: "Aceptar",
+      });
+    }
+  }
 
   console.log(transp);
   let result_cotizacion = transportadoras[transp].cotizacion[seleccionado];
@@ -2804,7 +2836,6 @@ function mostrarDirecciones(datos) {
   const small = document.createElement("small");
   const aggDireccion = document.createElement("p");
 
-  debugger;
   let direcciones = 0;
 
   respuesta.setAttribute("class", "col-12 mt-2");
@@ -3326,7 +3357,9 @@ class CalcularCostoDeEnvio {
 
     if (
       !this.convencional &&
-      ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA", "SERVIENTREGA"].includes(this.codTransp)
+      ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA", "SERVIENTREGA"].includes(
+        this.codTransp
+      )
     )
       this.sobreflete_heka += 1000;
 

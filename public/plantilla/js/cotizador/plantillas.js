@@ -89,17 +89,23 @@ export function llenarProductos(num) {
   CheckGuardar.prop("checked", false);
 }
 
+window.bodegaSeleccionada = null;
+
 const ciudadesTomadas = new Map();
 function cambiarBodegaCotizador(e) {
   const val = e.target.value;
 
-  console.warn(val);
+  console.log(val); // si se elimina el cambio de bodegas deja de funcionar
 
   limpiarInputCiudad(inpCiudadR);
 
   const bodega = bodegasWtch.value.find((b) => b.ciudad == val);
 
   if (!bodega) return;
+
+  window.bodegaSeleccionada = bodega;
+
+  console.log(bodegaSeleccionada);
 
   //buscarCiudad(inpCiudadR, bodega.ciudad);
   llenarInputCiudad(inpCiudadR, bodega);
@@ -115,9 +121,10 @@ function setearCiudad(inp, data) {
 
 function buscarCiudad(el, ciudad) {
   if (!ciudad) return;
-  const ciudadString = ciudad.normalize("NFD") // Descompone los caracteres acentuados en sus partes (e.g., "á" -> "á")
-  .replace(/[\u0300-\u036f]/g, "") // Elimina los caracteres diacríticos (las tildes)
-  .toUpperCase()
+  const ciudadString = ciudad
+    .normalize("NFD") // Descompone los caracteres acentuados en sus partes (e.g., "á" -> "á")
+    .replace(/[\u0300-\u036f]/g, "") // Elimina los caracteres diacríticos (las tildes)
+    .toUpperCase();
   charger.init();
   if (ciudadesTomadas.has(ciudadString)) {
     return setearCiudad(el, ciudadesTomadas.get(ciudadString));
