@@ -95,6 +95,8 @@ const ciudadesTomadas = new Map();
 function cambiarBodegaCotizador(e) {
   const val = e.target.value;
 
+  console.log(val); // si se elimina el cambio de bodegas deja de funcionar
+
   limpiarInputCiudad(inpCiudadR);
 
   const bodega = bodegasWtch.value.find((b) => b.ciudad == val);
