@@ -265,10 +265,13 @@ async function getWarehouses() {
         ciudad: `${bodega.city.label}(${bodega.city.state.label})`,
         barrio: bodega.neighborhood,
         dane_ciudad: bodega.city.dane,
+        conveyors: bodega.conveyors,
       };
     });
 
     const bodegasActivas = newBodegas.filter((bodega) => !bodega.inactiva);
+
+    console.log(bodegasActivas);
 
     nuevasBodegas = bodegasActivas;
 
