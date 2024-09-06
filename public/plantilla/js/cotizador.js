@@ -1949,9 +1949,9 @@ function seleccionarTransportadora(e) {
   if (!estaHabilitada) {
     return Swal.fire({
       title: "Transportadora no habilitada",
-      text: "Esta transportadora no está disponible para esta bodega. Ingresa a <a href='URL_AQUI'>Mis bodegas</a> y habilita la transportadora. Si habilitas Interrapidisimo, tarda de 5 a 8 días en activar la sucursal.",
+      html: "Esta transportadora no está disponible para esta bodega. Ingresa a <a href='https://www.hekaentrega.co/plataforma/mis-bodegas' target='_blank'>Mis bodegas</a> y habilita la transportadora. Si habilitas Interrapidisimo, tarda de 5 a 8 días en activar la sucursal.",
       icon: "warning",
-      button: "Aceptar",
+      confirmButtonText: "Aceptar",
     });
   }
 
