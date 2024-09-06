@@ -99,7 +99,7 @@ function cambiarBodegaCotizador(e) {
 
   const bodega = bodegasWtch.value.find((b) => b.ciudad == val);
 
-  if (!bodega) return (bodegaSeleccionada = null);
+  if (!bodega) return;
 
   bodegaSeleccionada = bodega;
 
