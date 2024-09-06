@@ -1949,7 +1949,7 @@ function seleccionarTransportadora(e) {
   if (!estaHabilitada) {
     return Swal.fire({
       title: "Transportadora no habilitada",
-      text: "Esta transportadora no está disponible para esta bodega. ¡Comunícate con nuestro equipo logístico para habilitarla!",
+      text: "Esta transportadora no está disponible para esta bodega. Ingresa a <a href='URL_AQUI'>Mis bodegas</a> y habilita la transportadora. Si habilitas Interrapidisimo, tarda de 5 a 8 días en activar la sucursal.",
       icon: "warning",
       button: "Aceptar",
     });
