@@ -57,7 +57,7 @@ const estadosLogisticos = {
     7: {
         id: 7,
         nombre: "Intento de entrega",
-        estadoActual: "En Procesode Devolución",
+        estadoActual: "En Proceso de Devolución",
         observacion: "Cuando el intento de entrega es fallido, y el envío se encuentra en retorno a centro logístico.",
         mostrarObservacion: false
     },
@@ -558,7 +558,7 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
 
         // Para que comience a tomarse más en cuenta cuando empiezan a ver estados de envío
         // e ignorar los estados de preenvíos para el estado de la transportadora
-        guia.estadoTransportadora = estadosGuia.length ? estadoActual : "";
+        guia.estadoTransportadora = estadosGuia.length ? estadoActual : guia.estado ?? "";
 
         // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
         guia.enNovedad = detectaNovedadEnElHistorialDeEstados(updte_movs);

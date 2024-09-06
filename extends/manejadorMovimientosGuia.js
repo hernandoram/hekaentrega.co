@@ -15,9 +15,9 @@ const estadosTransportadora = {
         anulada: []
     },
     INTERRAPIDISIMO: {
-        entregada: ["Entrega Exitosa", "Entregada"],
+        entregada: ["Entrega exitosa", "Entregada"],
         devuelta: ["Devuelto al remitente"],
-        anulada: ["Documento Anulado"]
+        anulada: ["Documento anulado"]
     },
     ENVIA: {
         entregada: ["ENTREGADA DIGITALIZADA"], // montar el resto de la entrega digitalizada "ENTREGADA DIGITALIZADA EN CALI"
