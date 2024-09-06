@@ -1947,7 +1947,7 @@ function seleccionarTransportadora(e) {
   );
 
   if (!estaHabilitada) {
-    return swal({
+    return Swal.fire({
       title: "Transportadora no habilitada",
       text: "Esta transportadora no está disponible para esta bodega. ¡Comunícate con nuestro equipo logístico para habilitarla!",
       icon: "warning",
@@ -1959,7 +1959,7 @@ function seleccionarTransportadora(e) {
     const tieneCodigo = estaHabilitada.code ? true : false;
 
     if (!tieneCodigo) {
-      return swal({
+      return Swal.fire({
         title: "Transportadora no habilitada",
         text: "En este momento no cuentas con Interrapidisimo habilitada, se encuentra en proceso de creación de sucursal con el aliado, tan pronto esté lista te estaremos notificando.",
         icon: "warning",
@@ -2836,7 +2836,6 @@ function mostrarDirecciones(datos) {
   const small = document.createElement("small");
   const aggDireccion = document.createElement("p");
 
-  debugger;
   let direcciones = 0;
 
   respuesta.setAttribute("class", "col-12 mt-2");
