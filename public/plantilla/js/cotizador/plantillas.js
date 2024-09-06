@@ -89,7 +89,7 @@ export function llenarProductos(num) {
   CheckGuardar.prop("checked", false);
 }
 
-let bodegaSeleccionada;
+window.bodegaSeleccionada = null;
 
 const ciudadesTomadas = new Map();
 function cambiarBodegaCotizador(e) {
@@ -103,7 +103,9 @@ function cambiarBodegaCotizador(e) {
 
   if (!bodega) return;
 
-  bodegaSeleccionada = bodega;
+  window.bodegaSeleccionada = bodega;
+
+  console.log(bodegaSeleccionada);
 
   //buscarCiudad(inpCiudadR, bodega.ciudad);
   llenarInputCiudad(inpCiudadR, bodega);

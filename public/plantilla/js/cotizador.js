@@ -1940,7 +1940,33 @@ function seleccionarTransportadora(e) {
   delete datos_a_enviar.datos_oficina;
   delete datos_a_enviar.id_oficina;
 
-  console.log(bodegaSeleccionada);
+  console.warn(window.bodegaSeleccionada.conveyors);
+
+  const estaHabilitada = window.bodegaSeleccionada.conveyors.find(
+    (conveyor) => conveyor.id.toUpperCase() === transp.toUpperCase()
+  );
+
+  if (!estaHabilitada) {
+    return swal({
+      title: "Transportadora no habilitada",
+      text: "Esta transportadora no está disponible para esta bodega. ¡Comunícate con nuestro equipo logístico para habilitarla!",
+      icon: "warning",
+      button: "Aceptar",
+    });
+  }
+
+  if (transp === "INTERRAPIDISIMO" && estaHabilitada) {
+    const tieneCodigo = estaHabilitada.code ? true : false;
+
+    if (!tieneCodigo) {
+      return swal({
+        title: "Transportadora no habilitada",
+        text: "En este momento no cuentas con Interrapidisimo habilitada, se encuentra en proceso de creación de sucursal con el aliado, tan pronto esté lista te estaremos notificando.",
+        icon: "warning",
+        button: "Aceptar",
+      });
+    }
+  }
 
   console.log(transp);
   let result_cotizacion = transportadoras[transp].cotizacion[seleccionado];
