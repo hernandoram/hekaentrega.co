@@ -1940,7 +1940,18 @@ function seleccionarTransportadora(e) {
   delete datos_a_enviar.datos_oficina;
   delete datos_a_enviar.id_oficina;
 
+if (typeof window.bodegaSeleccionada === 'undefined') {
+  return Swal.fire({
+    icon: 'error',
+    title: 'Error',
+    text: 'Selecciona una bodega para crear guías',
+  });
+}
+
   console.warn(window.bodegaSeleccionada.conveyors);
+
+
+
 
   const estaHabilitada = window.bodegaSeleccionada.conveyors.find(
     (conveyor) => conveyor.id.toUpperCase() === transp.toUpperCase()
