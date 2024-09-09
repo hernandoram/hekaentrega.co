@@ -158,6 +158,7 @@ const optionActivation = {
     .finally(() => clearCharger());
 
   },
+  onChange: ocultarCotizador,
   optgroupField: "departamento", // Para agrupar por departamente
   labelField: "ciudad", // el label de lo que se le muestra al usuario por cada opción
   valueField: "dane", // el valor que será guardado, una vez el lusuario seleccione dicha opción

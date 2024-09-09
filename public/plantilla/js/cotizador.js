@@ -265,11 +265,30 @@ function ocultarCotizador() {
   }
 }
 
+
+document
+  .getElementById("cotizador")
+  .querySelectorAll("input")
+  .forEach((i) => {
+    i.addEventListener("input", ocultarCotizador);
+  });
+
 let ciudadD;
 // Esta funcion verifica que los campos en el form esten llenados correctamente
 async function cotizador() {
   const controlCiudadR = document.getElementById("ciudadR").selectize;
   const controlCiudadD = document.getElementById("ciudadD").selectize;
+  console.log(controlCiudadR);
+
+  if (controlCiudadR.isInvalid || controlCiudadD.isInvalid) {
+    Swal.fire(
+      "Error",
+      "Recuerda ingresar una ciudad válida.",
+      "error"
+    );
+    verificador(["ciudadR", "ciudadD"], true);
+    return;
+  }
 
   let ciudadR = controlCiudadR.options[controlCiudadR.getValue()];
   ciudadD = controlCiudadD.options[controlCiudadD.getValue()];
@@ -299,13 +318,6 @@ async function cotizador() {
     alto: value("dimension-alto"),
   };
 
-  document
-    .getElementById("cotizador")
-    .querySelectorAll("input")
-    .forEach((i) => {
-      i.addEventListener("input", ocultarCotizador);
-    });
-
   if (
     value("ciudadR") != "" &&
     value("ciudadD") != "" &&
@@ -316,14 +328,7 @@ async function cotizador() {
     value("dimension-alto") != ""
   ) {
     //Si todos los campos no estan vacios
-    if (controlCiudadR.isInvalid || controlCiudadD.isInvalid) {
-      Swal.fire(
-        "Error",
-        "Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable",
-        "error"
-      );
-      verificador(["ciudadR", "ciudadD"], true);
-    } else if (
+    if (
       value("seguro-mercancia") <
         transportadoras[codTransp].limitesValorDeclarado(value("Kilos"))[0] ||
       value("seguro-mercancia") >
@@ -1940,18 +1945,15 @@ function seleccionarTransportadora(e) {
   delete datos_a_enviar.datos_oficina;
   delete datos_a_enviar.id_oficina;
 
-if (typeof window.bodegaSeleccionada === 'undefined') {
-  return Swal.fire({
-    icon: 'error',
-    title: 'Error',
-    text: 'Selecciona una bodega para crear guías',
-  });
-}
+  console.warn("The store House: ", window.bodegaSeleccionada);
 
-  console.warn(window.bodegaSeleccionada.conveyors);
-
-
-
+  if (!bodegaSeleccionada) {
+    return Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Selecciona una bodega para crear guías',
+    });
+  }
 
   const estaHabilitada = window.bodegaSeleccionada.conveyors.find(
     (conveyor) => conveyor.id.toUpperCase() === transp.toUpperCase()
