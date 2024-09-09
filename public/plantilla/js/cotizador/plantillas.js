@@ -27,6 +27,8 @@ const referenciaListaPlantillas = usuarioAltDoc().collection(
 const listaPlantilla = new Map();
 
 bodegasEl.change(cambiarBodegaCotizador);
+
+bodegasEl.change(bloquearODesbloquearInputCiudad);
 plantillasEl.change(cambiarPlantillaCotizador);
 CheckGuardar.change(mostrarOcultarNombrePlantilla);
 actionEliminarPlantilla.click(eliminarPlantillaActual);
@@ -90,7 +92,19 @@ export function llenarProductos(num) {
 }
 
 window.bodegaSeleccionada = null;
+function bloquearODesbloquearInputCiudad(e) {
+  const val = e.target.value;
 
+  const selectElement = $("#ciudadR").selectize()[0].selectize;
+
+  console.warn(val, typeof val, !!val);
+
+  if (!!val) {
+    selectElement.disable();
+  } else {
+    selectElement.enable();
+  }
+}
 const ciudadesTomadas = new Map();
 function cambiarBodegaCotizador(e) {
   const val = e.target.value;
