@@ -696,7 +696,7 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
   $("#gestionar-guia-callcenter-" + data.numeroGuia).click((e) => {
     const id = e.target.id;
 
-    const match = id.match(/gestionar-guia-(\d+)$/);
+    const match = id.match(/gestionar-guia-.*-(\d+)$/);
 
     if (match) {
       const numeroFinal = match[1];
