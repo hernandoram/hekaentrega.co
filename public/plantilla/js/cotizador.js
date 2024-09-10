@@ -2558,7 +2558,8 @@ function finalizarCotizacion(datos) {
 
   const cambiadorDeDireccion = $("#moderador_direccionR");
   cambiadorDeDireccion.on("change", cambiarDirecion);
-
+  cambiadorDeDireccion.value = window.bodegaSeleccionada.id;
+  //this.value = window.bodegaSeleccionada.id;
   cambiarDirecion.bind(cambiadorDeDireccion[0])();
 
   $("#entrega_en_oficina").on("change", verificarSelectorEntregaOficina);
@@ -2874,7 +2875,13 @@ function mostrarDirecciones(datos) {
     if (bodega.ciudad !== ciudad) return;
     if (transp === "INTERRAPIDISIMO" && !bodega.codigo_sucursal_inter) return;
 
-    select.innerHTML += `<option value="${i}">${bodega.nombre}</option>`;
+    if (bodega.id == window.bodegaSeleccionada.id) {
+      select.innerHTML += `<option value="${bodega.id}" selected>${bodega.nombre}</option>`;
+    }
+    else {
+      select.innerHTML += `<option value="${bodega.id}">${bodega.nombre}</option>`;
+    }
+    
 
     direcciones++;
   });
@@ -2897,9 +2904,7 @@ function cambiarDirecion(e) {
   const n = this.value;
   const toModerate = this.getAttribute("data-moderate");
   const inp = $(toModerate);
-
-  bodega = datos_usuario.bodegas[n];
-
+  const bodega = datos_usuario.bodegas.find((b) => b.id == this.value);
   inp.val(bodega.direccion + ", " + bodega.barrio);
   $(".ver-direccion").text(
     bodega.direccion + ", " + bodega.barrio + " / " + bodega.ciudad
