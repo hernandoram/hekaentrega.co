@@ -11,15 +11,9 @@ async function chargeUsers() {
       .get()
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
-          listaUsuarios.push(doc.data().centro_de_costo);
-          const primeraBodega = doc.data().bodegas
-            ? doc.data().bodegas[0]
-            : null;
           displayUsers.push({
             ...doc.data(),
             id: doc.id,
-            bodega: primeraBodega?.ciudad || "Sin bodegas",
-            sucursal: primeraBodega?.codigo_sucursal_inter || "Sin código",
           });
         });
       })
