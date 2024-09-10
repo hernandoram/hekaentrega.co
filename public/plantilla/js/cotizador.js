@@ -55,7 +55,8 @@ let transportadoras = {
     },
     getCuentaResponsable: () => "EMPRESA",
     sistemaAutomatizado: () =>
-      /^automatico/.test(datos_personalizados.sistema_servientrega),
+      datos_personalizados.sistema_servientrega ?
+      /^automatico/.test(datos_personalizados.sistema_servientrega) : true,
     valorMinimoEnvio: (kg) => 0,
   },
   INTERRAPIDISIMO: {
@@ -84,7 +85,8 @@ let transportadoras = {
     },
     getCuentaResponsable: () => "EMPRESA",
     sistemaAutomatizado: () =>
-      /^automatico/.test(datos_personalizados.sistema_interrapidisimo),
+      datos_personalizados.sistema_interrapidisimo ?
+      /^automatico/.test(datos_personalizados.sistema_interrapidisimo) : true,
     valorMinimoEnvio: (kg) => {
       if (kg <= 2) {
         return 25000;
@@ -121,7 +123,8 @@ let transportadoras = {
     },
     getCuentaResponsable: () => "EMPRESA",
     sistemaAutomatizado: () =>
-      /^automatico/.test(datos_personalizados.sistema_envia),
+      datos_personalizados.sistema_envia ?
+      /^automatico/.test(datos_personalizados.sistema_envia) : true,
     valorMinimoEnvio: (kg) => 0,
   },
   TCC: {
@@ -149,7 +152,8 @@ let transportadoras = {
     },
     getCuentaResponsable: () => "EMPRESA",
     sistemaAutomatizado: () =>
-      /^automatico/.test(datos_personalizados.sistema_tcc),
+      datos_personalizados.sistema_tcc ?
+      /^automatico/.test(datos_personalizados.sistema_tcc) : true,
     valorMinimoEnvio: (kg) => 0,
   },
   COORDINADORA: {
@@ -175,8 +179,7 @@ let transportadoras = {
       return sist;
     },
     getCuentaResponsable: () => "EMPRESA",
-    sistemaAutomatizado: () =>
-      /^automatico/.test(datos_personalizados.sistema_coordinadora),
+    sistemaAutomatizado: () => true,
     valorMinimoEnvio: (kg) => 0,
   },
   HEKA: {
