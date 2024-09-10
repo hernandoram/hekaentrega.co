@@ -33,7 +33,7 @@ async function buscarUsuarios2(esGeneral) {
     "celular",
     "celular2",
     "correo",
-    "direccion_completa"
+    "direccion_completa",
   ];
   let especifico;
   let userEncontrado;
@@ -145,8 +145,8 @@ function generarTabla(users) {
 </svg></button>`
             );
           },
-          orderable: false
-        }
+          orderable: false,
+        },
       ],
       destroy: true,
       scrollX: true,
@@ -156,25 +156,23 @@ function generarTabla(users) {
           data: null,
           name: "Acciones",
           defaultContent: "N/A",
-          orderable: false
+          orderable: false,
         }, // Columna de acciones ajustada
         { data: "nombres", name: "Nombre", defaultContent: "N/A" },
         {
           data: "centro_de_costo",
           name: "Nombre Seller",
-          defaultContent: "N/A"
+          defaultContent: "N/A",
         },
         {
           data: "numero_documento",
           name: "No Documento",
-          defaultContent: "N/A"
+          defaultContent: "N/A",
         },
         { data: "correo", name: "Correo", defaultContent: "N/A" },
         { data: "contacto", name: "Telefono", defaultContent: "N/A" },
-        { data: "bodega", name: "Bodega Principal", defaultContent: "N/A" },
-        { data: "sucursal", name: "Código Sucursal", defaultContent: "N/A" }
       ],
-      data: users
+      data: users,
     });
   });
 }
@@ -192,7 +190,7 @@ function volver2() {
   document.getElementById("load-stats").setAttribute("aria-expanded", "false");
   document.getElementById("estadisticas").classList.add("collapse");
   document.getElementById("estadisticas").classList.remove("show");
-  
+
   document.getElementById("usuario-seleccionado").classList.add("d-none");
 
   if (users.length) {
