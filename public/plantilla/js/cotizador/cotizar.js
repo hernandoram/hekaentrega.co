@@ -1,3 +1,4 @@
+import { cotizadorApiClassIdentifier } from "./constantes.js";
 import { cotizadorApi } from "./cotizadorApi.js";
 import { cotizadorFlexii } from "./cotizadorFlexii.js";
 
@@ -16,6 +17,10 @@ export function cotizar(e) {
   if (datos_usuario.type == "NATURAL-FLEXII") {
     cotizadorFlexii();
   } else {
-    cotizador();
+    if(e.target.classList.contains(cotizadorApiClassIdentifier)) {
+      cotizadorApi();
+    } else {
+      cotizador();
+    }
   }
 }

@@ -23,4 +23,6 @@ export const paymentAdmited = [
         icon: adelantedPayment,
         transportApplic: ["COORDINADORA"]
     },
-]
+];
+
+export const cotizadorApiClassIdentifier = "cotizador-api";

@@ -744,83 +744,101 @@
               <hr class="sidebar-divider"></hr>
 
 
-              <form class="user" name="cotizacionEnvio" id="cotizar-envio">
-                <div class="row">
-                  <div class="control-group col-sm-6 mb-2">
-                    <label for="ciudadR">CIUDAD REMITENTE</label>
-                    <select name="ciudadR" type="text" class="city-selectize form-control form-control-user" id="ciudadR"  autocomplete="off" required></select>
-                    </div>
-                    
+              <form class="card" name="cotizacionEnvio" id="cotizar-envio">
+                <div class="card-body">
+                  <div class="row">
+                      <div class="form-group col-lg-3 col-6">
+                        <label for="ciudadR">Ciudad Remitente</label>
+                        <select name="ciudadR" type="text" class="city-selectize form-control" id="ciudadR" autocomplete="off" required></select>
+                      </div>
+                      
+                      <div class="form-group col-lg-3 col-6">
+                        <label for="ciudadD">Ciudad Destino</label>
+                        <select name="ciudadD" type="text" class="city-selectize form-control" id="ciudadD" autocomplete="off" required></select>
+                      </div>
+                      
+                      <div class="form-group col-lg-3 col-6 d-none d-cotizador-api">
+                        <label for="tipo_envio-cotizador">Tipo de envío</label>
+                        <select type="text" class="form-control" id="tipo_envio-cotizador" name="tipo_envio">
+                          <option value="PAGO CONTRAENTREGA">Pago contra entrega</option>
+                          <option value="PAGO DESTINO">Pago a destino</option>
+                          <option value="CONVENCIONAL">Pago Común</option>
+                        </select>
+                      </div>
+                      
+                      <div class="form-group col-lg-3 col-6 d-none d-cotizador-api">
+                        <label for="recaudo-cotizador">Valor Recaudo</label>
+                        <input type="number" class="form-control only-integers" step="any" name="valorRecaudo" id="recaudo-cotizador">  
+                        <small class="form-text text-muted">
+                          <input type="checkbox" id="sumar_envio-cotizador">
+                          <label for="sumar_envio-cotizador" class="mb-0">
+                            ¿Deseea sumar el costo de envío?
+                          </label>
+                        </small>
+                    </div>      
+                  </div>
+  
+  
+                  <div class="row mb-3">
+                    <div class="form-group col mb-2">
+                      <label for="seguro-mercancia">Valor Declarado <small class="popover-declarado"></small></label>
+                      <input type="number" class="form-control only-integers" 
+                      id="seguro-mercancia" value="25000" step="1000" name="recaudo" min="5000" max="2000000">
+                      <small class="form-text text-muted">Valor a indemnizar en caso de pérdida, hurto, avería, etc.</small>
+                    </div> 
+  
                     <div class="form-group col-sm-6 mb-2">
-                      <label for="ciudadD">CIUDAD DESTINO</label>
-                      <select name="ciudadD" type="text" class="city-selectize form-control form-control-user" id="ciudadD"  autocomplete="off" required></select>
+                      <label for="Kilos">Peso <small class="popover-peso"></small></label>
+                      <input type="number" class="form-control only-integers" step="any" name="kilos" id="Kilos" min="1" max="25" required>  
+                    </div>     
                   </div>
-                </div>
-
-                <div class="row mb-3">
-                  <div class="form-group col-sm-6 mb-3 mb-sm-3">
-                    <label for="Kilos">KILOS <small class="popover-peso"></small></label>
-                    <input type="number" class="form-control form-control-user only-integers" step="any" name="kilos" id="Kilos" min="1" max="25" required>  
-                  </div>      
-                  <div class="form-group col mb-3 mb-sm-3">
-                    <label for="seguro-mercancia">Valor Declarado <small class="popover-declarado"></small></label>
-                    <input type="number" class="form-control form-control-user only-integers" 
-                    id="seguro-mercancia" value="25000" step="1000" name="recaudo" min="5000" max="2000000">
-                    <small class="form-text text-muted">Valor a indemnizar en caso de pérdida, hurto, avería, etc.</small>
-                  </div>      
-                </div>
-
-                <div class="row align-items-end">
-                  <div class="col">
-                    <h6 class="mb-2 text-center">Dimensiones <span>(Expresadas en Centímetros)</span> <small class="popover-dimensiones"></small></h6>
-                    <div class="row">
-                      <div class="form-group col-sm-4 d-flex align-items-center mb-2">
-                        <label for="dimension-ancho">Ancho:  </label>
-                        <input type="number" class="form-control form-control-user ml-2 only-integers" id="dimension-ancho" name="ancho" min="1" max="150" >
-                      </div>
-                      <div class="form-group col-sm-4 d-flex align-items-center mb-2">
-                        <label for="dimension-largo">Largo:  </label>
-                        <input type="number" class="form-control form-control-user ml-2 only-integers" id="dimension-largo" name="largo" min="1" max="150" >
-                      </div>
-                      <div class="form-group col-sm-4 d-flex align-items-center mb-2">
-                        <label for="dimension-alto">Alto:  </label>
-                        <input type="number" class="form-control form-control-user ml-2 only-integers" id="dimension-alto" name="alto" min="1" max="150" >
+  
+                  <div class="row align-items-end">
+                    <div class="col">
+                      <h6 class="mb-1 text-center">Dimensiones <span>(Expresadas en Centímetros)</span> <small class="popover-dimensiones"></small></h6>
+                      <div class="row">
+                        <div class="form-group col-sm-4 d-flex align-items-center mb-2">
+                          <label for="dimension-ancho">Ancho:  </label>
+                          <input type="number" class="form-control ml-2 only-integers" id="dimension-ancho" name="ancho" min="1" max="150" required>
+                        </div>
+                        <div class="form-group col-sm-4 d-flex align-items-center mb-2">
+                          <label for="dimension-largo">Largo:  </label>
+                          <input type="number" class="form-control ml-2 only-integers" id="dimension-largo" name="largo" min="1" max="150" required>
+                        </div>
+                        <div class="form-group col-sm-4 d-flex align-items-center mb-2">
+                          <label for="dimension-alto">Alto:  </label>
+                          <input type="number" class="form-control ml-2 only-integers" id="dimension-alto" name="alto" min="1" max="150" required>
+                        </div>
                       </div>
                     </div>
+                 
                   </div>
-               
+                  
+                  <div class="row align-items-end" id="cont_config_save-cotizador">
+                    <div class="form-group col-12 text-center mt-3">
+                      <input type="checkbox" id="guardar_cotizacion-cotizador">
+                      <label for="guardar_cotizacion-cotizador">
+                        Crear <b>Plantilla</b> con los datos del cotizador 
+                        <i class="fa fa-question-circle" data-toggle="tooltip" title='Esta opción te permitirá guardar una plantilla con los datos ingresados previamente para que no tengas que digitarlo nuevamente en el futuro.'></i>   
+                      </label>
+                    </div>
+  
+                    <div class="form-group col-12 mb-3 mb-sm-3 d-none" id="cont_nom_plant-cotizador">
+                      <label class="form-label" for="nombre">
+                        Nombre plantilla 
+                        <i class="fa fa-question-circle" data-toggle="tooltip" title='Ingrese nombre único de la plantilla que le permita encontrarla más rápido en un futuro.'></i>     
+                      </label>
+                      <input type="text" class="form-control" name="nombre" id="nombre_cotizador">  
+                    </div>
+                  </div>
+
+                  <button id="boton_cotizar"
+                  class="btn btn-primary btn-block btn-lg cotizador-button">
+                    Cotizar envío
+                  </button>
                 </div>
-                
-                <div class="row align-items-end" id="cont_config_save-cotizador">
-                  <div class="form-group col-12 text-center mt-3">
-                    <input type="checkbox" id="guardar_cotizacion-cotizador">
-                    <label for="guardar_cotizacion-cotizador">
-                      Crear <b>Plantilla</b> con los datos del cotizador 
-                      <i class="fa fa-question-circle" data-toggle="tooltip" title='Esta opción te permitirá guardar una plantilla con los datos ingresados previamente para que no tengas que digitarlo nuevamente en el futuro.'></i>   
-                    </label>
-                  </div>
-
-                  <div class="form-group col-12 mb-3 mb-sm-3 d-none" id="cont_nom_plant-cotizador">
-                    <label class="form-label" for="nombre">
-                      Nombre plantilla 
-                      <i class="fa fa-question-circle" data-toggle="tooltip" title='Ingrese nombre único de la plantilla que le permita encontrarla más rápido en un futuro.'></i>     
-                    </label>
-                    <input type="text" class="form-control" name="nombre" id="nombre_cotizador">  
-                  </div>
-                </div>
-
-
-                <!-- para activar o desactivar las guias automáticas -->
-              <!-- <div class="custom-control custom-switch text-center m-2">
-                <input type="checkbox" class="custom-control-input" id="switch-guias_automaticas">
-                <label class="custom-control-label" for="switch-guias_automaticas">Sistema automatizado para generar guías desactivado.</label>
-              </div> -->
 
               </form>
-              <button id="boton_cotizar"
-              class="btn btn-primary btn-block btn-lg mb-3 cotizador-button">
-                Cotizar envío
-              </button>
   
               <!-- End of Main Content -->
             </div> <!-- End of Main Content -->
