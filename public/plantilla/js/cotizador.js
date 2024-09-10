@@ -2904,7 +2904,7 @@ function cambiarDirecion(e) {
   const n = this.value;
   const toModerate = this.getAttribute("data-moderate");
   const inp = $(toModerate);
-  const bodega = datos_usuario.bodegas.find((b) => b.id == this.value);
+  bodega = datos_usuario.bodegas.find((b) => b.id == this.value);
   inp.val(bodega.direccion + ", " + bodega.barrio);
   $(".ver-direccion").text(
     bodega.direccion + ", " + bodega.barrio + " / " + bodega.ciudad
