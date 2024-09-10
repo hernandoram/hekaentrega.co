@@ -44,7 +44,7 @@ export function llenarBodegasCotizador() {
       //
 
       searchAndRenderCities(selectize.ciudadR, bodega.ciudad.split("(")[0]);
-      const bodegaEl = `<option value="${bodega.ciudad}">${bodega.nombre}</option>`;
+      const bodegaEl = `<option value="${bodega.id}">${bodega.nombre}</option>`;
       return bodegaEl;
     });
 
@@ -99,7 +99,7 @@ function cambiarBodegaCotizador(e) {
 
   limpiarInputCiudad(inpCiudadR);
 
-  const bodega = bodegasWtch.value.find((b) => b.ciudad == val);
+  const bodega = bodegasWtch.value.find((b) => b.id == val);
 
   if (!bodega) return;
 
@@ -156,7 +156,9 @@ function cambiarPlantillaCotizador(e) {
   limpiarInputCiudad(inpCiudadD);
 
   formulario[0].reset();
-  buscarCiudad(inpCiudadR, bodegasEl.val());
+  const bodega = bodegasWtch.value.find((b) => b.id == bodegasEl.val());
+  console.log(bodegasEl.val());
+  buscarCiudad(inpCiudadR, bodega.ciudad);
 
   if (!val) {
     configGuardado.removeClass("d-none");

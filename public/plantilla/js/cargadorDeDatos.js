@@ -266,6 +266,7 @@ async function getWarehouses() {
         barrio: bodega.neighborhood,
         dane_ciudad: bodega.city.dane,
         conveyors: bodega.conveyors,
+        id: bodega._id,
       };
     });
 
@@ -952,7 +953,6 @@ async function descargarInformeUsuariosAdm(e) {
       obj.bodega_principal = obj.bodegas[0];
       const bdg = obj.bodega_principal;
       bdg.direccion = `${bdg.direccion.split()}, ${bdg.barrio}`;
-      console.log;
       const cdep = bdg.ciudad.slice(0, -1).split("(");
       bdg.ciudad = cdep[0];
       bdg.departamento = cdep[1];
