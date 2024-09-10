@@ -152,13 +152,13 @@ function cambiarPlantillaCotizador(e) {
   const val = e.target.value;
 
   // Limpiamos los campos donde se ingresa la ciudad del destinatario y remitente
-  limpiarInputCiudad(inpCiudadR);
+  //limpiarInputCiudad(inpCiudadR);
   limpiarInputCiudad(inpCiudadD);
 
   formulario[0].reset();
   const bodega = bodegasWtch.value.find((b) => b.id == bodegasEl.val());
   console.log(bodegasEl.val());
-  buscarCiudad(inpCiudadR, bodega.ciudad);
+  //buscarCiudad(inpCiudadR, bodega.ciudad);
 
   if (!val) {
     configGuardado.removeClass("d-none");
