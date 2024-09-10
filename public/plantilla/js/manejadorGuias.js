@@ -2905,9 +2905,9 @@ async function descargarStickerGuias(doc) {
 }
 
 async function buscarGuiasParaDescargarStickers(guias) {
+  const minimaLongitudLogicaPDF = 22000;
   const pdfDoc = await PDFLib.PDFDocument.create();
   for await (let guia of guias) {
-    let deletable = false;
     await firebase
       .firestore()
       .collection("base64StickerGuias")
@@ -2928,15 +2928,16 @@ async function buscarGuiasParaDescargarStickers(guias) {
         const [existingPage] = await pdfDoc.copyPages(page, [0]);
         await pdfDoc.addPage(existingPage);
 
-        deletable = false;
+        return {deletable: false, has_sticker: base64.length > minimaLongitudLogicaPDF}
+      })
+      .then(toUpdate => {
+        if(usuarioDoc) {
+          usuarioDoc.collection("guias").doc(guia).update(toUpdate);
+        }
       })
       .catch(() => {
         console.log("la guías numero " + guia + " no fue encontrada");
       });
-
-    if (deletable === false) {
-      usuarioDoc.collection("guias").doc(guia).update({ deletable });
-    }
   }
 
   const pdfBase64 = await pdfDoc.saveAsBase64();
