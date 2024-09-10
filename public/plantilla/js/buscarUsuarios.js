@@ -191,9 +191,9 @@ function volver2() {
   document.getElementById("estadisticas").classList.add("collapse");
   document.getElementById("estadisticas").classList.remove("show");
 
-  document.getElementById("usuario-seleccionado").classList.add("d-none");
+  if (displayUsers.length > 0) {
+    document.getElementById("usuario-seleccionado").classList.add("d-none");
 
-  if (users.length) {
     document.getElementById("tablaUsers").classList.remove("d-none");
     document.getElementById("control-buttons").classList.remove("d-none");
 
