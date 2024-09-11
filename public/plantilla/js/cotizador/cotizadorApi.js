@@ -1,6 +1,6 @@
 import { v1 } from "../config/api.js";
 import { selectize } from "../consultarCiudades.js";
-import { paymentAdmited } from "./constantes.js";
+import { controls, paymentAdmited } from "./constantes.js";
 import { TranslatorFromApi, translation } from "./translator.js";
 
 let datoscoti = {
@@ -16,83 +16,98 @@ let datoscoti = {
   collectionValue: 90000, // Falta asignarlo a la segunda carcasa del cotizador
 };
 export async function cotizadorApi() {
-    const controlCiudadR = selectize.ciudadR;
-    const controlCiudadD = selectize.ciudadD;
+  
+  const formulario = document.getElementById("cotizar-envio");
+  if(!formulario.checkValidity()) {
+    Toast.fire(
+      "",
+      "todos los campos son obligatorios",
+      "error"
+    );
 
-    const ciudadR = controlCiudadR.options[controlCiudadR.getValue()];
-    ciudadD = controlCiudadD.options[controlCiudadD.getValue()];
-   
-    datoscoti = {
-        daneCityOrigin: ciudadR.dane,
-        daneCityDestination: ciudadD.dane,
-        typePayment: 1, // Falta asignarlo a la segunda carcasa del cotizador
-        declaredValue: parseInt(value("seguro-mercancia")),
-        weight: parseInt(value("Kilos")),
-        height: value("dimension-alto"),
-        long: value("dimension-largo"),
-        width: value("dimension-ancho"),
-        withshippingCost: false, // Falta asignarlo a la segunda carcasa del cotizador
-        collectionValue: parseInt(value("seguro-mercancia")), // Falta asignarlo a la segunda carcasa del cotizador
-    }
+    return verificador(
+      [
+        "ciudadR", "ciudadD", 
+        controls.valorRecaudo.get(0).id,
+        "seguro-mercancia", "Kilos", "dimension-alto",
+        "dimension-largo",
+        "dimension-ancho",
+      ], 
+      null,
+      "Este campo es Obligatorio."
+    );
+  }
+
+  const controlCiudadR = selectize.ciudadR;
+  const controlCiudadD = selectize.ciudadD;
+
+  if (
+    !controlCiudadR.getValue() ||
+    !controlCiudadD.getValue()
+  ) {
+    Toast.fire(
+      "",
+      "Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable",
+      "error"
+    );
+    verificador(["ciudadR", "ciudadD"], "no-scroll");
+    return;
+  }
+
+  const ciudadR = controlCiudadR.options[controlCiudadR.getValue()];
+  ciudadD = controlCiudadD.options[controlCiudadD.getValue()];
+
+  const esPagoContraentrega = controls.tipoEnvio.val() === PAGO_CONTRAENTREGA;
+  
+  datoscoti = {
+    daneCityOrigin: ciudadR.dane,
+    daneCityDestination: ciudadD.dane,
+    typePayment: translation.typePaymentInt[controls.tipoEnvio.val()],
+    declaredValue: parseInt(value("seguro-mercancia")),
+    weight: parseInt(value("Kilos")),
+    height: parseInt(value("dimension-alto")),
+    long: parseInt(value("dimension-largo")),
+    width: parseInt(value("dimension-ancho")),
+    withshippingCost: controls.sumaEnvio.prop("checked"),
+    collectionValue: esPagoContraentrega ? parseInt(controls.valorRecaudo.val()) : false
+  }
     
-    console.log(datoscoti)
-    
-    // validad obejeto datoscorti != ""
-    //Si todos los campos no estan vacios
-    if (
-      !datoscoti.daneCityOrigin ||
-      !datoscoti.daneCityDestination
-    ) {
-      Toast.fire(
-        "",
-        "Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable",
-        "error"
-      );
-      verificador(["ciudadR", "ciudadD"], true);
-      return;
-    }
+  console.log(datoscoti);
 
-    //Si todo esta Correcto...
-    verificador(); // Limpiamos cualquier verificación previa
+  //Si todo esta Correcto...
+  verificador(); // Limpiamos cualquier verificación previa
 
-    const loader = new ChangeElementContenWhileLoading("#boton_cotizar_2,#boton_cotizar");
-    // loader.init();
+  const loader = new ChangeElementContenWhileLoading(controls.btnCotizarGlobal);
+  loader.init();
 
-    
-    const responseApi = await cotizarApi(datoscoti);
+  
+  const responseApi = await cotizarApi(datoscoti);
 
-    mostrarListaTransportadoras(responseApi.response);
+  mostrarListaTransportadoras(responseApi.response);
 
-    // funcion que lee respuesta del api e inserta card
-    // mostrador.innerHTML = respuesta
-    loader.end();
+  // funcion que lee respuesta del api e inserta card
+  // mostrador.innerHTML = respuesta
+  loader.end();
 
-    // ***** Agregando los datos que se van a enviar para crear guia ******* //
-    datos_a_enviar.ciudadR = ciudadR.ciudad;
-    datos_a_enviar.ciudadD = ciudadD.ciudad;
-    datos_a_enviar.departamentoD = ciudadD.departamento;
-    datos_a_enviar.departamentoR = ciudadR.departamento;
-    datos_a_enviar.alto = datoscoti.height;
-    datos_a_enviar.ancho = datoscoti.width;
-    datos_a_enviar.largo = datoscoti.long;
-    // datos_a_enviar.valor = 0;
-    // datos_a_enviar.seguro = value("seguro-mercancia");
-    datos_a_enviar.correoR = datos_usuario.correo || "notiene@gmail.com";
+  // ***** Agregando los datos que se van a enviar para crear guia ******* //
+  datos_a_enviar.ciudadR = ciudadR.ciudad;
+  datos_a_enviar.ciudadD = ciudadD.ciudad;
+  datos_a_enviar.departamentoD = ciudadD.departamento;
+  datos_a_enviar.departamentoR = ciudadR.departamento;
+  datos_a_enviar.alto = datoscoti.height;
+  datos_a_enviar.ancho = datoscoti.width;
+  datos_a_enviar.largo = datoscoti.long;
+  // datos_a_enviar.valor = 0;
+  // datos_a_enviar.seguro = value("seguro-mercancia");
+  datos_a_enviar.correoR = datos_usuario.correo || "notiene@gmail.com";
 
-    if (ControlUsuario.esPuntoEnvio) {
-      datos_a_enviar.centro_de_costo_punto = datos_usuario.centro_de_costo;
-    } else {
-      datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo;
-    }
+  if (ControlUsuario.esPuntoEnvio) {
+    datos_a_enviar.centro_de_costo_punto = datos_usuario.centro_de_costo;
+  } else {
+    datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo;
+  }
 
-    // if(estado_prueba) datos_a_enviar.prueba = true;
-
-  //   $("#botonFinalizarCoti").click((e)=>finalizarCotizacionFlexii(e))
-    // finalizarCotizacionFlexii()
-
-  //   if (!isIndex) guardarCotizacion();
-
-    location.href = "#result_cotizacion";
+  location.href = "#result_cotizacion";
 }
 
 async function cotizarApi(request) {

@@ -10,10 +10,9 @@ import { cotizadorFlexii } from "./cotizadorFlexii.js";
 
 export function cotizar(e) {
   datos_usuario.bodegas = nuevasBodegas;
-  console.warn(datos_usuario);
+  e.preventDefault();
   // Se analiza las clases que posee el botón para saber si se va autilizar el cotizador flexii
   // o el cotizador por defecto (que usa la forma convencional)
-  console.log(e.target.classList);
   if (datos_usuario.type == "NATURAL-FLEXII") {
     cotizadorFlexii();
   } else {

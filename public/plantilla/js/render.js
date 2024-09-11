@@ -1489,7 +1489,6 @@ function verificador(arr, scroll, mensaje) {
       elemento.classList.add("border-danger");
       return scroll == "no-scroll" ? false : true;
     } else {
-      console.log(elemento);
       elemento.classList.remove("border-danger");
       return false;
     }

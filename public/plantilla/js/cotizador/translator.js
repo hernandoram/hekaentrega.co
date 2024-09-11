@@ -1,5 +1,10 @@
 const translation = {
-    typePayment: [null, PAGO_CONTRAENTREGA, CONTRAENTREGA, CONVENCIONAL]
+    typePayment: [null, PAGO_CONTRAENTREGA, CONTRAENTREGA, CONVENCIONAL],
+    typePaymentInt: {
+        [PAGO_CONTRAENTREGA]: 1,
+        [CONTRAENTREGA]: 2,
+        [CONVENCIONAL]: 3,
+    }
 }
 
 class TranslatorFromApi {
