@@ -97,8 +97,6 @@ function bloquearODesbloquearInputCiudad(e) {
 
   const selectElement = $("#ciudadR").selectize()[0].selectize;
 
-  console.warn(val, typeof val, !!val);
-
   if (!!val) {
     selectElement.disable();
   } else {
@@ -109,6 +107,10 @@ const ciudadesTomadas = new Map();
 function cambiarBodegaCotizador(e) {
   const val = e.target.value;
 
+  const direccionBodega = document.getElementById("direccion-bodega");
+
+  direccionBodega.innerText = "";
+
   console.log(val); // si se elimina el cambio de bodegas deja de funcionar
 
   limpiarInputCiudad(inpCiudadR);
@@ -116,6 +118,8 @@ function cambiarBodegaCotizador(e) {
   const bodega = bodegasWtch.value.find((b) => b.ciudad == val);
 
   if (!bodega) return;
+
+  direccionBodega.innerText = bodega.direccion_completa;
 
   window.bodegaSeleccionada = bodega;
 
