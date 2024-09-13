@@ -1324,35 +1324,38 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
 function obtenerMensajeEfectividad(porcentaje) {
   let mensaje;
   switch (true) {
+    case porcentaje === 100:
+      mensaje = "✅ RECOMENDADO en el destino cotizado";
+      break;
     case porcentaje >= 90:
-      mensaje = "Excelente efectividad";
+      mensaje = "✅ Excelente en el destino cotizado";
       break;
     case porcentaje >= 80:
-      mensaje = "Muy buena efectividad";
+      mensaje = "✅ Sobresaliente en el destino cotizado";
       break;
     case porcentaje >= 70:
-      mensaje = "Buena efectividad";
+      mensaje = "🏅 Muy bueno en el destino cotizado";
       break;
     case porcentaje >= 60:
-      mensaje = "Efectividad aceptable";
+      mensaje = "🏅 Bueno en el destino cotizado";
       break;
     case porcentaje >= 50:
-      mensaje = "Efectividad regular";
+      mensaje = "🆗 Satisfactorio en el destino cotizado";
       break;
     case porcentaje >= 40:
-      mensaje = "Efectividad baja";
+      mensaje = "🆗 Aceptable en el destino cotizado";
       break;
     case porcentaje >= 30:
-      mensaje = "Efectividad muy baja";
+      mensaje = "🔄 Mejorable en el destino cotizado";
       break;
     case porcentaje >= 20:
-      mensaje = "Efectividad deficiente";
+      mensaje = "🚫 Malo en el destino cotizado";
       break;
     case porcentaje >= 10:
-      mensaje = "Efectividad muy deficiente";
+      mensaje = "🚫 No recomendado en el destino cotizado";
       break;
     default:
-      mensaje = "Efectividad nula";
+      mensaje = "🛑 Efectividad nula";
   }
   return mensaje;
 }
