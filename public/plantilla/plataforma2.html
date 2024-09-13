@@ -326,21 +326,21 @@
                         }
                       </script>
                   </div>
-      <p>
-      
-      
-        Si realizas una solicitud de pago de <b> lunes a jueves de 8:00 a.m. a 6:00 p.m , recibirás el desembolso al siguiente
-          día hábil. </b> En caso de que realices la solicitud después de ese horario,<b> el dinero será desembolsado en un
-          plazo de 2 días hábiles! </b><br />
-      
-        Si realizas la solicitud el <b> viernes desde las 8:00 a.m. hasta el sábado a las 12:00 p.m , recibirás el desembolso
-          el día lunes.</b> En caso de que realices la solicitud después de ese horario,<b> el dinero será desembolsado el día
-          martes ! </b><br />
-      
-        Recuerda que estos plazos están sujetos a nuestros horarios laborales y no laboramos en días festivos. <br>
+                  <p>
+                  
+                  
+                    Si realizas una solicitud de pago de <b> lunes a jueves de 8:00 a.m. a 6:00 p.m , recibirás el desembolso al siguiente
+                      día hábil. </b> En caso de que realices la solicitud después de ese horario,<b> el dinero será desembolsado en un
+                      plazo de 2 días hábiles! </b><br />
+                  
+                    Si realizas la solicitud el <b> viernes desde las 8:00 a.m. hasta el sábado a las 12:00 p.m , recibirás el desembolso
+                      el día lunes.</b> En caso de que realices la solicitud después de ese horario,<b> el dinero será desembolsado el día
+                      martes ! </b><br />
+                  
+                    Recuerda que estos plazos están sujetos a nuestros horarios laborales y no laboramos en días festivos. <br>
 
-        Basado en nuestros <b><a class="text-dark" target="_blank" href="https://www.hekaentrega.co/terminos.html">Terminos y Condiciones</a></b>, solamente se aceptan reclamos de los pagos en un máximo de 2 días calendario posteriores al pago.
-      </p>
+                    Basado en nuestros <b><a class="text-dark" target="_blank" href="https://www.hekaentrega.co/terminos.html">Terminos y Condiciones</a></b>, solamente se aceptan reclamos de los pagos en un máximo de 2 días calendario posteriores al pago.
+                  </p>
 
 
                 
@@ -747,17 +747,17 @@
               <form class="card" name="cotizacionEnvio" id="cotizar-envio">
                 <div class="card-body">
                   <div class="row">
-                      <div class="form-group col-lg-3 col-6">
+                      <div class="form-group col-lg col-md-6 col-12">
                         <label for="ciudadR">Ciudad Remitente</label>
                         <select name="ciudadR" type="text" class="city-selectize form-control" id="ciudadR" autocomplete="off" required></select>
                       </div>
                       
-                      <div class="form-group col-lg-3 col-6">
+                      <div class="form-group col-lg col-md-6 col-12">
                         <label for="ciudadD">Ciudad Destino</label>
                         <select name="ciudadD" type="text" class="city-selectize form-control" id="ciudadD" autocomplete="off" required></select>
                       </div>
                       
-                      <div class="form-group col-lg-3 col-6 d-none d-cotizador-api">
+                      <div class="form-group col-lg col-md-6 col-12 d-none d-cotizador-api">
                         <label for="tipo_envio-cotizador">Tipo de envío</label>
                         <select type="text" class="form-control" id="tipo_envio-cotizador" name="tipo_envio">
                           <option value="PAGO CONTRAENTREGA">Pago contra entrega</option>
@@ -766,9 +766,9 @@
                         </select>
                       </div>
                       
-                      <div class="form-group col-lg-3 col-6 d-none d-cotizador-api">
+                      <div class="form-group col-lg col-md-6 col-12 d-none d-cotizador-api">
                         <label for="recaudo-cotizador">Valor Recaudo</label>
-                        <input type="number" class="form-control only-integers" step="any" name="valorRecaudo" id="recaudo-cotizador">  
+                        <input type="number" class="form-control only-integers" step="10000" name="valorRecaudo" id="recaudo-cotizador" />  
                         <small class="form-text text-muted">
                           <input type="checkbox" id="sumar_envio-cotizador">
                           <label for="sumar_envio-cotizador" class="mb-0">
@@ -779,18 +779,18 @@
                   </div>
   
   
-                  <div class="row mb-3">
+                  <div class="row"> 
+                    <div class="form-group col-sm-6 mb-2">
+                      <label for="Kilos">Peso <small class="popover-peso"></small></label>
+                      <input type="number" class="form-control only-integers" step="any" name="kilos" id="Kilos" required>  
+                    </div>
+
                     <div class="form-group col mb-2">
                       <label for="seguro-mercancia">Valor Declarado <small class="popover-declarado"></small></label>
                       <input type="number" class="form-control only-integers" 
-                      id="seguro-mercancia" value="25000" step="1000" name="recaudo" min="5000" max="2000000">
+                      id="seguro-mercancia" value="25000" step="1000" name="valorDeclarado">
                       <small class="form-text text-muted">Valor a indemnizar en caso de pérdida, hurto, avería, etc.</small>
                     </div> 
-  
-                    <div class="form-group col-sm-6 mb-2">
-                      <label for="Kilos">Peso <small class="popover-peso"></small></label>
-                      <input type="number" class="form-control only-integers" step="any" name="kilos" id="Kilos" min="1" max="25" required>  
-                    </div>     
                   </div>
   
                   <div class="row align-items-end">
@@ -799,15 +799,15 @@
                       <div class="row">
                         <div class="form-group col-sm-4 d-flex align-items-center mb-2">
                           <label for="dimension-ancho">Ancho:  </label>
-                          <input type="number" class="form-control ml-2 only-integers" id="dimension-ancho" name="ancho" min="1" max="150" required>
+                          <input type="number" class="form-control ml-2 only-integers" id="dimension-ancho" name="ancho" min="1" max="150" required />
                         </div>
                         <div class="form-group col-sm-4 d-flex align-items-center mb-2">
                           <label for="dimension-largo">Largo:  </label>
-                          <input type="number" class="form-control ml-2 only-integers" id="dimension-largo" name="largo" min="1" max="150" required>
+                          <input type="number" class="form-control ml-2 only-integers" id="dimension-largo" name="largo" min="1" max="150" required />
                         </div>
                         <div class="form-group col-sm-4 d-flex align-items-center mb-2">
                           <label for="dimension-alto">Alto:  </label>
-                          <input type="number" class="form-control ml-2 only-integers" id="dimension-alto" name="alto" min="1" max="150" required>
+                          <input type="number" class="form-control ml-2 only-integers" id="dimension-alto" name="alto" min="1" max="150" required />
                         </div>
                       </div>
                     </div>

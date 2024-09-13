@@ -20,7 +20,7 @@ class TranslatorFromApi {
         this.dane_ciudadD = dataSentApi.daneCityDestination;
         
 
-        this.valor = dataFromApi.valueDeposited;
+        this.valor = dataFromApi.transportCollection;
         this.costoEnvio = dataFromApi.total;
         this.seguro = dataFromApi.declaredValue;
         this.flete = this.dataFromApi.flete
@@ -28,6 +28,22 @@ class TranslatorFromApi {
         this.seguroMercancia = dataFromApi.assured;
         this.transportadora = dataFromApi.entity.toUpperCase();
         this.version = parseInt(dataFromApi.version);
+    }
+
+    /** Variable que se caracteriza por identificar si la guía posee una deuda
+     * Al ser falso es porque no existe deuda de ningún tipo
+     * Al ser positivo es porque la guía posee un saldo a favor que puede ser de beneficio para el usuario (Esto nunca se ha aplicado)
+     * Al ser negativo es porque el pago de la guía aún no ha sido repartido
+     */
+    get debe() {
+        switch(this.type) {
+            case CONVENCIONAL:
+                return false;
+            case PAGO_CONTRAENTREGA: case CONTRAENTREGA:
+                return -this.costoEnvio;
+            default:
+                return false;
+        }
     }
 
     get factorDeConversion() {
@@ -43,7 +59,9 @@ class TranslatorFromApi {
     }
 
     get kgTomado() {
-        return Math.max(this.dataSentApi, this.pesoVolumen);
+      const pesoEnviado = this.dataSentApi.weight;
+      const pesoMinimo = transportadoras[this.transportadora].limitesPeso[0]; // tomamos el mínimo de peso configurado para la transportadora
+      return Math.max(pesoEnviado, pesoMinimo, this.pesoVolumen);
     }
 
     get volumen() {
@@ -83,13 +101,13 @@ class TranslatorFromApi {
             total: this.costoEnvio,
             recaudo: this.valor,
             seguro: this.seguro,
-            costoDevolucion: this.version === 1 ? this.dataFromApi.costReturnHeka : this.dataFromApi.costReturn,
+            costoDevolucion: this.version === 1 ? this.dataFromApi.cost_return_heka : this.dataFromApi.cost_return,
             cobraDevolucion: this.version === 1,
             versionCotizacion: this.version
         };
     
         if (ControlUsuario.esPuntoEnvio)
-            details.comision_punto = this.dataFromApi.commissionPoint;
+            details.comision_punto = this.dataFromApi.commission_point;
     
         if (this.sobreflete_oficina)
             details.sobreflete_oficina = this.sobreflete_oficina; // TODO: Falta validar cuando comience a migrar los temas de oficina
@@ -99,4 +117,221 @@ class TranslatorFromApi {
 }
 
 
-export {translation, TranslatorFromApi}
+function converToOldQuoterData(dataNew) {
+    return {
+        seguro: dataNew.declaredValue,
+        valor: dataNew.collectionValue,
+        peso: dataNew.weight,
+        type: translation.typePayment[dataNew.typePayment],
+        dane_ciudadR: dataNew.daneCityOrigin,
+        dane_ciudadD: dataNew.daneCityDestination,
+        sumar_envio: dataNew.withshippingCost
+    }
+}
+
+async function demoPruebaCotizadorAntiguo(dataNew) {
+    const data = converToOldQuoterData(dataNew);
+  const FACHADA_FLETE = 1000;
+
+  //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
+  await Promise.all(
+    Object.keys(transportadoras).map(async (transp) => {
+      // Este factor será usado para hacer variaciones de precios entre
+      // flete trasportadora y sobreflete heka para intercambiar valores
+      let factor_conversor = 0;
+
+      let seguro = data.seguro,
+        recaudo = data.valor;
+      let transportadora = transportadoras[transp];
+
+      if (transp === "TCC") {
+        return null;
+      }
+
+      if (transp === "SERVIENTREGA" || transp === "INTERRAPIDISIMO") {
+        seguro = recaudo ? recaudo : seguro;
+      }
+
+      if (data.peso > transportadora.limitesPeso[1]) return null;
+      let valor = Math.max(
+        seguro,
+        transportadora.limitesValorDeclarado(data.peso)[0]
+      );
+
+      let cotizador = new CalcularCostoDeEnvio(valor, data.type);
+
+      if (["ENVIA", "COORDINADORA", "HEKA"].includes(transp)) {
+        cotizador.valor = recaudo;
+        cotizador.seguro = Math.max(
+          seguro,
+          transportadora.limitesValorDeclarado(data.peso)[0]
+        );
+      }
+
+      cotizador.kg_min = transportadora.limitesPeso[0];
+
+      const cotizacion = await cotizador.putTransp(transp, {
+        dane_ciudadR: data.dane_ciudadR,
+        dane_ciudadD: data.dane_ciudadD
+      });
+
+
+      if (data.sumar_envio || data.type === CONTRAENTREGA) {
+        // Cuanndo la guía en "PAGO DESTINO", no es necesario sumar nada, ya que la utilidad está en que no se le devuelve nada al cliente (exeptuando a inter, porque no nos dejó alternativa, sin embargo se proteje con la ganancia a Heka)
+        // En cambio la opción para sumar destino si sumaría el valor a recaudar que se ingrese, ya que la idea es que dicha cantidad quede intacta
+        cotizacion.sumarCostoDeEnvio = data.sumar_envio ? cotizacion.valor : 0;
+
+        if (transp === "INTERRAPIDISIMO") {
+          const minimoEnvio = transportadora.valorMinimoEnvio(
+            cotizacion.kgTomado
+          );
+          const diferenciaMinima = minimoEnvio - cotizacion.valor;
+          if (diferenciaMinima > 0)
+            cotizacion.sumarCostoDeEnvio = diferenciaMinima;
+
+          //Se le resta 1000 [FACHADA_FLETE] para evitar que se cruce con el valor constante que se añade sobre "this.sobreflete_heka += 1000"
+          const diferenciaActualRecaudoEnvio =
+            cotizacion.valor - cotizacion.costoEnvio - FACHADA_FLETE;
+          if (diferenciaActualRecaudoEnvio > 0 && data.type === CONTRAENTREGA) {
+            factor_conversor = diferenciaActualRecaudoEnvio;
+            cotizacion.set_sobreflete_heka =
+              cotizacion.sobreflete_heka + diferenciaActualRecaudoEnvio;
+          }
+        }
+      }
+
+      let descuento;
+      if (cotizacion.descuento) {
+        const percent = Math.round(
+          ((cotizacion.costoEnvioPrev - cotizacion.costoEnvio) * 100) /
+            cotizacion.costoEnvioPrev
+        );
+        descuento = percent;
+      }
+
+      //Para cargar el sobreflete heka antes;
+      const costoEnvio = cotizacion.costoEnvio
+      cotizacion.debe = data.type === CONVENCIONAL ? false : - costoEnvio;
+      
+      let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
+      let fleteConvertido = cotizacion.flete;
+      if (
+        ["ENVIA", "INTERRAPIDISIMO", "COORDINADORA", "SERVIENTREGA"].includes(
+          transp
+        ) &&
+        data.type === PAGO_CONTRAENTREGA
+      ) {
+        factor_conversor = FACHADA_FLETE;
+      }
+
+      // Se procura sumar esta comisión adicional sobre el flete (visual) que se muestra sobre el cotizador
+      // Pero no se retorna a la comisión heka, ya que se guarda por aparte
+      fleteConvertido += cotizacion.comisionHekaAdicional; // Para los precios antiguos, esto devolvería cero
+      if (factor_conversor > 0) {
+        sobreFleteHekaEdit -= factor_conversor;
+        fleteConvertido += factor_conversor;
+      }
+
+      
+
+      if (!transportadora.cotizacionOld) transportadora.cotizacionOld = new Object();
+      transportadora.cotizacionOld[data.type] = cotizacion;
+
+    })
+  );
+}
+
+
+function testComparePrices(type) {
+    Object.values(transportadoras).forEach(transport => {
+        console.log("\nComparando resultados Transportadora: " + transport.cod);
+        console.groupCollapsed(transport.cod);
+
+        if(!transport.cotizacion) {
+            console.log("La transportaddora no está controlada por api");
+            console.groupEnd(transport.cod);
+            return;
+        }
+        
+        const preciosApi = transport.cotizacion[type];
+        const preciosViejos = transport.cotizacionOld[type];
+        const valoresImportantes = [
+            ["debe", "_-costoEnvio", "Deuda guía"], 
+            ["costoEnvio", "total", "Costo del envío"], 
+            ["valor", "transportCollection", "Valor de recaudo"], 
+            ["seguro", "declaredValue", "Valor declarado"],
+            ["type", "_type", "Tipo de envío"], 
+            ["kgTomado", "_MAX(weight, pesoVol)", "Peso que se liquida"],
+            ["dane_ciudadR", "_daneCityOrigin", "Ciudad Origen"], 
+            ["dane_ciudadD", "_daneCityDestination", "Ciudad Destino"], 
+            ["sobreflete", "transportCommission", "Comisión transportadora"],
+            ["seguroMercancia", "assured", "Seguro mercancía"],
+
+            ["getDetails", "__Details", "Detalles"]
+        ];
+        
+        const valoresImportantesGetDetails = [
+            ["peso_real", "weight", "Peso Introducido"],
+            ["flete", "flete", "Flete de la transportadora"],
+            ["comision_heka", "hekaCommission", "Comisión Heka"],
+            ["comision_adicional", "additional_commission", "Comisión adicional Heka"],
+            ["comision_trasportadora", "_transportCommission + assured", "Comisión total de la transportadora"],
+            ["peso_liquidar", "_(INNER) kgTomado", "Peso a liquidar"],
+            ["peso_con_volumen", "_INNER CALCULATION", "Peso resultante del volumen"],
+            ["costoDevolucion", "_cost_return_heka | cost_return", "Costo de devolución"],
+            ["cobraDevolucion", "_version = 1", "Cobra devolución?"],
+            ["versionCotizacion", "version", "Versión de cotización"],
+            ["comision_punto", "commission_point", "Comisión del punto"]
+        ];
+
+        const equalOrNot = (a,b) => a === b ? "===" : "!==";
+
+        const getMessage = (oldValue, newValue, origin, valueOrigin) => `\n val: ${oldValue} ${equalOrNot(oldValue, newValue)} ${newValue} \n Origen: ${origin} = ${valueOrigin}`;
+        const getValueOrigin = (origin) => {
+            const isDescription = origin.startsWith("_");
+            return {
+                key: isDescription ? origin.replace("_", "") : origin,
+                value: isDescription ? "---" : preciosApi.dataFromApi[origin]
+            }
+        }
+
+        let cantidadErrores = 0;
+        valoresImportantes.forEach(([key, origin, descriptor]) => {
+            const newValue = preciosApi[key];
+            const oldValue = preciosViejos[key];
+
+            if(key === "getDetails") {
+                console.groupCollapsed("DETALLES");
+                valoresImportantesGetDetails.forEach(([key, origin, descriptor2]) => {
+                    const newInnerValue = newValue[key];
+                    const oldInnerValue = oldValue[key];
+                    const assertCondition = newInnerValue === oldInnerValue;
+                    const valueOrigin = getValueOrigin(origin);
+                    const message = getMessage(oldInnerValue, newInnerValue, valueOrigin.key, valueOrigin.value);
+                    if(assertCondition) {
+                        console.log(`%c PASS ${descriptor} > ${descriptor2} ${message}`, "color:green");
+                    } else {
+                        console.log(`%c NOT PASS ${descriptor} > ${descriptor2} ${message}`, "color:red");
+                        cantidadErrores++;
+                    }
+                })
+                console.groupEnd("DETALLES");
+            } else {
+                const assertCondition = newValue === oldValue;
+                const valueOrigin = getValueOrigin(origin);
+                const message = getMessage(oldValue, newValue, valueOrigin.key, valueOrigin.value);
+                if(assertCondition) {
+                    console.log(`%c PASS ${descriptor}: ${message}`, "color:green");
+                } else {
+                    console.log(`%c NOT PASS ${descriptor}: ${message}`, "color:red");
+                    cantidadErrores++;
+                }
+            }
+        });
+        console.log("Total errores: " + cantidadErrores);
+        console.groupEnd(transport.cod);
+
+    })
+}
+
+export {translation, TranslatorFromApi, demoPruebaCotizadorAntiguo, testComparePrices}
