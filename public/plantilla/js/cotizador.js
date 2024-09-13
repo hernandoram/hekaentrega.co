@@ -1284,7 +1284,7 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
 
   //mostramos la cantidad de estrellas correspondientes al porcentaje
   // contenedor.html(llenarEstrellas(porcentaje));
-  contenedor.append("<small>(" + porcentaje + "% de efectividad)</small>");
+  contenedor.append("<b> " + obtenerMensajeEfectividad(porcentaje) + " </b>");
   // contenedor.append(`<span
   //       class='detalles rounded bg-light w-100 position-absolute'
   //       style='
@@ -1319,6 +1319,42 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
 
   // habilitamos la función para ver los detalles de las estadísticas
   contenedor.click(() => detallesEstadisticas(estadistica));
+}
+
+function obtenerMensajeEfectividad(porcentaje) {
+  let mensaje;
+  switch (true) {
+    case porcentaje >= 90:
+      mensaje = "Excelente efectividad";
+      break;
+    case porcentaje >= 80:
+      mensaje = "Muy buena efectividad";
+      break;
+    case porcentaje >= 70:
+      mensaje = "Buena efectividad";
+      break;
+    case porcentaje >= 60:
+      mensaje = "Efectividad aceptable";
+      break;
+    case porcentaje >= 50:
+      mensaje = "Efectividad regular";
+      break;
+    case porcentaje >= 40:
+      mensaje = "Efectividad baja";
+      break;
+    case porcentaje >= 30:
+      mensaje = "Efectividad muy baja";
+      break;
+    case porcentaje >= 20:
+      mensaje = "Efectividad deficiente";
+      break;
+    case porcentaje >= 10:
+      mensaje = "Efectividad muy deficiente";
+      break;
+    default:
+      mensaje = "Efectividad nula";
+  }
+  return mensaje;
 }
 
 const conjuntoEstadisticasEnvia = new Map();
