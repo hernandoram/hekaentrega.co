@@ -26,6 +26,47 @@ const sellers = [
 }*/
 let recoleccionesPendientes; // Lugar donde se almacena todo el conjunto de recolecciones
 
+const acciones = {
+  eliminarGuiasRecoleccion: (e) => {
+    const target = e.target;
+    const { codigo_sucursal } = target.dataset;
+    const datos_recoleccion = recoleccionesPendientes[codigo_sucursal];
+
+    const m = new CreateModal({
+      title: `¿Desea eliminar?`,
+      btnContinueText: "Eliminar",
+      btnContinueColor: "red",
+    });
+
+    m.init = formEliminarGuiasRecoleccion(datos_recoleccion);
+    const form = $("form", m.modal);
+
+    form.on("submit", (e) => eliminarGuias(e, datos_recoleccion, false));
+    m.onSubmit = () => form.submit();
+  },
+  solicitarRecoleccion: (e) => {
+    const target = e.target;
+    const { codigo_sucursal } = target.dataset;
+    const datos_recoleccion = recoleccionesPendientes[codigo_sucursal];
+
+    const m = new CreateModal({
+      title: "Solicitud de recolección para: la sucursal " + codigo_sucursal,
+    });
+
+    m.init = formRecoleccion(datos_recoleccion);
+    const form = $("form", m.modal);
+    const inputFecha = $("#fecha-recoleccion", form);
+    const date = new Date();
+    date.setUTCHours(15, 0, 0);
+    const [dateStr] = date.toISOString().split(".");
+
+    inputFecha.val(dateStr);
+
+    form.on("submit", formSolicitarRecoleccion);
+    m.onSubmit = () => form.submit();
+  },
+};
+
 const elListaSucursales = $("#lista-recolecciones");
 const elRevisarRecolecciones = $("#revisar-recolecciones");
 const elRevisarRecoleccionesRealizadas = $("#revisar-recolecciones-realizadas");
@@ -284,47 +325,6 @@ function formSolicitarRecoleccion(e) {
 
   mostrarListaRecolecciones();
 }
-
-const acciones = {
-  eliminarGuiasRecoleccion: (e) => {
-    const target = e.target;
-    const { codigo_sucursal } = target.dataset;
-    const datos_recoleccion = recoleccionesPendientes[codigo_sucursal];
-
-    const m = new CreateModal({
-      title: `¿Desea eliminar?`,
-      btnContinueText: "Eliminar",
-      btnContinueColor: "red",
-    });
-
-    m.init = formEliminarGuiasRecoleccion(datos_recoleccion);
-    const form = $("form", m.modal);
-
-    form.on("submit", (e) => eliminarGuias(e, datos_recoleccion, false));
-    m.onSubmit = () => form.submit();
-  },
-  solicitarRecoleccion: (e) => {
-    const target = e.target;
-    const { codigo_sucursal } = target.dataset;
-    const datos_recoleccion = recoleccionesPendientes[codigo_sucursal];
-
-    const m = new CreateModal({
-      title: "Solicitud de recolección para: la sucursal " + codigo_sucursal,
-    });
-
-    m.init = formRecoleccion(datos_recoleccion);
-    const form = $("form", m.modal);
-    const inputFecha = $("#fecha-recoleccion", form);
-    const date = new Date();
-    date.setUTCHours(15, 0, 0);
-    const [dateStr] = date.toISOString().split(".");
-
-    inputFecha.val(dateStr);
-
-    form.on("submit", formSolicitarRecoleccion);
-    m.onSubmit = () => form.submit();
-  },
-};
 
 async function fetchRecoleccion(data) {
   const guias = data.numerosGuia;
