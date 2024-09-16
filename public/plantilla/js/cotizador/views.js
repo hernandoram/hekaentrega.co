@@ -1,3 +1,5 @@
+import { paymentAdmited } from "./constantes.js";
+
 export function detallesFlexii(objData) {
     return `
     <div class="card">
@@ -61,4 +63,111 @@ export function detallesFlexii(objData) {
 
   </div>
     `;
+}
+
+export function tarjetaBasicaTransportadora(configTransportadora, respuestaCotizacion) {
+    const {entity, type, declaredValue, transportCollection, total, deliveryTime, annotations} = respuestaCotizacion;
+    const {color, logoPath} = configTransportadora;
+    const transp = configTransportadora.cod;
+
+    const detallesPagos = `
+        <ul class="list-unstyled">
+        ${paymentAdmited.filter(p => p.transportApplic.includes(transp)).map(tp => `
+            <li class="d-flex align-items-center">
+            <span class="mr-2">${tp.icon}</span>
+            <span>${tp.title}</span>
+            </li>
+        `).join("\n")}
+        </ul>
+    `;
+
+    return `
+        <li 
+        style="cursor:pointer;" 
+        class="list-group-item list-group-item-action shadow-sm mb-2 border border-${color}" 
+        id="list-transportadora-${entity}-list" 
+        data-transp="${transp}"
+        data-type="${type}"
+        aria-controls="list-transportadora-${entity}"
+        >
+          <div class="row">
+            <div class="col-lg-2 col-md-2 col-sm-12 d-md-none d-lg-block">
+              <img 
+                src="${logoPath}" 
+                style="max-height:100px; max-width:120px"
+                alt="logo-${entity}"
+              >
+            </div>
+
+            <div class="col-lg-7 col-md-7 col-sm-12 mt-3 mt-md-0 pl-md-3">
+              <h5>
+                <b>${transp}</b>
+              </h5>
+              <p class="mb-0">Tiempo de entrega: ${deliveryTime} Días</p>
+              <p class="d-sm-block mb-0">
+                Costo de envío para ${type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"}: 
+                <b>$${convertirMiles(type == "CONVENCIONAL" ? declaredValue : transportCollection)}</b>
+              </p>
+              <p class="d-none ${type == "CONVENCIONAL" ? "" : "mb-0 d-sm-block"}">
+                El Valor consignado a tu cuenta será: <b>$${convertirMiles(transportCollection - total)}</b>
+              </p>
+              <small class="text-warning">${annotations}</small>
+              ${type ==="PAGO CONTRAENTREGA" ?
+                `
+                <h5 class="text-success mb-0 mt-2"><b>Tipo de pagos a destinatario</b></h5>
+                ${detallesPagos}
+                `
+                : ""
+              }
+            </div>
+            <div class="col-lg-3 col-md-5 col-sm-12 d-flex flex-column justify-content-around mt-3 mt-md-0">
+              <img 
+                src="${logoPath}" 
+                style="max-height:100px; max-width:120px"
+                alt="logo-${entity}"
+                class="d-none d-md-block d-lg-none"
+              >
+
+              <div class="border border-success rounded p-3 mb-2">
+                <div class="d-flex justify-content-between">
+                  <div>
+                    <p>Total</p>
+                  </div>
+                  <div class="text-end">
+                    <h5><b>$${convertirMiles( total )}</b></h5>
+                  </div>
+                </div>
+              </div>
+
+              <small id="ver-detalles-${transp}" class="detalles border border-dark rounded p-3 text-center font-weight-bold">
+                Ver detalles
+              </small>
+            </div>
+          </div>
+          <p class="mb-0 text-center">
+            <span class="estadisticas position-relative"></span>
+          </p>
+        </li>
+      `
+}
+
+export function tarjetaErrorTransportadora(configTransportadora, respuestaCotizacion) {
+    const transp = configTransportadora.cod;
+    const {message} = respuestaCotizacion;
+
+    return `<li style="cursor:pointer;" class="list-group-item list-group-item-action shadow-sm mb-2 border border-${configTransportadora.color}" 
+        id="list-transportadora-${transp}-list" 
+        data-transp="${transp}"
+        aria-controls="list-transportadora-${transp}"
+        >
+            <div class="row container" >
+                <img src="${configTransportadora.logoPath}" 
+                class="col-md-1 col-sm-12" style="max-height:120px; max-width:100px"
+                alt="logo-${configTransportadora.nombre}">
+                <div class="col mt-3 mt-sm-0 order-1 order-sm-0">
+                    <h5 class="text-left">${configTransportadora.nombre}</h5>
+                    <h4 class="text-center mt-4"><b>${message}</b></h4>
+                </div>
+            </div>
+        </li>`;
   }

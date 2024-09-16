@@ -23,4 +23,13 @@ export const paymentAdmited = [
         icon: adelantedPayment,
         transportApplic: ["COORDINADORA"]
     },
-]
+];
+
+export const cotizadorApiClassIdentifier = "cotizador-api";
+
+export const controls = {
+    sumaEnvio: $("#sumar_envio-cotizador"),
+    tipoEnvio: $("#tipo_envio-cotizador"),
+    valorRecaudo: $("#recaudo-cotizador"),
+    btnCotizarGlobal: $(".cotizador-button")
+}

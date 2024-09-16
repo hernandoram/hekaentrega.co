@@ -1,98 +1,123 @@
 import { v1 } from "../config/api.js";
 import { selectize } from "../consultarCiudades.js";
-import { paymentAdmited } from "./constantes.js";
-import { TranslatorFromApi, translation } from "./translator.js";
+import { controls } from "./constantes.js";
+import { TranslatorFromApi, demoPruebaCotizadorAntiguo, testComparePrices, translation } from "./translator.js";
+import { tarjetaBasicaTransportadora, tarjetaErrorTransportadora } from "./views.js";
 
 let datoscoti = {
   daneCityOrigin: "",
   daneCityDestination: "",
-  typePayment: 1, // Falta asignarlo a la segunda carcasa del cotizador
+  typePayment: 1,
   declaredValue: 90000,
   weight: 1,
   height: "1",
   long: "1",
   width: "1",
-  withshippingCost: false, // Falta asignarlo a la segunda carcasa del cotizador
-  collectionValue: 90000, // Falta asignarlo a la segunda carcasa del cotizador
+  withshippingCost: false,
+  collectionValue: 90000,
 };
 export async function cotizadorApi() {
-    const controlCiudadR = selectize.ciudadR;
-    const controlCiudadD = selectize.ciudadD;
+  
+  const formulario = document.getElementById("cotizar-envio");
+  if(!formulario.checkValidity()) {
+    Toast.fire(
+      "",
+      "todos los campos son obligatorios",
+      "error"
+    );
 
-    const ciudadR = controlCiudadR.options[controlCiudadR.getValue()];
-    ciudadD = controlCiudadD.options[controlCiudadD.getValue()];
-   
-    datoscoti = {
-        daneCityOrigin: ciudadR.dane,
-        daneCityDestination: ciudadD.dane,
-        typePayment: 1, // Falta asignarlo a la segunda carcasa del cotizador
-        declaredValue: parseInt(value("seguro-mercancia")),
-        weight: parseInt(value("Kilos")),
-        height: value("dimension-alto"),
-        long: value("dimension-largo"),
-        width: value("dimension-ancho"),
-        withshippingCost: false, // Falta asignarlo a la segunda carcasa del cotizador
-        collectionValue: parseInt(value("seguro-mercancia")), // Falta asignarlo a la segunda carcasa del cotizador
-    }
+    return verificador(
+      [
+        "ciudadR", "ciudadD", 
+        controls.valorRecaudo.get(0).id,
+        "seguro-mercancia", "Kilos", "dimension-alto",
+        "dimension-largo",
+        "dimension-ancho",
+      ], 
+      null,
+      "Este campo es Obligatorio."
+    );
+  }
+
+  const controlCiudadR = selectize.ciudadR;
+  const controlCiudadD = selectize.ciudadD;
+
+  if (
+    !controlCiudadR.getValue() ||
+    !controlCiudadD.getValue()
+  ) {
+    Toast.fire(
+      "",
+      "Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable",
+      "error"
+    );
+    verificador(["ciudadR", "ciudadD"], "no-scroll");
+    return;
+  }
+
+  const ciudadR = controlCiudadR.options[controlCiudadR.getValue()];
+  ciudadD = controlCiudadD.options[controlCiudadD.getValue()];
+
+  const esPagoContraentrega = controls.tipoEnvio.val() === PAGO_CONTRAENTREGA;
+  
+  datoscoti = {
+    daneCityOrigin: ciudadR.dane,
+    daneCityDestination: ciudadD.dane,
+    typePayment: translation.typePaymentInt[controls.tipoEnvio.val()],
+    declaredValue: parseInt(value("seguro-mercancia")),
+    weight: parseInt(value("Kilos")),
+    height: parseInt(value("dimension-alto")),
+    long: parseInt(value("dimension-largo")),
+    width: parseInt(value("dimension-ancho")),
+    withshippingCost: controls.sumaEnvio.prop("checked"),
+    collectionValue: esPagoContraentrega ? parseInt(controls.valorRecaudo.val()) : false
+  }
     
-    console.log(datoscoti)
-    
-    // validad obejeto datoscorti != ""
-    //Si todos los campos no estan vacios
-    if (
-      !datoscoti.daneCityOrigin ||
-      !datoscoti.daneCityDestination
-    ) {
-      Toast.fire(
-        "",
-        "Recuerda ingresar una ciudad válida, selecciona entre el menú desplegable",
-        "error"
-      );
-      verificador(["ciudadR", "ciudadD"], true);
-      return;
-    }
+  console.log(datoscoti);
 
-    //Si todo esta Correcto...
-    verificador(); // Limpiamos cualquier verificación previa
+  //Si todo esta Correcto...
+  verificador(); // Limpiamos cualquier verificación previa
 
-    const loader = new ChangeElementContenWhileLoading("#boton_cotizar_2,#boton_cotizar");
-    // loader.init();
+  const loader = new ChangeElementContenWhileLoading(controls.btnCotizarGlobal);
+  loader.init();
 
-    
-    const responseApi = await cotizarApi(datoscoti);
+  
+  const responseApi = await cotizarApi(datoscoti);
 
-    mostrarListaTransportadoras(responseApi.response);
+  if(estado_prueba) {
+    demoPruebaCotizadorAntiguo(datoscoti)
+    .then(() => {
+      console.clear();
+      console.log("El demo funciona perfectamente");
+      testComparePrices(controls.tipoEnvio.val());
+  
+    })
+    .catch((e) => console.log("Error al correr el demo: ", e));
+  }
 
-    // funcion que lee respuesta del api e inserta card
-    // mostrador.innerHTML = respuesta
-    loader.end();
+  mostrarListaTransportadoras(responseApi.response);
 
-    // ***** Agregando los datos que se van a enviar para crear guia ******* //
-    datos_a_enviar.ciudadR = ciudadR.ciudad;
-    datos_a_enviar.ciudadD = ciudadD.ciudad;
-    datos_a_enviar.departamentoD = ciudadD.departamento;
-    datos_a_enviar.departamentoR = ciudadR.departamento;
-    datos_a_enviar.alto = datoscoti.height;
-    datos_a_enviar.ancho = datoscoti.width;
-    datos_a_enviar.largo = datoscoti.long;
-    // datos_a_enviar.valor = 0;
-    // datos_a_enviar.seguro = value("seguro-mercancia");
-    datos_a_enviar.correoR = datos_usuario.correo || "notiene@gmail.com";
+  // funcion que lee respuesta del api e inserta card
+  // mostrador.innerHTML = respuesta
+  loader.end();
 
-    if (ControlUsuario.esPuntoEnvio) {
-      datos_a_enviar.centro_de_costo_punto = datos_usuario.centro_de_costo;
-    } else {
-      datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo;
-    }
+  // ***** Agregando los datos que se van a enviar para crear guia ******* //
+  datos_a_enviar.ciudadR = ciudadR.ciudad;
+  datos_a_enviar.ciudadD = ciudadD.ciudad;
+  datos_a_enviar.departamentoD = ciudadD.departamento;
+  datos_a_enviar.departamentoR = ciudadR.departamento;
+  datos_a_enviar.alto = datoscoti.height;
+  datos_a_enviar.ancho = datoscoti.width;
+  datos_a_enviar.largo = datoscoti.long;
+  datos_a_enviar.correoR = datos_usuario.correo || "notiene@gmail.com";
 
-    // if(estado_prueba) datos_a_enviar.prueba = true;
+  if (ControlUsuario.esPuntoEnvio) {
+    datos_a_enviar.centro_de_costo_punto = datos_usuario.centro_de_costo;
+  } else {
+    datos_a_enviar.centro_de_costo = datos_usuario.centro_de_costo;
+  }
 
-  //   $("#botonFinalizarCoti").click((e)=>finalizarCotizacionFlexii(e))
-    // finalizarCotizacionFlexii()
-
-  //   if (!isIndex) guardarCotizacion();
-
-    location.href = "#result_cotizacion";
+  location.href = "#result_cotizacion";
 }
 
 async function cotizarApi(request) {
@@ -100,7 +125,8 @@ async function cotizarApi(request) {
         method: "POST",
         headers: {
           "Content-Type": "Application/json",
-          "Authentication": "bearer " + localStorage.getItem("token")
+          "Authorization": "Bearer " + localStorage.getItem("token"),
+          redirect: "follow"
         },
         body: JSON.stringify(request)
     })
@@ -115,97 +141,24 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
     const detallesTransp = [];
     
     respuestaCotizacion.forEach((r, i) => {
-      const {entity, deliveryTime, declaredValue, transportCollection, total} = r;
+      const {entity, total} = r;
       const transp = entity.toUpperCase();
       const configTransp = transportadoras[transp];
       const color = configTransp.color;
       const type = translation.typePayment[datoscoti.typePayment];
       const pathLogo = configTransp.logoPath;
+      r.type = type; // Para añadirlo a la etiqueta de la transportadora
 
       if (!configTransp.cotizacion) configTransp.cotizacion = new Object();
         configTransp.cotizacion[type] = new TranslatorFromApi(datoscoti, r);
 
       // Muestra la lita de los tipo de pagos disponibles por transportadora cuando se trata de pago contraentrega
-      const detallesPagos = `
-        <ul class="list-unstyled">
-          ${paymentAdmited.filter(p => p.transportApplic.includes(transp)).map(tp => `
-            <li class="d-flex align-items-center">
-              <span class="mr-2">${tp.icon}</span>
-              <span>${tp.title}</span>
-            </li>
-          `).join("\n")}
-        </ul>
-      `;
       
-      const encabezado = `
-        <li 
-        style="cursor:pointer;" 
-        class="list-group-item list-group-item-action shadow-sm mb-2 border border-${color}" 
-        id="list-transportadora-${entity}-list" 
-        data-transp="${transp}"
-        data-type="${type}"
-        aria-controls="list-transportadora-${entity}"
-        >
-          <div class="row">
-            <div class="col-lg-2 col-md-2 col-sm-12 d-md-none d-lg-block">
-              <img 
-                src="${pathLogo}" 
-                style="max-height:100px; max-width:120px"
-                alt="logo-${entity}"
-              >
-            </div>
-
-            <div class="col-lg-7 col-md-7 col-sm-12 mt-3 mt-md-0 pl-md-3">
-              <h5>
-                <b>${transp}</b>
-              </h5>
-              <p class="mb-0">Tiempo de entrega: ${deliveryTime} Días</p>
-              <p class="d-sm-block mb-0">
-                Costo de envío para ${type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"}: 
-                <b>$${convertirMiles(type == "CONVENCIONAL" ? declaredValue : transportCollection)}</b>
-              </p>
-              <p class="d-none ${type == "CONVENCIONAL" ? "" : "mb-0 d-sm-block"}">
-                El Valor consignado a tu cuenta será: <b>$${convertirMiles(transportCollection - total)}</b>
-              </p>
-              <small class="text-warning">${r.annotations}</small>
-              ${type ==="PAGO CONTRAENTREGA" ?
-                `
-                <h5 class="text-success mb-0 mt-2"><b>Tipo de pagos a destinatario</b></h5>
-                ${detallesPagos}
-                `
-                : ""
-              }
-            </div>
-            <div class="col-lg-3 col-md-5 col-sm-12 d-flex flex-column justify-content-around mt-3 mt-md-0">
-              <img 
-                src="${pathLogo}" 
-                style="max-height:100px; max-width:120px"
-                alt="logo-${entity}"
-                class="d-none d-md-block d-lg-none"
-              >
-
-              <div class="border border-success rounded p-3 mb-2">
-                <div class="d-flex justify-content-between">
-                  <div>
-                    <p>Total</p>
-                  </div>
-                  <div class="text-end">
-                    <h5><b>$${convertirMiles( total )}</b></h5>
-                  </div>
-                </div>
-              </div>
-
-              <small id="ver-detalles-${transp}" class="detalles border border-dark rounded p-3 text-center font-weight-bold">
-                Ver detalles
-              </small>
-            </div>
-          </div>
-          <p class="mb-0 text-center">
-            <span class="estadisticas position-relative"></span>
-          </p>
-        </li>
-      `;
-  
+      
+      const encabezado = r.message 
+        ? tarjetaErrorTransportadora(configTransp, r) 
+        : tarjetaBasicaTransportadora(configTransp, r);
+    
     
 
       const precioPuntoEnvio = ControlUsuario.esPuntoEnvio

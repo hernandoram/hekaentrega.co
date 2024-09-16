@@ -3246,18 +3246,6 @@ class CalcularCostoDeEnvio {
   }
 
   get getDetails() {
-    console.groupCollapsed("Detalles de Cotización");
-    console.log("Valor ingresado =>", this.valor);
-    console.log("Kg => ", this.kgTomado);
-    console.log("Volumen => ", this.volumen);
-    console.log("comision transportadora => ", this.sobreflete);
-    console.log("Seguro mercancia => ", this.seguroMercancia);
-    console.log("Comision heka => ", this.sobreflete_heka);
-    console.log("Comisión Oficina =>", this.sobreflete_oficina);
-    console.log("Flete => ", this.flete);
-    console.log("Costo de envío =>", this.costoEnvio);
-    console.groupEnd();
-
     const details = {
       peso_real: this.kg,
       flete: this.flete,
@@ -3752,7 +3740,6 @@ class CalcularCostoDeEnvio {
       .then((d) => d.json())
       .catch((d) => ({ respuesta: "Error del servidor" }));
 
-    console.log(response);
     if (!response || response.message) {
       this.NoCobertura = true;
       return false;
@@ -3800,7 +3787,6 @@ class CalcularCostoDeEnvio {
       // MEDIO DE TRANSPORTE COD 1 = TERRESTRE
       MedioTransporte: 1,
     };
-    console.log("COTIZANDO SERVIENTREGA", data);
 
     const response = await fetch("servientrega/cotizar", {
       method: "Post",
@@ -3820,7 +3806,6 @@ class CalcularCostoDeEnvio {
     this.precio = response;
     this.servi = true;
     this.intoServi(response, conv);
-    console.log("FINALIZÓ SERVIENTREGA");
     return true;
   }
 
@@ -5198,9 +5183,6 @@ const renderValorDeclaradoEnPopover = (peso) => {
         TCC: ${valorTCC[0]} - ${valorTCC[1]}
     `
     );
-
-  popoverDeclarado.firstElementChild.click();
-  popoverDeclarado.firstElementChild.click();
 
   $(function () {
     $("#popover-valor-declarado").popover();
