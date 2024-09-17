@@ -55,8 +55,9 @@ let transportadoras = {
     },
     getCuentaResponsable: () => "EMPRESA",
     sistemaAutomatizado: () =>
-      datos_personalizados.sistema_servientrega ?
-      /^automatico/.test(datos_personalizados.sistema_servientrega) : true,
+      datos_personalizados.sistema_servientrega
+        ? /^automatico/.test(datos_personalizados.sistema_servientrega)
+        : true,
     valorMinimoEnvio: (kg) => 0,
   },
   INTERRAPIDISIMO: {
@@ -85,8 +86,9 @@ let transportadoras = {
     },
     getCuentaResponsable: () => "EMPRESA",
     sistemaAutomatizado: () =>
-      datos_personalizados.sistema_interrapidisimo ?
-      /^automatico/.test(datos_personalizados.sistema_interrapidisimo) : true,
+      datos_personalizados.sistema_interrapidisimo
+        ? /^automatico/.test(datos_personalizados.sistema_interrapidisimo)
+        : true,
     valorMinimoEnvio: (kg) => {
       if (kg <= 2) {
         return 25000;
@@ -123,8 +125,9 @@ let transportadoras = {
     },
     getCuentaResponsable: () => "EMPRESA",
     sistemaAutomatizado: () =>
-      datos_personalizados.sistema_envia ?
-      /^automatico/.test(datos_personalizados.sistema_envia) : true,
+      datos_personalizados.sistema_envia
+        ? /^automatico/.test(datos_personalizados.sistema_envia)
+        : true,
     valorMinimoEnvio: (kg) => 0,
   },
   TCC: {
@@ -152,8 +155,9 @@ let transportadoras = {
     },
     getCuentaResponsable: () => "EMPRESA",
     sistemaAutomatizado: () =>
-      datos_personalizados.sistema_tcc ?
-      /^automatico/.test(datos_personalizados.sistema_tcc) : true,
+      datos_personalizados.sistema_tcc
+        ? /^automatico/.test(datos_personalizados.sistema_tcc)
+        : true,
     valorMinimoEnvio: (kg) => 0,
   },
   COORDINADORA: {
@@ -268,7 +272,6 @@ function ocultarCotizador() {
   }
 }
 
-
 document
   .getElementById("cotizador")
   .querySelectorAll("input")
@@ -284,11 +287,7 @@ async function cotizador() {
   console.log(controlCiudadR);
 
   if (controlCiudadR.isInvalid || controlCiudadD.isInvalid) {
-    Swal.fire(
-      "Error",
-      "Recuerda ingresar una ciudad válida.",
-      "error"
-    );
+    Swal.fire("Error", "Recuerda ingresar una ciudad válida.", "error");
     verificador(["ciudadR", "ciudadD"], true);
     return;
   }
@@ -1092,6 +1091,10 @@ async function detallesTransportadoras(data) {
             `
               : ""
           }
+
+
+          <p class="text-bold" id="estadisticas"> </p>
+
         </div>
         <div class="col-lg-3 col-md-3 col-sm-12 d-flex flex-column justify-content-around mt-3 mt-md-0">
           <div class="border border-success rounded p-3 mb-2">
@@ -1272,7 +1275,7 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
   //Tomamos el contenedor en donde se va a llenar la info de cas transportadora
   const visorAll = $("#list-transportadoras");
   const visorTransp = $(`#list-transportadora-${transportadora}-list`);
-  const contenedor = visorTransp.find(".estadisticas");
+  const contenedor = visorTransp.find("#estadisticas");
 
   // El porcentaje lo calculamos con la cantidad de entregas exitósas
   const porcentaje = Math.round(
@@ -1281,7 +1284,7 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
 
   //mostramos la cantidad de estrellas correspondientes al porcentaje
   // contenedor.html(llenarEstrellas(porcentaje));
-  // contenedor.append("<small>(" + porcentaje + "% de efectividad)</small>");
+  contenedor.append("<b> " + obtenerMensajeEfectividad(porcentaje) + " </b>");
   // contenedor.append(`<span
   //       class='detalles rounded bg-light w-100 position-absolute'
   //       style='
@@ -1316,6 +1319,45 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
 
   // habilitamos la función para ver los detalles de las estadísticas
   contenedor.click(() => detallesEstadisticas(estadistica));
+}
+
+function obtenerMensajeEfectividad(porcentaje) {
+  let mensaje;
+  switch (true) {
+    case porcentaje === 100:
+      mensaje = "✅ RECOMENDADO en el destino cotizado";
+      break;
+    case porcentaje >= 90:
+      mensaje = "✅ Excelente en el destino cotizado";
+      break;
+    case porcentaje >= 80:
+      mensaje = "✅ Sobresaliente en el destino cotizado";
+      break;
+    case porcentaje >= 70:
+      mensaje = "🏅 Muy bueno en el destino cotizado";
+      break;
+    case porcentaje >= 60:
+      mensaje = "🏅 Bueno en el destino cotizado";
+      break;
+    case porcentaje >= 50:
+      mensaje = "🆗 Satisfactorio en el destino cotizado";
+      break;
+    case porcentaje >= 40:
+      mensaje = "🆗 Aceptable en el destino cotizado";
+      break;
+    case porcentaje >= 30:
+      mensaje = "🔄 Mejorable en el destino cotizado";
+      break;
+    case porcentaje >= 20:
+      mensaje = "🚫 Malo en el destino cotizado";
+      break;
+    case porcentaje >= 10:
+      mensaje = "🚫 No recomendado en el destino cotizado";
+      break;
+    default:
+      mensaje = "🛑 Efectividad nula";
+  }
+  return mensaje;
 }
 
 const conjuntoEstadisticasEnvia = new Map();
@@ -1952,9 +1994,9 @@ function seleccionarTransportadora(e) {
 
   if (!bodegaSeleccionada) {
     return Swal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: 'Selecciona una bodega para crear guías',
+      icon: "error",
+      title: "Error",
+      text: "Selecciona una bodega para crear guías",
     });
   }
 
@@ -2880,11 +2922,9 @@ function mostrarDirecciones(datos) {
 
     if (bodega.id == window.bodegaSeleccionada.id) {
       select.innerHTML += `<option value="${bodega.id}" selected>${bodega.nombre}</option>`;
-    }
-    else {
+    } else {
       select.innerHTML += `<option value="${bodega.id}">${bodega.nombre}</option>`;
     }
-    
 
     direcciones++;
   });
