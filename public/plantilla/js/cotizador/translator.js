@@ -8,6 +8,8 @@ const translation = {
 }
 
 class TranslatorFromApi {
+    FACHADA_FLETE = 1000;
+
     constructor(dataSentApi, dataFromApi) {
         this.dataSentApi = dataSentApi;
         this.dataFromApi = dataFromApi;
@@ -23,11 +25,27 @@ class TranslatorFromApi {
         this.valor = dataFromApi.transportCollection;
         this.costoEnvio = dataFromApi.total;
         this.seguro = dataFromApi.declaredValue;
-        this.flete = this.dataFromApi.flete
         this.sobreflete = dataFromApi.transportCommission;
         this.seguroMercancia = dataFromApi.assured;
         this.transportadora = dataFromApi.entity.toUpperCase();
         this.version = parseInt(dataFromApi.version);
+    }
+
+    /** Es el flete que cobra la transportadora, normalmente el api lo devuelve con 1000 pesos adicionales
+     * que están puestos sobre la variable {@link FACHADA_FLETE}, por lo tanto se le resta para sumarlo a 
+     * la {@link comision_heka | comisión heka}
+     * ya que esto es lo que realmente se guardará en base de datos
+     */
+    get flete() {
+      return this.dataFromApi.flete - this.FACHADA_FLETE;
+    }
+
+    /** Es la comisión que le corresponde a Heka por el diligenciamiento y gestión de dicho envío
+     * Desde el api viene con 1000 pesos menos (que se están adicionando al {@link flete | flete de la transportadora})
+     * por lo que internamente se le suma los mismos {@link FACHADA_FLETE | 1000} pesos para que se guarde en la base de datos
+     */
+    get comision_heka() {
+      return this.dataFromApi.hekaCommission + this.FACHADA_FLETE;
     }
 
     /** Variable que se caracteriza por identificar si la guía posee una deuda
@@ -93,7 +111,7 @@ class TranslatorFromApi {
         const details = {
             peso_real: this.dataSentApi.weight,
             flete: this.flete,
-            comision_heka: this.dataFromApi.hekaCommission,
+            comision_heka: this.comision_heka,
             comision_adicional: this.dataFromApi.additional_commission,
             comision_trasportadora: this.sobreflete + this.seguroMercancia,
             peso_liquidar: this.kgTomado,
@@ -243,95 +261,106 @@ async function demoPruebaCotizadorAntiguo(dataNew) {
 
 
 function testComparePrices(type) {
-    Object.values(transportadoras).forEach(transport => {
-        console.log("\nComparando resultados Transportadora: " + transport.cod);
-        console.groupCollapsed(transport.cod);
+  let cantidadErrores = 0;
+  let casosAnalizados = 0;
+  let pruebasCorrectas = 0;
+  Object.values(transportadoras).forEach(transport => {
+      console.log("\nComparando resultados Transportadora: " + transport.cod);
+      console.groupCollapsed(transport.cod);
 
-        if(!transport.cotizacion) {
-            console.log("La transportaddora no está controlada por api");
-            console.groupEnd(transport.cod);
-            return;
-        }
-        
-        const preciosApi = transport.cotizacion[type];
-        const preciosViejos = transport.cotizacionOld[type];
-        const valoresImportantes = [
-            ["debe", "_-costoEnvio", "Deuda guía"], 
-            ["costoEnvio", "total", "Costo del envío"], 
-            ["valor", "transportCollection", "Valor de recaudo"], 
-            ["seguro", "declaredValue", "Valor declarado"],
-            ["type", "_type", "Tipo de envío"], 
-            ["kgTomado", "_MAX(weight, pesoVol)", "Peso que se liquida"],
-            ["dane_ciudadR", "_daneCityOrigin", "Ciudad Origen"], 
-            ["dane_ciudadD", "_daneCityDestination", "Ciudad Destino"], 
-            ["sobreflete", "transportCommission", "Comisión transportadora"],
-            ["seguroMercancia", "assured", "Seguro mercancía"],
+      if(!transport.cotizacion) {
+          console.log("La transportaddora no está controlada por api");
+          console.groupEnd(transport.cod);
+          return;
+      }
+      
+      const preciosApi = transport.cotizacion[type];
+      const preciosViejos = transport.cotizacionOld[type];
+      const valoresImportantes = [
+          ["debe", "_-costoEnvio", "Deuda guía"], 
+          ["costoEnvio", "total", "Costo del envío"], 
+          ["valor", "transportCollection", "Valor de recaudo"], 
+          ["seguro", "declaredValue", "Valor declarado"],
+          ["type", "_type", "Tipo de envío"], 
+          ["kgTomado", "_MAX(weight, pesoVol)", "Peso que se liquida"],
+          ["dane_ciudadR", "_daneCityOrigin", "Ciudad Origen"], 
+          ["dane_ciudadD", "_daneCityDestination", "Ciudad Destino"], 
+          ["sobreflete", "transportCommission", "Comisión transportadora"],
+          ["seguroMercancia", "assured", "Seguro mercancía"],
 
-            ["getDetails", "__Details", "Detalles"]
-        ];
-        
-        const valoresImportantesGetDetails = [
-            ["peso_real", "weight", "Peso Introducido"],
-            ["flete", "flete", "Flete de la transportadora"],
-            ["comision_heka", "hekaCommission", "Comisión Heka"],
-            ["comision_adicional", "additional_commission", "Comisión adicional Heka"],
-            ["comision_trasportadora", "_transportCommission + assured", "Comisión total de la transportadora"],
-            ["peso_liquidar", "_(INNER) kgTomado", "Peso a liquidar"],
-            ["peso_con_volumen", "_INNER CALCULATION", "Peso resultante del volumen"],
-            ["costoDevolucion", "_cost_return_heka | cost_return", "Costo de devolución"],
-            ["cobraDevolucion", "_version = 1", "Cobra devolución?"],
-            ["versionCotizacion", "version", "Versión de cotización"],
-            ["comision_punto", "commission_point", "Comisión del punto"]
-        ];
+          ["getDetails", "__Details", "Detalles"]
+      ];
+      
+      const valoresImportantesGetDetails = [
+          ["peso_real", "weight", "Peso Introducido"],
+          ["flete", "flete", "Flete de la transportadora"],
+          ["comision_heka", "hekaCommission", "Comisión Heka"],
+          ["comision_adicional", "additional_commission", "Comisión adicional Heka"],
+          ["comision_trasportadora", "_transportCommission + assured", "Comisión total de la transportadora"],
+          ["peso_liquidar", "_(INNER) kgTomado", "Peso a liquidar"],
+          ["peso_con_volumen", "_INNER CALCULATION", "Peso resultante del volumen"],
+          ["costoDevolucion", "_cost_return_heka | cost_return", "Costo de devolución"],
+          ["cobraDevolucion", "_version = 1", "Cobra devolución?"],
+          ["versionCotizacion", "version", "Versión de cotización"],
+          ["comision_punto", "commission_point", "Comisión del punto"]
+      ];
 
-        const equalOrNot = (a,b) => a === b ? "===" : "!==";
+      const getMessage = (oldValue, newValue, origin, valueOrigin) => `\n - Esperando: ${oldValue} \n - Obtenido: ${newValue} \n - Origen: ${origin} = ${valueOrigin}`;
+      const getValueOrigin = (origin) => {
+          const isDescription = origin.startsWith("_");
+          return {
+              key: isDescription ? origin.replace("_", "") : origin,
+              value: isDescription ? "---" : preciosApi.dataFromApi[origin]
+          }
+      }
 
-        const getMessage = (oldValue, newValue, origin, valueOrigin) => `\n val: ${oldValue} ${equalOrNot(oldValue, newValue)} ${newValue} \n Origen: ${origin} = ${valueOrigin}`;
-        const getValueOrigin = (origin) => {
-            const isDescription = origin.startsWith("_");
-            return {
-                key: isDescription ? origin.replace("_", "") : origin,
-                value: isDescription ? "---" : preciosApi.dataFromApi[origin]
-            }
-        }
+      valoresImportantes.forEach(([key, origin, descriptor]) => {
+          const newValue = preciosApi[key];
+          const oldValue = preciosViejos[key];
 
-        let cantidadErrores = 0;
-        valoresImportantes.forEach(([key, origin, descriptor]) => {
-            const newValue = preciosApi[key];
-            const oldValue = preciosViejos[key];
-
-            if(key === "getDetails") {
-                console.groupCollapsed("DETALLES");
-                valoresImportantesGetDetails.forEach(([key, origin, descriptor2]) => {
-                    const newInnerValue = newValue[key];
-                    const oldInnerValue = oldValue[key];
-                    const assertCondition = newInnerValue === oldInnerValue;
-                    const valueOrigin = getValueOrigin(origin);
-                    const message = getMessage(oldInnerValue, newInnerValue, valueOrigin.key, valueOrigin.value);
-                    if(assertCondition) {
-                        console.log(`%c PASS ${descriptor} > ${descriptor2} ${message}`, "color:green");
-                    } else {
-                        console.log(`%c NOT PASS ${descriptor} > ${descriptor2} ${message}`, "color:red");
-                        cantidadErrores++;
-                    }
-                })
-                console.groupEnd("DETALLES");
-            } else {
-                const assertCondition = newValue === oldValue;
+          if(key === "getDetails") {
+            console.groupCollapsed("DETALLES");
+            valoresImportantesGetDetails.forEach(([key, origin, descriptor2]) => {
+                const newInnerValue = newValue[key];
+                const oldInnerValue = oldValue[key];
+                casosAnalizados++;
+                const assertCondition = newInnerValue === oldInnerValue;
                 const valueOrigin = getValueOrigin(origin);
-                const message = getMessage(oldValue, newValue, valueOrigin.key, valueOrigin.value);
+                const message = getMessage(oldInnerValue, newInnerValue, valueOrigin.key, valueOrigin.value);
                 if(assertCondition) {
-                    console.log(`%c PASS ${descriptor}: ${message}`, "color:green");
+                  pruebasCorrectas++;
+                    console.log(`%c PASS ${descriptor} > ${descriptor2} ${message}`, "color:green");
                 } else {
-                    console.log(`%c NOT PASS ${descriptor}: ${message}`, "color:red");
-                    cantidadErrores++;
+                  console.log(`%c NOT PASS ${descriptor} > ${descriptor2} ${message}`, "color:red");
+                  cantidadErrores++;
                 }
-            }
-        });
-        console.log("Total errores: " + cantidadErrores);
-        console.groupEnd(transport.cod);
+            })
+            console.groupEnd("DETALLES");
+          } else {
+            casosAnalizados++;
+              const assertCondition = newValue === oldValue;
+              const valueOrigin = getValueOrigin(origin);
+              const message = getMessage(oldValue, newValue, valueOrigin.key, valueOrigin.value);
+              if(assertCondition) {
+                pruebasCorrectas++;
+                console.log(`%c PASS ${descriptor}: ${message}`, "color:green");
+              } else {
+                console.log(`%c NOT PASS ${descriptor}: ${message}`, "color:red");
+                cantidadErrores++;
+              }
+          }
+      });
+      console.groupEnd(transport.cod);
 
-    })
+  });
+  
+
+  console.group("RESUMEN");
+  console.log("Errores Totales: ", cantidadErrores);
+  console.log("Pruebas Pasadas: ", pruebasCorrectas);
+  console.log("Casos asimilados: ", casosAnalizados);
+  console.log("Porcentaje de similitud: ", Math.round(pruebasCorrectas * 100 / casosAnalizados) + "%");
+  console.groupEnd("RESUMEN");
 }
 
 export {translation, TranslatorFromApi, demoPruebaCotizadorAntiguo, testComparePrices}

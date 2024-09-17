@@ -146,11 +146,11 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
       const configTransp = transportadoras[transp];
       const color = configTransp.color;
       const type = translation.typePayment[datoscoti.typePayment];
-      const pathLogo = configTransp.logoPath;
       r.type = type; // Para añadirlo a la etiqueta de la transportadora
 
+      const cotizacion = new TranslatorFromApi(datoscoti, r);
       if (!configTransp.cotizacion) configTransp.cotizacion = new Object();
-        configTransp.cotizacion[type] = new TranslatorFromApi(datoscoti, r);
+        configTransp.cotizacion[type] = cotizacion
 
       // Muestra la lita de los tipo de pagos disponibles por transportadora cuando se trata de pago contraentrega
       
