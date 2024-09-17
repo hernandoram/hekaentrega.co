@@ -119,7 +119,7 @@ class TranslatorFromApi {
             total: this.costoEnvio,
             recaudo: this.valor,
             seguro: this.seguro,
-            costoDevolucion: this.version === 1 ? this.dataFromApi.cost_return_heka : this.dataFromApi.cost_return,
+            costoDevolucion: this.version === 2 ? this.dataFromApi.cost_return_heka : this.dataFromApi.cost_return,
             cobraDevolucion: this.version === 1,
             versionCotizacion: this.version
         };
@@ -133,7 +133,6 @@ class TranslatorFromApi {
         return details;
     }
 }
-
 
 function converToOldQuoterData(dataNew) {
     return {
@@ -292,7 +291,7 @@ function testComparePrices(type) {
       ];
       
       const valoresImportantesGetDetails = [
-          ["peso_real", "weight", "Peso Introducido"],
+          ["peso_real", "_(INNER) weight", "Peso Introducido"],
           ["flete", "flete", "Flete de la transportadora"],
           ["comision_heka", "hekaCommission", "Comisión Heka"],
           ["comision_adicional", "additional_commission", "Comisión adicional Heka"],
@@ -353,7 +352,7 @@ function testComparePrices(type) {
       console.groupEnd(transport.cod);
 
   });
-  
+
 
   console.group("RESUMEN");
   console.log("Errores Totales: ", cantidadErrores);

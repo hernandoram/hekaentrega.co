@@ -19,7 +19,7 @@ let datoscoti = {
 export async function cotizadorApi() {
   
   const formulario = document.getElementById("cotizar-envio");
-  if(!formulario.checkValidity()) {
+  if(!formulario.checkValidity() && false) {
     Toast.fire(
       "",
       "todos los campos son obligatorios",
@@ -222,7 +222,7 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
 
       mostradorTransp.push(encabezado);
       detallesTransp.push(detalle);
-    })
+    });
 
     const viewTransports = `
     <div class="row">
@@ -252,6 +252,7 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
     $("#list-transportadoras", mostrador).children().each((i, el) => {
       el.addEventListener("click", seleccionarTransportadora);
     });
+
 }
 
 
