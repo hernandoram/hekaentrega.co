@@ -119,7 +119,7 @@ class TranslatorFromApi {
             total: this.costoEnvio,
             recaudo: this.valor,
             seguro: this.seguro,
-            costoDevolucion: this.version === 2 ? this.dataFromApi.cost_return_heka : this.dataFromApi.cost_return,
+            costoDevolucion: this.version === 2 ? this.dataFromApi.cost_return : this.dataFromApi.cost_return_heka,
             cobraDevolucion: this.version === 1,
             versionCotizacion: this.version
         };
