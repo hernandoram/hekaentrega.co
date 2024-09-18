@@ -19,7 +19,7 @@ let datoscoti = {
 export async function cotizadorApi() {
   
   const formulario = document.getElementById("cotizar-envio");
-  if(!formulario.checkValidity() && false) {
+  if(!formulario.checkValidity()) {
     Toast.fire(
       "",
       "todos los campos son obligatorios",
@@ -83,6 +83,9 @@ export async function cotizadorApi() {
 
   
   const responseApi = await cotizarApi(datoscoti);
+  configuracionesDestinoActual = await cargarConfiguracionesCiudad(
+    datoscoti.daneCityDestination
+  );
 
   if(estado_prueba) {
     demoPruebaCotizadorAntiguo(datoscoti)
@@ -140,7 +143,9 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
     const mostradorTransp = [];
     const detallesTransp = [];
     
-    respuestaCotizacion.forEach((r, i) => {
+    respuestaCotizacion
+    .sort(r => r.message ? 1 : -1) // Los que devuelven error las dejamos de último
+    .forEach((r, i) => {
       const {entity, total} = r;
       const transp = entity.toUpperCase();
       const configTransp = transportadoras[transp];
@@ -150,12 +155,25 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
 
       const cotizacion = new TranslatorFromApi(datoscoti, r);
       if (!configTransp.cotizacion) configTransp.cotizacion = new Object();
-        configTransp.cotizacion[type] = cotizacion
+        configTransp.cotizacion[type] = cotizacion;
 
-      // Muestra la lita de los tipo de pagos disponibles por transportadora cuando se trata de pago contraentrega
+      let existeError = !!r.message;
+
+      const configuracionCiudad = obtenerConfiguracionCiudad(transp, type);
+
+      // Esto es hasta que se migren las configuraciones al api, se van a mostrar los bloqueos impuestos por la plataforma original (en caso de que existan)
+      if (
+        configuracionCiudad &&
+        !configuracionCiudad.tipo_distribucion.length
+      ) {
+        console.warn("Existe una configuración de bloqueo para esta ciudad destino para los parámetros indicados.");
+        existeError = true;
+        r.message = configuracionCiudad.descripcion
+        ? configuracionCiudad.descripcion
+        : "No hay cobertura para este destino"
+      }
       
-      
-      const encabezado = r.message 
+      const encabezado = existeError 
         ? tarjetaErrorTransportadora(configTransp, r) 
         : tarjetaBasicaTransportadora(configTransp, r);
     
@@ -221,7 +239,10 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
       </div>`;
 
       mostradorTransp.push(encabezado);
-      detallesTransp.push(detalle);
+
+      if(!existeError) {
+        detallesTransp.push(detalle);
+      }
     });
 
     const viewTransports = `

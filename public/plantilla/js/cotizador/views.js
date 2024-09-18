@@ -129,7 +129,7 @@ export function tarjetaBasicaTransportadora(configTransportadora, respuestaCotiz
               >
 
               <div class="border border-success rounded p-3 mb-2">
-                <div class="d-flex justify-content-between">
+                <div class="d-flex justify-content-between flex-wrap">
                   <div>
                     <p>Total</p>
                   </div>
