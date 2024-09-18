@@ -29,6 +29,8 @@ class TranslatorFromApi {
         this.seguroMercancia = dataFromApi.assured;
         this.transportadora = dataFromApi.entity.toUpperCase();
         this.version = parseInt(dataFromApi.version);
+        this.costoDevolucion = dataFromApi.cost_return_heka;
+        this.costoDevolucionOriginal = dataFromApi.cost_return;
     }
 
     /** Es el flete que cobra la transportadora, normalmente el api lo devuelve con 1000 pesos adicionales
@@ -37,15 +39,15 @@ class TranslatorFromApi {
      * ya que esto es lo que realmente se guardará en base de datos
      */
     get flete() {
-      return this.dataFromApi.flete - this.FACHADA_FLETE;
+      return this.type === PAGO_CONTRAENTREGA ? this.dataFromApi.flete - this.FACHADA_FLETE : this.dataFromApi.flete;
     }
 
     /** Es la comisión que le corresponde a Heka por el diligenciamiento y gestión de dicho envío
      * Desde el api viene con 1000 pesos menos (que se están adicionando al {@link flete | flete de la transportadora})
      * por lo que internamente se le suma los mismos {@link FACHADA_FLETE | 1000} pesos para que se guarde en la base de datos
-     */
+    */
     get comision_heka() {
-      return this.dataFromApi.hekaCommission + this.FACHADA_FLETE;
+      return this.type === PAGO_CONTRAENTREGA ? this.dataFromApi.hekaCommission + this.FACHADA_FLETE : this.dataFromApi.hekaCommission;
     }
 
     /** Variable que se caracteriza por identificar si la guía posee una deuda
@@ -94,19 +96,6 @@ class TranslatorFromApi {
         return peso_con_volumen;
     }
 
-    get costoDevolucion() {
-        switch (this.transportadora) {
-          case transportadoras.SERVIENTREGA.cod:
-            return this.costoEnvio;
-          case transportadoras.INTERRAPIDISIMO.cod:
-            return this.flete + this.seguroMercancia + this.sobreflete + 1000;
-          case transportadoras.ENVIA.cod:
-            return (this.flete + this.seguroMercancia + 1000) * 2;
-          case transportadoras.COORDINADORA.cod:
-            return (this.flete + this.seguroMercancia + 1000) * 2;
-        }
-    }
-
     get getDetails() {
         const details = {
             peso_real: this.dataSentApi.weight,
@@ -119,7 +108,7 @@ class TranslatorFromApi {
             total: this.costoEnvio,
             recaudo: this.valor,
             seguro: this.seguro,
-            costoDevolucion: this.version === 2 ? this.dataFromApi.cost_return : this.dataFromApi.cost_return_heka,
+            costoDevolucion: this.version === 2 ? this.costoDevolucionOriginal : this.costoDevolucion,
             cobraDevolucion: this.version === 1,
             versionCotizacion: this.version
         };
@@ -286,12 +275,14 @@ function testComparePrices(type) {
           ["dane_ciudadD", "_daneCityDestination", "Ciudad Destino"], 
           ["sobreflete", "transportCommission", "Comisión transportadora"],
           ["seguroMercancia", "assured", "Seguro mercancía"],
+          ["costoDevolucion", "cost_return_heka", "Costo Devolucion (V1)"],
+          ["costoDevolucionOriginal", "cost_return", "Costo Devolucion (V2)"],
 
           ["getDetails", "__Details", "Detalles"]
       ];
       
       const valoresImportantesGetDetails = [
-          ["peso_real", "_(INNER) weight", "Peso Introducido"],
+          ["peso_real", "_(INNER) weight", "Peso Introducido (ignorar con Servi)"],
           ["flete", "flete", "Flete de la transportadora"],
           ["comision_heka", "hekaCommission", "Comisión Heka"],
           ["comision_adicional", "additional_commission", "Comisión adicional Heka"],

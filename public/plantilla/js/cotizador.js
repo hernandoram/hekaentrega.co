@@ -3348,7 +3348,6 @@ class CalcularCostoDeEnvio {
   }
 
   costoDevolucionFormulado(formulas) {
-    console.log(formulas);
     if (!formulas) return null;
     const listadoFormulas = formulas
       .split("--")

@@ -182,10 +182,13 @@ async function actualizarMovimientosGuias(querySnapshot) {
             //Verifico que exista un número de guía
             const existeNumeroGuia = !!data.numeroGuia;
 
-            // Se verifica que la guía no ha sido recibida por el punto ( aplica para las guías que han sido enviada a oficinas flexi)
-            const noHasidoEntregadaAPunto = !data.estadoFlexii;
+            const estadoCongelado = data.estado && data.estado.endsWith("_");
 
-            if (existeNumeroGuia && noHasidoEntregadaAPunto) {
+            // Se verifica que la guía no ha sido recibida por el punto ( aplica para las guías que han sido enviada a oficinas flexi)
+            const hasidoEntregadaAPunto = !!data.estadoFlexii;
+            const noUpdate = hasidoEntregadaAPunto || estadoCongelado;
+
+            if (existeNumeroGuia && noUpdate) {
                 if (consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
                     consulta.usuarios.push(doc.data().centro_de_costo);
                 }
@@ -232,8 +235,12 @@ async function actualizarMovimientosGuias(querySnapshot) {
                 if(guia) resultado_guias.push(guia);
             }
 
-            if(!noHasidoEntregadaAPunto) {
+            if(hasidoEntregadaAPunto) {
                 resultado_guias.push(new Promise((r) => r([{causa: "No se puede actualizar una guía que ha sido entregada al punto."}])));
+            }
+
+            if(estadoCongelado) {
+                resultado_guias.push(new Promise((r) => r([{causa: "No se puede actualizar una guía cuyo estado ha sido congelado manualmente con el carácter \"_\" al final."}])));
             }
 
             faltantes--;
