@@ -182,13 +182,14 @@ async function actualizarMovimientosGuias(querySnapshot) {
             //Verifico que exista un número de guía
             const existeNumeroGuia = !!data.numeroGuia;
 
+            // Se coloca un estado universal que congela las actualizaciones futuras cuando se intente actualziar de forma manual
             const estadoCongelado = data.estado && data.estado.endsWith("_");
 
             // Se verifica que la guía no ha sido recibida por el punto ( aplica para las guías que han sido enviada a oficinas flexi)
             const hasidoEntregadaAPunto = !!data.estadoFlexii;
-            const noUpdate = hasidoEntregadaAPunto || estadoCongelado;
+            const sePuedeActualizar = !hasidoEntregadaAPunto && !estadoCongelado;
 
-            if (existeNumeroGuia && noUpdate) {
+            if (existeNumeroGuia && sePuedeActualizar) {
                 if (consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
                     consulta.usuarios.push(doc.data().centro_de_costo);
                 }
