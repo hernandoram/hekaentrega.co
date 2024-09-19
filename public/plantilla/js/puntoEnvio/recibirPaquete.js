@@ -1,20 +1,37 @@
-const html5QrCodeScaner = new Html5QrcodeScanner(
-    "reader_flexii-guia", 
-    { fps: 10, qrbox: {width: 250, height: 250} },
-    false 
-);
+const config = { 
+    fps: 2, qrbox: {width: 250, height: 250}
+    // rememberLastUsedCamera: false,
+}
 
-console.log("MODULE IMPORTED");
-console.log(html5QrCodeScaner);
+const idElement = "reader-flexii_guia";
+const btnActivador = $("#activador_scanner-flexii_guia");
+
+btnActivador.on("click", activationScanner);
+
 function onScanSuccess(decodedText, decodedResult) {
-    // handle the scanned code as you like, for example:
     console.log(`Code matched = ${decodedText}`, decodedResult);
+    stopScanning();
 }
 
-function onScanFailure(error) {
-    // handle scan failure, usually better to ignore and keep scanning.
-    // for example:
-    // console.warn(`Code scan error = ${error}`);
+const html5QrCode = new Html5Qrcode(idElement);
+console.log(html5QrCode);
+function stopScanning() {
+    html5QrCode.stop().then(() => {
+        btnActivador.text("Reanudar escáner");
+    });
 }
 
-// html5QrCodeScaner.render(onScanSuccess, onScanFailure);
+function startScanning() {
+    html5QrCode.start({facingMode: "environment"}, config, onScanSuccess)
+    .then(() => {
+        btnActivador.text("Detener escáner");
+    });
+}
+
+function activationScanner() {
+    if(html5QrCode.isScanning) {
+        stopScanning();
+    } else {
+        startScanning();
+    }
+}
