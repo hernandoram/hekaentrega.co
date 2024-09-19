@@ -4423,7 +4423,7 @@ const opcionesAccionesGuiasAdmin = [
     icon: "question", // Ícono del botón
     color: "primary", // Color del botón (relacionado con bootstrap)
     id: "prueba_hist", // Id del botón que se combian con el id heka de la guía
-    visible: (guia) => true, // Para saber si el botón será visible o no, para la guía dada
+    visible: (guia) => false, // Para saber si el botón será visible o no, para la guía dada
     accion: function (guia) {
       // Función que será ejecutada al hacer click en el botón
       // La functionalidad que se vaya a activar, cuenta con datos de la guía para que puedan
@@ -4440,6 +4440,15 @@ const opcionesAccionesGuiasAdmin = [
     id: "anular_guia",
     visible: (data) => true,
     accion: anularGuia,
+  },
+
+  {
+    titulo: "Generar Documentos",
+    icon: "unlock",
+    color: "warning",
+    id: "generar_documentos",
+    visible: (data) => true,
+    accion: generarDocsGuia,
   },
 ];
 
@@ -4928,6 +4937,11 @@ function descargarInformeGuiasAdmin(columnas, guias, nombre) {
   });
 
   descargarInformeExcel(columnasParaExcel, guias, nombre);
+}
+
+async function generarDocsGuia(data) {
+  console.warn(data);
+  console.warn(data.id_heka);
 }
 
 async function anularGuia(data) {
