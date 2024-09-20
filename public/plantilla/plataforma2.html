@@ -841,6 +841,69 @@
                 </span>
               </div>
             </div>
+
+            <div class="card m-2">
+              <div class="card-body">
+                <div id="contenedor_tabla-fleii_guia"></div>
+              </div>
+            </div>
+            
+            <div class="row justify-content-center">
+              <div class="card my-2 col-12 col-md-3">
+                <div class="card-body">
+                  <form id="cotizador-flexii_guia">
+                    <div class="row">
+                      <div class="control-group col-sm-6 mb-2">
+                        <label for="bodega-flexii_guia">Bodega</label>
+                        <select name="bodega-flexii_guia" type="text" class="city-selectize form-control" id="bodega-flexii_guia"  autocomplete="off" required></select>
+                      </div>
+                        
+                      <div class="form-group col-sm-6 mb-2">
+                        <label for="ciudadD-flexii_guia">Oficina destino</label>
+                        <select name="ciudadD-flexii_guia" type="text" class="city-selectize form-control" id="ciudadD-flexii_guia"  autocomplete="off" required></select>
+                      </div>
+                    </div>
+    
+                    <div class="row">
+                      <div class="form-group col-sm-6">
+                        <label for="kilos-flexii_guia">Kilos</label>
+                        <input type="number" id="kilos-flexii_guia" name="peso" class="form-control only-integers" required>  
+                      </div>  
+                      <div class="form-group col">
+                        <label for="valor_declarado-flexii_guia">Valor Declarado</label>
+                        <input type="number" class="form-control only-integers" name="valorDeclarado" id="valor_declarado-flexii_guia">
+                      </div>    
+                    </div>
+    
+                    <div class="row">
+                      <div class="form-group col-sm-4 mb-2">
+                        <label for="ancho_flexii_guia">Ancho</label>
+                        <input type="number" class="form-control only-integers" id="ancho_flexii_guia" name="ancho" min="1" max="150" >
+                      </div>
+                      <div class="form-group col-sm-4 mb-2">
+                        <label for="largo-flexii_guia">Largo</label>
+                        <input type="number" class="form-control only-integers" id="largo-flexii_guia" name="largo" min="1" max="150" >
+                      </div>
+                      <div class="form-group col-sm-4 mb-2">
+                        <label for="alto-flexii_guia">Alto</label>
+                        <input type="number" class="form-control only-integers" id="alto-flexii_guia" name="alto" min="1" max="150" >
+                      </div>
+                   
+                    </div>
+
+                    <div class="row">
+                      <div class="form-group col-12">
+                        <label for="dice_contener-flexii_guia">Contenido</label>
+                        <input type="text" class="form-control" 
+                        id="dice_contener-flexii_guia">
+                      </div> 
+                    </div>
+    
+                    <button class="btn btn-primary">Generar Envío</button>
+                  </form>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="container-fluid" id="tienda" style="display: none;">
