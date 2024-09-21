@@ -47,7 +47,7 @@ let transportadoras = {
     },
     habilitada: () => {
       const sist = datos_personalizados.sistema_servientrega;
-      return true;
+      return sist && sist !== "inhabilitado";
     },
     sistema: () => {
       const sist = datos_personalizados.sistema_servientrega;
@@ -78,7 +78,7 @@ let transportadoras = {
     },
     habilitada: () => {
       const sist = datos_personalizados.sistema_interrapidisimo;
-      return true;
+      return sist && sist !== "inhabilitado";
     },
     sistema: () => {
       const sist = datos_personalizados.sistema_interrapidisimo;
@@ -117,7 +117,7 @@ let transportadoras = {
     },
     habilitada: () => {
       const sist = datos_personalizados.sistema_envia;
-      return true;
+      return sist && sist !== "inhabilitado";
     },
     sistema: () => {
       const sist = datos_personalizados.sistema_envia;
@@ -147,7 +147,8 @@ let transportadoras = {
       return [37500, 30000000];
     },
     habilitada: () => {
-      return true;
+      const sist = datos_personalizados.sistema_tcc;
+      return sist && sist !== "inhabilitado";
     },
     sistema: () => {
       const sist = datos_personalizados.sistema_tcc;
@@ -176,7 +177,7 @@ let transportadoras = {
     },
     habilitada: () => {
       const sist = datos_personalizados.sistema_coordinadora;
-      return true;
+      return sist && sist !== "inhabilitado";
     },
     sistema: () => {
       const sist = datos_personalizados.sistema_coordinadora;
