@@ -93,6 +93,7 @@ export function tarjetaBasicaTransportadora(
     total,
     deliveryTime,
     annotations,
+    reputation,
   } = respuestaCotizacion;
   const { color, logoPath } = configTransportadora;
   const transp = configTransportadora.cod;
@@ -153,8 +154,10 @@ export function tarjetaBasicaTransportadora(
               </p>
               <small class="text-warning">${annotations}</small>
 
-                  <p class="mb-0 text-center">
-            <span class="estadisticas position-relative"></span>
+                  <p class="mb-0">
+            <span class="position-relative"><b>${obtenerMensajeEfectividad(
+              reputation
+            )} </b></span>
 
           </p>
 
