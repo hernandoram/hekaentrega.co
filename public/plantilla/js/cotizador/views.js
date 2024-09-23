@@ -1,7 +1,7 @@
 import { paymentAdmited } from "./constantes.js";
 
 export function detallesFlexii(objData) {
-    return `
+  return `
     <div class="card">
 
     <div class="bg-light rounded-top shadow pl-5 mb-4">
@@ -15,10 +15,18 @@ export function detallesFlexii(objData) {
             <div class="card shadow-sm">
                 <h5 class="card-header text-warning">Cotización</h5>
                 <ul class="list-group list-group-flush">
-                    <li class="card-text d-flex justify-content-between list-group-item">Valor declarado <b>$${convertirMiles(objData.detalles.seguro)}</b></li>
-                    <li class="card-text d-flex justify-content-between list-group-item">Valor recaudo <b>$${convertirMiles(objData.detalles.recaudo)}</b></li>
-                    <li class="card-text d-flex justify-content-between list-group-item ">Peso <b>${objData.detalles.peso_liquidar}</b></li>
-                    <li class="card-text d-flex justify-content-between list-group-item">Tiempo de entrega <b>${objData.tiempoEntrega} días hábiles</b></li>
+                    <li class="card-text d-flex justify-content-between list-group-item">Valor declarado <b>$${convertirMiles(
+                      objData.detalles.seguro
+                    )}</b></li>
+                    <li class="card-text d-flex justify-content-between list-group-item">Valor recaudo <b>$${convertirMiles(
+                      objData.detalles.recaudo
+                    )}</b></li>
+                    <li class="card-text d-flex justify-content-between list-group-item ">Peso <b>${
+                      objData.detalles.peso_liquidar
+                    }</b></li>
+                    <li class="card-text d-flex justify-content-between list-group-item">Tiempo de entrega <b>${
+                      objData.tiempoEntrega
+                    } días hábiles</b></li>
                 </ul>
             </div>
         </div>
@@ -30,9 +38,15 @@ export function detallesFlexii(objData) {
                 <ul class="list-group list-group-flush">
                     <h5 class="card-header text-warning">Costo Transportadora</h5>
                     <li class="list-group-item card-body">
-                        <p class="card-text d-flex justify-content-between">Valor flete <b>$${convertirMiles(objData.flete)}</b></p>
-                        <p class="card-text d-flex justify-content-between">Comisión transportadora <b>$${convertirMiles(objData.sobreflete)}</b></p>
-                        <p class="card-text d-flex justify-content-between">Seguro mercancía <b>$${convertirMiles(objData.seguroMercancia)}</b></p>
+                        <p class="card-text d-flex justify-content-between">Valor flete <b>$${convertirMiles(
+                          objData.flete
+                        )}</b></p>
+                        <p class="card-text d-flex justify-content-between">Comisión transportadora <b>$${convertirMiles(
+                          objData.sobreflete
+                        )}</b></p>
+                        <p class="card-text d-flex justify-content-between">Seguro mercancía <b>$${convertirMiles(
+                          objData.seguroMercancia
+                        )}</b></p>
                     </li>
                 </ul>
             </div>
@@ -43,7 +57,9 @@ export function detallesFlexii(objData) {
                     <h5 class="card-header text-warning">Costo Flexii</h5>
                     <li class="list-group-item card my-3 ">
                         <div class="card-head">
-                        <p class="card-text d-flex justify-content-between">Comisión Flexii <b>$${convertirMiles(objData.sobrefleteHeka)}</b></p>
+                        <p class="card-text d-flex justify-content-between">Comisión Flexii <b>$${convertirMiles(
+                          objData.sobrefleteHeka
+                        )}</b></p>
                     </li>
                 </ul>
             </div>
@@ -65,23 +81,39 @@ export function detallesFlexii(objData) {
     `;
 }
 
-export function tarjetaBasicaTransportadora(configTransportadora, respuestaCotizacion) {
-    const {entity, type, declaredValue, transportCollection, total, deliveryTime, annotations} = respuestaCotizacion;
-    const {color, logoPath} = configTransportadora;
-    const transp = configTransportadora.cod;
+export function tarjetaBasicaTransportadora(
+  configTransportadora,
+  respuestaCotizacion
+) {
+  const {
+    entity,
+    type,
+    declaredValue,
+    transportCollection,
+    total,
+    deliveryTime,
+    annotations,
+  } = respuestaCotizacion;
+  const { color, logoPath } = configTransportadora;
+  const transp = configTransportadora.cod;
 
-    const detallesPagos = `
+  const detallesPagos = `
         <ul class="list-unstyled">
-        ${paymentAdmited.filter(p => p.transportApplic.includes(transp)).map(tp => `
+        ${paymentAdmited
+          .filter((p) => p.transportApplic.includes(transp))
+          .map(
+            (tp) => `
             <li class="d-flex align-items-center">
             <span class="mr-2">${tp.icon}</span>
             <span>${tp.title}</span>
             </li>
-        `).join("\n")}
+        `
+          )
+          .join("\n")}
         </ul>
     `;
 
-    return `
+  return `
         <li 
         style="cursor:pointer;" 
         class="list-group-item list-group-item-action shadow-sm mb-2 border border-${color}" 
@@ -105,19 +137,34 @@ export function tarjetaBasicaTransportadora(configTransportadora, respuestaCotiz
               </h5>
               <p class="mb-0">Tiempo de entrega: ${deliveryTime} Días</p>
               <p class="d-sm-block mb-0">
-                Costo de envío para ${type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"}: 
-                <b>$${convertirMiles(type == "CONVENCIONAL" ? declaredValue : transportCollection)}</b>
+                Costo de envío para ${
+                  type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"
+                }: 
+                <b>$${convertirMiles(
+                  type == "CONVENCIONAL" ? declaredValue : transportCollection
+                )}</b>
               </p>
-              <p class="d-none ${type == "CONVENCIONAL" ? "" : "mb-0 d-sm-block"}">
-                El Valor consignado a tu cuenta será: <b>$${convertirMiles(transportCollection - total)}</b>
+              <p class="d-none ${
+                type == "CONVENCIONAL" ? "" : "mb-0 d-sm-block"
+              }">
+                El Valor consignado a tu cuenta será:<b>$${convertirMiles(
+                  transportCollection - total
+                )}</b>
               </p>
               <small class="text-warning">${annotations}</small>
-              ${type ==="PAGO CONTRAENTREGA" ?
-                `
+
+                  <p class="mb-0 text-center">
+            <span class="estadisticas position-relative"></span>
+
+          </p>
+
+              ${
+                type === "PAGO CONTRAENTREGA"
+                  ? `
                 <h5 class="text-success mb-0 mt-2"><b>Tipo de pagos a destinatario</b></h5>
                 ${detallesPagos}
                 `
-                : ""
+                  : ""
               }
             </div>
             <div class="col-lg-3 col-md-5 col-sm-12 d-flex flex-column justify-content-around mt-3 mt-md-0">
@@ -134,7 +181,7 @@ export function tarjetaBasicaTransportadora(configTransportadora, respuestaCotiz
                     <p>Total</p>
                   </div>
                   <div class="text-end">
-                    <h5><b>$${convertirMiles( total )}</b></h5>
+                    <h5><b>$${convertirMiles(total)}</b></h5>
                   </div>
                 </div>
               </div>
@@ -148,14 +195,17 @@ export function tarjetaBasicaTransportadora(configTransportadora, respuestaCotiz
             <span class="estadisticas position-relative"></span>
           </p>
         </li>
-      `
+      `;
 }
 
-export function tarjetaErrorTransportadora(configTransportadora, respuestaCotizacion) {
-    const transp = configTransportadora.cod;
-    const {message} = respuestaCotizacion;
+export function tarjetaErrorTransportadora(
+  configTransportadora,
+  respuestaCotizacion
+) {
+  const transp = configTransportadora.cod;
+  const { message } = respuestaCotizacion;
 
-    return `<li style="cursor:pointer;" class="list-group-item list-group-item-action shadow-sm mb-2 border border-${configTransportadora.color}" 
+  return `<li style="cursor:pointer;" class="list-group-item list-group-item-action shadow-sm mb-2 border border-${configTransportadora.color}" 
         id="list-transportadora-${transp}-list" 
         data-transp="${transp}"
         aria-controls="list-transportadora-${transp}"
@@ -170,4 +220,4 @@ export function tarjetaErrorTransportadora(configTransportadora, respuestaCotiza
                 </div>
             </div>
         </li>`;
-  }
+}

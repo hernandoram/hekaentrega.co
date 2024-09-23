@@ -1322,6 +1322,47 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
   contenedor.click(() => detallesEstadisticas(estadistica));
 }
 
+async function addReputationToResponse(response, dane_ciudad) {
+  const responseWithReputation = [];
+
+  console.warn(dane_ciudad);
+
+  for (const conveyor of response) {
+    if (!conveyor.message) {
+      conveyor.reputation = await fetchEstadisticas(
+        dane_ciudad,
+        conveyor.entity
+      );
+      responseWithReputation.push(conveyor);
+    } else {
+      responseWithReputation.push(conveyor);
+    }
+  }
+
+  return responseWithReputation;
+}
+
+async function fetchEstadisticas(dane_ciudad, transportadora) {
+  const transportadoraMayus = transportadora.toUpperCase();
+  const estadistica =
+    transportadoraMayus === "ENVIA"
+      ? await estEnvia(dane_ciudad)
+      : await db
+          .collection("ciudades")
+          .doc(dane_ciudad)
+          .collection("estadisticasEntrega")
+          .doc(transportadoraMayus)
+          .get()
+          .then((d) => d.data());
+
+  if (!estadistica) return;
+
+  const porcentaje = Math.round(
+    (estadistica.entregas / estadistica.envios) * 100
+  );
+  return porcentaje;
+}
+
 function obtenerMensajeEfectividad(porcentaje) {
   let mensaje;
   switch (true) {
