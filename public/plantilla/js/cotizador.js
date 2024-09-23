@@ -1322,6 +1322,47 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
   contenedor.click(() => detallesEstadisticas(estadistica));
 }
 
+async function addReputationToResponse(response, dane_ciudad) {
+  const responseWithReputation = [];
+
+  console.warn(dane_ciudad);
+
+  for (const conveyor of response) {
+    if (!conveyor.message) {
+      conveyor.reputation = await fetchEstadisticas(
+        dane_ciudad,
+        conveyor.entity
+      );
+      responseWithReputation.push(conveyor);
+    } else {
+      responseWithReputation.push(conveyor);
+    }
+  }
+
+  return responseWithReputation;
+}
+
+async function fetchEstadisticas(dane_ciudad, transportadora) {
+  const transportadoraMayus = transportadora.toUpperCase();
+  const estadistica =
+    transportadoraMayus === "ENVIA"
+      ? await estEnvia(dane_ciudad)
+      : await db
+          .collection("ciudades")
+          .doc(dane_ciudad)
+          .collection("estadisticasEntrega")
+          .doc(transportadoraMayus)
+          .get()
+          .then((d) => d.data());
+
+  if (!estadistica) return;
+
+  const porcentaje = Math.round(
+    (estadistica.entregas / estadistica.envios) * 100
+  );
+  return porcentaje;
+}
+
 function obtenerMensajeEfectividad(porcentaje) {
   let mensaje;
   switch (true) {
@@ -1992,6 +2033,7 @@ function seleccionarTransportadora(e) {
   delete datos_a_enviar.id_oficina;
 
   console.warn("The store House: ", window.bodegaSeleccionada);
+  console.log("trans", transp);
 
   if (!bodegaSeleccionada) {
     return Swal.fire({
@@ -2004,6 +2046,8 @@ function seleccionarTransportadora(e) {
   const estaHabilitada = window.bodegaSeleccionada.conveyors.find(
     (conveyor) => conveyor.id.toUpperCase() === transp.toUpperCase()
   );
+
+  console.warn(estaHabilitada);
 
   if (!estaHabilitada) {
     return Swal.fire({
@@ -2058,17 +2102,17 @@ function seleccionarTransportadora(e) {
       });
   }
 
-  const texto_tranp_no_disponible = `Actualmente no tienes habilitada esta transportadora, 
-    si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/8m9ovw">312 463 8608</a>`;
+  // const texto_tranp_no_disponible = `Actualmente no tienes habilitada esta transportadora,
+  //   si la quieres habilitar, puedes comunicarte con la asesoría logística <a target="_blank" href="https://wa.link/8m9ovw">312 463 8608</a>`;
 
-  const swal_error = {
-    icon: "error",
-    html: texto_tranp_no_disponible,
-  };
+  // const swal_error = {
+  //   icon: "error",
+  //   html: texto_tranp_no_disponible,
+  // };
 
-  if (!transportadoras[transp].habilitada()) {
-    return Swal.fire(swal_error);
-  }
+  // if (!transportadoras[transp].habilitada()) {
+  //   return Swal.fire(swal_error);
+  // }
 
   if (result_cotizacion.debe)
     datos_a_enviar.debe = -result_cotizacion.costoEnvio;
