@@ -458,15 +458,15 @@ async function cotizador() {
 const watcherPlantilla = isIndex ? null : new Watcher(0);
 
 async function guardarCotizacion() {
-  const checkActualizar = $("#actv_editar_plantilla-cotizador");
-  const plantillasEl = $("#list_plantillas-cotizador");
+  console.warn("intentando crear plantilla");
   const checkCrear = $("#guardar_cotizacion-cotizador");
+  const checkActualizar = $("#actv_editar_plantilla-cotizador");
   const isEditar = checkActualizar.prop("checked");
-  const idPlantilla = plantillasEl.val();
 
   if (!isEditar && !checkCrear.prop("checked")) return;
 
-  console.warn("intentando crear plantilla");
+  const plantillasEl = $("#list_plantillas-cotizador");
+  const idPlantilla = plantillasEl.val();
 
   const form = $("#cotizar-envio");
 

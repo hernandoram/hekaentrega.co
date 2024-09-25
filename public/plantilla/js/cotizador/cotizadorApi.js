@@ -111,6 +111,8 @@ export async function cotizadorApi() {
 
   mostrarListaTransportadoras(responseWithReputation);
 
+  await guardarCotizacion();
+
   // funcion que lee respuesta del api e inserta card
   // mostrador.innerHTML = respuesta
   loader.end();
