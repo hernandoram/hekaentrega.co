@@ -272,8 +272,6 @@ async function getWarehouses() {
 
     const bodegasActivas = newBodegas.filter((bodega) => !bodega.inactiva);
 
-    console.log(bodegasActivas);
-
     nuevasBodegas = bodegasActivas;
 
     datos_usuario.bodegas = bodegasActivas;
@@ -751,8 +749,6 @@ function mostrarBodegas(bodegas) {
   const crearBodega = $("#agregar-bodega").clone(true);
   const parent = template.parent();
   parent.empty();
-
-  console.log(bodegas);
 
   if (bodegas) {
     bodegas.forEach((bodega, i) => {
