@@ -434,7 +434,7 @@ async function cotizador() {
 
       $("#boton_continuar").click(seleccionarTransportadora);
 
-      if (!isIndex) guardarCotizacion();
+      guardarCotizacion();
 
       location.href = "#result_cotizacion";
     }
@@ -466,7 +466,7 @@ async function guardarCotizacion() {
 
   if (!isEditar && !checkCrear.prop("checked")) return;
 
-  console.log("intentando crear plantilla");
+  console.warn("intentando crear plantilla");
 
   const form = $("#cotizar-envio");
 
@@ -479,7 +479,7 @@ async function guardarCotizacion() {
   info.nombre = info.nombre.trim();
   info.codigo = info.nombre.toLowerCase().replace(/\s/g, "");
 
-  console.log(info);
+  console.warn(info);
 
   if (!info.nombre)
     return verificador(
