@@ -1,3 +1,6 @@
+import { v1 } from "../config/api.js";
+import { TranslatorFromApi } from "../cotizador/translator.js";
+import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 import TablaEnvios from "./tablaEnvios.js";
 
 const estadosRecepcion = {
@@ -104,7 +107,7 @@ bodegasWtch.watchFromLast((info) => {
     bodegasEl.html("");
 
     const opciones = info.map((bodega) => {
-      const bodegaEl = `<option value="${bodega.id}">${bodega.nombre}</option>`;
+      const bodegaEl = `<option value="${bodega.dane_ciudad}">${bodega.nombre}</option>`;
       return bodegaEl;
     });
 
@@ -144,7 +147,7 @@ function listarUsuariosFrecuentes(info) {
     oficinaDestinoEl.html("");
 
     const opciones = info.map((destino) => {
-      const destinoEl = `<option value="${destino.id}">${destino.nombre}</option>`;
+      const destinoEl = `<option value="${destino.dane_ciudad}">${destino.nombre}</option>`;
       return destinoEl;
     });
 
@@ -153,4 +156,79 @@ function listarUsuariosFrecuentes(info) {
     oficinaDestinoEl.html(opciones.join(""));
 
     return info;
+}
+
+
+$("#cotizador-flexii_guia").on("submit", cotizarConjunto);
+const containerResponse = $("#respuesta-flexii_guia");
+async function cotizarConjunto(e) {
+    e.preventDefault();
+    const {target} = e;
+    const formData = new FormData(target);
+    const l = new ChangeElementContenWhileLoading($("[type='submit']", target));
+    l.init();
+
+    formData.set("typePayment", 3); // Este tipo de envíos siempre serán envíos convencionales
+    formData.set("collectionValue", 0); // Debido a que será un envío convencional, no se toma en cuenta ele valor de recaudo
+    formData.set("withshippingCost", false); // No aplica para este tipo de envíos;
+
+    try {
+        containerResponse.html("");
+        const consulta = Object.fromEntries(formData.entries());
+        const cotizacion = await cotizarApi(consulta);
+
+        mostrarListaTransportadoras(consulta, cotizacion.response);
+    } catch (e) {
+        console.error("Error Al cotizar: ", e);
+    } finally {
+        l.end();
+    }
+
+}
+
+// TODO: A penas se termine la integración del nuevo cotizador, traer la función que venga del cotizador, en vez de generar aquí una copia
+async function cotizarApi(request) {
+    const data = await fetch(v1.quoter, {
+        method: "POST",
+        headers: {
+            "Content-Type": "Application/json"
+        },
+        body: JSON.stringify(request)
+    })
+    .then(d => d.json());
+
+    return data;
+}
+
+
+function mostrarListaTransportadoras(consultaCotizacion, respuestaCotizacion) {
+    respuestaCotizacion.forEach((r, i) => {
+        const {entity, total} = r;
+        const transp = entity.toUpperCase();
+        const configTransp = transportadoras[transp];
+        const pathLogo = configTransp.logoPath;
+        
+        const cotizacionTraducida = new TranslatorFromApi(consultaCotizacion, r); 
+        const transportElement = document.createElement("li");
+        transportElement.classList.add("list-group-item", "list-group-item-action");
+        transportElement.style.cursor = "pointer";
+
+        const innerHtml = `
+            <img 
+                src="${pathLogo}" 
+                style="max-height:100px; max-width:120px"
+                alt="logo-${entity}"
+            />
+            <h5>Costo de Envío: <b>$${convertirMiles( total )}</b></h5>
+        `;
+
+        transportElement.innerHTML = innerHtml;
+        transportElement.onclick = (e) => seleccionarTransportadora(e, cotizacionTraducida);
+
+        containerResponse.append(transportElement);
+    });
+}
+
+function seleccionarTransportadora(element, data) {
+    console.log(data);
 }

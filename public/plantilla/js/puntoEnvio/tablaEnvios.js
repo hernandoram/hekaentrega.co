@@ -157,19 +157,19 @@ const formularioCotizacion = document.getElementById("cotizador-flexii_guia");
 function actualizarCotizador(envios) {
     if(!envios.length) return formularioCotizacion.reset();
     const totales = {
-        peso: 0,
-        alto: 0,
-        ancho: 0,
-        largo: 0,
-        valorDeclarado: 0
+        weight: 0,
+        height: 0,
+        width: 0,
+        long: 0,
+        declaredValue: 0
     }
 
     envios.forEach((val) => {
-        totales.peso += val.peso;
-        totales.alto += val.alto;
-        totales.ancho += val.ancho;
-        totales.largo += val.largo;
-        totales.valorDeclarado += val.valorSeguro;
+        totales.weight += val.peso;
+        totales.height += val.alto;
+        totales.width += val.ancho;
+        totales.long += val.largo;
+        totales.declaredValue += val.valorSeguro;
     });
 
     for ( let [key, value] of Object.entries(totales)) {
