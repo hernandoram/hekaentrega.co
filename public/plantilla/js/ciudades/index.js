@@ -64,7 +64,6 @@ async function renderListaCiudades() {
 
 async function seleccionarCiudad(e) {
   const dane = e.target.value;
-
   console.warn(dane);
   if (!dane) return;
   restringirEnvioOficina.checked = false;
@@ -85,6 +84,7 @@ async function seleccionarCiudad(e) {
 }
 
 async function estadisticasCiudad(dane) {
+  console.warn(dane);
   const resEst = await fetch(pathEstadisticasCiudad + "/" + dane).then((d) =>
     d.json()
   );

@@ -224,6 +224,11 @@ const optionActivation = {
   sortField: "ciudad", // Para organizar en orden alfabético por ciudad
 };
 
+function ocultarCotizador() {
+  if (document.getElementById("result_cotizacion").style.display != "none") {
+    document.getElementById("result_cotizacion").style.display = "none";
+  }
+}
 const $ciudadR = $("#ciudadR");
 const $ciudadD = $("#ciudadD");
 

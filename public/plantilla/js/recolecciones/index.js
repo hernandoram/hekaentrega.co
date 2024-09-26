@@ -71,7 +71,6 @@ const elListaSucursales = $("#lista-recolecciones");
 const elRevisarRecolecciones = $("#revisar-recolecciones");
 const elRevisarRecoleccionesRealizadas = $("#revisar-recolecciones-realizadas");
 const section = document.getElementById("mostrador-guias-solicitadas");
-const inputField = document.getElementById("filtrar-guias-recolectadas");
 
 const eliminarGuiasIndividualesButton = document.querySelector(
   "#eliminar-guia-individual"
@@ -87,19 +86,6 @@ eliminarGuiasIndividualesButton.addEventListener(
   "click",
   openModalEliminarGuia
 );
-
-inputField.addEventListener("input", function () {
-  const filterValue = this.value.toLowerCase();
-
-  const tableRows = document.querySelectorAll(
-    "#lista-recolecciones-realizadas tr"
-  );
-  console.log(tableRows);
-  tableRows.forEach((row) => {
-    const rowText = row.textContent.toLowerCase();
-    row.style.display = rowText.includes(filterValue) ? "" : "none";
-  });
-});
 
 async function llenarRecoleccionesPendientes(solicitar) {
   await db
