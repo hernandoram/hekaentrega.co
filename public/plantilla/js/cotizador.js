@@ -458,7 +458,6 @@ async function cotizador() {
 const watcherPlantilla = isIndex ? null : new Watcher(0);
 
 async function guardarCotizacion() {
-  console.warn("intentando crear plantilla");
   const checkCrear = $("#guardar_cotizacion-cotizador");
   const checkActualizar = $("#actv_editar_plantilla-cotizador");
   const isEditar = checkActualizar.prop("checked");
