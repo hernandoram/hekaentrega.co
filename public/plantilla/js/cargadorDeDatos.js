@@ -2804,34 +2804,34 @@ const modal = document.querySelector(".panel-collapse");
 const buttonDimensionsChat = document.getElementById("button-dimensions-chat");
 const collapse = document.getElementById("collapseOne");
 
-const textModal = document.getElementById("text-modal");
-textModal.addEventListener("click", function () {
-  isModalOpen = !isModalOpen;
-  if (isModalOpen) {
-    textModal.innerHTML = `
-    <div class="d-flex justify-content-between">
-    <span>Heka Entrega</span>
-    <span id="close-modal">X</span>
-    </div>
-    `;
-    buttonDimensionsChat.style.width = "80%";
-    collapse.classList.add("show");
+// const textModal = document.getElementById("text-modal");
+// textModal.addEventListener("click", function () {
+//   isModalOpen = !isModalOpen;
+//   if (isModalOpen) {
+//     textModal.innerHTML = `
+//     <div class="d-flex justify-content-between">
+//     <span>Heka Entrega</span>
+//     <span id="close-modal">X</span>
+//     </div>
+//     `;
+//     buttonDimensionsChat.style.width = "80%";
+//     collapse.classList.add("show");
 
-    const closeModal = document.getElementById("close-modal");
-    if (closeModal) {
-      closeModal.addEventListener("click", (event) => {
-        event.stopPropagation();
+//     const closeModal = document.getElementById("close-modal");
+//     if (closeModal) {
+//       closeModal.addEventListener("click", (event) => {
+//         event.stopPropagation();
 
-        document.getElementById("chat-notificaciones").classList.add("d-none");
-      });
-    }
-  } else {
-    collapse.classList.remove("show");
-    textModal.innerHTML = `Tienes ${notificaciones.length} mensajes`;
-    buttonDimensionsChat.style.width = "40%";
-  }
-  console.log(isModalOpen);
-});
+//         document.getElementById("chat-notificaciones").classList.add("d-none");
+//       });
+//     }
+//   } else {
+//     collapse.classList.remove("show");
+//     textModal.innerHTML = `Tienes ${notificaciones.length} mensajes`;
+//     buttonDimensionsChat.style.width = "40%";
+//   }
+//   console.log(isModalOpen);
+// });
 
 traerNoti();
 
