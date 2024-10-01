@@ -31,7 +31,6 @@ const tipoUsuarioRestricciones = document.getElementById(
 const tipoEnvioRestricciones = document.getElementById(
   "tipoEnvio-configuraciones"
 );
-
 //#region EVENTOS
 inpBuscadorCiudades.on("input", seleccionarCiudad);
 form.on("submit", actualizarCiudad);
@@ -96,7 +95,9 @@ async function estadisticasCiudad(dane) {
 async function restriccionesCiudad(ciudad) {
   // Render
   const noCiudadEscogida = document.querySelector("#noCiudadEscogida");
-  const agregarRestricciones = document.querySelector("#agregar-configuraciones");
+  const agregarRestricciones = document.querySelector(
+    "#agregar-configuraciones"
+  );
   noCiudadEscogida.classList.add("d-none");
   agregarRestricciones.classList.remove("d-none");
   const nombreCiudad = document.querySelector("#nombre-ciudad-configuraciones");
@@ -105,7 +106,7 @@ async function restriccionesCiudad(ciudad) {
   renderRestricciones(ciudad.dane_ciudad);
 }
 
-const tipos_distribucion = [null, "Entrega en dirección", "Entrega en oficina"]
+const tipos_distribucion = [null, "Entrega en dirección", "Entrega en oficina"];
 
 function renderRestricciones() {
   let configuraciones = [];
@@ -142,9 +143,11 @@ function renderRestricciones() {
           <td>${restriccion.transportadora}</td>
           <td>${restriccion.tipoEnvio}</td>
           <td>${
-            restriccion.tipo_distribucion.length 
-            ? restriccion.tipo_distribucion.map(d => tipos_distribucion[d]).join(", ")
-            : "SIN TIPO DISTRIBUCIÓN (BLOQUEADA)"  
+            restriccion.tipo_distribucion.length
+              ? restriccion.tipo_distribucion
+                  .map((d) => tipos_distribucion[d])
+                  .join(", ")
+              : "SIN TIPO DISTRIBUCIÓN (BLOQUEADA)"
           }
           </td>
           <td>${restriccion.descripcion}</td>
@@ -242,7 +245,6 @@ selectTransportadora.on("change", (e) => {
   restringirEnvioDireccion.checked = false;
 });
 
-
 function agregarRestriccion() {
   const reference = db
     .collection("ciudades")
@@ -257,13 +259,15 @@ function agregarRestriccion() {
     direccion: restringirEnvioDireccion.checked,
   };
 
-  const restriccion = dataFromForm(document.getElementById("form_agregar-configuraciones"));
+  const restriccion = dataFromForm(
+    document.getElementById("form_agregar-configuraciones")
+  );
 
   reference
     .doc(
-      `${restriccion.tipoUsuario}-${restriccion.transportadora}-${
-        restriccion.tipoEnvio.split(" ").join("_")
-      }`
+      `${restriccion.tipoUsuario}-${
+        restriccion.transportadora
+      }-${restriccion.tipoEnvio.split(" ").join("_")}`
     )
     .set(restriccion)
     .then(() => {

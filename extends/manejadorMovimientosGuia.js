@@ -308,7 +308,7 @@ exports.modificarEstadoGuia = (guia) => {
 
     const actualizaciones = {
         enNovedad,
-        estadoTransportadora: guia.estadoTransportadora,
+        estadoTransportadora: estadoTransportadora,
         estado: estadoTransportadora,
         ultima_actualizacion: new Date(),
         seguimiento_finalizado
