@@ -18,6 +18,8 @@ router.get("/utilidades/:numeroGuia", interRouter.utilidades);
 
 router.get("/oficinas/:dane_ciudad", interRouter.consultarCentroServicios);
 
+router.patch("/notificacionEstado", interRouter.pushNotificacionEstados);
+
 router.post("/recogidaesporadica", serviceInter.createDirectSporadicCollections);
 
 router.post("/planilladeenvios", serviceInter.createSpreadsheet);
