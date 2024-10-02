@@ -62,7 +62,16 @@ const columns = [
     title: "# Guía",
     defaultContent: "",
     saveInExcel: true,
-    types: [novedad, proceso, pagada, finalizada, generada, neutro, eliminada,anulada],
+    types: [
+      novedad,
+      proceso,
+      pagada,
+      finalizada,
+      generada,
+      neutro,
+      eliminada,
+      anulada,
+    ],
   },
   {
     data: "estadoActual",
@@ -126,6 +135,17 @@ const columns = [
     defaultContent: "",
     types: typesGenerales,
     saveInExcel: true,
+  },
+
+  {
+    data: "identificacionD",
+    title: "Documento Destinatario",
+    defaultContent: "",
+    types: typesGenerales,
+    saveInExcel: true,
+    render: function (data, type, row) {
+      return data === 123 ? "N/A" : data;
+    },
   },
   {
     data: "telefonoD",
@@ -217,14 +237,16 @@ const columns = [
 ];
 
 ControlUsuario.hasLoaded.then(() => {
-  if(ControlUsuario.esPuntoEnvio) {
-    const columnsOfPunto = columns.filter(c => c.data === "detalles.comision_punto");
-    columnsOfPunto.forEach(c => {
+  if (ControlUsuario.esPuntoEnvio) {
+    const columnsOfPunto = columns.filter(
+      (c) => c.data === "detalles.comision_punto"
+    );
+    columnsOfPunto.forEach((c) => {
       c.visible = ControlUsuario.esPuntoEnvio;
       c.saveInExcel = ControlUsuario.esPuntoEnvio;
     });
   }
-})
+});
 
 const table = $("#tabla-historial-guias").DataTable({
   destroy: true,
@@ -246,7 +268,6 @@ const table = $("#tabla-historial-guias").DataTable({
 });
 
 const refColaCreacionGuias = db.collection("colaCreacionGuias");
-
 
 globalThis.filtrador = new Watcher(pedido);
 
@@ -571,8 +592,8 @@ function renderizadoDeTablaHistorialGuias(config) {
       // $(".action", row).tooltip();
       activarBotonesDeGuias(data.id_heka, data, true);
     }
-    
-    if([generada].includes(filtrador.value) && !data.has_sticker) {
+
+    if ([generada].includes(filtrador.value) && !data.has_sticker) {
       row.classList.add("text-warning");
       erroresSticker.push(data);
     }
@@ -582,10 +603,14 @@ function renderizadoDeTablaHistorialGuias(config) {
 
   const muestraErroresGeneradas = $("#errores-generadas_historial-guias");
   muestraErroresGeneradas.html("");
-  if(erroresSticker.length) {
+  if (erroresSticker.length) {
     muestraErroresGeneradas.append(`
       <li>
-        La(s) guía(s) <b>${erroresSticker.map(error => error.id_heka).join(", ")}</b> no posee(n) el Sticker de la guía (PDF de guía de la transportadora), o no ha(n) sido creado(s) correctamente. 
+        La(s) guía(s) <b>${erroresSticker
+          .map((error) => error.id_heka)
+          .join(
+            ", "
+          )}</b> no posee(n) el Sticker de la guía (PDF de guía de la transportadora), o no ha(n) sido creado(s) correctamente. 
         Por favor intente solucionarlo antes de realizar alguna acción sobre la(s) misma(s), presionando el botón 
         <button class="btn btn-warning btn-circle btn-sm mx-1"
         data-funcion="activar-desactivar"
@@ -703,13 +728,17 @@ async function aceptarPedido(e, dt, node, config) {
       allowEscapeKey: true,
     });
 
-    const generaEnCola = guia.transportadora === "INTERRAPIDISIMO" && guia.type !== "CONVENCIONAL" && usuariosHabilitadosParaCola.includes(datos_usuario.centro_de_costo);
+    const generaEnCola =
+      guia.transportadora === "INTERRAPIDISIMO" &&
+      guia.type !== "CONVENCIONAL" &&
+      usuariosHabilitadosParaCola.includes(datos_usuario.centro_de_costo);
 
-    if(!activadoEncolamiento && generaEnCola) activadoEncolamiento = generaEnCola;
+    if (!activadoEncolamiento && generaEnCola)
+      activadoEncolamiento = generaEnCola;
 
-    const respuesta = generaEnCola ? 
-      await encolarCreacionGuia(guia)
-      : await crearGuiaTransportadora(guia)
+    const respuesta = generaEnCola
+      ? await encolarCreacionGuia(guia)
+      : await crearGuiaTransportadora(guia);
 
     // const respuesta = errorFabricado.error ? errorFabricado : await crearGuiaTransportadora(guia);
     let icon, color;
@@ -722,7 +751,7 @@ async function aceptarPedido(e, dt, node, config) {
       icon = "exclamation-circle";
       color = "text-danger";
     }
-    
+
     errores.push({
       row,
       mensaje: respuesta.message,
@@ -733,9 +762,10 @@ async function aceptarPedido(e, dt, node, config) {
     i++;
   }
 
-  const existeError = errores.some(err => err.color === "text-danger");
+  const existeError = errores.some((err) => err.color === "text-danger");
 
-  if (!existeError && !activadoEncolamiento) $("#filter_listado-guias_hist").click();
+  if (!existeError && !activadoEncolamiento)
+    $("#filter_listado-guias_hist").click();
 
   finalizar();
 
@@ -779,7 +809,7 @@ function accionesDeFila(datos, type, row) {
   if (type === "display" || type === "filter") {
     const filtrado = defineFilter(row);
     const id = datos.id_heka;
-    const {id_user} = datos;
+    const { id_user } = datos;
     const generacion_automatizada = ["automatico", "automaticoEmp"].includes(
       transportadoras[datos.transportadora || "SERVIENTREGA"].sistema()
     );
@@ -826,8 +856,8 @@ function accionesDeFila(datos, type, row) {
             <i class="fas fa-ticket-alt"></i>
         </button>`;
 
-        //jose
-      const btnGuiaFlexii= `<button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
+    //jose
+    const btnGuiaFlexii = `<button class="btn btn-primary btn-circle btn-sm mx-1 action" data-id="${id}"
       data-funcion="activar-desactivar" data-activate="after" 
       data-placement="right"
       id="generar_guiaflexii${id}" title="Generar Guía Flexii">
@@ -884,7 +914,7 @@ function accionesDeFila(datos, type, row) {
     <i class="fas fa-search-plus"></i>
     </button>
     `;
-    if (datos.estadoActual == anulada){
+    if (datos.estadoActual == anulada) {
       buttons += "</div>";
       return buttons;
     }
@@ -902,7 +932,7 @@ function accionesDeFila(datos, type, row) {
 
     //Botones para descargar documentosy rótulos cuando accede a la condición
     //botones para clonar y eliminar guía cuando rechaza la condición.
-    
+
     if (datos_usuario.type === "NATURAL-FLEXII") {
       if (datos.enviado && !datos.enNovedad) {
         buttons += btnGuiaFlexii;
@@ -913,19 +943,20 @@ function accionesDeFila(datos, type, row) {
       }
     }
 
-
     if (filtrado === pedido) {
       buttons += btnClone;
     }
 
-    if (filtrado === pedido && usuariosHabilitadosParaCola.includes(datos_usuario.centro_de_costo)){
+    if (
+      filtrado === pedido &&
+      usuariosHabilitadosParaCola.includes(datos_usuario.centro_de_costo)
+    ) {
       buttons += btnErrors;
     }
-    
+
     if (!datos.estado && datos.estadoActual !== eliminada) {
       buttons += btnDelete;
     }
-
 
     if (datos.estadoActual == eliminada && datos.estadoAnterior) {
       buttons += btnRestore;
@@ -1012,31 +1043,29 @@ async function empacarMasivo(data, empacar) {
 async function encolarCreacionGuia(guia) {
   const refColaNueva = refColaCreacionGuias.doc(guia.id_heka);
 
-  const colaExistente = await refColaNueva
-  .get()
-  .then(d => {
-    if(d.exists) {
+  const colaExistente = await refColaNueva.get().then((d) => {
+    if (d.exists) {
       return d.data();
     }
 
-    return null
+    return null;
   });
 
   const fechaSolicitud = new Date();
   console.log(colaExistente);
 
   try {
-    if(colaExistente) {
+    if (colaExistente) {
       await refColaNueva.update({
         status: "ENQUEUE",
         timestamp: fechaSolicitud,
-        intentos: 0
+        intentos: 0,
       });
-      
+
       return {
         error: false,
-        message: "Se ha restablecido el reintento por cola para la guía."
-      }
+        message: "Se ha restablecido el reintento por cola para la guía.",
+      };
     } else {
       await refColaNueva.set({
         id_heka: guia.id_heka,
@@ -1044,18 +1073,19 @@ async function encolarCreacionGuia(guia) {
         status: "ENQUEUE",
         fechaSolicitud,
         timestamp: fechaSolicitud,
-        intentos: 0
+        intentos: 0,
       });
-      
+
       return {
         error: false,
-        message: "Se ha creado una nueva cola exitósamente, estaremos trabajando intentando crear su guía."
-      }
+        message:
+          "Se ha creado una nueva cola exitósamente, estaremos trabajando intentando crear su guía.",
+      };
     }
   } catch (e) {
     return {
       error: true,
-      message: "Error trantando de ingresar la guía a una cola " + e.message
-    }
+      message: "Error trantando de ingresar la guía a una cola " + e.message,
+    };
   }
 }
