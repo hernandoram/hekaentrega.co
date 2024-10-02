@@ -22,21 +22,21 @@ const estadosLogisticos = {
     2: {
         id: 2,
         nombre: "Centro acopio",
-        estadoActual: "Ingresado a bodega",
+        estadoActual: "Ingresado a Bodega",
         observacion: "El envío ingresa a centro logístico bien sea de origen o de destino.",
         mostrarObservacion: false
     },
     3: {
         id: 3,
         nombre: "Tránsito nacional",
-        estadoActual: "Viajando en ruta nacional",
+        estadoActual: "Viajando en Ruta Nacional",
         observacion: "El envío es despachado a destino dentro de un operativo nacional.",
         mostrarObservacion: false
     },
     4: {
         id: 4,
         nombre: "Tránsito regional",
-        estadoActual: "Viajando en ruta regional",
+        estadoActual: "Viajando en Ruta Regional",
         observacion: "El envío es despachado a un destino aledaño o al municipio de la misma RACOL.",
         mostrarObservacion: false
     },
@@ -916,9 +916,10 @@ exports.pushNotificacionEstados = async (req, res) => {
             : "";
 
         const estadoLogistico = estadosLogisticos[nuevoEstado.CodigoEstado];
-        const estadoActual = estadoLogistico ? estadoLogistico.estadoActual : nuevoEstado.DescripcionEstado;
+        let estadoActualTransportadora = estadoLogistico ? estadoLogistico.estadoActual : nuevoEstado.DescripcionEstado;
 
-        if(estadoActual === "Para Reclamar en Oficina" && !entrega_oficina_notificada) {
+
+        if(estadoActualTransportadora === "Para Reclamar en Oficina" && !entrega_oficina_notificada) {
             extsFunc.notificarEntregaEnOficina(guia);
             entrega_oficina_notificada = true;
         }
@@ -927,10 +928,11 @@ exports.pushNotificacionEstados = async (req, res) => {
           novedad: novedad,
           fechaEstadoOriginal: nuevoEstado.FechaEstado,
           fechaMov: extsFunc.estandarizarFecha(nuevoEstado.FechaEstado, "DD/MM/YYYY HH:mm"),
-          observacion: estadoActual,
-          descripcionMov: nuevoEstado.DescripcionMotivoEst,
+          observacion: nuevoEstado.DescripcionEstado + " - " + nuevoEstado.DescripcionMotivoEst,
+          descripcionMov: estadoActualTransportadora,
           ubicacion: "", // nuevoEstado.CodigoCiudad
           tipoMotivo: nuevoEstado.CodigoMotivoEst ?? null,
+          idEstadoGuia: nuevoEstado.CodigoEstado,
           idEstadoAsignado: refEstadosBaseInter.id
         }
     
@@ -950,7 +952,7 @@ exports.pushNotificacionEstados = async (req, res) => {
 
         const estadoVariante = {
             fecha: extsFunc.estandarizarFecha(new Date(), "DD/MM/YYYY HH:mm:ss"), //fecha del estado
-            estadoActual: estadoActual,
+            estadoActual: estadoActualTransportadora,
             fechaUltimaActualizacion: new Date(),
             mostrar_usuario: !!novedad,
             enNovedad: !!novedad,
@@ -970,13 +972,21 @@ exports.pushNotificacionEstados = async (req, res) => {
             estadoVariante.mostrar_usuario = enNovedad;
             estadoVariante.enNovedad = enNovedad;
 
+            // Cuando el id de estado está entre estos dos, busca sobre el historial de movimientos para obtener el último estado real
+            // Por lo que la info básica de la guía se colocará como último estado bien sea devolución o entrega
+            // Mientras que sobre el historial de movimientos de la guía se mantendra el original que haya indicado la transportadora
+            if([16, 13].includes(nuevoEstado.CodigoEstado)) {
+                const ultimoEstado = obtenerUltimoEstado(estadoVariante.movimientos);
+                estadoActualTransportadora = ultimoEstado.descripcionMov;
+            }
+
             // await crearOActualizarEstados(id_user, id_heka, estadoVariante, true);
         } else {
             Object.assign(estadoBase, estadoVariante);
             // await crearOActualizarEstados(id_user, id_heka, estadoBase, false);
         }
     
-        infoGuia.estadoTransportadora = estadoActual;
+        infoGuia.estadoTransportadora = estadoActualTransportadora;
                 
         // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
         const actualizaciones = modificarEstadoGuia(infoGuia);
