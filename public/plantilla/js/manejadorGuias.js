@@ -4451,12 +4451,13 @@ const opcionesAccionesGuiasAdmin = [
     accion: generarDocsGuia,
   },
 
+  //descargar guias en pdf, aun no se ha implementado
   {
     titulo: "Descargar Documentos",
     icon: "download",
     color: "primary",
     id: "descargar_documentos",
-    visible: (data) => true,
+    visible: (data) => false,
     accion: descargarDocsGuia,
   },
 ];
@@ -4949,9 +4950,6 @@ function descargarInformeGuiasAdmin(columnas, guias, nombre) {
 }
 
 async function generarDocsGuia(data) {
-  console.warn(data);
-  console.warn(data.id_heka);
-
   const ids = [data.id_heka];
 
   if (datos_usuario.type == "NATURAL-FLEXII") {
