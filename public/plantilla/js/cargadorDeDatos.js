@@ -272,8 +272,6 @@ async function getWarehouses() {
 
     const bodegasActivas = newBodegas.filter((bodega) => !bodega.inactiva);
 
-    console.log(bodegasActivas);
-
     nuevasBodegas = bodegasActivas;
 
     datos_usuario.bodegas = bodegasActivas;
@@ -751,8 +749,6 @@ function mostrarBodegas(bodegas) {
   const crearBodega = $("#agregar-bodega").clone(true);
   const parent = template.parent();
   parent.empty();
-
-  console.log(bodegas);
 
   if (bodegas) {
     bodegas.forEach((bodega, i) => {
@@ -2483,22 +2479,24 @@ async function pagosPendientesParaUsuario() {
 document.addEventListener("DOMContentLoaded", function () {
   const inputBusquedaGuia = document.getElementById("inputBusquedaGuia");
 
-  inputBusquedaGuia.addEventListener("input", (e) => {
-    const mostradorHistorial = document.getElementById("mostrador-historial");
+  if (inputBusquedaGuia) {
+    inputBusquedaGuia.addEventListener("input", (e) => {
+      const mostradorHistorial = document.getElementById("mostrador-historial");
 
-    const searchTerm = e.target.value;
+      const searchTerm = e.target.value;
 
-    console.log(searchTerm);
-    mostradorHistorial.innerHTML = "";
+      console.log(searchTerm);
+      mostradorHistorial.innerHTML = "";
 
-    guiasPagos
-      .filter((g) => g.GUIA.includes(searchTerm))
-      .forEach((g) => {
-        mostradorHistorial.innerHTML += `<tr><td>${
-          g.GUIA
-        }</td><td>${convertirMoneda(g["TOTAL A PAGAR"])}</td></tr>`;
-      });
-  });
+      guiasPagos
+        .filter((g) => g.GUIA.includes(searchTerm))
+        .forEach((g) => {
+          mostradorHistorial.innerHTML += `<tr><td>${
+            g.GUIA
+          }</td><td>${convertirMoneda(g["TOTAL A PAGAR"])}</td></tr>`;
+        });
+    });
+  }
 });
 
 function obtenerMensajeDesembolso() {
@@ -2690,49 +2688,52 @@ function descargarExcelPagosAdmin(datos) {
 const inputFlexii = document.querySelector("#inputIDGuiaFlexii");
 document.addEventListener("DOMContentLoaded", function () {
   const botonInputFlexii = document.querySelector("#boton-idPunto");
-  botonInputFlexii.onclick = function () {
-    db.collection("usuarios")
-      .doc(id_punto)
-      .get()
-      .then((doc) => {
-        if (doc.data().type === "PUNTO") {
-          db.collection("usuarios")
-            .doc(userquery)
-            .collection("guias")
-            .where("id_heka", "==", valorQuery)
-            .get()
-            .then((querySnapshot) => {
-              querySnapshot.forEach((doc) => {
-                console.log(doc.data());
-                if (doc.data().id_punto == id_punto) {
+
+  if (botonInputFlexii) {
+    botonInputFlexii.onclick = function () {
+      db.collection("usuarios")
+        .doc(id_punto)
+        .get()
+        .then((doc) => {
+          if (doc.data().type === "PUNTO") {
+            db.collection("usuarios")
+              .doc(userquery)
+              .collection("guias")
+              .where("id_heka", "==", valorQuery)
+              .get()
+              .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                  console.log(doc.data());
+                  if (doc.data().id_punto == id_punto) {
+                    return Swal.fire({
+                      icon: "success",
+                      text: "Esta guía ya está registrada en tu punto",
+                    });
+                  }
+                  if (doc.data().id_punto !== id_punto) {
+                    return Swal.fire({
+                      icon: "success",
+                      text: "Esta guía ya está registrada en otro punto",
+                    });
+                  }
+                  doc.ref.update({ id_punto: id_punto });
                   return Swal.fire({
                     icon: "success",
-                    text: "Esta guía ya está registrada en tu punto",
+                    text: "Guía registrada con éxito",
                   });
-                }
-                if (doc.data().id_punto !== id_punto) {
-                  return Swal.fire({
-                    icon: "success",
-                    text: "Esta guía ya está registrada en otro punto",
-                  });
-                }
-                doc.ref.update({ id_punto: id_punto });
-                return Swal.fire({
-                  icon: "success",
-                  text: "Guía registrada con éxito",
                 });
               });
+          } else {
+            return Swal.fire({
+              icon: "error",
+              text: "No tienes permisos para registrar guías",
+            }).then(() => {
+              window.location.replace("/plataforma2.html");
             });
-        } else {
-          return Swal.fire({
-            icon: "error",
-            text: "No tienes permisos para registrar guías",
-          }).then(() => {
-            window.location.replace("/plataforma2.html");
-          });
-        }
-      });
-  };
+          }
+        });
+    };
+  }
 });
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -2768,7 +2769,11 @@ function traerNoti() {
     })
     .then(() => {
       console.log(notificaciones);
-      messageNumberSpan.innerText = notificaciones.length;
+
+      messageNumberSpan
+        ? (messageNumberSpan.innerText = notificaciones.length)
+        : null;
+
       notificaciones.sort((a, b) => a.timeline - b.timeline);
       llenarItemsChat(notificaciones); // Llama a llenarItemsChat para cada notificación
     });
@@ -2804,34 +2809,38 @@ const modal = document.querySelector(".panel-collapse");
 const buttonDimensionsChat = document.getElementById("button-dimensions-chat");
 const collapse = document.getElementById("collapseOne");
 
-const textModal = document.getElementById("text-modal");
-textModal.addEventListener("click", function () {
-  isModalOpen = !isModalOpen;
-  if (isModalOpen) {
-    textModal.innerHTML = `
-    <div class="d-flex justify-content-between">
-    <span>Heka Entrega</span>
-    <span id="close-modal">X</span>
-    </div>
-    `;
-    buttonDimensionsChat.style.width = "80%";
-    collapse.classList.add("show");
+const textModal = document.getElementById("text-modal") || null;
+if (textModal) {
+  textModal.addEventListener("click", function () {
+    isModalOpen = !isModalOpen;
+    if (isModalOpen) {
+      textModal.innerHTML = `
+      <div class="d-flex justify-content-between">
+      <span>Heka Entrega</span>
+      <span id="close-modal">X</span>
+      </div>
+      `;
+      buttonDimensionsChat.style.width = "80%";
+      collapse.classList.add("show");
 
-    const closeModal = document.getElementById("close-modal");
-    if (closeModal) {
-      closeModal.addEventListener("click", (event) => {
-        event.stopPropagation();
+      const closeModal = document.getElementById("close-modal");
+      if (closeModal) {
+        closeModal.addEventListener("click", (event) => {
+          event.stopPropagation();
 
-        document.getElementById("chat-notificaciones").classList.add("d-none");
-      });
+          document
+            .getElementById("chat-notificaciones")
+            .classList.add("d-none");
+        });
+      }
+    } else {
+      collapse.classList.remove("show");
+      textModal.innerHTML = `Tienes ${notificaciones.length} mensajes`;
+      buttonDimensionsChat.style.width = "40%";
     }
-  } else {
-    collapse.classList.remove("show");
-    textModal.innerHTML = `Tienes ${notificaciones.length} mensajes`;
-    buttonDimensionsChat.style.width = "40%";
-  }
-  console.log(isModalOpen);
-});
+    console.log(isModalOpen);
+  });
+}
 
 traerNoti();
 

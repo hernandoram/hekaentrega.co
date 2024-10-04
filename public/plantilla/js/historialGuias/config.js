@@ -75,7 +75,7 @@ export function defineFilter(data) {
         filter = defFiltrado.generada;
     } else if(data.estadoActual === defFiltrado.proceso) {
         filter = defFiltrado.proceso;
-    } else if (data.seguimiento_finalizado) {
+    } else if (data.estadoActual === defFiltrado.finalizada || (!data.estadoActual && data.seguimiento_finalizado)) {
         filter = defFiltrado.finalizada;
     } else {
         filter = defFiltrado.proceso;

@@ -1692,6 +1692,19 @@ async function actualizarInformacionPersonal() {
 
     const mappedDoc = mapTipoDocumento(doc);
 
+    let type_account = 'natural';
+    switch (type) {
+      case 'NATURAL':
+        type_account = 'natural';
+        break;
+      case 'USUARIO-PUNTO':
+        type_account = 'point';
+        break;
+      case 'NATURAL-FLEXII':
+        type_account = 'natural_flexii';
+        break;
+    }
+
     const updateBody = JSON.stringify({
       name: value("actualizar_nombres"),
       last_name: value("actualizar_apellidos"),
@@ -1700,7 +1713,7 @@ async function actualizarInformacionPersonal() {
       email: value("actualizar_correo"),
       type_document: mappedDoc,
       document: value("actualizar_numero_documento"),
-      type_account: type,
+      type_account: type_account,
       blockedWallet: billetera,
     });
 

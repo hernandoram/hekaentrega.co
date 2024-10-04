@@ -71,7 +71,6 @@ const elListaSucursales = $("#lista-recolecciones");
 const elRevisarRecolecciones = $("#revisar-recolecciones");
 const elRevisarRecoleccionesRealizadas = $("#revisar-recolecciones-realizadas");
 const section = document.getElementById("mostrador-guias-solicitadas");
-const inputField = document.getElementById("filtrar-guias-recolectadas");
 
 const eliminarGuiasIndividualesButton = document.querySelector(
   "#eliminar-guia-individual"
@@ -87,19 +86,6 @@ eliminarGuiasIndividualesButton.addEventListener(
   "click",
   openModalEliminarGuia
 );
-
-inputField.addEventListener("input", function () {
-  const filterValue = this.value.toLowerCase();
-
-  const tableRows = document.querySelectorAll(
-    "#lista-recolecciones-realizadas tr"
-  );
-  console.log(tableRows);
-  tableRows.forEach((row) => {
-    const rowText = row.textContent.toLowerCase();
-    row.style.display = rowText.includes(filterValue) ? "" : "none";
-  });
-});
 
 async function llenarRecoleccionesPendientes(solicitar) {
   await db
@@ -327,21 +313,33 @@ function formSolicitarRecoleccion(e) {
 }
 
 async function fetchRecoleccion(data) {
-  const guias = data.numerosGuia;
-  const response = await fetch(POSTURL, {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  const body = await response.json();
-  console.warn(body);
-  const radicado = body.response.idRecogica;
+  try {
+    const guias = data.numerosGuia;
+    const response = await fetch(POSTURL, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
 
-  await guiasSolicitadas(guias, radicado);
+    const body = await response.json();
+    console.warn(body);
+    if (!response.ok) {
+      console.log(response);
 
-  return body;
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const radicado = body.response.idRecogica;
+
+    await guiasSolicitadas(guias, radicado);
+
+    return body;
+  } catch (error) {
+    console.error("Error fetching recoleccion:", error);
+    throw error;
+  }
 }
 
 async function guiasSolicitadas(data, radicado) {
