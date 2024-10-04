@@ -1,7 +1,9 @@
 import { v1 } from "../config/api.js";
 import { TranslatorFromApi } from "../cotizador/translator.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
+import { dataValueSelectedFromInput, seleccionarTransportadora } from "./crearPedido.js";
 import TablaEnvios from "./tablaEnvios.js";
+import { bodegasEl, diceContenerEl, oficinaDestinoEl } from "./views.js";
 
 const estadosRecepcion = {
     recibido: "RECIBIDO",
@@ -12,6 +14,9 @@ const config = {
     fps: 2, qrbox: {width: 250, height: 250}
     // rememberLastUsedCamera: false,
 }
+
+// TODO: Un "oninit" para que se lean los parámetros de la Url (para cuando se escanee desde el celular y sea redirigido)
+// TODO: Una forma de subir fotos que automáticamente escanee los Qr y coloque las guías en la lista de la tabla
 
 const idElement = "reader-flexii_guia";
 const btnActivador = $("#activador_scanner-flexii_guia");
@@ -25,7 +30,6 @@ function onScanSuccess(decodedText, decodedResult) {
 }
 
 const html5QrCode = new Html5Qrcode(idElement);
-console.log(html5QrCode);
 function stopScanning() {
     html5QrCode.stop().then(() => {
         btnActivador.text("Reanudar escáner");
@@ -100,24 +104,33 @@ async function obtenerGuiasEnEsperaPunto() {
     });
 }
 
-const bodegasEl = $("#bodega-flexii_guia");
-bodegasWtch.watchFromLast((info) => {
-    if (!info) return;
+const configSelectize = {
+    options: [],
+    labelField: "nombre", // el label de lo que se le muestra al usuario por cada opción
+    valueField: "id", // el valor que será guardado, una vez el lusuario seleccione dicha opción
+    searchField: ["nombre"] // El criterio de filtrado para el input
+};
 
-    bodegasEl.html("");
+bodegasEl.selectize(configSelectize);
+oficinaDestinoEl.selectize(configSelectize);
+diceContenerEl.selectize(configSelectize)
 
-    const opciones = info.map((bodega) => {
-      const bodegaEl = `<option value="${bodega.dane_ciudad}">${bodega.nombre}</option>`;
-      return bodegaEl;
-    });
+bodegasWtch.watchFromLast((info) => renderOptionsSelectize(bodegasEl, info));
+obtenerUsuariosFrecuentes().then((info) => renderOptionsSelectize(oficinaDestinoEl, info));
+cargarObjetosFrecuentes().then((info) => renderOptionsSelectize(diceContenerEl, info));
 
-    opciones.unshift(`<option value>Seleccione Bodega</option>`);
 
-    bodegasEl.html(opciones.join(""));
-});
 
-obtenerUsuariosFrecuentes().then(listarUsuariosFrecuentes);
+function renderOptionsSelectize(element, options) {
+    if (!options || !options.length) return;
 
+    
+    const selectorSelectize = element[0].selectize;
+
+    selectorSelectize.clearOptions();
+
+    options.forEach(data => selectorSelectize.addOption(data));
+}
 async function obtenerUsuariosFrecuentes() {
     const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
         "plantillasUsuariosFrecuentes"
@@ -140,24 +153,6 @@ async function obtenerUsuariosFrecuentes() {
     return opciones;
 }
 
-const oficinaDestinoEl = $("#ciudadD-flexii_guia");
-function listarUsuariosFrecuentes(info) {
-    if (!info.length) return;
-
-    oficinaDestinoEl.html("");
-
-    const opciones = info.map((destino) => {
-      const destinoEl = `<option value="${destino.dane_ciudad}">${destino.nombre}</option>`;
-      return destinoEl;
-    });
-
-    opciones.unshift(`<option value>Seleccione Bodega</option>`);
-
-    oficinaDestinoEl.html(opciones.join(""));
-
-    return info;
-}
-
 
 $("#cotizador-flexii_guia").on("submit", cotizarConjunto);
 const containerResponse = $("#respuesta-flexii_guia");
@@ -171,6 +166,8 @@ async function cotizarConjunto(e) {
     formData.set("typePayment", 3); // Este tipo de envíos siempre serán envíos convencionales
     formData.set("collectionValue", 0); // Debido a que será un envío convencional, no se toma en cuenta ele valor de recaudo
     formData.set("withshippingCost", false); // No aplica para este tipo de envíos;
+    formData.set("daneCityOrigin", dataValueSelectedFromInput(bodegasEl).dane_ciudad); // Seteamos a mano la ciuda origen/detino debido a que el value corresponde al id del documento de base de datos
+    formData.set("daneCityDestination", dataValueSelectedFromInput(oficinaDestinoEl).daneCiudad); // Seteamos a mano la ciuda origen/detino debido a que el value corresponde al id del documento de base de datos
 
     try {
         containerResponse.html("");
@@ -229,6 +226,4 @@ function mostrarListaTransportadoras(consultaCotizacion, respuestaCotizacion) {
     });
 }
 
-function seleccionarTransportadora(element, data) {
-    console.log(data);
-}
+

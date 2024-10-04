@@ -15,4 +15,11 @@ const table = `
     </div>
 `;
 
-export { table, idTable }
+const bodegasEl = $("#bodega-flexii_guia");
+const oficinaDestinoEl = $("#ciudadD-flexii_guia");
+const diceContenerEl = $("#dice_contener-flexii_guia");
+const recoleccionEl = $("#recoleccion_esporadica-flexii_guia");
+
+
+
+export { table, idTable, bodegasEl, oficinaDestinoEl, diceContenerEl, recoleccionEl }

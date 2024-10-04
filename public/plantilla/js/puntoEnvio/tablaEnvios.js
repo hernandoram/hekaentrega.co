@@ -45,21 +45,21 @@ const columns = [
 ];
 
 const config = {
-    destroy: true,
-    data: null,
-    rowId: "row_id",
-    order: [[2, "desc"]],
-    columns,
-    language: {
-      url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
-    },
-    dom: "Bfrtip",
-    buttons: [],
-    scrollY: "60vh",
-    scrollX: true,
-    scrollCollapse: true
+  destroy: true,
+  data: null,
+  rowId: "row_id",
+  order: [[2, "desc"]],
+  columns,
+  language: {
+    url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
+  },
+  dom: "Bfrtip",
+  buttons: [],
+  scrollY: "60vh",
+  scrollX: true,
+  scrollCollapse: true
 }
-
+// TODO: Generar la forma de crear y enviar manifiestos del usuario al que se le ha escaneado el qr de la guía
 export default class TablaEnvios {
   constructor(selectorContainer) {
     const container = $(selectorContainer);
@@ -68,24 +68,24 @@ export default class TablaEnvios {
     this.table = $("#" + idTable).DataTable(config);
 
     this.table.on('click', 'tbody tr', e => {
-        $(e.currentTarget).toggleClass('selected bg-gray-300');
-        const dataSelected = this.table.rows(".selected").data().toArray();
-        actualizarCotizador(dataSelected);
+      $(e.currentTarget).toggleClass('selected bg-gray-300');
+      const dataSelected = this.table.rows(".selected").data().toArray();
+      actualizarCotizador(dataSelected);
     });
   }
 
   add(guia) {
     const guias = this.table.data().toArray();
     const gIdx = guias.findIndex((g) => g.id === guia.id);
-    
+
     console.log(guias);
 
     if (gIdx === -1) {
-        this.table.row.add(guia).draw(false);
-        console.log("Se ha agregado");
+      this.table.row.add(guia).draw(false);
+      console.log("Se ha agregado");
     } else {
-        const row = this.table.row(lIdx).draw(false);
-        row.data(guia);
+      const row = this.table.row(lIdx).draw(false);
+      row.data(guia);
     }
 
     console.log("Pintando tabla");
@@ -96,9 +96,9 @@ export default class TablaEnvios {
   delete(id) {
     const index = this.guias.findIndex((g) => g.id === id);
 
-    if(index !== -1) {
-        this.guias.splice(index,1);
-        this.renderTable = true;
+    if (index !== -1) {
+      this.guias.splice(index, 1);
+      this.renderTable = true;
     };
   }
 
@@ -155,25 +155,25 @@ export default class TablaEnvios {
 
 const formularioCotizacion = document.getElementById("cotizador-flexii_guia");
 function actualizarCotizador(envios) {
-    if(!envios.length) return formularioCotizacion.reset();
-    const totales = {
-        weight: 0,
-        height: 0,
-        width: 0,
-        long: 0,
-        declaredValue: 0
-    }
+  if (!envios.length) return formularioCotizacion.reset();
+  const totales = {
+    weight: 0,
+    height: 0,
+    width: 0,
+    long: 0,
+    declaredValue: 0
+  }
 
-    envios.forEach((val) => {
-        totales.weight += val.peso;
-        totales.height += val.alto;
-        totales.width += val.ancho;
-        totales.long += val.largo;
-        totales.declaredValue += val.valorSeguro;
-    });
+  envios.forEach((val) => {
+    totales.weight += val.peso;
+    totales.height += val.alto;
+    totales.width += val.ancho;
+    totales.long += val.largo;
+    totales.declaredValue += val.valorSeguro;
+  });
 
-    for ( let [key, value] of Object.entries(totales)) {
-        const element = formularioCotizacion.elements[key];
-        element.value = value;
-    }
+  for (let [key, value] of Object.entries(totales)) {
+    const element = formularioCotizacion.elements[key];
+    element.value = value;
+  }
 }
