@@ -3439,9 +3439,9 @@ class CalcularCostoDeEnvio {
     this.sobreflete_heka =
       this.set_sobreflete_heka ||
       Math.ceil((valor * comision_heka) / 100) + constante_heka;
-
-    if (this.codTransp === "INTERRAPIDISIMO") this.intoInter(this.precio);
-    if (this.codTransp === transportadoras.HEKA.cod) this.intoHeka(this.precio);
+    
+    if (this.codTransp === "INTERRAPIDISIMO" && !this.empty) this.intoInter(this.precio);
+    if (this.codTransp === transportadoras.HEKA.cod && !this.empty) this.intoHeka(this.precio);
     if (this.aveo) this.intoAveo(this.precio);
     if (this.envia) this.intoEnvia(this.precio);
     if (this.coordinadora) this.intoCoord(this.precio);
@@ -3924,7 +3924,7 @@ class CalcularCostoDeEnvio {
         if (R.status !== 200) this.NoCobertura = true;
         return R.json();
       })
-      .catch((R) => ({ respuesta: "Error del servidor" }));
+      .catch((R) => ({ error: true, respuesta: "Error del servidor" }));
 
     if (response.error) {
       this.empty = true;

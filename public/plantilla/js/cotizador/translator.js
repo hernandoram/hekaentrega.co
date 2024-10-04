@@ -58,11 +58,11 @@ class TranslatorFromApi {
     get debe() {
         switch(this.type) {
             case CONVENCIONAL:
-                return false;
+                return 0;
             case PAGO_CONTRAENTREGA: case CONTRAENTREGA:
                 return -this.costoEnvio;
             default:
-                return false;
+                return 0;
         }
     }
 
@@ -135,13 +135,19 @@ function converToOldQuoterData(dataNew) {
     }
 }
 
+const excludeFromTester = [transportadoras.HEKA.cod, transportadoras.TCC.cod];
 async function demoPruebaCotizadorAntiguo(dataNew) {
-    const data = converToOldQuoterData(dataNew);
+  const data = converToOldQuoterData(dataNew);
+  console.log("MY DATA: ", data);
+  if(data.type === CONTRAENTREGA) {
+    data.valor = 1; // Para que se parezca más al pago a destino en el cotizador original 
+  }
+
   const FACHADA_FLETE = 1000;
 
   //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
   await Promise.all(
-    Object.keys(transportadoras).map(async (transp) => {
+    Object.keys(transportadoras).filter(t => !excludeFromTester.includes(t)).map(async (transp) => {
       // Este factor será usado para hacer variaciones de precios entre
       // flete trasportadora y sobreflete heka para intercambiar valores
       let factor_conversor = 0;
@@ -217,7 +223,7 @@ async function demoPruebaCotizadorAntiguo(dataNew) {
 
       //Para cargar el sobreflete heka antes;
       const costoEnvio = cotizacion.costoEnvio
-      cotizacion.debe = data.type === CONVENCIONAL ? false : - costoEnvio;
+      cotizacion.debe = data.type === CONVENCIONAL ? 0 : - costoEnvio;
       
       let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
       let fleteConvertido = cotizacion.flete;
@@ -238,7 +244,6 @@ async function demoPruebaCotizadorAntiguo(dataNew) {
         fleteConvertido += factor_conversor;
       }
 
-      
 
       if (!transportadora.cotizacionOld) transportadora.cotizacionOld = new Object();
       transportadora.cotizacionOld[data.type] = cotizacion;
@@ -252,7 +257,7 @@ function testComparePrices(type) {
   let cantidadErrores = 0;
   let casosAnalizados = 0;
   let pruebasCorrectas = 0;
-  Object.values(transportadoras).forEach(transport => {
+  Object.values(transportadoras).filter(t => !excludeFromTester.includes(t.cod)).forEach(transport => {
       console.log("\nComparando resultados Transportadora: " + transport.cod);
       console.groupCollapsed(transport.cod);
 

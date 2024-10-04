@@ -75,7 +75,7 @@ export async function cotizadorApi() {
     withshippingCost: controls.sumaEnvio.prop("checked"),
     collectionValue: esPagoContraentrega
       ? parseInt(controls.valorRecaudo.val())
-      : false,
+      : 0,
   };
 
   console.log(datoscoti);
