@@ -4450,6 +4450,15 @@ const opcionesAccionesGuiasAdmin = [
     visible: (data) => true,
     accion: generarDocsGuia,
   },
+
+  {
+    titulo: "Descargar Documentos",
+    icon: "download",
+    color: "primary",
+    id: "descargar_documentos",
+    visible: (data) => true,
+    accion: descargarDocsGuia,
+  },
 ];
 
 async function historialGuiasAdmin(e) {
@@ -4940,6 +4949,26 @@ function descargarInformeGuiasAdmin(columnas, guias, nombre) {
 }
 
 async function generarDocsGuia(data) {
+  console.warn(data);
+  console.warn(data.id_heka);
+
+  const ids = [data.id_heka];
+
+  if (datos_usuario.type == "NATURAL-FLEXII") {
+    generarGuiaFlexii(ids);
+    return;
+  }
+
+  buscarGuiasParaDescargarStickers(ids).then(() => {
+    Toast.fire(
+      "Cargue Terminado",
+      "Se han cargado las guías disponibles",
+      "info"
+    );
+  });
+}
+
+async function descargarDocsGuia(data) {
   console.warn(data);
   console.warn(data.id_heka);
 }
