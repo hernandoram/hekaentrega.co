@@ -4443,22 +4443,21 @@ const opcionesAccionesGuiasAdmin = [
   },
 
   {
-    titulo: "Generar Documentos",
-    icon: "unlock",
-    color: "warning",
-    id: "generar_documentos",
-    visible: (data) => true,
-    accion: generarDocsGuia,
-  },
-
-  //descargar guias en pdf, aun no se ha implementado
-  {
     titulo: "Descargar Documentos",
     icon: "download",
     color: "primary",
     id: "descargar_documentos",
     visible: (data) => true,
     accion: descargarDocsGuia,
+  },
+
+  {
+    titulo: "Generar Documentos",
+    icon: "unlock",
+    color: "warning",
+    id: "generar_documentos",
+    visible: (data) => true,
+    accion: generarDocsGuia,
   },
 ];
 
