@@ -4457,7 +4457,7 @@ const opcionesAccionesGuiasAdmin = [
     icon: "download",
     color: "primary",
     id: "descargar_documentos",
-    visible: (data) => false,
+    visible: (data) => true,
     accion: descargarDocsGuia,
   },
 ];
@@ -4969,6 +4969,36 @@ async function generarDocsGuia(data) {
 async function descargarDocsGuia(data) {
   console.warn(data);
   console.warn(data.id_heka);
+
+  const id = data.id_heka;
+
+  firebase
+    .firestore()
+    .collection("documentos")
+    .where("guias", "array-contains", id)
+    .get()
+    .then((querySnapshot) => {
+      if (!querySnapshot.size) {
+        avisar(
+          "Sin documento",
+          "Esta guía no tiene ningún documento asignado aún",
+          "aviso"
+        );
+      }
+      querySnapshot.forEach((doc) => {
+        console.log(doc.data());
+        console.log(doc.id);
+        if (doc.data().descargar_relacion_envio && doc.data().descargar_guias) {
+          descargarDocumentos(doc.id);
+        } else {
+          avisar(
+            "No permitido",
+            "Aún no están disponibles ambos documentos",
+            "aviso"
+          );
+        }
+      });
+    });
 }
 
 async function anularGuia(data) {
