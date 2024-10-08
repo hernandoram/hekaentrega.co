@@ -868,7 +868,7 @@ function crearDocumentos(e, dt, node, config) {
               text:
                 "Las Guías " +
                 guias +
-                " Serán procesadas por un asesor, y en apróximadamente 10 minutos los documentos serán subidos.",
+                " están siendo procesadas ,los documentos estarán disponibles pronto.",
             });
           });
 
