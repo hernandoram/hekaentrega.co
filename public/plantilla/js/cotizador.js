@@ -2776,7 +2776,7 @@ function cargarUsuariosFrecuentes(personas) {
   });
 }
 
-function enviarUsuarioFrecuente() {
+function enviarUsuarioFrecuente(daneCiudadD) {
   //inputs importantes
   const guardarUsuario = document.getElementById("guardarUsuario");
   const modificarUser = document.getElementById("modificarUser");
@@ -2812,6 +2812,7 @@ function enviarUsuarioFrecuente() {
     email: correoDestinatario.value,
     observaciones: observacionesDestinatario.value,
     ciudad: ciudad.value,
+    daneCiudad: daneCiudadD,
   };
   const dataejemplo = {
     nombre: "Juan Pérez",
@@ -2824,6 +2825,7 @@ function enviarUsuarioFrecuente() {
     otroCelular: "9876543210",
     email: "juan.perez@example.com",
     observaciones: "Entregar por la puerta trasera",
+    daneCiudad: "11001",
   };
 
   console.log(opciones);
@@ -3996,8 +3998,6 @@ function modificarDatosDeTransportadorasAveo(res) {
 
 // Para enviar la guia generada a firestore
 async function crearGuia() {
-  await enviarUsuarioFrecuente();
-  await crearNuevoObjeto();
   let boton_final_cotizador = document.getElementById("boton_final_cotizador");
   const textoBtn = boton_final_cotizador.textContent;
   boton_final_cotizador.innerHTML =
@@ -4207,6 +4207,9 @@ async function crearGuia() {
         );
 
       // boton_final_cotizador.remove()
+
+      await enviarUsuarioFrecuente(datos_a_enviar.dane_ciudadD);
+      await crearNuevoObjeto();
 
       if (checkCreacionPedido) {
         datos_a_enviar.estadoActual = estadosGuia.pedido;
