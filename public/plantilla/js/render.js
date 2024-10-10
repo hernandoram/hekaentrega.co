@@ -1,3 +1,4 @@
+const PROD_API_URL_PLATFORM2 = window.ENV.PROD_API_URL_PLATFORM2;
 var firebaseConfig = {
   apiKey: "AIzaSyCtzXKSoweSMLPej5-MbkTfQzFH719y-MM",
   authDomain: "hekaapp-23c89.firebaseapp.com",
@@ -58,6 +59,10 @@ function escucha(id, e, funcion) {
 const listaNotificacionesAlerta = [];
 function mostrar(id) {
   let content = document.getElementById("content").children;
+
+  if (id === 'usuarios') {
+    window.location.href = `${PROD_API_URL_PLATFORM2}/plataforma/mis-usuarios`;
+  }
 
   if (id == "" || !window.top[id]) {
     dNone(content);
