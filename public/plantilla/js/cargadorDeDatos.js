@@ -3,7 +3,7 @@ const PROD_API_URL = window.ENV.ENVIRONMENT_NAME; //comentar o descomentar segun
 //const TEST_API_URL = "https://apidev.hekaentrega.co"; //comentar o descomentar segun el ambiente
 
 // const PROD_API_URL_PLATFORM2 = "http://localhost:3232"; //comentar o descomentar segun el ambiente
-const PROD_API_URL_PLATFORM2 = window.ENV.PROD_API_URL_PLATFORM2; //comentar o descomentar segun el ambiente
+let PROD_API_URL_PLATFORM2 = window.ENV.PROD_API_URL_PLATFORM2; //comentar o descomentar segun el ambiente
 
 const bodegasBackPlataforma2 = true;
 
@@ -46,8 +46,13 @@ async function validateToken(token) {
       console.log(data);
 
       mongoID = data.response.user._id;
+      const chanel = data.response.user.channel ?? 'hekaentrega';
+      if (chanel != 'hekaentrega') {
+        PROD_API_URL_PLATFORM2 = url.replace("www", chanel);
+      }
 
       localStorage.setItem("mongo_id", mongoID);
+      localStorage.setItem("channel", chanel);
       if (
         !data ||
         !data.response ||
