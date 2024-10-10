@@ -1692,16 +1692,22 @@ async function actualizarInformacionPersonal() {
 
     const mappedDoc = mapTipoDocumento(doc);
 
-    let type_account = 'natural';
+    let type_account = "natural";
     switch (type) {
-      case 'NATURAL':
-        type_account = 'natural';
+      case "NATURAL":
+        type_account = "natural";
         break;
-      case 'USUARIO-PUNTO':
-        type_account = 'point';
+      case "PUNTO":
+        type_account = "point";
         break;
-      case 'NATURAL-FLEXII':
-        type_account = 'natural_flexii';
+      case "NATURAL-FLEXII":
+        type_account = "natural_flexii";
+        break;
+      case "LOGGY":
+        type_account = "loggy";
+        break;
+      case "REFERIDO":
+        type_account = "referido";
         break;
     }
 
