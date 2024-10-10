@@ -1,4 +1,3 @@
-const PROD_API_URL_PLATFORM2 = window.ENV.PROD_API_URL_PLATFORM2;
 var firebaseConfig = {
   apiKey: "AIzaSyCtzXKSoweSMLPej5-MbkTfQzFH719y-MM",
   authDomain: "hekaapp-23c89.firebaseapp.com",
