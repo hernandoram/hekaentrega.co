@@ -58,11 +58,11 @@ class TranslatorFromApi {
     get debe() {
         switch(this.type) {
             case CONVENCIONAL:
-                return false;
+                return 0;
             case PAGO_CONTRAENTREGA: case CONTRAENTREGA:
                 return -this.costoEnvio;
             default:
-                return false;
+                return 0;
         }
     }
 
@@ -90,6 +90,7 @@ class TranslatorFromApi {
 
     //Devuelve el paso generado del volumen, debido al factor dec conversión
     get pesoVolumen() {
+        if(![transportadoras.INTERRAPIDISIMO.cod, transportadoras.SERVIENTREGA.cod].includes(this.transportadora)) return this.dataSentApi.weight;
         let peso_con_volumen = this.volumen * this.factorDeConversion;
         peso_con_volumen = Math.ceil(Math.floor(peso_con_volumen * 10) / 10);
 
@@ -135,13 +136,19 @@ function converToOldQuoterData(dataNew) {
     }
 }
 
+const excludeFromTester = [transportadoras.HEKA.cod, transportadoras.TCC.cod];
 async function demoPruebaCotizadorAntiguo(dataNew) {
-    const data = converToOldQuoterData(dataNew);
+  const data = converToOldQuoterData(dataNew);
+  console.log("MY DATA: ", data);
+  if(data.type === CONTRAENTREGA) {
+    data.valor = 1; // Para que se parezca más al pago a destino en el cotizador original 
+  }
+
   const FACHADA_FLETE = 1000;
 
   //itero entre las transportadoras activas para calcular el costo de envío particular de cada una
   await Promise.all(
-    Object.keys(transportadoras).map(async (transp) => {
+    Object.keys(transportadoras).filter(t => !excludeFromTester.includes(t)).map(async (transp) => {
       // Este factor será usado para hacer variaciones de precios entre
       // flete trasportadora y sobreflete heka para intercambiar valores
       let factor_conversor = 0;
@@ -217,7 +224,7 @@ async function demoPruebaCotizadorAntiguo(dataNew) {
 
       //Para cargar el sobreflete heka antes;
       const costoEnvio = cotizacion.costoEnvio
-      cotizacion.debe = data.type === CONVENCIONAL ? false : - costoEnvio;
+      cotizacion.debe = data.type === CONVENCIONAL ? 0 : - costoEnvio;
       
       let sobreFleteHekaEdit = cotizacion.sobreflete_heka;
       let fleteConvertido = cotizacion.flete;
@@ -238,7 +245,6 @@ async function demoPruebaCotizadorAntiguo(dataNew) {
         fleteConvertido += factor_conversor;
       }
 
-      
 
       if (!transportadora.cotizacionOld) transportadora.cotizacionOld = new Object();
       transportadora.cotizacionOld[data.type] = cotizacion;
@@ -252,7 +258,7 @@ function testComparePrices(type) {
   let cantidadErrores = 0;
   let casosAnalizados = 0;
   let pruebasCorrectas = 0;
-  Object.values(transportadoras).forEach(transport => {
+  const result = Object.values(transportadoras).filter(t => !excludeFromTester.includes(t.cod)).map(transport => {
       console.log("\nComparando resultados Transportadora: " + transport.cod);
       console.groupCollapsed(transport.cod);
 
@@ -342,6 +348,7 @@ function testComparePrices(type) {
       });
       console.groupEnd(transport.cod);
 
+      return [preciosViejos, preciosApi];
   });
 
 
@@ -351,6 +358,40 @@ function testComparePrices(type) {
   console.log("Casos asimilados: ", casosAnalizados);
   console.log("Porcentaje de similitud: ", Math.round(pruebasCorrectas * 100 / casosAnalizados) + "%");
   console.groupEnd("RESUMEN");
+
+  return result;
 }
 
-export {translation, TranslatorFromApi, demoPruebaCotizadorAntiguo, testComparePrices}
+function createExcelComparativePrices(objInput, arrOutput) {
+  const base = {
+    ciudad_origen: objInput.ciudadOrigen,
+    ciudad_destino: objInput.ciudadDestino,
+    tipo_envio: translation.typePayment[objInput.typePayment],
+    recaudo: objInput.collectionValue,
+    declarado: objInput.declaredValue,
+    peso: objInput.weight
+  }
+
+  const result = [];
+  arrOutput.forEach(({cotiA, cotiB}) => {
+    const objtResult = {
+      flete_a: cotiA.flete,
+      flete_b: cotiB.flete,
+      comision_transp_a: cotiA.sobreflete,
+      comision_transp_b: cotiB.sobreflete,
+      comision_heka_a: cotiA.comision_heka,
+      comision_heka_b: cotiB.comision_heka,
+      seguro_mercancia_a: cotiA.seguroMercancia,
+      seguro_mercancia_b: cotiB.seguroMercancia,
+      costo_envio_a: cotiA.costoEnvio,
+      costo_envio_b: cotiB.costoEnvio,
+    }
+
+    result.push(Object.assign({}, base, objtResult));
+  });
+
+  console.log(result);
+  // descargarInformeExcel(Object.keys(result).map(k => ({title: k, data: k})), result, `Cotización_${base.tipo_envio}_${objInput.daneCityOrigin}_${objInput.daneCityDestination}`)
+}
+
+export {translation, TranslatorFromApi, demoPruebaCotizadorAntiguo, testComparePrices, createExcelComparativePrices}
