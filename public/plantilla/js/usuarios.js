@@ -1703,12 +1703,6 @@ async function actualizarInformacionPersonal() {
       case "NATURAL-FLEXII":
         type_account = "natural_flexii";
         break;
-      case "LOGGY":
-        type_account = "loggy";
-        break;
-      case "REFERIDO":
-        type_account = "referido";
-        break;
     }
 
     const updateBody = JSON.stringify({
