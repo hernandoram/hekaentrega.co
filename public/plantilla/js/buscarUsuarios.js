@@ -137,7 +137,9 @@ function generarTabla(users) {
           defaultContent: "N/A",
           render: function (data, type, row) {
             return (
-              `` +
+              `<button class="btn btn-primary me-2 accion-btn p-1" data-id="${row.id}" onclick="seleccionarUsuario(this.getAttribute('data-id'))"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+</svg></button>` +
               `<button class="btn btn-secondary accion-btn p-1" data-id="${row.id}" onclick="manejarClickMovimientos('${row.id}')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-graph-up" viewBox="0 0 16 16">
   <path fill-rule="evenodd" d="M0 0h1v15h15v1H0V0Zm14.5 1a.5.5 0 0 1 .5.5v11h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5h11ZM10 10h1V6h-1v4Zm-3 2h1V4h-1v8Zm-3-3h1V7H4v2Z"/>
 </svg></button>`
