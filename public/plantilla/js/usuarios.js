@@ -1692,16 +1692,16 @@ async function actualizarInformacionPersonal() {
 
     const mappedDoc = mapTipoDocumento(doc);
 
-    let type_account = 'natural';
+    let type_account = "natural";
     switch (type) {
-      case 'NATURAL':
-        type_account = 'natural';
+      case "NATURAL":
+        type_account = "natural";
         break;
-      case 'USUARIO-PUNTO':
-        type_account = 'point';
+      case "USUARIO-PUNTO":
+        type_account = "point";
         break;
-      case 'NATURAL-FLEXII':
-        type_account = 'natural_flexii';
+      case "NATURAL-FLEXII":
+        type_account = "natural_flexii";
         break;
     }
 
@@ -2244,6 +2244,7 @@ const estadosEntregados = [
   "ENTREGADO",
   "Entregado",
   "Entrega Exitosa",
+  "Entrega exitosa",
   "Entregada",
   "ENTREGADA DIGITALIZADA",
   "ENTREGADA",
@@ -2268,6 +2269,8 @@ function displayStats() {
     "noGuiasGoblalesDevueltas"
   );
 
+  console.warn(guiasStats);
+
   const guiasAnuladas =
     guiasStats.filter((guia) => estadoAnuladas.includes(guia.estado)) || [];
 
@@ -2277,6 +2280,8 @@ function displayStats() {
       (estadosEntregados.includes(guia.estado) ||
         guia.estado.startsWith("ENTREGADA DIGITALIZADA"))
   );
+
+  console.warn(guiasEntregas);
 
   const guiasDevueltas = guiasStats.filter(
     (guia) =>

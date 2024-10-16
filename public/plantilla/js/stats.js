@@ -3,7 +3,6 @@ loadStats.addEventListener("click", () => {
   setTimeout(() => {
     console.log("5 segundos han pasado");
     //  loader.classList.add("d-none");
-    alert("finaliza");
     statsGlobales.classList.remove("d-none");
   }, 5000);
   console.warn(statsGlobales);

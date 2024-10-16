@@ -4801,6 +4801,8 @@ async function historialGuiasAdmin(e) {
     );
   }
 
+  console.warn(data);
+
   let tabla = $(guiasPunto ? idTablaPunto : idTabla).DataTable({
     data: data,
     destroy: true,
