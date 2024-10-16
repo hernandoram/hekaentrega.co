@@ -1692,16 +1692,16 @@ async function actualizarInformacionPersonal() {
 
     const mappedDoc = mapTipoDocumento(doc);
 
-    let type_account = 'natural';
+    let type_account = "natural";
     switch (type) {
-      case 'NATURAL':
-        type_account = 'natural';
+      case "NATURAL":
+        type_account = "natural";
         break;
-      case 'USUARIO-PUNTO':
-        type_account = 'point';
+      case "USUARIO-PUNTO":
+        type_account = "point";
         break;
-      case 'NATURAL-FLEXII':
-        type_account = 'natural_flexii';
+      case "NATURAL-FLEXII":
+        type_account = "natural_flexii";
         break;
     }
 
@@ -1715,6 +1715,7 @@ async function actualizarInformacionPersonal() {
       document: value("actualizar_numero_documento"),
       type_account: type_account,
       blockedWallet: billetera,
+      channel: "hekaentrega",
     });
 
     myHeaders.append("Content-type", "application/json");

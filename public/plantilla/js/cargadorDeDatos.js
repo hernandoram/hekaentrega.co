@@ -295,7 +295,7 @@ const sendMessage = async (message) => {
   const data = {
     type: "code_access",
     code: message,
-    number: `${datos_usuario.celular}`,
+    number: `${datos_usuario.celular2}`,
     email: `${datos_usuario.correo}`,
   };
 
@@ -560,11 +560,14 @@ async function consultarDatosDeUsuario() {
         bodegas = datos.bodegas ? datos.bodegas.filter((b) => !b.inactiva) : [];
       }
 
+      console.warn(datos);
+
       datos_usuario = {
         nombre_completo:
           datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0],
         direccion: datos.direccion + " " + datos.barrio,
         celular: datos.celular,
+        celular2: datos.celular2,
         correo: datos.correo,
         numero_documento: datos.numero_documento,
         centro_de_costo: datos.centro_de_costo,
