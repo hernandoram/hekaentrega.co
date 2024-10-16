@@ -201,7 +201,7 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
               <div class="card-body">
                   <h5 class="card-title">Comisión Punto</h5>
                   <p class="card-text d-flex justify-content-between">Comisión punto <b>$${convertirMiles(
-                    r.comision_punto
+                    r.commission_point
                   )}</b></p>
               </div>
           </div>
