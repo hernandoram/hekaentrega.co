@@ -59,6 +59,10 @@ const listaNotificacionesAlerta = [];
 function mostrar(id) {
   let content = document.getElementById("content").children;
 
+  /* if (id === 'usuarios') {
+    window.location.href = `${PROD_API_URL_PLATFORM2}/plataforma/mis-usuarios`;
+  } */
+
   if (id == "" || !window.top[id]) {
     dNone(content);
     content[0].style.display = "block";

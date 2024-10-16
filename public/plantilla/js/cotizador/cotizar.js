@@ -16,6 +16,8 @@ export function cotizar(e) {
   if (datos_usuario.type == "NATURAL-FLEXII") {
     cotizadorFlexii();
   } else {
+
+    // * Una vez se estabilice el nuevo cotizador, cambiar todo el entorno, para que no se utilice por error el antiguo
     if(e.target.classList.contains(cotizadorApiClassIdentifier)) {
       cotizadorApi();
     } else {

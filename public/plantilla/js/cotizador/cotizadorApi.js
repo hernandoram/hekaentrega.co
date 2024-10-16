@@ -3,6 +3,7 @@ import { selectize } from "../consultarCiudades.js";
 import { controls } from "./constantes.js";
 import {
   TranslatorFromApi,
+  createExcelComparativePrices,
   demoPruebaCotizadorAntiguo,
   testComparePrices,
   translation,
@@ -75,7 +76,7 @@ export async function cotizadorApi() {
     withshippingCost: controls.sumaEnvio.prop("checked"),
     collectionValue: esPagoContraentrega
       ? parseInt(controls.valorRecaudo.val())
-      : false,
+      : 0,
   };
 
   console.log(datoscoti);
@@ -95,7 +96,11 @@ export async function cotizadorApi() {
     demoPruebaCotizadorAntiguo(datoscoti)
       .then(() => {
         console.log("El demo funciona perfectamente");
-        testComparePrices(controls.tipoEnvio.val());
+        const comparativeTester = testComparePrices(controls.tipoEnvio.val());
+        datoscoti.ciudadOrigen = ciudadR.ciudad + "-" + ciudadR.departamento;
+        datoscoti.ciudadDestino = ciudadD.ciudad + "-" + ciudadD.departamento;
+
+        createExcelComparativePrices(datoscoti, comparativeTester);
       })
       .catch((e) => console.log("Error al correr el demo: ", e));
   }

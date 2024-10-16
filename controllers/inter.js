@@ -513,7 +513,7 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
             }
 
             // Desde aquí es que se detecta la novedad particular de la transportadora
-            if([26, 39, 40, 7, 32, 10, 30, 33].includes(est.idEstadoGuia)) {
+            if([26, 39, 40, 7, 8, 32, 10, 30, 33].includes(est.idEstadoGuia)) {
                 est.novedad = mostrarObservacionEstado 
                     ? estadoLogistico.observacion
                     : estadoLogistico.estadoActual;
@@ -883,22 +883,34 @@ exports.pushNotificacionEstados = async (req, res) => {
      * @type {NotifiacionEstado} - Tipo del elemento
     */
     const NotificacionEstados = req.body.NotificacionEstados;
+
+    const statusActualizationPush = {
+        error: "ERROR",
+        start: "STARTED",
+        loading: "LOADING",
+        saved: "SAVED"
+    }
+
     const refEstadosBaseInter = await db.collection("estadosInter").add({
         body: req.body,
+        status: statusActualizationPush.start,
         timeline: Date.now()
     })
     .catch(e => {
         console.log("ERROR DESCONOCIDO: " + e.message);
         return db.collection("estadosInter").add({
             body: JSON.stringify(req.body),
+            status: statusActualizationPush.error,
             errorMessage: e.message
         });
     });
 
     try { 
-        await refEstadosBaseInter.update({status: "LOADING"});
+        await refEstadosBaseInter.update({status: statusActualizationPush.loading});
         const nuevoEstado = NotificacionEstados.DetalleNotificacion;
         const numeroGuia = nuevoEstado.NumeroGuia.toString();
+
+        await refEstadosBaseInter.update({numeroGuia});
         const infoGuia = await obtenerGuiaPorNumero(numeroGuia);
 
         let entrega_oficina_notificada = infoGuia.entrega_oficina_notificada || false;
@@ -911,7 +923,7 @@ exports.pushNotificacionEstados = async (req, res) => {
         const infoEstados = await obtenerEstadosGuiaPorId(id_user, id_heka);
 
         // Desde aquí es que se detecta la novedad particular de la transportadora
-        const novedad = [26, 39, 40, 7, 32, 10, 30, 33].includes(nuevoEstado.CodigoEstado) 
+        const novedad = [26, 39, 40, 7, 8, 32, 10, 30, 33].includes(nuevoEstado.CodigoEstado) 
             ? nuevoEstado.DescripcionMotivoEst
             : "";
 
@@ -1002,7 +1014,7 @@ exports.pushNotificacionEstados = async (req, res) => {
         console.log(actualizaciones);
         // await actualizarInfoGuia(id_user, id_heka, actualizaciones);
     
-        await refEstadosBaseInter.update({status: "SUCCESS"});
+        await refEstadosBaseInter.update({status: "SUCCESS"});  // TODO: Convertirlo a saved cuando se actualice el estado sobre la guía
 
         res.send({
             error: false,
@@ -1010,7 +1022,7 @@ exports.pushNotificacionEstados = async (req, res) => {
         });
     
     } catch (e) {
-        await refEstadosBaseInter.update({status: "ERROR", errorMessage: e.message});
+        await refEstadosBaseInter.update({status: statusActualizationPush.error, errorMessage: e.message});
 
         console.log("Entro en error: ", e.message);
         res.send({

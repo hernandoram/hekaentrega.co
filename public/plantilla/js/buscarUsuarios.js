@@ -203,7 +203,6 @@ function volver2() {
 }
 
 function manejarClickMovimientos(id) {
-  // Suponiendo que genFecha y verMovimientos son funciones ya definidas en tu código
   let fechaI = genFecha().split("-");
   fechaI[1] -= 1;
   fechaI = new Date(fechaI.join("-") + "::").getTime();
@@ -211,7 +210,7 @@ function manejarClickMovimientos(id) {
   console.log(fechaI, fechaF);
   verMovimientos(id, fechaI, fechaF + 8.64e7);
 
-  location.href = "#movimientos";
+  location.href = `#movimientos`;
 
   document.getElementById("nombre-usuario-movs").textContent = users.find(
     (user) => user.id == id

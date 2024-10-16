@@ -27,6 +27,17 @@ async function chargeUsers() {
           option.textContent = user; // Esto establece el texto que se muestra en la opción
           sellerDatalist.appendChild(option);
         });
+        const hash = window.location.hash; // Obtiene "#movimientos?idFirebase=02K2VK6yuQ8eXP7wnyTo"
+        const paramsIndex = hash.indexOf('?');
+
+        if (paramsIndex !== -1) {
+          const queryString = hash.substring(paramsIndex + 1); // Obtiene "idFirebase=02K2VK6yuQ8eXP7wnyTo"
+          const urlParams = new URLSearchParams(queryString);
+          const idFirebase = urlParams.get('idFirebase');
+          if (idFirebase) {
+            manejarClickMovimientos(idFirebase);
+          }
+        }
       });
   } catch (error) {
     console.log(error);
@@ -57,7 +68,11 @@ function CargarUsuarios(element) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  console.log(window.location.hash);
   if (window.location.hash === "#usuarios") {
+    await loadUsers();
+  }
+  if (window.location.hash.includes('#movimientos?idFirebase')) {
     await loadUsers();
   }
 });

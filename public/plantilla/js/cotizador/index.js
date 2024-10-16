@@ -5,9 +5,8 @@ import { llenarBodegasCotizador, llenarProductos } from "./plantillas.js";
 const btnCotizarGlobal = controls.btnCotizarGlobal;
 btnCotizarGlobal.on("click", cotizar);
 
-if(estado_prueba) {
-    btnCotizarGlobal.addClass(cotizadorApiClassIdentifier);
-}
+// Si se necesita utilizar el antiguo cotizador, se puede eliminar/comentar la línea inferior
+btnCotizarGlobal.addClass(cotizadorApiClassIdentifier);
 
 export function iniciarOpcionesCotizador() {
     llenarBodegasCotizador();
