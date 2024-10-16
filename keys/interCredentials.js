@@ -11,8 +11,8 @@ exports.UsuarioPrueba = {
 exports.CredencialesEmpresa = {
     idCliente: 7986,
     x_app_signature: "userOffyPrd",
-    // Último token recibido por correo el 19/03/2024
-    x_app_security_token: "bearer J9dOnCHotadTMu8X58mZnAipPY95c5linC9HI-ierKa1j_j0GvcKBLjXw7Lm-DVw76Q1tOaBHLGFtUH-oTY83gS3vWmQ4auVNj9A-n7UWjENDvHYnH5ep0wz0zQlO3dRKIXhGVaPM_Cx8UtYxkmDO3HpdT5oKjyU-VSieRdfSG-1UxTrmWX_Z5ACSgnBzU4-h1PooJ1IE9gw-41jGKrh4Bm9Jot1B1ZeGeiD9XiPoMsRhvfR1hNm43s1iLOp0-Ps",
+    // Último token recibido por correo el 10/10/2024
+    x_app_security_token: "bearer iNNh0AhOZAIPcWUzzHj8U4vpozW_YGxpRivddRtUDa_TsM9iPotrf-M4_z3F-Ysfv-NVYwikdM3xZuwFVpfYk6-mqHG-MREXjSKV6BCDf5JMerdgdZmTvgkP9_nWqBhHsFRkVOr-PFWS5NJDzx3Uzg1xiL9eG-5rHlpiX44PwmBYGBXM4NiMxtCqefIYvHCBhY6OjSwruDNTh630d7YWdF9WNnlmMEdq2Ni8zTdTRhDB-zCihfOyFMlg2yWIL70j",
     usuario: "cliente.cetina19",
     clave: "10724974190",
     endpoint: "https://www3.interrapidisimo.com/ApiVentaCredito/api",

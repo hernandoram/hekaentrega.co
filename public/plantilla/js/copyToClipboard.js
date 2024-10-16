@@ -11,6 +11,7 @@ botonIninicarSesionUsarioToken.addEventListener("click", async function () {
   let tokenUser;
   const data = {
     email: value("actualizar_correo"),
+    channel: 'hekaentrega',
   };
 
   fetch(PROD_API_URL + "/api/v1/user/login/uli", {
