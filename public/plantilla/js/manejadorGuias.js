@@ -2386,7 +2386,6 @@ function crearExcel(newDoc, nombre) {
   let ws = XLSX.utils.json_to_sheet(newDoc);
 
   let wb = XLSX.utils.book_new();
-  console.log(wb);
   XLSX.utils.book_append_sheet(wb, ws, "1");
 
   XLSX.writeFile(wb, nombre + ".xlsx");
