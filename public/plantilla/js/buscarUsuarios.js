@@ -174,6 +174,23 @@ function generarTabla(users) {
       ],
       data: users,
     });
+    const hash = window.location.hash;
+    const paramsIndex = hash.indexOf('?');
+
+    if (paramsIndex !== -1) {
+      const queryString = hash.substring(paramsIndex + 1);
+      const urlParams = new URLSearchParams(queryString);
+      const idFirebase = urlParams.get('idFirebase');
+      
+
+      if (idFirebase) {
+        if (hash.startsWith('#movimientos')) {
+          manejarClickMovimientos(idFirebase);
+        } else if (hash.startsWith('#usuarios')) {
+          seleccionarUsuario(idFirebase);
+        }
+      }
+    }
   });
 }
 
