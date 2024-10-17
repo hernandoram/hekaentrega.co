@@ -59,6 +59,8 @@ export async function cotizadorApi() {
     return;
   }
 
+  datos_a_enviar = new Object();
+
   const ciudadR = controlCiudadR.options[controlCiudadR.getValue()];
   ciudadD = controlCiudadD.options[controlCiudadD.getValue()];
 
