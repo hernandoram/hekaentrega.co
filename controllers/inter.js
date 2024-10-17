@@ -11,6 +11,13 @@ const { notificarNovedadEncontrada } = require("../extends/notificaciones");
 const { estadosGuia, detectaNovedadEnElHistorialDeEstados, modificarEstadoGuia, atributosAdicionalesEnActualizacion, obtenerGuiaPorNumero, obtenerEstadosGuiaPorId, crearOActualizarEstados, actualizarInfoGuia, actualizarReferidoPorGuiaEntregada, guiaEnNovedad } = require("../extends/manejadorMovimientosGuia");
 const db = firebase.firestore();
 
+const statusActualizationPush = {
+    error: "ERROR",
+    start: "STARTED",
+    loading: "LOADING",
+    saved: "SAVED"
+}
+
 const estadosLogisticos = {
     1: {
         id: 1,
@@ -78,14 +85,14 @@ const estadosLogisticos = {
     10: {
         id: 10,
         nombre: "Devolución ratificada",
-        estadoActual: "Devuelto al remitente",
+        estadoActual: "Devuelto al Remitente",
         observacion: "La entrega no es efectiva y el envío se encuentra en trayecto de devolución a su origen.",
         mostrarObservacion: true
     },
     11: {
         id: 11,
         nombre: "Entregada",
-        estadoActual: "Entrega exitosa",
+        estadoActual: "Entrega Exitosa",
         observacion: "El envío es entregado.",
         mostrarObservacion: false
     },
@@ -113,7 +120,7 @@ const estadosLogisticos = {
     15: {
         id: 15,
         nombre: "Anulada",
-        estadoActual: "Documento anulado",
+        estadoActual: "Documento Anulado",
         observacion: "La guía generada es anulada del sistema.",
         mostrarObservacion: true
     },
@@ -715,6 +722,157 @@ function comprimirCentroSerivciosInter(data) {
     return res;
 }
 
+/**
+ * @typedef DeatalleNotificacion
+ * @type {object}
+ * @property {string} FechaNotificacion - Fecha en la que fue realizado el evento de notificación (2020-01-17T18:00:00)
+ * @property {string} FechaEstado - Fecha en la que se presentó el estaod realmente ( procurar ordenar por esta fecha) (2020-01-14T15:37:15.457)
+ * @property {number} NumeroGuia - El número de guía por el que se va a realizar la búsqueda para la actualización de estados
+ * @property {string} DescripcionEstado - Descripción del estado logístico Ej. Admitida
+ * @property {number} CodigoEstado - Código del estado logístico Ej. 1 (Admitida)
+ * @property {string} DescripcionMotivoEst - Descripción del motivo del estado (suele ser un poco más detallada)
+ * @property {number} CodigoMotivoEst - Código del motivo del estado logístico
+ * @property {string} CodigoCiudad - Código del dane ciudad (me parece que siempre será el dane ciudad de destino, VALIDAR)
+ */
+
+/**
+ * @typedef NotificacionEstado 
+ * @type {object} 
+ * @property {DeatalleNotificacion} DetalleNotificacion
+ */
+
+/** Function encargada recibir el estado por parte de inter y la referencia de dónde se va a guardar la información recibida, al igual que los logs
+ * @param {any} ref - La referencia de firebase dónde se guarda el evento
+ * @param {NotificacionEstado} NotificacionEstados - La notificación que ha sido recibida por inter
+ */
+async function actualizarNotificacionEstado(ref, NotificacionEstados) {
+    try { 
+        await ref.update({status: statusActualizationPush.loading});
+        const nuevoEstado = NotificacionEstados.DetalleNotificacion;
+        const numeroGuia = nuevoEstado.NumeroGuia.toString();
+
+        await ref.update({numeroGuia});
+        const infoGuia = await obtenerGuiaPorNumero(numeroGuia);
+
+        let entrega_oficina_notificada = infoGuia.entrega_oficina_notificada || false;
+
+        console.log("infoGuia", infoGuia);
+        if(!infoGuia) throw new Error("No se encuentra la guía para la actualización de los estados.");
+
+        const {id_user, id_heka, centro_de_costo} = infoGuia;
+        
+        const activadorEstadosPushTemporal = ["SellerLUSANmodafemenina", "SellerDISEOSGIOVERA"].includes(centro_de_costo);
+    
+        const infoEstados = await obtenerEstadosGuiaPorId(id_user, id_heka);
+
+        // Desde aquí es que se detecta la novedad particular de la transportadora
+        const novedad = [26, 39, 40, 7, 8, 32, 10, 30, 33].includes(nuevoEstado.CodigoEstado) 
+            ? nuevoEstado.DescripcionMotivoEst
+            : "";
+
+        const estadoLogistico = estadosLogisticos[nuevoEstado.CodigoEstado];
+        let estadoActualTransportadora = estadoLogistico ? estadoLogistico.estadoActual : nuevoEstado.DescripcionEstado;
+
+
+        if(estadoActualTransportadora === "Para Reclamar en Oficina" && !entrega_oficina_notificada) {
+            extsFunc.notificarEntregaEnOficina(guia);
+            entrega_oficina_notificada = true;
+        }
+        
+        const movimiento = {
+          novedad: novedad,
+          fechaEstadoOriginal: nuevoEstado.FechaEstado,
+          fechaMov: extsFunc.estandarizarFecha(nuevoEstado.FechaEstado, "DD/MM/YYYY HH:mm"),
+          observacion: nuevoEstado.DescripcionEstado + " - " + nuevoEstado.DescripcionMotivoEst,
+          descripcionMov: estadoActualTransportadora,
+          ubicacion: "", // nuevoEstado.CodigoCiudad
+          tipoMotivo: nuevoEstado.CodigoMotivoEst ?? null,
+          idEstadoGuia: nuevoEstado.CodigoEstado,
+          idEstadoAsignado: ref.id
+        }
+    
+        const estadoBase = {
+            version: 2, // Siempre queda como versión 2, porque esta es la forma en la qu ese preservan siempre todos los estados
+            numeroGuia: numeroGuia, //guia devuelta por la transportadora
+            fechaEnvio: extsFunc.estandarizarFecha(nuevoEstado.FechaEstado, "DD/MM/YYYY HH:mm:ss"), 
+            ciudadD: infoGuia.ciudadD,
+            nombreD: infoGuia.nombreD,
+            direccionD:  infoGuia.direccionD,
+            id_heka: id_heka,
+            transportadora: "INTERRAPIDISIMO",
+            centro_de_costo: infoGuia.centro_de_costo,
+            daneOrigen: infoGuia.dane_ciudadR || "NA",
+            daneDestino: infoGuia.dane_ciudadD || "NA",
+        };
+
+        const estadoVariante = {
+            fecha: extsFunc.estandarizarFecha(new Date(), "DD/MM/YYYY HH:mm:ss"), //fecha del estado
+            estadoActual: estadoActualTransportadora,
+            fechaUltimaActualizacion: new Date(),
+            mostrar_usuario: !!novedad,
+            enNovedad: !!novedad,
+            movimientos: firebase.firestore.FieldValue.arrayUnion(movimiento)
+        }
+    
+        if(infoEstados) {
+            const gTime = (fecha) => new Date(fecha).getTime();
+            infoEstados.movimientos.push(movimiento);
+
+            // Ordenamos los estados con respecto a los qu eya se haya en base de datos
+            estadoVariante.movimientos = infoEstados.movimientos.sort((a,b) => {
+                return gTime(a.fechaEstadoOriginal) - gTime(b.fechaEstadoOriginal);
+            });
+
+            const { enNovedad } = guiaEnNovedad(estadoVariante.movimientos, "INTERRAPIDISIMO");
+            estadoVariante.mostrar_usuario = enNovedad;
+            estadoVariante.enNovedad = enNovedad;
+
+            // Cuando el id de estado está entre estos dos, busca sobre el historial de movimientos para obtener el último estado real
+            // Por lo que la info básica de la guía se colocará como último estado bien sea devolución o entrega
+            // Mientras que sobre el historial de movimientos de la guía se mantendra el original que haya indicado la transportadora
+            if([16, 13].includes(nuevoEstado.CodigoEstado)) {
+                const ultimoEstado = obtenerUltimoEstado(estadoVariante.movimientos);
+                estadoActualTransportadora = ultimoEstado.descripcionMov;
+            }
+
+            if(activadorEstadosPushTemporal)
+                await crearOActualizarEstados(id_user, id_heka, estadoVariante, true);
+        } else {
+            Object.assign(estadoBase, estadoVariante);
+            
+            if(activadorEstadosPushTemporal)
+                await crearOActualizarEstados(id_user, id_heka, estadoBase, false);
+        }
+    
+        infoGuia.estadoTransportadora = estadoActualTransportadora;
+                
+        // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
+        const actualizaciones = modificarEstadoGuia(infoGuia);
+        
+        // Esto pasa una serie de argumentos, que detecta que haya alguna información para actualizar
+        // en caso de que los valores del segundo parametros sean falsos, undefined o null, no los toma en cuenta para actualizar
+        atributosAdicionalesEnActualizacion(actualizaciones, {
+            seguimiento_finalizado: true, enNovedad: !!novedad, entrega_oficina_notificada
+        });
+
+        if(activadorEstadosPushTemporal) {
+            await actualizarReferidoPorGuiaEntregada(infoGuia, actualizaciones);
+            await actualizarInfoGuia(id_user, id_heka, actualizaciones);
+
+            await ref.update({
+                status: statusActualizationPush.saved,
+                centro_de_costo, id_user,
+                fechaActualizacion: new Date()
+            });
+        } else {
+            await ref.update({status: "SUCCESS"});
+        }
+    } catch (e) {
+        await ref.update({status: statusActualizationPush.error, errorMessage: e.message});
+        console.log("Entro en error: ", e.message);
+    }
+}
+
 // FUNCIONES A EXPORTAR 
 exports.creacionGuia = creacionGuia;
 
@@ -859,42 +1017,18 @@ exports.utilidades = async (req, res) => {
 }
 
 exports.pushNotificacionEstados = async (req, res) => {
-    /**
-     * @typedef DeatalleNotificacion
-     * @type {object}
-     * @property {string} FechaNotificacion - Fecha en la que fue realizado el evento de notificación (2020-01-17T18:00:00)
-     * @property {string} FechaEstado - Fecha en la que se presentó el estaod realmente ( procurar ordenar por esta fecha) (2020-01-14T15:37:15.457)
-     * @property {number} NumeroGuia - El número de guía por el que se va a realizar la búsqueda para la actualización de estados
-     * @property {string} DescripcionEstado - Descripción del estado logístico Ej. Admitida
-     * @property {number} CodigoEstado - Código del estado logístico Ej. 1 (Admitida)
-     * @property {string} DescripcionMotivoEst - Descripción del motivo del estado (suele ser un poco más detallada)
-     * @property {number} CodigoMotivoEst - Código del motivo del estado logístico
-     * @property {string} CodigoCiudad - Código del dane ciudad (me parece que siempre será el dane ciudad de destino, VALIDAR)
-     */
-    
-    /**
-     * @typedef NotifiacionEstado 
-     * @type {object} 
-     * @property {DeatalleNotificacion} DetalleNotificacion
-     */
-
-
     /** Información Base
-     * @type {NotifiacionEstado} - Tipo del elemento
+     * @type {NotificacionEstado} - Tipo del elemento
     */
     const NotificacionEstados = req.body.NotificacionEstados;
 
-    const statusActualizationPush = {
-        error: "ERROR",
-        start: "STARTED",
-        loading: "LOADING",
-        saved: "SAVED"
-    }
+    const fechaRecepcion = new Date();
 
     const refEstadosBaseInter = await db.collection("estadosInter").add({
         body: req.body,
         status: statusActualizationPush.start,
-        timeline: Date.now()
+        timeline: fechaRecepcion.getTime(),
+        fechaRecepcion
     })
     .catch(e => {
         console.log("ERROR DESCONOCIDO: " + e.message);
@@ -905,132 +1039,46 @@ exports.pushNotificacionEstados = async (req, res) => {
         });
     });
 
-    try { 
-        await refEstadosBaseInter.update({status: statusActualizationPush.loading});
-        const nuevoEstado = NotificacionEstados.DetalleNotificacion;
-        const numeroGuia = nuevoEstado.NumeroGuia.toString();
+    await actualizarNotificacionEstado(refEstadosBaseInter, NotificacionEstados);
 
-        await refEstadosBaseInter.update({numeroGuia});
-        const infoGuia = await obtenerGuiaPorNumero(numeroGuia);
+    res.send({
+        error: false,
+        message: "Información actualizada correctamente"
+    });
+}
 
-        let entrega_oficina_notificada = infoGuia.entrega_oficina_notificada || false;
-
-        console.log("infoGuia", infoGuia);
-        if(!infoGuia) throw new Error("No se encuentra la guía para la actualización de los estados.");
-
-        const {id_user, id_heka} = infoGuia;
+exports.actualizarMovimientosRecibidosPush = async (req, res) => {
+    const { numeroGuia } = req.params;
+    const { id_user, id_heka } = req.body; // Información base para reiniciar los estados
     
-        const infoEstados = await obtenerEstadosGuiaPorId(id_user, id_heka);
+    try {
+        const docs = await db.collection("estadosInter")
+        .where("numeroGuia", "==", numeroGuia)
+        .get().then(q => q.docs);
 
-        // Desde aquí es que se detecta la novedad particular de la transportadora
-        const novedad = [26, 39, 40, 7, 8, 32, 10, 30, 33].includes(nuevoEstado.CodigoEstado) 
-            ? nuevoEstado.DescripcionMotivoEst
-            : "";
+        if(!docs.length) throw new Error("Esta guía aún no posee estados");
 
-        const estadoLogistico = estadosLogisticos[nuevoEstado.CodigoEstado];
-        let estadoActualTransportadora = estadoLogistico ? estadoLogistico.estadoActual : nuevoEstado.DescripcionEstado;
+        await db.collection("usuarios").doc(id_user).collection("estadoGuias").doc(id_heka).delete();
 
+        for (let doc of docs) {
+            const data = doc.data();
+            const {body} = data;
 
-        if(estadoActualTransportadora === "Para Reclamar en Oficina" && !entrega_oficina_notificada) {
-            extsFunc.notificarEntregaEnOficina(guia);
-            entrega_oficina_notificada = true;
+            await actualizarNotificacionEstado(doc.ref, body.NotificacionEstados);
         }
-        
-        const movimiento = {
-          novedad: novedad,
-          fechaEstadoOriginal: nuevoEstado.FechaEstado,
-          fechaMov: extsFunc.estandarizarFecha(nuevoEstado.FechaEstado, "DD/MM/YYYY HH:mm"),
-          observacion: nuevoEstado.DescripcionEstado + " - " + nuevoEstado.DescripcionMotivoEst,
-          descripcionMov: estadoActualTransportadora,
-          ubicacion: "", // nuevoEstado.CodigoCiudad
-          tipoMotivo: nuevoEstado.CodigoMotivoEst ?? null,
-          idEstadoGuia: nuevoEstado.CodigoEstado,
-          idEstadoAsignado: refEstadosBaseInter.id
-        }
-    
-        const estadoBase = {
-            version: 2, // Siempre queda como versión 2, porque esta es la forma en la qu ese preservan siempre todos los estados
-            numeroGuia: numeroGuia, //guia devuelta por la transportadora
-            fechaEnvio: extsFunc.estandarizarFecha(nuevoEstado.FechaEstado, "DD/MM/YYYY HH:mm:ss"), 
-            ciudadD: infoGuia.ciudadD,
-            nombreD: infoGuia.nombreD,
-            direccionD:  infoGuia.direccionD,
-            id_heka: id_heka,
-            transportadora: "INTERRAPIDISIMO",
-            centro_de_costo: infoGuia.centro_de_costo,
-            daneOrigen: infoGuia.dane_ciudadR || "NA",
-            daneDestino: infoGuia.dane_ciudadD || "NA",
-        };
-
-        const estadoVariante = {
-            fecha: extsFunc.estandarizarFecha(new Date(), "DD/MM/YYYY HH:mm:ss"), //fecha del estado
-            estadoActual: estadoActualTransportadora,
-            fechaUltimaActualizacion: new Date(),
-            mostrar_usuario: !!novedad,
-            enNovedad: !!novedad,
-            movimientos: firebase.firestore.FieldValue.arrayUnion(movimiento)
-        }
-    
-        if(infoEstados) {
-            const gTime = (fecha) => new Date(fecha).getTime();
-            infoEstados.movimientos.push(movimiento);
-
-            // Ordenamos los estados con respecto a los qu eya se haya en base de datos
-            estadoVariante.movimientos = infoEstados.movimientos.sort((a,b) => {
-                return gTime(a.fechaEstadoOriginal) - gTime(b.fechaEstadoOriginal);
-            });
-
-            const { enNovedad } = guiaEnNovedad(estadoVariante.movimientos, "INTERRAPIDISIMO");
-            estadoVariante.mostrar_usuario = enNovedad;
-            estadoVariante.enNovedad = enNovedad;
-
-            // Cuando el id de estado está entre estos dos, busca sobre el historial de movimientos para obtener el último estado real
-            // Por lo que la info básica de la guía se colocará como último estado bien sea devolución o entrega
-            // Mientras que sobre el historial de movimientos de la guía se mantendra el original que haya indicado la transportadora
-            if([16, 13].includes(nuevoEstado.CodigoEstado)) {
-                const ultimoEstado = obtenerUltimoEstado(estadoVariante.movimientos);
-                estadoActualTransportadora = ultimoEstado.descripcionMov;
-            }
-
-            // await crearOActualizarEstados(id_user, id_heka, estadoVariante, true);
-        } else {
-            Object.assign(estadoBase, estadoVariante);
-            // await crearOActualizarEstados(id_user, id_heka, estadoBase, false);
-        }
-    
-        infoGuia.estadoTransportadora = estadoActualTransportadora;
-                
-        // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
-        const actualizaciones = modificarEstadoGuia(infoGuia);
-        
-        // Esto pasa una serie de argumentos, que detecta que haya alguna información para actualizar
-        // en caso de que los valores del segundo parametros sean falsos, undefined o null, no los toma en cuenta para actualizar
-        atributosAdicionalesEnActualizacion(actualizaciones, {
-            seguimiento_finalizado: true, enNovedad: !!novedad, entrega_oficina_notificada
-        });
-
-        
-        // await actualizarReferidoPorGuiaEntregada(infoGuia, actualizaciones);
-        console.log(actualizaciones);
-        // await actualizarInfoGuia(id_user, id_heka, actualizaciones);
-    
-        await refEstadosBaseInter.update({status: "SUCCESS"});  // TODO: Convertirlo a saved cuando se actualice el estado sobre la guía
 
         res.send({
             error: false,
-            message: "Información actualizada correctamente"
+            message: "Se han actualizado los estados correctamente."
         });
-    
-    } catch (e) {
-        await refEstadosBaseInter.update({status: statusActualizationPush.error, errorMessage: e.message});
 
-        console.log("Entro en error: ", e.message);
+    } catch(e) {
         res.send({
             error: true,
             message: e.message
-        });
+        })
     }
-    
+
 }
 
 exports.actualizarMovimientos = actualizarMovimientos;
