@@ -265,6 +265,7 @@ reference
   })
   .then(async () => {
     console.log(centros);
+    window.centros = centros;
   });
 
 const botonesInputUserNoti = document.querySelector("#botones-inputusernoti");

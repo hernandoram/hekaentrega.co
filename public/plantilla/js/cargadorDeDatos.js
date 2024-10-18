@@ -2129,7 +2129,25 @@ function mostrarPagosAdmin(datos) {
   });
 
   for (let user of centros_costo) {
-    let filtrado = datos.filter((d) => d.REMITENTE == user);
+    console.warn(user);
+
+    const centros = window.centros;
+    const documentoUsuario =
+      centros.find((c) => c.centro_de_costo === user)?.numero_documento ||
+      "Sin documento";
+
+    // Filtrar y agregar la propiedad documentoUsuario en una sola pasada
+    const filtrado = datos.reduce((acc, d) => {
+      if (d.REMITENTE == user) {
+        acc.push({
+          ...d,
+          documentoUsuario: documentoUsuario,
+        });
+      }
+      return acc;
+    }, []);
+
+    console.warn(filtrado);
     tablaPagos(filtrado, "visor_pagos");
   }
 
