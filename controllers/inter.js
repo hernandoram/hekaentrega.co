@@ -621,6 +621,7 @@ async function creacionGuia(guia) {
     const idTipoEnvio = guia.peso < 3 ? 3 : 9;
     const idServicio = guia.peso < 6 ? 3 : 6;
     const tiempoInicial = Date.now();
+    const esConvencional = dest.type === "CONVENCIONAL"
 
     const dest = extsFunc.transformarDatosDestinatario(guia);
 
@@ -628,14 +629,14 @@ async function creacionGuia(guia) {
         "IdClienteCredito": credentials.idCliente, //Codigo cliente
         "CodigoConvenioRemitente": guia.codigo_sucursal, //Codigo sucursal
         "IdTipoEntrega": guia.id_tipo_entrega || 1, // 1 ENTREGA EN DIRECCIÓN; 2: RECLAMO EN OFICINA
-        "AplicaContrapago": dest.type !== "CONVENCIONAL",
+        "AplicaContrapago": esConvencional,
         "IdServicio": idServicio, 
         "Peso": guia.peso, //En kilogramos
         "Largo":guia.largo, //En centimetros
         "Ancho":guia.ancho,
         "Alto":guia.alto, 
         "DiceContener": guia.dice_contener,
-        "ValorDeclarado": guia.seguro,
+        "ValorDeclarado": esConvencional ? guia.seguro : guia.valor,
         "IdTipoEnvio": idTipoEnvio,
         "IdFormaPago":2,
         "NumeroPieza":1,
