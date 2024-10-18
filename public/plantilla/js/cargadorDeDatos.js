@@ -2129,8 +2129,6 @@ function mostrarPagosAdmin(datos) {
   });
 
   for (let user of centros_costo) {
-    console.warn(user);
-
     const centros = window.centros;
     const documentoUsuario =
       centros.find((c) => c.centro_de_costo === user)?.numero_documento ||
@@ -2147,7 +2145,6 @@ function mostrarPagosAdmin(datos) {
       return acc;
     }, []);
 
-    console.warn(filtrado);
     tablaPagos(filtrado, "visor_pagos");
   }
 
