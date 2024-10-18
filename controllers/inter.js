@@ -621,9 +621,9 @@ async function creacionGuia(guia) {
     const idTipoEnvio = guia.peso < 3 ? 3 : 9;
     const idServicio = guia.peso < 6 ? 3 : 6;
     const tiempoInicial = Date.now();
-    const esConvencional = dest.type === "CONVENCIONAL"
-
+    
     const dest = extsFunc.transformarDatosDestinatario(guia);
+    const esConvencional = dest.type === "CONVENCIONAL"
 
     let data = {
         "IdClienteCredito": credentials.idCliente, //Codigo cliente
