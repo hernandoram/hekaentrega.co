@@ -629,7 +629,7 @@ async function creacionGuia(guia) {
         "IdClienteCredito": credentials.idCliente, //Codigo cliente
         "CodigoConvenioRemitente": guia.codigo_sucursal, //Codigo sucursal
         "IdTipoEntrega": guia.id_tipo_entrega || 1, // 1 ENTREGA EN DIRECCIÓN; 2: RECLAMO EN OFICINA
-        "AplicaContrapago": esConvencional,
+        "AplicaContrapago": !esConvencional,
         "IdServicio": idServicio, 
         "Peso": guia.peso, //En kilogramos
         "Largo":guia.largo, //En centimetros
