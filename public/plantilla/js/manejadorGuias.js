@@ -2391,6 +2391,17 @@ function crearExcel(newDoc, nombre) {
   XLSX.writeFile(wb, nombre + ".xlsx");
 }
 
+function crearExcelPagos(newDoc, nombre) {
+  console.warn(newDoc);
+
+  let ws = XLSX.utils.json_to_sheet(newDoc);
+
+  let wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "1");
+
+  XLSX.writeFile(wb, nombre + ".xlsx");
+}
+
 function descargarInformeGuias(JSONData, ReportTitle) {
   console.log(JSONData);
   //If JSONData is not an object then JSON.parse will parse the JSON string in an Object
