@@ -2391,14 +2391,40 @@ function crearExcel(newDoc, nombre) {
   XLSX.writeFile(wb, nombre + ".xlsx");
 }
 
-function crearExcelPagos(newDoc, nombre) {
+function crearExcelPagosAdmin(newDoc, nombre) {
   console.warn(newDoc);
 
-  let ws = XLSX.utils.json_to_sheet(newDoc);
+  // Definir los encabezados manualmente
+  const headers = [
+    "Centro de Costo",
+    "Transportadora",
+    "Guía",
+    "Recaudo",
+    "Envío Total",
+    "Total a Pagar",
+    "Comisión heka",
+    "Fecha",
+    "Estado",
+    "Cuenta responsable",
+  ];
 
+  // Crear una nueva hoja de cálculo con los encabezados
+  let ws = XLSX.utils.json_to_sheet(newDoc, { header: headers });
+
+  // Reordenar las columnas para que REMITENTE sea la primera columna
+  const dataWithRemitenteFirst = newDoc.map((item) => ({
+    "Centro de Costo": item["REMITENTE"],
+    Transportadora: item["TRANSPORTADORA"],
+  }));
+
+  // Crear una nueva hoja de cálculo con los datos reordenados
+  ws = XLSX.utils.json_to_sheet(dataWithRemitenteFirst, { header: headers });
+
+  // Crear un nuevo libro de trabajo y agregar la hoja de cálculo
   let wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, "1");
 
+  // Escribir el archivo Excel
   XLSX.writeFile(wb, nombre + ".xlsx");
 }
 

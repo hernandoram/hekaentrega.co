@@ -2085,7 +2085,7 @@ function mostrarPagos(datos) {
   visor_pagos
     .querySelector("#descargar-pagos")
     .addEventListener("click", () => {
-      crearExcelPagos(toDownload, "Historial de pagos");
+      crearExcel(toDownload, "Historial de pagos");
     });
 
   activarBotonesVisorPagos();
@@ -2143,7 +2143,7 @@ function mostrarPagosAdmin(datos) {
   visor_pagos
     .querySelector("#descargar-pagos")
     .addEventListener("click", () => {
-      crearExcel(toDownload, "Historial de pagos");
+      crearExcelPagosAdmin(toDownload, "Historial de pagos 2");
     });
 
   activarBotonesVisorPagos();
