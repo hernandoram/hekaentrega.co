@@ -266,6 +266,8 @@ reference
   .then(async () => {
     console.log(centros);
     window.centros = centros;
+
+    document.getElementById("btn-revisar_pagos").disabled = false;
   });
 
 const botonesInputUserNoti = document.querySelector("#botones-inputusernoti");

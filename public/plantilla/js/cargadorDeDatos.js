@@ -77,6 +77,7 @@ async function validateToken(token) {
         }
         localStorage.removeItem("acceso_admin");
         administracion = false;
+        document.getElementById("btn-revisar_pagos").disabled = false;
       }
 
       const user = await firebase
