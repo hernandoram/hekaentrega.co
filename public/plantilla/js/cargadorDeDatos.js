@@ -2128,9 +2128,9 @@ function mostrarPagosAdmin(datos) {
     delete down.momento;
     return down;
   });
+  const centros = window.centros;
 
   for (let user of centros_costo) {
-    const centros = window.centros;
     const documentoUsuario =
       centros.find((c) => c.centro_de_costo === user)?.numero_documento ||
       "Sin documento";
