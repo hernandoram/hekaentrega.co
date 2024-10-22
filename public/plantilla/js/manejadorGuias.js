@@ -2392,8 +2392,6 @@ function crearExcel(newDoc, nombre) {
 }
 
 function crearExcelPagosAdmin(newDoc, nombre) {
-  console.warn(newDoc);
-
   const headers = [
     "Centro de Costo",
     "Documento Centro de Costo",
