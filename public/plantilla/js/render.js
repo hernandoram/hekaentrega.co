@@ -1563,6 +1563,8 @@ function tablaPagos(arrData, id) {
   cuerpo.setAttribute("data-usuario", arrData[0].REMITENTE);
 
   for (let data of arrData) {
+    //TODO
+    const userDoc = data.documentoUsuario;
     const buttonVerComp =
       administracion &&
       data.comprobante_bancario &&
@@ -1583,10 +1585,6 @@ function tablaPagos(arrData, id) {
     tr.setAttribute("data-remitente", data.REMITENTE);
     tr.innerHTML = `
                 <td>${data.REMITENTE}</td>
-                                <td>${
-                                  data.documentoUsuario || "Sin documento"
-                                }</td>
-
                 <td>${data.TRANSPORTADORA}</td>
                 <td>${data.GUIA}</td>
                 <td>${data.RECAUDO}</td>
