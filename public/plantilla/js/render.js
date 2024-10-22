@@ -1562,6 +1562,8 @@ function tablaPagos(arrData, id) {
   cuerpo.setAttribute("data-usuario", arrData[0].REMITENTE);
 
   for (let data of arrData) {
+    //TODO
+    const userDoc = data.documentoUsuario;
     const buttonVerComp =
       administracion &&
       data.comprobante_bancario &&
