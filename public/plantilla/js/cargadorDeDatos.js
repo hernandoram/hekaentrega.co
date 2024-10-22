@@ -2129,6 +2129,8 @@ function mostrarPagosAdmin(datos) {
     return down;
   });
 
+  let toDownload2 = [];
+
   for (let user of centros_costo) {
     const centros = window.centros;
     const documentoUsuario =
@@ -2146,6 +2148,8 @@ function mostrarPagosAdmin(datos) {
       return acc;
     }, []);
 
+    toDownload2 = toDownload2.concat(filtrado);
+
     tablaPagos(filtrado, "visor_pagos");
   }
 
@@ -2159,7 +2163,7 @@ function mostrarPagosAdmin(datos) {
   visor_pagos
     .querySelector("#descargar-pagos")
     .addEventListener("click", () => {
-      crearExcelPagosAdmin(toDownload, "Historial de pagos 2");
+      crearExcelPagosAdmin(toDownload2, "Historial de pagos 2");
     });
 
   activarBotonesVisorPagos();
