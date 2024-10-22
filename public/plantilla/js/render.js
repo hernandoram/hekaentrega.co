@@ -1541,7 +1541,6 @@ function tablaPagos(arrData, id) {
   thead.classList.add("thead-light");
   thead.innerHTML = `<tr>
             <th>Centro de Costo</th>
-            <th>Documento Centro de Costo</th>
             <th>Transportadora</th>
             <th>Guía</th>
             <th>Recaudo</th>
@@ -1582,10 +1581,7 @@ function tablaPagos(arrData, id) {
     tr.setAttribute("id", data.GUIA);
     tr.setAttribute("data-remitente", data.REMITENTE);
     tr.innerHTML = `
-                <td>${data.REMITENTE}</td>
-                                <td>${
-                                  data.documentoUsuario || "Sin documento"
-                                }</td>
+                <td>${data.REMITENTE} | ${data.documentoUsuario}</td>
 
                 <td>${data.TRANSPORTADORA}</td>
                 <td>${data.GUIA}</td>
