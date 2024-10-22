@@ -39,13 +39,13 @@ const summernoteOptions = {
     "Courier New",
     "Times New Roman",
     "Helvetica",
-    "Impact"
+    "Impact",
   ],
   styleTags: [
     "p",
     // {title: 'pequeña', tag: 'h6', value: 'h6'},
     { title: "Título", tag: "h4", value: "h4" },
-    { title: "Sub-título", tag: "h5", value: "h5" }
+    { title: "Sub-título", tag: "h5", value: "h5" },
   ],
   toolbar: [
     ["style", ["style"]],
@@ -57,15 +57,15 @@ const summernoteOptions = {
         "underline",
         "strikethrough",
         "superscript",
-        "subscript"
-      ]
+        "subscript",
+      ],
     ],
     ["font", ["fontsize", "fontname"]],
     ["color", ["color"]],
     ["paragraph", ["ul", "ol", "paragraph", "height", "fullscreen"]],
-    ["insert", ["link"]] // Agregado aquí
+    ["insert", ["link"]], // Agregado aquí
   ],
-  lang: "es-ES"
+  lang: "es-ES",
 };
 
 $("#mensaje-centro_notificaciones").summernote(summernoteOptions);
@@ -181,7 +181,7 @@ async function generarNotificacion(e) {
     timeline: new Date().getTime(),
     isGlobal: true,
     active: true,
-    allowDelete: true
+    allowDelete: true,
   };
 
   formData.delete("files");
@@ -256,11 +256,18 @@ reference
   .then((querySnapshot) => {
     console.log(querySnapshot.size);
     querySnapshot.forEach((doc) => {
-      centros.push({ id: doc.id, centro_de_costo: doc.data().centro_de_costo });
+      centros.push({
+        id: doc.id,
+        centro_de_costo: doc.data().centro_de_costo,
+        numero_documento: doc.data().numero_documento,
+      });
     });
   })
   .then(async () => {
     console.log(centros);
+    window.centros = centros;
+
+    document.getElementById("btn-revisar_pagos").disabled = false;
   });
 
 const botonesInputUserNoti = document.querySelector("#botones-inputusernoti");
@@ -531,5 +538,5 @@ const acciones = {
             break;
         }
       });
-  }
+  },
 };
