@@ -3441,9 +3441,11 @@ class CalcularCostoDeEnvio {
     this.sobreflete_heka =
       this.set_sobreflete_heka ||
       Math.ceil((valor * comision_heka) / 100) + constante_heka;
-    
-    if (this.codTransp === "INTERRAPIDISIMO" && !this.empty) this.intoInter(this.precio);
-    if (this.codTransp === transportadoras.HEKA.cod && !this.empty) this.intoHeka(this.precio);
+
+    if (this.codTransp === "INTERRAPIDISIMO" && !this.empty)
+      this.intoInter(this.precio);
+    if (this.codTransp === transportadoras.HEKA.cod && !this.empty)
+      this.intoHeka(this.precio);
     if (this.aveo) this.intoAveo(this.precio);
     if (this.envia) this.intoEnvia(this.precio);
     if (this.coordinadora) this.intoCoord(this.precio);
@@ -5163,7 +5165,10 @@ function observacionesInteRapidisimo(result_cotizacion) {
     "En caso de devolución la transportadora cobrará el valor del flete ida + seguro de mercancía, no se cobra comisión de recaudo, ni flete de vuelta.",
     "Las recolecciones deberán ser solicitadas el día anterior o el mismo antes de las 9:00 am para que pasen el mismo día.",
     "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
+
     "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
+
+    "En caso de presentar RELIQUIDACIONES por pesos y medidas incorrectas será notificado por medio de correo electrónico, si no se envían las evidencias en los tiempos designados NO se podrá realizar la respectiva apelación y será realizado el respectivo cobro.",
     "En caso de devolución pagarías: $" +
       convertirMiles(
         result_cotizacion.getDetails.cobraDevolucion
