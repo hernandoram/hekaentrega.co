@@ -296,7 +296,7 @@ const sendMessage = async (message) => {
   const data = {
     type: "code_access",
     code: message,
-    number: `${datos_usuario.celular2}`,
+    number: `${datos_usuario.celular2 || datos_usuario.celular}`,
     email: `${datos_usuario.correo}`,
   };
 
