@@ -1586,7 +1586,7 @@ function tablaPagos(arrData, id) {
     tr.setAttribute("id", data.GUIA);
     tr.setAttribute("data-remitente", data.REMITENTE);
     tr.innerHTML = `
-                <td>${data.REMITENTE} | </td>
+                <td>${data.REMITENTE}</td>
 
                 <td>${data.TRANSPORTADORA}</td>
                 <td>${data.GUIA}</td>
