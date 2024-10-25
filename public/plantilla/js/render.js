@@ -1541,6 +1541,7 @@ function tablaPagos(arrData, id) {
   thead.classList.add("thead-light");
   thead.innerHTML = `<tr>
             <th>Centro de Costo</th>
+
             <th>Transportadora</th>
             <th>Guía</th>
             <th>Recaudo</th>
@@ -1549,6 +1550,8 @@ function tablaPagos(arrData, id) {
             <th>Comisión heka</th>
             <th data-id="${arrData[0].REMITENTE.replace(" ", "")}">Fecha</th>
             <th>Estado</th>
+                                    <th>Doc Centro de Costo</th>
+
             <th>Cuenta responsable</th>
             <th>Acciones</th>
         </tr>`;
@@ -1583,7 +1586,7 @@ function tablaPagos(arrData, id) {
     tr.setAttribute("id", data.GUIA);
     tr.setAttribute("data-remitente", data.REMITENTE);
     tr.innerHTML = `
-                <td>${data.REMITENTE} | ${data.documentoUsuario}</td>
+                <td>${data.REMITENTE} | </td>
 
                 <td>${data.TRANSPORTADORA}</td>
                 <td>${data.GUIA}</td>
@@ -1595,6 +1598,8 @@ function tablaPagos(arrData, id) {
       data.FECHA
     }" data-funcion="cambiar_fecha">${data.FECHA}</td>
                 <td>${data.estado}</td>
+                                <td>${data.documentoUsuario}</td>
+
                 <td>${data.cuenta_responsable || "No registró"}</td>
                 <td>
                     <div class="d-flex flex-wrap">
