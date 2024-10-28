@@ -100,7 +100,7 @@ export default class TablaEnvios {
     if (gIdx === -1) {
       this.table.row.add(guia).draw(false);
     } else {
-      const row = this.table.row(lIdx).draw(false);
+      const row = this.table.row(gIdx).draw(false);
       row.data(guia);
     }
 

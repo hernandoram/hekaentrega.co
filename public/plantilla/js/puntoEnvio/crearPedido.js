@@ -62,8 +62,7 @@ export async function crearPedidoEnvios(cotizacion, enviosInvolucrados) {
 }
 
 async function actualizarEstadoEnvioIndividual(idEnvio, estado) {
-    return await fetch({
-        url: v0.seguimientoEnvios + "/" + idEnvio, 
+    return await fetch(v0.seguimientoEnvios + "/" + idEnvio, {
         method: "POST",
         headers: {
             "Content-Type": "Application/json"
