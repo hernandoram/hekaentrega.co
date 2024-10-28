@@ -2957,7 +2957,7 @@ function mostrarDirecciones(datos) {
   small.setAttribute("class", "text-muted ver-direccion");
   aggDireccion.setAttribute("class", "text-muted");
   aggDireccion.innerHTML =
-    "<small>¿no está la bodega que necesitas? puedes agregarla <a href='#bodegas'>aquí</a></small>";
+    "<small>¿no está la bodega que necesitas? puedes agregarla <a href='https://www.hekaentrega.co/plataforma/mis-bodegas'>aquí</a></small>";
 
   respuesta.innerHTML =
     "<label for='#actualizar_direccionR'>Dirección del Remitente</label>";
