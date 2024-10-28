@@ -10,11 +10,12 @@ const pathEstadisticasCiudad = pathCiudades + "/Estadisticas";
 const pathCotizador = endpoint + "/Heka/Cotizar";
 
 const v0 = {
-  pathCiudadesLista,
-  pathCiudadDane,
-  pathEstadisticasCiudad,
-  pathCotizador,
-};
+    pathCiudadesLista,
+    pathCiudadDane,
+    pathEstadisticasCiudad,
+    pathCotizador,
+    seguimientoEnvios: endpoint + "/Heka/seguimiento"
+}
 
 // const endpointV1 = "https://api.hekaentrega.co/Api/v1";
 const endpointV1 = PROD_API_URL + "/Api/v1";

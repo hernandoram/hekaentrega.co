@@ -264,6 +264,7 @@ async function getWarehouses() {
             (transportadora) => transportadora.id === "interrapidisimo"
           )?.code || null,
         ciudad: `${bodega.city.label}(${bodega.city.state.label})`,
+        dane_ciudad: bodega.city.dane,
         barrio: bodega.neighborhood,
         dane_ciudad: bodega.city.dane,
         conveyors: bodega.conveyors,

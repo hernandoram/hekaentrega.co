@@ -4,6 +4,7 @@ import "./historialGuias/main.js";
 import { iniciarOpcionesCotizador } from "./cotizador/index.js";
 import { registroDesdePunto } from "./auth/register.js";
 import { agregarObjetoDeEnvio } from "./auth/handlers.js";
+import "./puntoEnvio/recibirPaquete.js";
 
 // if(estado_prueba) {
 // }
