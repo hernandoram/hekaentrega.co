@@ -3,8 +3,13 @@ import { table as htmlTable, idTable } from "./views.js";
 
 const columns = [
   {
+    data: "centro_de_costo",
+    title: "Usuario",
+    defaultContent: ""
+  },
+  {
     data: "numeroGuia",
-    title: "Id",
+    title: "Envío",
     defaultContent: ""
   },
   {
@@ -59,8 +64,10 @@ const config = {
   scrollX: true,
   scrollCollapse: true
 }
-// TODO: Generar la forma de crear y enviar manifiestos del usuario al que se le ha escaneado el qr de la guía
+
 export default class TablaEnvios {
+  dataSelected = [];
+  ciudadDestino = null;
   constructor(selectorContainer) {
     const container = $(selectorContainer);
     container.append(htmlTable);
@@ -68,9 +75,21 @@ export default class TablaEnvios {
     this.table = $("#" + idTable).DataTable(config);
 
     this.table.on('click', 'tbody tr', e => {
-      $(e.currentTarget).toggleClass('selected bg-gray-300');
+      const currentRowData = this.table.row(e.currentTarget).data();
+      if(!this.ciudadDestino) this.ciudadDestino = currentRowData.idDaneCiudadDestino;
+
+      if(currentRowData.idDaneCiudadDestino !== this.ciudadDestino) {
+        Toast.fire("", "Debe seleccionar guías hacia la misma ciudad destino", "error");
+      } else {
+        $(e.currentTarget).toggleClass('selected bg-gray-300');
+      }
+
       const dataSelected = this.table.rows(".selected").data().toArray();
-      actualizarCotizador(dataSelected);
+      
+      if(!dataSelected.length) this.ciudadDestino = null;
+
+      this.dataSelected = dataSelected;
+      actualizarCotizador(this.dataSelected);
     });
   }
 
@@ -78,18 +97,12 @@ export default class TablaEnvios {
     const guias = this.table.data().toArray();
     const gIdx = guias.findIndex((g) => g.id === guia.id);
 
-    console.log(guias);
-
     if (gIdx === -1) {
       this.table.row.add(guia).draw(false);
-      console.log("Se ha agregado");
     } else {
       const row = this.table.row(lIdx).draw(false);
       row.data(guia);
     }
-
-    console.log("Pintando tabla");
-    // this.table.draw();
 
   }
 
