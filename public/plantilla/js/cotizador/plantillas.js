@@ -148,16 +148,15 @@ function buscarCiudad(el, ciudad) {
 }
 
 function cambiarPlantillaCotizador(e) {
-  console.log(bodegasEl.val());
   const val = e.target.value;
 
+  console.log(val);
   // Limpiamos los campos donde se ingresa la ciudad del destinatario y remitente
   //limpiarInputCiudad(inpCiudadR);
   limpiarInputCiudad(inpCiudadD);
 
   formulario[0].reset();
-  const bodega = bodegasWtch.value.find((b) => b.id == bodegasEl.val());
-  console.log(bodegasEl.val());
+
   //buscarCiudad(inpCiudadR, bodega.ciudad);
 
   if (!val) {
@@ -175,6 +174,7 @@ function cambiarPlantillaCotizador(e) {
 
   if (!plantilla) return;
 
+  plantilla.tipo_envio ? "" : (plantilla.tipo_envio = "PAGO CONTRAENTREGA");
   const plant = Object.assign({}, plantilla);
   delete plant.ciudadD;
   delete plant.ciudadR;
@@ -187,6 +187,22 @@ function cambiarPlantillaCotizador(e) {
 
   if (checkActivarDestinoPlantilla[0].checked)
     buscarCiudad(inpCiudadD, plantilla.ciudad);
+
+  const controls = {
+    sumaEnvio: $("#sumar_envio-cotizador"),
+    tipoEnvio: $("#tipo_envio-cotizador"),
+    valorRecaudo: $("#recaudo-cotizador"),
+    btnCotizarGlobal: $(".cotizador-button"),
+  };
+
+  if (plantilla.tipo_envio !== "PAGO CONTRAENTREGA") {
+    controls.valorRecaudo.parent().hide("fast");
+    controls.valorRecaudo.removeAttr("required");
+    controls.sumaEnvio.prop("checked", false);
+  } else {
+    controls.valorRecaudo.parent().show("fast");
+    controls.valorRecaudo.attr("required", true);
+  }
 }
 
 function llenarInputCiudad(inp, data) {
