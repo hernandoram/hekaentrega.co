@@ -15,7 +15,7 @@ const estadosTransportadora = {
     anulada: [],
   },
   INTERRAPIDISIMO: {
-    entregada: ["Entrega Exitosa", "Entregada", "Entrega Exitosa"],
+    entregada: ["Entrega Exitosa", "Entregada", "entrega Exitosa"],
     devuelta: ["Devuelto al Remitente"],
     anulada: ["Documento Anulado"],
   },
