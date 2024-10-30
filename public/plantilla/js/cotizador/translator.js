@@ -27,10 +27,12 @@ class TranslatorFromApi {
         this.seguro = dataFromApi.declaredValue;
         this.sobreflete = dataFromApi.transportCommission;
         this.seguroMercancia = dataFromApi.assured;
+        this.codTransp = dataFromApi.entity.toUpperCase();
         this.transportadora = dataFromApi.entity.toUpperCase();
         this.version = parseInt(dataFromApi.version);
         this.costoDevolucion = dataFromApi.cost_return_heka;
         this.costoDevolucionOriginal = dataFromApi.cost_return;
+        this.comisionAdicionalHeka = this.dataFromApi.additional_commission
     }
 
     /** Es el flete que cobra la transportadora, normalmente el api lo devuelve con 1000 pesos adicionales
@@ -39,7 +41,10 @@ class TranslatorFromApi {
      * ya que esto es lo que realmente se guardará en base de datos
      */
     get flete() {
-      return this.type === PAGO_CONTRAENTREGA ? this.dataFromApi.flete - this.FACHADA_FLETE : this.dataFromApi.flete;
+      const fleteApi = this.type === PAGO_CONTRAENTREGA ? this.dataFromApi.flete - this.FACHADA_FLETE : this.dataFromApi.flete;
+
+      // Se le resta la comisión adicional, para que se guarde el flete natural, sin alteraciones, por fuera ase debe mostrar el flete que venga del api sin alteracioines
+      return fleteApi - this.comisionAdicionalHeka;
     }
 
     /** Es la comisión que le corresponde a Heka por el diligenciamiento y gestión de dicho envío
@@ -96,6 +101,16 @@ class TranslatorFromApi {
 
         return peso_con_volumen;
     }
+    /** Heka cobra devolución sobre la guía si es de versión 1
+     * o si siendo de la versión 2, es diferente al pago contraentrega
+     * 
+     * Es decir, las guíass creadas con versión 2 que sean pago contraentrega no cobran devolución
+     */
+    get cobraDevolucion() {
+      const esVersion1 = this.version === 1;
+      const version2PagoContraentrega = this.version === 2 && this.type !== PAGO_CONTRAENTREGA;
+      return esVersion1 || version2PagoContraentrega;
+    }
 
     get getDetails() {
         const details = {
@@ -109,8 +124,8 @@ class TranslatorFromApi {
             total: this.costoEnvio,
             recaudo: this.valor,
             seguro: this.seguro,
-            costoDevolucion: this.version === 2 ? this.costoDevolucionOriginal : this.costoDevolucion,
-            cobraDevolucion: this.version === 1,
+            costoDevolucion: this.cobraDevolucion ? this.costoDevolucion : this.costoDevolucionOriginal, // this.version === 2 ? this.costoDevolucionOriginal : this.costoDevolucion,
+            cobraDevolucion: this.cobraDevolucion,
             versionCotizacion: this.version
         };
     
@@ -373,14 +388,15 @@ function createExcelComparativePrices(objInput, arrOutput) {
   }
 
   const result = [];
-  arrOutput.forEach(({cotiA, cotiB}) => {
+  arrOutput.forEach(([cotiA, cotiB]) => {
     const objtResult = {
+      transportadora: cotiA.codTransp,
       flete_a: cotiA.flete,
       flete_b: cotiB.flete,
       comision_transp_a: cotiA.sobreflete,
       comision_transp_b: cotiB.sobreflete,
-      comision_heka_a: cotiA.comision_heka,
-      comision_heka_b: cotiB.comision_heka,
+      comision_heka_a: cotiA.getDetails.comision_heka,
+      comision_heka_b: cotiB.getDetails.comision_heka,
       seguro_mercancia_a: cotiA.seguroMercancia,
       seguro_mercancia_b: cotiB.seguroMercancia,
       costo_envio_a: cotiA.costoEnvio,
@@ -391,7 +407,21 @@ function createExcelComparativePrices(objInput, arrOutput) {
   });
 
   console.log(result);
-  // descargarInformeExcel(Object.keys(result).map(k => ({title: k, data: k})), result, `Cotización_${base.tipo_envio}_${objInput.daneCityOrigin}_${objInput.daneCityDestination}`)
+  
+  if(!result.length) throw new Error("No se pudo generar el informe");
+  const keys = Object.keys(result[0]).reduce((a,b) => {a[b] = b; return a}, {});
+
+  const descargadorDeInforme = () => descargarInformeExcel(keys, result, `Cotización_${base.tipo_envio}_${objInput.daneCityOrigin}_${objInput.daneCityDestination}`);
+
+  if(!window.XLSX) {
+    const script = document.createElement("script");
+    script.src = "https://unpkg.com/xlsx/dist/xlsx.full.min.js";
+    script.onload = () => {descargadorDeInforme()}
+    document.head.appendChild(script);
+  } else {
+    descargadorDeInforme();
+  }
+  
 }
 
 export {translation, TranslatorFromApi, demoPruebaCotizadorAntiguo, testComparePrices, createExcelComparativePrices}

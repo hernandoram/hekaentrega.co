@@ -2957,7 +2957,7 @@ function mostrarDirecciones(datos) {
   small.setAttribute("class", "text-muted ver-direccion");
   aggDireccion.setAttribute("class", "text-muted");
   aggDireccion.innerHTML =
-    "<small>¿no está la bodega que necesitas? puedes agregarla <a href='#bodegas'>aquí</a></small>";
+    "<small>¿no está la bodega que necesitas? puedes agregarla <a href='https://www.hekaentrega.co/plataforma/mis-bodegas'>aquí</a></small>";
 
   respuesta.innerHTML =
     "<label for='#actualizar_direccionR'>Dirección del Remitente</label>";
@@ -3441,9 +3441,11 @@ class CalcularCostoDeEnvio {
     this.sobreflete_heka =
       this.set_sobreflete_heka ||
       Math.ceil((valor * comision_heka) / 100) + constante_heka;
-    
-    if (this.codTransp === "INTERRAPIDISIMO" && !this.empty) this.intoInter(this.precio);
-    if (this.codTransp === transportadoras.HEKA.cod && !this.empty) this.intoHeka(this.precio);
+
+    if (this.codTransp === "INTERRAPIDISIMO" && !this.empty)
+      this.intoInter(this.precio);
+    if (this.codTransp === transportadoras.HEKA.cod && !this.empty)
+      this.intoHeka(this.precio);
     if (this.aveo) this.intoAveo(this.precio);
     if (this.envia) this.intoEnvia(this.precio);
     if (this.coordinadora) this.intoCoord(this.precio);
@@ -4211,6 +4213,7 @@ async function crearGuia() {
       await enviarUsuarioFrecuente(datos_a_enviar.dane_ciudadD);
       await crearNuevoObjeto();
 
+      delete datos_a_enviar.id_heka; // Eliminamos el id Heka para evitar cualquier error innecesarios en la duplicidad de guías
       if (checkCreacionPedido) {
         datos_a_enviar.estadoActual = estadosGuia.pedido;
         enviar_firestore(datos_a_enviar).then(mostrarResultado);
@@ -4479,9 +4482,6 @@ async function enviar_firestore(datos) {
     .collection("guias")
     .doc(id_heka);
 
-  // Esto ya lo debería actualizar la funcion obtenerIdHeka()
-  // firestore.collection("infoHeka").doc("heka_id").update({id: firebase.firestore.FieldValue.increment(1)});
-
   return await referenciaNuevaGuia
     .set(datos)
     .then((id) => {
@@ -4503,16 +4503,6 @@ async function enviar_firestore(datos) {
           '"',
         mensajeCorto: err.message,
       };
-      Swal.fire({
-        icon: "error",
-        title: "¡Lo sentimos! Error inesperado",
-        html:
-          'Hemos detectado el siguiente error: "' +
-          err.message +
-          "\". Si desconoce la posible causa, por favor comuniquese con asesoría logistica (<a href='https://wa.me/573213361911' target='_blank'>+57 321 3361911</a>) enviando un capture o detallando el mensaje expuesto. \nmuchas gracias por su colaboración y discupe las molestias causadas.",
-      }).then(() => {
-        console.log("revisa que paso, algo salio mal => ", err);
-      });
     });
 }
 
@@ -4524,19 +4514,6 @@ async function descontarSaldo(datos) {
       .doc(localStorage.user_id)
       .get()
       .then((doc) => doc.data().datos_personalizados));
-
-  //Estas líneas será utilizadas para cuando todos los nuevos usuarios por defecto
-  //no tengan habilitadas las transportadoras, para que administración se las tenga que habilitar
-  // if(!datos_heka) {
-  //     return {
-  //         mensaje: "Lo sentimos, no pudimos carga su información de pago, por favor intente nuevamente.",
-  //         mensajeCorto: "No se pudo cargar su información de pago",
-  //         icon: "error",
-  //         title: "Sin procesar"
-  //     }
-  // }
-
-  // FIN DEL BLOQUE
 
   const id = datos.id_heka;
   console.log(datos.debe);
@@ -5188,7 +5165,10 @@ function observacionesInteRapidisimo(result_cotizacion) {
     "En caso de devolución la transportadora cobrará el valor del flete ida + seguro de mercancía, no se cobra comisión de recaudo, ni flete de vuelta.",
     "Las recolecciones deberán ser solicitadas el día anterior o el mismo antes de las 9:00 am para que pasen el mismo día.",
     "La mercancía debe ser despachada y embalada junto con los documentos descargados desde la plataforma.",
+
     "El manifiesto o relación de envío se debe hacer sellar o firmar por el mensajero donde se entreguen los paquetes, ya que este es el comprobante de entrega de la mercancía, sin manifiesto sellado, la transportadora no se hace responsable de mercancía.",
+
+    "En caso de presentar RELIQUIDACIONES por pesos y medidas incorrectas será notificado por medio de correo electrónico, si no se envían las evidencias en los tiempos designados NO se podrá realizar la respectiva apelación y será realizado el respectivo cobro.",
     "En caso de devolución pagarías: $" +
       convertirMiles(
         result_cotizacion.getDetails.cobraDevolucion

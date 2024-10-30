@@ -174,6 +174,23 @@ function generarTabla(users) {
       ],
       data: users,
     });
+    const hash = window.location.hash;
+    const paramsIndex = hash.indexOf('?');
+
+    if (paramsIndex !== -1) {
+      const queryString = hash.substring(paramsIndex + 1);
+      const urlParams = new URLSearchParams(queryString);
+      const idFirebase = urlParams.get('idFirebase');
+      
+
+      if (idFirebase) {
+        if (hash.startsWith('#movimientos')) {
+          manejarClickMovimientos(idFirebase);
+        } else if (hash.startsWith('#usuarios')) {
+          seleccionarUsuario(idFirebase);
+        }
+      }
+    }
   });
 }
 
@@ -203,7 +220,6 @@ function volver2() {
 }
 
 function manejarClickMovimientos(id) {
-  // Suponiendo que genFecha y verMovimientos son funciones ya definidas en tu código
   let fechaI = genFecha().split("-");
   fechaI[1] -= 1;
   fechaI = new Date(fechaI.join("-") + "::").getTime();
@@ -211,7 +227,7 @@ function manejarClickMovimientos(id) {
   console.log(fechaI, fechaF);
   verMovimientos(id, fechaI, fechaF + 8.64e7);
 
-  location.href = "#movimientos";
+  location.href = `#movimientos`;
 
   document.getElementById("nombre-usuario-movs").textContent = users.find(
     (user) => user.id == id

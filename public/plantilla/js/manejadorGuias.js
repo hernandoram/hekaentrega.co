@@ -2386,12 +2386,68 @@ function crearExcel(newDoc, nombre) {
   let ws = XLSX.utils.json_to_sheet(newDoc);
 
   let wb = XLSX.utils.book_new();
-  console.log(wb);
   XLSX.utils.book_append_sheet(wb, ws, "1");
 
   XLSX.writeFile(wb, nombre + ".xlsx");
 }
 
+function crearExcelPagosAdmin(newDoc, nombre) {
+  const headers = [
+    "Centro de Costo",
+    "Documento Centro de Costo",
+    "Transportadora",
+    "Guía",
+    "Recaudo",
+    "Envío Total",
+    "Total a Pagar",
+    "Comisión heka",
+    "Fecha",
+    "Estado",
+    "Cuenta responsable",
+  ];
+
+  const dataWithRemitenteFirst = newDoc.map((item) => ({
+    "Centro de Costo": item["REMITENTE"],
+    "Documento Centro de Costo": item["documentoUsuario"],
+    Transportadora: item["TRANSPORTADORA"],
+    Guía: item["GUIA"],
+    Recaudo: item["RECAUDO"],
+    "Envío Total": item["ENVÍO TOTAL"],
+    "Total a Pagar": item["TOTAL A PAGAR"],
+    "Comisión heka": item["COMISION HEKA"],
+    Fecha: item["FECHA"],
+    Estado: item["filtro_especial"],
+    "Cuenta responsable": item["cuenta_responsable"],
+  }));
+
+  // Crear una nueva hoja de cálculo con los datos reordenados
+  let ws = XLSX.utils.json_to_sheet(dataWithRemitenteFirst, {
+    header: headers,
+  });
+
+  // Establecer el ancho de cada columna a 120 píxeles
+  ws["!cols"] = headers.map(() => ({ wpx: 120 }));
+
+  // Eliminar el contenido de la columna L en adelante
+  const range = XLSX.utils.decode_range(ws["!ref"]);
+  for (let C = 11; C <= range.e.c; ++C) {
+    for (let R = range.s.r; R <= range.e.r; ++R) {
+      const cell_address = { c: C, r: R };
+      const cell_ref = XLSX.utils.encode_cell(cell_address);
+      delete ws[cell_ref];
+    }
+  }
+  // Actualizar el rango de la hoja de cálculo
+  range.e.c = 10; // Columna K (índice 10)
+  ws["!ref"] = XLSX.utils.encode_range(range);
+
+  // Crear un nuevo libro de trabajo y agregar la hoja de cálculo
+  let wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "1");
+
+  // Escribir el archivo Excel
+  XLSX.writeFile(wb, nombre + ".xlsx");
+}
 function descargarInformeGuias(JSONData, ReportTitle) {
   console.log(JSONData);
   //If JSONData is not an object then JSON.parse will parse the JSON string in an Object

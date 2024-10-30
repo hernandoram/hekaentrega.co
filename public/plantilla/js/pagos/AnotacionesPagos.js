@@ -59,7 +59,7 @@ export default class {
 
     setContent() {
         this.content = document.createElement("ul");
-        content.setAttribute("class", "list-group");
+        this.content.setAttribute("class", "list-group");
 
         this.container.append(this.content);
     }

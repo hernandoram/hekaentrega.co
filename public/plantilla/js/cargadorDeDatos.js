@@ -77,6 +77,7 @@ async function validateToken(token) {
         }
         localStorage.removeItem("acceso_admin");
         administracion = false;
+        document.getElementById("btn-revisar_pagos").disabled = false;
       }
 
       const user = await firebase
@@ -263,6 +264,7 @@ async function getWarehouses() {
             (transportadora) => transportadora.id === "interrapidisimo"
           )?.code || null,
         ciudad: `${bodega.city.label}(${bodega.city.state.label})`,
+        dane_ciudad: bodega.city.dane,
         barrio: bodega.neighborhood,
         dane_ciudad: bodega.city.dane,
         conveyors: bodega.conveyors,
@@ -295,7 +297,7 @@ const sendMessage = async (message) => {
   const data = {
     type: "code_access",
     code: message,
-    number: `${datos_usuario.celular}`,
+    number: `${datos_usuario.celular2 || datos_usuario.celular}`,
     email: `${datos_usuario.correo}`,
   };
 
@@ -560,11 +562,14 @@ async function consultarDatosDeUsuario() {
         bodegas = datos.bodegas ? datos.bodegas.filter((b) => !b.inactiva) : [];
       }
 
+      console.warn(datos);
+
       datos_usuario = {
         nombre_completo:
           datos.nombres.split(" ")[0] + " " + datos.apellidos.split(" ")[0],
         direccion: datos.direccion + " " + datos.barrio,
         celular: datos.celular,
+        celular2: datos.celular2,
         correo: datos.correo,
         numero_documento: datos.numero_documento,
         centro_de_costo: datos.centro_de_costo,
@@ -2124,9 +2129,28 @@ function mostrarPagosAdmin(datos) {
     delete down.momento;
     return down;
   });
+  const centros = window.centros;
+
+  let toDownload2 = [];
 
   for (let user of centros_costo) {
-    let filtrado = datos.filter((d) => d.REMITENTE == user);
+    const documentoUsuario =
+      centros.find((c) => c.centro_de_costo === user)?.numero_documento ||
+      "Sin documento";
+
+    // Filtrar y agregar la propiedad documentoUsuario en una sola pasada
+    const filtrado = datos.reduce((acc, d) => {
+      if (d.REMITENTE == user) {
+        acc.push({
+          ...d,
+          documentoUsuario: documentoUsuario,
+        });
+      }
+      return acc;
+    }, []);
+
+    toDownload2 = toDownload2.concat(filtrado);
+
     tablaPagos(filtrado, "visor_pagos");
   }
 
@@ -2140,7 +2164,7 @@ function mostrarPagosAdmin(datos) {
   visor_pagos
     .querySelector("#descargar-pagos")
     .addEventListener("click", () => {
-      crearExcel(toDownload, "Historial de pagos");
+      crearExcelPagosAdmin(toDownload2, "Historial de pagos 2");
     });
 
   activarBotonesVisorPagos();

@@ -57,7 +57,11 @@ function CargarUsuarios(element) {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
+  console.log(window.location.hash);
   if (window.location.hash === "#usuarios") {
+    await loadUsers();
+  }
+  if (window.location.hash.includes('?idFirebase')) {
     await loadUsers();
   }
 });

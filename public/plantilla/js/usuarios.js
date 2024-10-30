@@ -1715,6 +1715,7 @@ async function actualizarInformacionPersonal() {
       document: value("actualizar_numero_documento"),
       type_account: type_account,
       blockedWallet: billetera,
+      channel: "hekaentrega",
     });
 
     myHeaders.append("Content-type", "application/json");
