@@ -478,8 +478,6 @@ async function guardarCotizacion() {
   info.nombre = info.nombre.trim();
   info.codigo = info.nombre.toLowerCase().replace(/\s/g, "");
 
-  console.warn(info);
-
   if (!info.nombre)
     return verificador(
       ["nombre_cotizador"],

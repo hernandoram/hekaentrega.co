@@ -26,6 +26,16 @@ let datoscoti = {
   collectionValue: 90000,
 };
 export async function cotizadorApi() {
+  if (!navigator.onLine) {
+    Toast.fire(
+      "",
+      "No tienes conexión a Internet! Conectate para cotizar!",
+      "error"
+    );
+    controls.btnCotizarGlobal.disabled = false;
+    return;
+  }
+
   const formulario = document.getElementById("cotizar-envio");
   if (!formulario.checkValidity()) {
     Toast.fire("", "todos los campos son obligatorios", "error");
@@ -108,6 +118,12 @@ export async function cotizadorApi() {
   }
 
   const response = responseApi.response;
+
+  if (responseApi.code !== 200) {
+    loader.end();
+    Toast.fire("", "Hay un error de conexión, intenta mas tarde", "error");
+    return;
+  }
 
   console.warn(response, datoscoti.daneCityOrigin);
 
