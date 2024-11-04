@@ -14,7 +14,8 @@ const v0 = {
     pathCiudadDane,
     pathEstadisticasCiudad,
     pathCotizador,
-    seguimientoEnvios: endpoint + "/Heka/seguimiento"
+    seguimientoEnvios: endpoint + "/Envios/Seguimiento",
+    pdfRelacionEnvio: endpoint + "/Pdf/RelacionEnvios"
 }
 
 // const endpointV1 = "https://api.hekaentrega.co/Api/v1";

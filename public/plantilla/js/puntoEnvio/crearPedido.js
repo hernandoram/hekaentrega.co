@@ -3,7 +3,7 @@ import AnotacionesPagos from "../pagos/AnotacionesPagos.js";
 import { estadoGeneracion, estadosRecepcion } from "./constantes.js";
 import { bodegasEl, diceContenerEl, oficinaDestinoEl, recoleccionEl } from "./views.js";
 
-const contenedorAnotaciones = $("#anotaciones_creacion-flexii_guia");
+const contenedorAnotaciones = $("#anotaciones-flexii_guia");
 
 export async function crearPedidoEnvios(cotizacion, enviosInvolucrados) {
     console.log(cotizacion);
@@ -67,7 +67,7 @@ async function actualizarEstadoEnvioIndividual(idEnvio, estado) {
         headers: {
             "Content-Type": "Application/json"
         },
-        boyd: JSON.stringify(estado)
+        body: JSON.stringify(estado)
     })
     .then(d => d.json())
     .catch(e => ({

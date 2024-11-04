@@ -846,48 +846,44 @@
           </div>
 
           <div class="container-fluid flex justify-content-center align-items-center" id="flexii_guia" style="display: none;">
-            <div class="bg-white px-5 py-5">
-              <h2 class="text-center">Genera la guía en tu Punto</h2>
-
-              <form>
-                <div id="reader-flexii_guia" style="width: 400px" class="m-auto"></div>
-
-                <div class="form-check">
-                  <input type="checkbox" class="form-check-input" id="activador_label-flexii_guia">
-                  <label for="activador_label-flexii_guia" class="form-check-label">Ingresar el id del envío</label>
-                </div>
-
-                <div class="input-group">
-                  <label for="id_envio-flexii_guia"></label>
-                  <input type="text" class="form-control" id="id_envio-flexii_guia"  style="display:none;" placeholder="Ingresa el número o id del envío">
-                </div>
-                
-                <button type="button" class="btn btn-primary btn-block my-2" id="activador_scanner-flexii_guia">Escanear código</button>
-
-                <div class="text-center"> 
-                  <a href="javascript:void(0)" id="activador_files-flexii_guia">- O subir imágen -</a>
-                  <input type="file" class="d-none" id="scanner_files-flexii_guia" accept="image/png, image/jpg, image/jpeg" >
-                </div>
-              </form>
-
-              <div id="anotaciones_recepcion-flexii_guia"></div>
-
-            </div>
-
+            
             <div class="card m-2">
               <div class="card-body">
-                <div class="input-group mb-3">
-                  <select class="custom-select" id="usuarios-flexii_guia"></select>
-                  <div class="input-group-append">
-                    <button class="btn btn-outline-secondary" type="button" id="generar_relacion-flexii_guia" disabled>Generar Relación</button>
+                <h2 class="text-center">
+                  <span id="principal_title-flexii_guia">Receptor de pedidos</span>
+                  <small class="custom-control custom-switch">
+                    <input type="checkbox" class="custom-control-input" id="switch_modo-flexii_guia">
+                    <label class="custom-control-label" for="switch_modo-flexii_guia">Generar guía</label>
+                  </small>
+                </h2>
+
+                <form id="recibidor_envio-flexii_guia">
+                  <div id="reader-flexii_guia" style="width: 400px" class="m-auto"></div>
+
+                  <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="activador_label-flexii_guia">
+                    <label for="activador_label-flexii_guia" class="form-check-label">Ingresar el id del envío</label>
                   </div>
-                </div>
+
+                  <div class="input-group">
+                    <label for="id_envio-flexii_guia"></label>
+                    <input type="text" class="form-control" id="id_envio-flexii_guia"  style="display:none;" placeholder="Ingresa el número o id del envío">
+                  </div>
+                  
+                  <button type="button" class="btn btn-primary btn-block my-2" id="activador_scanner-flexii_guia">Escanear código</button>
+
+                  <div class="text-center"> 
+                    <a href="javascript:void(0)" id="activador_files-flexii_guia">- O subir imágen -</a>
+                    <input type="file" class="d-none" id="scanner_files-flexii_guia" accept="image/png, image/jpg, image/jpeg" >
+                  </div>
+                </form>
                 
                 <div id="contenedor_tabla-flexii_guia"></div>
+                <div id="anotaciones-flexii_guia"></div>
               </div>
             </div>
             
-            <div class="row justify-content-center">
+            <div class="row justify-content-center" id="contenedor_cotizador-flexii_guia" style="display:none;">
               <div class="card my-2 col-lg-6 col-md-10 col-12">
                 <div class="card-body">
                   <form id="cotizador-flexii_guia">
@@ -948,9 +944,6 @@
                   </form>
 
                   <ul class="list-group list-group-horizontal-xl m-2 justify-content-around" id="respuesta-flexii_guia"></ul>
-
-                  <div id="anotaciones_creacion-flexii_guia"></div>
-
                 </div>
               </div>
             </div>

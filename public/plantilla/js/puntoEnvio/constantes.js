@@ -7,8 +7,8 @@ export const estadoRecibido = {
     reporter: user_id
 }
 
-export const estadoRelacion = {
-    estado: "Adjuntado",
+export const estadoValidado = {
+    estado: "Validado",
     descripcion: "Adjuntado y validado",
     esNovedad: false,
     observaciones: "",
@@ -26,6 +26,8 @@ export const estadoGeneracion = {
 }
 
 export const estadosRecepcion = {
-    recibido: "RECIBIDO",
-    empacado: "EMPACADO"
+    neutro: "NEUTRO", // Este estado no se debería guarda en base de datos, ya que será una forma de ifltrar todas las guías
+    recibido: "RECIBIDO", // Cuando el Qr Ha sido escaneado
+    validado: "VALIDADO", // Cuando el operador ha validado la guía
+    empacado: "EMPACADO" // Cuando el pedido ha sido generado
 }

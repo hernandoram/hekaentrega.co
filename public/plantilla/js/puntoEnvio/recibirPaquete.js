@@ -22,13 +22,25 @@ const textsButton = {
     validar: "Validar envío"
 }
 
+const idElement = "reader-flexii_guia";
+const contenedorAnotaciones = $("#anotaciones-flexii_guia");
+const btnActivador = $("#activador_scanner-flexii_guia");
+const btnActivadorFiles = $("#activador_files-flexii_guia");
+const btnActivadorLabel = $("#activador_label-flexii_guia");
+const inputIdEnvio = $("#id_envio-flexii_guia");
+const fileInput = $("#scanner_files-flexii_guia");
+const switchModo = $("#switch_modo-flexii_guia");
+const contenedorCotizador = $("#contenedor_cotizador-flexii_guia");
+const contenederReceptor = $("#recibidor_envio-flexii_guia");
+const principalTitle = $("#principal_title-flexii_guia");
+
 // Esperamos que se carguen todo los datos necesarios de usuario Para realizar una primera lectura de información directamente desde la url
 ControlUsuario.hasLoaded
 .then(() => {
     const url = new URL(location);
     const id = url.searchParams.get(scannerIdentifier) // dónde debería venir el id de la guía
-    const isCurrentHash = url.hash === principalHash
-    
+    const isCurrentHash = url.hash === principalHash;
+
     // Se va a invocar la función, siempre que exista un id y el hash actual corresponda con la vista que le compete a la recepción de guías
     if(id && isCurrentHash) {
         // Se invoca la función encargada de capturar el envío
@@ -46,29 +58,47 @@ ControlUsuario.hasLoaded
 
 // TODO: Añadir el actualizador de estado a cada uno de los eventos respectivos: Recibir el paquete, generar Relación, Generar Pedido
 
-const idElement = "reader-flexii_guia";
-const contenedorAnotaciones = $("#anotaciones_recepcion-flexii_guia");
-const btnActivador = $("#activador_scanner-flexii_guia");
-const btnActivadorFiles = $("#activador_files-flexii_guia");
-const btnActivadorLabel = $("#activador_label-flexii_guia");
-const inputIdEnvio = $("#id_envio-flexii_guia");
-const fileInput = $("#scanner_files-flexii_guia");
-const selectUsuarios =  $('#usuarios-flexii_guia');
-const btnGenerarRelacion = $("#generar_relacion-flexii_guia");
-
 btnActivador.on("click", activadorPrincipal);
 btnActivadorFiles.on("click", () => fileInput.click());
 btnActivadorLabel.on("change", activarInsercionManual);
 fileInput.on("change", leerImagenQr);
-selectUsuarios.on("change", cambiarCentroDeCosto);
-btnGenerarRelacion.on("click", generarRelacionEnvios);
+switchModo.on("change", cambiarModo)
 
 const anotaciones = new AnotacionesPagos(contenedorAnotaciones);
 const tablaPendientes = new TablaEnvios("#contenedor_tabla-flexii_guia");
 
-function onScanSuccess(decodedText, decodedResult) {
-    console.log(`Code matched = ${decodedText}`, decodedResult);
-    stopScanning();
+function cambiarModo(e) {
+    const {target} = e;
+    const ischecked = target.checked; // Habilitado para generar los pedidos
+
+    if(ischecked) {
+        contenederReceptor.hide('fast');
+        contenedorCotizador.show('fast');
+        tablaPendientes.filter(estadosRecepcion.neutro);
+        principalTitle.text("Genera la guía en tu Punto");
+    } else {
+        principalTitle.text("Receptor de pedidos");
+        contenederReceptor.show('fast');
+        contenedorCotizador.hide('fast');
+        tablaPendientes.filter(estadosRecepcion.recibido);
+    }
+}
+
+async function onScanSuccess(decodedText, decodedResult) {
+    const url = new URL(decodedText);
+    const id = url.searchParams.get(scannerIdentifier);
+    
+    if(id) {
+        await stopScanning();
+        
+        Cargador.fire({
+            text: "Procesando información, por favor espere."
+        });
+
+        await capturarEnvio(id);
+
+        startScanning();
+    }
 }
 
 const html5QrCode = new Html5Qrcode(idElement);
@@ -95,7 +125,7 @@ async function activadorPrincipal(e) {
         if(!inputValue) return l.end();
 
         let id = inputValue;
-        if(inputValue.length < 12) { // Significa que probablemente la iinformación insertada fue un número de guía y no el id del envío
+        if(inputValue.length < 12) { // Significa que probablemente la información insertada fue un número de guía y no el id del envío
             const idEncontrado = await db.collection("envios")
             .where("numeroGuia", "==", inputValue)
             .get().then(q => q.size ? q.docs[0].id : null);
@@ -190,6 +220,16 @@ async function capturarEnvio(id_envio) {
         };
     }
 
+    if(tablaPendientes.filtrador === estadosRecepcion.recibido) {
+        const primeraGuia = tablaPendientes.filtradas[0];
+        if(primeraGuia && primeraGuia.centro_de_costo !== envio.centro_de_costo) {
+            return {
+                icon: "error",
+                text: "Actualmente está intentando capturar una guía que epertenece a un usuario diferente, si ya ha terminado con el usuario anterior, valide los envíos en pantalla e intente nuevamente."
+            }
+        }
+    }
+
     await ref.update({
         id_punto: user_id,
         estado_recepcion: estadosRecepcion.recibido
@@ -197,10 +237,7 @@ async function capturarEnvio(id_envio) {
 
     await actualizarEstadoEnvioHeka(id_envio, estadoRecibido);
 
-    obtenerGuiasEnEsperaPunto()
-    .then(() => {
-        selectUsuarios.val(envio.centro_de_costo ?? "");
-    });
+    obtenerGuiasEnEsperaPunto();
 
     return {
         icon: "success",
@@ -209,64 +246,13 @@ async function capturarEnvio(id_envio) {
 }
 
 async function obtenerGuiasEnEsperaPunto() {
-    db.collection("envios")
-    .where("id_punto", "==", user_id)
-    .where("estado_recepcion", "==", estadosRecepcion.recibido)
-    .get()
-    .then(q => {
-        q.forEach(d => {
-            const data = d.data();
-            data.id = d.id;
-            tablaPendientes.add(data);
-        });
-
-        llenarCentrosDeCosto();
+    tablaPendientes.reloadData()
+    .then(() => {
+        const estadoBase = switchModo.is(":checked") ? estadosRecepcion.neutro : estadosRecepcion.recibido;
+        tablaPendientes.filter(tablaPendientes.filtrador ?? estadoBase);
     });
 }
 
-function cambiarCentroDeCosto(e) {
-    if(e.target.value) {
-        btnGenerarRelacion.prop("disabled", false);
-    } else {
-        btnGenerarRelacion.prop("disabled", true);
-    }
-}
-
-function llenarCentrosDeCosto() {
-    const columnUsers = tablaPendientes.table.column(0);
-  
-    selectUsuarios.html('<option value="">Seleccione Usuario</option>');
-    
-    columnUsers
-      .data()
-      .unique()
-      .each(function (d, j) {
-        //finalmente agrega el option para pder filtrar por fecha
-        selectUsuarios.append(
-          `<option value="${d}">${d}</option>`
-        );
-      });
-}
-
-// TODO: Generar la forma de crear y enviar manifiestos del usuario al que se le ha escaneado el qr de la guía
-async function generarRelacionEnvios(e) {
-    const l = new ChangeElementContenWhileLoading(e.target);
-    l.init();
-    /* Con la generación de relación de envíos falta bien definir el propósito final del cómo se van a agrupar
-        1. La primera idea es que para poder generarle la relación respectiva, es bueno que el usuario empaque todos los envíos antes
-        De manera que se busque la relación de envío de cada guía, y las que no aparezcan agrupadas se notifica
-        2. En vez de notificar como se hbía propuesto en el punto anterior, se puede más bien agrupar y las que faltaron, se generen automáticamente por nuestra parte
-        3. Agruparlos en un sector y de forma independiente, para mantener el registro de dónde se quedó la información, y no solo descargar en el momento para enviar
-        por watsapp, pese a que tengamso el registro, es bueno tenes un lugar en común en la plataforma para saber donde buscar
-    */
-
-    Swal.fire({
-        icon: "info",
-        text: "Falta por añadir la funcionalidad (leer comentarios del código)."
-    });
-
-    l.end();
-}
 
 const configSelectize = {
     options: [],
