@@ -3,6 +3,7 @@ import { selectize } from "../consultarCiudades.js";
 import { controls } from "./constantes.js";
 import {
   TranslatorFromApi,
+  cotizadorTemporalTransportadoraHeka,
   createExcelComparativePrices,
   demoPruebaCotizadorAntiguo,
   testComparePrices,
@@ -25,7 +26,7 @@ let datoscoti = {
   withshippingCost: false,
   collectionValue: 90000,
 };
-export async function cotizadorApi() {
+async function cotizadorApi() {
   const formulario = document.getElementById("cotizar-envio");
   if (!formulario.checkValidity()) {
     Toast.fire("", "todos los campos son obligatorios", "error");
@@ -95,16 +96,10 @@ export async function cotizadorApi() {
   );
 
   if (estado_prueba) {
-    demoPruebaCotizadorAntiguo(datoscoti)
-      .then(() => {
-        console.log("El demo funciona perfectamente");
-        const comparativeTester = testComparePrices(controls.tipoEnvio.val());
-        datoscoti.ciudadOrigen = ciudadR.ciudad + "-" + ciudadR.departamento;
-        datoscoti.ciudadDestino = ciudadD.ciudad + "-" + ciudadD.departamento;
+    const cotizadorHeka = await cotizadorTemporalTransportadoraHeka(datoscoti);
 
-        createExcelComparativePrices(datoscoti, comparativeTester);
-      })
-      .catch((e) => console.log("Error al correr el demo: ", e));
+    responseApi.response.push(cotizadorHeka);
+
   }
 
   const response = responseApi.response;
@@ -156,6 +151,7 @@ async function cotizarApi(request) {
 
   return data;
 }
+
 
 function mostrarListaTransportadoras(respuestaCotizacion) {
   const mostradorTransp = [];
@@ -378,3 +374,6 @@ const exampleData = [
     commissionPoint: 0,
   },
 ];
+
+
+export { cotizadorApi, cotizarApi }

@@ -1,5 +1,5 @@
 import { v0 } from "../config/api.js";
-import { estadosRecepcion, estadoValidado } from "./constantes.js";
+import { containerQuoterResponse, estadosRecepcion, estadoValidado } from "./constantes.js";
 import { actualizarEstadoEnvioHeka } from "./crearPedido.js";
 import { table as htmlTable, idTable } from "./views.js";
 
@@ -74,6 +74,7 @@ export default class TablaEnvios {
   filtrador = null;
   filtradas = [];
   guias = [];
+  selectionCityChange = new Watcher(null);
 
   constructor(selectorContainer) {
     const container = $(selectorContainer);
@@ -91,6 +92,10 @@ export default class TablaEnvios {
         Toast.fire("", "Debe seleccionar guías hacia la misma ciudad destino", "error");
       } else {
         $(e.currentTarget).toggleClass('selected bg-gray-300');
+      }
+
+      if(this.selectionCityChange.value !== this.ciudadDestino) {
+        this.selectionCityChange.change(this.ciudadDestino);
       }
 
       const dataSelected = this.table.rows(".selected").data().toArray();
@@ -291,7 +296,12 @@ async function validarEnvios(e, dt, node, config) {
 }
 
 const formularioCotizacion = document.getElementById("cotizador-flexii_guia");
+formularioCotizacion.addEventListener("change", () => {
+  containerQuoterResponse.html("");
+})
 function actualizarCotizador(envios) {
+  containerQuoterResponse.html("");
+
   if (!envios.length) return formularioCotizacion.reset();
   const totales = {
     weight: 0,

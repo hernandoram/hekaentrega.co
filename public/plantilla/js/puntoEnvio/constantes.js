@@ -1,3 +1,5 @@
+export const containerQuoterResponse = $("#respuesta-flexii_guia");
+
 export const estadoRecibido = {
     estado: "Recibido",
     descripcion: "Paquete recibido",
@@ -31,3 +33,4 @@ export const estadosRecepcion = {
     validado: "VALIDADO", // Cuando el operador ha validado la guía
     empacado: "EMPACADO" // Cuando el pedido ha sido generado
 }
+

@@ -1,8 +1,9 @@
 import { v1 } from "../config/api.js";
+import { cotizarApi } from "../cotizador/cotizadorApi.js";
 import { TranslatorFromApi } from "../cotizador/translator.js";
 import AnotacionesPagos from "../pagos/AnotacionesPagos.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
-import { estadoRecibido, estadosRecepcion } from "./constantes.js";
+import { containerQuoterResponse, estadoRecibido, estadosRecepcion } from "./constantes.js";
 import { actualizarEstadoEnvioHeka, dataValueSelectedFromInput, crearPedidoEnvios } from "./crearPedido.js";
 import TablaEnvios from "./tablaEnvios.js";
 import { bodegasEl, diceContenerEl, oficinaDestinoEl } from "./views.js";
@@ -266,13 +267,13 @@ oficinaDestinoEl.selectize(configSelectize);
 diceContenerEl.selectize(configSelectize)
 
 bodegasWtch.watchFromLast((info) => renderOptionsSelectize(bodegasEl, info));
-obtenerUsuariosFrecuentes().then((info) => renderOptionsSelectize(oficinaDestinoEl, info));
+tablaPendientes.selectionCityChange.watch(val => obtenerUsuariosFrecuentes(val).then((info) => renderOptionsSelectize(oficinaDestinoEl, info)));
 cargarObjetosFrecuentes().then((info) => renderOptionsSelectize(diceContenerEl, info));
 
 
 
 function renderOptionsSelectize(element, options) {
-    if (!options || !options.length) return;
+    if (!options) return;
 
     
     const selectorSelectize = element[0].selectize;
@@ -282,7 +283,7 @@ function renderOptionsSelectize(element, options) {
     options.forEach(data => selectorSelectize.addOption(data));
 }
 
-async function obtenerUsuariosFrecuentes() {
+async function obtenerUsuariosFrecuentes(daneCiudad) {
     const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
         "plantillasUsuariosFrecuentes"
     );
@@ -290,7 +291,7 @@ async function obtenerUsuariosFrecuentes() {
     const opciones = [];
     
     await referenciaUsuariosFrecuentes
-    // .where("ciudad", "==", ciudad.value)
+    .where("daneCiudad", "==", daneCiudad)
     .get()
     .then((querySnapshot) => {
         querySnapshot.forEach((document) => {
@@ -306,7 +307,6 @@ async function obtenerUsuariosFrecuentes() {
 
 
 $("#cotizador-flexii_guia").on("submit", cotizarConjunto);
-const containerResponse = $("#respuesta-flexii_guia");
 async function cotizarConjunto(e) {
     e.preventDefault();
     const {target} = e;
@@ -320,9 +320,35 @@ async function cotizarConjunto(e) {
     formData.set("daneCityOrigin", dataValueSelectedFromInput(bodegasEl).dane_ciudad); // Seteamos a mano la ciuda origen/detino debido a que el value corresponde al id del documento de base de datos
     formData.set("daneCityDestination", dataValueSelectedFromInput(oficinaDestinoEl).daneCiudad); // Seteamos a mano la ciuda origen/detino debido a que el value corresponde al id del documento de base de datos
 
+    const dataTypes = {
+        weight: "number",
+        declaredValue: "number",
+        width: "number",
+        long: "number",
+        height: "number",
+        typePayment: "number",
+        collectionValue: "number",
+        withshippingCost: "boolean"
+    }
+
     try {
-        containerResponse.html("");
+        containerQuoterResponse.html("");
         const consulta = Object.fromEntries(formData.entries());
+
+        // Para convertir los datos y enviarlos correctamente al back (numéricos y boleanos)
+        Object.keys(dataTypes).forEach(key => {
+            const convertor = dataTypes[key];
+            switch(convertor) {
+                case "number":
+                    consulta[key] = Number(consulta[key]);
+                break;
+
+                case "boolean":
+                    consulta[key] = consulta[key] === "false" ? false : !!consulta[key];
+                break;
+            }
+        });
+
         const cotizacion = await cotizarApi(consulta);
 
         mostrarListaTransportadoras(consulta, cotizacion.response);
@@ -334,23 +360,9 @@ async function cotizarConjunto(e) {
 
 }
 
-// TODO: A penas se termine la integración del nuevo cotizador, traer la función que venga del cotizador, en vez de generar aquí una copia
-async function cotizarApi(request) {
-    const data = await fetch(v1.quoter, {
-        method: "POST",
-        headers: {
-            "Content-Type": "Application/json"
-        },
-        body: JSON.stringify(request)
-    })
-    .then(d => d.json());
-
-    return data;
-}
-
 
 function mostrarListaTransportadoras(consultaCotizacion, respuestaCotizacion) {
-    respuestaCotizacion.forEach((r, i) => {
+    respuestaCotizacion.filter(r => !r.message).forEach((r, i) => {
         const {entity, total} = r;
         const transp = entity.toUpperCase();
         const configTransp = transportadoras[transp];
@@ -374,7 +386,7 @@ function mostrarListaTransportadoras(consultaCotizacion, respuestaCotizacion) {
         transportElement.onclick = () => crearPedidoEnvios(cotizacionTraducida, tablaPendientes.dataSelected)
             .then(() => obtenerGuiasEnEsperaPunto());
 
-        containerResponse.append(transportElement);
+        containerQuoterResponse.append(transportElement);
     });
 }
 

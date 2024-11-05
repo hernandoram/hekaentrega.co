@@ -7,7 +7,7 @@ const pathCiudadesLista = pathCiudades + "/Lista";
 const pathCiudadDane = pathCiudades + "/CiudadDane";
 const pathEstadisticasCiudad = pathCiudades + "/Estadisticas";
 
-const pathCotizador = endpoint + "/Heka/Cotizar";
+const pathCotizador = endpoint + "/Cotizador";
 
 const v0 = {
     pathCiudadesLista,

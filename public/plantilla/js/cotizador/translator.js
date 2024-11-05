@@ -1,3 +1,5 @@
+import { v0 } from "../config/api.js";
+
 const translation = {
     typePayment: [null, PAGO_CONTRAENTREGA, CONTRAENTREGA, CONVENCIONAL],
     typePaymentInt: {
@@ -424,4 +426,63 @@ function createExcelComparativePrices(objInput, arrOutput) {
   
 }
 
-export {translation, TranslatorFromApi, demoPruebaCotizadorAntiguo, testComparePrices, createExcelComparativePrices}
+async function cotizadorTemporalTransportadoraHeka(dataSentApi) {
+  const data = {
+    peso: dataSentApi.weight,
+    alto: dataSentApi.height,
+    largo: dataSentApi.long,
+    ancho: dataSentApi.width,
+    valorSeguro: dataSentApi.declaredValue,
+    valorRecaudo: dataSentApi.collectionValue,
+    idDaneCiudadOrigen: dataSentApi.daneCityOrigin,
+    idDaneCiudadDestino: dataSentApi.daneCityDestination,
+    tipo: translation.typePayment[dataSentApi.typePayment],
+  };
+
+  const response = await fetch(v0.pathCotizador, {
+    method: "Post",
+    headers: { "Content-Type": "Application/json" },
+    body: JSON.stringify(data),
+  })
+    .then((R) => {
+      return R.json();
+    })
+    .catch((R) => ({ error: true, body: "Error del servidor" }));
+
+  if (response.error) {
+    return {
+      entity: "heka",
+      message: response.body
+    };
+  }
+
+  let comision_heka = datos_personalizados.comision_heka;
+  let constante_heka = datos_personalizados.constante_pagoContraentrega;
+
+  if (dataSentApi.typePayment === 3) {
+    comision_heka = 1;
+    constante_heka = datos_personalizados.constante_convencional;
+  }
+
+  return {
+    entity: "heka",
+    deliveryTime: "1-2",
+    declaredValue: dataSentApi.declaredValue,
+    flete: response.body.valorFlete,
+    valueDeposited: 6925,
+    transportCommission: response.body.sobreFlete,
+    hekaCommission: Math.ceil((dataSentApi.collectionValue * comision_heka) / 100) + constante_heka,
+    transportCollection: dataSentApi.collectionValue,
+    onlyToAddress: false,
+    assured: 0,
+    annotations: "",
+    total: 18075,
+    version: "1",
+    cost_return_heka: 0,
+    cost_return: 0,
+    additional_commission: 0,
+    commissionPoint: 0,
+  };
+}
+
+export {translation, TranslatorFromApi, demoPruebaCotizadorAntiguo, testComparePrices, createExcelComparativePrices, cotizadorTemporalTransportadoraHeka}
