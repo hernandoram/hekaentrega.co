@@ -2771,7 +2771,8 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
                         }
                         <p>Direccion: <span>${dataG.direccionR}</span></p>
                         <p>Ciudad: <span>${dataG.ciudadR}</span></p>
-                        <p>teléfono: <span>${dataG.celularR}</span></p>
+                        <p>Teléfono: <span>${dataG.celularR}</span></p>
+                        <p>Versión: <span>${dataG.detalles?.versionCotizacion || "N/A"}</span></p>
                     </div>
                     </div>
                 </div>

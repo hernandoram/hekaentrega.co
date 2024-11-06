@@ -5080,7 +5080,6 @@ async function anularGuia(data) {
     confirmacion = resp.isConfirmed;
   }
 
-  console.log(motAnulacion);
   if (confirmacion && motAnulacion) {
     usuarioAltDoc(data.id_user)
       .collection("guias")
@@ -5088,31 +5087,25 @@ async function anularGuia(data) {
       .update({
         fecha_anulada: new Date(),
         estadoActual: estadosGuia.anulada,
+        estado: estadosGuia.anulada,
         seguimiento_finalizado: true,
         motivoAnulacion: motAnulacion,
         estadoAnterior: data.estadoActual,
       })
       .then((res) => {
-        avisar(
+        Toast.fire(
           "Guia Anulada",
-          "La guia Número " + id + " Ha sido anulada",
-          "alerta"
+          "La guia Número " + id + " Ha sido anulada.",
+          "success"
         );
-        // row.remove();
       })
       .catch((error) => {
-        avisar(
-          "Error al anula",
-          "Hubo un error al anula la guia, intentelo mas tarde",
+        Toast.fire(
+          "Error al anular",
+          "Hubo un error al anular la guia: " + error.message,
           "alerta"
         );
       });
-  } else {
-    // avisar(
-    //   "No permitido",
-    //   "La guia Número " + id + " no puede ser eliminada",
-    //   "advertencia"
-    // );
   }
 }
 
