@@ -258,7 +258,7 @@ async function searchAndGroupCity(elSelectize, query) {
   return fetch(v1.cities + "?label=" + query + "&limit=25")
     .then((res) => res.json())
     .then((d) => {
-      const ciudades = d.response.map((c) => {
+      const ciudades = d.response.rows.map((c) => {
         const dep = c.state.label;
         if (!elSelectize.optgroups[dep]) {
           elSelectize.addOptionGroup(dep, { label: dep, value: dep });
