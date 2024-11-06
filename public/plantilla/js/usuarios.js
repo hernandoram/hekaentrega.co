@@ -2245,6 +2245,7 @@ const estadosEntregados = [
   "ENTREGADO",
   "Entregado",
   "Entrega Exitosa",
+  "Entrega exitosa",
   "Entregada",
   "ENTREGADA DIGITALIZADA",
   "ENTREGADA",
@@ -2269,6 +2270,8 @@ function displayStats() {
     "noGuiasGoblalesDevueltas"
   );
 
+  console.warn(guiasStats);
+
   const guiasAnuladas =
     guiasStats.filter((guia) => estadoAnuladas.includes(guia.estado)) || [];
 
@@ -2278,6 +2281,8 @@ function displayStats() {
       (estadosEntregados.includes(guia.estado) ||
         guia.estado.startsWith("ENTREGADA DIGITALIZADA"))
   );
+
+  console.warn(guiasEntregas);
 
   const guiasDevueltas = guiasStats.filter(
     (guia) =>
