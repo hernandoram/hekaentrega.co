@@ -24,6 +24,7 @@ const v1 = {
   endpoint: endpointV1,
   quoter: endpointV1 + "/shipping/quoter",
   cities: endpointV1 + "/geolocation/city",
+  user_segmentation: endpointV1 + "/users/segmentation"
 };
 
 export {

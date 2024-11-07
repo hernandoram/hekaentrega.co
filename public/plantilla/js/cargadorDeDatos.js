@@ -2640,9 +2640,10 @@ async function solicitarPagosPendientesUs(e) {
 
   const usuario = datos_usuario.centro_de_costo;
 
-  const solicitudDePago = {
+  /* const solicitudDePago = {
     diarioSolicitado: firebase.firestore.FieldValue.arrayUnion(usuario),
-  };
+  }; */
+  await updateUserSegmentation('diarioSolicitado', 'add');
 
   // cuando el saldo es inferior al límite requerido, el pago se limita a una sola vez en la semana
   if (saldo_pendiente < minimo_diario) {
@@ -2670,11 +2671,12 @@ async function solicitarPagosPendientesUs(e) {
       );
       return;
     } else {
-      solicitudDePago.limitadosDiario =
-        firebase.firestore.FieldValue.arrayUnion(usuario);
+/*       solicitudDePago.limitadosDiario =
+        firebase.firestore.FieldValue.arrayUnion(usuario); */
+      await updateUserSegmentation('limitadosDiario', 'add');
     }
 
-    await ref.update(solicitudDePago);
+    //await ref.update(solicitudDePago);
   } else {
     const mensaje =
       "Estás a punto de solicitar pago con un monto superior a " +
@@ -2694,7 +2696,8 @@ async function solicitarPagosPendientesUs(e) {
 
     // Solo se actualiza cuando ya no se había solicitado antes
     if (!diarioSolicitado.includes(datos_usuario.centro_de_costo)) {
-      await ref.update(solicitudDePago);
+      //await ref.update(solicitudDePago);
+      await updateUserSegmentation('diarioSolicitado', 'add');
     }
   }
 
@@ -2704,6 +2707,21 @@ async function solicitarPagosPendientesUs(e) {
   SwalMessage.fire("Pago solicitado con éxito.", "", "success");
 
   cargarPagoSolicitado();
+}
+
+async function updateUserSegmentation(type, action) {
+  return fetch(`${PROD_API_URL}/api/v1/users/segmentation/${mongoID}`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      document_type: type,
+      action: action
+    }),
+  })
+  .then((res) => {return res.json()});
 }
 
 function descargarExcelPagosAdmin(datos) {

@@ -772,11 +772,12 @@ class Empaquetado {
         
         // Actualizamos la lista de los diarios solicitados solamente cuando la cantidad pagada sea mayor a cero
         if(pagado > 0) {
-            const actualizacion = {
+            /* const actualizacion = {
                 diarioSolicitado: firebase.firestore.FieldValue.arrayRemove(usuario),
             }
             
-            await refDiasPago.update(actualizacion);
+            await refDiasPago.update(actualizacion); */
+            await updateUserSegmentation('diarioSolicitado', 'remove');
         }
         
         this.pagosPorUsuario[usuario].pagoConcreto = pagado;
