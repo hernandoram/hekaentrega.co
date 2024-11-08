@@ -2711,7 +2711,7 @@ async function solicitarPagosPendientesUs(e) {
 
 async function updateUserSegmentation(type, action) {
   return fetch(`${PROD_API_URL}/api/v1/users/segmentation/${mongoID}`, {
-    method: "POST",
+    method: "PUT",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
