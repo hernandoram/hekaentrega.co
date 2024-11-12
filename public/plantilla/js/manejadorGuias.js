@@ -804,7 +804,7 @@ function crearDocumentos(e, dt, node, config) {
     })
     .then(async (docRef) => {
       if (noNotificarGuia == undefined) {
-        const ref = db.collection("infoHeka").doc("manejoUsuarios");
+        const ref = db.collection("infoHeka").doc("manejoUsuariosDev");
         const data = await ref.get().then((d) => d.data().noEnviarWsPedido);
         noNotificarGuia = data.includes(datos_usuario.centro_de_costo);
       }
@@ -4438,7 +4438,7 @@ $("#guias_punto-hist_guias").on("change", (e) => {
 async function cargarFiltroDePagosPersonalizados() {
   filtroPagos = await db
     .collection("infoHeka")
-    .doc("manejoUsuarios")
+    .doc("manejoUsuariosDev")
     .get()
     .then((d) => d.data());
 

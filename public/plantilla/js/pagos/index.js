@@ -294,7 +294,7 @@ async function cargarPagosDirectos(e) {
 
   if(filtroCentroDeCosto) {
     if(!filtroPagos) {
-      filtroPagos = await db.collection("infoHeka").doc("manejoUsuarios")
+      filtroPagos = await db.collection("infoHeka").doc("manejoUsuariosDev")
       .get().then(d => d.data());
     }
 

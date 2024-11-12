@@ -491,7 +491,7 @@ junto a las funcionalidades adicionales que la acompañen
 const usuarioParaColaInfoHeka = [];
 async function cargarPagoSolicitado() {
   console.warn("Cargando pago");
-  const ref = db.collection("infoHeka").doc("manejoUsuarios");
+  const ref = db.collection("infoHeka").doc("manejoUsuariosDev");
   const { diarioSolicitado, limitadosDiario, colaProcesarGuias } = await ref
     .get()
     .then((d) => d.data());
@@ -2583,7 +2583,7 @@ async function solicitarPagosPendientesUs(e) {
 
   const mensajeDesembolso = obtenerMensajeDesembolso();
   const minimo_diario = 3000000;
-  const ref = db.collection("infoHeka").doc("manejoUsuarios");
+  const ref = db.collection("infoHeka").doc("manejoUsuariosDev");
 
   // Se genera un Swal para que cuando se cierre automáticamente retorne el botón a su estado original
   const SwalMessage = Swal.mixin({
@@ -2643,8 +2643,6 @@ async function solicitarPagosPendientesUs(e) {
   /* const solicitudDePago = {
     diarioSolicitado: firebase.firestore.FieldValue.arrayUnion(usuario),
   }; */
-  await updateUserSegmentation('diarioSolicitado', 'add');
-
   // cuando el saldo es inferior al límite requerido, el pago se limita a una sola vez en la semana
   if (saldo_pendiente < minimo_diario) {
     const mensaje =
@@ -2675,6 +2673,10 @@ async function solicitarPagosPendientesUs(e) {
         firebase.firestore.FieldValue.arrayUnion(usuario); */
       await updateUserSegmentation('limitadosDiario', 'add');
     }
+    if(resp.isConfirmed) {
+      await updateUserSegmentation('limitadosDiario', 'add');
+      await updateUserSegmentation('diarioSolicitado', 'add');
+    }
 
     //await ref.update(solicitudDePago);
   } else {
@@ -2697,7 +2699,9 @@ async function solicitarPagosPendientesUs(e) {
     // Solo se actualiza cuando ya no se había solicitado antes
     if (!diarioSolicitado.includes(datos_usuario.centro_de_costo)) {
       //await ref.update(solicitudDePago);
-      await updateUserSegmentation('diarioSolicitado', 'add');
+      if (resp.isConfirmed) {
+        await updateUserSegmentation('diarioSolicitado', 'add');
+      }
     }
   }
 
@@ -2714,7 +2718,9 @@ async function updateUserSegmentation(type, action) {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${localStorage.getItem(
+        "token"
+      )}`,
     },
     body: JSON.stringify({
       document_type: type,
