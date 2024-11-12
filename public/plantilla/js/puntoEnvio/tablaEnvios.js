@@ -1,7 +1,7 @@
 import { v0 } from "../config/api.js";
-import { containerQuoterResponse, estadosRecepcion, estadoValidado } from "./constantes.js";
+import { estadosRecepcion, estadoValidado } from "./constantes.js";
 import { actualizarEstadoEnvioHeka } from "./crearPedido.js";
-import { table as htmlTable, idTable } from "./views.js";
+import { table as htmlTable, containerQuoterResponse } from "./views.js";
 
 
 const columns = [
@@ -80,7 +80,7 @@ export default class TablaEnvios {
     const container = $(selectorContainer);
     container.append(htmlTable);
 
-    this.table = $("#" + idTable).DataTable(config);
+    this.table = $("table", container).DataTable(config);
 
     this.table.on('click', 'tbody tr', e => {
       if(this.filtrador === estadosRecepcion.recibido) return;

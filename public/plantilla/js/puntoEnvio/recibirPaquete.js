@@ -1,14 +1,14 @@
-import { v1 } from "../config/api.js";
 import { cotizarApi } from "../cotizador/cotizadorApi.js";
 import { TranslatorFromApi } from "../cotizador/translator.js";
 import AnotacionesPagos from "../pagos/AnotacionesPagos.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
-import { containerQuoterResponse, estadoRecibido, estadosRecepcion } from "./constantes.js";
+import { estadoRecibido, estadosRecepcion, idFlexiiGuia } from "./constantes.js";
 import { actualizarEstadoEnvioHeka, dataValueSelectedFromInput, crearPedidoEnvios } from "./crearPedido.js";
 import TablaEnvios from "./tablaEnvios.js";
-import { bodegasEl, diceContenerEl, oficinaDestinoEl } from "./views.js";
+import { bodegasEl, diceContenerEl, oficinaDestinoEl, containerQuoterResponse } from "./views.js";
 
-const principalHash = "#flexii_guia";
+const principalId = idFlexiiGuia;
+const principalHash = "#" + principalId;
 const scannerIdentifier = "id";
 
 
@@ -23,17 +23,20 @@ const textsButton = {
     validar: "Validar envío"
 }
 
-const idElement = "reader-flexii_guia";
-const contenedorAnotaciones = $("#anotaciones-flexii_guia");
-const btnActivador = $("#activador_scanner-flexii_guia");
-const btnActivadorFiles = $("#activador_files-flexii_guia");
-const btnActivadorLabel = $("#activador_label-flexii_guia");
-const inputIdEnvio = $("#id_envio-flexii_guia");
-const fileInput = $("#scanner_files-flexii_guia");
-const switchModo = $("#switch_modo-flexii_guia");
-const contenedorCotizador = $("#contenedor_cotizador-flexii_guia");
-const contenederReceptor = $("#recibidor_envio-flexii_guia");
-const principalTitle = $("#principal_title-flexii_guia");
+const idElement = "reader-" + principalId;
+const contenedorAnotaciones = $("#anotaciones-" + principalId);
+const btnActivador = $("#activador_scanner-" + principalId);
+const btnActivadorFiles = $("#activador_files-" + principalId);
+const btnActivadorLabel = $("#activador_label-" + principalId);
+const inputIdEnvio = $("#id_envio-" + principalId);
+const fileInput = $("#scanner_files-" + principalId);
+const switchModo = $("#switch_modo-" + principalId);
+const contenedorCotizador = $("#contenedor_cotizador-" + principalId);
+const contenederReceptor = $("#recibidor_envio-" + principalId);
+const principalTitle = $("#principal_title-" + principalId);
+
+const anotaciones = new AnotacionesPagos(contenedorAnotaciones);
+const tablaPendientes = new TablaEnvios("#contenedor_tabla-" + principalId);
 
 // Esperamos que se carguen todo los datos necesarios de usuario Para realizar una primera lectura de información directamente desde la url
 ControlUsuario.hasLoaded
@@ -57,16 +60,12 @@ ControlUsuario.hasLoaded
 
 });
 
-// TODO: Añadir el actualizador de estado a cada uno de los eventos respectivos: Recibir el paquete, generar Relación, Generar Pedido
-
 btnActivador.on("click", activadorPrincipal);
 btnActivadorFiles.on("click", () => fileInput.click());
 btnActivadorLabel.on("change", activarInsercionManual);
 fileInput.on("change", leerImagenQr);
 switchModo.on("change", cambiarModo)
 
-const anotaciones = new AnotacionesPagos(contenedorAnotaciones);
-const tablaPendientes = new TablaEnvios("#contenedor_tabla-flexii_guia");
 
 function cambiarModo(e) {
     const {target} = e;
@@ -306,7 +305,7 @@ async function obtenerUsuariosFrecuentes(daneCiudad) {
 }
 
 
-$("#cotizador-flexii_guia").on("submit", cotizarConjunto);
+$("#cotizador-" + principalId).on("submit", cotizarConjunto);
 async function cotizarConjunto(e) {
     e.preventDefault();
     const {target} = e;

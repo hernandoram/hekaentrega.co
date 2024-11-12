@@ -949,6 +949,39 @@
             </div>
           </div>
 
+          <div class="container-fluid flex justify-content-center align-items-center" id="scanner_estados_flexii" style="display: none;">
+            
+            <div class="card m-2">
+              <div class="card-body">
+                <h2 class="text-center">
+                  <span id="principal_title-scanner_estados_flexii">Actualizar estado</span>
+                </h2>
+
+                <form action="javascript:void(0);" id="recibidor_envio-scanner_estados_flexii">
+                  <div id="reader-scanner_estados_flexii" style="width: 400px" class="m-auto"></div>
+
+                  <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="activador_label-scanner_estados_flexii">
+                    <label for="activador_label-scanner_estados_flexii" class="form-check-label">Ingresar el id del envío</label>
+                  </div>
+
+                  <div class="form-group">
+                    <input type="text" class="form-control" id="id_envio-scanner_estados_flexii"  style="display:none;" placeholder="Ingresa el número o id del envío">
+                  </div>
+                  
+                  <button type="button" class="btn btn-primary btn-block my-2" id="activador_scanner-scanner_estados_flexii">Escanear código</button>
+
+                  <div class="text-center d-none"> 
+                    <a href="javascript:void(0)" id="activador_files-scanner_estados_flexii">- O subir imágen -</a>
+                    <input type="file" class="d-none" id="scanner_files-scanner_estados_flexii" accept="image/png, image/jpg, image/jpeg" >
+                  </div>
+                </form>
+
+                <div id="anotaciones-scanner_estados_flexii"></div>
+              </div>
+            </div>
+          </div>
+
           <div class="container-fluid" id="tienda" style="display: none;">
             <div class="d-flex justify-content-end">
               <button class="btn btn-primary agg-producto" id="agregar-producto-tienda">Agregar Producto</button>
