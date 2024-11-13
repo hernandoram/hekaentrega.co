@@ -146,6 +146,7 @@ class GuiaBase {
     estadoActual = estadosGuia.pedido; // Básicamente empezarán siendo de tipo pedido
     seguimiento_finalizado = false;
     id_user = "";
+    cuenta_responsable = "EMPRESA"; // Siempre es empresa
 
     constructor(baseCotizacion) {
         this.peso = baseCotizacion.kgTomado;
@@ -188,6 +189,7 @@ class GuiaBase {
         if (
             this.transportadora === transportadoras.INTERRAPIDISIMO.cod
         ) {
+            console.log(bodega);
             this.codigo_sucursal = bodega.codigo_sucursal_inter;
 
             // Por ahora solo se presentará esta varialbe con interrapidísimo
