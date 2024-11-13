@@ -845,45 +845,55 @@
             <div id="result_cotizacion" class="mt-5"></div>
           </div>
 
+          <div class="container-fluid flex justify-content-center align-items-center" id="flexii_guia_recept" style="display: none;">
+            
+            <div class="card m-2">
+              <div class="card-body">
+                <h2 class="text-center">
+                  <span id="principal_title-flexii_guia_recept">Receptor de pedidos</span>
+                </h2>
+
+                <form id="receptor-flexii_guia_recept">
+                  <div id="reader-flexii_guia_recept" style="width: 400px" class="m-auto"></div>
+
+                  <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="activador_label-flexii_guia_recept">
+                    <label for="activador_label-flexii_guia_recept" class="form-check-label">Ingresar el id del envío</label>
+                  </div>
+
+                  <div class="input-group">
+                    <label for="id_envio-flexii_guia_recept"></label>
+                    <input type="text" class="form-control" id="id_envio-flexii_guia_recept"  style="display:none;" placeholder="Ingresa el número o id del envío">
+                  </div>
+                  
+                  <button type="button" class="btn btn-primary btn-block my-2" id="activador_scanner-flexii_guia_recept">Escanear código</button>
+
+                  <div class="text-center"> 
+                    <a href="javascript:void(0)" id="activador_files-flexii_guia_recept">- O subir imágen -</a>
+                    <input type="file" class="d-none" id="scanner_files-flexii_guia_recept" accept="image/png, image/jpg, image/jpeg" >
+                  </div>
+                </form>
+                
+                <div id="contenedor_tabla-flexii_guia_recept"></div>
+                <div id="anotaciones-flexii_guia_recept"></div>
+              </div>
+            </div>
+          </div>
+          
           <div class="container-fluid flex justify-content-center align-items-center" id="flexii_guia" style="display: none;">
             
             <div class="card m-2">
               <div class="card-body">
                 <h2 class="text-center">
-                  <span id="principal_title-flexii_guia">Receptor de pedidos</span>
-                  <small class="custom-control custom-switch">
-                    <input type="checkbox" class="custom-control-input" id="switch_modo-flexii_guia">
-                    <label class="custom-control-label" for="switch_modo-flexii_guia">Generar guía</label>
-                  </small>
+                  <span id="principal_title-flexii_guia">Generador de pedidos</span>
                 </h2>
-
-                <form id="recibidor_envio-flexii_guia">
-                  <div id="reader-flexii_guia" style="width: 400px" class="m-auto"></div>
-
-                  <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="activador_label-flexii_guia">
-                    <label for="activador_label-flexii_guia" class="form-check-label">Ingresar el id del envío</label>
-                  </div>
-
-                  <div class="input-group">
-                    <label for="id_envio-flexii_guia"></label>
-                    <input type="text" class="form-control" id="id_envio-flexii_guia"  style="display:none;" placeholder="Ingresa el número o id del envío">
-                  </div>
-                  
-                  <button type="button" class="btn btn-primary btn-block my-2" id="activador_scanner-flexii_guia">Escanear código</button>
-
-                  <div class="text-center"> 
-                    <a href="javascript:void(0)" id="activador_files-flexii_guia">- O subir imágen -</a>
-                    <input type="file" class="d-none" id="scanner_files-flexii_guia" accept="image/png, image/jpg, image/jpeg" >
-                  </div>
-                </form>
                 
                 <div id="contenedor_tabla-flexii_guia"></div>
                 <div id="anotaciones-flexii_guia"></div>
               </div>
             </div>
             
-            <div class="row justify-content-center" id="contenedor_cotizador-flexii_guia" style="display:none;">
+            <div class="row justify-content-center" id="contenedor_cotizador-flexii_guia">
               <div class="card my-2 col-lg-6 col-md-10 col-12">
                 <div class="card-body">
                   <form id="cotizador-flexii_guia">
@@ -957,7 +967,7 @@
                   <span id="principal_title-scanner_estados_flexii">Actualizar estado</span>
                 </h2>
 
-                <form action="javascript:void(0);" id="recibidor_envio-scanner_estados_flexii">
+                <form action="javascript:void(0);" id="receptor-scanner_estados_flexii">
                   <div id="reader-scanner_estados_flexii" style="width: 400px" class="m-auto"></div>
 
                   <div class="form-check">

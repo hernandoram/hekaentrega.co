@@ -29,24 +29,6 @@ const btnActivadorLabel = $("#activador_label-" + principalId);
 const inputIdEnvio = $("#id_envio-" + principalId);
 const fileInput = $("#scanner_files-" + principalId);
 
-// Esperamos que se carguen todo los datos necesarios de usuario Para realizar una primera lectura de información directamente desde la url
-ControlUsuario.hasLoaded
-.then(() => {
-    const url = new URL(location);
-    const id = url.searchParams.get(scannerIdentifier) // dónde debería venir el id de la guía
-    const isCurrentHash = url.hash === principalHash;
-
-    // Se va a invocar la función, siempre que exista un id y el hash actual corresponda con la vista que le compete a la recepción de guías
-    if(id && isCurrentHash) {
-        // Se invoca la función encargada de capturar el envío
-        abriModalActuaizarEstado(id)
-        .then((res) => {
-            url.searchParams.delete(scannerIdentifier);
-            history.replaceState(null, null, url);
-        });
-    }
-});
-
 // TODO: Añadir el actualizador de estado a cada uno de los eventos respectivos: Recibir el paquete, generar Relación, Generar Pedido
 
 btnActivador.on("click", activadorPrincipal);
@@ -67,7 +49,7 @@ async function onScanSuccess(decodedText, decodedResult) {
             text: "Procesando información, por favor espere."
         });
 
-        await abriModalActuaizarEstado(id);
+        await abrirModalActuaizarEstado(id);
 
         startScanning();
     }
@@ -107,7 +89,7 @@ async function activadorPrincipal(e) {
             if(idEncontrado) id = idEncontrado;
         }
 
-        await abriModalActuaizarEstado(id)
+        await abrirModalActuaizarEstado(id)
 
         l.end();
 
@@ -150,7 +132,7 @@ async function leerImagenQr(e) {
                 text: "Por favor ingrese un QR válido"
             }
 
-            return abriModalActuaizarEstado(id);
+            return abrirModalActuaizarEstado(id);
         })
         .catch(err => ({icon: "error", text: `Error al scanear ${file.name}: ${err}`}));
 
@@ -165,7 +147,7 @@ async function leerImagenQr(e) {
     anotaciones.addError("Proceso Finalizado", {color: "success"})
 }
 
-async function abriModalActuaizarEstado(id_envio) {
+async function abrirModalActuaizarEstado(id_envio) {
     const ref = db.collection("envios").doc(id_envio);
 
     const envio = await ref.get().then(d => d.exists ? d.data() : false);
@@ -232,3 +214,5 @@ async function actualizarEstadoEnvio(e, idEnvio, form) {
     l.end();
     return resActualizacion;
 }
+
+export { abrirModalActuaizarEstado }

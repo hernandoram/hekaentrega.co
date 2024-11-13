@@ -151,12 +151,8 @@ exports.actualizarMovimientos = async (req, res) => {
     const { numeroGuia } = req.params;
     const nuevoEstado = req.body;
 
-    console.log("typeof numeroGuia); ", typeof numeroGuia);
-
-
     try {
         const infoGuia = await obtenerGuiaPorNumero(numeroGuia);
-        console.log("infoGuia", infoGuia);
         if(!infoGuia) return res.send({
             error: true,
             message: "No se encuentra la guía para la actualización de los estados."
@@ -166,8 +162,6 @@ exports.actualizarMovimientos = async (req, res) => {
     
         const infoEstados = await obtenerEstadosGuiaPorId(id_user, id_heka);
     
-        console.log(infoGuia, infoEstados);
-
         const movimiento = {
           novedad: nuevoEstado.esNovedad ? nuevoEstado.descripcion : "",
           fechaMov: nuevoEstado.fechaNatural,
@@ -176,7 +170,7 @@ exports.actualizarMovimientos = async (req, res) => {
           ubicacion: nuevoEstado.ubicacion,
           tipoMotivo: null
         }
-    
+        
         const estadoBase = {
             numeroGuia: numeroGuia, //guia devuelta por la transportadora
             fechaEnvio: estandarizarFecha(infoGuia.timeline, "MM/DD/YYYY HH:mm:ss"), 
@@ -193,7 +187,8 @@ exports.actualizarMovimientos = async (req, res) => {
             fechaUltimaActualizacion: new Date(),
             mostrar_usuario: nuevoEstado.esNovedad,
             enNovedad: nuevoEstado.esNovedad,
-            movimientos: firebase.firestore.FieldValue.arrayUnion(movimiento)
+            movimientos: firebase.firestore.FieldValue.arrayUnion(movimiento),
+            version: 2
         };
     
         if(infoEstados) {
@@ -203,6 +198,7 @@ exports.actualizarMovimientos = async (req, res) => {
         }
     
         infoGuia.estadoTransportadora = estadoBase.estadoActual;
+        infoGuia.enNovedad = nuevoEstado.esNovedad;
                 
         // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
         const actualizaciones = modificarEstadoGuia(infoGuia);
@@ -210,9 +206,9 @@ exports.actualizarMovimientos = async (req, res) => {
         // Esto pasa una serie de argumentos, que detecta que haya alguna información para actualizar
         // en caso de que los valores del segundo parametros sean falsos, undefined o null, no los toma en cuenta para actualizar
         atributosAdicionalesEnActualizacion(actualizaciones, {
-            seguimiento_finalizado: true, enNovedad: nuevoEstado.esNovedad
+            seguimiento_finalizado: true
         });
-    
+
         await actualizarReferidoPorGuiaEntregada(infoGuia, actualizaciones);
         await actualizarInfoGuia(id_user, id_heka, actualizaciones);
     

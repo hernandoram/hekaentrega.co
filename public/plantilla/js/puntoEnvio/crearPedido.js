@@ -8,9 +8,13 @@ const contenedorAnotaciones = $("#anotaciones-flexii_guia");
 export async function crearPedidoEnvios(cotizacion, enviosInvolucrados) {
     console.log(cotizacion);
 
+    Cargador.fire({
+        text: "Se está generando la información de su conjunto de envíos"
+    });
+
     const guia = new GuiaBase(cotizacion);
 
-    // TODO: Validar la información base para determinar si tiene el saldo adecuado para continuar (actualizar cuando se migre a master)
+    // TODO: Validar bien esta funcionalidad
     if(!guia.poseeSaldoValido && false) {
         return Swal.fire({
             title: "Saldo insuficiente",

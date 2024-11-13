@@ -75,6 +75,7 @@ export default class TablaEnvios {
   filtradas = [];
   guias = [];
   selectionCityChange = new Watcher(null);
+  searchInFilter = [estadosRecepcion.recibido, estadosRecepcion.validado];
 
   constructor(selectorContainer) {
     const container = $(selectorContainer);
@@ -114,8 +115,8 @@ export default class TablaEnvios {
     if (gIdx === -1) {
       this.table.row.add(guia).draw(false);
     } else {
-      const row = this.table.row(gIdx).draw(false);
-      row.data(guia);
+      const row = this.table.row(gIdx);
+      row.data(guia).draw(false);
     }
 
     if(this.filtrador)
@@ -223,15 +224,16 @@ export default class TablaEnvios {
   async reloadData() {
     await db.collection("envios")
     .where("id_punto", "==", user_id)
-    .where("estado_recepcion", "in", [estadosRecepcion.recibido, estadosRecepcion.validado])
+    .where("estado_recepcion", "in", this.searchInFilter)
     .get()
     .then(q => {
+      this.table.clear();
       this.guias = [];
       q.forEach(d => {
         const data = d.data();
         data.id = d.id;
+        this.guias.push(data); // Primero hacemos el push global, en caso de que halla un filtrado el "this.add" pueda capturarlo
         this.add(data);
-        this.guias.push(data);
       });
     });
   }
