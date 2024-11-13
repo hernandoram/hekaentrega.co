@@ -156,6 +156,9 @@ class GuiaBase {
         this.dane_ciudadR = baseCotizacion.dane_ciudadR;
         this.dane_ciudadD = baseCotizacion.dane_ciudadD;
         this.transportadora = baseCotizacion.transportadora;
+        this.alto = baseCotizacion.alto;
+        this.ancho = baseCotizacion.ancho;
+        this.largo = baseCotizacion.largo;
 
         this.detalles = baseCotizacion.getDetails;
 

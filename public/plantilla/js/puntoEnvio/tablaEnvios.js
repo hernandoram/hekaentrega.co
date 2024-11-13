@@ -227,7 +227,7 @@ export default class TablaEnvios {
     .where("estado_recepcion", "in", this.searchInFilter)
     .get()
     .then(q => {
-      this.table.clear();
+      this.table.clear().draw(false);
       this.guias = [];
       q.forEach(d => {
         const data = d.data();

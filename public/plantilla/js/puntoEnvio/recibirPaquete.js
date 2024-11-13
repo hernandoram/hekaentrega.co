@@ -49,7 +49,8 @@ async function onScanSuccess(decodedText, decodedResult) {
             text: "Procesando información, por favor espere."
         });
 
-        await capturarEnvio(id);
+        await capturarEnvio(id)
+        .then(res => Swal.fire(res));
 
         startScanning();
     }
