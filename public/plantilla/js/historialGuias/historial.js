@@ -871,8 +871,12 @@ function accionesDeFila(datos, type, row) {
           <i class="fas fa-ban"></i>
         </button>`;
 
-    const btnActualizar = `<button class="btn btn-circle btn-primary btn-sm mx-1 action data-id="${id}" id="actualizar-guia${id}">
+    const btnActualizar = `<button class="btn btn-circle btn-primary btn-sm mx-1 action" data-id="${id}" id="actualizar-guia${id}">
         <i class="fa fa-sync" title="Actualizar guía ${id}" style="cursor: pointer"></i>
+        </button>`;
+    
+    const btnGrupoFlexii = `<button class="btn btn-circle btn-primary btn-sm mx-1 action" data-id="${id}" id="mirar_grupo_flexii-guia-${id}">
+        <i class="fa fa-layer-group" title="Detalles grupo ${id}" style="cursor: pointer"></i>
         </button>`;
 
     //Bottón para re crear el sticker de guía.
@@ -930,6 +934,9 @@ function accionesDeFila(datos, type, row) {
     if (datos.estadoActual == eliminada && datos.estadoAnterior) {
       buttons += btnRestore;
     }
+
+    if(estado_prueba)
+      buttons += btnGrupoFlexii;
 
     // buttons += "<a href='javascript:void(0)' class='action text-trucate'>Ver más</a>"
     // buttons += btnEdit;

@@ -1,4 +1,6 @@
-import { v0 } from "../config/api.js";
+import { v0, v1 } from "../config/api.js";
+import { firestore } from "../config/firebase.js";
+import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 import { estadosRecepcion, estadoValidado } from "./constantes.js";
 import { actualizarEstadoEnvioHeka } from "./crearPedido.js";
 import { table as htmlTable, containerQuoterResponse } from "./views.js";
@@ -242,11 +244,118 @@ export default class TablaEnvios {
 async function generarRelacion(e, dt, node, config) {
   const api = dt;
 
-  const l = new ChangeElementContenWhileLoading(e.target);
-  l.init();
-
+  
   const envios = api.rows().data().toArray();
   
+  if(!envios.length) {
+    return Swal.fire({
+      icon: "warning",
+      title: "No hay envíos para relacionar"
+    });
+  }
+  
+  const primerEnvio = envios[0]; // De aquí tomamos toda la info base del remitente, ya que en teoría siempre debería ser el mismo
+  const {id_user} = primerEnvio;
+  
+  const l = new ChangeElementContenWhileLoading(e.target);
+  l.init();
+  
+  const relacion = await obtenerRelacion(envios);
+
+  if(relacion.error) {
+    l.end();
+
+    return Swal.fire({
+      icon: "error",
+      title: "Error al generar la relación.",
+      text: relacion.body
+    });
+  }
+
+  const defaultSwalValue = {
+    showCancelButton: true,
+    confirmButtonText: "Ver Relación",
+    cancelButtonText: "Cerrar"
+  }
+
+  const actionAfterSwal = res => {if(res.isConfirmed) openPdfFromBase64(relacion.body)};
+
+  const usuario = await findUserById(id_user);
+
+  if(!usuario) {
+    l.end();
+    const swalData = Object.assign(defaultSwalValue, {
+      icon: "info",
+      title: "No se puede enviar el correo",
+      text: "No se han encontrado los datos del usuario relacionado con los envíos, por lo tanto, no se puede enviar la relación. Se recomienda descargar la información de la relación manualmente"
+    });
+
+    return Swal.fire(swalData)
+    .then(actionAfterSwal);
+  }
+
+  const {contacto, correo} = usuario;
+
+
+  const dataPdfToSend = JSON.stringify({
+    type: "document",
+    name_file: "Relación de Envíos.pdf",
+    content_file: relacion.body,
+    number: contacto.toString(),
+    email: correo
+  });
+
+  const resPdfSent = await enviarRelacion(dataPdfToSend);
+
+  if(resPdfSent.code === 200) {
+    const swalData = Object.assign(defaultSwalValue, {
+      icon: "success",
+      title: "La relación ha sido enviada correctamente",
+      text: resPdfSent.response?.message || ""
+    });
+
+    Swal.fire(swalData)
+    .then(actionAfterSwal);
+
+  } else {
+    const swalData = Object.assign(defaultSwalValue, {
+      icon: "error",
+      title: "No se ha podido enviar la relación"
+    });
+
+    const {message} = resPdfSent;
+    if(message && typeof message === "object") {
+      swalData.html = `
+        <ul>${message.map(m => `<li>${m.message}</li>`).join("")}</ul>
+      `;
+    } else if (message) {
+      swalData.text = message;
+    } else {
+      swalData.text = "Error desconocido";
+    }
+
+    Swal.fire(swalData)
+    .then(actionAfterSwal);
+
+  }
+
+  l.end();
+}
+
+async function findUserById(id_user) {
+  try {
+    const usuario = await firestore.collection("usuarios").doc(id_user)
+    .get().then(d => d.exists ? d.data() : null);
+
+    return usuario;
+  } catch (e) {
+    console.error("Error al encontrar usuario: ", e);
+
+    return null;
+  }
+}
+
+async function obtenerRelacion(envios) {
   const relacion = await fetch(v0.pdfRelacionEnvio, {
     method: "POST",
     headers: {
@@ -258,25 +367,25 @@ async function generarRelacion(e, dt, node, config) {
       receptor: datos_usuario.centro_de_costo
     })
   })
-  .then(d => d.json());
+  .then(d => d.json())
+  .catch(e => ({error: true, body: e.message}));
 
-  // TODO: Una vez recibido el pdf
-  /**
-   * 1. Guardarlos en el storage
-   * 2. Actuarlizar todos los envíos con la información registrada en el storage
-   * 3. Enviar mensaje al watsapp
-   * NOTA: Si se pueden enviar pdfs directamente se omite todo y se salta al tercer paso.
-   */
-
-  openPdfFromBase64(relacion.body);
-
-  // await this.reloadData();
-
-
-  l.end();
+  return relacion;
 }
 
-// TODO: Falta recargar la tabla una vez que ya se validen los envíos
+async function enviarRelacion(dataPdfToSend) {
+  return fetch(v1.sendDocument, {
+    method: "POST",
+    headers: {
+      "Content-Type": "Application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`
+    },
+    body: dataPdfToSend
+  })
+  .then(d => d.json())
+  .catch(e => console.log("ERROR ENVIANDO PDF: ", e));
+}
+
 async function validarEnvios(e, dt, node, config) {
   const api = dt;
 

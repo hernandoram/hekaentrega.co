@@ -44,14 +44,9 @@ async function onScanSuccess(decodedText, decodedResult) {
     
     if(id) {
         await stopScanning();
-        
-        Cargador.fire({
-            text: "Procesando información, por favor espere."
-        });
 
         await abrirModalActuaizarEstado(id);
 
-        startScanning();
     }
 }
 
@@ -148,6 +143,10 @@ async function leerImagenQr(e) {
 }
 
 async function abrirModalActuaizarEstado(id_envio) {
+    Cargador.fire({
+        text: "Procesando información, por favor espere."
+    });
+    
     const ref = db.collection("envios").doc(id_envio);
 
     const envio = await ref.get().then(d => d.exists ? d.data() : false);
@@ -158,6 +157,8 @@ async function abrirModalActuaizarEstado(id_envio) {
             text: "El envío con el que se quiere conectar no existe en la base de datos.",
         });
     }
+
+    Cargador.close();
 
     const modal = new CreateModal({
         title: "Actualizar estado"

@@ -77,7 +77,7 @@ exports.crearGuia = async (req, res) => {
         tipo: datos_destinatario.type,
         dice_contener: guia.dice_contener,
         centro_de_costo: guia.centro_de_costo,
-        id_user: null,
+        id_user: guia.id_user ?? null,
         observaciones: guia.observaciones,
         valorSeguro: guia.seguro,
         valorRecaudo: valorProducto,

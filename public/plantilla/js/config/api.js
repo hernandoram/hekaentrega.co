@@ -24,6 +24,7 @@ const v1 = {
   endpoint: endpointV1,
   quoter: endpointV1 + "/shipping/quoter",
   cities: endpointV1 + "/geolocation/city",
+  sendDocument: endpointV1 + "/tools/send-document"
 };
 
 export {
