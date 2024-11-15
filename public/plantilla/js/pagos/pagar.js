@@ -1020,6 +1020,8 @@ class Empaquetado {
         let contador = 0;
         // Comenzamos a iterar sobre cada fila del excel para revisar cada seller y proceder a pagar
         for await ( let ex of responseExcel ) {
+            Object.keys(ex).forEach(k => ex[k.trim()] = ex[k]);
+            
             const nombre_ben = ex["Nombre Beneficiario"];
             const valorPagoExcel = ex.ValorTransaccion;
 
