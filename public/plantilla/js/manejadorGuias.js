@@ -756,9 +756,7 @@ function crearDocumentos(e, dt, node, config) {
 
   //Verifica que todas las guias crrespondan al mismo tipo
   let tipos_diferentes = revisarCompatibilidadGuiasSeleccionadas(arrGuias);
-  const guia_automatizada = ["automatico", "automaticoEmp"].includes(
-    transportadoras[arrGuias[0].transportadora].sistema()
-  );
+  const guia_automatizada = transportadoras[arrGuias[0].transportadora].sistemaAutomatizado();
   //Si no corresponden, arroja una excepción
   if (tipos_diferentes.error) {
     node.prop("disabled", false);
@@ -810,9 +808,8 @@ function crearDocumentos(e, dt, node, config) {
       }
 
       const transportadora = arrGuias[0].transportadora;
-      const generacion_automatizada = ["automatico", "automaticoEmp"].includes(
-        transportadoras[transportadora].sistema()
-      );
+      const generacion_automatizada = transportadoras[transportadora].sistemaAutomatizado();
+
       arrGuias.sort((a, b) => {
         return a.numeroGuia > b.numeroGuia ? 1 : -1;
       });
@@ -911,9 +908,8 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
     causa: "",
   };
   const diferentes = arrGuias.some((v, i, arr) => {
-    const generacion_automatizada = ["automatico", "automaticoEmp"].includes(
-      transportadoras[v.transportadora].sistema()
-    );
+    const generacion_automatizada =  transportadoras[v.transportadora].sistemaAutomatizado();
+
     if (v.type != arr[i ? i - 1 : i].type) {
       mensaje.causa = "TIPO";
       mensaje.text = "Los tipos de guías empacadas no coinciden.";
@@ -5097,7 +5093,7 @@ async function anularGuia(data) {
       .then((res) => {
         Toast.fire(
           "Guia Anulada",
-          "La guia Número " + id + " Ha sido anulada.",
+          "La guia Número " + data.id_heka + " Ha sido anulada.",
           "success"
         );
       })
