@@ -1,5 +1,5 @@
 import { v0, v1 } from "../config/api.js";
-import { firestore } from "../config/firebase.js";
+import { firestore, storage } from "../config/firebase.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 import { estadosRecepcion, estadoValidado } from "./constantes.js";
 import { actualizarEstadoEnvioHeka } from "./crearPedido.js";
@@ -259,17 +259,27 @@ async function generarRelacion(e, dt, node, config) {
   
   const l = new ChangeElementContenWhileLoading(e.target);
   l.init();
+
+  const pathRelacion = pathRelacionEnvios(envios);
+  let urlRelacion = await obtenerRelacionFiresStorage(pathRelacion).catch(() => null);
   
-  const relacion = await obtenerRelacion(envios);
+  if(!urlRelacion) {
+    const relacion = await obtenerRelacion(envios);
+  
+    if(relacion.error) {
+      l.end();
+  
+      return Swal.fire({
+        icon: "error",
+        title: "Error al generar la relación.",
+        text: relacion.body
+      });
+    }
 
-  if(relacion.error) {
-    l.end();
-
-    return Swal.fire({
-      icon: "error",
-      title: "Error al generar la relación.",
-      text: relacion.body
-    });
+    const documentoGuardado = await guardarRelacionFireStorage(pathRelacion, relacion.body);
+    const url = await documentoGuardado.ref.getDownloadURL();
+    
+    urlRelacion = url;
   }
 
   const defaultSwalValue = {
@@ -278,7 +288,7 @@ async function generarRelacion(e, dt, node, config) {
     cancelButtonText: "Cerrar"
   }
 
-  const actionAfterSwal = res => {if(res.isConfirmed) openPdfFromBase64(relacion.body)};
+  const actionAfterSwal = res => {if(res.isConfirmed) window.open(urlRelacion, "_blank");};
 
   const usuario = await findUserById(id_user);
 
@@ -298,9 +308,9 @@ async function generarRelacion(e, dt, node, config) {
 
 
   const dataPdfToSend = JSON.stringify({
-    type: "document",
+    type: "document_send",
     name_file: "Relación de Envíos.pdf",
-    content_file: relacion.body,
+    url_file: urlRelacion,
     number: contacto.toString(),
     email: correo
   });
@@ -371,6 +381,33 @@ async function obtenerRelacion(envios) {
   .catch(e => ({error: true, body: e.message}));
 
   return relacion;
+}
+
+function pathRelacionEnvios(envios) {
+  const pricipalPath = "relacion_envios_heka/" + user_id + "/";
+
+  const numero_guias = envios.map(env => env.numeroGuia);
+  const nombre_documento = 
+  numero_guias[0] +
+  (numero_guias.length > 1
+    ? "_" + numero_guias[numero_guias.length - 1]
+    : "");
+
+    return pricipalPath + nombre_documento + ".pdf";
+}
+
+async function guardarRelacionFireStorage(path, base64) {
+  return storage
+    .ref()
+    .child(path)
+    .putString(base64, "base64")
+} 
+
+async function obtenerRelacionFiresStorage(path) {
+  return storage
+  .ref()
+  .child(path)
+  .getDownloadURL()
 }
 
 async function enviarRelacion(dataPdfToSend) {
