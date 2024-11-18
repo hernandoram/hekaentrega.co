@@ -255,7 +255,14 @@ const selectize = {
  * departamento.
  */
 async function searchAndGroupCity(elSelectize, query) {
-  return fetch(v1.cities + "?label=" + query + "&limit=25")
+  return fetch(v1.cities + "?label=" + query + "&limit=25", 
+    {
+    method: "GET",
+    headers: {
+      'Api-KeY': API_KEY,
+      "Content-Type": "application/json",
+    },
+  })
     .then((res) => res.json())
     .then((d) => {
       const ciudades = d.response.rows.map((c) => {
