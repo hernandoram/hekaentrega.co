@@ -4,6 +4,7 @@ const PROD_API_URL = window.ENV.ENVIRONMENT_NAME; //comentar o descomentar segun
 
 // const PROD_API_URL_PLATFORM2 = "http://localhost:3232"; //comentar o descomentar segun el ambiente
 const PROD_API_URL_PLATFORM2 = window.ENV.PROD_API_URL_PLATFORM2; //comentar o descomentar segun el ambiente
+const API_KEY = window.ENV.API_KEY
 
 const bodegasBackPlataforma2 = true;
 
@@ -32,9 +33,13 @@ async function validateToken(token) {
     redirectLogin();
   } else {
     try {
-      const response = await fetch(
-        `${PROD_API_URL}/api/v1/user/validate/token?token=${token}`
-      );
+      const response = await fetch(`${PROD_API_URL}/api/v1/user/validate/token?token=${token}`, {
+        method: "GET",
+        headers: {
+          'Api-KeY': API_KEY,
+          "Content-Type": "application/json",
+        },
+      });
 
       console.warn(response);
       if (!response.ok) {
@@ -170,7 +175,12 @@ async function deleteUserToken() {
 
   console.log(url);
   try {
-    const response = await fetch(url, { method: "DELETE" });
+    const response = await fetch(url, { 
+      method: "DELETE", 
+      headers: {
+      'Api-KeY': API_KEY,
+      "Content-Type": "application/json",
+    } });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
