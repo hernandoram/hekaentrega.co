@@ -9,8 +9,8 @@ const credentialsEnv = {
 }
 
 const credentialsProd = {
-    endpoint: "http://200.69.100.66/ServicioLiquidacionREST/Service1.svc",
-    consultEndpoint: "http://200.69.100.66/ServicioRESTConsultaEstados/Service1Consulta.svc/",
+    endpoint: "http://35.237.62.153/ServicioLiquidacionREST/Service1.svc",
+    consultEndpoint: "http://35.237.62.153/ServicioRESTConsultaEstados/Service1Consulta.svc/",
     usuario: "F70ERAMI",
     password: "F70EDC14",
     // cod_cuenta: "01-001-0015707",
