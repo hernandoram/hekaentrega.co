@@ -1,5 +1,5 @@
 const credentialsEnv = {
-    endpoint: "http://200.69.100.66/ServicioLiquidacionRESTpruebas/Service1.svc/",
+    endpoint: "http://35.237.62.153/ServicioLiquidacionRESTpruebas/Service1.svc/",
     usuario: "EMPCAR01",
     password: "EMPCAR1",
     cod_cuenta: 30,
