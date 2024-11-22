@@ -4511,6 +4511,23 @@ const opcionesAccionesGuiasAdmin = [
     visible: (data) => true,
     accion: generarDocsGuia,
   },
+
+  {
+    titulo: "Actualizar estados",
+    icon: "sync",
+    color: "primary",
+    id: "actualizar_estados",
+    visible: (data) => !!data.numeroGuia,
+    accion: actualizarEstadosAdmin,
+  },
+  {
+    titulo: "Ver seguimiento",
+    icon: "truck-moving",
+    color: "primary",
+    id: "ver_seguimiento",
+    visible: (data) => !!data.numeroGuia,
+    accion: verEstadosHistGuiasAdmin,
+  },
 ];
 
 async function historialGuiasAdmin(e) {
@@ -4632,10 +4649,18 @@ async function historialGuiasAdmin(e) {
   const referenceAlt = firebase.firestore().collectionGroup("guias");
 
   if (numeroGuia) {
-    await referenceAlt
-      .where("numeroGuia", "==", numeroGuia.trim())
-      .get()
-      .then(manejarInformacion);
+    const numerosDeGuia = numeroGuia
+      .split(",")
+      .map(n => n.trim());
+
+    const segementado = segmentarArreglo(numerosDeGuia, 10);
+    for await (const paquete of segementado) {
+      await referenceAlt
+        .where("numeroGuia", "in", paquete)
+        .get()
+        .then(manejarInformacion);
+    }
+
   } else if (tipoFiltro === "filt_1") {
     const segementado = segmentarArreglo(filtroPagoSeleccionado, 10);
     for await (const paquete of segementado) {
@@ -4945,18 +4970,6 @@ function renderizarBotonesAdmin(datos, type, row) {
   return datos;
 }
 
-/** Funcion que, una vez cargado los botones en el DOM del historial de guías de admin, activa la funcionalidad expuesta sobre dicho botón */
-function activarAccionesGuiasAdmin(row, data) {
-  opcionesAccionesGuiasAdmin.forEach((opt, i) => {
-    const button = $(`[data-action='${opt.id}']`, row);
-
-    if (!button.data("hasAssignedEvent")) {
-      button.on("click", opt.accion.bind(button, data));
-      button.data("hasAssignedEvent", true);
-    }
-  });
-}
-
 async function recursividadPorReferencia(ref, handler, limitePaginacion, next) {
   let consulta = ref;
   if (next) {
@@ -5000,6 +5013,32 @@ function descargarInformeGuiasAdmin(columnas, guias, nombre) {
   });
 
   descargarInformeExcel(columnasParaExcel, guias, nombre);
+}
+
+
+//#region Acciones guías
+/** Funcion que, una vez cargado los botones en el DOM del historial de guías de admin, activa la funcionalidad expuesta sobre dicho botón */
+function activarAccionesGuiasAdmin(row, data) {
+  opcionesAccionesGuiasAdmin.forEach((opt, i) => {
+    const button = $(`[data-action='${opt.id}']`, row);
+
+    if (!button.data("hasAssignedEvent")) {
+      
+      button.on("click", async () => {
+        button.addClass("spinner-grow");
+        button.prop("disabled", true);
+
+        try {
+          await opt.accion.call(button, data);
+        } finally {
+          button.removeClass("spinner-grow disabled");
+          button.prop("disabled", false);
+        }
+
+      });
+      button.data("hasAssignedEvent", true);
+    }
+  });
 }
 
 async function generarDocsGuia(data) {
@@ -5106,6 +5145,45 @@ async function anularGuia(data) {
       });
   }
 }
+
+async function actualizarEstadosAdmin(guia) {
+  console.count("click");
+  const resp = await actualizarEstadoGuia(
+    guia.numeroGuia,
+    guia.id_user,
+    true
+  );
+
+  if (resp.guias_est_actualizado === 1 && resp.guias_con_errores === 0) {
+    Toast.fire(
+      "Guía actualizada",
+      "La guía Número " + guia.numeroGuia + " ha sido actualizada",
+      "success"
+    );
+  } else {
+    Toast.fire(
+      "Guía no actualizada",
+      "La guía Número " + guia.numeroGuia + " no ha sido actualizada",
+      "error"
+    );
+  }
+}
+
+async function verEstadosHistGuiasAdmin(guia) {
+  const { id_user, id_heka } = guia;
+  const estadosGuia = await db.collection("usuarios")
+  .doc(id_user)
+  .collection("estadoGuias")
+  .doc(id_heka)
+  .get()
+  .then((doc) => doc.exists ? doc.data() : null);
+
+  if(estadosGuia === null) return Toast.fire("Sin estados", "El estado de esta guía aún no ha sido actualizado", "error");
+
+  $("#modal-gestionarNovedad").modal("show");
+  gestionarNovedadModal(estadosGuia, guia, null);
+}
+//#endregion
 
 function filtrarPorpagosHistGuiasAdm(e, editor, button, config) {
   const { filtrado } = config;
