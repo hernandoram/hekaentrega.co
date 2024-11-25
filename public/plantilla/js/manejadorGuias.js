@@ -2277,8 +2277,6 @@ function descargarExcelNovedades() {
     });
   }
 
-  console.log(JSONData);
-  return;
   informeNovedadesLogistica(JSONData);
   // if(checkboxNovedadesLogistica.checked) {informeNovedadesLogistica(JSONData)}
   // else if(checkboxNovedadesCallcenter.checked){informeNovedadesCallcenter(JSONData)}
