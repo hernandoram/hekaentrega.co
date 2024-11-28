@@ -1,4 +1,7 @@
-export const containerQuoterResponse = $("#respuesta-flexii_guia");
+export const idReceptorFlexiiGuia = "flexii_guia_recept";
+export const idFlexiiGuia = "flexii_guia";
+export const idScannerEstados = "scanner_estados_flexii";
+export const idFormActualizadorEstados = "actualizador_estados-" + idFlexiiGuia;
 
 export const estadoRecibido = {
     estado: "Recibido",

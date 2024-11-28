@@ -10,6 +10,7 @@ import { cotizadorFlexii } from "./cotizadorFlexii.js";
 
 export function cotizar(e) {
   datos_usuario.bodegas = nuevasBodegas;
+  console.log("Se está cotizando por acá efectivamente");
   e.preventDefault();
   // Se analiza las clases que posee el botón para saber si se va autilizar el cotizador flexii
   // o el cotizador por defecto (que usa la forma convencional)
@@ -20,7 +21,9 @@ export function cotizar(e) {
     // * Una vez se estabilice el nuevo cotizador, cambiar todo el entorno, para que no se utilice por error el antiguo
     if(e.target.classList.contains(cotizadorApiClassIdentifier)) {
       cotizadorApi();
+      console.log("Cotizador API");
     } else {
+      console.log("ESTÁ ENTRANDO DONDE NO ES");
       cotizador();
     }
   }

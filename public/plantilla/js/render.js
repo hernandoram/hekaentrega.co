@@ -1270,6 +1270,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
     $("#empacar-" + id).on("change", empacarGuia);
 
     $("#gestionar-novedad-" + id).on("click", gestionarNovedad);
+    $("#mirar_grupo_flexii-guia-" + id).on("click", detallesGrupoGuiasFlexii);
   }
 }
 async function actualizarEstadoGuia(numeroGuia, id_user = user_id, wait) {
@@ -1430,6 +1431,53 @@ async function gestionarNovedad(e) {
 
   console.log(novedad);
   gestionarNovedadModal(novedad, guia);
+}
+
+async function detallesGrupoGuiasFlexii() {
+  let id = this.getAttribute("data-id");
+  const columnas = [{
+    title: "Número Guía",
+    data: "numeroGuia"
+  }, {
+    title: "Remitente",
+    data: "info_origen.nombre_completo"
+  }, {
+    title: "Destinatario",
+    data: "info_destino.nombre_completo"
+  }];
+
+  const myTable = document.createElement("table");
+  myTable.classList.add("table");
+
+  myTable.innerHTML = `
+    <thead>
+      <tr>
+        ${columnas.map(c => `<th>${c.title}</th>`).join("")}
+      </tr>
+    </thead>
+    <tbody></tbody>
+  `;
+
+
+  await db.collection("envios")
+  .where("id_agrupacion_guia", "==", id)
+  .get()
+  .then(q => {
+    q.forEach(d => {
+      const bodyTable = myTable.querySelector("tbody");
+      const data = d.data();
+      bodyTable.innerHTML = `
+        <tr>
+          ${columnas.map(c => `<td>${c.data.split(".").reduce((a,b) => a[b], data)}</td>`).join("")}
+        </tr>
+      `;
+    })
+  });
+
+  Swal.fire({
+    title: "Detalles envíos agrupados",
+    html: myTable.outerHTML
+  });
 }
 
 //funcion que me devuelve a los inputs que estan escritos incorrectamente o vacios

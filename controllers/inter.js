@@ -743,7 +743,7 @@ function comprimirCentroSerivciosInter(data) {
  */
 
 /** Function encargada recibir el estado por parte de inter y la referencia de dónde se va a guardar la información recibida, al igual que los logs
- * @param {any} ref - La referencia de firebase dónde se guarda el evento
+ * @param {firebase.firestore.DocumentReference} ref - La referencia de firebase dónde se guarda el evento
  * @param {NotificacionEstado} NotificacionEstados - La notificación que ha sido recibida por inter
  */
 async function actualizarNotificacionEstado(ref, NotificacionEstados) {
@@ -762,7 +762,7 @@ async function actualizarNotificacionEstado(ref, NotificacionEstados) {
 
         const {id_user, id_heka, centro_de_costo} = infoGuia;
         
-        const activadorEstadosPushTemporal = ["SellerLUSANmodafemenina", "SellerDISEOSGIOVERA"].includes(centro_de_costo);
+        const activadorEstadosPushTemporal = [].includes(centro_de_costo);
     
         const infoEstados = await obtenerEstadosGuiaPorId(id_user, id_heka);
 

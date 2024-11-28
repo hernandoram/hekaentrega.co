@@ -1,7 +1,9 @@
-import { v0 } from "../config/api.js";
-import { containerQuoterResponse, estadosRecepcion, estadoValidado } from "./constantes.js";
+import { v0, v1 } from "../config/api.js";
+import { firestore, storage } from "../config/firebase.js";
+import { ChangeElementContenWhileLoading } from "../utils/functions.js";
+import { estadosRecepcion, estadoValidado } from "./constantes.js";
 import { actualizarEstadoEnvioHeka } from "./crearPedido.js";
-import { table as htmlTable, idTable } from "./views.js";
+import { table as htmlTable, containerQuoterResponse } from "./views.js";
 
 
 const columns = [
@@ -75,12 +77,13 @@ export default class TablaEnvios {
   filtradas = [];
   guias = [];
   selectionCityChange = new Watcher(null);
+  searchInFilter = [estadosRecepcion.recibido, estadosRecepcion.validado];
 
   constructor(selectorContainer) {
     const container = $(selectorContainer);
     container.append(htmlTable);
 
-    this.table = $("#" + idTable).DataTable(config);
+    this.table = $("table", container).DataTable(config);
 
     this.table.on('click', 'tbody tr', e => {
       if(this.filtrador === estadosRecepcion.recibido) return;
@@ -114,8 +117,8 @@ export default class TablaEnvios {
     if (gIdx === -1) {
       this.table.row.add(guia).draw(false);
     } else {
-      const row = this.table.row(gIdx).draw(false);
-      row.data(guia);
+      const row = this.table.row(gIdx);
+      row.data(guia).draw(false);
     }
 
     if(this.filtrador)
@@ -223,15 +226,16 @@ export default class TablaEnvios {
   async reloadData() {
     await db.collection("envios")
     .where("id_punto", "==", user_id)
-    .where("estado_recepcion", "in", [estadosRecepcion.recibido, estadosRecepcion.validado])
+    .where("estado_recepcion", "in", this.searchInFilter)
     .get()
     .then(q => {
+      this.table.clear().draw(false);
       this.guias = [];
       q.forEach(d => {
         const data = d.data();
         data.id = d.id;
+        this.guias.push(data); // Primero hacemos el push global, en caso de que halla un filtrado el "this.add" pueda capturarlo
         this.add(data);
-        this.guias.push(data);
       });
     });
   }
@@ -240,11 +244,128 @@ export default class TablaEnvios {
 async function generarRelacion(e, dt, node, config) {
   const api = dt;
 
+  
+  const envios = api.rows().data().toArray();
+  
+  if(!envios.length) {
+    return Swal.fire({
+      icon: "warning",
+      title: "No hay envíos para relacionar"
+    });
+  }
+  
+  const primerEnvio = envios[0]; // De aquí tomamos toda la info base del remitente, ya que en teoría siempre debería ser el mismo
+  const {id_user} = primerEnvio;
+  
   const l = new ChangeElementContenWhileLoading(e.target);
   l.init();
 
-  const envios = api.rows().data().toArray();
+  const pathRelacion = pathRelacionEnvios(envios);
+  let urlRelacion = await obtenerRelacionFiresStorage(pathRelacion).catch(() => null);
   
+  if(!urlRelacion) {
+    const relacion = await obtenerRelacion(envios);
+  
+    if(relacion.error) {
+      l.end();
+  
+      return Swal.fire({
+        icon: "error",
+        title: "Error al generar la relación.",
+        text: relacion.body
+      });
+    }
+
+    const documentoGuardado = await guardarRelacionFireStorage(pathRelacion, relacion.body);
+    const url = await documentoGuardado.ref.getDownloadURL();
+    
+    urlRelacion = url;
+  }
+
+  const defaultSwalValue = {
+    showCancelButton: true,
+    confirmButtonText: "Ver Relación",
+    cancelButtonText: "Cerrar"
+  }
+
+  const actionAfterSwal = res => {if(res.isConfirmed) window.open(urlRelacion, "_blank");};
+
+  const usuario = await findUserById(id_user);
+
+  if(!usuario) {
+    l.end();
+    const swalData = Object.assign(defaultSwalValue, {
+      icon: "info",
+      title: "No se puede enviar el correo",
+      text: "No se han encontrado los datos del usuario relacionado con los envíos, por lo tanto, no se puede enviar la relación. Se recomienda descargar la información de la relación manualmente"
+    });
+
+    return Swal.fire(swalData)
+    .then(actionAfterSwal);
+  }
+
+  const {contacto, correo} = usuario;
+
+
+  const dataPdfToSend = JSON.stringify({
+    type: "document_send",
+    name_file: "Relación de Envíos.pdf",
+    url_file: urlRelacion,
+    number: contacto.toString(),
+    email: correo
+  });
+
+  const resPdfSent = await enviarRelacion(dataPdfToSend);
+
+  if(resPdfSent.code === 200) {
+    const swalData = Object.assign(defaultSwalValue, {
+      icon: "success",
+      title: "La relación ha sido enviada correctamente",
+      text: resPdfSent.response?.message || ""
+    });
+
+    Swal.fire(swalData)
+    .then(actionAfterSwal);
+
+  } else {
+    const swalData = Object.assign(defaultSwalValue, {
+      icon: "error",
+      title: "No se ha podido enviar la relación"
+    });
+
+    const {message} = resPdfSent;
+    if(message && typeof message === "object") {
+      swalData.html = `
+        <ul>${message.map(m => `<li>${m.message}</li>`).join("")}</ul>
+      `;
+    } else if (message) {
+      swalData.text = message;
+    } else {
+      swalData.text = "Error desconocido";
+    }
+
+    Swal.fire(swalData)
+    .then(actionAfterSwal);
+
+  }
+
+  l.end();
+}
+
+async function findUserById(id_user) {
+  try {
+    const usuario = await firestore.collection("usuarios").doc(id_user)
+    .get().then(d => d.exists ? d.data() : null);
+
+    return usuario;
+  } catch (e) {
+    console.error("Error al encontrar usuario: ", e);
+
+    return null;
+  }
+}
+
+async function obtenerRelacion(envios) {
   const relacion = await fetch(v0.pdfRelacionEnvio, {
     method: "POST",
     headers: {
@@ -256,25 +377,52 @@ async function generarRelacion(e, dt, node, config) {
       receptor: datos_usuario.centro_de_costo
     })
   })
-  .then(d => d.json());
+  .then(d => d.json())
+  .catch(e => ({error: true, body: e.message}));
 
-  // TODO: Una vez recibido el pdf
-  /**
-   * 1. Guardarlos en el storage
-   * 2. Actuarlizar todos los envíos con la información registrada en el storage
-   * 3. Enviar mensaje al watsapp
-   * NOTA: Si se pueden enviar pdfs directamente se omite todo y se salta al tercer paso.
-   */
-
-  openPdfFromBase64(relacion.body);
-
-  // await this.reloadData();
-
-
-  l.end();
+  return relacion;
 }
 
-// TODO: Falta recargar la tabla una vez que ya se validen los envíos
+function pathRelacionEnvios(envios) {
+  const pricipalPath = "relacion_envios_heka/" + user_id + "/";
+
+  const numero_guias = envios.map(env => env.numeroGuia);
+  const nombre_documento = 
+  numero_guias[0] +
+  (numero_guias.length > 1
+    ? "_" + numero_guias[numero_guias.length - 1]
+    : "");
+
+    return pricipalPath + nombre_documento + ".pdf";
+}
+
+async function guardarRelacionFireStorage(path, base64) {
+  return storage
+    .ref()
+    .child(path)
+    .putString(base64, "base64")
+} 
+
+async function obtenerRelacionFiresStorage(path) {
+  return storage
+  .ref()
+  .child(path)
+  .getDownloadURL()
+}
+
+async function enviarRelacion(dataPdfToSend) {
+  return fetch(v1.sendDocument, {
+    method: "POST",
+    headers: {
+      "Content-Type": "Application/json",
+      Authorization: `Bearer ${localStorage.getItem("token")}`
+    },
+    body: dataPdfToSend
+  })
+  .then(d => d.json())
+  .catch(e => console.log("ERROR ENVIANDO PDF: ", e));
+}
+
 async function validarEnvios(e, dt, node, config) {
   const api = dt;
 

@@ -8,10 +8,13 @@ const contenedorAnotaciones = $("#anotaciones-flexii_guia");
 export async function crearPedidoEnvios(cotizacion, enviosInvolucrados) {
     console.log(cotizacion);
 
+    Cargador.fire({
+        text: "Se está generando la información de su conjunto de envíos"
+    });
+
     const guia = new GuiaBase(cotizacion);
 
-    // TODO: Validar la información base para determinar si tiene el saldo adecuado para continuar (actualizar cuando se migre a master)
-    if(!guia.poseeSaldoValido && false) {
+    if(guia.saldoInvalido) {
         return Swal.fire({
             title: "Saldo insuficiente",
             icon: "error",
@@ -130,6 +133,9 @@ function getDataSelectedfromInput($JqueryElement) {
 
 class GuiaBase {
     peso = 0;
+    alto = 0;
+    ancho = 0;
+    largo = 0;
     costo_envio = 0;
     valor = 0;
     seguro = 0;
@@ -142,9 +148,13 @@ class GuiaBase {
     estadoActual = estadosGuia.pedido; // Básicamente empezarán siendo de tipo pedido
     seguimiento_finalizado = false;
     id_user = "";
+    cuenta_responsable = "EMPRESA"; // Siempre es empresa
 
     constructor(baseCotizacion) {
         this.peso = baseCotizacion.kgTomado;
+        this.alto = baseCotizacion.alto;
+        this.ancho = baseCotizacion.ancho;
+        this.largo = baseCotizacion.largo;
         this.costo_envio = baseCotizacion.costoEnvio;
         this.valor = baseCotizacion.valor;
         this.seguro = baseCotizacion.seguro;
@@ -152,6 +162,7 @@ class GuiaBase {
         this.dane_ciudadR = baseCotizacion.dane_ciudadR;
         this.dane_ciudadD = baseCotizacion.dane_ciudadD;
         this.transportadora = baseCotizacion.transportadora;
+        this.debe = baseCotizacion.debe;
 
         this.detalles = baseCotizacion.getDetails;
 
@@ -162,7 +173,7 @@ class GuiaBase {
         this.id_user = user_id;
     }
 
-    get poseeSaldoValido() {
+    get saldoInvalido() {
         return !this.debe &&
         !datos_personalizados.actv_credit &&
         this.costo_envio > datos_personalizados.saldo &&
@@ -181,6 +192,7 @@ class GuiaBase {
         if (
             this.transportadora === transportadoras.INTERRAPIDISIMO.cod
         ) {
+            console.log(bodega);
             this.codigo_sucursal = bodega.codigo_sucursal_inter;
 
             // Por ahora solo se presentará esta varialbe con interrapidísimo

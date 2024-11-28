@@ -1,14 +1,10 @@
-import { v1 } from "../config/api.js";
-import { cotizarApi } from "../cotizador/cotizadorApi.js";
-import { TranslatorFromApi } from "../cotizador/translator.js";
 import AnotacionesPagos from "../pagos/AnotacionesPagos.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
-import { containerQuoterResponse, estadoRecibido, estadosRecepcion } from "./constantes.js";
-import { actualizarEstadoEnvioHeka, dataValueSelectedFromInput, crearPedidoEnvios } from "./crearPedido.js";
+import { estadoRecibido, estadosRecepcion, idReceptorFlexiiGuia } from "./constantes.js";
+import { actualizarEstadoEnvioHeka } from "./crearPedido.js";
 import TablaEnvios from "./tablaEnvios.js";
-import { bodegasEl, diceContenerEl, oficinaDestinoEl } from "./views.js";
 
-const principalHash = "#flexii_guia";
+const principalId = idReceptorFlexiiGuia;
 const scannerIdentifier = "id";
 
 
@@ -23,67 +19,24 @@ const textsButton = {
     validar: "Validar envío"
 }
 
-const idElement = "reader-flexii_guia";
-const contenedorAnotaciones = $("#anotaciones-flexii_guia");
-const btnActivador = $("#activador_scanner-flexii_guia");
-const btnActivadorFiles = $("#activador_files-flexii_guia");
-const btnActivadorLabel = $("#activador_label-flexii_guia");
-const inputIdEnvio = $("#id_envio-flexii_guia");
-const fileInput = $("#scanner_files-flexii_guia");
-const switchModo = $("#switch_modo-flexii_guia");
-const contenedorCotizador = $("#contenedor_cotizador-flexii_guia");
-const contenederReceptor = $("#recibidor_envio-flexii_guia");
-const principalTitle = $("#principal_title-flexii_guia");
+const idElement = "reader-" + principalId;
+const contenedorAnotaciones = $("#anotaciones-" + principalId);
+const btnActivador = $("#activador_scanner-" + principalId);
+const btnActivadorFiles = $("#activador_files-" + principalId);
+const btnActivadorLabel = $("#activador_label-" + principalId);
+const inputIdEnvio = $("#id_envio-" + principalId);
+const fileInput = $("#scanner_files-" + principalId);
 
-// Esperamos que se carguen todo los datos necesarios de usuario Para realizar una primera lectura de información directamente desde la url
-ControlUsuario.hasLoaded
-.then(() => {
-    const url = new URL(location);
-    const id = url.searchParams.get(scannerIdentifier) // dónde debería venir el id de la guía
-    const isCurrentHash = url.hash === principalHash;
+const anotaciones = new AnotacionesPagos(contenedorAnotaciones);
+const tablaRecepcionPaquetes = new TablaEnvios("#contenedor_tabla-" + principalId);
+tablaRecepcionPaquetes.searchInFilter = [estadosRecepcion.recibido]; // Para que solo se hagan búsquedas de los envíos recibidos
+tablaRecepcionPaquetes.filtrador = estadosRecepcion.recibido; // Ajustamos el filtrador para que nos active las funcionalidades que corresponde a recibir un envío
 
-    // Se va a invocar la función, siempre que exista un id y el hash actual corresponda con la vista que le compete a la recepción de guías
-    if(id && isCurrentHash) {
-        // Se invoca la función encargada de capturar el envío
-        capturarEnvio(id)
-        .then((res) => {
-            url.searchParams.delete(scannerIdentifier);
-            history.replaceState(null, null, url);
-            Swal.fire(res);
-        });
-    }
-
-    if(isCurrentHash) obtenerGuiasEnEsperaPunto();
-
-});
-
-// TODO: Añadir el actualizador de estado a cada uno de los eventos respectivos: Recibir el paquete, generar Relación, Generar Pedido
 
 btnActivador.on("click", activadorPrincipal);
 btnActivadorFiles.on("click", () => fileInput.click());
 btnActivadorLabel.on("change", activarInsercionManual);
 fileInput.on("change", leerImagenQr);
-switchModo.on("change", cambiarModo)
-
-const anotaciones = new AnotacionesPagos(contenedorAnotaciones);
-const tablaPendientes = new TablaEnvios("#contenedor_tabla-flexii_guia");
-
-function cambiarModo(e) {
-    const {target} = e;
-    const ischecked = target.checked; // Habilitado para generar los pedidos
-
-    if(ischecked) {
-        contenederReceptor.hide('fast');
-        contenedorCotizador.show('fast');
-        tablaPendientes.filter(estadosRecepcion.neutro);
-        principalTitle.text("Genera la guía en tu Punto");
-    } else {
-        principalTitle.text("Receptor de pedidos");
-        contenederReceptor.show('fast');
-        contenedorCotizador.hide('fast');
-        tablaPendientes.filter(estadosRecepcion.recibido);
-    }
-}
 
 async function onScanSuccess(decodedText, decodedResult) {
     const url = new URL(decodedText);
@@ -96,7 +49,8 @@ async function onScanSuccess(decodedText, decodedResult) {
             text: "Procesando información, por favor espere."
         });
 
-        await capturarEnvio(id);
+        await capturarEnvio(id)
+        .then(res => Swal.fire(res));
 
         startScanning();
     }
@@ -221,8 +175,8 @@ async function capturarEnvio(id_envio) {
         };
     }
 
-    if(tablaPendientes.filtrador === estadosRecepcion.recibido) {
-        const primeraGuia = tablaPendientes.filtradas[0];
+    if(tablaRecepcionPaquetes.filtrador === estadosRecepcion.recibido) {
+        const primeraGuia = tablaRecepcionPaquetes.filtradas[0];
         if(primeraGuia && primeraGuia.centro_de_costo !== envio.centro_de_costo) {
             return {
                 icon: "error",
@@ -238,156 +192,12 @@ async function capturarEnvio(id_envio) {
 
     await actualizarEstadoEnvioHeka(id_envio, estadoRecibido);
 
-    obtenerGuiasEnEsperaPunto();
+    tablaRecepcionPaquetes.reloadData();
 
     return {
         icon: "success",
-        text: "Envío registrada con éxito",
+        text: "Envío registrado con éxito",
     };
 }
 
-async function obtenerGuiasEnEsperaPunto() {
-    tablaPendientes.reloadData()
-    .then(() => {
-        const estadoBase = switchModo.is(":checked") ? estadosRecepcion.neutro : estadosRecepcion.recibido;
-        tablaPendientes.filter(tablaPendientes.filtrador ?? estadoBase);
-    });
-}
-
-
-const configSelectize = {
-    options: [],
-    labelField: "nombre", // el label de lo que se le muestra al usuario por cada opción
-    valueField: "id", // el valor que será guardado, una vez el lusuario seleccione dicha opción
-    searchField: ["nombre"] // El criterio de filtrado para el input
-};
-
-bodegasEl.selectize(configSelectize);
-oficinaDestinoEl.selectize(configSelectize);
-diceContenerEl.selectize(configSelectize)
-
-bodegasWtch.watchFromLast((info) => renderOptionsSelectize(bodegasEl, info));
-tablaPendientes.selectionCityChange.watch(val => obtenerUsuariosFrecuentes(val).then((info) => renderOptionsSelectize(oficinaDestinoEl, info)));
-cargarObjetosFrecuentes().then((info) => renderOptionsSelectize(diceContenerEl, info));
-
-
-
-function renderOptionsSelectize(element, options) {
-    if (!options) return;
-
-    
-    const selectorSelectize = element[0].selectize;
-
-    selectorSelectize.clearOptions();
-
-    options.forEach(data => selectorSelectize.addOption(data));
-}
-
-async function obtenerUsuariosFrecuentes(daneCiudad) {
-    const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
-        "plantillasUsuariosFrecuentes"
-    );
-    
-    const opciones = [];
-    
-    await referenciaUsuariosFrecuentes
-    .where("daneCiudad", "==", daneCiudad)
-    .get()
-    .then((querySnapshot) => {
-        querySnapshot.forEach((document) => {
-            const data = document.data();
-            data.id = document.id;
-        
-            opciones.push(data);
-        });
-    });
-
-    return opciones;
-}
-
-
-$("#cotizador-flexii_guia").on("submit", cotizarConjunto);
-async function cotizarConjunto(e) {
-    e.preventDefault();
-    const {target} = e;
-    const formData = new FormData(target);
-    const l = new ChangeElementContenWhileLoading($("[type='submit']", target));
-    l.init();
-
-    formData.set("typePayment", 3); // Este tipo de envíos siempre serán envíos convencionales
-    formData.set("collectionValue", 0); // Debido a que será un envío convencional, no se toma en cuenta ele valor de recaudo
-    formData.set("withshippingCost", false); // No aplica para este tipo de envíos;
-    formData.set("daneCityOrigin", dataValueSelectedFromInput(bodegasEl).dane_ciudad); // Seteamos a mano la ciuda origen/detino debido a que el value corresponde al id del documento de base de datos
-    formData.set("daneCityDestination", dataValueSelectedFromInput(oficinaDestinoEl).daneCiudad); // Seteamos a mano la ciuda origen/detino debido a que el value corresponde al id del documento de base de datos
-
-    const dataTypes = {
-        weight: "number",
-        declaredValue: "number",
-        width: "number",
-        long: "number",
-        height: "number",
-        typePayment: "number",
-        collectionValue: "number",
-        withshippingCost: "boolean"
-    }
-
-    try {
-        containerQuoterResponse.html("");
-        const consulta = Object.fromEntries(formData.entries());
-
-        // Para convertir los datos y enviarlos correctamente al back (numéricos y boleanos)
-        Object.keys(dataTypes).forEach(key => {
-            const convertor = dataTypes[key];
-            switch(convertor) {
-                case "number":
-                    consulta[key] = Number(consulta[key]);
-                break;
-
-                case "boolean":
-                    consulta[key] = consulta[key] === "false" ? false : !!consulta[key];
-                break;
-            }
-        });
-
-        const cotizacion = await cotizarApi(consulta);
-
-        mostrarListaTransportadoras(consulta, cotizacion.response);
-    } catch (e) {
-        console.error("Error Al cotizar: ", e);
-    } finally {
-        l.end();
-    }
-
-}
-
-
-function mostrarListaTransportadoras(consultaCotizacion, respuestaCotizacion) {
-    respuestaCotizacion.filter(r => !r.message).forEach((r, i) => {
-        const {entity, total} = r;
-        const transp = entity.toUpperCase();
-        const configTransp = transportadoras[transp];
-        const pathLogo = configTransp.logoPath;
-        
-        const cotizacionTraducida = new TranslatorFromApi(consultaCotizacion, r); 
-        const transportElement = document.createElement("li");
-        transportElement.classList.add("list-group-item", "list-group-item-action");
-        transportElement.style.cursor = "pointer";
-
-        const innerHtml = `
-            <img 
-                src="${pathLogo}" 
-                style="max-height:100px; max-width:120px"
-                alt="logo-${entity}"
-            />
-            <h5>Costo de Envío: <b>$${convertirMiles( total )}</b></h5>
-        `;
-
-        transportElement.innerHTML = innerHtml;
-        transportElement.onclick = () => crearPedidoEnvios(cotizacionTraducida, tablaPendientes.dataSelected)
-            .then(() => obtenerGuiasEnEsperaPunto());
-
-        containerQuoterResponse.append(transportElement);
-    });
-}
-
-
+export {tablaRecepcionPaquetes, capturarEnvio, scannerIdentifier}
