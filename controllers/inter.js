@@ -762,7 +762,7 @@ async function actualizarNotificacionEstado(ref, NotificacionEstados) {
 
         const {id_user, id_heka, centro_de_costo} = infoGuia;
         
-        const activadorEstadosPushTemporal = [].includes(centro_de_costo);
+        const activadorEstadosPushTemporal = ["Sellernatashoes"].includes(centro_de_costo);
     
         const infoEstados = await obtenerEstadosGuiaPorId(id_user, id_heka);
 
