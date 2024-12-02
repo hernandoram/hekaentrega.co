@@ -3,6 +3,7 @@ const fetch = require("node-fetch");
 const { urlToPdfBase64, segmentarString, estandarizarFecha, actualizarMovimientos, actualizarEstado } = require("../extends/funciones");
 const credentials = require("../keys/envia");
 const { estadosGuia, detectaNovedadEnElHistorialDeEstados, modificarEstadoGuia } = require("../extends/manejadorMovimientosGuia");
+const { inscripcionPago } = require("../extends/pagos");
 
 
 exports.cotizar = async (req, res) => {
@@ -237,6 +238,9 @@ exports.actualizarMovimientos = async (doc) => {
         const actualizaciones = modificarEstadoGuia(guia);
     
         const updte_estados = await actualizarEstado(doc, actualizaciones);
+
+        // Una vez se actualice el estado se procede a guardar la información de pago
+        await inscripcionPago(Object.assign({}, guia, actualizaciones)); // Para evitar consulta a base de datos
     
         return [updte_estados, updte_movs]
     } catch(error) {
