@@ -149,6 +149,7 @@ class GuiaBase {
     seguimiento_finalizado = false;
     id_user = "";
     cuenta_responsable = "EMPRESA"; // Siempre es empresa
+    centro_de_costo = ""
 
     constructor(baseCotizacion) {
         this.peso = baseCotizacion.kgTomado;
@@ -184,6 +185,7 @@ class GuiaBase {
         this.nombreR = remitente.nombre_completo.trim();
         this.nombre_empresa = remitente.nombre_empresa || "";
         this.celularR = remitente.celular?.toString();
+        this.centro_de_costo = remitente.centro_de_costo;
     }
 
     set datosBodega(bodega) {
