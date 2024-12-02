@@ -9,6 +9,7 @@ const urlEstados = "https://www3.interrapidisimo.com/ApiservInter/api/Mensajeria
 const firebase = require("../keys/firebase");
 const { notificarNovedadEncontrada } = require("../extends/notificaciones");
 const { estadosGuia, detectaNovedadEnElHistorialDeEstados, modificarEstadoGuia, atributosAdicionalesEnActualizacion, obtenerGuiaPorNumero, obtenerEstadosGuiaPorId, crearOActualizarEstados, actualizarInfoGuia, actualizarReferidoPorGuiaEntregada, guiaEnNovedad } = require("../extends/manejadorMovimientosGuia");
+const { inscripcionPago } = require("../extends/pagos");
 const db = firebase.firestore();
 
 const statusActualizationPush = {
@@ -587,6 +588,9 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
         });
     
         const updte_estados = await extsFunc.actualizarEstado(doc, actualizaciones);
+
+        // Una vez se actualice el estado se procede a guardar la información de pago
+        await inscripcionPago(Object.assign({}, guia, actualizaciones)); // Para evitar consulta a base de datos
     
         return [updte_estados.estado === "Est.A", updte_movs.estado === "Mov.A"];
     } catch (e) {
@@ -762,7 +766,7 @@ async function actualizarNotificacionEstado(ref, NotificacionEstados) {
 
         const {id_user, id_heka, centro_de_costo} = infoGuia;
         
-        const activadorEstadosPushTemporal = ["Sellernatashoes"].includes(centro_de_costo);
+        const activadorEstadosPushTemporal = [].includes(centro_de_costo);
     
         const infoEstados = await obtenerEstadosGuiaPorId(id_user, id_heka);
 

@@ -1,11 +1,13 @@
-import { estadosFinalizacion } from "./manejadorMovimientosGuia.js";
+const { estadosFinalizacion } = require("./manejadorMovimientosGuia.js");
+const firebase = require("../keys/firebase");
+const db = firebase.firestore();
 
 const referencePagos = db.collection("pendientePorPagar");
 async function inscripcionPago(guia) {
     const { type, numeroGuia, estado, detalles, centro_de_costo } = guia;
     const deuda = guia.debe;
 
-    if(![].includes(centro_de_costo)) return; // Inicialmente solo estará disponibles para centros de costo selectos
+    if(!["SellersublimacionesestampadocalzadoyalgomasVRRAMOS"].includes(centro_de_costo)) return; // Inicialmente solo estará disponibles para centros de costo selectos
     
     if( detalles.versionCotizacion == 2 ) return; // Por ahora ignoraremos los pagos que se harán sobre la versión 2
 
@@ -99,6 +101,7 @@ async function comprobarGuiaPagada(guia) {
 }
 
 async function guardarPagoPendiente(guiaDePago) {
+    console.log("Se va a guardar: ", guiaDePago);
     const numeroGuia = guiaDePago["GUIA"].toString();
     const reference = referencePagos.doc(numeroGuia);
     return reference.set(guiaDePago);
