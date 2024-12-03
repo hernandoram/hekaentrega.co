@@ -89,7 +89,7 @@ async function cargarPagosPendientes(e) {
     }
 
     await comprobarGuiaPagada(guia)
-    .then(revisarEnPagos => {
+    .then(revisarEnPagos => { // Se valida que la guía esté pagada en base de datos
       if(revisarEnPagos)
         throw new Error("La guía "+numeroGuia+" ya ha sido pagada.");
 
@@ -97,16 +97,27 @@ async function cargarPagosPendientes(e) {
       
       return cantidadDeUsuariosPorCentroDeCosto(guia["REMITENTE"]);
     })
-    .then(cantidadUsuarios => {
+    .then(cantidadUsuarios => { // Se valida que el centro de costo no esté repetido
       if(cantidadUsuarios === 0) // Debe existir el centro de costo
         throw new Error("El centro de costo "+guia["REMITENTE"]+" no se encuentra en nuestra base de datos.");
       
       if(cantidadUsuarios > 1) // Debe existir únicamente un centro de costo, no debe haber ni más ni menos
         throw new Error(`El centro de costo ${guia["REMITENTE"]} se encuentra repetido en nuestra base de datos (${cantidadUsuarios}), valide para saber que hacer con el usuario.`);
 
+      return reference.get(numeroGuia);
+    })
+    .then(pagoPendiente => { // Para validar los datos que existían con respectoa los nuevos
+      const clavesEspecificas = ["COMISION HEKA", "ENVÍO TOTAL", "RECAUDO", "TOTAL A PAGAR"]
+      if(pagoPendiente.exists) {
+        const dataPagoExistente = pagoPendiente.data();
+        const noHayCorrelacion = clavesEspecificas.some(k => guia[k] !== dataPagoExistente[k]);
+
+        if(noHayCorrelacion) anotaciones.addError(`Revisar relación: ${JSON.stringify(dataPagoExistente)} VS ${JSON.stringify(guia)}`, {color: "warning"});
+      }
+
       return true;
     })
-    .then(success => {
+    .then(success => { // Debe devolver true para poder guardar el pago
       if(success) {
         guia.timeline = new Date().getTime();
     

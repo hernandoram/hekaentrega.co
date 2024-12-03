@@ -21,6 +21,7 @@ const {
 } = require("../extends/manejadorMovimientosGuia");
 const { templateMessage } = require("./messageBird");
 const { notificarNovedadEncontrada } = require("../extends/notificaciones");
+const { inscripcionPago } = require("../extends/pagos");
 
 // const storage = firebase.storage();
 
@@ -651,6 +652,9 @@ async function actualizarMovimientos(doc) {
               doc,
               actualizaciones
             );
+
+            // Una vez se actualice el estado se procede a guardar la información de pago
+            await inscripcionPago(Object.assign({}, guia, actualizaciones)); // Para evitar consulta a base de datos
 
             resolve([upte_estado, upte_movs]);
           } catch (e) {

@@ -6,6 +6,7 @@ const {DOMParser} = require("xmldom");
 const { transformarDatosDestinatario, segmentarString, estandarizarFecha, actualizarMovimientos, actualizarEstado } = require("../extends/funciones");
 
 const { estadosGuia, guiaEnNovedad, detectaNovedadEnElHistorialDeEstados, modificarEstadoGuia } = require("../extends/manejadorMovimientosGuia");
+const { inscripcionPago } = require("../extends/pagos");
 
 
 function normalizarValoresNumericos(valores) {
@@ -381,6 +382,9 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
         console.log("Actualización generada => ", actualizaciones);
     
         const updte_estados = await actualizarEstado(doc, actualizaciones);
+
+        // Una vez se actualice el estado se procede a guardar la información de pago
+        await inscripcionPago(Object.assign({}, guia, actualizaciones)); // Para evitar consulta a base de datos
     
         return [updte_estados.estado === "Est.A", updte_movs.estado === "Mov.A"];
     } catch (e) {
