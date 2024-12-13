@@ -932,6 +932,7 @@ async function descargarInformeUsuariosAdm(e) {
     celular2: "Celular 2",
     centro_de_costo: "Centro de costo",
     correo: "Correo",
+    envios: "Guías creadas",
     nombre_empresa: "Nombre de la empresa",
     "datos_bancarios.banco": "Banco",
     "datos_bancarios.nombre_banco": "Representante banco",
@@ -1018,7 +1019,19 @@ async function descargarInformeUsuariosAdm(e) {
       <div class="form-group">
         <label for="fecha_fin-rep_usuarios">Fecha fin</label>
         <input type="date" class="form-control" id="fecha_fin-rep_usuarios">
-      </div>   
+      </div> 
+      
+      <div class="form-group">
+        <label for="cant_envios-rep_usuarios">Envíos realizados</label>
+        <select class="form-control" id="cant_envios-rep_usuarios">
+          <option value>-- Seleccione periodo --</option>
+          <option value=1>Último mes</option>
+          <option value=2>Último Bimestre</option>
+          <option value=3>Último Trimestres</option>
+          <option value=6>Último Semestre</option>
+          <option value=12>Último Año</option>
+        </select>
+      </div> 
     </form>`,
 
     preConfirm: (data) => {
@@ -1027,10 +1040,12 @@ async function descargarInformeUsuariosAdm(e) {
       const fecha_final =
         new Date($("#fecha_fin-rep_usuarios").val()).setHours(0) + 2 * 8.64e7;
 
-      return [fecha_inicio, fecha_final];
+      const meses = $("#cant_envios-rep_usuarios").val()
+
+      return {fecha_inicio, fecha_final, meses};
     },
 
-    didOpen: () => {
+    didOpen: (domSwal) => {
       $("#fecha_inicio-rep_usuarios").val(genFecha());
       $("#fecha_fin-rep_usuarios").val(genFecha());
     },
@@ -1042,28 +1057,57 @@ async function descargarInformeUsuariosAdm(e) {
     return;
   }
 
-  const [fecha_inicio, fecha_final] = value;
+  const {fecha_inicio, fecha_final, meses} = value;
 
-  db.collection("usuarios")
-    .orderBy("fecha_creacion", "desc")
+  const queryDocs = await db.collection("usuarios")
+  .orderBy("fecha_creacion", "desc")
+  .get();
+
+  const result = [];
+  for (let doc of queryDocs.docs) {
+    const data = doc.data();
+    const id = doc.id;
+    if (
+      data.fecha_creacion &&
+      data.fecha_creacion.toMillis() > fecha_inicio &&
+      data.fecha_creacion.toMillis() < fecha_final
+    ) {
+
+      data.envios = "N/A";
+      if(meses) {
+        data.envios = await cantidadEnviosPorUsuarioAdmin(id, meses);
+      }
+
+      result.push(transformDatos(data));
+    }
+  }
+
+  console.log(result);
+
+  crearExcel(result, "informe Usuarios");
+
+  loader.end();
+}
+
+async function cantidadEnviosPorUsuarioAdmin(id, meses) {
+  if(!administracion) return;
+
+  const fecActual = genFecha();
+  const fecha_final = new Date(fecActual).setHours(0);
+  const fechaInicioTemp = new Date(fecha_final);
+  const fecha_inicio = fechaInicioTemp.setMonth(fechaInicioTemp.getMonth() - meses);
+
+  const quantity = await db
+    .collection("usuarios")
+    .doc(id)
+    .collection("guias")
+    .orderBy("timeline", )
+    .startAt(fecha_inicio)
+    .endAt(fecha_final)
     .get()
-    .then((querySnapshot) => {
-      const result = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        if (
-          data.fecha_creacion &&
-          data.fecha_creacion.toMillis() > fecha_inicio &&
-          data.fecha_creacion.toMillis() < fecha_final
-        ) {
-          result.push(transformDatos(doc.data()));
-        }
-      });
+    .then(q => q.size);
 
-      console.log(result);
-      crearExcel(result, "informe Usuarios");
-      loader.end();
-    });
+    return quantity;
 }
 
 //invocada por el boton para buscar guias
