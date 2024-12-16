@@ -18,13 +18,14 @@ const table = `
 const formActualizarEstado = `
     <form id="${idFormActualizadorEstados}">
         <div class="form-group">
-        <label for="estado-${idScannerEstados}">Estado</label>
-        <input type="text" class="form-control" id="estado-${idScannerEstados}" name="estado" required>
+            <label for="estado-${idScannerEstados}">Estado</label>
+            <select class="form-control" id="estado-${idScannerEstados}" name="estado" required></select>
         </div>
         
         <div class="form-group">
-        <label for="descripcion-${idScannerEstados}">Descripción estado</label>
-        <input type="text" class="form-control" id="descripcion-${idScannerEstados}" name="descripcion" required>
+            <label for="descripcion-${idScannerEstados}">Descripción estado</label>
+            <select class="form-control" id="descripcion-${idScannerEstados}" name="descripcion" required></select>
+            <input type="text" class="form-control mt-1" id="descripcion_extra-${idScannerEstados}" style="display:none" placeholder="Agregue la descripción personalizada">
         </div>
         
         <div class="form-group">

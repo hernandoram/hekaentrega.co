@@ -187,6 +187,8 @@ function abrirModalActuaizarEstado() {
     modal.init = formActualizarEstado;
 
     const form = $("form", modal.modal);
+    opccionesFormularioEstados(form);
+
     modal.onSubmit = (e) => actualizarEstadoEnvios(e, form[0])
         .then(res => {
             if(res.error) {
@@ -203,6 +205,87 @@ function abrirModalActuaizarEstado() {
             modal.close();
         });
 
+}
+
+let listaEstadosHeka = [];
+async function opccionesFormularioEstados(form) {
+    const referenciaEstados = db.collection("infoHeka").doc("novedadesMensajeria");
+
+    if(!listaEstadosHeka.length) {
+        const { lista } = await referenciaEstados.get().then((d) => {
+            if (d.exists) return d.data();
+      
+            return {lista: []};
+        });
+    
+        listaEstadosHeka = lista.filter(est => est.transportadora === "HEKA");
+    }
+
+    const inputEstados = $(`#estado-${idScannerEstados}`, form);
+    const inputDescripcionEstado = $(`#descripcion-${idScannerEstados}`, form);
+    const inputDescripcionExtraEstado = $(`#descripcion_extra-${idScannerEstados}`, form);
+    const switchNovedad = $(`#switch_novedad-${idScannerEstados}`);
+    const descripcionPropertyName = inputDescripcionEstado.prop("name");
+
+    const activateOptions = (options, input) => {
+        input.html("");
+        options.forEach(estado => {
+            input.append(`<option value="${estado}">${estado}</option>`);
+        });
+    }
+
+    const estados = new Set(listaEstadosHeka.map(est => est.novedad));
+    activateOptions(estados, inputEstados);
+
+    const filtrarDescripciones = (value) => {
+        const descripciones = listaEstadosHeka.filter(est => est.novedad === value).map(est => est.mensaje).concat(["OTRO"]);
+    
+        activateOptions(descripciones, inputDescripcionEstado);
+    }
+
+    const activarSwitchNovedad = () => {
+        const existOption = listaEstadosHeka.find(est => est.novedad === inputEstados.val() && inputDescripcionEstado.val() === est.mensaje);
+        if(existOption) {
+            console.log(existOption);
+            switchNovedad.prop("checked", existOption.esNovedad ?? false);
+        }
+
+        return existOption;
+    }
+
+    const descripcionEstadoParticular = (value) => {
+        if(value === "OTRO") {
+            inputDescripcionExtraEstado.show();
+            inputDescripcionExtraEstado.prop("name", descripcionPropertyName);
+            inputDescripcionEstado.prop("name", "");
+            inputDescripcionExtraEstado.prop("required", true);
+            inputDescripcionEstado.prop("required", false);
+        } else {
+            inputDescripcionExtraEstado.hide();
+            inputDescripcionExtraEstado.prop("name", "");
+            inputDescripcionEstado.prop("name", descripcionPropertyName);
+            inputDescripcionExtraEstado.prop("required", false);
+            inputDescripcionEstado.prop("required", true);
+        }
+    }
+
+
+    filtrarDescripciones(inputEstados.val());
+    activarSwitchNovedad();
+
+    inputEstados.on("change", (e) => {
+        const {value} = e.target;
+
+        filtrarDescripciones(value);
+        activarSwitchNovedad();
+        descripcionEstadoParticular(inputDescripcionEstado.val());
+    });
+
+    inputDescripcionEstado.on("change", e => {
+        const {value} = e.target;
+        activarSwitchNovedad();
+        descripcionEstadoParticular(value);
+    });
 }
 
 /**
