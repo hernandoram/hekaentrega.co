@@ -24,7 +24,7 @@ async function inscripcionPago(guia) {
     if(type === "PAGO CONTRAENTREGA" && deuda === 0) return;
 
     // Validamos también en base de datos si se encuentra pagada
-    const guiaPagada = await comprobarGuiaPagada(informacionPago);
+    const guiaPagada = await comprobarGuiaPagada(guia);
     if(guiaPagada) return;
 
     const informacionPago = transformarGuiaAPago(guia);
