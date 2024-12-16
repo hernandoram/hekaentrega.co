@@ -75,7 +75,7 @@ async function actualizarEstadoEnvioIndividual(idEnvio, estado) {
     .then(d => d.json())
     .catch(e => ({
         error: true,
-        message: "Error al actualizar estado: " + e.message
+        body: "Error al actualizar estado: " + e.message
     }));
 }
 
