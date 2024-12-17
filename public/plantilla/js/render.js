@@ -1,13 +1,4 @@
-const firebaseConfig = {
-  apiKey: ENV.FIRE_APIKEY,
-  authDomain: ENV.FIRE_AUTHDOMAIN,
-  databaseURL: ENV.FIRE_DB_URL,
-  projectId: ENV.FIRE_PROJECT_ID,
-  storageBucket: ENV.FIRE_STORAGE,
-  messagingSenderId: ENV.FIRE_MESSAGESENDER_ID,
-  appId: ENV.FIRE_APP_ID,
-  measurementId: ENV.FIRE_MEASSUREMENT_ID,
-};
+var firebaseConfig = JSON.parse(atob(window.ENV.FIREBASE_CONFIG));
 
 const estadosGuia = {
   novedad: "NOVEDAD",

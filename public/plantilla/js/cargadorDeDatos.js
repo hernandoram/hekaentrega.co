@@ -263,7 +263,7 @@ async function getWarehouses() {
     const bodegas = response.rows;
 
     const newBodegas = bodegas.map((bodega) => {
-      if(estado_prueba && bodega.conveyors) bodega.conveyors.push({id: "HEKA"}); // Para activar la creación de guías con Heka cuando esté presente el modo de prueba
+      //if(estado_prueba && bodega.conveyors) bodega.conveyors.push({id: "HEKA"}); // Para activar la creación de guías con Heka cuando esté presente el modo de prueba
 
       return {
         nombre: bodega.name,
