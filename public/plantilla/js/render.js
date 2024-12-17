@@ -1,12 +1,12 @@
-var firebaseConfig = {
-  apiKey: "AIzaSyCtzXKSoweSMLPej5-MbkTfQzFH719y-MM",
-  authDomain: "hekaapp-23c89.firebaseapp.com",
-  databaseURL: "https://hekaapp-23c89.firebaseio.com",
-  projectId: "hekaapp-23c89",
-  storageBucket: "hekaapp-23c89.appspot.com",
-  messagingSenderId: "539740310887",
-  appId: "1:539740310887:web:66f9ab535d18addeb173c2",
-  measurementId: "G-47CYMPHNRM",
+const firebaseConfig = {
+  apiKey: ENV.FIRE_APIKEY,
+  authDomain: ENV.FIRE_AUTHDOMAIN,
+  databaseURL: ENV.FIRE_DB_URL,
+  projectId: ENV.FIRE_PROJECT_ID,
+  storageBucket: ENV.FIRE_STORAGE,
+  messagingSenderId: ENV.FIRE_MESSAGESENDER_ID,
+  appId: ENV.FIRE_APP_ID,
+  measurementId: ENV.FIRE_MEASSUREMENT_ID,
 };
 
 const estadosGuia = {

@@ -1,3 +1,6 @@
+const dotenv = require('dotenv');
+dotenv.config();
+
 var firebase = require("firebase/app");
 require("firebase/auth");
 require("firebase/database");
@@ -5,13 +8,13 @@ require("firebase/firestore");
 require("firebase/storage");
 
 var firebaseConfig = {
-    apiKey: "AIzaSyCtzXKSoweSMLPej5-MbkTfQzFH719y-MM",
-    authDomain: "hekaapp-23c89.firebaseapp.com",
-    databaseURL: "https://hekaapp-23c89.firebaseio.com",
-    projectId: "hekaapp-23c89",
-    storageBucket: "hekaapp-23c89.appspot.com",
-    messagingSenderId: "539740310887",
-    appId: "1:539740310887:web:66f9ab535d18addeb173c2"
+    apiKey: process.env.FIRE_APIKEY,
+    authDomain: process.env.FIRE_AUTHDOMAIN,
+    databaseURL: process.env.FIRE_DB_URL,
+    projectId: process.env.FIRE_PROJECT_ID,
+    storageBucket: process.env.FIRE_STORAGE,
+    messagingSenderId: process.env.FIRE_MESSAGESENDER_ID,
+    appId: process.env.FIRE_APP_ID
 };
 
 // Initialize Firebase
