@@ -501,7 +501,7 @@ junto a las funcionalidades adicionales que la acompañen
 const usuarioParaColaInfoHeka = [];
 async function cargarPagoSolicitado() {
   console.warn("Cargando pago");
-  const ref = db.collection("infoHeka").doc("manejoUsuariosDev");
+  const ref = db.collection("infoHeka").doc("manejoUsuarios");
   const { diarioSolicitado, limitadosDiario, colaProcesarGuias } = await ref
     .get()
     .then((d) => d.data());
@@ -2637,7 +2637,7 @@ async function solicitarPagosPendientesUs(e) {
 
   const mensajeDesembolso = obtenerMensajeDesembolso();
   const minimo_diario = 3000000;
-  const ref = db.collection("infoHeka").doc("manejoUsuariosDev");
+  const ref = db.collection("infoHeka").doc("manejoUsuarios");
 
   // Se genera un Swal para que cuando se cierre automáticamente retorne el botón a su estado original
   const SwalMessage = Swal.mixin({

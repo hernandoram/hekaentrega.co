@@ -8,7 +8,7 @@ const btnDownload = $("#descargar-manejo_usuarios");
 
 let valorseleccionado = "";
 
-const referencia = db.collection("infoHeka").doc("manejoUsuariosDev");
+const referencia = db.collection("infoHeka").doc("manejoUsuarios");
 
 listaVer.change(mirarColeccion);
 buttonAdd.on("click", activarNuevo);

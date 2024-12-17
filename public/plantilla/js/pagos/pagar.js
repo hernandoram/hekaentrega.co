@@ -620,7 +620,7 @@ class Empaquetado {
     async pagar(usuario) {
         const timeline = new Date().getTime();
         const storageRef = storage.ref("comprobantes_bancarios").child(usuario).child(timeline + ".pdf");
-        const refDiasPago = db.collection("infoHeka").doc("manejoUsuariosDev");
+        const refDiasPago = db.collection("infoHeka").doc("manejoUsuarios");
 
         const file = $("#comprobante_pago-"+usuario)[0].files[0];
 
@@ -1180,7 +1180,7 @@ async function consultarPendientes(e) {
     // En caso de que se haya seleccionado el filtrado especial por sellers se buscan los sellers que corresponden a ese filtrado
     // y se inserta sobre el campo encargado de buscar por usuario (cetro de costo)
     if(selFiltDiaPago.val()) {
-        const data = await db.collection("infoHeka").doc("manejoUsuariosDev")
+        const data = await db.collection("infoHeka").doc("manejoUsuarios")
         .get().then(d => d.data());
 
         const usuarios = data[selFiltDiaPago.val()];
