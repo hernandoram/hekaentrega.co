@@ -461,11 +461,14 @@ const actualizarMovimientos = async function(docs) {
 
     } catch (error) {
         console.log(error);
+        const knownMessage = "Algunas guías no existen o no se encuentran admitidas";
+        const messageError = error.message.includes(knownMessage) ? knownMessage : error.message;
+
         return [{
             estado: "Error",
             guia: "Segmento de guías: " + error.message,
-            causa: error.message || "Error desconocido INTERRAPIDISIMO"
-        }]
+            causa: messageError || "Error desconocido INTERRAPIDISIMO"
+        }];
     }
   
 }

@@ -215,10 +215,9 @@ export default class TablaEnvios {
     this.renderTable = false;
   }
 
-  clean(avoid) {
+  clean() {
     this.filtradas = [];
-    this.guiasNeutras.clear();
-    this.guias = respaldo;
+    this.guias = [];
 
     this.render(true);
   }

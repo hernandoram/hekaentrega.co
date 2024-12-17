@@ -3,6 +3,7 @@ import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 import CreateModal from "../utils/modal.js";
 import { idScannerEstados } from "./constantes.js";
 import { actualizarEstadoEnvioHeka } from "./crearPedido.js";
+import TablaEnvios from "./tablaEnvios.js";
 import { formActualizarEstado } from "./views.js";
 
 const principalId = idScannerEstados;
@@ -24,18 +25,20 @@ const textsButton = {
 const idElement = "reader-" + principalId;
 const contenedorAnotaciones = $("#anotaciones-" + principalId);
 const btnActivador = $("#activador_scanner-" + principalId);
+const btnActualizarEstados = $("#actualizar_estados-" + principalId);
 const btnActivadorFiles = $("#activador_files-" + principalId);
 const btnActivadorLabel = $("#activador_label-" + principalId);
 const inputIdEnvio = $("#id_envio-" + principalId);
 const fileInput = $("#scanner_files-" + principalId);
-
-// TODO: Añadir el actualizador de estado a cada uno de los eventos respectivos: Recibir el paquete, generar Relación, Generar Pedido
+const tablaEnvios = $("#contenedor_tabla-" + principalId);
 
 btnActivador.on("click", activadorPrincipal);
+btnActualizarEstados.on("click", abrirModalActuaizarEstado);
 btnActivadorFiles.on("click", () => fileInput.click());
 btnActivadorLabel.on("change", activarInsercionManual);
 fileInput.on("change", leerImagenQr);
 
+const tabla = new TablaEnvios(tablaEnvios);
 const anotaciones = new AnotacionesPagos(contenedorAnotaciones);
 
 async function onScanSuccess(decodedText, decodedResult) {
@@ -45,8 +48,9 @@ async function onScanSuccess(decodedText, decodedResult) {
     if(id) {
         await stopScanning();
 
-        await abrirModalActuaizarEstado(id);
+        await encolarEnvioParaActualizacionEstado(id);
 
+        startScanning();
     }
 }
 
@@ -84,7 +88,7 @@ async function activadorPrincipal(e) {
             if(idEncontrado) id = idEncontrado;
         }
 
-        await abrirModalActuaizarEstado(id)
+        await encolarEnvioParaActualizacionEstado(id)
 
         l.end();
 
@@ -127,7 +131,7 @@ async function leerImagenQr(e) {
                 text: "Por favor ingrese un QR válido"
             }
 
-            return abrirModalActuaizarEstado(id);
+            return encolarEnvioParaActualizacionEstado(id);
         })
         .catch(err => ({icon: "error", text: `Error al scanear ${file.name}: ${err}`}));
 
@@ -142,14 +146,21 @@ async function leerImagenQr(e) {
     anotaciones.addError("Proceso Finalizado", {color: "success"})
 }
 
-async function abrirModalActuaizarEstado(id_envio) {
+async function encolarEnvioParaActualizacionEstado(id_envio) {
     Cargador.fire({
         text: "Procesando información, por favor espere."
     });
     
     const ref = db.collection("envios").doc(id_envio);
 
-    const envio = await ref.get().then(d => d.exists ? d.data() : false);
+    const envio = await ref.get().then(d => {
+        if(!d.exists) return null;
+
+        const data = d.data();
+        data.id = d.id;
+
+        return data;
+    });
 
     if(!envio) {
         return Swal.fire({
@@ -158,7 +169,16 @@ async function abrirModalActuaizarEstado(id_envio) {
         });
     }
 
+    tabla.add(envio);
+
     Cargador.close();
+}
+
+function abrirModalActuaizarEstado() {
+    if(!tabla.table.data().length) return Swal.fire({
+        icon: "error",
+        text: "No existe ninguna guía en la tabla que actualizar"
+    });
 
     const modal = new CreateModal({
         title: "Actualizar estado"
@@ -167,7 +187,7 @@ async function abrirModalActuaizarEstado(id_envio) {
     modal.init = formActualizarEstado;
 
     const form = $("form", modal.modal);
-    modal.onSubmit = (e) => actualizarEstadoEnvio(e, id_envio, form[0])
+    modal.onSubmit = (e) => actualizarEstadoEnvios(e, form[0])
         .then(res => {
             if(res.error) {
                 return Swal.fire({
@@ -189,9 +209,12 @@ async function abrirModalActuaizarEstado(id_envio) {
  * 
  * @param {FormData} formData 
  */
-async function actualizarEstadoEnvio(e, idEnvio, form) {
+async function actualizarEstadoEnvios(e, form) {
     const l = new ChangeElementContenWhileLoading(e.target);
     l.init();
+    anotaciones.reset();
+    anotaciones.setContent();
+
     const formData = new FormData(form);
     formData.append("reporter", user_id);
     formData.append("ubicacion", "");
@@ -210,10 +233,27 @@ async function actualizarEstadoEnvio(e, idEnvio, form) {
 
     data.esNovedad = !!data.esNovedad;
 
-    const resActualizacion = await actualizarEstadoEnvioHeka(idEnvio, data);
+    const envios = tabla.table.data().toArray();
+    let existeError = false;
+    tabla.clean();
+    while(envios.length) {
+        const envio = envios.shift();
+        const idEnvio = envio.id;
+
+        const resActualizacion = await actualizarEstadoEnvioHeka(idEnvio, data);
+        if(resActualizacion.error) {
+            existeError = true;
+            anotaciones.addError(envio.numeroGuia + " - " + resActualizacion.body);
+            tabla.add(envio);
+        }
+    }
 
     l.end();
-    return resActualizacion;
+
+    return {
+        error: existeError,
+        message: existeError ? "Hubo al menos un error en una de las guías al actualizar" : "Todas las guías han ssido actualizadas correctamente"
+    };
 }
 
 export { abrirModalActuaizarEstado }
