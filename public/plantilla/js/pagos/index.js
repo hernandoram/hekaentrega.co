@@ -194,7 +194,7 @@ function filtradoVisual(datos) {
  */
 function datosImportantesIncompletos(objToSend, completeData) {
     
-    const transportadorasAdmitidas = ["SERVIENTREGA", "INTERRAPIDISIMO", "TCC", "ENVIA", "COORDINADORA"];
+    const transportadorasAdmitidas = ["SERVIENTREGA", "INTERRAPIDISIMO", "TCC", "ENVIA", "COORDINADORA", "HEKA"];
 
     if (!objToSend.GUIA) {
       return "Sin número de guía para subir: " + objToSend.GUIA;

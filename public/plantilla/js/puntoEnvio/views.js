@@ -33,6 +33,12 @@ const formActualizarEstado = `
         <textarea class="form-control" id="observaciones-${idScannerEstados}" name="observaciones"></textarea>
         </div>
 
+        <div class="custom-file mt-2 mb-4 d-none">
+            <input type="file" class="custom-file-input" id="evidencia-${idScannerEstados}" accept="image/*"
+            name="evidencia" lang="es">
+            <label class="custom-file-label" for="evidencia-${idScannerEstados}">Evidencia de entrega (opcional)</label>
+        </div>
+
         <div class="custom-control custom-switch">
             <input type="checkbox" class="custom-control-input" id="switch_novedad-${idScannerEstados}" name="esNovedad">
             <label class="custom-control-label" for="switch_novedad-${idScannerEstados}">Es una novedad</label>
