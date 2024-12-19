@@ -2758,7 +2758,7 @@ async function solicitarPagosPendientesUs(e) {
     if (!diarioSolicitado.includes(datos_usuario.centro_de_costo)) {
       //await ref.update(solicitudDePago);
       if (resp.isConfirmed) {
-        await updateUserSegmentation("diarioSolicitado", "add");
+        await updateUserSegmentation(user_id_firebase,"diarioSolicitado", "add");
       }
     }
   }
