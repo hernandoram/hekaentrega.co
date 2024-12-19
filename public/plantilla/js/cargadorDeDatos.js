@@ -1,10 +1,12 @@
+/** @format */
+
 //const PROD_API_URL = "https://api.hekaentrega.co"; //"https://apidev.hekaentrega.co" o esta
 const PROD_API_URL = window.ENV.ENVIRONMENT_NAME; //comentar o descomentar segun el ambiente
 //const TEST_API_URL = "https://apidev.hekaentrega.co"; //comentar o descomentar segun el ambiente
 
 // const PROD_API_URL_PLATFORM2 = "http://localhost:3232"; //comentar o descomentar segun el ambiente
 const PROD_API_URL_PLATFORM2 = window.ENV.PROD_API_URL_PLATFORM2; //comentar o descomentar segun el ambiente
-const API_KEY = window.ENV.API_KEY
+const API_KEY = window.ENV.API_KEY;
 
 const bodegasBackPlataforma2 = true;
 
@@ -33,13 +35,16 @@ async function validateToken(token) {
     redirectLogin();
   } else {
     try {
-      const response = await fetch(`${PROD_API_URL}/api/v1/user/validate/token?token=${token}`, {
-        method: "GET",
-        headers: {
-          'Api-KeY': API_KEY,
-          "Content-Type": "application/json",
-        },
-      });
+      const response = await fetch(
+        `${PROD_API_URL}/api/v1/user/validate/token?token=${token}`,
+        {
+          method: "GET",
+          headers: {
+            "Api-KeY": API_KEY,
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
       console.warn(response);
       if (!response.ok) {
@@ -175,12 +180,13 @@ async function deleteUserToken() {
 
   console.log(url);
   try {
-    const response = await fetch(url, { 
-      method: "DELETE", 
+    const response = await fetch(url, {
+      method: "DELETE",
       headers: {
-      'Api-KeY': API_KEY,
-      "Content-Type": "application/json",
-    } });
+        "Api-KeY": API_KEY,
+        "Content-Type": "application/json",
+      },
+    });
 
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
@@ -1040,9 +1046,9 @@ async function descargarInformeUsuariosAdm(e) {
       const fecha_final =
         new Date($("#fecha_fin-rep_usuarios").val()).setHours(0) + 2 * 8.64e7;
 
-      const meses = $("#cant_envios-rep_usuarios").val()
+      const meses = $("#cant_envios-rep_usuarios").val();
 
-      return {fecha_inicio, fecha_final, meses};
+      return { fecha_inicio, fecha_final, meses };
     },
 
     didOpen: (domSwal) => {
@@ -1057,11 +1063,12 @@ async function descargarInformeUsuariosAdm(e) {
     return;
   }
 
-  const {fecha_inicio, fecha_final, meses} = value;
+  const { fecha_inicio, fecha_final, meses } = value;
 
-  const queryDocs = await db.collection("usuarios")
-  .orderBy("fecha_creacion", "desc")
-  .get();
+  const queryDocs = await db
+    .collection("usuarios")
+    .orderBy("fecha_creacion", "desc")
+    .get();
 
   const result = [];
   for (let doc of queryDocs.docs) {
@@ -1072,9 +1079,8 @@ async function descargarInformeUsuariosAdm(e) {
       data.fecha_creacion.toMillis() > fecha_inicio &&
       data.fecha_creacion.toMillis() < fecha_final
     ) {
-
       data.envios = "N/A";
-      if(meses) {
+      if (meses) {
         data.envios = await cantidadEnviosPorUsuarioAdmin(id, meses);
       }
 
@@ -1090,24 +1096,26 @@ async function descargarInformeUsuariosAdm(e) {
 }
 
 async function cantidadEnviosPorUsuarioAdmin(id, meses) {
-  if(!administracion) return;
+  if (!administracion) return;
 
   const fecActual = genFecha();
   const fecha_final = new Date(fecActual).setHours(0);
   const fechaInicioTemp = new Date(fecha_final);
-  const fecha_inicio = fechaInicioTemp.setMonth(fechaInicioTemp.getMonth() - meses);
+  const fecha_inicio = fechaInicioTemp.setMonth(
+    fechaInicioTemp.getMonth() - meses
+  );
 
   const quantity = await db
     .collection("usuarios")
     .doc(id)
     .collection("guias")
-    .orderBy("timeline", )
+    .orderBy("timeline")
     .startAt(fecha_inicio)
     .endAt(fecha_final)
     .get()
-    .then(q => q.size);
+    .then((q) => q.size);
 
-    return quantity;
+  return quantity;
 }
 
 //invocada por el boton para buscar guias
@@ -2722,14 +2730,10 @@ async function solicitarPagosPendientesUs(e) {
         "error"
       );
       return;
-    } else {
-/*       solicitudDePago.limitadosDiario =
-        firebase.firestore.FieldValue.arrayUnion(usuario); */
-      await updateUserSegmentation('limitadosDiario', 'add');
     }
-    if(resp.isConfirmed) {
-      await updateUserSegmentation('limitadosDiario', 'add');
-      await updateUserSegmentation('diarioSolicitado', 'add');
+    if (resp.isConfirmed) {
+      await updateUserSegmentation(user_id_firebase, "limitadosDiario", "add");
+      await updateUserSegmentation(user_id_firebase, "diarioSolicitado", "add");
     }
 
     //await ref.update(solicitudDePago);
@@ -2754,7 +2758,7 @@ async function solicitarPagosPendientesUs(e) {
     if (!diarioSolicitado.includes(datos_usuario.centro_de_costo)) {
       //await ref.update(solicitudDePago);
       if (resp.isConfirmed) {
-        await updateUserSegmentation('diarioSolicitado', 'add');
+        await updateUserSegmentation(user_id_firebase,"diarioSolicitado", "add");
       }
     }
   }
@@ -2767,21 +2771,20 @@ async function solicitarPagosPendientesUs(e) {
   cargarPagoSolicitado();
 }
 
-async function updateUserSegmentation(type, action) {
-  return fetch(`${PROD_API_URL}/api/v1/users/segmentation/${mongoID}`, {
+async function updateUserSegmentation(id, type, action) {
+  return fetch(`${PROD_API_URL}/api/v1/users/segmentation/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${localStorage.getItem(
-        "token"
-      )}`,
+      Authorization: `Bearer ${localStorage.getItem("token")}`,
     },
     body: JSON.stringify({
       document_type: type,
-      action: action
+      action: action,
     }),
-  })
-  .then((res) => {return res.json()});
+  }).then((res) => {
+    return res.json();
+  });
 }
 
 function descargarExcelPagosAdmin(datos) {
