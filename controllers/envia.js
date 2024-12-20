@@ -200,7 +200,6 @@ exports.actualizarMovimientos = async (doc) => {
         const ultimo_estado = movimientos[movimientos.length - 1];
         const guia = doc.data();
 
-        console.log(respuesta);
         // let estadoActual = respuesta.estado ? respuesta.estado.replace(/(?:EN\s|DESDE)[\s\w]+/g, "") : "NO APLICA";
         let estadoActual = respuesta.estado ? respuesta.estado.split(" ").slice(0, -2).join(" ") : "NO APLICA";
         // if(movimientos) {

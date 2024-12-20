@@ -165,7 +165,6 @@ async function actualizarMovimientosGuias(querySnapshot) {
     try { 
         let inicio_func = new Date().getTime();
 
-        console.log(querySnapshot.size);
         let faltantes = querySnapshot.size
 
         const MAX_COORD = 50;

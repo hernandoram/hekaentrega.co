@@ -238,7 +238,6 @@ exports.crearStickerGuia = async (req, res) => {
 exports.actualizarMovimientos = async (docs) => {
     const numerosGuia = docs.map(d => d.data().numeroGuia || undefined).filter(Boolean);
     const maquetador = new MaquetadorXML("./estructura/seguimiento.coord.xml");
-    console.log("Numero guía =>", numerosGuia)
     
     const itemXml = numerosGuia.map(n => maquetador.maqueta("ITEM").fill({numeroGuia: n})).join("");
     const {v16} = credentials;
@@ -256,7 +255,6 @@ exports.actualizarMovimientos = async (docs) => {
             body: structure
         })
         .then(d => {
-            console.log("status => ", d.status);
             // if(d.status >= 400) return {respuesta: "Error de servidor"}
             return d.text();
         })
@@ -279,8 +277,6 @@ exports.actualizarMovimientos = async (docs) => {
         } else {
             throw new Error("Hubo un error en la lectura del formato.");
         }
-
-        console.log(responseJson);
 
         const resultadoActualizacion = [{
             estado: "Est.M",
@@ -342,7 +338,6 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
             m.fecha_completa = m.fecha + " " + m.hora;
         })
     
-        console.log("BREAK", estados, novedades, movimientosOriginales);
         const ultimo_estado = movimientosOriginales[movimientosOriginales.length - 1];
     
         const estadoActual = respuesta.descripcion_estado;
@@ -363,7 +358,6 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
     
         let updte_movs;
         if(movimientosOriginales.length) {
-            console.log("SE ACTUALIZARÁN LOS MOVIMIENTOS", doc.ref.path);
             updte_movs = await actualizarMovimientos(doc, estado);
         }
 
@@ -379,8 +373,6 @@ async function actualizarMovimientoIndividual(doc, respuesta) {
         const actualizaciones = modificarEstadoGuia(guia);
 
 
-        console.log("Actualización generada => ", actualizaciones);
-    
         const updte_estados = await actualizarEstado(doc, actualizaciones);
 
         // Una vez se actualice el estado se procede a guardar la información de pago
