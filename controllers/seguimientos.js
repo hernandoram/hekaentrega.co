@@ -154,6 +154,9 @@ async function actualizarMovimientosGuias(querySnapshot) {
         envia: 0
     }
 
+    const horaRazonableActualizacion = 4;
+    const tiempoRazonableActualizacion = horaRazonableActualizacion * 60 * 60 * 1000; // 4 Horas
+
     try { 
         let inicio_func = new Date().getTime();
 
@@ -163,7 +166,7 @@ async function actualizarMovimientosGuias(querySnapshot) {
         const MAX_COORD = 50;
         let acumuladosCoord = [];
 
-        const MAX_INTER = 10; // El máximo impuesto por inter son 10
+        const MAX_INTER = 5; // El máximo impuesto por inter son 10
         let acumuladosInter = [];
         
         // throw "no babe"
@@ -185,9 +188,11 @@ async function actualizarMovimientosGuias(querySnapshot) {
             // Se coloca un estado universal que congela las actualizaciones futuras cuando se intente actualziar de forma manual
             const estadoCongelado = data.estado && data.estado.endsWith("_");
 
+            const ultimaActualizacionValida = Date.now() - data.ultima_actualizacion.toMillis() <= tiempoRazonableActualizacion;
+
             // Se verifica que la guía no ha sido recibida por el punto ( aplica para las guías que han sido enviada a oficinas flexi)
             const hasidoEntregadaAPunto = !!data.estadoFlexii;
-            const sePuedeActualizar = !hasidoEntregadaAPunto && !estadoCongelado;
+            const sePuedeActualizar = !hasidoEntregadaAPunto && !estadoCongelado && ultimaActualizacionValida;
 
             if (existeNumeroGuia && sePuedeActualizar) {
                 if (consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
@@ -242,6 +247,10 @@ async function actualizarMovimientosGuias(querySnapshot) {
 
             if(estadoCongelado) {
                 resultado_guias.push(new Promise((r) => r([{causa: "No se puede actualizar una guía cuyo estado ha sido congelado manualmente con el carácter \"_\" al final."}])));
+            }
+            
+            if(!ultimaActualizacionValida) {
+                resultado_guias.push(new Promise((r) => r([{causa: `Esta guía ya fue actualizada hace menos de ${horaRazonableActualizacion} horas.`}])));
             }
 
             faltantes--;
