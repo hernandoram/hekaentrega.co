@@ -772,10 +772,11 @@ async function actualizarNotificacionEstado(ref, NotificacionEstados) {
         const activadorEstadosPushTemporal = true; // Activa la actualización sobre el usuario
     
         const infoEstados = await obtenerEstadosGuiaPorId(id_user, id_heka);
+        const descripcionEstado = nuevoEstado.DescripcionMotivoEst || nuevoEstado.DescripcionEstado
 
         // Desde aquí es que se detecta la novedad particular de la transportadora
         const novedad = [26, 39, 40, 7, 8, 32, 10, 30, 33].includes(nuevoEstado.CodigoEstado) 
-            ? nuevoEstado.DescripcionMotivoEst
+            ? descripcionEstado
             : "";
 
         const estadoLogistico = estadosLogisticos[nuevoEstado.CodigoEstado];
@@ -791,7 +792,7 @@ async function actualizarNotificacionEstado(ref, NotificacionEstados) {
           novedad: novedad,
           fechaEstadoOriginal: nuevoEstado.FechaEstado,
           fechaMov: extsFunc.estandarizarFecha(nuevoEstado.FechaEstado, "DD/MM/YYYY HH:mm"),
-          observacion: nuevoEstado.DescripcionEstado + " - " + nuevoEstado.DescripcionMotivoEst,
+          observacion: [nuevoEstado.DescripcionEstado, nuevoEstado.DescripcionMotivoEst].filter(Boolean).join(" - "),
           descripcionMov: estadoActualTransportadora,
           ubicacion: "", // nuevoEstado.CodigoCiudad
           tipoMotivo: nuevoEstado.CodigoMotivoEst ?? null,
