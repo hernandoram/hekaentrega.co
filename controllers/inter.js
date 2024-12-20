@@ -784,7 +784,7 @@ async function actualizarNotificacionEstado(ref, NotificacionEstados) {
 
 
         if(estadoActualTransportadora === "Para Reclamar en Oficina" && !entrega_oficina_notificada) {
-            extsFunc.notificarEntregaEnOficina(guia);
+            extsFunc.notificarEntregaEnOficina(infoGuia);
             entrega_oficina_notificada = true;
         }
         
