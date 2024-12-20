@@ -188,7 +188,9 @@ async function actualizarMovimientosGuias(querySnapshot) {
             // Se coloca un estado universal que congela las actualizaciones futuras cuando se intente actualziar de forma manual
             const estadoCongelado = data.estado && data.estado.endsWith("_");
 
-            const ultimaActualizacionValida = Date.now() - data.ultima_actualizacion.toMillis() <= tiempoRazonableActualizacion;
+            const ultimaActualizacionValida = data.ultima_actualizacion 
+                ? Date.now() - data.ultima_actualizacion.toMillis() > tiempoRazonableActualizacion 
+                : true;
 
             // Se verifica que la guía no ha sido recibida por el punto ( aplica para las guías que han sido enviada a oficinas flexi)
             const hasidoEntregadaAPunto = !!data.estadoFlexii;
