@@ -660,6 +660,18 @@ class Empaquetado {
    * valor.
    */
   async pagar(usuario) {
+    const userRef = this.pagosPorUsuario[usuario];
+
+    if (!userRef.id_user) {
+        console.log(`ID de usuario no encontrado. Cargando información para ${usuario}.`);
+        await this.cargarInfoUsuario(usuario);
+    }
+
+    if (!userRef.id_user) {
+        console.error("Error: No se pudo obtener el ID de Firebase.");
+        return;
+    }
+
     const timeline = new Date().getTime();
     const storageRef = storage
       .ref("comprobantes_bancarios")
@@ -839,7 +851,7 @@ class Empaquetado {
             }
             
             await refDiasPago.update(actualizacion); */
-      await updateUserSegmentation(id_user, "diarioSolicitado", "remove");
+      await updateUserSegmentation(userRef.id_user, "diarioSolicitado", "remove");
     }
 
     this.pagosPorUsuario[usuario].pagoConcreto = pagado;
