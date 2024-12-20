@@ -154,7 +154,12 @@ async function actualizarMovimientosGuias(querySnapshot) {
         envia: 0
     }
 
-    const horaRazonableActualizacion = 4;
+    /** Esta será una variable de configuración que meteremos sobre el querySnapshot de firebase cuando necesitemos
+     * que la configuración universal de actualización contenga un rago de tiempo (en horas) aceptable desde la última actualización realizada
+     * si sobre el querySnapshot se introdujo cierta configuración, el número pasará a ser ese
+     * si no vienee con la configuración, estará libre de rengo de tiempo para actualizar
+     */
+    const horaRazonableActualizacion = querySnapshot.rangoActualizacion ?? 0;
     const tiempoRazonableActualizacion = horaRazonableActualizacion * 60 * 60 * 1000; // 4 Horas
 
     try { 
@@ -387,6 +392,7 @@ async function actualizarMovimientos() {
     .where("seguimiento_finalizado", "!=", true)
     .limit(maxPagination);
 
+    referencia.rangoActualizacion = 4; // Rango de tiempo entre última actualización para proceder a actualizar la guía
     const historia = await busquedaPaginada(referencia);
 
     return normalizarReporte(historia);
