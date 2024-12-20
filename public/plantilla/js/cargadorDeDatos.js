@@ -2732,8 +2732,8 @@ async function solicitarPagosPendientesUs(e) {
       return;
     }
     if (resp.isConfirmed) {
-      await updateUserSegmentation(user_id_firebase, "limitadosDiario", "add");
-      await updateUserSegmentation(user_id_firebase, "diarioSolicitado", "add");
+      await updateUserSegmentation(localStorage.getItem("user_id"), "limitadosDiario", "add");
+      await updateUserSegmentation(localStorage.getItem("user_id"), "diarioSolicitado", "add");
     }
 
     //await ref.update(solicitudDePago);
@@ -2758,7 +2758,7 @@ async function solicitarPagosPendientesUs(e) {
     if (!diarioSolicitado.includes(datos_usuario.centro_de_costo)) {
       //await ref.update(solicitudDePago);
       if (resp.isConfirmed) {
-        await updateUserSegmentation(user_id_firebase,"diarioSolicitado", "add");
+        await updateUserSegmentation(localStorage.getItem("user_id"),"diarioSolicitado", "add");
       }
     }
   }
