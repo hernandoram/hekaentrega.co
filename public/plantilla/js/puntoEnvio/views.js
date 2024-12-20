@@ -18,18 +18,25 @@ const table = `
 const formActualizarEstado = `
     <form id="${idFormActualizadorEstados}">
         <div class="form-group">
-        <label for="estado-${idScannerEstados}">Estado</label>
-        <input type="text" class="form-control" id="estado-${idScannerEstados}" name="estado" required>
+            <label for="estado-${idScannerEstados}">Estado</label>
+            <select class="form-control" id="estado-${idScannerEstados}" name="estado" required></select>
         </div>
         
         <div class="form-group">
-        <label for="descripcion-${idScannerEstados}">Descripción estado</label>
-        <input type="text" class="form-control" id="descripcion-${idScannerEstados}" name="descripcion" required>
+            <label for="descripcion-${idScannerEstados}">Descripción estado</label>
+            <select class="form-control" id="descripcion-${idScannerEstados}" name="descripcion" required></select>
+            <input type="text" class="form-control mt-1" id="descripcion_extra-${idScannerEstados}" style="display:none" placeholder="Agregue la descripción personalizada">
         </div>
         
         <div class="form-group">
         <label for="observaciones-${idScannerEstados}">Observaciones</label>
         <textarea class="form-control" id="observaciones-${idScannerEstados}" name="observaciones"></textarea>
+        </div>
+
+        <div class="custom-file mt-2 mb-4 d-none">
+            <input type="file" class="custom-file-input" id="evidencia-${idScannerEstados}" accept="image/*"
+            name="evidencia" lang="es">
+            <label class="custom-file-label" for="evidencia-${idScannerEstados}">Evidencia de entrega (opcional)</label>
         </div>
 
         <div class="custom-control custom-switch">

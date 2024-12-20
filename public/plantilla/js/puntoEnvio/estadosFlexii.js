@@ -1,3 +1,4 @@
+import { storage } from "../config/firebase.js";
 import AnotacionesPagos from "../pagos/AnotacionesPagos.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 import CreateModal from "../utils/modal.js";
@@ -187,6 +188,8 @@ function abrirModalActuaizarEstado() {
     modal.init = formActualizarEstado;
 
     const form = $("form", modal.modal);
+    opccionesFormularioEstados(form);
+
     modal.onSubmit = (e) => actualizarEstadoEnvios(e, form[0])
         .then(res => {
             if(res.error) {
@@ -205,10 +208,145 @@ function abrirModalActuaizarEstado() {
 
 }
 
-/**
- * 
- * @param {FormData} formData 
- */
+let listaEstadosHeka = [];
+async function opccionesFormularioEstados(form) {
+    const referenciaEstados = db.collection("infoHeka").doc("novedadesMensajeria");
+
+    if(!listaEstadosHeka.length) {
+        const { lista } = await referenciaEstados.get().then((d) => {
+            if (d.exists) return d.data();
+      
+            return {lista: []};
+        });
+    
+        listaEstadosHeka = lista.filter(est => est.transportadora === "HEKA");
+    }
+
+    const inputEstados = $(`#estado-${idScannerEstados}`, form);
+    const inputDescripcionEstado = $(`#descripcion-${idScannerEstados}`, form);
+    const inputDescripcionExtraEstado = $(`#descripcion_extra-${idScannerEstados}`, form);
+    const switchNovedad = $(`#switch_novedad-${idScannerEstados}`);
+    const inputEvidencia = $(`#evidencia-${idScannerEstados}`);
+    const descripcionPropertyName = inputDescripcionEstado.prop("name");
+
+    const activateOptions = (options, input) => {
+        input.html("");
+        options.forEach(estado => {
+            input.append(`<option value="${estado}">${estado}</option>`);
+        });
+    }
+
+    const estados = new Set(listaEstadosHeka.map(est => est.novedad));
+    activateOptions(estados, inputEstados);
+
+    const filtrarDescripciones = (value) => {
+        const descripciones = listaEstadosHeka.filter(est => est.novedad === value).map(est => est.mensaje).concat(["OTRO"]);
+    
+        activateOptions(descripciones, inputDescripcionEstado);
+    }
+
+    const activarOpcionesAdicionalesEstado = () => {
+        const existOption = listaEstadosHeka.find(est => est.novedad === inputEstados.val() && inputDescripcionEstado.val() === est.mensaje);
+        if(existOption) {
+            switchNovedad.prop("checked", existOption.esNovedad ?? false);
+
+            if(existOption.categoria === "ENTREGADA") {
+                inputEvidencia.parent().removeClass("d-none");
+            } else {
+                inputEvidencia.parent().addClass("d-none");
+            }
+        }
+
+        return existOption;
+    }
+
+    const descripcionEstadoParticular = (value) => {
+        if(value === "OTRO") {
+            inputDescripcionExtraEstado.show();
+            inputDescripcionExtraEstado.prop("name", descripcionPropertyName);
+            inputDescripcionEstado.prop("name", "");
+            inputDescripcionExtraEstado.prop("required", true);
+            inputDescripcionEstado.prop("required", false);
+        } else {
+            inputDescripcionExtraEstado.hide();
+            inputDescripcionExtraEstado.prop("name", "");
+            inputDescripcionEstado.prop("name", descripcionPropertyName);
+            inputDescripcionExtraEstado.prop("required", false);
+            inputDescripcionEstado.prop("required", true);
+        }
+    }
+
+
+    filtrarDescripciones(inputEstados.val());
+    activarOpcionesAdicionalesEstado();
+
+    inputEstados.on("change", (e) => {
+        const {value} = e.target;
+
+        filtrarDescripciones(value);
+        activarOpcionesAdicionalesEstado();
+        descripcionEstadoParticular(inputDescripcionEstado.val());
+    });
+
+    inputDescripcionEstado.on("change", e => {
+        const {value} = e.target;
+        activarOpcionesAdicionalesEstado();
+        descripcionEstadoParticular(value);
+    });
+
+    inputEvidencia.on("change", validarImagen);
+}
+
+
+async function guardarEvidencia(idEnvio, data) {
+    const archivo = data.evidencia;
+    const nombrePila = data.estado;
+    const tipo = archivo.name.split(".")[1];
+
+    delete data.evidencia; // Quitamos el archivo que se manda al back ( ya que lo estamso creadndo desde aquí )
+
+    if(!archivo.size) return;
+
+    const referenceStorage = storage
+    .ref()
+    .child(`enviosHeka/${idEnvio}/${nombrePila}.${tipo}`);
+
+    const existentData = await referenceStorage.getDownloadURL()
+    .catch(() => null);
+
+    console.log(existentData);
+    let urlImage = existentData;
+    if(!existentData) {
+        const resultInfo = await referenceStorage
+        .put(data.evidencia);
+    
+        urlImage = await resultInfo.ref.getDownloadURL();
+    }
+
+    data.urlEvidencia = urlImage // La ruta sobre la qu ese encontrará para mandarlo al back guardada el archivo
+}
+
+async function validarImagen(e) {
+    const target = e.target;
+    const file = target.files[0];
+    const maxMb = 1;
+    const longitudImagenPermitida = maxMb * 1024 * 1024; // 10 Megabytes
+    const label = target.parentNode.querySelector("label");
+    target.classList.remove("border-danger");
+
+    if(file.size > longitudImagenPermitida) {
+        target.classList.add("border-danger");
+        target.value = "";
+        label.innerHTML = "Imagen inválida";
+
+        return verificador([target.id], true, `La imagen supera el límite permitido de "${maxMb}" MegaBytes`);
+    }
+
+    label.innerHTML = file.name;
+
+}
+
+
 async function actualizarEstadoEnvios(e, form) {
     const l = new ChangeElementContenWhileLoading(e.target);
     l.init();
@@ -239,6 +377,8 @@ async function actualizarEstadoEnvios(e, form) {
     while(envios.length) {
         const envio = envios.shift();
         const idEnvio = envio.id;
+
+        await guardarEvidencia(idEnvio, data);
 
         const resActualizacion = await actualizarEstadoEnvioHeka(idEnvio, data);
         if(resActualizacion.error) {
