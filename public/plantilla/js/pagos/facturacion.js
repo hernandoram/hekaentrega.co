@@ -1,4 +1,5 @@
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
+import AnotacionesPagos from "./AnotacionesPagos.js";
 import { cantidadFacturasencontradas } from "./comprobadores.js";
 
 const modulo = "pagos_facturacion";
@@ -7,6 +8,7 @@ const activadorFecha = $("#activador_filtro_fecha-pagos_facturacion");
 const btnHistorialFacturas = $("#btn_historial-pagos_facturacion");
 const btnDescargaFacturas = $("#btn_descarga-pagos_facturacion");
 const principalReference = firebase.firestore().collection("paquetePagos");
+const anotacionesErrores = $("#visor_errores-pagos_facturacion");
 export function activarFunctionesFacturas() {
     cambiadorFiltro.on("change", cambiarFiltroFacturacion);
     btnHistorialFacturas.on("click", revisarFacturacionesAdmin);
@@ -55,7 +57,12 @@ const dataTable = $("#table-pagos_facturacion").DataTable({
       url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
     },
     dom: "Bfrtip",
-    buttons: [],
+    buttons: [
+        {
+            text: "Generar Facturas",
+            action: facturacionMasivaAgrupada,
+        },
+    ],
     scrollY: "50vh",
     scrollX: true,
     scrollCollapse: true,
@@ -533,7 +540,7 @@ async function descargarInformeFacturas(e) {
 }
 
 
-const transportadoras = ["SERVIENTREGA", "INTERRAPIDISIMO", "ENVIA", "COORDINADORA", "REFERIDOS"];
+const transportadoras = ["SERVIENTREGA", "INTERRAPIDISIMO", "ENVIA", "COORDINADORA", "REFERIDOS", "HEKA"];
 async function cargarInfoPagoPorGuia(guiaRefrencia) {
     const transportadoras = transportadoraProbable(guiaRefrencia);
     
@@ -550,6 +557,24 @@ async function cargarInfoPagoPorGuia(guiaRefrencia) {
     }
 
     return data;
+}
+
+async function cargarInfoPagoPorIdRelacionado(idPaquetePago) {
+    const pagosRealizados = [];
+    for (let transp of transportadoras) {
+        data = await db.collection("pagos")
+        .doc(transp).collection("pagos")
+        .where("idPaquetePago", "==", idPaquetePago)
+        .get()
+        .then(q => {
+            q.forEach(d => {
+                pagosRealizados.push(d.data());
+            })
+        });
+
+    }
+
+    return pagosRealizados;
 }
 
 function transportadoraProbable(guia) {
@@ -636,7 +661,10 @@ async function crearGuardarFactura(data) {
     }
 
     actualizarFactura(data, resFact)
-    .finally(() => loader.end());
+    .then(res => Swal.fire(res))
+    .finally(() => {
+        loader.end()
+    });
 
 }
 
@@ -667,13 +695,76 @@ async function actualizarFactura(dataPack, dataFactura) {
         facturada: true
     })
     .then((result) => {
-        Toast.fire("La factura ha sido vinculada existósamente.", "", "success");
         return principalReference.doc(idDatabase).get();
     })
     .then((doc) => {
         const data = getDocData(doc);
         dataTable.row("#"+row_id).remove().draw(false);
         dataTable.row.add(data).draw(false);
+        return {
+            title: "La factura ha sido vinculada existósamente.",
+            text: "",
+            icon: "success" 
+        }
     })
-    .catch(e => Toast.fire("No se ha podido actualizar.", e.message, "error"))
+    .catch(e => ({title: "No se ha podido actualizar.", text: e.message, icon: "error"}))
+}
+
+
+async function facturacionMasivaAgrupada(e, dt, node, config) {
+    const l = new ChangeElementContenWhileLoading(e.target);
+    const anotaciones = new AnotacionesPagos(anotacionesErrores);
+    anotaciones.init();
+    l.init();
+
+    const facturasAgrupadas = new Map();
+    
+    const dataFacturacion = 
+    dt.data()
+    .filter(d => d.num_factura === 0) // Solo se vana a facturar aquellas que no hayan sido facturadas aún
+
+    dataFacturacion
+    .each(current => {
+        const {numero_documento} = current;
+
+        if(facturasAgrupadas.has(numero_documento)) {
+            const conjuntoFacturacionActual = facturasAgrupadas.get(numero_documento);
+
+            conjuntoFacturacionActual.comision_heka += current.comision_heka;
+            conjuntoFacturacionActual.total_pagado += current.total_pagado;
+        } else {
+            facturasAgrupadas.set(numero_documento, current);
+        }
+    });
+
+    for (const factura of facturasAgrupadas.values()) {
+        // Por acá se generaran las facturas de a una
+        const {numero_documento, comision_heka} = factura;
+
+        const actualizacionConjunto = dataFacturacion.filter(v => v.numero_documento === numero_documento);
+
+        const resFact = await crearFactura(numero_documento, comision_heka);
+
+        if(resFact.error) {
+            anotaciones.addError(`Error de comunicación ${numero_documento}: ${resFact.message}`);
+            continue;
+        }
+        
+        if(!resFact.id) {
+            anotaciones.addError(`Error al facturar ${numero_documento}: ${JSON.stringify(resFact)}`, "error");
+            continue;
+        }
+
+        const actualizacionesFirebase = actualizacionConjunto.map(conjuntoPago => actualizarFactura(conjuntoPago, resFact));
+
+        const resultActualizaciones = await Promise.all(actualizacionesFirebase);
+
+        const erroresFirebase = resultActualizaciones.find(act => act.incon === "error");
+        if(erroresFirebase) {
+            anotaciones.addError(`Hemos tenido un problema para guardar en nuestra base de datos la información resultante que la factura que ha sido generada en siigo: ${erroresFirebase.text}`);
+            continue;
+        }
+    }
+
+    l.end();
 }

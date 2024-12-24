@@ -15,7 +15,7 @@ const auth = async (req, res, next) => {
             "content-type": "application/json"
         },
         "body": JSON.stringify({username, access_key})
-    }).then(d => d.json())
+    }).then(d => d.json());
 
     req.access_token = respuesta.access_token;
 

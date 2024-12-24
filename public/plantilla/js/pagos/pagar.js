@@ -1,6 +1,6 @@
 import { ChangeElementContenWhileLoading, segmentarArreglo } from "../utils/functions.js";
 import Stepper from "../utils/stepper.js";
-import { checkShowNegativos, camposExcel, formularioPrincipal, inpFiltEspecial, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor, codigos_banco, inpFiltGuia, errorContainer } from "./config.js";
+import { checkShowNegativos, camposExcel, formularioPrincipal, inpFiltEspecial, inpFiltUsuario, nameCollectionDb, selFiltDiaPago, visor, codigos_banco, inpFiltGuia, errorContainer, checkActivadorFactura } from "./config.js";
 import { comprobarGuiaPagada, guiaExiste } from './comprobadores.js';
 import { defFiltrado as estadosGlobalGuias } from "../historialGuias/config.js";
 import AnotacionesPagos from "./AnotacionesPagos.js";
@@ -37,7 +37,12 @@ class Empaquetado {
     /** Lugar donde se almacenan todos los procedimientos y pagos realizados sobre la lista de usuarios
      * con la siguiente estructura, {centro_de_costo: {...data}} @type {Object.<string,PropertyUserPayment>} 
     */
-    pagosPorUsuario = {}; 
+    pagosPorUsuario = {};
+
+    /** Flag para activar/desactivar el proceso de facturación también con siigo
+     * Si está activado, se procede a facturar con siigo, de otra forma, solo se guarda el paquete de pagos, sin habilitar ninguna opción y/o conexión con siigo
+     */
+    activarProcesoFactura = true;
 
     constructor() {
         // this.pagosPorUsuario["H"].condition = ""
@@ -64,6 +69,8 @@ class Empaquetado {
             this.pagosPorUsuario[usuario].guias.push(guia);
         } else {
             this.pagosPorUsuario[usuario] = {
+                pagoConcreto: 0,
+                comision_heka_total: -1, // Al final del proceso, no debe haber niguna agrupación de pago, con un -1.
                 guias: [guia],
                 guiasPagadas: [],
                 id: this.id,
@@ -624,6 +631,8 @@ class Empaquetado {
 
         const file = $("#comprobante_pago-"+usuario)[0].files[0];
 
+        await this.guardarPaquetePagado(); // Para guardar el paquete sin que se facture
+
         const pagoUser = this.pagosPorUsuario[usuario];
         pagoUser.guiasPagadas = [];
         const guias = pagoUser.guias;
@@ -693,6 +702,9 @@ class Empaquetado {
             // momentoParticularPago marca el momento impuesto por el campo "FECHA" en el que se pago (En la gran mayoría de los casos debería ser igual)
             guia.momentoParticularPago = timeline;
 
+            // Id de donde se generó la agrupación de la información que se estará guardando para mas adelante facturar
+            guia.idPaquetePago = pagoUser.idPaquetePago;
+
             // En caso de que el momento en el que se paga, no coincida con la fecha impuesta cambia el "momentoParticularPago"
             if(genFecha("LR", timeline) !== guia.FECHA) { 
                 /**
@@ -710,6 +722,8 @@ class Empaquetado {
             const numeroGuia = guia["GUIA"].toString();
             const id_heka = guia.id_heka;
             const id_user = guia.id_user;
+            const pagoActual = guia["TOTAL A PAGAR"];
+            const comision_heka_actual = guia[camposExcel.comision_heka];
 
             const fila = $("#row-"+usuario+numeroGuia, visor);
             fila.removeClass();
@@ -717,19 +731,28 @@ class Empaquetado {
             //Procurar hacer todo esto por medio de una transacción
             try {
                 let batch = db.batch();
-                //Se debe pagar
+                // 1. Se debe pagar
                 const pagoRef = db.collection("pagos").doc(transp)
                 .collection("pagos").doc(numeroGuia);
                 batch.set(pagoRef, guia);
 
-                //Actualizar la guía como paga
+                // 2. Actualizar la guía como paga
                 if(id_heka && id_user) {
                     const guiaRef = db.collection("usuarios").doc(id_user.toString())
                     .collection("guias").doc(id_heka.toString());
                     batch.update(guiaRef, {debe: 0, estadoActual: estadosGlobalGuias.pagada});
                 }
 
-                // y finalmente eliminar la guía  en cargue que ya fue paga
+                // 3. Actualizamos el paquete pagado con la nueva guía que ha sido pagada de forma efectiva
+                const paqueteRef = db.collection("paquetePagos").doc(pagoUser.idPaquetePago);
+                batch.update(paqueteRef, {
+                    total_pagado: pagado + pagoActual,
+                    comision_heka: comision_heka + comision_heka_actual,
+                    cantidad_pagos: reporteFinal.guiasPagadas + 1,
+                    guiasPagadas: firebase.firestore.FieldValue.arrayUnion(numeroGuia)
+                });
+
+                // 4. Finalmente eliminar la guía  en cargue que ya fue paga
                 const registroRef = db.collection(nameCollectionDb).doc(numeroGuia);
                 batch.delete(registroRef);
                 
@@ -741,8 +764,8 @@ class Empaquetado {
                 pagoUser.guiasPagadas.push(numeroGuia);
                 
                 // Sumar las comisiones y los totales
-                pagado += guia["TOTAL A PAGAR"];
-                comision_heka += guia[camposExcel.comision_heka];
+                pagado += pagoActual;
+                comision_heka += comision_heka_actual;
                 reporteFinal.guiasPagadas++;
 
             } catch(e) {
@@ -756,7 +779,7 @@ class Empaquetado {
             }
         }
 
-        if(comision_heka && !pagoUser.facturaGenerada) {
+        if(comision_heka && !pagoUser.facturaGenerada && this.activarProcesoFactura) {
             const buttonFact = $("#btn-facturar-"+usuario);
             buttonFact.prop("disabled", false);
             buttonFact.removeClass("d-none");
@@ -798,6 +821,8 @@ class Empaquetado {
     async guardarPaquetePagado(factura) {
         let hasError = false;
         let errorMessage = "";
+        const fecha = new Date();
+        const timeline = fecha.getTime();
 
         
         const userRef = this.pagosPorUsuario[this.usuarioActivo];
@@ -807,7 +832,7 @@ class Empaquetado {
         }
 
         const {guiasPagadas, pagoConcreto, comision_heka_total, numero_documento} = userRef;
-        const {timeline, comprobante_bancario} = userRef.guias[0];
+        const comprobante_bancario = userRef.guias[0].comprobante_bancario ?? ""; // Este campo, está obsoleto, normalmente se guarda un string vacío
 
         const infoToSave = {
             guiasPagadas,
@@ -816,7 +841,7 @@ class Empaquetado {
             comision_heka: comision_heka_total, // Servirá para regenerar la factura en un futuro
             timeline,
             fecha: new Date(),
-            comprobante_bancario,
+            comprobante_bancario, 
             centro_de_costo: this.usuarioActivo,
             id_user: userRef.id_user || "",
             facturada: false
@@ -841,7 +866,6 @@ class Empaquetado {
 
         Object.assign(infoToSave, dataFactura);
 
-        console.log(infoToSave);
         // return;
 
         if(!userRef.idPaquetePago) {
@@ -869,6 +893,17 @@ class Empaquetado {
      * @returns La función `facturar()` devuelve una Promesa.
      */
     async facturar() {
+        if(!this.activarProcesoFactura) {
+            const resultFacturadorDesactivado ={
+                error: false,
+                message: "El proceso de facturación no se encuentra activado."
+            }
+
+            if(!this.pagoMasivoActivo) Toast.fire(resultFacturadorDesactivado.message, "No facturado en Siigo", "warning");
+
+            return resultFacturadorDesactivado;
+        }
+
         const userRef = this.pagosPorUsuario[this.usuarioActivo];
         const swalObj = {
             title: 'Continuar...',
@@ -930,7 +965,6 @@ class Empaquetado {
         }
 
         try {
-
             const resFact = await fetch("/siigo/crearFactura", {
                 method: "POST",
                 headers: {"Content-Type": "Application/json"},
@@ -1073,7 +1107,7 @@ class Empaquetado {
             }
 
             if(Swal.isVisible())
-                Swal.getHtmlContainer().innerText = `Se han pagado y facturado correctamente ${contador} usuarios de ${responseExcel.length}.`;
+                Swal.getHtmlContainer().innerText = `Se han pagado correctamente ${contador} usuarios de ${responseExcel.length}.`;
             
             contador++;
         }
@@ -1250,6 +1284,7 @@ async function empaquetarGuias(arr) {
     paquete.init();
 
     const condition = checkShowNegativos.prop("checked") ? "NEGATIVO" : "POSITIVO";
+    paquete.activarProcesoFactura = checkActivadorFactura.prop("checked");
     
     visor.children(".step-view").addClass("d-none");
     await paquete.chargeAll(condition);

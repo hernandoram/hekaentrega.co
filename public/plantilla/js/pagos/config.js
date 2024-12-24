@@ -12,6 +12,7 @@ export const inpFiltEspecial = $("#filtro_especial-gestionar_pagos");
 export const inpFiltnumeroGuia = $("#filtro-guia-gestionar_pagos");
 export const selFiltDiaPago = $("#filtro_tipo_pagos-gestionar_pagos");
 export const checkShowNegativos = $("#filtro_deudor-gestionar_pagos");
+export const checkActivadorFactura = $("#activador_facturacion-gestionar_pagos");
 
 export const nameCollectionDb = "pendientePorPagar";
 
