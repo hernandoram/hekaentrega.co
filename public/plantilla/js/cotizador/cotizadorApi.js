@@ -15,16 +15,16 @@ import {
 } from "./views.js";
 
 let datoscoti = {
-  daneCityOrigin: "",
-  daneCityDestination: "",
-  typePayment: 1,
-  declaredValue: 90000,
+  city_origin: "",
+  city_destination: "",
+  type_payment: 1,
+  declared_value: 90000,
   weight: 1,
   height: "1",
   long: "1",
   width: "1",
-  withshippingCost: false,
-  collectionValue: 90000,
+  withshipping_cost: false,
+  collection_value: 90000,
 };
 async function cotizadorApi() {
   const formulario = document.getElementById("cotizar-envio");
@@ -68,16 +68,16 @@ async function cotizadorApi() {
   const esPagoContraentrega = controls.tipoEnvio.val() === PAGO_CONTRAENTREGA;
 
   datoscoti = {
-    daneCityOrigin: ciudadR.dane,
-    daneCityDestination: ciudadD.dane,
-    typePayment: translation.typePaymentInt[controls.tipoEnvio.val()],
-    declaredValue: parseInt(value("seguro-mercancia")),
+    city_origin: ciudadR.dane,
+    city_destination: ciudadD.dane,
+    type_payment: translation.type_paymentInt[controls.tipoEnvio.val()],
+    declared_value: parseInt(value("seguro-mercancia")),
     weight: parseInt(value("Kilos")),
     height: parseInt(value("dimension-alto")),
     long: parseInt(value("dimension-largo")),
     width: parseInt(value("dimension-ancho")),
-    withshippingCost: controls.sumaEnvio.prop("checked"),
-    collectionValue: esPagoContraentrega
+    withshipping_cost: controls.sumaEnvio.prop("checked"),
+    collection_value: esPagoContraentrega
       ? parseInt(controls.valorRecaudo.val())
       : 0,
   };
@@ -92,7 +92,7 @@ async function cotizadorApi() {
 
   const responseApi = await cotizarApi(datoscoti);
   configuracionesDestinoActual = await cargarConfiguracionesCiudad(
-    datoscoti.daneCityDestination
+    datoscoti.city_destination
   );
 
   if (estado_prueba) {
@@ -104,11 +104,11 @@ async function cotizadorApi() {
 
   const response = responseApi.response;
 
-  console.warn(response, datoscoti.daneCityOrigin);
+  console.warn(response, datoscoti.city_origin);
 
   const responseWithReputation = await addReputationToResponse(
     response,
-    datoscoti.daneCityOrigin
+    datoscoti.city_origin
   );
 
   mostrarListaTransportadoras(responseWithReputation);
@@ -160,11 +160,11 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
   respuestaCotizacion
     .sort((r) => (r.message ? 1 : -1)) // Los que devuelven error las dejamos de último
     .forEach((r, i) => {
-      const { entity, total } = r;
-      const transp = entity.toUpperCase();
+      const { distributor_id, total } = r;
+      const transp = distributor_id.toUpperCase();
       const configTransp = transportadoras[transp];
       const color = configTransp.color;
-      const type = translation.typePayment[datoscoti.typePayment];
+      const type = translation.type_payment[datoscoti.type_payment];
       r.type = type; // Para añadirlo a la etiqueta de la transportadora
 
       const cotizacion = new TranslatorFromApi(datoscoti, r);
@@ -209,7 +209,7 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
       const detalle = `<div class="tab-pane fade ${
         i === 0 ? "show active" : ""
       }" 
-      id="list-transportadora-${entity}" aria-labelledby="list-transportadora-${entity}-list">
+      id="list-transportadora-${distributor_id}" aria-labelledby="list-transportadora-${distributor_id}-list">
         <div class="card">
           <div class="card-header bg-${color} text-light">
             ${transp}
@@ -222,7 +222,7 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
                   r.flete
                 )}</b></p>
                 <p class="card-text d-flex justify-content-between">Comisión transportadora <b>$${convertirMiles(
-                  r.transportCommission
+                  r.transport_commission
                 )}</b></p>
                 <p class="card-text d-flex justify-content-between">Seguro mercancía <b>$${convertirMiles(
                   r.assured
@@ -234,7 +234,7 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
               <div class="card-body">
                 <h5 class="card-title">Costo Heka entrega</h5>
                 <p class="card-text d-flex justify-content-between">Comisión heka <b>$${convertirMiles(
-                  r.hekaCommission
+                  r.heka_commission
                 )}</b></p>
               </div>
             </div>
@@ -299,12 +299,12 @@ const exampleData = [
   {
     entity: "servientrega",
     deliveryTime: "1-2",
-    declaredValue: 25000,
+    declared_value: 25000,
     flete: 13000,
-    valueDeposited: 6925,
-    transportCommission: 3000,
-    hekaCommission: 2075,
-    transportCollection: 25000,
+    value_deposited: 6925,
+    transport_commission: 3000,
+    heka_commission: 2075,
+    transport_collection: 25000,
     onlyToAddress: false,
     assured: 0,
     annotations:
@@ -319,12 +319,12 @@ const exampleData = [
   {
     entity: "interrapidisimo",
     deliveryTime: "3",
-    declaredValue: 25000,
+    declared_value: 25000,
     flete: 11150,
-    valueDeposited: 33900,
-    transportCommission: 1500,
-    hekaCommission: 2450,
-    transportCollection: 50000,
+    value_deposited: 33900,
+    transport_commission: 1500,
+    heka_commission: 2450,
+    transport_collection: 50000,
     onlyToAddress: false,
     assured: 1000,
     annotations: "",
@@ -338,12 +338,12 @@ const exampleData = [
   {
     entity: "envia",
     deliveryTime: 1,
-    declaredValue: 25000,
+    declared_value: 25000,
     flete: 12700,
-    valueDeposited: 5475,
-    transportCommission: 2500,
-    hekaCommission: 2075,
-    transportCollection: 25000,
+    value_deposited: 5475,
+    transport_commission: 2500,
+    heka_commission: 2075,
+    transport_collection: 25000,
     onlyToAddress: true,
     assured: 2250,
     annotations: "",
@@ -357,12 +357,12 @@ const exampleData = [
   {
     entity: "coordinadora",
     deliveryTime: "2",
-    declaredValue: 25000,
+    declared_value: 25000,
     flete: 11650,
-    valueDeposited: 80315,
-    transportCommission: 4300,
-    hekaCommission: 3200,
-    transportCollection: 100000,
+    value_deposited: 80315,
+    transport_commission: 4300,
+    heka_commission: 3200,
+    transport_collection: 100000,
     onlyToAddress: true,
     assured: 535,
     annotations: "",

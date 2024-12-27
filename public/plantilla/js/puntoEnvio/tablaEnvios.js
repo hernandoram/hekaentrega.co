@@ -455,7 +455,7 @@ function actualizarCotizador(envios) {
     height: 0,
     width: 0,
     long: 0,
-    declaredValue: 0
+    declared_value: 0
   }
 
   envios.forEach((val) => {
@@ -463,7 +463,7 @@ function actualizarCotizador(envios) {
     totales.height += val.alto;
     totales.width += val.ancho;
     totales.long += val.largo;
-    totales.declaredValue += val.valorSeguro;
+    totales.declared_value += val.valorSeguro;
   });
 
   for (let [key, value] of Object.entries(totales)) {

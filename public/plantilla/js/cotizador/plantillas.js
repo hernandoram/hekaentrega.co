@@ -206,6 +206,7 @@ function cambiarPlantillaCotizador(e) {
 }
 
 function llenarInputCiudad(inp, data) {
+  console.log(data);
   inp[0].selectize.setValue(data.dane_ciudad);
 }
 

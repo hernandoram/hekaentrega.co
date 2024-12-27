@@ -1330,7 +1330,7 @@ async function addReputationToResponse(response, dane_ciudad) {
     if (!conveyor.message) {
       conveyor.reputation = await fetchEstadisticas(
         dane_ciudad,
-        conveyor.entity
+        conveyor.distributor_id
       );
       responseWithReputation.push(conveyor);
     } else {

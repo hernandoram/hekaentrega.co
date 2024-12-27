@@ -88,8 +88,8 @@ export function tarjetaBasicaTransportadora(
   const {
     entity,
     type,
-    declaredValue,
-    transportCollection,
+    declared_value,
+    transport_collection,
     total,
     deliveryTime,
     annotations,
@@ -142,14 +142,14 @@ export function tarjetaBasicaTransportadora(
                   type == "CONVENCIONAL" ? "Valor declarado" : "recaudo"
                 }: 
                 <b>$${convertirMiles(
-                  type == "CONVENCIONAL" ? declaredValue : transportCollection
+                  type == "CONVENCIONAL" ? declared_value : transport_collection
                 )}</b>
               </p>
               <p class="d-none ${
                 type == "CONVENCIONAL" ? "" : "mb-0 d-sm-block"
               }">
                 El Valor consignado a tu cuenta será:<b>$${convertirMiles(
-                  transportCollection - total
+                  transport_collection - total
                 )}</b>
               </p>
               <small class="text-warning">${annotations}</small>
