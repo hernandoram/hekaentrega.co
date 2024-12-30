@@ -1,4 +1,6 @@
-const db = require("firebase").firestore();
+const FirebaseServiceConection = require("../keys/firebase");
+const firebaseService = new FirebaseServiceConection();
+const db = firebaseService.dbFirebase();
 
 exports.imprimirRotuloPunto = async (req, res) => {
     const numeroGuia = req.params.id_heka;

@@ -1,6 +1,7 @@
 const ciudades = require("../data/ciudades");
-const firebase = require("../keys/firebase");
-const db = firebase.firestore();
+const FirebaseServiceConection = require("../keys/firebase");
+const firebaseService = new FirebaseServiceConection();
+const db = firebaseService.dbFirebase();
 const {revisarTipoEstado, revisarNovedadAsync, traducirMovimientoGuia} = require("./manejadorMovimientosGuia");
 
 // FUNCIONES SOLO PARA USO EN DESARROLLO 

@@ -1,5 +1,6 @@
-const firebase = require("../keys/firebase");
-const db = firebase.firestore();
+const FirebaseServiceConection = require("../keys/firebase");
+const firebaseService = new FirebaseServiceConection();
+const db = firebaseService.dbFirebase();
 
 /**
  * TRANSPORTADORA: {

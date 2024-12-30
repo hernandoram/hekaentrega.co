@@ -1,5 +1,7 @@
-const firebase = require("../keys/firebase");
-const db = firebase.firestore();
+const { doc } = require('firebase/firestore')
+const FirebaseServiceConection = require("../keys/firebase");
+const firebaseService = new FirebaseServiceConection();
+const db = firebaseService.dbFirebase();
 const {
   traducirMovimientoGuia,
   guiaEnNovedad,
@@ -18,9 +20,7 @@ const tituloPorNovedad = {
   REUSADO: "Nuevo intento.",
 };
 
-const referenciaNovedades = db
-  .collection("infoHeka")
-  .doc("novedadesMensajeria");
+const referenciaNovedades = doc(db, "infoHeka", "novedadesMensajeria");
 
 function cargarMensajeAleatorio() {
   const titulos = ["DIRECCION", "REUSADO"];

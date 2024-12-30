@@ -5,8 +5,9 @@ const parseString = require("xml2js").parseString;
 const DOMParser = require("xmldom").DOMParser;
 const { PDFDocument } = require("pdf-lib");
 
-const firebase = require("../keys/firebase");
-const db = firebase.firestore();
+const FirebaseServiceConection = require("../keys/firebase");
+const firebaseService = new FirebaseServiceConection();
+const db = firebaseService.dbFirebase();
 
 const extsFunc = require("../extends/funciones");
 const { notificarGuiaOficina } = require("../extends/notificaciones");
