@@ -1,15 +1,6 @@
-var firebaseConfig = {
-  apiKey: 'AIzaSyCtzXKSoweSMLPej5-MbkTfQzFH719y-MM',
-  authDomain: 'hekaapp-23c89.firebaseapp.com',
-  databaseURL: 'https://hekaapp-23c89.firebaseio.com',
-  projectId: 'hekaapp-23c89',
-  storageBucket: 'hekaapp-23c89.appspot.com',
-  messagingSenderId: '539740310887',
-  appId: '1:539740310887:web:66f9ab535d18addeb173c2',
-  measurementId: 'G-47CYMPHNRM',
-};
+import { db } from "/js/config/initializeFirebase.js";
 
-const estadosGuia = {
+export const estadosGuia = {
   novedad: "NOVEDAD",
   pedido: "PEDIDO",
   pagada: "PAGADA",
@@ -41,10 +32,6 @@ function hostnameReader() {
   if (brandName) brandName.innerHTML = brandNameContent;
 }
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const analytics = firebase.analytics();
 
 function escucha(id, e, funcion) {
   document.getElementById(id).addEventListener(e, funcion);
@@ -4141,7 +4128,7 @@ class ChangeElementContenWhileLoading {
 }
 
 //guardará un arreglo y funcionará cun un listener
-class Watcher {
+export class Watcher {
   constructor(val) {
     this.value = val || new Array();
     this.watchers = new Array();

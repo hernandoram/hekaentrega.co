@@ -1,3 +1,6 @@
+import { db, collection, query, where, getDocs } from "/js/config/initializeFirebase.js";
+import { Watcher } from "/js/render.js";
+
 /** @format */
 
 //const PROD_API_URL = "https://api.hekaentrega.co"; //"https://apidev.hekaentrega.co" o esta
@@ -14,7 +17,7 @@ const versionSoftware = "1.0.3: Migrando bodegas! ";
 
 let objetosFrecuentes;
 
-let listaUsuarios = [];
+export let listaUsuarios = [];
 
 console.warn("Versión del software: " + versionSoftware);
 
@@ -2886,32 +2889,37 @@ const messageNumberSpan = document.getElementById("message-number");
 let notificaciones = [];
 
 function traerNoti() {
-  const fireRef = db.collection("centro_notificaciones");
-  fireRef
-    .where("type", "==", "mensaje")
-    .get()
-    .then((q) => {
-      console.log(q.size);
-      if (q.size == 0) return;
+  const fireRef = collection(db, "centro_notificaciones");
+  const q = query(fireRef, where("type", "==", "mensaje"));
 
-      document.getElementById("chat-notificaciones").classList.remove("d-none");
-      q.forEach((d) => {
-        const data = d.data();
-        data.id = d.id;
-        notificaciones.push(data);
-        console.log(data);
-      });
-    })
-    .then(() => {
-      console.log(notificaciones);
+  // Obtener los documentos de Firestore
+  getDocs(q).then((querySnapshot) => {
+    console.log(querySnapshot.size);
+    if (querySnapshot.size === 0) return;
 
-      messageNumberSpan
-        ? (messageNumberSpan.innerText = notificaciones.length)
-        : null;
+    document.getElementById("chat-notificaciones").classList.remove("d-none");
 
-      notificaciones.sort((a, b) => a.timeline - b.timeline);
-      llenarItemsChat(notificaciones); // Llama a llenarItemsChat para cada notificación
+    const notificaciones = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      data.id = doc.id;
+      notificaciones.push(data);
+      console.log(data);
     });
+
+    console.log(notificaciones);
+
+    const messageNumberSpan = document.getElementById("message-number"); // Asegúrate de tener este elemento en el HTML
+    if (messageNumberSpan) {
+      messageNumberSpan.innerText = notificaciones.length;
+    }
+
+    // Ordenar las notificaciones
+    notificaciones.sort((a, b) => a.timeline - b.timeline);
+
+    // Llamar a la función para llenar los elementos del chat
+    llenarItemsChat(notificaciones); // Llama a llenarItemsChat para cada notificación
+  });
 }
 
 // ${isLastItem ? '<img src="" alt="user-img" class="img-circle">' : ""}

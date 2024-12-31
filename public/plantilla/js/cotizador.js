@@ -1,3 +1,4 @@
+import { Watcher } from "/js/render.js";
 // $("#xx").empty();
 let datos_de_cotizacion,
   oficinas = [],
@@ -455,7 +456,7 @@ async function cotizador() {
   }
 }
 
-const watcherPlantilla = isIndex ? null : new Watcher(0);
+const watcherPlantilla = isIndex ? null : new Watcher();
 
 async function guardarCotizacion() {
   const checkCrear = $("#guardar_cotizacion-cotizador");

@@ -17,7 +17,7 @@ const v0 = {
     seguimientoEnvios: endpoint + "/Envios/Seguimiento",
     pdfRelacionEnvio: endpoint + "/Pdf/RelacionEnvios"
 }
-
+const PROD_API_URL = window.ENV.ENVIRONMENT_NAME;
 // const endpointV1 = "https://api.hekaentrega.co/Api/v1";
 const endpointV1 = PROD_API_URL + "/Api/v1";
 const v1 = {

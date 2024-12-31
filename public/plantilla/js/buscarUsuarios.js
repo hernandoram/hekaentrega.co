@@ -1,3 +1,4 @@
+import { listaUsuarios } from '/js/cargadorDeDatos.js'
 let users = listaUsuarios;
 
 async function searchUsers(esGeneral) {

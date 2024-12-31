@@ -1,3 +1,4 @@
+import { db } from "/js/config/initializeFirebase.js";
 let filtroPagos;
 
 if (administracion) {

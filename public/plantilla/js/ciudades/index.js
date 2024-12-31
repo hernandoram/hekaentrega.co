@@ -44,10 +44,10 @@ let listaciudades = [],
   ciudadActual;
 
 async function obtenerCiudades() {
-  if (!listaciudades.length)
+  /* if (!listaciudades.length)
     listaciudades = await fetch(pathCiudadesLista)
       .then((d) => d.json())
-      .then((d) => d.body);
+      .then((d) => d.body); */
 
   return listaciudades;
 }

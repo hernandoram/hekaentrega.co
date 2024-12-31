@@ -2962,19 +2962,19 @@
         ENVIRONMENT_NAME: '${process.env.ENVIRONMENT_NAME}',
         PROD_API_URL_PLATFORM2: '${process.env.PROD_API_URL_PLATFORM2}',
         API_KEY: '${process.env.API_KEY}',
-        FIREBASE_DATABASE: '${process.env.FIREBASE_DATABASE}',
+        FIREBASE_CONFIG: '${process.env.FIREBASE_CONFIG}',
       };
     </script>
 
 
     <!-- FIREBASE -->
     <!-- The core Firebase JS SDK is always required and must be listed first -->
-    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-analytics.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-storage.js"></script>
+    <!-- <script src="https://www.gstatic.com/firebasejs/9.11.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.11.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.11.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.11.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.11.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.11.0/firebase-storage.js"></script> -->
 
 
     <!-- index.js -->
@@ -3036,13 +3036,14 @@
 
     </script>
     <script src="/config.js"></script>
-    <script src="js/render.js"></script>
+    <script type="module" src="js/config/initializeFirebase.js"></script>
+    <script type="module" src="js/render.js"></script>
     <script src="js/callcenter/callcenter.js"></script>
-    <script src="js/cargadorDeDatos.js"></script>
+    <script type="module" src="js/cargadorDeDatos.js"></script>
     <script src="js/consultarCiudades.js" type="module"></script>
-    <script src="js/buscarUsuarios.js"></script>
+    <script type="module" src="js/buscarUsuarios.js"></script>
     <script src="js/usuarios.js"></script>
-    <script src="js/manejadorGuias.js"></script>
+    <script type="module" src="js/manejadorGuias.js"></script>
     <script src="js/adminPlatform.js" type="module"></script>
     <script src="js/hostNameReader.js"></script>
     <script src="js/stats.js"></script>
