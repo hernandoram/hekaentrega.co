@@ -24,7 +24,6 @@ export const camposExcel = {
     comision_heka: "COMISION HEKA",
     comision_natural_heka: "comision_natural_heka",
     iva: "iva",
-    comision_adicional_heka: "COMISION HEKA ADICIONAL",
     comision_transp: "comision_transportadora",
     cuatro_x_mil_transp: "cuatro_x_mil_transp",
     cuatro_x_mil_banc: "cuatro_x_mil_banco",

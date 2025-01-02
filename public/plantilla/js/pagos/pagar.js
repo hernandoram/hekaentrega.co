@@ -411,14 +411,9 @@ class Empaquetado {
             if(!guia.cuenta_responsable) guia.cuenta_responsable = guia["CUENTA RESPONSABLE"] || "SCR";
 
             // Trabajamos la comisión de transportadora que se va a facturar
-            const comision_adicional_heka = guia[camposExcel.comision_adicional_heka];
             const comision_heka = guia[camposExcel.comision_heka];
-            if(comision_adicional_heka !== undefined) {
-                const envioTotal = guia[camposExcel.envio_total];
-                guia[camposExcel.comision_transp] = envioTotal - comision_heka;
-            } else {
-                guia[camposExcel.comision_transp] = 0;
-            }
+            const envioTotal = guia[camposExcel.envio_total];
+            guia[camposExcel.comision_transp] = envioTotal - comision_heka;
 
             if(comision_heka !== 0) {
                 // Extraemos el 4 X Mil por parte del banco
