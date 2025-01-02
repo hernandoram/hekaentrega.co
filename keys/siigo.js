@@ -1,7 +1,7 @@
 const credencialesPrueba = {
-    endpoint: "https://private-anon-16abe9376d-siigoapi.apiary-mock.com",
-    username: "usuario@api.com",
-    access_key: "NWNmMTczNGYtZjQ0OS00MjgwLTg51WItYjNiNWRiNGUxMjIzOnM/WDkqPypfVFN=",
+    endpoint: "https://private-anon-9d1e9d44b6-siigoapi.apiary-mock.com",
+    username: "sandbox@siigoapi.com",
+    access_key: "NDllMzI0NmEtNjExZC00NGM3LWE3OTQtMWUyNTNlZWU0ZTM0OkosU2MwLD4xQ08=",
     document_id: 24446,
     identificacion: 13832081,
     id_vendedor: 629,

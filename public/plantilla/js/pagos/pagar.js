@@ -4,6 +4,7 @@ import { checkShowNegativos, camposExcel, formularioPrincipal, inpFiltEspecial, 
 import { comprobarGuiaPagada, guiaExiste } from './comprobadores.js';
 import { defFiltrado as estadosGlobalGuias } from "../historialGuias/config.js";
 import AnotacionesPagos from "./AnotacionesPagos.js";
+import { crearFactura } from "./facturacion.js";
 
 const db = firebase.firestore();
 const storage = firebase.storage();
@@ -30,6 +31,7 @@ class Empaquetado {
      * @property {Array<string>} guiasPagadas - Los números de guía que han sido pagados
      * @property {number}  pagoConcreto - La cantidad total que ha sido pagada al usuario
      * @property {number}  comision_heka_total - La comisión heka total por el conjunto de pagos (servirá para facturar)
+     * @property {number}  comision_adicional_heka_total - La comisión adicional heka total por el conjunto de pagos (servirá para facturar la comisión transportadora restando del total)
      * @property {string}  numero_documento - Número de documento del usuario en cuestión (servirá para facturar)
      * @property {string} idPaquetePago - Se almacena el id donde se guardo el conjuto de guía pagadas al usuario
      */
@@ -71,6 +73,7 @@ class Empaquetado {
             this.pagosPorUsuario[usuario] = {
                 pagoConcreto: 0,
                 comision_heka_total: -1, // Al final del proceso, no debe haber niguna agrupación de pago, con un -1.
+                comision_adicional_heka_total: 0,
                 guias: [guia],
                 guiasPagadas: [],
                 id: this.id,
@@ -283,9 +286,26 @@ class Empaquetado {
                     <i class="fa fa-trash deleter" title="Click para eliminar guía" data-user="${usuario}" data-numeroGuia="${guia.GUIA}"></i>
                 ` 
                 : "";
+
+            const celdas = this.columnas.map(c => {
+                if(c.data === "estado") {
+                    return `
+                        <td>
+                            ${guia.estado} 
+                            ${popover}
+                            ${eliminar}
+                            <span class="extra-opt"></span>
+                        </td>
+                    `;
+                } else {
+                    return `<td>${guia[c.data] || c.defaultValue}</td>`;
+                }
+            }).join("");
+
             const fila = `
                 <tr class="${clase}" id="row-${usuario + guia.GUIA}" title="" data-delay='${JSON.stringify({show: 500, hide: 100})}'>
-                    <td class="show-error">${guia.REMITENTE}</td>
+                    ${celdas}
+                    <!--<td class="show-error">${guia.REMITENTE}</td>
                     <td>${guia.TRANSPORTADORA}</td>
                     <td>${guia.GUIA}</td>
                     <td>${guia.RECAUDO}</td>
@@ -299,7 +319,7 @@ class Empaquetado {
                         ${popover}
                         ${eliminar}
                         <span class="extra-opt"></span>
-                    </td>
+                    </td>-->
                 </tr>
             `;
 
@@ -389,6 +409,35 @@ class Empaquetado {
             if(!guia.FECHA) guia.FECHA = genFecha("LR");
 
             if(!guia.cuenta_responsable) guia.cuenta_responsable = guia["CUENTA RESPONSABLE"] || "SCR";
+
+            // Trabajamos la comisión de transportadora que se va a facturar
+            const comision_adicional_heka = guia[camposExcel.comision_adicional_heka];
+            const comision_heka = guia[camposExcel.comision_heka];
+            if(comision_adicional_heka !== undefined) {
+                const envioTotal = guia[camposExcel.envio_total];
+                guia[camposExcel.comision_transp] = envioTotal - comision_heka;
+            } else {
+                guia[camposExcel.comision_transp] = 0;
+            }
+
+            if(comision_heka !== 0) {
+                // Extraemos el 4 X Mil por parte del banco
+                const valorRecaudo = guia[camposExcel.recaudo];
+                guia[camposExcel.cuatro_x_mil_banc] = cuatroPorMil(valorRecaudo);
+
+                // Extraemos el 4 por mil transportadora de
+                if(guia[camposExcel.transportadora] === "INTERRAPIDISIMO") {
+                    guia[camposExcel.cuatro_x_mil_transp] = cuatroPorMil(valorRecaudo);
+                } else {
+                    guia[camposExcel.cuatro_x_mil_transp] = 0;
+                }
+
+                // Sacamos la columna del IVA generándolo siendo la "comision_heka" el valor total (con IVA incluido)
+                const comision_heka_neto = comision_heka - guia[camposExcel.cuatro_x_mil_transp] - guia[camposExcel.cuatro_x_mil_banc];
+                guia[camposExcel.iva] = Math.round(comision_heka_neto * 0.19 / 1.19);
+                guia[camposExcel.comision_natural_heka] = comision_heka_neto - guia[camposExcel.iva];
+            }
+
 
             i++;
 
@@ -694,6 +743,8 @@ class Empaquetado {
 
         let pagado = 0;
         let comision_heka = 0;
+        let comision_adicional_heka = 0;
+        let comision_transportadora = 0;
         for await(let guia of guias) {
             //La diferencia entre el "momentoParticularPago" y "timeline"
             //  timeline marca excatamente el momento en el que se le da a "pagar"
@@ -724,7 +775,9 @@ class Empaquetado {
             const id_user = guia.id_user;
             const pagoActual = guia["TOTAL A PAGAR"];
             const comision_heka_actual = guia[camposExcel.comision_heka];
-
+            const comision_adicional_heka_actual = guia[camposExcel.comision_adicional_heka];
+            const comision_transp_actual = guia[camposExcel.comision_transp];
+          
             const fila = $("#row-"+usuario+numeroGuia, visor);
             fila.removeClass();
 
@@ -748,6 +801,8 @@ class Empaquetado {
                 batch.update(paqueteRef, {
                     total_pagado: pagado + pagoActual,
                     comision_heka: comision_heka + comision_heka_actual,
+                    // comision_adicional_heka: comision_adicional_heka + comision_adicional_heka_actual,
+                    comision_transportadora: comision_transportadora + comision_transp_actual,
                     cantidad_pagos: reporteFinal.guiasPagadas + 1,
                     guiasPagadas: firebase.firestore.FieldValue.arrayUnion(numeroGuia)
                 });
@@ -766,6 +821,8 @@ class Empaquetado {
                 // Sumar las comisiones y los totales
                 pagado += pagoActual;
                 comision_heka += comision_heka_actual;
+                comision_adicional_heka += comision_adicional_heka_actual;
+                comision_transportadora += comision_transp_actual;
                 reporteFinal.guiasPagadas++;
 
             } catch(e) {
@@ -831,7 +888,7 @@ class Empaquetado {
             userRef.numero_documento = infoUser.numero_documento;
         }
 
-        const {guiasPagadas, pagoConcreto, comision_heka_total, numero_documento} = userRef;
+        const {guiasPagadas, pagoConcreto, comision_heka_total, comision_adicional_heka_total, numero_documento} = userRef;
         const comprobante_bancario = userRef.guias[0].comprobante_bancario ?? ""; // Este campo, está obsoleto, normalmente se guarda un string vacío
 
         const infoToSave = {
@@ -839,6 +896,7 @@ class Empaquetado {
             numero_documento, // Servirá para regenerar la factura en un futuro
             total_pagado: pagoConcreto,
             comision_heka: comision_heka_total, // Servirá para regenerar la factura en un futuro
+            comision_adicional_heka: comision_adicional_heka_total, // Servirá para regenerar la factura en un futuro
             timeline,
             fecha: new Date(),
             comprobante_bancario, 
@@ -965,18 +1023,7 @@ class Empaquetado {
         }
 
         try {
-            const resFact = await fetch("/siigo/crearFactura", {
-                method: "POST",
-                headers: {"Content-Type": "Application/json"},
-                body: JSON.stringify({comision_heka: comision_heka_total, numero_documento})
-            })
-            .then(d => d.json())
-            .catch(e => {
-                return {
-                    error: true,
-                    message: "Error al crear la factura con siigo " + e.message
-                }
-            });
+            const resFact = await crearFactura(numero_documento, comision_heka_total);
 
             // Se guarda la información de las guías que ha sido pagadas
             await this.guardarPaquetePagado(resFact);
@@ -1154,12 +1201,17 @@ class Empaquetado {
             {data: "REMITENTE", title: "Centro de costo"},
             {data: "TRANSPORTADORA", title: "Transportadora"},
             {data: "GUIA", title: "Guía"},
-            {data: "RECAUDO", title: "Recaudo"},
-            {data: "ENVÍO TOTAL", title: "Envío total"},
-            {data: "TOTAL A PAGAR", title: "Total a pagar"},
-            {data: "COMISION HEKA", title: "Comisión heka"},
-            {data: "FECHA", title: "Fecha"},
-            {data: "cuenta_responsable", title: "Cuenta responsable"},
+            {data: "RECAUDO", title: "Recaudo", defaultValue: 0},
+            {data: "ENVÍO TOTAL", title: "Envío total", defaultValue: 0},
+            {data: "TOTAL A PAGAR", title: "Total a pagar", defaultValue: 0},
+            {data: "COMISION HEKA", title: "Comisión heka", defaultValue: 0},
+            {data: camposExcel.comision_natural_heka, title: "Comisión natural heka", defaultValue: 0},
+            {data: "iva", title: "IVA", defaultValue: 0},
+            {data: camposExcel.cuatro_x_mil_banc, title: "4 X Mil Banco", defaultValue: 0},
+            {data: camposExcel.cuatro_x_mil_transp, title: "4 X Mil Transp.", defaultValue: 0},
+            {data: camposExcel.comision_adicional_heka, title: "Comisión adicional heka", defaultValue: 0},
+            {data: camposExcel.comision_transp, title: "Comisión Transportadora", defaultValue: 0},
+            {data: "FECHA", title: "Fecha", defaultValue: genFecha("LR")},
             {data: "estado", title: "Estado"},
         ]
     }
@@ -1173,6 +1225,10 @@ class Empaquetado {
         const usuarios = Object.keys(this.pagosPorUsuario);
         return usuarios.reduce((a,b) => a + this.pagosPorUsuario[b].guias.length, 0)
     }
+}
+
+function cuatroPorMil(valor) {
+    return Math.round(valor * 4 / 1000);
 }
 
 /**

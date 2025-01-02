@@ -26,7 +26,28 @@ const auth = async (req, res, next) => {
 const crearFactura = async (req, res) => {
     const path = "/v1/invoices";
 
-    const { comision_heka, numero_documento } = req.body;
+    const { comision_heka, numero_documento, costo_transportadora } = req.body;
+
+    // Por defecto siempre se factura la comisión Heka
+    const items = [
+        {
+          code: "001", // siempre 001 Que corresponde al producto equivalente a la comisión Heka
+          description: "Servicios Complementarios al Transporte", // contante
+          quantity: 1,// contante
+          price: comision_heka, // comision_heka
+          discount: 0 // constante
+        }
+    ];
+
+    if(costo_transportadora) {
+        items.push({
+            code: "005", // siempre 004 Corresponderá al producto relacionado con los costos de transportadora
+            description: "Costo por Transporte", // contante
+            quantity: 1,// contante
+            price: costo_transportadora, // costo_transportadora
+            discount: 0 // constante
+        });
+    }
 
     const token = req.access_token;
 
@@ -46,15 +67,7 @@ const crearFactura = async (req, res) => {
             send: true
         },
         observations: "Observaciones",
-        items: [
-          {
-            code: "001", // siempre 001
-            description: "Servicios Complementarios al Transporte", // contante
-            quantity: 1,// contante
-            price: comision_heka, // comision_heka
-            discount: 0 // constante
-          }
-        ],
+        items,
         payments: [
           {
             id: Cr.id_tipo_pago, // id tipo de pago /payment-types (tarjeta debito)
@@ -64,8 +77,6 @@ const crearFactura = async (req, res) => {
         ],
         retentions: [{id: Cr.idAutoRetencion}] // reviso en /taxes el de autoretención (pero por ahora queda quemado)
     }
-
-    console.log(data);
 
     const respuesta = await fetch(Cr.endpoint + path, {
         method: "POST",

@@ -9,7 +9,7 @@ const btnHistorialFacturas = $("#btn_historial-pagos_facturacion");
 const btnDescargaFacturas = $("#btn_descarga-pagos_facturacion");
 const principalReference = firebase.firestore().collection("paquetePagos");
 const anotacionesErrores = $("#visor_errores-pagos_facturacion");
-export function activarFunctionesFacturas() {
+function activarFunctionesFacturas() {
     cambiadorFiltro.on("change", cambiarFiltroFacturacion);
     btnHistorialFacturas.on("click", revisarFacturacionesAdmin);
     btnDescargaFacturas.on("click", descargarInformeFacturas);
@@ -27,6 +27,12 @@ const columns = [
     { 
         data: "comision_heka", 
         title: "Comisión heka", 
+        render: $.fn.DataTable.render.number(".", null, null, "$ ")
+    },
+    { 
+        data: "comision_transportadora", 
+        title: "Comisión Transportadora",
+        defaultContent: "N/A",
         render: $.fn.DataTable.render.number(".", null, null, "$ ")
     },
     { 
@@ -668,11 +674,11 @@ async function crearGuardarFactura(data) {
 
 }
 
-async function crearFactura(numero_documento, comision_heka) {
+async function crearFactura(numero_documento, comision_heka, costo_transportadora = null) {
     return fetch("/siigo/crearFactura", {
         method: "POST",
         headers: {"Content-Type": "Application/json"},
-        body: JSON.stringify({comision_heka: comision_heka, numero_documento})
+        body: JSON.stringify({comision_heka: comision_heka, numero_documento, costo_transportadora})
     })
     .then(d => d.json())
     .catch(e => {
@@ -768,3 +774,5 @@ async function facturacionMasivaAgrupada(e, dt, node, config) {
 
     l.end();
 }
+
+export { activarFunctionesFacturas, crearFactura }
