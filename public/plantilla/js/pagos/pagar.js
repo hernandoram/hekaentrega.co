@@ -669,6 +669,17 @@ class Empaquetado {
      * valor.
      */
     async pagar(usuario) {
+        const userRef = this.pagosPorUsuario[usuario];
+        if (!userRef.id_user) {
+            console.log(`ID de usuario no encontrado. Cargando información para ${usuario}.`);
+            await this.cargarInfoUsuario(usuario);
+        }
+        
+        if (!userRef.id_user) {
+            console.error("Error: No se pudo obtener el ID de Firebase.");
+            return;
+        }
+
         const timeline = new Date().getTime();
         const storageRef = storage.ref("comprobantes_bancarios").child(usuario).child(timeline + ".pdf");
         const refDiasPago = db.collection("infoHeka").doc("manejoUsuarios");
