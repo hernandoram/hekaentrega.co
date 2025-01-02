@@ -649,12 +649,12 @@ async function crearGuardarFactura(data) {
 
     if(!resSwal.isConfirmed) return;
 
-    const {numero_documento, comision_heka} = data;
+    const {numero_documento, comision_heka, comision_transportadora} = data;
     const loader = new ChangeElementContenWhileLoading(this);
     loader.charger = loader.charger.replace("Cargando...", ""); // Para que solo quede la rueda dando vueltas sin las letras
     loader.init();
 
-    const resFact = await crearFactura(numero_documento, comision_heka);
+    const resFact = await crearFactura(numero_documento, comision_heka, comision_transportadora);
 
     if(resFact.error) {
         Swal.fire("Error de comunicación", resFact.message, "error");
@@ -737,6 +737,7 @@ async function facturacionMasivaAgrupada(e, dt, node, config) {
             const conjuntoFacturacionActual = facturasAgrupadas.get(numero_documento);
 
             conjuntoFacturacionActual.comision_heka += current.comision_heka;
+            conjuntoFacturacionActual.comision_transportadora += current.comision_transportadora;
             conjuntoFacturacionActual.total_pagado += current.total_pagado;
         } else {
             facturasAgrupadas.set(numero_documento, current);
@@ -745,11 +746,11 @@ async function facturacionMasivaAgrupada(e, dt, node, config) {
 
     for (const factura of facturasAgrupadas.values()) {
         // Por acá se generaran las facturas de a una
-        const {numero_documento, comision_heka} = factura;
+        const {numero_documento, comision_heka, comision_transportadora} = factura;
 
         const actualizacionConjunto = dataFacturacion.filter(v => v.numero_documento === numero_documento);
 
-        const resFact = await crearFactura(numero_documento, comision_heka);
+        const resFact = await crearFactura(numero_documento, comision_heka, comision_transportadora);
 
         if(resFact.error) {
             anotaciones.addError(`Error de comunicación ${numero_documento}: ${resFact.message}`);
