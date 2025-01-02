@@ -39,7 +39,10 @@ const crearFactura = async (req, res) => {
         }
     ];
 
+    let valorPago = comision_heka;
+
     if(costo_transportadora) {
+        valorPago += costo_transportadora;
         items.push({
             code: "005", // siempre 004 Corresponderá al producto relacionado con los costos de transportadora
             description: "Costo por Transporte", // contante
@@ -71,7 +74,7 @@ const crearFactura = async (req, res) => {
         payments: [
           {
             id: Cr.id_tipo_pago, // id tipo de pago /payment-types (tarjeta debito)
-            value: comision_heka, // comision_heka
+            value: valorPago, // la suma de todas las comisiones
             due_date: estandarizarFecha(fecha, "YYYY-MM-DD") // Fecha del pago
           }
         ],
