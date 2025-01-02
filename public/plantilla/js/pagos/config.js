@@ -12,6 +12,7 @@ export const inpFiltEspecial = $("#filtro_especial-gestionar_pagos");
 export const inpFiltnumeroGuia = $("#filtro-guia-gestionar_pagos");
 export const selFiltDiaPago = $("#filtro_tipo_pagos-gestionar_pagos");
 export const checkShowNegativos = $("#filtro_deudor-gestionar_pagos");
+export const checkActivadorFactura = $("#activador_facturacion-gestionar_pagos");
 
 export const nameCollectionDb = "pendientePorPagar";
 
@@ -21,6 +22,13 @@ export const camposExcel = {
     transportadora: "TRANSPORTADORA",
     cuenta_responsable: "CUENTA RESPONSABLE",
     comision_heka: "COMISION HEKA",
+    comision_natural_heka: "comision_natural_heka",
+    iva: "iva",
+    comision_adicional_heka: "COMISION HEKA ADICIONAL",
+    comision_transp: "comision_transportadora",
+    cuatro_x_mil_transp: "cuatro_x_mil_transp",
+    cuatro_x_mil_banc: "cuatro_x_mil_banco",
+    recaudo: "RECAUDO",
     envio_total: "ENVÍO TOTAL",
     total_pagar: "TOTAL A PAGAR",
     fecha: "FECHA",

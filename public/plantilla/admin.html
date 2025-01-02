@@ -2081,6 +2081,7 @@
 
             <div class="card mt-2">
               <div id="visor-pagos_facturacion" class="table-responsive card-body">
+                <div id="visor_errores-pagos_facturacion" class="my-2"></div>
                 <table id="table-pagos_facturacion" class="table table-bordered w-100">
                 </table>
               </div>
@@ -2176,11 +2177,21 @@
                         </div>
                       </div>
 
-                      <div class="col-12 d-flex justify-content-center form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="filtro_deudor-gestionar_pagos"
-                          name="filtro-negativos">
-                        <label class="form-check-label" for="filtro_deudor-gestionar_pagos">Mostrar los saldos
-                          negativos</label>
+                      <div class="col-md-6">
+                        <div class="d-flex justify-content-center form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro_deudor-gestionar_pagos"
+                            name="filtro-negativos">
+                          <label class="form-check-label" for="filtro_deudor-gestionar_pagos">Mostrar los saldos
+                            negativos</label>
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <div class="d-flex justify-content-center form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="activador_facturacion-gestionar_pagos"
+                            name="activador-factura">
+                          <label class="form-check-label" for="activador_facturacion-gestionar_pagos">Activar facturación</label>
+                        </div>
                       </div>
                     </div>
 
