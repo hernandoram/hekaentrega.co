@@ -861,6 +861,7 @@ class Empaquetado {
         
         this.pagosPorUsuario[usuario].pagoConcreto = pagado;
         this.pagosPorUsuario[usuario].comision_heka_total = comision_heka;
+        this.pagosPorUsuario[usuario].comision_transportadora = comision_transportadora;
         
         await this.guardarPaquetePagado(); // Para guardar el paquete sin que se facture
 
@@ -1006,6 +1007,7 @@ class Empaquetado {
         }
 
         const comision_heka_total = userRef.comision_heka_total;
+        const comision_transportadora = userRef.comision_transportadora ?? null;
         
         if(!userRef.numero_documento) {
             const infoUser = await this.cargarInfoUsuario();
@@ -1023,7 +1025,7 @@ class Empaquetado {
         }
 
         try {
-            const resFact = await crearFactura(numero_documento, comision_heka_total);
+            const resFact = await crearFactura(numero_documento, comision_heka_total, comision_transportadora);
 
             // Se guarda la información de las guías que ha sido pagadas
             await this.guardarPaquetePagado(resFact);
