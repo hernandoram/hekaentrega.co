@@ -1,7 +1,8 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.11.0/firebase-app.js";
-import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/9.11.0/firebase-firestore.js";
-import { getStorage } from "https://www.gstatic.com/firebasejs/9.11.0/firebase-storage.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.11.0/firebase-analytics.js";  // Importar Analytics
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getFirestore, collection, query, where, getDocs, doc, getDoc, collectionGroup, orderBy, onSnapshot, limit, startAt, endAt, startAfter } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+import { getStorage, ref, listAll, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-analytics.js";  // Importar Analytics
+import { getAuth } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
   // Configuración de Firebase
   const firebaseConfig = {
@@ -34,10 +35,22 @@ import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.11.0/firebase
     storageFirebase() {
       return getStorage(this.app);
     }
+
+    getAnalytics() {
+      return getAnalytics(this.app);
+    }
+
+    getAuth() {
+      return getAuth(this.app);
+    }
+
   }
 
   // Ejemplo de uso de la clase
   const firebaseService = new FirebaseServiceConection();
   const db = firebaseService.dbFirebase();
+  const storage = firebaseService.storageFirebase();
+  const analytics = firebaseService.getAnalytics();
+  const auth = firebaseService.getAuth(app);
 
- export { db, collection, query, where, getDocs };
+ export { db, storage, analytics, auth, collection, query, where, getDocs, doc, getDoc, collectionGroup, ref, listAll, getDownloadURL, orderBy, onSnapshot, limit, startAt, endAt, startAfter };

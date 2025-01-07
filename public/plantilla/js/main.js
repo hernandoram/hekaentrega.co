@@ -1,25 +1,25 @@
 // Initialize Firebase
-var autenticacion=firebase.auth();
+import {
+  db,
+  auth
+} from "/js/config/initializeFirebase.js";
+var autenticacion=auth;
 
-function value(request) {
+export function value(request) {
     return document.getElementById(request).value;
 }
 function asignacion(request, response) {
     return document.getElementById(request).value = response;
   }
 
-  function validar_email(email) {
-    var regex = /^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
-    return regex.test(email) ? true : false;
-  }
-  function asignacionStyle() {
-   cargarHtml("preciosEnvios-mostrar-ocultar","");
+function asignacionStyle() {
+  cargarHtml("preciosEnvios-mostrar-ocultar","");
    
 }
 function printHTML(request, response) {
   return document.getElementById(request).innerHTML += response;
 }
-function inHTML(request, response) {
+export function inHTML(request, response) {
     return document.getElementById(request).innerHTML = response;
   }
   //DESACTIVAR MODULO
@@ -70,7 +70,7 @@ function activar_query(a) {
     
     
     
-    firebase.auth().signInWithEmailAndPassword(email, password)
+    auth.signInWithEmailAndPassword(email, password)
         
         .then(function (data) {
             
@@ -184,10 +184,10 @@ function crearCuenta(){
 
               
   //Registrar usuario firebase con cuenta bancaria////////////////////////////////////////////////////////////////////
-    firebase.auth().createUserWithEmailAndPassword(CPNcorreo, CPNcontraseña)
+    auth.createUserWithEmailAndPassword(CPNcorreo, CPNcontraseña)
     .then(function(data){
 
-      firebase.auth().onAuthStateChanged(function(user) {
+      auth.onAuthStateChanged(function(user) {
 
         if(user){
          
@@ -302,10 +302,10 @@ function crearCuenta(){
 
       
   //Registrar usuario firebase sin cuenta bancaria////////////////////////////////////////////////////////////////////
-    firebase.auth().createUserWithEmailAndPassword(CPNcorreo, CPNcontraseña)
+    auth.createUserWithEmailAndPassword(CPNcorreo, CPNcontraseña)
     .then(function(data){
 
-      firebase.auth().onAuthStateChanged(function(user) {
+      auth.onAuthStateChanged(function(user) {
 
         if(user){
           
@@ -564,10 +564,10 @@ function crearCuentaEmpresa(){
    
     
    }else{
-     firebase.auth().createUserWithEmailAndPassword(Ccorreo, Ccontraseña)
+     auth.createUserWithEmailAndPassword(Ccorreo, Ccontraseña)
      .then(function(data){
  
-       firebase.auth().onAuthStateChanged(function(user) {
+       auth.onAuthStateChanged(function(user) {
  
          if(user){
            firebase.database().ref('usuarios').child(user.uid).set({
@@ -773,7 +773,7 @@ var recaudo=document.getElementById('valor-a-recaudar');
 }
 
 function cerrarSesion(){
-    firebase.auth().signOut().then(function() {
+    auth.signOut().then(function() {
         // Sign-out successful.
         //location.href("/index.html");
       }).catch(function(error) {
@@ -781,7 +781,7 @@ function cerrarSesion(){
       });
 }
 function cerrarSesionPuntoheka(){
-  firebase.auth().signOut().then(function() {
+  auth.signOut().then(function() {
       // Sign-out successful.
       //location.href("/index.html");
     }).catch(function(error) {
@@ -790,7 +790,7 @@ function cerrarSesionPuntoheka(){
 }
 function mostrarPrueba(){
   
-    firebase.auth().onAuthStateChanged(function(user) {
+    auth.onAuthStateChanged(function(user) {
 
     if(user){
       
@@ -1006,7 +1006,7 @@ mostrarPrueba();
 
 function llenarTablaRelacionEnvio(){
 
-  firebase.auth().onAuthStateChanged(function(user) {
+  auth.onAuthStateChanged(function(user) {
 
     if(user){
 
@@ -1245,7 +1245,7 @@ inHTML('error_restart',`<h6>Hemos enviado  un correo de restablecimiento a tu co
 });
 }
 
-function tableGuiasPuntoheka(celDes,celRem,ciudadR,documentoCliente,uid,nodo,fecha,nomDes,fletetotal,costoManejo,valorOtrosRecaudos,comision_heka,recaudo,tipo_envio,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes,ciudadD,trans) {
+function tableGuiasPuntoheka(celDes,celRem,ciudadR,documentoCliente,uid,nodo,fecha,nomDes,fletetotal,costoManejo,valorOtrosRecaudos,comision_heka,recaudo,tipo_envio,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes2,ciudadD,trans) {
   
 var flete=parseInt(fletetotal);
 var manejo=parseInt(costoManejo);
@@ -1514,7 +1514,7 @@ if(trans=="TCC SA"){
 </tr>`
     ;
 }
-function tableGuias(uid,nodo,fecha,nomDes,fletetotal,costoManejo,valorOtrosRecaudos,comision_heka,recaudo,tipo_envio,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes,ciudadD,trans) {
+function tableGuias(uid,nodo,fecha,nomDes,fletetotal,costoManejo,valorOtrosRecaudos,comision_heka,recaudo,tipo_envio,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes2,ciudadD,trans) {
   
   var flete=parseInt(fletetotal);
   var manejo=parseInt(costoManejo);
@@ -1732,7 +1732,7 @@ function tableGuias(uid,nodo,fecha,nomDes,fletetotal,costoManejo,valorOtrosRecau
       ;
   }
 
-function tableRelacion(contar2,uid,nodo,fecha,nomDes,fletetotal,costoManejo,valorOtrosRecaudos,comision_heka,recaudo,tipo_envio,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes,ciudadD,trans) {
+function tableRelacion(contar2,uid,nodo,fecha,nomDes,fletetotal,costoManejo,valorOtrosRecaudos,comision_heka,recaudo,tipo_envio,linkguia,nomRem,dirDes,contenido,peso,numero_guia,nomDes2,ciudadD,trans) {
   
   var flete=parseInt(fletetotal);
   var manejo=parseInt(costoManejo);
@@ -2163,7 +2163,7 @@ var codigoTransportadora=document.getElementById('codigoTransportadora');
 
 function cargarRelacionCreadas(){
  
-  firebase.auth().onAuthStateChanged(function(user) {
+  auth.onAuthStateChanged(function(user) {
 
     if(user){
       var reference = db.ref('ConsolidadosNuevos').child(user.uid);
@@ -2306,7 +2306,7 @@ cargarRelacionCreadas();
  
 
 function cargarRelacionNoCreadas(){
-  firebase.auth().onAuthStateChanged(function(user) {
+  auth.onAuthStateChanged(function(user) {
 
     if(user){
       
@@ -2327,7 +2327,7 @@ function cargarRelacionNoCreadas(){
 
 
 function cargarGuiasCreadas(){
-  firebase.auth().onAuthStateChanged(function(user) {
+  auth.onAuthStateChanged(function(user) {
 
     if(user){
       
@@ -2347,7 +2347,7 @@ function cargarGuiasCreadas(){
 }
 
 function historialGuias(){
-  firebase.auth().onAuthStateChanged(function(user) {
+  auth.onAuthStateChanged(function(user) {
 
     if(user){
       var contar=0;   
@@ -2447,7 +2447,7 @@ function historialGuias(){
 
 
 function historialGuiasPuntoheka(){
-  firebase.auth().onAuthStateChanged(function(user) {
+  auth.onAuthStateChanged(function(user) {
 
     if(user){
       var contar=0;   
@@ -2546,7 +2546,7 @@ function historialGuiasPuntoheka(){
 }
 
 function historialRelacionesNoCreadas(){
-  firebase.auth().onAuthStateChanged(function(user) {
+  auth.onAuthStateChanged(function(user) {
   if(user){
     var contar2=0;
     var reference = db.ref('GuiasNuevas').child(user.uid);
@@ -2706,7 +2706,7 @@ function cargarAbrirGuia(){
   if(document.getElementById('abrirGuia')){
   var embed=document.getElementById('abrirGuia');
   
-  firebase.auth().onAuthStateChanged(function(user) {
+  auth.onAuthStateChanged(function(user) {
     if(user){
       var reference = db.ref('abrirGuia').child(user.uid).child('estado');
   
@@ -2785,7 +2785,7 @@ function administradorEliminarGuia(uid,nodo){
 ////////////////verificar usuario comun////////////7
 function verificarUsuarioComun(){
 if(document.getElementById('verificarUsuarioComun')){
-  firebase.auth().onAuthStateChanged(function(user) {
+  auth.onAuthStateChanged(function(user) {
 
     if(user){
       
@@ -2818,7 +2818,7 @@ if(document.getElementById('verificarUsuarioComun')){
     });
   }
   if(document.getElementById('verificarUsuarioPuntoheka')){
-    firebase.auth().onAuthStateChanged(function(user) {
+    auth.onAuthStateChanged(function(user) {
   
       if(user){
         
@@ -2855,7 +2855,7 @@ verificarUsuarioComun();
 
 function verificarUsuarioComunInicioSesion(){
   if(document.getElementById('verificarUsuarioComunInicioSesion')){
-    firebase.auth().onAuthStateChanged(function(user) {
+    auth.onAuthStateChanged(function(user) {
   
       if(user){
        
@@ -2893,7 +2893,7 @@ function verificarUsuarioComunInicioSesion(){
   /////////////////////////cargar datos de usuario comun/////////////
 
   function cargarDatosUsuario(){
-    firebase.auth().onAuthStateChanged(function(user) {
+    auth.onAuthStateChanged(function(user) {
 
       if(user){
         
@@ -3090,7 +3090,7 @@ function verificarUsuarioComunInicioSesion(){
                  
      //Registrar usuario firebase con cuenta bancaria////////////////////////////////////////////////////////////////////
     // window.alert('Datos actualizados con cuenta bancaria');
-     firebase.auth().onAuthStateChanged(function(user) {
+     auth.onAuthStateChanged(function(user) {
   
       if(user){
        
@@ -3241,7 +3241,7 @@ function verificarUsuarioComunInicioSesion(){
      
        
    
-         firebase.auth().onAuthStateChanged(function(user) {
+         auth.onAuthStateChanged(function(user) {
    
            if(user){
              
@@ -3376,7 +3376,7 @@ function verificarUsuarioComunInicioSesion(){
    function cargarListaClientes(){
      
 
-    firebase.auth().onAuthStateChanged(function(user) {
+    auth.onAuthStateChanged(function(user) {
 
       if(user){
         var contar=0;   
@@ -3504,10 +3504,10 @@ function verificarUsuarioComunInicioSesion(){
      //var CPNconfirmar_numero_identificacion_banco=value('CPNconfirmar_numero_identificacion_banco');
   
      //Registrar usuario firebase con cuenta bancaria////////////////////////////////////////////////////////////////////
-       firebase.auth().createUserWithEmailAndPassword(correoPunto,contraseñaPunto)
+       auth.createUserWithEmailAndPassword(correoPunto,contraseñaPunto)
        .then(function(data){
    
-         firebase.auth().onAuthStateChanged(function(user) {
+         auth.onAuthStateChanged(function(user) {
    
            if(user){
             
@@ -3625,7 +3625,7 @@ function crearClientePuntoheka(){
    }else{
      //Registrar usuario firebase con cuenta bancaria////////////////////////////////////////////////////////////////////
    
-     firebase.auth().onAuthStateChanged(function(user) {
+     auth.onAuthStateChanged(function(user) {
  
       if(user){
        

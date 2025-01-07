@@ -1,4 +1,6 @@
-import { db } from "/js/config/initializeFirebase.js";
+import { db, doc, getDoc, getDocs, collection, query, orderBy, where, onSnapshot, startAfter, limit } from "/js/config/initializeFirebase.js";
+import { value } from '/js/main.js';
+import { mostrarNotificacion } from '/js/render.js';
 let filtroPagos;
 
 if (administracion) {
@@ -1218,50 +1220,40 @@ function cargarDocumentos(filter) {
         Cargando...
     `);
   let documentos = document.getElementById("mostrador-documentos");
-  let reference = firebase.firestore().collection("documentos"),
-    docFiltrado;
+  let reference = collection(db, "documentos");
+  let docFiltrado;
   let fecha_inicio = Date.parse(value("docs-fecha-inicio").replace(/\-/g, "/")),
-    fecha_final =
-      Date.parse(value("docs-fecha-final").replace(/\-/g, "/")) + 8.64e7;
+      fecha_final = Date.parse(value("docs-fecha-final").replace(/\-/g, "/")) + 8.64e7;
+
   switch (filter) {
     case "fecha":
-      docFiltrado = reference
-        .orderBy("timeline", "desc")
-        .startAt(fecha_final)
-        .endAt(fecha_inicio);
+      docFiltrado = query(reference, orderBy("timeline", "desc"), startAt(fecha_final), endAt(fecha_inicio));
       break;
     case "sin gestionar":
-      docFiltrado = reference
-        // .orderBy("timeline", "desc")
-        .where("descargar_relacion_envio", "==", false);
-      // .where("descargar_guias", "==", false);
+      docFiltrado = query(reference, where("descargar_relacion_envio", "==", false));
       break;
     case "important":
-      docFiltrado = reference.where("important", "==", true);
+      docFiltrado = query(reference, where("important", "==", true));
       break;
     default:
-      docFiltrado = reference.where("guias", "array-contains-any", filter);
+      docFiltrado = query(reference, where("guias", "array-contains-any", filter));
   }
 
-  docFiltrado
-    .get()
+  getDocs(docFiltrado)
     .then((querySnapshot) => {
       documentos.innerHTML = "";
-      let users = new Array();
+      let users = [];
       let counter_guias = 0;
       let counter_convencional = 0,
-        counter_pagoContraentrega = 0;
+          counter_pagoContraentrega = 0;
       let [counter_inter, counter_servi] = [0, 0];
 
       let docs = querySnapshot.docs;
       docs.sort((a, b) => b.data().timeline - a.data().timeline);
 
       docs.forEach((doc) => {
-        doc.data().type == "CONVENCIONAL"
-          ? counter_convencional++
-          : counter_pagoContraentrega++;
-        if (!users.includes(doc.data().centro_de_costo))
-          users.push(doc.data().centro_de_costo);
+        doc.data().type === "CONVENCIONAL" ? counter_convencional++ : counter_pagoContraentrega++;
+        if (!users.includes(doc.data().centro_de_costo)) users.push(doc.data().centro_de_costo);
         counter_guias += doc.data().guias.length;
 
         if (doc.data().descargar_relacion_envio || doc.data().descargar_guias) {
@@ -1269,9 +1261,7 @@ function cargarDocumentos(filter) {
           documentos.appendChild(
             toHtmlNode(mostrarDocumentos(doc.id, doc.data(), "warning"))
           );
-          let descargador_completo = document.getElementById(
-            "descargar-docs" + doc.id
-          );
+          let descargador_completo = document.getElementById("descargar-docs" + doc.id);
           descargador_completo.classList.remove("fa", "fa-file");
           descargador_completo.classList.add("fas", "fa-file-alt");
           descargador_completo.style.cursor = "alias";
@@ -1302,6 +1292,7 @@ function cargarDocumentos(filter) {
             counter_servi++;
         }
       });
+
       showStatistics("#mostrador-documentos", [
         ["Usuarios", users.length, "users"],
         [
@@ -1319,45 +1310,40 @@ function cargarDocumentos(filter) {
       habilitarOtrosFiltrosDeDocumentosAdmin();
     })
     .then(() => {
-      //Luego de cargar todo, agrega funciones a los botones
+      // Luego de cargar todo, agrega funciones a los botones
       let botones = document.querySelectorAll('[data-funcion="descargar"]');
-      let descargador_completo = document.querySelectorAll(
-        '[data-funcion="descargar-docs"]'
-      );
+      let descargador_completo = document.querySelectorAll('[data-funcion="descargar-docs"]');
       let visor_guias = document.querySelectorAll("[data-mostrar='texto']");
-      //para el boton Que carga documentos
+
+      // Para el boton que carga documentos
       for (let boton of botones) {
         boton.addEventListener("click", (e) => {
           boton.disabled = true;
           const idUser = e.target.parentNode.getAttribute("data-user");
-          const guias = e.target.parentNode
-            .getAttribute("data-guias")
-            .split(",");
+          const guias = e.target.parentNode.getAttribute("data-guias").split(",");
           const nombre = e.target.parentNode.getAttribute("data-nombre");
           const type = e.target.parentNode.getAttribute("data-type");
-          const transp = e.target.parentNode.getAttribute(
-            "data-transportadora"
-          );
+          const transp = e.target.parentNode.getAttribute("data-transportadora");
           documento = [];
           cargarDocumento(idUser, guias)
             .then(() => {
               let data = documento;
-              data.sort((obja, objb) => {
-                return parseInt(obja.id_heka) - parseInt(objb.id_heka);
-              }, data.id_heka);
-              if (guiaRepetida(data))
+              data.sort((obja, objb) => parseInt(obja.id_heka) - parseInt(objb.id_heka));
+              if (guiaRepetida(data)) {
                 return avisar(
                   "¡Posible error Detectado!",
                   "Alguna de las guías se encuentra repetida, se ha interrumpido el proceso antes de convertirlo en excel.",
                   "aviso"
                 );
-              if (data == "")
+              }
+              if (data === "") {
                 return avisar(
                   "documento vacío",
                   "No se detectaron guías en este documento",
                   "advertencia"
                 );
-              if (transp == "INTERRAPIDISIMO") {
+              }
+              if (transp === "INTERRAPIDISIMO") {
                 descargarExcelInter(
                   data,
                   "heka_inter" + nombre + " " + guias.slice(0, 5).join("_"),
@@ -1377,11 +1363,10 @@ function cargarDocumentos(filter) {
         });
       }
 
-      // Cuando esta habilitado, permite descarga el documento que ha sido enviado
+      // Cuando está habilitado, permite descargar el documento que ha sido enviado
       for (let descargar of descargador_completo) {
         descargar.addEventListener("click", (e) => {
           let id = e.target.getAttribute("data-id_guia");
-
           descargarDocumentos(id);
         });
       }
@@ -1401,7 +1386,7 @@ function cargarDocumentos(filter) {
       // actualizarNumGuia()
       subirDocumentos();
       $("#buscador-documentos").text("Buscar");
-      if (documentos.innerHTML == "") {
+      if (documentos.innerHTML === "") {
         documentos.innerHTML = `<div class="col-2"></div>
             <p class="col card m-3 p-3 border-danger text-danger text-center">
             No Hay documentos para tu búsqueda</p><div class="col-2"></div>`;
@@ -3307,14 +3292,14 @@ class ArregloInteractivo {
   }
 }
 
-function revisarNotificaciones() {
-  let notificador = document.getElementById("notificaciones");
-  let audio = document.createElement("audio");
+export function revisarNotificaciones() {
+  const notificador = document.getElementById("notificaciones");
+  const audio = document.createElement("audio");
   audio.innerHTML = `<source type="audio/mpeg" src="./recursos/notificacion.mp3">`;
-  let busqueda = localStorage.user_id,
-    operador = "==",
-    buscador = "user_id",
-    novedades;
+  let busqueda = localStorage.user_id;
+  let operador = "==";
+  let buscador = "user_id";
+  let novedades;
   let guiasNovedad;
 
   if (administracion) {
@@ -3322,8 +3307,8 @@ function revisarNotificaciones() {
     operador = "==";
     buscador = "visible_admin";
     novedades = document.getElementById("notificaciones-novedades");
-    novedades.addEventListener("click", (e) => {
-      let badge = novedades.querySelector("span");
+    novedades.addEventListener("click", () => {
+      const badge = novedades.querySelector("span");
       badge.textContent = 0;
       badge.classList.add("d-none");
     });
@@ -3334,88 +3319,94 @@ function revisarNotificaciones() {
       revisarMovimientosGuias(true, null, null, guiasNovedad.guias);
     });
   }
-  notificador.addEventListener("click", (e) => {
-    let badge = notificador.querySelector("span");
+
+  notificador.addEventListener("click", () => {
+    const badge = notificador.querySelector("span");
     badge.textContent = 0;
     badge.classList.add("d-none");
   });
 
-  firebase
-    .firestore()
-    .collection("notificaciones")
-    .orderBy("timeline")
-    .where(buscador, operador, busqueda)
-    .onSnapshot((snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        let notification = change.doc.data();
-        let identificador = change.doc.id;
-        let mostrador, contador;
-        if (
-          (!administracion &&
-            notification.visible_user &&
-            notification.user_id == busqueda) ||
-          (administracion && notification.visible_admin)
-        ) {
-          if (change.type == "added" || change.type == "modified") {
-            audio.play().catch(() => {});
-            let notificacionNormal = false;
-            if (notification.type == "novedad") {
-              contador = novedades.querySelector("span");
-              contador.classList.remove("d-none");
-              contador.innerHTML = parseInt(contador.textContent) + 1;
-              mostrador = document.getElementById("mostrador-info-novedades");
-              guiasNovedad.push = notification.guia;
-              notificacionNormal = true;
-            } else if (notification.type === "estatica") {
-              mostrarNotificacionEstaticaUsuario(notification, identificador);
-            } else if (
-              !notification.type ||
-              notification.type === "documento"
-            ) {
-              contador = notificador.querySelector("span");
-              contador.classList.remove("d-none");
-              contador.innerHTML = parseInt(contador.textContent) + 1;
-              mostrador = document.getElementById("mostrador-notificaciones");
-              notificacionNormal = true;
-            }
+  // Configura la consulta a Firestore
+  const notificacionesRef = collection(db, "notificaciones");
+  const consulta = query(
+    notificacionesRef,
+    orderBy("timeline"),
+    where(buscador, operador, busqueda)
+  );
 
-            if (parseInt(contador.textContent) > 9) {
-              contador.innerHTML = 9 + "+".sup();
-            }
+  // Escucha los cambios en la colección
+  onSnapshot(consulta, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      const notification = change.doc.data();
+      const identificador = change.doc.id;
+      let mostrador;
+      let contador;
 
-            if (notificacionNormal)
-              mostrador.insertBefore(
-                mostrarNotificacion(
-                  notification,
-                  notification.type,
-                  identificador
-                ),
-                mostrador.firstChild
-              );
-          } else if (change.type == "removed") {
-            if (document.querySelector("#notificacion-" + identificador)) {
-              if (notification.type == "novedad") {
-                contador = novedades.querySelector("span");
-                contador.innerHTML =
-                  parseInt(contador.textContent) <= 0
-                    ? 0
-                    : parseInt(contador.textContent) - 1;
-                guiasNovedad.quit = notification.guia;
-              } else {
-                contador = notificador.querySelector("span");
-                contador.innerHTML =
-                  parseInt(contador.textContent) <= 0
-                    ? 0
-                    : parseInt(contador.textContent) - 1;
-              }
-              $(".notificacion-" + identificador).remove();
-            }
+      if (
+        (!administracion &&
+          notification.visible_user &&
+          notification.user_id === busqueda) ||
+        (administracion && notification.visible_admin)
+      ) {
+        if (change.type === "added" || change.type === "modified") {
+          audio.play().catch(() => {});
+
+          let notificacionNormal = false;
+          if (notification.type === "novedad") {
+            contador = novedades.querySelector("span");
+            contador.classList.remove("d-none");
+            contador.innerHTML = parseInt(contador.textContent) + 1;
+            mostrador = document.getElementById("mostrador-info-novedades");
+            guiasNovedad.push = notification.guia;
+            notificacionNormal = true;
+          } else if (notification.type === "estatica") {
+            mostrarNotificacionEstaticaUsuario(notification, identificador);
+          } else if (!notification.type || notification.type === "documento") {
+            contador = notificador.querySelector("span");
+            contador.classList.remove("d-none");
+            contador.innerHTML = parseInt(contador.textContent) + 1;
+            mostrador = document.getElementById("mostrador-notificaciones");
+            notificacionNormal = true;
           }
-        } else {
-          $(".notificacion-" + identificador).remove();
+
+          if (parseInt(contador.textContent) > 9) {
+            contador.innerHTML = 9 + "+".sup();
+          }
+
+          if (notificacionNormal) {
+            mostrador.insertBefore(
+              mostrarNotificacion(
+                notification,
+                notification.type,
+                identificador
+              ),
+              mostrador.firstChild
+            );
+          }
+        } else if (change.type === "removed") {
+          if (document.querySelector("#notificacion-" + identificador)) {
+            if (notification.type === "novedad") {
+              contador = novedades.querySelector("span");
+              contador.innerHTML =
+                parseInt(contador.textContent) <= 0
+                  ? 0
+                  : parseInt(contador.textContent) - 1;
+              guiasNovedad.quit = notification.guia;
+            } else {
+              contador = notificador.querySelector("span");
+              contador.innerHTML =
+                parseInt(contador.textContent) <= 0
+                  ? 0
+                  : parseInt(contador.textContent) - 1;
+            }
+            $(".notificacion-" + identificador).remove();
+          }
         }
-      });
+      } else {
+        $(".notificacion-" + identificador).remove();
+      }
     });
+  });
 
   if (!administracion) {
     manejarNotificacionesMasivas();
@@ -4434,15 +4425,17 @@ $("#guias_punto-hist_guias").on("change", (e) => {
 });
 
 async function cargarFiltroDePagosPersonalizados() {
-  filtroPagos = await db
-    .collection("infoHeka")
-    .doc("manejoUsuarios")
-    .get()
-    .then((d) => d.data());
+  const docRef = doc(db, "infoHeka", "manejoUsuarios");
+
+  const docSnapshot = await getDoc(docRef);
+  const filtroPagos = docSnapshot.data();
+
+  console.log(filtroPagos);
 
   const listaOpciones = filtroPagos.pagar.map(
-    (c, i) => `<option value="${c}">${filtroPagos.titulos[c]}</option>`
+    (c) => `<option value="${c}">${filtroPagos.titulos[c]}</option>`
   );
+  
 
   listaOpciones.unshift('<option value="">Seleccione pagos</option>');
 
@@ -4972,29 +4965,24 @@ function renderizarBotonesAdmin(datos, type, row) {
   return datos;
 }
 
-async function recursividadPorReferencia(ref, handler, limitePaginacion, next) {
+export async function recursividadPorReferencia(ref, handler, limitePaginacion, next) {
   let consulta = ref;
   if (next) {
-    consulta = ref.startAfter(next);
+    consulta = query(ref, startAfter(next)); // Agregar el startAfter para la paginación
   }
 
-  return await consulta
-    .limit(limitePaginacion)
-    .get()
-    .then(async (q) => {
-      const t = q.size;
-      handler(q);
+  // Añadir el limit a la consulta
+  consulta = query(consulta, limit(limitePaginacion));
 
-      if (t === limitePaginacion) {
-        const siguiente = q.docs[t - 1];
-        await recursividadPorReferencia(
-          ref,
-          handler,
-          limitePaginacion,
-          siguiente
-        );
-      }
-    });
+  const querySnapshot = await getDocs(consulta);
+  const t = querySnapshot.size;
+  handler(querySnapshot);
+
+  // Si hemos alcanzado el límite de la paginación, continuar con la siguiente consulta
+  if (t === limitePaginacion) {
+    const siguiente = querySnapshot.docs[t - 1];
+    await recursividadPorReferencia(ref, handler, limitePaginacion, siguiente);
+  }
 }
 
 function descargarInformeGuiasAdmin(columnas, guias, nombre) {

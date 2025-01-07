@@ -1,5 +1,8 @@
-import { db, collection, query, where, getDocs } from "/js/config/initializeFirebase.js";
+import { db, collection, query, where, getDocs, doc, getDoc } from "/js/config/initializeFirebase.js";
 import { Watcher } from "/js/render.js";
+import { revisarNotificaciones } from "/js/manejadorGuias.js";
+
+
 
 /** @format */
 
@@ -93,13 +96,10 @@ async function validateToken(token) {
         document.getElementById("btn-revisar_pagos").disabled = false;
       }
 
-      const user = await firebase
-        .firestore()
-        .collection("usuarios")
-        .doc(user_id_firebase)
-        .get();
+      const docRef = doc(db, "usuarios", user_id_firebase);
+      const user = await getDoc(docRef);
 
-      if (!user.exists) {
+      if (!user.exists()) {
         redirectLogin();
         throw new Error("No documents found.");
       }
@@ -542,30 +542,32 @@ async function cargarPagoSolicitado() {
 }
 
 async function listarNovedadesServientrega() {
-  listaNovedadesServientrega = await db
-    .collection("infoHeka")
-    .doc("novedadesRegistradas")
-    .get()
-    .then((d) => {
-      if (d.exists) {
-        return d.data().SERVIENTREGA;
-      }
+  const refNovedades = doc(db, "infoHeka", "novedadesRegistradas");
 
-      return [];
-    });
+  try {
+    const docSnap = await getDoc(refNovedades);
+    if (docSnap.exists()) {
+      listaNovedadesServientrega = docSnap.data().SERVIENTREGA;
+    } else {
+      listaNovedadesServientrega = [];
+    }
+  } catch (error) {
+    console.error("Error al listar novedades de Servientrega:", error);
+    listaNovedadesServientrega = [];
+  }
 }
 
 let listaRespuestasNovedad;
 
 function listarSugerenciaMensajesNovedad() {
-  const refRespuestasNovedad = db
-    .collection("infoHeka")
-    .doc("respuestasNovedad");
+  const refRespuestasNovedad = doc(db, "infoHeka", "respuestasNovedad");
 
-  refRespuestasNovedad.get().then((d) => {
-    if (d.exists) {
+  getDoc(refRespuestasNovedad).then((d) => {
+    if (d.exists()) {
       listaRespuestasNovedad = d.data().respuestas;
     }
+  }).catch((error) => {
+    console.error("Error al obtener las sugerencias de mensajes:", error);
   });
 }
 

@@ -1,9 +1,9 @@
 import { mostrarRenderFormNovedades } from "./renderForm.js";
 import { campoFormulario } from "./views.js";
 
-const db = firebase.firestore();
-const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
-const referencia2 = db.collection("infoHeka").doc("categoriasMensajeria");
+import { db, doc, getDoc } from "/js/config/initializeFirebase.js";
+const referencia = doc(db, "infoHeka", "novedadesMensajeria");
+const referencia2 = doc(db, "infoHeka", "categoriasMensajeria");
 
 
 /*
@@ -55,15 +55,13 @@ mostrarRegistros();
  * y formularios.
  */
 async function mostrarRegistros() {
-    // Consulat la lista de mensajes y novedades
-    const {lista, formularios} = await referencia.get().then(d => {
-        if(d.exists) return d.data();
-        return {};
-    });
 
-    const {listacategorias} = await referencia2.get().then(d => {
-        if(d.exists) return d.data();
-    })
+    const docSnapshot = await getDoc(referencia);
+    const {lista, formularios} = docSnapshot.data();
+
+
+    const docSnapshot2 = await getDoc(referencia2);
+    const {listacategorias} = docSnapshot2.data();
 
     listaRegistros = lista;
     listaFormularios = formularios || [];

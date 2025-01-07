@@ -22,8 +22,7 @@ import { comprobarGuiaPagada, guiaExiste } from "./comprobadores.js";
 import { defFiltrado as estadosGlobalGuias } from "../historialGuias/config.js";
 import AnotacionesPagos from "./AnotacionesPagos.js";
 
-const db = firebase.firestore();
-const storage = firebase.storage();
+import { db, storage } from "/js/config/initializeFirebase.js";
 
 const btnGestionar = $("#btn-gestionar_pagos");
 

@@ -3,10 +3,9 @@ import {
   pathCiudadesLista,
   pathEstadisticasCiudad,
 } from "../config/api.js";
+import { db } from "/js/config/initializeFirebase.js";
 import CreateModal from "../utils/modal.js";
 import { estadisticasTempl, transportadoraTempl } from "./views.js";
-
-const db = firebase.firestore();
 
 const dtListCiudades = $("#list_buscador-ciudades");
 const inpBuscadorCiudades = $("#buscador-ciudades");

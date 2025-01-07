@@ -1,7 +1,6 @@
-const auth = firebase.auth();
-const firestore = firebase.firestore();
-const storage = firebase.storage();
-const database = firebase.database();
-const analytics = firebase.analytics();
+import { db, analytics, storage, auth, ref } from "/js/config/initializeFirebase.js";
+const database = db;
+const firestore = db;
+
 
 export { auth, firestore, storage, database, analytics }

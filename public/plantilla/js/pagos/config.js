@@ -1,4 +1,4 @@
-export const db = firebase.firestore();
+import { db } from "/js/config/initializeFirebase.js";
 export const formularioPrincipal = $("#form-gestionar_pagos");
 export const errorContainer = $("#errores-gestionar_pagos");
 export const visor = $("#visor_gestionar_pagos");

@@ -1,4 +1,6 @@
-import { listaUsuarios } from '/js/cargadorDeDatos.js'
+import { listaUsuarios } from '/js/cargadorDeDatos.js';
+import { genFecha} from '/js/render.js'
+import { verMovimientos } from '/js/usuarios.js'
 let users = listaUsuarios;
 
 async function searchUsers(esGeneral) {
@@ -124,7 +126,7 @@ const filtrarUsuarios = async () => {
   return usuariosFiltrados;
 };
 
-function generarTabla(users) {
+export function generarTabla(users) {
   $("#tablaUsers").removeClass("d-none");
   $("#control-buttons").removeClass("d-none");
 
@@ -195,7 +197,7 @@ function generarTabla(users) {
   });
 }
 
-volver2button = document.getElementById("volver2");
+let volver2button = document.getElementById("volver2");
 
 volver2button.addEventListener("click", volver2);
 
@@ -220,7 +222,7 @@ function volver2() {
   }
 }
 
-function manejarClickMovimientos(id) {
+export function manejarClickMovimientos(id) {
   let fechaI = genFecha().split("-");
   fechaI[1] -= 1;
   fechaI = new Date(fechaI.join("-") + "::").getTime();

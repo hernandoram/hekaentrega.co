@@ -1,4 +1,4 @@
-const db = firebase.firestore();
+import { db, doc, getDoc } from "/js/config/initializeFirebase.js";
 const filtradorPagos = $(".filtro-pagos");
 const listaVer = $("#lista-manejo_usuarios");
 const inpNuevo = $("#nuevo-manejo_usuarios");
@@ -7,8 +7,9 @@ const buttonSave = $("#agregar_nuevo-manejo_usuarios");
 const btnDownload = $("#descargar-manejo_usuarios");
 
 let valorseleccionado = "";
+let filtroPagos = [];
 
-const referencia = db.collection("infoHeka").doc("manejoUsuarios");
+const referencia = doc(db, "infoHeka", "manejoUsuarios");
 
 listaVer.change(mirarColeccion);
 buttonAdd.on("click", activarNuevo);
@@ -17,8 +18,8 @@ btnDownload.on("click", descargarLista);
 
 cargarFiltroDePagosPersonalizados();
 async function cargarFiltroDePagosPersonalizados() {
-    filtroPagos = await referencia
-    .get().then(d => d.data());
+    const docSnap = await getDoc(referencia);
+    filtroPagos = await docSnap.data();
 
     if(!filtroPagos) return;
 

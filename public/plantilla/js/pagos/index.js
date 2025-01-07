@@ -16,10 +16,10 @@ import { activarFunctionesFacturas } from "./facturacion.js";
   - Permite realizar una facturación con "siigo" y almacenarla en el pago correspondiente
 */
 
+import { db, collection, collectionGroup } from "/js/config/initializeFirebase.js";
 // Contantes base de datos
-const db = firebase.firestore();
-const referencePagos = db.collection("pendientePorPagar");
-const refHistGuias = db.collectionGroup("guias");
+const referencePagos = collection(db, "pendientePorPagar");
+const refHistGuias = collectionGroup(db, "guias");
 
 // Contantes de elementos html
 const formularioPrincipal = $("#form-cargador_pagos");

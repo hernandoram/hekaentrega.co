@@ -43,7 +43,8 @@ function escucha(id, e, funcion) {
 
 //Muestra en la pantalla lo que el cliente quiere hacer
 const listaNotificacionesAlerta = [];
-function mostrar(id) {
+export function mostrar(id) {
+  console.log('entra', id)
   let content = document.getElementById("content").children;
 
   /* if (id === 'usuarios') {
@@ -302,7 +303,7 @@ function avisar(title, content, type, redirigir, tiempo = 5000) {
   });
 }
 //// Esta funcion me retorna un card con informacion del usuario, sera invocada por otra funcion
-function mostrarOficinas(data, id) {
+export function mostrarOficinas(data, id) {
   const bodegas = data.bodegas ? data.bodegas : [];
   // let bodega = data.bodegas ? data.bodegas.filter(b => b.principal)[0] : false
   let bodega = bodegas.filter((b) => !b.inactiva)[0];
@@ -559,7 +560,7 @@ function mostrarDocumentos(id, data, tipo_aviso) {
 }
 
 //Muestra la fecha de hoy
-function genFecha(direccion, milliseconds) {
+export function genFecha(direccion, milliseconds) {
   // Genera un formato de fecha AAAA-MM-DD
   let fecha = new Date(milliseconds || new Date()),
     mes = fecha.getMonth() + 1,
@@ -1675,7 +1676,7 @@ function tablaPagos(arrData, id) {
 }
 
 //muestra la notificación específica para agregarla al panel, ademñas de asignarle funcionalidades
-function mostrarNotificacion(data, type, id) {
+export function mostrarNotificacion(data, type, id) {
   let notificacion = document.createElement("a"),
     div_icon = document.createElement("div"),
     circle = document.createElement("div"),

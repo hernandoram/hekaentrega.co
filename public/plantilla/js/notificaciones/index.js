@@ -1,4 +1,4 @@
-import { firestore, storage } from "../config/firebase.js";
+import { db, storage, ref, collection, listAll, getDocs, getDownloadURL } from "/js/config/initializeFirebase.js";
 import { visualizarNotificacion } from "./views.js";
 
 const slectImagenes = $("#imageUrl-centro_notificaciones");
@@ -26,8 +26,11 @@ cargadorImagen.on("change", cargarNuevaImagen);
 
 formulario.on("submit", generarNotificacion);
 
-const storageRef = storage.ref("centro_notificaciones");
-const fireRef = firestore.collection("centro_notificaciones");
+// Referencia al directorio "centro_notificaciones" en Storage
+const storageRef = ref(storage, "centro_notificaciones");
+
+// Referencia a la colección "centro_notificaciones" en Firestore
+const fireRef = collection(db, "centro_notificaciones");
 
 let notificaciones = [];
 
@@ -72,14 +75,16 @@ $("#mensaje-centro_notificaciones").summernote(summernoteOptions);
 
 listarImagenes();
 function listarImagenes() {
-  storageRef.listAll().then((res) => {
+  // Obtén todas las imágenes del directorio
+  listAll(storageRef).then(async (res) => {
     slectImagenes.html("<option value>-- Lista imágenes --</option>");
-    res.items.forEach(async (item) => {
+
+    for (const item of res.items) {
       const name = item.name;
-      const path = await item.getDownloadURL();
+      const path = await getDownloadURL(item);
       slectImagenes.append(`<option value="${path}">${name}</option>`);
-    });
-  });
+    }
+  })
 }
 
 function cambioNotificacion(e) {
@@ -247,12 +252,11 @@ async function generarNotificacion(e) {
   });
 }
 
-const reference = firebase.firestore().collection("usuarios");
+const reference = collection(db, "usuarios");
 let centros = [];
 
-reference
-  // .limit(10)
-  .get()
+// Obtiene los documentos de la colección
+getDocs(reference)
   .then((querySnapshot) => {
     console.log(querySnapshot.size);
     querySnapshot.forEach((doc) => {
@@ -263,12 +267,14 @@ reference
       });
     });
   })
-  .then(async () => {
+  .then(() => {
+    // Asigna los centros al objeto global y habilita el botón
     window.centros = centros;
-
     document.getElementById("btn-revisar_pagos").disabled = false;
+  })
+  .catch((error) => {
+    console.error("Error al obtener los documentos:", error);
   });
-
 const botonesInputUserNoti = document.querySelector("#botones-inputusernoti");
 
 notificacionGlobal.addEventListener("change", (e) => {
@@ -410,45 +416,46 @@ function obtenerCheckboxesMarcados(arreglo) {
   return idsCheckboxMarcados;
 }
 
-function mostrarNotificaciones() {
-  fireRef
-    .get()
-    .then((q) => {
-      visorNotificaciones.html("");
+async function mostrarNotificaciones() {
+  try {
+    const querySnapshot = await getDocs(fireRef);
+    visorNotificaciones.html("");
 
-      if (q.size === 0) {
-        return;
+    if (querySnapshot.size === 0) {
+      return;
+    }
+
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+
+      if (data.endDate < new Date().getTime()) {
+        alertarVencimientoNotificacion(data);
       }
 
-      q.forEach((d) => {
-        const data = d.data();
+      data.id = doc.id;
+      data.startDate = convertirFecha(data.startDate);
+      data.endDate = convertirFecha(data.endDate);
+      visorNotificaciones.append(visualizarNotificacion(data));
 
-        if (data.endDate < new Date().getTime()) {
-          alertarVencimientoNotificacion(data);
-        }
+      seccionNotificaciones.removeClass("d-none");
 
-        data.id = d.id;
-        data.startDate = convertirFecha(data.startDate);
-        data.endDate = convertirFecha(data.endDate);
-        visorNotificaciones.append(visualizarNotificacion(data));
+      const existingNotificationIndex = notificaciones.findIndex(
+        (notificacion) => notificacion.id === data.id
+      );
 
-        seccionNotificaciones.removeClass("d-none");
+      if (existingNotificationIndex !== -1) {
+        notificaciones[existingNotificationIndex] = data;
+      } else {
+        notificaciones.push(data);
+      }
+    });
 
-        if (
-          notificaciones.find((notificacion) => notificacion.id === data.id)
-        ) {
-          const index = notificaciones.findIndex(
-            (notificacion) => notificacion.id === data.id
-          );
-          notificaciones[index] = data;
-        } else {
-          notificaciones.push(data);
-        }
-      });
-      console.log(notificaciones);
-      activarAccion($("[data-action]", visorNotificaciones));
-    })
-    .then(() => selectorNotificaciones(notificaciones));
+    console.log(notificaciones);
+    activarAccion($("[data-action]", visorNotificaciones));
+    selectorNotificaciones(notificaciones);
+  } catch (error) {
+    console.error("Error al obtener las notificaciones:", error);
+  }
 }
 
 function convertirFecha(inputfecha) {
