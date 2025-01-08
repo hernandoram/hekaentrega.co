@@ -1586,6 +1586,7 @@
                     <option value="ENVIA">Envía</option>
                     <option value="COORDINADORA">Coordinadora</option>
                     <option value="TCC">TCC</option>
+                    <option value="HEKA">Heka Entrega</option>
                   </select>
                 </div>
 
@@ -1670,7 +1671,7 @@
                     <div class="input-group mb-3">
                       <input type="text" class="form-control" id="filtrado-novedades-guias"
                         placeholder="Guía1, Guía2, etc..." aria-label="Guias" aria-describedby="btn-revisar-novedades">
-                      <input list="sellersDatalist" class="form-control" id="filtrado-novedades-usuario"
+                      <input list="sellersDatalist" class="form-control list-transp" id="filtrado-novedades-usuario"
                         placeholder="Centro de costo" aria-label="Usuario" aria-describedby="btn-revisar-novedades">
                       <select name="activador_busq_novedades" class="form-control" id="activador_busq_novedades">
                         <option value="">Buscar solo novedades</option>
@@ -1678,6 +1679,7 @@
                         <option value="SERVIENTREGA">Servientrega</option>
                         <option value="ENVIA">Envía</option>
                         <option value="COORDINADORA">Coordinadora</option>
+                        <option value="HEKA">Heka Entrega</option>
                       </select>
                     </div>
                     <div class="input-group d-none">
@@ -1705,49 +1707,46 @@
                           id="descargarExcelNovedades">Descargar Excel</button>
                         <hr />
                         <div class="d-flex">
-                          <!-- <div class="col ml-2 pl-3" >
-                            <div class="form-check px-2 ">
-                              <p class="pl-5">Tipo:</p>
-                              <input class="form-check-input" type="checkbox" value="LOGISTICA" id="checkboxNovedadesLogistica" checked onclick="document.getElementById('checkboxNovedadesCallcenter').checked = false">
-                              <label class="form-check-label" for="defaultCheck1">
-                                LOGISTICA
-                              </label>
-                            </div>
-                            <div class="form-check px-2  ">
-                              <input class="form-check-input" type="checkbox" value="CALLCENTER" id="checkboxNovedadesCallcenter" onclick="document.getElementById('checkboxNovedadesLogistica').checked = false">
-                              <label class="form-check-label" for="defaultCheck1">
-                                CALLCENTER
-                              </label>
-                            </div>
-                          </div> -->
+
                           <div class="col ml-2 pl-3">
+                            <p class="pl-5">Filtros:</p>
+                            <div class="form-group">
+                              <label for="ciudadR">Filtrar por estado</label>
+                              <select class="form-control" id="estados_base-novedades" multiple></select>
+                            </div>
                             <div class="form-check px-2 ">
-                              <p class="pl-5">Filtros:</p>
                               <input class="form-check-input" type="checkbox" value="INTERRAPIDISIMO"
                                 id="checkboxNovedadesInter" checked>
-                              <label class="form-check-label" for="defaultCheck1">
+                              <label class="form-check-label" for="checkboxNovedadesInter">
                                 INTERRAPIDISIMO
                               </label>
                             </div>
                             <div class="form-check px-2  ">
                               <input class="form-check-input" type="checkbox" value="SERVIENTREGA"
                                 id="checkboxNovedadesServientrega" checked>
-                              <label class="form-check-label" for="defaultCheck1">
+                              <label class="form-check-label" for="checkboxNovedadesServientrega">
                                 SERVIENTREGA
                               </label>
                             </div>
                             <div class="form-check px-2 ">
                               <input class="form-check-input" type="checkbox" value="COORDINADORA"
                                 id="checkboxNovedadesCoordinadora" checked>
-                              <label class="form-check-label" for="defaultCheck1">
+                              <label class="form-check-label" for="checkboxNovedadesCoordinadora">
                                 COORDINADORA
                               </label>
                             </div>
                             <div class="form-check px-2  ">
                               <input class="form-check-input" type="checkbox" value="ENVIA" id="checkboxNovedadesEnvia"
                                 checked>
-                              <label class="form-check-label" for="defaultCheck1">
+                              <label class="form-check-label" for="checkboxNovedadesEnvia">
                                 ENVIA
+                              </label>
+                            </div>
+                            <div class="form-check px-2  ">
+                              <input class="form-check-input" type="checkbox" value="ENVIA" id="checkboxNovedadesHeka"
+                                checked>
+                              <label class="form-check-label" for="checkboxNovedadesHeka">
+                                HEKA
                               </label>
                             </div>
                           </div>
@@ -1813,6 +1812,7 @@
                           <option value="SERVIENTREGA">Servientrega</option>
                           <option value="ENVIA">Envía</option>
                           <option value="COORDINADORA">Coordinadora</option>
+                          <option value="HEKA">Heka Entrega</option>
                         </select>
                       </div>
                     </div>
@@ -1855,6 +1855,7 @@
                         <option value="SERVIENTREGA">Servientrega</option>
                         <option value="ENVIA">Envía</option>
                         <option value="COORDINADORA">Coordinadora</option>
+                        <option value="HEKA">Heka Entrega</option>
                       </select>
                       <div class="col-sm-2 h-75">
                         <button class="btn btn-outline-danger h-75 w-100 " type="button"
@@ -1966,6 +1967,11 @@
                             name="filtro-trasnportadoras" value="COORDINADORA">
                           <label class="form-check-label" for="filtro-trasnportadora5">Coordinadora</label>
                         </div>
+                        <div class="d-flex justify-content-center m-2 form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora6"
+                            name="filtro-trasnportadoras" value="HEKA">
+                          <label class="form-check-label" for="filtro-trasnportadora6">Heka Entrega</label>
+                        </div>
                       </div>
                     </div>
 
@@ -2065,6 +2071,7 @@
 
             <div class="card mt-2">
               <div id="visor-pagos_facturacion" class="table-responsive card-body">
+                <div id="visor_errores-pagos_facturacion" class="my-2"></div>
                 <table id="table-pagos_facturacion" class="table table-bordered w-100">
                 </table>
               </div>
@@ -2141,11 +2148,6 @@
                           <label class="form-check-label" for="filtro-trasnportadora2-gestionar_pagos">Envía</label>
                         </div>
                         <div class="d-flex justify-content-center m-2 form-check form-check-inline">
-                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora3-gestionar_pagos"
-                            name="filtro-transportadoras" value="TCC">
-                          <label class="form-check-label" for="filtro-trasnportadora3-gestionar_pagos">TCC</label>
-                        </div>
-                        <div class="d-flex justify-content-center m-2 form-check form-check-inline">
                           <input class="form-check-input" type="checkbox" id="filtro-trasnportadora4-gestionar_pagos"
                             name="filtro-transportadoras" value="INTERRAPIDISIMO">
                           <label class="form-check-label" for="filtro-trasnportadora4-gestionar_pagos">Inter
@@ -2157,13 +2159,29 @@
                           <label class="form-check-label"
                             for="filtro-trasnportadora5-gestionar_pagos">Coordinadora</label>
                         </div>
+                        <div class="d-flex justify-content-center m-2 form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro-trasnportadora6-gestionar_pagos"
+                            name="filtro-transportadoras" value="HEKA">
+                          <label class="form-check-label"
+                            for="filtro-trasnportadora6-gestionar_pagos">Heka Entrega</label>
+                        </div>
                       </div>
 
-                      <div class="col-12 d-flex justify-content-center form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="filtro_deudor-gestionar_pagos"
-                          name="filtro-negativos">
-                        <label class="form-check-label" for="filtro_deudor-gestionar_pagos">Mostrar los saldos
-                          negativos</label>
+                      <div class="col-md-6">
+                        <div class="d-flex justify-content-center form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro_deudor-gestionar_pagos"
+                            name="filtro-negativos">
+                          <label class="form-check-label" for="filtro_deudor-gestionar_pagos">Mostrar los saldos
+                            negativos</label>
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <div class="d-flex justify-content-center form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="activador_facturacion-gestionar_pagos"
+                            name="activador-factura">
+                          <label class="form-check-label" for="activador_facturacion-gestionar_pagos">Activar facturación</label>
+                        </div>
                       </div>
                     </div>
 
@@ -2400,6 +2418,7 @@
                       <option value="ENVIA">Envía</option>
                       <option value="INTERRAPIDISIMO">Interrapidísimo</option>
                       <option value="COORDINADORA">Coordinadora</option>
+                      <option value="HEKA">Heka entrega</option>
                     </select>
                   </div>
 
@@ -2662,12 +2681,13 @@
                   <form class="row" id="form_agregar-configuraciones">
                     <div class="form-group col-md col-4 mb-3">
                       <label for="transportadora-configuraciones">Seleccione la transportadora</label>
-                      <select class="form-control" name="transportadora" aria-label="Default select example"
+                      <select class="form-control list-transp" name="transportadora" aria-label="Default select example"
                         id="transportadora-configuraciones">
                         <option value="INTERRAPIDISIMO">INTERRAPIDISIMO</option>
                         <option value="SERVIENTREGA">SERVIENTREGA</option>
                         <option value="ENVIA">ENVIA</option>
                         <option value="COORDINADORA">COORDINADORA</option>
+                        <option value="HEKA">HEKA</option>
                       </select>
                     </div>
 

@@ -1,4 +1,5 @@
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
+import AnotacionesPagos from "./AnotacionesPagos.js";
 import { cantidadFacturasencontradas } from "./comprobadores.js";
 
 const modulo = "pagos_facturacion";
@@ -7,7 +8,8 @@ const activadorFecha = $("#activador_filtro_fecha-pagos_facturacion");
 const btnHistorialFacturas = $("#btn_historial-pagos_facturacion");
 const btnDescargaFacturas = $("#btn_descarga-pagos_facturacion");
 const principalReference = firebase.firestore().collection("paquetePagos");
-export function activarFunctionesFacturas() {
+const anotacionesErrores = $("#visor_errores-pagos_facturacion");
+function activarFunctionesFacturas() {
     cambiadorFiltro.on("change", cambiarFiltroFacturacion);
     btnHistorialFacturas.on("click", revisarFacturacionesAdmin);
     btnDescargaFacturas.on("click", descargarInformeFacturas);
@@ -25,6 +27,12 @@ const columns = [
     { 
         data: "comision_heka", 
         title: "Comisión heka", 
+        render: $.fn.DataTable.render.number(".", null, null, "$ ")
+    },
+    { 
+        data: "comision_transportadora", 
+        title: "Comisión Transportadora",
+        defaultContent: "N/A",
         render: $.fn.DataTable.render.number(".", null, null, "$ ")
     },
     { 
@@ -55,7 +63,12 @@ const dataTable = $("#table-pagos_facturacion").DataTable({
       url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
     },
     dom: "Bfrtip",
-    buttons: [],
+    buttons: [
+        {
+            text: "Generar Facturas",
+            action: facturacionMasivaAgrupada,
+        },
+    ],
     scrollY: "50vh",
     scrollX: true,
     scrollCollapse: true,
@@ -533,7 +546,7 @@ async function descargarInformeFacturas(e) {
 }
 
 
-const transportadoras = ["SERVIENTREGA", "INTERRAPIDISIMO", "ENVIA", "COORDINADORA", "REFERIDOS"];
+const transportadoras = ["SERVIENTREGA", "INTERRAPIDISIMO", "ENVIA", "COORDINADORA", "REFERIDOS", "HEKA"];
 async function cargarInfoPagoPorGuia(guiaRefrencia) {
     const transportadoras = transportadoraProbable(guiaRefrencia);
     
@@ -552,14 +565,32 @@ async function cargarInfoPagoPorGuia(guiaRefrencia) {
     return data;
 }
 
+async function cargarInfoPagoPorIdRelacionado(idPaquetePago) {
+    const pagosRealizados = [];
+    for (let transp of transportadoras) {
+        data = await db.collection("pagos")
+        .doc(transp).collection("pagos")
+        .where("idPaquetePago", "==", idPaquetePago)
+        .get()
+        .then(q => {
+            q.forEach(d => {
+                pagosRealizados.push(d.data());
+            })
+        });
+
+    }
+
+    return pagosRealizados;
+}
+
 function transportadoraProbable(guia) {
     const puntos = transportadoras.map(t => ({
         transp: t,
         puntos: 0
     }));
 
-    const lengths = [10, 12, 12, 11, 15];
-    const regexs = [/^2\d+/, /^2\d00\d+/, /^0\d+/, /^3\d+/, /^RSeller/];
+    const lengths = [10, 12, 12, 11, 15, 10];
+    const regexs = [/^2\d+/, /^2\d00\d+/, /^0\d+/, /^3\d+/, /^RSeller/, /^1\d+/];
 
     puntos.forEach((p,i) => {
         if(guia.length === lengths[i]) p.puntos++;
@@ -618,12 +649,12 @@ async function crearGuardarFactura(data) {
 
     if(!resSwal.isConfirmed) return;
 
-    const {numero_documento, comision_heka} = data;
+    const {numero_documento, comision_heka, comision_transportadora} = data;
     const loader = new ChangeElementContenWhileLoading(this);
     loader.charger = loader.charger.replace("Cargando...", ""); // Para que solo quede la rueda dando vueltas sin las letras
     loader.init();
 
-    const resFact = await crearFactura(numero_documento, comision_heka);
+    const resFact = await crearFactura(numero_documento, comision_heka, comision_transportadora);
 
     if(resFact.error) {
         Swal.fire("Error de comunicación", resFact.message, "error");
@@ -636,15 +667,18 @@ async function crearGuardarFactura(data) {
     }
 
     actualizarFactura(data, resFact)
-    .finally(() => loader.end());
+    .then(res => Swal.fire(res))
+    .finally(() => {
+        loader.end()
+    });
 
 }
 
-async function crearFactura(numero_documento, comision_heka) {
+async function crearFactura(numero_documento, comision_heka, costo_transportadora = null) {
     return fetch("/siigo/crearFactura", {
         method: "POST",
         headers: {"Content-Type": "Application/json"},
-        body: JSON.stringify({comision_heka: comision_heka, numero_documento})
+        body: JSON.stringify({comision_heka: comision_heka, numero_documento, costo_transportadora})
     })
     .then(d => d.json())
     .catch(e => {
@@ -667,13 +701,79 @@ async function actualizarFactura(dataPack, dataFactura) {
         facturada: true
     })
     .then((result) => {
-        Toast.fire("La factura ha sido vinculada existósamente.", "", "success");
         return principalReference.doc(idDatabase).get();
     })
     .then((doc) => {
         const data = getDocData(doc);
         dataTable.row("#"+row_id).remove().draw(false);
         dataTable.row.add(data).draw(false);
+        return {
+            title: "La factura ha sido vinculada existósamente.",
+            text: "",
+            icon: "success" 
+        }
     })
-    .catch(e => Toast.fire("No se ha podido actualizar.", e.message, "error"))
+    .catch(e => ({title: "No se ha podido actualizar.", text: e.message, icon: "error"}))
 }
+
+
+async function facturacionMasivaAgrupada(e, dt, node, config) {
+    const l = new ChangeElementContenWhileLoading(e.target);
+    const anotaciones = new AnotacionesPagos(anotacionesErrores);
+    anotaciones.init();
+    l.init();
+
+    const facturasAgrupadas = new Map();
+    
+    const dataFacturacion = 
+    dt.data()
+    .filter(d => d.num_factura === 0) // Solo se vana a facturar aquellas que no hayan sido facturadas aún
+
+    dataFacturacion
+    .each(current => {
+        const {numero_documento} = current;
+
+        if(facturasAgrupadas.has(numero_documento)) {
+            const conjuntoFacturacionActual = facturasAgrupadas.get(numero_documento);
+
+            conjuntoFacturacionActual.comision_heka += current.comision_heka;
+            conjuntoFacturacionActual.comision_transportadora += current.comision_transportadora;
+            conjuntoFacturacionActual.total_pagado += current.total_pagado;
+        } else {
+            facturasAgrupadas.set(numero_documento, current);
+        }
+    });
+
+    for (const factura of facturasAgrupadas.values()) {
+        // Por acá se generaran las facturas de a una
+        const {numero_documento, comision_heka, comision_transportadora} = factura;
+
+        const actualizacionConjunto = dataFacturacion.filter(v => v.numero_documento === numero_documento);
+
+        const resFact = await crearFactura(numero_documento, comision_heka, comision_transportadora);
+
+        if(resFact.error) {
+            anotaciones.addError(`Error de comunicación ${numero_documento}: ${resFact.message}`);
+            continue;
+        }
+        
+        if(!resFact.id) {
+            anotaciones.addError(`Error al facturar ${numero_documento}: ${JSON.stringify(resFact)}`, "error");
+            continue;
+        }
+
+        const actualizacionesFirebase = actualizacionConjunto.map(conjuntoPago => actualizarFactura(conjuntoPago, resFact));
+
+        const resultActualizaciones = await Promise.all(actualizacionesFirebase);
+
+        const erroresFirebase = resultActualizaciones.find(act => act.incon === "error");
+        if(erroresFirebase) {
+            anotaciones.addError(`Hemos tenido un problema para guardar en nuestra base de datos la información resultante que la factura que ha sido generada en siigo: ${erroresFirebase.text}`);
+            continue;
+        }
+    }
+
+    l.end();
+}
+
+export { activarFunctionesFacturas, crearFactura }

@@ -175,6 +175,22 @@
             <span>Manifiestos</span></a>
         </li>
 
+        <li class="nav-item vista-preferencial" id="nav_item-flexii_envios">
+          <a class="nav-link" href="#" data-toggle="collapse" data-target="#collapse-envios_flexii" aria-expanded="true" aria-controls="collapse-envios_flexii">
+            <span data-toggle="tooltip" data-placement="right" title="Espacio para aceptar, generar pedidos y actualizar estados de envíos flexii">
+              <i class="fas fa-fw fa-file-alt"></i>
+              <span>Envíos</span>
+            </span>
+          </a>
+          <div id="collapse-envios_flexii" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+            <div class="bg-white py-2 collapse-inner rounded">
+              <h6 class="collapse-header">Envíos flexii:</h6>
+              <a class="collapse-item" href="#flexii_guia_recept">Recibir envíos</a>
+              <a class="collapse-item" href="#flexii_guia">Generar pedido</a>
+              <a class="collapse-item" href="#scanner_estados_flexii">Actualizar estados</a>
+            </div>
+          </div>
+        </li>
 
         <!-- Divider -->
         <hr class="sidebar-divider">
@@ -191,7 +207,6 @@
             </div>
           </div>
         </li>
-
 
         <!-- Sidebar Toggler (Sidebar) -->
         <div class="text-center d-none d-md-inline">
@@ -845,7 +860,7 @@
             <div id="result_cotizacion" class="mt-5"></div>
           </div>
 
-          <div class="container-fluid flex justify-content-center align-items-center" id="flexii_guia_recept" style="display: none;">
+          <div class="container-fluid flex justify-content-center align-items-cente vista-preferencial" id="flexii_guia_recept" style="display: none;">
             
             <div class="card m-2">
               <div class="card-body">
@@ -880,7 +895,7 @@
             </div>
           </div>
           
-          <div class="container-fluid flex justify-content-center align-items-center" id="flexii_guia" style="display: none;">
+          <div class="container-fluid flex justify-content-center align-items-center vista-preferencial" id="flexii_guia" style="display: none;">
             
             <div class="card m-2">
               <div class="card-body">
@@ -900,12 +915,12 @@
                     <div class="row">
                       <div class="control-group col-sm-6 mb-2">
                         <label for="bodega-flexii_guia">Bodega</label>
-                        <select name="daneCityOrigin" class="form-control" id="bodega-flexii_guia"  autocomplete="off" required></select>
+                        <select name="city_origin" class="form-control" id="bodega-flexii_guia"  autocomplete="off" required></select>
                       </div>
                         
                       <div class="form-group col-sm-6 mb-2">
                         <label for="ciudadD-flexii_guia">Oficina destino</label>
-                        <select name="daneCityDestination" class="form-control" id="ciudadD-flexii_guia"  autocomplete="off" required></select>
+                        <select name="city_destination" class="form-control" id="ciudadD-flexii_guia"  autocomplete="off" required></select>
                       </div>
                     </div>
     
@@ -916,7 +931,7 @@
                       </div>  
                       <div class="form-group col">
                         <label for="valor_declarado-flexii_guia">Valor Declarado</label>
-                        <input type="number" class="form-control only-integers" name="declaredValue" id="valor_declarado-flexii_guia">
+                        <input type="number" class="form-control only-integers" name="declared_value" id="valor_declarado-flexii_guia">
                       </div>    
                     </div>
     
@@ -939,7 +954,7 @@
                     <div class="row">
                       <div class="form-group col-12">
                         <label for="dice_contener-flexii_guia">Contenido</label>
-                        <select name="daneCityDestination" class="form-control" id="dice_contener-flexii_guia" required></select>
+                        <select name="city_destination" class="form-control" id="dice_contener-flexii_guia" required></select>
                       </div>
 
                       <div class="form-group col-12">
@@ -959,7 +974,7 @@
             </div>
           </div>
 
-          <div class="container-fluid flex justify-content-center align-items-center" id="scanner_estados_flexii" style="display: none;">
+          <div class="container-fluid flex justify-content-center align-items-center vista-preferencial" id="scanner_estados_flexii" style="display: none;">
             
             <div class="card m-2">
               <div class="card-body">

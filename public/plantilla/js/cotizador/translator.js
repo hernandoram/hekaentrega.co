@@ -1,8 +1,8 @@
 import { v0 } from "../config/api.js";
 
 const translation = {
-    typePayment: [null, PAGO_CONTRAENTREGA, CONTRAENTREGA, CONVENCIONAL],
-    typePaymentInt: {
+    type_payment: [null, PAGO_CONTRAENTREGA, CONTRAENTREGA, CONVENCIONAL],
+    type_paymentInt: {
         [PAGO_CONTRAENTREGA]: 1,
         [CONTRAENTREGA]: 2,
         [CONVENCIONAL]: 3,
@@ -16,21 +16,21 @@ class TranslatorFromApi {
         this.dataSentApi = dataSentApi;
         this.dataFromApi = dataFromApi;
         
-        this.type = translation.typePayment[dataSentApi.typePayment];
+        this.type = translation.type_payment[dataSentApi.type_payment];
         this.alto = dataSentApi.height;
         this.ancho = dataSentApi.width;
         this.largo = dataSentApi.long;
-        this.dane_ciudadR = dataSentApi.daneCityOrigin;
-        this.dane_ciudadD = dataSentApi.daneCityDestination;
+        this.dane_ciudadR = dataSentApi.city_origin;
+        this.dane_ciudadD = dataSentApi.city_destination;
         
 
-        this.valor = dataFromApi.transportCollection;
+        this.valor = dataFromApi.transport_collection;
         this.costoEnvio = dataFromApi.total;
-        this.seguro = dataFromApi.declaredValue;
-        this.sobreflete = dataFromApi.transportCommission;
+        this.seguro = dataFromApi.declared_value;
+        this.sobreflete = dataFromApi.transport_commission;
         this.seguroMercancia = dataFromApi.assured;
-        this.codTransp = dataFromApi.entity.toUpperCase();
-        this.transportadora = dataFromApi.entity.toUpperCase();
+        this.codTransp = dataFromApi.distributor_id.toUpperCase();
+        this.transportadora = dataFromApi.distributor_id.toUpperCase();
         this.version = parseInt(dataFromApi.version);
         this.costoDevolucion = dataFromApi.cost_return_heka;
         this.costoDevolucionOriginal = dataFromApi.cost_return;
@@ -54,7 +54,7 @@ class TranslatorFromApi {
      * por lo que internamente se le suma los mismos {@link FACHADA_FLETE | 1000} pesos para que se guarde en la base de datos
     */
     get comision_heka() {
-      return this.type === PAGO_CONTRAENTREGA ? this.dataFromApi.hekaCommission + this.FACHADA_FLETE : this.dataFromApi.hekaCommission;
+      return this.type === PAGO_CONTRAENTREGA ? this.dataFromApi.heka_commission + this.FACHADA_FLETE : this.dataFromApi.heka_commission;
     }
 
     /** Variable que se caracteriza por identificar si la guía posee una deuda
@@ -143,13 +143,13 @@ class TranslatorFromApi {
 
 function converToOldQuoterData(dataNew) {
     return {
-        seguro: dataNew.declaredValue,
-        valor: dataNew.collectionValue,
+        seguro: dataNew.declared_value,
+        valor: dataNew.collection_value,
         peso: dataNew.weight,
-        type: translation.typePayment[dataNew.typePayment],
-        dane_ciudadR: dataNew.daneCityOrigin,
-        dane_ciudadD: dataNew.daneCityDestination,
-        sumar_envio: dataNew.withshippingCost
+        type: translation.type_payment[dataNew.type_payment],
+        dane_ciudadR: dataNew.city_origin,
+        dane_ciudadD: dataNew.city_destination,
+        sumar_envio: dataNew.withshipping_cost
     }
 }
 
@@ -290,13 +290,13 @@ function testComparePrices(type) {
       const valoresImportantes = [
           ["debe", "_-costoEnvio", "Deuda guía"], 
           ["costoEnvio", "total", "Costo del envío"], 
-          ["valor", "transportCollection", "Valor de recaudo"], 
-          ["seguro", "declaredValue", "Valor declarado"],
+          ["valor", "transport_collection", "Valor de recaudo"], 
+          ["seguro", "declared_value", "Valor declarado"],
           ["type", "_type", "Tipo de envío"], 
           ["kgTomado", "_MAX(weight, pesoVol)", "Peso que se liquida"],
-          ["dane_ciudadR", "_daneCityOrigin", "Ciudad Origen"], 
-          ["dane_ciudadD", "_daneCityDestination", "Ciudad Destino"], 
-          ["sobreflete", "transportCommission", "Comisión transportadora"],
+          ["dane_ciudadR", "_city_origin", "Ciudad Origen"], 
+          ["dane_ciudadD", "_city_destination", "Ciudad Destino"], 
+          ["sobreflete", "transport_commission", "Comisión transportadora"],
           ["seguroMercancia", "assured", "Seguro mercancía"],
           ["costoDevolucion", "cost_return_heka", "Costo Devolucion (V1)"],
           ["costoDevolucionOriginal", "cost_return", "Costo Devolucion (V2)"],
@@ -307,9 +307,9 @@ function testComparePrices(type) {
       const valoresImportantesGetDetails = [
           ["peso_real", "_(INNER) weight", "Peso Introducido (ignorar con Servi)"],
           ["flete", "flete", "Flete de la transportadora"],
-          ["comision_heka", "hekaCommission", "Comisión Heka"],
+          ["comision_heka", "heka_commission", "Comisión Heka"],
           ["comision_adicional", "additional_commission", "Comisión adicional Heka"],
-          ["comision_trasportadora", "_transportCommission + assured", "Comisión total de la transportadora"],
+          ["comision_trasportadora", "_transport_commission + assured", "Comisión total de la transportadora"],
           ["peso_liquidar", "_(INNER) kgTomado", "Peso a liquidar"],
           ["peso_con_volumen", "_INNER CALCULATION", "Peso resultante del volumen"],
           ["costoDevolucion", "_cost_return_heka | cost_return", "Costo de devolución"],
@@ -383,9 +383,9 @@ function createExcelComparativePrices(objInput, arrOutput) {
   const base = {
     ciudad_origen: objInput.ciudadOrigen,
     ciudad_destino: objInput.ciudadDestino,
-    tipo_envio: translation.typePayment[objInput.typePayment],
-    recaudo: objInput.collectionValue,
-    declarado: objInput.declaredValue,
+    tipo_envio: translation.type_payment[objInput.type_payment],
+    recaudo: objInput.collection_value,
+    declarado: objInput.declared_value,
     peso: objInput.weight
   }
 
@@ -413,7 +413,7 @@ function createExcelComparativePrices(objInput, arrOutput) {
   if(!result.length) throw new Error("No se pudo generar el informe");
   const keys = Object.keys(result[0]).reduce((a,b) => {a[b] = b; return a}, {});
 
-  const descargadorDeInforme = () => descargarInformeExcel(keys, result, `Cotización_${base.tipo_envio}_${objInput.daneCityOrigin}_${objInput.daneCityDestination}`);
+  const descargadorDeInforme = () => descargarInformeExcel(keys, result, `Cotización_${base.tipo_envio}_${objInput.city_origin}_${objInput.city_destination}`);
 
   if(!window.XLSX) {
     const script = document.createElement("script");
@@ -432,11 +432,11 @@ async function cotizadorTemporalTransportadoraHeka(dataSentApi) {
     alto: dataSentApi.height,
     largo: dataSentApi.long,
     ancho: dataSentApi.width,
-    valorSeguro: dataSentApi.declaredValue,
-    valorRecaudo: dataSentApi.collectionValue,
-    idDaneCiudadOrigen: dataSentApi.daneCityOrigin,
-    idDaneCiudadDestino: dataSentApi.daneCityDestination,
-    tipo: translation.typePayment[dataSentApi.typePayment],
+    valorSeguro: dataSentApi.declared_value,
+    valorRecaudo: dataSentApi.collection_value,
+    idDaneCiudadOrigen: dataSentApi.city_origin,
+    idDaneCiudadDestino: dataSentApi.city_destination,
+    tipo: translation.type_payment[dataSentApi.type_payment],
   };
 
   const response = await fetch(v0.pathCotizador, {
@@ -459,7 +459,7 @@ async function cotizadorTemporalTransportadoraHeka(dataSentApi) {
   let comision_heka = datos_personalizados.comision_heka;
   let constante_heka = datos_personalizados.constante_pagoContraentrega;
 
-  if (dataSentApi.typePayment === 3) {
+  if (dataSentApi.type_payment === 3) {
     comision_heka = 1;
     constante_heka = datos_personalizados.constante_convencional;
   }
@@ -467,12 +467,12 @@ async function cotizadorTemporalTransportadoraHeka(dataSentApi) {
   return {
     entity: "heka",
     deliveryTime: "1-2",
-    declaredValue: dataSentApi.declaredValue,
+    declared_value: dataSentApi.declared_value,
     flete: response.body.valorFlete,
-    valueDeposited: 6925,
-    transportCommission: response.body.sobreFlete,
-    hekaCommission: Math.ceil((dataSentApi.collectionValue * comision_heka) / 100) + constante_heka,
-    transportCollection: dataSentApi.collectionValue,
+    value_deposited: 6925,
+    transport_commission: response.body.sobreFlete,
+    heka_commission: Math.ceil((dataSentApi.collection_value * comision_heka) / 100) + constante_heka,
+    transport_collection: dataSentApi.collection_value,
     onlyToAddress: false,
     assured: 0,
     annotations: "",

@@ -641,12 +641,15 @@ async function consultarDatosDeUsuario() {
 }
 
 function limitarAccesoSegunTipoUsuario() {
+  /** Una lista que contiene los Id de los elementos que van a ser eliminados del DOM y serán llenos según el usuario */
   let quitarVistas = [];
 
   /** Una lista que contiene los id de los elementos que naturalmente está hecho para ser eliminados,
    * pero al estar aquí, según el usuario se evita que el elemento sea quitado del DOM
    */
-  let vistasPreferenciales = [];
+
+  let vistasPreferenciales = []
+
 
   if (ControlUsuario.esUsuarioPunto) {
     quitarVistas = [
@@ -656,7 +659,7 @@ function limitarAccesoSegunTipoUsuario() {
       "documentos",
       "manifiestos",
       "crear_guia",
-      "deudas",
+      "deudas"
     ];
   } else if (ControlUsuario.esLoggy) {
     quitarVistas = [
@@ -664,40 +667,40 @@ function limitarAccesoSegunTipoUsuario() {
       "btn-seguimiento-gestionarNovedad",
       "seguimiento-gestionarNovedad",
       "contenedor-solucion_novedad",
-      "contenedor-mostrar-billetera",
+      "contenedor-mostrar-billetera"
     ];
   } else if (datos_usuario.type === "REFERIDO") {
     quitarVistas = [
       "btn-seguimiento-gestionarNovedad",
       "seguimiento-gestionarNovedad",
-      "contenedor-solucion_novedad",
+      "contenedor-solucion_novedad"
     ];
   } else if (ControlUsuario.esPuntoEnvio) {
     vistasPreferenciales = [
       "flexii_guia",
       "flexii_guia_recept",
       "scanner_estados_flexii",
-      "nav_item-flexii_envios",
+      "nav_item-flexii_envios"
     ];
   }
 
-  const eliminarVista = (el) => {
+  const eliminarVista = el => {
     const id = el.id;
     $(el).remove();
 
-    if (id) $(`[href="#${id}"]`).remove();
-  };
+    if(id) $(`[href="#${id}"]`).remove();
+  }
 
   $(".vista-preferencial").each((i, el) => {
     const id = el.id;
 
-    if (vistasPreferenciales.includes(id)) return;
+    if(vistasPreferenciales.includes(id)) return;
 
     eliminarVista(el);
   });
 
   quitarVistas
-    .map((id) => document.getElementById(id))
+    .map(id => document.getElementById(id))
     .filter(Boolean)
     .forEach(eliminarVista);
 }

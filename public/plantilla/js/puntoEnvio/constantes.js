@@ -13,7 +13,7 @@ export const estadoRecibido = {
 }
 
 export const estadoValidado = {
-    estado: "Validado",
+    estado: "Recogido",
     descripcion: "Adjuntado y validado",
     esNovedad: false,
     observaciones: "",

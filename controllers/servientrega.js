@@ -573,8 +573,6 @@ async function actualizarMovimientos(doc) {
             let movimientos = data.Mov[0].InformacionMov;
 
             const guia = doc.data();
-            console.log(guia.numeroGuia);
-            console.log("Timeline => ", guia.timeline);
             const ultimaNovedadRegistrada = guia.ultima_novedad;
 
             let entrega_oficina_notificada =
@@ -640,8 +638,6 @@ async function actualizarMovimientos(doc) {
               fecha_ult_novedad, ultima_novedad, entrega_oficina_notificada, 
               seguimiento_finalizado: finalizar_seguimiento
             });
-
-            console.log(actualizaciones);
 
             // return [{
             //   estado: "Est.N.A", //Estado no actualizado

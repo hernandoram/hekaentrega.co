@@ -769,13 +769,14 @@ async function actualizarNotificacionEstado(ref, NotificacionEstados) {
 
         const {id_user, id_heka, centro_de_costo} = infoGuia;
         
-        const activadorEstadosPushTemporal = [].includes(centro_de_costo);
+        const activadorEstadosPushTemporal = true; // Activa la actualización sobre el usuario
     
         const infoEstados = await obtenerEstadosGuiaPorId(id_user, id_heka);
+        const descripcionEstado = nuevoEstado.DescripcionMotivoEst || nuevoEstado.DescripcionEstado
 
         // Desde aquí es que se detecta la novedad particular de la transportadora
         const novedad = [26, 39, 40, 7, 8, 32, 10, 30, 33].includes(nuevoEstado.CodigoEstado) 
-            ? nuevoEstado.DescripcionMotivoEst
+            ? descripcionEstado
             : "";
 
         const estadoLogistico = estadosLogisticos[nuevoEstado.CodigoEstado];
@@ -783,7 +784,7 @@ async function actualizarNotificacionEstado(ref, NotificacionEstados) {
 
 
         if(estadoActualTransportadora === "Para Reclamar en Oficina" && !entrega_oficina_notificada) {
-            extsFunc.notificarEntregaEnOficina(guia);
+            extsFunc.notificarEntregaEnOficina(infoGuia);
             entrega_oficina_notificada = true;
         }
         
@@ -791,7 +792,7 @@ async function actualizarNotificacionEstado(ref, NotificacionEstados) {
           novedad: novedad,
           fechaEstadoOriginal: nuevoEstado.FechaEstado,
           fechaMov: extsFunc.estandarizarFecha(nuevoEstado.FechaEstado, "DD/MM/YYYY HH:mm"),
-          observacion: nuevoEstado.DescripcionEstado + " - " + nuevoEstado.DescripcionMotivoEst,
+          observacion: [nuevoEstado.DescripcionEstado, nuevoEstado.DescripcionMotivoEst].filter(Boolean).join(" - "),
           descripcionMov: estadoActualTransportadora,
           ubicacion: "", // nuevoEstado.CodigoCiudad
           tipoMotivo: nuevoEstado.CodigoMotivoEst ?? null,
@@ -834,6 +835,7 @@ async function actualizarNotificacionEstado(ref, NotificacionEstados) {
             const { enNovedad } = guiaEnNovedad(estadoVariante.movimientos, "INTERRAPIDISIMO");
             estadoVariante.mostrar_usuario = enNovedad;
             estadoVariante.enNovedad = enNovedad;
+            infoGuia.enNovedad = enNovedad;
 
             // Cuando el id de estado está entre estos dos, busca sobre el historial de movimientos para obtener el último estado real
             // Por lo que la info básica de la guía se colocará como último estado bien sea devolución o entrega
@@ -857,10 +859,16 @@ async function actualizarNotificacionEstado(ref, NotificacionEstados) {
         // Función encargada de actualizar el estado, como va el seguimiento, entre cosas base importantes
         const actualizaciones = modificarEstadoGuia(infoGuia);
         
+        // Para evitar que el seguimiento se finalice mientras exista novedad como por ejemplo.
+        // cuando una guía es devuelta
+        if(actualizaciones.enNovedad) {
+            actualizaciones.seguimiento_finalizado = false;
+        }
+
         // Esto pasa una serie de argumentos, que detecta que haya alguna información para actualizar
         // en caso de que los valores del segundo parametros sean falsos, undefined o null, no los toma en cuenta para actualizar
         atributosAdicionalesEnActualizacion(actualizaciones, {
-            seguimiento_finalizado: true, enNovedad: !!novedad, entrega_oficina_notificada
+            enNovedad: !!novedad, entrega_oficina_notificada
         });
 
         if(activadorEstadosPushTemporal) {

@@ -99,7 +99,7 @@ async function cargarPagosPendientes(e) {
     })
     .then(cantidadUsuarios => { // Se valida que el centro de costo no esté repetido
       if(cantidadUsuarios === 0) // Debe existir el centro de costo
-        throw new Error("El centro de costo "+guia["REMITENTE"]+" no se encuentra en nuestra base de datos.");
+        throw new Error("El centro de costo \""+guia["REMITENTE"]+"\" no se encuentra en nuestra base de datos.");
       
       if(cantidadUsuarios > 1) // Debe existir únicamente un centro de costo, no debe haber ni más ni menos
         throw new Error(`El centro de costo ${guia["REMITENTE"]} se encuentra repetido en nuestra base de datos (${cantidadUsuarios}), valide para saber que hacer con el usuario.`);
@@ -194,7 +194,7 @@ function filtradoVisual(datos) {
  */
 function datosImportantesIncompletos(objToSend, completeData) {
     
-    const transportadorasAdmitidas = ["SERVIENTREGA", "INTERRAPIDISIMO", "TCC", "ENVIA", "COORDINADORA"];
+    const transportadorasAdmitidas = ["SERVIENTREGA", "INTERRAPIDISIMO", "TCC", "ENVIA", "COORDINADORA", "HEKA"];
 
     if (!objToSend.GUIA) {
       return "Sin número de guía para subir: " + objToSend.GUIA;

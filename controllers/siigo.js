@@ -15,7 +15,7 @@ const auth = async (req, res, next) => {
             "content-type": "application/json"
         },
         "body": JSON.stringify({username, access_key})
-    }).then(d => d.json())
+    }).then(d => d.json());
 
     req.access_token = respuesta.access_token;
 
@@ -26,7 +26,31 @@ const auth = async (req, res, next) => {
 const crearFactura = async (req, res) => {
     const path = "/v1/invoices";
 
-    const { comision_heka, numero_documento } = req.body;
+    const { comision_heka, numero_documento, costo_transportadora } = req.body;
+
+    // Por defecto siempre se factura la comisión Heka
+    const items = [
+        {
+          code: "001", // siempre 001 Que corresponde al producto equivalente a la comisión Heka
+          description: "Servicios Complementarios al Transporte", // contante
+          quantity: 1,// contante
+          price: comision_heka, // comision_heka
+          discount: 0 // constante
+        }
+    ];
+
+    let valorPago = comision_heka;
+
+    if(costo_transportadora) {
+        valorPago += costo_transportadora;
+        items.push({
+            code: "005", // siempre 004 Corresponderá al producto relacionado con los costos de transportadora
+            description: "Costo por Transporte", // contante
+            quantity: 1,// contante
+            price: costo_transportadora, // costo_transportadora
+            discount: 0 // constante
+        });
+    }
 
     const token = req.access_token;
 
@@ -46,26 +70,16 @@ const crearFactura = async (req, res) => {
             send: true
         },
         observations: "Observaciones",
-        items: [
-          {
-            code: "001", // siempre 001
-            description: "Servicios Complementarios al Transporte", // contante
-            quantity: 1,// contante
-            price: comision_heka, // comision_heka
-            discount: 0 // constante
-          }
-        ],
+        items,
         payments: [
           {
             id: Cr.id_tipo_pago, // id tipo de pago /payment-types (tarjeta debito)
-            value: comision_heka, // comision_heka
+            value: valorPago, // la suma de todas las comisiones
             due_date: estandarizarFecha(fecha, "YYYY-MM-DD") // Fecha del pago
           }
         ],
         retentions: [{id: Cr.idAutoRetencion}] // reviso en /taxes el de autoretención (pero por ahora queda quemado)
     }
-
-    console.log(data);
 
     const respuesta = await fetch(Cr.endpoint + path, {
         method: "POST",

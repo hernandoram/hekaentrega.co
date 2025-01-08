@@ -105,21 +105,21 @@ async function cotizarConjunto(e) {
     const l = new ChangeElementContenWhileLoading($("[type='submit']", target));
     l.init();
 
-    formData.set("typePayment", 3); // Este tipo de envíos siempre serán envíos convencionales
-    formData.set("collectionValue", 0); // Debido a que será un envío convencional, no se toma en cuenta ele valor de recaudo
-    formData.set("withshippingCost", false); // No aplica para este tipo de envíos;
-    formData.set("daneCityOrigin", dataValueSelectedFromInput(bodegasEl).dane_ciudad); // Seteamos a mano la ciuda origen/detino debido a que el value corresponde al id del documento de base de datos
-    formData.set("daneCityDestination", dataValueSelectedFromInput(oficinaDestinoEl).daneCiudad); // Seteamos a mano la ciuda origen/detino debido a que el value corresponde al id del documento de base de datos
+    formData.set("type_payment", 3); // Este tipo de envíos siempre serán envíos convencionales
+    formData.set("collection_value", 0); // Debido a que será un envío convencional, no se toma en cuenta ele valor de recaudo
+    formData.set("withshipping_cost", false); // No aplica para este tipo de envíos;
+    formData.set("city_origin", dataValueSelectedFromInput(bodegasEl).dane_ciudad); // Seteamos a mano la ciuda origen/detino debido a que el value corresponde al id del documento de base de datos
+    formData.set("city_destination", dataValueSelectedFromInput(oficinaDestinoEl).daneCiudad); // Seteamos a mano la ciuda origen/detino debido a que el value corresponde al id del documento de base de datos
 
     const dataTypes = {
         weight: "number",
-        declaredValue: "number",
+        declared_value: "number",
         width: "number",
         long: "number",
         height: "number",
-        typePayment: "number",
-        collectionValue: "number",
-        withshippingCost: "boolean"
+        type_payment: "number",
+        collection_value: "number",
+        withshipping_cost: "boolean"
     }
 
     try {

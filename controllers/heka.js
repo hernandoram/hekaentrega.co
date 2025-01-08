@@ -96,7 +96,7 @@ exports.crearGuia = async (req, res) => {
           nombre_completo: datos_destinatario.nombre,
           direccion: datos_destinatario.direccion,
           celular: parseInt(datos_destinatario.celular),
-          numero_identificacion: datos_destinatario.numero_documento,
+          numero_identificacion: datos_destinatario.numero_documento.toString(),
           tipo_identificacion: tipoDocument
         }
     }
