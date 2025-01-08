@@ -674,7 +674,7 @@ class Empaquetado {
             console.log(`ID de usuario no encontrado. Cargando información para ${usuario}.`);
             await this.cargarInfoUsuario(usuario);
         }
-        
+
         if (!userRef.id_user) {
             console.error("Error: No se pudo obtener el ID de Firebase.");
             return;
@@ -1218,7 +1218,6 @@ class Empaquetado {
             {data: "iva", title: "IVA", defaultValue: 0},
             {data: camposExcel.cuatro_x_mil_banc, title: "4 X Mil Banco", defaultValue: 0},
             {data: camposExcel.cuatro_x_mil_transp, title: "4 X Mil Transp.", defaultValue: 0},
-            {data: camposExcel.comision_adicional_heka, title: "Comisión adicional heka", defaultValue: 0},
             {data: camposExcel.comision_transp, title: "Comisión Transportadora", defaultValue: 0},
             {data: "FECHA", title: "Fecha", defaultValue: genFecha("LR")},
             {data: "estado", title: "Estado"},

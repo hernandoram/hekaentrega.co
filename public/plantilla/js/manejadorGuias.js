@@ -1839,6 +1839,9 @@ async function subirExcelNovedades() {
                     respuesta.trim(),
                   href: "novedades",
                 });
+
+                revisarMovimientosGuias(true, null, null, numGuia);
+
               })
               .catch((err) => {
                 errActualizarNovedades.push({
@@ -1849,6 +1852,7 @@ async function subirExcelNovedades() {
               .finally(() => {
                 console.log(datos.length);
                 console.log(contador);
+
                 if (contador == datos.length) {
                   Swal.fire({
                     icon: "success",
@@ -2118,8 +2122,20 @@ function informeNovedadesLogistica(JSONData) {
 
     const dataMovimientos =
       data.data.movimientos[data.data.movimientos.length - 1];
-    console.log(data);
     const extraData = data.extraData;
+
+    if(!extraData.seguimiento) return; // No se tomará en cuenta aquellos que no tengan gestión por el usuario
+
+    // Si el último seguimiento fue una respuesta del admin, tampoco se tomará en cuenta
+    if(
+      extraData.seguimiento[extraData.seguimiento.length - 1].admin
+      || extraData.seguimiento[extraData.seguimiento.length - 1].gestion.includes("<b>")
+    ) return;
+
+    // Siempre que se selecciones una opción de filtrado para los estados, se tomarán en cuenta solo los que estén dento del mismo
+    const valuesEstado = selectChoiceEstados.getValue(true);
+    if(valuesEstado.length && !valuesEstado.includes(data.data.estadoActual)) return;
+
 
     if (extraData.transportadora == "INTERRAPIDISIMO") {
       let dataFinal = {
@@ -2258,6 +2274,7 @@ function informeNovedadesLogistica(JSONData) {
     });
     return d;
   });
+
   const hoy = new Date(Date.now());
   const fecha_archivo =
     hoy.toLocaleDateString() + " " + hoy.getHours() + "-" + hoy.getMinutes();
@@ -3572,8 +3589,6 @@ function cargarNovedades() {
 
 //función que me revisa los movimientos de las guías
 function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
-  novedadesExcelData = [];
-
   let filtro = true,
     toggle = "==",
     buscador = "enNovedad";
@@ -3819,6 +3834,7 @@ function revisarMovimientosGuiasUser(novedades_transportadora) {
 
 function revisarNovedades(transportadora) {
   novedadesExcelData = [];
+  selectChoiceEstados?.clearChoices();
 
   const cargadorClass = document.getElementById("cargador-novedades").classList;
   cargadorClass.remove("d-none");
@@ -3954,6 +3970,7 @@ if (bt_limpiar_novedades) {
   bt_limpiar_novedades.addEventListener("click", () => {
     console.log("limpiando");
     novedadesExcelData = [];
+    selectChoiceEstados?.clearChoices();
     $("#visor_novedades").html("");
   });
 }

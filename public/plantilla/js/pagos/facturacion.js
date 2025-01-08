@@ -589,8 +589,8 @@ function transportadoraProbable(guia) {
         puntos: 0
     }));
 
-    const lengths = [10, 12, 12, 11, 15];
-    const regexs = [/^2\d+/, /^2\d00\d+/, /^0\d+/, /^3\d+/, /^RSeller/];
+    const lengths = [10, 12, 12, 11, 15, 10];
+    const regexs = [/^2\d+/, /^2\d00\d+/, /^0\d+/, /^3\d+/, /^RSeller/, /^1\d+/];
 
     puntos.forEach((p,i) => {
         if(guia.length === lengths[i]) p.puntos++;

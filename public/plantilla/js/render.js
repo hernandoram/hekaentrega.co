@@ -14,6 +14,12 @@ const estadosGuia = {
 };
 
 let novedadesExcelData = [];
+const selectChoiceEstados = document.getElementById("estados_base-novedades") 
+  ? new Choices("#estados_base-novedades", {
+    removeItemButton: true,
+  })
+  : null;
+
 const dominiosFlexii = ["flexii.co", "www.flexi.co"];
 
 hostnameReader();
@@ -2053,7 +2059,26 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
   generarSegundaVersionMovimientoGuias(data);
   const ultimo_movimiento = data.movimientos[data.movimientos.length - 1];
 
-  novedadesExcelData.push({ extraData, data });
+  const excelData = { extraData, data };
+
+  const index = novedadesExcelData.findIndex(v => v.extraData.numeroGuia === excelData.extraData.numeroGuia);
+
+  if(selectChoiceEstados !== null) {
+    const valoresExistentes = selectChoiceEstados._currentState.choices.map(c => c.value);
+    if(!valoresExistentes.includes(data.estadoActual)) {
+      selectChoiceEstados.setChoices([{
+        value: data.estadoActual,
+        label: data.estadoActual
+      }], "value", "label", false)
+    }
+  }
+
+  // Hacemos esto para que el aglomerado de información, siempre tomemos la información mas reciente
+  if(index === -1) {
+    novedadesExcelData.push(excelData);
+  } else {
+    novedadesExcelData[index] = excelData;
+  }
 
   //Preparon los componentes necesarios
   let card = document.createElement("div"),
@@ -2085,23 +2110,13 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
   thead.classList.add("text-light", "bg-primary");
   const classHead = "text-nowrap";
   thead.innerHTML = `<tr>
-            
             <th class="${classHead}">Guía</th>
-            <th class="${classHead}">Acción</th>
             <th class="${classHead}">Novedad</th>
             <th class="${classHead}">Transportadora</th>
-            <th class="${classHead}">Fecha de novedad</th>
+            <th class="${classHead}">Fech. Ult. Gestión</th>
             <th class="${classHead}">Tiempo</th>
             <th class="${classHead}">Tiempo en Gestión</th>
-            <th class="${classHead}">Fecha de envío</th>
             <th class="${classHead}">Estado</th>
-            <th class="${classHead}">Nombre</th>
-            <th class="${classHead}">Dirección</th>
-            <th class="${classHead}">Números</th>
-            <th class="${classHead}">Destino</th>
-            <th class="${classHead}">Movimiento</th>
-            <th class="${classHead}">Gestión</th>
-            <th class="${classHead}">Fech. Ult. Gestión</th>
             
         </tr>`;
 
@@ -2156,13 +2171,17 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
     btn_solucionar = `
         <button class="btn btn-${
           extraData.novedad_solucionada ? "secondary" : "success"
-        } m-2" 
+        } btn-circle btn-sm m-1" 
+        title="${extraData.novedad_solucionada ? "Novedad solucionada" : "Solucionar novedad"}"
         id="solucionar-guia-${data.numeroGuia}">
-            ${extraData.novedad_solucionada ? "Solucionada" : "Solucionar"}
+          <i class="fa fa-reply"></i>
         </button>
         
-        <button class="btn btn-info m-2" 
-        id="implantar_estado-${data.numeroGuia}">Agregar estado</button>
+        <button class="btn btn-danger btn-circle btn-sm m-1" 
+        title="Agregar Estado"
+        id="implantar_estado-${data.numeroGuia}">
+          <i class="fa fa-plus"></i>
+        </button>
     `;
   } else {
     btnGestionar =
@@ -2175,29 +2194,44 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
   const fechaFormateada2 = formateoDDMMYYYY(momento_novedad.fechaMov);
   tr.innerHTML = `
       <td>
-        <div class="d-flex align-items-center">
-          ${data.numeroGuia}
-          <i id="actualizar-guia-${data.numeroGuia}" 
-          class="fa fa-sync ml-1 text-primary" title="Actualizar guía ${
+        ${data.numeroGuia}
+        <div class="mt-2">
+          <button class="btn btn-primary btn-circle btn-sm m-1"
+          id="actualizar-guia-${data.numeroGuia}" 
+          title="Actualizar guía ${
             data.numeroGuia
-          }" style="cursor: pointer"></i>
-        </div>
-      </td>
-
-      <td class="row justify-content-center">
-          <button class="btn btn-${
-            extraData.novedad_solucionada ? "secondary" : "primary"
-          } m-2" 
-          id="gestionar-guia-${data.numeroGuia}"
-          data-toggle="modal" data-target="#modal-gestionarNovedad"}>
-            ${btnGestionar}
+          }"
+          >
+            <i class="fa fa-sync"></i>
           </button>
+          
+          <button id="gestionar-guia-${data.numeroGuia}" 
+          class="btn btn-${extraData.novedad_solucionada ? "secondary" : "primary"} btn-circle btn-sm m-1" 
+          title="Gestionar novedad ${
+            data.numeroGuia
+          }" 
+          data-toggle="modal" data-target="#modal-gestionarNovedad">
+            <i class="fa fa-search"></i>
+          </button>
+
           ${btn_solucionar}
+          
+        </div>
       </td>
 
       <td class="text-danger">${ultimo_movimiento.novedad}</td>
       <td>${data.transportadora || "Servientrega"}</td>
-      <td>${momento_novedad.fechaMov ? fechaFormateada2 : "No aplica"}</td>
+
+      <td>${
+        ultimo_seguimiento.fecha
+          ? genFecha("LR", ultimo_seguimiento.fecha.toMillis()) +
+            " " +
+            ultimo_seguimiento.fecha
+              .toDate()
+              .toString()
+              .match(/\d\d:\d\d/)[0]
+          : "No aplica"
+      }</td>
 
       <td class="text-center">
         <span class="badge badge-danger p-2 my-auto">
@@ -2211,48 +2245,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
           </span>
       </td>
 
-      <td>${data.fechaEnvio}</td>
       <td>${data.estadoActual}</td>
-      <td style="min-width:200px; max-width:250px">${extraData.nombreD}</td>
-
-      <!-- Dirección del destinatario-->
-      <td style="min-width:250px; max-width:300px">
-          <p>${extraData.direccionD}</p>
-      </td>
-      
-      <td>    
-          <a href="https://api.whatsapp.com/send?phone=57${extraData.telefonoD
-            .toString()
-            .replace(/\s/g, "")}" target="_blank">
-            ${extraData.telefonoD}
-          </a>, 
-          <a href="https://api.whatsapp.com/send?phone=57${extraData.celularD
-            .toString()
-            .replace(/\s/g, "")}" target="_blank">
-            ${extraData.celularD}
-          </a>
-      </td>
-      
-      <td>${extraData.ciudadD} / ${extraData.departamentoD}</td>
-      
-      <td>
-          ${ultimo_movimiento.descripcionMov}
-      </td>
-      
-      <td style="min-width:250px; max-width:300px">
-          ${ultimo_seguimiento.gestion || "No aplica"}
-      </td>
-      <td>${
-        ultimo_seguimiento.fecha
-          ? genFecha("LR", ultimo_seguimiento.fecha.toMillis()) +
-            " " +
-            ultimo_seguimiento.fecha
-              .toDate()
-              .toString()
-              .match(/\d\d:\d\d/)[0]
-          : "No aplica"
-      }</td>
-      
   `;
 
   //si existe la guía en la ventana mostrada la sustituye
@@ -2280,7 +2273,6 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
     mensaje.innerHTML = "Tiempo óptimo de solución: 24 horas";
     cuerpo.append(mensaje, table);
     card.append(encabezado, cuerpo);
-    console.log(card);
     document.getElementById("visor_novedades").appendChild(card);
 
     //logica para borrar los elementos del localstorage
@@ -2290,8 +2282,6 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
     const keys = Object.keys(localStorageItems);
 
     const filteredItems = keys.filter((key) => key.startsWith("tiempoguia"));
-
-    console.log(filteredItems);
 
     filteredItems.forEach((key) => {
       const value = localStorageItems.getItem(key);
@@ -2483,6 +2473,8 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
             );
           });
       }
+
+      revisarMovimientosGuias(true, null, null, extraData.numeroGuia);
     }
   });
 }
@@ -3075,7 +3067,7 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
 
     botonSolucionarExterno
       .clone(true) // Para heredar la funcionalidad de donde proviene
-      .addClass("col-12") // Para que se adapte al estilo del dialogo
+      // .addClass("col-12") // Para que se adapte al estilo del dialogo
       .attr("id", "") // Limpiamos el id para evitar problemas con el dom
       .appendTo(info_gen);
   }
