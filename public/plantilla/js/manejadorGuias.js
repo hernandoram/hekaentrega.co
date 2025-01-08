@@ -2124,13 +2124,16 @@ function informeNovedadesLogistica(JSONData) {
       data.data.movimientos[data.data.movimientos.length - 1];
     const extraData = data.extraData;
 
-    if(!extraData.seguimiento) return; // No se tomará en cuenta aquellos que no tengan gestión por el usuario
-
-    // Si el último seguimiento fue una respuesta del admin, tampoco se tomará en cuenta
-    if(
-      extraData.seguimiento[extraData.seguimiento.length - 1].admin
-      || extraData.seguimiento[extraData.seguimiento.length - 1].gestion.includes("<b>")
-    ) return;
+    // Acá colocaremos una condición que será controlada por un checkbox
+    if(false) {
+      if(!extraData.seguimiento) return; // No se tomará en cuenta aquellos que no tengan gestión por el usuario
+  
+      // Si el último seguimiento fue una respuesta del admin, tampoco se tomará en cuenta
+      if(
+        extraData.seguimiento[extraData.seguimiento.length - 1].admin
+        || extraData.seguimiento[extraData.seguimiento.length - 1].gestion.includes("<b>")
+      ) return;
+    }
 
     // Siempre que se selecciones una opción de filtrado para los estados, se tomarán en cuenta solo los que estén dento del mismo
     const valuesEstado = selectChoiceEstados.getValue(true);
