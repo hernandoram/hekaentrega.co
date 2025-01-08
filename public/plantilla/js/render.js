@@ -42,7 +42,7 @@ function escucha(id, e, funcion) {
  */
 
 //Muestra en la pantalla lo que el cliente quiere hacer
-const listaNotificacionesAlerta = [];
+export const listaNotificacionesAlerta = [];
 export function mostrar(id) {
   console.log('entra', id)
   let content = document.getElementById("content").children;
@@ -1405,7 +1405,7 @@ function empacarGuia() {
   usuarioDoc.collection("guias").doc(id_heka).update({ empacada });
 }
 
-let listaNovedadesEncontradas = [];
+export let listaNovedadesEncontradas = [];
 async function gestionarNovedad(e) {
   const id_heka = this.getAttribute("data-id");
   const guia = listaNovedadesEncontradas.find((n) => n.id_heka === id_heka);
@@ -1419,6 +1419,10 @@ async function gestionarNovedad(e) {
 
   console.log(novedad);
   gestionarNovedadModal(novedad, guia);
+}
+
+export function owerridelistaNovedadesEncontradas(value) {
+  listaNovedadesEncontradas = value;
 }
 
 async function detallesGrupoGuiasFlexii() {
@@ -1781,7 +1785,7 @@ export function mostrarNotificacion(data, type, id) {
   return notificacion;
 }
 
-function mostrarNotificacionEstaticaUsuario(noti, id) {
+export function mostrarNotificacionEstaticaUsuario(noti, id) {
   if (noti.startDate > new Date().getTime()) return;
 
   const nuevoMostrador =
@@ -3698,7 +3702,7 @@ function erroresColaGuias() {
     });
 }
 
-function createModal() {
+export function createModal() {
   let modal = new DOMParser().parseFromString(
     `<div class="modal fade" id="modal-creado" 
         tabindex="-1" aria-labelledby="titulo-modal-creado" aria-hidden="true">
@@ -3860,7 +3864,7 @@ function soloNumeros(campo) {
   return textoFinal;
 }
 
-function convertirMoneda(
+export function convertirMoneda(
   number,
   locales = "es-Co",
   currency = "COP",
@@ -4108,7 +4112,7 @@ class DetectorErroresInput {
   }
 }
 
-class ChangeElementContenWhileLoading {
+export class ChangeElementContenWhileLoading {
   constructor(e) {
     this.el = $(e);
     this.initVal = $(e).html();

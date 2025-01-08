@@ -1,4 +1,6 @@
-import { db } from "/js/config/initializeFirebase.js";
+import { db, doc, collection } from "/js/config/initializeFirebase.js";
+import { user_id } from '/js/cargadorDeDatos.js';
+import { createModal } from '/js/render.js'
 $("#nav-tienda-productos-tab").click(fillProducts);
 $("#nav-tienda-home-tab").one("click", cargarInfoTienda);
 $("[href='#tienda']").one("click", cargarInfoTienda);
@@ -62,8 +64,7 @@ const summernoteOptions = {
         onChange: limitarCaracteres
     }
 };
-
-let tiendaDoc = db.collection("tiendas").doc(user_id);
+const tiendaDoc = doc(collection(db, "tiendas"), user_id);
 
 let categorias = ["Juguetes y Bebés", "Accesorios para Vehículos", "Herramientas e Industrias", "Bienestar", "Kits", "Alimentos", "Moda", "Arte", "Rituales", "Telas y Espumas", "Aretes", "Mascotas", "Tecnología", "Relojes y Joyas", "Hogar y electrodomesticos", "Hilo piedra", "Collares", "Anillos", "Salud sexual", "Vehículos", "Pulseras", "Inmuebles", "Velas", "Deportes y Aire Libre", "Colchones y Colchonetas", "Belleza y Cuidado Personal", "Otros", "Sin Categoría"];
 let atributos = {

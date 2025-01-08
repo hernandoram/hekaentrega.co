@@ -4,6 +4,7 @@ import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 import { estadosRecepcion, estadoValidado } from "./constantes.js";
 import { actualizarEstadoEnvioHeka } from "./crearPedido.js";
 import { table as htmlTable, containerQuoterResponse } from "./views.js";
+import {Watcher} from '/js/render.js';
 
 
 const columns = [

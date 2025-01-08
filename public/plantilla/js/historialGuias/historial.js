@@ -1,6 +1,10 @@
 import { title, table as htmlTable, filtersHtml, filterHtml } from "./views.js";
 import { filters, defFiltrado, defineFilter } from "./config.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
+import { usuarioParaColaInfoHeka, ControlUsuario } from '/js/cargadorDeDatos.js';
+import { descargarGuiasParticulares, crearDocumentos, filtrarHistorialGuiasPorColumna } from '/js/manejadorGuias.js';
+import { Watcher } from "/js/render.js";
+import { db, doc, collection } from "/js/config/initializeFirebase.js";
 
 const {
   novedad,
@@ -245,7 +249,7 @@ const table = $("#tabla-historial-guias").DataTable({
   drawCallback: renderizadoDeTablaHistorialGuias,
 });
 
-const refColaCreacionGuias = db.collection("colaCreacionGuias");
+const refColaCreacionGuias = collection(db, "colaCreacionGuias");
 
 
 globalThis.filtrador = new Watcher(pedido);

@@ -1,6 +1,7 @@
-import { db, collection, query, where, getDocs, doc, getDoc } from "/js/config/initializeFirebase.js";
-import { Watcher } from "/js/render.js";
+import { db, collection, query, where, getDocs, doc, getDoc, onSnapshot, orderBy, endAt } from "/js/config/initializeFirebase.js";
+import { Watcher, genFecha, convertirMoneda } from "/js/render.js";
 import { revisarNotificaciones } from "/js/manejadorGuias.js";
+import { convertirMiles, transportadoras } from '/js/cotizador.js';
 
 
 
@@ -19,12 +20,13 @@ const bodegasBackPlataforma2 = true;
 const versionSoftware = "1.0.3: Migrando bodegas! ";
 
 let objetosFrecuentes;
+window.cerrarSession = cerrarSession;
 
 export let listaUsuarios = [];
 
 console.warn("Versión del software: " + versionSoftware);
 
-let user_id = localStorage.user_id,
+export let user_id = localStorage.user_id,
   usuarioDoc;
 
 let mostrarBilletera = false;
@@ -156,7 +158,7 @@ function redirectLogin() {
         listarSugerenciaMensajesNovedad();
         $("#descargar-informe-usuarios").click(descargarInformeUsuariosAdm);
       } else if (user_id) {
-        usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
+        usuarioDoc = doc(collection(db, "usuarios"), user_id);
         cargarDatosUsuario().then(() => {
           revisarNotificaciones();
           cargarPagoSolicitado();
@@ -170,7 +172,7 @@ function redirectLogin() {
     });
 })();
 
-async function cerrarSession() {
+export async function cerrarSession() {
   await deleteUserToken();
   await localStorage.clear();
   location.href = `${PROD_API_URL_PLATFORM2}/ingreso`;
@@ -209,11 +211,9 @@ window.addEventListener("storage", (e) => {
   }
 });
 
-const usuarioAltDoc = (id) =>
-  firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(id || user_id);
+export const usuarioAltDoc = (id) => {
+  return doc(collection(db, "usuarios"), id || user_id);
+};
 
 // Datos importantes para los porcentajes que comisión que funcionará para los usuarios viejos en su mayoría
 const datos_personalizados_1 = {
@@ -248,7 +248,7 @@ const datos_personalizados_2 = {
 };
 
 //Administradara datos basicos del usuario que ingresa
-let datos_usuario = {},
+export let datos_usuario = {},
   //Almacena los costos de envios (nacional, urbano...) y el porcentaje de comision
   datos_personalizados = datos_personalizados_1;
 
@@ -378,9 +378,9 @@ function renderBilletera() {
 
 const ciudadesFlexxi = ["BOGOTA(CUNDINAMARCA)", "TUMACO(NARIÑO)"];
 
-const bodegasWtch = new Watcher();
+export const bodegasWtch = new Watcher();
 
-class ControlUsuario {
+export class ControlUsuario {
   static dataCompleted = new Watcher(null);
 
   static loader = null;
@@ -507,27 +507,27 @@ async function cargarDatosUsuario() {
 Una vez se compruebe la funcnionalidad correcta de esta implementación, se puede eliminar esta variable
 junto a las funcionalidades adicionales que la acompañen
 */
-const usuarioParaColaInfoHeka = [];
+export const usuarioParaColaInfoHeka = [];
 async function cargarPagoSolicitado() {
   console.warn("Cargando pago");
-  const ref = db.collection("infoHeka").doc("manejoUsuarios");
-  const { diarioSolicitado, limitadosDiario, colaProcesarGuias } = await ref
-    .get()
-    .then((d) => d.data());
 
-  // Llenamos esta variable con los usuario habilitados para crear guías en cola
-  if (colaProcesarGuias && colaProcesarGuias.length)
+  const ref = doc(db, "infoHeka", "manejoUsuarios");
+  const docSnapshot = await getDoc(ref);
+  const { diarioSolicitado, limitadosDiario, colaProcesarGuias } = docSnapshot.data();
+
+  // Llenamos esta variable con los usuarios habilitados para crear guías en cola
+  if (colaProcesarGuias && colaProcesarGuias.length) {
     usuarioParaColaInfoHeka.push(...colaProcesarGuias);
+  }
 
   const centro_de_costo = datos_usuario.centro_de_costo;
-  let soliciado = diarioSolicitado.includes(centro_de_costo);
-
+  let solicitado = diarioSolicitado.includes(centro_de_costo);
   let limitado = limitadosDiario.includes(centro_de_costo);
 
-  console.log("pago solicitado", soliciado);
+  console.log("pago solicitado", solicitado);
   console.log("limitado", limitado);
 
-  if (soliciado) {
+  if (solicitado) {
     $("#mostrador-saldoSolicitado").removeClass("d-none");
     $("#mostrador-saldoNoSolicitado").addClass("d-none");
   } else {
@@ -572,10 +572,11 @@ function listarSugerenciaMensajesNovedad() {
 }
 
 async function consultarDatosDeUsuario() {
-  const actualizador = async (doc) => {
-    if (doc.exists) {
-      const datos = { ...doc.data(), id: doc.id };
+  const actualizador = async (docSnapshot) => {
+    if (docSnapshot.exists()) {
+      const datos = { ...docSnapshot.data(), id: docSnapshot.id };
       const datos_bancarios = datos.datos_bancarios || null;
+      console.log(datos_bancarios);
       const datos_personalizados = datos.datos_personalizados;
       let bodegas;
 
@@ -626,9 +627,12 @@ async function consultarDatosDeUsuario() {
     }
   };
 
-  usuarioDoc.onSnapshot(actualizador);
+  // Establecer el listener en tiempo real
+  onSnapshot(usuarioDoc, actualizador);
 
-  return await usuarioDoc.get().then(actualizador);
+  // Obtener datos una vez de forma asincrónica
+  const docSnapshot = await getDoc(usuarioDoc);
+  return await actualizador(docSnapshot);
 }
 
 function limitarAccesoSegunTipoUsuario() {
@@ -1181,33 +1185,34 @@ function numberWithCommas(x) {
 }
 
 async function mostrarReferidos(datos) {
-  let userid = localStorage.getItem("user_id");
+  try {
+    const userid = localStorage.getItem("user_id");
 
-  await firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(userid)
-    .get()
-    .then(async () => {
-      let referidos = [];
+    // Obtener el documento del usuario
+    const usuarioDoc = doc(collection(db, "usuarios"), userid);
+    const usuarioSnapshot = await getDoc(usuarioDoc);
 
-      await firebase
-        .firestore()
-        .collection("referidos")
-        .where("sellerReferente", "==", datos.centro_de_costo)
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            referidos.push(doc.data());
-          });
-        })
-        .finally(() => {
-          despliegueReferidos(referidos);
-        });
-    })
-    .catch((err) => {
-      console.warn(err);
-    });
+    if (usuarioSnapshot.exists()) {
+      const referidos = [];
+
+      // Crear la consulta para referidos
+      const referidosQuery = query(
+        collection(db, "referidos"),
+        where("sellerReferente", "==", datos.centro_de_costo)
+      );
+
+      // Obtener los referidos
+      const querySnapshot = await getDocs(referidosQuery);
+      querySnapshot.forEach((doc) => {
+        referidos.push(doc.data());
+      });
+
+      // Desplegar los referidos
+      despliegueReferidos(referidos);
+    }
+  } catch (err) {
+    console.warn("Error al mostrar referidos:", err);
+  }
 }
 
 function despliegueReferidos(referidos) {
@@ -1217,7 +1222,7 @@ function despliegueReferidos(referidos) {
   mostradorReferidos.classList.remove("d-none");
   tituloreferidos.classList.remove("d-none");
 
-  for (referido of referidos) {
+  for (const referido of referidos) {
     const htmlCard = `
     <div class="col-md-4 mb-4" >
     <div class="card border-bottom-primary" shadow="h-100 py-2">
@@ -2520,7 +2525,6 @@ async function pagosPendientesParaUsuario() {
   const diaEnMilli = 8.64e7;
 
   let dia = fecha.getDate() + 1;
-  // const diasARestar = 1;
   if (diaSemana <= 5 && false) {
     dia -= diaSemana;
   }
@@ -2528,73 +2532,70 @@ async function pagosPendientesParaUsuario() {
   const fechaMostrarMilli = fecha.getTime();
   const fechaFinal = genFecha("LR", fechaMostrarMilli);
   const endAtMilli = fechaMostrarMilli + diaEnMilli;
-  // Fin de cómputo
 
+  // Fin de cómputo
   $("#infoExtra-usuario").text("Guías entregadas hasta el " + fechaFinal);
   $("#infoExtra-usuario").attr(
     "title",
     "Se han cargado los pagos que corresponden a la fecha del " + fechaFinal
   );
 
-  await firebase
-    .firestore()
-    .collection("pendientePorPagar")
-    .where("REMITENTE", "==", datos_usuario.centro_de_costo)
-    .orderBy("timeline")
-    .endAt(endAtMilli)
-    .get()
-    .then((querySnapshot) => {
-      saldo_pendiente = 0;
-      details.html("");
-      guiasPagos = [];
+  const referenciaPendientePorPagar = collection(db, "pendientePorPagar");
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        const saldo = data["TOTAL A PAGAR"];
-        guiasPagos.push(data);
-        saldo_pendiente += saldo;
-      });
-    })
-    .then(() => {
-      console.log(guiasPagos);
+  const consulta = query(
+    referenciaPendientePorPagar,
+    where("REMITENTE", "==", datos_usuario.centro_de_costo),
+    orderBy("timeline"),
+    endAt(endAtMilli)
+  );
 
-      const mostradorHistorial = document.getElementById("mostrador-historial");
-      let mensajeNoHayGuias = document.getElementById(
-        "modalHistorialPago-mensajeNoHayGuias"
-      );
-      const tituloTabla = document.getElementById(
-        "modalHistorialPago-tituloTabla"
-      );
-      let inputBusquedaGuia2 = document.getElementById("inputBusquedaGuia");
+  try {
+    const querySnapshot = await getDocs(consulta);
 
-      mostradorHistorial.innerHTML = "";
+    saldo_pendiente = 0;
+    details.html("");
+    guiasPagos = [];
 
-      if (guiasPagos.length > 0) {
-        tituloTabla.classList.remove("d-none");
-        mensajeNoHayGuias.classList.add("d-none");
-        inputBusquedaGuia2.classList.remove("d-none");
-      } else {
-        mensajeNoHayGuias.classList.remove("d-none");
-        tituloTabla.classList.add("d-none");
-        inputBusquedaGuia2.classList.add("d-none");
-      }
-
-      guiasPagos.forEach((guia) => {
-        mostradorHistorial.innerHTML += `<tr><td>${
-          guia.GUIA
-        }</td><td>${convertirMoneda(guia["TOTAL A PAGAR"])}</td></tr>`;
-      });
-
-      //  guias.forEach((guia) => {
-      //     details.append(
-      //       `<li class="list-group-item">${guia.GUIA} ---> ${convertirMoneda(
-      //         guia["TOTAL A PAGAR"]
-      //       )}</li>`
-      //     );
-      //   });
-
-      viewer.text(convertirMoneda(saldo_pendiente));
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      const saldo = data["TOTAL A PAGAR"];
+      guiasPagos.push(data);
+      saldo_pendiente += saldo;
     });
+
+    console.log(guiasPagos);
+
+    const mostradorHistorial = document.getElementById("mostrador-historial");
+    let mensajeNoHayGuias = document.getElementById(
+      "modalHistorialPago-mensajeNoHayGuias"
+    );
+    const tituloTabla = document.getElementById(
+      "modalHistorialPago-tituloTabla"
+    );
+    let inputBusquedaGuia2 = document.getElementById("inputBusquedaGuia");
+
+    mostradorHistorial.innerHTML = "";
+
+    if (guiasPagos.length > 0) {
+      tituloTabla.classList.remove("d-none");
+      mensajeNoHayGuias.classList.add("d-none");
+      inputBusquedaGuia2.classList.remove("d-none");
+    } else {
+      mensajeNoHayGuias.classList.remove("d-none");
+      tituloTabla.classList.add("d-none");
+      inputBusquedaGuia2.classList.add("d-none");
+    }
+
+    guiasPagos.forEach((guia) => {
+      mostradorHistorial.innerHTML += `<tr><td>${
+        guia.GUIA
+      }</td><td>${convertirMoneda(guia["TOTAL A PAGAR"])}</td></tr>`;
+    });
+
+    viewer.text(convertirMoneda(saldo_pendiente));
+  } catch (error) {
+    console.error("Error al obtener pagos pendientes:", error);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -3026,9 +3027,7 @@ function handleSelectItemsChange(event) {
 }
 
 async function crearNuevoObjeto() {
-  const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
-    "plantillasObjetosFrecuentes"
-  );
+  const referenciaUsuariosFrecuentes = collection(usuarioAltDoc(), "plantillasObjetosFrecuentes");
 
   if (!checkObjetosFrecuentes.checked) {
     return;
@@ -3072,33 +3071,33 @@ async function crearNuevoObjeto() {
       });
   }
 }
-async function cargarObjetosFrecuentes() {
-  const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
-    "plantillasObjetosFrecuentes"
-  );
-  let opciones = [];
-  return referenciaUsuariosFrecuentes
-    .get()
-    .then(async (querySnapshot) => {
-      if (querySnapshot.empty) {
-        return subirObjetosEnvio(datos_usuario.objetos_envio);
-      }
-      querySnapshot.forEach((document) => {
-        const data = document.data();
-        data.id = document.id;
-        opciones.push(data);
-      });
-      return opciones;
-    })
-    .then((opciones) => {
-      return opciones;
+export async function cargarObjetosFrecuentes() {
+  try {
+    const referenciaUsuariosFrecuentes = collection(usuarioAltDoc(), "plantillasObjetosFrecuentes");
+    let opciones = [];
+
+    // Obtener los documentos de la colección
+    const querySnapshot = await getDocs(referenciaUsuariosFrecuentes);
+
+    if (querySnapshot.empty) {
+      return await subirObjetosEnvio(datos_usuario.objetos_envio);
+    }
+
+    querySnapshot.forEach((document) => {
+      const data = document.data();
+      data.id = document.id;
+      opciones.push(data);
     });
+
+    return opciones;
+  } catch (error) {
+    console.error("Error al cargar objetos frecuentes:", error);
+    throw error; // Re-lanza el error si necesitas manejarlo en otro nivel
+  }
 }
 
 async function subirObjetosEnvio(objetos) {
-  const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
-    "plantillasObjetosFrecuentes"
-  );
+  const referenciaUsuariosFrecuentes = collection(usuarioAltDoc(), "plantillasObjetosFrecuentes");
 
   const objetosFrecuentes = [];
 

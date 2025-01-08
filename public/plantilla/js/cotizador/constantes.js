@@ -1,3 +1,4 @@
+import { iconEfectivePayment, qrPayment, creditPayment, adelantedPayment  } from '/js/cotizador.js';
 /**
  Muestra la lista de tipode de pagos disponibles, incluyendo las transportadoras en las que aplica
  * @property icon: Se encuentra en cotizador.js y es un texto del ícono qu ecorresponde

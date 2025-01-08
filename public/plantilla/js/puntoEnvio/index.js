@@ -2,6 +2,7 @@ import { idFlexiiGuia, idReceptorFlexiiGuia, idScannerEstados } from "./constant
 import { abrirModalActuaizarEstado } from "./estadosFlexii.js";
 import { tablaGeneradorPedidos } from "./generadorPedidos.js";
 import { capturarEnvio, scannerIdentifier, tablaRecepcionPaquetes } from "./recibirPaquete.js";
+import { ControlUsuario } from '/js/cargadorDeDatos.js';
 
 window.addEventListener("hashchange", () => {
     const {hash} = location;

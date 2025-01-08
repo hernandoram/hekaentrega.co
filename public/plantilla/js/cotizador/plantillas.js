@@ -3,8 +3,10 @@ import {
   ciudades,
   selectize,
 } from "../consultarCiudades.js";
-
-const db = firebase.firestore();
+import { db, collection, getDocs } from "/js/config/initializeFirebase.js";
+import {usuarioAltDoc, bodegasWtch } from "/js/cargadorDeDatos.js";
+import {ChangeElementContenWhileLoading} from '/js/render.js';
+import {watcherPlantilla} from '/js/cotizador.js';
 
 const bodegasEl = $("#list_bodegas-cotizador");
 const plantillasEl = $("#list_plantillas-cotizador");
@@ -20,9 +22,8 @@ const checkEditPlant = $("#actv_editar_plantilla-cotizador");
 const contEditPlant = $("#cont_act_plant-cotizador");
 const btnCotizar = $("#boton_cotizar_2");
 
-const referenciaListaPlantillas = usuarioAltDoc().collection(
-  "plantillasCotizador"
-);
+const referenciaListaPlantillas = collection(usuarioAltDoc(), "plantillasCotizador");
+
 
 const listaPlantilla = new Map();
 
@@ -55,12 +56,16 @@ export function llenarBodegasCotizador() {
 }
 
 watcherPlantilla.watch(llenarProductos);
-export function llenarProductos(num) {
-  referenciaListaPlantillas.get().then((q) => {
+export async function llenarProductos(num) {
+  try {
+    // Obtener los documentos de la colección
+    const querySnapshot = await getDocs(referenciaListaPlantillas);
+
     plantillasEl.html("");
     const opciones = [];
+    const listaPlantilla = new Map(); // Asegúrate de que esta esté declarada
 
-    q.forEach((d) => {
+    querySnapshot.forEach((d) => {
       const data = d.data();
       if (data.eliminada) return;
 
@@ -71,18 +76,21 @@ export function llenarProductos(num) {
       );
 
       if (!ciudadBusqueda) return;
+
       opciones.push(`<option value="${d.id}">${data.nombre}</option>`);
       listaPlantilla.set(d.id, { ...data, ciudad: ciudadBusqueda.nombreAveo });
 
       searchAndRenderCities(
         selectize.ciudadD,
-        ciudadBusqueda.ciudad.split("(")[0]
+        ciudadBusqueda.nombreAveo.split("(")[0]
       );
     });
 
     opciones.unshift(`<option value>Seleccione Plantilla</option>`);
     plantillasEl.html(opciones.join(""));
-  });
+  } catch (error) {
+    console.error("Error al llenar los productos:", error);
+  }
 
   if (num) configGuardado.addClass("d-none");
 

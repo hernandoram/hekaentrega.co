@@ -1,6 +1,8 @@
-import { db, doc, getDoc, getDocs, collection, query, orderBy, where, onSnapshot, startAfter, limit } from "/js/config/initializeFirebase.js";
+import { db, doc, getDoc, getDocs, collection, query, orderBy, where, onSnapshot, startAfter, limit, endAt } from "/js/config/initializeFirebase.js";
 import { value } from '/js/main.js';
-import { mostrarNotificacion } from '/js/render.js';
+import { mostrarNotificacion, mostrarNotificacionEstaticaUsuario, listaNotificacionesAlerta } from '/js/render.js';
+import { convertirMiles } from '/js/cotizador.js';
+import { user_id } from '/js/cargadorDeDatos.js';
 let filtroPagos;
 
 if (administracion) {
@@ -521,7 +523,7 @@ function renderizadoDeTablaHistorialGuias(config) {
 }
 
 const filtrosSelectores = new Map();
-function filtrarHistorialGuiasPorColumna(column) {
+export function filtrarHistorialGuiasPorColumna(column) {
   const header = column.header();
 
   const title = header.getAttribute("data-title") || header.textContent;
@@ -598,7 +600,7 @@ function filtradorEspecialHistorialGuias() {
   api.search(filtrador).draw();
 }
 
-async function descargarGuiasParticulares(e, dt, node, config) {
+export async function descargarGuiasParticulares(e, dt, node, config) {
   const api = dt;
   const selectedRows = api.rows(".selected");
   if (!selectedRows.data().length) {
@@ -666,7 +668,7 @@ async function descargarGuiasParticulares(e, dt, node, config) {
 
 //función utilizada por el usuario para crear lo documentos
 let noNotificarGuia;
-function crearDocumentos(e, dt, node, config) {
+export function crearDocumentos(e, dt, node, config) {
   const api = dt;
   // Para cuando se use el selector
   const selectedRows = api.rows(".selected");
@@ -3418,7 +3420,6 @@ async function manejarNotificacionesMasivas() {
     querySnapshot.forEach((doc) => {
       const data = doc.data();
       if (!data.active) return;
-      // return;
 
       if (data.type === "estatica") {
         mostrarNotificacionEstaticaUsuario(data, doc.id);
@@ -3426,23 +3427,30 @@ async function manejarNotificacionesMasivas() {
         data.id = doc.id;
         listaNotificacionesAlerta.push(data);
 
-        if (!data.ubicacion || "#" + data.ubicacion === location.hash)
+        if (!data.ubicacion || "#" + data.ubicacion === location.hash) {
           mostrarNotificacionAlertaUsuario(data, doc.id);
+        }
       }
     });
   };
 
-  const ref = db
-    .collection("centro_notificaciones")
-    .orderBy("startDate")
-    .endAt(new Date().getTime());
+  const centroNotificacionesRef = collection(db, "centro_notificaciones");
 
-  ref.where("isGlobal", "==", true).get().then(manejarInformacion);
+  const baseQuery = query(
+    centroNotificacionesRef,
+    orderBy("startDate"),
+    endAt(new Date().getTime())
+  );
 
-  ref
-    .where("usuarios", "array-contains", user_id)
-    .get()
-    .then(manejarInformacion);
+  // Consulta para notificaciones globales
+  const globalQuery = query(baseQuery, where("isGlobal", "==", true));
+  const globalSnapshot = await getDocs(globalQuery);
+  manejarInformacion(globalSnapshot);
+
+  // Consulta para notificaciones específicas del usuario
+  const userQuery = query(baseQuery, where("usuarios", "array-contains", user_id));
+  const userSnapshot = await getDocs(userQuery);
+  manejarInformacion(userSnapshot);
 }
 
 function eliminarNotificaciones() {
