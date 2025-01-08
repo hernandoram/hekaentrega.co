@@ -517,25 +517,39 @@ async function cargarPagoSolicitado() {
     usuarioParaColaInfoHeka.push(...colaProcesarGuias);
 
   const centro_de_costo = datos_usuario.centro_de_costo;
-  let soliciado = diarioSolicitado.includes(centro_de_costo);
+  console.log("centro de costo cargador pago", centro_de_costo);
+  let solicitado = diarioSolicitado?.includes(centro_de_costo) || false;
 
-  let limitado = limitadosDiario.includes(centro_de_costo);
+  let limitado = limitadosDiario?.includes(centro_de_costo) || false;
 
-  console.log("pago solicitado", soliciado);
+  console.log("pago solicitado", solicitado);
   console.log("limitado", limitado);
 
-  if (soliciado) {
+  if (solicitado) {
     $("#mostrador-saldoSolicitado").removeClass("d-none");
     $("#mostrador-saldoNoSolicitado").addClass("d-none");
-  } else {
-    $("#mostrador-saldoNoSolicitado").removeClass("d-none");
+    $("#pago-solicitado").text("Pago solicitado correctamente.");
+  } else if (limitado) {
     $("#mostrador-saldoSolicitado").addClass("d-none");
+    $("#mostrador-saldoNoSolicitado").removeClass("d-none");
+    $("#pago-solicitado").text("Límite de pagos semanales alcanzado.");
+
+    Swal.fire({
+      title: "Pago no permitido",
+      text: "No puedes realizar un pago en este momento porque has alcanzado el límite diario.",
+      icon: "info",
+      confirmButtonText: "Aceptar",
+    });
+  } else {
+    $("#mostrador-saldoSolicitado").addClass("d-none");
+    $("#mostrador-saldoNoSolicitado").removeClass("d-none");
+    $("#pago-solicitado").text("No tienes solicitudes activas.");
   }
 
-  if (limitado) {
+  /*  if (limitado) {
     document.getElementById("pago-solicitado").innerText =
       "Límite de pagos semanales alcanzado.";
-  }
+  } */
 }
 
 async function listarNovedadesServientrega() {
@@ -629,6 +643,11 @@ async function consultarDatosDeUsuario() {
 function limitarAccesoSegunTipoUsuario() {
   let quitarVistas = [];
 
+  /** Una lista que contiene los id de los elementos que naturalmente está hecho para ser eliminados,
+   * pero al estar aquí, según el usuario se evita que el elemento sea quitado del DOM
+   */
+  let vistasPreferenciales = [];
+
   if (ControlUsuario.esUsuarioPunto) {
     quitarVistas = [
       "cotizar_envio",
@@ -653,12 +672,34 @@ function limitarAccesoSegunTipoUsuario() {
       "seguimiento-gestionarNovedad",
       "contenedor-solucion_novedad",
     ];
+  } else if (ControlUsuario.esPuntoEnvio) {
+    vistasPreferenciales = [
+      "flexii_guia",
+      "flexii_guia_recept",
+      "scanner_estados_flexii",
+      "nav_item-flexii_envios",
+    ];
   }
 
-  quitarVistas.forEach((id) => {
-    $("#" + id).remove();
-    $(`[href="#${id}"]`).remove();
+  const eliminarVista = (el) => {
+    const id = el.id;
+    $(el).remove();
+
+    if (id) $(`[href="#${id}"]`).remove();
+  };
+
+  $(".vista-preferencial").each((i, el) => {
+    const id = el.id;
+
+    if (vistasPreferenciales.includes(id)) return;
+
+    eliminarVista(el);
   });
+
+  quitarVistas
+    .map((id) => document.getElementById(id))
+    .filter(Boolean)
+    .forEach(eliminarVista);
 }
 
 function mostrarDatosUsuario(datos) {
@@ -2732,8 +2773,16 @@ async function solicitarPagosPendientesUs(e) {
       return;
     }
     if (resp.isConfirmed) {
-      await updateUserSegmentation(localStorage.getItem("user_id"), "limitadosDiario", "add");
-      await updateUserSegmentation(localStorage.getItem("user_id"), "diarioSolicitado", "add");
+      await updateUserSegmentation(
+        localStorage.getItem("user_id"),
+        "limitadosDiario",
+        "add"
+      );
+      await updateUserSegmentation(
+        localStorage.getItem("user_id"),
+        "diarioSolicitado",
+        "add"
+      );
     }
 
     //await ref.update(solicitudDePago);
@@ -2758,7 +2807,11 @@ async function solicitarPagosPendientesUs(e) {
     if (!diarioSolicitado.includes(datos_usuario.centro_de_costo)) {
       //await ref.update(solicitudDePago);
       if (resp.isConfirmed) {
-        await updateUserSegmentation(localStorage.getItem("user_id"),"diarioSolicitado", "add");
+        await updateUserSegmentation(
+          localStorage.getItem("user_id"),
+          "diarioSolicitado",
+          "add"
+        );
       }
     }
   }
