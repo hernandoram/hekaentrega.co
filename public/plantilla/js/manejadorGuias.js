@@ -1,8 +1,8 @@
-import { db, doc, getDoc, getDocs, collection, query, orderBy, where, onSnapshot, startAfter, limit, endAt } from "/js/config/initializeFirebase.js";
-import { value } from '/js/main.js';
+import { db, doc, getDoc, getDocs, collection, query, orderBy, where, onSnapshot, startAfter, limit, endAt, startAt } from "/js/config/initializeFirebase.js";
+import { value, inHTML } from '/js/main.js';
 import { mostrarNotificacion, mostrarNotificacionEstaticaUsuario, listaNotificacionesAlerta } from '/js/render.js';
 import { convertirMiles } from '/js/cotizador.js';
-import { user_id } from '/js/cargadorDeDatos.js';
+import { user_id, ControlUsuario } from '/js/cargadorDeDatos.js';
 let filtroPagos;
 
 if (administracion) {
@@ -2681,11 +2681,9 @@ function subirDocumentos() {
 }
 
 //Similar a historial de Guias, carga los documentos al usuario por fecha.
-function actualizarHistorialDeDocumentos(timeline) {
-  // $('#tabla_documentos').DataTable().destroy();
-  $("#btn-historial-docs").html(`<span class="spinner-border
-    spinner-border-sm" role="status" aria-hidden="true"></span>
-    Cargando...`);
+export async function actualizarHistorialDeDocumentos(timeline) {
+  $("#btn-historial-docs").html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cargando...`);
+
   if (user_id) {
     let fecha_inicio =
         timeline ||
@@ -2695,144 +2693,123 @@ function actualizarHistorialDeDocumentos(timeline) {
         Date.parse($("#docs-fecha-final").val().replace(/\-/g, "/"));
     let transportadora = $("#filtro-documentos").val();
 
-    var reference = firebase
-      .firestore()
-      .collection("documentos")
-      .where(
-        ControlUsuario.esPuntoEnvio ? "id_punto" : "id_user",
-        "==",
-        localStorage.user_id
-      )
-      .orderBy("timeline", "desc")
-      .startAt(fecha_final + 8.64e7)
-      .endAt(fecha_inicio);
+    let reference = query(
+      collection(db, "documentos"),
+      where(ControlUsuario.esPuntoEnvio ? "id_punto" : "id_user", "==", localStorage.user_id),
+      orderBy("timeline", "desc"),
+      startAt(fecha_final + 8.64e7),
+      endAt(fecha_inicio)
+    );
+
     if (transportadora && transportadora !== "Todos") {
-      reference = reference.where("transportadora", "==", transportadora);
+      reference = query(reference, where("transportadora", "==", transportadora));
     }
 
-    reference
-      .get()
-      .then((querySnapshot) => {
-        var tabla = [];
-        console.log(localStorage.user_id);
-        if (document.getElementById("body-documentos")) {
-          inHTML("body-documentos", "");
+    const querySnapshot = await getDocs(reference);
+    const tabla = [];
+    console.log(localStorage.user_id);
+    if (document.getElementById("body-documentos")) {
+      inHTML("body-documentos", "");
+    }
+
+    // Query que me carga la información en la tabla
+    querySnapshot.forEach((docSnap) => {
+      const htmlDocConverted = new DOMParser().parseFromString(
+        renderUserDocumentCard(docSnap.id, docSnap.data()),
+        "text/html"
+      ).body.firstChild;
+
+      // Utilizamos el append, ya que de otra manera los oyentes de eventos no funcionan, si no para el último elemento
+      $("#body-documentos").append(htmlDocConverted);
+      const id_descargar_guia = "#boton-descargar-guias";
+      const id_descargar_relacion = "#boton-descargar-relacion_envio";
+      const btn_descarga_guia = document.querySelector(id_descargar_guia + docSnap.id);
+      const btn_descarga_relacion = document.querySelector(id_descargar_relacion + docSnap.id);
+
+      const documentoReciente = () => docSnap;
+
+      // Funcionalidad de botones para descargar guías y relaciones
+      const docRef = doc(db, "documentos", docSnap.id);
+      onSnapshot(docRef, (row) => {
+        if (row.data().descargar_guias) {
+          $(id_descargar_guia + row.id).prop("disabled", false);
         }
-
-        //query que me carga la información en la tabla
-        querySnapshot.forEach((doc) => {
-          // tabla.push(mostrarDocumentosUsuario(doc.id, doc.data()));
-          //Primero convertimos el string devuelto en un nodo de html con parser String, para poder utilizar la función append
-          const htmlDocConverted = new DOMParser().parseFromString(
-            renderUserDocumentCard(doc.id, doc.data()),
-            "text/html"
-          ).body.firstChild;
-
-          //Utilizamos el append, ya que de otra manera los oidores de enventos no funcionan, si no para el último elemento
-          $("#body-documentos").append(htmlDocConverted);
-          const id_descargar_guia = "#boton-descargar-guias";
-          const id_descargar_relacion = "#boton-descargar-relacion_envio";
-          const btn_descarga_guia = document.querySelector(
-            id_descargar_guia + doc.id
-          );
-          const btn_descarga_relacion = document.querySelector(
-            id_descargar_relacion + doc.id
-          );
-
-          const documentoReciente = () => doc;
-
-          //funcionalidad de botones para descargar guias y relaciones
-          firebase
-            .firestore()
-            .collection("documentos")
-            .doc(doc.id)
-            .onSnapshot((row) => {
-              if (row.data().descargar_guias) {
-                $(id_descargar_guia + row.id).prop("disabled", false);
-              }
-              if (row.data().descargar_relacion_envio) {
-                $(id_descargar_relacion + row.id).prop("disabled", false);
-              }
-              doc = row;
-            });
-
-          btn_descarga_guia.addEventListener("click", async (e) => {
-            e.target.innerHTML =
-              "<span class='spinner-border spinner-border-sm'></span> Cargando...";
-            e.target.setAttribute("disabled", true);
-            const docActualizado = documentoReciente();
-            await descargarStickerGuias(docActualizado);
-            e.target.innerHTML = "Descargar Guías";
-            e.target.removeAttribute("disabled");
-          });
-
-          btn_descarga_relacion.addEventListener("click", (e) => {
-            e.target.innerHTML =
-              "<span class='spinner-border spinner-border-sm'></span> Cargando...";
-            e.target.setAttribute("disabled", true);
-            descargarManifiesto(doc);
-            e.target.innerHTML = "Descargar Manifiesto";
-            e.target.removeAttribute("disabled");
-          });
-
-          document
-            .getElementById("boton-generar-rotulo" + doc.id)
-            .addEventListener("click", function () {
-              if (datos_usuario.type == "NATURAL-FLEXII") {
-                generarGuiaFlexii(
-                  this.parentNode.parentNode
-                    .getAttribute("data-guides")
-                    .split(",")
-                );
-              } else {
-                console.log(this.parentNode.parentNode);
-                generarRotulo(
-                  this.parentNode.parentNode
-                    .getAttribute("data-guides")
-                    .split(","), // La lista de guías del documento
-                  this.parentNode.parentNode.getAttribute("data-user") // El usuario asociado a dicho conjunto de guías
-                );
-              }
-            });
-        });
-
-        var contarExistencia = 0;
-        for (let i = tabla.length - 1; i >= 0; i--) {
-          if (document.getElementById("body-documentos")) {
-            printHTML("body-documentos", tabla[i]);
-          }
-          contarExistencia++;
+        if (row.data().descargar_relacion_envio) {
+          $(id_descargar_relacion + row.id).prop("disabled", false);
         }
-
-        const historialDocsElement = document.getElementById("historial-docs");
-        const nohayDatosElement = document.getElementById(
-          "nohaydatosHistorialDocumentos"
-        );
-
-        if (historialDocsElement && nohayDatosElement) {
-          if (querySnapshot.size === 0) {
-            historialDocsElement.style.display = "none";
-            nohayDatosElement.style.display = "block";
-          } else {
-            historialDocsElement.style.display = "block";
-            nohayDatosElement.style.display = "none";
-          }
-        } else {
-          console.error("No se encontraron uno o ambos elementos en el DOM.");
-        }
-      })
-      .then(() => {
-        let view_guide = document.querySelectorAll('[data-mostrar="texto"]');
-        for (let element of view_guide) {
-          element.addEventListener("click", () => {
-            element.classList.toggle("text-truncate");
-            element.style.cursor = "zoom-out";
-            if (element.classList.contains("text-truncate"))
-              element.style.cursor = "zoom-in";
-          });
-        }
-        $("#btn-historial-docs").html("Buscar");
+        docSnap = row;
       });
+
+      btn_descarga_guia.addEventListener("click", async (e) => {
+        e.target.innerHTML = "<span class='spinner-border spinner-border-sm'></span> Cargando...";
+        e.target.setAttribute("disabled", true);
+        const docActualizado = documentoReciente();
+        await descargarStickerGuias(docActualizado);
+        e.target.innerHTML = "Descargar Guías";
+        e.target.removeAttribute("disabled");
+      });
+
+      btn_descarga_relacion.addEventListener("click", (e) => {
+        e.target.innerHTML = "<span class='spinner-border spinner-border-sm'></span> Cargando...";
+        e.target.setAttribute("disabled", true);
+        descargarManifiesto(docSnap);
+        e.target.innerHTML = "Descargar Manifiesto";
+        e.target.removeAttribute("disabled");
+      });
+
+      document
+        .getElementById("boton-generar-rotulo" + docSnap.id)
+        .addEventListener("click", function () {
+          if (datos_usuario.type == "NATURAL-FLEXII") {
+            generarGuiaFlexii(
+              this.parentNode.parentNode
+                .getAttribute("data-guides")
+                .split(",")
+            );
+          } else {
+            console.log(this.parentNode.parentNode);
+            generarRotulo(
+              this.parentNode.parentNode
+                .getAttribute("data-guides")
+                .split(","), // La lista de guías del documento
+              this.parentNode.parentNode.getAttribute("data-user") // El usuario asociado a dicho conjunto de guías
+            );
+          }
+        });
+    });
+
+    const contarExistencia = tabla.length;
+    if (document.getElementById("body-documentos")) {
+      tabla.forEach(item => {
+        printHTML("body-documentos", item);
+      });
+    }
+
+    const historialDocsElement = document.getElementById("historial-docs");
+    const nohayDatosElement = document.getElementById("nohaydatosHistorialDocumentos");
+
+    if (historialDocsElement && nohayDatosElement) {
+      if (querySnapshot.size === 0) {
+        historialDocsElement.style.display = "none";
+        nohayDatosElement.style.display = "block";
+      } else {
+        historialDocsElement.style.display = "block";
+        nohayDatosElement.style.display = "none";
+      }
+    } else {
+      console.error("No se encontraron uno o ambos elementos en el DOM.");
+    }
+
+    let view_guide = document.querySelectorAll('[data-mostrar="texto"]');
+    for (let element of view_guide) {
+      element.addEventListener("click", () => {
+        element.classList.toggle("text-truncate");
+        element.style.cursor = "zoom-out";
+        if (element.classList.contains("text-truncate"))
+          element.style.cursor = "zoom-in";
+      });
+    }
+    $("#btn-historial-docs").html("Buscar");
   }
 }
 
