@@ -1707,24 +1707,14 @@
                           id="descargarExcelNovedades">Descargar Excel</button>
                         <hr />
                         <div class="d-flex">
-                          <!-- <div class="col ml-2 pl-3" >
-                            <div class="form-check px-2 ">
-                              <p class="pl-5">Tipo:</p>
-                              <input class="form-check-input" type="checkbox" value="LOGISTICA" id="checkboxNovedadesLogistica" checked onclick="document.getElementById('checkboxNovedadesCallcenter').checked = false">
-                              <label class="form-check-label" for="defaultCheck1">
-                                LOGISTICA
-                              </label>
-                            </div>
-                            <div class="form-check px-2  ">
-                              <input class="form-check-input" type="checkbox" value="CALLCENTER" id="checkboxNovedadesCallcenter" onclick="document.getElementById('checkboxNovedadesLogistica').checked = false">
-                              <label class="form-check-label" for="defaultCheck1">
-                                CALLCENTER
-                              </label>
-                            </div>
-                          </div> -->
+
                           <div class="col ml-2 pl-3">
+                            <p class="pl-5">Filtros:</p>
+                            <div class="form-group">
+                              <label for="ciudadR">Filtrar por estado</label>
+                              <select class="form-control" id="estados_base-novedades" multiple></select>
+                            </div>
                             <div class="form-check px-2 ">
-                              <p class="pl-5">Filtros:</p>
                               <input class="form-check-input" type="checkbox" value="INTERRAPIDISIMO"
                                 id="checkboxNovedadesInter" checked>
                               <label class="form-check-label" for="checkboxNovedadesInter">
@@ -2081,6 +2071,7 @@
 
             <div class="card mt-2">
               <div id="visor-pagos_facturacion" class="table-responsive card-body">
+                <div id="visor_errores-pagos_facturacion" class="my-2"></div>
                 <table id="table-pagos_facturacion" class="table table-bordered w-100">
                 </table>
               </div>
@@ -2176,11 +2167,21 @@
                         </div>
                       </div>
 
-                      <div class="col-12 d-flex justify-content-center form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" id="filtro_deudor-gestionar_pagos"
-                          name="filtro-negativos">
-                        <label class="form-check-label" for="filtro_deudor-gestionar_pagos">Mostrar los saldos
-                          negativos</label>
+                      <div class="col-md-6">
+                        <div class="d-flex justify-content-center form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="filtro_deudor-gestionar_pagos"
+                            name="filtro-negativos">
+                          <label class="form-check-label" for="filtro_deudor-gestionar_pagos">Mostrar los saldos
+                            negativos</label>
+                        </div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <div class="d-flex justify-content-center form-check form-check-inline">
+                          <input class="form-check-input" type="checkbox" id="activador_facturacion-gestionar_pagos"
+                            name="activador-factura">
+                          <label class="form-check-label" for="activador_facturacion-gestionar_pagos">Activar facturación</label>
+                        </div>
                       </div>
                     </div>
 
