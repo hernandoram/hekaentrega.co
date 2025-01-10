@@ -86,7 +86,7 @@ export function tarjetaBasicaTransportadora(
   respuestaCotizacion
 ) {
   const {
-    entity,
+    distributor_id,
     type,
     declared_value,
     transport_collection,
@@ -118,17 +118,17 @@ export function tarjetaBasicaTransportadora(
         <li 
         style="cursor:pointer;" 
         class="list-group-item list-group-item-action shadow-sm mb-2 border border-${color}" 
-        id="list-transportadora-${entity}-list" 
+        id="list-transportadora-${distributor_id}-list" 
         data-transp="${transp}"
         data-type="${type}"
-        aria-controls="list-transportadora-${entity}"
+        aria-controls="list-transportadora-${distributor_id}"
         >
           <div class="row">
             <div class="col-lg-2 col-md-2 col-sm-12 d-md-none d-lg-block">
               <img 
                 src="${logoPath}" 
                 style="max-height:100px; max-width:120px"
-                alt="logo-${entity}"
+                alt="logo-${distributor_id}"
               >
             </div>
 
@@ -174,7 +174,7 @@ export function tarjetaBasicaTransportadora(
               <img 
                 src="${logoPath}" 
                 style="max-height:100px; max-width:120px"
-                alt="logo-${entity}"
+                alt="logo-${distributor_id}"
                 class="d-none d-md-block d-lg-none"
               >
 
