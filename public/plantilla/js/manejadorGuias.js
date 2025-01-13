@@ -3568,7 +3568,7 @@ function cargarNovedades() {
 }
 
 //función que me revisa los movimientos de las guías
-function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
+export function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
   let filtro = true,
     toggle = "==",
     buscador = "enNovedad";
@@ -3714,7 +3714,7 @@ function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
   }
 }
 
-function revisarMovimientosGuiaIndividualUser(inputGuia) {
+export function revisarMovimientosGuiaIndividualUser(inputGuia) {
   filtro = datos_usuario.centro_de_costo;
   (toggle = "=="), (buscador = "centro_de_costo");
 
@@ -3765,7 +3765,7 @@ function revisarMovimientosGuiaIndividualUser(inputGuia) {
   }
 }
 
-function revisarMovimientosGuiasUser(novedades_transportadora) {
+export function revisarMovimientosGuiasUser(novedades_transportadora) {
   novedadesExcelData = [];
   filtro = datos_usuario.centro_de_costo;
   (toggle = "=="), (buscador = "centro_de_costo");
