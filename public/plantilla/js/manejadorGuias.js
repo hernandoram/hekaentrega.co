@@ -3,6 +3,8 @@ import { value, inHTML } from '/js/main.js';
 import { mostrarNotificacion, mostrarNotificacionEstaticaUsuario, listaNotificacionesAlerta } from '/js/render.js';
 import { convertirMiles } from '/js/cotizador.js';
 import { user_id, ControlUsuario } from '/js/cargadorDeDatos.js';
+import {mostrarNotificacionAlertaUsuario} from '/js/render.js'
+
 let filtroPagos;
 
 if (administracion) {
