@@ -3580,182 +3580,38 @@ export function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
   if (($("#filtrado-novedades-guias").val() || guia) && admin) {
     let filtrado = guia || $("#filtrado-novedades-guias").val().split(",");
     if (typeof filtrado == "object") {
-      filtrado.forEach((v, i) => {
-        firebase
-          .firestore()
-          .collectionGroup("estadoGuias")
-          .where("numeroGuia", "==", v.trim())
-          .get()
-          .then((querySnapshot) => {
-            querySnapshot.size == 0
-              ? $("#cargador-novedades").addClass("d-none")
-              : "";
-            querySnapshot.forEach((doc) => {
-              let path = doc.ref.path.split("/");
-              let data = doc.data();
-              consultarGuiaFb(
-                path[1],
-                doc.id,
-                data,
-                "Consulta Personalizada",
-                i + 1,
-                filtrado.length
-              );
-            });
-          });
-      });
-    } else {
-      firebase
-        .firestore()
-        .collectionGroup("estadoGuias")
-        .where("numeroGuia", "==", filtrado)
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.size == 0
-            ? $("#cargador-novedades").addClass("d-none")
-            : "";
-          querySnapshot.forEach((doc) => {
-            let path = doc.ref.path.split("/");
-            let data = doc.data();
-            consultarGuiaFb(path[1], doc.id, data, "Solucionar Novedad");
-          });
-        });
-    }
-  } else if (admin) {
-    if ($("#filtrado-novedades-usuario").val()) {
-      filtro = $("#filtrado-novedades-usuario").val();
-      toggle = "==";
-      buscador = "centro_de_costo";
-    }
+      filtrado.forEach(async (v, i) => {
+        const estadoGuiasQuery = query(
+          collectionGroup(db, "estadoGuias"),
+          where("numeroGuia", "==", v.trim())
+        );
 
-    firebase
-      .firestore()
-      .collectionGroup("estadoGuias")
-      .where(buscador, toggle, filtro)
-      .get()
-      .then((querySnapshot) => {
-        let contador = 0;
-        let size = querySnapshot.size;
+        const querySnapshot = await getDocs(estadoGuiasQuery);
+
+        querySnapshot.size === 0
+          ? $("#cargador-novedades").addClass("d-none")
+          : "";
         querySnapshot.forEach((doc) => {
           let path = doc.ref.path.split("/");
-          let dato = doc.data();
-          contador++;
+          let data = doc.data();
           consultarGuiaFb(
             path[1],
             doc.id,
-            dato,
-            dato.centro_de_costo,
-            contador,
-            size
+            data,
+            "Consulta Personalizada",
+            i + 1,
+            filtrado.length
           );
-          // console.log(doc.data());
         });
       });
-  } else {
-    if (
-      (document.getElementById("visor_novedades").innerHTML == "" &&
-        seguimiento == "once") ||
-      !seguimiento
-    ) {
-      firebase
-        .firestore()
-        .collection("usuarios")
-        .doc(localStorage.user_id)
-        .collection("estadoGuias")
-        // .orderBy("estado")
-        .where("mostrar_usuario", "==", true)
-        // .limit(10)
-        .get()
-        .then((querySnapshot) => {
-          let contador = 0;
-          let size = querySnapshot.size;
-          console.log(size);
-          if (!querySnapshot.size) {
-            return cargadorClass.add("d-none");
-          }
-          $("#visor_novedades").html("");
-          const guias_actualizadas = revisarTiempoGuiasActualizadas();
-          const novedades_transportadora = $("#activador_busq_novedades").val();
-
-          querySnapshot.forEach((doc) => {
-            let dato = doc.data();
-            contador++;
-            console.log(dato);
-
-            if (novedades_transportadora) {
-              if (dato.transportadora === novedades_transportadora) {
-                consultarGuiaFb(
-                  user_id,
-                  doc.id,
-                  dato,
-                  "Posibles Novedades",
-                  contador,
-                  size
-                );
-              } else {
-                return $("#cargador-novedades").addClass("d-none");
-              }
-            } else {
-              consultarGuiaFb(
-                user_id,
-                doc.id,
-                dato,
-                "Posibles Novedades",
-                contador,
-                size
-              );
-            }
-            if (!guias_actualizadas) actualizarEstadoGuia(dato.numeroGuia);
-          });
-
-          actualizarEstadosEnNovedad();
-        });
     } else {
-      cargadorClass.add("d-none");
-    }
-  }
-}
+      const estadoGuiasQuery = query(
+        collectionGroup(db, "estadoGuias"),
+        where("numeroGuia", "==", filtrado)
+      );
 
-export function revisarMovimientosGuiaIndividualUser(inputGuia) {
-  filtro = datos_usuario.centro_de_costo;
-  (toggle = "=="), (buscador = "centro_de_costo");
-
-  let filtrado = inputGuia.split(",");
-  if (typeof filtrado == "object") {
-    filtrado.forEach((v, i) => {
-      firebase
-        .firestore()
-        .collectionGroup("estadoGuias")
-        .where("numeroGuia", "==", v.trim())
-        .where(buscador, toggle, filtro)
-
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.size == 0
-            ? $("#cargador-novedades").addClass("d-none")
-            : "";
-          querySnapshot.forEach((doc) => {
-            let path = doc.ref.path.split("/");
-            let data = doc.data();
-            consultarGuiaFb(
-              path[1],
-              doc.id,
-              data,
-              "Consulta Personalizada",
-              i + 1,
-              filtrado.length
-            );
-          });
-        });
-    });
-  } else {
-    firebase
-      .firestore()
-      .collectionGroup("estadoGuias")
-      .where("numeroGuia", "==", filtrado)
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.size == 0
+      getDocs(estadoGuiasQuery).then((querySnapshot) => {
+        querySnapshot.size === 0
           ? $("#cargador-novedades").addClass("d-none")
           : "";
         querySnapshot.forEach((doc) => {
@@ -3764,8 +3620,149 @@ export function revisarMovimientosGuiaIndividualUser(inputGuia) {
           consultarGuiaFb(path[1], doc.id, data, "Solucionar Novedad");
         });
       });
+    }
+  } else if (admin) {
+    if ($("#filtrado-novedades-usuario").val()) {
+      filtro = $("#filtrado-novedades-usuario").val();
+      toggle = "==";
+      buscador = "centro_de_costo";
+    }
+
+    const estadoGuiasQuery = query(
+      collectionGroup(db, "estadoGuias"),
+      where(buscador, toggle, filtro)
+    );
+
+    getDocs(estadoGuiasQuery).then((querySnapshot) => {
+      let contador = 0;
+      let size = querySnapshot.size;
+      querySnapshot.forEach((doc) => {
+        let path = doc.ref.path.split("/");
+        let dato = doc.data();
+        contador++;
+        consultarGuiaFb(
+          path[1],
+          doc.id,
+          dato,
+          dato.centro_de_costo,
+          contador,
+          size
+        );
+      });
+    });
+  } else {
+    if (
+      (document.getElementById("visor_novedades").innerHTML === "" &&
+        seguimiento === "once") ||
+      !seguimiento
+    ) {
+      const userEstadoGuiasQuery = query(
+        collection(db, "usuarios", localStorage.user_id, "estadoGuias"),
+        where("mostrar_usuario", "==", true)
+      );
+
+      getDocs(userEstadoGuiasQuery).then((querySnapshot) => {
+        let contador = 0;
+        let size = querySnapshot.size;
+        console.log(size);
+        if (!querySnapshot.size) {
+          return cargadorClass.add("d-none");
+        }
+        $("#visor_novedades").html("");
+        const guias_actualizadas = revisarTiempoGuiasActualizadas();
+        const novedades_transportadora = $("#activador_busq_novedades").val();
+
+        querySnapshot.forEach((doc) => {
+          let dato = doc.data();
+          contador++;
+          console.log(dato);
+
+          if (novedades_transportadora) {
+            if (dato.transportadora === novedades_transportadora) {
+              consultarGuiaFb(
+                user_id,
+                doc.id,
+                dato,
+                "Posibles Novedades",
+                contador,
+                size
+              );
+            } else {
+              return $("#cargador-novedades").addClass("d-none");
+            }
+          } else {
+            consultarGuiaFb(
+              user_id,
+              doc.id,
+              dato,
+              "Posibles Novedades",
+              contador,
+              size
+            );
+          }
+          if (!guias_actualizadas) actualizarEstadoGuia(dato.numeroGuia);
+        });
+
+        actualizarEstadosEnNovedad();
+      });
+    } else {
+      cargadorClass.add("d-none");
+    }
   }
 }
+
+
+
+export function revisarMovimientosGuiaIndividualUser(inputGuia) {
+  filtro = datos_usuario.centro_de_costo;
+  (toggle = "=="), (buscador = "centro_de_costo");
+
+  let filtrado = inputGuia.split(",");
+  if (typeof filtrado == "object") {
+    filtrado.forEach((v, i) => {
+      const estadoGuiasQuery = query(
+        collectionGroup(db, "estadoGuias"),
+        where("numeroGuia", "==", v.trim()),
+        where(buscador, toggle, filtro)
+      );
+
+      getDocs(estadoGuiasQuery).then((querySnapshot) => {
+        querySnapshot.size === 0
+          ? $("#cargador-novedades").addClass("d-none")
+          : "";
+        querySnapshot.forEach((doc) => {
+          let path = doc.ref.path.split("/");
+          let data = doc.data();
+          consultarGuiaFb(
+            path[1],
+            doc.id,
+            data,
+            "Consulta Personalizada",
+            i + 1,
+            filtrado.length
+          );
+        });
+      });
+    });
+  } else {
+    const estadoGuiasQuery = query(
+      collectionGroup(db, "estadoGuias"),
+      where("numeroGuia", "==", filtrado)
+    );
+
+    getDocs(estadoGuiasQuery).then((querySnapshot) => {
+      querySnapshot.size === 0
+        ? $("#cargador-novedades").addClass("d-none")
+        : "";
+      querySnapshot.forEach((doc) => {
+        let path = doc.ref.path.split("/");
+        let data = doc.data();
+        consultarGuiaFb(path[1], doc.id, data, "Solucionar Novedad");
+      });
+    });
+  }
+}
+
 
 export function revisarMovimientosGuiasUser(novedades_transportadora) {
   novedadesExcelData = [];
@@ -3775,12 +3772,13 @@ export function revisarMovimientosGuiasUser(novedades_transportadora) {
   cargadorClass.remove("d-none");
 
   const filtroTransp = novedades_transportadora;
-  firebase
-    .firestore()
-    .collectionGroup("estadoGuias")
-    .where(buscador, toggle, filtro)
-    .limit(30)
-    .get()
+  const estadoGuiasQuery = query(
+    collectionGroup(db, "estadoGuias"),
+    where(buscador, toggle, filtro),
+    limit(30)
+  );
+
+  getDocs(estadoGuiasQuery)
     .then((querySnapshot) => {
       let contador = 0;
       let size = querySnapshot.size;
@@ -3806,7 +3804,6 @@ export function revisarMovimientosGuiasUser(novedades_transportadora) {
           contador,
           size
         );
-        // console.log(doc.data());
       });
     })
     .then(() => {
@@ -3814,7 +3811,8 @@ export function revisarMovimientosGuiasUser(novedades_transportadora) {
     });
 }
 
-function revisarNovedades(transportadora) {
+
+export function revisarNovedades(transportadora) {
   novedadesExcelData = [];
   selectChoiceEstados?.clearChoices();
 
@@ -3822,44 +3820,47 @@ function revisarNovedades(transportadora) {
   cargadorClass.remove("d-none");
 
   const usuarios = new Set();
-  firebase
-    .firestore()
-    .collectionGroup("estadoGuias")
-    .where("enNovedad", "==", true)
-    .where("transportadora", "==", transportadora)
-    // .limit(10)
-    .get()
-    .then((q) => {
-      let contador = 0;
-      let size = q.size;
-      console.log(size);
 
-      if (!size) cargadorClass.add("d-none");
+  const estadoGuiasQuery = query(
+    collectionGroup(db, "estadoGuias"),
+    where("enNovedad", "==", true),
+    where("transportadora", "==", transportadora)
+    // Puedes habilitar el límite si es necesario
+    // limit(10)
+  );
 
-      q.forEach((d) => {
-        let path = d.ref.path.split("/");
-        let dato = d.data();
-        contador++;
+  getDocs(estadoGuiasQuery).then((querySnapshot) => {
+    let contador = 0;
+    let size = querySnapshot.size;
+    console.log(size);
 
-        usuarios.add(path[1]);
+    if (!size) cargadorClass.add("d-none");
 
-        consultarGuiaFb(
-          path[1],
-          d.id,
-          dato,
-          dato.centro_de_costo,
-          contador,
-          size
-        );
-      });
+    querySnapshot.forEach((doc) => {
+      let path = doc.ref.path.split("/");
+      let dato = doc.data();
+      contador++;
 
-      if (revisarTiempoGuiasActualizadas()) return;
+      usuarios.add(path[1]);
 
-      usuarios.forEach(actualizarEstadosEnNovedadUsuario);
-
-      localStorage.last_update_novedad = new Date();
+      consultarGuiaFb(
+        path[1],
+        doc.id,
+        dato,
+        dato.centro_de_costo,
+        contador,
+        size
+      );
     });
+
+    if (revisarTiempoGuiasActualizadas()) return;
+
+    usuarios.forEach(actualizarEstadosEnNovedadUsuario);
+
+    localStorage.last_update_novedad = new Date();
+  });
 }
+
 
 async function actualizarEstadoGuia(numeroGuia, id_user = user_id, wait) {
   console.log(numeroGuia, id_user);
@@ -3897,21 +3898,19 @@ function actualizarEstadosEnNovedadUsuario(user_id) {
   });
 }
 
-function revisarGuiaUser(id_heka) {
+export function revisarGuiaUser(id_heka) {
   const cargadorClass = document.getElementById("cargador-novedades").classList;
   cargadorClass.remove("d-none");
 
-  usuarioDoc
-    .collection("guias")
-    .doc(id_heka)
-    .get()
-    .then((doc) => {
-      if (doc.exists) {
-        console.log(id_heka);
-        consultarEstadoGuiasParaUsuario(doc.data(), id_heka);
-      }
-      cargadorClass.add("d-none");
-    });
+  const guiaDocRef = doc(collection(usuarioDoc, "guias"), id_heka);
+
+  getDoc(guiaDocRef).then((docSnapshot) => {
+    if (docSnapshot.exists()) {
+      console.log(id_heka);
+      consultarEstadoGuiasParaUsuario(docSnapshot.data(), id_heka);
+    }
+    cargadorClass.add("d-none");
+  });
 }
 
 const btn_revisar_novedades = document.getElementById("btn-revisar-novedades");
@@ -4033,41 +4032,42 @@ function consultarGuia(
 }
 
 // actualizarMovimientoGuia();
-function actualizarMovimientoGuia() {
-  if (!administracion)
-    usuarioDoc
-      .collection("guias")
-      .where("seguimiento_finalizado", "==", false)
-      .onSnapshot((snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-          if (change.type == "modified") {
-            console.log(change.doc.data());
-            consultarEstadoGuiasParaUsuario(change.doc.data(), change.doc.id);
-          }
-        });
+export function actualizarMovimientoGuia() {
+  if (!administracion) {
+    const guiasQuery = query(
+      collection(usuarioDoc, "guias"),
+      where("seguimiento_finalizado", "==", false)
+    );
+
+    onSnapshot(guiasQuery, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "modified") {
+          console.log(change.doc.data());
+          consultarEstadoGuiasParaUsuario(change.doc.data(), change.doc.id);
+        }
       });
-}
-
-function consultarEstadoGuiasParaUsuario(data, id) {
-  usuarioDoc
-    .collection("estadoGuias")
-    .doc(id)
-    .get()
-    .then((doc) => {
-      if (doc.exists) {
-        // if(doc.data().mostrar_usuario)
-        tablaMovimientosGuias(
-          doc.data(),
-          data,
-          "Para revisar",
-          id,
-          localStorage.user_id
-        );
-      }
     });
+  }
 }
 
-function consultarGuiaFb(
+export function consultarEstadoGuiasParaUsuario(data, id) {
+  const estadoGuiasDocRef = doc(collection(usuarioDoc, "estadoGuias"), id);
+
+  getDoc(estadoGuiasDocRef).then((docSnapshot) => {
+    if (docSnapshot.exists()) {
+      // if(docSnapshot.data().mostrar_usuario)
+      tablaMovimientosGuias(
+        docSnapshot.data(),
+        data,
+        "Para revisar",
+        id,
+        localStorage.user_id
+      );
+    }
+  });
+}
+
+export function consultarGuiaFb(
   id_user,
   id,
   data,
@@ -4075,22 +4075,21 @@ function consultarGuiaFb(
   contador,
   total_consulta
 ) {
-  //Cuando Id_user existe, id corresponde a el id_heka, cuando no, corresponde al número de gíia
+  // Cuando Id_user existe, id corresponde al id_heka, cuando no, corresponde al número de guía
   if (id_user) {
-    firebase
-      .firestore()
-      .collection("usuarios")
-      .doc(id_user)
-      .collection("guias")
-      .doc(id)
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          tablaMovimientosGuias(data, doc.data(), usuario, id, id_user);
+    const guiaDocRef = doc(
+      collection(doc(collection(db, "usuarios"), id_user), "guias"),
+      id
+    );
+
+    getDoc(guiaDocRef)
+      .then((docSnapshot) => {
+        if (docSnapshot.exists()) {
+          tablaMovimientosGuias(data, docSnapshot.data(), usuario, id, id_user);
         }
       })
       .then(() => {
-        if (contador == total_consulta) {
+        if (contador === total_consulta) {
           $("#cargador-novedades").addClass("d-none");
           let table = $("#tabla-estadoGuias-" + usuario.replace(/\s/g, ""));
 
@@ -4098,59 +4097,70 @@ function consultarGuiaFb(
         }
       });
   } else {
-    firebase
-      .firestore()
-      .collectionGroup("guias")
-      .where("numeroGuia", "==", id)
-      .get()
+    const guiasQuery = query(
+      collectionGroup(db, "guias"),
+      where("numeroGuia", "==", id)
+    );
+
+    getDocs(guiasQuery)
       .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          let path = doc.ref.path.split("/");
-          tablaMovimientosGuias(data, doc.data(), usuario, path[3], path[1]);
+        querySnapshot.forEach((docSnapshot) => {
+          let path = docSnapshot.ref.path.split("/");
+          tablaMovimientosGuias(
+            data,
+            docSnapshot.data(),
+            usuario,
+            path[3],
+            path[1]
+          );
         });
       })
       .then(() => {
-        if (contador == total_consulta) {
+        if (contador === total_consulta) {
           $("#cargador-novedades").addClass("d-none");
         }
       });
   }
 }
 
-function revisarDeudas() {
+export function revisarDeudas() {
   $("#cargador-deudas").children().removeClass("d-none");
   $("#visor-deudas").html("");
-  firebase
-    .firestore()
-    .collectionGroup("guias")
-    .where("user_debe", ">", 0)
-    .get()
-    .then((querySnapshot) => {
-      let id_users = new Array();
-      querySnapshot.forEach((doc) => {
-        let data = doc.data();
-        mostradorDeudas(data);
-        if (id_users.indexOf(data.id_user) == -1) {
-          id_users.push(data.id_user);
-        }
-      });
-      id_users.forEach(async (id_user) => {
-        let reference = firebase.firestore().collection("usuarios");
 
-        let saldo = await reference
-          .doc(id_user)
-          .get()
-          .then((doc) => {
-            if (doc.exists && doc.data().datos_personalizados) {
-              return doc.data().datos_personalizados.saldo;
-            }
-            return "saldo no encontrado";
-          });
-        consolidadorTotales("#deudas-" + id_user, saldo);
-      });
-      habilitarSeleccionDeFilasInternas('[data-function="selectAll"]');
-      $("#cargador-deudas").children().addClass("d-none");
+  // Consulta para obtener guías donde 'user_debe' es mayor a 0
+  const guiasQuery = query(
+    collectionGroup(db, "guias"),
+    where("user_debe", ">", 0)
+  );
+
+  getDocs(guiasQuery).then((querySnapshot) => {
+    let id_users = new Array();
+    querySnapshot.forEach((docSnapshot) => {
+      let data = docSnapshot.data();
+      mostradorDeudas(data);
+      if (id_users.indexOf(data.id_user) === -1) {
+        id_users.push(data.id_user);
+      }
     });
+
+    id_users.forEach(async (id_user) => {
+      // Referencia a la colección 'usuarios'
+      const usuariosCollectionRef = collection(db, "usuarios");
+      const userDocRef = doc(usuariosCollectionRef, id_user);
+
+      let saldo = await getDoc(userDocRef).then((docSnapshot) => {
+        if (docSnapshot.exists() && docSnapshot.data().datos_personalizados) {
+          return docSnapshot.data().datos_personalizados.saldo;
+        }
+        return "saldo no encontrado";
+      });
+
+      consolidadorTotales("#deudas-" + id_user, saldo);
+    });
+
+    habilitarSeleccionDeFilasInternas('[data-function="selectAll"]');
+    $("#cargador-deudas").children().addClass("d-none");
+  });
 }
 
 function habilitarSeleccionDeFilasInternas(query) {
@@ -4167,7 +4177,7 @@ function habilitarSeleccionDeFilasInternas(query) {
   });
 }
 
-function consolidadorTotales(query, saldo) {
+export function consolidadorTotales(query, saldo) {
   // let mostradores = new Array();
   let deuda = typeof saldo == "number" ? "$" + convertirMiles(saldo) : saldo;
 
@@ -4175,16 +4185,15 @@ function consolidadorTotales(query, saldo) {
     ["Actualmente Debe", deuda, "search-dollar"],
     ["Deuda sumada", "", "dollar-sign"],
   ];
-  firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(query.replace("#deudas-", ""))
-    .onSnapshot((doc) => {
-      if (doc.exists && doc.data().datos_personalizados) {
-        saldo = doc.data().datos_personalizados.saldo;
-        mostrador[0][1] = "$" + convertirMiles(saldo);
-      }
-    });
+
+  // Actualización para Firebase 11
+  const userDocRef = doc(collection(db, "usuarios"), query.replace("#deudas-", ""));
+  onSnapshot(userDocRef, (docSnapshot) => {
+    if (docSnapshot.exists() && docSnapshot.data().datos_personalizados) {
+      saldo = docSnapshot.data().datos_personalizados.saldo;
+      mostrador[0][1] = "$" + convertirMiles(saldo);
+    }
+  });
 
   let totalizadores = $(query).find(".totalizador");
   let totalInt = 0;
@@ -4282,7 +4291,7 @@ function consolidadorTotales(query, saldo) {
     });
 }
 
-async function saldar(checked, momento_saldado) {
+export async function saldar(checked, momento_saldado) {
   let deudaGuias = 0;
   let selected_checks = 0;
 
@@ -4292,20 +4301,19 @@ async function saldar(checked, momento_saldado) {
     let id_heka = check.getAttribute("data-id_heka");
     let id_user = check.getAttribute("data-id_user");
     let deuda = check.getAttribute("data-deuda");
-    try {
-      let reference = firebase.firestore().collection("usuarios").doc(id_user);
 
-      let data = await reference
-        .collection("guias")
-        .doc(id_heka)
-        .get()
-        .then((doc) => doc.data());
+    try {
+      // Referencia a la colección "usuarios"
+      const userDocRef = doc(collection(db, "usuarios"), id_user);
+
+      // Obtener el documento de la guía
+      const guiaDocRef = doc(collection(userDocRef, "guias"), id_heka);
+      const guiaSnapshot = await getDoc(guiaDocRef);
+      const data = guiaSnapshot.exists() ? guiaSnapshot.data() : null;
 
       if (data) {
-        // await reference.collection("guiasSaldadas")
-        // .doc(id_heka).set(data);
-
-        await reference.collection("guias").doc(id_heka).update({
+        // Actualizar el documento de la guía
+        await updateDoc(guiaDocRef, {
           user_debe: 0,
           momento_saldado,
           dinero_saldado: deuda,
@@ -4318,6 +4326,7 @@ async function saldar(checked, momento_saldado) {
       console.log(err);
     }
   }
+
   return [deudaGuias, selected_checks];
 }
 
@@ -4344,67 +4353,70 @@ $('[href="#novedades"]').click(() => {
   });
 });
 
-function revisarGuiasSaldas() {
+
+export function revisarGuiasSaldas() {
   $("#cargador-deudas").children().removeClass("d-none");
-  usuarioDoc
-    .collection("guias")
-    .orderBy("momento_saldado")
-    .get()
-    .then((querySnapshot) => {
-      let data = [];
-      querySnapshot.forEach((doc) => {
-        let info = doc.data();
-        info.fecha_saldada = genFecha(info.momento_saldado);
-        data.push(info);
-      });
-      console.log(data);
 
-      $("#visor-deudas").DataTable({
-        data: data,
-        destroy: true,
-        language: {
-          url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
-          emptyTable: "Aún no tienes guías saldadas.",
-        },
-        lengthMenu: [
-          [10, 25, 50, 100, -1],
-          [10, 25, 50, 100, "Todos"],
-        ],
-        columnDefs: [{ className: "cell-border" }],
-        columns: [
-          { data: "id_heka", title: "# Guía Heka" },
-          { data: "fecha", title: "Fecha creación" },
-          { data: "fecha_saldada", title: "Fecha Saldada" },
-          { data: "type", title: "Tipo Guía" },
-          { data: "dinero_saldado", title: "Cant. Saldada" },
-        ],
-        fixedHeader: { footer: true },
-        drawCallback: function (settings) {
-          let api = this.api();
+  const guiasQuery = query(
+    collection(usuarioDoc, "guias"),
+    orderBy("momento_saldado")
+  );
 
-          let intVal = function (i) {
-            return typeof i === "string"
-              ? i.replace(/[\$.]/g, "") * 1
-              : typeof i === "number"
-              ? i
-              : 0;
-          };
+  getDocs(guiasQuery).then((querySnapshot) => {
+    let data = [];
+    querySnapshot.forEach((doc) => {
+      let info = doc.data();
+      info.fecha_saldada = genFecha(info.momento_saldado);
+      data.push(info);
+    });
+    console.log(data);
 
-          total = api
-            .column(4)
-            .data()
-            .reduce((a, b) => {
-              return intVal(a) + intVal(b);
-            }, 0);
+    $("#visor-deudas").DataTable({
+      data: data,
+      destroy: true,
+      language: {
+        url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
+        emptyTable: "Aún no tienes guías saldadas.",
+      },
+      lengthMenu: [
+        [10, 25, 50, 100, -1],
+        [10, 25, 50, 100, "Todos"],
+      ],
+      columnDefs: [{ className: "cell-border" }],
+      columns: [
+        { data: "id_heka", title: "# Guía Heka" },
+        { data: "fecha", title: "Fecha creación" },
+        { data: "fecha_saldada", title: "Fecha Saldada" },
+        { data: "type", title: "Tipo Guía" },
+        { data: "dinero_saldado", title: "Cant. Saldada" },
+      ],
+      fixedHeader: { footer: true },
+      drawCallback: function (settings) {
+        let api = this.api();
 
-          pageTotal = api
-            .column(4, { page: "current" })
-            .data()
-            .reduce((a, b) => {
-              return intVal(a) + intVal(b);
-            }, 0);
+        let intVal = function (i) {
+          return typeof i === "string"
+            ? i.replace(/[\$.]/g, "") * 1
+            : typeof i === "number"
+            ? i
+            : 0;
+        };
 
-          $(this).children("tfoot").html(`
+        total = api
+          .column(4)
+          .data()
+          .reduce((a, b) => {
+            return intVal(a) + intVal(b);
+          }, 0);
+
+        pageTotal = api
+          .column(4, { page: "current" })
+          .data()
+          .reduce((a, b) => {
+            return intVal(a) + intVal(b);
+          }, 0);
+
+        $(this).children("tfoot").html(`
                 <tr>
                     <td colspan="3"></td>
                     <td colspan="2"><h4>$${convertirMiles(
@@ -4412,14 +4424,15 @@ function revisarGuiasSaldas() {
                     )} (total: $${convertirMiles(total)})</h4></td>
                 </tr>
                 `);
-          $(api.column(3).footer()).html(
-            `$${convertirMiles(pageTotal)} (${convertirMiles(total)} : total)`
-          );
-        },
-      });
-      $("#cargador-deudas").children().addClass("d-none");
+        $(api.column(3).footer()).html(
+          `$${convertirMiles(pageTotal)} (${convertirMiles(total)} : total)`
+        );
+      },
     });
+    $("#cargador-deudas").children().addClass("d-none");
+  });
 }
+
 
 $("#guias_punto-hist_guias").on("change", (e) => {
   if (e.target.checked) {
