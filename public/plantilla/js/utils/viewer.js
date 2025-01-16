@@ -1,5 +1,12 @@
-function mostrar(id) {
-    let content = document.getElementById("viewer").children;
+export function mostrar(id) {
+    let viewerElement = document.getElementById("viewer");
+    
+    if (!viewerElement) {
+        console.error("Elemento con id 'viewer' no encontrado");
+        return;
+    }
+
+    let content = viewerElement.children;
 
     if(id == "" || !window.top[id]){
         dNone(content);
@@ -36,3 +43,5 @@ window.onload = mostrar(window.location.hash.replace(/#/, ""));
 window.addEventListener("hashchange", () => {
     mostrar(window.location.hash.replace(/#/, ""));
 })
+
+window.mostrar = mostrar;

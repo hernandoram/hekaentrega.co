@@ -1833,7 +1833,7 @@ export function mostrarNotificacionEstaticaUsuario(noti, id) {
   });
 }
 
-async function mostrarNotificacionAlertaUsuario(noti, id) {
+export async function mostrarNotificacionAlertaUsuario(noti, id) {
   if (noti.startDate > new Date().getTime()) return;
 
   const opciones = {

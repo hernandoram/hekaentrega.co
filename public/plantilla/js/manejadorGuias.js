@@ -1,8 +1,30 @@
-import { db, doc, getDoc, getDocs, collection, query, orderBy, where, onSnapshot, startAfter, limit, endAt, startAt } from "/js/config/initializeFirebase.js";
-import { value, inHTML } from '/js/main.js';
-import { mostrarNotificacion, mostrarNotificacionEstaticaUsuario, listaNotificacionesAlerta } from '/js/render.js';
-import { convertirMiles } from '/js/cotizador.js';
-import { user_id, ControlUsuario } from '/js/cargadorDeDatos.js';
+/** @format */
+
+import {
+  db,
+  doc,
+  getDoc,
+  getDocs,
+  collection,
+  query,
+  orderBy,
+  where,
+  onSnapshot,
+  startAfter,
+  limit,
+  endAt,
+  startAt,
+} from "/js/config/initializeFirebase.js";
+import { value, inHTML } from "/js/main.js";
+import {
+  mostrarNotificacion,
+  mostrarNotificacionEstaticaUsuario,
+  listaNotificacionesAlerta,
+} from "/js/render.js";
+import { convertirMiles } from "/js/cotizador.js";
+import { user_id, ControlUsuario } from "/js/cargadorDeDatos.js";
+import { mostrarNotificacionAlertaUsuario } from "/js/render.js";
+
 let filtroPagos;
 
 if (administracion) {
@@ -761,7 +783,8 @@ export function crearDocumentos(e, dt, node, config) {
 
   //Verifica que todas las guias crrespondan al mismo tipo
   let tipos_diferentes = revisarCompatibilidadGuiasSeleccionadas(arrGuias);
-  const guia_automatizada = transportadoras[arrGuias[0].transportadora].sistemaAutomatizado();
+  const guia_automatizada =
+    transportadoras[arrGuias[0].transportadora].sistemaAutomatizado();
   //Si no corresponden, arroja una excepción
   if (tipos_diferentes.error) {
     node.prop("disabled", false);
@@ -813,7 +836,8 @@ export function crearDocumentos(e, dt, node, config) {
       }
 
       const transportadora = arrGuias[0].transportadora;
-      const generacion_automatizada = transportadoras[transportadora].sistemaAutomatizado();
+      const generacion_automatizada =
+        transportadoras[transportadora].sistemaAutomatizado();
 
       arrGuias.sort((a, b) => {
         return a.numeroGuia > b.numeroGuia ? 1 : -1;
@@ -913,7 +937,8 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
     causa: "",
   };
   const diferentes = arrGuias.some((v, i, arr) => {
-    const generacion_automatizada =  transportadoras[v.transportadora].sistemaAutomatizado();
+    const generacion_automatizada =
+      transportadoras[v.transportadora].sistemaAutomatizado();
 
     if (v.type != arr[i ? i - 1 : i].type) {
       mensaje.causa = "TIPO";
@@ -1215,7 +1240,7 @@ let documento = [],
   guias = [];
 
 //muestra los documento al admin y le otorga funcionalidad a los botones
-function cargarDocumentos(filter) {
+export function cargarDocumentos(filter) {
   $("#statistics-filter-user").remove();
   $("#buscador-documentos").html(`
         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -1225,20 +1250,32 @@ function cargarDocumentos(filter) {
   let reference = collection(db, "documentos");
   let docFiltrado;
   let fecha_inicio = Date.parse(value("docs-fecha-inicio").replace(/\-/g, "/")),
-      fecha_final = Date.parse(value("docs-fecha-final").replace(/\-/g, "/")) + 8.64e7;
+    fecha_final =
+      Date.parse(value("docs-fecha-final").replace(/\-/g, "/")) + 8.64e7;
 
   switch (filter) {
     case "fecha":
-      docFiltrado = query(reference, orderBy("timeline", "desc"), startAt(fecha_final), endAt(fecha_inicio));
+      docFiltrado = query(
+        reference,
+        orderBy("timeline", "desc"),
+        startAt(fecha_final),
+        endAt(fecha_inicio)
+      );
       break;
     case "sin gestionar":
-      docFiltrado = query(reference, where("descargar_relacion_envio", "==", false));
+      docFiltrado = query(
+        reference,
+        where("descargar_relacion_envio", "==", false)
+      );
       break;
     case "important":
       docFiltrado = query(reference, where("important", "==", true));
       break;
     default:
-      docFiltrado = query(reference, where("guias", "array-contains-any", filter));
+      docFiltrado = query(
+        reference,
+        where("guias", "array-contains-any", filter)
+      );
   }
 
   getDocs(docFiltrado)
@@ -1247,15 +1284,18 @@ function cargarDocumentos(filter) {
       let users = [];
       let counter_guias = 0;
       let counter_convencional = 0,
-          counter_pagoContraentrega = 0;
+        counter_pagoContraentrega = 0;
       let [counter_inter, counter_servi] = [0, 0];
 
       let docs = querySnapshot.docs;
       docs.sort((a, b) => b.data().timeline - a.data().timeline);
 
       docs.forEach((doc) => {
-        doc.data().type === "CONVENCIONAL" ? counter_convencional++ : counter_pagoContraentrega++;
-        if (!users.includes(doc.data().centro_de_costo)) users.push(doc.data().centro_de_costo);
+        doc.data().type === "CONVENCIONAL"
+          ? counter_convencional++
+          : counter_pagoContraentrega++;
+        if (!users.includes(doc.data().centro_de_costo))
+          users.push(doc.data().centro_de_costo);
         counter_guias += doc.data().guias.length;
 
         if (doc.data().descargar_relacion_envio || doc.data().descargar_guias) {
@@ -1263,7 +1303,9 @@ function cargarDocumentos(filter) {
           documentos.appendChild(
             toHtmlNode(mostrarDocumentos(doc.id, doc.data(), "warning"))
           );
-          let descargador_completo = document.getElementById("descargar-docs" + doc.id);
+          let descargador_completo = document.getElementById(
+            "descargar-docs" + doc.id
+          );
           descargador_completo.classList.remove("fa", "fa-file");
           descargador_completo.classList.add("fas", "fa-file-alt");
           descargador_completo.style.cursor = "alias";
@@ -1314,7 +1356,9 @@ function cargarDocumentos(filter) {
     .then(() => {
       // Luego de cargar todo, agrega funciones a los botones
       let botones = document.querySelectorAll('[data-funcion="descargar"]');
-      let descargador_completo = document.querySelectorAll('[data-funcion="descargar-docs"]');
+      let descargador_completo = document.querySelectorAll(
+        '[data-funcion="descargar-docs"]'
+      );
       let visor_guias = document.querySelectorAll("[data-mostrar='texto']");
 
       // Para el boton que carga documentos
@@ -1322,15 +1366,21 @@ function cargarDocumentos(filter) {
         boton.addEventListener("click", (e) => {
           boton.disabled = true;
           const idUser = e.target.parentNode.getAttribute("data-user");
-          const guias = e.target.parentNode.getAttribute("data-guias").split(",");
+          const guias = e.target.parentNode
+            .getAttribute("data-guias")
+            .split(",");
           const nombre = e.target.parentNode.getAttribute("data-nombre");
           const type = e.target.parentNode.getAttribute("data-type");
-          const transp = e.target.parentNode.getAttribute("data-transportadora");
+          const transp = e.target.parentNode.getAttribute(
+            "data-transportadora"
+          );
           documento = [];
           cargarDocumento(idUser, guias)
             .then(() => {
               let data = documento;
-              data.sort((obja, objb) => parseInt(obja.id_heka) - parseInt(objb.id_heka));
+              data.sort(
+                (obja, objb) => parseInt(obja.id_heka) - parseInt(objb.id_heka)
+              );
               if (guiaRepetida(data)) {
                 return avisar(
                   "¡Posible error Detectado!",
@@ -1587,28 +1637,28 @@ function habilitarOtrosFiltrosDeDocumentosAdmin() {
 }
 
 //En invocada cada vez que se va a cargar un documento
-async function cargarDocumento(id_user, arrGuias) {
+export async function cargarDocumento(id_user, arrGuias) {
   guias = arrGuias;
   guias.sort();
-  if (guiaRepetida(guias))
+  if (guiaRepetida(guias)) {
     return avisar(
       "¡Posible error Detectado!",
       "Uno de los identificadores encontrados, está repetido, el proceso ha sido cancelado, le recomiendo recargar la página",
       "aviso"
     );
+  }
+
   for (let guia of guias) {
-    await firebase
-      .firestore()
-      .collection("usuarios")
-      .doc(id_user)
-      .collection("guias")
-      .doc(guia)
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          documento.push(doc.data());
-        }
-      });
+    const referenciaGuia = firestoreDoc(
+      firestoreCollection(db, "usuarios", id_user, "guias"),
+      guia
+    );
+
+    await getDoc(referenciaGuia).then((doc) => {
+      if (doc.exists()) {
+        documento.push(doc.data());
+      }
+    });
   }
 }
 
@@ -1701,13 +1751,14 @@ function descargarExcelServi(JSONData, ReportTitle, type) {
 let errActualizarNovedades = [];
 let actualizadasCorrectamente = 0;
 
-async function subirExcelNovedades() {
+export async function subirExcelNovedades() {
   let datos = [];
   let contador = 0;
   let label = document.getElementById("excelDocSolucionesLabel");
   let inputExcel = document.getElementById("excelDocSoluciones");
   let data = new FormData(document.getElementById("form-novedades"));
   console.log(data.get("documento"));
+
   fetch("/excel_to_json", {
     method: "POST",
     body: data,
@@ -1723,6 +1774,7 @@ async function subirExcelNovedades() {
       label.innerHTML = "Seleccionar Archivo";
       datos = await res.json();
       let tamaño = datos.length;
+
       datos.forEach(async (data) => {
         contador++;
         let anteriorSeguimiento;
@@ -1732,29 +1784,26 @@ async function subirExcelNovedades() {
         const respuesta = data["RESPUESTA TRANSPORTADORA"];
         const actualizar = data["ACTUALIZAR"];
         const transpor = data["TRANSPORTADORA"];
-        const referenciaGuia = firebase
-          .firestore()
-          .collection("usuarios")
-          .doc(id_user)
-          .collection("guias")
-          .doc(id_heka);
 
-        referenciaGuia.get().then(async (doc) => {
-          anteriorSeguimiento = doc.data().seguimiento
-            ? doc.data().seguimiento[doc.data().seguimiento?.length - 1]
-            : console.log(doc.data().seguimiento);
+        const referenciaGuia = firestoreDoc(
+          firestoreCollection(db, "usuarios", id_user, "guias"),
+          id_heka
+        );
+
+        getDoc(referenciaGuia).then(async (doc) => {
+          anteriorSeguimiento = doc.data()?.seguimiento
+            ? doc.data().seguimiento[doc.data().seguimiento.length - 1]
+            : null;
 
           let respuestaRepetida = false;
           if (anteriorSeguimiento?.admin) {
-            console.log("entro");
             const respAnt =
               '<b>La transportadora "' +
               transpor +
               '" responde lo siguiente:</b> ' +
               respuesta.trim();
-            console.log(respAnt);
-            console.log(anteriorSeguimiento.gestion);
-            if (anteriorSeguimiento.gestion == respAnt) {
+
+            if (anteriorSeguimiento.gestion === respAnt) {
               errActualizarNovedades.push({
                 guia: numGuia,
                 error: "Ultima respuesta duplicada",
@@ -1764,13 +1813,14 @@ async function subirExcelNovedades() {
           } else if (!respuesta) {
             errActualizarNovedades.push({
               guia: numGuia,
-              error: "No se encontro la informacion necesaria",
+              error: "No se encontró la información necesaria",
             });
           }
-          if (errActualizarNovedades.length == tamaño) {
+
+          if (errActualizarNovedades.length === tamaño) {
             Swal.fire({
               icon: "error",
-              title: "Informe de actualizacion",
+              title: "Informe de actualización",
               showDenyButton: true,
               denyButtonText: `Descargar reporte`,
               text:
@@ -1788,7 +1838,8 @@ async function subirExcelNovedades() {
               }
             });
           }
-          if (actualizar == "SI" && respuesta && !respuestaRepetida) {
+
+          if (actualizar === "SI" && respuesta && !respuestaRepetida) {
             const solucion = {
               gestion:
                 '<b>La transportadora "' +
@@ -1799,22 +1850,14 @@ async function subirExcelNovedades() {
               admin: true,
               type: "Masivo",
             };
-            console.log(anteriorSeguimiento);
 
-            await referenciaGuia
-              .update({
-                seguimiento: firebase.firestore.FieldValue.arrayUnion(solucion),
-                novedad_solucionada: true,
-              })
+            await updateDoc(referenciaGuia, {
+              seguimiento: arrayUnion(solucion),
+              novedad_solucionada: true,
+            })
               .then(() => {
-                console.log("todo nice");
                 actualizadasCorrectamente++;
-                console.log(actualizadasCorrectamente);
-                firebase
-                  .firestore()
-                  .collection("notificaciones")
-                  .doc(id_heka)
-                  .delete();
+                deleteDoc(firestoreDoc(db, "notificaciones", id_heka));
 
                 enviarNotificacion({
                   visible_user: true,
@@ -1829,7 +1872,6 @@ async function subirExcelNovedades() {
                 });
 
                 revisarMovimientosGuias(true, null, null, numGuia);
-
               })
               .catch((err) => {
                 errActualizarNovedades.push({
@@ -1838,13 +1880,10 @@ async function subirExcelNovedades() {
                 });
               })
               .finally(() => {
-                console.log(datos.length);
-                console.log(contador);
-
-                if (contador == datos.length) {
+                if (contador === datos.length) {
                   Swal.fire({
                     icon: "success",
-                    title: "Informe de actualizacion",
+                    title: "Informe de actualización",
                     showDenyButton: true,
                     denyButtonText: `Descargar reporte`,
                     text:
@@ -2113,20 +2152,23 @@ function informeNovedadesLogistica(JSONData) {
     const extraData = data.extraData;
 
     // Acá colocaremos una condición que será controlada por un checkbox
-    if(false) {
-      if(!extraData.seguimiento) return; // No se tomará en cuenta aquellos que no tengan gestión por el usuario
-  
+    if (false) {
+      if (!extraData.seguimiento) return; // No se tomará en cuenta aquellos que no tengan gestión por el usuario
+
       // Si el último seguimiento fue una respuesta del admin, tampoco se tomará en cuenta
-      if(
-        extraData.seguimiento[extraData.seguimiento.length - 1].admin
-        || extraData.seguimiento[extraData.seguimiento.length - 1].gestion.includes("<b>")
-      ) return;
+      if (
+        extraData.seguimiento[extraData.seguimiento.length - 1].admin ||
+        extraData.seguimiento[
+          extraData.seguimiento.length - 1
+        ].gestion.includes("<b>")
+      )
+        return;
     }
 
     // Siempre que se selecciones una opción de filtrado para los estados, se tomarán en cuenta solo los que estén dento del mismo
     const valuesEstado = selectChoiceEstados.getValue(true);
-    if(valuesEstado.length && !valuesEstado.includes(data.data.estadoActual)) return;
-
+    if (valuesEstado.length && !valuesEstado.includes(data.data.estadoActual))
+      return;
 
     if (extraData.transportadora == "INTERRAPIDISIMO") {
       let dataFinal = {
@@ -2521,54 +2563,44 @@ function descargarInformeGuias(JSONData, ReportTitle) {
 }
 
 //Función que es utilizada por el admin para cargar los documentos al usuario
-function subirDocumentos() {
+export function subirDocumentos() {
   let cargadores = document.getElementsByClassName("cargar-documentos");
   let botones_envio = document.querySelectorAll('[data-funcion="enviar"]');
-  console.log(botones_envio);
   let num_guia_actualizado = false;
+
   for (let cargador of cargadores) {
-    //verifica y muestra cada documetno cargado
     cargador.addEventListener("change", (e) => {
-      let tipo_de_doumento = e.target.getAttribute("data-tipo");
+      let tipo_de_documento = e.target.getAttribute("data-tipo");
       let id_doc = e.target.parentNode.getAttribute("data-id_guia");
       let mostrador_relacion = document.getElementById(
         "mostrar-relacion-envio" + id_doc
       );
       let mostrador_guias = document.getElementById("mostrar-guias" + id_doc);
-      if (tipo_de_doumento == "num-guia") {
+
+      if (tipo_de_documento === "num-guia") {
         num_guia_actualizado = true;
-      } else if (tipo_de_doumento == "relacion-envio") {
+      } else if (tipo_de_documento === "relacion-envio") {
         mostrador_relacion.innerHTML =
           "Relación de envíos: " + e.target.files[0].name;
       } else {
         mostrador_guias.innerHTML = "Guías: " + e.target.files[0].name;
       }
 
-      if (true) {
-        document.getElementById("subir" + id_doc).classList.remove("d-none");
-      } else {
-        document.getElementById("subir" + id_doc).classList.add("d-none");
-      }
+      document
+        .getElementById("subir" + id_doc)
+        .classList.toggle("d-none", !e.target.files.length);
     });
   }
 
   for (let enviar of botones_envio) {
     enviar.addEventListener("click", async (e) => {
       e.preventDefault();
-      //Toma los archivos cargados y los envia a storage
       enviar.disabled = true;
+
       let parent = e.target.parentNode;
-      let id_doc = parent.getAttribute("data-id_guia"); // idGuia
-      let relacion_envio = document.getElementById(
-        "cargar-relacion-envio" + id_doc
-      );
-      let guias = document.getElementById("cargar-guias" + id_doc);
-      let actualizar_guia = document.getElementById(
-        "actualizar-num-guia" + id_doc
-      );
-      let id_user = parent.getAttribute("data-user"); // IdUser
-      let numero_guias = parent.getAttribute("data-guias").split(","); //IdHeka
-      let nombre_usuario = parent.getAttribute("data-nombre");
+      let id_doc = parent.getAttribute("data-id_guia");
+      let id_user = parent.getAttribute("data-user");
+      let numero_guias = parent.getAttribute("data-guias").split(",");
       let nombre_documento =
         numero_guias[0] +
         (numero_guias.length > 1
@@ -2577,79 +2609,69 @@ function subirDocumentos() {
       let nombre_guias = "Guias" + nombre_documento;
       let nombre_relacion = "Relacion" + nombre_documento;
 
-      const hasDocument = await firebase
-        .firestore()
-        .collection("documentos")
-        .doc(id_doc)
-        .get()
-        .then((doc) => doc.data().nombre_relacion || doc.data().nombre_guias);
+      const docRef = firestoreDoc(db, "documentos", id_doc);
+      const hasDocument = await getDoc(docRef).then(
+        (doc) => doc.data()?.nombre_relacion || doc.data()?.nombre_guias
+      );
 
       let continuar = true;
-      let actualizacionCompletada = true;
 
       if (hasDocument) {
         await Swal.fire({
           icon: "warning",
-          title: "¿Este documento ya tiene archivos cargados!",
-          text: "Se ha detectado archivos en este documentos, recuerde que al subir un documento, sutituirá el anterior del mismo. ¿Desea continuar?",
+          title: "¡Este documento ya tiene archivos cargados!",
+          text: "Se ha detectado archivos en este documento. Recuerde que al subir un documento, sustituirá el anterior. ¿Desea continuar?",
           showCancelButton: true,
           cancelButtonText: "¡No!, perdón",
-          confirmButtonText: "Si, sustituir 😎",
+          confirmButtonText: "Sí, sustituir 😎",
         }).then((response) => {
-          if (!response.isConfirmed) {
-            continuar = false;
-          }
+          continuar = response.isConfirmed;
         });
       }
 
       if (!continuar) {
-        return (enviar.disabled = false);
+        enviar.disabled = false;
+        return;
       }
 
-      console.log(relacion_envio.files[0]);
-      console.log(guias.files[0]);
-      console.log(numero_guias);
-      console.log(nombre_documento);
+      let storagePath = storageRef(storage, `${id_user}/${id_doc}`);
+      let guias_enviadas = false;
+      let relacion_enviada = false;
 
-      var storageUser = firebase
-        .storage()
-        .ref()
-        .child(id_user + "/" + id_doc);
-      let guias_enviadas, relacion_enviada;
-      //Sube los documentos a Storage y coloca el indice de busqueda en firestore().documentos
-      // .then(async (res)=>{
+      const relacion_envio = document.getElementById(
+        "cargar-relacion-envio" + id_doc
+      );
+      const guias = document.getElementById("cargar-guias" + id_doc);
+      const actualizar_guia = document.getElementById(
+        "actualizar-num-guia" + id_doc
+      );
 
-      // actualizacionCompletada = await res
-      // if (true) {
-      if (relacion_envio.files[0]) {
-        relacion_enviada = await storageUser
-          .child(nombre_relacion + ".pdf")
-          .put(relacion_envio.files[0])
-          .then((querySnapshot) => {
-            firebase.firestore().collection("documentos").doc(id_doc).update({
-              descargar_relacion_envio: true,
-              nombre_relacion,
-            });
-            return true;
-          });
-      }
-      console.log("oka");
-      if (guias.files[0]) {
-        console.log("ok");
-        guias_enviadas = await storageUser
-          .child(nombre_guias + ".pdf")
-          .put(guias.files[0])
-          .then((querySnapshot) => {
-            firebase.firestore().collection("documentos").doc(id_doc).update({
-              descargar_guias: true,
-              nombre_guias,
-              important: !relacion_enviada,
-            });
-            return true;
-          });
+      if (relacion_envio?.files[0]) {
+        await uploadBytes(
+          storageRef(storagePath, `${nombre_relacion}.pdf`),
+          relacion_envio.files[0]
+        );
+        await updateDoc(docRef, {
+          descargar_relacion_envio: true,
+          nombre_relacion,
+        });
+        relacion_enviada = true;
       }
 
-      if (actualizar_guia.files[0]) {
+      if (guias?.files[0]) {
+        await uploadBytes(
+          storageRef(storagePath, `${nombre_guias}.pdf`),
+          guias.files[0]
+        );
+        await updateDoc(docRef, {
+          descargar_guias: true,
+          nombre_guias,
+          important: !relacion_enviada,
+        });
+        guias_enviadas = true;
+      }
+
+      if (actualizar_guia?.files[0]) {
         actualizarNumGuia(id_doc, id_user, numero_guias);
       }
 
@@ -2659,40 +2681,40 @@ function subirDocumentos() {
           title: "Documento cargado con éxito",
           text: "¿Deseas eliminar la notificación?",
           showCancelButton: true,
-          cancelButtonText: "no, gracias",
-          confirmButtonText: "si, por favor",
-        }).then((response) => {
+          cancelButtonText: "No, gracias",
+          confirmButtonText: "Sí, por favor",
+        }).then(async (response) => {
           if (response.isConfirmed) {
-            db.collection("notificaciones")
-              .where("guias", "array-contains", numero_guias[0])
-              .get()
-              .then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                  if (doc.data().visible_admin) {
-                    doc.ref.delete();
-                  }
-                });
-              });
+            const notificacionesQuery = query(
+              firestoreCollection(db, "notificaciones"),
+              where("guias", "array-contains", numero_guias[0])
+            );
+
+            const querySnapshot = await getDocs(notificacionesQuery);
+            querySnapshot.forEach((doc) => {
+              if (doc.data().visible_admin) {
+                doc.ref.delete();
+              }
+            });
           }
         });
-
-        // apartado que será utilizado para cuando todos los usuarios tengan guías automáticas
-        // firebase.firestore().collection("notificaciones").add({
-        //     mensaje: `Se ha cargado un documento con las guias: ${numero_guias} a su cuenta.`,
-        //     fecha: genFecha(),
-        //     guias: numero_guias,
-        //     user_id: id_user,
-        //     visible_user: true,
-        //     timeline: new Date().getTime(),
-        //     type: "documento",
-        //     important
-        // })
-        // }
-        // })
-        // .catch((res)=>{
-        //   console.log(res + "hola peteeee")
-        //   actualizacionCompletada = res
-        // })
+         // apartado que será utilizado para cuando todos los usuarios tengan guías automáticas
+          // firebase.firestore().collection("notificaciones").add({
+          //     mensaje: `Se ha cargado un documento con las guias: ${numero_guias} a su cuenta.`,
+          //     fecha: genFecha(),
+          //     guias: numero_guias,
+          //     user_id: id_user,
+          //     visible_user: true,
+          //     timeline: new Date().getTime(),
+          //     type: "documento",
+          //     important
+          // })
+          // }
+          // })
+          // .catch((res)=>{
+          //   console.log(res + "hola peteeee")
+          //   actualizacionCompletada = res
+          // })
       }
 
       enviar.disabled = false;
@@ -2702,7 +2724,9 @@ function subirDocumentos() {
 
 //Similar a historial de Guias, carga los documentos al usuario por fecha.
 export async function actualizarHistorialDeDocumentos(timeline) {
-  $("#btn-historial-docs").html(`<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cargando...`);
+  $("#btn-historial-docs").html(
+    `<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Cargando...`
+  );
 
   if (user_id) {
     let fecha_inicio =
@@ -2715,14 +2739,21 @@ export async function actualizarHistorialDeDocumentos(timeline) {
 
     let reference = query(
       collection(db, "documentos"),
-      where(ControlUsuario.esPuntoEnvio ? "id_punto" : "id_user", "==", localStorage.user_id),
+      where(
+        ControlUsuario.esPuntoEnvio ? "id_punto" : "id_user",
+        "==",
+        localStorage.user_id
+      ),
       orderBy("timeline", "desc"),
       startAt(fecha_final + 8.64e7),
       endAt(fecha_inicio)
     );
 
     if (transportadora && transportadora !== "Todos") {
-      reference = query(reference, where("transportadora", "==", transportadora));
+      reference = query(
+        reference,
+        where("transportadora", "==", transportadora)
+      );
     }
 
     const querySnapshot = await getDocs(reference);
@@ -2743,8 +2774,12 @@ export async function actualizarHistorialDeDocumentos(timeline) {
       $("#body-documentos").append(htmlDocConverted);
       const id_descargar_guia = "#boton-descargar-guias";
       const id_descargar_relacion = "#boton-descargar-relacion_envio";
-      const btn_descarga_guia = document.querySelector(id_descargar_guia + docSnap.id);
-      const btn_descarga_relacion = document.querySelector(id_descargar_relacion + docSnap.id);
+      const btn_descarga_guia = document.querySelector(
+        id_descargar_guia + docSnap.id
+      );
+      const btn_descarga_relacion = document.querySelector(
+        id_descargar_relacion + docSnap.id
+      );
 
       const documentoReciente = () => docSnap;
 
@@ -2761,7 +2796,8 @@ export async function actualizarHistorialDeDocumentos(timeline) {
       });
 
       btn_descarga_guia.addEventListener("click", async (e) => {
-        e.target.innerHTML = "<span class='spinner-border spinner-border-sm'></span> Cargando...";
+        e.target.innerHTML =
+          "<span class='spinner-border spinner-border-sm'></span> Cargando...";
         e.target.setAttribute("disabled", true);
         const docActualizado = documentoReciente();
         await descargarStickerGuias(docActualizado);
@@ -2770,7 +2806,8 @@ export async function actualizarHistorialDeDocumentos(timeline) {
       });
 
       btn_descarga_relacion.addEventListener("click", (e) => {
-        e.target.innerHTML = "<span class='spinner-border spinner-border-sm'></span> Cargando...";
+        e.target.innerHTML =
+          "<span class='spinner-border spinner-border-sm'></span> Cargando...";
         e.target.setAttribute("disabled", true);
         descargarManifiesto(docSnap);
         e.target.innerHTML = "Descargar Manifiesto";
@@ -2782,16 +2819,12 @@ export async function actualizarHistorialDeDocumentos(timeline) {
         .addEventListener("click", function () {
           if (datos_usuario.type == "NATURAL-FLEXII") {
             generarGuiaFlexii(
-              this.parentNode.parentNode
-                .getAttribute("data-guides")
-                .split(",")
+              this.parentNode.parentNode.getAttribute("data-guides").split(",")
             );
           } else {
             console.log(this.parentNode.parentNode);
             generarRotulo(
-              this.parentNode.parentNode
-                .getAttribute("data-guides")
-                .split(","), // La lista de guías del documento
+              this.parentNode.parentNode.getAttribute("data-guides").split(","), // La lista de guías del documento
               this.parentNode.parentNode.getAttribute("data-user") // El usuario asociado a dicho conjunto de guías
             );
           }
@@ -2800,13 +2833,15 @@ export async function actualizarHistorialDeDocumentos(timeline) {
 
     const contarExistencia = tabla.length;
     if (document.getElementById("body-documentos")) {
-      tabla.forEach(item => {
+      tabla.forEach((item) => {
         printHTML("body-documentos", item);
       });
     }
 
     const historialDocsElement = document.getElementById("historial-docs");
-    const nohayDatosElement = document.getElementById("nohaydatosHistorialDocumentos");
+    const nohayDatosElement = document.getElementById(
+      "nohaydatosHistorialDocumentos"
+    );
 
     if (historialDocsElement && nohayDatosElement) {
       if (querySnapshot.size === 0) {
@@ -2834,36 +2869,39 @@ export async function actualizarHistorialDeDocumentos(timeline) {
 }
 
 //Función que descarga todos los documentos cargados
-function descargarDocumentos(id_doc) {
-  firebase
-    .firestore()
-    .collection("documentos")
-    .doc(id_doc)
-    .get()
-    .then((doc) => {
-      if (doc.exists) {
-        descargarStickerGuias(doc);
+export function descargarDocumentos(id_doc) {
+  const docRef = firestoreDoc(db, "documentos", id_doc);
 
+  getDoc(docRef)
+    .then((doc) => {
+      if (doc.exists()) {
+        descargarStickerGuias(doc);
         descargarManifiesto(doc);
       }
+    })
+    .catch((error) => {
+      console.error("Error al obtener el documento:", error);
     });
 }
 
 // funcion que, dependiendo de las situaciones abre una pestaña para mostrarme el manifiesto
 // Recive como parametro el doc devuelto por firebase
-function descargarManifiesto(doc) {
+export function descargarManifiesto(doc) {
   let nombre_relacion = doc.data().nombre_relacion
     ? doc.data().nombre_relacion
     : "relacion envio" + doc.data().guias.toString();
+
   if (doc.data().nombre_relacion) {
-    firebase
-      .storage()
-      .ref()
-      .child(doc.data().id_user + "/" + doc.id + "/" + nombre_relacion + ".pdf")
-      .getDownloadURL()
+    const storagePath = `${doc.data().id_user}/${doc.id}/${nombre_relacion}.pdf`;
+    const fileRef = storageRef(storage, storagePath);
+
+    getDownloadURL(fileRef)
       .then((url) => {
         console.log(url);
         window.open(url, "_blank");
+      })
+      .catch((error) => {
+        console.error("Error al obtener el URL de descarga:", error);
       });
   } else if (doc.data().base64Manifiesto) {
     let base64 = doc.data().base64Manifiesto;
@@ -2883,12 +2921,17 @@ function descargarManifiesto(doc) {
       "_blank"
     );
   } else {
-    doc.ref
-      .collection("manifiestoSegmentado")
-      .get()
+    const manifiestoSegmentadoRef = collection(
+      doc.ref,
+      "manifiestoSegmentado"
+    );
+
+    getDocs(manifiestoSegmentadoRef)
       .then((querySnapshot) => {
-        if (!querySnapshot.size)
-          return alert("Lo siento, no consigo una relación que descargar.");
+        if (!querySnapshot.size) {
+          alert("Lo siento, no consigo una relación que descargar.");
+          return;
+        }
 
         let base64 = "";
 
@@ -2897,26 +2940,31 @@ function descargarManifiesto(doc) {
         });
 
         openPdfFromBase64(base64);
+      })
+      .catch((error) => {
+        console.error("Error al obtener el manifiesto segmentado:", error);
       });
   }
 }
 
 // funcion que, dependiendo de las situaciones descarga el sticker de guia
 // Recive como parametro el doc devuelto por firebase
-async function descargarStickerGuias(doc) {
+export async function descargarStickerGuias(doc) {
   let nombre_guias = doc.data().nombre_guias
     ? doc.data().nombre_guias
     : "guias" + doc.data().guias.toString();
 
   if (doc.data().nombre_guias) {
-    firebase
-      .storage()
-      .ref()
-      .child(doc.data().id_user + "/" + doc.id + "/" + nombre_guias + ".pdf")
-      .getDownloadURL()
+    const storagePath = `${doc.data().id_user}/${doc.id}/${nombre_guias}.pdf`;
+    const fileRef = storageRef(storage, storagePath);
+
+    getDownloadURL(fileRef)
       .then((url) => {
         console.log(url);
         window.open(url, "_blank");
+      })
+      .catch((error) => {
+        console.error("Error al obtener el URL de descarga:", error);
       });
   } else if (doc.data().base64Guias) {
     let base64 = doc.data().base64Guias;
@@ -2929,35 +2977,35 @@ async function descargarStickerGuias(doc) {
 
     nombre_guias = "Guias " + indexarGuias(guias);
 
-    const storagePath =
-      doc.data().id_user + "/" + doc.id + "/" + nombre_guias + ".pdf";
-    let cargarGuiasStorage = await guardarBase64ToStorage(
-      pdfBase64,
-      storagePath
-    );
+    const storagePath = `${doc.data().id_user}/${doc.id}/${nombre_guias}.pdf`;
+    let cargarGuiasStorage = await guardarBase64ToStorage(pdfBase64, storagePath);
 
     if (cargarGuiasStorage) {
-      doc.ref.update({ nombre_guias });
+      const docRef = doc.ref;
+      updateDoc(docRef, { nombre_guias })
+        .then(() => {
+          console.log("Nombre de guías actualizado correctamente.");
+        })
+        .catch((error) => {
+          console.error("Error al actualizar nombre de guías:", error);
+        });
     }
   }
 }
 
-async function buscarGuiasParaDescargarStickers(guias) {
+export async function buscarGuiasParaDescargarStickers(guias) {
   const minimaLongitudLogicaPDF = 22000;
   const pdfDoc = await PDFLib.PDFDocument.create();
   for await (let guia of guias) {
-    await firebase
-      .firestore()
-      .collection("base64StickerGuias")
-      .doc(guia)
-      .collection("guiaSegmentada")
-      .orderBy("index")
-      .get()
+    const guiaRef = collection(db, "base64StickerGuias", guia, "guiaSegmentada");
+    const guiaQuery = query(guiaRef, orderBy("index"));
+
+    await getDocs(guiaQuery)
       .then(async (querySnapshot) => {
         let base64 = "";
         console.log(querySnapshot.size);
-        querySnapshot.forEach((doc) => {
-          base64 += doc.data().segmento;
+        querySnapshot.forEach((docSnapshot) => {
+          base64 += docSnapshot.data().segmento;
         });
 
         const page = await PDFLib.PDFDocument.load(base64);
@@ -2973,11 +3021,12 @@ async function buscarGuiasParaDescargarStickers(guias) {
       })
       .then((toUpdate) => {
         if (usuarioDoc) {
-          usuarioDoc.collection("guias").doc(guia).update(toUpdate);
+          const userGuiaRef = doc(usuarioDoc, "guias", guia);
+          updateDoc(userGuiaRef, toUpdate);
         }
       })
       .catch(() => {
-        console.log("la guías numero " + guia + " no fue encontrada");
+        console.log("la guía número " + guia + " no fue encontrada");
       });
   }
 
@@ -2987,7 +3036,7 @@ async function buscarGuiasParaDescargarStickers(guias) {
   return pdfBase64;
 }
 
-function actualizarNumGuia(id_doc, id_user, numero_guias) {
+export function actualizarNumGuia(id_doc, id_user, numero_guias) {
   return new Promise((resolve, reject) => {
     let data = new FormData(
       document.getElementById("form-estado-numguia" + id_doc)
@@ -3002,7 +3051,7 @@ function actualizarNumGuia(id_doc, id_user, numero_guias) {
         if (!res.ok) {
           console.log(res);
           throw Error(
-            "Lo sentimos, no pudimos cargar su documento, reviselo y vuelvalo a subir"
+            "Lo sentimos, no pudimos cargar su documento, revíselo y vuelva a subir"
           );
         }
         const datos = await res.json();
@@ -3018,28 +3067,27 @@ function actualizarNumGuia(id_doc, id_user, numero_guias) {
           );
           if (!guiaEncontrada.length) {
             throw Error(
-              "No se encontro la informacion requerida, revisa el archivo, recarga la pagina y repite el proceso"
+              "No se encontró la información requerida, revisa el archivo, recarga la página y repite el proceso"
             );
           } else datosFiltrados.push(guiaEncontrada[0]);
         }
 
         datosFiltrados.forEach(async (data) => {
           const idHeka = data["IdCliente"].toString();
-          await firebase
-            .firestore()
-            .collection("usuarios")
-            .doc(id_user)
-            .collection("guias")
-            .doc(idHeka)
-            .update({
-              numeroGuia: data["Número de Guia"].toString(),
-              estado: data["Estado Envío"],
-              seguimiento_finalizado: false,
-            });
+          const guiaRef = doc(
+            collection(db, "usuarios", id_user, "guias"),
+            idHeka
+          );
+          await updateDoc(guiaRef, {
+            numeroGuia: data["Número de Guia"].toString(),
+            estado: data["Estado Envío"],
+            seguimiento_finalizado: false,
+          });
         });
+
         Swal.fire({
           icon: "success",
-          title: "Numero de guia actualizado correctamente",
+          title: "Número de guía actualizado correctamente",
           showConfirmButton: false,
           timer: 1500,
         });
@@ -3048,7 +3096,7 @@ function actualizarNumGuia(id_doc, id_user, numero_guias) {
       .catch((err) => {
         Swal.fire({
           icon: "error",
-          title: "Error al actualizar guia",
+          title: "Error al actualizar guía",
           text: err.message,
         });
         reject(false);
@@ -3056,12 +3104,13 @@ function actualizarNumGuia(id_doc, id_user, numero_guias) {
   });
 }
 
-function actualizarEstado() {
+export async function actualizarEstado() {
   document.querySelector("#cargador-actualizador").classList.remove("d-none");
   document.querySelector("#resultado-actualizador").innerHTML = "";
   let data = new FormData(document.getElementById("form-estado"));
   console.log(data);
   console.log(data.get("documento"));
+
   fetch("/excel_to_json", {
     method: "POST",
     body: data,
@@ -3070,7 +3119,7 @@ function actualizarEstado() {
       if (!res.ok) {
         console.log(res);
         throw Error(
-          "Lo sentimos, no pudimos cargar su documento, reviselo y vuelvalo a subir"
+          "Lo sentimos, no pudimos cargar su documento, revíselo y vuelva a intentarlo"
         );
       }
 
@@ -3083,7 +3132,7 @@ function actualizarEstado() {
           }
 
           let total_datos = datos.length;
-          let actualizadas = new Array();
+          let actualizadas = [];
           let regresiveCounter = datos.length;
           $("#cargador-actualizador").find("span").text(regresiveCounter);
 
@@ -3107,49 +3156,41 @@ function actualizarEstado() {
             if (x.id_guia && x.numero_guia_servientrega) {
               const id = x.id_guia.toString();
               const numeroGuia = x.numero_guia_servientrega.toString();
-              await firebase
-                .firestore()
-                .collectionGroup("guias")
-                .where("id_heka", "==", id)
-                .get()
-                .then((querySnapshot) => {
-                  // let guia;
-                  querySnapshot.forEach(async (doc) => {
-                    try {
-                      const guia = firebase
-                        .firestore()
-                        .doc(doc.ref.path)
-                        .update({
-                          numeroGuia,
-                          estado: x.estado_envio,
-                          seguimiento_finalizado: false,
-                        })
-                        .then(() => {
-                          // console.log(id + " Actualizada exitósamente");
-                          return id;
-                        });
-                      actualizadas.push(guia);
-                    } catch (error) {
-                      document.querySelector(
-                        "#resultado-actualizador"
-                      ).innerHTML += `
+
+              const guiasQuery = query(
+                collectionGroup(db, "guias"),
+                where("id_heka", "==", id)
+              );
+
+              const querySnapshot = await getDocs(guiasQuery);
+
+              querySnapshot.forEach(async (docSnapshot) => {
+                try {
+                  const guia = updateDoc(doc(docSnapshot.ref), {
+                    numeroGuia,
+                    estado: x.estado_envio,
+                    seguimiento_finalizado: false,
+                  }).then(() => id);
+                  actualizadas.push(guia);
+                } catch (error) {
+                  document.querySelector(
+                    "#resultado-actualizador"
+                  ).innerHTML += `
                                     <li>
                                         No se pudo actualizar la guía ${id} en la fila ${
-                        total_datos - regresiveCounter + 2
-                      }
+                    total_datos - regresiveCounter + 2
+                  }
                                         revise que tenga un estado que actualizar
                                     </li>
                                 `;
-                      console.log("No se pudo actualizar la guía: " + id);
-                      console.log(error);
-                    }
-                  });
-                });
-              // console.log(x.id_guia, new Date().getTime())
+                  console.log("No se pudo actualizar la guía: " + id);
+                  console.log(error);
+                }
+              });
             } else {
               $("#resultado-actualizador").append(`
                         <li>
-                            No sé a que guía actualizar o no hay un número de guía en la fila ${
+                            No sé a qué guía actualizar o no hay un número de guía en la fila ${
                               total_datos - regresiveCounter + 2
                             }
                         </li>
@@ -3167,14 +3208,8 @@ function actualizarEstado() {
           if (r == "vacio") {
             avisar(
               "¡Error!",
-              "El documento está vacío, por favor verifique que el formato ingresado es un formato actual de excel, preferiblemente .xlsx",
+              "El documento está vacío, por favor verifique que el formato ingresado es un formato actual de Excel, preferiblemente .xlsx",
               "advertencia"
-            );
-          } else if (r == "falta id") {
-            avisar(
-              "Algo Salió mal",
-              "hubo un error en alguno de los documentos, es posible que no todos se hayan enviado correctamente",
-              "aviso"
             );
           } else {
             console.log(r);
@@ -3184,7 +3219,7 @@ function actualizarEstado() {
                 r.actualizadas.length +
                 " Guías de " +
                 r.total_datos +
-                " Registradas.",
+                " registradas.",
               "",
               false,
               20000
@@ -3210,6 +3245,7 @@ async function executeUtils(e) {
   let data = new FormData(document.getElementById("form-utilidades"));
   console.log(data);
   console.log(data.get("documento"));
+
   const arrData = await fetch("/excel_to_json", {
     method: "POST",
     body: data,
@@ -3229,25 +3265,25 @@ async function executeUtils(e) {
 
     if (res.ok) {
       let respuesta;
-      const querySnapshot = await firebase
-        .firestore()
-        .collectionGroup("guias")
-        .where("id_heka", "==", res.id_heka)
-        .get()
-        .then((q) => q);
+      const guiasQuery = query(
+        collectionGroup(db, "guias"),
+        where("id_heka", "==", res.id_heka)
+      );
 
-      querySnapshot.forEach(async (doc) => {
-        console.log(doc.data());
+      const querySnapshot = await getDocs(guiasQuery);
+
+      querySnapshot.forEach(async (docSnapshot) => {
+        console.log(docSnapshot.data());
         try {
-          await doc.ref.update({ numeroGuia: res.numeroGuia });
+          await updateDoc(docSnapshot.ref, { numeroGuia: res.numeroGuia });
 
           respuesta = `<li>Se ha actualizado el número de guía ${res.numeroGuia}
-                    en la guia ${doc.id} del usuario con centro de costo ${
-            doc.data().centro_de_costo
+                    en la guia ${docSnapshot.id} del usuario con centro de costo ${
+            docSnapshot.data().centro_de_costo
           }</li>`;
         } catch (e) {
           respuesta = `<li class="text-danger">Hubo un error (${e.message}) al actualizar
-                    el número de guía ${res.numeroGuia} con id ${doc.id}</li>`;
+                    el número de guía ${res.numeroGuia} con id ${docSnapshot.id}</li>`;
         }
         resultado.append(respuesta);
       });
@@ -3258,7 +3294,7 @@ async function executeUtils(e) {
         resultado.append(respuesta);
       }
     } else {
-      respuesta = `<li class="text-danger">Erorr en el servidor: ${res.message}</li>`;
+      respuesta = `<li class="text-danger">Error en el servidor: ${res.message}</li>`;
       resultado.append(respuesta);
     }
 
@@ -3445,35 +3481,32 @@ async function manejarNotificacionesMasivas() {
   manejarInformacion(globalSnapshot);
 
   // Consulta para notificaciones específicas del usuario
-  const userQuery = query(baseQuery, where("usuarios", "array-contains", user_id));
+  const userQuery = query(
+    baseQuery,
+    where("usuarios", "array-contains", user_id)
+  );
   const userSnapshot = await getDocs(userQuery);
   manejarInformacion(userSnapshot);
 }
 
-function eliminarNotificaciones() {
+export function eliminarNotificaciones() {
   let visible = administracion ? "visible_admin" : "visible_user";
-  firebase
-    .firestore()
-    .collection("notificaciones")
-    .where(visible, "==", true)
-    .get()
+
+  getDocs(query(collection(db, "notificaciones"), where(visible, "==", true)))
     .then((querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-        let notificacion = firebase
-          .firestore()
-          .collection("notificaciones")
-          .doc(doc.id);
+      querySnapshot.forEach((docSnapshot) => {
+        let notificacionRef = doc(db, "notificaciones", docSnapshot.id);
         if (
-          (administracion && doc.data().type == "documento") ||
-          doc.data().user_id == user_id
+          (administracion && docSnapshot.data().type == "documento") ||
+          docSnapshot.data().user_id == user_id
         ) {
-          notificacion.delete();
+          deleteDoc(notificacionRef);
         }
       });
     });
 }
 
-async function descargarHistorialGuias() {
+export async function descargarHistorialGuias() {
   avisar("Solicitud Recibida", "Procesando...", "aviso");
   let fechaI = new Date(value("guias-fechaI-modal")).getTime();
   let fechaF = new Date(value("guias-fechaF-modal")).getTime();
@@ -3483,21 +3516,21 @@ async function descargarHistorialGuias() {
     "Espere un momento, en breve iniciaremos con su descarga"
   );
 
-  let guias = await firebase
-    .firestore()
-    .collectionGroup("guias")
-    .orderBy("timeline")
-    .startAt(new Date(fechaI).getTime())
-    .endAt(new Date(fechaF).getTime() + 8.64e7)
-    .get()
-    .then((querySnapshot) => {
-      let res = new Array();
-      console.log(querySnapshot.size);
-      querySnapshot.forEach((doc) => {
-        res.push(doc.data());
-      });
-      return res;
+  let guias = await getDocs(
+    query(
+      collectionGroup(db, "guias"),
+      orderBy("timeline"),
+      startAt(new Date(fechaI).getTime()),
+      endAt(new Date(fechaF).getTime() + 8.64e7)
+    )
+  ).then((querySnapshot) => {
+    let res = [];
+    console.log(querySnapshot.size);
+    querySnapshot.forEach((doc) => {
+      res.push(doc.data());
     });
+    return res;
+  });
 
   guias.sort((a, b) => {
     if (parseInt(a.id_heka) > parseInt(b.id_heka)) {
@@ -3578,46 +3611,46 @@ export function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
   if (($("#filtrado-novedades-guias").val() || guia) && admin) {
     let filtrado = guia || $("#filtrado-novedades-guias").val().split(",");
     if (typeof filtrado == "object") {
-      filtrado.forEach((v, i) => {
-        firebase
-          .firestore()
-          .collectionGroup("estadoGuias")
-          .where("numeroGuia", "==", v.trim())
-          .get()
-          .then((querySnapshot) => {
-            querySnapshot.size == 0
-              ? $("#cargador-novedades").addClass("d-none")
-              : "";
-            querySnapshot.forEach((doc) => {
-              let path = doc.ref.path.split("/");
-              let data = doc.data();
-              consultarGuiaFb(
-                path[1],
-                doc.id,
-                data,
-                "Consulta Personalizada",
-                i + 1,
-                filtrado.length
-              );
-            });
-          });
+      filtrado.forEach(async (v, i) => {
+        const estadoGuiasQuery = query(
+          collectionGroup(db, "estadoGuias"),
+          where("numeroGuia", "==", v.trim())
+        );
+
+        const querySnapshot = await getDocs(estadoGuiasQuery);
+
+        querySnapshot.size === 0
+          ? $("#cargador-novedades").addClass("d-none")
+          : "";
+        querySnapshot.forEach((doc) => {
+          let path = doc.ref.path.split("/");
+          let data = doc.data();
+          consultarGuiaFb(
+            path[1],
+            doc.id,
+            data,
+            "Consulta Personalizada",
+            i + 1,
+            filtrado.length
+          );
+        });
       });
     } else {
-      firebase
-        .firestore()
-        .collectionGroup("estadoGuias")
-        .where("numeroGuia", "==", filtrado)
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.size == 0
-            ? $("#cargador-novedades").addClass("d-none")
-            : "";
-          querySnapshot.forEach((doc) => {
-            let path = doc.ref.path.split("/");
-            let data = doc.data();
-            consultarGuiaFb(path[1], doc.id, data, "Solucionar Novedad");
-          });
+      const estadoGuiasQuery = query(
+        collectionGroup(db, "estadoGuias"),
+        where("numeroGuia", "==", filtrado)
+      );
+
+      getDocs(estadoGuiasQuery).then((querySnapshot) => {
+        querySnapshot.size === 0
+          ? $("#cargador-novedades").addClass("d-none")
+          : "";
+        querySnapshot.forEach((doc) => {
+          let path = doc.ref.path.split("/");
+          let data = doc.data();
+          consultarGuiaFb(path[1], doc.id, data, "Solucionar Novedad");
         });
+      });
     }
   } else if (admin) {
     if ($("#filtrado-novedades-usuario").val()) {
@@ -3626,74 +3659,57 @@ export function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
       buscador = "centro_de_costo";
     }
 
-    firebase
-      .firestore()
-      .collectionGroup("estadoGuias")
-      .where(buscador, toggle, filtro)
-      .get()
-      .then((querySnapshot) => {
-        let contador = 0;
-        let size = querySnapshot.size;
-        querySnapshot.forEach((doc) => {
-          let path = doc.ref.path.split("/");
-          let dato = doc.data();
-          contador++;
-          consultarGuiaFb(
-            path[1],
-            doc.id,
-            dato,
-            dato.centro_de_costo,
-            contador,
-            size
-          );
-          // console.log(doc.data());
-        });
+    const estadoGuiasQuery = query(
+      collectionGroup(db, "estadoGuias"),
+      where(buscador, toggle, filtro)
+    );
+
+    getDocs(estadoGuiasQuery).then((querySnapshot) => {
+      let contador = 0;
+      let size = querySnapshot.size;
+      querySnapshot.forEach((doc) => {
+        let path = doc.ref.path.split("/");
+        let dato = doc.data();
+        contador++;
+        consultarGuiaFb(
+          path[1],
+          doc.id,
+          dato,
+          dato.centro_de_costo,
+          contador,
+          size
+        );
       });
+    });
   } else {
     if (
-      (document.getElementById("visor_novedades").innerHTML == "" &&
-        seguimiento == "once") ||
+      (document.getElementById("visor_novedades").innerHTML === "" &&
+        seguimiento === "once") ||
       !seguimiento
     ) {
-      firebase
-        .firestore()
-        .collection("usuarios")
-        .doc(localStorage.user_id)
-        .collection("estadoGuias")
-        // .orderBy("estado")
-        .where("mostrar_usuario", "==", true)
-        // .limit(10)
-        .get()
-        .then((querySnapshot) => {
-          let contador = 0;
-          let size = querySnapshot.size;
-          console.log(size);
-          if (!querySnapshot.size) {
-            return cargadorClass.add("d-none");
-          }
-          $("#visor_novedades").html("");
-          const guias_actualizadas = revisarTiempoGuiasActualizadas();
-          const novedades_transportadora = $("#activador_busq_novedades").val();
+      const userEstadoGuiasQuery = query(
+        collection(db, "usuarios", localStorage.user_id, "estadoGuias"),
+        where("mostrar_usuario", "==", true)
+      );
 
-          querySnapshot.forEach((doc) => {
-            let dato = doc.data();
-            contador++;
-            console.log(dato);
+      getDocs(userEstadoGuiasQuery).then((querySnapshot) => {
+        let contador = 0;
+        let size = querySnapshot.size;
+        console.log(size);
+        if (!querySnapshot.size) {
+          return cargadorClass.add("d-none");
+        }
+        $("#visor_novedades").html("");
+        const guias_actualizadas = revisarTiempoGuiasActualizadas();
+        const novedades_transportadora = $("#activador_busq_novedades").val();
 
-            if (novedades_transportadora) {
-              if (dato.transportadora === novedades_transportadora) {
-                consultarGuiaFb(
-                  user_id,
-                  doc.id,
-                  dato,
-                  "Posibles Novedades",
-                  contador,
-                  size
-                );
-              } else {
-                return $("#cargador-novedades").addClass("d-none");
-              }
-            } else {
+        querySnapshot.forEach((doc) => {
+          let dato = doc.data();
+          contador++;
+          console.log(dato);
+
+          if (novedades_transportadora) {
+            if (dato.transportadora === novedades_transportadora) {
               consultarGuiaFb(
                 user_id,
                 doc.id,
@@ -3702,12 +3718,24 @@ export function revisarMovimientosGuias(admin, seguimiento, id_heka, guia) {
                 contador,
                 size
               );
+            } else {
+              return $("#cargador-novedades").addClass("d-none");
             }
-            if (!guias_actualizadas) actualizarEstadoGuia(dato.numeroGuia);
-          });
-
-          actualizarEstadosEnNovedad();
+          } else {
+            consultarGuiaFb(
+              user_id,
+              doc.id,
+              dato,
+              "Posibles Novedades",
+              contador,
+              size
+            );
+          }
+          if (!guias_actualizadas) actualizarEstadoGuia(dato.numeroGuia);
         });
+
+        actualizarEstadosEnNovedad();
+      });
     } else {
       cargadorClass.add("d-none");
     }
@@ -3721,47 +3749,46 @@ export function revisarMovimientosGuiaIndividualUser(inputGuia) {
   let filtrado = inputGuia.split(",");
   if (typeof filtrado == "object") {
     filtrado.forEach((v, i) => {
-      firebase
-        .firestore()
-        .collectionGroup("estadoGuias")
-        .where("numeroGuia", "==", v.trim())
-        .where(buscador, toggle, filtro)
+      const estadoGuiasQuery = query(
+        collectionGroup(db, "estadoGuias"),
+        where("numeroGuia", "==", v.trim()),
+        where(buscador, toggle, filtro)
+      );
 
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.size == 0
-            ? $("#cargador-novedades").addClass("d-none")
-            : "";
-          querySnapshot.forEach((doc) => {
-            let path = doc.ref.path.split("/");
-            let data = doc.data();
-            consultarGuiaFb(
-              path[1],
-              doc.id,
-              data,
-              "Consulta Personalizada",
-              i + 1,
-              filtrado.length
-            );
-          });
-        });
-    });
-  } else {
-    firebase
-      .firestore()
-      .collectionGroup("estadoGuias")
-      .where("numeroGuia", "==", filtrado)
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.size == 0
+      getDocs(estadoGuiasQuery).then((querySnapshot) => {
+        querySnapshot.size === 0
           ? $("#cargador-novedades").addClass("d-none")
           : "";
         querySnapshot.forEach((doc) => {
           let path = doc.ref.path.split("/");
           let data = doc.data();
-          consultarGuiaFb(path[1], doc.id, data, "Solucionar Novedad");
+          consultarGuiaFb(
+            path[1],
+            doc.id,
+            data,
+            "Consulta Personalizada",
+            i + 1,
+            filtrado.length
+          );
         });
       });
+    });
+  } else {
+    const estadoGuiasQuery = query(
+      collectionGroup(db, "estadoGuias"),
+      where("numeroGuia", "==", filtrado)
+    );
+
+    getDocs(estadoGuiasQuery).then((querySnapshot) => {
+      querySnapshot.size === 0
+        ? $("#cargador-novedades").addClass("d-none")
+        : "";
+      querySnapshot.forEach((doc) => {
+        let path = doc.ref.path.split("/");
+        let data = doc.data();
+        consultarGuiaFb(path[1], doc.id, data, "Solucionar Novedad");
+      });
+    });
   }
 }
 
@@ -3773,12 +3800,13 @@ export function revisarMovimientosGuiasUser(novedades_transportadora) {
   cargadorClass.remove("d-none");
 
   const filtroTransp = novedades_transportadora;
-  firebase
-    .firestore()
-    .collectionGroup("estadoGuias")
-    .where(buscador, toggle, filtro)
-    .limit(30)
-    .get()
+  const estadoGuiasQuery = query(
+    collectionGroup(db, "estadoGuias"),
+    where(buscador, toggle, filtro),
+    limit(30)
+  );
+
+  getDocs(estadoGuiasQuery)
     .then((querySnapshot) => {
       let contador = 0;
       let size = querySnapshot.size;
@@ -3804,7 +3832,6 @@ export function revisarMovimientosGuiasUser(novedades_transportadora) {
           contador,
           size
         );
-        // console.log(doc.data());
       });
     })
     .then(() => {
@@ -3812,7 +3839,7 @@ export function revisarMovimientosGuiasUser(novedades_transportadora) {
     });
 }
 
-function revisarNovedades(transportadora) {
+export function revisarNovedades(transportadora) {
   novedadesExcelData = [];
   selectChoiceEstados?.clearChoices();
 
@@ -3820,43 +3847,45 @@ function revisarNovedades(transportadora) {
   cargadorClass.remove("d-none");
 
   const usuarios = new Set();
-  firebase
-    .firestore()
-    .collectionGroup("estadoGuias")
-    .where("enNovedad", "==", true)
-    .where("transportadora", "==", transportadora)
-    // .limit(10)
-    .get()
-    .then((q) => {
-      let contador = 0;
-      let size = q.size;
-      console.log(size);
 
-      if (!size) cargadorClass.add("d-none");
+  const estadoGuiasQuery = query(
+    collectionGroup(db, "estadoGuias"),
+    where("enNovedad", "==", true),
+    where("transportadora", "==", transportadora)
+    // Puedes habilitar el límite si es necesario
+    // limit(10)
+  );
 
-      q.forEach((d) => {
-        let path = d.ref.path.split("/");
-        let dato = d.data();
-        contador++;
+  getDocs(estadoGuiasQuery).then((querySnapshot) => {
+    let contador = 0;
+    let size = querySnapshot.size;
+    console.log(size);
 
-        usuarios.add(path[1]);
+    if (!size) cargadorClass.add("d-none");
 
-        consultarGuiaFb(
-          path[1],
-          d.id,
-          dato,
-          dato.centro_de_costo,
-          contador,
-          size
-        );
-      });
+    querySnapshot.forEach((doc) => {
+      let path = doc.ref.path.split("/");
+      let dato = doc.data();
+      contador++;
 
-      if (revisarTiempoGuiasActualizadas()) return;
+      usuarios.add(path[1]);
 
-      usuarios.forEach(actualizarEstadosEnNovedadUsuario);
-
-      localStorage.last_update_novedad = new Date();
+      consultarGuiaFb(
+        path[1],
+        doc.id,
+        dato,
+        dato.centro_de_costo,
+        contador,
+        size
+      );
     });
+
+    if (revisarTiempoGuiasActualizadas()) return;
+
+    usuarios.forEach(actualizarEstadosEnNovedadUsuario);
+
+    localStorage.last_update_novedad = new Date();
+  });
 }
 
 async function actualizarEstadoGuia(numeroGuia, id_user = user_id, wait) {
@@ -3895,21 +3924,19 @@ function actualizarEstadosEnNovedadUsuario(user_id) {
   });
 }
 
-function revisarGuiaUser(id_heka) {
+export function revisarGuiaUser(id_heka) {
   const cargadorClass = document.getElementById("cargador-novedades").classList;
   cargadorClass.remove("d-none");
 
-  usuarioDoc
-    .collection("guias")
-    .doc(id_heka)
-    .get()
-    .then((doc) => {
-      if (doc.exists) {
-        console.log(id_heka);
-        consultarEstadoGuiasParaUsuario(doc.data(), id_heka);
-      }
-      cargadorClass.add("d-none");
-    });
+  const guiaDocRef = doc(collection(usuarioDoc, "guias"), id_heka);
+
+  getDoc(guiaDocRef).then((docSnapshot) => {
+    if (docSnapshot.exists()) {
+      console.log(id_heka);
+      consultarEstadoGuiasParaUsuario(docSnapshot.data(), id_heka);
+    }
+    cargadorClass.add("d-none");
+  });
 }
 
 const btn_revisar_novedades = document.getElementById("btn-revisar-novedades");
@@ -4031,41 +4058,42 @@ function consultarGuia(
 }
 
 // actualizarMovimientoGuia();
-function actualizarMovimientoGuia() {
-  if (!administracion)
-    usuarioDoc
-      .collection("guias")
-      .where("seguimiento_finalizado", "==", false)
-      .onSnapshot((snapshot) => {
-        snapshot.docChanges().forEach((change) => {
-          if (change.type == "modified") {
-            console.log(change.doc.data());
-            consultarEstadoGuiasParaUsuario(change.doc.data(), change.doc.id);
-          }
-        });
+export function actualizarMovimientoGuia() {
+  if (!administracion) {
+    const guiasQuery = query(
+      collection(usuarioDoc, "guias"),
+      where("seguimiento_finalizado", "==", false)
+    );
+
+    onSnapshot(guiasQuery, (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "modified") {
+          console.log(change.doc.data());
+          consultarEstadoGuiasParaUsuario(change.doc.data(), change.doc.id);
+        }
       });
-}
-
-function consultarEstadoGuiasParaUsuario(data, id) {
-  usuarioDoc
-    .collection("estadoGuias")
-    .doc(id)
-    .get()
-    .then((doc) => {
-      if (doc.exists) {
-        // if(doc.data().mostrar_usuario)
-        tablaMovimientosGuias(
-          doc.data(),
-          data,
-          "Para revisar",
-          id,
-          localStorage.user_id
-        );
-      }
     });
+  }
 }
 
-function consultarGuiaFb(
+export function consultarEstadoGuiasParaUsuario(data, id) {
+  const estadoGuiasDocRef = doc(collection(usuarioDoc, "estadoGuias"), id);
+
+  getDoc(estadoGuiasDocRef).then((docSnapshot) => {
+    if (docSnapshot.exists()) {
+      // if(docSnapshot.data().mostrar_usuario)
+      tablaMovimientosGuias(
+        docSnapshot.data(),
+        data,
+        "Para revisar",
+        id,
+        localStorage.user_id
+      );
+    }
+  });
+}
+
+export function consultarGuiaFb(
   id_user,
   id,
   data,
@@ -4073,22 +4101,21 @@ function consultarGuiaFb(
   contador,
   total_consulta
 ) {
-  //Cuando Id_user existe, id corresponde a el id_heka, cuando no, corresponde al número de gíia
+  // Cuando Id_user existe, id corresponde al id_heka, cuando no, corresponde al número de guía
   if (id_user) {
-    firebase
-      .firestore()
-      .collection("usuarios")
-      .doc(id_user)
-      .collection("guias")
-      .doc(id)
-      .get()
-      .then((doc) => {
-        if (doc.exists) {
-          tablaMovimientosGuias(data, doc.data(), usuario, id, id_user);
+    const guiaDocRef = doc(
+      collection(doc(collection(db, "usuarios"), id_user), "guias"),
+      id
+    );
+
+    getDoc(guiaDocRef)
+      .then((docSnapshot) => {
+        if (docSnapshot.exists()) {
+          tablaMovimientosGuias(data, docSnapshot.data(), usuario, id, id_user);
         }
       })
       .then(() => {
-        if (contador == total_consulta) {
+        if (contador === total_consulta) {
           $("#cargador-novedades").addClass("d-none");
           let table = $("#tabla-estadoGuias-" + usuario.replace(/\s/g, ""));
 
@@ -4096,59 +4123,70 @@ function consultarGuiaFb(
         }
       });
   } else {
-    firebase
-      .firestore()
-      .collectionGroup("guias")
-      .where("numeroGuia", "==", id)
-      .get()
+    const guiasQuery = query(
+      collectionGroup(db, "guias"),
+      where("numeroGuia", "==", id)
+    );
+
+    getDocs(guiasQuery)
       .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          let path = doc.ref.path.split("/");
-          tablaMovimientosGuias(data, doc.data(), usuario, path[3], path[1]);
+        querySnapshot.forEach((docSnapshot) => {
+          let path = docSnapshot.ref.path.split("/");
+          tablaMovimientosGuias(
+            data,
+            docSnapshot.data(),
+            usuario,
+            path[3],
+            path[1]
+          );
         });
       })
       .then(() => {
-        if (contador == total_consulta) {
+        if (contador === total_consulta) {
           $("#cargador-novedades").addClass("d-none");
         }
       });
   }
 }
 
-function revisarDeudas() {
+export function revisarDeudas() {
   $("#cargador-deudas").children().removeClass("d-none");
   $("#visor-deudas").html("");
-  firebase
-    .firestore()
-    .collectionGroup("guias")
-    .where("user_debe", ">", 0)
-    .get()
-    .then((querySnapshot) => {
-      let id_users = new Array();
-      querySnapshot.forEach((doc) => {
-        let data = doc.data();
-        mostradorDeudas(data);
-        if (id_users.indexOf(data.id_user) == -1) {
-          id_users.push(data.id_user);
-        }
-      });
-      id_users.forEach(async (id_user) => {
-        let reference = firebase.firestore().collection("usuarios");
 
-        let saldo = await reference
-          .doc(id_user)
-          .get()
-          .then((doc) => {
-            if (doc.exists && doc.data().datos_personalizados) {
-              return doc.data().datos_personalizados.saldo;
-            }
-            return "saldo no encontrado";
-          });
-        consolidadorTotales("#deudas-" + id_user, saldo);
-      });
-      habilitarSeleccionDeFilasInternas('[data-function="selectAll"]');
-      $("#cargador-deudas").children().addClass("d-none");
+  // Consulta para obtener guías donde 'user_debe' es mayor a 0
+  const guiasQuery = query(
+    collectionGroup(db, "guias"),
+    where("user_debe", ">", 0)
+  );
+
+  getDocs(guiasQuery).then((querySnapshot) => {
+    let id_users = new Array();
+    querySnapshot.forEach((docSnapshot) => {
+      let data = docSnapshot.data();
+      mostradorDeudas(data);
+      if (id_users.indexOf(data.id_user) === -1) {
+        id_users.push(data.id_user);
+      }
     });
+
+    id_users.forEach(async (id_user) => {
+      // Referencia a la colección 'usuarios'
+      const usuariosCollectionRef = collection(db, "usuarios");
+      const userDocRef = doc(usuariosCollectionRef, id_user);
+
+      let saldo = await getDoc(userDocRef).then((docSnapshot) => {
+        if (docSnapshot.exists() && docSnapshot.data().datos_personalizados) {
+          return docSnapshot.data().datos_personalizados.saldo;
+        }
+        return "saldo no encontrado";
+      });
+
+      consolidadorTotales("#deudas-" + id_user, saldo);
+    });
+
+    habilitarSeleccionDeFilasInternas('[data-function="selectAll"]');
+    $("#cargador-deudas").children().addClass("d-none");
+  });
 }
 
 function habilitarSeleccionDeFilasInternas(query) {
@@ -4165,7 +4203,7 @@ function habilitarSeleccionDeFilasInternas(query) {
   });
 }
 
-function consolidadorTotales(query, saldo) {
+export function consolidadorTotales(query, saldo) {
   // let mostradores = new Array();
   let deuda = typeof saldo == "number" ? "$" + convertirMiles(saldo) : saldo;
 
@@ -4173,16 +4211,18 @@ function consolidadorTotales(query, saldo) {
     ["Actualmente Debe", deuda, "search-dollar"],
     ["Deuda sumada", "", "dollar-sign"],
   ];
-  firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(query.replace("#deudas-", ""))
-    .onSnapshot((doc) => {
-      if (doc.exists && doc.data().datos_personalizados) {
-        saldo = doc.data().datos_personalizados.saldo;
-        mostrador[0][1] = "$" + convertirMiles(saldo);
-      }
-    });
+
+  // Actualización para Firebase 11
+  const userDocRef = doc(
+    collection(db, "usuarios"),
+    query.replace("#deudas-", "")
+  );
+  onSnapshot(userDocRef, (docSnapshot) => {
+    if (docSnapshot.exists() && docSnapshot.data().datos_personalizados) {
+      saldo = docSnapshot.data().datos_personalizados.saldo;
+      mostrador[0][1] = "$" + convertirMiles(saldo);
+    }
+  });
 
   let totalizadores = $(query).find(".totalizador");
   let totalInt = 0;
@@ -4280,7 +4320,7 @@ function consolidadorTotales(query, saldo) {
     });
 }
 
-async function saldar(checked, momento_saldado) {
+export async function saldar(checked, momento_saldado) {
   let deudaGuias = 0;
   let selected_checks = 0;
 
@@ -4290,20 +4330,19 @@ async function saldar(checked, momento_saldado) {
     let id_heka = check.getAttribute("data-id_heka");
     let id_user = check.getAttribute("data-id_user");
     let deuda = check.getAttribute("data-deuda");
-    try {
-      let reference = firebase.firestore().collection("usuarios").doc(id_user);
 
-      let data = await reference
-        .collection("guias")
-        .doc(id_heka)
-        .get()
-        .then((doc) => doc.data());
+    try {
+      // Referencia a la colección "usuarios"
+      const userDocRef = doc(collection(db, "usuarios"), id_user);
+
+      // Obtener el documento de la guía
+      const guiaDocRef = doc(collection(userDocRef, "guias"), id_heka);
+      const guiaSnapshot = await getDoc(guiaDocRef);
+      const data = guiaSnapshot.exists() ? guiaSnapshot.data() : null;
 
       if (data) {
-        // await reference.collection("guiasSaldadas")
-        // .doc(id_heka).set(data);
-
-        await reference.collection("guias").doc(id_heka).update({
+        // Actualizar el documento de la guía
+        await updateDoc(guiaDocRef, {
           user_debe: 0,
           momento_saldado,
           dinero_saldado: deuda,
@@ -4316,6 +4355,7 @@ async function saldar(checked, momento_saldado) {
       console.log(err);
     }
   }
+
   return [deudaGuias, selected_checks];
 }
 
@@ -4342,67 +4382,69 @@ $('[href="#novedades"]').click(() => {
   });
 });
 
-function revisarGuiasSaldas() {
+export function revisarGuiasSaldas() {
   $("#cargador-deudas").children().removeClass("d-none");
-  usuarioDoc
-    .collection("guias")
-    .orderBy("momento_saldado")
-    .get()
-    .then((querySnapshot) => {
-      let data = [];
-      querySnapshot.forEach((doc) => {
-        let info = doc.data();
-        info.fecha_saldada = genFecha(info.momento_saldado);
-        data.push(info);
-      });
-      console.log(data);
 
-      $("#visor-deudas").DataTable({
-        data: data,
-        destroy: true,
-        language: {
-          url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
-          emptyTable: "Aún no tienes guías saldadas.",
-        },
-        lengthMenu: [
-          [10, 25, 50, 100, -1],
-          [10, 25, 50, 100, "Todos"],
-        ],
-        columnDefs: [{ className: "cell-border" }],
-        columns: [
-          { data: "id_heka", title: "# Guía Heka" },
-          { data: "fecha", title: "Fecha creación" },
-          { data: "fecha_saldada", title: "Fecha Saldada" },
-          { data: "type", title: "Tipo Guía" },
-          { data: "dinero_saldado", title: "Cant. Saldada" },
-        ],
-        fixedHeader: { footer: true },
-        drawCallback: function (settings) {
-          let api = this.api();
+  const guiasQuery = query(
+    collection(usuarioDoc, "guias"),
+    orderBy("momento_saldado")
+  );
 
-          let intVal = function (i) {
-            return typeof i === "string"
-              ? i.replace(/[\$.]/g, "") * 1
-              : typeof i === "number"
-              ? i
-              : 0;
-          };
+  getDocs(guiasQuery).then((querySnapshot) => {
+    let data = [];
+    querySnapshot.forEach((doc) => {
+      let info = doc.data();
+      info.fecha_saldada = genFecha(info.momento_saldado);
+      data.push(info);
+    });
+    console.log(data);
 
-          total = api
-            .column(4)
-            .data()
-            .reduce((a, b) => {
-              return intVal(a) + intVal(b);
-            }, 0);
+    $("#visor-deudas").DataTable({
+      data: data,
+      destroy: true,
+      language: {
+        url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
+        emptyTable: "Aún no tienes guías saldadas.",
+      },
+      lengthMenu: [
+        [10, 25, 50, 100, -1],
+        [10, 25, 50, 100, "Todos"],
+      ],
+      columnDefs: [{ className: "cell-border" }],
+      columns: [
+        { data: "id_heka", title: "# Guía Heka" },
+        { data: "fecha", title: "Fecha creación" },
+        { data: "fecha_saldada", title: "Fecha Saldada" },
+        { data: "type", title: "Tipo Guía" },
+        { data: "dinero_saldado", title: "Cant. Saldada" },
+      ],
+      fixedHeader: { footer: true },
+      drawCallback: function (settings) {
+        let api = this.api();
 
-          pageTotal = api
-            .column(4, { page: "current" })
-            .data()
-            .reduce((a, b) => {
-              return intVal(a) + intVal(b);
-            }, 0);
+        let intVal = function (i) {
+          return typeof i === "string"
+            ? i.replace(/[\$.]/g, "") * 1
+            : typeof i === "number"
+            ? i
+            : 0;
+        };
 
-          $(this).children("tfoot").html(`
+        total = api
+          .column(4)
+          .data()
+          .reduce((a, b) => {
+            return intVal(a) + intVal(b);
+          }, 0);
+
+        pageTotal = api
+          .column(4, { page: "current" })
+          .data()
+          .reduce((a, b) => {
+            return intVal(a) + intVal(b);
+          }, 0);
+
+        $(this).children("tfoot").html(`
                 <tr>
                     <td colspan="3"></td>
                     <td colspan="2"><h4>$${convertirMiles(
@@ -4410,13 +4452,13 @@ function revisarGuiasSaldas() {
                     )} (total: $${convertirMiles(total)})</h4></td>
                 </tr>
                 `);
-          $(api.column(3).footer()).html(
-            `$${convertirMiles(pageTotal)} (${convertirMiles(total)} : total)`
-          );
-        },
-      });
-      $("#cargador-deudas").children().addClass("d-none");
+        $(api.column(3).footer()).html(
+          `$${convertirMiles(pageTotal)} (${convertirMiles(total)} : total)`
+        );
+      },
     });
+    $("#cargador-deudas").children().addClass("d-none");
+  });
 }
 
 $("#guias_punto-hist_guias").on("change", (e) => {
@@ -4440,7 +4482,6 @@ async function cargarFiltroDePagosPersonalizados() {
   const listaOpciones = filtroPagos.pagar.map(
     (c) => `<option value="${c}">${filtroPagos.titulos[c]}</option>`
   );
-  
 
   listaOpciones.unshift('<option value="">Seleccione pagos</option>');
 
@@ -4530,14 +4571,15 @@ const opcionesAccionesGuiasAdmin = [
   },
 ];
 
-async function historialGuiasAdmin(e) {
-  const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
+export async function historialGuiasAdmin(e) {
+  const referencia = doc(db, "infoHeka", "novedadesMensajeria");
   const htmlStatus = $("#status-historial_guias");
   const limiteConsulta = 5e3;
 
-  const { lista: listacategorias } = await referencia.get().then((d) => {
-    if (d.exists) return d.data();
-  });
+  const referenciaDoc = await getDoc(referencia);
+  const { lista: listacategorias } = referenciaDoc.exists()
+    ? referenciaDoc.data()
+    : {};
   categorias = listacategorias || [];
 
   const finalId = e.id.split("-")[1];
@@ -4583,10 +4625,8 @@ async function historialGuiasAdmin(e) {
         ? guia.transportadora + "-Flexii"
         : guia.transportadora;
 
-      let tituloEncontrado = null; // Inicializamos la variable donde almacenaremos el título si se encuentra una coincidencia
-
-      tituloEncontrado = categorias.find(
-        (categoria) => categoria.novedad == guia.estado
+      let tituloEncontrado = categorias.find(
+        (categoria) => categoria.novedad === guia.estado
       )?.categoria;
 
       if (tituloEncontrado !== null) {
@@ -4605,10 +4645,7 @@ async function historialGuiasAdmin(e) {
 
         case "filt_5":
           condicion =
-            !guia.deleted && // Se captura entre las que no fueron eliminadas
-            guia.deuda != 0 && // Solamente se va a tomar aquellas que no tengan deuda
-            guia.numeroGuia && // Debe también tener número de guía
-            guia.estado; // Debe tener un estado presente
+            !guia.deleted && guia.deuda != 0 && guia.numeroGuia && guia.estado;
           break;
 
         default:
@@ -4620,7 +4657,7 @@ async function historialGuiasAdmin(e) {
 
     if (s === limiteConsulta) {
       let message =
-        "Vaya 😲! Parece que nuestra consulta se ha extendido más de lo que debería, pero bueno solucionemos, te estaré mostrando el estado";
+        "Vaya 😲! Parece que nuestra consulta se ha extendido más de lo que debería...";
       if (htmlStatus.children().length) {
         message = `Ten paciencia, hago lo mejor que puedo, vamos por ${
           data[data.length - 1].fecha
@@ -4630,68 +4667,61 @@ async function historialGuiasAdmin(e) {
     } else {
       if (htmlStatus.children().length) {
         htmlStatus.html(
-          `<li>¡LO HEMOS LOGRADO! ya te muestro bien, dejame respirar 😪😥😴</li>`
+          `<li>¡LO HEMOS LOGRADO! ya te muestro bien, déjame respirar 😪😥😴</li>`
         );
         setTimeout(() => htmlStatus.html(""), 5000);
       }
     }
   };
 
-  let reference = firebase.firestore().collectionGroup("guias");
+  let reference = query(
+    collectionGroup(db, "guias"),
+    orderBy("timeline"),
+    startAt(fecha_inicio),
+    endAt(fecha_final)
+  );
 
-  reference = reference
-    .orderBy("timeline")
-    .startAt(fecha_inicio)
-    .endAt(fecha_final);
+  if (guiasPunto) {
+    reference = query(reference, where("pertenece_punto", "==", true));
+  }
 
-  if (guiasPunto) reference = reference.where("pertenece_punto", "==", true);
-
-  const referenceAlt = firebase.firestore().collectionGroup("guias");
+  const referenceAlt = collectionGroup(db, "guias");
 
   if (numeroGuia) {
-    const numerosDeGuia = numeroGuia
-      .split(",")
-      .map(n => n.trim());
-
+    const numerosDeGuia = numeroGuia.split(",").map((n) => n.trim());
     const segementado = segmentarArreglo(numerosDeGuia, 10);
     for await (const paquete of segementado) {
-      await referenceAlt
-        .where("numeroGuia", "in", paquete)
-        .get()
-        .then(manejarInformacion);
+      const refQuery = query(referenceAlt, where("numeroGuia", "in", paquete));
+      await getDocs(refQuery).then(manejarInformacion);
     }
-
   } else if (tipoFiltro === "filt_1") {
     const segementado = segmentarArreglo(filtroPagoSeleccionado, 10);
     for await (const paquete of segementado) {
-      await reference
-        .where("centro_de_costo", "in", paquete)
-        .get()
-        .then(manejarInformacion);
+      const refQuery = query(
+        reference,
+        where("centro_de_costo", "in", paquete)
+      );
+      await getDocs(refQuery).then(manejarInformacion);
     }
   } else if (tipoFiltro === "filt_2") {
-    await reference
-      .where("transportadora", "==", filtroTransp)
-      .get()
-      .then(manejarInformacion);
+    const refQuery = query(
+      reference,
+      where("transportadora", "==", filtroTransp)
+    );
+    await getDocs(refQuery).then(manejarInformacion);
   } else if (tipoFiltro === "filt_3") {
-    await reference
-      .where("centro_de_costo", "==", filtroActual)
-      .get()
-      .then(manejarInformacion);
-
-    // if(!data.length) await reference.get().then(manejarInformacion);
+    const refQuery = query(
+      reference,
+      where("centro_de_costo", "==", filtroActual)
+    );
+    await getDocs(refQuery).then(manejarInformacion);
   } else if (tipoFiltro === "filt_4") {
-    await reference
-      .where("type", "==", filtroActual)
-      .get()
-      .then(manejarInformacion);
+    const refQuery = query(reference, where("type", "==", filtroActual));
+    await getDocs(refQuery).then(manejarInformacion);
   } else if (tipoFiltro === "filt_5") {
-    await referenceAlt.where("debe", "<", 0).get().then(manejarInformacion);
+    const refQuery = query(referenceAlt, where("debe", "<", 0));
+    await getDocs(refQuery).then(manejarInformacion);
   } else {
-    // await reference.limit(1)
-    // .get().then(manejarInformacion);
-
     await recursividadPorReferencia(
       reference,
       manejarInformacion,
@@ -4970,7 +5000,12 @@ function renderizarBotonesAdmin(datos, type, row) {
   return datos;
 }
 
-export async function recursividadPorReferencia(ref, handler, limitePaginacion, next) {
+export async function recursividadPorReferencia(
+  ref,
+  handler,
+  limitePaginacion,
+  next
+) {
   let consulta = ref;
   if (next) {
     consulta = query(ref, startAfter(next)); // Agregar el startAfter para la paginación
@@ -5010,7 +5045,6 @@ function descargarInformeGuiasAdmin(columnas, guias, nombre) {
   descargarInformeExcel(columnasParaExcel, guias, nombre);
 }
 
-
 //#region Acciones guías
 /** Funcion que, una vez cargado los botones en el DOM del historial de guías de admin, activa la funcionalidad expuesta sobre dicho botón */
 function activarAccionesGuiasAdmin(row, data) {
@@ -5018,7 +5052,6 @@ function activarAccionesGuiasAdmin(row, data) {
     const button = $(`[data-action='${opt.id}']`, row);
 
     if (!button.data("hasAssignedEvent")) {
-      
       button.on("click", async () => {
         button.addClass("spinner-grow");
         button.prop("disabled", true);
@@ -5029,7 +5062,6 @@ function activarAccionesGuiasAdmin(row, data) {
           button.removeClass("spinner-grow disabled");
           button.prop("disabled", false);
         }
-
       });
       button.data("hasAssignedEvent", true);
     }
@@ -5053,88 +5085,91 @@ async function generarDocsGuia(data) {
   });
 }
 
-async function descargarDocsGuia(data) {
+export async function descargarDocsGuia(data) {
   console.warn(data);
   console.warn(data.id_heka);
 
   const id = data.id_heka;
 
-  firebase
-    .firestore()
-    .collection("documentos")
-    .where("guias", "array-contains", id)
-    .get()
-    .then((querySnapshot) => {
-      if (!querySnapshot.size) {
-        avisar(
-          "Sin documento",
-          "Esta guía no tiene ningún documento asignado aún",
-          "aviso"
-        );
-      }
-      querySnapshot.forEach((doc) => {
-        console.log(doc.data());
-        console.log(doc.id);
-        if (doc.data().descargar_relacion_envio && doc.data().descargar_guias) {
-          descargarDocumentos(doc.id);
-        } else {
-          avisar(
-            "No permitido",
-            "Aún no están disponibles ambos documentos",
-            "aviso"
-          );
-        }
-      });
-    });
+  const documentosQuery = query(
+    collection(db, "documentos"),
+    where("guias", "array-contains", id)
+  );
+
+  const querySnapshot = await getDocs(documentosQuery);
+
+  if (!querySnapshot.size) {
+    avisar(
+      "Sin documento",
+      "Esta guía no tiene ningún documento asignado aún",
+      "aviso"
+    );
+    return;
+  }
+
+  querySnapshot.forEach((docSnapshot) => {
+    const docData = docSnapshot.data();
+    console.log(docData);
+    console.log(docSnapshot.id);
+    if (docData.descargar_relacion_envio && docData.descargar_guias) {
+      descargarDocumentos(docSnapshot.id);
+    } else {
+      avisar(
+        "No permitido",
+        "Aún no están disponibles ambos documentos",
+        "aviso"
+      );
+    }
+  });
 }
 
-async function anularGuia(data) {
+export async function anularGuia(data) {
   let confirmacion;
   let { value: motAnulacion } = await Swal.fire({
-    title: "Motivo de la anulacion",
+    title: "Motivo de la anulación",
     input: "textarea",
     showCancelButton: true,
     confirmButtonText: "Continuar",
-    cancelButtonText: `Cancelar`,
+    cancelButtonText: "Cancelar",
   });
+
   if (motAnulacion) {
     const resp = await Swal.fire({
-      title: "¡ATENCIÓN",
+      title: "¡ATENCIÓN!",
       text:
         "Estás a punto de anular la guía Nro. " +
         data.id_heka +
-        ", Si la anulas, no lo va a poder recuperar y Heka no podra gestionar nada relacionado a esta guia ¿Desea continuar?",
+        ", Si la anulas, no lo va a poder recuperar y Heka no podrá gestionar nada relacionado a esta guía. ¿Desea continuar?",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonText: "¡Si! continuar 👍",
+      confirmButtonText: "¡Sí! continuar 👍",
       cancelButtonText: "¡No, me equivoqué!",
     });
     confirmacion = resp.isConfirmed;
   }
 
   if (confirmacion && motAnulacion) {
-    usuarioAltDoc(data.id_user)
-      .collection("guias")
-      .doc(data.id_heka)
-      .update({
-        fecha_anulada: new Date(),
-        estadoActual: estadosGuia.anulada,
-        estado: estadosGuia.anulada,
-        seguimiento_finalizado: true,
-        motivoAnulacion: motAnulacion,
-        estadoAnterior: data.estadoActual,
-      })
-      .then((res) => {
+    const guiaDocRef = doc(db, "usuarios", data.id_user, "guias", data.id_heka);
+
+    updateDoc(guiaDocRef, {
+      fecha_anulada: new Date(),
+      estadoActual: estadosGuia.anulada,
+      estado: estadosGuia.anulada,
+      seguimiento_finalizado: true,
+      motivoAnulacion: motAnulacion,
+      estadoAnterior: data.estadoActual,
+    })
+      .then(() => {
         Toast.fire(
-          "Guia Anulada",
-          "La guia Número " + data.id_heka + " Ha sido anulada.",
+          "Guía Anulada",
+          "La guía Número " + data.id_heka + " ha sido anulada.",
           "success"
         );
       })
       .catch((error) => {
         Toast.fire(
           "Error al anular",
-          "Hubo un error al anular la guia: " + error.message,
+          "Hubo un error al anular la guía: " + error.message,
           "alerta"
         );
       });
@@ -5143,11 +5178,7 @@ async function anularGuia(data) {
 
 async function actualizarEstadosAdmin(guia) {
   console.count("click");
-  const resp = await actualizarEstadoGuia(
-    guia.numeroGuia,
-    guia.id_user,
-    true
-  );
+  const resp = await actualizarEstadoGuia(guia.numeroGuia, guia.id_user, true);
 
   if (resp.guias_est_actualizado === 1 && resp.guias_con_errores === 0) {
     Toast.fire(
@@ -5164,16 +5195,22 @@ async function actualizarEstadosAdmin(guia) {
   }
 }
 
-async function verEstadosHistGuiasAdmin(guia) {
+export async function verEstadosHistGuiasAdmin(guia) {
   const { id_user, id_heka } = guia;
-  const estadosGuia = await db.collection("usuarios")
-  .doc(id_user)
-  .collection("estadoGuias")
-  .doc(id_heka)
-  .get()
-  .then((doc) => doc.exists ? doc.data() : null);
 
-  if(estadosGuia === null) return Toast.fire("Sin estados", "El estado de esta guía aún no ha sido actualizado", "error");
+  const estadosGuiaRef = doc(db, "usuarios", id_user, "estadoGuias", id_heka);
+
+  const estadosGuia = await getDoc(estadosGuiaRef).then((docSnapshot) =>
+    docSnapshot.exists() ? docSnapshot.data() : null
+  );
+
+  if (estadosGuia === null) {
+    return Toast.fire(
+      "Sin estados",
+      "El estado de esta guía aún no ha sido actualizado",
+      "error"
+    );
+  }
 
   $("#modal-gestionarNovedad").modal("show");
   gestionarNovedadModal(estadosGuia, guia, null);
@@ -5194,17 +5231,15 @@ function filtrarPorpagosHistGuiasAdm(e, editor, button, config) {
   editor.draw();
 }
 
-async function generarRotuloAnt(id_guias) {
+export async function generarRotuloAnt(id_guias) {
   let div = document.createElement("div");
   let table = document.createElement("table");
   let tbody = document.createElement("tbody");
   let guias = new Array();
+
   for (let id of id_guias) {
-    let x = usuarioDoc
-      .collection("guias")
-      .doc(id)
-      .get()
-      .then((d) => d.data());
+    const guiaRef = doc(db, "usuarios", localStorage.user_id, "guias", id);
+    let x = getDoc(guiaRef).then((docSnapshot) => docSnapshot.data());
     guias.push(x);
   }
 
@@ -5286,29 +5321,20 @@ async function generarRotuloAnt(id_guias) {
     image: { type: "jpeg", quality: 0.98 },
     html2canvas: { scale: 2 },
     pagebreak: { mode: "avoid-all" },
-    // jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
-
-  // New Promise-based usage:
-  // html2pdf().set(opt).from(element).save();
 
   w = window.open();
   w.document.write(`<html><head>
         <meta charset="utf-8">
-
         <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
-
         <link href="css/sb-admin-2.min.css" rel="stylesheet">
-
         <title>Rótulo Heka</title>
     </head><body>`);
   w.document.write(div.innerHTML);
   w.document.write("</body></html>");
-  // w.document.close();
   w.focus();
   setTimeout(() => {
     w.print();
-    // w.close();
   }, 500);
 }
 
@@ -5320,15 +5346,13 @@ async function generarRotuloAnt(id_guias) {
  * @param {string} id_user - El id del usuario a quién pertenecen todas las guías, si es diferente al que está
  * logueado, es porque el usuario es de tipo punto
  */
-async function generarRotulo(id_guias, id_user) {
+export async function generarRotulo(id_guias, id_user) {
   let div = document.createElement("div");
   let guias = new Array();
+
   for (let id of id_guias) {
-    let x = usuarioAltDoc(id_user)
-      .collection("guias")
-      .doc(id)
-      .get()
-      .then((d) => d.data());
+    const guiaRef = doc(db, "usuarios", id_user, "guias", id);
+    let x = getDoc(guiaRef).then((docSnapshot) => docSnapshot.data());
     guias.push(x);
   }
 
@@ -5364,12 +5388,10 @@ async function generarRotulo(id_guias, id_user) {
   };
 
   data_guias.forEach((guia, i, self) => {
-    // Creamos la tabla pricipal
     const table = document.createElement("table");
     const tbody = document.createElement("tbody");
     table.setAttribute("class", "table my-4");
 
-    // Constantes que se diferencian cuando es para una oficina o para un usuario natural
     const nombres = guia.oficina
       ? guia.datos_oficina.nombre_completo
       : guia.nombreD;
@@ -5400,7 +5422,6 @@ async function generarRotulo(id_guias, id_user) {
 
     insertRow(tbody, genFecha(), textoCantidadPaquetes);
 
-    // Se generan las filas comunes
     const rowCiudades = createRow(
       `Origen: <b>${guia.ciudadR}</b>`,
       `Destino: <b>${ciudad}</b>`
@@ -5419,7 +5440,6 @@ async function generarRotulo(id_guias, id_user) {
       `CC/NIT: <b>${guia.identificacionD}</b>`
     );
 
-    // Se inserta el primer empaquetado de filas
     tbody.appendChild(rowCiudades.tr);
     tbody.appendChild(rowDestinatarioRemitente.tr);
     tbody.appendChild(rowDireccion.tr);
@@ -5464,19 +5484,6 @@ async function generarRotulo(id_guias, id_user) {
     `;
     tbody.innerHTML += barCodeRow;
 
-    // tbody.appendChild(rowMedidas.tr);
-
-    // Se inserta el segundo empaquetaod de filas
-    // tbody.appendChild(rowCiudades.tr);
-    // tbody.appendChild(rowDestinatarioRemitente.tr);
-    // tbody.appendChild(rowDireccion.tr);
-
-    // Se cambia el contanido, quitando el primer número y el número de identificación en la siguiente fila
-    rowContacto.td1.innerHTML = `Cuenta: <b>-No registra</b>`;
-    // tbody.appendChild(rowContacto.tr);
-    const rowResumen = createRow(textoCantidadPaquetes, textoDiceContener);
-    // tbody.appendChild(rowResumen.tr);
-
     const tablaFinal = `
       <table class="w-100 m-0">
         <tr>
@@ -5508,70 +5515,60 @@ async function generarRotulo(id_guias, id_user) {
     tbody.appendChild(finalRow.tr);
 
     table.appendChild(tbody);
-    // div.appendChild(table);
     insertPage(table);
   });
 
   w = window.open();
   w.document.write(`<html><head>
         <meta charset="utf-8">
-
         <link rel="shortcut icon" type="image/png" href="img/heka entrega.png"/>
-
         <link href="css/sb-admin-2.min.css" rel="stylesheet">
         <style>
           .table td, .table th {
             border: 1px solid black;
           }
-
           .table {
             color: black;
           }
-
           .page-printer {
             break-before: page;
           }
         </style>
-
         <title>Rótulo Heka</title>
     </head><body>`);
   w.document.write(div.innerHTML);
   w.document.write("</body></html>");
-  // w.document.close();
   w.focus();
   setTimeout(() => {
     w.print();
-    // w.close();
   }, 500);
 }
 
-async function generarGuiaFlexii(id_guias) {
+export async function generarGuiaFlexii(id_guias) {
   let div = document.createElement("div");
   let table = document.createElement("table");
   let tbody = document.createElement("tbody");
   let guias = new Array();
 
   for (let id of id_guias) {
-    let x = usuarioDoc
-      .collection("guias")
-      .doc(id)
-      .get()
-      .then((d) => d.data());
+    const guiaRef = doc(db, "usuarios", localStorage.user_id, "guias", id); // Suponiendo que `localStorage.user_id` contiene el ID del usuario actual
+    let x = getDoc(guiaRef).then((docSnapshot) => docSnapshot.data());
     guias.push(x);
   }
 
   let guiaImprimir = null;
 
-  firebase
-    .firestore()
-    .collection("documentos")
-    .where("guias", "array-contains", id_guias.toString())
-    .get()
+  const documentosQuery = query(
+    collection(db, "documentos"),
+    where("guias", "array-contains", id_guias.toString())
+  );
+
+  getDocs(documentosQuery)
     .then((querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-        guiaImprimir = { ...doc.data(), id: doc.id };
-        console.log(doc.id);
-        console.log(doc.data());
+      querySnapshot.forEach((docSnapshot) => {
+        guiaImprimir = { ...docSnapshot.data(), id: docSnapshot.id };
+        console.log(docSnapshot.id);
+        console.log(docSnapshot.data());
       });
     })
     .then(async () => {
@@ -5697,8 +5694,6 @@ async function generarGuiaFlexii(id_guias) {
 
     </head><body>
 
-
-
     `);
       w.document.write(div.innerHTML);
       console.log(guiaImprimir);
@@ -5724,11 +5719,9 @@ async function generarGuiaFlexii(id_guias) {
   
 </script>
   </body></html>`);
-      // w.document.close();
       w.focus();
       setTimeout(() => {
         w.print();
-        // w.close();
       }, 500);
     });
 }
@@ -5754,14 +5747,19 @@ function buscarGuiasManifiesto() {
   );
 
   const coll = ControlUsuario.esPuntoEnvio
-    ? db.collectionGroup("guias").where("id_punto", "==", user_id)
-    : usuarioDoc.collection("guias");
+    ? query(
+        collectionGroup(db, "guias"),
+        where("id_punto", "==", user_id)
+      )
+    : collection(doc(db, "usuarios", localStorage.user_id), "guias");
 
-  const reference = coll
-    .orderBy("timeline", "desc")
-    .startAt(fechaF)
-    .endAt(fechaI)
-    .where("transportadora", "==", transp);
+  const reference = query(
+    coll,
+    orderBy("timeline", "desc"),
+    startAt(fechaF),
+    endAt(fechaI),
+    where("transportadora", "==", transp)
+  );
   // .limit(10)
 
   if (!this.getAttribute("data-table_initialized")) {
@@ -5775,8 +5773,8 @@ function buscarGuiasManifiesto() {
   mostrador_guias_seleccionadas.val("");
 
   const tabla = $("#tabla-manifiestos").DataTable();
-  // return;
-  reference.get().then((querySnapshot) => {
+
+  getDocs(reference).then((querySnapshot) => {
     const size = querySnapshot.size;
     if (size) {
       $("#mostrador-manifiestos").show("fast");
@@ -5788,9 +5786,9 @@ function buscarGuiasManifiesto() {
 
     tabla.clear();
 
-    querySnapshot.forEach((doc) => {
-      if (doc.data().numeroGuia && !doc.data().deleted) {
-        tabla.rows.add([doc.data()]);
+    querySnapshot.forEach((docSnapshot) => {
+      if (docSnapshot.data().numeroGuia && !docSnapshot.data().deleted) {
+        tabla.rows.add([docSnapshot.data()]);
       }
     });
 
