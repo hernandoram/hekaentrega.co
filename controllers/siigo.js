@@ -28,30 +28,50 @@ const crearFactura = async (req, res) => {
 
     const { comision_heka, numero_documento, costo_transportadora } = req.body;
 
+    // Redondeamos la comisión para que el cálculo sea valorado correctamente por siigo
+    const iva_comision_heka = Number((comision_heka * 0.19 / 1.19).toFixed(2));
+    console.log(iva_comision_heka);
+
+    res.status(405).send({
+        error: true,
+        message: "Temporalmente suspendido"
+    });
+
+    return;
+
     // Por defecto siempre se factura la comisión Heka
     const items = [
         {
           code: "001", // siempre 001 Que corresponde al producto equivalente a la comisión Heka
           description: "Servicios Complementarios al Transporte", // contante
           quantity: 1,// contante
-          price: comision_heka, // comision_heka
-          discount: 0 // constante
+          price: comision_heka - iva_comision_heka, // comision_heka
+          discount: 0, // constante,
+          taxes: [{ // Este repreentará el IVA que se saca en Heka
+            id: 28952 // id del impuesto /taxes (IVA EN SERVICIOS 19%)
+          }]
         }
     ];
+
+    console.log(items);
 
     let valorPago = comision_heka;
 
     if(costo_transportadora) {
         valorPago += costo_transportadora;
         items.push({
-            code: "005", // siempre 004 Corresponderá al producto relacionado con los costos de transportadora
-            description: "Costo por Transporte", // contante
+            code: "006", // siempre 006 Corresponderá al producto relacionado con los costos de transportadora
+            description: "Ingresos Recibidos Para Terceros", // contante
             quantity: 1,// contante
             price: costo_transportadora, // costo_transportadora
-            discount: 0 // constante
+            discount: 0, // constante
+            taxes: [{ // Este repreentará el IVA que se saca en Heka
+                id: 14254 // id del impuesto /taxes (IVA 0%)
+            }]
         });
     }
 
+    console.log(valorPago);
     const token = req.access_token;
 
     const fecha = new Date();
@@ -78,7 +98,7 @@ const crearFactura = async (req, res) => {
             due_date: estandarizarFecha(fecha, "YYYY-MM-DD") // Fecha del pago
           }
         ],
-        retentions: [{id: Cr.idAutoRetencion}] // reviso en /taxes el de autoretención (pero por ahora queda quemado)
+        // retentions: [{id: Cr.idAutoRetencion}] // reviso en /taxes el de autoretención (pero por ahora queda quemado)
     }
 
     const respuesta = await fetch(Cr.endpoint + path, {
