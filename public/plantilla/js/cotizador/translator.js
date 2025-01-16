@@ -43,10 +43,14 @@ class TranslatorFromApi {
      * ya que esto es lo que realmente se guardará en base de datos
      */
     get flete() {
+      return this.dataFromApi.flete;
+
+      // Método antiguo (eiminar cuando se lea)
       const fleteApi = this.type === PAGO_CONTRAENTREGA ? this.dataFromApi.flete - this.FACHADA_FLETE : this.dataFromApi.flete;
 
       // Se le resta la comisión adicional, para que se guarde el flete natural, sin alteraciones, por fuera ase debe mostrar el flete que venga del api sin alteracioines
       return fleteApi - this.comisionAdicionalHeka;
+      // FIN Método antiguo
     }
 
     /** Es la comisión que le corresponde a Heka por el diligenciamiento y gestión de dicho envío
@@ -54,7 +58,11 @@ class TranslatorFromApi {
      * por lo que internamente se le suma los mismos {@link FACHADA_FLETE | 1000} pesos para que se guarde en la base de datos
     */
     get comision_heka() {
+      return this.dataFromApi.heka_commission;
+      
+      // Método antiguo (eiminar cuando se lea)
       return this.type === PAGO_CONTRAENTREGA ? this.dataFromApi.heka_commission + this.FACHADA_FLETE : this.dataFromApi.heka_commission;
+      // FIN Método antiguo
     }
 
     /** Variable que se caracteriza por identificar si la guía posee una deuda

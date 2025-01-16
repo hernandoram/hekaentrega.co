@@ -39,7 +39,7 @@ export function detallesFlexii(objData) {
                     <h5 class="card-header text-warning">Costo Transportadora</h5>
                     <li class="list-group-item card-body">
                         <p class="card-text d-flex justify-content-between">Valor flete <b>$${convertirMiles(
-                          objData.flete
+                          objData.visual_flete
                         )}</b></p>
                         <p class="card-text d-flex justify-content-between">Comisión transportadora <b>$${convertirMiles(
                           objData.sobreflete
