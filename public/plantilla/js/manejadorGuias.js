@@ -329,36 +329,38 @@ async function historialGuiasAntiguo() {
   document.getElementById("cargador-guias").classList.remove("d-none");
   if (!user_id) return;
 
-  var fecha_inicio = Date.parse($("#fecha_inicio").val().replace(/\-/g, "/"));
-  fecha_final =
+  const fecha_inicio = Date.parse($("#fecha_inicio").val().replace(/\-/g, "/"));
+  const fecha_final =
     Date.parse($("#fecha_final").val().replace(/\-/g, "/")) + 8.64e7;
 
-  var reference = ControlUsuario.esPuntoEnvio
-    ? firebase
-        .firestore()
-        .collectionGroup("guias")
-        .where("id_punto", "==", user_id)
-    : firebase
-        .firestore()
-        .collection("usuarios")
-        .doc(user_id)
-        .collection("guias");
+  let reference;
 
-  let referencefilter = reference
-    .orderBy("timeline", "desc")
-    .startAt(fecha_final)
-    .endAt(fecha_inicio);
+  if (ControlUsuario.esPuntoEnvio) {
+    reference = query(
+      collectionGroup(db, "guias"),
+      where("id_punto", "==", user_id),
+      orderBy("timeline", "desc"),
+      startAt(fecha_final),
+      endAt(fecha_inicio)
+    );
+  } else {
+    reference = query(
+      collection(collection(db, "usuarios"), user_id, "guias"),
+      orderBy("timeline", "desc"),
+      startAt(fecha_final),
+      endAt(fecha_inicio)
+    );
+  }
 
   if ($("#numeroGuia-historial_guias").val()) {
-    referencefilter = reference.where(
-      "numeroGuia",
-      "==",
-      $("#numeroGuia-historial_guias").val()
+    reference = query(
+      reference,
+      where("numeroGuia", "==", $("#numeroGuia-historial_guias").val())
     );
   }
 
   table.clear().draw();
-  snapshotHistorialGuias = referencefilter.onSnapshot((snapshot) => {
+  snapshotHistorialGuias = onSnapshot(reference, (snapshot) => {
     if (snapshot.empty) {
       contentTabla.hide();
       contentEmpty.show();
@@ -692,13 +694,8 @@ export async function descargarGuiasParticulares(e, dt, node, config) {
 let noNotificarGuia;
 export function crearDocumentos(e, dt, node, config) {
   const api = dt;
-  // Para cuando se use el selector
   const selectedRows = api.rows(".selected");
   const datas = selectedRows.data();
-
-  // Para utilizar el método de empaque
-  // const selectedRows = api.rows();
-  // const datas = selectedRows.data().filter(d => d.empacada).slice(0, 51);
 
   console.log(datas);
 
@@ -706,13 +703,12 @@ export function crearDocumentos(e, dt, node, config) {
   node.prop("disabled", true);
 
   let id_user = ControlUsuario.esPuntoEnvio
-      ? datas[0].id_user
-      : localStorage.user_id,
+    ? datas[0].id_user
+    : localStorage.user_id,
     arrGuias = new Array();
 
   if (!datas.length) {
     node.prop("disabled", false);
-
     return Toast.fire({
       icon: "error",
       text: "No hay guías Seleccionadas.",
@@ -720,8 +716,6 @@ export function crearDocumentos(e, dt, node, config) {
   }
 
   datas.each((data, i) => {
-    // const data = datas[i];
-    console.log(data);
     const {
       numeroGuia,
       id_heka,
@@ -748,8 +742,6 @@ export function crearDocumentos(e, dt, node, config) {
 
     let nombreResponsable = nombre_empresa || nombreR;
 
-    // Este objeto solo está presente cuando la guía fue creada por un usuario de tipo punto
-    // En este caso "info_user" corresponde al nombre del usuario que solicitó al punto generar el envío
     if (info_user) {
       nombreResponsable = info_user.nombre_completo;
     }
@@ -777,18 +769,14 @@ export function crearDocumentos(e, dt, node, config) {
       codigo_sucursal,
       nombreResponsable,
     });
-
-    // $(nodo).removeClass("selected bg-gray-300");
   });
 
-  //Verifica que todas las guias crrespondan al mismo tipo
   let tipos_diferentes = revisarCompatibilidadGuiasSeleccionadas(arrGuias);
   const guia_automatizada =
     transportadoras[arrGuias[0].transportadora].sistemaAutomatizado();
-  //Si no corresponden, arroja una excepción
+
   if (tipos_diferentes.error) {
     node.prop("disabled", false);
-
     return Swal.fire({
       icon: "error",
       title: "!No se pudo procesar la información!",
@@ -796,7 +784,6 @@ export function crearDocumentos(e, dt, node, config) {
     });
   }
 
-  // Add a new document with a generated id.
   swal.fire({
     title: "Creando Documentos",
     html: "Estamos trabajando en ello, por favor espere...",
@@ -808,30 +795,31 @@ export function crearDocumentos(e, dt, node, config) {
     showConfirmButton: false,
     allowEscapeKey: true,
   });
-  let documentReference = firebase.firestore().collection("documentos");
-  //corresponde al nuevo documento creado
-  documentReference
-    .add({
-      id_user: id_user,
-      id_punto: arrGuias[0].id_punto || "",
-      nombre_usuario: datos_usuario.nombre_completo,
-      centro_de_costo: datos_usuario.centro_de_costo || "SCC",
-      fecha: genFecha(),
-      timeline: new Date().getTime(),
-      descargar_relacion_envio: true,
-      descargar_guias: true,
-      type: arrGuias[0].type,
-      transportadora: arrGuias[0].transportadora,
-      guias: arrGuias.map((v) => v.id_heka).sort(),
-      codigo_sucursal: arrGuias[0].codigo_sucursal
-        ? arrGuias[0].codigo_sucursal
-        : "",
-      generacion_automatizada: guia_automatizada,
-    })
+
+  const db = getFirestore();
+  const documentReference = collection(db, "documentos");
+
+  addDoc(documentReference, {
+    id_user: id_user,
+    id_punto: arrGuias[0].id_punto || "",
+    nombre_usuario: datos_usuario.nombre_completo,
+    centro_de_costo: datos_usuario.centro_de_costo || "SCC",
+    fecha: genFecha(),
+    timeline: new Date().getTime(),
+    descargar_relacion_envio: true,
+    descargar_guias: true,
+    type: arrGuias[0].type,
+    transportadora: arrGuias[0].transportadora,
+    guias: arrGuias.map((v) => v.id_heka).sort(),
+    codigo_sucursal: arrGuias[0].codigo_sucursal
+      ? arrGuias[0].codigo_sucursal
+      : "",
+    generacion_automatizada: guia_automatizada,
+  })
     .then(async (docRef) => {
       if (noNotificarGuia == undefined) {
-        const ref = db.collection("infoHeka").doc("manejoUsuarios");
-        const data = await ref.get().then((d) => d.data().noEnviarWsPedido);
+        const ref = doc(db, "infoHeka", "manejoUsuarios");
+        const data = await getDoc(ref).then((d) => d.data().noEnviarWsPedido);
         noNotificarGuia = data.includes(datos_usuario.centro_de_costo);
       }
 
@@ -845,9 +833,6 @@ export function crearDocumentos(e, dt, node, config) {
 
       const guias = arrGuias.map((v) => v.id_heka).sort();
 
-      /* Si tiene inhabilitado la creción de guías automáticas
-        solo actualizará las guías que pasaron el filtro anterior y enviará una
-        notificación a administración, es caso contrario utilizará el web service */
       if (["TCC"].includes(transportadora)) {
         await crearManifiestoAveonline(arrGuias, {
           id_user,
@@ -860,8 +845,6 @@ export function crearDocumentos(e, dt, node, config) {
             transportadora
           )
         ) {
-          // Con esta transportadora no creamos manifiestos de esta forma,
-          //ya que el usuario los crea por su cuenta
           await actualizarEstadoGuiasDocCreado(arrGuias);
           Toast.fire({
             icon: "success",
@@ -879,44 +862,37 @@ export function crearDocumentos(e, dt, node, config) {
           arrGuias.forEach(notificarPedidoCreado);
         }
       } else {
-        await documentReference
-          .doc(docRef.id)
-          .update({
-            descargar_guias: false,
-            descargar_relacion_envio: false,
-            important: true,
-          })
-          .then(() => {
-            actualizarEstadoGuiasDocCreado(arrGuias);
+        await updateDoc(doc(db, "documentos", docRef.id), {
+          descargar_guias: false,
+          descargar_relacion_envio: false,
+          important: true,
+        }).then(() => {
+          actualizarEstadoGuiasDocCreado(arrGuias);
 
-            Swal.fire({
-              icon: "success",
-              text:
-                "Las Guías " +
-                guias +
-                " están siendo procesadas ,los documentos estarán disponibles pronto.",
-            });
+          Swal.fire({
+            icon: "success",
+            text:
+              "Las Guías " +
+              guias +
+              " están siendo procesadas ,los documentos estarán disponibles pronto.",
           });
+        });
 
-        await firebase
-          .firestore()
-          .collection("notificaciones")
-          .add({
-            mensaje: `${
-              datos_usuario.nombre_completo
-            } ha creado un Documento con las Guías: ${guias.join(", ")}`,
-            fecha: genFecha(),
-            guias: guias,
-            usuario: datos_usuario.nombre_completo,
-            timeline: new Date().getTime(),
-            type: "documento",
-            visible_admin: true,
-          })
-          .then(() => {
-            actualizarHistorialDeDocumentos();
-            location.href = "#documentos";
-            $("#filter_proceso-guias_hist").click();
-          });
+        await addDoc(collection(db, "notificaciones"), {
+          mensaje: `${
+            datos_usuario.nombre_completo
+          } ha creado un Documento con las Guías: ${guias.join(", ")}`,
+          fecha: genFecha(),
+          guias: guias,
+          usuario: datos_usuario.nombre_completo,
+          timeline: new Date().getTime(),
+          type: "documento",
+          visible_admin: true,
+        }).then(() => {
+          actualizarHistorialDeDocumentos();
+          location.href = "#documentos";
+          $("#filter_proceso-guias_hist").click();
+        });
       }
 
       node.prop("disabled", false);
@@ -1006,36 +982,38 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
   return mensaje;
 }
 
-async function actualizarEstadoGuiasDocCreado(arrGuias) {
+export async function actualizarEstadoGuiasDocCreado(arrGuias) {
   for await (let guia of arrGuias) {
-    usuarioAltDoc(guia.id_user)
-      .collection("guias")
-      .doc(guia.id_heka)
-      .update({
-        enviado: true,
-        estado: "Enviado",
-        estadoActual: estadosGuia.empacada,
-      })
-      .then(() => {
-        const link =
-          guia.transportadora === "ENVIA"
-            ? "https://envia.co/"
-            : "https://www.interrapidisimo.com/sigue-tu-envio/";
+    const guiaRef = firestoreDoc(
+      usuarioAltDoc(guia.id_user),
+      "guias",
+      guia.id_heka
+    );
 
-        notificarPedidoCreado(guia);
+    await updateDoc(guiaRef, {
+      enviado: true,
+      estado: "Enviado",
+      estadoActual: estadosGuia.empacada,
+    }).then(() => {
+      const link =
+        guia.transportadora === "ENVIA"
+          ? "https://envia.co/"
+          : "https://www.interrapidisimo.com/sigue-tu-envio/";
 
-        if (guia.id_oficina) {
-          enviarNotificacion({
-            visible_office: true,
-            user_id,
-            office_id: guia.id_oficina,
-            id_heka: guia.id_heka,
-            numeroGuia: guia.numeroGuia,
-            transportadora: guia.transportadora,
-            mensaje: "Se ha creado una nueva guía que se dirige a tu oficina.",
-          });
-        }
-      });
+      notificarPedidoCreado(guia);
+
+      if (guia.id_oficina) {
+        enviarNotificacion({
+          visible_office: true,
+          user_id,
+          office_id: guia.id_oficina,
+          id_heka: guia.id_heka,
+          numeroGuia: guia.numeroGuia,
+          transportadora: guia.transportadora,
+          mensaje: "Se ha creado una nueva guía que se dirige a tu oficina.",
+        });
+      }
+    });
   }
 }
 
@@ -1092,7 +1070,7 @@ function openPdfFromBase64(base64) {
   window.open(url);
 }
 
-async function crearManifiestoServientrega(arrGuias, vinculo) {
+export async function crearManifiestoServientrega(arrGuias, vinculo) {
   let mensaje = document.createElement("div");
   let ul = document.createElement("ul");
 
@@ -1103,7 +1081,7 @@ async function crearManifiestoServientrega(arrGuias, vinculo) {
   });
 
   if (sin_stiker) {
-    ul.innerHTML += `<li>${sin_stiker} guias no pudieron ser procesadas por no contar con el sticker de la guía. \n"
+    ul.innerHTML += `<li>${sin_stiker} guías no pudieron ser procesadas por no contar con el sticker de la guía. 
         Le recomendamos clonar la(s) guía(s) involucrada, y eliminar la defectuosa</li>`;
   }
 
@@ -1135,7 +1113,7 @@ async function crearManifiestoServientrega(arrGuias, vinculo) {
   if (base64) {
     documento_guardado = await guardarBase64ToStorage(
       base64,
-      user_id + "/" + vinculo.id_doc + "/" + nombre_relacion + ".pdf"
+      `${user_id}/${vinculo.id_doc}/${nombre_relacion}.pdf`
     );
   } else {
     if (arrGuias.length !== 0) {
@@ -1144,33 +1122,33 @@ async function crearManifiestoServientrega(arrGuias, vinculo) {
     }
 
     if (base64 === "error") {
-      firebase
-        .firestore()
-        .collection("documentos")
-        .doc(vinculo.id_doc)
-        .delete();
+      const referenciaDocumento = firestoreDoc(
+        firestoreCollection(db, "documentos"),
+        vinculo.id_doc
+      );
+      await deleteDoc(referenciaDocumento);
     }
   }
 
   if (documento_guardado) {
-    await firebase
-      .firestore()
-      .collection("documentos")
-      .doc(vinculo.id_doc)
-      .update({ nombre_relacion });
+    const referenciaDocumento = firestoreDoc(
+      firestoreCollection(db, "documentos"),
+      vinculo.id_doc
+    );
+    await updateDoc(referenciaDocumento, { nombre_relacion });
   }
 
   if (ul.innerHTML) {
     mensaje.appendChild(ul);
     Swal.fire({
       icon: "warning",
-      title: "Obeservaciones",
+      title: "Observaciones",
       html: mensaje,
     });
   } else {
     Toast.fire({
       icon: "success",
-      html: "¡Documento creado exitósamente!",
+      html: "¡Documento creado exitosamente!",
     });
   }
 
