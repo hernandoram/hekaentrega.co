@@ -3002,12 +3002,12 @@
 
     <!-- FIREBASE -->
     <!-- The core Firebase JS SDK is always required and must be listed first -->
-    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-analytics.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/7.18.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.2.4/firebase-storage.js"></script>
+    <!-- <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js"></script> -->
 
 
     <!-- index.js -->
@@ -3069,18 +3069,19 @@
 
     </script>
     <script src="/config.js"></script>
-    <script src="js/render.js"></script>
+    <script type="module" src="js/config/initializeFirebase.js"></script>
+    <script type="module" src="js/render.js"></script>
     <script src="js/callcenter/callcenter.js"></script>
-    <script src="js/cargadorDeDatos.js"></script>
+    <script type="module" src="js/cargadorDeDatos.js"></script>
     <script src="js/consultarCiudades.js" type="module"></script>
-    <script src="js/buscarUsuarios.js"></script>
-    <script src="js/usuarios.js"></script>
-    <script src="js/manejadorGuias.js"></script>
+    <script type="module" src="js/buscarUsuarios.js"></script>
+    <script type="module" src="js/usuarios.js"></script>
+    <script type="module" src="js/manejadorGuias.js"></script>
     <script src="js/adminPlatform.js" type="module"></script>
     <script src="js/hostNameReader.js"></script>
-    <script src="js/stats.js"></script>
+    <script type="module" src="js/stats.js"></script>
     <script src="js/copyToClipboard.js"></script>
-    <script src="js/chargeusers.js"></script>
+    <script type="module" src="js/chargeusers.js"></script>
     
 <script>
   const dotsSpan = document.querySelector('.dots');

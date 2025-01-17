@@ -1,4 +1,20 @@
 let ingreso, seller;
+import {
+  db,
+  doc,
+  getDoc,
+  collection,
+  query,
+  where,
+  orderBy,
+  limit,
+  getDocs,
+  collectionGroup,
+  startAt,
+  endAt,
+} from "/js/config/initializeFirebase.js";
+import { inHTML } from '/js/main.js';
+import { recursividadPorReferencia } from '/js/manejadorGuias.js';
 class MensajeError {
   constructor(id) {
     this.id = id;
@@ -970,10 +986,10 @@ $("#buscador_usuarios-nombre, #buscador_usuarios-direccion").keyup((e) => {
 let userBodegas = [];
 let idUsuario = "";
 // esta funcion me busca el usuario seleccionado con informacion un poco mas detallada
-function seleccionarUsuario(id) {
-  idUsuario = id;
-  let contenedor = document.getElementById("usuario-seleccionado");
-  let mostrador = document.getElementById("tablaUsers");
+export async function seleccionarUsuario(id) {
+  let idUsuario = id;
+  const contenedor = document.getElementById("usuario-seleccionado");
+  const mostrador = document.getElementById("tablaUsers");
   const wrapper = document.getElementById("tablaUsers_wrapper");
 
   if (wrapper) {
@@ -984,194 +1000,140 @@ function seleccionarUsuario(id) {
   mostrador.classList.add("d-none");
   $("#control-buttons").addClass("d-none");
 
-  firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(id)
-    .get()
-    .then(async (doc) => {
-      if (doc.exists === true) {
-        contenedor.classList.remove("d-none");
-        const data = doc.data();
-        const datos_bancarios = data.datos_bancarios;
-        const datos_personalizados = data.datos_personalizados ?? {};
-        const bodegas = data.bodegas;
+  try {
+    const userDocRef = doc(db, "usuarios", id);
+    const docSnap = await getDoc(userDocRef);
 
-        console.log(acciones);
+    if (docSnap.exists()) {
+      contenedor.classList.remove("d-none");
+      const data = docSnap.data();
+      const datos_bancarios = data.datos_bancarios;
+      const datos_personalizados = data.datos_personalizados ?? {};
+      const bodegas = data.bodegas;
 
-        console.log(doc.data());
+      console.log("Acciones pendientes:", bodegas);
 
-        const userFirebaseData = doc.data();
+      mostrarDatosPersonales(data, "personal");
 
-        // if (doc.data().ingreso === doc.data().con) {
-        //   document.getElementById("actualizar_correo").readOnly = false;
-        // } else {
-        //   document.getElementById("actualizar_correo").readOnly = true;
-        // }
+      const referidosQuery = query(
+        collection(db, "referidos"),
+        where("sellerReferido", "==", data.centro_de_costo)
+      );
 
-        mostrarDatosPersonales(doc.data(), "personal");
+      const referidosSnapshot = await getDocs(referidosQuery);
 
-        await firebase
-          .firestore()
-          .collection("referidos")
-          .where("sellerReferido", "==", doc.data().centro_de_costo)
-          .get()
-          .then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-              console.warn(doc.data());
-              const referidoDE = document.getElementById("referidoDe");
-              console.log(referidoDE, doc.data().sellerReferente);
-              referidoDE.value = doc.data().sellerReferente;
-            });
-          });
-
-        mostrarReferidosUsuarioAdm(doc.data().centro_de_costo);
-
-        mostrarDatosPersonales(datos_bancarios, "bancaria");
-
-        const fechaRegistroUsuario = document.getElementById(
-          "fecha_registro_usuario"
-        );
-
-        const fechaCreacion = userFirebaseData.fecha_creacion;
-
-        if (fechaCreacion && fechaCreacion.seconds !== undefined) {
-          const segundos = fechaCreacion.seconds;
-          const fecha = new Date(segundos * 1000);
-          const opciones = {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            hour: "numeric",
-            minute: "numeric",
-            second: "numeric",
-            hour12: true,
-          };
-          fechaRegistroUsuario.value = fecha.toLocaleDateString(
-            "es-CO",
-            opciones
-          );
-        } else {
-          fechaRegistroUsuario.value = "Seller Antiguo";
-        }
-        mostrarObjetosFrecuentesAdm(doc.id);
-
-        getDataUserFromMongoByIdAdm(id)
-          .then((dataApi) => {
-            console.log(dataApi);
-            datos_personalizados.user_type = dataApi.response.user_type;
-
-            userBodegas = doc.data().bodegas;
-            mostrarDatosPersonales(datos_personalizados, "heka");
-          })
-          .catch(() => {
-            // No se pudo cargar la información de mongo, pero básicamente se podrá la cargar la de heka, en caso de que exista
-            // Ya que aún, esta información no será actualizada en mongo, no afecta que una que otra ocasión no cargue
-            mostrarDatosPersonales(datos_personalizados, "heka");
-            mostrarReferidosUsuarioAdm(doc.data().centro_de_costo);
-          });
-      } else {
-        // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
-        //Hasta que todos los usuario futuramente tengan el doc "heka"
-        // $("#habilitar_servientrega").prop("checked", true);
-        avisar(
-          "Usuario no encontrado",
-          "El seller con el ID " + id + " no existe en la base de datos",
-          "alerta"
-        );
-        contenedor.classList.add("d-none");
-        console.log("No such document!");
-      }
-    })
-    .catch((error) => {
-      console.log("Error getting document:", error);
-    });
-
-  const ref2 = firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(id)
-    .collection("acciones")
-    .orderBy("Fecha", "desc")
-    .limit(30)
-    .get();
-
-  let acciones = [];
-
-  ref2
-    .then((querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-        acciones.push(doc.data());
+      referidosSnapshot.forEach((doc) => {
+        console.warn(doc.data());
+        const referidoDE = document.getElementById("referidoDe");
+        referidoDE.value = doc.data().sellerReferente;
       });
-    })
-    .then(() => {
-      acciones.forEach((accion) => {
-        // Convertir el Timestamp a un objeto Date
-        const fecha = new Date(accion.Fecha.seconds * 1000);
-        accion.timeline = fecha.getTime(); // Para que la tabla me muestre por orden de fecha
 
-        // Formatear la fecha
+      mostrarReferidosUsuarioAdm(data.centro_de_costo);
+
+      mostrarDatosPersonales(datos_bancarios, "bancaria");
+
+      const fechaRegistroUsuario = document.getElementById(
+        "fecha_registro_usuario"
+      );
+      const fechaCreacion = data.fecha_creacion;
+
+      if (fechaCreacion && fechaCreacion.seconds !== undefined) {
+        const fecha = new Date(fechaCreacion.seconds * 1000);
         const opciones = {
           year: "numeric",
           month: "long",
           day: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
+          hour: "numeric",
+          minute: "numeric",
+          second: "numeric",
           hour12: true,
         };
-        const fechaFormateada = fecha.toLocaleString("es-CO", opciones);
+        fechaRegistroUsuario.value = fecha.toLocaleDateString("es-CO", opciones);
+      } else {
+        fechaRegistroUsuario.value = "Seller Antiguo";
+      }
 
-        const valorPagoFormateado = accion["Valor del pago"].toLocaleString(
-          "es-CO",
-          { style: "currency", currency: "COP" }
-        );
+      mostrarObjetosFrecuentesAdm(docSnap.id);
 
-        accion["Valor del pago"] = valorPagoFormateado;
+      try {
+        const dataApi = await getDataUserFromMongoByIdAdm(id);
+        datos_personalizados.user_type = dataApi.response.user_type;
 
-        // Reemplazar la fecha en la acción
-        accion.Fecha = fechaFormateada;
-      });
+        mostrarDatosPersonales(datos_personalizados, "heka");
+      } catch {
+        mostrarDatosPersonales(datos_personalizados, "heka");
+        mostrarReferidosUsuarioAdm(data.centro_de_costo);
+      }
+    } else {
+      avisar(
+        "Usuario no encontrado",
+        `El seller con el ID ${id} no existe en la base de datos`,
+        "alerta"
+      );
+      contenedor.classList.add("d-none");
+    }
+  } catch (error) {
+    console.log("Error obteniendo documento:", error);
+  }
 
-      const table = $("#tabla-acciones").DataTable({
-        destroy: true,
-        data: acciones,
-        order: [[1]],
-        columns: [
-          {
-            data: "timeline",
-            title: "Orden",
-            defaultContent: "",
-            visible: false,
-          },
-          {
-            data: "Estado",
-            title: "Estado",
-            defaultContent: "",
-          },
-          {
-            data: "Fecha",
-            title: "Fecha",
-            defaultContent: "",
-          },
-          {
-            data: "Valor del pago",
-            title: "Valor del pago",
-            defaultContent: "",
-          },
-        ],
-        language: {
-          url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
-        },
-        scrollX: true,
-        scrollCollapse: true,
-        lengthMenu: [
-          [5, 10, 25, 30],
-          [5, 10, 25, 30],
-        ],
-      });
+  try {
+    const accionesQuery = query(
+      collection(db, "usuarios", id, "acciones"),
+      orderBy("Fecha", "desc"),
+      limit(30)
+    );
+    const accionesSnapshot = await getDocs(accionesQuery);
 
-      if (!acciones || !acciones.length) table.clear();
+    let acciones = [];
+    accionesSnapshot.forEach((doc) => {
+      acciones.push(doc.data());
     });
+
+    acciones.forEach((accion) => {
+      const fecha = new Date(accion.Fecha.seconds * 1000);
+      accion.timeline = fecha.getTime();
+
+      const opciones = {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      };
+      accion.Fecha = fecha.toLocaleString("es-CO", opciones);
+
+      accion["Valor del pago"] = accion["Valor del pago"].toLocaleString(
+        "es-CO",
+        { style: "currency", currency: "COP" }
+      );
+    });
+
+    const table = $("#tabla-acciones").DataTable({
+      destroy: true,
+      data: acciones,
+      order: [[1]],
+      columns: [
+        { data: "timeline", title: "Orden", defaultContent: "", visible: false },
+        { data: "Estado", title: "Estado", defaultContent: "" },
+        { data: "Fecha", title: "Fecha", defaultContent: "" },
+        { data: "Valor del pago", title: "Valor del pago", defaultContent: "" },
+      ],
+      language: {
+        url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
+      },
+      scrollX: true,
+      scrollCollapse: true,
+      lengthMenu: [
+        [5, 10, 25, 30],
+        [5, 10, 25, 30],
+      ],
+    });
+
+    if (!acciones.length) table.clear();
+  } catch (error) {
+    console.log("Error obteniendo acciones:", error);
+  }
 }
 
 // esta funcion solo llena los datos solicitados en los inputs
@@ -1254,13 +1216,11 @@ let selectControl = document.getElementById("selectControl");
 let objetosFrecuentes2 = [];
 
 function mostrarObjetosFrecuentesAdm(id) {
-  objetosFrecuentes2 = [];
-  firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(id)
-    .collection("plantillasObjetosFrecuentes")
-    .get()
+  const objetosFrecuentes2 = [];
+  const userRef = doc(db, "usuarios", id); // Obtén la referencia al documento del usuario
+  const plantillasRef = collection(userRef, "plantillasObjetosFrecuentes"); // Obtén la referencia a la subcolección "plantillasObjetosFrecuentes"
+
+  getDocs(plantillasRef)
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
         const objeto = { id: doc.id, ...doc.data() };
@@ -1314,12 +1274,11 @@ function renderObjetosFrecuentes() {
 let referidos = [];
 
 function mostrarReferidosUsuarioAdm(centro_costo) {
-  referidos = [];
-  firebase
-    .firestore()
-    .collection("referidos")
-    .where("sellerReferente", "==", centro_costo)
-    .get()
+  const referidos = [];
+  const referidosRef = collection(db, "referidos"); // Obtén la referencia a la colección "referidos"
+  const q = query(referidosRef, where("sellerReferente", "==", centro_costo)); // Crea la consulta
+
+  getDocs(q)
     .then((querySnapshot) => {
       querySnapshot.forEach((doc) => {
         referidos.push(doc.data());
@@ -1408,9 +1367,7 @@ function mostrarReferidosUsuarioAdm(centro_costo) {
                   transacciones === undefined
                 ) {
                   $("#tabla-reclamos").DataTable().clear();
-                  $(
-                    "#modalHistorialReferidos-mensajeNoHayReferidos"
-                  ).removeClass("d-none");
+                  $( "#modalHistorialReferidos-mensajeNoHayReferidos" ).removeClass("d-none");
                   $("#modalHistorialPagoRef").addClass("d-none");
                 } else {
                   $("#modalHistorialReferidos-mensajeNoHayReferidos").addClass(
@@ -2067,151 +2024,129 @@ async function listarAgentesAveonline(e) {
 
 /* Para ver los movimientos en efectivo de los usuarios */
 
-async function verMovimientos(usuario, fechaI, fechaF) {
+export async function verMovimientos(usuario, fechaI, fechaF) {
   document.getElementById("card-movimientos").innerHTML = "";
   document.getElementById("card-movimientos").innerHTML =
     "<div class='d-flex justify-content-center'><div class='lds-ellipsis'><div></div><div></div><div></div><div></div></div>";
+  
   try {
-    let buscador = await firebase
-      .firestore()
-      .collection("usuarios")
-      .doc("22032021")
-      .collection("movimientos")
-      .get()
-      .then((querySnapshot) => {
-        let pagos = new Array();
-        querySnapshot.forEach((doc) => {
-          let pago = doc.data();
-          if (
-            pago.user == usuario &&
-            fechaI <= pago.momento &&
-            fechaF >= pago.momento
-          )
-            pagos.push(pago);
-        });
-        return pagos;
-      });
-
+    // Obtener movimientos del usuario
+    const movimientosRef = collection(db, "usuarios", "22032021", "movimientos");
+    const querySnapshot = await getDocs(movimientosRef);
+    let buscador = [];
+    querySnapshot.forEach((doc) => {
+      let pago = doc.data();
+      if (pago.user === usuario && fechaI <= pago.momento && fechaF >= pago.momento) {
+        buscador.push(pago);
+      }
+    });
+    
     console.log(buscador);
+
     async function miradorUsuario(usuario) {
       let res = [];
-      await firebase
-        .firestore()
-        .collection("usuarios")
-        .doc(usuario)
-        .collection("movimientos")
-        .orderBy("momento")
-        .startAt(fechaI)
-        .endAt(fechaF)
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            res.push(doc.data());
-          });
-        });
+      const usuarioRef = collection(db, "usuarios", usuario, "movimientos");
+      const q = query(usuarioRef, orderBy("momento"), startAt(fechaI), endAt(fechaF));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        res.push(doc.data());
+      });
       return res;
     }
 
     async function miradorPrueba(usuario) {
       let res = [];
-      await firebase
-        .firestore()
-        .collection("prueba")
-        .where("user_id", "==", usuario)
-        .get()
-        .then((querySnapshot) => {
-          querySnapshot.forEach((doc) => {
-            res.push(doc.data());
-          });
-        });
+      const pruebaRef = collection(db, "prueba");
+      const q = query(pruebaRef, where("user_id", "==", usuario));
+      const querySnapshot = await getDocs(q);
+      querySnapshot.forEach((doc) => {
+        res.push(doc.data());
+      });
       return res;
     }
 
     let data1, data2;
-    miradorUsuario(usuario).then((data) => {
-      data2 = data;
-      miradorPrueba(usuario)
-        .then((d2) => (data1 = d2))
-        .then(() => {
-          document.getElementById("card-movimientos").innerHTML = "";
-          let detalles = document.createElement("ul");
-          lista_detalles = [];
-          console.log(data2);
-          console.log(data1);
+    data2 = await miradorUsuario(usuario);
+    data1 = await miradorPrueba(usuario);
 
-          if (!data2.length) return;
-          let saldo_momento = data2.reduce((a, b) => {
-            return parseInt(a) + parseInt(b.diferencia);
-          }, parseInt(data2[0].saldo_anterior));
-          let saldo_momento_legal = data1.reduce((a, b) => {
-            if (b.momento >= fechaI && b.momento <= fechaF) {
-              return parseInt(a) + parseInt(b.diferencia);
-            } else {
-              return a;
-            }
-          }, parseInt(data2[0].saldo_anterior));
-          let saldo_legal = data1.reduce((a, b) => {
-            return parseInt(a) + parseInt(b.diferencia);
-          }, 0);
+    document.getElementById("card-movimientos").innerHTML = "";
+    let detalles = document.createElement("ul");
+    let lista_detalles = [];
+    console.log(data2);
+    console.log(data1);
 
-          if (
-            buscador.length == data2.length &&
-            buscador.length == data1.length
-          ) {
-            lista_detalles.push(
-              "La cantidad de movimientos coinciden en todos los documentos"
-            );
-          } else if (buscador.length == data2.length) {
-            lista_detalles.push(
-              "La cantidad de movimientos coincide solo con los movimientos del usuario"
-            );
-          } else if (buscador.length == data1.length) {
-            lista_detalles.push(
-              "La cantidad de movimientos coincide solo con los movimientos secundarios, si no estás filtrando datos es posible qeu sea un error"
-            );
-          }
+    if (!data2.length) return;
 
-          lista_detalles.push(
-            "El saldo del cliente a la fecha era de: $" +
-              convertirMiles(saldo_momento) +
-              " Y debió haber sido de: $" +
-              convertirMiles(saldo_momento_legal)
-          );
-          tablaMovimientos(data2);
-          firebase
-            .firestore()
-            .collection("usuarios")
-            .doc(usuario)
-            .get()
-            .then((doc) => {
-              if (doc.exists && doc.data().datos_personalizados) {
-                const datos = doc.data().datos_personalizados;
-                lista_detalles.push(
-                  "El saldo Actual del cliente es: $" +
-                    convertirMiles(datos.saldo) +
-                    " Y debería ser de: $" +
-                    convertirMiles(saldo_legal)
-                );
-                console.log(
-                  "Saldos coinciden? => ",
-                  parseInt(datos.saldo) == saldo_legal
-                );
-              }
-            })
-            .then(() => {
-              for (let d of lista_detalles) {
-                detalles.innerHTML += `<li>${d}</li>`;
-              }
-              document.getElementById("card-movimientos").appendChild(detalles);
-            });
-        });
-    });
+    let saldo_momento = data2.reduce((a, b) => {
+      return parseInt(a) + parseInt(b.diferencia);
+    }, parseInt(data2[0].saldo_anterior));
+
+    let saldo_momento_legal = data1.reduce((a, b) => {
+      if (b.momento >= fechaI && b.momento <= fechaF) {
+        return parseInt(a) + parseInt(b.diferencia);
+      } else {
+        return a;
+      }
+    }, parseInt(data2[0].saldo_anterior));
+
+    let saldo_legal = data1.reduce((a, b) => {
+      return parseInt(a) + parseInt(b.diferencia);
+    }, 0);
+
+    if (
+      buscador.length === data2.length &&
+      buscador.length === data1.length
+    ) {
+      lista_detalles.push(
+        "La cantidad de movimientos coinciden en todos los documentos"
+      );
+    } else if (buscador.length === data2.length) {
+      lista_detalles.push(
+        "La cantidad de movimientos coincide solo con los movimientos del usuario"
+      );
+    } else if (buscador.length === data1.length) {
+      lista_detalles.push(
+        "La cantidad de movimientos coincide solo con los movimientos secundarios, si no estás filtrando datos es posible que sea un error"
+      );
+    }
+
+    lista_detalles.push(
+      "El saldo del cliente a la fecha era de: $" +
+        convertirMiles(saldo_momento) +
+        " Y debió haber sido de: $" +
+        convertirMiles(saldo_momento_legal)
+    );
+
+    tablaMovimientos(data2);
+
+    const usuarioDocRef = doc(db, "usuarios", usuario);
+    const usuarioDoc = await getDoc(usuarioDocRef);
+    if (usuarioDoc.exists() && usuarioDoc.data().datos_personalizados) {
+      const datos = usuarioDoc.data().datos_personalizados;
+      lista_detalles.push(
+        "El saldo Actual del cliente es: $" +
+          convertirMiles(datos.saldo) +
+          " Y debería ser de: $" +
+          convertirMiles(saldo_legal)
+      );
+      console.log(
+        "Saldos coinciden? => ",
+        parseInt(datos.saldo) === saldo_legal
+      );
+    }
+
+    for (let d of lista_detalles) {
+      detalles.innerHTML += `<li>${d}</li>`;
+    }
+
+    document.getElementById("card-movimientos").appendChild(detalles);
+
   } catch (error) {
     console.log(error);
   }
 }
 
-const loadStats = document.getElementById("load-stats");
+export const loadStats = document.getElementById("load-stats");
 const statsGlobales = document.getElementById("stats-globales");
 const loader = document.getElementById("loading-s");
 let guiasStats = [];
@@ -2644,13 +2579,13 @@ async function loadGlobalStats() {
 
 async function historialGuiasAdmin2() {
   console.warn("buscando guias");
-  const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
+  const referencia = doc(db, "infoHeka", "novedadesMensajeria");
   const limiteConsulta = 10e3;
 
-  const { lista: listacategorias } = await referencia.get().then((d) => {
-    if (d.exists) return d.data();
+  const { lista: listacategorias } = await getDoc(referencia).then((d) => {
+    if (d.exists()) return d.data();
   });
-  categorias = listacategorias || [];
+  let categorias = listacategorias || [];
 
   const week = startWeekInputGlobal.value;
   const { startDate, endDate } = getWeekDates(week);
@@ -2711,48 +2646,37 @@ async function historialGuiasAdmin2() {
     });
   };
 
-  let reference = firebase.firestore().collectionGroup("guias");
+  let reference = collectionGroup(db, "guias");
 
-  reference = reference
-    .orderBy("timeline")
-    .startAt(fecha_inicio)
-    .endAt(fecha_final);
+  reference = query(
+    reference,
+    orderBy("timeline"),
+    startAt(fecha_inicio),
+    endAt(fecha_final)
+  );
 
-  const referenceAlt = firebase.firestore().collectionGroup("guias");
+  const referenceAlt = collectionGroup(db, "guias");
 
   if (tipoFiltro === "filt_1") {
     const segementado = segmentarArreglo(filtroPagoSeleccionado, 10);
     for await (const paquete of segementado) {
-      await reference
-        .where("centro_de_costo", "in", paquete)
-        .get()
+      await getDocs(query(reference, where("centro_de_costo", "in", paquete)))
         .then(manejarInformacion);
     }
   } else if (tipoFiltro === "filt_2") {
-    await reference
-      .where("transportadora", "==", filtroTransp)
-      .get()
+    await getDocs(query(reference, where("transportadora", "==", filtroTransp)))
       .then(manejarInformacion);
   } else if (tipoFiltro === "filt_3") {
-    await reference
-      .where("centro_de_costo", "==", filtroActual)
-      .get()
+    await getDocs(query(reference, where("centro_de_costo", "==", filtroActual)))
       .then(manejarInformacion);
-
-    // if(!data.length) await reference.get().then(manejarInformacion);
   } else if (tipoFiltro === "filt_4") {
-    await reference
-      .where("type", "==", filtroActual)
-      .get()
+    await getDocs(query(reference, where("type", "==", filtroActual)))
       .then(manejarInformacion);
   } else if (tipoFiltro === "filt_5") {
-    await referenceAlt.where("debe", "<", 0).get().then(manejarInformacion);
+    await getDocs(query(referenceAlt, where("debe", "<", 0)))
+      .then(manejarInformacion);
   } else {
-    await recursividadPorReferencia(
-      reference,
-      manejarInformacion,
-      limiteConsulta
-    );
+    await recursividadPorReferencia(reference, manejarInformacion, limiteConsulta);
   }
 
   weeklyStats = data;

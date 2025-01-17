@@ -1,4 +1,4 @@
-const db = firebase.firestore();
+import { db } from "/js/config/initializeFirebase.js";
 
 /**
  * La función `comprobarGuiaPagada` comprueba si se ha pagado un determinado número de guía para un

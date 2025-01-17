@@ -1,8 +1,9 @@
 const fetch = require("node-fetch");
 const { estandarizarFecha } = require("../extends/funciones");
 
-const firebase = require("../keys/firebase");
-const db = firebase.firestore();
+const FirebaseServiceConection = require("../keys/firebase");
+const firebaseService = new FirebaseServiceConection();
+const db = firebaseService.dbFirebase();
 
 const Cr = require("../keys/siigo");
 

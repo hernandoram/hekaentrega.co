@@ -1,35 +1,45 @@
 let displayUsers = [];
+import { listaUsuarios } from '/js/cargadorDeDatos.js';
+import { generarTabla, manejarClickMovimientos } from '/js/buscarUsuarios.js'
+import { db, getDocs, collection } from "/js/config/initializeFirebase.js";
+import { seleccionarUsuario } from '/js/usuarios.js';
+
+window.seleccionarUsuario = seleccionarUsuario;
+window.manejarClickMovimientos = manejarClickMovimientos;
+
+
 async function chargeUsers() {
   document.getElementById("loader-usuarios").classList.remove("d-none");
+
+  // Verifica si ya tienes usuarios cargados
   if (listaUsuarios.length > 0) {
     return;
   }
+
   try {
-    await firebase
-      .firestore()
-      .collection("usuarios")
-      .get()
-      .then((querySnapshot) => {
-        querySnapshot.forEach((doc) => {
-          displayUsers.push({
-            ...doc.data(),
-            id: doc.id,
-          });
-        });
-      })
-      .then(() => {
-        //list="sellersDatalist"
-        document.getElementById("loader-usuarios").classList.add("d-none");
-        const sellerDatalist = document.getElementById("sellersDatalist");
-        listaUsuarios.forEach((user) => {
-          const option = document.createElement("option");
-          option.value = user; // Asumiendo que `user` es una cadena que representa el nombre del usuario
-          option.textContent = user; // Esto establece el texto que se muestra en la opción
-          sellerDatalist.appendChild(option);
-        });
+    const querySnapshot = await getDocs(collection(db, "usuarios"));
+
+    // Almacena y procesa los datos de los usuarios
+    querySnapshot.forEach((doc) => {
+      displayUsers.push({
+        ...doc.data(),
+        id: doc.id,
       });
+    });
+
+    // Oculta el loader una vez que los datos han sido procesados
+    document.getElementById("loader-usuarios").classList.add("d-none");
+
+    // Crea el datalist de vendedores
+    const sellerDatalist = document.getElementById("sellersDatalist");
+    listaUsuarios.forEach((user) => {
+      const option = document.createElement("option");
+      option.value = user; // Asumiendo que `user` es una cadena que representa el nombre del usuario
+      option.textContent = user; // Texto mostrado en la opción
+      sellerDatalist.appendChild(option);
+    });
   } catch (error) {
-    console.log(error);
+    console.error("Error al cargar los usuarios:", error);
   }
 }
 

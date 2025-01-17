@@ -1,6 +1,6 @@
-var firebaseConfig = JSON.parse(atob(window.ENV.FIREBASE_CONFIG));
+import { db } from "/js/config/initializeFirebase.js";
 
-const estadosGuia = {
+export const estadosGuia = {
   novedad: "NOVEDAD",
   pedido: "PEDIDO",
   pagada: "PAGADA",
@@ -38,10 +38,6 @@ function hostnameReader() {
   if (brandName) brandName.innerHTML = brandNameContent;
 }
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const analytics = firebase.analytics();
 
 function escucha(id, e, funcion) {
   document.getElementById(id).addEventListener(e, funcion);
@@ -52,8 +48,9 @@ function escucha(id, e, funcion) {
  */
 
 //Muestra en la pantalla lo que el cliente quiere hacer
-const listaNotificacionesAlerta = [];
-function mostrar(id) {
+export const listaNotificacionesAlerta = [];
+export function mostrar(id) {
+  console.log('entra', id)
   let content = document.getElementById("content").children;
 
   /* if (id === 'usuarios') {
@@ -312,7 +309,7 @@ function avisar(title, content, type, redirigir, tiempo = 5000) {
   });
 }
 //// Esta funcion me retorna un card con informacion del usuario, sera invocada por otra funcion
-function mostrarOficinas(data, id) {
+export function mostrarOficinas(data, id) {
   const bodegas = data.bodegas ? data.bodegas : [];
   // let bodega = data.bodegas ? data.bodegas.filter(b => b.principal)[0] : false
   let bodega = bodegas.filter((b) => !b.inactiva)[0];
@@ -569,7 +566,7 @@ function mostrarDocumentos(id, data, tipo_aviso) {
 }
 
 //Muestra la fecha de hoy
-function genFecha(direccion, milliseconds) {
+export function genFecha(direccion, milliseconds) {
   // Genera un formato de fecha AAAA-MM-DD
   let fecha = new Date(milliseconds || new Date()),
     mes = fecha.getMonth() + 1,
@@ -1414,7 +1411,7 @@ function empacarGuia() {
   usuarioDoc.collection("guias").doc(id_heka).update({ empacada });
 }
 
-let listaNovedadesEncontradas = [];
+export let listaNovedadesEncontradas = [];
 async function gestionarNovedad(e) {
   const id_heka = this.getAttribute("data-id");
   const guia = listaNovedadesEncontradas.find((n) => n.id_heka === id_heka);
@@ -1428,6 +1425,10 @@ async function gestionarNovedad(e) {
 
   console.log(novedad);
   gestionarNovedadModal(novedad, guia);
+}
+
+export function owerridelistaNovedadesEncontradas(value) {
+  listaNovedadesEncontradas = value;
 }
 
 async function detallesGrupoGuiasFlexii() {
@@ -1685,7 +1686,7 @@ function tablaPagos(arrData, id) {
 }
 
 //muestra la notificación específica para agregarla al panel, ademñas de asignarle funcionalidades
-function mostrarNotificacion(data, type, id) {
+export function mostrarNotificacion(data, type, id) {
   let notificacion = document.createElement("a"),
     div_icon = document.createElement("div"),
     circle = document.createElement("div"),
@@ -1790,7 +1791,7 @@ function mostrarNotificacion(data, type, id) {
   return notificacion;
 }
 
-function mostrarNotificacionEstaticaUsuario(noti, id) {
+export function mostrarNotificacionEstaticaUsuario(noti, id) {
   if (noti.startDate > new Date().getTime()) return;
 
   const nuevoMostrador =
@@ -1832,7 +1833,7 @@ function mostrarNotificacionEstaticaUsuario(noti, id) {
   });
 }
 
-async function mostrarNotificacionAlertaUsuario(noti, id) {
+export async function mostrarNotificacionAlertaUsuario(noti, id) {
   if (noti.startDate > new Date().getTime()) return;
 
   const opciones = {
@@ -3693,7 +3694,7 @@ function erroresColaGuias() {
     });
 }
 
-function createModal() {
+export function createModal() {
   let modal = new DOMParser().parseFromString(
     `<div class="modal fade" id="modal-creado" 
         tabindex="-1" aria-labelledby="titulo-modal-creado" aria-hidden="true">
@@ -3855,7 +3856,7 @@ function soloNumeros(campo) {
   return textoFinal;
 }
 
-function convertirMoneda(
+export function convertirMoneda(
   number,
   locales = "es-Co",
   currency = "COP",
@@ -4103,7 +4104,7 @@ class DetectorErroresInput {
   }
 }
 
-class ChangeElementContenWhileLoading {
+export class ChangeElementContenWhileLoading {
   constructor(e) {
     this.el = $(e);
     this.initVal = $(e).html();
@@ -4124,7 +4125,7 @@ class ChangeElementContenWhileLoading {
 }
 
 //guardará un arreglo y funcionará cun un listener
-class Watcher {
+export class Watcher {
   constructor(val) {
     this.value = val || new Array();
     this.watchers = new Array();

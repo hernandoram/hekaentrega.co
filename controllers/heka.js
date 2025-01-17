@@ -1,9 +1,11 @@
 const { transformarDatosDestinatario, segmentarString, estandarizarFecha } = require("../extends/funciones");
 const { estadosFinalizacion, modificarEstadoGuia, actualizarReferidoPorGuiaEntregada, obtenerGuiaPorNumero, obtenerEstadosGuiaPorId, crearOActualizarEstados, actualizarInfoGuia, atributosAdicionalesEnActualizacion } = require("../extends/manejadorMovimientosGuia");
 const fetch = require("node-fetch");
+const { collection, getDocs } = require('firebase/firestore')
 
-const firebase = require("../keys/firebase");
-const db = firebase.firestore();
+const FirebaseServiceConection = require("../keys/firebase");
+const firebaseService = new FirebaseServiceConection();
+const db = firebaseService.dbFirebase();
 
 const apiEndPoint = "https://admin.hekaentrega.co/Api";
 // const apiEndPoint = "http://localhost:6201/Api";
@@ -31,14 +33,18 @@ if(!process.env.DEVELOPMENT) {
 async function bringCiudades() {
     console.log("CONSULTANDO CIUDADES");
     const initial = new Date().getTime();
-
-    ciudades = await db.collection("ciudades")
-    .get().then(q => q.docs.map(d => d.data()));
-
+  
+    // Referencia a la colección "ciudades"
+    const ciudadesRef = collection(db, "ciudades");
+  
+    // Obtener los documentos
+    const querySnapshot = await getDocs(ciudadesRef);
+    const ciudades = querySnapshot.docs.map(doc => doc.data());
+  
     const final = new Date().getTime();
-
+  
     console.log("TIEMPO DE CONSULTA => ", (final - initial) / 1000);
-
+  
     return ciudades;
 }
 

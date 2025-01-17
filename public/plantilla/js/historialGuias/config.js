@@ -1,3 +1,4 @@
+import { estadosGuia } from "/js/render.js";
 export const defFiltrado = estadosGuia;
 
 export const filters = [

@@ -1,3 +1,5 @@
+import { revisarMovimientosGuiaIndividualUser, revisarMovimientosGuias } from '/js/manejadorGuias.js';
+
 const revisarNovedadesUser = document.getElementById(
   "btn-revisar-novedades-user"
 );

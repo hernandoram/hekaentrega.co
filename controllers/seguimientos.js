@@ -1,5 +1,7 @@
-const firebase = require("../keys/firebase");
-const db = firebase.firestore();
+const { collectionGroup } = require('firebase/firestore')
+const FirebaseServiceConection = require("../keys/firebase");
+const firebaseService = new FirebaseServiceConection();
+const db = firebaseService.dbFirebase();
 const cron = require("node-cron");
 
 const servientregaCtrl = require("./servientrega");
@@ -8,7 +10,7 @@ const aveoCtrl = require("./aveonline");
 const enviaCtrl = require("./envia");
 const coordCtrl = require("./coordinadora");
 
-const referenciaGuias = db.collectionGroup("guias");
+const referenciaGuias = collectionGroup(db, "guias");
 const maxPagination = 5e3;
 
 async function actualizarMovimientosGuiasAntiguo(d, general) {

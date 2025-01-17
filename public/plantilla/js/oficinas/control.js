@@ -1,5 +1,6 @@
 export const inputDoc = $("#buscador_oficinas-documento");
 export const mostrario = $("#mostrador-oficinas");
+import { mostrarOficinas } from '/js/render.js';
 
 
 

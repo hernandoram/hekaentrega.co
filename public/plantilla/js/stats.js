@@ -1,3 +1,4 @@
+import { loadStats } from '/js/usuarios.js'
 loadStats.addEventListener("click", () => {
   console.warn("cargando stats...");
   setTimeout(() => {

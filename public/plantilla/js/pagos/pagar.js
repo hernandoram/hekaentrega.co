@@ -6,8 +6,7 @@ import { defFiltrado as estadosGlobalGuias } from "../historialGuias/config.js";
 import AnotacionesPagos from "./AnotacionesPagos.js";
 import { crearFactura } from "./facturacion.js";
 
-const db = firebase.firestore();
-const storage = firebase.storage();
+import { db, storage } from "/js/config/initializeFirebase.js";
 
 const btnGestionar = $("#btn-gestionar_pagos");
 

@@ -1,15 +1,18 @@
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 import AnotacionesPagos from "./AnotacionesPagos.js";
 import { cantidadFacturasencontradas } from "./comprobadores.js";
+import { db, collection } from "/js/config/initializeFirebase.js";
 
 const modulo = "pagos_facturacion";
 const cambiadorFiltro = $("#tipo_filt-" + modulo);
 const activadorFecha = $("#activador_filtro_fecha-pagos_facturacion");
 const btnHistorialFacturas = $("#btn_historial-pagos_facturacion");
 const btnDescargaFacturas = $("#btn_descarga-pagos_facturacion");
-const principalReference = firebase.firestore().collection("paquetePagos");
+const principalReference = collection(db, "paquetePagos");
 const anotacionesErrores = $("#visor_errores-pagos_facturacion");
-function activarFunctionesFacturas() {
+
+
+export function activarFunctionesFacturas() {
     cambiadorFiltro.on("change", cambiarFiltroFacturacion);
     btnHistorialFacturas.on("click", revisarFacturacionesAdmin);
     btnDescargaFacturas.on("click", descargarInformeFacturas);

@@ -1,8 +1,10 @@
 const { estadosFinalizacion } = require("./manejadorMovimientosGuia.js");
-const firebase = require("../keys/firebase");
-const db = firebase.firestore();
+const { collection } = require('firebase/firestore');
+const FirebaseServiceConection = require("../keys/firebase");
+const firebaseService = new FirebaseServiceConection();
+const db = firebaseService.dbFirebase();
 
-const referencePagos = db.collection("pendientePorPagar");
+const referencePagos = collection(db, "pendientePorPagar");
 async function inscripcionPago(guia) {
     const { type, numeroGuia, estado, detalles, centro_de_costo } = guia;
     const deuda = guia.debe;

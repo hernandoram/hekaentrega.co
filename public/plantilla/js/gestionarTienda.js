@@ -1,3 +1,6 @@
+import { db, doc, collection } from "/js/config/initializeFirebase.js";
+import { user_id } from '/js/cargadorDeDatos.js';
+import { createModal } from '/js/render.js'
 $("#nav-tienda-productos-tab").click(fillProducts);
 $("#nav-tienda-home-tab").one("click", cargarInfoTienda);
 $("[href='#tienda']").one("click", cargarInfoTienda);
@@ -61,9 +64,7 @@ const summernoteOptions = {
         onChange: limitarCaracteres
     }
 };
-
-const db = firebase.firestore()
-let tiendaDoc = db.collection("tiendas").doc(user_id);
+const tiendaDoc = doc(collection(db, "tiendas"), user_id);
 
 let categorias = ["Juguetes y Bebés", "Accesorios para Vehículos", "Herramientas e Industrias", "Bienestar", "Kits", "Alimentos", "Moda", "Arte", "Rituales", "Telas y Espumas", "Aretes", "Mascotas", "Tecnología", "Relojes y Joyas", "Hogar y electrodomesticos", "Hilo piedra", "Collares", "Anillos", "Salud sexual", "Vehículos", "Pulseras", "Inmuebles", "Velas", "Deportes y Aire Libre", "Colchones y Colchonetas", "Belleza y Cuidado Personal", "Otros", "Sin Categoría"];
 let atributos = {
@@ -914,8 +915,8 @@ async function fillProducts() {
 
 async function cargarInfoTienda() {
     $("#cargador-info-tienda").removeClass("d-none")
-    let info = await firebase.firestore().collection("tiendas")
-    .doc(user_id).get().then(doc => doc.data());
+    const docRef = doc(db, "tiendas", user_id);
+    const info = await getDoc(docRef).then((docSnapshot) => docSnapshot.data());
 
     $("#cargador-info-tienda").addClass("d-none")
     
@@ -1091,7 +1092,7 @@ async function actualizarTienda() {
         allowEscapeKey: true
     });
 
-    let reference = firebase.firestore().collection("tiendas").doc(user_id)
+    let reference = doc(db, "tiendas", user_id);
 
     if(set) {
         reference = reference.set(data);
@@ -1112,13 +1113,16 @@ async function actualizarTienda() {
 async function verificarExistenciaTienda() {
     let tienda = $("#url-tienda");
     tienda.removeClass("is-invalid");
-    let exists = await firebase.firestore().collection("tiendas")
-    .where("tienda", "==", tienda.val()).get()
-    .then(querySnapshot => {
+    const tiendaQuery = query(
+        collection(db, "tiendas"),
+        where("tienda", "==", tienda.val())
+    );
+    
+    let exists = await getDocs(tiendaQuery).then(querySnapshot => {
         let bool = true;
-        if(querySnapshot.empty) return false;
+        if (querySnapshot.empty) return false;
         querySnapshot.forEach(doc => {
-            if(doc.id == user_id) bool = false
+            if (doc.id === user_id) bool = false;
         });
         return bool;
     });
@@ -1338,19 +1342,20 @@ function cargarLogoPortada() {
         // return;
 
         try {
-            await firebase.firestore().collection("tiendas").doc(user_id).update(toUpdate)
-            .then(() => {
-                mostrarImagen(url);
-                this.innerHTML = textoOriginal;
-                this.removeAttribute("disabled")
-                Toat.fire({
-                    icon: "success",
-                    text: "Imagen actualizada"
+            const docRef = doc(db, "tiendas", user_id);
+            await updateDoc(docRef, toUpdate)
+                .then(() => {
+                    mostrarImagen(url);
+                    this.innerHTML = textoOriginal;
+                    this.removeAttribute("disabled");
+                    Toast.fire({
+                        icon: "success",
+                        text: "Imagen actualizada"
+                    });
                 })
-            })
-            .catch(e => console.log("firebase si me devuelve error=> ", e));
+                .catch(e => console.log("firebase si me devuelve error=> ", e));
         } catch (err) {
-            console.log(err)
+            console.log(err);
         }
 
     });

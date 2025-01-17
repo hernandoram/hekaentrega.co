@@ -1,3 +1,4 @@
+import { user_id } from '/js/cargadorDeDatos.js';
 export const idReceptorFlexiiGuia = "flexii_guia_recept";
 export const idFlexiiGuia = "flexii_guia";
 export const idScannerEstados = "scanner_estados_flexii";

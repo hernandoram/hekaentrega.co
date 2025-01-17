@@ -1,10 +1,10 @@
 
 const CredencialesEmpresa = require("../../keys/interCredentials").CredencialesEmpresa;
 const request = require("request");
-const firebase = require("../../keys/firebase");
+const FirebaseServiceConection = require("../../keys/firebase");
+const firebaseService = new FirebaseServiceConection();
+const db = firebaseService.dbFirebase();
 const { Exception } = require("handlebars");
-const db = firebase.firestore();
-const storage = firebase.storage();
 global.XMLHttpRequest = require("xhr2");
 
 async function createDirectSporadicCollections(req, res) {

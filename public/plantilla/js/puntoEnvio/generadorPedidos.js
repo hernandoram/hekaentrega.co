@@ -6,6 +6,7 @@ import { estadoRecibido, estadosRecepcion, idFlexiiGuia } from "./constantes.js"
 import { actualizarEstadoEnvioHeka, dataValueSelectedFromInput, crearPedidoEnvios } from "./crearPedido.js";
 import TablaEnvios from "./tablaEnvios.js";
 import { bodegasEl, diceContenerEl, oficinaDestinoEl, containerQuoterResponse } from "./views.js";
+import { bodegasWtch, cargarObjetosFrecuentes } from '/js/cargadorDeDatos.js';
 
 const principalId = idFlexiiGuia;
 const principalHash = "#" + principalId;

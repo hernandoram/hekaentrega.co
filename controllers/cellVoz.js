@@ -1,7 +1,9 @@
 const rp = require("request-promise");
 const cron = require("node-cron");
 const Cr = require("../keys/cellVoz");
-const db = require("../keys/firebase").firestore();
+const FirebaseServiceConection = require("../keys/firebase");
+const firebaseService = new FirebaseServiceConection();
+const db = firebaseService.dbFirebase();
 
 async function authenticate() {
    const auth = await rp(Cr.endpoint + "auth/login", {

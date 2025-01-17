@@ -1,9 +1,22 @@
 // import { firestore as db } from "../config/firebase.js";
+import { 
+  db, 
+  collection,
+  doc,
+  getDocs,
+  collectionGroup,
+  query,
+  where,
+  orderBy,
+  startAt,
+  endAt,
+  onSnapshot, } from "/js/config/initializeFirebase.js";
 import SetHistorial from "./historial.js";
 import { defFiltrado, defineFilter } from "./config.js";
 import { renderInfoFecha } from "./views.js";
-
-const db = firebase.firestore();
+import { Watcher, owerridelistaNovedadesEncontradas } from "/js/render.js";
+import { ControlUsuario } from '/js/cargadorDeDatos.js';
+import { user_id } from '/js/cargadorDeDatos.js';
 
 const btnActvSearch = $("#btn_actv_search-guias_hist");
 const btnSearch = $("#btn_buscar-guias_hist");
@@ -15,7 +28,7 @@ btnActvSearch.click(toggleBuscador);
 btnSearch.click(consultarHistorialGuias);
 
 const id_user = localStorage.user_id;
-const guiasRef = db.collection("usuarios").doc(id_user).collection("guias");
+const guiasRef = collection(doc(collection(db, "usuarios"), id_user), "guias");
 
 const historial = new SetHistorial();
 historial.includeFilters();
@@ -33,48 +46,35 @@ async function consultarHistorialGuias() {
   fechas.change([fecha_inicio, fecha_final, inpNumeroGuia.val()]);
   historial.clean(defFiltrado.novedad);
 
-  // Esto se encarga de esperar que la información del usuario sea cargada correctamente
-  // para saber el tipo de usuario para poder realizar la consulta necesaria
+  // Esperar a que se carguen los datos del usuario
   if (ControlUsuario.dataCompleted.value !== true)
     await ControlUsuario.hasLoaded;
 
   if (historialConsultado) historialConsultado();
 
   let reference = ControlUsuario.esPuntoEnvio
-    ? db.collectionGroup("guias").where("id_punto", "==", user_id)
+    ? query(collectionGroup(db, "guias"), where("id_punto", "==", user_id))
     : guiasRef;
 
   if (inpNumeroGuia.val()) {
-    reference = reference.where("numeroGuia", "==", inpNumeroGuia.val());
+    reference = query(reference, where("numeroGuia", "==", inpNumeroGuia.val()));
   } else {
-    reference = reference
-      .orderBy("timeline", "desc")
-      .startAt(fecha_final)
-      .endAt(fecha_inicio);
+    reference = query(
+      reference,
+      orderBy("timeline", "desc"),
+      startAt(fecha_final),
+      endAt(fecha_inicio)
+    );
   }
 
-  historialConsultado = reference.onSnapshot((snapshot) => {
+  historialConsultado = onSnapshot(reference, (snapshot) => {
     snapshot.docChanges().forEach((change) => {
       const data = change.doc.data();
-
-      // const isPosibleToBeForOfficeForRecolection =
-      //   data.transportadora === "SERVIENTREGA" &&
-      //   data.id_tipo_entrega === 2 &&
-      //   data.estadoTransportadora === "EN PROCESAMIENTO";
-
-      // if (isPosibleToBeForOfficeForRecolection) {
-      //   data.estadoTransportadora = data.estadoTransportadora.concat(
-      //     " Listo para recolección en oficina"
-      //   );
-      //   data.estado = data.estado.concat(" Listo para recolección en oficina");
-      // }
 
       const id = data.id_heka;
       data.row_id = "historial-guias-row-" + id;
 
-      // Se va amostrar la transportadora según ciertas condiciones
-      // Si existe el valor transpVisible, ya esta hace el trabajo
-      // De otra forma, se tomará en cuenta según si la guía es para oficina o es natural
+      // Determinar la transportadora según condiciones
       data.mostrar_transp = data.transpVisible
         ? data.transpVisible
         : data.oficina
@@ -92,9 +92,9 @@ async function consultarHistorialGuias() {
         $(`[data-filter="${filt}"]`).click();
       }
     });
+
     console.log(historial.filtrador);
     historial.filter(historial.filtrador);
-    // historial.render();
   });
 }
 
@@ -113,42 +113,45 @@ function mostrarNovedades(numeroNovedades) {
 
 cargarNovedades();
 async function cargarNovedades() {
-  const novedades = await guiasRef
-    .where("enNovedad", "==", true)
-    .get()
-    .then((querySnapshot) => {
-      console.log(querySnapshot.size);
+  try {
+    // Crear una consulta para obtener las guías en novedad
+    const novedadesQuery = query(guiasRef, where("enNovedad", "==", true));
+    const querySnapshot = await getDocs(novedadesQuery);
 
-      mostrarNovedades(querySnapshot.size);
+    console.log(querySnapshot.size);
 
-      const novedades = [];
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
+    mostrarNovedades(querySnapshot.size);
 
-        const id = data.id_heka;
-        data.row_id = "historial-guias-row-" + id;
+    const novedades = [];
 
-        // Se va amostrar la transportadora según ciertas condiciones
-        // Si existe el valor transpVisible, ya esta hace el trabajo
-        // De otra forma, se tomará en cuenta según si la guía es para oficina o es natural
-        data.mostrar_transp = data.transpVisible
-          ? data.transpVisible
-          : data.oficina
-          ? data.transportadora + "-Flexii"
-          : data.transportadora;
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
 
-        data.deleted ? historial.delete(id) : historial.add(data);
+      const id = data.id_heka;
+      data.row_id = "historial-guias-row-" + id;
 
-        if (!data.deleted) novedades.push(data);
-      });
+      // Determinar si mostrar la transportadora según las condiciones
+      data.mostrar_transp = data.transpVisible
+        ? data.transpVisible
+        : data.oficina
+        ? data.transportadora + "-Flexii"
+        : data.transportadora;
 
-      listaNovedadesEncontradas = novedades;
-      mostrarAlertaNovedades({
-        contador: novedades.length
-      });
+      data.deleted ? historial.delete(id) : historial.add(data);
+
+      if (!data.deleted) novedades.push(data);
     });
 
-  historial.filter(historial.filtrador);
+    owerridelistaNovedadesEncontradas(novedades);
+
+    mostrarAlertaNovedades({
+      contador: novedades.length,
+    });
+
+    historial.filter(historial.filtrador);
+  } catch (error) {
+    console.error("Error al cargar novedades:", error);
+  }
 }
 
 let texto_inicial_alerta = alerta.html();

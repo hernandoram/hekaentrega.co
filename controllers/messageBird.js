@@ -1,5 +1,7 @@
 const fetch = require("node-fetch");
-const db = require("../keys/firebase").firestore();
+const FirebaseServiceConection = require("../keys/firebase");
+const firebaseService = new FirebaseServiceConection();
+const db = firebaseService.dbFirebase();
 const {plantillas, credenciales} = require("../keys/messageBird");
 
 const { chanel_id, namespace, endpoint } = credenciales;

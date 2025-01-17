@@ -6,11 +6,12 @@ const puppeteer = require("puppeteer");
 const {Credenciales, UsuarioPrueba, CredencialesEmpresa} = require("../keys/interCredentials");
 const urlEstados = "https://www3.interrapidisimo.com/ApiservInter/api/Mensajeria/ObtenerRastreoGuias?guias=";
 
-const firebase = require("../keys/firebase");
 const { notificarNovedadEncontrada } = require("../extends/notificaciones");
 const { estadosGuia, detectaNovedadEnElHistorialDeEstados, modificarEstadoGuia, atributosAdicionalesEnActualizacion, obtenerGuiaPorNumero, obtenerEstadosGuiaPorId, crearOActualizarEstados, actualizarInfoGuia, actualizarReferidoPorGuiaEntregada, guiaEnNovedad } = require("../extends/manejadorMovimientosGuia");
 const { inscripcionPago } = require("../extends/pagos");
-const db = firebase.firestore();
+const FirebaseServiceConection = require("../keys/firebase");
+const firebaseService = new FirebaseServiceConection();
+const db = firebaseService.dbFirebase();
 
 const statusActualizationPush = {
     error: "ERROR",

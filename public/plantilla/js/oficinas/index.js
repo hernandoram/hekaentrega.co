@@ -1,31 +1,30 @@
+import { db, collection, query, where, getDocs } from "/js/config/initializeFirebase.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 import { inputDoc, oficinaController } from "./control.js";
-
-const db = firebase.firestore();
 
 let listaO=[]
 
 export async function cargarOficinas(e) {
-    const cargador = new ChangeElementContenWhileLoading(e.target);
-    cargador.init();
-    const valDoc = inputDoc.val().trim();
-    let ref = db.collection("oficinas");
+  const cargador = new ChangeElementContenWhileLoading(e.target);
+  cargador.init();
+  const valDoc = inputDoc.val().trim();
+  let ref = collection(db, "oficinas");
 
-    if(valDoc) {
-        ref = ref.where("numero_documento", "==", valDoc)
-    }
+  if (valDoc) {
+      ref = query(ref, where("numero_documento", "==", valDoc));
+  }
 
-    const listaOficinas = await ref.get().then(q => q.docs.map(d => {
-        const data = d.data();
-        data.id = d.id;
+  const listaOficinas = await getDocs(ref).then(q => q.docs.map(d => {
+      const data = d.data();
+      data.id = d.id;
+      return data;
+  }));
+  
+  listaO = listaOficinas;
 
-        return data;
-    }));
-    listaO=listaOficinas;
-
-    console.log(listaOficinas);
-    oficinaController.agregarTodas = listaOficinas;
-    cargador.end();
+  console.log(listaOficinas);
+  oficinaController.agregarTodas = listaOficinas;
+  cargador.end();
 }
 
 

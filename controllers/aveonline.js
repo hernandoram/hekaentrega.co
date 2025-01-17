@@ -1,11 +1,11 @@
 const rq = require("request-promise");
 const fetch = require("node-fetch");
 const Cr = require("../keys/aveo");
-
-const firebase = require("../keys/firebase");
-
-const db = firebase.firestore();
-const referenceListado = db.collection("listaGuiasAveo");
+const { collection, query, orderBy, onSnapshot } = require('firebase/firestore')
+const FirebaseServiceConection = require("../keys/firebase");
+const firebaseService = new FirebaseServiceConection();
+const db = firebaseService.dbFirebase();
+const referenceListado = collection(db, "listaGuiasAveo");
 
 const funct = require("../extends/funciones");
 const { singleMessage } = require("../controllers/cellVoz");
@@ -348,9 +348,10 @@ async function internalAuth() {
 fillGuiasPorCrear();
 function fillGuiasPorCrear() {
     if(process.env.DEVELOPMENT) return;
+    
+    const referenceListadoTwo = query(referenceListado, orderBy("timeline"));
 
-    referenceListado.orderBy("timeline")
-    .onSnapshot(querySnapShot => {
+    onSnapshot(referenceListadoTwo, (querySnapShot) => {
         querySnapShot.docChanges().forEach(change => {
             if(change.type === "added") {
                 const preFilled = guiasPorCrear.length;

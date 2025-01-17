@@ -1,4 +1,5 @@
 import { v0 } from "../config/api.js";
+import { PAGO_CONTRAENTREGA, CONTRAENTREGA, CONVENCIONAL, transportadoras  } from '/js/cotizador.js';
 
 const translation = {
     type_payment: [null, PAGO_CONTRAENTREGA, CONTRAENTREGA, CONVENCIONAL],
