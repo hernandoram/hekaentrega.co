@@ -31,7 +31,7 @@ class Empaquetado {
      * @property {Array<string>} guiasPagadas - Los números de guía que han sido pagados
      * @property {number}  pagoConcreto - La cantidad total que ha sido pagada al usuario
      * @property {number}  comision_heka_total - La comisión heka total por el conjunto de pagos (servirá para facturar)
-     * @property {number}  comision_adicional_heka_total - La comisión adicional heka total por el conjunto de pagos (servirá para facturar la comisión transportadora restando del total)
+     * @property {number}  comision_transportadora - La comisión de transportadora total por el conjunto de pagos (servirá para facturar)
      * @property {string}  numero_documento - Número de documento del usuario en cuestión (servirá para facturar)
      * @property {string} idPaquetePago - Se almacena el id donde se guardo el conjuto de guía pagadas al usuario
      */
@@ -73,7 +73,7 @@ class Empaquetado {
             this.pagosPorUsuario[usuario] = {
                 pagoConcreto: 0,
                 comision_heka_total: -1, // Al final del proceso, no debe haber niguna agrupación de pago, con un -1.
-                comision_adicional_heka_total: 0,
+                comision_transportadora: -1, // Al final del proceso, no debe haber niguna agrupación de pago, con un -1.
                 guias: [guia],
                 guiasPagadas: [],
                 id: this.id,
@@ -685,9 +685,12 @@ class Empaquetado {
         const refDiasPago = db.collection("infoHeka").doc("manejoUsuarios");
 
         const file = $("#comprobante_pago-"+usuario)[0].files[0];
-
+        
+        const buttons = $(".next,.prev");
+        const loader = new ChangeElementContenWhileLoading("#btn-pagar-"+usuario);
+        loader.init();
+        
         await this.guardarPaquetePagado(); // Para guardar el paquete sin que se facture
-
         const pagoUser = this.pagosPorUsuario[usuario];
         pagoUser.guiasPagadas = [];
         const guias = pagoUser.guias;
@@ -698,9 +701,6 @@ class Empaquetado {
             totalGuias: guias
         }
 
-        const buttons = $(".next,.prev");
-        const loader = new ChangeElementContenWhileLoading("#btn-pagar-"+usuario);
-        loader.init();
         // buttons.attr("disabled", true);
 
         const terminar = () => {
@@ -749,8 +749,11 @@ class Empaquetado {
 
         let pagado = 0;
         let comision_heka = 0;
-        let comision_adicional_heka = 0;
         let comision_transportadora = 0;
+        let cuatro_x_mil_b_tot = 0;
+        let cuatro_x_mil_t_tot = 0;
+        let iva_tot = 0;
+        let comision_natural_heka_tot = 0;
         for await(let guia of guias) {
             //La diferencia entre el "momentoParticularPago" y "timeline"
             //  timeline marca excatamente el momento en el que se le da a "pagar"
@@ -781,11 +784,38 @@ class Empaquetado {
             const id_user = guia.id_user;
             const pagoActual = guia["TOTAL A PAGAR"];
             const comision_heka_actual = guia[camposExcel.comision_heka];
-            const comision_adicional_heka_actual = guia[camposExcel.comision_adicional_heka];
             const comision_transp_actual = guia[camposExcel.comision_transp];
+            const cuatro_x_mil_b = guia[camposExcel.cuatro_x_mil_banc];
+            const cuatro_x_mil_t = guia[camposExcel.cuatro_x_mil_transp];
+            const iva_actual = guia[camposExcel.iva];
+            const comision_natural_heka_act = guia[camposExcel.comision_natural_heka];
           
             const fila = $("#row-"+usuario+numeroGuia, visor);
             fila.removeClass();
+
+            function aggRestablecerValores(agregar) {
+                if(agregar) {
+                    // Sumar las comisiones y los totales
+                    pagado += pagoActual;
+                    comision_heka += comision_heka_actual;
+                    comision_transportadora += comision_transp_actual;
+                    cuatro_x_mil_b_tot += cuatro_x_mil_b;
+                    cuatro_x_mil_t_tot += cuatro_x_mil_t;
+                    iva_tot += iva_actual;
+                    comision_natural_heka_tot += comision_natural_heka_act;
+                    reporteFinal.guiasPagadas++;
+                } else {
+                    // Restar las comisiones y los totales
+                    pagado -= pagoActual;
+                    comision_heka -= comision_heka_actual;
+                    comision_transportadora -= comision_transp_actual;
+                    cuatro_x_mil_b_tot -= cuatro_x_mil_b;
+                    cuatro_x_mil_t_tot -= cuatro_x_mil_t;
+                    iva_tot -= iva_actual;
+                    comision_natural_heka_tot -= comision_natural_heka_act;
+                    reporteFinal.guiasPagadas--;
+                }
+            }
 
             //Procurar hacer todo esto por medio de una transacción
             try {
@@ -802,15 +832,20 @@ class Empaquetado {
                     batch.update(guiaRef, {debe: 0, estadoActual: estadosGlobalGuias.pagada});
                 }
 
+                // Sumar las comisiones y los totales
+                aggRestablecerValores(true);
+
                 // 3. Actualizamos el paquete pagado con la nueva guía que ha sido pagada de forma efectiva
                 const paqueteRef = db.collection("paquetePagos").doc(pagoUser.idPaquetePago);
                 batch.update(paqueteRef, {
-                    total_pagado: pagado + pagoActual,
-                    comision_heka: comision_heka + comision_heka_actual,
-                    // comision_adicional_heka: comision_adicional_heka + comision_adicional_heka_actual,
-                    comision_transportadora: comision_transportadora + comision_transp_actual,
-                    cantidad_pagos: reporteFinal.guiasPagadas + 1,
-                    guiasPagadas: firebase.firestore.FieldValue.arrayUnion(numeroGuia)
+                    total_pagado: pagado,
+                    comision_heka: comision_heka,
+                    comision_transportadora: comision_transportadora,
+                    cuatro_x_mil_banco: cuatro_x_mil_b_tot,
+                    cuatro_x_mil_transp: cuatro_x_mil_t_tot,
+                    iva: iva_tot,
+                    comision_natural_heka: comision_natural_heka_tot,
+                    cantidad_pagos: reporteFinal.guiasPagadas
                 });
 
                 // 4. Finalmente eliminar la guía  en cargue que ya fue paga
@@ -824,14 +859,11 @@ class Empaquetado {
                 // Agregar la guía que sea paga.
                 pagoUser.guiasPagadas.push(numeroGuia);
                 
-                // Sumar las comisiones y los totales
-                pagado += pagoActual;
-                comision_heka += comision_heka_actual;
-                comision_adicional_heka += comision_adicional_heka_actual;
-                comision_transportadora += comision_transp_actual;
-                reporteFinal.guiasPagadas++;
 
             } catch(e) {
+                // Se restablecen los valores previos debido a que hubo error en algún punto de batch
+                aggRestablecerValores(false);
+
                 console.log(e);
                 fila.addClass("table-danger");
                 fila.attr({
@@ -869,8 +901,6 @@ class Empaquetado {
         this.pagosPorUsuario[usuario].pagoConcreto = pagado;
         this.pagosPorUsuario[usuario].comision_heka_total = comision_heka;
         this.pagosPorUsuario[usuario].comision_transportadora = comision_transportadora;
-        
-        await this.guardarPaquetePagado(); // Para guardar el paquete sin que se facture
 
         terminar();
 
@@ -896,15 +926,14 @@ class Empaquetado {
             userRef.numero_documento = infoUser.numero_documento;
         }
 
-        const {guiasPagadas, pagoConcreto, comision_heka_total, comision_adicional_heka_total, numero_documento} = userRef;
+        const { pagoConcreto, comision_heka_total, comision_transportadora, numero_documento } = userRef;
         const comprobante_bancario = userRef.guias[0].comprobante_bancario ?? ""; // Este campo, está obsoleto, normalmente se guarda un string vacío
 
         const infoToSave = {
-            guiasPagadas,
             numero_documento, // Servirá para regenerar la factura en un futuro
             total_pagado: pagoConcreto,
             comision_heka: comision_heka_total, // Servirá para regenerar la factura en un futuro
-            comision_adicional_heka: comision_adicional_heka_total, // Servirá para regenerar la factura en un futuro
+            comision_transportadora: comision_transportadora, // Servirá para regenerar la factura en un futuro
             timeline,
             fecha: new Date(),
             comprobante_bancario, 
