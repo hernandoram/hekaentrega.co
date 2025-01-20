@@ -14,6 +14,8 @@ import {
   limit,
   endAt,
   startAt,
+  deleteDoc,
+  updateDoc,
 } from "/js/config/initializeFirebase.js";
 import { value, inHTML } from "/js/main.js";
 import {
@@ -796,7 +798,6 @@ export function crearDocumentos(e, dt, node, config) {
     allowEscapeKey: true,
   });
 
-  const db = getFirestore();
   const documentReference = collection(db, "documentos");
 
   addDoc(documentReference, {
@@ -984,7 +985,7 @@ function revisarCompatibilidadGuiasSeleccionadas(arrGuias) {
 
 export async function actualizarEstadoGuiasDocCreado(arrGuias) {
   for await (let guia of arrGuias) {
-    const guiaRef = firestoreDoc(
+    const guiaRef = doc(
       usuarioAltDoc(guia.id_user),
       "guias",
       guia.id_heka
@@ -1122,8 +1123,8 @@ export async function crearManifiestoServientrega(arrGuias, vinculo) {
     }
 
     if (base64 === "error") {
-      const referenciaDocumento = firestoreDoc(
-        firestoreCollection(db, "documentos"),
+      const referenciaDocumento = doc(
+        collection(db, "documentos"),
         vinculo.id_doc
       );
       await deleteDoc(referenciaDocumento);
@@ -1131,8 +1132,8 @@ export async function crearManifiestoServientrega(arrGuias, vinculo) {
   }
 
   if (documento_guardado) {
-    const referenciaDocumento = firestoreDoc(
-      firestoreCollection(db, "documentos"),
+    const referenciaDocumento = doc(
+      collection(db, "documentos"),
       vinculo.id_doc
     );
     await updateDoc(referenciaDocumento, { nombre_relacion });
@@ -1627,8 +1628,8 @@ export async function cargarDocumento(id_user, arrGuias) {
   }
 
   for (let guia of guias) {
-    const referenciaGuia = firestoreDoc(
-      firestoreCollection(db, "usuarios", id_user, "guias"),
+    const referenciaGuia = doc(
+      collection(db, "usuarios", id_user, "guias"),
       guia
     );
 
@@ -1763,8 +1764,8 @@ export async function subirExcelNovedades() {
         const actualizar = data["ACTUALIZAR"];
         const transpor = data["TRANSPORTADORA"];
 
-        const referenciaGuia = firestoreDoc(
-          firestoreCollection(db, "usuarios", id_user, "guias"),
+        const referenciaGuia = doc(
+          collection(db, "usuarios", id_user, "guias"),
           id_heka
         );
 
@@ -1835,7 +1836,7 @@ export async function subirExcelNovedades() {
             })
               .then(() => {
                 actualizadasCorrectamente++;
-                deleteDoc(firestoreDoc(db, "notificaciones", id_heka));
+                deleteDoc(doc(db, "notificaciones", id_heka));
 
                 enviarNotificacion({
                   visible_user: true,
@@ -2587,7 +2588,7 @@ export function subirDocumentos() {
       let nombre_guias = "Guias" + nombre_documento;
       let nombre_relacion = "Relacion" + nombre_documento;
 
-      const docRef = firestoreDoc(db, "documentos", id_doc);
+      const docRef = doc(db, "documentos", id_doc);
       const hasDocument = await getDoc(docRef).then(
         (doc) => doc.data()?.nombre_relacion || doc.data()?.nombre_guias
       );
@@ -2664,7 +2665,7 @@ export function subirDocumentos() {
         }).then(async (response) => {
           if (response.isConfirmed) {
             const notificacionesQuery = query(
-              firestoreCollection(db, "notificaciones"),
+              collection(db, "notificaciones"),
               where("guias", "array-contains", numero_guias[0])
             );
 
@@ -2848,7 +2849,7 @@ export async function actualizarHistorialDeDocumentos(timeline) {
 
 //Función que descarga todos los documentos cargados
 export function descargarDocumentos(id_doc) {
-  const docRef = firestoreDoc(db, "documentos", id_doc);
+  const docRef = doc(db, "documentos", id_doc);
 
   getDoc(docRef)
     .then((doc) => {

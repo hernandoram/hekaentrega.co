@@ -1,5 +1,6 @@
 import { Watcher } from "/js/render.js";
 import { datos_personalizados } from "/js/cargadorDeDatos.js";
+import { db, doc, collection } from "/js/config/initializeFirebase.js";
 // $("#xx").empty();
 let datos_de_cotizacion,
   oficinas = [],
