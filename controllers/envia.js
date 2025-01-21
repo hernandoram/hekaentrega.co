@@ -152,7 +152,7 @@ exports.crearGuia = async (req, res) => {
 exports.obtenerStickerGuia = async (req, res) => {
     const {numeroGuia, url} = req.body;
 
-    const rutaBase = `http://35.237.62.153/2impresionGuias/Guia3.aspx?Usuario=${credentials.usuario}&Guia=${numeroGuia}`;
+    const rutaBase = `https://hub.envia.co/2impresionGuias/Guia3.aspx?Usuario=${credentials.usuario}&Guia=${numeroGuia}`;
 
     const ruta = url ? url : rutaBase;
     const base64 = await urlToPdfBase64(ruta);
