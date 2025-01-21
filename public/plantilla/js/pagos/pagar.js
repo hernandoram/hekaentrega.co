@@ -926,10 +926,11 @@ class Empaquetado {
             userRef.numero_documento = infoUser.numero_documento;
         }
 
-        const { pagoConcreto, comision_heka_total, comision_transportadora, numero_documento } = userRef;
+        const { guiasPagadas, pagoConcreto, comision_heka_total, comision_transportadora, numero_documento } = userRef;
         const comprobante_bancario = userRef.guias[0].comprobante_bancario ?? ""; // Este campo, está obsoleto, normalmente se guarda un string vacío
 
         const infoToSave = {
+            guiasPagadas,
             numero_documento, // Servirá para regenerar la factura en un futuro
             total_pagado: pagoConcreto,
             comision_heka: comision_heka_total, // Servirá para regenerar la factura en un futuro
