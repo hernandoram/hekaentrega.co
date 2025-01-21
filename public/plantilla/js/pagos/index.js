@@ -1,4 +1,5 @@
 import "./pagar.js";
+import "./pagosTransp.js";
 import AnotacionesPagos from "./AnotacionesPagos.js";
 import { cantidadDeUsuariosPorCentroDeCosto, comprobarGuiaPagada } from "./comprobadores.js";
 import { ChangeElementContenWhileLoading, segmentarArreglo } from "../utils/functions.js";
