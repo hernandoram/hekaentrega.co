@@ -39,6 +39,12 @@ const dataTable = tabla.DataTable({
     },
     dom: "Bfrtip",
     buttons: [
+        {
+            extend: "excel",
+            text: "Descargar Historial",
+            filename: "Pagos Transportadora",
+            title: "Pagos Transportadora",
+        }
     ],
     scrollY: "50vh",
     scrollX: true,
