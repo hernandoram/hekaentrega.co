@@ -1,6 +1,8 @@
 import { listaUsuarios } from '/js/cargadorDeDatos.js';
 import { genFecha} from '/js/render.js'
 import { verMovimientos } from '/js/usuarios.js'
+import { db, doc, collection } from "/js/config/initializeFirebase.js";
+
 let users = listaUsuarios;
 
 async function searchUsers(esGeneral) {
@@ -28,7 +30,7 @@ async function buscarUsuarios2(esGeneral) {
 
   const mayusNombreInp = nombreInp.toUpperCase();
 
-  const reference = firebase.firestore().collection("usuarios");
+  const reference = collection(db, "usuarios");
 
   const casesToSearch = [
     "centro_de_costo",
@@ -88,7 +90,7 @@ async function buscarUsuarios2(esGeneral) {
 const filtrarUsuarios = async () => {
   const nombreInp = value("buscador_usuarios-nombre").toLowerCase().trim();
 
-  const reference = firebase.firestore().collection("usuarios");
+  const reference = collection(db, "usuarios");
   let usuariosFiltrados = [];
 
   await reference.get().then((querySnapshot) => {

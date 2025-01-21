@@ -1,4 +1,14 @@
-import { db } from "/js/config/initializeFirebase.js";
+import {
+  db,
+  doc,
+  getDocs,
+  collection,
+  query,
+  where,
+  deleteDoc,
+  updateDoc,
+  addDoc
+} from "/js/config/initializeFirebase.js";
 
 export const estadosGuia = {
   novedad: "NOVEDAD",
@@ -1184,36 +1194,34 @@ function activarBotonesDeGuias(id, data, activate_once) {
     });
 
     $("#descargar_documento" + id).on("click", (e) => {
-      firebase
-        .firestore()
-        .collection("documentos")
-        .where("guias", "array-contains", id)
-        .get()
-        .then((querySnapshot) => {
-          if (!querySnapshot.size) {
+      const documentosRef = collection(db, "documentos");
+      const q = query(documentosRef, where("guias", "array-contains", id));
+    
+      getDocs(q).then((querySnapshot) => {
+        if (!querySnapshot.size) {
+          avisar(
+            "Sin documento",
+            "Esta guía no tiene ningún documento asignado aún",
+            "aviso"
+          );
+        }
+        querySnapshot.forEach((doc) => {
+          console.log(doc.data());
+          console.log(doc.id);
+          if (
+            doc.data().descargar_relacion_envio &&
+            doc.data().descargar_guias
+          ) {
+            descargarDocumentos(doc.id);
+          } else {
             avisar(
-              "Sin documento",
-              "Esta guía no tiene ningún documento asignado aún",
+              "No permitido",
+              "Aún no están disponibles ambos documentos",
               "aviso"
             );
           }
-          querySnapshot.forEach((doc) => {
-            console.log(doc.data());
-            console.log(doc.id);
-            if (
-              doc.data().descargar_relacion_envio &&
-              doc.data().descargar_guias
-            ) {
-              descargarDocumentos(doc.id);
-            } else {
-              avisar(
-                "No permitido",
-                "Aún no están disponibles ambos documentos",
-                "aviso"
-              );
-            }
-          });
         });
+      });
     });
 
     $("#ver_detalles" + id).click(verDetallesGuia);
@@ -1224,16 +1232,14 @@ function activarBotonesDeGuias(id, data, activate_once) {
       if (guiaPunto) {
         imprimirRotuloPunto(id);
       } else {
-        firebase
-          .firestore()
-          .collection("documentos")
-          .where("guias", "array-contains", id)
-          .get()
-          .then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-              generarRotulo(doc.data().guias, doc.data().id_user);
-            });
+        const documentosRef = collection(db, "documentos");
+        const q = query(documentosRef, where("guias", "array-contains", id));
+    
+        getDocs(q).then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            generarRotulo(doc.data().guias, doc.data().id_user);
           });
+        });
       }
     });
 
@@ -1244,16 +1250,14 @@ function activarBotonesDeGuias(id, data, activate_once) {
       if (guiaPunto) {
         imprimirRotuloPunto(id);
       } else {
-        firebase
-          .firestore()
-          .collection("documentos")
-          .where("guias", "array-contains", id)
-          .get()
-          .then((querySnapshot) => {
-            querySnapshot.forEach((doc) => {
-              generarGuiaFlexii(doc.data().guias);
-            });
+        const documentosRef = collection(db, "documentos");
+        const q = query(documentosRef, where("guias", "array-contains", id));
+    
+        getDocs(q).then((querySnapshot) => {
+          querySnapshot.forEach((doc) => {
+            generarGuiaFlexii(doc.data().guias);
           });
+        });
       }
     });
 
@@ -1729,17 +1733,14 @@ export function mostrarNotificacion(data, type, id) {
   button_close.setAttribute("class", "close d-flex align-self-start");
   button_close.innerHTML =
     '<span aria-hidden="true" class="small">&times;</span>';
-  button_close.addEventListener("click", () => {
-    firebase
-      .firestore()
-      .collection("notificaciones")
-      .doc(id)
-      .delete()
-      .then(() => {
+    button_close.addEventListener("click", () => {
+      const notificacionRef = doc(db, "notificaciones", id);
+    
+      deleteDoc(notificacionRef).then(() => {
         avisar("Notificación eliminada", "La notificación ha sido eliminada");
         console.log("Se ha eliminado una notificación con id: " + id);
       });
-  });
+    });
   info.textContent = data.fecha + (data.hora ? " A las " + data.hora : "");
 
   notificacion.addEventListener("click", (e) => {
@@ -1990,10 +1991,7 @@ async function restaurarSaldoGuia(trg, data) {
     return;
   }
 
-  const userRef = firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(movimiento.user_id);
+  const userRef = doc(db, "usuarios", movimiento.user_id);
 
   const datos_saldo_usuario = await userRef
     .get()
@@ -2038,14 +2036,12 @@ async function restaurarSaldoGuia(trg, data) {
     await actualizarSaldo(detalles_saldo);
 
     if (id_heka) {
-      await firebase
-        .firestore()
-        .collectionGroup("guias")
-        .where("id_heka", "==", id_heka)
-        .get()
-        .then((q) => {
-          q.forEach((d) => d.ref.update({ deleted: true }));
+      const guiasQuery = query(collectionGroup(db, "guias"), where("id_heka", "==", id_heka));
+      await getDocs(guiasQuery).then((querySnapshot) => {
+        querySnapshot.forEach((docSnapshot) => {
+          updateDoc(docSnapshot.ref, { deleted: true });
         });
+      });
     }
 
     procesoFinalizado(true);
@@ -2359,12 +2355,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
                   Cargando...
               `);
 
-      const referenciaGuia = firebase
-        .firestore()
-        .collection("usuarios")
-        .doc(id_user)
-        .collection("guias")
-        .doc(id_heka);
+      const referenciaGuia = doc(collection(doc(collection(db, "usuarios"), id_user), "guias"), id_heka);
 
       let { value: text } = await Swal.fire({
         title: "Respuesta",
@@ -2421,58 +2412,51 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
         }
 
         // Para guardar una nueva estructura de mensaje
-        db.collection("infoHeka")
-          .doc("respuestasNovedad")
-          .update({ respuestas: listaRespuestasNovedad });
-
-        referenciaGuia
-          .update({
-            seguimiento: extraData.seguimiento,
-            novedad_solucionada: true,
-          })
-          .then(() => {
-            firebase
-              .firestore()
-              .collection("notificaciones")
-              .doc(id_heka)
-              .delete();
-
-            enviarNotificacion({
-              visible_user: true,
-              user_id: id_user,
-              id_heka: extraData.id_heka,
-              mensaje:
-                "Respuesta a Solución de la guía número " +
-                extraData.numeroGuia +
-                ": " +
-                text.trim(),
-              href: "novedades",
-            });
-
-            boton_solucion.html("Solucionada");
+        const infoHekaRef = doc(collection(db, "infoHeka"), "respuestasNovedad");
+        updateDoc(infoHekaRef, { respuestas: listaRespuestasNovedad });
+        
+        // Actualización en referenciaGuia
+        const referenciaGuia = doc(collection(doc(collection(db, "usuarios"), id_user), "guias"), extraData.id_heka);
+        
+        updateDoc(referenciaGuia, {
+          seguimiento: extraData.seguimiento,
+          novedad_solucionada: true,
+        }).then(() => {
+          const notificacionRef = doc(collection(db, "notificaciones"), id_heka);
+          deleteDoc(notificacionRef);
+        
+          enviarNotificacion({
+            visible_user: true,
+            user_id: id_user,
+            id_heka: extraData.id_heka,
+            mensaje:
+              "Respuesta a Solución de la guía número " +
+              extraData.numeroGuia +
+              ": " +
+              text.trim(),
+            href: "novedades",
           });
+        
+          boton_solucion.html("Solucionada");
+        });
       } else {
         console.log("No se envió mensaje");
         // return
-        referenciaGuia
-          .update({
-            novedad_solucionada: true,
-          })
-          .then(() => {
-            firebase
-              .firestore()
-              .collection("notificaciones")
-              .doc(id_heka)
-              .delete();
-            boton_solucion.html("Solucionada");
-            Toast.fire(
-              "Guía Gestionada",
-              "La guía " +
-                data.numeroGuia +
-                " ha sido actualizada exitósamente como solucionada",
-              "success"
-            );
-          });
+        updateDoc(referenciaGuia, {
+          novedad_solucionada: true,
+        }).then(() => {
+          const notificacionRef = doc(collection(db, "notificaciones"), id_heka);
+          deleteDoc(notificacionRef);
+        
+          boton_solucion.html("Solucionada");
+          Toast.fire(
+            "Guía Gestionada",
+            "La guía " +
+              data.numeroGuia +
+              " ha sido actualizada exitósamente como solucionada",
+            "success"
+          );
+        });
       }
 
       revisarMovimientosGuias(true, null, null, extraData.numeroGuia);
@@ -2697,13 +2681,12 @@ function revisarNovedad(mov, transp) {
 async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
   console.log(dataG);
   console.time("nueva consulta seguimiento");
-  const dataF = await firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(dataG.id_user)
-    .collection("guias")
-    .doc(dataG.id_heka)
-    .get();
+  const dataF = await getDoc(
+    doc(
+      collection(doc(collection(db, "usuarios"), dataG.id_user), "guias"),
+      dataG.id_heka
+    )
+  );
   dataG = dataF.data();
   console.timeEnd("nueva consulta seguimiento");
   console.log(dataG);
@@ -3032,28 +3015,28 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
                 ? new Date().getHours() + ":0" + new Date().getMinutes()
                 : new Date().getHours() + ":" + new Date().getMinutes();
 
-            firebase
-              .firestore()
-              .collection("notificaciones")
-              .doc(dataG.id_heka)
-              .set({
-                fecha: genFecha(),
-                timeline: momento,
-                mensaje:
-                  datos_usuario.nombre_completo +
-                  " (" +
-                  datos_usuario.centro_de_costo +
-                  ") Sugirió una solución para la guía " +
-                  dataN.numeroGuia,
-                hora: hora,
-                guia: dataN.numeroGuia,
-                id_heka: dataG.id_heka,
-                type: "novedad",
-                user_id: user_id,
-                seguimiento: dataG.seguimiento,
-                usuario: datos_usuario.centro_de_costo,
-                visible_admin: true,
-              });
+                const notificacionRef = doc(collection(db, "notificaciones"), dataG.id_heka);
+
+                setDoc(notificacionRef, {
+                  fecha: genFecha(),
+                  timeline: momento,
+                  mensaje:
+                    datos_usuario.nombre_completo +
+                    " (" +
+                    datos_usuario.centro_de_costo +
+                    ") Sugirió una solución para la guía " +
+                    dataN.numeroGuia,
+                  hora: hora,
+                  guia: dataN.numeroGuia,
+                  id_heka: dataG.id_heka,
+                  type: "novedad",
+                  user_id: user_id,
+                  seguimiento: dataG.seguimiento,
+                  usuario: datos_usuario.centro_de_costo,
+                  visible_admin: true,
+                }).then(() => {
+                  console.log("Notificación creada con éxito.");
+                });
             btn_solucionar.text("Enviar Solución");
           })
           .catch((e) => {
@@ -3207,7 +3190,7 @@ $("#switch-habilitar-filtrado-pagos").change((e) => {
     : $("#filtrador-pagos").hide("fast");
 });
 
-function enviarNotificacion(options) {
+async function enviarNotificacion(options) {
   //Este es el patrón utilizado para el objeto que se ingresa en las notificaciones
   let example_data = {
     visible_user: false,
@@ -3249,7 +3232,7 @@ function enviarNotificacion(options) {
 
   console.log(notificacion);
 
-  firebase.firestore().collection("notificaciones").add(notificacion);
+  await addDoc(collection(db, "notificaciones"), notificacion);
 }
 
 function mostradorDeudas(data) {
@@ -3342,44 +3325,24 @@ async function actualizarSaldo(data) {
     },
   };
 
-  return await firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(data.user_id)
-    .update({
-      "datos_personalizados.saldo": data.saldo,
-    })
-    .then(() => {
-      firebase
-        .firestore()
-        .collection("prueba")
-        .add(data)
-        .then((docRef1) => {
-          firebase
-            .firestore()
-            .collection("usuarios")
-            .doc(data.user_id)
-            .collection("movimientos")
-            .add(data)
-            .then((docRef2) => {
-              firebase
-                .firestore()
-                .collection("usuarios")
-                .doc("22032021")
-                .collection("movimientos")
-                .add({
-                  id1: docRef1.id,
-                  id2: docRef2.id,
-                  user: data.user_id,
-                  medio: data.medio,
-                  guia: data.guia,
-                  momento: data.momento,
-                });
-            });
+  return await updateDoc(doc(db, "usuarios", data.user_id), {
+    "datos_personalizados.saldo": data.saldo,
+  }).then(() => {
+    addDoc(collection(db, "prueba"), data).then((docRef1) => {
+      addDoc(collection(doc(db, "usuarios", data.user_id), "movimientos"), data).then((docRef2) => {
+        addDoc(collection(doc(db, "usuarios", "22032021"), "movimientos"), {
+          id1: docRef1.id,
+          id2: docRef2.id,
+          user: data.user_id,
+          medio: data.medio,
+          guia: data.guia,
+          momento: data.momento,
         });
-
-      return data;
+      });
     });
+  
+    return data;
+  });
 }
 
 function verDetallesGuia() {
@@ -3580,13 +3543,12 @@ function verDetallesGuia() {
 }
 
 async function traerMovimientosGuia(numeroGuia) {
-  const querySnapshot = await firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(localStorage.user_id)
-    .collection("estadoGuias")
-    .where("numeroGuia", "==", numeroGuia)
-    .get();
+  const querySnapshot = await getDocs(
+    query(
+      collection(doc(collection(db, "usuarios"), localStorage.user_id), "estadoGuias"),
+      where("numeroGuia", "==", numeroGuia)
+    )
+  );
 
   let movimientos;
   querySnapshot.forEach((doc) => {

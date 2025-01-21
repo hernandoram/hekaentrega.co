@@ -740,18 +740,14 @@ function mostrarDatosUsuario(datos) {
   });
 }
 
-async function consultarDatosBasicosUsuario() {
-  await firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(user_id)
-    .get()
-    .then((doc) => {
-      if (doc.exists) {
-        datos_usuario.centro_de_costo = doc.data().centro_de_costo;
-        datos_usuario.objetos_envio = doc.data().objetos_envio;
-      }
-    });
+export async function consultarDatosBasicosUsuario() {
+  const userDocRef = doc(db, "usuarios", user_id);
+  await getDoc(userDocRef).then((docSnap) => {
+    if (docSnap.exists()) {
+      datos_usuario.centro_de_costo = docSnap.data().centro_de_costo;
+      datos_usuario.objetos_envio = docSnap.data().objetos_envio;
+    }
+  });
 }
 
 async function mostrarDatosPersonalizados(datos) {
@@ -907,80 +903,73 @@ function agregarDatosBancarios(informacion) {
 /* Función que me carga los datos bancarios del usuario en el perfil.
 la idea es que se cargue automáticamente cuando esté viendo en su perfil,
 o cuando se presione una sola vez el botón que lleva al perfil del usuario */
-function consultarInformacionBancariaUsuario() {
+export function consultarInformacionBancariaUsuario() {
   const datosBanc = $("#mostrar-ocultar-registro-bancario");
   datosBanc.before(
     '<div class="text-center" id="cargador-datos-bancarios"><h2>Cargando Datos bancarios </h2><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>'
   );
 
-  const informacion = firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(user_id)
-    .collection("informacion");
+  const informacion = collection(db, "usuarios", user_id, "informacion");
 
-  informacion
-    .doc("bancaria")
-    .get()
-    .then((doc) => {
-      if (doc.exists) {
-        let datos = doc.data();
-        ////datos bancarios
-        if (document.getElementById("CPNbanco") && datos.banco != "") {
-          document.getElementById("CPNbanco").value = datos.banco;
-        }
-        if (
-          document.getElementById("CPNnombre_representante") &&
-          datos.nombre_banco != ""
-        ) {
-          document.getElementById("CPNnombre_representante").value =
-            datos.nombre_banco;
-        }
-        if (
-          document.getElementById("CPNtipo_de_cuenta") &&
-          datos.tipo_de_cuenta != ""
-        ) {
-          document.getElementById("CPNtipo_de_cuenta").value =
-            datos.tipo_de_cuenta;
-        }
-        if (
-          document.getElementById("CPNnumero_cuenta") &&
-          datos.numero_cuenta != ""
-        ) {
-          document.getElementById("CPNnumero_cuenta").value =
-            datos.numero_cuenta;
-        }
-        if (
-          document.getElementById("CPNconfirmar_numero_cuenta") &&
-          datos.numero_cuenta != ""
-        ) {
-          document.getElementById("CPNconfirmar_numero_cuenta").value =
-            datos.numero_cuenta;
-        }
-        if (
-          document.getElementById("CPNtipo_documento_banco") &&
-          datos.tipo_documento_banco != ""
-        ) {
-          document.getElementById("CPNtipo_documento_banco").value =
-            datos.tipo_documento_banco;
-        }
-        if (
-          document.getElementById("CPNnumero_identificacion_banco") &&
-          datos.numero_iden_banco != ""
-        ) {
-          document.getElementById("CPNnumero_identificacion_banco").value =
-            datos.numero_iden_banco;
-        }
-        if (
-          document.getElementById("CPNconfirmar_numero_identificacion_banco") &&
-          datos.numero_iden_banco != ""
-        ) {
-          document.getElementById(
-            "CPNconfirmar_numero_identificacion_banco"
-          ).value = datos.numero_iden_banco;
-        }
+  getDoc(doc(informacion, "bancaria")).then((docSnap) => {
+    if (docSnap.exists()) {
+      let datos = docSnap.data();
+      ////datos bancarios
+      if (document.getElementById("CPNbanco") && datos.banco != "") {
+        document.getElementById("CPNbanco").value = datos.banco;
       }
-    });
+      if (
+        document.getElementById("CPNnombre_representante") &&
+        datos.nombre_banco != ""
+      ) {
+        document.getElementById("CPNnombre_representante").value =
+          datos.nombre_banco;
+      }
+      if (
+        document.getElementById("CPNtipo_de_cuenta") &&
+        datos.tipo_de_cuenta != ""
+      ) {
+        document.getElementById("CPNtipo_de_cuenta").value =
+          datos.tipo_de_cuenta;
+      }
+      if (
+        document.getElementById("CPNnumero_cuenta") &&
+        datos.numero_cuenta != ""
+      ) {
+        document.getElementById("CPNnumero_cuenta").value =
+          datos.numero_cuenta;
+      }
+      if (
+        document.getElementById("CPNconfirmar_numero_cuenta") &&
+        datos.numero_cuenta != ""
+      ) {
+        document.getElementById("CPNconfirmar_numero_cuenta").value =
+          datos.numero_cuenta;
+      }
+      if (
+        document.getElementById("CPNtipo_documento_banco") &&
+        datos.tipo_documento_banco != ""
+      ) {
+        document.getElementById("CPNtipo_documento_banco").value =
+          datos.tipo_documento_banco;
+      }
+      if (
+        document.getElementById("CPNnumero_identificacion_banco") &&
+        datos.numero_iden_banco != ""
+      ) {
+        document.getElementById("CPNnumero_identificacion_banco").value =
+          datos.numero_iden_banco;
+      }
+      if (
+        document.getElementById("CPNconfirmar_numero_identificacion_banco") &&
+        datos.numero_iden_banco != ""
+      ) {
+        document.getElementById(
+          "CPNconfirmar_numero_identificacion_banco"
+        ).value = datos.numero_iden_banco;
+      }
+    }
+  });
 
   $("#cargador-datos-bancarios").remove();
 }
@@ -1122,10 +1111,9 @@ async function descargarInformeUsuariosAdm(e) {
 
   const { fecha_inicio, fecha_final, meses } = value;
 
-  const queryDocs = await db
-    .collection("usuarios")
-    .orderBy("fecha_creacion", "desc")
-    .get();
+  const usuariosCollection = collection(db, "usuarios");
+const usuariosQuery = query(usuariosCollection, orderBy("fecha_creacion", "desc"));
+const queryDocs = await getDocs(usuariosQuery);
 
   const result = [];
   for (let doc of queryDocs.docs) {
@@ -1162,15 +1150,14 @@ async function cantidadEnviosPorUsuarioAdmin(id, meses) {
     fechaInicioTemp.getMonth() - meses
   );
 
-  const quantity = await db
-    .collection("usuarios")
-    .doc(id)
-    .collection("guias")
-    .orderBy("timeline")
-    .startAt(fecha_inicio)
-    .endAt(fecha_final)
-    .get()
-    .then((q) => q.size);
+  const quantity = await getDocs(
+    query(
+      collection(doc(collection(db, "usuarios"), id), "guias"),
+      orderBy("timeline"),
+      startAt(fecha_inicio),
+      endAt(fecha_final)
+    )
+  ).then((q) => q.size);
 
   return quantity;
 }
@@ -1282,7 +1269,8 @@ function despliegueReferidos(referidos) {
 
   //
 }
-async function agregarSaldo(envios, referente, referido) {
+
+export async function agregarSaldo(envios, referente, referido) {
   if (envios < 1) {
     return avisar(
       "Error",
@@ -1290,21 +1278,21 @@ async function agregarSaldo(envios, referente, referido) {
     );
   }
 
-  await firebase
-    .firestore()
-    .collection("referidos")
-    .where("sellerReferente", "==", referente)
-    .get()
+  const referidosCollection = collection(db, "referidos");
+  const referidosQuery = query(referidosCollection, where("sellerReferente", "==", referente));
+
+  await getDocs(referidosQuery)
     .then((querySnapshot) => {
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
+      querySnapshot.forEach(async (docSnap) => {
+        const data = docSnap.data();
         if (data.sellerReferido == referido) {
           const historialItem = {
             guiasEntregadas: data.guiasEntregadas,
             timestamp: new Date(),
             saldoReclamado: parseInt(envios, 10) * 200,
           };
-          doc.ref.update({
+          const docRef = doc(db, "referidos", docSnap.id);
+          await updateDoc(docRef, {
             enviosReclamados:
               (parseInt(data.enviosReclamados, 10) || 0) + parseInt(envios, 10),
             enviosPorReclamar: 0,
@@ -1331,7 +1319,7 @@ async function agregarSaldo(envios, referente, referido) {
 
 async function reclamarReferidoBilletera(referido, referente, saldoAReclamar) {
   console.log(saldoAReclamar, referido, referente);
-  const ref = db.collection("pendientePorPagar");
+  const ref = collection(db, "pendientePorPagar");
   const nombreGuia = `R${referido}-${new Date().getFullYear()}${String(
     new Date().getMonth() + 1
   ).padStart(2, "0")}${String(new Date().getDate()).padStart(2, "0")}-${
@@ -1353,7 +1341,7 @@ async function reclamarReferidoBilletera(referido, referente, saldoAReclamar) {
   await ref.doc(nombreGuia).set(nuevoObjeto);
 }
 
-function reclamarReferido(referido, referente, saldoAReclamar) {
+export function reclamarReferido(referido, referente, saldoAReclamar) {
   console.log(saldoAReclamar);
 
   let userid = localStorage.getItem("user_id");
@@ -1378,46 +1366,44 @@ function reclamarReferido(referido, referente, saldoAReclamar) {
 
   let recibidoReferidos;
 
-  firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(userid)
-    .get()
-    .then((doc) => {
-      datos_saldo_usuario = doc.data().datos_personalizados;
-      recibidoReferidos = datos_saldo_usuario.recibidoReferidos;
+  const userDocRef = doc(db, "usuarios", userid);
 
-      console.log(recibidoReferidos);
+  getDoc(userDocRef)
+    .then((docSnap) => {
+      if (docSnap.exists()) {
+        datos_saldo_usuario = docSnap.data().datos_personalizados;
+        recibidoReferidos = datos_saldo_usuario.recibidoReferidos;
 
-      recibidoReferidos +=
-        parseInt(datos_saldo_usuario.premio_referido) || 5000;
+        console.log(recibidoReferidos);
 
-      console.log(recibidoReferidos);
+        recibidoReferidos += parseInt(datos_saldo_usuario.premio_referido) || 5000;
 
-      console.log(datos_saldo_usuario);
+        console.log(recibidoReferidos);
 
-      objetoSaldo.saldo_anterior = datos_saldo_usuario.saldo;
-      objetoSaldo.saldo =
-        objetoSaldo.saldo_anterior +
-        (parseInt(datos_saldo_usuario.premio_referido) || 5000);
-      objetoSaldo.diferencia = objetoSaldo.saldo - objetoSaldo.saldo_anterior;
+        console.log(datos_saldo_usuario);
 
-      const datos = doc.data();
+        objetoSaldo.saldo_anterior = datos_saldo_usuario.saldo;
+        objetoSaldo.saldo =
+          objetoSaldo.saldo_anterior +
+          (parseInt(datos_saldo_usuario.premio_referido) || 5000);
+        objetoSaldo.diferencia = objetoSaldo.saldo - objetoSaldo.saldo_anterior;
 
-      // Creamos un nuevo objeto con los datos anteriores y el nuevo valor
-      const nuevosDatosPersonalizados = {
-        ...datos.datos_personalizados, // Mantenemos las propiedades anteriores
-        recibidoReferidos: recibidoReferidos, // Agregamos la nueva propiedad con su valor
-      };
+        const datos = docSnap.data();
 
-      console.log(nuevosDatosPersonalizados);
+        // Creamos un nuevo objeto con los datos anteriores y el nuevo valor
+        const nuevosDatosPersonalizados = {
+          ...datos.datos_personalizados, // Mantenemos las propiedades anteriores
+          recibidoReferidos: recibidoReferidos, // Agregamos la nueva propiedad con su valor
+        };
 
-      // Actualizamos el documento con los nuevos datos
-      return firebase.firestore().collection("usuarios").doc(userid).update({
-        datos_personalizados: nuevosDatosPersonalizados,
-      });
+        console.log(nuevosDatosPersonalizados);
+
+        // Actualizamos el documento con los nuevos datos
+        return updateDoc(userDocRef, {
+          datos_personalizados: nuevosDatosPersonalizados,
+        });
+      }
     })
-
     .finally(() => {
       console.log(objetoSaldo);
       actualizarSaldo(objetoSaldo);
@@ -1435,7 +1421,7 @@ function copiarData() {
 }
 
 //Habilitado por una función en Manejador guias, me envia un excel al /excel_to_json en index.js y me devuelve un Json
-function cargarPagos() {
+export function cargarPagos() {
   document.querySelector("#cargador-pagos").classList.remove("d-none");
   let data = new FormData(document.getElementById("form-pagos"));
   console.log(data);
@@ -1580,85 +1566,69 @@ function cargarPagos() {
               cargador.init();
               let guia = e.target.parentNode.querySelectorAll("tr[id]");
               const numero = e.target.parentNode.getAttribute("data-numero");
-              const remitente =
-                e.target.parentNode.getAttribute("data-usuario");
-              const comprobante_bancario = $(
-                "#comprobante_bancario" + remitente
-              ).val();
+              const remitente = e.target.parentNode.getAttribute("data-usuario");
+              const comprobante_bancario = $(`#comprobante_bancario${remitente}`).val();
               let pagado = 0;
+          
               for await (let g of guia) {
                 let celda = g.querySelectorAll("td");
                 const FECHA = celda[6].textContent;
                 let identificador = g.getAttribute("id");
-                await firebase
-                  .firestore()
-                  .collection("pagos")
-                  .doc(celda[1].textContent.toLowerCase())
-                  .collection("pagos")
-                  .doc(identificador)
-                  .set({
-                    REMITENTE: celda[0].textContent,
-                    TRANSPORTADORA: celda[1].textContent,
-                    GUIA: celda[2].textContent,
-                    RECAUDO: celda[3].textContent,
-                    "ENVÍO TOTAL": celda[4].textContent,
-                    "TOTAL A PAGAR": celda[5].textContent,
-                    FECHA,
-
-                    timeline: new Date().getTime(),
-                    comprobante_bancario: comprobante_bancario || "SCB",
-                    cuenta_responsable: celda[8].textContent || "SCR",
-                  })
-                  .then(() => {
-                    firebase
-                      .firestore()
-                      .collectionGroup("guias")
-                      .where("numeroGuia", "==", identificador)
-                      .get()
-                      .then((querySnapshot) => {
-                        querySnapshot.forEach((doc) => {
-                          doc.ref
-                            .update({ debe: 0 })
-                            .then(() => g.classList.add("text-success"));
-                        });
-                      });
-
-                    pagado += parseInt(celda[5].textContent);
+          
+                const pagosRef = doc(
+                  collection(db, "pagos", celda[1].textContent.toLowerCase(), "pagos"),
+                  identificador
+                );
+          
+                await setDoc(pagosRef, {
+                  REMITENTE: celda[0].textContent,
+                  TRANSPORTADORA: celda[1].textContent,
+                  GUIA: celda[2].textContent,
+                  RECAUDO: celda[3].textContent,
+                  "ENVÍO TOTAL": celda[4].textContent,
+                  "TOTAL A PAGAR": celda[5].textContent,
+                  FECHA,
+                  timeline: new Date().getTime(),
+                  comprobante_bancario: comprobante_bancario || "SCB",
+                  cuenta_responsable: celda[8].textContent || "SCR",
+                }).then(async () => {
+                  const guiasQuery = query(
+                    collectionGroup(db, "guias"),
+                    where("numeroGuia", "==", identificador)
+                  );
+                  const querySnapshot = await getDocs(guiasQuery);
+          
+                  querySnapshot.forEach(async (docSnap) => {
+                    await updateDoc(docSnap.ref, { debe: 0 });
+                    g.classList.add("text-success");
                   });
+          
+                  pagado += parseInt(celda[5].textContent);
+                });
               }
-
+          
               let mensaje =
                 "Te informamos que se ha realizado una consignación a su cuenta bancaria registrada en Heka entrega por un monto de: " +
                 convertirMoneda(pagado);
               if (comprobante_bancario)
                 mensaje += " bajo el comprobante Nro.: " + comprobante_bancario;
-
+          
               const respuestaMensaje = await fetch(
-                "/mensajeria/sendMessage?number=57" +
-                  numero +
-                  "&message=" +
-                  mensaje
+                `/mensajeria/sendMessage?number=57${numero}&message=${mensaje}`
               ).then((d) => d.json());
-
+          
               if (respuestaMensaje.success) {
                 Swal.fire({
                   icon: "success",
-                  text:
-                    'Se ha enviado el siguiente mensaje al usuario: "' +
-                    mensaje +
-                    '"',
+                  text: `Se ha enviado el siguiente mensaje al usuario: "${mensaje}"`,
                 });
               } else {
                 Swal.fire({
                   icon: "warning",
-                  text:
-                    "No se ha podido enviar el siguiente mensaje al usuario: " +
-                    mensaje +
-                    " - Razón: " +
-                    respuestaMensaje.message,
+                  text: `No se ha podido enviar el siguiente mensaje al usuario: "${mensaje}" - Razón: ${respuestaMensaje.message}`,
                 });
               }
-
+          
               cargador.end();
             });
           });
@@ -1668,129 +1638,109 @@ function cargarPagos() {
             let identificador = guia.getAttribute("id");
             let transportadora = guia.querySelectorAll("td")[1].textContent;
             let remitente = guia.getAttribute("data-remitente");
-            let mostrador_total_local = document.getElementById(
-              "total" + remitente
-            );
+            let mostrador_total_local = document.getElementById("total" + remitente);
             let btn_local = document.getElementById("pagar" + remitente);
             let total_local = mostrador_total_local.getAttribute("data-total");
             console.log("Antes del algoritmo: ", total_local);
             let mostrador_total = document.getElementById("total_pagos");
             let total = mostrador_total.getAttribute("data-total");
-
-            let datos_guia = await firebase
-              .firestore()
-              .collectionGroup("guias")
-              .where("numeroGuia", "==", identificador)
-              .get()
-              .then((querySnapshot) => {
-                let datos;
+          
+            let datos_guia = await getDocs(
+              query(collectionGroup(db, "guias"), where("numeroGuia", "==", identificador))
+            ).then((querySnapshot) => {
+              let datos;
+              let row_guia_actual = guia.children[7];
+              row_guia_actual.textContent =
+                " La guía no se encuentra en la base de datos";
+              querySnapshot.forEach((doc) => {
+                datos = doc.data();
+              });
+              return datos;
+            });
+          
+            let usuario_corporativo = await getDocs(
+              query(collection(db, "usuarios"), where("centro_de_costo", "==", remitente))
+            ).then((querySnapshot) => {
+              let usuario_corporativo = false;
+              querySnapshot.forEach((doc) => {
+                if (doc.data().usuario_corporativo) usuario_corporativo = true;
+              });
+              return usuario_corporativo;
+            });
+          
+            const pagosRef = doc(
+              collection(db, "pagos", transportadora.toLowerCase(), "pagos"),
+              identificador.toString()
+            );
+          
+            getDoc(pagosRef).then((docSnap) => {
+              let existe;
+          
+              if (docSnap.exists()) {
+                guia.setAttribute(
+                  "data-ERROR",
+                  "La Guía " +
+                    identificador +
+                    " ya se encuentra registrada en la base de datos, verifique que ya ha sido pagada."
+                );
+                guia.classList.add("text-success");
+          
+                mostrador_total_local = document.getElementById("total" + remitente);
+                btn_local = document.getElementById("pagar" + remitente);
+                total_local = mostrador_total_local.getAttribute("data-total");
+          
+                mostrador_total = document.getElementById("total_pagos");
+                total = mostrador_total.getAttribute("data-total");
+          
+                console.log(total_local);
+                total -= parseInt(guia.children[5].textContent);
+                total_local -= parseInt(guia.children[5].textContent);
+                mostrador_total_local.setAttribute("data-total", total_local);
+                mostrador_total_local.classList.add("text-success");
+                btn_local.textContent = "Por Pagar $" + convertirMiles(total_local);
+                mostrador_total_local.textContent = "$" + convertirMiles(total_local);
+                mostrador_total.setAttribute("data-total", total);
+                mostrador_total.textContent = "Total $" + convertirMiles(total);
+                comprobarBoton(fecha);
+                existe = true;
+              }
+          
+              if (datos_guia) {
+                // Para mostrar el tipo cuenta_responsable es de empresa o personal y guardarlo
+                guia.children[8].textContent = datos_guia.cuenta_responsable || "Personal";
+          
                 let row_guia_actual = guia.children[7];
                 row_guia_actual.textContent =
-                  " La guía no se encuentra en la base de datos";
-                querySnapshot.forEach((doc) => {
-                  datos = doc.data();
-                });
-                return datos;
-              });
-
-            let usuario_corporativo = await firebase
-              .firestore()
-              .collection("usuarios")
-              .where("centro_de_costo", "==", remitente)
-              .get()
-              .then((querySnapshot) => {
-                let usuario_corporativo = false;
-                querySnapshot.forEach((doc) => {
-                  if (doc.data().usuario_corporativo)
-                    usuario_corporativo = true;
-                });
-              });
-
-            firebase
-              .firestore()
-              .collection("pagos")
-              .doc(transportadora.toLocaleLowerCase())
-              .collection("pagos")
-              .doc(identificador.toString())
-              .get()
-              .then((doc) => {
-                let existe;
-
-                if (doc.exists) {
-                  guia.setAttribute(
-                    "data-ERROR",
-                    "La Guía " +
-                      identificador +
-                      " ya se encuentra registrada en la base de datos, verifique que ya ha sido pagada."
-                  );
-                  guia.classList.add("text-success");
-
-                  mostrador_total_local = document.getElementById(
-                    "total" + remitente
-                  );
-                  btn_local = document.getElementById("pagar" + remitente);
-                  total_local =
-                    mostrador_total_local.getAttribute("data-total");
-
-                  mostrador_total = document.getElementById("total_pagos");
-                  total = mostrador_total.getAttribute("data-total");
-
-                  console.log(total_local);
-                  total -= parseInt(guia.children[5].textContent);
-                  total_local -= parseInt(guia.children[5].textContent);
-                  mostrador_total_local.setAttribute("data-total", total_local);
-                  mostrador_total_local.classList.add("text-success");
-                  btn_local.textContent =
-                    "Por Pagar $" + convertirMiles(total_local);
-                  mostrador_total_local.textContent =
-                    "$" + convertirMiles(total_local);
-                  mostrador_total.setAttribute("data-total", total);
-                  mostrador_total.textContent =
-                    "Total $" + convertirMiles(total);
-                  comprobarBoton(fecha);
-                  existe = true;
+                  datos_guia.type || "PAGO CONTRAENTREGA";
+                if (datos_guia.centro_de_costo != remitente) {
+                  row_guia_actual.textContent +=
+                    " El centro de costo de la guía subida no coincide con el registrado en la base de datos.\n";
                 }
-
-                if (datos_guia) {
-                  // Para mostrar el tipo cuenta_responsable es de empresa o personal y guardarlo
-                  guia.children[8].textContent =
-                    datos_guia.cuenta_responsable || "Personal";
-
-                  let row_guia_actual = guia.children[7];
-                  row_guia_actual.textContent =
-                    datos_guia.type || "PAGO CONTRAENTREGA";
-                  if (datos_guia.centro_de_costo != remitente) {
-                    row_guia_actual.textContent +=
-                      " El centro de costo de la guía subida no coincide con el registrado en la base de datos.\n";
-                  }
-
-                  if (!datos_guia.debe || usuario_corporativo) {
-                    row_guia_actual.textContent += " La guía fue descontada.";
-                    if (!existe) sumarCostoEnvio(guia, remitente);
-                  } else {
-                    row_guia_actual.textContent +=
-                      " Falta por descontar $" +
-                      convertirMiles(Math.abs(datos_guia.debe));
-                  }
+          
+                if (!datos_guia.debe || usuario_corporativo) {
+                  row_guia_actual.textContent += " La guía fue descontada.";
+                  if (!existe) sumarCostoEnvio(guia, remitente);
+                } else {
+                  row_guia_actual.textContent +=
+                    " Falta por descontar $" + convertirMiles(Math.abs(datos_guia.debe));
                 }
-
-                totalizador(guia, remitente);
-              });
+              }
+          
+              totalizador(guia, remitente);
+            });
           });
 
+        
           usuarios.forEach((usuario) => {
             let remitente = usuario.getAttribute("data-usuario");
             let tipo_usuario = document.createElement("p");
             let bank_info = document.createElement("div");
-
+          
             tipo_usuario.textContent =
               "Usuario no Encontrado en la base de Datos, (manéjelo con precaución)";
             tipo_usuario.classList.add("text-center");
-            firebase
-              .firestore()
-              .collection("usuarios")
-              .where("centro_de_costo", "==", remitente)
-              .get()
+          
+            getDocs(query(collection(db, "usuarios"), where("centro_de_costo", "==", remitente)))
               .then((querySnapshot) => {
                 querySnapshot.forEach((doc) => {
                   const docBank = doc.data().datos_bancarios;
@@ -1799,32 +1749,27 @@ function cargarPagos() {
                   } else {
                     tipo_usuario.textContent = "Usuario no Corporativo";
                   }
-
+          
                   if (docBank) {
                     bank_info.innerHTML = `<div class="dropdown">
-                  <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdown-${
-                    doc.data().centro_de_costo
-                  }" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Información Bancaria
-                  </button>
-                  <div class="dropdown-menu" aria-labelledby="dropdown-${
-                    doc.data().centro_de_costo
-                  }">
-                    <h6 class="dropdown-item">${docBank.banco}</h6>
-                    <h6 class="dropdown-item">Representante: ${
-                      docBank.nombre_banco
-                    }</h6>
-                    <h6 class="dropdown-item">${docBank.tipo_de_cuenta}: ${
-                      docBank.numero_cuenta
-                    }</h6>
-                      <h6 class="dropdown-item">${
-                        docBank.tipo_documento_banco
-                      } - ${docBank.numero_iden_banco}</h6>
-                </div>`;
+                      <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdown-${
+                        doc.data().centro_de_costo
+                      }" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Información Bancaria
+                      </button>
+                      <div class="dropdown-menu" aria-labelledby="dropdown-${
+                        doc.data().centro_de_costo
+                      }">
+                        <h6 class="dropdown-item">${docBank.banco}</h6>
+                        <h6 class="dropdown-item">Representante: ${docBank.nombre_banco}</h6>
+                        <h6 class="dropdown-item">${docBank.tipo_de_cuenta}: ${docBank.numero_cuenta}</h6>
+                        <h6 class="dropdown-item">${docBank.tipo_documento_banco} - ${docBank.numero_iden_banco}</h6>
+                      </div>
+                    </div>`;
                     usuario.insertBefore(bank_info, usuario.firstChild);
                     usuario.parentNode.insertBefore(tipo_usuario, usuario);
                   }
-
+          
                   usuario.setAttribute("data-numero", doc.data().celular);
                 });
               });
@@ -1916,8 +1861,7 @@ $("#btn-revisar_pagos").click(async (e) => {
 
   const filtroFechaActivo = $("#fecha-pagos").css("display") != "none";
 
-  const referenceNatural = (b) =>
-    firebase.firestore().collection("pagos").doc(b).collection("pagos");
+  const referenceNatural = (b) => collection(db, "pagos", b, "pagos");
 
   const referenceSorted = (b) =>
     referenceNatural(b)
@@ -2038,12 +1982,12 @@ async function consultarFacturasGuardadasAdmin() {
   let fechaI = new Date($("#filtro-fechaI").val()).setHours(0) + 8.64e7,
     fechaF = new Date($("#filtro-fechaF").val()).setHours(0) + 2 * 8.64e7;
 
-  const referencia = firebase
-    .firestore()
-    .collection("paquetePagos")
-    .orderBy("timeline")
-    .startAt(fechaI)
-    .endAt(fechaF);
+    const referencia = query(
+      collection(db, "paquetePagos"),
+      orderBy("timeline"),
+      startAt(fechaI),
+      endAt(fechaF)
+    );
 
   const facturas = [];
   await referencia.get().then((q) => {
@@ -2058,11 +2002,9 @@ async function consultarFacturasGuardadasAdmin() {
   const promiseFacturas = facturas.map(async (f) => {
     const id_user = f.id_user;
     if (!usuarioCargados.has(id_user)) {
-      const respuestaUsuario = await db
-        .collection("usuarios")
-        .doc(id_user)
-        .get()
-        .then((d) => (d ? d.data() : null));
+      const respuestaUsuario = await getDoc(doc(db, "usuarios", id_user)).then((d) =>
+        d.exists() ? d.data() : null
+      );
 
       usuarioCargados.set(id_user, respuestaUsuario);
     }
@@ -2355,9 +2297,10 @@ async function obtenerFacturaRegistradaPorGuia(numeroGuia) {
   if (guiasEstablecidas.has(numeroGuia))
     return guiasEstablecidas.get(numeroGuia);
 
-  const referencia = db
-    .collection("paquetePagos")
-    .where("guiasPagadas", "array-contains", numeroGuia);
+  const referencia = query(
+    collection(db, "paquetePagos"),
+    where("guiasPagadas", "array-contains", numeroGuia)
+  );
 
   const paquete = await referencia.get().then((q) => {
     if (q.size) {
@@ -2650,10 +2593,7 @@ const datosUsuario = localStorage.getItem("user_id");
 
 async function crearLogPago(estado, fecha, valorPago) {
   // const ref2 = db.collection("acciones").doc(datos_usuario.centro_de_costo).collection("pagos");
-  const ref2 = db
-    .collection("usuarios")
-    .doc(localStorage.user_id)
-    .collection("acciones");
+  const ref2 = collection(doc(collection(db, "usuarios"), localStorage.user_id), "acciones");
 
   console.warn("Creando log de pago", estado, fecha, valorPago);
   // Crear un nuevo documento con los datos del pago
@@ -2699,7 +2639,7 @@ async function solicitarPagosPendientesUs(e) {
 
   const mensajeDesembolso = obtenerMensajeDesembolso();
   const minimo_diario = 3000000;
-  const ref = db.collection("infoHeka").doc("manejoUsuarios");
+  const ref = doc(db, "infoHeka", "manejoUsuarios");
 
   // Se genera un Swal para que cuando se cierre automáticamente retorne el botón a su estado original
   const SwalMessage = Swal.mixin({
@@ -2717,15 +2657,15 @@ async function solicitarPagosPendientesUs(e) {
     "INTERRAPIDISIMO",
     "COORDINADORA",
   ];
-  const verPago = (t) =>
-    db
-      .collection("pagos")
-      .doc(t)
-      .collection("pagos")
-      .where("REMITENTE", "==", datos_usuario.centro_de_costo)
-      .limit(1)
-      .get()
-      .then((q) => !!q.docs[0]);
+  const verPago = (t) => {
+    const pagosRef = collection(doc(collection(db, "pagos"), t), "pagos");
+    const pagosQuery = query(
+      pagosRef,
+      where("REMITENTE", "==", datos_usuario.centro_de_costo),
+      limit(1)
+    );
+    return getDocs(pagosQuery).then((q) => !!q.docs[0]);
+  };
 
   const hayPagoAnterior = await Promise.all(transportadoras.map(verPago));
 
@@ -2864,47 +2804,46 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (botonInputFlexii) {
     botonInputFlexii.onclick = function () {
-      db.collection("usuarios")
-        .doc(id_punto)
-        .get()
-        .then((doc) => {
-          if (doc.data().type === "PUNTO") {
-            db.collection("usuarios")
-              .doc(userquery)
-              .collection("guias")
-              .where("id_heka", "==", valorQuery)
-              .get()
-              .then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                  console.log(doc.data());
-                  if (doc.data().id_punto == id_punto) {
-                    return Swal.fire({
-                      icon: "success",
-                      text: "Esta guía ya está registrada en tu punto",
-                    });
-                  }
-                  if (doc.data().id_punto !== id_punto) {
-                    return Swal.fire({
-                      icon: "success",
-                      text: "Esta guía ya está registrada en otro punto",
-                    });
-                  }
-                  doc.ref.update({ id_punto: id_punto });
-                  return Swal.fire({
-                    icon: "success",
-                    text: "Guía registrada con éxito",
-                  });
+      const usuariosRef = collection(db, "usuarios");
+      const usuarioDocRef = doc(usuariosRef, id_punto);
+    
+      getDoc(usuarioDocRef).then((docSnapshot) => {
+        if (docSnapshot.data().type === "PUNTO") {
+          const guiasRef = collection(doc(usuariosRef, userquery), "guias");
+          const guiasQuery = query(guiasRef, where("id_heka", "==", valorQuery));
+    
+          getDocs(guiasQuery).then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+              console.log(doc.data());
+              if (doc.data().id_punto == id_punto) {
+                return Swal.fire({
+                  icon: "success",
+                  text: "Esta guía ya está registrada en tu punto",
                 });
+              }
+              if (doc.data().id_punto !== id_punto) {
+                return Swal.fire({
+                  icon: "success",
+                  text: "Esta guía ya está registrada en otro punto",
+                });
+              }
+              const guiaDocRef = doc.ref;
+              guiaDocRef.update({ id_punto: id_punto });
+              return Swal.fire({
+                icon: "success",
+                text: "Guía registrada con éxito",
               });
-          } else {
-            return Swal.fire({
-              icon: "error",
-              text: "No tienes permisos para registrar guías",
-            }).then(() => {
-              window.location.replace("/plataforma2.html");
             });
-          }
-        });
+          });
+        } else {
+          return Swal.fire({
+            icon: "error",
+            text: "No tienes permisos para registrar guías",
+          }).then(() => {
+            window.location.replace("/plataforma2.html");
+          });
+        }
+      });
     };
   }
 });

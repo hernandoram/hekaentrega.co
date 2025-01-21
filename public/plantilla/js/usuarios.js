@@ -429,136 +429,84 @@ function nuevaCuenta() {
 
           let user = value("CPNnumero_documento").toString().trim();
 
-          firebase
-            .firestore()
-            .collection("usuarios")
-            .doc(user)
-            .get()
-            .then((doc) => {
-              console.log(datos_bancarios);
-              console.log(datos_personales);
-              console.log(datos_relevantes);
-              if (!doc.exists) {
-                firebase
-                  .firestore()
-                  .collection("usuarios")
-                  .doc(user)
-                  .collection("informacion")
-                  .doc("personal")
-                  .set(datos_personales)
-                  .then(() => {
-                    firebase
-                      .firestore()
-                      .collection("usuarios")
-                      .doc(user)
-                      .set(datos_relevantes)
-                      .catch((err) => {
-                        inHTML(
-                          "error_crear_cuenta",
-                          `<h6 class="text-danger">${err} \n
-                                        No se pudo crear el identificador de ingreso</h6>`
-                        );
-                      });
-                  })
-                  .then(() => {
-                    firebase
-                      .firestore()
-                      .collection("usuarios")
-                      .doc(user)
-                      .collection("informacion")
-                      .doc("bancaria")
-                      .set(datos_bancarios)
-                      .catch(function (error) {
-                        inHTML(
-                          "error_crear_cuenta",
-                          `<h6 class="text-danger">Problemas al agregar Datos bancarios</h6>`
-                        );
-                      });
-                  })
-                  .then(() => {
-                    if (datos_relevantes.usuario_corporativo) {
-                      firebase
-                        .firestore()
-                        .collection("usuarios")
-                        .doc(user)
-                        .collection("informacion")
-                        .doc("heka")
-                        .set({
-                          activar_saldo: true,
-                          fecha: genFecha(),
-                          saldo: 0,
-                        });
-                    }
-                  })
-                  .then(function () {
-                    if (administracion) {
-                      avisar(
-                        "¡Cuenta creada con éxito!",
-                        "User_id = " +
-                          user +
-                          "\n Puede ingresar con: " +
-                          value("CPNnumero_documento"),
-                        "",
-                        "admin.html"
-                      );
-                    } else {
-                      firebase
-                        .firestore()
-                        .collection("usuarios")
-                        .where(
-                          "ingreso",
-                          "==",
-                          datos_relevantes.ingreso.toString()
-                        )
-                        .get()
-                        .then((querySnapshot) => {
-                          localStorage.setItem("user_id", "");
-                          querySnapshot.forEach((doc) => {
-                            localStorage.setItem("user_id", doc.id);
-                            localStorage.setItem(
-                              "user_login",
-                              doc.data().ingreso
-                            );
-                            console.log(localStorage);
-
-                            location.href = "plataforma2.html";
-                          });
-                        })
-                        .then((d) => {
-                          if (localStorage.user_id == "") {
-                            alert("Usuario no encontrado");
-                          }
-                        })
-                        .catch((error) => {
-                          console.log("Error getting documents: ", error);
-                        });
-                    }
-                  })
-                  .catch(function (error) {
-                    boton_crear_usuario.setAttribute(
-                      "onclick",
-                      "nuevaCuenta()"
-                    );
-                    boton_crear_usuario.disabled = false;
-                    boton_crear_usuario.textContent = "Registrar Cuenta";
-                    inHTML(
-                      "error_crear_cuenta",
-                      `<h6 class="text-danger">${error}</h6>`
-                    );
-                  });
-              } else {
-                inHTML(
-                  "error_crear_cuenta",
-                  `<h6 class="text-danger">No podemos procesar tu solicitud, ya existe un usuario con ese documento de identificación</h6>`
-                );
-                verificador("CPNnumero_documento", "no-scroll");
-                boton_crear_usuario.addEventListener("click", () => {
-                  nuevaCuenta(administracion);
+          getDoc(doc(db, "usuarios", user)).then((docSnapshot) => {
+            console.log(datos_bancarios);
+            console.log(datos_personales);
+            console.log(datos_relevantes);
+          
+            if (!docSnapshot.exists()) {
+              setDoc(doc(collection(db, "usuarios", user, "informacion"), "personal"), datos_personales).then(() => {
+                setDoc(doc(db, "usuarios", user), datos_relevantes).catch((err) => {
+                  inHTML(
+                    "error_crear_cuenta",
+                    `<h6 class="text-danger">${err} \n
+                                  No se pudo crear el identificador de ingreso</h6>`
+                  );
                 });
+              }).then(() => {
+                setDoc(doc(collection(db, "usuarios", user, "informacion"), "bancaria"), datos_bancarios).catch(function (error) {
+                  inHTML(
+                    "error_crear_cuenta",
+                    `<h6 class="text-danger">Problemas al agregar Datos bancarios</h6>`
+                  );
+                });
+              }).then(() => {
+                if (datos_relevantes.usuario_corporativo) {
+                  setDoc(doc(collection(db, "usuarios", user, "informacion"), "heka"), {
+                    activar_saldo: true,
+                    fecha: genFecha(),
+                    saldo: 0,
+                  });
+                }
+              }).then(function () {
+                if (administracion) {
+                  avisar(
+                    "¡Cuenta creada con éxito!",
+                    "User_id = " +
+                      user +
+                      "\n Puede ingresar con: " +
+                      value("CPNnumero_documento"),
+                    "",
+                    "admin.html"
+                  );
+                } else {
+                  getDocs(query(collection(db, "usuarios"), where("ingreso", "==", datos_relevantes.ingreso.toString()))).then((querySnapshot) => {
+                    localStorage.setItem("user_id", "");
+                    querySnapshot.forEach((doc) => {
+                      localStorage.setItem("user_id", doc.id);
+                      localStorage.setItem("user_login", doc.data().ingreso);
+                      console.log(localStorage);
+          
+                      location.href = "plataforma2.html";
+                    });
+                  }).then(() => {
+                    if (localStorage.user_id === "") {
+                      alert("Usuario no encontrado");
+                    }
+                  }).catch((error) => {
+                    console.log("Error getting documents: ", error);
+                  });
+                }
+              }).catch(function (error) {
+                boton_crear_usuario.setAttribute("onclick", "nuevaCuenta()");
                 boton_crear_usuario.disabled = false;
-                boton_crear_usuario.textContent = "Crear Cuenta";
-              }
-            });
+                boton_crear_usuario.textContent = "Registrar Cuenta";
+                inHTML("error_crear_cuenta", `<h6 class="text-danger">${error}</h6>`);
+              });
+            } else {
+              inHTML(
+                "error_crear_cuenta",
+                `<h6 class="text-danger">No podemos procesar tu solicitud, ya existe un usuario con ese documento de identificación</h6>`
+              );
+              verificador("CPNnumero_documento", "no-scroll");
+              boton_crear_usuario.addEventListener("click", () => {
+                nuevaCuenta(administracion);
+              });
+              boton_crear_usuario.disabled = false;
+              boton_crear_usuario.textContent = "Crear Cuenta";
+            }
+          });
+          
         }
       }
     }
@@ -580,54 +528,50 @@ CpnKey.input(
 );
 
 //Verifica que el usuario a crear no exista ni el centro de costo que se le quiere asignar
-async function verificarExistencia(administracion) {
-  await firebase
-    .firestore()
-    .collection("usuarios")
-    .get()
-    .then((querySnapshot) => {
-      let existe_usuario = false,
-        existe_centro_costo = false;
-      let identificador = administracion
-        ? value("CPNnumero_documento")
-        : value("CPNcontraseña");
-      let centro_de_costo = administracion
-        ? value("CPNcentro_costo")
-        : "Seller" + value("CPNnombre_empresa");
-      querySnapshot.forEach((doc) => {
-        let sellerFb = doc.data().centro_de_costo;
-        if (doc.data().ingreso == identificador.replace(/\s/g, "")) {
-          document.getElementById("registrar-nueva-cuenta").disabled = true;
-          existe_usuario = true;
-        }
-
-        if (
-          sellerFb &&
-          sellerFb.toString().toLowerCase() ==
-            centro_de_costo.toLowerCase().replace(/[^A-Za-z1-9\-]/g, "")
-        ) {
-          document.getElementById("registrar-nueva-cuenta").disabled = true;
-          existe_centro_costo = true;
-        }
-      });
-      if (existe_usuario) {
-        document.getElementById("usuario-existente").classList.remove("d-none");
-      } else {
-        document.getElementById("usuario-existente").classList.add("d-none");
+export async function verificarExistencia(administracion) {
+  await getDocs(collection(db, "usuarios")).then((querySnapshot) => {
+    let existe_usuario = false,
+      existe_centro_costo = false;
+    let identificador = administracion
+      ? value("CPNnumero_documento")
+      : value("CPNcontraseña");
+    let centro_de_costo = administracion
+      ? value("CPNcentro_costo")
+      : "Seller" + value("CPNnombre_empresa");
+    querySnapshot.forEach((doc) => {
+      let sellerFb = doc.data().centro_de_costo;
+      if (doc.data().ingreso == identificador.replace(/\s/g, "")) {
+        document.getElementById("registrar-nueva-cuenta").disabled = true;
+        existe_usuario = true;
       }
-      if (existe_centro_costo) {
-        document
-          .getElementById("centro_costo-existente")
-          .classList.remove("d-none");
-      } else {
-        document
-          .getElementById("centro_costo-existente")
-          .classList.add("d-none");
-      }
-      if (!existe_usuario && !existe_centro_costo) {
-        document.getElementById("registrar-nueva-cuenta").disabled = false;
+  
+      if (
+        sellerFb &&
+        sellerFb.toString().toLowerCase() ==
+          centro_de_costo.toLowerCase().replace(/[^A-Za-z1-9\-]/g, "")
+      ) {
+        document.getElementById("registrar-nueva-cuenta").disabled = true;
+        existe_centro_costo = true;
       }
     });
+    if (existe_usuario) {
+      document.getElementById("usuario-existente").classList.remove("d-none");
+    } else {
+      document.getElementById("usuario-existente").classList.add("d-none");
+    }
+    if (existe_centro_costo) {
+      document
+        .getElementById("centro_costo-existente")
+        .classList.remove("d-none");
+    } else {
+      document
+        .getElementById("centro_costo-existente")
+        .classList.add("d-none");
+    }
+    if (!existe_usuario && !existe_centro_costo) {
+      document.getElementById("registrar-nueva-cuenta").disabled = false;
+    }
+  });
 }
 
 let idOficina = "";
@@ -662,67 +606,63 @@ function mostrarOficina(id) {
   const comisionMinima = document.querySelector("#comision-minima");
 
   //console.log(id);
-  firebase
-    .firestore()
-    .collection("oficinas")
-    .doc(id)
-    .get()
-    .then((doc) => {
-      if (doc.exists) {
-        const data = doc.data();
-        //console.log(data)
-        mostrador.classList.add("d-none");
+  getDoc(doc(db, "oficinas", id))
+  .then((doc) => {
+    if (doc.exists()) {
+      const data = doc.data();
+      //console.log(data)
+      mostrador.classList.add("d-none");
 
-        busquedaOficina.classList.add("d-none");
-        botonInforme.classList.add("d-none");
+      busquedaOficina.classList.add("d-none");
+      botonInforme.classList.add("d-none");
 
-        oficina.classList.remove("d-none");
-        nombreOficina.innerHTML =
-          data.nombres.split(" ")[0] + " " + data.apellidos.split(" ")[0];
-        nombresOficina.value = data.nombres;
-        apellidosOficina.value = data.apellidos;
-        noIdentificacionOficina.value = data.numero_documento;
-        numero1.value = data.celular;
-        numero2.value = data.celular2;
-        correoOficina.value = data.correo;
-        nombreEmpresa.value = data.nombre_empresa;
-        ciudad.value = data.ciudad;
-        direccion.value = data.direccion;
-        barrio.value = data.barrio;
-        con.value = data.con;
+      oficina.classList.remove("d-none");
+      nombreOficina.innerHTML =
+        data.nombres.split(" ")[0] + " " + data.apellidos.split(" ")[0];
+      nombresOficina.value = data.nombres;
+      apellidosOficina.value = data.apellidos;
+      noIdentificacionOficina.value = data.numero_documento;
+      numero1.value = data.celular;
+      numero2.value = data.celular2;
+      correoOficina.value = data.correo;
+      nombreEmpresa.value = data.nombre_empresa;
+      ciudad.value = data.ciudad;
+      direccion.value = data.direccion;
+      barrio.value = data.barrio;
+      con.value = data.con;
 
-        console.log(data.visible);
-        data.visible === true
-          ? (visible.value = true)
-          : (visible.value = false);
+      console.log(data.visible);
+      data.visible === true
+        ? (visible.value = true)
+        : (visible.value = false);
 
-        data.configuracion
-          ? (porcentaje.value = data.configuracion.porcentaje_comsion)
-          : (porcentaje.value = 3.9);
-        data.configuracion
-          ? (comisionMinima.value = data.configuracion.comision_minima)
-          : (comisionMinima.value = 3900);
-        data.configuracion && data.configuracion.tipo_distribucion[0] == 1
-          ? (checkbox1.checked = true)
-          : (checkbox1.checked = false);
-        data.configuracion && data.configuracion.tipo_distribucion[1] == 1
-          ? (checkbox2.checked = true)
-          : (checkbox2.checked = false);
+      data.configuracion
+        ? (porcentaje.value = data.configuracion.porcentaje_comsion)
+        : (porcentaje.value = 3.9);
+      data.configuracion
+        ? (comisionMinima.value = data.configuracion.comision_minima)
+        : (comisionMinima.value = 3900);
+      data.configuracion && data.configuracion.tipo_distribucion[0] == 1
+        ? (checkbox1.checked = true)
+        : (checkbox1.checked = false);
+      data.configuracion && data.configuracion.tipo_distribucion[1] == 1
+        ? (checkbox2.checked = true)
+        : (checkbox2.checked = false);
 
-        console.log(data.configuracion);
-        idOficina = id;
+      console.log(data.configuracion);
+      idOficina = id;
 
-        //aquí hay que hacer la vuelta de los datos
-      } else {
-        // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
-        //Hasta que todos los usuario futuramente tengan el doc "heka"
-        // $("#habilitar_servientrega").prop("checked", true);
-        console.log("No such document!");
-      }
-    })
-    .catch((error) => {
-      console.log("Error getting document:", error);
-    });
+      //aquí hay que hacer la vuelta de los datos
+    } else {
+      // Es importante limpiar los check de las transportadoras antes de seleccionar un usuario
+      //Hasta que todos los usuario futuramente tengan el doc "heka"
+      // $("#habilitar_servientrega").prop("checked", true);
+      console.log("No such document!");
+    }
+  })
+  .catch((error) => {
+    console.log("Error getting document:", error);
+  });
 }
 
 // const botonBusquedaGeneral = document.getElementById("busquedaGeneral");
@@ -765,7 +705,7 @@ async function buscarUsuarios(e, esGeneral) {
 
   const mayusNombreInp = nombreInp.toUpperCase();
 
-  const reference = firebase.firestore().collection("usuarios");
+  const reference = collection(db, "usuarios");
 
   const casesToSearch = [
     "centro_de_costo",
@@ -952,17 +892,14 @@ function activadorGuiasAutomaticasDesdeAdmin(el) {
 
   el.addEventListener("click", () => {
     console.log("actualizando para => ", id, el.checked);
-    db.collection("usuarios")
-      .doc(id)
-      .update({
-        generacion_automatizada: el.checked,
-      })
-      .then(
-        Toast.fire({
-          icon: "success",
-          text: "Usuario actualizado",
-        })
-      );
+    updateDoc(doc(db, "usuarios", id), {
+      generacion_automatizada: el.checked,
+    }).then(() => {
+      Toast.fire({
+        icon: "success",
+        text: "Usuario actualizado",
+      });
+    });
   });
 }
 
@@ -1534,17 +1471,14 @@ function compareCodigoSucursalInter(arr1, arr2) {
 async function notificacionBodegas(bodegasInfo) {
   bodegasInfo.forEach(async (bodega) => {
     try {
-      await firebase
-        .firestore()
-        .collection("notificaciones")
-        .add({
-          icon: ["map-marker-alt", "primary"],
-          fecha: genFecha(),
-          mensaje: `Tu bodega de Interrapidisimo con dirección ${bodega.direccion_completa} ha sido activada correctamente`,
-          user_id: idUsuario,
-          visible_user: true,
-          timeline: new Date().getTime(),
-        });
+      await addDoc(collection(db, "notificaciones"), {
+        icon: ["map-marker-alt", "primary"],
+        fecha: genFecha(),
+        mensaje: `Tu bodega de Interrapidisimo con dirección ${bodega.direccion_completa} ha sido activada correctamente`,
+        user_id: idUsuario,
+        visible_user: true,
+        timeline: new Date().getTime(),
+      });
       console.log(
         `Notificación creada para la bodega en ${bodega.ciudad} con dirección ${bodega.direccion_completa} ${idUsuario}`
       );
@@ -1747,20 +1681,16 @@ function actualizarInformacionOficina() {
 
   console.log(ofi);
 
-  firebase
-    .firestore()
-    .collection("oficinas")
-    .doc(ofi)
-    .update(datos)
-    .then(() => {
-      avisar(
-        "Actualización de Datos exitosa",
-        "Se han registrado cambios en la oficina para: " +
-          datos.nombres.split(" ")[0] +
-          " " +
-          datos.apellidos.split(" ")[0]
-      );
-    });
+  const oficinaRef = doc(db, "oficinas", ofi);
+updateDoc(oficinaRef, datos).then(() => {
+  avisar(
+    "Actualización de Datos exitosa",
+    "Se han registrado cambios en la oficina para: " +
+      datos.nombres.split(" ")[0] +
+      " " +
+      datos.apellidos.split(" ")[0]
+  );
+});
 }
 async function actualizarInformacionHekaOficina() {
   let checkbox1val = 0;
@@ -1785,20 +1715,16 @@ async function actualizarInformacionHekaOficina() {
 
   console.log(idOficina);
 
-  firebase
-    .firestore()
-    .collection("oficinas")
-    .doc(idOficina)
-    .update({ configuracion: datos })
-    .then(() => {
-      avisar(
-        "Actualización de Datos exitosa",
-        "Se han registrado de información Heka en la oficina para " +
-          value("nombres-oficina") +
-          " " +
-          value("apellidos-oficina")
-      );
-    });
+  const oficinaRef = doc(db, "oficinas", idOficina);
+  updateDoc(oficinaRef, { configuracion: datos }).then(() => {
+    avisar(
+      "Actualización de Datos exitosa",
+      "Se han registrado de información Heka en la oficina para " +
+        value("nombres-oficina") +
+        " " +
+        value("apellidos-oficina")
+    );
+  });
 }
 
 function actualizarInformacionBancaria() {
@@ -1816,12 +1742,8 @@ function actualizarInformacionBancaria() {
     .getElementById("usuario-seleccionado")
     .getAttribute("data-id");
 
-  firebase
-    .firestore()
-    .collection("usuarios")
-    .doc(id_usuario)
-    .update({ datos_bancarios: datos })
-    .then(() => {
+    const usuarioRef = doc(db, "usuarios", id_usuario);
+    updateDoc(usuarioRef, { datos_bancarios: datos }).then(() => {
       avisar(
         "Actualización de Datos exitosa",
         "Se han registrado cambios en información Bancaria para id: " +
@@ -1881,7 +1803,7 @@ async function actualizarInformacionHeka() {
     .getElementById("usuario-seleccionado")
     .getAttribute("data-id");
 
-  let reference = firebase.firestore().collection("usuarios").doc(id_usuario);
+    const reference = doc(db, "usuarios", id_usuario);
 
   let mensaje = "";
 
@@ -1952,50 +1874,41 @@ async function actualizarInformacionHeka() {
   }
   // return console.log(datos, saldo)
 
-  reference
-    .update({ datos_personalizados: datos })
-    .then(() => {
-      if (saldo.saldo_anterior === saldo.saldo) return;
-      firebase
-        .firestore()
-        .collection("prueba")
-        .add(saldo)
-        .then((docRef1) => {
-          console.log(docRef1.id);
-          firebase
-            .firestore()
-            .collection("usuarios")
-            .doc(id_usuario)
-            .collection("movimientos")
-            .add(saldo)
-            .then((docRef2) => {
-              firebase
-                .firestore()
-                .collection("usuarios")
-                .doc("22032021")
-                .collection("movimientos")
-                .add({
-                  id1: docRef1.id,
-                  id2: docRef2.id,
-                  user: saldo.user_id,
-                  medio: "Administrador: " + localStorage.user_id,
-                  momento: momento,
-                });
-            });
-        });
-    })
-    .then(() => {
-      mostrarDatosPersonales(datos, "heka");
-      document.querySelector('[onclick="actualizarInformacionHeka()"]').value =
-        "Actualizar Costos de Envío";
-      avisar(
-        "Actualización de Datos exitosa",
-        "Se han registrado cambios en los costos de envíos para id: " +
-          value("actualizar_numero_documento") +
-          ". " +
-          saldo.mensaje
+  await updateDoc(reference, { datos_personalizados: datos }).then(() => {
+    if (saldo.saldo_anterior === saldo.saldo) return;
+    const pruebaCollection = collection(db, "prueba");
+    addDoc(pruebaCollection, saldo).then((docRef1) => {
+      console.log(docRef1.id);
+      const movimientosCollection = collection(
+        doc(db, "usuarios", id_usuario),
+        "movimientos"
       );
+      addDoc(movimientosCollection, saldo).then((docRef2) => {
+        const movimientosAdminCollection = collection(
+          doc(db, "usuarios", "22032021"),
+          "movimientos"
+        );
+        addDoc(movimientosAdminCollection, {
+          id1: docRef1.id,
+          id2: docRef2.id,
+          user: saldo.user_id,
+          medio: "Administrador: " + localStorage.user_id,
+          momento: momento,
+        });
+      });
     });
+  }).then(() => {
+    mostrarDatosPersonales(datos, "heka");
+    document.querySelector('[onclick="actualizarInformacionHeka()"]').value =
+      "Actualizar Costos de Envío";
+    avisar(
+      "Actualización de Datos exitosa",
+      "Se han registrado cambios en los costos de envíos para id: " +
+        value("actualizar_numero_documento") +
+        ". " +
+        saldo.mensaje
+    );
+  });
 }
 
 async function consultarAgentesAveonline() {
@@ -2155,12 +2068,8 @@ loadStats.addEventListener("click", async () => {
   if (guiasStats.length < 1) {
     loader.classList.remove("d-none");
     try {
-      const querySnapshot = await firebase
-        .firestore()
-        .collection("usuarios")
-        .doc(idUsuario)
-        .collection("guias")
-        .get();
+      const guiasCollection = collection(doc(db, "usuarios", idUsuario), "guias");
+      const querySnapshot = await getDocs(guiasCollection);
 
       querySnapshot.forEach((doc) => {
         guiasStats.push(doc.data());

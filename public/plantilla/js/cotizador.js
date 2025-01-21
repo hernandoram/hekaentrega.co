@@ -1,5 +1,6 @@
 import { Watcher } from "/js/render.js";
 import { datos_personalizados } from "/js/cargadorDeDatos.js";
+import { db, doc, collection } from "/js/config/initializeFirebase.js";
 // $("#xx").empty();
 let datos_de_cotizacion,
   oficinas = [],
@@ -1216,10 +1217,7 @@ async function detallesTransportadoras(data) {
 
 // Configuraciones de la ciudad
 async function cargarConfiguracionesCiudad(dane_ciudad) {
-  const reference = db
-    .collection("ciudades")
-    .doc(dane_ciudad)
-    .collection("config_ciudad");
+  const reference = collection(doc(collection(db, "ciudades"), dane_ciudad), "config_ciudad");
 
   const configuraciones = await reference
     .where("activa", "==", true)
@@ -1264,13 +1262,8 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
   const estadistica =
     transportadora === "ENVIA"
       ? await estEnvia(dane_ciudad)
-      : await db
-          .collection("ciudades")
-          .doc(dane_ciudad)
-          .collection("estadisticasEntrega")
-          .doc(transportadora)
-          .get()
-          .then((d) => d.data());
+      : await getDoc(doc(collection(doc(collection(db, "ciudades"), dane_ciudad), "estadisticasEntrega"), transportadora))
+      .then((d) => d.data());
 
   if (!estadistica) return;
 
@@ -1348,13 +1341,8 @@ async function fetchEstadisticas(dane_ciudad, transportadora) {
   const estadistica =
     transportadoraMayus === "ENVIA"
       ? await estEnvia(dane_ciudad)
-      : await db
-          .collection("ciudades")
-          .doc(dane_ciudad)
-          .collection("estadisticasEntrega")
-          .doc(transportadoraMayus)
-          .get()
-          .then((d) => d.data());
+      : await getDoc(doc(collection(doc(collection(db, "ciudades"), dane_ciudad), "estadisticasEntrega"), transportadoraMayus))
+      .then((d) => d.data());
 
   if (!estadistica) return;
 
@@ -1548,7 +1536,7 @@ function verDetallesTransportadora(e) {
 }
 
 //*** FUNCIONES PARA OFICINAS ***
-async function detallesOficinas(destino) {
+export async function detallesOficinas(destino) {
   const p = [
     {
       nombre_empresa: "Oficina 1",
@@ -1586,32 +1574,30 @@ async function detallesOficinas(destino) {
     },
   ];
 
-  // if(!estado_prueba) return [];
+  // if (!estado_prueba) return [];
 
-  return await firebase
-    .firestore()
-    .collection("oficinas")
-    .where("ciudad", "==", destino)
-    .get()
-    .then((querySnapshot) => {
-      const oficinas = new Array();
+  const oficinasRef = collection(db, "oficinas");
+  const q = query(oficinasRef, where("ciudad", "==", destino));
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
+  return await getDocs(q).then((querySnapshot) => {
+    const oficinas = [];
 
-        data.id_oficina = doc.id;
-        if (!data.configuracion) {
-          data.configuracion = Object.assign({}, configOficinaDefecto);
-        }
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
 
-        if (!data.visible || data.eliminado || data.bloqueado) return;
+      data.id_oficina = doc.id;
+      if (!data.configuracion) {
+        data.configuracion = Object.assign({}, configOficinaDefecto);
+      }
 
-        oficinas.push(data);
-      });
+      if (!data.visible || data.eliminado || data.bloqueado) return;
 
-      console.log(oficinas);
-      return oficinas;
+      oficinas.push(data);
     });
+
+    console.log(oficinas);
+    return oficinas;
+  });
 }
 
 function mostrarOficinas(oficinas) {
@@ -2876,20 +2862,17 @@ async function buscarUsuario(e) {
   };
 
   presentacion.html("");
-  const usuario = await db
-    .collection("usuarios")
-    .where("numero_documento", "==", inp.val())
-    .get()
-    .then((q) => {
-      if (q.size) {
-        const d = q.docs[0];
-        const data = d.data();
-        data.id = d.id;
-        return data;
-      }
+  const usuario = await getDocs(query(collection(db, "usuarios"), where("numero_documento", "==", inp.val())))
+  .then((q) => {
+    if (q.size) {
+      const d = q.docs[0];
+      const data = d.data();
+      data.id = d.id;
+      return data;
+    }
 
-      return null;
-    });
+    return null;
+  });
 
   if (!usuario) return presentacion.html("<p>Usuario no encontrado</p>");
 
@@ -4034,7 +4017,7 @@ async function crearGuia() {
         html: res.mensaje,
       });
 
-      firebase.firestore().collection("errores").add({
+      addDoc(collection(db, "errores"), {
         datos_personalizados,
         datos_a_enviar,
         datos_usuario,
@@ -4307,7 +4290,7 @@ async function buscarGuiasConErrores() {
 }
 
 async function pruebaGeneracionGuias(idGuiaError) {
-  const reference = db.collection("errores").doc(idGuiaError);
+  const reference = doc(collection(db, "errores"), idGuiaError);
   const guia = await reference.get().then((d) => d.data());
   if (!guia) {
     console.error("No se encontró alguna guía allí");
@@ -4320,7 +4303,7 @@ async function pruebaGeneracionGuias(idGuiaError) {
     bodega = guia.datos_usuario.bodegas.find((b) => b.codigo_sucursal_inter);
   }
 
-  const referencia = db.collection("pruebaDirigidaGuias").doc(datos.id_heka);
+  const referencia = doc(collection(db, "pruebaDirigidaGuias"), datos.id_heka);
 
   const creacion = await crearGuiaTransportadora(datos, referencia);
 
@@ -4446,7 +4429,7 @@ async function creacionDirecta(guia) {
 
 async function obtenerIdHeka() {
   console.count("Se obtiene el id");
-  const ref = firebase.firestore().collection("infoHeka").doc("heka_id");
+  const ref = doc(db, "infoHeka", "heka_id");
 
   return await ref.get().then(async (doc) => {
     // return doc.data().id;
@@ -4465,7 +4448,6 @@ async function obtenerIdHeka() {
 //función que envía los datos tomados a servientrega
 async function enviar_firestore(datos) {
   console.log(datos);
-  let firestore = firebase.firestore();
 
   if (!datos.id_heka) {
     datos.id_heka = await obtenerIdHeka();
@@ -4473,49 +4455,44 @@ async function enviar_firestore(datos) {
 
   const id_heka = datos.id_heka;
 
-  datos.seguimiento_finalizado =
-    ["HEKA"].includes(datos.transportadora) ?? false;
+  datos.seguimiento_finalizado = ["HEKA"].includes(datos.transportadora) ?? false;
   datos.fecha = genFecha();
   datos.timeline = new Date().getTime();
 
-  const referenciaNuevaGuia = firestore
-    .collection("usuarios")
-    .doc(datos.id_user)
-    .collection("guias")
-    .doc(id_heka);
+  const referenciaNuevaGuia = doc(
+    collection(doc(db, "usuarios", datos.id_user), "guias"),
+    id_heka
+  );
 
-  return await referenciaNuevaGuia
-    .set(datos)
-    .then((id) => {
-      return {
-        icon: "success",
-        title: "¡Guía creada con éxito!",
-        mensaje: "¿Deseas crear otra guía?",
-        mensajeCorto: "¡Guía con id: " + id_heka + " creada con éxito!",
-      };
-    })
-    .catch((err) => {
-      console.log(err.message);
-      return {
-        icon: "error",
-        title: "¡Lo sentimos! Error inesperado",
-        mensaje:
-          'No se ha podido concretar la creación de guía, por favor intente nuevamente más tarde. "' +
-          err.message +
-          '"',
-        mensajeCorto: err.message,
-      };
-    });
+  try {
+    await setDoc(referenciaNuevaGuia, datos);
+    return {
+      icon: "success",
+      title: "¡Guía creada con éxito!",
+      mensaje: "¿Deseas crear otra guía?",
+      mensajeCorto: "¡Guía con id: " + id_heka + " creada con éxito!",
+    };
+  } catch (err) {
+    console.log(err.message);
+    return {
+      icon: "error",
+      title: "¡Lo sentimos! Error inesperado",
+      mensaje:
+        'No se ha podido concretar la creación de guía, por favor intente nuevamente más tarde. "' +
+        err.message +
+        '"',
+      mensajeCorto: err.message,
+    };
+  }
 }
+
 
 async function descontarSaldo(datos) {
   const datos_heka =
-    datos_personalizados ||
-    (await db
-      .collection("usuarios")
-      .doc(localStorage.user_id)
-      .get()
-      .then((doc) => doc.data().datos_personalizados));
+  datos_personalizados ||
+  (await getDoc(doc(db, "usuarios", localStorage.user_id)).then((doc) =>
+    doc.data().datos_personalizados
+  ));
 
   const id = datos.id_heka;
   console.log(datos.debe);
@@ -4704,11 +4681,10 @@ async function guardarStickerGuiaServientrega(data) {
     }
   ).then((data) => data.json());
 
-  const referenciaSegmentar = firebase
-    .firestore()
-    .collection("base64StickerGuias")
-    .doc(data.id_heka)
-    .collection("guiaSegmentada");
+  const referenciaSegmentar = collection(
+    doc(collection(db, "base64StickerGuias"), data.id_heka),
+    "guiaSegmentada"
+  );
 
   /* del xml necesito el elemento *GenerarStickerResult*, si es correcto, se busca
     el valor *bytesReport*, se agrega al storage y devuelve has_sticker = true */
@@ -4805,11 +4781,10 @@ async function generarStickerGuiaInterrapidisimo(data) {
       )
     );
 
-  const referenciaSegmentar = firebase
-    .firestore()
-    .collection("base64StickerGuias")
-    .doc(data.id_heka)
-    .collection("guiaSegmentada");
+    const referenciaSegmentar = collection(
+      doc(collection(db, "base64StickerGuias"), data.id_heka),
+      "guiaSegmentada"
+    );
   if (base64GuiaSegmentada)
     return await guardarDocumentoSegmentado(
       base64GuiaSegmentada,
@@ -4862,11 +4837,10 @@ async function guardarStickerGuiaAveo(data) {
       )
     );
 
-  const referenciaSegmentar = firebase
-    .firestore()
-    .collection("base64StickerGuias")
-    .doc(data.id_heka)
-    .collection("guiaSegmentada");
+    const referenciaSegmentar = collection(
+      doc(collection(db, "base64StickerGuias"), data.id_heka),
+      "guiaSegmentada"
+    );
   return await guardarDocumentoSegmentado(
     base64GuiaSegmentada,
     referenciaSegmentar
@@ -4938,11 +4912,10 @@ async function guardarStickerGuiaEnvia({ url, numeroGuia, id_heka }) {
       )
     );
 
-  const referenciaSegmentar = firebase
-    .firestore()
-    .collection("base64StickerGuias")
-    .doc(id_heka)
-    .collection("guiaSegmentada");
+    const referenciaSegmentar = collection(
+      doc(collection(db, "base64StickerGuias"), data.id_heka),
+      "guiaSegmentada"
+    );
   return await guardarDocumentoSegmentado(
     base64GuiaSegmentada,
     referenciaSegmentar
@@ -4995,11 +4968,10 @@ async function guardarStickerGuiaCoordinadora({ numeroGuia, id_heka }) {
 
   console.log(response);
   const base64GuiaSegmentada = response.base64GuiaSegmentada;
-  const referenciaSegmentar = firebase
-    .firestore()
-    .collection("base64StickerGuias")
-    .doc(id_heka)
-    .collection("guiaSegmentada");
+  const referenciaSegmentar = collection(
+    doc(collection(db, "base64StickerGuias"), data.id_heka),
+    "guiaSegmentada"
+  );
   return await guardarDocumentoSegmentado(
     base64GuiaSegmentada,
     referenciaSegmentar
@@ -5051,11 +5023,10 @@ async function guardarStickerGuiaHekaEntrega({ numeroGuia, id_heka }) {
 
   console.log(response);
   const base64GuiaSegmentada = response.base64GuiaSegmentada;
-  const referenciaSegmentar = firebase
-    .firestore()
-    .collection("base64StickerGuias")
-    .doc(id_heka)
-    .collection("guiaSegmentada");
+  const referenciaSegmentar = collection(
+    doc(collection(db, "base64StickerGuias"), data.id_heka),
+    "guiaSegmentada"
+  );
   return await guardarDocumentoSegmentado(
     base64GuiaSegmentada,
     referenciaSegmentar
