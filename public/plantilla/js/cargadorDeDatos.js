@@ -1111,10 +1111,9 @@ async function descargarInformeUsuariosAdm(e) {
 
   const { fecha_inicio, fecha_final, meses } = value;
 
-  const queryDocs = await db
-    .collection("usuarios")
-    .orderBy("fecha_creacion", "desc")
-    .get();
+  const usuariosCollection = collection(db, "usuarios");
+const usuariosQuery = query(usuariosCollection, orderBy("fecha_creacion", "desc"));
+const queryDocs = await getDocs(usuariosQuery);
 
   const result = [];
   for (let doc of queryDocs.docs) {
@@ -1151,15 +1150,14 @@ async function cantidadEnviosPorUsuarioAdmin(id, meses) {
     fechaInicioTemp.getMonth() - meses
   );
 
-  const quantity = await db
-    .collection("usuarios")
-    .doc(id)
-    .collection("guias")
-    .orderBy("timeline")
-    .startAt(fecha_inicio)
-    .endAt(fecha_final)
-    .get()
-    .then((q) => q.size);
+  const quantity = await getDocs(
+    query(
+      collection(doc(collection(db, "usuarios"), id), "guias"),
+      orderBy("timeline"),
+      startAt(fecha_inicio),
+      endAt(fecha_final)
+    )
+  ).then((q) => q.size);
 
   return quantity;
 }
@@ -1321,7 +1319,7 @@ export async function agregarSaldo(envios, referente, referido) {
 
 async function reclamarReferidoBilletera(referido, referente, saldoAReclamar) {
   console.log(saldoAReclamar, referido, referente);
-  const ref = db.collection("pendientePorPagar");
+  const ref = collection(db, "pendientePorPagar");
   const nombreGuia = `R${referido}-${new Date().getFullYear()}${String(
     new Date().getMonth() + 1
   ).padStart(2, "0")}${String(new Date().getDate()).padStart(2, "0")}-${
@@ -2004,11 +2002,9 @@ async function consultarFacturasGuardadasAdmin() {
   const promiseFacturas = facturas.map(async (f) => {
     const id_user = f.id_user;
     if (!usuarioCargados.has(id_user)) {
-      const respuestaUsuario = await db
-        .collection("usuarios")
-        .doc(id_user)
-        .get()
-        .then((d) => (d ? d.data() : null));
+      const respuestaUsuario = await getDoc(doc(db, "usuarios", id_user)).then((d) =>
+        d.exists() ? d.data() : null
+      );
 
       usuarioCargados.set(id_user, respuestaUsuario);
     }
@@ -2301,9 +2297,10 @@ async function obtenerFacturaRegistradaPorGuia(numeroGuia) {
   if (guiasEstablecidas.has(numeroGuia))
     return guiasEstablecidas.get(numeroGuia);
 
-  const referencia = db
-    .collection("paquetePagos")
-    .where("guiasPagadas", "array-contains", numeroGuia);
+  const referencia = query(
+    collection(db, "paquetePagos"),
+    where("guiasPagadas", "array-contains", numeroGuia)
+  );
 
   const paquete = await referencia.get().then((q) => {
     if (q.size) {
@@ -2596,10 +2593,7 @@ const datosUsuario = localStorage.getItem("user_id");
 
 async function crearLogPago(estado, fecha, valorPago) {
   // const ref2 = db.collection("acciones").doc(datos_usuario.centro_de_costo).collection("pagos");
-  const ref2 = db
-    .collection("usuarios")
-    .doc(localStorage.user_id)
-    .collection("acciones");
+  const ref2 = collection(doc(collection(db, "usuarios"), localStorage.user_id), "acciones");
 
   console.warn("Creando log de pago", estado, fecha, valorPago);
   // Crear un nuevo documento con los datos del pago
@@ -2645,7 +2639,7 @@ async function solicitarPagosPendientesUs(e) {
 
   const mensajeDesembolso = obtenerMensajeDesembolso();
   const minimo_diario = 3000000;
-  const ref = db.collection("infoHeka").doc("manejoUsuarios");
+  const ref = doc(db, "infoHeka", "manejoUsuarios");
 
   // Se genera un Swal para que cuando se cierre automáticamente retorne el botón a su estado original
   const SwalMessage = Swal.mixin({
@@ -2663,15 +2657,15 @@ async function solicitarPagosPendientesUs(e) {
     "INTERRAPIDISIMO",
     "COORDINADORA",
   ];
-  const verPago = (t) =>
-    db
-      .collection("pagos")
-      .doc(t)
-      .collection("pagos")
-      .where("REMITENTE", "==", datos_usuario.centro_de_costo)
-      .limit(1)
-      .get()
-      .then((q) => !!q.docs[0]);
+  const verPago = (t) => {
+    const pagosRef = collection(doc(collection(db, "pagos"), t), "pagos");
+    const pagosQuery = query(
+      pagosRef,
+      where("REMITENTE", "==", datos_usuario.centro_de_costo),
+      limit(1)
+    );
+    return getDocs(pagosQuery).then((q) => !!q.docs[0]);
+  };
 
   const hayPagoAnterior = await Promise.all(transportadoras.map(verPago));
 
@@ -2810,47 +2804,46 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (botonInputFlexii) {
     botonInputFlexii.onclick = function () {
-      db.collection("usuarios")
-        .doc(id_punto)
-        .get()
-        .then((doc) => {
-          if (doc.data().type === "PUNTO") {
-            db.collection("usuarios")
-              .doc(userquery)
-              .collection("guias")
-              .where("id_heka", "==", valorQuery)
-              .get()
-              .then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                  console.log(doc.data());
-                  if (doc.data().id_punto == id_punto) {
-                    return Swal.fire({
-                      icon: "success",
-                      text: "Esta guía ya está registrada en tu punto",
-                    });
-                  }
-                  if (doc.data().id_punto !== id_punto) {
-                    return Swal.fire({
-                      icon: "success",
-                      text: "Esta guía ya está registrada en otro punto",
-                    });
-                  }
-                  doc.ref.update({ id_punto: id_punto });
-                  return Swal.fire({
-                    icon: "success",
-                    text: "Guía registrada con éxito",
-                  });
+      const usuariosRef = collection(db, "usuarios");
+      const usuarioDocRef = doc(usuariosRef, id_punto);
+    
+      getDoc(usuarioDocRef).then((docSnapshot) => {
+        if (docSnapshot.data().type === "PUNTO") {
+          const guiasRef = collection(doc(usuariosRef, userquery), "guias");
+          const guiasQuery = query(guiasRef, where("id_heka", "==", valorQuery));
+    
+          getDocs(guiasQuery).then((querySnapshot) => {
+            querySnapshot.forEach((doc) => {
+              console.log(doc.data());
+              if (doc.data().id_punto == id_punto) {
+                return Swal.fire({
+                  icon: "success",
+                  text: "Esta guía ya está registrada en tu punto",
                 });
+              }
+              if (doc.data().id_punto !== id_punto) {
+                return Swal.fire({
+                  icon: "success",
+                  text: "Esta guía ya está registrada en otro punto",
+                });
+              }
+              const guiaDocRef = doc.ref;
+              guiaDocRef.update({ id_punto: id_punto });
+              return Swal.fire({
+                icon: "success",
+                text: "Guía registrada con éxito",
               });
-          } else {
-            return Swal.fire({
-              icon: "error",
-              text: "No tienes permisos para registrar guías",
-            }).then(() => {
-              window.location.replace("/plataforma2.html");
             });
-          }
-        });
+          });
+        } else {
+          return Swal.fire({
+            icon: "error",
+            text: "No tienes permisos para registrar guías",
+          }).then(() => {
+            window.location.replace("/plataforma2.html");
+          });
+        }
+      });
     };
   }
 });

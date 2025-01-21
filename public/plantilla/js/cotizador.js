@@ -1217,10 +1217,7 @@ async function detallesTransportadoras(data) {
 
 // Configuraciones de la ciudad
 async function cargarConfiguracionesCiudad(dane_ciudad) {
-  const reference = db
-    .collection("ciudades")
-    .doc(dane_ciudad)
-    .collection("config_ciudad");
+  const reference = collection(doc(collection(db, "ciudades"), dane_ciudad), "config_ciudad");
 
   const configuraciones = await reference
     .where("activa", "==", true)
@@ -1265,13 +1262,8 @@ async function mostrarEstadisticas(dane_ciudad, transportadora) {
   const estadistica =
     transportadora === "ENVIA"
       ? await estEnvia(dane_ciudad)
-      : await db
-          .collection("ciudades")
-          .doc(dane_ciudad)
-          .collection("estadisticasEntrega")
-          .doc(transportadora)
-          .get()
-          .then((d) => d.data());
+      : await getDoc(doc(collection(doc(collection(db, "ciudades"), dane_ciudad), "estadisticasEntrega"), transportadora))
+      .then((d) => d.data());
 
   if (!estadistica) return;
 
@@ -1349,13 +1341,8 @@ async function fetchEstadisticas(dane_ciudad, transportadora) {
   const estadistica =
     transportadoraMayus === "ENVIA"
       ? await estEnvia(dane_ciudad)
-      : await db
-          .collection("ciudades")
-          .doc(dane_ciudad)
-          .collection("estadisticasEntrega")
-          .doc(transportadoraMayus)
-          .get()
-          .then((d) => d.data());
+      : await getDoc(doc(collection(doc(collection(db, "ciudades"), dane_ciudad), "estadisticasEntrega"), transportadoraMayus))
+      .then((d) => d.data());
 
   if (!estadistica) return;
 
@@ -2875,20 +2862,17 @@ async function buscarUsuario(e) {
   };
 
   presentacion.html("");
-  const usuario = await db
-    .collection("usuarios")
-    .where("numero_documento", "==", inp.val())
-    .get()
-    .then((q) => {
-      if (q.size) {
-        const d = q.docs[0];
-        const data = d.data();
-        data.id = d.id;
-        return data;
-      }
+  const usuario = await getDocs(query(collection(db, "usuarios"), where("numero_documento", "==", inp.val())))
+  .then((q) => {
+    if (q.size) {
+      const d = q.docs[0];
+      const data = d.data();
+      data.id = d.id;
+      return data;
+    }
 
-      return null;
-    });
+    return null;
+  });
 
   if (!usuario) return presentacion.html("<p>Usuario no encontrado</p>");
 
@@ -4306,7 +4290,7 @@ async function buscarGuiasConErrores() {
 }
 
 async function pruebaGeneracionGuias(idGuiaError) {
-  const reference = db.collection("errores").doc(idGuiaError);
+  const reference = doc(collection(db, "errores"), idGuiaError);
   const guia = await reference.get().then((d) => d.data());
   if (!guia) {
     console.error("No se encontró alguna guía allí");
@@ -4319,7 +4303,7 @@ async function pruebaGeneracionGuias(idGuiaError) {
     bodega = guia.datos_usuario.bodegas.find((b) => b.codigo_sucursal_inter);
   }
 
-  const referencia = db.collection("pruebaDirigidaGuias").doc(datos.id_heka);
+  const referencia = doc(collection(db, "pruebaDirigidaGuias"), datos.id_heka);
 
   const creacion = await crearGuiaTransportadora(datos, referencia);
 
@@ -4505,12 +4489,10 @@ async function enviar_firestore(datos) {
 
 async function descontarSaldo(datos) {
   const datos_heka =
-    datos_personalizados ||
-    (await db
-      .collection("usuarios")
-      .doc(localStorage.user_id)
-      .get()
-      .then((doc) => doc.data().datos_personalizados));
+  datos_personalizados ||
+  (await getDoc(doc(db, "usuarios", localStorage.user_id)).then((doc) =>
+    doc.data().datos_personalizados
+  ));
 
   const id = datos.id_heka;
   console.log(datos.debe);

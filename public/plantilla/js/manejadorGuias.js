@@ -1425,7 +1425,7 @@ export function cargarDocumentos(filter) {
     });
 }
 
-function cambiarRelevanciaDeDocumento(e) {
+export function cambiarRelevanciaDeDocumento(e) {
   const idDoc = e.target.getAttribute("data-id");
   let important = e.target.getAttribute("data-important");
   important = important === "true" ? true : false;
@@ -1450,7 +1450,7 @@ function cambiarRelevanciaDeDocumento(e) {
       $(this).removeClass("fa-eye-slash");
       $(this).attr("data-important", true);
     }
-    db.collection("documentos").doc(idDoc).update({ important: !important });
+    updateDoc(doc(db, "documentos", idDoc), { important: !important });
   });
 }
 
