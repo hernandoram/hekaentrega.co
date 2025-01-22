@@ -414,6 +414,10 @@ class Empaquetado {
             const comision_heka = guia[camposExcel.comision_heka];
             const envioTotal = guia[camposExcel.envio_total];
             guia[camposExcel.comision_transp] = envioTotal - comision_heka;
+            guia[camposExcel.cuatro_x_mil_banc] = 0;
+            guia[camposExcel.cuatro_x_mil_transp] = 0;
+            guia[camposExcel.iva] = 0;
+            guia[camposExcel.comision_natural_heka] = 0;
 
             if(comision_heka !== 0) {
                 // Extraemos el 4 X Mil por parte del banco
@@ -423,8 +427,6 @@ class Empaquetado {
                 // Extraemos el 4 por mil transportadora de
                 if(guia[camposExcel.transportadora] === "INTERRAPIDISIMO") {
                     guia[camposExcel.cuatro_x_mil_transp] = cuatroPorMil(valorRecaudo);
-                } else {
-                    guia[camposExcel.cuatro_x_mil_transp] = 0;
                 }
 
                 // Sacamos la columna del IVA generándolo siendo la "comision_heka" el valor total (con IVA incluido)
