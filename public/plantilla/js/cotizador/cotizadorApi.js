@@ -219,7 +219,7 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
               <div class="card-body">
                 <h5 class="card-title">Costo Transportadora</h5>
                 <p class="card-text d-flex justify-content-between">Valor flete <b>$${convertirMiles(
-                  r.flete
+                  r.visual_flete
                 )}</b></p>
                 <p class="card-text d-flex justify-content-between">Comisión transportadora <b>$${convertirMiles(
                   r.transport_commission
@@ -234,7 +234,7 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
               <div class="card-body">
                 <h5 class="card-title">Costo Heka entrega</h5>
                 <p class="card-text d-flex justify-content-between">Comisión heka <b>$${convertirMiles(
-                  r.heka_commission
+                  r.visual_heka_commission
                 )}</b></p>
               </div>
             </div>
@@ -294,86 +294,5 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
       el.addEventListener("click", seleccionarTransportadora);
     });
 }
-
-const exampleData = [
-  {
-    entity: "servientrega",
-    deliveryTime: "1-2",
-    declared_value: 25000,
-    flete: 13000,
-    value_deposited: 6925,
-    transport_commission: 3000,
-    heka_commission: 2075,
-    transport_collection: 25000,
-    onlyToAddress: false,
-    assured: 0,
-    annotations:
-      "El costo se calcula desde 3 kg para ofrecerte la mejor tarifa posible",
-    total: 18075,
-    version: "1",
-    costReturnHeka: 50000,
-    costReturn: 0,
-    additional_commission: 0,
-    commissionPoint: 0,
-  },
-  {
-    entity: "interrapidisimo",
-    deliveryTime: "3",
-    declared_value: 25000,
-    flete: 11150,
-    value_deposited: 33900,
-    transport_commission: 1500,
-    heka_commission: 2450,
-    transport_collection: 50000,
-    onlyToAddress: false,
-    assured: 1000,
-    annotations: "",
-    total: 16100,
-    version: "1",
-    costReturnHeka: 50000,
-    costReturn: 0,
-    additional_commission: 0,
-    commissionPoint: 0,
-  },
-  {
-    entity: "envia",
-    deliveryTime: 1,
-    declared_value: 25000,
-    flete: 12700,
-    value_deposited: 5475,
-    transport_commission: 2500,
-    heka_commission: 2075,
-    transport_collection: 25000,
-    onlyToAddress: true,
-    assured: 2250,
-    annotations: "",
-    total: 19525,
-    version: "1",
-    costReturnHeka: 50000,
-    costReturn: 0,
-    additional_commission: 0,
-    commissionPoint: 0,
-  },
-  {
-    entity: "coordinadora",
-    deliveryTime: "2",
-    declared_value: 25000,
-    flete: 11650,
-    value_deposited: 80315,
-    transport_commission: 4300,
-    heka_commission: 3200,
-    transport_collection: 100000,
-    onlyToAddress: true,
-    assured: 535,
-    annotations: "",
-    total: 19685,
-    version: "1",
-    costReturnHeka: 50000,
-    costReturn: 0,
-    additional_commission: 0,
-    commissionPoint: 0,
-  },
-];
-
 
 export { cotizadorApi, cotizarApi }

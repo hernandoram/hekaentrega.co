@@ -1662,7 +1662,7 @@
             </div>
             <ul id="resultado-actualizador" class="mt-2"></ul>
           </div>
-
+          
           <div class="container-fluid" id="novedades" style="display: none;">
             <div class="card mt-1">
               <div class="card-body">
@@ -2255,6 +2255,38 @@
               </div>
             </div>
             <div id="visor-deudas"></div>
+          </div>
+
+          
+          <div class="container-fluid" id="pagos_transportadoras" style="display: none;">
+            <div class="card mt-5">
+              <div class="card-body">
+                <h5>Gestor de pagos de transportadora</h5>
+                <form enctype="multipart/form-data" id="form-pagos_transportadoras">
+                  <select class="custom-select" id="transportadora-pagos_transportadoras" name="transportadora">
+                    <option selected>-- Transportadora --</option>
+                    <option value="SERVIENTREGA">Servientrega</option>
+                    <option value="ENVIA">Envía</option>
+                    <option value="INTERRAPIDISIMO">Interrapidísimo</option>
+                    <option value="COORDINADORA">Coordinadora</option>
+                  </select>
+
+                  <div class="form-group">
+                    <div class="custom-file mt-2">
+                      <input type="file" class="custom-file-input" id="cargar-pagos_transportadoras" accept=".xlsx,.xls"
+                        name="documento" lang="es">
+                      <label class="custom-file-label" for="cargar-pagos_transportadoras">Seleccionar Archivo</label>
+                    </div>
+
+                    <button type="submit" id="btn_actualizador-pagos_transportadoras" class="btn btn-primary mt-4 col-12">Actualizar</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div id="resultado-pagos_transportadoras" class="table-responsive mt-2">
+              <table id="tabla-pagos_transportadoras" class="table table-bordered" width="100%"></table>
+            </div>
           </div>
 
           <div class="container-fluid" id="movimientos" style="display: none;">

@@ -69,5 +69,11 @@ export async function cantidadFacturasencontradas(key, value) {
         query(collection(db, "paquetePagos"), where(key, "==", value))
       ).then((querySnapshot) => {
         return querySnapshot.size;
-      });
+    });
+}
+
+export async function obtenerInformacionPago(numeroGuia, transportadora) {
+    return db.collection("pagos").doc(transportadora.toUpperCase())
+    .collection("pagos").doc(numeroGuia.toString()).get()
+    .then(d => d.exists ? d.data() : null);
 }
