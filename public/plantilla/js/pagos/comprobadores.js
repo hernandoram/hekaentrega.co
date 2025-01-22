@@ -1,4 +1,12 @@
-import { db } from "/js/config/initializeFirebase.js";
+import {
+    db,
+    doc,
+    collection,
+    getDoc,
+    getDocs,
+    where,
+    query,
+  } from "/js/config/initializeFirebase.js";
 
 /**
  * La función `comprobarGuiaPagada` comprueba si se ha pagado un determinado número de guía para un
@@ -11,8 +19,12 @@ export async function comprobarGuiaPagada(objToSend) {
     const transportadora = objToSend["TRANSPORTADORA"];
     const numeroGuia = objToSend["GUIA"];
     
-    const guiaPaga = await db.collection("pagos").doc(transportadora.toUpperCase())
-    .collection("pagos").doc(numeroGuia.toString()).get();
+    const guiaPaga = await getDoc(
+        doc(
+          collection(doc(collection(db, "pagos"), transportadora.toUpperCase()), "pagos"),
+          numeroGuia.toString()
+        )
+      );
 
     if(guiaPaga.exists) {
         return true;
@@ -27,12 +39,11 @@ export async function comprobarGuiaPagada(objToSend) {
  * @returns {Promise<number>} la cantidad de usuarios registrados bajo el centro de costo indicado
  */
 export async function cantidadDeUsuariosPorCentroDeCosto(centro_de_costo) {
-    return await db.collection("usuarios")
-    .where("centro_de_costo", "==", centro_de_costo)
-    .get()
-    .then(querySnapshot => {
+    return await getDocs(
+        query(collection(db, "usuarios"), where("centro_de_costo", "==", centro_de_costo))
+      ).then((querySnapshot) => {
         return querySnapshot.size;
-    });
+      });
 }
 
 /**
@@ -54,10 +65,9 @@ export async function guiaExiste(guia) {
 }
 
 export async function cantidadFacturasencontradas(key, value) {
-    return await db.collection("paquetePagos")
-    .where(key, "==", value)
-    .get()
-    .then(querySnapshot => {
+    return await getDocs(
+        query(collection(db, "paquetePagos"), where(key, "==", value))
+      ).then((querySnapshot) => {
         return querySnapshot.size;
-    });
+      });
 }

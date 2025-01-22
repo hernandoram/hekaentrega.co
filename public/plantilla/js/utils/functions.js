@@ -1,3 +1,9 @@
+import {
+    db,
+    collection,
+    addDoc
+  } from "/js/config/initializeFirebase.js";
+
 //Utilizada para cambiar el contenido de un botón mientras se carga la información
 export class ChangeElementContenWhileLoading {
     //Recibe el elemento que normalmente se desea deshabilitar
@@ -306,7 +312,7 @@ export async function enviarNotificacion(options) {
 
     console.log(notificacion);
 
-    return await firebase.firestore().collection("notificaciones").add(notificacion)
+    return await addDoc(collection(db, "notificaciones"), notificacion);
 };
 
 export const segmentarArreglo = (arr, rango) => {

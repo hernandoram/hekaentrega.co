@@ -4,6 +4,12 @@ import { cantidadDeUsuariosPorCentroDeCosto, comprobarGuiaPagada } from "./compr
 import { ChangeElementContenWhileLoading, segmentarArreglo } from "../utils/functions.js";
 import { empaquetarGuias } from "./pagar.js";
 import { activarFunctionesFacturas } from "./facturacion.js";
+import {
+  db,
+  collection,
+  doc,
+  getDoc,
+} from "/js/config/initializeFirebase.js";
 
 
 /*
@@ -305,8 +311,7 @@ async function cargarPagosDirectos(e) {
 
   if(filtroCentroDeCosto) {
     if(!filtroPagos) {
-      filtroPagos = await db.collection("infoHeka").doc("manejoUsuarios")
-      .get().then(d => d.data());
+      filtroPagos = await getDoc(doc(db, "infoHeka", "manejoUsuarios")).then((d) => d.data());
     }
 
     filtroPagoSeleccionado = filtroPagos[filtroCentroDeCosto];

@@ -2,6 +2,11 @@ import { v0 } from "../config/api.js";
 import AnotacionesPagos from "../pagos/AnotacionesPagos.js";
 import { estadoGeneracion, estadosRecepcion } from "./constantes.js";
 import { bodegasEl, diceContenerEl, oficinaDestinoEl, recoleccionEl } from "./views.js";
+import {
+    db,
+    updateDoc,
+    doc
+  } from "/js/config/initializeFirebase.js";
 
 const contenedorAnotaciones = $("#anotaciones-flexii_guia");
 
@@ -109,13 +114,12 @@ async function actualizarEstadosEnvio(idHekaCreado, arrEnvios) {
 }
 
 async function empacarGuiaPedido(idEnvio, idHekaCreado) {
-    return await db.collection("envios").doc(idEnvio)
-    .update({
-        id_agrupacion_guia: idHekaCreado, 
-        estado_recepcion: estadosRecepcion.empacado
-    })
-    .then(r => ({error: false, message: "Envío actualizado correctamente"}))
-    .catch(e => ({error: true, message: e.message}));
+    return await updateDoc(doc(db, "envios", idEnvio), {
+        id_agrupacion_guia: idHekaCreado,
+        estado_recepcion: estadosRecepcion.empacado,
+      })
+        .then((r) => ({ error: false, message: "Envío actualizado correctamente" }))
+        .catch((e) => ({ error: true, message: e.message }));
 }
 
 export const dataValueSelectedFromInput = getDataSelectedfromInput;

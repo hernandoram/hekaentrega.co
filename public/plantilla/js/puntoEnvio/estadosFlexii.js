@@ -6,6 +6,14 @@ import { idScannerEstados } from "./constantes.js";
 import { actualizarEstadoEnvioHeka } from "./crearPedido.js";
 import TablaEnvios from "./tablaEnvios.js";
 import { formActualizarEstado } from "./views.js";
+import {
+    db,
+    collection,
+    doc,
+    getDocs,
+    where,
+    query
+  } from "/js/config/initializeFirebase.js";
 
 const principalId = idScannerEstados;
 const principalHash = "#" + principalId;
@@ -80,9 +88,9 @@ async function activadorPrincipal(e) {
 
         let id = inputValue;
         if(inputValue.length < 12) { // Significa que probablemente la información insertada fue un número de guía y no el id del envío
-            const idEncontrado = await db.collection("envios")
-            .where("numeroGuia", "==", inputValue)
-            .get().then(q => q.size ? q.docs[0].id : null);
+            const idEncontrado = await getDocs(
+                query(collection(db, "envios"), where("numeroGuia", "==", inputValue))
+              ).then((q) => (q.size ? q.docs[0].id : null));
 
             console.log("idEncontrado: ", idEncontrado);
 
@@ -152,7 +160,7 @@ async function encolarEnvioParaActualizacionEstado(id_envio) {
         text: "Procesando información, por favor espere."
     });
     
-    const ref = db.collection("envios").doc(id_envio);
+    const ref = doc(db, "envios", id_envio);
 
     const envio = await ref.get().then(d => {
         if(!d.exists) return null;
@@ -210,7 +218,8 @@ function abrirModalActuaizarEstado() {
 
 let listaEstadosHeka = [];
 async function opccionesFormularioEstados(form) {
-    const referenciaEstados = db.collection("infoHeka").doc("novedadesMensajeria");
+    
+const referenciaEstados = doc(db, "infoHeka", "novedadesMensajeria");
 
     if(!listaEstadosHeka.length) {
         const { lista } = await referenciaEstados.get().then((d) => {

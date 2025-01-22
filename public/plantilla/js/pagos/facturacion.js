@@ -1,7 +1,15 @@
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 import AnotacionesPagos from "./AnotacionesPagos.js";
 import { cantidadFacturasencontradas } from "./comprobadores.js";
-import { db, collection } from "/js/config/initializeFirebase.js";
+import {
+    db,
+    doc,
+    collection,
+    getDoc,
+    getDocs,
+    where,
+    query,
+  } from "/js/config/initializeFirebase.js";
 
 const modulo = "pagos_facturacion";
 const cambiadorFiltro = $("#tipo_filt-" + modulo);
@@ -478,12 +486,12 @@ async function descargarInformeFacturas(e) {
     let fechaI = new Date($("#filtro-fechaI").val()).setHours(0) + 8.64e7,
       fechaF = new Date($("#filtro-fechaF").val()).setHours(0) + 2 * 8.64e7;
   
-    const referencia = firebase
-      .firestore()
-      .collection("paquetePagos")
-      .orderBy("timeline")
-      .startAt(fechaI)
-      .endAt(fechaF);
+      const referencia = query(
+        collection(db, "paquetePagos"),
+        orderBy("timeline"),
+        startAt(fechaI),
+        endAt(fechaF)
+      );
   
     const facturas = await obtenerDataFacturasAdmin();
     
@@ -508,15 +516,13 @@ async function descargarInformeFacturas(e) {
     .map(async (f) => {
       const id_user = f.id_user;
       if (!usuarioCargados.has(id_user)) {
-        const respuestaUsuario = await db
-          .collection("usuarios")
-          .doc(id_user)
-          .get()
-          .then((d) => (d ? d.data() : null));
-  
+        const respuestaUsuario = await getDoc(doc(db, "usuarios", id_user)).then((d) =>
+          d.exists() ? d.data() : null
+        );
+      
         usuarioCargados.set(id_user, respuestaUsuario);
       }
-  
+      
       const info_usuario = usuarioCargados.get(id_user);
       let identificacion, nombre_completo;
       if (info_usuario) {
@@ -557,29 +563,25 @@ async function cargarInfoPagoPorGuia(guiaRefrencia) {
     while(transportadoras.length && !data) {
         const transp = transportadoras.shift()
 
-        data = await db.collection("pagos")
-        .doc(transp).collection("pagos")
-        .doc(guiaRefrencia)
-        .get()
-        .then(doc => doc.exists ? doc.data() : null);
+        data = await getDoc(doc(db, "pagos", transp, "pagos", guiaRefrencia)).then((doc) =>
+            doc.exists() ? doc.data() : null
+          );
 
     }
 
     return data;
 }
 
-async function cargarInfoPagoPorIdRelacionado(idPaquetePago) {
+export async function cargarInfoPagoPorIdRelacionado(idPaquetePago) {
     const pagosRealizados = [];
     for (let transp of transportadoras) {
-        data = await db.collection("pagos")
-        .doc(transp).collection("pagos")
-        .where("idPaquetePago", "==", idPaquetePago)
-        .get()
-        .then(q => {
-            q.forEach(d => {
-                pagosRealizados.push(d.data());
-            })
-        });
+        data = await getDocs(
+            query(collection(db, "pagos", transp, "pagos"), where("idPaquetePago", "==", idPaquetePago))
+          ).then((q) => {
+            q.forEach((d) => {
+              pagosRealizados.push(d.data());
+            });
+          });
 
     }
 
