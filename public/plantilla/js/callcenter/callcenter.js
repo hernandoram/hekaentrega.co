@@ -89,10 +89,7 @@ async function DescargarInformeCallcenter() {
   await results.forEach(async (date, i) => {
     const id = Date.parse(date.replace(/\-/g, "/"));
     // Obtenemos la referencia del doc en Firebase
-    let docRef = firebase
-      .firestore()
-      .collection("informesHeka")
-      .doc(id.toString());
+    let docRef = doc(db, "informesHeka", id.toString());
     // Actualizamos el doc en Firebase
     await docRef
       .get()

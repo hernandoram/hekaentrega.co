@@ -3,7 +3,12 @@ import {
   pathCiudadesLista,
   pathEstadisticasCiudad,
 } from "../config/api.js";
-import { db } from "/js/config/initializeFirebase.js";
+import {
+  db,
+  doc,
+  collection,
+  deleteDoc,
+} from "/js/config/initializeFirebase.js";
 import CreateModal from "../utils/modal.js";
 import { estadisticasTempl, transportadoraTempl } from "./views.js";
 
@@ -113,10 +118,10 @@ function renderRestricciones() {
   const mensajenoRestriccion = document.querySelector("#mensaje-noRestriccion");
   const tablaRestricciones = document.querySelector("#tabla-configuraciones");
 
-  const reference = db
-    .collection("ciudades")
-    .doc(ciudadActual.dane_ciudad)
-    .collection("config_ciudad");
+  const reference = collection(
+    doc(db, "ciudades", ciudadActual.dane_ciudad),
+    "config_ciudad"
+  );
 
   reference
     .get()
@@ -162,11 +167,12 @@ function renderRestricciones() {
           button.addEventListener("click", function (event) {
             const id = event.target.getAttribute("data-id");
             console.log(id);
-            db.collection("ciudades")
-              .doc(ciudadActual.dane_ciudad)
-              .collection("config_ciudad")
-              .doc(id)
-              .delete()
+            const docRef = doc(
+              collection(doc(db, "ciudades", ciudadActual.dane_ciudad), "config_ciudad"),
+              id
+            );
+            
+            deleteDoc(docRef)
               .then(() => {
                 swal.fire("Documento eliminado con éxito!");
                 renderRestricciones();
@@ -245,10 +251,10 @@ selectTransportadora.on("change", (e) => {
 });
 
 function agregarRestriccion() {
-  const reference = db
-    .collection("ciudades")
-    .doc(ciudadActual.dane_ciudad)
-    .collection("config_ciudad");
+  const reference = collection(
+    doc(db, "ciudades", ciudadActual.dane_ciudad),
+    "config_ciudad"
+  );
 
   const restriccionV1 = {
     tipoUsuario: tipoUsuarioRestricciones.value,

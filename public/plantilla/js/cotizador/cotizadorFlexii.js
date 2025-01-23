@@ -1,5 +1,11 @@
 import { pathCotizador } from "../config/api.js";
 import { detallesFlexii } from "./views.js";
+import {
+  db,
+  doc,
+  collection,
+  getDocs,
+} from "/js/config/initializeFirebase.js";
 
 //#region COTIZADOR FLEXII
 let datoscoti
@@ -390,17 +396,12 @@ async function transportadoraPorEstadistica(dane_ciudad) {
 }
 
 async function obtenerEstadisticasCiudad(dane_ciudad) {
-  return await db
-  .collection("ciudades")
-  .doc(dane_ciudad)
-  .collection("estadisticasEntrega")
-  .get()
-  .then(q => {
+  return await getDocs(collection(doc(db, "ciudades", dane_ciudad), "estadisticasEntrega"))
+  .then((q) => {
     const result = [];
-    q.forEach(d => result.push(d.data()));
-
+    q.forEach((d) => result.push(d.data()));
     return result;
-  })
+  });
 
 }
 

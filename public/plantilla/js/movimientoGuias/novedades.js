@@ -1,5 +1,9 @@
+import {
+    db,
+    collection,
+} from "/js/config/initializeFirebase.js";
+
 const btnDescargarGestiones = $("#btn_descargar_gest-novedades");
-const db = firebase.firestore();
 
 // revisarNovedades();
 async function revisarNovedades() {
@@ -45,9 +49,8 @@ async function revisarNovedades() {
 }
 
 async function buscarGuia(seller, id_heka) {
-    return db.collection("usuarios").doc(seller)
-    .collection("guias").doc(id_heka)
-    .get().then(d => d.exists ? d.data() : undefined);
+    return getDoc(doc(collection(doc(collection(db, "usuarios"), seller), "guias"), id_heka))
+    .then((d) => (d.exists() ? d.data() : undefined));
 }
 
 function revisarSeguimiento(seguimiento) {
