@@ -1,6 +1,13 @@
 import { db, collection, query, where, getDocs } from "/js/config/initializeFirebase.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 import { inputDoc, oficinaController } from "./control.js";
+import {
+  db,
+  collection,
+  getDocs,
+  where,
+  query,
+} from "/js/config/initializeFirebase.js";
 
 let listaO=[]
 
@@ -31,7 +38,7 @@ export async function cargarOficinas(e) {
 
 
 
-export function descargarInformeOficinasAdm(e) {
+export async function descargarInformeOficinasAdm(e) {
     const datosDescarga = {
       nombres: "Nombres",
       apellidos: "Apellidos",
@@ -74,13 +81,12 @@ export function descargarInformeOficinasAdm(e) {
     const loader = new ChangeElementContenWhileLoading(e.target);
     loader.init();
   
-    db.collection("oficinas")
-    .get().then(querySnapshot => {
+    await getDocs(collection(db, "oficinas")).then((querySnapshot) => {
       const data = [];
-      querySnapshot.forEach(doc => {
+      querySnapshot.forEach((doc) => {
         data.push(transformDatos(doc.data()));
-      })
+      });
       crearExcel(data, "informe Oficinas");
       loader.end();
-    })
+    });
   }

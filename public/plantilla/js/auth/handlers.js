@@ -1,4 +1,13 @@
-import { firestore as db } from "../config/firebase.js";
+/** @format */
+
+import {
+  db,
+  collection,
+  getDocs,
+  where,
+  query,
+} from "/js/config/initializeFirebase.js";
+
 
 function handleAuthErrors(error) {
   const code = error.code;
@@ -64,10 +73,9 @@ function handleAuthErrors(error) {
 }
 
 async function findUser(ingreso) {
-  const user = await db
-    .collection("usuarios")
-    .where("ingreso", "==", ingreso)
-    .get()
+  const user = await getDocs(
+    query(collection(db, "usuarios"), where("ingreso", "==", ingreso))
+  )
     .then((querySnapshot) => {
       let user;
       querySnapshot.forEach((doc) => {

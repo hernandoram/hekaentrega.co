@@ -1,3 +1,5 @@
+/** @format */
+
 import {
   db,
   doc,
@@ -7,7 +9,7 @@ import {
   where,
   deleteDoc,
   updateDoc,
-  addDoc
+  addDoc,
 } from "/js/config/initializeFirebase.js";
 
 export const estadosGuia = {
@@ -24,10 +26,10 @@ export const estadosGuia = {
 };
 
 let novedadesExcelData = [];
-const selectChoiceEstados = document.getElementById("estados_base-novedades") 
+const selectChoiceEstados = document.getElementById("estados_base-novedades")
   ? new Choices("#estados_base-novedades", {
-    removeItemButton: true,
-  })
+      removeItemButton: true,
+    })
   : null;
 
 const dominiosFlexii = ["flexii.co", "www.flexi.co"];
@@ -48,7 +50,6 @@ function hostnameReader() {
   if (brandName) brandName.innerHTML = brandNameContent;
 }
 
-
 function escucha(id, e, funcion) {
   document.getElementById(id).addEventListener(e, funcion);
 }
@@ -60,7 +61,7 @@ function escucha(id, e, funcion) {
 //Muestra en la pantalla lo que el cliente quiere hacer
 export const listaNotificacionesAlerta = [];
 export function mostrar(id) {
-  console.log('entra', id)
+  console.log("entra", id);
   let content = document.getElementById("content").children;
 
   /* if (id === 'usuarios') {
@@ -939,16 +940,15 @@ function activarBotonesDeGuias(id, data, activate_once) {
   if (activate_once) {
     $("#restaurar_guia" + id).on("click", async function (a) {
       console.log(data);
-      usuarioAltDoc(data.id_user)
-        .collection("guias")
-        .doc(id)
-        .update({
-          deleted: false,
-          estadoActual: data.estadoAnterior,
-          seguimiento_finalizado: false,
-          estadoAnterior: data.estadoActual,
-        })
-        .then((res) => {
+      const guiaRef = doc(usuarioAltDoc(data.id_user), "guias", id);
+
+      updateDoc(guiaRef, {
+        deleted: false,
+        estadoActual: data.estadoAnterior,
+        seguimiento_finalizado: false,
+        estadoAnterior: data.estadoActual,
+      })
+        .then(() => {
           avisar(
             "Guia Restaurada",
             "La guia Número " + id + " Ha sido restaurada",
@@ -999,18 +999,16 @@ function activarBotonesDeGuias(id, data, activate_once) {
         $("#enviar-documentos").prop("disabled", true);
         // this.disabled = true;
         // this.display = "none";
-        usuarioAltDoc(data.id_user)
-          .collection("guias")
-          .doc(id)
-          .update({
-            deleted: true,
-            fecha_eliminada: new Date(),
-            estadoActual: estadosGuia.eliminada,
-            seguimiento_finalizado: true,
-            estadoAnterior: data.estadoActual,
-          })
-          .then((res) => {
-            console.log(res);
+        const guiaRef = doc(usuarioAltDoc(data.id_user), "guias", id);
+
+        updateDoc(guiaRef, {
+          deleted: true,
+          fecha_eliminada: new Date(),
+          estadoActual: estadosGuia.eliminada,
+          seguimiento_finalizado: true,
+          estadoAnterior: data.estadoActual,
+        })
+          .then(() => {
             console.log("Document successfully deleted!");
             avisar(
               "Guia Eliminada",
@@ -1038,19 +1036,17 @@ function activarBotonesDeGuias(id, data, activate_once) {
       document.getElementById("contenedor-gestionarNovedad").innerHTML = `
                 <div class="d-flex justify-content-center align-items-center"><h1 class="text-primary">Cargando   </h1><div class="lds-ellipsis"><div></div><div></div><div></div><div></div></div></div>
             `;
-      usuarioAltDoc(data.id_user)
-        .collection("estadoGuias")
-        .doc(id)
-        .get()
-        .then((doc) => {
-          console.log(doc.data());
-          if (doc.exists) {
-            gestionarNovedadModal(doc.data(), data);
-          } else {
-            document.getElementById("contenedor-gestionarNovedad").innerText =
-              "El estado de esta guía aún no ha sido actualizado";
-          }
-        });
+      const estadoGuiaRef = doc(usuarioAltDoc(data.id_user), "estadoGuias", id);
+
+      getDoc(estadoGuiaRef).then((doc) => {
+        console.log(doc.data());
+        if (doc.exists()) {
+          gestionarNovedadModal(doc.data(), data);
+        } else {
+          document.getElementById("contenedor-gestionarNovedad").innerText =
+            "El estado de esta guía aún no ha sido actualizado";
+        }
+      });
     });
 
     //jose
@@ -1106,17 +1102,16 @@ function activarBotonesDeGuias(id, data, activate_once) {
       console.log(motAnulacion);
       if (confirmacion && motAnulacion) {
         $("#enviar-documentos").prop("disabled", true);
-        usuarioAltDoc(data.id_user)
-          .collection("guias")
-          .doc(id)
-          .update({
-            fecha_anulada: new Date(),
-            estadoActual: estadosGuia.anulada,
-            seguimiento_finalizado: true,
-            motivoAnulacion: motAnulacion,
-            estadoAnterior: data.estadoActual,
-          })
-          .then((res) => {
+        const guiaRef = doc(usuarioAltDoc(data.id_user), "guias", id);
+
+        updateDoc(guiaRef, {
+          fecha_anulada: new Date(),
+          estadoActual: estadosGuia.anulada,
+          seguimiento_finalizado: true,
+          motivoAnulacion: motAnulacion,
+          estadoAnterior: data.estadoActual,
+        })
+          .then(() => {
             avisar(
               "Guia Anulada",
               "La guia Número " + id + " Ha sido anulada",
@@ -1125,10 +1120,10 @@ function activarBotonesDeGuias(id, data, activate_once) {
             $("#enviar-documentos").prop("disabled", false);
             // row.remove();
           })
-          .catch((error) => {
+          .catch(() => {
             avisar(
-              "Error al anula",
-              "Hubo un error al anula la guia, intentelo mas tarde",
+              "Error al anular",
+              "Hubo un error al anular la guia, intentelo más tarde",
               "alerta"
             );
             $("#enviar-documentos").prop("disabled", false);
@@ -1156,13 +1151,12 @@ function activarBotonesDeGuias(id, data, activate_once) {
         showConfirmButton: false,
         allowEscapeKey: true,
       });
-      usuarioAltDoc(data.id_user)
-        .collection("guias")
-        .doc(id)
-        .get()
-        .then((doc) => {
+      const guiaRef = doc(usuarioAltDoc(data.id_user), "guias", id);
+
+      getDoc(guiaRef).then((doc) => {
+        if (doc.exists()) {
           const data = doc.data();
-          delete data.id_heka; // Para que se crear una guía diferente con exactamente los mismo datos
+          delete data.id_heka; // Para que se cree una guía diferente con exactamente los mismos datos
 
           enviar_firestore(data).then((res) => {
             if (res.icon === "success") {
@@ -1190,13 +1184,14 @@ function activarBotonesDeGuias(id, data, activate_once) {
               });
             }
           });
-        });
+        }
+      });
     });
 
     $("#descargar_documento" + id).on("click", (e) => {
       const documentosRef = collection(db, "documentos");
       const q = query(documentosRef, where("guias", "array-contains", id));
-    
+
       getDocs(q).then((querySnapshot) => {
         if (!querySnapshot.size) {
           avisar(
@@ -1234,7 +1229,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
       } else {
         const documentosRef = collection(db, "documentos");
         const q = query(documentosRef, where("guias", "array-contains", id));
-    
+
         getDocs(q).then((querySnapshot) => {
           querySnapshot.forEach((doc) => {
             generarRotulo(doc.data().guias, doc.data().id_user);
@@ -1252,7 +1247,7 @@ function activarBotonesDeGuias(id, data, activate_once) {
       } else {
         const documentosRef = collection(db, "documentos");
         const q = query(documentosRef, where("guias", "array-contains", id));
-    
+
         getDocs(q).then((querySnapshot) => {
           querySnapshot.forEach((doc) => {
             generarGuiaFlexii(doc.data().guias);
@@ -1303,57 +1298,56 @@ function crearStickerParticular() {
 }
 
 async function generarSticker(id_user, id_heka) {
-  return await usuarioAltDoc(id_user)
-    .collection("guias")
-    .doc(id_heka)
-    .get()
-    .then(async (doc) => {
-      if (doc.exists) {
-        const data = doc.data();
-        const para_crear = {
-          numeroGuia: data.numeroGuia,
-          id_heka: data.id_heka,
-          id_archivoCargar: data.id_archivoCargar, // paraservientrega (no es tan necesario)
-          prueba: data.prueba,
-          url: data.urlGuia,
-          oficina: data.oficina,
-          type: data.type,
-        };
+  const guiaRef = doc(usuarioAltDoc(id_user), "guias", id_heka);
 
-        let has_sticker;
-
-        if (data.transportadora === "INTERRAPIDISIMO") {
-          has_sticker = await generarStickerGuiaInterrapidisimo(para_crear);
-        } else if (data.transportadora === "SERVIENTREGA") {
-          has_sticker = await guardarStickerGuiaServientrega(para_crear);
-        } else if (data.transportadora === "ENVIA") {
-          has_sticker = await guardarStickerGuiaEnvia(para_crear);
-        } else if (data.transportadora === "COORDINADORA") {
-          has_sticker = await guardarStickerGuiaCoordinadora(para_crear);
-        } else if (data.transportadora === "HEKA") {
-          has_sticker = await guardarStickerGuiaHekaEntrega(para_crear);
-        } else {
-          has_sticker = await guardarStickerGuiaAveo(para_crear);
-        }
-
-        try {
-          if (!has_sticker) throw "No se creó el sticker";
-
-          return await doc.ref.update({ has_sticker }).then(() => {
-            return {
-              icon: "success",
-              text: "Sticker de guía creado exitósamente",
-            };
-          });
-        } catch (e) {
-          console.log(e);
-          return {
-            icon: "error",
-            text: "Lo siento, hubo un error para guardar el sticker",
-          };
-        }
+  return await getDoc(guiaRef).then(async (doc) => {
+    if (doc.exists()) {
+      const data = doc.data();
+      const para_crear = {
+        numeroGuia: data.numeroGuia,
+        id_heka: data.id_heka,
+        id_archivoCargar: data.id_archivoCargar, // para servientrega (no es tan necesario)
+        prueba: data.prueba,
+        url: data.urlGuia,
+        oficina: data.oficina,
+        type: data.type,
+      };
+  
+      let has_sticker;
+  
+      if (data.transportadora === "INTERRAPIDISIMO") {
+        has_sticker = await generarStickerGuiaInterrapidisimo(para_crear);
+      } else if (data.transportadora === "SERVIENTREGA") {
+        has_sticker = await guardarStickerGuiaServientrega(para_crear);
+      } else if (data.transportadora === "ENVIA") {
+        has_sticker = await guardarStickerGuiaEnvia(para_crear);
+      } else if (data.transportadora === "COORDINADORA") {
+        has_sticker = await guardarStickerGuiaCoordinadora(para_crear);
+      } else if (data.transportadora === "HEKA") {
+        has_sticker = await guardarStickerGuiaHekaEntrega(para_crear);
+      } else {
+        has_sticker = await guardarStickerGuiaAveo(para_crear);
       }
-    });
+  
+      try {
+        if (!has_sticker) throw "No se creó el sticker";
+  
+        const docRef = doc(usuarioAltDoc(id_user), "guias", id_heka);
+        return await updateDoc(docRef, { has_sticker }).then(() => {
+          return {
+            icon: "success",
+            text: "Sticker de guía creado exitósamente",
+          };
+        });
+      } catch (e) {
+        console.log(e);
+        return {
+          icon: "error",
+          text: "Lo siento, hubo un error para guardar el sticker",
+        };
+      }
+    }
+  });
 }
 
 function editarGuiaCreada() {
@@ -1409,10 +1403,11 @@ function editarGuiaCreada() {
   m.modal();
 }
 
-function empacarGuia() {
+export async function empacarGuia() {
   const id_heka = this.getAttribute("data-id");
   const empacada = this.checked;
-  usuarioDoc.collection("guias").doc(id_heka).update({ empacada });
+  const guiaRef = doc(usuarioDoc, "guias", id_heka); // Referencia al documento dentro de la subcolección
+  await updateDoc(guiaRef, { empacada }); // Actualiza el campo 'empacada'
 }
 
 export let listaNovedadesEncontradas = [];
@@ -1421,11 +1416,9 @@ async function gestionarNovedad(e) {
   const guia = listaNovedadesEncontradas.find((n) => n.id_heka === id_heka);
   if (!guia) return;
 
-  const novedad = await usuarioAltDoc(guia.id_user)
-    .collection("estadoGuias")
-    .doc(id_heka)
-    .get()
-    .then((d) => (d.exists ? d.data() : {}));
+  const estadoGuiaRef = doc(usuarioAltDoc(guia.id_user), "estadoGuias", id_heka);
+
+  const novedad = await getDoc(estadoGuiaRef).then((d) => (d.exists() ? d.data() : {}));
 
   console.log(novedad);
   gestionarNovedadModal(novedad, guia);
@@ -1437,16 +1430,20 @@ export function owerridelistaNovedadesEncontradas(value) {
 
 async function detallesGrupoGuiasFlexii() {
   let id = this.getAttribute("data-id");
-  const columnas = [{
-    title: "Número Guía",
-    data: "numeroGuia"
-  }, {
-    title: "Remitente",
-    data: "info_origen.nombre_completo"
-  }, {
-    title: "Destinatario",
-    data: "info_destino.nombre_completo"
-  }];
+  const columnas = [
+    {
+      title: "Número Guía",
+      data: "numeroGuia",
+    },
+    {
+      title: "Remitente",
+      data: "info_origen.nombre_completo",
+    },
+    {
+      title: "Destinatario",
+      data: "info_destino.nombre_completo",
+    },
+  ];
 
   const myTable = document.createElement("table");
   myTable.classList.add("table");
@@ -1454,31 +1451,33 @@ async function detallesGrupoGuiasFlexii() {
   myTable.innerHTML = `
     <thead>
       <tr>
-        ${columnas.map(c => `<th>${c.title}</th>`).join("")}
+        ${columnas.map((c) => `<th>${c.title}</th>`).join("")}
       </tr>
     </thead>
     <tbody></tbody>
   `;
 
-
-  await db.collection("envios")
-  .where("id_agrupacion_guia", "==", id)
-  .get()
-  .then(q => {
-    q.forEach(d => {
+  await getDocs(
+    query(collection(db, "envios"), where("id_agrupacion_guia", "==", id))
+  ).then((q) => {
+    q.forEach((d) => {
       const bodyTable = myTable.querySelector("tbody");
       const data = d.data();
       bodyTable.innerHTML = `
         <tr>
-          ${columnas.map(c => `<td>${c.data.split(".").reduce((a,b) => a[b], data)}</td>`).join("")}
+          ${columnas
+            .map(
+              (c) =>
+                `<td>${c.data.split(".").reduce((a, b) => a[b], data)}</td>`
+            )
+            .join("")}
         </tr>
       `;
-    })
+    });
   });
-
   Swal.fire({
     title: "Detalles envíos agrupados",
-    html: myTable.outerHTML
+    html: myTable.outerHTML,
   });
 }
 
@@ -1733,14 +1732,14 @@ export function mostrarNotificacion(data, type, id) {
   button_close.setAttribute("class", "close d-flex align-self-start");
   button_close.innerHTML =
     '<span aria-hidden="true" class="small">&times;</span>';
-    button_close.addEventListener("click", () => {
-      const notificacionRef = doc(db, "notificaciones", id);
-    
-      deleteDoc(notificacionRef).then(() => {
-        avisar("Notificación eliminada", "La notificación ha sido eliminada");
-        console.log("Se ha eliminado una notificación con id: " + id);
-      });
+  button_close.addEventListener("click", () => {
+    const notificacionRef = doc(db, "notificaciones", id);
+
+    deleteDoc(notificacionRef).then(() => {
+      avisar("Notificación eliminada", "La notificación ha sido eliminada");
+      console.log("Se ha eliminado una notificación con id: " + id);
     });
+  });
   info.textContent = data.fecha + (data.hora ? " A las " + data.hora : "");
 
   notificacion.addEventListener("click", (e) => {
@@ -1862,18 +1861,16 @@ export async function mostrarNotificacionAlertaUsuario(noti, id) {
   });
 }
 
-function eliminarNotificacion(id) {
-  db.collection("notificaciones").doc(id).delete();
+export async function eliminarNotificacion(id) {
+  await deleteDoc(doc(db, "notificaciones", id));
 }
 
-function eliminarNotificacionparaUsuario(id) {
+export async function eliminarNotificacionparaUsuario(id) {
   console.log(id);
   const userid = localStorage.getItem("user_id");
-  db.collection("centro_notificaciones")
-    .doc(id)
-    .update({
-      usuarios: firebase.firestore.FieldValue.arrayRemove(userid),
-    });
+  await updateDoc(doc(db, "centro_notificaciones", id), {
+    usuarios: arrayRemove(userid),
+  });
 }
 
 function userClickNotification(data) {
@@ -2036,7 +2033,10 @@ async function restaurarSaldoGuia(trg, data) {
     await actualizarSaldo(detalles_saldo);
 
     if (id_heka) {
-      const guiasQuery = query(collectionGroup(db, "guias"), where("id_heka", "==", id_heka));
+      const guiasQuery = query(
+        collectionGroup(db, "guias"),
+        where("id_heka", "==", id_heka)
+      );
       await getDocs(guiasQuery).then((querySnapshot) => {
         querySnapshot.forEach((docSnapshot) => {
           updateDoc(docSnapshot.ref, { deleted: true });
@@ -2058,20 +2058,31 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
 
   const excelData = { extraData, data };
 
-  const index = novedadesExcelData.findIndex(v => v.extraData.numeroGuia === excelData.extraData.numeroGuia);
+  const index = novedadesExcelData.findIndex(
+    (v) => v.extraData.numeroGuia === excelData.extraData.numeroGuia
+  );
 
-  if(selectChoiceEstados !== null) {
-    const valoresExistentes = selectChoiceEstados._currentState.choices.map(c => c.value);
-    if(!valoresExistentes.includes(data.estadoActual)) {
-      selectChoiceEstados.setChoices([{
-        value: data.estadoActual,
-        label: data.estadoActual
-      }], "value", "label", false)
+  if (selectChoiceEstados !== null) {
+    const valoresExistentes = selectChoiceEstados._currentState.choices.map(
+      (c) => c.value
+    );
+    if (!valoresExistentes.includes(data.estadoActual)) {
+      selectChoiceEstados.setChoices(
+        [
+          {
+            value: data.estadoActual,
+            label: data.estadoActual,
+          },
+        ],
+        "value",
+        "label",
+        false
+      );
     }
   }
 
   // Hacemos esto para que el aglomerado de información, siempre tomemos la información mas reciente
-  if(index === -1) {
+  if (index === -1) {
     novedadesExcelData.push(excelData);
   } else {
     novedadesExcelData[index] = excelData;
@@ -2169,7 +2180,11 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
         <button class="btn btn-${
           extraData.novedad_solucionada ? "secondary" : "success"
         } btn-circle btn-sm m-1" 
-        title="${extraData.novedad_solucionada ? "Novedad solucionada" : "Solucionar novedad"}"
+        title="${
+          extraData.novedad_solucionada
+            ? "Novedad solucionada"
+            : "Solucionar novedad"
+        }"
         id="solucionar-guia-${data.numeroGuia}">
           <i class="fa fa-reply"></i>
         </button>
@@ -2195,18 +2210,16 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
         <div class="mt-2">
           <button class="btn btn-primary btn-circle btn-sm m-1"
           id="actualizar-guia-${data.numeroGuia}" 
-          title="Actualizar guía ${
-            data.numeroGuia
-          }"
+          title="Actualizar guía ${data.numeroGuia}"
           >
             <i class="fa fa-sync"></i>
           </button>
           
           <button id="gestionar-guia-${data.numeroGuia}" 
-          class="btn btn-${extraData.novedad_solucionada ? "secondary" : "primary"} btn-circle btn-sm m-1" 
-          title="Gestionar novedad ${
-            data.numeroGuia
-          }" 
+          class="btn btn-${
+            extraData.novedad_solucionada ? "secondary" : "primary"
+          } btn-circle btn-sm m-1" 
+          title="Gestionar novedad ${data.numeroGuia}" 
           data-toggle="modal" data-target="#modal-gestionarNovedad">
             <i class="fa fa-search"></i>
           </button>
@@ -2355,7 +2368,10 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
                   Cargando...
               `);
 
-      const referenciaGuia = doc(collection(doc(collection(db, "usuarios"), id_user), "guias"), id_heka);
+      const referenciaGuia = doc(
+        collection(doc(collection(db, "usuarios"), id_user), "guias"),
+        id_heka
+      );
 
       let { value: text } = await Swal.fire({
         title: "Respuesta",
@@ -2412,19 +2428,28 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
         }
 
         // Para guardar una nueva estructura de mensaje
-        const infoHekaRef = doc(collection(db, "infoHeka"), "respuestasNovedad");
+        const infoHekaRef = doc(
+          collection(db, "infoHeka"),
+          "respuestasNovedad"
+        );
         updateDoc(infoHekaRef, { respuestas: listaRespuestasNovedad });
-        
+
         // Actualización en referenciaGuia
-        const referenciaGuia = doc(collection(doc(collection(db, "usuarios"), id_user), "guias"), extraData.id_heka);
-        
+        const referenciaGuia = doc(
+          collection(doc(collection(db, "usuarios"), id_user), "guias"),
+          extraData.id_heka
+        );
+
         updateDoc(referenciaGuia, {
           seguimiento: extraData.seguimiento,
           novedad_solucionada: true,
         }).then(() => {
-          const notificacionRef = doc(collection(db, "notificaciones"), id_heka);
+          const notificacionRef = doc(
+            collection(db, "notificaciones"),
+            id_heka
+          );
           deleteDoc(notificacionRef);
-        
+
           enviarNotificacion({
             visible_user: true,
             user_id: id_user,
@@ -2436,7 +2461,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
               text.trim(),
             href: "novedades",
           });
-        
+
           boton_solucion.html("Solucionada");
         });
       } else {
@@ -2445,9 +2470,12 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
         updateDoc(referenciaGuia, {
           novedad_solucionada: true,
         }).then(() => {
-          const notificacionRef = doc(collection(db, "notificaciones"), id_heka);
+          const notificacionRef = doc(
+            collection(db, "notificaciones"),
+            id_heka
+          );
           deleteDoc(notificacionRef);
-        
+
           boton_solucion.html("Solucionada");
           Toast.fire(
             "Guía Gestionada",
@@ -2787,7 +2815,9 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
                         <p>Direccion: <span>${dataG.direccionR}</span></p>
                         <p>Ciudad: <span>${dataG.ciudadR}</span></p>
                         <p>Teléfono: <span>${dataG.celularR}</span></p>
-                        <p>Versión: <span>${dataG.detalles?.versionCotizacion || "N/A"}</span></p>
+                        <p>Versión: <span>${
+                          dataG.detalles?.versionCotizacion || "N/A"
+                        }</span></p>
                     </div>
                     </div>
                 </div>
@@ -2992,51 +3022,53 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
         }
 
         // return;
-        usuarioDoc
-          .collection("guias")
-          .doc(dataG.id_heka)
-          .update({
-            seguimiento: dataG.seguimiento,
-            novedad_solucionada: false,
-          })
+        const guiaRef = doc(usuarioDoc, "guias", dataG.id_heka); // Referencia al documento dentro de la subcolección
+        updateDoc(guiaRef, {
+          seguimiento: dataG.seguimiento,
+          novedad_solucionada: false,
+        })
           .then(() => {
             localStorage.setItem("tiempoguia" + noguia, new Date());
             p.innerText = "Sugerencia enviada exitósamente";
             p.classList.replace("text-danger", "text-success");
-
+        
             btn_solucionar.remove();
             document
               .querySelector("#solucion-novedad-" + dataN.numeroGuia)
               .remove();
-
+        
             let momento = new Date().getTime();
             let hora =
               new Date().getMinutes() < 10
                 ? new Date().getHours() + ":0" + new Date().getMinutes()
                 : new Date().getHours() + ":" + new Date().getMinutes();
-
-                const notificacionRef = doc(collection(db, "notificaciones"), dataG.id_heka);
-
-                setDoc(notificacionRef, {
-                  fecha: genFecha(),
-                  timeline: momento,
-                  mensaje:
-                    datos_usuario.nombre_completo +
-                    " (" +
-                    datos_usuario.centro_de_costo +
-                    ") Sugirió una solución para la guía " +
-                    dataN.numeroGuia,
-                  hora: hora,
-                  guia: dataN.numeroGuia,
-                  id_heka: dataG.id_heka,
-                  type: "novedad",
-                  user_id: user_id,
-                  seguimiento: dataG.seguimiento,
-                  usuario: datos_usuario.centro_de_costo,
-                  visible_admin: true,
-                }).then(() => {
-                  console.log("Notificación creada con éxito.");
-                });
+        
+            const notificacionRef = doc(
+              collection(db, "notificaciones"),
+              dataG.id_heka
+            );
+        
+            setDoc(notificacionRef, {
+              fecha: genFecha(),
+              timeline: momento,
+              mensaje:
+                datos_usuario.nombre_completo +
+                " (" +
+                datos_usuario.centro_de_costo +
+                ") Sugirió una solución para la guía " +
+                dataN.numeroGuia,
+              hora: hora,
+              guia: dataN.numeroGuia,
+              id_heka: dataG.id_heka,
+              type: "novedad",
+              user_id: user_id,
+              seguimiento: dataG.seguimiento,
+              usuario: datos_usuario.centro_de_costo,
+              visible_admin: true,
+            }).then(() => {
+              console.log("Notificación creada con éxito.");
+            });
+        
             btn_solucionar.text("Enviar Solución");
           })
           .catch((e) => {
@@ -3119,10 +3151,13 @@ async function implantarEstadoNuevoAdm(guia, estadosGuia) {
 
   // Actualizamos el estado de la guía
   try {
-    const ref = db.collection("usuarios").doc(id_user);
+    const ref = doc(db, "usuarios", id_user);
 
-    await ref.collection("guias").doc(id_heka).update(actualizarGuia);
-    await ref.collection("estadoGuias").doc(id_heka).update(actualizarEstados);
+    await updateDoc(doc(collection(ref, "guias"), id_heka), actualizarGuia);
+    await updateDoc(
+      doc(collection(ref, "estadoGuias"), id_heka),
+      actualizarEstados
+    );
 
     Toast.fire("Estado generado correctamente", "", "success");
   } catch (e) {
@@ -3130,22 +3165,19 @@ async function implantarEstadoNuevoAdm(guia, estadosGuia) {
   }
 }
 
-function registrarNovedad() {
+export async function registrarNovedad() {
   const novedad = this.getAttribute("data-novedad");
   if (!novedad) return;
   console.log(novedad);
 
-  db.collection("infoHeka")
-    .doc("novedadesRegistradas")
-    .update({
-      SERVIENTREGA: firebase.firestore.FieldValue.arrayUnion(novedad),
-    })
-    .then(() => {
-      Toast.fire({
-        icon: "success",
-        title: "Novedad registrada",
-      });
+  await updateDoc(doc(db, "infoHeka", "novedadesRegistradas"), {
+    SERVIENTREGA: arrayUnion(novedad),
+  }).then(() => {
+    Toast.fire({
+      icon: "success",
+      title: "Novedad registrada",
     });
+  });
 }
 
 function modalNotificacion(list) {
@@ -3329,7 +3361,10 @@ async function actualizarSaldo(data) {
     "datos_personalizados.saldo": data.saldo,
   }).then(() => {
     addDoc(collection(db, "prueba"), data).then((docRef1) => {
-      addDoc(collection(doc(db, "usuarios", data.user_id), "movimientos"), data).then((docRef2) => {
+      addDoc(
+        collection(doc(db, "usuarios", data.user_id), "movimientos"),
+        data
+      ).then((docRef2) => {
         addDoc(collection(doc(db, "usuarios", "22032021"), "movimientos"), {
           id1: docRef1.id,
           id2: docRef2.id,
@@ -3340,26 +3375,25 @@ async function actualizarSaldo(data) {
         });
       });
     });
-  
+
     return data;
   });
 }
 
-function verDetallesGuia() {
+export async function verDetallesGuia() {
   let id = this.getAttribute("data-id");
   const id_user = this.getAttribute("data-id_user");
-  usuarioAltDoc(id_user)
-    .collection("guias")
-    .doc(id)
-    .get()
-    .then(async (doc) => {
+  const guiaRef = doc(usuarioAltDoc(data.id_user), "guias", id);
+
+  await getDoc(guiaRef).then(async (doc) => {
+    if (doc.exists()) {
       let data = doc.data();
-
+  
       console.warn(data);
-
+  
       const oficina = data.datos_oficina;
       data.recogida_oficina = false;
-
+  
       const mostrar_oficina = oficina ? "" : "d-none";
       let html = "<div>";
       let mostrador = [
@@ -3414,15 +3448,15 @@ function verDetallesGuia() {
           "Detalles pedido",
         ],
       ];
-
+  
       let informacionGuia = "<div class='card my-2'>";
       informacionGuia +=
         "<h3 class='card-header'>Datos de guía</h3><div class='card-body row m-0'>";
-
+  
       let informacionDestinatario = "<div class='card my-2'>";
       informacionDestinatario +=
         "<h3 class='card-header'>Datos del destinatario</h3><div class='card-body row m-0'>";
-
+  
       let novedades = [
         "ENTREGAS OFIC  C.O.D. Y/O LPC EMPRESARIO",
         "ENTREGAS OFIC C.O.D. Y/O LPC EMPRESARIO",
@@ -3431,9 +3465,9 @@ function verDetallesGuia() {
         "EMPRESARIO SATELITE ENTREGA EN DOMICILIO",
         "EMPRESARIO SATELITE ENTREGA EN OFICINA",
       ];
-
+  
       let novedadDevolucion = "NO RECLAMO EN OFICINA";
-
+  
       for (let n = 0; n < mostrador[0].length; n++) {
         let v = mostrador[0][n];
         if (
@@ -3444,12 +3478,12 @@ function verDetallesGuia() {
         }
         let info = data[v] || "No registra";
         const titulo = mostrador[1][n];
-
+  
         const isPosibleToBeForOfficeForRecolection =
           data.transportadora === "SERVIENTREGA" &&
           data.id_tipo_entrega === 2 &&
           data.estadoTransportadora === "EN PROCESAMIENTO";
-
+  
         if (v === "recogida_oficina" && isPosibleToBeForOfficeForRecolection) {
           await traerMovimientosGuia(data.numeroGuia).then((movimientos) => {
             console.log(movimientos);
@@ -3473,7 +3507,7 @@ function verDetallesGuia() {
             info = "Oficina";
           }
         }
-
+  
         const element =
           "<p class='col-12 col-sm-6 text-left'>" +
           titulo +
@@ -3488,11 +3522,11 @@ function verDetallesGuia() {
             informacionGuia += element;
         }
       }
-
+  
       informacionGuia += "</div></div>";
       informacionDestinatario += "</div></div>";
       html += informacionDestinatario + informacionGuia;
-
+  
       if (oficina) {
         let informacionOficina = "<div class='card my-2'>";
         informacionOficina +=
@@ -3515,10 +3549,10 @@ function verDetallesGuia() {
             oficina.correo,
           ],
         ];
-
+  
         datos_oficina[0].forEach((titulo, i) => {
           const info = datos_oficina[1][i] || "No registra";
-
+  
           const element =
             "<p class='col-12 col-sm-6 text-left'>" +
             titulo +
@@ -3527,25 +3561,29 @@ function verDetallesGuia() {
             "</b></p>";
           informacionOficina += element;
         });
-
+  
         informacionOficina += "</div></div>";
-
+  
         html += informacionOficina;
       }
-
+  
       html += "</div>";
       Swal.fire({
         title: "Detalles de Guía",
         html,
         width: "80%",
       });
-    });
+    }
+  });
 }
 
 async function traerMovimientosGuia(numeroGuia) {
   const querySnapshot = await getDocs(
     query(
-      collection(doc(collection(db, "usuarios"), localStorage.user_id), "estadoGuias"),
+      collection(
+        doc(collection(db, "usuarios"), localStorage.user_id),
+        "estadoGuias"
+      ),
       where("numeroGuia", "==", numeroGuia)
     )
   );
@@ -3561,68 +3599,55 @@ async function traerMovimientosGuia(numeroGuia) {
 function erroresColaGuias() {
   let id = this.getAttribute("data-id");
   console.log(id);
-  db.collection("colaCreacionGuias")
-    .doc(id)
-    .get()
-    .then((doc) => {
-      let html = "<div>";
+  getDoc(doc(db, "colaCreacionGuias", id)).then((doc) => {
+    let html = "<div>";
 
-      if (doc.exists) {
-        let data = doc.data();
+    if (doc.exists()) {
+      let data = doc.data();
 
-        switch (data.status) {
-          case "ENQUEUE":
-            // cuando la guía se ha pueso en cola
-            let informacionEnqueue = "<div class='m-2'>";
-            informacionEnqueue += `<p>Se ha añadido tu guía a la lista de espera, pronto será procesada.</p>`;
+      switch (data.status) {
+        case "ENQUEUE":
+          let informacionEnqueue = "<div class='m-2'>";
+          informacionEnqueue += `<p>Se ha añadido tu guía a la lista de espera, pronto será procesada.</p>`;
+          informacionEnqueue += "</div></div>";
+          html += informacionEnqueue;
+          break;
 
-            informacionEnqueue += "</div></div>";
-            html += informacionEnqueue;
-            break;
-          case "SUCCESS":
-            // Cuando la creación de guías ha sido generada exitósamente
-            let informacionSuccess = "<div class='m-2'>";
-            informacionSuccess += `<p>La guía se ha creado exitosamente.</p>`;
+        case "SUCCESS":
+          let informacionSuccess = "<div class='m-2'>";
+          informacionSuccess += `<p>La guía se ha creado exitosamente.</p>`;
+          informacionSuccess += "</div></div>";
+          html += informacionSuccess;
+          break;
 
-            informacionSuccess += "</div></div>";
-            html += informacionSuccess;
-            break;
-          case "ERROR":
-            // Cuando la creación de guías ha superado el máximo de reintentos con error
-            let informacionErr = "<div class='m-2'>";
-            informacionErr += `<p class="text-danger ">La guía ha superado el máximo de reintentos asignados, por favor verificar si los datos ingresados son correcos o contactarse con el ÁREA LOGÍSTICO.</p>`;
+        case "ERROR":
+          let informacionErr = "<div class='m-2'>";
+          informacionErr += `<p class="text-danger">La guía ha superado el máximo de reintentos asignados, por favor verificar si los datos ingresados son correctos o contactarse con el ÁREA LOGÍSTICO.</p>`;
+          informacionErr += "</div></div>";
+          html += informacionErr;
+          break;
 
-            informacionErr += "</div></div>";
-            html += informacionErr;
-            break;
+        default:
+          let informacionDefault = "<div class='m-2'>";
+          informacionDefault +=
+            `<p>Se ha añadido tu guía a la lista de espera, por favor comunicarse con ÁREA LOGÍSTICO. ESTADO:</p>` +
+            data.status;
+          informacionDefault += "</div></div>";
+          html += informacionDefault;
+      }
 
-          default:
-            // Estado no controlado
-            let informacionDefaul = "<div class='m-2'>";
-            informacionDefaul +=
-              `<p>Se ha añadido tu guía a la lista de espera, por favor comunicarse con ÁREA LOGÍSTICO. ESTADO:</p>` +
-              data.status;
-
-            informacionDefaul += "</div></div>";
-            html += informacionDefaul;
-        }
-
-        if (data.messages) {
-          // Si tiene mensajes, se muestra una tabla con los mismos
-          const filasErrores = data.messages.map((m, i) => {
-            return `
+      if (data.messages) {
+        const filasErrores = data.messages.map((m, i) => {
+          return `
           <tr>
             <th scope="row">${i + 1}</th>
-            
             <td>${m.message}</td>
             <td>${m.fecha}</td>
+          </tr>`;
+        });
 
-          </tr>
-          `;
-          });
-
-          let informacionErrores = "<div class='my-2 table-responsive'>";
-          informacionErrores += `
+        let informacionErrores = "<div class='my-2 table-responsive'>";
+        informacionErrores += `
         <table class="table" style="min-width: 600px">
           <thead class="thead-light">
             <tr>
@@ -3635,25 +3660,23 @@ function erroresColaGuias() {
             ${filasErrores.join("")}
           </tbody>
         </table>`;
-
-          informacionErrores += "</div></div>";
-          html += informacionErrores;
-        }
-      } else {
-        let informacionSinEstado = "<div class='m-2'>";
-        informacionSinEstado += `<p>Esta guía aun no ha sido procesada.</p>`;
-
-        informacionSinEstado += "</div></div>";
-        html += informacionSinEstado;
+        informacionErrores += "</div></div>";
+        html += informacionErrores;
       }
+    } else {
+      let informacionSinEstado = "<div class='m-2'>";
+      informacionSinEstado += `<p>Esta guía aun no ha sido procesada.</p>`;
+      informacionSinEstado += "</div></div>";
+      html += informacionSinEstado;
+    }
 
-      html += "</div>";
-      Swal.fire({
-        title: "Detalles de Errores de la Guía",
-        html,
-        width: "80%",
-      });
+    html += "</div>";
+    Swal.fire({
+      title: "Detalles de Errores de la Guía",
+      html,
+      width: "80%",
     });
+  });
 }
 
 export function createModal() {

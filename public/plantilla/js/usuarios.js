@@ -12,6 +12,8 @@ import {
   collectionGroup,
   startAt,
   endAt,
+  updateDoc,
+  addDoc
 } from "/js/config/initializeFirebase.js";
 import { inHTML } from '/js/main.js';
 import { recursividadPorReferencia } from '/js/manejadorGuias.js';

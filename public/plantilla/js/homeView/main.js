@@ -1,5 +1,15 @@
+/** @format */
+
 // import "https://unpkg.com/swiper@7/swiper-bundle.min.js";
 import CreateModal from "../utils/modal.js";
+import {
+  db,
+  doc,
+  getDoc,
+  setDoc,
+} from "/js/config/initializeFirebase.js";
+
+
 const inicio = () => CarrucelVideos();
 
 const userid = localStorage.getItem("user_id");
@@ -116,10 +126,10 @@ function modalInicial() {
     modalSize: "modal-lg",
   });
 
-   // <img src="./img/notificacionseptiembre.jpeg" style="height: 50vh"/>
-    // <img src="./img/aumentoprecioservi.jpeg" style="height: 50vh"/>
-    // <img src="./img/aumentoprecioservi.jpeg" style="height: 50vh"/>
-    //    <img src="./img/Error-inter.jpg" style="height: 50vh"/>
+  // <img src="./img/notificacionseptiembre.jpeg" style="height: 50vh"/>
+  // <img src="./img/aumentoprecioservi.jpeg" style="height: 50vh"/>
+  // <img src="./img/aumentoprecioservi.jpeg" style="height: 50vh"/>
+  //    <img src="./img/Error-inter.jpg" style="height: 50vh"/>
 
   m.init = `
   <div class="text-center d-flex justify-content-around">
@@ -135,19 +145,14 @@ Mientras se soluciona la creación de guías con Api de Interrapidisimo, <b> uti
     if (encuesta == "true") {
       m.close();
     } else {
-      firebase
-        .firestore()
-        .collection("encuestaCoordi")
-        .doc(userid)
-        .get()
-        .then((doc) => {
-          if (doc.exists) {
-            m.close();
-          } else {
-            m.close();
-           // modalInicial2();
-          }
-        });
+      getDoc(doc(db, "encuestaCoordi", userid)).then((doc) => {
+        if (doc.exists()) {
+          m.close();
+        } else {
+          m.close();
+          // modalInicial2();
+        }
+      });
     }
   };
 }
@@ -231,26 +236,23 @@ function modalInicial2() {
       document.querySelector(".seleccion2").classList.remove("d-none");
     } else {
       console.log(respuesta, respuesta2);
-      firebase
-        .firestore()
-        .collection("encuestaCoordi")
-        .doc(userid)
-        .set({ respuesta, respuesta2 })
-        .then(() => {
+      setDoc(doc(db, "encuestaCoordi", userid), { respuesta, respuesta2 }).then(
+        () => {
           localStorage.setItem("encuesta", true);
           avisar(
             "Gracias por tu respuesta!",
             "Nos ayudas a brindarte un mejor servicio"
           );
           m.close();
-        });
+        }
+      );
     }
   };
 }
 
 function cambiarTema() {
   // Obtiene el elemento :root del documento
-  console.log("hola")
+  console.log("hola");
   var root = document.documentElement;
 
   // Cambia el valor de la variable --primary
@@ -280,9 +282,8 @@ function cambiarTema() {
   navvar.style.setProperty("background-image", "#800080", "important");
 }
 
-  
-if(window.location.href.includes("flexii.co","localhost:6200")){
-    cambiarTema()
-}  
+if (window.location.href.includes("flexii.co", "localhost:6200")) {
+  cambiarTema();
+}
 
 export default inicio;

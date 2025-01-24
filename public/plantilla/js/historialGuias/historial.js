@@ -1012,9 +1012,10 @@ async function empacarMasivo(data, empacar) {
 
   // console.log(lista);
   // return;
-  const enviado = lista.map((g) =>
-    usuarioDoc.collection("guias").doc(g.id_heka).update({ empacada: empacar })
-  );
+  const enviado = lista.map((g) => {
+    const guiaRef = doc(collection(usuarioDoc, "guias"), g.id_heka);
+    return updateDoc(guiaRef, { empacada: empacar });
+  });
 
   await Promise.all(enviado);
   return lista.length;

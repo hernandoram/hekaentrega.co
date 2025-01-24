@@ -5,6 +5,15 @@ import { estadosRecepcion, estadoValidado } from "./constantes.js";
 import { actualizarEstadoEnvioHeka } from "./crearPedido.js";
 import { table as htmlTable, containerQuoterResponse } from "./views.js";
 import {Watcher} from '/js/render.js';
+import {
+  db,
+  collection,
+  doc,
+  getDocs,
+  where,
+  query,
+  updateDoc,
+} from "/js/config/initializeFirebase.js";
 
 
 const columns = [
@@ -224,17 +233,19 @@ export default class TablaEnvios {
   }
 
   async reloadData() {
-    await db.collection("envios")
-    .where("id_punto", "==", user_id)
-    .where("estado_recepcion", "in", this.searchInFilter)
-    .get()
-    .then(q => {
+    await getDocs(
+      query(
+        collection(db, "envios"),
+        where("id_punto", "==", user_id),
+        where("estado_recepcion", "in", this.searchInFilter)
+      )
+    ).then((q) => {
       this.table.clear().draw(false);
       this.guias = [];
-      q.forEach(d => {
+      q.forEach((d) => {
         const data = d.data();
         data.id = d.id;
-        this.guias.push(data); // Primero hacemos el push global, en caso de que halla un filtrado el "this.add" pueda capturarlo
+        this.guias.push(data); // Primero hacemos el push global, en caso de que haya un filtrado el "this.add" pueda capturarlo
         this.add(data);
       });
     });
@@ -354,8 +365,9 @@ async function generarRelacion(e, dt, node, config) {
 
 async function findUserById(id_user) {
   try {
-    const usuario = await firestore.collection("usuarios").doc(id_user)
-    .get().then(d => d.exists ? d.data() : null);
+    const usuario = await getDoc(doc(db, "usuarios", id_user)).then((d) =>
+      d.exists() ? d.data() : null
+    );
 
     return usuario;
   } catch (e) {
@@ -431,9 +443,9 @@ async function validarEnvios(e, dt, node, config) {
 
   const envios = api.rows().data().toArray();
   for (let envio of envios) {
-    await db.collection("envios")
-    .doc(envio.id)
-    .update({estado_recepcion: estadosRecepcion.validado});
+    await updateDoc(doc(db, "envios", envio.id), {
+      estado_recepcion: estadosRecepcion.validado,
+    });
 
     await actualizarEstadoEnvioHeka(envio.id, estadoValidado);
   }

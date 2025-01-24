@@ -16,7 +16,9 @@ import {
   startAfter,
   deleteDoc,
   updateDoc,
-  addDoc 
+  addDoc,
+  writeBatch, 
+  arrayUnion 
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 import { getStorage, ref, listAll, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-analytics.js";  // Importar Analytics
@@ -71,6 +73,7 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth
   const analytics = firebaseService.getAnalytics();
   const auth = firebaseService.getAuth(app);
 
+
  export { 
   db, 
   storage, 
@@ -94,5 +97,7 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth
   startAfter,
   deleteDoc,
   updateDoc,
-  addDoc
+  addDoc,
+  writeBatch,
+  arrayUnion
 };

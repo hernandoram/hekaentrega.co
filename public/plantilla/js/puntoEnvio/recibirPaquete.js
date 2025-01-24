@@ -3,6 +3,14 @@ import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 import { estadoRecibido, estadosRecepcion, idReceptorFlexiiGuia } from "./constantes.js";
 import { actualizarEstadoEnvioHeka } from "./crearPedido.js";
 import TablaEnvios from "./tablaEnvios.js";
+import {
+    db,
+    collection,
+    doc,
+    getDocs,
+    where,
+    query,
+  } from "/js/config/initializeFirebase.js";
 
 const principalId = idReceptorFlexiiGuia;
 const scannerIdentifier = "id";
@@ -81,9 +89,9 @@ async function activadorPrincipal(e) {
 
         let id = inputValue;
         if(inputValue.length < 12) { // Significa que probablemente la información insertada fue un número de guía y no el id del envío
-            const idEncontrado = await db.collection("envios")
-            .where("numeroGuia", "==", inputValue)
-            .get().then(q => q.size ? q.docs[0].id : null);
+            const idEncontrado = await getDocs(
+                query(collection(db, "envios"), where("numeroGuia", "==", inputValue))
+              ).then((q) => (q.size ? q.docs[0].id : null));
 
             console.log("idEncontrado: ", idEncontrado);
 
@@ -150,7 +158,7 @@ async function leerImagenQr(e) {
 }
 
 async function capturarEnvio(id_envio) {
-    const ref = db.collection("envios").doc(id_envio);
+    const ref = doc(db, "envios", id_envio);
 
     const envio = await ref.get().then(d => d.exists ? d.data() : false);
 

@@ -76,9 +76,8 @@ function renderOptionsSelectize(element, options) {
 }
 
 async function obtenerUsuariosFrecuentes(daneCiudad) {
-    const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
-        "plantillasUsuariosFrecuentes"
-    );
+    const referenciaUsuariosFrecuentes = collection(usuarioAltDoc(), "plantillasUsuariosFrecuentes");
+
     
     const opciones = [];
     
