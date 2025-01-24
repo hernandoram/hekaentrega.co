@@ -111,21 +111,23 @@ async function agregarNuevaBodega(form) {
     bodegas ? bodegas.push(newcity) 
     : bodegas = new Array(newcity);
 
-    const ready = await usuarioDoc.update({bodegas})
-    .then(async () => {
+    const usuarioRef = usuarioDoc; 
+
+    const ready = await updateDoc(usuarioRef, { bodegas })
+      .then(async () => {
         // datos_usuario.bodegas = bodegas;
         await notificarNuevaCiudad(newcity);
         return {
-            icon: "success",
-            text: "Se ha agregado una nueva bodega."
-        }
-    })
-    .catch(() => {
+          icon: "success",
+          text: "Se ha agregado una nueva bodega.",
+        };
+      })
+      .catch(() => {
         return {
-            icon: "error",
-            text: "No se ha podido agregar la ciudad, por favor intente nuevamente."
-        }
-    });
+          icon: "error",
+          text: "No se ha podido agregar la ciudad, por favor intente nuevamente.",
+        };
+      });
 
     Toast.fire(ready);
     

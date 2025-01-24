@@ -1,10 +1,21 @@
+/** @format */
+
 import {
   ChangeElementContenWhileLoading,
   verificador,
   DetectorErroresInput,
 } from "../utils/functions.js";
 import { handleAuthErrors, findUser } from "./handlers.js";
-import { auth, firestore as db } from "../config/firebase.js";
+import {
+  db,
+  collection,
+  getDocs,
+  where,
+  query,
+  doc,
+  setDoc,
+  addDoc,
+} from "/js/config/initializeFirebase.js";
 
 import Stepper from "../utils/stepper.js";
 
@@ -129,7 +140,7 @@ async function registrarNuevoUsuario(toSend, data, noSearch) {
 
   if (newUser.error) throw new Error(newUser.message);
 
-  if   (data.referidoDe) {
+  if (data.referidoDe) {
     let datosReferido = {
       sellerReferido: data.centro_de_costo,
       sellerReferente: data.referidoDe,
@@ -137,26 +148,24 @@ async function registrarNuevoUsuario(toSend, data, noSearch) {
       celularReferido: data.celular,
       cantidadEnvios: 0,
     };
-    firebase
-      .firestore()
-      .collection("referidos")
-      .doc(data.centro_de_costo)
-      .set(datosReferido)
-      .then(() => {
+    setDoc(doc(db, "referidos", data.centro_de_costo), datosReferido).then(
+      () => {
         console.log("Referido agregado");
-      });
+      }
+    );
   }
 
   await auth.currentUser.sendEmailVerification();
 
   if (toSend === "oficinas") {
-    await db.collection(toSend).doc(newUser.uid).set(data);
-    location.href = "#";
+    await setDoc(doc(db, toSend, newUser.uid), data).then(() => {
+      location.href = "#";
+    });
   } else {
     data.ingreso = newUser.uid;
-    await db.collection(toSend).add(data);
-
-    if (!noSearch) await findUser(newUser.uid);
+    await addDoc(collection(db, toSend), data).then(async () => {
+      if (!noSearch) await findUser(newUser.uid);
+    });
   }
 }
 
@@ -170,23 +179,19 @@ async function createUserWithEmailAndPassword(email, password) {
 }
 
 async function verificarExistencia(coll, cod_empresa) {
-  return await db
-    .collection(coll)
-    .where("cod_empresa", "==", cod_empresa)
-    .get()
-    .then((querySnapshot) => {
-      return querySnapshot.size;
-    });
+  return await getDocs(
+    query(collection(db, coll), where("cod_empresa", "==", cod_empresa))
+  ).then((querySnapshot) => {
+    return querySnapshot.size;
+  });
 }
 
 async function numeroDocumentoRepetido(coll, cod_empresa) {
-  return await db
-    .collection(coll)
-    .where("numero_documento", "==", cod_empresa)
-    .get()
-    .then((querySnapshot) => {
-      return querySnapshot.size;
-    });
+  return await getDocs(
+    query(collection(db, coll), where("numero_documento", "==", cod_empresa))
+  ).then((querySnapshot) => {
+    return querySnapshot.size;
+  });
 }
 
 function datosRegistroUsuario(formData) {

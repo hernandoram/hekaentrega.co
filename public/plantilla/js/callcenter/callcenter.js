@@ -1,3 +1,22 @@
+/** @format */
+
+import {
+  db,
+  doc,
+  collection,
+  deleteDoc,
+  getDoc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  where,
+  query,
+  collectionGroup,
+  arrayUnion,
+} from "/js/config/initializeFirebase.js";
+
+
+
 // MANEJADOR DE FILTROS
 const choices = new Choices("#activador_busq_callcenter", {
   removeItemButton: true,
@@ -50,26 +69,24 @@ async function GuardarDatosInforme(dataInforme) {
     return false;
   }
   const id = Date.parse(genFecha().replace(/\-/g, "/"));
-  let docRef = firebase
-    .firestore()
-    .collection("informesHeka")
-    .doc(id.toString());
-  docRef.get().then(async (doc) => {
+  let docRef = doc(collection(db, "informesHeka"), id.toString());
+
+  getDoc(docRef).then(async (docSnap) => {
     // SI NO EXISTE EL DOCUMENTO LO CREA
-    if (!doc.exists) {
+    if (!docSnap.exists()) {
       let startData = {
         timedate: id,
         fecha: genFecha(),
         callcenter: [],
       };
-      await docRef.set(startData).then(console.log("se creo correctamente"));
+      await setDoc(docRef, startData).then(() =>
+        console.log("se creo correctamente")
+      );
     }
     // UNA VEZ CREADO SUBE LA DATA DEL MOVIMIENTO PARA POSTERIORMENTE SER USADO DESCARGANDO EL EXCEL
-    await docRef
-      .update({
-        callcenter: firebase.firestore.FieldValue.arrayUnion(dataInforme),
-      })
-      .then(console.log("se actualizo correctamente"));
+    await updateDoc(docRef, {
+      callcenter: arrayUnion(dataInforme),
+    }).then(() => console.log("se actualizo correctamente"));
   });
 }
 
@@ -379,15 +396,11 @@ function consultarGuiaFbCallcenter(
 ) {
   //Cuando Id_user existe, id corresponde a el id_heka, cuando no, corresponde al número de gíia
   if (id_user) {
-    firebase
-      .firestore()
-      .collection("usuarios")
-      .doc(id_user)
-      .collection("guias")
-      .doc(id)
-      .get()
+    const userRef = doc(collection(doc(db, "usuarios", id_user), "guias"), id);
+
+    getDoc(userRef)
       .then((doc) => {
-        if (doc.exists) {
+        if (doc.exists()) {
           tablaCallcenter(data, doc.data(), usuario, id, id_user);
         }
       })
@@ -402,11 +415,12 @@ function consultarGuiaFbCallcenter(
         }
       });
   } else {
-    firebase
-      .firestore()
-      .collectionGroup("guias")
-      .where("numeroGuia", "==", id)
-      .get()
+    const guiasQuery = query(
+      collectionGroup(db, "guias"),
+      where("numeroGuia", "==", id)
+    );
+
+    getDocs(guiasQuery)
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
           let path = doc.ref.path.split("/");
@@ -841,59 +855,53 @@ async function gestionarRespuestaCallCenter(
       listaRespuestasNovedad[mensajePreguardado].cantidad++;
     }
 
-    const referenciaGuia = firebase
-      .firestore()
-      .collection("usuarios")
-      .doc(id_user)
-      .collection("guias")
-      .doc(id_heka);
+    const referenciaGuia = doc(
+      collection(doc(collection(db, "usuarios"), id_user), "guias"),
+      id_heka
+    );
 
     // Para guardar una nueva estructura de mensaje
-    db.collection("infoHeka")
-      .doc("respuestasNovedad")
-      .update({ respuestas: listaRespuestasNovedad });
+    await updateDoc(doc(collection(db, "infoHeka"), "respuestasNovedad"), {
+      respuestas: listaRespuestasNovedad,
+    });
 
-    referenciaGuia
-      .update({
-        seguimiento: extraData.seguimiento,
-        novedad_solucionada: true,
-      })
-      .then(() => {
-        firebase.firestore().collection("notificaciones").doc(id_heka).delete();
+    await updateDoc(referenciaGuia, {
+      seguimiento: extraData.seguimiento,
+      novedad_solucionada: true,
+    }).then(() => {
+      deleteDoc(doc(collection(db, "notificaciones"), id_heka));
 
-        enviarNotificacion({
-          visible_user: true,
-          user_id: id_user,
-          id_heka: extraData.id_heka,
-          mensaje:
-            "Respuesta a Solución de la guía número " +
-            extraData.numeroGuia +
-            ": " +
-            text.trim(),
-          href: "novedades",
-        });
-        console.log("debe entrar a informe");
-        GuardarDatosInforme(dataInforme);
-
-        boton_solucion.html("Solucionada");
+      enviarNotificacion({
+        visible_user: true,
+        user_id: id_user,
+        id_heka: extraData.id_heka,
+        mensaje:
+          "Respuesta a Solución de la guía número " +
+          extraData.numeroGuia +
+          ": " +
+          text.trim(),
+        href: "novedades",
       });
+      console.log("debe entrar a informe");
+      GuardarDatosInforme(dataInforme);
+
+      boton_solucion.html("Solucionada");
+    });
   } else {
     console.log("No se envió mensaje");
     // return
-    referenciaGuia
-      .update({
-        novedad_solucionada: true,
-      })
-      .then(() => {
-        firebase.firestore().collection("notificaciones").doc(id_heka).delete();
-        boton_solucion.html("Solucionada");
-        Toast.fire(
-          "Guía Gestionada",
-          "La guía " +
-            data.numeroGuia +
-            " ha sido actualizada exitósamente como solucionada",
-          "success"
-        );
-      });
+    await updateDoc(referenciaGuia, {
+      novedad_solucionada: true,
+    }).then(() => {
+      deleteDoc(doc(collection(db, "notificaciones"), id_heka));
+      boton_solucion.html("Solucionada");
+      Toast.fire(
+        "Guía Gestionada",
+        "La guía " +
+          data.numeroGuia +
+          " ha sido actualizada exitósamente como solucionada",
+        "success"
+      );
+    });
   }
 }

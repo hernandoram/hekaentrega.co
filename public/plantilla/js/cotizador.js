@@ -490,7 +490,7 @@ async function guardarCotizacion() {
       "Si desear guardar una plantilla es necesario asignarle un nombre"
     );
 
-  const ref = usuarioDoc.collection("plantillasCotizador");
+    const ref = collection(usuarioDoc, "plantillasCotizador");
 
   if (!isEditar) {
     const existente = await ref
@@ -2658,9 +2658,8 @@ function finalizarCotizacion(datos) {
 
   const ciudad = document.getElementById("ciudadDestinoUsuario");
 
-  const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
-    "plantillasUsuariosFrecuentes"
-  );
+  const referenciaUsuariosFrecuentes = collection(usuarioAltDoc(), "plantillasUsuariosFrecuentes");
+
 
   opciones.length = 0;
 
@@ -2818,9 +2817,8 @@ function enviarUsuarioFrecuente(daneCiudadD) {
 
   console.log(opciones);
 
-  const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
-    "plantillasUsuariosFrecuentes"
-  );
+  const referenciaUsuariosFrecuentes = collection(usuarioAltDoc(), "plantillasUsuariosFrecuentes");
+
 
   //si quiero agregar un nuevo usuario frecuente
   if (guardarUsuario.checked && !modificarUser.checked) {
@@ -4326,7 +4324,7 @@ async function crearGuiaTransportadora(datos, referenciaNuevaGuia) {
   const stagingPrevio = datos.estadoActual === estadosGuia.pedido;
   referenciaNuevaGuia =
     referenciaNuevaGuia ||
-    usuarioAltDoc(datos.id_user).collection("guias").doc(datos.id_heka);
+    doc(collection(usuarioAltDoc(datos.id_user), "guias"), datos.id_heka)
 
   if (datos.transportadora === "SERVIENTREGA") {
     generarGuia = generarGuiaServientrega(datos);
