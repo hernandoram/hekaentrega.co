@@ -10,6 +10,7 @@ import {
   collection,
   doc,
   getDoc,
+  collectionGroup
 } from "/js/config/initializeFirebase.js";
 
 
@@ -23,7 +24,6 @@ import {
   - Permite realizar una facturación con "siigo" y almacenarla en el pago correspondiente
 */
 
-import { db, collection, collectionGroup } from "/js/config/initializeFirebase.js";
 // Contantes base de datos
 const referencePagos = collection(db, "pendientePorPagar");
 const refHistGuias = collectionGroup(db, "guias");

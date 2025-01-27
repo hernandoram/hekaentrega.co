@@ -1,6 +1,6 @@
 import { db, collection, query, where, getDocs, doc, getDoc, onSnapshot, orderBy, endAt } from "/js/config/initializeFirebase.js";
-import { Watcher, genFecha, convertirMoneda } from "/js/render.js";
-import { revisarNotificaciones, actualizarHistorialDeDocumentos } from "/js/manejadorGuias.js";
+import { Watcher, genFecha, convertirMoneda, mostrar } from "/js/render.js";
+import { revisarNotificaciones, actualizarHistorialDeDocumentos, historialGuiasAdmin, manejarClickNovedades, revisarMovimientosGuias, revisarDeudas } from "/js/manejadorGuias.js";
 import { convertirMiles, transportadoras } from '/js/cotizador.js';
 
 
@@ -22,6 +22,11 @@ const versionSoftware = "1.0.3: Migrando bodegas! ";
 let objetosFrecuentes;
 window.cerrarSession = cerrarSession;
 window.actualizarHistorialDeDocumentos = actualizarHistorialDeDocumentos;
+window.historialGuiasAdmin = historialGuiasAdmin
+window.manejarClickNovedades = manejarClickNovedades
+window.revisarMovimientosGuias = revisarMovimientosGuias
+window.mostrar = mostrar
+window.revisarDeudas = revisarDeudas
 
 export let listaUsuarios = [];
 

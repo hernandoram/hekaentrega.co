@@ -18,7 +18,8 @@ import {
   updateDoc,
   addDoc,
   writeBatch, 
-  arrayUnion 
+  arrayUnion,
+  setDoc
 } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 import { getStorage, ref, listAll, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-storage.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-analytics.js";  // Importar Analytics
@@ -99,5 +100,6 @@ import { getAuth } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth
   updateDoc,
   addDoc,
   writeBatch,
-  arrayUnion
+  arrayUnion,
+  setDoc
 };

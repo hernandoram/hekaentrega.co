@@ -679,7 +679,7 @@ async function crearGuardarFactura(data) {
 
 }
 
-async function crearFactura(numero_documento, comision_heka, costo_transportadora = null) {
+export async function crearFactura(numero_documento, comision_heka, costo_transportadora = null) {
     return fetch("/siigo/crearFactura", {
         method: "POST",
         headers: {"Content-Type": "Application/json"},
@@ -781,4 +781,3 @@ async function facturacionMasivaAgrupada(e, dt, node, config) {
     l.end();
 }
 
-export { activarFunctionesFacturas, crearFactura }
