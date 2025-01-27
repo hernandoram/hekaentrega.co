@@ -62,7 +62,7 @@ async function validateToken(token) {
 
       console.warn(response);
       if (!response.ok) {
-        // redirectLogin();
+        redirectLogin();
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
