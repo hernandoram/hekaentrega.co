@@ -1,13 +1,7 @@
 import { db, collection, query, where, getDocs } from "/js/config/initializeFirebase.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 import { inputDoc, oficinaController } from "./control.js";
-import {
-  db,
-  collection,
-  getDocs,
-  where,
-  query,
-} from "/js/config/initializeFirebase.js";
+
 
 let listaO=[]
 

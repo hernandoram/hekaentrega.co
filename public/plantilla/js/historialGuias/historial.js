@@ -561,7 +561,7 @@ function agregarFuncionalidadesTablaPedidos() {
   });
 }
 
-function renderizadoDeTablaHistorialGuias(config) {
+export function renderizadoDeTablaHistorialGuias(config) {
   console.warn("renderizando tabla");
   const api = this.api();
   const data = this.api().data();

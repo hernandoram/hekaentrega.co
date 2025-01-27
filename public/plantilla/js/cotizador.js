@@ -239,11 +239,14 @@ export const CONTRAENTREGA = "PAGO DESTINO";
 export const PAGO_CONTRAENTREGA = "PAGO CONTRAENTREGA";
 export const CONVENCIONAL = "CONVENCIONAL";
 
-const isIndex = document
-  .getElementById("cotizar_envio")
-  .getAttribute("data-index");
+const cotizarEnvioElement = document.getElementById("cotizar_envio");
+const isIndex = cotizarEnvioElement ? cotizarEnvioElement.getAttribute("data-index") : null;
 
-function gestionarTransportadora() {
+if (!cotizarEnvioElement) {
+  console.warn("El elemento con id 'cotizar_envio' no existe en el DOM.");
+}
+
+export function gestionarTransportadora() {
   let html = "";
   for (let transp in transportadoras) {
     html += `<button class="btn btn-primary m-2"
@@ -276,12 +279,16 @@ function ocultarCotizador() {
   }
 }
 
-document
-  .getElementById("cotizador")
-  .querySelectorAll("input")
-  .forEach((i) => {
-    i.addEventListener("input", ocultarCotizador);
-  });
+document.addEventListener("DOMContentLoaded", () => {
+  const cotizador = document.getElementById("cotizador");
+  if (cotizador) {
+    cotizador.querySelectorAll("input").forEach((i) => {
+      i.addEventListener("input", ocultarCotizador);
+    });
+  } else {
+    console.warn("El elemento con ID 'cotizador' no existe en el DOM.");
+  }
+});
 
 let ciudadD;
 // Esta funcion verifica que los campos en el form esten llenados correctamente
@@ -5196,13 +5203,31 @@ function observacionesEnvia(result_cotizacion) {
 const popoverDimensiones = document.querySelector(".popover-dimensiones");
 const popoverPeso = document.querySelector(".popover-peso");
 const popoverDeclarado = document.querySelector(".popover-declarado");
-const pesoValorDeclarado = document.querySelector("#Kilos");
+const observer = new MutationObserver((_, observer) => {
+  const pesoValorDeclarado = document.querySelector("#Kilos");
 
-pesoValorDeclarado.addEventListener("change", (event) => {
-  let peso = null;
-  peso = event.target.value;
-  renderValorDeclaradoEnPopover(peso);
+  if (pesoValorDeclarado) {
+    console.log("Elemento #Kilos encontrado por MutationObserver:", pesoValorDeclarado);
+
+    // Añade el event listener al elemento encontrado
+    pesoValorDeclarado.addEventListener("change", (event) => {
+      const peso = event.target.value;
+      renderValorDeclaradoEnPopover(peso);
+    });
+
+    // Detén la observación ya que el elemento ha sido encontrado
+    observer.disconnect();
+  }
 });
+
+// Inicia la observación del DOM
+observer.observe(document.body, {
+  childList: true, // Observa cambios en los nodos hijos
+  subtree: true,   // Observa todos los nodos descendientes
+});
+
+// Mensaje para detectar si el MutationObserver está activo
+console.log("Observando cambios en el DOM para encontrar #Kilos...");
 
 const renderValorDeclaradoEnPopover = (peso) => {
   let valorSer = transportadoras.SERVIENTREGA.limitesValorDeclarado(peso);

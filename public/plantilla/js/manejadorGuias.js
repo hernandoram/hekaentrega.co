@@ -16,6 +16,7 @@ import {
   startAt,
   deleteDoc,
   updateDoc,
+  collectionGroup
 } from "/js/config/initializeFirebase.js";
 import { value, inHTML } from "/js/main.js";
 import {
@@ -4354,12 +4355,15 @@ $("#filter-user-deudas").on("input", function () {
   }
 });
 
-$('[href="#novedades"]').click(() => {
+export function manejarClickNovedades() {
   mostrar("novedades");
   document.querySelectorAll(".icon-notificacion-novedad").forEach((i) => {
     i.classList.add("d-none");
   });
-});
+}
+
+// Usa la función directamente en el evento
+$('[href="#novedades"]').click(manejarClickNovedades);
 
 export function revisarGuiasSaldas() {
   $("#cargador-deudas").children().removeClass("d-none");
@@ -4559,7 +4563,7 @@ export async function historialGuiasAdmin(e) {
   const { lista: listacategorias } = referenciaDoc.exists()
     ? referenciaDoc.data()
     : {};
-  categorias = listacategorias || [];
+  let categorias = listacategorias || [];
 
   const finalId = e.id.split("-")[1];
   let fechaI = document.querySelector("#fechaI-" + finalId).value;
