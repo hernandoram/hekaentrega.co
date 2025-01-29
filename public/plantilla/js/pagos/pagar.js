@@ -847,7 +847,8 @@ class Empaquetado {
                     cuatro_x_mil_transp: cuatro_x_mil_t_tot,
                     iva: iva_tot,
                     comision_natural_heka: comision_natural_heka_tot,
-                    cantidad_pagos: reporteFinal.guiasPagadas
+                    cantidad_pagos: reporteFinal.guiasPagadas,
+                    guiasPagadas: firebase.firestore.FieldValue.arrayUnion(numeroGuia)
                 });
 
                 // 4. Finalmente eliminar la guía  en cargue que ya fue paga
@@ -857,10 +858,9 @@ class Empaquetado {
                 await batch.commit();
 
                 fila.addClass("table-success");
-
+                
                 // Agregar la guía que sea paga.
                 pagoUser.guiasPagadas.push(numeroGuia);
-                
 
             } catch(e) {
                 // Se restablecen los valores previos debido a que hubo error en algún punto de batch

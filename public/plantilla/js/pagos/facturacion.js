@@ -2,12 +2,13 @@ import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 import AnotacionesPagos from "./AnotacionesPagos.js";
 import { cantidadFacturasencontradas } from "./comprobadores.js";
 
+const db = firebase.firestore();
 const modulo = "pagos_facturacion";
 const cambiadorFiltro = $("#tipo_filt-" + modulo);
 const activadorFecha = $("#activador_filtro_fecha-pagos_facturacion");
 const btnHistorialFacturas = $("#btn_historial-pagos_facturacion");
 const btnDescargaFacturas = $("#btn_descarga-pagos_facturacion");
-const principalReference = firebase.firestore().collection("paquetePagos");
+const principalReference = db.collection("paquetePagos");
 const anotacionesErrores = $("#visor_errores-pagos_facturacion");
 function activarFunctionesFacturas() {
     cambiadorFiltro.on("change", cambiarFiltroFacturacion);
@@ -183,10 +184,8 @@ async function revisarFacturacionesAdmin(e) {
 
 function mostrarFacturacionesAdmin(data) {
     dataTable.clear();
-    data.forEach(d => dataTable.row.add(d));
-    console.log(data);
+    dataTable.rows.add(data)
     dataTable.draw();
-
 }
 
 const opcionesAccionesFacturacionAdmin = [
@@ -289,17 +288,20 @@ function analizarRegistros(settings) {
     let totalPagado = 0;
     let totalFacturado = 0;
     let sinNumFactura = 0;
+    let comisionNaturalHeka = 0;
 
     const data = api.data().toArray();
+    const usuarios = data.map(d => d.centro_de_costo).filter((a,i,self) => self.indexOf(a) === i);
 
     let lastNumFact = -1;
     data
     .sort((a,b) => a.num_factura - b.num_factura)
     .forEach(d => {
-        const {num_factura, comision_heka, total_pagado} = d;
+        const {num_factura, comision_heka, total_pagado, comision_natural_heka} = d;
 
         totalPagado += total_pagado;
         totalFacturado += comision_heka;
+        comisionNaturalHeka += comision_natural_heka;
 
         if(lastNumFact > 0) {
             const difference = num_factura - lastNumFact;
@@ -328,12 +330,22 @@ function analizarRegistros(settings) {
 
     anotaciones.push({
         type: "primary",
+        message: `<b>Usuarios totales:</b> ${usuarios.length}`
+    });
+    
+    anotaciones.push({
+        type: "primary",
         message: `<b>Total pagado:</b> $${convertirMiles(totalPagado)}`
     });
     
     anotaciones.push({
         type: "primary",
         message: `<b>Total facturado:</b> $${convertirMiles(totalFacturado)}`
+    });
+    
+    anotaciones.push({
+        type: "primary",
+        message: `<b>Comision Natural Heka:</b> $${convertirMiles(comisionNaturalHeka)}`
     });
     
 
@@ -720,36 +732,32 @@ async function actualizarFactura(dataPack, dataFactura) {
 async function facturacionMasivaAgrupada(e, dt, node, config) {
     const l = new ChangeElementContenWhileLoading(e.target);
     const anotaciones = new AnotacionesPagos(anotacionesErrores);
+    Cargador.fire("Generando Facturas", "", "info");
     anotaciones.init();
     l.init();
 
-    const facturasAgrupadas = new Map();
     
     const dataFacturacion = 
     dt.data()
     .filter(d => d.num_factura === 0) // Solo se vana a facturar aquellas que no hayan sido facturadas aún
 
-    dataFacturacion
-    .each(current => {
-        const {numero_documento} = current;
+    const facturasAgrupadas = agruparPaquetePago(dataFacturacion);
 
-        if(facturasAgrupadas.has(numero_documento)) {
-            const conjuntoFacturacionActual = facturasAgrupadas.get(numero_documento);
-
-            conjuntoFacturacionActual.comision_heka += current.comision_heka;
-            conjuntoFacturacionActual.comision_transportadora += current.comision_transportadora;
-            conjuntoFacturacionActual.total_pagado += current.total_pagado;
-        } else {
-            facturasAgrupadas.set(numero_documento, current);
-        }
-    });
-
-    for (const factura of facturasAgrupadas.values()) {
+    const finalMessage = facturasAgrupadas.length ? "" : "No hubo factura pendiente";
+    let contador = 0, agrupaciones = 0;
+    for (const factura of facturasAgrupadas) {
         // Por acá se generaran las facturas de a una
+        const {ids_agrupacion} = factura;
+        if(ids_agrupacion && ids_agrupacion.length) {
+            const conjuntoAgrupado = dataFacturacion.filter(v => ids_agrupacion.includes(v.id)).toArray();
+            if(conjuntoAgrupado.length) {
+                await guardarAgrupacionPagos(factura, conjuntoAgrupado);
+                agrupaciones++;
+            }
+        }
+
         const {numero_documento, comision_heka, comision_transportadora} = factura;
-
-        const actualizacionConjunto = dataFacturacion.filter(v => v.numero_documento === numero_documento);
-
+        
         const resFact = await crearFactura(numero_documento, comision_heka, comision_transportadora);
 
         if(resFact.error) {
@@ -762,18 +770,117 @@ async function facturacionMasivaAgrupada(e, dt, node, config) {
             continue;
         }
 
-        const actualizacionesFirebase = actualizacionConjunto.map(conjuntoPago => actualizarFactura(conjuntoPago, resFact));
+        const resultActualizacion = await actualizarFactura(factura, resFact);
 
-        const resultActualizaciones = await Promise.all(actualizacionesFirebase);
-
-        const erroresFirebase = resultActualizaciones.find(act => act.incon === "error");
+        const erroresFirebase = resultActualizacion.icon === "error";
         if(erroresFirebase) {
             anotaciones.addError(`Hemos tenido un problema para guardar en nuestra base de datos la información resultante que la factura que ha sido generada en siigo: ${erroresFirebase.text}`);
             continue;
         }
+
+        contador++;
+        if(Swal.isVisible())
+            Swal.getHtmlContainer().innerText = `Se han procesado correctamente ${contador} facturas de ${facturasAgrupadas.length}. Con ${agrupaciones} agrupaciones`;
+        
     }
 
+    const data = await obtenerDataFacturasAdmin();
+    mostrarFacturacionesAdmin(data);
+
     l.end();
+    Swal.fire("Proceso finalizado", finalMessage, "success");
+}
+
+function agruparPaquetePago(rowsData) {
+    const agrupaciones = [];
+    const dataFacturacion = rowsData
+    .filter(d => d.num_factura === 0); // Solo se vana a facturar aquellas que faltan por factura y ameriten de una
+
+    const facturasAgrupadas = new Map();
+
+    dataFacturacion
+    .each((current, i, self) => {
+        const {numero_documento, paquete_agrupado} = current;
+
+        // Un paquete ya agrupado, no podrá volver a agruparse
+        if(paquete_agrupado) {
+            agrupaciones.push(current);
+            return;
+        }
+
+        const cantidadPagosUSuario = dataFacturacion.filter(d => d.numero_documento === numero_documento).length;
+
+        // No se va a agrupar un pago único, se va a agrupar un conjunto de pagos, 
+        // por lo que la cantidad de pagos que debe tener el mismo usuario debe ser mayo a 1 para poder agruparse
+        if(cantidadPagosUSuario <= 1) {
+            agrupaciones.push(current);
+            return;
+        }
+
+        if(facturasAgrupadas.has(numero_documento)) {
+            const conjuntoFacturacionActual = facturasAgrupadas.get(numero_documento);
+            conjuntoFacturacionActual.ids_agrupacion.push(current.id);
+
+        } else {
+            const newGroup = Object.assign({}, current);
+            newGroup.cantidad_pagos = 0;
+            newGroup.comision_heka = 0;
+            newGroup.comision_transportadora = 0;
+            newGroup.total_pagado = 0;
+
+            newGroup.comision_natural_heka = 0;
+            newGroup.cuatro_x_mil_banco = 0;
+            newGroup.cuatro_x_mil_transp = 0;
+            newGroup.iva = 0;
+            newGroup.ids_agrupacion = [current.id];
+            newGroup.paquete_agrupado = true;
+            facturasAgrupadas.set(numero_documento, newGroup);
+        }
+    });
+
+    agrupaciones.push(...facturasAgrupadas.values());
+
+    return agrupaciones;
+}
+
+async function guardarAgrupacionPagos(padre, arrHijos) {
+    delete padre.id; // Eliminamos el id del nuevo padre, para evitar confuciones en el guardado
+    delete padre.guiasPagadas;
+
+    const newId = await principalReference.add(padre).then(d => d.id);
+    padre.id = newId; // Servirá para a futura actualizacion
+    
+    for (let hijo of arrHijos ) {
+
+        const actualizacionPadre = {
+            cantidad_pagos: padre.cantidad_pagos + hijo.cantidad_pagos,
+            comision_heka: padre.comision_heka + hijo.comision_heka,
+            comision_transportadora: padre.comision_transportadora + hijo.comision_transportadora,
+            total_pagado: padre.total_pagado + hijo.total_pagado,
+    
+            comision_natural_heka: padre.comision_natural_heka + hijo.comision_natural_heka,
+            cuatro_x_mil_banco: padre.cuatro_x_mil_banco + hijo.cuatro_x_mil_banco,
+            cuatro_x_mil_transp: padre.cuatro_x_mil_transp + hijo.cuatro_x_mil_transp,
+            iva: padre.iva + hijo.iva,
+        }
+        
+        const batch = db.batch();
+        
+        const padreCollection = principalReference.doc(newId);
+        batch.update(padreCollection, actualizacionPadre);
+
+        const newRefSon = padreCollection.collection("agrupacionFactura").doc(hijo.id);
+        batch.set(newRefSon, hijo);
+        
+        const currentRefSon = principalReference.doc(hijo.id);
+        batch.delete(currentRefSon);
+
+        await batch.commit();
+
+        Object.assign(padre, actualizacionPadre);
+    }
+
+    return padre;
 }
 
 export { activarFunctionesFacturas, crearFactura }

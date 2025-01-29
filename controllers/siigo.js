@@ -32,13 +32,6 @@ const crearFactura = async (req, res) => {
     const iva_comision_heka = Number((comision_heka * 0.19 / 1.19).toFixed(2));
     console.log(iva_comision_heka);
 
-    res.status(405).send({
-        error: true,
-        message: "Temporalmente suspendido"
-    });
-
-    return;
-
     // Por defecto siempre se factura la comisión Heka
     const items = [
         {
