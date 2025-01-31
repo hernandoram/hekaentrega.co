@@ -151,7 +151,7 @@ function redirectLogin() {
         revisarNotificaciones();
         listarNovedadesServientrega();
         listarSugerenciaMensajesNovedad();
-        $("#descargar-informe-usuarios").click(descargarInformeUsuariosAdm);
+        $("#descargar-informe-usuarios").click(informeUsuariosAdmin);
       } else if (user_id) {
         usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
         cargarDatosUsuario().then(() => {
@@ -972,7 +972,179 @@ function consultarInformacionBancariaUsuario() {
   $("#cargador-datos-bancarios").remove();
 }
 
-async function descargarInformeUsuariosAdm(e) {
+async function informeUsuariosAdmin(e) {
+ 
+  const loader = new ChangeElementContenWhileLoading(e.target);
+  loader.init();
+
+  const { value, isConfirmed } = await Swal.fire({
+    title: "Indique rango de fecha",
+    html: `
+    <form id="form_reporte-usuarios">
+      <div class="form-group">
+        <label for="tipo_informe-rep_usuarios">Seleccione tipo Informe</label>
+        <select class="form-control" id="tipo_informe-rep_usuarios">
+          <option value=1 selected>Informe Natural</option>
+          <option value=2 >Movimientos saldo</option>
+        </select>
+      </div> 
+
+      <div class="form-group">
+        <label for="fecha_inicio-rep_usuarios">Fecha inicio</label>
+        <input type="date" class="form-control" id="fecha_inicio-rep_usuarios">
+      </div>
+      
+      <div class="form-group">
+        <label for="fecha_fin-rep_usuarios">Fecha fin</label>
+        <input type="date" class="form-control" id="fecha_fin-rep_usuarios">
+      </div> 
+      
+      <div class="form-group">
+        <label for="cant_envios-rep_usuarios">Envíos realizados</label>
+        <select class="form-control" id="cant_envios-rep_usuarios">
+          <option value>-- Seleccione periodo --</option>
+          <option value=1>Último mes</option>
+          <option value=2>Último Bimestre</option>
+          <option value=3>Último Trimestres</option>
+          <option value=6>Último Semestre</option>
+          <option value=12>Último Año</option>
+        </select>
+      </div> 
+    </form>`,
+
+    preConfirm: (data) => {
+      const fecha_inicio =
+        new Date($("#fecha_inicio-rep_usuarios").val()).setHours(0) + 8.64e7;
+      const fecha_final =
+        new Date($("#fecha_fin-rep_usuarios").val()).setHours(0) + 2 * 8.64e7;
+
+      const meses = $("#cant_envios-rep_usuarios").val();
+      const tipoInforme = $("#tipo_informe-rep_usuarios").val();
+
+      return { fecha_inicio, fecha_final, meses, tipoInforme };
+    },
+
+    didOpen: (domSwal) => {
+      $("#fecha_inicio-rep_usuarios").val(genFecha());
+      $("#fecha_fin-rep_usuarios").val(genFecha());
+      $("#tipo_informe-rep_usuarios").on("change", (e) => {
+        const { value } = e.target;
+        if(value === "1") {
+          $("#cant_envios-rep_usuarios").parent().show('fast');
+        } else {
+          $("#cant_envios-rep_usuarios").parent().hide('fast');
+        }
+      })
+    },
+    showCancelButton: true,
+  });
+
+  if (!isConfirmed) {
+    loader.end();
+    return;
+  }
+
+  const { tipoInforme } = value;
+
+  if(tipoInforme === "1") {
+    await descargarInformeUsuariosAdm(value);
+  } else {
+    await descargarInformeMovimientosUsuariosAdmin(value);
+  }
+  
+  loader.end();
+}
+
+/** Informe que pretende descargar los movimientos realizados por los usuarios según un rango de fecha indicado. Los campos serían:
+ * - Número de identificación
+ * - Centro de costo
+ * - Fecha
+ * - Hora
+ * - Valor
+ */
+async function descargarInformeMovimientosUsuariosAdmin(dataObj) {
+  const { fecha_inicio, fecha_final } = dataObj;
+  const datosDescarga = {
+    numero_documento: "Número documento",
+    centro_de_costo: "Centro de costo",
+    nombresApellidos: "Nombre Completo",
+    
+    type: "Tipo movimiento",
+    fecha: "Fecha",
+    hora: "Hora",
+    diferencia: "Valor"
+  };
+
+  const normalizeObject = (campo, obj) => {
+    if (!obj) return "No aplica";
+    return obj[campo];
+  };
+
+  const transformDatos = (obj) => {
+    const res = {}
+    for (let campo in datosDescarga) {
+      const resumen = campo.split(".");
+      if (resumen.length > 1) {
+        let resultante = obj;
+
+        resumen.forEach((r) => {
+          resultante = normalizeObject(r, resultante);
+        });
+
+        res[datosDescarga[campo]] = resultante;
+      } else {
+        res[datosDescarga[campo]] = obj[campo];
+      }
+    }
+
+    return res;
+  };
+
+  const buscarUSuario = id => db.collection("usuarios").doc(id).get().then(d => d.data());
+
+  const movimientos = await db
+  .collectionGroup("movimientos")
+  .orderBy("momento", "desc")
+  .startAt(fecha_final)
+  .endAt(fecha_inicio)
+  .get()
+  .then(q => {
+    const result = [];
+    q.forEach(d => {
+      const data = d.data();
+      if(!data.user_id) data.user_id = d.ref.parent.parent.id;
+
+      data.hora = estandarizarFecha(data.momento, "HH:mm");
+
+      if(data.user_id === "22032021") return; // Ignoramos esta Usuario, ya que es el sellerAdmin y aquí solo se guardan referencias
+
+      result.push(data);
+    });
+
+    return result;
+
+  });
+
+  for ( let mov of movimientos ) {
+    const usuario = displayUsers.find(u => u.id === mov.user_id) ?? await buscarUSuario(mov.user_id);
+
+    mov.numero_documento = usuario.numero_documento;
+    mov.centro_de_costo = usuario.centro_de_costo;
+    mov.nombres = usuario.nombres;
+    mov.apellidos = usuario.apellidos;
+    mov.contacto = usuario.contacto;
+    mov.nombresApellidos = usuario.nombres?.trim() + " " + usuario.apellidos?.trim(); 
+
+  }
+
+  const infoToSave = movimientos.map(transformDatos);
+
+  crearExcel(infoToSave, "Movimientos Saldo Usuario");
+}
+
+async function descargarInformeUsuariosAdm(dataObj) {
+  const { fecha_inicio, fecha_final, meses } = dataObj;
+  
   const datosDescarga = {
     nombres: "Nombres",
     apellidos: "Apellidos",
@@ -1054,61 +1226,6 @@ async function descargarInformeUsuariosAdm(e) {
     return res;
   };
 
-  const loader = new ChangeElementContenWhileLoading(e.target);
-  loader.init();
-
-  const { value, isConfirmed } = await Swal.fire({
-    title: "Indique rango de fecha",
-    html: `
-    <form id="form_reporte-usuarios">
-      <div class="form-group">
-        <label for="fecha_inicio-rep_usuarios">Fecha inicio</label>
-        <input type="date" class="form-control" id="fecha_inicio-rep_usuarios">
-      </div>
-      
-      <div class="form-group">
-        <label for="fecha_fin-rep_usuarios">Fecha fin</label>
-        <input type="date" class="form-control" id="fecha_fin-rep_usuarios">
-      </div> 
-      
-      <div class="form-group">
-        <label for="cant_envios-rep_usuarios">Envíos realizados</label>
-        <select class="form-control" id="cant_envios-rep_usuarios">
-          <option value>-- Seleccione periodo --</option>
-          <option value=1>Último mes</option>
-          <option value=2>Último Bimestre</option>
-          <option value=3>Último Trimestres</option>
-          <option value=6>Último Semestre</option>
-          <option value=12>Último Año</option>
-        </select>
-      </div> 
-    </form>`,
-
-    preConfirm: (data) => {
-      const fecha_inicio =
-        new Date($("#fecha_inicio-rep_usuarios").val()).setHours(0) + 8.64e7;
-      const fecha_final =
-        new Date($("#fecha_fin-rep_usuarios").val()).setHours(0) + 2 * 8.64e7;
-
-      const meses = $("#cant_envios-rep_usuarios").val();
-
-      return { fecha_inicio, fecha_final, meses };
-    },
-
-    didOpen: (domSwal) => {
-      $("#fecha_inicio-rep_usuarios").val(genFecha());
-      $("#fecha_fin-rep_usuarios").val(genFecha());
-    },
-    showCancelButton: true,
-  });
-
-  if (!isConfirmed) {
-    loader.end();
-    return;
-  }
-
-  const { fecha_inicio, fecha_final, meses } = value;
-
   const queryDocs = await db
     .collection("usuarios")
     .orderBy("fecha_creacion", "desc")
@@ -1135,8 +1252,6 @@ async function descargarInformeUsuariosAdm(e) {
   console.log(result);
 
   crearExcel(result, "informe Usuarios");
-
-  loader.end();
 }
 
 async function cantidadEnviosPorUsuarioAdmin(id, meses) {

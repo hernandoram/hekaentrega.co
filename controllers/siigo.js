@@ -29,8 +29,7 @@ const crearFactura = async (req, res) => {
     const { comision_heka, numero_documento, costo_transportadora } = req.body;
 
     // Redondeamos la comisión para que el cálculo sea valorado correctamente por siigo
-    const iva_comision_heka = Number((comision_heka * 0.19 / 1.19).toFixed(2));
-    console.log(iva_comision_heka);
+    // const iva_comision_heka = Number((comision_heka * 0.19 / 1.19).toFixed(2));
 
     // Por defecto siempre se factura la comisión Heka
     const items = [
@@ -38,11 +37,11 @@ const crearFactura = async (req, res) => {
           code: "001", // siempre 001 Que corresponde al producto equivalente a la comisión Heka
           description: "Servicios Complementarios al Transporte", // contante
           quantity: 1,// contante
-          price: comision_heka - iva_comision_heka, // comision_heka
+          price: comision_heka, // comision_heka
           discount: 0, // constante,
-          taxes: [{ // Este repreentará el IVA que se saca en Heka
-            id: 28952 // id del impuesto /taxes (IVA EN SERVICIOS 19%)
-          }]
+        //   taxes: [{ // Este repreentará el IVA que se saca en Heka
+        //     id: 28952 // id del impuesto /taxes (IVA EN SERVICIOS 19%)
+        //   }]
         }
     ];
 
