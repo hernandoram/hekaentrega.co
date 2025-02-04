@@ -37,18 +37,6 @@ const columns = [
         render: $.fn.DataTable.render.number(".", null, null, "$ ")
     },
     { 
-        data: "cuatro_x_mil_banco", 
-        title: "4 Por mil Banco",
-        defaultContent: "N/A",
-        render: $.fn.DataTable.render.number(".", null, null, "$ ")
-    },
-    { 
-        data: "cuatro_x_mil_transp", 
-        title: "4 Por mil Transp.",
-        defaultContent: "N/A",
-        render: $.fn.DataTable.render.number(".", null, null, "$ ")
-    },
-    { 
         data: "total_pagado", 
         title: "Total pagado", 
         render: $.fn.DataTable.render.number(".", null, 0, "$ ")
@@ -673,13 +661,12 @@ async function crearGuardarFactura(data) {
 
     if(!resSwal.isConfirmed) return;
 
-    const {numero_documento, comision_heka, comision_transportadora, cuatro_x_mil_transp, cuatro_x_mil_banco} = data;
+    const {numero_documento, comision_heka, comision_transportadora} = data;
     const loader = new ChangeElementContenWhileLoading(this);
     loader.charger = loader.charger.replace("Cargando...", ""); // Para que solo quede la rueda dando vueltas sin las letras
     loader.init();
-    const comisionHekaSinCuatroPorMil = comision_heka - cuatro_x_mil_transp - cuatro_x_mil_banco;
 
-    const resFact = await crearFactura(numero_documento, comisionHekaSinCuatroPorMil, comision_transportadora);
+    const resFact = await crearFactura(numero_documento, comision_heka, comision_transportadora);
 
     if(resFact.error) {
         Swal.fire("Error de comunicación", resFact.message, "error");
@@ -769,15 +756,14 @@ async function facturacionMasivaAgrupada(e, dt, node, config) {
             }
         }
 
-        const {numero_documento, comision_heka, comision_transportadora, cuatro_x_mil_transp, cuatro_x_mil_banco} = factura;
-        const comisionHekaSinCuatroPorMil = comision_heka - cuatro_x_mil_transp - cuatro_x_mil_banco;
+        const {numero_documento, comision_heka, comision_transportadora} = factura;
         
         if( comision_heka === 0 ) {
             anotaciones.addError(`No se puede facturar una comisión vacía ${numero_documento}.`);
             continue;
         }
         
-        const resFact = await crearFactura(numero_documento, comisionHekaSinCuatroPorMil, comision_transportadora);
+        const resFact = await crearFactura(numero_documento, comision_heka, comision_transportadora);
 
         if(resFact.error) {
             anotaciones.addError(`Error de comunicación ${numero_documento}: ${resFact.message}`);

@@ -2111,6 +2111,8 @@ function informeNovedadesLogistica(JSONData) {
   const checkboxNovedadesEnvia = document.getElementById(
     "checkboxNovedadesEnvia"
   );
+
+  const checkSolicitudesPendientes = document.getElementById("check_solicitudes_pendientes-novedades");
   let interArr = [];
   let serviArr = [];
   let enviaArr = [];
@@ -2125,7 +2127,7 @@ function informeNovedadesLogistica(JSONData) {
     const extraData = data.extraData;
 
     // Acá colocaremos una condición que será controlada por un checkbox
-    if(false) {
+    if(checkSolicitudesPendientes.checked) {
       if(!extraData.seguimiento) return; // No se tomará en cuenta aquellos que no tengan gestión por el usuario
   
       // Si el último seguimiento fue una respuesta del admin, tampoco se tomará en cuenta
