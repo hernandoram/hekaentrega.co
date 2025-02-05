@@ -201,7 +201,11 @@ exports.actualizarMovimientos = async (doc) => {
         const guia = doc.data();
 
         // let estadoActual = respuesta.estado ? respuesta.estado.replace(/(?:EN\s|DESDE)[\s\w]+/g, "") : "NO APLICA";
-        let estadoActual = respuesta.estado ? respuesta.estado.split(" ").slice(0, -2).join(" ") : "NO APLICA";
+        let estadoActual = respuesta.estado 
+            ? respuesta.estado.split(" ").slice(0, -2) // Quitamos las dos últimas palabras
+                .filter(p => !["EN", "DESDE"].includes(p)) // filtramos aquellas palabras que normalmente no interesan que formen parte de los estados
+                .join(" ") // filnamente hacemos la unión del arreglo separando por espacios en blanco
+            : "NO APLICA";
         // if(movimientos) {
         //     estadoActual = movimientos.some(m => m.estado == "Entregado") 
         //         ? "Entregado" : estadoActual;

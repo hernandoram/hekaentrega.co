@@ -95,13 +95,6 @@ async function cotizadorApi() {
     datoscoti.city_destination
   );
 
-  if (estado_prueba) {
-    const cotizadorHeka = await cotizadorTemporalTransportadoraHeka(datoscoti);
-
-    responseApi.response.push(cotizadorHeka);
-
-  }
-
   const response = responseApi.response;
 
   console.warn(response, datoscoti.city_origin);
