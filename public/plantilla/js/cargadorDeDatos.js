@@ -71,7 +71,7 @@ async function validateToken(token) {
 
       const tipoUsuario = data.response.user.role[0];
 
-      if (tipoUsuario === "manager") {
+      if (["manager", "in_house"].includes(tipoUsuario)) {
         if (window.location.pathname !== "/admin.html") {
           //redirectLogin();
           location.href = "/admin.html";
@@ -79,6 +79,7 @@ async function validateToken(token) {
         localStorage.setItem("acceso_admin", true);
         console.warn("Bienvenido administrador");
         administracion = true;
+        datos_usuario.type = tipoUsuario;
       }
 
       if (tipoUsuario === "seller") {
@@ -151,6 +152,8 @@ function redirectLogin() {
         revisarNotificaciones();
         listarNovedadesServientrega();
         listarSugerenciaMensajesNovedad();
+        limitarAccesoSegunTipoUsuario();
+        mostrar(window.location.hash.replace(/#/, ""));
         $("#descargar-informe-usuarios").click(informeUsuariosAdmin);
       } else if (user_id) {
         usuarioDoc = firebase.firestore().collection("usuarios").doc(user_id);
@@ -392,6 +395,10 @@ class ControlUsuario {
 
   static get esLoggy() {
     return datos_usuario.type === "LOGGY";
+  }
+
+  static get inHouse() {
+    return datos_usuario.type === "in_house";
   }
 
   /** Promesa encargada de validad que ya se han cargado todos los datos del usuario correctamente
@@ -681,6 +688,35 @@ function limitarAccesoSegunTipoUsuario() {
       "flexii_guia_recept",
       "scanner_estados_flexii",
       "nav_item-flexii_envios"
+    ];
+  } else if (ControlUsuario.inHouse) {
+    quitarVistas = [
+      "usuarios",
+      "modalReferidos",
+      "registrador",
+      "oficinas",
+      "stats",
+      "documentos",
+      "historial_guias",
+      "actualizador",
+      "callcenter",
+      "pagos",
+      "pagos_facturacion",
+      "gestionar_pagos",
+      "cargador_pagos",
+      "deudas",
+      "pagos_transportadoras",
+      "movimientos",
+      "utilidades",
+      "manejo_usuarios",
+      "mensajeria",
+      "centro_notificaciones",
+      "ciudades",
+      "recolecciones",
+      "nav_item-pagos",
+      "sidebar_heading-usuarios",
+      "nav_item-usuarios",
+      "nav_item-bodegas"
     ];
   }
 
