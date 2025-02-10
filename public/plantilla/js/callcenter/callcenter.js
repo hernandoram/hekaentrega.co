@@ -700,7 +700,7 @@ function tablaCallcenter(data, extraData, usuario, id_heka, id_user) {
 
     if (match) {
       const numeroFinal = match[1];
-      window.location.href = `https://www.hekaentrega.co/rastrea-tu-envio?guide=${numeroFinal}&admin=true`;
+      window.location.href = `https://prod.hekaentrega.co/rastrea-tu-envio?guide=${numeroFinal}&admin=true`;
     } else {
       console.log("No se encontró un número en el ID");
     }
