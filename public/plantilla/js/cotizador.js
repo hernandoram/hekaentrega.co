@@ -2051,7 +2051,7 @@ function seleccionarTransportadora(e) {
   if (!estaHabilitada) {
     return Swal.fire({
       title: "Transportadora no habilitada",
-      html: "Esta transportadora no está disponible para esta bodega. Ingresa a <a href='https://prod.hekaentrega.co/plataforma/mis-bodegas' target='_blank'>Mis bodegas</a> y habilita la transportadora. Si habilitas Interrapidisimo, tarda de 5 a 8 días en activar la sucursal.",
+      html: "Esta transportadora no está disponible para esta bodega. Ingresa a <a href='https://www.hekaentrega.co/plataforma/mis-bodegas' target='_blank'>Mis bodegas</a> y habilita la transportadora. Si habilitas Interrapidisimo, tarda de 5 a 8 días en activar la sucursal.",
       icon: "warning",
       confirmButtonText: "Aceptar",
     });
@@ -2957,7 +2957,7 @@ function mostrarDirecciones(datos) {
   small.setAttribute("class", "text-muted ver-direccion");
   aggDireccion.setAttribute("class", "text-muted");
   aggDireccion.innerHTML =
-    "<small>¿no está la bodega que necesitas? puedes agregarla <a href='https://prod.hekaentrega.co/plataforma/mis-bodegas'>aquí</a></small>";
+    "<small>¿no está la bodega que necesitas? puedes agregarla <a href='https://www.hekaentrega.co/plataforma/mis-bodegas'>aquí</a></small>";
 
   respuesta.innerHTML =
     "<label for='#actualizar_direccionR'>Dirección del Remitente</label>";

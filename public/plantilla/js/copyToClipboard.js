@@ -38,7 +38,7 @@ botonIninicarSesionUsarioToken.addEventListener("click", async function () {
         urlBase = "http://localhost:6200";
         textToCopy = `${urlBase}/plataforma2.html?token=${tokenUser}`;
       } else {
-        urlBase = "https://prod.hekaentrega.co";
+        urlBase = "https://www.hekaentrega.co";
         textToCopy = `${urlBase}/ingreso?token=${tokenUser}`;
       }
       // Copiar la URL al portapapeles
