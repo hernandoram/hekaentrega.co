@@ -2524,6 +2524,39 @@
             </div>
           </div>
 
+          <div class="container-fluid" id="mensajeria_masiva" style="display: none;">
+            <div class="card mt-5">
+              <div class="card-body">
+                <h5>Envío mensajes masivos</h5>
+                
+                <form enctype="multipart/form-data" id="form-mensajeria_masiva">
+                  <div class="form-group col-12 p-0 ">
+                    <label for="selectorNotificacion">Selecciona el tipo de notificación</label>
+                    <select class="custom-select" id="transportadora-mensajeria_masiva" name="type">
+                      <option selected>-- Tipo notificación --</option>
+                      <option value="GUIA">Guia</option>
+                      <option value="USUARIO">Usuario</option>
+                      <option value="DIRECTO">Directo</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <div class="custom-file mt-2">
+                      <input type="file" class="custom-file-input" id="cargar-mensajeria_masiva" accept=".xlsx,.xls"
+                        name="documento" lang="es">
+                      <label class="custom-file-label" for="cargar-mensajeria_masiva">Seleccionar Archivo</label>
+                    </div>
+
+                    <button type="submit" id="btn_actualizador-mensajeria_masiva" class="btn btn-primary mt-4 col-12">Envío masivo de mensajes</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div id="anotaciones-mensajeria_masiva">
+            </div>
+          </div>
+
           <div class="container-fluid" id="centro_notificaciones">
             <h2>
               Centro de notificaciones

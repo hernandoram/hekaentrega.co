@@ -3,6 +3,7 @@ import "./pagos/index.js";
 import "./infoHeka/manejoUsuarios.js";
 import "./movimientoGuias/registroMovimientos.js";
 import "./notificaciones/index.js";
+import "./notificaciones/mensajeriaMasiva.js";
 import "./recolecciones/index.js";
 
 import { ValidarAccesoAdmin } from "./auth/handlers.js";
