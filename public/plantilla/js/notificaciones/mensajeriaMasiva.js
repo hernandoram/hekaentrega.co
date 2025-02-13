@@ -199,7 +199,7 @@ async function enviarMensajeDirecto(arrData) {
 
 
 async function enviarMensaje(data) {
-    const {telefono, plantilla: template} = data;
+    const {celular: telefono, plantilla: template} = data;
 
     const keys = Object.keys(data).filter(d => d.startsWith("valor_")).sort((a,b) => Number(a.split("_")[1]) - Number(b.split("_")[1]))
     const plantilla = keys.map(k => ({ default: data[k] }));
