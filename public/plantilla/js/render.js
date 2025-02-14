@@ -2993,17 +2993,17 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 Cargando...`;
         console.log($(idSolucion));
+        const seguimiento = {
+          gestion: $(idSolucion).val(),
+          gestionada: "Usuario",
+          fecha: new Date(),
+        }
+
         if (dataG.seguimiento) {
-          dataG.seguimiento.push({
-            gestion: $(idSolucion).val(),
-            fecha: new Date(),
-          });
+          dataG.seguimiento.push(seguimiento);
         } else {
           dataG.seguimiento = [
-            {
-              gestion: $(idSolucion).val(),
-              fecha: new Date(),
-            },
+            seguimiento
           ];
         }
 
@@ -3070,6 +3070,46 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
       // .addClass("col-12") // Para que se adapte al estilo del dialogo
       .attr("id", "") // Limpiamos el id para evitar problemas con el dom
       .appendTo(info_gen);
+  }
+}
+
+function renderCampoFurmularioSolNovedad(campo) {
+  const {field_type, field_title, field_options} = campo;
+  switch(field_type) {
+      case "input": 
+        return (`
+          <div class="form-group">
+            <label for="solucion_novedad-modal">${field_title}</label>
+            <input class="form-control" id="solucion_novedad-modal" name="solucion_novedad" />
+          </div>
+        `);
+
+      case "textarea": 
+        return (`
+          <div class="form-group">
+            <label for="solucion_novedad-modal">${field_title}</label>
+            <textarea class="form-control" id="solucion_novedad-modal" name="solucion_novedad"></textarea>
+          </div>
+        `);
+
+      case "select": 
+        return (`
+          <div class="form-group">
+            <label for="solucion_novedad-modal">${field_title}</label>
+            <select class="custom-select"
+            id="solucion_novedad-modal" name="solucion_novedad">
+              ${field_options.map(op => `<option value="${op.value}">${op.label}</option>`).join("")}
+            </select>
+          </div>
+        `);
+
+      default: 
+        return `
+          <div class="form-group">
+            <label for="solucion_novedad-modal">Escribe aquí tu solución a la novedad</label>
+            <textarea class="form-control" id="solucion_novedad-modal" name="solucion_novedad"></textarea>
+          </div>
+        `;
   }
 }
 
