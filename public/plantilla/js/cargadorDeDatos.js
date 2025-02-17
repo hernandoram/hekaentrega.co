@@ -55,7 +55,7 @@ async function validateToken(token) {
 
       console.log(data);
 
-      mongoID = data.response.user._id;
+      mongoID = data.response.user.userId;
 
       localStorage.setItem("mongo_id", mongoID);
       if (
@@ -140,6 +140,7 @@ function redirectLogin() {
     icon: "error",
     confirmButtonText: "OK",
   }).then(() => {
+    localStorage.clear();
     location.href = `${PROD_API_URL_PLATFORM2}/ingreso?cs=1`;
   });
 }
