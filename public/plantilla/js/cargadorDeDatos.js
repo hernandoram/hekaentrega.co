@@ -61,7 +61,6 @@ async function validateToken(token) {
       if (
         !data ||
         !data.response ||
-        !data.response.user ||
         !data.response.idFirebase
       ) {
         redirectLogin();
