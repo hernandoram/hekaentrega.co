@@ -2731,7 +2731,8 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
   } else if( !administracion ) {
 
     const estructuraBase = {field_title: "Escribe aquí tu solución a la novedad"};
-    const estructuraFormulario = await obtenerEstructuraFormulariosRefact(ultimo_mov.novedad) ?? estructuraBase;
+    // const estructuraFormulario = await obtenerEstructuraFormulariosRefact(ultimo_mov.novedad) ?? estructuraBase;
+    const estructuraFormulario = estructuraBase;
     mostrador_gestionar = `
       ${renderCampoFurmularioSolNovedadRefactor(estructuraFormulario)}
       <button class="btn btn-success m-2" id="solucionar-novedad-${dataN.numeroGuia}">Enviar Solución</button>
