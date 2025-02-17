@@ -143,13 +143,13 @@ async function validateToken(token) {
 }
 
 function redirectLogin() {
+  localStorage.clear()
   Swal.fire({
     title: "Error!",
     text: "La sesión ha expirado, por favor inicia sesión nuevamente",
     icon: "error",
     confirmButtonText: "OK",
   }).then(() => {
-    localStorage.clear()
     location.href = `${PROD_API_URL_PLATFORM2}/ingreso?cs=1`;
   });
 }
