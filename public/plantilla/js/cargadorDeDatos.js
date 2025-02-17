@@ -69,21 +69,20 @@ async function validateToken(token) {
 
       console.log(data);
 
-      mongoID = data.response.user.userId;
+      mongoID = data.response.userId;
 
       localStorage.setItem("mongo_id", mongoID);
       if (
         !data ||
         !data.response ||
-        !data.response.user ||
-        !data.response.user.idFirebase
+        !data.response.idFirebase
       ) {
         redirectLogin();
         throw new Error("Invalid API response");
       }
-      let user_id_firebase = data.response.user.idFirebase;
+      let user_id_firebase = data.response.idFirebase;
 
-      const tipoUsuario = data.response.user.role[0];
+      const tipoUsuario = data.response.role[0];
 
       if (tipoUsuario === "manager") {
         if (window.location.pathname !== "/admin.html") {
@@ -122,7 +121,7 @@ async function validateToken(token) {
       localStorage.setItem("user_id", user.id);
       localStorage.setItem("token", token);
 
-      const cambiarPorcentajesCotizacion = data.response.user.user_type !== 1; // El 1 es el usuario con el cotizador que siempre ha existido, 2: Referencia al nuevo cotizador
+      const cambiarPorcentajesCotizacion = data.response.user_type !== 1; // El 1 es el usuario con el cotizador que siempre ha existido, 2: Referencia al nuevo cotizador
       // Según la condición dada, se cambiarán los porcentajes de cotización por defecto para una nueva modalidad
       if (cambiarPorcentajesCotizacion)
         datos_personalizados = datos_personalizados_2; // Desactivado temporalmente
