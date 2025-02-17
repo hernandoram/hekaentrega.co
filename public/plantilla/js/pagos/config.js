@@ -84,6 +84,7 @@ const codigos_banco_siigo = {
     "BANCO BTG PACTUAL": 1805,
     "RAPPIPAY ": 1811,
     "LULO BANK S.A.": 1070,
+    "NU": 1809,
 }
 
 export const codigos_banco = {
@@ -105,4 +106,5 @@ export const codigos_banco = {
     "Banco Falabella (Desembolso: $7.500)": codigos_banco_siigo["BANCO FALABELLA S.A."],
     "Daviplata (Desembolso: $7.500)": codigos_banco_siigo.DAVIPLATA,
     "Lulo Bank (Desembolso: $7.500)": codigos_banco_siigo["LULO BANK S.A."],
+    "NU": codigos_banco_siigo["NU"],
 }

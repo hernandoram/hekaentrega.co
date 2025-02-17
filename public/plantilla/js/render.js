@@ -1750,7 +1750,7 @@ function mostrarNotificacion(data, type, id) {
           data.id_heka,
           data.guia
         );
-        mostrar("estados");
+        mostrar(administracion ? "novedades": "estados");
       } else {
         if (data.detalles) {
           console.log(data.detalles, data);
@@ -2275,25 +2275,6 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
     card.append(encabezado, cuerpo);
     document.getElementById("visor_novedades").appendChild(card);
 
-    //logica para borrar los elementos del localstorage
-
-    let localStorageItems = localStorage;
-
-    const keys = Object.keys(localStorageItems);
-
-    const filteredItems = keys.filter((key) => key.startsWith("tiempoguia"));
-
-    filteredItems.forEach((key) => {
-      const value = localStorageItems.getItem(key);
-      const fecha = `${new Date(value)}`;
-      const fechamil = fecha.getTime();
-      const fechaactual = new Date();
-      console.log(fechaactual.getTime() - fechamil);
-
-      if (21600000 - fechaactual.getTime() - fechamil >= 1) {
-        localStorage.removeItem(key);
-      }
-    });
   }
 
   const boton_solucion = $("#solucionar-guia-" + data.numeroGuia);
@@ -2712,9 +2693,13 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
   const ultimo_mov = dataN.movimientos[dataN.movimientos.length - 1];
 
   const noguia = dataN.numeroGuia;
+  const gestionesUser = dataG.seguimiento ? dataG.seguimiento.filter(g => !g.admin) : [];
+  const ultimaGestionUsuario = gestionesUser[gestionesUser.length - 1];
 
-  const tiempoguardado = new Date(localStorage.getItem("tiempoguia" + noguia));
-  console.log("tiempo guardado" + tiempoguardado);
+  // El tiempo relacionado con el último seguimiento enviado, 
+  // En caso de que no hay movimientos por parte del usuario, se establece la fecha de 1969
+  const tiempoguardado = ultimaGestionUsuario ? ultimaGestionUsuario.fecha.toDate() : new Date(null);
+
   const tiempoguardadomilis = tiempoguardado.getTime();
   let tiempoactual = new Date();
   let tiempoactualmilis = tiempoactual.getTime();
@@ -2723,7 +2708,7 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
   console.log("el tiempo actual es " + tiempoactual);
 
   let diffCounter = 21600000 - (tiempoactualmilis - tiempoguardadomilis); //modificar el valor para cambiar el número de horas
-  // let diffCounter = 30000 - (tiempoactualmilis - tiempoguardadomilis); //modificar el valor para cambiar el número de horas
+  // let diffCounter = 120000 - (tiempoactualmilis - tiempoguardadomilis); //modificar el valor para cambiar el número de horas
 
   hours = Math.floor(diffCounter / (1000 * 60 * 60));
   mins = Math.floor(diffCounter / (1000 * 60));
@@ -2731,28 +2716,27 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
   console.log("mins: " + mins);
   m = mins - hours * 60;
 
-  let mostrador_gestionar;
+  let mostrador_gestionar = "";
 
   if (mins >= 1) {
     // indicar número de minutos a esperar!
     mostrador_gestionar = `
-            <div class="card">
-            <div class="card-header">
-            <h5>Anuncio</h5>
-        </div>
+      <div class="card">
+        <div class="card-header"><h5>Anuncio</h5></div>
         <div class="card-body">
-        Debes esperar <b> ${hours} </b> horas y <b> ${m} </b> minutos  para volver a gestionar la guía
+          Debes esperar <b> ${hours} </b> horas y <b> ${m} </b> minutos  para volver a gestionar la guía
         </div>
-        </div>
-        `;
-  } else {
-    localStorage.removeItem("tiempoguia" + noguia);
+      </div>
+    `;
+  } else if( !administracion ) {
+
+    const estructuraBase = {field_title: "Escribe aquí tu solución a la novedad"};
+    // const estructuraFormulario = await obtenerEstructuraFormulariosRefact(ultimo_mov.novedad) ?? estructuraBase;
+    const estructuraFormulario = estructuraBase;
     mostrador_gestionar = `
-            
-            <h3>Escribe aquí tu solución a la novedad</h3>
-            <textarea type="text" class="form-control" name="solucion-novedad" id="solucion-novedad-${dataN.numeroGuia}"></textarea>
-            <button class="btn btn-success m-2" id="solucionar-novedad-${dataN.numeroGuia}">Enviar Solución</button>
-        `;
+      ${renderCampoFurmularioSolNovedadRefactor(estructuraFormulario)}
+      <button class="btn btn-success m-2" id="solucionar-novedad-${dataN.numeroGuia}">Enviar Solución</button>
+    `;
   }
 
   if (dataG.oficina && !dataG.recibidoEnPunto) {
@@ -2782,6 +2766,7 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
                         }
                     </span></p>
                     <p>Peso: <span>${dataG.detalles.peso_liquidar} Kg</span></p>
+                    <p>Valor recaudo: <span>$ ${convertirMiles(dataG.valor)}</span></p>
                     <p>Dice contener: <span>${dataG.dice_contener}</p>
                 </div>
                 </div>
@@ -2876,18 +2861,12 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
       "text/html"
     ).body.firstChild;
 
-  const guardarComoNovedad =
-    dataG.transportadora === "SERVIENTREGA" && administracion;
 
   if (dataN.movimientos) {
     for (let i = dataN.movimientos.length - 1; i >= 0; i--) {
       let mov = dataN.movimientos[i];
       let li = document.createElement("li");
       let enNovedad = revisarNovedad(mov, dataN.transportadora);
-      const btnGuardarComoNovedad =
-        guardarComoNovedad && mov.novedad
-          ? `<button class='btn btn-sm ml-2 btn-outline-danger registrar-novedad' data-novedad='${mov.novedad}'>Registrar novedad</button>`
-          : "";
 
       li.innerHTML = `
                     <span class="badge badge-primary badge-pill mr-2 d-flex align-self-start">${
@@ -2911,7 +2890,6 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
                     }</p>
                     <p>
                         <span class="text-danger">${mov.novedad}</span>
-                        ${btnGuardarComoNovedad}
                     </p>
                     </div>
                 `;
@@ -2924,6 +2902,7 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
     for (let i = dataG.seguimiento.length - 1; i >= 0; i--) {
       let seg = dataG.seguimiento[i];
       let li = document.createElement("li");
+      const causa_gestion_html = seg.causa_gestion && administracion ? `<p><b>Causa: </b> ${seg.causa_gestion}</p>` : "";
 
       li.innerHTML = `
                 <span class="badge badge-primary badge-pill mr-2 d-flex align-self-start">${
@@ -2948,8 +2927,9 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
                     : ""
                 }</p>
                 <p>
-                    ${seg.gestion}
+                  ${administracion ? "<b>Gestión: </b>" : ""} ${seg.gestion}
                 </p>
+                ${causa_gestion_html}
                 </div>
                 `;
       li.setAttribute("class", "list-group-item d-flex");
@@ -2970,7 +2950,7 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
     info_gen.innerHTML += gestionar;
     let p = document.createElement("p");
     p.classList.add("text-danger");
-    let idSolucion = "#solucion-novedad-" + dataN.numeroGuia;
+    let idSolucion = "#solucion_novedad-modal_input";
     let btn_solucionar = $("#solucionar-novedad-" + dataN.numeroGuia);
     btn_solucionar.parent().append(p);
 
@@ -2993,17 +2973,18 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
                 <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                 Cargando...`;
         console.log($(idSolucion));
+        const seguimiento = {
+          gestion: $(idSolucion).val(),
+          gestionada: "Usuario",
+          fecha: new Date(),
+          causa_gestion: ultimo_mov.descripcionMov ?? ""
+        }
+
         if (dataG.seguimiento) {
-          dataG.seguimiento.push({
-            gestion: $(idSolucion).val(),
-            fecha: new Date(),
-          });
+          dataG.seguimiento.push(seguimiento);
         } else {
           dataG.seguimiento = [
-            {
-              gestion: $(idSolucion).val(),
-              fecha: new Date(),
-            },
+            seguimiento
           ];
         }
 
@@ -3016,13 +2997,12 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
             novedad_solucionada: false,
           })
           .then(() => {
-            localStorage.setItem("tiempoguia" + noguia, new Date());
             p.innerText = "Sugerencia enviada exitósamente";
             p.classList.replace("text-danger", "text-success");
 
             btn_solucionar.remove();
             document
-              .querySelector("#solucion-novedad-" + dataN.numeroGuia)
+              .querySelector(idSolucion)
               .remove();
 
             let momento = new Date().getTime();
@@ -3063,14 +3043,78 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
 
     limitarAccesoSegunTipoUsuario();
   } else {
-    $(".registrar-novedad").click(registrarNovedad);
-
     botonSolucionarExterno
       .clone(true) // Para heredar la funcionalidad de donde proviene
       // .addClass("col-12") // Para que se adapte al estilo del dialogo
       .attr("id", "") // Limpiamos el id para evitar problemas con el dom
       .appendTo(info_gen);
   }
+}
+
+function renderCampoFurmularioSolNovedadRefactor(campo) {
+  const {field_type, field_title, field_options, translate} = campo;
+  const parrafoBase = translate ? `<p class="text-danger">Su envío presenta la siguiente novedad: <b>${translate}</b></p>`: "";
+  switch(field_type) {
+      case "textfield": 
+        return (`
+          ${parrafoBase}
+          <div class="form-group">
+            <label for="solucion_novedad-modal_input">${field_title}</label>
+            <input class="form-control" id="solucion_novedad-modal_input" name="solucion_novedad" />
+          </div>
+        `);
+
+      case "textarea": 
+        return (`
+          ${parrafoBase}
+          <div class="form-group">
+            <label for="solucion_novedad-modal_input">${field_title}</label>
+            <textarea class="form-control" id="solucion_novedad-modal_input" name="solucion_novedad"></textarea>
+          </div>
+        `);
+
+      case "select": case "select_textfield": 
+        return (`
+          ${parrafoBase}
+          <div class="form-group">
+            <label for="solucion_novedad-modal_input">${field_title}</label>
+            <select class="custom-select"
+            id="solucion_novedad-modal_input" name="solucion_novedad">
+              ${field_options.map(op => `<option value="${op.value}">${op.label}</option>`).join("")}
+            </select>
+          </div>
+        `);
+
+      default: 
+        return `
+          <div class="form-group">
+            <label for="solucion_novedad-modal_input">Escribe aquí tu solución a la novedad</label>
+            <textarea class="form-control" id="solucion_novedad-modal_input" name="solucion_novedad"></textarea>
+          </div>
+        `;
+  }
+}
+
+async function obtenerEstructuraFormulariosRefact(estado) {
+  const data = await fetch(
+    `${PROD_API_URL}/api/v1/shipments/handler-guide?limit=1&label=${estado}`,
+    {
+      method: "GET",
+      headers: {
+        "Api-KeY": API_KEY,
+        "Content-Type": "application/json",
+      },
+    }
+  ).then(d => d.json())
+  .catch(e => {
+    return {
+      error: true,
+      message: e.message,
+      response: null
+    }
+  });
+
+  return data.response
 }
 
 async function implantarEstadoNuevoAdm(guia, estadosGuia) {
