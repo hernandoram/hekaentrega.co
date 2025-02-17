@@ -140,7 +140,7 @@ function redirectLogin() {
     icon: "error",
     confirmButtonText: "OK",
   }).then(() => {
-    location.href = `${PROD_API_URL_PLATFORM2}/ingreso`;
+    location.href = `${PROD_API_URL_PLATFORM2}/ingreso?cs=1`;
   });
 }
 (async () => {
@@ -173,7 +173,7 @@ function redirectLogin() {
 async function cerrarSession() {
   await deleteUserToken();
   await localStorage.clear();
-  location.href = `${PROD_API_URL_PLATFORM2}/ingreso`;
+  location.href = `${PROD_API_URL_PLATFORM2}/ingreso?cs=1`;
 }
 
 async function deleteUserToken() {
