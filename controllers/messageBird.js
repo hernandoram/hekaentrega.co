@@ -94,8 +94,6 @@ async function templateMessage(templateName, number, params) {
         body: JSON.stringify(body)
     }).then(d => d.json());
 
-    console.log(respuesta);
-
     return respuesta;
 
 }

@@ -537,6 +537,10 @@ async function descargarInformeFacturas(e) {
       const jsonArchivo = {
         "Centro de costo": f.centro_de_costo,
         "COMISION HEKA": f.comision_heka,
+        "COMISION NATURAL HEKA": f.comision_natural_heka,
+        "IVA": f.iva,
+        "4 por mil B": f.cuatro_x_mil_banco,
+        "4 por mil T": f.cuatro_x_mil_transp,
         "TOTAL A PAGAR": f.total_pagado,
         CEDULA: identificacion,
         TERCERO: nombre_completo,

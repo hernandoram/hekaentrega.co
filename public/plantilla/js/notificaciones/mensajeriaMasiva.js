@@ -216,6 +216,8 @@ async function enviarMensaje(data) {
                 message: JSON.stringify(d.errors)
             }
         }
+
+        return d;
     })
     .catch(e => {
         return {
