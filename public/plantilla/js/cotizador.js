@@ -2328,7 +2328,13 @@ function finalizarCotizacion(datos) {
         </div>
     `;
 
-  if (
+  if(datos.transportadora === transportadoras.COORDINADORA.cod) {
+    solicitud_recoleccion = `
+    <div class="alert alert-danger col-12">
+      <h3 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, diligencie a través del siguiente <a href="https://forms.gle/iSiE6pZkqRUms9GC6" target="_blank">FROMULARIO</a>.</small></h3>
+    </div>
+    `;
+  } else if (
     datos.transportadora !== "SERVIENTREGA" &&
     datos.transportadora !== "INTERRAPIDISIMO"
   ) {

@@ -413,7 +413,7 @@ class Empaquetado {
             // Trabajamos la comisión de transportadora que se va a facturar
             const comision_heka = guia[camposExcel.comision_heka];
             const envioTotal = guia[camposExcel.envio_total];
-            guia[camposExcel.comision_transp] = envioTotal - comision_heka;
+            guia[camposExcel.comision_transp] = envioTotal ? envioTotal - comision_heka : 0;
             guia[camposExcel.cuatro_x_mil_banc] = 0;
             guia[camposExcel.cuatro_x_mil_transp] = 0;
             guia[camposExcel.iva] = 0;
