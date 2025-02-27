@@ -540,13 +540,6 @@ async function cargarPagoSolicitado() {
     $("#mostrador-saldoSolicitado").addClass("d-none");
     $("#mostrador-saldoNoSolicitado").removeClass("d-none");
     $("#pago-solicitado").text("Límite de pagos semanales alcanzado.");
-
-    Swal.fire({
-      title: "Pago no permitido",
-      text: "No puedes realizar un pago en este momento porque has alcanzado el límite diario.",
-      icon: "info",
-      confirmButtonText: "Aceptar",
-    });
   } else {
     $("#mostrador-saldoSolicitado").addClass("d-none");
     $("#mostrador-saldoNoSolicitado").removeClass("d-none");
