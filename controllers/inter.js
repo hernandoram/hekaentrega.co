@@ -672,7 +672,7 @@ async function creacionGuia(guia) {
         "Observaciones": guia.id_heka + " - " + guia.dice_contener
     }
 
-    const body = await requestP(url + "/Admision/InsertarAdmision", {
+    let body = await requestP(url + "/Admision/InsertarAdmision", {
         method: "POST",
         headers: {
             "x-app-signature": credentials.x_app_signature,
@@ -687,8 +687,6 @@ async function creacionGuia(guia) {
     if(typeof body === "string") {
         try {
             const respuesta = JSON.parse(body);
-            await guardarLogErrorCreacion(guia, data, respuesta);
-
             body = respuesta;
 
         } catch (e) {
@@ -702,7 +700,7 @@ async function creacionGuia(guia) {
         }
     }
 
-
+    await guardarLogErrorCreacion(guia, data, body);
 
     return body;
 }
