@@ -687,11 +687,7 @@ async function creacionGuia(guia) {
     if(typeof body === "string") {
         try {
             const respuesta = JSON.parse(body);
-            if(!respuesta.idPreenvio) {
-                console.log("error");
-                db.collection("errores")
-                .add({type: "INTER", data, respuesta})
-            }
+            guardarLogErrorCreacion(guia, data, respuesta);
 
             body = respuesta;
 
@@ -709,6 +705,39 @@ async function creacionGuia(guia) {
 
 
     return body;
+}
+
+async function guardarLogErrorCreacion(peticionHeka, peticionInter, respuestaInter) {
+    try {
+        const colleccion = db.collection("errores");
+        const {id_heka, centro_de_costo} = peticionHeka;
+        if(!respuestaInter.idPreenvio) {
+            colleccion.add({
+                causa: "INTER", 
+                type: "ERROR", 
+                peticionInter, 
+                respuestaInter, 
+                id_heka: id_heka ?? null,
+                centro_de_costo,
+                fecha: new Date()
+            });
+        } else if (id_heka) {
+            const cantidadRepeticiones = colleccion.where("id_heka", "==", id_heka).get().then(q => q.size);
+            if(cantidadRepeticiones) {
+                colleccion.add({
+                    causa: "INTER", 
+                    type: "ERROR-PASSED", 
+                    peticionInter, 
+                    respuestaInter, 
+                    id_heka: id_heka,
+                    centro_de_costo,
+                    fecha: new Date()
+                });
+            }
+        }
+    } catch(e) {
+        console.error("Error guardando los errores de inter: " + e.message);
+    }
 }
 
 function comprimirCentroSerivciosInter(data) {
