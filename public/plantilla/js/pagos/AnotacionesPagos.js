@@ -10,6 +10,7 @@ export default class {
      * La función init borra el contenedor, establece el título y establece el contenido.
      */
     init() {
+        this.anotaciones = [];
         this.reset();
         this.setTitle();
         this.setContent();

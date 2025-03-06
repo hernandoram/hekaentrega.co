@@ -1475,6 +1475,8 @@
 
           <div class="container-fluid" id="historial_guias" style="display: none;">
 
+            
+
             <div class="alert alert-warning alert-dismissible fade show d-none" role="alert" id="alerta_novedad-guias_hist">
               <p>
                 <i class="fa fa-exclamation-triangle text-warning mr-2"></i>
@@ -1491,8 +1493,13 @@
                 Nuevo historial de guías  
                 <button class="btn btn-info d-none" id="btn_actv_search-guias_hist" title="Permite realizar una busqueda más específica por fecha o número de guía" data-toggle="tooltip"><i class="fa fa-search"></i></button>
               </h3>
+              <div>
+                <button class="btn btn-primary btn-rounded" id="generarGuiasMasivas"><i class="fa fa-file-upload"></i></button>
+                <input type="file" class="custom-file-input d-none" id="generarGuiasMasivas-input" accept=".xlsx,.xls" lang="es">
+              </div>
               <small id="motrador_filt-guias_hist"></small>
             </div>
+            <div id="anotaciones-creacion_masiva-guias_hist" class="my-2"></div>
             <div class="form-group row mt-2" id="filtrado-guias_hist">
               <div class="col-sm-4 mb-3">
                 <h6>Fecha inicio</h6>
