@@ -720,7 +720,7 @@ async function guardarLogErrorCreacion(peticionHeka, peticionInter, respuestaInt
                 fecha: new Date()
             });
         } else if (id_heka) {
-            const cantidadRepeticiones = colleccion.where("id_heka", "==", id_heka).get().then(q => q.size);
+            const cantidadRepeticiones = await colleccion.where("id_heka", "==", id_heka).get().then(q => q.size);
             if(cantidadRepeticiones) {
                 await colleccion.add({
                     causa: "INTER", 
