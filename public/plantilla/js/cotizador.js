@@ -4037,15 +4037,6 @@ async function crearGuia() {
         title: res.title,
         html: res.mensaje,
       });
-
-      firebase.firestore().collection("errores").add({
-        datos_personalizados,
-        datos_a_enviar,
-        datos_usuario,
-        momento: new Date().getTime(),
-        fecha: new Date(),
-        respuesta: res,
-      });
     }
 
     boton_final_cotizador.removeAttribute("disabled");

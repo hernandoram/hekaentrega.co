@@ -687,7 +687,7 @@ async function creacionGuia(guia) {
     if(typeof body === "string") {
         try {
             const respuesta = JSON.parse(body);
-            guardarLogErrorCreacion(guia, data, respuesta);
+            await guardarLogErrorCreacion(guia, data, respuesta);
 
             body = respuesta;
 
@@ -712,7 +712,7 @@ async function guardarLogErrorCreacion(peticionHeka, peticionInter, respuestaInt
         const colleccion = db.collection("errores");
         const {id_heka, centro_de_costo} = peticionHeka;
         if(!respuestaInter.idPreenvio) {
-            colleccion.add({
+            await colleccion.add({
                 causa: "INTER", 
                 type: "ERROR", 
                 peticionInter, 
@@ -724,7 +724,7 @@ async function guardarLogErrorCreacion(peticionHeka, peticionInter, respuestaInt
         } else if (id_heka) {
             const cantidadRepeticiones = colleccion.where("id_heka", "==", id_heka).get().then(q => q.size);
             if(cantidadRepeticiones) {
-                colleccion.add({
+                await colleccion.add({
                     causa: "INTER", 
                     type: "ERROR-PASSED", 
                     peticionInter, 
