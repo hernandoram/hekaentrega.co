@@ -323,4 +323,39 @@ export const segmentarArreglo = (arr, rango) => {
 export function getRandomInt(max) {
     return Math.floor(Math.random() * max);
 }
-  
+
+export function fetchApp2(link, request = {}) {
+    const headers = new Headers();
+    headers.append("Api-KeY", API_KEY);
+    headers.append("Content-Type", "application/json");
+    headers.append("Authorization", `Bearer ${localStorage.getItem("token")}`);
+    const defaultRequest = {
+        method: "GET"
+    }
+
+    return {
+        send: async () => {
+            const finalRequest = Object.assign(defaultRequest, request);
+            finalRequest.headers = headers;
+
+            return fetch(`${PROD_API_URL}${link}`, finalRequest)
+            .then(d => d.json())
+            .catch(e => {
+                return {
+                    error: true,
+                    message: e.message,
+                    response: null
+                }
+            });
+        },
+        appendHeader: function(key, value) {
+            headers.append(key, value);
+            return this;
+        },
+        deleteHeader: function(key) {
+            headers.delete(key);
+            return this;
+        }
+    }    
+}
+

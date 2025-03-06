@@ -1,5 +1,6 @@
 import { v1 } from "../config/api.js";
 import { selectize } from "../consultarCiudades.js";
+import { fetchApp2 } from "../utils/functions.js";
 import { controls } from "./constantes.js";
 import {
   TranslatorFromApi,
@@ -288,4 +289,16 @@ function mostrarListaTransportadoras(respuestaCotizacion) {
     });
 }
 
-export { cotizadorApi, cotizarApi }
+async function buscarCiudadPorCodigoDane(dane) {
+  return fetchApp2(`/Api/v1/geolocation/city?dane=${dane}&limit=1`)
+  .deleteHeader("authorization")
+  .send()
+  .catch(e => {
+    return {
+      error: true,
+      message: e.message
+    }
+  })
+}
+
+export { cotizadorApi, cotizarApi, buscarCiudadPorCodigoDane }

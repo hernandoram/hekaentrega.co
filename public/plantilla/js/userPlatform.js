@@ -5,7 +5,7 @@ import { iniciarOpcionesCotizador } from "./cotizador/index.js";
 import { registroDesdePunto } from "./auth/register.js";
 import { agregarObjetoDeEnvio } from "./auth/handlers.js";
 import "./puntoEnvio/index.js";
-
+import "./movimientoGuias/guiasMasivas.js";
 // if(estado_prueba) {
 // }
 // #region Funciones para habilitar configuraciones báses del cotizador
