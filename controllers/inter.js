@@ -717,7 +717,8 @@ async function guardarLogErrorCreacion(peticionHeka, peticionInter, respuestaInt
                 respuestaInter, 
                 id_heka: id_heka ?? null,
                 centro_de_costo,
-                fecha: new Date()
+                fecha: extsFunc.estandarizarFecha(new Date(), "YYYY-MM-DD"),
+                timeline: new Date.getTime()
             });
         } else if (id_heka) {
             const cantidadRepeticiones = await colleccion.where("id_heka", "==", id_heka).get().then(q => q.size);
@@ -729,7 +730,8 @@ async function guardarLogErrorCreacion(peticionHeka, peticionInter, respuestaInt
                     respuestaInter, 
                     id_heka: id_heka,
                     centro_de_costo,
-                    fecha: new Date()
+                    fecha: extsFunc.estandarizarFecha(new Date(), "YYYY-MM-DD"),
+                    timeline: new Date.getTime()
                 });
             }
         }
