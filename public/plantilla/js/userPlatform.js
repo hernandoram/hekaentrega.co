@@ -42,3 +42,24 @@ function imprimirQrRegistrarUsuarioPunto() {
   ventimp.close();
 
 }
+
+activarWidgetDroopCoordinadora();
+function activarWidgetDroopCoordinadora() {
+  var servicioUrlFirmada = "https://apis.coordinadora.com/puntos-drop/security/recursos/firmados"
+  
+  var xmlhttp = new XMLHttpRequest();
+  var key = "AIzaSyAP93IHbLvuNWt-Y-vkSb44bL7m2LiS1oA";
+  xmlhttp.open("GET",servicioUrlFirmada);
+  xmlhttp.setRequestHeader("x-api-key",key);
+  xmlhttp.onreadystatechange = function() {
+    if(xmlhttp.readyState === 4 && xmlhttp.status === 200){
+      var urlResultado = xmlhttp.responseText;
+      var scriptDroop = document.createElement( 'script' );
+      console.log(urlResultado);
+      scriptDroop.setAttribute( 'src', urlResultado );
+      document.body.appendChild( scriptDroop );
+    }
+  }
+
+  xmlhttp.send();
+}

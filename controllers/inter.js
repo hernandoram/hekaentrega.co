@@ -742,6 +742,14 @@ async function guardarLogErrorCreacion(peticionHeka, peticionInter, respuestaInt
 
 function comprimirCentroSerivciosInter(data) {
     const centrosServicio = data.reduce((a,b) => {
+        // Revisandod los resultados, se ha notado que los que tienen el IdZona a -1 no son idrecciones reales y tienen información ambigua
+        // Por lo que no se tomará en cuenta para el agregado en la lista de direcciones
+        if(b.CentroServicio.IdZona === '-1') return a; 
+
+        // Si se requiere, Tampoco se van a agregar las direciones que tengan en el campo "Direccion" alguno de los siguientes carácteres
+        const direccionesTriviales = ["PROPIO CONTRATISTA", "PROPIO APOYO", "APOYO"];
+        // if(direccionesTriviales.includes(b.CentroServicio.Direccion)) return a;
+
         const ref = a[b.CentroServicio.IdCentroServicio];
         
         if(ref) {

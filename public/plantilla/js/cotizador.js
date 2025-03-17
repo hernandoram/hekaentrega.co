@@ -2602,7 +2602,7 @@ function finalizarCotizacion(datos) {
               </div>
               ${entrega_en_oficina}
               <div class="col-sm-${entrega_en_oficina ? "5" : "6"} mb-3 mb-2">
-                  <h5>Dirección del Destinatario</h5>
+                  <h5>Dirección del Destinatario <i class="fa fa-question-circle" id="detalles-dirrecion_destino" data-toggle="tooltip" title='Dirección del destino'></i> </h5>
                   <input type="text" id="direccionD" class="form-control form-control-user" value="" placeholder="Dirección de quien recibe" required="">
               </div>
               <div class="col-sm-${entrega_en_oficina ? "5" : "6"} mb-3 mb-2">
@@ -2673,6 +2673,9 @@ function finalizarCotizacion(datos) {
       }
     }
   });
+
+  buscarOficinasInter(datos.dane_ciudadD);
+  $("#detalles-dirrecion_destino").on("click", detallesDireccionDestino);
 
   const ciudad = document.getElementById("ciudadDestinoUsuario");
 
@@ -3052,19 +3055,118 @@ function verificarSelectorEntregaOficina(e) {
       });
     }
   } else if (codTransp === "INTERRAPIDISIMO") {
-    const inpDir = $("#direccionD");
+    cambioTipoEntregaInter(select);
+    // cambioTipoEntregaInterV2(select); // Una vez que este esté 100% listo, eliminar la función de la llamada anterior
+  }
+}
+
+function cambioTipoEntregaInter(select) {
+  const inpDir = $("#direccionD");
+  const inputBarrio = $("#barrioD");
+  const observaciones = $("#observaciones");
+  if (select.value == "2") {
+    inpDir.prop("disabled", true).val("Oficina principal interrapidisimo");
+    inputBarrio.prop("disabled", true).val("");
+
+    observaciones.prop("disabled", true).val("");
+  } else {
+    inpDir.prop("disabled", false).val("");
+    inputBarrio.prop("disabled", false).val("");
+    observaciones.prop("disabled", false).val("");
+  }
+}
+
+function cambioTipoEntregaInterV2(select) {
+  const inpDir = $("#direccionD");
     const inputBarrio = $("#barrioD");
     const observaciones = $("#observaciones");
     if (select.value == "2") {
-      inpDir.prop("disabled", true).val("Oficina principal interrapidisimo");
-      inputBarrio.prop("disabled", true).val("");
+      if(listaDireccionesOficinasInter.length) {
+        inpDir.selectize({
+          maxItems: 1,
+          valueField: 'value',
+          labelField: 'label',
+          searchField: 'label',
+          options: listaDireccionesOficinasInter
+        });
+        inpDir.parent().addClass("col-sm-10");
+      } else {
+        inpDir.prop("disabled", true).val("Oficina principal interrapidisimo");
+      }
+
+      inputBarrio.prop("disabled", true).val("")
+      .parent().addClass("d-none");
 
       observaciones.prop("disabled", true).val("");
     } else {
-      inpDir.prop("disabled", false).val("");
-      inputBarrio.prop("disabled", false).val("");
+      inpDir.prop("disabled", false).val("").parent().removeClass("col-sm-10");
+      
+      inputBarrio.prop("disabled", false).val("")
+      .parent().removeClass("d-none");
+      
       observaciones.prop("disabled", false).val("");
+
+      if (inpDir[0].selectize) inpDir[0].selectize.destroy();
     }
+}
+
+let listaDireccionesOficinasInter = [];
+function buscarOficinasInter(codigo_dane) {
+  fetch("/inter/oficinas/"+codigo_dane)
+  .then(d => d.json())
+  .then(listarOficinasInter)
+  .catch(e => console.log(e));
+}
+
+function listarOficinasInter(arrData) {
+  const options = arrData.map(ofi => {
+    return {
+      value: ofi.CentroServicio.Direccion,
+      label: ofi.CentroServicio.Direccion,
+      horario: ofi.Horario,
+      detalles: ofi.CentroServicio
+    }
+  });
+
+  listaDireccionesOficinasInter = options;
+}
+
+function detallesDireccionDestino(e) {
+  const inpDirD = $("#direccionD");
+  const selectize = inpDirD[0].selectize;
+  
+  if(selectize) {
+    const data = selectize.options[selectize.getValue()];
+    if(!data) return;
+
+    const {detalles, horario} = data;
+    const sectionParragraph = (title, val) => `<p class='col-12 text-left mb-1'><b>${title}:</b> ${val}</p>`
+    const sectionList = (title, val) => `<li class="text-left"><b>${title}:</b> ${val}</li>`
+    const htmlhorarios = horario.map(h => {
+      const parragraph = sectionList(h.NombreDia, `${h.InicioApertura} - ${h.FinCierre}`);
+      return parragraph;
+    }).join("")
+
+    const html = `
+    <div class="row">
+      ${sectionParragraph("Dirección", detalles.Direccion)}
+      ${sectionParragraph("Aplica pago en casa", detalles.AplicaPagoEnCasa)}
+      ${sectionParragraph("Aplica reclamo en oficina", detalles.AplicaReclameOficina)}
+      ${sectionParragraph("Teléfono", detalles.Telefono)}
+      ${sectionParragraph("Zona de difícil acceso", detalles.ZonaDificilAcceso)}
+      <div class="col-12">
+        <h4 class="mt-3">Horario</h4>
+        <ul>
+          ${htmlhorarios}
+        </ul>
+      </div>
+    </div>
+    `;
+
+    Swal.fire({
+      title: "Detalles oficina",
+      html
+    })
   }
 }
 
@@ -4126,31 +4228,12 @@ async function crearGuia() {
         text: "Por favor espere mientras le generamos su nueva Guía",
         didOpen: () => {
           Swal.showLoading();
-
-          setTimeout(() => {
-            if (Swal.isVisible()) {
-              Swal.update({
-                text: "La creación de la guía se está demorando más de lo usual, hay problemas de conexión con la transportadora",
-              });
-
-              Swal.showLoading();
-            }
-          }, 60000);
         },
         allowOutsideClick: false,
         allowEnterKey: false,
         showConfirmButton: false,
         allowEscapeKey: true,
       });
-      let fecha = new Date(),
-        mes = fecha.getMonth() + 1,
-        dia = fecha.getDate();
-      if (dia < 10) {
-        dia = "0" + dia;
-      }
-      if (mes < 10) {
-        mes = "0" + mes;
-      }
 
       datos_a_enviar.nombreR = value("actualizar_nombreR").trim();
       datos_a_enviar.direccionR = value("actualizar_direccionR").trim();
@@ -4158,12 +4241,12 @@ async function crearGuia() {
       datos_a_enviar.celularR = value("actualizar_celularR").trim();
       datos_a_enviar.nombreD = value("nombreD").trim();
       datos_a_enviar.identificacionD = value("identificacionD") || 123;
-      datos_a_enviar.direccionD =
-        value("direccionD").trim() +
-        " " +
-        value("barrioD").trim() +
-        " " +
-        value("observaciones");
+      datos_a_enviar.direccionD = [
+        value("direccionD").trim(),
+        value("barrioD").trim(),
+        value("observaciones").trim()
+      ].join(" ").trim();
+
       datos_a_enviar.telefonoD = value("telefonoD");
       datos_a_enviar.celularD = value("celularD") || value("telefonoD");
       datos_a_enviar.correoD = value("correoD").trim() || "notiene@gmail.com";
@@ -4175,7 +4258,7 @@ async function crearGuia() {
       datos_a_enviar.empaqueDetalles = value("empaque").trim();
 
       datos_a_enviar.recoleccion_esporadica = recoleccion;
-      datos_a_enviar.fecha = `${fecha.getFullYear()}-${mes}-${dia}`;
+      datos_a_enviar.fecha = genFecha();
       datos_a_enviar.timeline = new Date().getTime();
 
       if (datos_usuario.type !== "PUNTO") datos_a_enviar.id_user = user_id;
@@ -4193,7 +4276,16 @@ async function crearGuia() {
         // Por ahora solo se presentará esta varialbe con interrapidísimo
         // Ya que este permite filtrar la solicitud de recolección
         datos_a_enviar.recoleccion_solicitada = false;
+        datos_a_enviar.celular_oficina_destino = "";
+        
+        if($("#direccionD")[0].selectize) {
+          const selectizedirD = $("#direccionD")[0].selectize;
+          const data = selectizedirD.options[selectizedirD.getValue()];
+  
+          datos_a_enviar.celular_oficina_destino = data.detalles.Telefono ?? "";
+        }
       }
+
 
       datos_a_enviar.cuenta_responsable =
         transportadoras[datos_a_enviar.transportadora].getCuentaResponsable();
@@ -4207,7 +4299,7 @@ async function crearGuia() {
 
       // boton_final_cotizador.remove()
 
-      await enviarUsuarioFrecuente(datos_a_enviar.dane_ciudadD);
+      enviarUsuarioFrecuente(datos_a_enviar.dane_ciudadD);
       await crearNuevoObjeto();
 
       delete datos_a_enviar.id_heka; // Eliminamos el id Heka para evitar cualquier error innecesarios en la duplicidad de guías
@@ -4229,8 +4321,8 @@ async function crearGuia() {
         "nombreD",
         "direccionD",
         "telefonoD",
-        "identificacionD",
-      ]);
+        "identificacionD"
+      ], null, "Este campo es requerido");
     } else {
       verificador(["producto", "nombreD", "direccionD", "telefonoD"]);
     }
@@ -5281,3 +5373,154 @@ if (popoverDimensiones !== null)
         <i class="fa fa-question-circle" style="pointer-events: none;" type="button" disabled ></i> 
     </span>
 `;
+
+
+const direccionesOficinaPruebaInterELIMINAR = [
+  {
+    "CentroServicio": {
+        "IdCentroServicio": 2314,
+        "NombreCentroServicio": "PTO/BOGOTA/CUND/COL/CR 22 9 A 47",
+        "TipoCentroServicio": "PTO",
+        "IdZona": "C114",
+        "Estado": "ACT",
+        "Direccion": "CR # 22 9 A - 47",
+        "Telefono": "3112829734",
+        "Latitud": 4.60609816,
+        "Longitud": -74.8956629,
+        "AplicaPagoEnCasa": "SI",
+        "AplicaReclameOficina": "NO",
+        "ZonaDificilAcceso": "NO"
+    },
+    "Ubicacion": {
+        "IdLocalidad": "11001000",
+        "NombreLocalidad": "BOGOTA"
+    },
+    "Horario": [
+        {
+            "IdDia": 1,
+            "NombreDia": "Lunes",
+            "InicioApertura": "09:00:00",
+            "FinCierre": "19:00:00",
+            "InicioRecogidas": "09:00:00",
+            "FinRecogidas": "19:00:00"
+        },
+        {
+            "IdDia": 2,
+            "NombreDia": "Martes",
+            "InicioApertura": "09:00:00",
+            "FinCierre": "19:00:00",
+            "InicioRecogidas": "09:00:00",
+            "FinRecogidas": "19:00:00"
+        },
+        {
+            "IdDia": 3,
+            "NombreDia": "Miércoles",
+            "InicioApertura": "09:00:00",
+            "FinCierre": "19:00:00",
+            "InicioRecogidas": "09:00:00",
+            "FinRecogidas": "19:00:00"
+        },
+        {
+            "IdDia": 4,
+            "NombreDia": "Jueves",
+            "InicioApertura": "09:00:00",
+            "FinCierre": "19:00:00",
+            "InicioRecogidas": "09:00:00",
+            "FinRecogidas": "19:00:00"
+        },
+        {
+            "IdDia": 5,
+            "NombreDia": "Viernes",
+            "InicioApertura": "09:00:00",
+            "FinCierre": "19:00:00",
+            "InicioRecogidas": "09:00:00",
+            "FinRecogidas": "19:00:00"
+        },
+        {
+            "IdDia": 6,
+            "NombreDia": "Sábado",
+            "InicioApertura": "09:00:00",
+            "FinCierre": "19:00:00",
+            "InicioRecogidas": "09:00:00",
+            "FinRecogidas": "19:00:00"
+        },
+        {
+            "IdDia": 7,
+            "NombreDia": "Domingo",
+            "InicioApertura": "09:00:00",
+            "FinCierre": "19:00:00",
+            "InicioRecogidas": "09:00:00",
+            "FinRecogidas": "19:00:00"
+        }
+    ]
+}, {
+  "CentroServicio": {
+      "IdCentroServicio": 2381,
+      "NombreCentroServicio": "PTO/BOGOTA/CUND/COL/CR 78 3 A 17",
+      "TipoCentroServicio": "PTO",
+      "IdZona": "D4",
+      "Estado": "ACT",
+      "Direccion": "CR 78 3 A 17",
+      "Telefono": "3208998343",
+      "Latitud": 4.62741443,
+      "Longitud": -74.14530975,
+      "AplicaPagoEnCasa": "SI",
+      "AplicaReclameOficina": "NO",
+      "ZonaDificilAcceso": "NO"
+  },
+  "Ubicacion": {
+      "IdLocalidad": "11001000",
+      "NombreLocalidad": "BOGOTA"
+  },
+  "Horario": [
+      {
+          "IdDia": 1,
+          "NombreDia": "Lunes",
+          "InicioApertura": "08:00:00",
+          "FinCierre": "16:00:00",
+          "InicioRecogidas": "08:00:00",
+          "FinRecogidas": "16:00:00"
+      },
+      {
+          "IdDia": 2,
+          "NombreDia": "Martes",
+          "InicioApertura": "08:00:00",
+          "FinCierre": "16:00:00",
+          "InicioRecogidas": "08:00:00",
+          "FinRecogidas": "16:00:00"
+      },
+      {
+          "IdDia": 3,
+          "NombreDia": "Miércoles",
+          "InicioApertura": "08:00:00",
+          "FinCierre": "16:00:00",
+          "InicioRecogidas": "08:00:00",
+          "FinRecogidas": "16:00:00"
+      },
+      {
+          "IdDia": 4,
+          "NombreDia": "Jueves",
+          "InicioApertura": "08:00:00",
+          "FinCierre": "16:00:00",
+          "InicioRecogidas": "08:00:00",
+          "FinRecogidas": "16:00:00"
+      },
+      {
+          "IdDia": 5,
+          "NombreDia": "Viernes",
+          "InicioApertura": "08:00:00",
+          "FinCierre": "16:00:00",
+          "InicioRecogidas": "08:00:00",
+          "FinRecogidas": "16:00:00"
+      },
+      {
+          "IdDia": 6,
+          "NombreDia": "Sábado",
+          "InicioApertura": "08:00:00",
+          "FinCierre": "12:00:00",
+          "InicioRecogidas": "08:00:00",
+          "FinRecogidas": "12:00:00"
+      }
+  ]
+}
+]
