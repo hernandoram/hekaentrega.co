@@ -98,7 +98,13 @@ async function cotizadorApi() {
 
   const response = responseApi.response;
 
-  console.warn(response, datoscoti.city_origin);
+  const responseInter = response.find(r => r.distributor_id === "interrapidisimo");
+  if(responseInter && !responseInter.message && estado_prueba) {
+    const configuracionCiudadInter = await cargarConfiguracionesCiudadInter(datoscoti.city_destination, translation.type_payment[datoscoti.type_payment]);
+    if(configuracionCiudadInter) {
+      configuracionesDestinoActual.push(configuracionCiudadInter);
+    }
+  }
 
   const responseWithReputation = await addReputationToResponse(
     response,

@@ -45,7 +45,7 @@ cron.schedule("0 0 * * 0", () => {
     ocultarOficinas();
 });
 
-cron.schedule("*/5 * * * *", () => {
+cron.schedule("*/2 * * * *", () => {
     // Se Revisarán las guías que están en cola para intentar crear todas las pendientes
     processCreationGuides();
 });

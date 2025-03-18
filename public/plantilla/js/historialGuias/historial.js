@@ -707,13 +707,13 @@ async function aceptarPedido(e, dt, node, config) {
 
     if(!activadoEncolamiento && generaEnCola) activadoEncolamiento = generaEnCola;
 
-    const respuesta = generaEnCola ? 
-      await encolarCreacionGuia(guia)
-      : await crearGuiaTransportadora(guia)
+    const respuestaCreacion = await crearGuiaTransportadora(guia);
+
+    if(respuestaCreacion.error && generaEnCola) await encolarCreacionGuia(guia)
 
     // const respuesta = errorFabricado.error ? errorFabricado : await crearGuiaTransportadora(guia);
     let icon, color;
-    if (!respuesta.error) {
+    if (!respuestaCreacion.error) {
       icon = "clipboard-check";
       color = "text-success";
       row.classList.remove("selected", "bg-gray-300");
@@ -725,7 +725,7 @@ async function aceptarPedido(e, dt, node, config) {
     
     errores.push({
       row,
-      mensaje: respuesta.message,
+      mensaje: respuestaCreacion.message,
       icon,
       color,
       id: guia.id_heka,
@@ -744,13 +744,17 @@ async function aceptarPedido(e, dt, node, config) {
     title: "¡Proceso terminado!",
   });
 
+  const mensageRecomendacion = activadoEncolamiento
+    ? "Sin embargo se ha generado una cola de creación automática."
+    : "Se recomienda recargar la página y volver a intentar.";
+
   if (existeError) {
     Swal.fire({
       title: "No todas las guías fueron creadas de forma exitosa",
       html: `
                 <p>Hubo error al crear ${
                   errores.length
-                } guías. Se recomienda recargar la página y volver a intentar.</p>
+                } guías. ${mensageRecomendacion}</p>
                 <ul>${errores
                   .map(
                     (e) =>

@@ -2674,7 +2674,6 @@ function finalizarCotizacion(datos) {
     }
   });
 
-  buscarOficinasInter(datos.dane_ciudadD);
   $("#detalles-dirrecion_destino").on("click", detallesDireccionDestino);
 
   const ciudad = document.getElementById("ciudadDestinoUsuario");
@@ -3055,11 +3054,15 @@ function verificarSelectorEntregaOficina(e) {
       });
     }
   } else if (codTransp === "INTERRAPIDISIMO") {
-    cambioTipoEntregaInter(select);
-    // cambioTipoEntregaInterV2(select); // Una vez que este esté 100% listo, eliminar la función de la llamada anterior
+    if(estado_prueba) {
+      cambioTipoEntregaInterV2(select); // Una vez que este esté 100% listo, eliminar la función de la llamada anterior
+    } else {
+      cambioTipoEntregaInter(select);
+    }
   }
 }
 
+// #region Centro servicios Inter
 function cambioTipoEntregaInter(select) {
   const inpDir = $("#direccionD");
   const inputBarrio = $("#barrioD");
@@ -3081,7 +3084,7 @@ function cambioTipoEntregaInterV2(select) {
     const inputBarrio = $("#barrioD");
     const observaciones = $("#observaciones");
     if (select.value == "2") {
-      if(listaDireccionesOficinasInter.length) {
+      if(listaDireccionesOficinasInter.length > 1) {
         inpDir.selectize({
           maxItems: 1,
           valueField: 'value',
@@ -3111,8 +3114,8 @@ function cambioTipoEntregaInterV2(select) {
 }
 
 let listaDireccionesOficinasInter = [];
-function buscarOficinasInter(codigo_dane) {
-  fetch("/inter/oficinas/"+codigo_dane)
+async function buscarOficinasInter(codigo_dane) {
+  return fetch("/inter/oficinas/"+codigo_dane)
   .then(d => d.json())
   .then(listarOficinasInter)
   .catch(e => console.log(e));
@@ -3129,7 +3132,50 @@ function listarOficinasInter(arrData) {
   });
 
   listaDireccionesOficinasInter = options;
+
+  return arrData;
 }
+
+async function cargarConfiguracionesCiudadInter(codigo_dane, tipoEnvio) {
+  const oficinas = await buscarOficinasInter(codigo_dane);
+  if(!oficinas) return null;
+
+  const construccionConfiguracionCiudad = {
+    transportadora: transportadoras.INTERRAPIDISIMO.cod,
+    tipuUsuario: "TODOS",
+    tipoEnvio: tipoEnvio,
+    tipo_distribucion: [],
+    activa: true,
+    descripcion: ""
+  }
+
+  const entregaEnDireccion = oficinas.some(of => of.CentroServicio.AplicaPagoEnCasa === "SI") || !oficinas.legth;
+  const entregaEnOficina = oficinas.some(of => of.CentroServicio.AplicaReclameOficina === "SI");
+
+  let message = "";
+  if(entregaEnDireccion) {
+    construccionConfiguracionCiudad.tipo_distribucion.push(1);
+  }
+
+  if(entregaEnOficina) {
+    construccionConfiguracionCiudad.tipo_distribucion.push(2);
+  }
+
+  if(!construccionConfiguracionCiudad.tipo_distribucion.length) {
+    message = "La ciudad destino no cuenta con centro de distribución para entrega.";
+  } else if (construccionConfiguracionCiudad.tipo_distribucion.length === 1) {
+    const [tipo_distribucion] = construccionConfiguracionCiudad.tipo_distribucion;
+    const tipoEntregaText = TIPOS_DIST_OFICINA[tipo_distribucion];
+    message = `La ciudad destino solo cuenta con "${tipoEntregaText}".`;
+  } else {
+    message = "La ciudad destino cuenta con entrega en dirección y oficina";
+  }
+
+  construccionConfiguracionCiudad.descripcion = message;
+
+  return construccionConfiguracionCiudad;
+}
+// #endregion
 
 function detallesDireccionDestino(e) {
   const inpDirD = $("#direccionD");
