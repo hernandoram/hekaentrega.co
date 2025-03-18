@@ -742,11 +742,6 @@ async function guardarLogErrorCreacion(peticionHeka, peticionInter, respuestaInt
 
 function comprimirCentroSerivciosInter(data) {
     const centrosServicio = data.reduce((a,b) => {
-
-        // Si se requiere, Tampoco se van a agregar las direciones que tengan en el campo "Direccion" alguno de los siguientes carácteres
-        const direccionesTriviales = ["PROPIO CONTRATISTA", "PROPIO APOYO", "APOYO"];
-        // if(direccionesTriviales.includes(b.CentroServicio.Direccion)) return a;
-
         const ref = a[b.CentroServicio.IdCentroServicio];
         
         if(ref) {
