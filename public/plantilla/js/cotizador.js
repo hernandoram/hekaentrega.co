@@ -3145,7 +3145,7 @@ async function cargarConfiguracionesCiudadInter(codigo_dane, tipoEnvio) {
 
   const construccionConfiguracionCiudad = {
     transportadora: transportadoras.INTERRAPIDISIMO.cod,
-    tipuUsuario: "TODOS",
+    tipoUsuario: "TODOS",
     tipoEnvio: tipoEnvio,
     tipo_distribucion: [],
     activa: true,

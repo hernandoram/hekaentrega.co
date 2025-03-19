@@ -43,7 +43,7 @@ function imprimirQrRegistrarUsuarioPunto() {
 
 }
 
-activarWidgetDroopCoordinadora();
+// activarWidgetDroopCoordinadora();
 function activarWidgetDroopCoordinadora() {
   var servicioUrlFirmada = "https://apis.coordinadora.com/puntos-drop/security/recursos/firmados"
   
