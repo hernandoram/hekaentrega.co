@@ -3152,8 +3152,12 @@ async function cargarConfiguracionesCiudadInter(codigo_dane, tipoEnvio) {
     descripcion: ""
   }
 
-  const entregaEnDireccion = oficinas.some(of => of.CentroServicio.AplicaPagoEnCasa === "SI") || !oficinas.legth;
-  const entregaEnOficina = oficinas.some(of => of.CentroServicio.AplicaReclameOficina === "SI");
+  const acceptaPagoEnCasa = oficinas.some(of => of.CentroServicio.AplicaPagoEnCasa === "SI");
+
+  // Mantendremos estas dos condiciones igual, ya que los resultados de inter, no son coherente en la mayoría de los casos
+  // Entonces lo mantendremos estandar, y luego de comprobar su comprotamiento encapsulamos las condiciones exactas
+  const entregaEnOficina = oficinas.length;
+  const entregaEnDireccion = oficinas.length;
 
   let message = "";
   if(entregaEnDireccion) {
@@ -3172,6 +3176,10 @@ async function cargarConfiguracionesCiudadInter(codigo_dane, tipoEnvio) {
     message = `La ciudad destino solo cuenta con "${tipoEntregaText}".`;
   } else {
     message = "La ciudad destino cuenta con entrega en dirección y oficina";
+  }
+
+  if(!acceptaPagoEnCasa && [CONTRAENTREGA, PAGO_CONTRAENTREGA].includes(tipoEnvio) && construccionConfiguracionCiudad.tipo_distribucion.length) {
+    message = "El destino no admite pago a destino ni contraentrega.";
   }
 
   construccionConfiguracionCiudad.descripcion = message;

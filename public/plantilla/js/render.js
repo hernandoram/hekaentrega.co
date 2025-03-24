@@ -2820,7 +2820,7 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
                 </div>
             `,
     gestionar = `
-                <div class="col mb-3" id="contenedor-solucion_novedad">
+                <div class="col mb-3" id="contenedor-solucion_novedad-${dataN.transportadora.toLowerCase()}">
                 ${mostrador_gestionar}
                 </div>
             `;

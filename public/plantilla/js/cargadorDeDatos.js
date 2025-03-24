@@ -668,14 +668,16 @@ function limitarAccesoSegunTipoUsuario() {
       "estados", // Usuario Loggy no podrá ver el panel de estados
       "btn-seguimiento-gestionarNovedad",
       "seguimiento-gestionarNovedad",
-      "contenedor-solucion_novedad",
+      "contenedor-solucion_novedad-interrapidisimo",
+      "contenedor-solucion_novedad-servientrega",
+      "contenedor-solucion_novedad-coordinadora",
       "contenedor-mostrar-billetera"
     ];
   } else if (datos_usuario.type === "REFERIDO") {
     quitarVistas = [
       "btn-seguimiento-gestionarNovedad",
       "seguimiento-gestionarNovedad",
-      "contenedor-solucion_novedad"
+      "contenedor-solucion_novedad-interrapidisimo"
     ];
   } else if (ControlUsuario.esPuntoEnvio) {
     vistasPreferenciales = [
