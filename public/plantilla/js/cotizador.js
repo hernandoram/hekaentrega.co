@@ -2393,6 +2393,8 @@ function finalizarCotizacion(datos) {
         </select>
       </div>
     `;
+  } else if (datos.transportadora === transportadoras.COORDINADORA.cod && estado_prueba) {
+    entrega_en_oficina = `<div class="col-sm-2">${puntoDropcoordi.view}</div>`;
   }
 
   let detalles = detalles_cotizacion(datos),
@@ -2675,6 +2677,7 @@ function finalizarCotizacion(datos) {
   });
 
   $("#detalles-dirrecion_destino").on("click", detallesDireccionDestino);
+  puntoDropcoordi.activateEvent();
 
   const ciudad = document.getElementById("ciudadDestinoUsuario");
 
@@ -3226,6 +3229,77 @@ function detallesDireccionDestino(e) {
     })
   }
 }
+
+class PuntosDropCoordinadora {
+  url = "https://apis.coordinadora.com/puntos-drop/security/recursos/firmados";
+  api_key = "AIzaSyDzcKsYo7vYeR6aeoXE-5byBublGhyf9P8";
+  eventActivated = false;
+  detail = null;
+  constructor() {
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.open("GET", this.url);
+    xmlhttp.setRequestHeader("x-api-key",this.api_key);
+    xmlhttp.onreadystatechange = function() {
+      if(xmlhttp.readyState === 4 && xmlhttp.status === 200){
+        var urlResultado = xmlhttp.responseText;
+        var scriptDroop = document.createElement( 'script' );
+        console.log(urlResultado);
+        scriptDroop.setAttribute( 'src', urlResultado );
+        document.body.appendChild( scriptDroop );
+      }
+    }
+
+    xmlhttp.send();
+  }
+
+  get view() {
+    return `<puntos-drop entry-parameter="${this.api_key}" logo-comercio="" frame-activo="false"></puntos-drop>`;
+  }
+
+  activateEvent() {
+    if(this.eventActivated) return;
+
+    const widgetOut = $('puntos-drop');
+    widgetOut.on('objetoDroopSalida', (event) => {
+      const { originalEvent } = event;
+      const { detail } = originalEvent;
+      this.detail = detail;
+      
+      console.log(detail);
+      const inpBarrio = $("#barrioD");
+      const inpDir = $("#direccionD");
+      const observaciones = $("#observaciones");
+
+      if(!this.validateSelectedCity()) return;
+
+
+      if (detail.flagRetorno) {
+        inpDir.prop("disabled", true).val(detail.direccion);
+        inpBarrio.prop("disabled", true).val("");
+  
+        observaciones.prop("disabled", true).val("");
+      } else {
+        inpDir.prop("disabled", false).val("");
+        inpBarrio.prop("disabled", false).val("");
+        observaciones.prop("disabled", false).val("");
+      }
+    });
+  }
+
+  validateSelectedCity() {
+    if(!this.detail) return true;
+
+    if(this.detail.flagRetorno && this.detail.daneCiudad != datos_a_enviar.dane_ciudadD) {
+      Swal.fire("Dirección incoherente", "La ciudad que ha seleccionado desde cotización no coincide con el punto drop que intenta seleccionar.", "warning");
+      return false;
+    }
+
+    return true;
+  }
+}
+
+const puntoDropcoordi = new PuntosDropCoordinadora();
+
 
 function restringirCaracteresEspecialesEnInput() {
   const detector = new DetectorErroresInput(
@@ -4279,6 +4353,12 @@ async function crearGuia() {
       );
       verificador("actualizar_direccionR", "moderador_direccionR");
       renovarSubmit(boton_final_cotizador, textoBtn);
+    } else if (
+      datos_a_enviar.transportadora === transportadoras.COORDINADORA.cod &&
+      !puntoDropcoordi.validateSelectedCity()
+    ) {
+      verificador("direccionD");
+      renovarSubmit(boton_final_cotizador, textoBtn);
     } else {
       Swal.fire({
         title: "Creando Guía",
@@ -4368,9 +4448,9 @@ async function crearGuia() {
       }
     }
   } else {
-    alert("Por favor, verifique que los campos esenciales no estén vacíos");
+    Swal.fire("Datos incompletos","Por favor, verifique que los campos esenciales no estén vacíos", "error");
 
-    const valor = document.getElementById("entrega_en_oficina").value;
+    const valor = document.getElementById("entrega_en_oficina")?.value;
 
     if (valor === "2") {
       verificador([
