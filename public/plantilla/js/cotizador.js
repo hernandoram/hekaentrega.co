@@ -3127,10 +3127,16 @@ async function buscarOficinasInter(codigo_dane) {
 function listarOficinasInter(arrData) {
   const options = arrData.filter(ofi => {
     const direccionesTriviales = ["PROPIO CONTRATISTA", "PROPIO APOYO", "APOYO"];
-    return !direccionesTriviales.includes(ofi.CentroServicio.Direccion);
+    const direccionTrivial = direccionesTriviales.includes(ofi.CentroServicio.Direccion);
+    if(direccionTrivial) return false;
+
+    const { AplicaReclameOficina } = ofi.CentroServicio;
+    return AplicaReclameOficina === "SI";
   }).map(ofi => {
+    const {IdCentroServicio, TipoCentroServicio, Direccion} = ofi.CentroServicio;
+    const value = `RECLAME OFICINA ${TipoCentroServicio}/${IdCentroServicio} ${Direccion}`;
     return {
-      value: ofi.CentroServicio.Direccion,
+      value: value,
       label: ofi.CentroServicio.Direccion,
       horario: ofi.Horario,
       detalles: ofi.CentroServicio
