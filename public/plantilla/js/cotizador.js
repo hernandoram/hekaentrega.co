@@ -3057,11 +3057,8 @@ function verificarSelectorEntregaOficina(e) {
       });
     }
   } else if (codTransp === "INTERRAPIDISIMO") {
-    if(estado_prueba) {
-      cambioTipoEntregaInterV2(select); // Una vez que este esté 100% listo, eliminar la función de la llamada anterior
-    } else {
-      cambioTipoEntregaInter(select);
-    }
+    // cambioTipoEntregaInter(select);
+    cambioTipoEntregaInterV2(select); // Una vez que este esté 100% listo, eliminar la función de la llamada anterior
   }
 }
 

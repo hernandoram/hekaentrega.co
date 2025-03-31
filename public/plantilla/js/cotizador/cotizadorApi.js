@@ -99,7 +99,7 @@ async function cotizadorApi() {
   const response = responseApi.response;
 
   const responseInter = response.find(r => r.distributor_id === "interrapidisimo");
-  if(responseInter && !responseInter.message && estado_prueba) {
+  if(responseInter && !responseInter.message) {
     const configuracionCiudadInter = await cargarConfiguracionesCiudadInter(datoscoti.city_destination, translation.type_payment[datoscoti.type_payment]);
     if(configuracionCiudadInter) {
       configuracionesDestinoActual.push(configuracionCiudadInter);
