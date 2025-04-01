@@ -2393,7 +2393,7 @@ function finalizarCotizacion(datos) {
         </select>
       </div>
     `;
-  } else if (datos.transportadora === transportadoras.COORDINADORA.cod && estado_prueba) {
+  } else if (datos.transportadora === transportadoras.COORDINADORA.cod) {
     entrega_en_oficina = `<div class="col-sm-2">${puntoDropcoordi.view}</div>`;
   }
 
