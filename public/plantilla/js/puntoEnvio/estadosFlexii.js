@@ -300,12 +300,14 @@ async function opccionesFormularioEstados(form) {
 
 async function guardarEvidencia(idEnvio, data) {
     const archivo = data.evidencia;
+
+    if(!archivo || !archivo.size) return;
+
     const nombrePila = data.estado;
     const tipo = archivo.name.split(".")[1];
 
     delete data.evidencia; // Quitamos el archivo que se manda al back ( ya que lo estamso creadndo desde aquí )
 
-    if(!archivo.size) return;
 
     const referenceStorage = storage
     .ref()
