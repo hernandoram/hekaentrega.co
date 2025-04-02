@@ -329,7 +329,7 @@ async function guardarEvidencia(idEnvio, data) {
 async function validarImagen(e) {
     const target = e.target;
     const file = target.files[0];
-    const maxMb = 1;
+    const maxMb = 10;
     const longitudImagenPermitida = maxMb * 1024 * 1024; // 10 Megabytes
     const label = target.parentNode.querySelector("label");
     target.classList.remove("border-danger");

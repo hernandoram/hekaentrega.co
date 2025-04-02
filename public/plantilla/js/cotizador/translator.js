@@ -117,6 +117,8 @@ class TranslatorFromApi {
      * Es decir, las guíass creadas con versión 2 que sean pago contraentrega no cobran devolución
      */
     get cobraDevolucion() {
+      if (this.codTransp === "HEKA") return false;
+
       const esVersion1 = this.version === 1;
       const version2PagoContraentrega = this.version === 2 && this.type !== PAGO_CONTRAENTREGA;
       return esVersion1 || version2PagoContraentrega;
