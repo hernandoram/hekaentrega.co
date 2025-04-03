@@ -2331,7 +2331,7 @@ function finalizarCotizacion(datos) {
   if(datos.transportadora === transportadoras.COORDINADORA.cod) {
     solicitud_recoleccion = `
     <div class="alert alert-danger col-12">
-      <h3 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, diligencie a través del siguiente <a href="https://tinyurl.com/H3KAR" target="_blank">FROMULARIO</a>.</small></h3>
+      <h3 class='ml-2'><small>Para realizar solicitud de recolección con ${datos.transportadora}, por favor, diligencie a través del siguiente <a href="https://tinyurl.com/H3KAR" target="_blank">FORMULARIO</a>.</small></h3>
     </div>
     `;
   } else if (

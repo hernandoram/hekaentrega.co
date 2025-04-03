@@ -2120,6 +2120,7 @@ $("#btn-revisar_pagos").click(async (e) => {
       "INTERRAPIDISIMO",
       "COORDINADORA",
       "REFERIDOS",
+      "HEKA"
     ];
   }
 

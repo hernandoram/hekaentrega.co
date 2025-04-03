@@ -306,9 +306,6 @@ async function guardarEvidencia(idEnvio, data) {
     const nombrePila = data.estado;
     const tipo = archivo.name.split(".")[1];
 
-    delete data.evidencia; // Quitamos el archivo que se manda al back ( ya que lo estamso creadndo desde aquí )
-
-
     const referenceStorage = storage
     .ref()
     .child(`enviosHeka/${idEnvio}/${nombrePila}.${tipo}`);
