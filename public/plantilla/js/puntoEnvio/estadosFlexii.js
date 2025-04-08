@@ -249,12 +249,6 @@ async function opccionesFormularioEstados(form) {
         const existOption = listaEstadosHeka.find(est => est.novedad === inputEstados.val() && inputDescripcionEstado.val() === est.mensaje);
         if(existOption) {
             switchNovedad.prop("checked", existOption.esNovedad ?? false);
-
-            if(existOption.categoria === "ENTREGADA") {
-                inputEvidencia.parent().removeClass("d-none");
-            } else {
-                inputEvidencia.parent().addClass("d-none");
-            }
         }
 
         return existOption;
@@ -303,8 +297,8 @@ async function guardarEvidencia(idEnvio, data) {
 
     if(!archivo || !archivo.size) return;
 
-    const nombrePila = data.estado;
-    const tipo = archivo.name.split(".")[1];
+    const [nombre, tipo] = archivo.name.split(".");
+    const nombrePila = data.estado + "_" + nombre;
 
     const referenceStorage = storage
     .ref()

@@ -7,7 +7,7 @@ async function inscripcionPago(guia) {
     const { type, numeroGuia, estado, detalles, centro_de_costo } = guia;
     const deuda = guia.debe;
 
-    if(!["SellersublimacionesestampadocalzadoyalgomasVRRAMOS"].includes(centro_de_costo)) return; // Inicialmente solo estará disponibles para centros de costo selectos
+    if(![].includes(centro_de_costo)) return; // Inicialmente solo estará disponibles para centros de costo selectos
     
     if( detalles.versionCotizacion == 2 ) return; // Por ahora ignoraremos los pagos que se harán sobre la versión 2
 

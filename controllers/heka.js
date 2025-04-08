@@ -168,6 +168,7 @@ exports.actualizarMovimientos = async (req, res) => {
           observacion: nuevoEstado.observaciones,
           descripcionMov: nuevoEstado.descripcion,
           ubicacion: nuevoEstado.ubicacion,
+          urlEvidencia: nuevoEstado.urlEvidencia ?? null,
           tipoMotivo: null
         }
         

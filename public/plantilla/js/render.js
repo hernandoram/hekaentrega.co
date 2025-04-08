@@ -2867,6 +2867,7 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
       let mov = dataN.movimientos[i];
       let li = document.createElement("li");
       let enNovedad = revisarNovedad(mov, dataN.transportadora);
+      const htmlEvidencia = mov.urlEvidencia ? `<a href="${mov.urlEvidencia}" target="_blank">EVIDENCIA</a>` : "";
 
       li.innerHTML = `
                     <span class="badge badge-primary badge-pill mr-2 d-flex align-self-start">${
@@ -2891,6 +2892,7 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
                     <p>
                         <span class="text-danger">${mov.novedad}</span>
                     </p>
+                    ${htmlEvidencia}
                     </div>
                 `;
       li.setAttribute("class", "list-group-item d-flex");
