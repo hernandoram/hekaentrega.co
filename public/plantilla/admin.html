@@ -2897,6 +2897,11 @@
 
             <h3>Guías por solicitar <i class="fa fa-sync text-primary" title="Cargar Solicitudes" data-toggle="tooltip"
                 id="revisar-recolecciones"></i></h3>
+            
+            <button class="btn btn-primary d-none" id="solicitar-recoleccion-masiva">
+                Solicitar Recolección Masiva
+                <span id="counter-recoleccion-masiva" class="badge badge-light badge-pill">0</span>
+            </button>
 
 
             <ul class="list-group list-group-horizontal flex-wrap mx-auto my-4 d-flex flex-wrap"
@@ -2907,9 +2912,25 @@
             <h3>Guías solicitadas <i class="fa fa-sync text-primary" title="Cargar Solicitudes" data-toggle="tooltip"
                 id="revisar-recolecciones-realizadas"></i></h3>
 
-            <section class="d-none mt-4 " id="mostrador-guias-solicitadas">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                  <div class="d-flex  ">
+                      <div class="form-group mr-4">
+                      <label for="fechaInicio">Fecha inicio</label>
+                      <input type="date" class="form-control mr-2" id="guias-solicitadas-fechaInicio" value="" placeholder="Fecha inicio">
+                      </div>
+                      <div class="form-group">
+                      <label for="fechaFinal">Fecha final</label>
+                      <input type="date" class="form-control" id="guias-solicitadas-fechaFinal" value="" placeholder="Fecha final">
+                      </div>
+                  </div>
+                  <button class="btn btn-primary d-none" title="Descargar informe" id="descargar-informe-guias-solicitadas">
+                    <span class="d-none d-md-inline">Descargar informe</span> <i class="fa fa-download"></i>
+                  </button>
+                </div>
 
+            <section class="d-none mt-4 " id="mostrador-guias-solicitadas">
               <p id="loadingMessage" class="text-center">Cargando ...</p>
+              
 
               <table  id="tablaRecolecciones" class="table table-bordered d-none">
                 <thead>

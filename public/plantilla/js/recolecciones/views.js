@@ -46,6 +46,18 @@ export const formRecoleccion = (data) => {
     `;
 };
 
+export const formRecoleccionMasiva = (data) => {
+  return `
+        <form>
+            <div class="mb-3">
+                <label for="fecha-recoleccion">Fecha Recolección</label>
+                <input type="datetime-local" class="form-control" required id="fecha-recoleccion" name="fechaRecogida">
+                <div class="invalid-feedback">Please provide a valid city.</div>
+            </div>
+        </form>
+    `;
+};
+
 export const formEliminarGuiasRecoleccion = (data) => {
   return `
         <form>
