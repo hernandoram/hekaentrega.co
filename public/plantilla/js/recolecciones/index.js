@@ -70,6 +70,7 @@ const acciones = {
   },
 };
 
+
 const elListaSucursales = $("#lista-recolecciones");
 const elRevisarRecolecciones = $("#revisar-recolecciones");
 const elRevisarRecoleccionesRealizadas = $("#revisar-recolecciones-realizadas");
@@ -106,8 +107,6 @@ eliminarGuiasIndividualesButton.addEventListener(
 async function llenarRecoleccionesPendientes(solicitar, fechaInicio, fechaFin) {
 
   const ref = db.collectionGroup("guias");
-  console.log('fechas', fechaInicio, fechaFin);
-
   const fechaInicioStr = fechaInicio 
     ? new Date(new Date(fechaInicio).setUTCHours(0, 0, 0, 0)).toISOString() 
     : new Date(new Date(new Date().setDate(new Date().getDate() - 6)).setUTCHours(0, 0, 0, 0)).toISOString();
@@ -115,10 +114,6 @@ async function llenarRecoleccionesPendientes(solicitar, fechaInicio, fechaFin) {
   const fechaFinStr = fechaFin 
     ? new Date(new Date(fechaFin).setUTCHours(23, 59, 59, 999)).toISOString()
     : new Date(new Date().setUTCHours(23, 59, 59, 999)).toISOString();
-
-  console.log(fechaInicioStr, fechaFinStr);
-
-
 
   const query = ref
     .where("fecha_recoleccion", ">=", fechaInicioStr)
@@ -133,7 +128,6 @@ async function llenarRecoleccionesPendientes(solicitar, fechaInicio, fechaFin) {
       rawRecoleccionesSolicitadas = [];
       querySnapshot.forEach((doc) => {
         const guia = doc.data();
-        console.log(doc.id);
         rawRecoleccionesSolicitadas.push(guia);
         if (guia.numeroGuia === undefined) return;
         if (recoleccionesSolicitadas[guia.codigo_sucursal]) {
@@ -186,14 +180,11 @@ function openModalEliminarGuia() {
 const countGuides = array => array.reduce((total, item) => total + item.guias.length, 0);
 
 async function mostrarListaRecolecciones() {
-  console.log("cargando recolecciones");
   await llenarRecoleccionesPendientes(false);
-  console.log(recoleccionesPendientes)
   let recolecciones = Object.values(recoleccionesPendientes);
   const guidesLength = countGuides(recolecciones);
   counterRecoleccionMasiva.html(guidesLength);
   if (guidesLength !== 0) buttonRecoleccionMasiva.removeClass("d-none");
-  console.warn(recolecciones);
   elListaSucursales.html("");
 
   recolecciones.forEach((r) => {
@@ -203,17 +194,21 @@ async function mostrarListaRecolecciones() {
   activarAcciones(elListaSucursales);
 }
 
-async function solicitarRecoleccionMasiva(){
+async function solicitarRecoleccionMasiva() {
 
-  const datos_recoleccion = recoleccionesPendientes;
-  console.log(datos_recoleccion);
+  const datos_recoleccion = Object.values(recoleccionesPendientes);
   const m = new CreateModal({
     title: "Solicitud de recolección masiva"
   });
 
   m.init = formRecoleccionMasiva(datos_recoleccion);
+  const choices = new Choices("#filtro-seller-recoleccion", {
+    removeItemButton: true,
+  });
+  choices.enable();
   const form = $("form", m.modal);
   const inputFecha = $("#fecha-recoleccion", form);
+  const selectedSellers = $("#filtro-seller-recoleccion", form);
   const date = new Date();
   date.setUTCHours(15, 0, 0);
   const [dateStr] = date.toISOString().split(".");
@@ -225,8 +220,6 @@ async function solicitarRecoleccionMasiva(){
 }
 
 function crearExcel(newDoc, nombre) {
-  console.log(nombre);
-
   let ws = XLSX.utils.json_to_sheet(newDoc);
 
   let wb = XLSX.utils.book_new();
@@ -237,7 +230,6 @@ function crearExcel(newDoc, nombre) {
 
 async function crearReporteRecoleccionesSolicitadas() {
   const data = rawRecoleccionesSolicitadas;
-  console.log(data)
 
   let encabezado = [
     ["NUMERO GUIA", "_numeroGuia"],
@@ -272,13 +264,11 @@ async function crearReporteRecoleccionesSolicitadas() {
     });
     return d;
   });
-  console.log('creando excel')
   crearExcel(newDoc, "Recolecciones solicitadas");
     
 }
 
 async function mostrarListaRecoleccionesRealizadas() {
-  console.log("cargando recolecciones realizadas");
   $("#loadingMessage").removeClass("d-none");
   section.classList.remove("d-none");
   const fechaInicio = value("guias-solicitadas-fechaInicio");
@@ -357,7 +347,6 @@ function activarAcciones(container) {
 async function eliminarGuias(e, data, isIndividual) {
   e.preventDefault();
 
-  console.log(data);
   // Obtén una referencia al modal
   const modal = e.target.closest(".modal");
 
@@ -448,6 +437,7 @@ function formSolicitarRecoleccion(e) {
 
 
 function formSolicitarRecoleccionMasiva(e) {
+  e.preventDefault();
 
   // Obtén una referencia al modal
   const modal = e.target.closest(".modal");
@@ -462,9 +452,22 @@ function formSolicitarRecoleccionMasiva(e) {
 
   const target = e.target;
   const formData = new FormData(target);
+  const selectedSellers = formData.getAll("filtro-seller-recoleccion");
+  if (selectedSellers.length === 0) {
+    return Swal.fire({
+      title: "Error",
+      text: `Por favor selecciona al menos un seller.`,
+      icon: "error",
+    });
+  }
 
   const dataRecolecciones = Object.values(recoleccionesPendientes);
-  dataRecolecciones.forEach((recoleccion) => {
+  dataRecolecciones.forEach(async(recoleccion) => {
+    const isLastIteration = recoleccion === dataRecolecciones[dataRecolecciones.length - 1];
+    if (!selectedSellers.includes(recoleccion.centro_de_costo)) {
+      return false
+    }
+    
     const consulta = {
       ids_heka: [], // Lista de ids heka referenciados al usuario
       numerosGuia: [], // Lista de los número de guía provistos por la transportadora
@@ -488,16 +491,16 @@ function formSolicitarRecoleccionMasiva(e) {
     consulta.numerosGuia = numerosGuia;
     consulta.fechaRecogida = formData.get("fechaRecogida");
     consulta.idSucursalCliente = recoleccion.codigo_sucursal;
-    fetchRecoleccion(consulta).catch((error) => console.error(error));
+    await fetchRecoleccion(consulta).catch((error) => console.error(error));
+    if (isLastIteration) {
+      Swal.fire({
+        title: "Recolección solicitada con exito!",
+        text: `Las guias del han sido solicitadas para recolección!`,
+        icon: "success",
+      });
+      mostrarListaRecolecciones();
+    }
   });
-
-  Swal.fire({
-    title: "Recolección solicitada con exito!",
-    text: `Las guias del han sido solicitadas para recolección!`,
-    icon: "success",
-  });
-
-  mostrarListaRecolecciones();
 }
 
 
@@ -513,10 +516,7 @@ async function fetchRecoleccion(data) {
     });
 
     const body = await response.json();
-    console.warn(body);
     if (!response.ok) {
-      console.log(response);
-
       throw new Error(`HTTP error! status: ${response.status}`);
     }
 
@@ -542,7 +542,6 @@ async function guiasSolicitadas(data, radicado) {
       .then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
           const guia = doc.data();
-          console.log(doc.id);
           guia.recoleccion_solicitada = true;
           guia.fecha_recoleccion = new Date().toISOString();
           guia.radicado_recoleccion = radicado;
@@ -554,7 +553,6 @@ async function guiasSolicitadas(data, radicado) {
 }
 
 async function guiasParaQuitarRecoleccion(data, isIndividual) {
-  console.log(data);
   let guias;
   if (isIndividual) {
     guias = [data];
