@@ -32,7 +32,7 @@ let nuevasBodegas;
 
 async function validateToken(token) {
   if (!token) {
-    redirectLogin();
+    throw new Error("Usuario no autenticado");
   } else {
     try {
       const response = await fetch(
@@ -48,7 +48,6 @@ async function validateToken(token) {
 
       console.warn(response);
       if (!response.ok) {
-        // redirectLogin();
         throw new Error(`HTTP error! status: ${response.status}`);
       }
       const data = await response.json();
@@ -63,7 +62,6 @@ async function validateToken(token) {
         !data.response ||
         !data.response.idFirebase
       ) {
-        redirectLogin();
         throw new Error("Invalid API response");
       }
       let user_id_firebase = data.response.idFirebase;
@@ -72,7 +70,6 @@ async function validateToken(token) {
 
       if (["manager", "in_house"].includes(tipoUsuario)) {
         if (window.location.pathname !== "/admin.html") {
-          //redirectLogin();
           location.href = "/admin.html";
         }
         localStorage.setItem("acceso_admin", true);
@@ -83,7 +80,7 @@ async function validateToken(token) {
 
       if (tipoUsuario === "seller") {
         if (window.location.pathname !== "/plataforma2.html") {
-          redirectLogin();
+          throw new Error("Usuario no autorizado");
         }
         localStorage.removeItem("acceso_admin");
         administracion = false;
@@ -97,7 +94,6 @@ async function validateToken(token) {
         .get();
 
       if (!user.exists) {
-        redirectLogin();
         throw new Error("No documents found.");
       }
 
@@ -126,14 +122,13 @@ async function validateToken(token) {
       user_id = user.id;
     } catch (error) {
       console.error("Error en la solicitud GET:", error);
-      redirectLogin();
       throw error;
     }
   }
 }
 
 function redirectLogin() {
-  localStorage.clear()
+  localStorage.clear();
   Swal.fire({
     title: "Error!",
     text: "La sesión ha expirado, por favor inicia sesión nuevamente",
@@ -162,11 +157,12 @@ function redirectLogin() {
           cargarPagoSolicitado();
         });
       } else {
-        redirectLogin();
+        throw new Error("Error Desconocido.");
       }
     })
     .catch((error) => {
-      console.error("Error en validateToken:", error);
+      console.error("Error en validateToken: ", error);
+      redirectLogin();
     });
 })();
 

@@ -1036,9 +1036,13 @@ exports.consultarCentroServicios = async (req, res) => {
     .then(d => {
         return d;
     })
-    .catch(err => req.status(400).json({error: true, message: err.message}));
+    .catch(err => ({error: true, message: err.message}));
 
-    res.json(comprimirCentroSerivciosInter(centroServicios));
+    if(centroServicios.error) {
+        return res.status(400).json(centroServicios)
+    }
+
+    return res.json(comprimirCentroSerivciosInter(centroServicios.filter(c => c.Ubicacion.IdLocalidad === dane_ciudad)));
 }
 
 exports.utilidades = async (req, res) => {

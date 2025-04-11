@@ -3441,7 +3441,7 @@ class CalcularCostoDeEnvio {
   get versionCotizacion() {
     // La versión 1 y 2 serán compatibles para el pago contraentrega pago contraentrega
     // De otra forma, se tomará en cuenta la versión 1 solamente
-    return this.type === PAGO_CONTRAENTREGA ? this.precios.version : 1;
+    return this.type === PAGO_CONTRAENTREGA && this.codTransp !== transportadoras.HEKA.cod ? this.precios.version : 1;
   }
 
   get flete() {
@@ -4141,8 +4141,9 @@ class CalcularCostoDeEnvio {
   async intoHeka(cotizacion, conv) {
     if (!cotizacion) cotizacion = this.precio;
     this.total_flete = cotizacion.valorFlete;
-    this.seguroMercancia = cotizacion.seguroMercancia;
-    this.sobreflete = cotizacion.sobreFlete;
+    this.seguroMercancia = 0;
+    this.sobreflete = 0;
+    this.sobreflete_heka = cotizacion.seguroMercancia + cotizacion.sobreFlete;
   }
 
   async cotizarHeka(dane_ciudadR, dane_ciudadD) {
