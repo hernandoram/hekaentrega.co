@@ -4859,6 +4859,12 @@ async function historialGuiasAdmin(e) {
       defaultContent: "---",
       visible: false,
     },
+    {
+      data: "is_refactor",
+      title: "Refactor",
+      defaultContent: "---",
+      visible: false,
+    }
   ];
 
   const idTabla = "#tabla-" + finalId;
