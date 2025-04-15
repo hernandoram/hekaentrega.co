@@ -107,20 +107,18 @@ eliminarGuiasIndividualesButton.addEventListener(
 async function llenarRecoleccionesPendientes(solicitar, fechaInicio, fechaFin) {
 
   const ref = db.collectionGroup("guias");
-  const fechaInicioStr = fechaInicio 
-    ? new Date(new Date(fechaInicio).setUTCHours(0, 0, 0, 0)).toISOString() 
-    : new Date(new Date(new Date().setDate(new Date().getDate() - 6)).setUTCHours(0, 0, 0, 0)).toISOString();
-    
-  const fechaFinStr = fechaFin 
-    ? new Date(new Date(fechaFin).setUTCHours(23, 59, 59, 999)).toISOString()
-    : new Date(new Date().setUTCHours(23, 59, 59, 999)).toISOString();
-
-  const query = ref
-    .where("fecha_recoleccion", ">=", fechaInicioStr)
-    .where("fecha_recoleccion", "<=", fechaFinStr)
+  let query = ref
     .where("recoleccion_esporadica", "==", 1)
     .where("transportadora", "==", "INTERRAPIDISIMO")
     .where("recoleccion_solicitada", "==", solicitar);
+    
+  if (fechaInicio && fechaFin) {
+    const fechaInicioStr = new Date(new Date(fechaInicio).setUTCHours(0, 0, 0, 0)).toISOString()
+    const fechaFinStr = new Date(new Date(fechaFin).setUTCHours(23, 59, 59, 999)).toISOString()
+    query = query
+      .where("fecha_recoleccion", ">=", fechaInicioStr)
+      .where("fecha_recoleccion", "<=", fechaFinStr);
+  }
 
   await query.get().then((querySnapshot) => {
     if (solicitar) {
@@ -200,15 +198,24 @@ async function solicitarRecoleccionMasiva() {
   const m = new CreateModal({
     title: "Solicitud de recolección masiva"
   });
-
+  const sellers = datos_recoleccion.map((data) => data.centro_de_costo);
   m.init = formRecoleccionMasiva(datos_recoleccion);
   const choices = new Choices("#filtro-seller-recoleccion", {
     removeItemButton: true,
+    searchEnabled: true,
   });
   choices.enable();
   const form = $("form", m.modal);
   const inputFecha = $("#fecha-recoleccion", form);
   const selectedSellers = $("#filtro-seller-recoleccion", form);
+  const checkAllSellers = $("#check-seller-recoleccion", form);
+  checkAllSellers.on("change", (e) => {
+    if (e.target.checked) {
+      choices.setChoiceByValue(sellers);      
+    } else {
+      choices.removeActiveItems();
+    }
+  });
   const date = new Date();
   date.setUTCHours(15, 0, 0);
   const [dateStr] = date.toISOString().split(".");
