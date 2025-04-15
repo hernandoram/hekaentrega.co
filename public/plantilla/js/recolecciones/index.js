@@ -115,9 +115,17 @@ async function llenarRecoleccionesPendientes(solicitar, fechaInicio, fechaFin) {
     ? new Date(new Date(fechaFin).setUTCHours(23, 59, 59, 999)).toISOString()
     : new Date(new Date().setUTCHours(23, 59, 59, 999)).toISOString();
 
-  const query = ref
-    .where("fecha_recoleccion", ">=", fechaInicioStr)
-    .where("fecha_recoleccion", "<=", fechaFinStr)
+  let query = ref;
+
+  if(fechaInicio) {
+    query = query.where("fecha_recoleccion", ">=", fechaInicioStr);
+  } 
+
+  if(fechaFin) {
+    query = query.where("fecha_recoleccion", "<=", fechaFinStr);
+  } 
+
+  query = query
     .where("recoleccion_esporadica", "==", 1)
     .where("transportadora", "==", "INTERRAPIDISIMO")
     .where("recoleccion_solicitada", "==", solicitar);
