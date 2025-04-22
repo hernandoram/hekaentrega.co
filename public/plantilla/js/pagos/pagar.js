@@ -74,6 +74,8 @@ class Empaquetado {
                 pagoConcreto: 0,
                 comision_heka_total: -1, // Al final del proceso, no debe haber niguna agrupación de pago, con un -1.
                 comision_transportadora: -1, // Al final del proceso, no debe haber niguna agrupación de pago, con un -1.
+                comision_heka_facturacion: -1, // Al final del proceso, no debe haber niguna agrupación de pago, con un -1.
+                comision_logistica_propia: -1, // Al final del proceso, no debe haber niguna agrupación de pago, con un -1.
                 guias: [guia],
                 guiasPagadas: [],
                 id: this.id,
@@ -410,14 +412,25 @@ class Empaquetado {
 
             if(!guia.cuenta_responsable) guia.cuenta_responsable = guia["CUENTA RESPONSABLE"] || "SCR";
 
+            // Para corregir el envío total, en caso de que llegue uundefined o simlar
+            guia[camposExcel.envio_total] = guia[camposExcel.envio_total] ?? 0;
+
             // Trabajamos la comisión de transportadora que se va a facturar
-            const comision_heka = guia[camposExcel.comision_heka];
+            const transportadora = guia[camposExcel.transportadora];
+            const isHeka = transportadora === "HEKA";
+
+            const comision_heka = isHeka ? envioTotal : guia[camposExcel.comision_heka];
             const envioTotal = guia[camposExcel.envio_total];
-            guia[camposExcel.comision_transp] = envioTotal ? envioTotal - comision_heka : 0;
+
+            // La comisión transportadora solo estará presente cuando la transportadora no es Heka
+            guia[camposExcel.comision_transp] = envioTotal && !isHeka ? envioTotal - comision_heka : 0;
             guia[camposExcel.cuatro_x_mil_banc] = 0;
             guia[camposExcel.cuatro_x_mil_transp] = 0;
             guia[camposExcel.iva] = 0;
             guia[camposExcel.comision_natural_heka] = 0;
+
+            guia.comision_logistica_propia = isHeka ? comision_heka : 0;
+            guia.comision_heka_facturacion = isHeka ? 0 : comision_heka;
 
             if(comision_heka !== 0) {
                 // Extraemos el 4 X Mil por parte del banco
@@ -425,7 +438,7 @@ class Empaquetado {
                 guia[camposExcel.cuatro_x_mil_banc] = cuatroPorMil(valorRecaudo);
 
                 // Extraemos el 4 por mil transportadora de
-                if(guia[camposExcel.transportadora] === "INTERRAPIDISIMO") {
+                if(transportadora === "INTERRAPIDISIMO") {
                     guia[camposExcel.cuatro_x_mil_transp] = cuatroPorMil(valorRecaudo);
                 }
 
@@ -751,6 +764,8 @@ class Empaquetado {
 
         let pagado = 0;
         let comision_heka = 0;
+        let comision_heka_facturacion = 0;
+        let comision_logistica_propia = 0;
         let comision_transportadora = 0;
         let cuatro_x_mil_b_tot = 0;
         let cuatro_x_mil_t_tot = 0;
@@ -786,6 +801,8 @@ class Empaquetado {
             const id_user = guia.id_user;
             const pagoActual = guia["TOTAL A PAGAR"];
             const comision_heka_actual = guia[camposExcel.comision_heka];
+            const comision_logistica_propia_actual = guia.comision_logistica_propia;
+            const comision_heka_facturacion_actual = guia.comision_heka_facturacion;
             const comision_transp_actual = guia[camposExcel.comision_transp];
             const cuatro_x_mil_b = guia[camposExcel.cuatro_x_mil_banc];
             const cuatro_x_mil_t = guia[camposExcel.cuatro_x_mil_transp];
@@ -800,6 +817,8 @@ class Empaquetado {
                     // Sumar las comisiones y los totales
                     pagado += pagoActual;
                     comision_heka += comision_heka_actual;
+                    comision_logistica_propia += comision_logistica_propia_actual;
+                    comision_heka_facturacion += comision_heka_facturacion_actual;
                     comision_transportadora += comision_transp_actual;
                     cuatro_x_mil_b_tot += cuatro_x_mil_b;
                     cuatro_x_mil_t_tot += cuatro_x_mil_t;
@@ -810,6 +829,8 @@ class Empaquetado {
                     // Restar las comisiones y los totales
                     pagado -= pagoActual;
                     comision_heka -= comision_heka_actual;
+                    comision_logistica_propia -= comision_logistica_propia_actual;
+                    comision_heka_facturacion -= comision_heka_facturacion_actual;
                     comision_transportadora -= comision_transp_actual;
                     cuatro_x_mil_b_tot -= cuatro_x_mil_b;
                     cuatro_x_mil_t_tot -= cuatro_x_mil_t;
@@ -842,6 +863,8 @@ class Empaquetado {
                 batch.update(paqueteRef, {
                     total_pagado: pagado,
                     comision_heka: comision_heka,
+                    comision_logistica_propia,
+                    comision_heka_facturacion,
                     comision_transportadora: comision_transportadora,
                     cuatro_x_mil_banco: cuatro_x_mil_b_tot,
                     cuatro_x_mil_transp: cuatro_x_mil_t_tot,
@@ -902,6 +925,8 @@ class Empaquetado {
         
         this.pagosPorUsuario[usuario].pagoConcreto = pagado;
         this.pagosPorUsuario[usuario].comision_heka_total = comision_heka;
+        this.pagosPorUsuario[usuario].comision_heka_facturacion = comision_heka_facturacion;
+        this.pagosPorUsuario[usuario].comision_logistica_propia = comision_logistica_propia;
         this.pagosPorUsuario[usuario].comision_transportadora = comision_transportadora;
 
         terminar();
@@ -1046,6 +1071,8 @@ class Empaquetado {
         }
 
         const comision_heka_total = userRef.comision_heka_total;
+        const comision_heka_facturacion = userRef.comision_heka_facturacion;
+        const comision_logistica_propia = userRef.comision_logistica_propia;
         const comision_transportadora = userRef.comision_transportadora ?? null;
         
         if(!userRef.numero_documento) {
@@ -1064,7 +1091,7 @@ class Empaquetado {
         }
 
         try {
-            const resFact = await crearFactura(numero_documento, comision_heka_total, comision_transportadora);
+            const resFact = await crearFactura({numero_documento, comision_heka_facturacion, comision_logistica_propia, comision_transportadora});
 
             // Se guarda la información de las guías que ha sido pagadas
             await this.guardarPaquetePagado(resFact);

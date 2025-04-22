@@ -666,12 +666,12 @@ async function crearGuardarFactura(data) {
 
     if(!resSwal.isConfirmed) return;
 
-    const {numero_documento, comision_heka, comision_transportadora} = data;
+    const {numero_documento, comision_heka_facturacion, comision_logistica_propia, comision_transportadora} = data;
     const loader = new ChangeElementContenWhileLoading(this);
     loader.charger = loader.charger.replace("Cargando...", ""); // Para que solo quede la rueda dando vueltas sin las letras
     loader.init();
 
-    const resFact = await crearFactura(numero_documento, comision_heka, comision_transportadora);
+    const resFact = await crearFactura({numero_documento, comision_heka_facturacion, comision_logistica_propia, comision_transportadora});
 
     if(resFact.error) {
         Swal.fire("Error de comunicación", resFact.message, "error");
@@ -691,11 +691,49 @@ async function crearGuardarFactura(data) {
 
 }
 
-async function crearFactura(numero_documento, comision_heka, costo_transportadora = null) {
+const codItemsFacturacion = {
+    hekaNatural: "001", // siempre 001 Que corresponde al producto equivalente a la comisión Heka
+    terceros: "006", // siempre 006 Corresponderá al producto relacionado con los costos de transportadora
+    hekaPropia: "007", // siempre 007 Corresponderá al producto relacionado a al comisión Heka de logística propia
+};
+
+async function crearFactura(data) {
+    const { numero_documento, comision_heka_facturacion, comision_logistica_propia, comision_transportadora } = data;
+
+    const itemsFacturacion = [];
+
+    if(comision_heka_facturacion) {
+        itemsFacturacion.push({
+            code: codItemsFacturacion.hekaNatural,
+            price: comision_heka_facturacion
+        });
+    }
+    
+    if(comision_logistica_propia) {
+        itemsFacturacion.push({
+            code: codItemsFacturacion.hekaPropia,
+            price: comision_logistica_propia
+        });
+    }
+    
+    if(comision_transportadora) {
+        itemsFacturacion.push({
+            code: codItemsFacturacion.terceros,
+            price: comision_transportadora
+        });
+    }
+
+    if(!itemsFacturacion.length) {
+        return {
+            error: true,
+            message: "Esta factura no tiene ninguna comisión que agregar"
+        }
+    }
+
     return fetch("/siigo/crearFactura", {
         method: "POST",
         headers: {"Content-Type": "Application/json"},
-        body: JSON.stringify({comision_heka: comision_heka, numero_documento, costo_transportadora})
+        body: JSON.stringify({numero_documento, itemsFacturacion})
     })
     .then(d => d.json())
     .catch(e => {
@@ -761,14 +799,9 @@ async function facturacionMasivaAgrupada(e, dt, node, config) {
             }
         }
 
-        const {numero_documento, comision_heka, comision_transportadora} = factura;
+        const {numero_documento, comision_heka_facturacion, comision_logistica_propia, comision_transportadora} = factura;
         
-        if( comision_heka === 0 ) {
-            anotaciones.addError(`No se puede facturar una comisión vacía ${numero_documento}.`);
-            continue;
-        }
-        
-        const resFact = await crearFactura(numero_documento, comision_heka, comision_transportadora);
+        const resFact = await crearFactura({numero_documento, comision_heka_facturacion, comision_logistica_propia, comision_transportadora});
 
         if(resFact.error) {
             anotaciones.addError(`Error de comunicación ${numero_documento}: ${resFact.message}`);
@@ -835,6 +868,8 @@ function agruparPaquetePago(rowsData) {
             const newGroup = Object.assign({}, current);
             newGroup.cantidad_pagos = 0;
             newGroup.comision_heka = 0;
+            newGroup.comision_logistica_propia = 0;
+            newGroup.comision_heka_facturacion = 0;
             newGroup.comision_transportadora = 0;
             newGroup.total_pagado = 0;
 
@@ -865,6 +900,8 @@ async function guardarAgrupacionPagos(padre, arrHijos) {
         const actualizacionPadre = {
             cantidad_pagos: padre.cantidad_pagos + hijo.cantidad_pagos,
             comision_heka: padre.comision_heka + hijo.comision_heka,
+            comision_logistica_propia: padre.comision_logistica_propia + hijo.comision_logistica_propia,
+            comision_heka_facturacion: padre.comision_heka_facturacion + hijo.comision_heka_facturacion,
             comision_transportadora: padre.comision_transportadora + hijo.comision_transportadora,
             total_pagado: padre.total_pagado + hijo.total_pagado,
     
