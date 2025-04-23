@@ -4382,6 +4382,7 @@ async function crearGuia() {
       datos_a_enviar.celularR = value("actualizar_celularR").trim();
       datos_a_enviar.nombreD = value("nombreD").trim();
       datos_a_enviar.identificacionD = value("identificacionD") || 123;
+      datos_a_enviar.identificacionR = datos_usuario.numero_documento ?? null;
       datos_a_enviar.direccionD = [
         value("direccionD").trim(),
         value("barrioD").trim(),

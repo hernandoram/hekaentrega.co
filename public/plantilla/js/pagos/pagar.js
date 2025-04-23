@@ -434,7 +434,7 @@ class Empaquetado {
 
             if(comision_heka !== 0) {
                 // Extraemos el 4 X Mil por parte del banco
-                const valorRecaudo = guia[camposExcel.recaudo];
+                const valorRecaudo = guia[camposExcel.recaudo] ?? 0;
                 guia[camposExcel.cuatro_x_mil_banc] = cuatroPorMil(valorRecaudo);
 
                 // Extraemos el 4 por mil transportadora de
