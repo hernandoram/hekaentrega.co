@@ -419,8 +419,8 @@ class Empaquetado {
             const transportadora = guia[camposExcel.transportadora];
             const isHeka = transportadora === "HEKA";
 
-            const comision_heka = isHeka ? envioTotal : guia[camposExcel.comision_heka];
             const envioTotal = guia[camposExcel.envio_total];
+            const comision_heka = isHeka ? envioTotal : guia[camposExcel.comision_heka];
 
             // La comisión transportadora solo estará presente cuando la transportadora no es Heka
             guia[camposExcel.comision_transp] = envioTotal && !isHeka ? envioTotal - comision_heka : 0;
