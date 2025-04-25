@@ -148,6 +148,8 @@ function redirectLogin() {
         listarNovedadesServientrega();
         listarSugerenciaMensajesNovedad();
         limitarAccesoSegunTipoUsuario();
+        activarAccionesHistorialGuiasAdmin();
+
         mostrar(window.location.hash.replace(/#/, ""));
         $("#descargar-informe-usuarios").click(informeUsuariosAdmin);
       } else if (user_id) {

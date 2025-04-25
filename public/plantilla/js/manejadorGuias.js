@@ -4553,16 +4553,186 @@ const opcionesAccionesGuiasAdmin = [
   },
 ];
 
+const columnasHistorialGuiasAdmin = [
+  {
+    data: null,
+    title: "Acciones",
+    visible: false,
+    render: renderizarBotonesAdmin,
+  },
+  { data: "id_heka", title: "# Guía Heka", visible: true },
+  { data: "numeroGuia", title: "# Guía transportadora", defaultContent: "", visible: true },
+  { data: "estado", title: "Estado", defaultContent: "", visible: true },
+  { data: "identificacionR", title: "Número Documento", defaultContent: "---", visible: false },
+  { data: "centro_de_costo", title: "Centro de Costo", visible: true },
+  {
+    data: "transpToShow",
+    title: "Transportadora",
+    defaultContent: "Servientrega", 
+    visible: true
+  },
+  { data: "type", title: "Tipo", defaultContent: "Pago contraentrega", visible: true },
+  { data: "alto", title: "Alto", visible: false },
+  { data: "ancho", title: "Ancho", visible: false },
+  { data: "largo", title: "Largo", visible: false },
+  { data: "peso", title: "peso", visible: false },
+  { data: "detalles.comision_heka", title: "Comisión Heka", visible: true },
+  {
+    data: "detalles.comision_trasportadora",
+    title: "Comisión Transportadora", 
+    visible: true
+  },
+  { data: "detalles.flete", title: "Flete", visible: true },
+  { data: "detalles.recaudo", title: "Recaudo", visible: true },
+  { data: "seguro", title: "Seguro", visible: false },
+  { data: "detalles.total", title: "Total", visible: true },
+  {
+    data: "detalles.costoDevolucion",
+    title: "Costo devolución",
+    defaultContent: "---",
+    visible: true
+  },
+  {
+    data: "detalles.comision_adicional",
+    title: "Comisión Heka Adicional",
+    defaultContent: 0, 
+    visible: true
+  },
+  {
+    data: "detalles.cobraDevolucion",
+    title: "Cobra devolución",
+    render: (content) => (content === false ? "NO" : "SI"), 
+    visible: true
+  },
+  { data: "fecha", title: "Fecha", visible: true },
+  {
+    data: "debe",
+    title: "deuda",
+    defaultContent: "no aplica",
+    render: function (content, display, data) {
+      if (
+        data.debe &&
+        data.seguimiento_finalizado &&
+        data.type !== "CONVENCIONAL"
+      )
+        return -content + '<span class="sr-only"> Por pagar</span>';
+
+      return -content;
+    },
+    visible: false,
+  },
+  {
+    data: "cuenta_responsable",
+    title: "Cuenta responsable",
+    defaultContent: "Personal",
+    visible: false,
+  },
+  {
+    data: "celularR",
+    title: "Celular Remitente",
+    defaultContent: "---",
+    visible: false,
+  },
+  {
+    data: "celularD",
+    title: "Celular Destino",
+    defaultContent: "---",
+    visible: false,
+  },
+  {
+    data: "ciudadR",
+    title: "Ciudad remitente",
+    defaultContent: "---",
+    visible: false,
+  },
+  {
+    data: "ciudadD",
+    title: "Ciudad destino",
+    defaultContent: "---",
+    visible: false,
+  },
+  {
+    data: "departamentoD",
+    title: "Despartamento destino",
+    defaultContent: "---",
+    visible: false,
+  },
+  {
+    data: "direccionD",
+    title: "Dirección",
+    defaultContent: "---",
+    visible: false,
+  },
+  {
+    data: "dice_contener",
+    title: "Contenido",
+    defaultContent: "---",
+    visible: false,
+  },
+  {
+    data: "id_tipo_entrega",
+    title: "Tipo de entrega",
+    defaultContent: "no aplica",
+    render: function (content, display, data) {
+      return (
+        [null, "Entrega en dirección", "Entrega en oficina"][content] ||
+        "no aplica"
+      );
+    },
+    visible: false,
+  },
+  {
+    data: "estadoActual",
+    title: "Estado Actual",
+    defaultContent: "---",
+    visible: false,
+  },
+  {
+    data: "motivoAnulacion",
+    title: "Motivo de anulacion",
+    defaultContent: "---",
+    visible: false,
+  },
+  {
+    data: "is_refactor",
+    title: "Refactor",
+    defaultContent: "---",
+    visible: false,
+  }
+];
+
+const columnHistoryChange = new Watcher();
+function activarAccionesHistorialGuiasAdmin() {
+  const idFiltro = "#badge_columns-historial_guias";
+  columnasHistorialGuiasAdmin.forEach((c, i) => {
+    $(idFiltro).append(`
+      <span 
+      id="badge_columna_guias-${i}"
+      class="badge badge-columna-guias text-truncate m-1 p-1 ${c.visible !== false ? "badge-info active" : "badge-secondary"}" 
+      style="cursor:pointer;" 
+      data-index="${i}"
+      >
+        ${c.title}
+      </span>
+    `);
+  });
+
+  $(".badge-columna-guias").click((e) => {
+    const badge = e.target;
+    const indexCol = badge.dataset.index;
+    $(badge).toggleClass("badge-info active badge-secondary");
+    
+    columnasHistorialGuiasAdmin[indexCol].visible = $(badge).hasClass("active");
+    columnHistoryChange.change(badge);
+  });
+
+}
+
+const tablasAdminActivas = new Map();
+
 async function historialGuiasAdmin(e) {
-  const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
   const htmlStatus = $("#status-historial_guias");
   const limiteConsulta = 5e3;
-
-  const { lista: listacategorias } = await referencia.get().then((d) => {
-    if (d.exists) return d.data();
-  });
-  categorias = listacategorias || [];
-
   const finalId = e.id.split("-")[1];
   let fechaI = document.querySelector("#fechaI-" + finalId).value;
   let fechaF = document.querySelector("#fechaF-" + finalId).value;
@@ -4605,16 +4775,6 @@ async function historialGuiasAdmin(e) {
       guia.transpToShow = doc.data().oficina
         ? guia.transportadora + "-Flexii"
         : guia.transportadora;
-
-      let tituloEncontrado = null; // Inicializamos la variable donde almacenaremos el título si se encuentra una coincidencia
-
-      tituloEncontrado = categorias.find(
-        (categoria) => categoria.novedad == guia.estado
-      )?.categoria;
-
-      if (tituloEncontrado !== null) {
-        guia.categoria = tituloEncontrado;
-      }
 
       let condicion = true;
 
@@ -4711,6 +4871,8 @@ async function historialGuiasAdmin(e) {
       .then(manejarInformacion);
   } else if (tipoFiltro === "filt_5") {
     await referenceAlt.where("debe", "<", 0).get().then(manejarInformacion);
+  } else if (tipoFiltro === "filt_6") {
+    await reference.where("detalles.cobraDevolucion", "==", !!filtroActual).get().then(manejarInformacion);
   } else {
     // await reference.limit(1)
     // .get().then(manejarInformacion);
@@ -4731,141 +4893,7 @@ async function historialGuiasAdmin(e) {
   }
 
   // data= [{nombre: "nombre", apellido: "apellido"}]
-  const columnas = [
-    {
-      data: null,
-      title: "Acciones",
-      visible: false,
-      render: renderizarBotonesAdmin,
-    },
-    { data: "id_heka", title: "# Guía Heka" },
-    { data: "numeroGuia", title: "# Guía transportadora", defaultContent: "" },
-    {
-      data: "categoria",
-      title: "Categoría",
-      defaultContent: "NaN",
-      visible: false,
-    },
-    { data: "estado", title: "Estado", defaultContent: "" },
-    { data: "centro_de_costo", title: "Centro de Costo" },
-    {
-      data: "transpToShow",
-      title: "Transportadora",
-      defaultContent: "Servientrega",
-    },
-    { data: "type", title: "Tipo", defaultContent: "Pago contraentrega" },
-    { data: "alto", title: "Alto", visible: false },
-    { data: "ancho", title: "Ancho", visible: false },
-    { data: "largo", title: "Largo", visible: false },
-    { data: "peso", title: "peso", visible: false },
-    { data: "detalles.comision_heka", title: "Comisión Heka" },
-    {
-      data: "detalles.comision_trasportadora",
-      title: "Comisión Transportadora",
-    },
-    { data: "detalles.flete", title: "Flete" },
-    { data: "detalles.recaudo", title: "Recaudo" },
-    { data: "seguro", title: "Seguro", visible: false },
-    { data: "detalles.total", title: "Total" },
-    {
-      data: "detalles.costoDevolucion",
-      title: "Costo devolución",
-      defaultContent: "---",
-    },
-    {
-      data: "detalles.comision_adicional",
-      title: "Comisión Heka Adicional",
-      defaultContent: 0,
-    },
-    {
-      data: "detalles.cobraDevolucion",
-      title: "Cobra devolución",
-      render: (content) => (content === false ? "NO" : "SI"),
-    },
-    { data: "fecha", title: "Fecha" },
-    {
-      data: "debe",
-      title: "deuda",
-      defaultContent: "no aplica",
-      render: function (content, display, data) {
-        if (
-          data.debe &&
-          data.seguimiento_finalizado &&
-          data.type !== "CONVENCIONAL"
-        )
-          return -content + '<span class="sr-only"> Por pagar</span>';
-
-        return -content;
-      },
-      visible: false,
-    },
-    {
-      data: "cuenta_responsable",
-      title: "Cuenta responsable",
-      defaultContent: "Personal",
-      visible: false,
-    },
-    {
-      data: "ciudadR",
-      title: "Ciudad remitente",
-      defaultContent: "---",
-      visible: false,
-    },
-    {
-      data: "ciudadD",
-      title: "Ciudad destino",
-      defaultContent: "---",
-      visible: false,
-    },
-    {
-      data: "departamentoD",
-      title: "Despartamento destino",
-      defaultContent: "---",
-      visible: false,
-    },
-    {
-      data: "direccionD",
-      title: "Dirección",
-      defaultContent: "---",
-      visible: false,
-    },
-    {
-      data: "dice_contener",
-      title: "Contenido",
-      defaultContent: "---",
-      visible: false,
-    },
-    {
-      data: "id_tipo_entrega",
-      title: "Tipo de entrega",
-      defaultContent: "no aplica",
-      render: function (content, display, data) {
-        return (
-          [null, "Entrega en dirección", "Entrega en oficina"][content] ||
-          "no aplica"
-        );
-      },
-      visible: false,
-    },
-    {
-      data: "estadoActual",
-      title: "Estado Actual",
-      defaultContent: "---",
-      visible: false,
-    },
-    {
-      data: "motivoAnulacion",
-      title: "Motivo de anulacion",
-      defaultContent: "---",
-      visible: false,
-    },
-    {
-      data: "is_refactor",
-      title: "Refactor",
-      defaultContent: "---",
-      visible: false,
-    }
-  ];
+  const columnas = columnasHistorialGuiasAdmin;
 
   const idTabla = "#tabla-" + finalId;
   const idTablaPunto = idTabla + "-punto";
@@ -4877,16 +4905,19 @@ async function historialGuiasAdmin(e) {
           data: "detalles.comision_punto",
           title: "Comisión Punto",
           defaultContent: "No aplica",
+          visible: true
         },
         {
           data: "centro_de_costo_punto",
           title: "Punto",
           defaultContent: "No aplica",
+          visible: true
         },
         {
           data: "info_user.celular",
           title: "Celular Usuario",
           defaultContent: "No aplica",
+          visible: true
         },
       ]
     );
@@ -4909,73 +4940,80 @@ async function historialGuiasAdmin(e) {
   }
 
   console.warn(data);
+  const idTablaActual = guiasPunto ? idTablaPunto : idTabla;
+  let tabla = null;
 
-  let tabla = $(guiasPunto ? idTablaPunto : idTabla).DataTable({
-    data: data,
-    destroy: true,
-    language: {
-      url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
-      emptyTable: "Aún no tienes guías saldadas.",
-    },
-    columns: columnas,
-    dom: "Bfrtip",
-    buttons: [
-      {
-        extend: "excel",
-        text: "Descargar Historial",
-        filename: nombre,
-        title: encabezado,
-        exportOptions: {
-          columns: ":visible",
-        },
+  if(tablasAdminActivas.has(idTablaActual)) {
+    tabla = tablasAdminActivas.get(idTablaActual);
+  }
+  
+  if(!tabla) {
+    tabla = $(idTablaActual).DataTable({
+      data: data,
+      destroy: true,
+      language: {
+        url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
+        emptyTable: "Aún no tienes guías saldadas.",
       },
-    ],
-    initComplete: function () {
-      const api = this.api();
-      const tabla = $(this);
-      tabla.before("<h5>Mostrar/ocultar Columnas</h5>");
-      api
-        .columns()
-        .header()
-        .each((val, i) => {
-          const column = api.column(i);
-          const visible = column.visible();
-          const boton = document.createElement("span");
-          boton.classList.add("badge", "text-truncate", "m-1", "p-1");
-          boton.style.cursor = "pointer";
-          boton.classList.add(visible ? "badge-info" : "badge-secondary");
+      columns: columnas,
+      dom: "Bfrtip",
+      buttons: [
+        {
+          extend: "excel",
+          text: "Descargar Historial",
+          filename: nombre,
+          title: encabezado,
+          exportOptions: {
+            columns: ":visible",
+          },
+        },
+      ],
+      initComplete: function () {
+        const api = this.api();
 
-          $(boton).click((e) => {
-            const badge = e.target;
-            column.visible(!column.visible());
-            $(badge).toggleClass("badge-info");
-            $(badge).toggleClass("badge-secondary");
-            if (badge.textContent.trim() === "Acciones") api.draw();
-          });
+        columnHistoryChange.watch(badge => {
+          const indexCol = badge.dataset.index;
+          const column = api.column(indexCol);
+          const isVisible = column.visible();
+          column.visible(!isVisible);
 
-          boton.textContent = val.textContent;
-          tabla.before(boton);
+          if (badge.textContent.trim() === "Acciones") api.draw();
+
         });
-    },
-    rowCallback: activarAccionesGuiasAdmin,
-    // action: function() {}
-  });
+      },
+      rowCallback: activarAccionesGuiasAdmin,
+      // action: function() {}
+    });
+
+    tablasAdminActivas.set(idTablaActual, tabla);
+  } else {
+    tabla.clear();
+    tabla.rows.add(data).draw();
+    console.log(tabla.rows);
+    tabla.columns().every((ncol) => {
+      const isVisible = $(`#badge_columna_guias-${ncol}`).hasClass("active");
+      tabla.column(ncol).visible(isVisible);
+    });
+  }
+
 
   tabla.on("buttons-processing", function (e, indicator, btnApi, dt, node) {
-    console.log(indicator);
     if (indicator) {
       $(node).text("Descargando...");
       $(node).prop("disabled", true);
     } else {
       $(node).text("Descargar Historial");
+      $(node).prop("disabled", false);
     }
   });
 
   $("#historial_guias .cargador").addClass("d-none");
+
 }
 
 /** Encargada de mostrar la lista de los botones en {@link opcionesAccionesGuiasAdmin} sobre cada fila de las guías */
 function renderizarBotonesAdmin(datos, type, row) {
+  if(!datos) return null;
   if (type === "display" || type === "filter") {
     const { id_heka } = datos;
 

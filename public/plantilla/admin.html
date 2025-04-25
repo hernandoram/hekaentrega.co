@@ -1598,10 +1598,11 @@
                     <option value="filt_3">Centro costo</option>
                     <option value="filt_4">Tipo de envío</option>
                     <option value="filt_5">Proceso de Pago</option>
+                    <option value="filt_6">Cobra devolución</option>
                   </select>
                 </div>
 
-                <div class="col-sm-6 filtro-gen" id="filt_1-hist_guias">
+                <div class="col-sm-6 filtro-gen d-none" id="filt_1-hist_guias">
                   <label for="filtro_pagos-hist_guias">Filtro pagos</label>
                   <select id="filtro_pagos-hist_guias" class="form-control filtro-pagos">
                     <option value="">Seleccione pagos</option>
@@ -1634,16 +1635,23 @@
                     <option value="PAGO DESTINO">Pago destino</option>
                   </select>
                 </div>
+                <div class="col-sm-6 filtro-gen d-none" id="filt_6-hist_guias">
+                  <label for="filt_cobra_dev-hist_guias">Cobra devolución</label>
+                  <select id="filt_cobra_dev-hist_guias" class="form-control">
+                    <option value="true">SI</option>
+                    <option value>NO</option>
+                  </select>
+                </div>
 
               </div>
               <div class="btn-group col-12 mb-3">
                 <button id="buscador-hist_guias" onclick="historialGuiasAdmin(this)" class="btn btn-primary">
                   Buscar
                 </button>
-                <button id="descargar-hist_guias" onclick="historialGuiasAdmin(this)" class="btn btn-outline-primary">
+                <button id="descargar-hist_guias" onclick="historialGuiasAdmin(this)" class="btn btn-outline-primary d-none">
                   Descargar Excel
                 </button>
-                <button id="pagar-hist_guias" class="btn btn-primary">
+                <button id="pagar-hist_guias" class="btn btn-primary d-none">
                   Gestionar pagos
                 </button>
               </div>
@@ -1658,6 +1666,7 @@
             </div>
             <ul id="status-historial_guias"></ul>
             <div id="status_pagos-historial_guias"></div>
+            <div id="badge_columns-historial_guias"></div>
             <div class="table-responsive d-none">
               <table id="tabla-hist_guias" class="table table-responsive" width="100%"></table>
             </div>
@@ -3021,7 +3030,7 @@
     </div>
 
     <!-- Modal gestion novedades (sera controlado por javascript render.js)-->
-    <div class="modal fade" id="modal-gestionarNovedad" data-backdrop="static" data-keyboard="false" tabindex="-1"
+    <div class="modal fade" id="modal-gestionarNovedad" tabindex="-1"
       aria-labelledby="titulo-gestionarNovedad" aria-hidden="true">
       <div class="modal-dialog modal-xl">
         <div class="modal-content">

@@ -2113,7 +2113,7 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
             <th class="${classHead}">Guía</th>
             <th class="${classHead}">Novedad</th>
             <th class="${classHead}">Transportadora</th>
-            <th class="${classHead}">Fech. Ult. Gestión</th>
+            <th class="${classHead}">Fecha Apertura</th>
             <th class="${classHead}">Tiempo</th>
             <th class="${classHead}">Tiempo en Gestión</th>
             <th class="${classHead}">Estado</th>
@@ -2143,13 +2143,25 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
     data.movimientos,
     data.transportadora
   );
-  const ultimo_seguimiento = extraData.seguimiento
-    ? extraData.seguimiento[extraData.seguimiento.length - 1]
+  const seguimientosGuia = extraData.seguimiento ?? [];
+  const ultimo_seguimiento = seguimientosGuia.length
+    ? seguimientosGuia[seguimientosGuia.length - 1]
     : "";
   const millis_ultimo_seguimiento =
     ultimo_seguimiento && extraData.novedad_solucionada
       ? ultimo_seguimiento.fecha.toMillis()
       : new Date();
+
+  let idxUltimaRespuestaAdmin = -1
+  for(let i = seguimientosGuia.length - 1; i >= 0; i--) {
+    const seguimientoActual = seguimientosGuia[i];
+    if(seguimientoActual.admin) {
+      idxUltimaRespuestaAdmin = i;
+      break;
+    }
+  }
+
+  const ultimaAperturaGestiones = seguimientosGuia[idxUltimaRespuestaAdmin + 1] ?? {};
 
   const tiempo_en_novedad = diferenciaDeTiempo(
     momento_novedad.fechaMov || new Date(),
@@ -2223,10 +2235,10 @@ function tablaMovimientosGuias(data, extraData, usuario, id_heka, id_user) {
       <td>${data.transportadora || "Servientrega"}</td>
 
       <td>${
-        ultimo_seguimiento.fecha
-          ? genFecha("LR", ultimo_seguimiento.fecha.toMillis()) +
+        ultimaAperturaGestiones.fecha
+          ? genFecha("LR", ultimaAperturaGestiones.fecha.toMillis()) +
             " " +
-            ultimo_seguimiento.fecha
+            ultimaAperturaGestiones.fecha
               .toDate()
               .toString()
               .match(/\d\d:\d\d/)[0]
