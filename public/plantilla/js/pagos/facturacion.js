@@ -390,7 +390,8 @@ async function asociarFactura(data) {
     loader.charger = loader.charger.replace("Cargando...", ""); // Para que solo quede la rueda dando vueltas sin las letras
     loader.init();
 
-    const {comision_heka, numero_documento, fecha, row_id} = data;
+    const {comision_heka, comision_transportadora, numero_documento, fecha, row_id} = data;
+    const comisionTotalEnHeka = comision_heka + comision_transportadora;
     const { value: dataFactura } = await Swal.fire({
         title: "Nombre de la factura",
         input: "text",
@@ -432,8 +433,8 @@ async function asociarFactura(data) {
                     return Swal.showValidationMessage(`El número de documento (${numero_documento}), no coincide con el devuelto por siigo (${customer.identification})`);
                 }
 
-                if(total !== comision_heka) {
-                    return Swal.showValidationMessage(`La comisión Heka guardada ($ ${convertirMiles(comision_heka)}), no coincide con la factura ingresada ($ ${convertirMiles(total)})`);
+                if(total !== comisionTotalEnHeka) {
+                    return Swal.showValidationMessage(`La comisión Heka guardada ($ ${convertirMiles(comisionTotalEnHeka)}), no coincide con la factura ingresada ($ ${convertirMiles(total)})`);
                 }
             
                 const facturasExistenteConNumero = await cantidadFacturasencontradas("num_factura", number);
