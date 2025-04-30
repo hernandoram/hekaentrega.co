@@ -4749,7 +4749,6 @@ async function historialGuiasAdmin(e) {
   const filtroActual = $("#" + tipoFiltro + "-hist_guias")
     .children(".form-control")
     .val();
-  console.log(filtroActual);
   const descargaDirecta = e.id === "descargar-hist_guias";
   $("#historial_guias .cargador").removeClass("d-none");
   const guiasPunto = $("#guias_punto-" + finalId).prop("checked");
@@ -4989,7 +4988,6 @@ async function historialGuiasAdmin(e) {
   } else {
     tabla.clear();
     tabla.rows.add(data).draw();
-    console.log(tabla.rows);
     tabla.columns().every((ncol) => {
       const isVisible = $(`#badge_columna_guias-${ncol}`).hasClass("active");
       tabla.column(ncol).visible(isVisible);

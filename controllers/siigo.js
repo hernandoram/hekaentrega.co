@@ -89,7 +89,7 @@ const crearFactura = async (req, res) => {
         },
         seller: Cr.id_vendedor, // id del vendedor (hram) /users
         mail: {
-            send: true
+            send: false
         },
         observations: "Observaciones",
         items,
