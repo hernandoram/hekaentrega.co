@@ -1,4 +1,5 @@
 export const idReceptorFlexiiGuia = "flexii_guia_recept";
+export const idGestorEntregaflexii = "flexii_gestor_entrega";
 export const idFlexiiGuia = "flexii_guia";
 export const idScannerEstados = "scanner_estados_flexii";
 export const idFormActualizadorEstados = "actualizador_estados-" + idFlexiiGuia;
@@ -34,6 +35,9 @@ export const estadosRecepcion = {
     neutro: "NEUTRO", // Este estado no se debería guarda en base de datos, ya que será una forma de ifltrar todas las guías
     recibido: "RECIBIDO", // Cuando el Qr Ha sido escaneado
     validado: "VALIDADO", // Cuando el operador ha validado la guía
-    empacado: "EMPACADO" // Cuando el pedido ha sido generado
+    empacado: "EMPACADO", // Cuando el pedido ha sido generado
+    enrutado: "ENRUTADO", // Cuando el mensajero he definido una ruta sobre el paquete
+    bloqueado: "BLOQUEADO", // Bloqueado por alguna novedad, o una forma de ocultar ciertos atributos del envío al destinatario y/o remitente (por definir)
+    entregado: "ENTREGADO" // Cuando el mensajero ha entregado el paquete
 }
 

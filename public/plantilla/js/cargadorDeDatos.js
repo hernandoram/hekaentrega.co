@@ -682,6 +682,7 @@ function limitarAccesoSegunTipoUsuario() {
       "flexii_guia",
       "flexii_guia_recept",
       "scanner_estados_flexii",
+      "flexii_gestor_entrega",
       "nav_item-flexii_envios"
     ];
   } else if (ControlUsuario.inHouse) {
