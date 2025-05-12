@@ -3141,13 +3141,13 @@ function actualizarEstado() {
               fecha_ult_mov: dato["Fecha Ult Mov"],
               nombre_centro_costo: dato["Nombre Centro Costo"],
             };
-            if (x.id_guia && x.numero_guia_servientrega) {
+            if (/*x.id_guia && */x.numero_guia_servientrega) {
               const id = x.id_guia.toString();
               const numeroGuia = x.numero_guia_servientrega.toString();
               await firebase
                 .firestore()
                 .collectionGroup("guias")
-                .where("id_heka", "==", id)
+                .where("numeroGuia", "==", numeroGuia)
                 .get()
                 .then((querySnapshot) => {
                   // let guia;
@@ -3157,9 +3157,7 @@ function actualizarEstado() {
                         .firestore()
                         .doc(doc.ref.path)
                         .update({
-                          numeroGuia,
-                          estado: x.estado_envio,
-                          seguimiento_finalizado: false,
+                          estado: x.estado_envio
                         })
                         .then(() => {
                           // console.log(id + " Actualizada exitósamente");
