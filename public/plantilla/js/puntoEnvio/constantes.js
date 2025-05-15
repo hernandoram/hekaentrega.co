@@ -1,5 +1,5 @@
 export const idReceptorFlexiiGuia = "flexii_guia_recept";
-export const idGestorEntregaflexii = "flexii_gestor_entrega";
+export const idGestorEntregaflexii = "gestor_entrega";
 export const idFlexiiGuia = "flexii_guia";
 export const idScannerEstados = "scanner_estados_flexii";
 export const idFormActualizadorEstados = "actualizador_estados-" + idFlexiiGuia;

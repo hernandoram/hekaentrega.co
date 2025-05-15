@@ -128,13 +128,13 @@ async function validateToken(token) {
 }
 
 function redirectLogin() {
-  localStorage.clear();
   Swal.fire({
     title: "Error!",
     text: "La sesión ha expirado, por favor inicia sesión nuevamente",
     icon: "error",
     confirmButtonText: "OK",
   }).then(() => {
+    localStorage.clear();
     location.href = `${PROD_API_URL_PLATFORM2}/ingreso?cs=1`;
   });
 }
@@ -411,7 +411,7 @@ class ControlUsuario {
       // En caso de que no exista una promesa activa, la crea
       ControlUsuario.loader = new Promise((res, rej) => {
         // Luego genera el observador que una vez reciba true o false, resolverá la promesa
-        ControlUsuario.dataCompleted.watch((dataCorrectlyLoaded) => {
+        ControlUsuario.dataCompleted.watchFromLast((dataCorrectlyLoaded) => {
           if (dataCorrectlyLoaded === true) {
             res("La información del usuario ha sido cargada correctamente");
           } else if (dataCorrectlyLoaded === false) {
@@ -682,7 +682,7 @@ function limitarAccesoSegunTipoUsuario() {
       "flexii_guia",
       "flexii_guia_recept",
       "scanner_estados_flexii",
-      "flexii_gestor_entrega",
+      "gestor_entrega",
       "nav_item-flexii_envios"
     ];
   } else if (ControlUsuario.inHouse) {

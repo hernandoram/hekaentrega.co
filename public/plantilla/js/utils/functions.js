@@ -359,3 +359,17 @@ export function fetchApp2(link, request = {}) {
     }    
 }
 
+/**
+ * Funcion que activa los eventos segun los dataset que estén presentes sobre los hijos de html en cuestión
+ * @param {*} opts.container - El contenedor Jquery ( elemento padre sobre el que se van a buscar las acciones presentes)
+ * @param {*} opts.acciones - Las funciones que venda´n acompañada del nombre de la acción del html
+ * 
+ */
+export function activadorDeEventos(opts) {
+    const els = $("[data-action]", opts.container);
+
+    els.each(function () {
+        const {action, action_event} = this.dataset;
+        $(this).on(action_event ?? "click", opts.acciones[action]);
+    });
+}

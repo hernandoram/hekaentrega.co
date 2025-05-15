@@ -896,43 +896,43 @@
             </div>
           </div>
 
-          <div class="container-fluid flex justify-content-center align-items-cente vista-preferencial" id="flexii_gestor_entrega" style="display: none;">
+          <div class="container-fluid flex justify-content-center align-items-cente vista-preferencial" id="gestor_entrega" style="display: none;">
             
             <div class="card m-2">
               <div class="card-body">
                 <h2 class="text-center">
-                  <span id="principal_title-flexii_gestor_entrega">Gestor de Entrega</span>
+                  <span id="principal_title-gestor_entrega">Gestor de Entrega</span>
                 </h2>
                 
                 <div class="row">
-                  <div class="col-12 col-md-6">
-                    <ul class="list-group">
-                      <li class="list-group-item">
-                        <div class="row">
-                          <div class="col-4">NumeroGuia1</div>
-                          <div class="col-6">Carrera 24 #50-15</div>
-                          <div class="col-2"><i class="fa fa-arrow-right"></i></div>
-                        </div>
-                      </li>
-                    </ul>
+                  <div class="col-12 my-2">
+                    <button class="btn btn-primary" id="btn_guardar-gestor_entrega">Guardar Puntos Entrega</button>
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="switch_ubicacion-gestor_entrega">
+                      <label class="custom-control-label" for="switch_ubicacion-gestor_entrega">Compartir Ubicación</label>
                   </div>
-                  <div class="col-12 col-md-6">
-                    <ul class="list-group" id="sortable">
-                      <li class="list-group-item">
-                        <div class="row">
-                          <div class="col-4">NumeroGuia1</div>
-                          <div class="col-6">Carrera 24 #50-15</div>
-                          <div class="col-2"><i class="fa fa-trash"></i></div>
-                        </div>
-                      </li>
-                    </ul>
                   </div>
-                  <div class="col-12">
-                    <div id="map" style="height: 400px; width: 100%"></div>
-
+                  <div class="col-12 col-md-6 table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Guia</th>
+                          <th>Dirección</th>
+                          <th>Estado</th>
+                          <th>Actualizar</th>
+                          <th>Activar</th>
+                        </tr>
+                      </thead>
+                      <tbody id="body_tabla-gestor_entrega">
+                        
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="col my-2">
+                    <div id="map-gestor_entrega" style="height: 400px; width: 100%"></div>
                   </div>
                 </div>
-                <div id="contenedor_tabla-flexii_gestor_entrega"></div>
+                <div id="contenedor_tabla-gestor_entrega"></div>
               </div>
             </div>
           </div>
@@ -1994,7 +1994,7 @@
         </div>
       </div>
     </div>
-  </div>  
+  </div> 
 
   <!--Modal para ver detalles de notificaciones-->
   <div class="modal fade" id="modal-detallesNotificacion" data-backdrop="static" tabindex="-1" aria-labelledby="titulo-detallesNotificacion" aria-hidden="true">
@@ -2060,17 +2060,15 @@
                         </div>
                     </div>
                 </div>
-           <div class="panel-collapse collapse panel-chat" id="collapseOne">
-                <div class="panel-body">
-                  <div id="items-chat-notification" class="chat pr-5 pt-4" >
-                            
-                        </div>
+                <div class="panel-collapse collapse panel-chat" id="collapseOne">
+                  <div class="panel-body">
+                    <div id="items-chat-notification" class="chat pr-5 pt-4" ></div>
                   </div>  
-            </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+  </div>
 
 
   <div class="w-100 position-absolute d-none align-items-center justify-content-center"
@@ -2109,11 +2107,8 @@
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
     <!-- <script src="assets\libs\x-editable\jqueryui-editable\js\jqueryui-editable.min.js"></script> -->
     <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
-    <script>
-      $( function() {
-        // $( "#sortable" ).sortable();
-      } );
-      </script>
+    <!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.touch-punch.min.js"></script> -->
+    
 
     <script src="./assets/libs/summernote/summernote-bs4.min.js"></script>
     <script src="assets/libs/summernote/lang/summernote-es-ES.min.js"></script>
