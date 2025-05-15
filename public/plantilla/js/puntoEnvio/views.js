@@ -46,9 +46,10 @@ const formActualizarEstado = `
     </form>
 `;
 
-const rowTablaGestorEntrega = data => {
+const rowTablaGestorEntrega = (data, i) => {
     return `
     <tr data-ng="${data.numeroGuia}" data-id="${data.id}" id="row-${idGestorEntregaflexii}-${data.id}">
+        <td>${i + 1}</td>
         <td>${data.numeroGuia}</td>
         <td>${data.direccion}</td>
         <td>${data.estado}</td>

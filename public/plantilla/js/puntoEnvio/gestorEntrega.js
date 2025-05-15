@@ -8,7 +8,7 @@ const principalId = idGestorEntregaflexii;
 const idBodyTabla = "#body_tabla-" + principalId;
 const buttonSave = $(`#btn_guardar-${principalId}`);
 const checkAtivateSharing = $(`#switch_ubicacion-${principalId}`);
-let map;
+let map, idLocator;
 
 $( idBodyTabla ).sortable();
 
@@ -25,6 +25,11 @@ async function activarTablaPrincipal() {
     $(idBodyTabla).append(data.ruta.map(rowTablaGestorEntrega));
 
     checkAtivateSharing.prop("checked", data.active);
+    if(data.active) {
+        activateLiveLocation();
+    } else {
+        if(idLocator) navigator.geolocation.clearWatch(idLocator);
+    }
     
     activadorDeEventos({
         container: $(idBodyTabla),
@@ -36,6 +41,31 @@ async function activarTablaPrincipal() {
     const markers = await renderMarkers(map, data.ruta);
 }
 
+function activateLiveLocation() {
+    if(idLocator) return;
+
+    const options = {
+        maximunAge: 2000
+    }
+
+    function success(pos) {
+        const { latitude, longitude } = pos.coords;
+        const location = {
+            lat: latitude,
+            lng: longitude
+        }
+        
+        actualizarRuta({ location });
+    }
+
+    function error(err) {
+        console.error(`ERROR(${err.code}): ${err.message}`);
+    }
+
+
+    idLocator = navigator.geolocation.watchPosition(success, error, options);
+}
+
 const markers = new Set();
 async function renderMarkers(map, data) {
     const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
@@ -44,7 +74,7 @@ async function renderMarkers(map, data) {
     });
     markers.clear();
 
-    data.filter(p => p.active).forEach((d, i) => {
+    data.filter(p => p.active).forEach(async (d, i) => {
         const pin = new PinElement({
             glyph: (i+1).toString(),
             glyphColor: '#ff8300',
@@ -52,11 +82,17 @@ async function renderMarkers(map, data) {
             borderColor: '#ff8300',
         });
 
-        const marker = new AdvancedMarkerElement({
+        const marker = await new AdvancedMarkerElement({
             map,
-            position: d.coords,
+            position: d.location ?? null,
             content: pin.element,
-            title: 'mi marker number ' + (i + 1)
+            title: d.direccion
+        });
+
+        geocodeLocation({address: d.direccion})
+        .then(res => {
+            if(!res) return;
+            marker.position = res;
         });
 
         markers.add(marker);
@@ -64,6 +100,20 @@ async function renderMarkers(map, data) {
 
     return markers;
 
+}
+
+function geocodeLocation(request) {
+    const geocoder = new google.maps.Geocoder();
+
+    return geocoder.geocode(request)
+    .then((result) => {
+      const { results } = result;
+
+      return results[0].geometry.location;
+    })
+    .catch((e) => {
+      alert("No se ha podido establecer la dirección de : " + request.address + ", Por la siguiente causa: " + e);
+    });
 }
 
 async function initMap() {
@@ -74,7 +124,7 @@ async function initMap() {
         zoom: 10,
         mapTypeControl: false,
         streetViewControl: false,
-        mapId: "DEMO_MAP_ID"
+        mapId: "b1578ba318d8bf2b"
     });
 
 
@@ -154,14 +204,7 @@ async function guardarGestion(e) {
 
     console.log(objetoEnvio);
 
-    const result = fetch(v0.pathRutaentrega + "/" + user_id, {
-        method: "PATCH",
-        body: JSON.stringify(objetoEnvio),
-        headers: {
-            "Content-Type": "Application/json"
-        }
-    }).then(d => d.json())
-    .catch(e => ({error: true, message: e.message}));
+    const result = await actualizarRuta(objetoEnvio);
 
     if(result.error) {
         Swal.fire("error", result.message);
@@ -169,6 +212,18 @@ async function guardarGestion(e) {
 
     await activarTablaPrincipal();
     l.end();
+
+}
+
+async function actualizarRuta(data) {
+    return await fetch(v0.pathRutaentrega + "/" + user_id, {
+        method: "PATCH",
+        body: JSON.stringify(data),
+        headers: {
+            "Content-Type": "Application/json"
+        }
+    }).then(d => d.json())
+    .catch(e => ({error: true, message: e.message}));
 
 }
 
