@@ -2,6 +2,7 @@ import { v0 } from "../config/api.js";
 import { activadorDeEventos, ChangeElementContenWhileLoading } from "../utils/functions.js";
 import { idGestorEntregaflexii } from "./constantes.js";
 import { abrirModalActuaizarEstado } from "./estadosFlexii.js";
+import { geocodeLocation } from "./utils.js";
 import { rowTablaGestorEntrega } from "./views.js";
 
 const principalId = idGestorEntregaflexii;
@@ -36,7 +37,7 @@ async function activarTablaPrincipal() {
         acciones: accionesTabla
     });
     
-    if(!map) map = await initMap();
+    if(!map) map = await initMap(data.location);
 
     const markers = await renderMarkers(map, data.ruta);
 }
@@ -102,25 +103,11 @@ async function renderMarkers(map, data) {
 
 }
 
-function geocodeLocation(request) {
-    const geocoder = new google.maps.Geocoder();
-
-    return geocoder.geocode(request)
-    .then((result) => {
-      const { results } = result;
-
-      return results[0].geometry.location;
-    })
-    .catch((e) => {
-      alert("No se ha podido establecer la dirección de : " + request.address + ", Por la siguiente causa: " + e);
-    });
-}
-
-async function initMap() {
+async function initMap(center) {
     const { Map } = await google.maps.importLibrary("maps");
     
     const map = new Map(document.getElementById("map-gestor_entrega"), {
-        center: { lat: 37.434, lng: -122.5 },
+        center,
         zoom: 10,
         mapTypeControl: false,
         streetViewControl: false,
@@ -167,7 +154,22 @@ function actualizarEstado(e) {
         id, numeroGuia
     };
 
-    abrirModalActuaizarEstado(envio);
+    const controlModal = abrirModalActuaizarEstado(envio);
+
+    $(controlModal.modal).on("hidden.bs.modal", function (event) {
+        if(!controlModal.data) return;
+        const data = controlModal.data;
+        console.log(data);
+
+        // Para quitar el checkbox que activa el seguimiento al momentos de que el estado sea cualquiera de estos tipos
+        if(["ENTREGADO", "DEVOLUCION", "EN BODEGA", "NOVEDAD"].includes(data.tipo)) {
+            const idSiwtch = `#activacion-${idGestorEntregaflexii}-${id}`;
+            $(idSiwtch).prop("checked", false);
+        }
+
+        buttonSave.click();
+    });
+
 }
 
 function onChangeStatusRoute(e) {

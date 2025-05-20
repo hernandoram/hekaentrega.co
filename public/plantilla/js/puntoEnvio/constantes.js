@@ -4,12 +4,24 @@ export const idFlexiiGuia = "flexii_guia";
 export const idScannerEstados = "scanner_estados_flexii";
 export const idFormActualizadorEstados = "actualizador_estados-" + idFlexiiGuia;
 
+export const estadosRecepcion = {
+    neutro: "NEUTRO", // Este estado no se debería guarda en base de datos, ya que será una forma de ifltrar todas las guías
+    recibido: "RECIBIDO", // Cuando el Qr Ha sido escaneado
+    validado: "VALIDADO", // Cuando el operador ha validado la guía
+    empacado: "EMPACADO", // Cuando el pedido ha sido generado
+    enrutado: "ENRUTADO", // Cuando el mensajero he definido una ruta sobre el paquete
+    bloqueado: "BLOQUEADO", // Bloqueado por alguna novedad, o una forma de ocultar ciertos atributos del envío al destinatario y/o remitente (por definir)
+    devuelto: "DEVUELTO", // Cuando el pedido ha sido devuelto (entregado al remitente)
+    entregado: "ENTREGADO" // Cuando el mensajero ha entregado el paquete
+}
+
 export const estadoRecibido = {
     estado: "Recibido",
     descripcion: "Paquete recibido",
     esNovedad: false,
     observaciones: "",
     ubicacion: "",
+    tipo: estadosRecepcion.recibido,
     reporter: user_id
 }
 
@@ -19,6 +31,7 @@ export const estadoValidado = {
     esNovedad: false,
     observaciones: "",
     ubicacion: "",
+    tipo: estadosRecepcion.validado,
     reporter: user_id
 }
 
@@ -28,16 +41,9 @@ export const estadoGeneracion = {
     esNovedad: false,
     observaciones: "",
     ubicacion: "",
+    tipo: estadosRecepcion.empacado,
     reporter: user_id
 }
 
-export const estadosRecepcion = {
-    neutro: "NEUTRO", // Este estado no se debería guarda en base de datos, ya que será una forma de ifltrar todas las guías
-    recibido: "RECIBIDO", // Cuando el Qr Ha sido escaneado
-    validado: "VALIDADO", // Cuando el operador ha validado la guía
-    empacado: "EMPACADO", // Cuando el pedido ha sido generado
-    enrutado: "ENRUTADO", // Cuando el mensajero he definido una ruta sobre el paquete
-    bloqueado: "BLOQUEADO", // Bloqueado por alguna novedad, o una forma de ocultar ciertos atributos del envío al destinatario y/o remitente (por definir)
-    entregado: "ENTREGADO" // Cuando el mensajero ha entregado el paquete
-}
+
 

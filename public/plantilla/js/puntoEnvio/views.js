@@ -28,6 +28,11 @@ const formActualizarEstado = `
             <input type="text" class="form-control mt-1" id="descripcion_extra-${idScannerEstados}" style="display:none" placeholder="Agregue la descripción personalizada">
         </div>
         
+        <div class="form-group d-none">
+            <label for="tipo-${idScannerEstados}">Tipo de estado</label>
+            <input type="text" class="form-control mt-1" id="tipo-${idScannerEstados}" name="tipo" placeholder="Tipo de estado">
+        </div>
+        
         <div class="form-group">
         <label for="observaciones-${idScannerEstados}">Observaciones</label>
         <textarea class="form-control" id="observaciones-${idScannerEstados}" name="observaciones"></textarea>

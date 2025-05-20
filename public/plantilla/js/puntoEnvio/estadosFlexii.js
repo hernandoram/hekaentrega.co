@@ -1,3 +1,4 @@
+import { v0 } from "../config/api.js";
 import { storage } from "../config/firebase.js";
 import AnotacionesPagos from "../pagos/AnotacionesPagos.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
@@ -220,6 +221,8 @@ function abrirModalActuaizarEstado(envio) {
 
     modal.onSubmit = (e) => actualizarEstadoEnvioIndividual(e, form[0], envio)
         .then(res => {
+            modal.res = res;
+            modal.data = res.dataIn ?? null;
             if(res.error) {
                 return Swal.fire({
                     icon: "error",
@@ -239,15 +242,19 @@ function abrirModalActuaizarEstado(envio) {
 }
 
 let listaEstadosHeka = [];
+
+async function obtenerEstadosHeka() {
+    return await fetch(v0.pathEstadosNotificacion)
+    .then(d => d.json())
+    .then(d => d.body)
+    .catch(e => console.error(e));
+}
+
 async function opccionesFormularioEstados(form) {
     const referenciaEstados = db.collection("infoHeka").doc("novedadesMensajeria");
 
     if(!listaEstadosHeka.length) {
-        const { lista } = await referenciaEstados.get().then((d) => {
-            if (d.exists) return d.data();
-      
-            return {lista: []};
-        });
+        const lista = await obtenerEstadosHeka();
     
         listaEstadosHeka = lista.filter(est => est.transportadora === "HEKA");
     }
@@ -257,6 +264,7 @@ async function opccionesFormularioEstados(form) {
     const inputDescripcionExtraEstado = $(`#descripcion_extra-${idScannerEstados}`, form);
     const switchNovedad = $(`#switch_novedad-${idScannerEstados}`);
     const inputEvidencia = $(`#evidencia-${idScannerEstados}`);
+    const inputTipo = $(`#tipo-${idScannerEstados}`);
     const descripcionPropertyName = inputDescripcionEstado.prop("name");
 
     const activateOptions = (options, input) => {
@@ -266,18 +274,19 @@ async function opccionesFormularioEstados(form) {
         });
     }
 
-    const estados = new Set(listaEstadosHeka.map(est => est.novedad));
+    const estados = new Set(listaEstadosHeka.map(est => est.estado));
     activateOptions(estados, inputEstados);
 
     const filtrarDescripciones = (value) => {
-        const descripciones = listaEstadosHeka.filter(est => est.novedad === value).map(est => est.mensaje).concat(["OTRO"]);
+        const descripciones = listaEstadosHeka.filter(est => est.estado === value).map(est => est.descripcion).concat(["OTRO"]);
     
         activateOptions(descripciones, inputDescripcionEstado);
     }
 
     const activarOpcionesAdicionalesEstado = () => {
-        const existOption = listaEstadosHeka.find(est => est.novedad === inputEstados.val() && inputDescripcionEstado.val() === est.mensaje);
+        const existOption = listaEstadosHeka.find(est => est.estado === inputEstados.val() && inputDescripcionEstado.val() === est.descripcion);
         if(existOption) {
+            inputTipo.val(existOption.tipo ?? "");
             switchNovedad.prop("checked", existOption.esNovedad ?? false);
         }
 
@@ -430,12 +439,13 @@ async function actualizarEstadoEnvioIndividual(e, form, envio) {
 
     if(data.error) return data;
 
-    const resActualizacion = await guardarEstadoEnvioDiligenciado(envio, data);
-    resActualizacion.message = resActualizacion.body; // Simplemente para que se muestre, ya que en la respuesta se espera un message
+    const res = await guardarEstadoEnvioDiligenciado(envio, data);
+    res.message = res.body.message; // Simplemente para que se muestre, ya que en la respuesta se espera un message
+    res.dataIn = data;
 
     l.end();
 
-    return resActualizacion
+    return res
 }
 
 async function guardarEstadoEnvioDiligenciado(envio, data) {
