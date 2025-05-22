@@ -1,7 +1,7 @@
 const PROD_API_URL = window.ENV.ENVIRONMENT_NAME; //comentar o descomentar segun el ambiente
 // const endpoint = "/Api"; // Esta ruta no se encuentra directamente sobre este proyecto, pero pertenecerà al mismo dominio
-const endpoint = "http://localhost:6201/Api";
-// const endpoint = "https://admin.hekaentrega.co/Api";
+// const endpoint = "http://localhost:6201/Api";
+const endpoint = "https://admin.hekaentrega.co/Api";
 
 const pathCiudades = endpoint + "/Ciudades";
 const pathCiudadesLista = pathCiudades + "/Lista";

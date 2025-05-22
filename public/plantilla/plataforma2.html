@@ -35,12 +35,9 @@
 
   <title>hekaentrega.co</title>
 
-  <!--autocompeltar-->
-  <!-- <script type="text/javascript" src="https://www.aveonline.co/app/incluidos/jquery-1.9.1.min.js"></script>
-  <script type="text/javascript" src="https://www.aveonline.co/app/modulos/utilidades/jquery.autocomplete.min.js"></script> -->
-  <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
   <!-- Custom fonts for this template-->
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
   
   <!-- Librería para un textarea más dinámico-->
   <link href="./assets/libs/summernote/summernote-bs4.min.css" rel="stylesheet">
@@ -189,6 +186,7 @@
               <a class="collapse-item" href="#flexii_guia_recept">Recibir envíos</a>
               <a class="collapse-item" href="#flexii_guia">Generar pedido</a>
               <a class="collapse-item" href="#scanner_estados_flexii">Actualizar estados</a>
+              <a class="collapse-item" href="#gestor_entrega">Gestor de Entregas</a>
             </div>
           </div>
         </li>
@@ -2106,9 +2104,8 @@
     
     <!-- Core plugin JavaScript-->
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
-    <!-- <script src="assets\libs\x-editable\jqueryui-editable\js\jqueryui-editable.min.js"></script> -->
     <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
-    <!-- <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.touch-punch.min.js"></script> -->
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.touch-punch.min.js"></script>
     
 
     <script src="./assets/libs/summernote/summernote-bs4.min.js"></script>
@@ -2137,7 +2134,9 @@
     <script>
       let administracion = false;
       $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
+        $('[data-toggle="tooltip"]').tooltip({
+          position: { my: "left+5 center", at: "right center" }
+        })
       });
 
       $(function () {

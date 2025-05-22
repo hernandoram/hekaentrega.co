@@ -1,6 +1,6 @@
 import { v0 } from "../config/api.js";
 import { activadorDeEventos, ChangeElementContenWhileLoading } from "../utils/functions.js";
-import { idGestorEntregaflexii } from "./constantes.js";
+import { estadosRecepcion, idGestorEntregaflexii } from "./constantes.js";
 import { abrirModalActuaizarEstado } from "./estadosFlexii.js";
 import { geocodeLocation } from "./utils.js";
 import { rowTablaGestorEntrega } from "./views.js";
@@ -105,17 +105,19 @@ async function renderMarkers(map, data) {
 
 async function initMap(center) {
     const { Map } = await google.maps.importLibrary("maps");
+    const { AdvancedMarkerElement, PinElement } = await google.maps.importLibrary("marker");
+
     
     const map = new Map(document.getElementById("map-gestor_entrega"), {
         center,
-        zoom: 10,
+        zoom: 12,
         mapTypeControl: false,
         streetViewControl: false,
         mapId: "b1578ba318d8bf2b"
     });
 
 
-    /* // A marker with a custom SVG glyph.
+    // A marker with a custom SVG glyph.
     const glyphImg = document.createElement("img");
     glyphImg.width = 20;
     glyphImg.height = 20;
@@ -129,12 +131,13 @@ async function initMap(center) {
         background: '#FFD514',
         borderColor: '#ff8300'
     });
+
     const glyphSvgMarkerView = new AdvancedMarkerElement({
         map,
-        position: { lat: 37.425, lng: -122.07 },
+        position: center,
         content: glyphSvgPinElement.element,
         title: "A marker using a custom SVG for the glyph.",
-    }); */
+    });
 
     return map;
 }
@@ -162,7 +165,12 @@ function actualizarEstado(e) {
         console.log(data);
 
         // Para quitar el checkbox que activa el seguimiento al momentos de que el estado sea cualquiera de estos tipos
-        if(["ENTREGADO", "DEVOLUCION", "EN BODEGA", "NOVEDAD"].includes(data.tipo)) {
+        const estadosSinVigilancia = [
+            estadosRecepcion.entregado, estadosRecepcion.devuelto, 
+            estadosRecepcion.bodega, estadosRecepcion.novedad
+        ];
+
+        if(estadosSinVigilancia.includes(data.tipo)) {
             const idSiwtch = `#activacion-${idGestorEntregaflexii}-${id}`;
             $(idSiwtch).prop("checked", false);
         }
@@ -209,7 +217,7 @@ async function guardarGestion(e) {
     const result = await actualizarRuta(objetoEnvio);
 
     if(result.error) {
-        Swal.fire("error", result.message);
+        Swal.fire("error", result.body);
     }
 
     await activarTablaPrincipal();

@@ -9,10 +9,12 @@ export const estadosRecepcion = {
     recibido: "RECIBIDO", // Cuando el Qr Ha sido escaneado
     validado: "VALIDADO", // Cuando el operador ha validado la guía
     empacado: "EMPACADO", // Cuando el pedido ha sido generado
-    enrutado: "ENRUTADO", // Cuando el mensajero he definido una ruta sobre el paquete
-    bloqueado: "BLOQUEADO", // Bloqueado por alguna novedad, o una forma de ocultar ciertos atributos del envío al destinatario y/o remitente (por definir)
-    devuelto: "DEVUELTO", // Cuando el pedido ha sido devuelto (entregado al remitente)
-    entregado: "ENTREGADO" // Cuando el mensajero ha entregado el paquete
+    novedad: "NOVEDAD", // Cuando el envío posee una novedad que necesita ser resuelta bien sea por el destinatario o remitenta
+    novedad_op: "NOVEDAD OPERATIVA", // Cuando el envío posee una novedad que no necesita ser diligenciada por remitentne ni destinatario
+    devuelto: "DEVOLUCION", // Cuando el pedido ha sido devuelto (entregado al remitente)
+    entregado: "ENTREGADO", // Cuando el mensajero ha entregado el paquete
+    reparto: "REPARTO", // Cuando el mensajero indica que está repartiendo el paquete
+    bodega: "EN BODEGA", // Cuando el mensajero ha dejado el paquete en alguna dirección de referencia Heka
 }
 
 export const estadoRecibido = {

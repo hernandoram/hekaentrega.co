@@ -48,7 +48,7 @@ async function initMap(body) {
 
     const map = new Map(mapElement, {
         center: locationDestiny,
-        zoom: 10,
+        zoom: 13,
         mapTypeControl: false,
         streetViewControl: false,
         mapId: "b1578ba318d8bf2b"
