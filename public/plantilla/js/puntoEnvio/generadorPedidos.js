@@ -64,7 +64,7 @@ cargarObjetosFrecuentes().then((info) => renderOptionsSelectize(diceContenerEl, 
 
 
 function renderOptionsSelectize(element, options) {
-    if (!options) return;
+    if (!options) return; 
 
     
     const selectorSelectize = element[0].selectize;

@@ -34,6 +34,7 @@ export const estadosRecepcion = {
     neutro: "NEUTRO", // Este estado no se debería guarda en base de datos, ya que será una forma de ifltrar todas las guías
     recibido: "RECIBIDO", // Cuando el Qr Ha sido escaneado
     validado: "VALIDADO", // Cuando el operador ha validado la guía
-    empacado: "EMPACADO" // Cuando el pedido ha sido generado
+    empacado: "EMPACADO", // Cuando el pedido ha sido generado
+    devuelto: "DEVUELTO", // Cuando el paquete ha sido devuelto
 }
 
