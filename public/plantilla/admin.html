@@ -2447,18 +2447,22 @@
                 <div class="form-group w-100">
                   <label for="list_novedades-mensajeria">Estado</label>
                   <select class="custom-select" id="list_novedades-mensajeria" name="list_novedades">
-                    <option selected>-- Novedades --</option>
+                    <option selected>-- Estados --</option>
                   </select>
                 </div>
                 <form class="row">
 
                   <div class="form-group col-12">
-                    <label for="novedad-mensajeria">Novedad</label>
-                    <input type="text" class="form-control" disabled id="novedad-mensajeria" name="novedad">
+                    <label for="nombre-mensajeria">Nombre</label>
+                    <input type="text" class="form-control" disabled id="nombre-mensajeria" name="nombre">
                   </div>
                   <div class="form-group col-12">
-                    <label for="mensaje-mensajeria">Mensaje</label>
-                    <input type="text" class="form-control" disabled id="mensaje-mensajeria" name="mensaje">
+                    <label for="estado-mensajeria">Titulo estado</label>
+                    <input type="text" class="form-control" disabled id="estado-mensajeria" name="estado">
+                  </div>
+                  <div class="form-group col-12">
+                    <label for="descripcion-mensajeria">Descripción estado</label>
+                    <input type="text" class="form-control" disabled id="descripcion-mensajeria" name="descripcion">
                   </div>
 
                   <div class="form-group col-md-2 d-flex align-items-center">
@@ -2479,16 +2483,16 @@
                   </div>
 
                   <div class="form-group col-md-2">
-                    <label for="categoria-mensajeria">Categoría</label>
-                    <select id="categoria-mensajeria" class="form-control" name="categoria">
+                    <label for="tipo-mensajeria">Tipo</label>
+                    <select id="tipo-mensajeria" class="form-control" name="tipo">
                       <!-- <option selected>-- Categoría --</option>
                       <option value="ENTREGADA">ENTREGADA</option>
                       <option value="DEVUELTA">DEVUELTA</option>
                       <option value="OTRA">OTRA</option> -->
                     </select>
                     <div>
-                      <input type="text" class="form-control mt-3 d-none" id="nueva-categoria">
-                      <button id="crear-categoria-boton" class="d-none btn mt-3 btn-primary w-100">Crear
+                      <input type="text" class="form-control mt-3 d-none" id="nuevo-tipo">
+                      <button id="crear-tipo-boton" class="d-none btn mt-3 btn-primary w-100">Crear
                         Categoria</button>
                     </div>
                   </div>

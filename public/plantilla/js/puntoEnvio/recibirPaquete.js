@@ -186,8 +186,7 @@ async function capturarEnvio(id_envio) {
     }
 
     await ref.update({
-        id_punto: user_id,
-        estado_recepcion: estadosRecepcion.recibido
+        id_punto: user_id
     });
 
     await actualizarEstadoEnvioHeka(id_envio, estadoRecibido);

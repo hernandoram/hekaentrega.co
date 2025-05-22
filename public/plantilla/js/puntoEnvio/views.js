@@ -1,4 +1,4 @@
-import { idFormActualizadorEstados, idScannerEstados } from "./constantes.js";
+import { idFormActualizadorEstados, idGestorEntregaflexii, idScannerEstados } from "./constantes.js";
 
 const table = `
     <style>
@@ -28,6 +28,11 @@ const formActualizarEstado = `
             <input type="text" class="form-control mt-1" id="descripcion_extra-${idScannerEstados}" style="display:none" placeholder="Agregue la descripción personalizada">
         </div>
         
+        <div class="form-group d-none">
+            <label for="tipo-${idScannerEstados}">Tipo de estado</label>
+            <input type="text" class="form-control mt-1" id="tipo-${idScannerEstados}" name="tipo" placeholder="Tipo de estado">
+        </div>
+        
         <div class="form-group">
         <label for="observaciones-${idScannerEstados}">Observaciones</label>
         <textarea class="form-control" id="observaciones-${idScannerEstados}" name="observaciones"></textarea>
@@ -46,6 +51,33 @@ const formActualizarEstado = `
     </form>
 `;
 
+const rowTablaGestorEntrega = (data, i) => {
+    return `
+    <tr data-ng="${data.numeroGuia}" data-id="${data.id}" id="row-${idGestorEntregaflexii}-${data.id}">
+        <td>${i + 1}</td>
+        <td>${data.numeroGuia}</td>
+        <td>${data.direccion}</td>
+        <td>${data.estado}</td>
+        <td>
+            <button class="btn btn-circle btn-light btn-sm mx-1" data-action="actualizarEstado"><i class="fa fa-check"></i></button>
+        </td>
+        <td>
+        <div class="custom-control custom-switch">
+            <input 
+            type="checkbox" 
+            class="custom-control-input" 
+            id="activacion-${idGestorEntregaflexii}-${data.id}" 
+            data-action="changeStatusRoute"
+            data-action_event="change"
+            value="${data.numeroGuia}"
+            ${data.active ? "checked" : ""}>
+            <label class="custom-control-label" for="activacion-${idGestorEntregaflexii}-${data.id}"></label>
+        </div>
+        </td>
+    </tr>
+    `;
+}
+
 const bodegasEl = $("#bodega-flexii_guia");
 const oficinaDestinoEl = $("#ciudadD-flexii_guia");
 const diceContenerEl = $("#dice_contener-flexii_guia");
@@ -53,4 +85,4 @@ const recoleccionEl = $("#recoleccion_esporadica-flexii_guia");
 const containerQuoterResponse = $("#respuesta-flexii_guia");
 
 
-export { table, bodegasEl, oficinaDestinoEl, diceContenerEl, recoleccionEl, containerQuoterResponse, formActualizarEstado }
+export { table, bodegasEl, oficinaDestinoEl, diceContenerEl, recoleccionEl, containerQuoterResponse, formActualizarEstado, rowTablaGestorEntrega }

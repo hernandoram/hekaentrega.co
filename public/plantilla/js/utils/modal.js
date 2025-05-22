@@ -12,7 +12,7 @@ export default class CreateModal {
     const title = this.title || "Título";
 
     this.modal = new DOMParser().parseFromString(
-      `<div class="modal fade" style="top:100px" id="${this.id}" 
+      `<div class="modal fade" id="${this.id}" 
             tabindex="-1" aria-labelledby="titulo-${
               this.id
             }" aria-hidden="true">

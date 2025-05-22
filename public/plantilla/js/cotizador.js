@@ -256,7 +256,6 @@ function gestionarTransportadora() {
 
 function cambiarTransportadora(nuevaTranps) {
   // Swal.close();
-  console.log("se ha cambiado la transportadora");
   codTransp = nuevaTranps;
   ocultarCotizador();
   // mostrarTransportadora();
@@ -2142,10 +2141,8 @@ function seleccionarTransportadora(e) {
     confirmButtonText: "Continuar",
     buttonsStyling: false,
   }).then((result) => {
-    console.log(result);
     //continúa si el cliente termina seleccionando la transportadora
     if (result.isConfirmed) {
-      console.log(datos_a_enviar);
       datos_a_enviar.peso = result_cotizacion.kgTomado;
       datos_a_enviar.costo_envio = result_cotizacion.costoEnvio;
       datos_a_enviar.valor = result_cotizacion.valor;
@@ -2360,8 +2357,6 @@ function finalizarCotizacion(datos) {
             </select>
         </div>`;
   }
-
-  console.log(configuracionesDestinoActual);
 
   const configuracionCiudadActual = obtenerConfiguracionCiudad(
     datos.transportadora,
@@ -2705,6 +2700,56 @@ function finalizarCotizacion(datos) {
     });
 
   selectores(); // Para que una vez se muestren los elementos de objetos frecuentes en el dom, tenerlos global
+
+  if(datos.transportadora === transportadoras.HEKA.cod) { // Esto activa el componente de búsqueda de google maps
+    loadDirectionMapComponent();
+  }
+}
+
+async function loadDirectionMapComponent() {
+  console.log("Loading component");
+  const { PlaceAutocompleteElement } = await google.maps.importLibrary("places");
+  const elementDirection = document.getElementById("direccionD");
+  const elementBarrio = document.getElementById("barrioD");
+  const parentDirection = elementDirection.parentNode;
+
+  // Create the input HTML element, and append it.
+  const placeAutocomplete = new PlaceAutocompleteElement({
+    includedRegionCodes: ['CO']
+  });
+
+  //@ts-ignore
+  const elementDescription = document.createElement("small");
+  elementDescription.classList.add("form-text", "text-muted");
+  elementDirection.classList.add("d-none");
+  elementBarrio.parentNode.classList.add("d-none");
+  parentDirection.classList.remove("col-sm-6");
+  parentDirection.classList.remove("col-sm-5");
+  parentDirection.classList.add("col-sm-12");
+
+  parentDirection.appendChild(placeAutocomplete);
+  parentDirection.appendChild(elementDescription);
+
+  // Add the gmp-placeselect listener, and display the results.
+  placeAutocomplete.addEventListener('gmp-select', async ({ placePrediction }) => {
+    datos_a_enviar.locationD = null;
+
+    const place = placePrediction.toPlace();
+    await place.fetchFields({ fields: ['displayName', 'formattedAddress', 'location', 'adrFormatAddress', 'displayNameLanguageCode'] });
+
+    const placeDetails = place.toJSON();
+    const {formattedAddress, location, adrFormatAddress} = placeDetails;
+
+    elementDescription.innerHTML = adrFormatAddress;
+    elementDirection.value = formattedAddress;
+    datos_a_enviar.locationD = location;
+
+    console.log(adrFormatAddress);
+    
+    const ciudadGoogleEl = elementDescription.querySelector(".locality");
+    
+    if(ciudadGoogleEl && datos_a_enviar.ciudadD.toUpperCase() != ciudadGoogleEl.innerText.toUpperCase().trim()) ciudadGoogleEl.classList.add("text-danger");
+  });
 }
 
 function cargarUsuariosFrecuentes(personas) {
@@ -4376,6 +4421,8 @@ async function crearGuia() {
         allowEscapeKey: true,
       });
 
+      const observacionDir = datos_a_enviar.transportadora === transportadoras.HEKA.cod ? "" : value("observaciones").trim();
+
       datos_a_enviar.nombreR = value("actualizar_nombreR").trim();
       datos_a_enviar.direccionR = value("actualizar_direccionR").trim();
       datos_a_enviar.nombre_empresa = datos_usuario.nombre_empresa || "";
@@ -4386,7 +4433,7 @@ async function crearGuia() {
       datos_a_enviar.direccionD = [
         value("direccionD").trim(),
         value("barrioD").trim(),
-        value("observaciones").trim()
+        observacionDir
       ].join(" ").trim();
 
       datos_a_enviar.telefonoD = value("telefonoD");

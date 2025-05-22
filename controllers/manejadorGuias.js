@@ -166,6 +166,13 @@ exports.plantearSolucion = async (req, res) => {
   }
 };
 
+exports.htmlSeguimientoPaqueteLogisticaPropia = async (req, res) => {
+  res.render("SeguimientoPaquete", {
+    title: "Seguimiento paquete",
+    layout: "general",
+  });
+}
+
 async function buscarGuia(numeroGuia, coll) {
   return await db
     .collectionGroup(coll)

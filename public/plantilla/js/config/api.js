@@ -1,6 +1,7 @@
-const endpoint = "/Api"; // Esta ruta no se encuentra directamente sobre este proyecto, pero pertenecerà al mismo dominio
+const PROD_API_URL = window.ENV.ENVIRONMENT_NAME; //comentar o descomentar segun el ambiente
+// const endpoint = "/Api"; // Esta ruta no se encuentra directamente sobre este proyecto, pero pertenecerà al mismo dominio
 // const endpoint = "http://localhost:6201/Api";
-// const endpoint = "https://admin.hekaentrega.co/Api";
+const endpoint = "https://admin.hekaentrega.co/Api";
 
 const pathCiudades = endpoint + "/Ciudades";
 const pathCiudadesLista = pathCiudades + "/Lista";
@@ -15,7 +16,10 @@ const v0 = {
     pathEstadisticasCiudad,
     pathCotizador,
     seguimientoEnvios: endpoint + "/Envios/Seguimiento",
-    pdfRelacionEnvio: endpoint + "/Pdf/RelacionEnvios"
+    pdfRelacionEnvio: endpoint + "/Pdf/RelacionEnvios",
+    pathRutaMensajero: endpoint + "/Envios/RutaEntrega/mensajero",
+    pathRutaentrega: endpoint + "/Envios/RutaEntrega",
+    pathEstadosNotificacion: endpoint + "/EstadosNotificacion",
 }
 
 // const endpointV1 = "https://api.hekaentrega.co/Api/v1";
