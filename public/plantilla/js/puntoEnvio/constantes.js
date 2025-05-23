@@ -47,5 +47,3 @@ export const estadoGeneracion = {
     reporter: user_id
 }
 
-
-

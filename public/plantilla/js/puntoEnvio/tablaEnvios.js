@@ -67,7 +67,10 @@ const config = {
   buttons: [],
   scrollY: "60vh",
   scrollX: true,
-  scrollCollapse: true
+  scrollCollapse: true,
+  layout: {
+    topStart: 'toolbar',
+  },
 }
 
 export default class TablaEnvios {
@@ -222,7 +225,19 @@ export default class TablaEnvios {
     this.render(true);
   }
 
+  addFilter(filter) {
+    this.searchInFilter.push(filter);
+  }
+
+  removeFilter(filter) {
+    const index = this.searchInFilter.indexOf(filter);
+    if (index > -1) {
+      this.searchInFilter.splice(index, 1);
+    }
+  }
+
   async reloadData() {
+    // Aca se controla la carga de datos iniciales
     await db.collection("envios")
     .where("id_punto", "==", user_id)
     .where("estado_recepcion", "in", this.searchInFilter)
@@ -231,13 +246,29 @@ export default class TablaEnvios {
       this.table.clear().draw(false);
       this.guias = [];
       q.forEach(d => {
-        const data = d.data();
+        let data = d.data();
+        if (data.estado_recepcion === estadosRecepcion.devuelto) {
+          data = mostrarDevolucion(data);
+        }
         data.id = d.id;
         this.guias.push(data); // Primero hacemos el push global, en caso de que halla un filtrado el "this.add" pueda capturarlo
         this.add(data);
       });
     });
   }
+}
+
+function mostrarDevolucion(envio) {
+  return {
+    ...envio,
+    // Intercambiar códigos DANE
+    idDaneCiudadOrigen: envio.idDaneCiudadDestino,
+    idDaneCiudadDestino: envio.idDaneCiudadOrigen,
+    // Intercambiar información de personas
+    info_origen: { ...envio.info_destino },
+    info_destino: { ...envio.info_origen },
+    
+  };
 }
 
 async function generarRelacion(e, dt, node, config) {

@@ -11,6 +11,22 @@ const principalId = idFlexiiGuia;
 
 const tablaGeneradorPedidos = new TablaEnvios("#contenedor_tabla-" + principalId);
 
+$("#mostrarDevoluciones-flexii_guia").change((e) => {
+    if (e.target.checked) {
+        tablaGeneradorPedidos.addFilter(estadosRecepcion.devuelto);
+    } else {
+        tablaGeneradorPedidos.removeFilter(estadosRecepcion.devuelto);
+    }
+    tablaGeneradorPedidos.reloadData();
+});
+
+async function obtenerGuiasEnEsperaPunto() {
+    tablaGeneradorPedidos.reloadData()
+    .then(() => {
+    });
+}
+
+
 const configSelectize = {
     options: [],
     labelField: "nombre", // el label de lo que se le muestra al usuario por cada opción
@@ -29,7 +45,7 @@ cargarObjetosFrecuentes().then((info) => renderOptionsSelectize(diceContenerEl, 
 
 
 function renderOptionsSelectize(element, options) {
-    if (!options) return;
+    if (!options) return; 
 
     
     const selectorSelectize = element[0].selectize;
@@ -119,8 +135,8 @@ async function cotizarConjunto(e) {
 
 function mostrarListaTransportadoras(consultaCotizacion, respuestaCotizacion) {
     respuestaCotizacion.filter(r => !r.message).forEach((r, i) => {
-        const {entity, total} = r;
-        const transp = entity.toUpperCase();
+        const {distributor_id, total} = r;
+        const transp = distributor_id.toUpperCase();
         const configTransp = transportadoras[transp];
         const pathLogo = configTransp.logoPath;
         
@@ -133,7 +149,7 @@ function mostrarListaTransportadoras(consultaCotizacion, respuestaCotizacion) {
             <img 
                 src="${pathLogo}" 
                 style="max-height:100px; max-width:120px"
-                alt="logo-${entity}"
+                alt="logo-${distributor_id}"
             />
             <h5>Costo de Envío: <b>$${convertirMiles( total )}</b></h5>
         `;
