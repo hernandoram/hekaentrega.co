@@ -80,7 +80,7 @@ export default class TablaEnvios {
   filtradas = [];
   guias = [];
   selectionCityChange = new Watcher(null);
-  searchInFilter = [estadosRecepcion.recibido, estadosRecepcion.validado, estadosRecepcion.devuelto];
+  searchInFilter = [estadosRecepcion.recibido, estadosRecepcion.validado];
 
   constructor(selectorContainer) {
     const container = $(selectorContainer);
@@ -223,6 +223,17 @@ export default class TablaEnvios {
     this.guias = [];
 
     this.render(true);
+  }
+
+  addFilter(filter) {
+    this.searchInFilter.push(filter);
+  }
+
+  removeFilter(filter) {
+    const index = this.searchInFilter.indexOf(filter);
+    if (index > -1) {
+      this.searchInFilter.splice(index, 1);
+    }
   }
 
   async reloadData() {

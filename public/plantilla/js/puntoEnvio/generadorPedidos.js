@@ -38,6 +38,14 @@ const principalTitle = $("#principal_title-" + principalId);
 const anotaciones = new AnotacionesPagos(contenedorAnotaciones);
 const tablaGeneradorPedidos = new TablaEnvios("#contenedor_tabla-" + principalId);
 
+$("#mostrarDevoluciones-flexii_guia").change((e) => {
+    if (e.target.checked) {
+        tablaGeneradorPedidos.addFilter(estadosRecepcion.devuelto);
+    } else {
+        tablaGeneradorPedidos.removeFilter(estadosRecepcion.devuelto);
+    }
+    tablaGeneradorPedidos.reloadData();
+});
 
 async function obtenerGuiasEnEsperaPunto() {
     tablaGeneradorPedidos.reloadData()
