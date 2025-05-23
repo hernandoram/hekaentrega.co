@@ -167,10 +167,15 @@ exports.plantearSolucion = async (req, res) => {
 };
 
 exports.htmlSeguimientoPaqueteLogisticaPropia = async (req, res) => {
-  res.render("SeguimientoPaquete", {
-    title: "Seguimiento paquete",
-    layout: "general",
-  });
+  try {
+    res.render("SeguimientoPaquete", {
+      title: "Seguimiento paquete",
+      layout: "general",
+    });
+  } catch (e) {
+    console.error(e);
+    res.send(e.message);
+  }
 }
 
 async function buscarGuia(numeroGuia, coll) {
