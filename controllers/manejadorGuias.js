@@ -168,7 +168,7 @@ exports.plantearSolucion = async (req, res) => {
 
 exports.htmlSeguimientoPaqueteLogisticaPropia = async (req, res) => {
   try {
-    res.render("SeguimientoPaquete", {
+    res.render("guias/SeguimientoPaquete", {
       title: "Seguimiento paquete",
       layout: "general",
     });
