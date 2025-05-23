@@ -35,11 +35,9 @@
 
   <title>hekaentrega.co</title>
 
-  <!--autocompeltar-->
-  <!-- <script type="text/javascript" src="https://www.aveonline.co/app/incluidos/jquery-1.9.1.min.js"></script>
-  <script type="text/javascript" src="https://www.aveonline.co/app/modulos/utilidades/jquery.autocomplete.min.js"></script> -->
   <!-- Custom fonts for this template-->
   <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">
   
   <!-- Librería para un textarea más dinámico-->
   <link href="./assets/libs/summernote/summernote-bs4.min.css" rel="stylesheet">
@@ -188,6 +186,7 @@
               <a class="collapse-item" href="#flexii_guia_recept">Recibir envíos</a>
               <a class="collapse-item" href="#flexii_guia">Generar pedido</a>
               <a class="collapse-item" href="#scanner_estados_flexii">Actualizar estados</a>
+              <a class="collapse-item" href="#gestor_entrega">Gestor de Entregas</a>
             </div>
           </div>
         </li>
@@ -891,6 +890,48 @@
                 
                 <div id="contenedor_tabla-flexii_guia_recept"></div>
                 <div id="anotaciones-flexii_guia_recept"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="container-fluid flex justify-content-center align-items-cente vista-preferencial" id="gestor_entrega" style="display: none;">
+            
+            <div class="card m-2">
+              <div class="card-body">
+                <h2 class="text-center">
+                  <span id="principal_title-gestor_entrega">Gestor de Entrega</span>
+                </h2>
+                
+                <div class="row">
+                  <div class="col-12 my-2">
+                    <button class="btn btn-primary" id="btn_guardar-gestor_entrega">Guardar Puntos Entrega</button>
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="switch_ubicacion-gestor_entrega">
+                      <label class="custom-control-label" for="switch_ubicacion-gestor_entrega">Compartir Ubicación</label>
+                  </div>
+                  </div>
+                  <div class="col-12 col-md-6 table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Nº</th>
+                          <th>Guia</th>
+                          <th>Dirección</th>
+                          <th>Estado</th>
+                          <th>Actualizar</th>
+                          <th>Activar</th>
+                        </tr>
+                      </thead>
+                      <tbody id="body_tabla-gestor_entrega">
+                        
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="col my-2">
+                    <div id="map-gestor_entrega" style="height: 400px; width: 100%"></div>
+                  </div>
+                </div>
+                <div id="contenedor_tabla-gestor_entrega"></div>
               </div>
             </div>
           </div>
@@ -1957,7 +1998,7 @@
         </div>
       </div>
     </div>
-  </div>  
+  </div> 
 
   <!--Modal para ver detalles de notificaciones-->
   <div class="modal fade" id="modal-detallesNotificacion" data-backdrop="static" tabindex="-1" aria-labelledby="titulo-detallesNotificacion" aria-hidden="true">
@@ -2023,17 +2064,15 @@
                         </div>
                     </div>
                 </div>
-           <div class="panel-collapse collapse panel-chat" id="collapseOne">
-                <div class="panel-body">
-                  <div id="items-chat-notification" class="chat pr-5 pt-4" >
-                            
-                        </div>
+                <div class="panel-collapse collapse panel-chat" id="collapseOne">
+                  <div class="panel-body">
+                    <div id="items-chat-notification" class="chat pr-5 pt-4" ></div>
                   </div>  
-            </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
+  </div>
 
 
   <div class="w-100 position-absolute d-none align-items-center justify-content-center"
@@ -2070,6 +2109,9 @@
     
     <!-- Core plugin JavaScript-->
     <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.touch-punch.min.js"></script>
+    
 
     <script src="./assets/libs/summernote/summernote-bs4.min.js"></script>
     <script src="assets/libs/summernote/lang/summernote-es-ES.min.js"></script>
@@ -2097,7 +2139,9 @@
     <script>
       let administracion = false;
       $(function () {
-        $('[data-toggle="tooltip"]').tooltip()
+        $('[data-toggle="tooltip"]').tooltip({
+          position: { my: "left+5 center", at: "right center" }
+        })
       });
 
       $(function () {
@@ -2122,8 +2166,14 @@
     <script src="js/userPlatform.js" type="module"></script>
     <script src="js/novedadesUser.js"></script>
 
-
-
+    <script>
+      (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
+        key: ENV.MAPS_API_KEY,
+        v: "weekly",
+        // Use the 'v' parameter to indicate the version to use (weekly, beta, alpha, etc.).
+        // Add other bootstrap parameters as needed, using camel case.
+      });
+    </script>
 
  
 </body>

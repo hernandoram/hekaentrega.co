@@ -461,10 +461,6 @@ async function validarEnvios(e, dt, node, config) {
 
   const envios = api.rows().data().toArray();
   for (let envio of envios) {
-    await db.collection("envios")
-    .doc(envio.id)
-    .update({estado_recepcion: estadosRecepcion.validado});
-
     await actualizarEstadoEnvioHeka(envio.id, estadoValidado);
   }
 

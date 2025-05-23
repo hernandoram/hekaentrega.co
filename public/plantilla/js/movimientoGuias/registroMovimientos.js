@@ -1,8 +1,10 @@
+import { estadosRecepcion } from "../puntoEnvio/constantes.js";
 import { mostrarRenderFormNovedades } from "./renderForm.js";
 import { campoFormulario } from "./views.js";
 
 const db = firebase.firestore();
 const referencia = db.collection("infoHeka").doc("novedadesMensajeria");
+const refEstadosNotificacion = db.collection("estadosNotificacion");
 const referencia2 = db.collection("infoHeka").doc("categoriasMensajeria");
 
 
@@ -21,13 +23,13 @@ const idVistaContructorForm = "#editor_form-mensajeria";
 const selListMovimientos = $("#list_novedades-mensajeria"); // select de la lista de movimientos
 const selListFormularios = $("#formulario-mensajeria"); // Select de la lista de formularios
 const visorMensajeria = $("#visor-mensajeria"); // El contenedor principal donde muestra el formulario para editar/crear novedades
-const visorCategoria = $("#categoria-mensajeria"); // El contenedor principal donde muestra el formulario para editar/crear novedades
+const visorTipo = $("#tipo-mensajeria"); // El contenedor principal donde muestra el formulario para editar/crear novedades
 const formRegistro = $("form", visorMensajeria); // Formulario para crear/editar novedades
 const formFormularios = $("#editor_form-mensajeria"); // Formulario para crear/editar un formulario asociado
 const opcionesMovimientos = $("#mensajeria [data-action]"); // Acciones particulares como editar, agregar, etc
 const camposForm = $("#campos_form-mensajeria");
-const botoncategoria= document.getElementById("crear-categoria-boton");
-const inputcategoria= document.getElementById("nueva-categoria");
+const botoncategoria= document.getElementById("crear-tipo-boton");
+const inputcategoria= document.getElementById("nuevo-tipo");
 
 //#endregion
 
@@ -55,25 +57,35 @@ mostrarRegistros();
  * y formularios.
  */
 async function mostrarRegistros() {
+    const lista = await refEstadosNotificacion
+    .orderBy("nombre")
+    .get()
+    .then(q => {
+        const res = [];
+        q.forEach(d => {
+            const data = d.data();
+            data.id = d.id;
+            res.push(data);
+        });
+
+        return res;
+    });
+
+
     // Consulat la lista de mensajes y novedades
-    const {lista, formularios} = await referencia.get().then(d => {
+    const {formularios} = await referencia.get().then(d => {
         if(d.exists) return d.data();
         return {};
     });
 
-    const {listacategorias} = await referencia2.get().then(d => {
-        if(d.exists) return d.data();
-    })
+    const listacategorias = Object.values(estadosRecepcion);
 
     listaRegistros = lista;
     listaFormularios = formularios || [];
     categorias= listacategorias || [];
 
-    console.log(listaRegistros, listaFormularios)
-    console.log(categorias)
-
     // Se llena la lista de movimientos o novedades
-    const opcionesLista = lista.map((l,i) => `<option value="${i}">${l.novedad}</option>`).join("");
+    const opcionesLista = lista.map((l,i) => `<option value="${l.id}">${l.nombre}</option>`).join("");
     selListMovimientos.html(opcionesLista);
     selListMovimientos.prepend("<option value selected>-- Nueva --</option>");
     selListMovimientos.change();
@@ -84,11 +96,11 @@ async function mostrarRegistros() {
     selListFormularios.prepend("<option value selected>-- Nuevo Formulario --</option>");
 
     // Se llena la lista de formularios
-    const opcionesCategoria = categorias.map((l) => `<option value="${l.titulo}">${l.titulo}</option>`).join("");
-    visorCategoria.html(opcionesCategoria);
-    visorCategoria.prepend("<option value='seleccione' selected>-- Seleccione --</option>");
+    const opcionesCategoria = categorias.map((c) => `<option value="${c}">${c}</option>`).join("");
+    visorTipo.html(opcionesCategoria);
+    visorTipo.prepend("<option value='seleccione' selected>-- Seleccione --</option>");
 }
-visorCategoria.on("change", seleccionarCategoria);
+visorTipo.on("change", seleccionarCategoria);
 
 function seleccionarCategoria(e) {
     if (e.target.value == "OTRA"){
@@ -140,11 +152,8 @@ function seleccionarNovedad(e) {
         return;
     }
 
-    // if(!listaRegistros[val].categoria){
-    //     visorCategoria.value="seleccione";
-    // }
     // representa la novedad/movimiento seleciconado
-    const elemento = listaRegistros[val];
+    const elemento = listaRegistros.find(r => r.id === val);
     
     const modulo = "-mensajeria";
     const keys = Object.keys(elemento);
@@ -167,9 +176,9 @@ function seleccionarNovedad(e) {
 
     // Para activar el enveto "onChange" para el formulario asociado
     selListFormularios.val(elemento.formulario);
-    visorCategoria.val(elemento.categoria);
+    visorTipo.val(elemento.tipo);
     selListFormularios.change();
-    visorCategoria.change()
+    visorTipo.change()
 }
 
 /**
@@ -226,7 +235,7 @@ function activarEdicionMensaje() {
 async function guardarRegistro() {
     const idNov = selListMovimientos.val();
 
-    const elemento = listaRegistros[idNov] || {};
+    const elemento = {};
     const booleans = ["notificar_ws", "esNovedad"];
 
     // Para guardar la respuesta del formulario
@@ -250,16 +259,19 @@ async function guardarRegistro() {
     elemento.fecha_actualizacion = new Date();
 
     // Es caso de que sea una novedad inexistente
-    if(Number.isNaN(parseInt(idNov))) {
+    if(idNov) {
         console.log("Se va a guardar uno nuevo");
         elemento.fecha_creacion = new Date();
-        listaRegistros.push(elemento);
     }
 
-    console.log(elemento, listaRegistros, idNov);
+    console.log(elemento, idNov);
+
+    const registro = idNov 
+        ? refEstadosNotificacion.doc(idNov).update(elemento) 
+        : refEstadosNotificacion.add(elemento)
 
     // Se actualiza solo la lista de mensajería
-    referencia.update({lista: listaRegistros})
+    registro
     .then(() => {
         Toast.fire("Registros Actualizados correctamente", "", "success");
         mostrarRegistros();

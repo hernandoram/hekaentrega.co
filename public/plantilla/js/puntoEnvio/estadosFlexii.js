@@ -1,8 +1,9 @@
+import { v0 } from "../config/api.js";
 import { storage } from "../config/firebase.js";
 import AnotacionesPagos from "../pagos/AnotacionesPagos.js";
 import { ChangeElementContenWhileLoading } from "../utils/functions.js";
 import CreateModal from "../utils/modal.js";
-import { idScannerEstados } from "./constantes.js";
+import { estadosRecepcion, idScannerEstados } from "./constantes.js";
 import { actualizarEstadoEnvioHeka } from "./crearPedido.js";
 import TablaEnvios from "./tablaEnvios.js";
 import { formActualizarEstado } from "./views.js";
@@ -34,7 +35,7 @@ const fileInput = $("#scanner_files-" + principalId);
 const tablaEnvios = $("#contenedor_tabla-" + principalId);
 
 btnActivador.on("click", activadorPrincipal);
-btnActualizarEstados.on("click", abrirModalActuaizarEstado);
+btnActualizarEstados.on("click", abrirModalActuaizarEstadoMasivo);
 btnActivadorFiles.on("click", () => fileInput.click());
 btnActivadorLabel.on("change", activarInsercionManual);
 fileInput.on("change", leerImagenQr);
@@ -175,7 +176,7 @@ async function encolarEnvioParaActualizacionEstado(id_envio) {
     Cargador.close();
 }
 
-function abrirModalActuaizarEstado() {
+function abrirModalActuaizarEstadoMasivo() {
     if(!tabla.table.data().length) return Swal.fire({
         icon: "error",
         text: "No existe ninguna guía en la tabla que actualizar"
@@ -208,16 +209,52 @@ function abrirModalActuaizarEstado() {
 
 }
 
+function abrirModalActuaizarEstado(envio) {
+    const modal = new CreateModal({
+        title: "Actualizar estado"
+    });
+
+    modal.init = formActualizarEstado;
+
+    const form = $("form", modal.modal);
+    opccionesFormularioEstados(form);
+
+    modal.onSubmit = (e) => actualizarEstadoEnvioIndividual(e, form[0], envio)
+        .then(res => {
+            modal.res = res;
+            modal.data = res.dataIn ?? null;
+            if(res.error) {
+                return Swal.fire({
+                    icon: "error",
+                    text: res.message
+                })
+            }
+
+            Toast.fire({
+                text: res.message,
+                icon: "success"
+            });
+            modal.close();
+        });
+
+    return modal;
+
+}
+
 let listaEstadosHeka = [];
+
+async function obtenerEstadosHeka() {
+    return await fetch(v0.pathEstadosNotificacion)
+    .then(d => d.json())
+    .then(d => d.body)
+    .catch(e => console.error(e));
+}
+
 async function opccionesFormularioEstados(form) {
     const referenciaEstados = db.collection("infoHeka").doc("novedadesMensajeria");
 
     if(!listaEstadosHeka.length) {
-        const { lista } = await referenciaEstados.get().then((d) => {
-            if (d.exists) return d.data();
-      
-            return {lista: []};
-        });
+        const lista = await obtenerEstadosHeka();
     
         listaEstadosHeka = lista.filter(est => est.transportadora === "HEKA");
     }
@@ -227,6 +264,7 @@ async function opccionesFormularioEstados(form) {
     const inputDescripcionExtraEstado = $(`#descripcion_extra-${idScannerEstados}`, form);
     const switchNovedad = $(`#switch_novedad-${idScannerEstados}`);
     const inputEvidencia = $(`#evidencia-${idScannerEstados}`);
+    const inputTipo = $(`#tipo-${idScannerEstados}`);
     const descripcionPropertyName = inputDescripcionEstado.prop("name");
 
     const activateOptions = (options, input) => {
@@ -236,18 +274,19 @@ async function opccionesFormularioEstados(form) {
         });
     }
 
-    const estados = new Set(listaEstadosHeka.map(est => est.novedad));
+    const estados = new Set(listaEstadosHeka.map(est => est.estado));
     activateOptions(estados, inputEstados);
 
     const filtrarDescripciones = (value) => {
-        const descripciones = listaEstadosHeka.filter(est => est.novedad === value).map(est => est.mensaje).concat(["OTRO"]);
+        const descripciones = listaEstadosHeka.filter(est => est.estado === value).map(est => est.descripcion).concat(["OTRO"]);
     
         activateOptions(descripciones, inputDescripcionEstado);
     }
 
     const activarOpcionesAdicionalesEstado = () => {
-        const existOption = listaEstadosHeka.find(est => est.novedad === inputEstados.val() && inputDescripcionEstado.val() === est.mensaje);
+        const existOption = listaEstadosHeka.find(est => est.estado === inputEstados.val() && inputDescripcionEstado.val() === est.descripcion);
         if(existOption) {
+            inputTipo.val(existOption.tipo ?? "");
             switchNovedad.prop("checked", existOption.esNovedad ?? false);
         }
 
@@ -339,13 +378,7 @@ async function validarImagen(e) {
 
 }
 
-
-async function actualizarEstadoEnvios(e, form) {
-    const l = new ChangeElementContenWhileLoading(e.target);
-    l.init();
-    anotaciones.reset();
-    anotaciones.setContent();
-
+function validacionActualizacionEstado(form) {
     const formData = new FormData(form);
     formData.append("reporter", user_id);
     formData.append("ubicacion", "");
@@ -364,16 +397,25 @@ async function actualizarEstadoEnvios(e, form) {
 
     data.esNovedad = !!data.esNovedad;
 
+    return data;
+}
+
+async function actualizarEstadoEnvios(e, form) {
+    const l = new ChangeElementContenWhileLoading(e.target);
+    l.init();
+    anotaciones.reset();
+    anotaciones.setContent();
+
+    const data = validacionActualizacionEstado(form);
+
+    if(data.error) return data;
+
     const envios = tabla.table.data().toArray();
     let existeError = false;
     tabla.clean();
     while(envios.length) {
         const envio = envios.shift();
-        const idEnvio = envio.id;
-
-        await guardarEvidencia(idEnvio, data);
-
-        const resActualizacion = await actualizarEstadoEnvioHeka(idEnvio, data);
+        const resActualizacion = await guardarEstadoEnvioDiligenciado(envio, data);
         if(resActualizacion.error) {
             existeError = true;
             anotaciones.addError(envio.numeroGuia + " - " + resActualizacion.body);
@@ -385,8 +427,33 @@ async function actualizarEstadoEnvios(e, form) {
 
     return {
         error: existeError,
-        message: existeError ? "Hubo al menos un error en una de las guías al actualizar" : "Todas las guías han ssido actualizadas correctamente"
+        message: existeError ? "Hubo al menos un error en una de las guías al actualizar" : "Todas las guías han sido actualizadas correctamente"
     };
 }
 
-export { abrirModalActuaizarEstado }
+async function actualizarEstadoEnvioIndividual(e, form, envio) {
+    const l = new ChangeElementContenWhileLoading(e.target);
+    l.init();
+
+    const data = validacionActualizacionEstado(form);
+
+    if(data.error) return data;
+
+    const res = await guardarEstadoEnvioDiligenciado(envio, data);
+    res.message = res.body.message; // Simplemente para que se muestre, ya que en la respuesta se espera un message
+    res.dataIn = data;
+
+    l.end();
+
+    return res
+}
+
+async function guardarEstadoEnvioDiligenciado(envio, data) {
+    const {id} = envio;
+    await guardarEvidencia(id, data);
+
+    return await actualizarEstadoEnvioHeka(id, data);
+
+}
+
+export { abrirModalActuaizarEstadoMasivo, abrirModalActuaizarEstado }

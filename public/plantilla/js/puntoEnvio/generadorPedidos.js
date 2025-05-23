@@ -8,34 +8,7 @@ import TablaEnvios from "./tablaEnvios.js";
 import { bodegasEl, diceContenerEl, oficinaDestinoEl, containerQuoterResponse } from "./views.js";
 
 const principalId = idFlexiiGuia;
-const principalHash = "#" + principalId;
-const scannerIdentifier = "id";
 
-
-const config = { 
-    fps: 2, qrbox: {width: 250, height: 250}
-    // rememberLastUsedCamera: false,
-}
-
-const textsButton = {
-    reanudar: "Reanudar escáner",
-    detener: "Detener escáner",
-    validar: "Validar envío"
-}
-
-const idElement = "reader-" + principalId;
-const contenedorAnotaciones = $("#anotaciones-" + principalId);
-const btnActivador = $("#activador_scanner-" + principalId);
-const btnActivadorFiles = $("#activador_files-" + principalId);
-const btnActivadorLabel = $("#activador_label-" + principalId);
-const inputIdEnvio = $("#id_envio-" + principalId);
-const fileInput = $("#scanner_files-" + principalId);
-const switchModo = $("#switch_modo-" + principalId);
-const contenedorCotizador = $("#contenedor_cotizador-" + principalId);
-const contenederReceptor = $("#receptor-" + principalId);
-const principalTitle = $("#principal_title-" + principalId);
-
-const anotaciones = new AnotacionesPagos(contenedorAnotaciones);
 const tablaGeneradorPedidos = new TablaEnvios("#contenedor_tabla-" + principalId);
 
 $("#mostrarDevoluciones-flexii_guia").change((e) => {
