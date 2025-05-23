@@ -135,8 +135,8 @@ async function cotizarConjunto(e) {
 
 function mostrarListaTransportadoras(consultaCotizacion, respuestaCotizacion) {
     respuestaCotizacion.filter(r => !r.message).forEach((r, i) => {
-        const {entity, total} = r;
-        const transp = entity.toUpperCase();
+        const {distributor_id, total} = r;
+        const transp = distributor_id.toUpperCase();
         const configTransp = transportadoras[transp];
         const pathLogo = configTransp.logoPath;
         
@@ -149,7 +149,7 @@ function mostrarListaTransportadoras(consultaCotizacion, respuestaCotizacion) {
             <img 
                 src="${pathLogo}" 
                 style="max-height:100px; max-width:120px"
-                alt="logo-${entity}"
+                alt="logo-${distributor_id}"
             />
             <h5>Costo de Envío: <b>$${convertirMiles( total )}</b></h5>
         `;
