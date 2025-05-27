@@ -2364,14 +2364,12 @@ function mostrarPagosAdmin(datos) {
         return 0;
       }
     })
-    .reduce(
-      (a, b) => {
-        if (a["REMITENTE"] != b["REMITENTE"]) {
-          centros_costo.push(b["REMITENTE"]);
+    .forEach(
+      (cc) => {
+        if (!centros_costo.includes(cc["REMITENTE"])) {
+          centros_costo.push(cc["REMITENTE"]);
         }
-        return b;
-      },
-      { REMITENTE: "" }
+      }
     );
 
   const dowloader = document.createElement("button");

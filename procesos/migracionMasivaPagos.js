@@ -211,3 +211,61 @@ function actualizacionDePendientesPorPagar() {
         })
     })
 }
+
+// actualizarPaqPagos()
+// .then(() => process.exit());
+async function actualizarPaqPagos(id) {
+    
+    const pagos = await obtenerPagoPorIdPaquete(id);
+
+    const actualizacion = pagos.reduce((a,b) => {
+        a.comision_heka += b["COMISION HEKA"];
+        a.comision_logistica_propia += b.comision_logistica_propia ?? 0;
+        a.comision_heka_facturacion += b.comision_heka_facturacion;
+        a.comision_transportadora += b.comision_transportadora;
+        a.total_pagado += b['TOTAL A PAGAR'];
+        a.comision_natural_heka += b.comision_natural_heka ?? 0;
+        a.cuatro_x_mil_banco += b.cuatro_x_mil_banco ?? 0;
+        a.cuatro_x_mil_transp += b.cuatro_x_mil_transp ?? 0;
+        a.iva += b.iva ?? 0;
+
+        return a;
+    }, {
+        comision_heka: 0,
+        comision_logistica_propia: 0,
+        comision_heka_facturacion: 0,
+        comision_transportadora: 0,
+        total_pagado: 0,
+        comision_natural_heka: 0,
+        cuatro_x_mil_banco: 0,
+        cuatro_x_mil_transp: 0,
+        iva: 0
+    });
+    
+    actualizacion.cantidad_pagos = pagos.length;
+
+    console.log(actualizacion);
+
+    await db.collection("paquetePagos").doc(id)
+    .update(actualizacion)
+    .then(() => console.log("Paquete actualizado correctamente"));
+}
+
+async function obtenerPagoPorIdPaquete(id) {
+
+    let result = [];
+
+    for ( let t of transportadorasTo ) {
+        await db.collection("pagos")
+        .doc(t).collection("pagos")
+        .where("idPaquetePago", "==", id)
+        .get()
+        .then(q => {
+            q.forEach(d => {
+                result.push(d.data());
+            });
+        })
+    }
+
+    return result;
+}

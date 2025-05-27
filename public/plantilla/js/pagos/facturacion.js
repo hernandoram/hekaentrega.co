@@ -31,6 +31,12 @@ const columns = [
         render: $.fn.DataTable.render.number(".", null, null, "$ ")
     },
     { 
+        data: "comision_logistica_propia", 
+        title: "Comisión Propia",
+        defaultContent: "N/A",
+        render: $.fn.DataTable.render.number(".", null, null, "$ ")
+    },
+    { 
         data: "comision_transportadora", 
         title: "Comisión Transportadora",
         defaultContent: "N/A",
@@ -469,6 +475,8 @@ async function verDetallesPagos(data) {
         loader.init();
         
         if(!pagoFacturacionRevisado[data.id]) {
+            // pagoFacturacionRevisado[data.id] = await cargarInfoPagoPorIdRelacionado(data.id);
+            
             const promisePagos = data.guiasPagadas.map(cargarInfoPagoPorGuia);
             pagoFacturacionRevisado[data.id] = await Promise.all(promisePagos);
         }
@@ -586,7 +594,7 @@ async function cargarInfoPagoPorGuia(guiaRefrencia) {
 async function cargarInfoPagoPorIdRelacionado(idPaquetePago) {
     const pagosRealizados = [];
     for (let transp of transportadoras) {
-        data = await db.collection("pagos")
+        await db.collection("pagos")
         .doc(transp).collection("pagos")
         .where("idPaquetePago", "==", idPaquetePago)
         .get()
@@ -621,15 +629,18 @@ function transportadoraProbable(guia) {
 
 
 function mostrarTablaHija(arrData) {
+    const totalOf = key => "$ " + convertirMiles(arrData.map(d => Number(d[key])).reduce((a,b) => a + b));
+
     return `
         <table class="table table-bordered table-sm w-100">
             <thead class="table-dark sticky-top">
                 <tr>
                     <th>Transportadora</th>
                     <th>Guía</th>
-                    <th>Recaudo</th>
-                    <th>Envío Total</th>
-                    <th>Comisión Heka</th>
+                    <th>Recaudo <small>( ${totalOf("RECAUDO")} )</small></th>
+                    <th>Envío Total <small>( ${totalOf("ENVÍO TOTAL")} )</small></th>
+                    <th>Comisión Heka <small>( ${totalOf("COMISION HEKA")} )</small></th>
+                    <th>Total a Pagar <small>( ${totalOf("TOTAL A PAGAR")} )</small></th>
                     <th>Tipo</th>
                 </tr>
             </thead>
@@ -645,6 +656,7 @@ function mostrarTablaHija(arrData) {
                             <td>${data["RECAUDO"]}</td>
                             <td>${data["ENVÍO TOTAL"]}</td>
                             <td>${data["COMISION HEKA"]}</td>
+                            <td>${data["TOTAL A PAGAR"]}</td>
                             <td>${data["estado"] ?? "N/A"}</td>
                         </tr>
                         `
