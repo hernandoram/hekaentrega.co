@@ -331,12 +331,18 @@ exports.modificarEstadoGuia = (guia) => {
     estadoActual,
     enNovedad,
   } = guia;
+
   const estadosFinalizacion = estadosFinalizacionPorTransportadora(
     transportadora || "SERVIENTREGA"
   );
+
+  const diasMaximaAntiguedadPermitidaActualizacion = 365; // Días que una guía debe estar disponible para actualización, e caso que cumpla este tiempo, automáticamente se marca la guía como finalizada
+  const guiaMuyAntigua = ( Date.now() - guia.timeline ) / ( diasMaximaAntiguedadPermitidaActualizacion * 24 * 60 * 60 * 1000 ) >= 1;
+
   const seguimiento_finalizado = estadosFinalizacion.includes(
     guia.estadoTransportadora
-  );
+  ) || guiaMuyAntigua;
+
   const estados = this.estadosGuia;
 
   const actualizaciones = {

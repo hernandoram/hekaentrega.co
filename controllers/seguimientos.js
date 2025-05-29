@@ -275,7 +275,7 @@ async function actualizarMovimientosGuias(querySnapshot) {
         }
         
         let guias_procesadas = await Promise.all(resultado_guias);
-        console.log("Finalizó la ejecución de procesos");
+        console.log("Finalizó la ejecución de actualización de movimiento de guías");
         for(let guia of guias_procesadas) {
             if(guia.length == 1) {
                 consulta.guias_con_errores ++;
@@ -307,13 +307,13 @@ async function actualizarMovimientosGuias(querySnapshot) {
                 
         return consulta;
     } catch (error) {
-        console.log(error);
+        console.error(error);
         firebase.firestore().collection("reporte").add({
             error: error.message,
             mensaje: "Hubo un error al actualizar.",
             fecha: new Date()
         });
-        console.log("Hubo un error,es probable que no se haya actualizado nada.")
+        console.error("Hubo un error, es probable que no se haya actualizado nada.");
         return consulta;
     }
 }
@@ -328,6 +328,7 @@ async function busquedaPaginada(ref, next, segmento = 0) {
     return await consulta
     .get().then(async q => {
         const t = q.size;
+        q.rangoActualizacion = ref.rangoActualizacion ?? 0;
         let analisis = await actualizarMovimientosGuias(q);
 
         let historia = [analisis];
