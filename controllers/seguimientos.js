@@ -173,6 +173,8 @@ async function actualizarMovimientosGuias(querySnapshot) {
         const MAX_INTER = 5; // El máximo impuesto por inter son 10
         let acumuladosInter = [];
         
+        const MAX_LOTE_SERVI = 100;
+        let contadorServi = 0;
         // throw "no babe"
 
         //Objeto que se va llenando paral luego mostrarme los detalles del proceso
@@ -201,6 +203,7 @@ async function actualizarMovimientosGuias(querySnapshot) {
             const sePuedeActualizar = !hasidoEntregadaAPunto && !estadoCongelado && ultimaActualizacionValida;
 
             if (existeNumeroGuia && sePuedeActualizar) {
+                console.log("Procesando guía: ", data.numeroGuia);
                 if (consulta.usuarios.indexOf(doc.data().centro_de_costo) == -1) {
                     consulta.usuarios.push(doc.data().centro_de_costo);
                 }
@@ -232,8 +235,16 @@ async function actualizarMovimientosGuias(querySnapshot) {
                     }
                 } else {
                     consulta.servientrega ++
+                    // Se va a hacer una espera cada 100 lote antes de lanzar el próximo para dar una pequeña espera
+                    // por cada MAX_LOTE_SERVI consultas
+                    if(contadorServi < MAX_LOTE_SERVI) {
+                        guia = servientregaCtrl.actualizarMovimientos(doc);
+                        contadorServi++;
+                    } else {
+                        guia = await servientregaCtrl.actualizarMovimientos(doc);
+                        contadorServi = 0;
+                    }
                     // continue
-                    guia = servientregaCtrl.actualizarMovimientos(doc);
                 }
 
                 /* Es IMPORTANTE que "guia" me devuelva un arreglo de objeto con longitud de 2
@@ -389,7 +400,7 @@ function normalizarReporte(reporte) {
 
 async function actualizarMovimientos() {
     const referencia = referenciaGuias
-    .where("seguimiento_finalizado", "!=", true)
+    .where("seguimiento_finalizado", "==", false)
     .limit(maxPagination);
 
     referencia.rangoActualizacion = 4; // Rango de tiempo entre última actualización para proceder a actualizar la guía

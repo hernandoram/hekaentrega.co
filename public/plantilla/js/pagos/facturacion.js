@@ -31,6 +31,12 @@ const columns = [
         render: $.fn.DataTable.render.number(".", null, null, "$ ")
     },
     { 
+        data: "comision_heka_facturacion", 
+        title: "Comisión Heka Fact.",
+        defaultContent: "---",
+        render: $.fn.DataTable.render.number(".", null, null, "$ ")
+    },
+    { 
         data: "comision_logistica_propia", 
         title: "Comisión Propia",
         defaultContent: "N/A",
@@ -64,7 +70,7 @@ const dataTable = $("#table-pagos_facturacion").DataTable({
     destroy: true,
     data: null,
     rowId: "row_id",
-    order: [[5, "asc"]], // Se está ordenando por número de factura
+    order: [[8, "asc"]], // Se está ordenando por número de factura
     columns,
     language: {
       url: "https://cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json",
@@ -629,7 +635,7 @@ function transportadoraProbable(guia) {
 
 
 function mostrarTablaHija(arrData) {
-    const totalOf = key => "$ " + convertirMiles(arrData.map(d => Number(d[key])).reduce((a,b) => a + b));
+    const totalOf = key => "$ " + convertirMiles(arrData.map(d => (Number(d[key]) ?? 0)).reduce((a,b) => a + b));
 
     return `
         <table class="table table-bordered table-sm w-100">
@@ -653,7 +659,7 @@ function mostrarTablaHija(arrData) {
                         <tr>
                             <td>${data["TRANSPORTADORA"]}</td>
                             <td>${data["GUIA"]}</td>
-                            <td>${data["RECAUDO"]}</td>
+                            <td>${data["RECAUDO"] ?? 0}</td>
                             <td>${data["ENVÍO TOTAL"]}</td>
                             <td>${data["COMISION HEKA"]}</td>
                             <td>${data["TOTAL A PAGAR"]}</td>

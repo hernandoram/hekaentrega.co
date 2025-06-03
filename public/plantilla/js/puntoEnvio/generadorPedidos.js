@@ -1,7 +1,7 @@
 import { cotizarApi } from "../cotizador/cotizadorApi.js";
 import { TranslatorFromApi } from "../cotizador/translator.js";
 import AnotacionesPagos from "../pagos/AnotacionesPagos.js";
-import { ChangeElementContenWhileLoading } from "../utils/functions.js";
+import { ChangeElementContenWhileLoading, fetchApp2 } from "../utils/functions.js";
 import { estadoRecibido, estadosRecepcion, idFlexiiGuia } from "./constantes.js";
 import { actualizarEstadoEnvioHeka, dataValueSelectedFromInput, crearPedidoEnvios } from "./crearPedido.js";
 import TablaEnvios from "./tablaEnvios.js";
@@ -31,11 +31,11 @@ const configSelectize = {
     options: [],
     labelField: "nombre", // el label de lo que se le muestra al usuario por cada opción
     valueField: "id", // el valor que será guardado, una vez el lusuario seleccione dicha opción
-    searchField: ["nombre"] // El criterio de filtrado para el input
+    searchField: ["nombre", "label"] // El criterio de filtrado para el input
 };
 
 bodegasEl.selectize(configSelectize);
-oficinaDestinoEl.selectize(configSelectize);
+oficinaDestinoEl.selectize({...configSelectize, labelField: "label"});
 diceContenerEl.selectize(configSelectize)
 
 bodegasWtch.watchFromLast((info) => renderOptionsSelectize(bodegasEl, info));
@@ -55,7 +55,15 @@ function renderOptionsSelectize(element, options) {
     options.forEach(data => selectorSelectize.addOption(data));
 }
 
+let direccionesDestino = [];
 async function obtenerUsuariosFrecuentes(daneCiudad) {
+    if(!direccionesDestino.length) {
+        direccionesDestino = await obtenerBodegasPuntosDestino();
+    }
+
+    console.log(daneCiudad, direccionesDestino);
+    return direccionesDestino.filter(c => c.daneCiudad === daneCiudad);
+
     const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(
         "plantillasUsuariosFrecuentes"
     );
@@ -77,6 +85,69 @@ async function obtenerUsuariosFrecuentes(daneCiudad) {
     return opciones;
 }
 
+async function obtenerBodegasPuntosDestino() {
+    // 1. Obtenemos la lista de usuarios de tipo punto y/o mensajero
+    const usuarios = await db.collection("usuarios")
+    .where("type", "in",  ["PUNTO", "MENSAJERO"])
+    .get()
+    .then(q => {
+        const res = [];
+
+        q.forEach(d => {
+            res.push(d.data());
+        });
+
+        return res;
+    });
+
+    // 2. Con los centro de costo, obtenemos información del id Usuairo en refactor
+    const usuariosMongo = [];
+    await Promise.all(usuarios.map(async u => {
+        const user = await fetchApp2(`/api/v1/user?company_name_id=${u.centro_de_costo}&limit=1`).send();
+        
+        if(user && user.code === 200) {
+            usuariosMongo.push(user.response);
+            return user
+        } else {
+            console.error("Error obteniendo datos de usuario", user);
+            return null;
+        }
+    }));
+
+    // 3. Con la información de los id de usuario de refactor, sacamos las bodegas de cada uno
+    const bodegas = [];
+    await Promise.all(usuariosMongo.map(async u => {
+        const bodega = await fetchApp2(`/api/v1/warehouse?user=${u._id}`).send();
+        
+        if(bodega && bodega.code === 200) {
+            bodegas.push(...bodega.response.rows);
+            return bodega
+        } else {
+            console.error("Error obteniendo datos de bodega: ", bodega);
+            return null;
+        }
+    }));
+
+    // 4. Finalmente retornamos la lista de bodegas con la estructura que se necesita para el proceso de creación de guía
+    return bodegas.map(b => {
+        return {
+            label: [b.name, "-", b.user.company_name].join(" ").trim(),
+            nombre: [b.user.name, b.user.last_name].join(" ").trim(), // Nombre del usuario destino
+            documentoIdentidad: b.user.document,
+            direccionDestinatario: b.address.trim(),
+            barrio: b.neighborhood.trim(),
+            celular: b.user.phone,
+            otroCelular: b.user.phone,
+            email: b.user.email,
+            observaciones: "",
+            ciudad: b.city.label,
+            daneCiudad: b.city.dane,
+            tipoDocumento: b.user.type_document,
+            departamento: b.city.state.label,
+            id: b._id
+        }
+    });
+}
 
 $("#cotizador-" + principalId).on("submit", cotizarConjunto);
 async function cotizarConjunto(e) {

@@ -7,10 +7,10 @@ cron.schedule("00 */6 * * *", () => {
     let d = new Date();
     console.log("Se vana a ctualizar los movimientos de las guías: ", d);
     actualizarMovimientos().then((detalles) => {
-        console.log(JSON.stringify(detalles));
         detalles.usuariosAnalizados = detalles.usuarios.length;
         delete detalles.usuarios;
-
+        
+        console.log(JSON.stringify(detalles));
         firebase.firestore().collection("reporte").add(detalles);
     });
 }, {
