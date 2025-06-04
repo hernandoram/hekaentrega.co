@@ -61,7 +61,6 @@ async function obtenerUsuariosFrecuentes(daneCiudad) {
         direccionesDestino = await obtenerBodegasPuntosDestino();
     }
 
-    console.log(daneCiudad, direccionesDestino);
     return direccionesDestino.filter(c => c.daneCiudad === daneCiudad);
 
     const referenciaUsuariosFrecuentes = usuarioAltDoc().collection(

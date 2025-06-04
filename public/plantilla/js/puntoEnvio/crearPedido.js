@@ -113,7 +113,8 @@ async function empacarGuiaPedido(idEnvio, idHekaCreado) {
     return await db.collection("envios").doc(idEnvio)
     .update({
         id_agrupacion_guia: idHekaCreado, 
-        estado_recepcion: estadosRecepcion.empacado
+        estado_recepcion: estadosRecepcion.empacado,
+        id_punto: "" // A este momento el punto actual deja de ser el dueño actual del envío (tendría qeu volverlo a validar)
     })
     .then(r => ({error: false, message: "Envío actualizado correctamente"}))
     .catch(e => ({error: true, message: e.message}));

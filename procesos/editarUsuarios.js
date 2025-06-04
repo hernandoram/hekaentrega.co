@@ -2,10 +2,10 @@ const XLSX = require("xlsx");
 const path = require("path");
 const db = require("../keys/firebase.js").firestore()
 
-const ws = XLSX.readFile("../procesos/Para corregir en plataforma.xlsx");
+// const ws = XLSX.readFile("../procesos/Para corregir en plataforma.xlsx");
 
 
-const usuarios =  XLSX.utils.sheet_to_json(ws.Sheets[ws.SheetNames[0]], {header: "A1"});
+// const usuarios =  XLSX.utils.sheet_to_json(ws.Sheets[ws.SheetNames[0]], {header: "A1"});
 
 // editarUsuarios();
 async function editarUsuarios() {
@@ -73,4 +73,28 @@ function cambiarSistemaTransportadoraEnUsuario(buscador) {
             });
         })
     })
+}
+
+async function asignarReferido(data) {
+    const refReferido = db.collection("referidos").doc(data.sellerReferido);
+    const existeReferido = await refReferido.get().then(d => d.exists);
+    if(existeReferido) throw new Error("El usuario referido ya se encuentra asignado.");
+
+    const usuarioReferido = await db.collection("usuarios")
+    .where("centro_de_costo", "==", data.sellerReferido)
+    .limit(1)
+    .get()
+    .then(q => q.size ? q.docs[0].data() : null);
+    if(!usuarioReferido) throw new Error("El usuario referido que se desea asignar no existe.");
+
+    data.cantidadEnvios = 0;
+    data.cantidadReclamos = 0;
+    data.enviosPorReclamar = 0;
+    data.enviosReclamados = 0;
+    data.celularReferido = usuarioReferido.celular;
+    data.nombreApellido = [usuarioReferido.nombres.trim(), usuarioReferido.apellidos.trim()].join(" ");
+
+    refReferido.set(data)
+    .then(() => console.log("Usuario agregado correctamente"))
+    .finally(() => process.exit());
 }
