@@ -134,8 +134,8 @@ function redirectLogin() {
     icon: "error",
     confirmButtonText: "OK",
   }).then(() => {
-    localStorage.clear();
-    location.href = `${PROD_API_URL_PLATFORM2}/ingreso?cs=1`;
+    // localStorage.clear();
+    // location.href = `${PROD_API_URL_PLATFORM2}/ingreso?cs=1`;
   });
 }
 (async () => {

@@ -2845,16 +2845,16 @@ async function gestionarNovedadModal(dataN, dataG, botonSolucionarExterno) {
     mensajeGetionada = dataG.novedad_solucionada
       ? "<p class='text-success text-center'>Esta guía ya ha sido gestionada en base a la última solución enviada.</p>"
       : "",
-    ultimaActualizacion = dataG.ultima_actualizacion ? `<small class="col-12 text-center text-muted">última actualización: ${genFecha("LR", dataG.ultima_actualizacion.toMillis())}</small>` : "";
+    ultimaActualizacion = dataG.ultima_actualizacion ? `<small class="d-block text-center text-muted">última actualización: ${genFecha("LR", dataG.ultima_actualizacion.toMillis())}</small>` : "",
     desplegadores = new DOMParser().parseFromString(
       `
             <div class="col-12">
               ${mensajeGetionada}
-            </div>
-            ${ultimaActualizacion}
-            <div class="btn-group mb-3 col-12" role="group">
-              <button class="btn btn-primary" type="button" data-toggle="collapse" id="btn-historial-estados-gestionarNovedad" data-target="#historial-estados-gestionarNovedad" aria-expanded="false" aria-controls="historial-estados-gestionarNovedad">Historial Estados</button>
-              <button class="btn btn-primary" type="button" data-toggle="collapse" id="btn-seguimiento-gestionarNovedad" data-target="#seguimiento-gestionarNovedad" aria-expanded="false" aria-controls="seguimiento-gestionarNovedad">Seguimiento</button>
+              ${ultimaActualizacion}
+              <div class="btn-group mb-3 w-100" role="group">
+                <button class="btn btn-primary" type="button" data-toggle="collapse" id="btn-historial-estados-gestionarNovedad" data-target="#historial-estados-gestionarNovedad" aria-expanded="false" aria-controls="historial-estados-gestionarNovedad">Historial Estados</button>
+                <button class="btn btn-primary" type="button" data-toggle="collapse" id="btn-seguimiento-gestionarNovedad" data-target="#seguimiento-gestionarNovedad" aria-expanded="false" aria-controls="seguimiento-gestionarNovedad">Seguimiento</button>
+              </div>
             </div>
             `,
       "text/html"
