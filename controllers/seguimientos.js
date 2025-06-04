@@ -267,7 +267,7 @@ async function actualizarMovimientosGuias(querySnapshot) {
             }
             
             if(!ultimaActualizacionValida) {
-                resultado_guias.push(new Promise((r) => r([{causa: `Esta guía ya fue actualizada hace menos de ${horaRazonableActualizacion} horas.`}])));
+                resultado_guias.push(new Promise((r) => r([{causa: `Esta guía de ${data.transportadora} ya fue actualizada hace menos de ${horaRazonableActualizacion} horas.`}])));
             }
 
             faltantes--;
