@@ -385,6 +385,10 @@ class ControlUsuario {
 
   static loader = null;
 
+  static get esMensajero() {  
+    return datos_usuario.type === "MENSAJERO";
+  }
+
   static get esPuntoEnvio() {
     return datos_usuario.type === "PUNTO";
   }
@@ -678,13 +682,6 @@ function limitarAccesoSegunTipoUsuario() {
       "contenedor-solucion_novedad-interrapidisimo"
     ];
   } else if (ControlUsuario.esPuntoEnvio) {
-    vistasPreferenciales = [
-      "flexii_guia",
-      "flexii_guia_recept",
-      "scanner_estados_flexii",
-      "gestor_entrega",
-      "nav_item-flexii_envios"
-    ];
   } else if (ControlUsuario.inHouse) {
     quitarVistas = [
       "usuarios",
@@ -713,6 +710,23 @@ function limitarAccesoSegunTipoUsuario() {
       "sidebar_heading-usuarios",
       "nav_item-usuarios",
       "nav_item-bodegas"
+    ];
+  } else if (ControlUsuario.esMensajero) {
+    // quitarVistas = [
+    //   "cotizar_envio",
+    //   "tienda",
+    //   "buscar_guia",
+    //   "documentos",
+    //   "manifiestos",
+    //   "crear_guia",
+    //   "deudas"
+    // ];
+    vistasPreferenciales = [
+      "flexii_guia",
+      "flexii_guia_recept",
+      "scanner_estados_flexii",
+      "gestor_entrega",
+      "nav_item-flexii_envios"
     ];
   }
 
